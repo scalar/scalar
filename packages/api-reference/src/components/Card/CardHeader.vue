@@ -20,9 +20,9 @@ const props = defineProps<CardContentProps>()
 </template>
 <style scoped>
 .scalar-card-header {
-  font-weight: var(--scalar-semibold);
-  font-size: var(--scalar-mini);
-  color: var(--scalar-color-3);
+  font-size: var(--scalar-small);
+  color: var(--scalar-color-1);
+  font-weight: var(--scalar-font-medium);
   padding: 9px 3px 9px 12px;
   flex-shrink: 0;
 }
@@ -36,7 +36,6 @@ const props = defineProps<CardContentProps>()
 }
 
 .scalar-card-header-title {
-  text-transform: uppercase;
   flex: 1;
   min-width: 0;
   text-overflow: ellipsis;

@@ -13,7 +13,7 @@ const { cx } = useBindCx()
     ">
     <div
       v-if="$slots.title"
-      class="request-response-header bg-b-1 -mb-1/2 sticky top-0 z-1 flex min-h-11 items-center border-b px-2.5 text-sm font-medium xl:rounded-none">
+      class="request-response-header bg-b-1 -mb-1/2 sticky top-0 z-1 flex min-h-11 items-center border-b px-2.5 text-base font-medium xl:rounded-none">
       <slot name="title" />
     </div>
     <slot />

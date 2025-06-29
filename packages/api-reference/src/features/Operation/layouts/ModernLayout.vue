@@ -72,6 +72,7 @@ const handleDiscriminatorChange = (type: string) => {
     tabindex="-1">
     <SectionContent :loading="config.isLoading">
       <Badge
+        class="capitalize"
         v-if="getOperationStability(operation)"
         :class="getOperationStabilityColor(operation)">
         {{ getOperationStability(operation) }}

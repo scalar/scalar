@@ -55,7 +55,7 @@ const getCurrentContent = () => {
 <style scoped>
 :deep(.cm-editor) {
   background-color: transparent;
-  font-size: var(--scalar-mini);
+  font-size: var(--scalar-small);
   outline: none;
 }
 :deep(.cm-gutters) {

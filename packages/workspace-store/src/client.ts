@@ -1,19 +1,21 @@
-import type { WorkspaceMeta, WorkspaceDocumentMeta, Workspace } from './schemas/workspace'
-import { createMagicProxy, getRaw } from './helpers/proxy'
-import { deepClone, isObject } from '@/helpers/general'
-import { getValueByPath } from '@/helpers/json-path-utils'
+import YAML from 'yaml'
+import { reactive, toRaw } from 'vue'
 import { bundle, upgrade } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins-browser'
+
 import { createNavigation, type createNavigationOptions } from '@/navigation'
+import type { DeepTransform } from '@/types'
+import { createMagicProxy, getRaw } from '@/helpers/proxy'
+import { deepClone, isObject } from '@/helpers/general'
+import { mergeObjects } from '@/helpers/merge-object'
+import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
+import { getValueByPath } from '@/helpers/json-path-utils'
+import type { WorkspaceMeta, WorkspaceDocumentMeta, Workspace } from '@/schemas/workspace'
 import { extensions } from '@/schemas/extensions'
-import { reactive, toRaw } from 'vue'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema } from '@/schemas/v3.1/strict/openapi-document'
-import { defaultReferenceConfig, type ReferenceConfig } from '@/schemas/reference-config'
-import { mergeObjects } from '@/helpers/merge-object'
-import type { DeepTransform } from '@/types'
-import YAML from 'yaml'
-import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
+import { defaultReferenceConfig } from '@/schemas/reference-config'
+import type { Config } from '@/schemas/workspace-specification/config'
 
 /**
  * Input type for workspace document metadata and configuration.
@@ -52,13 +54,6 @@ type ObjectDoc = {
  * - ObjectDoc: Direct document object with metadata
  */
 type WorkspaceDocumentInput = UrlDoc | ObjectDoc
-
-/**
- * Configuration object for workspace documents.
- */
-type Config = {
-  'x-scalar-reference-config'?: ReferenceConfig
-}
 
 const defaultConfig: DeepTransform<Config, 'NonNullable'> = {
   'x-scalar-reference-config': defaultReferenceConfig,
@@ -104,6 +99,7 @@ type WorkspaceProps = {
   meta?: WorkspaceMeta
   /** In-mem open api documents. Async source documents (like URLs) can be loaded after initialization */
   documents?: ObjectDoc[]
+  /** Workspace configuration */
   config?: Config
 }
 

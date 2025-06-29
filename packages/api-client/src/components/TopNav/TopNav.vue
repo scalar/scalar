@@ -213,7 +213,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
     <!-- Add a draggable overlay -->
     <div class="app-drag-region absolute inset-0" />
     <div
-      class="relative flex h-10 flex-1 items-center gap-1.5 overflow-hidden pr-2.5 text-sm font-medium">
+      class="relative flex h-10 flex-1 items-center gap-1.5 overflow-hidden pr-2.5 text-base font-medium">
       <template v-if="topNavItems.length === 1">
         <div class="h-full w-full overflow-hidden">
           <ScalarContextMenu

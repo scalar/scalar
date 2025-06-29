@@ -638,6 +638,6 @@ const selectedExample = computed({
 </template>
 <style scoped>
 :deep(.cm-content) {
-  font-size: var(--scalar-mini);
+  font-size: var(--scalar-small);
 }
 </style>

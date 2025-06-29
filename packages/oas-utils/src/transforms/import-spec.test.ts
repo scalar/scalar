@@ -1324,4 +1324,104 @@ describe('getServersFromOpenApiDocument', () => {
     // Restore the original window.location
     vi.stubGlobal('location', originalLocation)
   })
+
+  it('uses document URL as server when no servers are defined in document', async () => {
+    const result = await importSpecToWorkspace(
+      {
+        // No servers defined in the document
+      },
+      {
+        documentUrl: 'https://example.com/openapi.json',
+      },
+    )
+
+    if (result.error) {
+      throw result.error
+    }
+
+    expect(result.servers).toMatchObject([{ url: 'https://example.com' }])
+  })
+
+  it('uses document URL without path as server when no servers are defined', async () => {
+    const result = await importSpecToWorkspace(
+      {
+        // No servers defined in the document
+      },
+      {
+        documentUrl: 'https://api.example.com/v2/openapi.yaml',
+      },
+    )
+
+    if (result.error) {
+      throw result.error
+    }
+
+    expect(result.servers).toMatchObject([{ url: 'https://api.example.com' }])
+  })
+
+  it('combines the documentUrl and the relative server URL', async () => {
+    const result = await importSpecToWorkspace(
+      {
+        servers: [{ url: '/api/v1' }],
+      },
+      {
+        documentUrl: 'https://example.com/openapi.json',
+      },
+    )
+
+    if (result.error) {
+      throw result.error
+    }
+
+    expect(result.servers).toMatchObject([{ url: 'https://example.com/api/v1' }])
+  })
+
+  it('prioritizes document URL over window.location when no servers are defined', async () => {
+    const originalLocation = typeof window !== 'undefined' ? window.location : { origin: undefined }
+    vi.stubGlobal('window', {
+      location: {
+        origin: 'http://localhost:3000',
+      },
+    })
+
+    const result = await importSpecToWorkspace(
+      {
+        // No servers defined in the document
+      },
+      {
+        documentUrl: 'https://example.com/openapi.json',
+      },
+    )
+
+    if (result.error) {
+      throw result.error
+    }
+
+    expect(result.servers).toMatchObject([{ url: 'https://example.com' }])
+
+    // Restore the original window.location
+    vi.stubGlobal('location', originalLocation)
+  })
+
+  it('falls back to window.location when no document URL and no servers are defined', async () => {
+    const originalLocation = typeof window !== 'undefined' ? window.location : { origin: undefined }
+    vi.stubGlobal('window', {
+      location: {
+        origin: 'http://localhost:3000',
+      },
+    })
+
+    const result = await importSpecToWorkspace({
+      // No servers defined in the document
+    })
+
+    if (result.error) {
+      throw result.error
+    }
+
+    expect(result.servers).toMatchObject([{ url: 'http://localhost:3000' }])
+
+    // Restore the original window.location
+    vi.stubGlobal('location', originalLocation)
+  })
 })
