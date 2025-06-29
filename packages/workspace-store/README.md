@@ -284,3 +284,73 @@ console.log(store.config['x-scalar-reference-config'].features.showModels)
 ```
 
 When no configuration is provided it will return the default configuration
+
+#### Document Persistence and Export
+
+The workspace store provides several methods for managing document persistence and exporting:
+
+##### Download Document
+
+Export the active document in JSON or YAML format:
+
+```ts
+// Download the active document as JSON
+const jsonString = store.download('json')
+
+// Download the active document as YAML
+const yamlString = store.download('yaml')
+```
+
+The download method returns the original, unmodified document (before any reactive wrapping) to preserve the initial structure without external references or modifications.
+
+##### Save Document Changes
+
+Persist the current state of the active document back to the original document:
+
+```ts
+// Save the current document state
+const excludedDiffs = store.save()
+
+// Check if any changes were excluded from being applied
+if (excludedDiffs) {
+  console.log('Some changes were excluded:', excludedDiffs)
+}
+```
+
+The save method takes the current reactive document state and persists it. It returns an array of diffs that were excluded from being applied or undefined if no active document is available.
+
+##### Revert Document Changes
+
+Revert the active document to its original state, discarding all unsaved changes:
+
+```ts
+// Revert the active document to its original state
+store.revert()
+```
+
+The revert method restores the active document to its initial state by copying the original document (before any modifications) back to the active document.
+
+**Warning:** This operation will discard all unsaved changes to the active document.
+
+##### Complete Example
+
+```ts
+const store = createWorkspaceStore({
+  documents: [
+    {
+      name: 'api',
+      document: {
+        openapi: '3.0.0',
+        info: { title: 'My API', version: '1.0.0' },
+        paths: {},
+      },
+    },
+  ],
+})
+
+// Make some changes to the document
+store.workspace.activeDocument.info.title = 'Updated API Title'
+
+// This will restore the original title since we did not commit the changes yet
+store.revert()
+```
