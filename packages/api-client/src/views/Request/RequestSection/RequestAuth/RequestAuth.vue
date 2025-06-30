@@ -255,12 +255,14 @@ const schemeOptions = computed(() =>
       </div>
     </template>
     <template #actions>
-      <div class="-mx-1 flex flex-1">
+      <div class="absolute right-1 flex flex-1">
         <ScalarComboboxMultiselect
           class="w-72 text-xs"
           :isDeletable="clientLayout !== 'modal' && layout !== 'reference'"
           :modelValue="selectedSchemeOptions"
+          teleport
           multiple
+          placement="bottom-end"
           :options="schemeOptions"
           @delete="handleDeleteScheme"
           @update:modelValue="updateSelectedAuth">
