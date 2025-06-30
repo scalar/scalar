@@ -30,6 +30,7 @@ import { pythonRequests } from '@/plugins/python/requests'
 import { pythonHttpxSync, pythonHttpxAsync } from '@/plugins/python/httpx'
 import { rHttr } from '@/plugins/r/httr'
 import { rubyNative } from '@/plugins/ruby/native'
+import { rustReqwestAsync, rustReqwestSync } from '@/plugins/rust/reqwest'
 import { shellCurl } from '@/plugins/shell/curl'
 import { shellHttpie } from '@/plugins/shell/httpie'
 import { shellWget } from '@/plugins/shell/wget'
@@ -141,6 +142,12 @@ export const clients: Target[] = [
     title: 'Ruby',
     default: 'native',
     clients: [rubyNative],
+  },
+  {
+    key: 'rust',
+    title: 'Rust',
+    default: 'reqwest',
+    clients: [rustReqwestAsync, rustReqwestSync],
   },
   {
     key: 'shell',
