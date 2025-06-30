@@ -77,6 +77,7 @@ const deleteSchemeModal = useModal()
 const selectedScheme = ref<{ id: SecurityScheme['uid']; label: string } | null>(
   null,
 )
+const isViewLayoutOpen = ref(false)
 
 /** Security requirements for the request */
 const securityRequirements = computed(() => {
@@ -107,20 +108,8 @@ const authIndicator = computed(() => {
 
   const icon: Icon = isOptional ? 'Unlock' : 'Lock'
 
-  /** Dynamic text to indicate auth requirements */
-  const requiredText = isOptional ? 'Optional' : 'Required'
-  const nameKey =
-    filteredRequirements.length === 1
-      ? (() => {
-          // Get the keys of the first requirement
-          const keys = Object.keys(filteredRequirements[0] || {})
-
-          // If there are multiple keys, join them with ' & '
-          return keys.length > 1 ? keys.join(' & ') : keys[0] || ''
-        })()
-      : ''
-
-  const text = `${nameKey} ${requiredText}`
+  /** Text to indicate auth requirements */
+  const text = isOptional ? 'Optional' : 'Required'
 
   return { icon, text }
 })
@@ -234,33 +223,46 @@ const schemeOptions = computed(() =>
     clientLayout === 'modal' || layout === 'reference',
   ),
 )
+
+const openAuthCombobox = (event: Event) => {
+  // If the layout is open, we don't want it to close on auth label click
+  if (isViewLayoutOpen.value) {
+    event.stopPropagation()
+  }
+
+  comboboxButtonRef.value?.$el.click()
+}
 </script>
 <template>
   <ViewLayoutCollapse
     class="group/params"
     :itemCount="selectedSchemeOptions.length"
-    :layout="layout">
+    :layout="layout"
+    @update:modelValue="isViewLayoutOpen = $event">
     <template #title>
       <div
         :id="titleId"
-        class="inline-flex items-center gap-1">
+        class="inline-flex items-center gap-0.5">
         <span>{{ title }}</span>
         <!-- Authentication indicator -->
         <span
           v-if="authIndicator"
-          class="text-c-3 text-xs leading-[normal]"
-          :class="{ 'text-c-1': authIndicator.text === 'Required' }">
+          class="text-c-3 hover:bg-b-3 hover:text-c-1 -mr-1 cursor-pointer rounded px-1 py-0.5 text-xs leading-[normal]"
+          :class="{ 'text-c-1': authIndicator.text === 'Required' }"
+          @click="openAuthCombobox">
           {{ authIndicator.text }}
         </span>
       </div>
     </template>
     <template #actions>
-      <div class="-mx-1 flex flex-1">
+      <div class="absolute right-1 flex flex-1">
         <ScalarComboboxMultiselect
           class="w-72 text-xs"
           :isDeletable="clientLayout !== 'modal' && layout !== 'reference'"
           :modelValue="selectedSchemeOptions"
+          teleport
           multiple
+          placement="bottom-end"
           :options="schemeOptions"
           @delete="handleDeleteScheme"
           @update:modelValue="updateSelectedAuth">

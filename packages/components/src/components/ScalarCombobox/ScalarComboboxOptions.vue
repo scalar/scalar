@@ -1,14 +1,6 @@
 <script setup lang="ts">
 import { ScalarIconMagnifyingGlass } from '@scalar/icons'
-import {
-  computed,
-  nextTick,
-  onMounted,
-  ref,
-  useId,
-  useTemplateRef,
-  watch,
-} from 'vue'
+import { computed, nextTick, onMounted, ref, useId, watch } from 'vue'
 
 import ComboboxOption from './ScalarComboboxOption.vue'
 import ComboboxOptionGroup from './ScalarComboboxOptionGroup.vue'
@@ -137,8 +129,8 @@ function moveActive(dir: 1 | -1) {
   })
 }
 
-// Manual autofocus for the inputAdd commentMore actions
-const input = useTemplateRef('input')
+// Manual autofocus for the input
+const input = ref<HTMLInputElement | null>(null)
 nextTick(() => input.value?.focus())
 </script>
 <template>
