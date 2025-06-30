@@ -1,9 +1,9 @@
-import { describe, it, expect } from 'vitest'
+import type { TraversedOperation, TraversedTag } from '@/features/traverse-schema/types'
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { TagGroup } from '@scalar/types/legacy'
-import type { TraversedEntry, TraversedOperation, TraversedTag } from '@/features/traverse-schema/types'
+import { describe, expect, it } from 'vitest'
 import { traverseTags } from './traverse-tags'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
 describe('traverseTags', () => {
   // Helper function to create a mock OpenAPI document
@@ -21,15 +21,21 @@ describe('traverseTags', () => {
   })
 
   // Helper function to create a mock sidebar entry
-  const createMockEntry = (title: string, method?: HttpMethod): TraversedEntry => ({
+  const createMockEntry = (title: string, method?: HttpMethod): TraversedOperation => ({
     id: `entry-${title}`,
+    type: 'operation',
     title,
+    method: method as OpenAPIV3_1.HttpMethods,
+    path: '/',
+    operation: {
+      summary: title,
+    },
     ...(method && { method }),
   })
 
   it('should handle empty tags map', () => {
     const document = createMockDocument()
-    const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
+    const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedOperation[] }>()
     const titlesMap = new Map<string, string>()
     const options = {
       getTagId: (tag: OpenAPIV3_1.TagObject) => tag.name ?? '',

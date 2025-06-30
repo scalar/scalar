@@ -1,11 +1,11 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
+import type { TagsMap, TraverseSpecOptions, TraversedEntry } from '@/features/traverse-schema/types'
 import { traverseDescription } from './traverse-description'
 import { traversePaths } from './traverse-paths'
 import { traverseSchemas } from './traverse-schemas'
 import { traverseTags } from './traverse-tags'
 import { traverseWebhooks } from './traverse-webhooks'
-import type { TagsMap, TraverseSpecOptions, TraversedEntry } from '@/features/traverse-schema/types'
 
 /**
  * Travers the OpenAPI Document and ensure we only do it once
@@ -43,6 +43,7 @@ export const traverseDocument = (
   // Add untagged webhooks
   if (untaggedWebhooks.length) {
     entries.push({
+      type: 'heading',
       id: getWebhookId(),
       isWebhooks: true,
       title: 'Webhooks',
@@ -57,9 +58,13 @@ export const traverseDocument = (
     if (models.length) {
       entries.push({
         id: getModelId(),
+        type: 'heading',
         title: 'Models',
+        isModels: true,
         children: models,
       })
+
+      titles.set(getModelId(), 'Models')
     }
   }
 

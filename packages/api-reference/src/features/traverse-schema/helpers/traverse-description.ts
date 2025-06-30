@@ -36,6 +36,7 @@ export const traverseDescription = (
     const title = heading.value
 
     entries.push({
+      type: 'description',
       id,
       title,
     })
@@ -49,6 +50,7 @@ export const traverseDescription = (
     }
 
     const entry: TraversedDescription = {
+      type: 'description',
       id: getHeadingId(heading),
       title: heading.value,
     }

@@ -1,8 +1,8 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { TagGroup } from '@scalar/types/legacy'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import type { TagGroup } from '@scalar/types/legacy'
 
-import type { TagsMap, TraversedEntry, TraversedTag } from '@/features/traverse-schema/types'
+import type { TagsMap, TraversedEntry, TraversedTag, TraversedTagGroup } from '@/features/traverse-schema'
 import type { UseNavState } from '@/hooks/useNavState'
 import { getTag } from './get-tag'
 
@@ -13,14 +13,16 @@ const createTagEntry = (
   tag: OpenAPIV3_1.TagObject,
   titlesMap: Map<string, string>,
   getTagId: UseNavState['getTagId'],
-  children: TraversedEntry[],
+  children: (TraversedTag | TraversedOperation | TraversedWebhook)[],
   isGroup = false,
-): TraversedTag => {
+): TraversedTagGroup => {
   const id = getTagId(tag)
   const title = tag['x-displayName'] || tag.name || 'Untitled Tag'
+
   titlesMap.set(id, title)
 
   return {
+    type: 'tag',
     id,
     title,
     tag,
@@ -122,6 +124,7 @@ export const traverseTags = (
         tagsSorter,
         operationsSorter,
       })
+
       return entries.length ? createTagEntry(tagGroup, titlesMap, getTagId, entries, true) : []
     })
   }

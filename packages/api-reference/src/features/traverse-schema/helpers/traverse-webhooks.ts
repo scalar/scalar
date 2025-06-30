@@ -18,6 +18,7 @@ const createWebhookEntry = (
   titlesMap.set(id, title)
 
   return {
+    type: 'webhook',
     id,
     title,
     name,

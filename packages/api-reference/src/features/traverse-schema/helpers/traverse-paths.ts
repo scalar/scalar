@@ -1,6 +1,6 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
-import type { TraversedEntry, TraversedOperation } from '@/features/traverse-schema/types'
+import type { TraversedOperation } from '@/features/traverse-schema/types'
 import type { UseNavState } from '@/hooks/useNavState'
 import { httpMethods } from '@scalar/helpers/http/http-methods'
 import { getTag } from './get-tag'
@@ -19,6 +19,7 @@ const createOperationEntry = (
   titlesMap.set(id, title)
 
   return {
+    type: 'operation',
     id,
     title,
     path,
@@ -35,7 +36,7 @@ const createOperationEntry = (
 export const traversePaths = (
   content: OpenAPIV3_1.Document,
   /** Map of tags and their entries */
-  tagsMap: Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>,
+  tagsMap: Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedOperation[] }>,
   /** Map of titles for the mobile header */
   titlesMap: Map<string, string>,
   getOperationId: UseNavState['getOperationId'],

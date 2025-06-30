@@ -1,3 +1,4 @@
+import type { TraversedTag } from '@/features/traverse-schema'
 import { useNavState } from '@/hooks/useNavState'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
@@ -1313,6 +1314,80 @@ describe('createSidebar', () => {
           },
         ],
       })
+    })
+  })
+
+  describe('entry types', () => {
+    it('assigns the correct type to each entry', () => {
+      const content = ref({
+        openapi: '3.1.0',
+        info: {
+          title: 'Comprehensive API',
+          version: '1.0.0',
+          description: '# Introduction',
+        },
+        'x-tagGroups': [
+          {
+            name: 'My Tag Group',
+            tags: ['pets'],
+          },
+        ],
+        tags: [
+          {
+            name: 'pets',
+            description: 'Everything about your Pets',
+          },
+        ],
+        paths: {
+          '/pets': {
+            get: {
+              summary: 'List all pets',
+              tags: ['pets'],
+            },
+          },
+        },
+        webhooks: {
+          newPet: {
+            post: {
+              summary: 'New pet webhook',
+            },
+          },
+        },
+        components: {
+          schemas: {
+            Pet: {
+              type: 'object',
+              title: 'The Pet Model',
+            },
+          },
+        },
+      } as OpenAPIV3_1.Document)
+
+      const {
+        items: { value: sidebar },
+      } = createSidebar(content, mockOptions)
+
+      // Description
+      expect(sidebar.entries[0]).toHaveProperty('type', 'description')
+
+      // Tag Group
+      const tagGroup = sidebar.entries[1]
+      expect(tagGroup).toHaveProperty('type', 'tag')
+      expect((tagGroup as unknown as TraversedTag).children[0]).toHaveProperty('type', 'tag')
+      expect(((tagGroup as unknown as TraversedTag).children[0] as unknown as TraversedTag).children[0]).toHaveProperty(
+        'type',
+        'operation',
+      )
+
+      // Webhooks
+      const webhooks = sidebar.entries[2]
+      expect(webhooks).toHaveProperty('type', 'heading')
+      expect((webhooks as unknown as TraversedTag).children[0]).toHaveProperty('type', 'webhook')
+
+      // Models
+      const models = sidebar.entries[3]
+      expect(models).toHaveProperty('type', 'heading')
+      expect((models as unknown as TraversedTag).children[0]).toHaveProperty('type', 'model')
     })
   })
 })
