@@ -2,6 +2,7 @@ import type { BaseParameter } from '@scalar/types/legacy'
 
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
+import type { Operation } from '@/entities/spec'
 import { getExampleFromSchema } from './get-example-from-schema'
 
 /**
@@ -13,7 +14,7 @@ import { getExampleFromSchema } from './get-example-from-schema'
  * - Swagger 2.0: Possible values are "query", "header", "path", "formData" or "body".
  */
 export function getParametersFromOperation(
-  operationParameters: OpenAPIV3_1.ParameterObject[] = [],
+  operationParameters: Operation['parameters'] = [],
   pathParameters: OpenAPIV3_1.ParameterObject[] = [],
   where: 'query' | 'header' | 'path' | 'cookie' | 'formData' | 'body',
   requiredOnly: boolean = true,

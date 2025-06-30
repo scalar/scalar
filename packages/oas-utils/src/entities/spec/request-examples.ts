@@ -5,11 +5,11 @@ import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
 import { z } from 'zod'
 
 import { getRequestBodyFromOperation } from '@/spec-getters/get-request-body-from-operation'
-import type { RequestParameter, ParameterContent } from './parameters'
-import type { Request } from './requests'
-import type { Server } from './server'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
+import type { ParameterContent, RequestParameter } from './parameters'
+import type { Request } from './requests'
+import type { Server } from './server'
 
 // ---------------------------------------------------------------------------
 // Example Parameters
@@ -444,12 +444,7 @@ export function createExampleFromRequest(request: Request, name: string, server?
   // If we have a request body or a content type header
   // TODO: we don't even handle path parameters here
   if (request.requestBody || contentTypeHeader?.value) {
-    const requestBody = getRequestBodyFromOperation({
-      information: {
-        parameters: request.parameters ?? [],
-        requestBody: request.requestBody,
-      },
-    })
+    const requestBody = getRequestBodyFromOperation(request)
 
     const contentType = request.requestBody ? requestBody?.mimeType : contentTypeHeader?.value
 

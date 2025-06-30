@@ -1,6 +1,7 @@
 import { json2xml } from '@scalar/helpers/file/json2xml'
-import type { ContentType, TransformedOperation } from '@scalar/types/legacy'
+import type { ContentType } from '@scalar/types/legacy'
 
+import type { Operation } from '@/entities/spec'
 import { normalizeMimeTypeObject } from '@/helpers/normalize-mime-type-object'
 import { prettyPrintJson } from '@/helpers/pretty-print-json'
 import { getExampleFromSchema } from './get-example-from-schema'
@@ -49,7 +50,7 @@ const standardMimeTypes: ContentType[] = [
  * Get the request body from the operation.
  */
 export function getRequestBodyFromOperation(
-  operation: Pick<TransformedOperation, 'pathParameters' | 'information'>,
+  operation: Pick<Operation, 'requestBody' | 'parameters'>,
   selectedExampleKey?: string | number,
   omitEmptyAndOptionalProperties?: boolean,
 ): {
@@ -60,7 +61,7 @@ export function getRequestBodyFromOperation(
     value?: string | File
   }[]
 } | null {
-  const originalContent = operation.information?.requestBody?.content
+  const originalContent = operation.requestBody?.content
   const content = normalizeMimeTypeObject(originalContent)
 
   // First try to find a standard mime type
@@ -93,8 +94,9 @@ export function getRequestBodyFromOperation(
    * parameters cannot exist together for the same operation.”
    */
   const bodyParameters = getParametersFromOperation(
-    operation.information?.parameters ?? [],
-    operation.pathParameters ?? [],
+    operation.parameters ?? [],
+    // TODO: Add path parameters
+    [], // operation.path ?? [],
     'body',
     false,
   )
