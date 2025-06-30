@@ -1,35 +1,35 @@
 import { describe, expect, it } from 'vitest'
 
-import { rustReqwestSync } from './sync'
+import { rustReqwest } from './reqwest'
 
-describe('rustReqwestSync', () => {
+describe('rustReqwest', () => {
   it('returns a basic request', () => {
-    const result = rustReqwestSync.generate({
+    const result = rustReqwest.generate({
       url: 'https://example.com',
     })
 
-    expect(result).toBe(`let client = reqwest::blocking::Client::new();
+    expect(result).toBe(`let client = reqwest::Client::new();
 let request = client.get("https://example.com");
-let response = request.send()?;
-let body = response.text()?;
+let response = request.send().await?;
+let body = response.text().await?;
 `)
   })
 
   it('returns a POST request', () => {
-    const result = rustReqwestSync.generate({
+    const result = rustReqwest.generate({
       url: 'https://example.com',
       method: 'post',
     })
 
-    expect(result).toBe(`let client = reqwest::blocking::Client::new();
+    expect(result).toBe(`let client = reqwest::Client::new();
 let request = client.post("https://example.com");
-let response = request.send()?;
-let body = response.text()?;
+let response = request.send().await?;
+let body = response.text().await?;
 `)
   })
 
   it('has headers', () => {
-    const result = rustReqwestSync.generate({
+    const result = rustReqwest.generate({
       url: 'https://example.com',
       headers: [
         {
@@ -39,29 +39,29 @@ let body = response.text()?;
       ],
     })
 
-    expect(result).toBe(`let client = reqwest::blocking::Client::new();
+    expect(result).toBe(`let client = reqwest::Client::new();
 let request = client.get("https://example.com")
     .header("Content-Type", "application/json");
-let response = request.send()?;
-let body = response.text()?;
+let response = request.send().await?;
+let body = response.text().await?;
 `)
   })
 
   it(`doesn't add empty headers`, () => {
-    const result = rustReqwestSync.generate({
+    const result = rustReqwest.generate({
       url: 'https://example.com',
       headers: [],
     })
 
-    expect(result).toBe(`let client = reqwest::blocking::Client::new();
+    expect(result).toBe(`let client = reqwest::Client::new();
 let request = client.get("https://example.com");
-let response = request.send()?;
-let body = response.text()?;
+let response = request.send().await?;
+let body = response.text().await?;
 `)
   })
 
   it('has JSON body', () => {
-    const result = rustReqwestSync.generate({
+    const result = rustReqwest.generate({
       url: 'https://example.com',
       method: 'POST',
       headers: [
@@ -78,17 +78,17 @@ let body = response.text()?;
       },
     })
 
-    expect(result).toBe(`let client = reqwest::blocking::Client::new();
+    expect(result).toBe(`let client = reqwest::Client::new();
 let request = client.post("https://example.com")
     .header("Content-Type", "application/json")
     .json(&serde_json::json!({"hello":"world"}));
-let response = request.send()?;
-let body = response.json::<serde_json::Value>()?;
+let response = request.send().await?;
+let body = response.json::<serde_json::Value>().await?;
 `)
   })
 
   it('has query string', () => {
-    const result = rustReqwestSync.generate({
+    const result = rustReqwest.generate({
       url: 'https://example.com',
       queryString: [
         {
@@ -102,15 +102,15 @@ let body = response.json::<serde_json::Value>()?;
       ],
     })
 
-    expect(result).toBe(`let client = reqwest::blocking::Client::new();
+    expect(result).toBe(`let client = reqwest::Client::new();
 let request = client.get("https://example.com?foo=bar&bar=foo");
-let response = request.send()?;
-let body = response.text()?;
+let response = request.send().await?;
+let body = response.text().await?;
 `)
   })
 
   it('has cookies', () => {
-    const result = rustReqwestSync.generate({
+    const result = rustReqwest.generate({
       url: 'https://example.com',
       cookies: [
         {
@@ -124,29 +124,29 @@ let body = response.text()?;
       ],
     })
 
-    expect(result).toBe(`let client = reqwest::blocking::Client::new();
+    expect(result).toBe(`let client = reqwest::Client::new();
 let request = client.get("https://example.com")
     .header("Cookie", "foo=bar; bar=foo");
-let response = request.send()?;
-let body = response.text()?;
+let response = request.send().await?;
+let body = response.text().await?;
 `)
   })
 
   it(`doesn't add empty cookies`, () => {
-    const result = rustReqwestSync.generate({
+    const result = rustReqwest.generate({
       url: 'https://example.com',
       cookies: [],
     })
 
-    expect(result).toBe(`let client = reqwest::blocking::Client::new();
+    expect(result).toBe(`let client = reqwest::Client::new();
 let request = client.get("https://example.com");
-let response = request.send()?;
-let body = response.text()?;
+let response = request.send().await?;
+let body = response.text().await?;
 `)
   })
 
   it('adds basic auth credentials', () => {
-    const result = rustReqwestSync.generate(
+    const result = rustReqwest.generate(
       {
         url: 'https://example.com',
       },
@@ -158,28 +158,28 @@ let body = response.text()?;
       },
     )
 
-    expect(result).toBe(`let client = reqwest::blocking::Client::new();
+    expect(result).toBe(`let client = reqwest::Client::new();
 let request = client.get("https://example.com")
     .basic_auth("user", "pass");
-let response = request.send()?;
-let body = response.text()?;
+let response = request.send().await?;
+let body = response.text().await?;
 `)
   })
 
   it('omits auth when not provided', () => {
-    const result = rustReqwestSync.generate({
+    const result = rustReqwest.generate({
       url: 'https://example.com',
     })
 
-    expect(result).toBe(`let client = reqwest::blocking::Client::new();
+    expect(result).toBe(`let client = reqwest::Client::new();
 let request = client.get("https://example.com");
-let response = request.send()?;
-let body = response.text()?;
+let response = request.send().await?;
+let body = response.text().await?;
 `)
   })
 
   it('omits auth when username is missing', () => {
-    const result = rustReqwestSync.generate(
+    const result = rustReqwest.generate(
       {
         url: 'https://example.com',
       },
@@ -191,15 +191,15 @@ let body = response.text()?;
       },
     )
 
-    expect(result).toBe(`let client = reqwest::blocking::Client::new();
+    expect(result).toBe(`let client = reqwest::Client::new();
 let request = client.get("https://example.com");
-let response = request.send()?;
-let body = response.text()?;
+let response = request.send().await?;
+let body = response.text().await?;
 `)
   })
 
   it('omits auth when password is missing', () => {
-    const result = rustReqwestSync.generate(
+    const result = rustReqwest.generate(
       {
         url: 'https://example.com',
       },
@@ -211,15 +211,15 @@ let body = response.text()?;
       },
     )
 
-    expect(result).toBe(`let client = reqwest::blocking::Client::new();
+    expect(result).toBe(`let client = reqwest::Client::new();
 let request = client.get("https://example.com");
-let response = request.send()?;
-let body = response.text()?;
+let response = request.send().await?;
+let body = response.text().await?;
 `)
   })
 
   it('handles special characters in auth credentials', () => {
-    const result = rustReqwestSync.generate(
+    const result = rustReqwest.generate(
       {
         url: 'https://example.com',
       },
@@ -231,16 +231,16 @@ let body = response.text()?;
       },
     )
 
-    expect(result).toBe(`let client = reqwest::blocking::Client::new();
+    expect(result).toBe(`let client = reqwest::Client::new();
 let request = client.get("https://example.com")
     .basic_auth("user@example.com", "pass:word!");
-let response = request.send()?;
-let body = response.text()?;
+let response = request.send().await?;
+let body = response.text().await?;
 `)
   })
 
   it('handles undefined auth object', () => {
-    const result = rustReqwestSync.generate(
+    const result = rustReqwest.generate(
       {
         url: 'https://example.com',
       },
@@ -249,15 +249,15 @@ let body = response.text()?;
       },
     )
 
-    expect(result).toBe(`let client = reqwest::blocking::Client::new();
+    expect(result).toBe(`let client = reqwest::Client::new();
 let request = client.get("https://example.com");
-let response = request.send()?;
-let body = response.text()?;
+let response = request.send().await?;
+let body = response.text().await?;
 `)
   })
 
   it('handles multipart form data with files', () => {
-    const result = rustReqwestSync.generate({
+    const result = rustReqwest.generate({
       url: 'https://example.com',
       method: 'POST',
       postData: {
@@ -275,7 +275,7 @@ let body = response.text()?;
       },
     })
 
-    expect(result).toBe(`let client = reqwest::blocking::Client::new();
+    expect(result).toBe(`let client = reqwest::Client::new();
 let request = client.post("https://example.com")
     .multipart({
         let mut form = reqwest::multipart::Form::new();
@@ -285,13 +285,13 @@ let request = client.post("https://example.com")
         form = form.text("field", "value");
             form
         });
-let response = request.send()?;
-let body = response.text()?;
+let response = request.send().await?;
+let body = response.text().await?;
 `)
   })
 
   it('handles url-encoded form data with special characters', () => {
-    const result = rustReqwestSync.generate({
+    const result = rustReqwest.generate({
       url: 'https://example.com',
       method: 'POST',
       postData: {
@@ -305,16 +305,16 @@ let body = response.text()?;
       },
     })
 
-    expect(result).toBe(`let client = reqwest::blocking::Client::new();
+    expect(result).toBe(`let client = reqwest::Client::new();
 let request = client.post("https://example.com")
     .form(&[("special chars!@#", "value")]);
-let response = request.send()?;
-let body = response.text()?;
+let response = request.send().await?;
+let body = response.text().await?;
 `)
   })
 
   it('handles binary data flag', () => {
-    const result = rustReqwestSync.generate({
+    const result = rustReqwest.generate({
       url: 'https://example.com',
       method: 'POST',
       postData: {
@@ -323,16 +323,16 @@ let body = response.text()?;
       },
     })
 
-    expect(result).toBe(`let client = reqwest::blocking::Client::new();
+    expect(result).toBe(`let client = reqwest::Client::new();
 let request = client.post("https://example.com")
     .body("binary content");
-let response = request.send()?;
-let body = response.text()?;
+let response = request.send().await?;
+let body = response.text().await?;
 `)
   })
 
   it('handles compressed response', () => {
-    const result = rustReqwestSync.generate({
+    const result = rustReqwest.generate({
       url: 'https://example.com',
       headers: [
         {
@@ -342,28 +342,28 @@ let body = response.text()?;
       ],
     })
 
-    expect(result).toBe(`let client = reqwest::blocking::Client::new();
+    expect(result).toBe(`let client = reqwest::Client::new();
 let request = client.get("https://example.com")
     .header("Accept-Encoding", "gzip, deflate");
-let response = request.send()?;
-let body = response.text()?;
+let response = request.send().await?;
+let body = response.text().await?;
 `)
   })
 
   it('handles special characters in URL', () => {
-    const result = rustReqwestSync.generate({
+    const result = rustReqwest.generate({
       url: 'https://example.com/path with spaces/[brackets]',
     })
 
-    expect(result).toBe(`let client = reqwest::blocking::Client::new();
+    expect(result).toBe(`let client = reqwest::Client::new();
 let request = client.get("https://example.com/path with spaces/[brackets]");
-let response = request.send()?;
-let body = response.text()?;
+let response = request.send().await?;
+let body = response.text().await?;
 `)
   })
 
   it('handles special characters in query parameters', () => {
-    const result = rustReqwestSync.generate({
+    const result = rustReqwest.generate({
       url: 'https://example.com',
       queryString: [
         {
@@ -377,39 +377,39 @@ let body = response.text()?;
       ],
     })
 
-    expect(result).toBe(`let client = reqwest::blocking::Client::new();
+    expect(result).toBe(`let client = reqwest::Client::new();
 let request = client.get("https://example.com?q=hello%20world%20%26%20more&special=!%40%23%24%25%5E%26*()");
-let response = request.send()?;
-let body = response.text()?;
+let response = request.send().await?;
+let body = response.text().await?;
 `)
   })
 
   it('handles empty URL', () => {
-    const result = rustReqwestSync.generate({
+    const result = rustReqwest.generate({
       url: '',
     })
 
-    expect(result).toBe(`let client = reqwest::blocking::Client::new();
+    expect(result).toBe(`let client = reqwest::Client::new();
 let request = client.get("");
-let response = request.send()?;
-let body = response.text()?;
+let response = request.send().await?;
+let body = response.text().await?;
 `)
   })
 
   it('handles extremely long URLs', () => {
-    const result = rustReqwestSync.generate({
+    const result = rustReqwest.generate({
       url: 'https://example.com/' + 'a'.repeat(2000),
     })
 
-    expect(result).toBe(`let client = reqwest::blocking::Client::new();
+    expect(result).toBe(`let client = reqwest::Client::new();
 let request = client.get("https://example.com/${'a'.repeat(2000)}");
-let response = request.send()?;
-let body = response.text()?;
+let response = request.send().await?;
+let body = response.text().await?;
 `)
   })
 
   it('handles multiple headers with same name', () => {
-    const result = rustReqwestSync.generate({
+    const result = rustReqwest.generate({
       url: 'https://example.com',
       headers: [
         { name: 'X-Custom', value: 'value1' },
@@ -417,29 +417,29 @@ let body = response.text()?;
       ],
     })
 
-    expect(result).toBe(`let client = reqwest::blocking::Client::new();
+    expect(result).toBe(`let client = reqwest::Client::new();
 let request = client.get("https://example.com")
     .header("X-Custom", "value2");
-let response = request.send()?;
-let body = response.text()?;
+let response = request.send().await?;
+let body = response.text().await?;
 `)
   })
 
   it('handles headers with empty values', () => {
-    const result = rustReqwestSync.generate({
+    const result = rustReqwest.generate({
       url: 'https://example.com',
       headers: [{ name: 'X-Empty', value: '' }],
     })
 
-    expect(result).toBe(`let client = reqwest::blocking::Client::new();
+    expect(result).toBe(`let client = reqwest::Client::new();
 let request = client.get("https://example.com");
-let response = request.send()?;
-let body = response.text()?;
+let response = request.send().await?;
+let body = response.text().await?;
 `)
   })
 
   it('handles multipart form data with empty file names', () => {
-    const result = rustReqwestSync.generate({
+    const result = rustReqwest.generate({
       url: 'https://example.com',
       method: 'POST',
       postData: {
@@ -453,20 +453,20 @@ let body = response.text()?;
       },
     })
 
-    expect(result).toBe(`let client = reqwest::blocking::Client::new();
+    expect(result).toBe(`let client = reqwest::Client::new();
 let request = client.post("https://example.com")
     .multipart({
         let mut form = reqwest::multipart::Form::new();
         form = form.text("file", "");
             form
         });
-let response = request.send()?;
-let body = response.text()?;
+let response = request.send().await?;
+let body = response.text().await?;
 `)
   })
 
   it('handles JSON body with special characters', () => {
-    const result = rustReqwestSync.generate({
+    const result = rustReqwest.generate({
       url: 'https://example.com',
       method: 'POST',
       headers: [
@@ -486,17 +486,17 @@ let body = response.text()?;
       },
     })
 
-    expect(result).toBe(`let client = reqwest::blocking::Client::new();
+    expect(result).toBe(`let client = reqwest::Client::new();
 let request = client.post("https://example.com")
     .header("Content-Type", "application/json")
     .json(&serde_json::json!({"key":"\\\"quotes\\\" and \\\\backslashes\\\\","nested":{"array":["item1",null,null]}}));
-let response = request.send()?;
-let body = response.json::<serde_json::Value>()?;
+let response = request.send().await?;
+let body = response.json::<serde_json::Value>().await?;
 `)
   })
 
   it('handles cookies with special characters', () => {
-    const result = rustReqwestSync.generate({
+    const result = rustReqwest.generate({
       url: 'https://example.com',
       cookies: [
         {
@@ -506,16 +506,16 @@ let body = response.json::<serde_json::Value>()?;
       ],
     })
 
-    expect(result).toBe(`let client = reqwest::blocking::Client::new();
+    expect(result).toBe(`let client = reqwest::Client::new();
 let request = client.get("https://example.com")
     .header("Cookie", "special%3Bcookie=value%20with%20spaces");
-let response = request.send()?;
-let body = response.text()?;
+let response = request.send().await?;
+let body = response.text().await?;
 `)
   })
 
   it('prettifies JSON body', () => {
-    const result = rustReqwestSync.generate({
+    const result = rustReqwest.generate({
       url: 'https://example.com',
       method: 'POST',
       headers: [
@@ -536,12 +536,12 @@ let body = response.text()?;
       },
     })
 
-    expect(result).toBe(`let client = reqwest::blocking::Client::new();
+    expect(result).toBe(`let client = reqwest::Client::new();
 let request = client.post("https://example.com")
     .header("Content-Type", "application/json")
     .json(&serde_json::json!({"nested":{"array":[1,2,3],"object":{"foo":"bar"}},"simple":"value"}));
-let response = request.send()?;
-let body = response.json::<serde_json::Value>()?;
+let response = request.send().await?;
+let body = response.json::<serde_json::Value>().await?;
 `)
   })
 })
