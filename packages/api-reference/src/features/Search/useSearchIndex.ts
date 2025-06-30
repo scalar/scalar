@@ -1,7 +1,6 @@
 import { useNavState } from '@/hooks/useNavState'
-import type { ParameterMap } from '@/hooks/useOperation'
 import { getHeadingsFromMarkdown } from '@/libs/markdown'
-import { createParameterMap, extractRequestBody, getModels } from '@/libs/openapi'
+import { type ParameterMap, createParameterMap, extractRequestBody, getModels } from '@/libs/openapi'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import type { OpenAPIV3_1, Spec, TransformedOperation } from '@scalar/types/legacy'
 import Fuse, { type FuseResult } from 'fuse.js'
