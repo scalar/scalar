@@ -1,9 +1,8 @@
+import type { UseNavState } from '@/hooks/useNavState'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { TagGroup } from '@scalar/types/legacy'
-
-import type { TagsMap, TraversedEntry, TraversedTag, TraversedTagGroup } from '@/features/traverse-schema'
-import type { UseNavState } from '@/hooks/useNavState'
+import type { TagsMap, TraversedEntry, TraversedOperation, TraversedTag, TraversedWebhook } from '../types'
 import { getTag } from './get-tag'
 
 type Options = Pick<UseNavState, 'getTagId'> & Pick<ApiReferenceConfiguration, 'tagsSorter' | 'operationsSorter'>
@@ -15,7 +14,7 @@ const createTagEntry = (
   getTagId: UseNavState['getTagId'],
   children: (TraversedTag | TraversedOperation | TraversedWebhook)[],
   isGroup = false,
-): TraversedTagGroup => {
+): TraversedTag => {
   const id = getTagId(tag)
   const title = tag['x-displayName'] || tag.name || 'Untitled Tag'
 

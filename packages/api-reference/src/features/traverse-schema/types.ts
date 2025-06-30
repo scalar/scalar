@@ -39,7 +39,8 @@ export type TraversedTag = {
   type: 'tag'
   id: string
   title: string
-  children: (TraversedOperation | TraversedWebhook)[]
+  children: (TraversedTag | TraversedOperation | TraversedWebhook)[]
+  isGroup: boolean
   tag: OpenAPIV3_1.TagObject
 }
 
