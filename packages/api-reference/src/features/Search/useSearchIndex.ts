@@ -1,7 +1,7 @@
 import { useNavState } from '@/hooks/useNavState'
-import { type ParamMap, useOperation } from '@/hooks/useOperation'
+import type { ParameterMap } from '@/hooks/useOperation'
 import { getHeadingsFromMarkdown } from '@/libs/markdown'
-import { extractRequestBody, getModels } from '@/libs/openapi'
+import { createParameterMap, extractRequestBody, getModels } from '@/libs/openapi'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import type { OpenAPIV3_1, Spec, TransformedOperation } from '@scalar/types/legacy'
 import Fuse, { type FuseResult } from 'fuse.js'
@@ -17,7 +17,7 @@ export type FuseData = {
   type: EntryType
   operationId?: string
   description: string
-  body?: string | string[] | ParamMap
+  body?: string | string[] | ParameterMap
   httpVerb?: string
   path?: string
   tag?: string
@@ -167,8 +167,8 @@ export function useSearchIndex({
 
           if (tag.operations) {
             tag.operations.forEach((operation) => {
-              const { parameterMap } = useOperation(operation)
-              const bodyData = extractRequestBody(operation.information) || parameterMap.value
+              const parameterMap = createParameterMap(operation.information)
+              const bodyData = extractRequestBody(operation.information) || parameterMap
               let body = null
               if (typeof bodyData !== 'boolean') {
                 body = bodyData
@@ -206,8 +206,8 @@ export function useSearchIndex({
             const operation = paths?.[path]?.[method]
 
             if (isHttpMethod(method) && operation) {
-              const { parameterMap } = useOperation({ ...operation, information: operation })
-              const bodyData = extractRequestBody(operation) || parameterMap.value
+              const parameterMap = createParameterMap(operation)
+              const bodyData = extractRequestBody(operation) || parameterMap
               let body = null
               if (typeof bodyData !== 'boolean') {
                 body = bodyData

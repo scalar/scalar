@@ -94,9 +94,9 @@ const setPathVariable = (url: string) => {
   const pathVariables = url.match(REGEX.PATH)?.map((v) => v.slice(1, -1)) || []
   const parameters = example.parameters[paramKey]
 
-  const paramMap = new Map(parameters.map((param) => [param.key, param]))
+  const ParameterMap = new Map(parameters.map((param) => [param.key, param]))
   const updatedParameters = pathVariables.map(
-    (key) => paramMap.get(key) || { key, value: '', enabled: true },
+    (key) => ParameterMap.get(key) || { key, value: '', enabled: true },
   )
 
   parameters.forEach((param) => {
