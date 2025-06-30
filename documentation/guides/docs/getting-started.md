@@ -20,7 +20,7 @@ If you're serious about this, you can [create an account here](https://docs.scal
 
 Every project can have one, or even multiple API references: In the top left corner, you'll see a “Reference” tab. Try to click on it to switch to our OpenAPI editor.
 
-OpenAPI is the most popular standard to describe your API in a machine readble format. No matter which languages, libraries or frameworks you're using to build your API, it's very, very likely there's a tool, plugin or package to generate an OpenAPI document for you. If you don't find something which says “OpenAPI”, look for “Swagger”. It's what it used be called a few years ago, before it was an open standard.
+OpenAPI is the most popular standard to describe your API in a machine readable format. No matter which languages, libraries or frameworks you're using to build your API, it's very, very likely there's a tool, plugin or package to generate an OpenAPI document for you. If you don't find something which says “OpenAPI”, look for “Swagger”. It's what it used be called a few years ago, before it was an open standard.
 
 Those OpenAPI documents are what we base all our tools on. So once you've got one, it should be straight-forward to use our tools.
 
