@@ -44,7 +44,7 @@ x-scalar-active-environment: staging
 
 ## x-codeSamples
 
-We provide examples for a lot of popular HTTP clients and frameworks. For something completly custom, for example to show the use of your own SDK, you can use `x-codeSamples`:
+We provide examples for a lot of popular HTTP clients and frameworks. For something completely custom, for example to show the use of your own SDK, you can use `x-codeSamples`:
 
 ```diff
 openapi: 3.1.0
