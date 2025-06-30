@@ -126,8 +126,9 @@ export function getRequestBodyFromOperation(
    */
 
   const formDataParameters = getParametersFromOperation(
-    operation.information?.parameters ?? [],
-    operation.pathParameters ?? [],
+    operation.parameters ?? [],
+    // TODO: Add path parameters
+    [], // operation.path ?? [],
     'formData',
     false,
   )
