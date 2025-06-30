@@ -105,6 +105,7 @@ export const ICONS = [
   'programming-language-python',
   'programming-language-r',
   'programming-language-ruby',
+  'programming-language-rust',
   'programming-language-scala',
   'programming-language-shell',
   'programming-language-swift',

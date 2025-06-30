@@ -189,6 +189,11 @@
       "types": "./dist/plugins/ruby/native/index.d.ts",
       "default": "./dist/plugins/ruby/native/index.js"
     },
+    "./plugins/rust/reqwest": {
+      "import": "./dist/plugins/rust/reqwest/index.js",
+      "types": "./dist/plugins/rust/reqwest/index.d.ts",
+      "default": "./dist/plugins/rust/reqwest/index.js"
+    },
     "./plugins/shell/curl": {
       "import": "./dist/plugins/shell/curl/index.js",
       "types": "./dist/plugins/shell/curl/index.d.ts",
