@@ -1,6 +1,9 @@
 # Getting Started
 This guide will help you get started with generating world-class SDKs on scalar.com in several languages: TypeScript, Python, Golang & more powered by [Speakeasy](https://speakeasy.com).
 
+:::scalar-callout{ type=info }
+SDK generation is part of our paid plans and costs $100 per month per language. Keep this in mind when selecting which languages you'd like to generate SDKs for.
+:::
 
 Make sure you have created a Scalar Account & are logged in ([see create account guide](/scalar/scalar-registry/getting-started#create-your-scalar-account))
 
