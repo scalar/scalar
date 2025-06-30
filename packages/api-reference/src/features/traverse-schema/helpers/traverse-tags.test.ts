@@ -199,6 +199,31 @@ describe('traverseTags', () => {
     expect(result[1].title).toBe('Operation B')
   })
 
+  it('should handle custom operationSorter using httpVerb', () => {
+    const document = createMockDocument()
+    const tagsMap = new Map([
+      [
+        'default',
+        {
+          tag: createMockTag('default'),
+          entries: [createMockEntry('Operation B', 'post'), createMockEntry('Operation A', 'get')],
+        },
+      ],
+    ])
+    const titlesMap = new Map<string, string>()
+
+    const options = {
+      getTagId: (tag: OpenAPIV3_1.TagObject) => tag.name ?? '',
+      tagsSorter: 'alpha' as const,
+      operationsSorter: (a: OpenAPIV3_1.OperationObject, b: OpenAPIV3_1.OperationObject) =>
+        (a.httpVerb || '').localeCompare(b.httpVerb || ''),
+    }
+
+    const result = traverseTags(document, tagsMap, titlesMap, options)
+    expect(result[0].title).toBe('Operation A')
+    expect(result[1].title).toBe('Operation B')
+  })
+
   it('should handle internal tags', () => {
     const document = createMockDocument()
     const tagsMap = new Map([
