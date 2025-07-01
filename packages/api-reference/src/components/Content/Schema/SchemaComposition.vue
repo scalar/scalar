@@ -206,11 +206,6 @@ const shouldRenderSchema = computed(() => {
         </button>
       </ScalarListbox>
       <div class="composition-panel">
-        <div
-          v-if="compositionSchema?.description"
-          class="property-description border-x border-t p-2">
-          <ScalarMarkdown :value="compositionSchema.description" />
-        </div>
         <Schema
           v-if="shouldRenderSchema"
           :compact="compact"
