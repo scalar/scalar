@@ -107,4 +107,55 @@ describe('createMagicProxy', () => {
       'x-original-ref': '#/a/b/c/d',
     })
   })
+
+  it('should preserve sibling keywords alongside $ref (OpenAPI 3.1/JSON Schema 2020-12)', () => {
+    const input = {
+      components: {
+        schemas: {
+          Foo: {
+            type: 'string',
+            pattern: 'bar$',
+          },
+        },
+      },
+      paths: {
+        '/foo': {
+          get: {
+            responses: {
+              '200': {
+                description: 'Ok',
+                content: {
+                  'application/json': {
+                    schema: {
+                      $ref: '#/components/schemas/Foo',
+                      pattern: '^foo',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const result = createMagicProxy(input)
+
+    const resolvedSchema = result.paths['/foo'].get.responses['200'].content['application/json'].schema as any
+
+    // Should preserve the original ref information
+    expect(resolvedSchema['x-original-ref']).toBe('#/components/schemas/Foo')
+
+    // Should contain properties from the referenced schema
+    expect(resolvedSchema.type).toBe('string')
+
+    // Should preserve BOTH patterns - the one from the referenced schema AND the sibling keyword
+    // This is the key issue: both constraints should be preserved and applied
+    expect(resolvedSchema).toEqual({
+      type: 'string',
+      pattern: 'bar$', // from the referenced schema
+      'x-original-ref': '#/components/schemas/Foo',
+      'x-sibling-pattern': '^foo', // sibling keyword should be preserved separately
+    })
+  })
 })
