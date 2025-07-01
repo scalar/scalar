@@ -3,72 +3,120 @@ import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
 import { computed } from 'vue'
 
+const ENUM_DISPLAY_THRESHOLD = 9
+const INITIAL_VISIBLE_COUNT = 5
+const THIN_SPACE = ' '
+
+type SchemaValue = {
+  'enum'?: any[]
+  'items'?: { enum?: any[] }
+  'x-enumDescriptions'?: Record<string, string>
+  'x-enum-descriptions'?: string[]
+  'x-enum-varnames'?: string[]
+  'x-enumNames'?: string[]
+} & Record<string, any>
+
+// Props
 const { value, isDiscriminator } = defineProps<{
-  value?: Record<string, any>
+  /** The schema object containing enum values and metadata */
+  value?: SchemaValue
+  /** Whether this enum is used as a discriminator property */
   isDiscriminator?: boolean
 }>()
 
-const getEnumFromValue = (value?: Record<string, any>): any[] | [] =>
-  value?.enum || value?.items?.enum || []
-
-// These helpers manage how enum values are displayed:
-//
-// - For enums with 9 or fewer values, all values are shown.
-// - For enums with more than 9 values, only first 5 are shown initially.
-// - A "Show more" button reveals the remaining values.
-const hasLongEnumList = computed(() => getEnumFromValue(value).length > 9)
-
-const initialEnumCount = computed(() => (hasLongEnumList.value ? 5 : 9))
-
-const visibleEnumValues = computed(() =>
-  getEnumFromValue(value).slice(0, initialEnumCount.value),
-)
-const remainingEnumValues = computed(() =>
-  getEnumFromValue(value).slice(initialEnumCount.value),
-)
-
-const shouldShowEnumDescriptions = computed(() => {
-  if (!value?.['x-enumDescriptions']) {
-    return false
+/**
+ * Extracts enum values from the schema object.
+ * Handles both direct enum values and nested enum arrays.
+ */
+const extractEnumValues = (schemaValue?: SchemaValue): any[] => {
+  if (!schemaValue) {
+    return []
   }
 
-  const enumDescriptions = value['x-enumDescriptions']
-
-  return (
-    typeof enumDescriptions === 'object' && !Array.isArray(enumDescriptions)
-  )
-})
-
-/**
- * Formats the enum value with the enum varname if available.
- *
- * @example 100 = Unauthorized
- * @example 200 = AccessDenied
- * @example 300 = Unknown
- */
-const getFormattedEnumValue = (enumValue: any, index: number) => {
-  const enumVarname =
-    value?.['x-enum-varnames']?.[index] ?? value?.['x-enumNames']?.[index]
-
-  // &ThinSpace;=&ThinSpace;
-  return enumVarname ? `${enumValue} = ${enumVarname}` : String(enumValue)
+  return schemaValue.enum || schemaValue.items?.enum || []
 }
 
-const getEnumDescription = (index: number) => {
+/**
+ * Formats an enum value with its variable name if available.
+ * This supports both x-enum-varnames and x-enumNames extensions.
+ *
+ * @example "active" becomes "active = ACTIVE_STATUS"
+ */
+const formatEnumValueWithName = (enumValue: any, index: number): string => {
+  const varName =
+    value?.['x-enum-varnames']?.[index] ?? value?.['x-enumNames']?.[index]
+  return varName
+    ? `${enumValue}${THIN_SPACE}=${THIN_SPACE}${varName}`
+    : String(enumValue)
+}
+
+/**
+ * Gets the description for an enum value at a specific index.
+ * Supports both x-enum-descriptions and x-enumDescriptions formats.
+ */
+const getEnumValueDescription = (index: number): string | undefined => {
   return (
     value?.['x-enum-descriptions']?.[index] ??
     value?.['x-enumDescriptions']?.[index]
   )
 }
+
+// Computed properties
+const enumValues = computed(() => extractEnumValues(value))
+
+const hasEnumValues = computed(() => enumValues.value.length > 0)
+
+/**
+ * Determines if we should show the long enum list UI.
+ * When there are many enum values, we initially show only a subset.
+ */
+const shouldUseLongListDisplay = computed(
+  () => enumValues.value.length > ENUM_DISPLAY_THRESHOLD,
+)
+
+const initialVisibleCount = computed(() =>
+  shouldUseLongListDisplay.value
+    ? INITIAL_VISIBLE_COUNT
+    : ENUM_DISPLAY_THRESHOLD,
+)
+
+const visibleEnumValues = computed(() =>
+  enumValues.value.slice(0, initialVisibleCount.value),
+)
+
+const hiddenEnumValues = computed(() =>
+  enumValues.value.slice(initialVisibleCount.value),
+)
+
+/**
+ * Determines if we should show enum descriptions as key-value pairs.
+ * This is used when x-enumDescriptions is an object mapping enum values to descriptions.
+ */
+const shouldShowDescriptionsAsKeyValue = computed(() => {
+  const descriptions = value?.['x-enumDescriptions']
+  return (
+    descriptions &&
+    typeof descriptions === 'object' &&
+    !Array.isArray(descriptions)
+  )
+})
+
+/**
+ * Determines if this component should render anything.
+ * We do not show enum values for discriminator properties.
+ */
+const shouldRender = computed(() => hasEnumValues.value && !isDiscriminator)
 </script>
+
 <template>
   <div
-    v-if="getEnumFromValue(value)?.length > 0 && !isDiscriminator"
+    v-if="shouldRender"
     class="property-enum">
-    <template v-if="shouldShowEnumDescriptions">
+    <!-- Key-value description format -->
+    <template v-if="shouldShowDescriptionsAsKeyValue">
       <div class="property-list">
         <div
-          v-for="enumValue in getEnumFromValue(value)"
+          v-for="enumValue in enumValues"
           :key="enumValue"
           class="property">
           <div class="property-heading">
@@ -81,34 +129,45 @@ const getEnumDescription = (index: number) => {
         </div>
       </div>
     </template>
+
+    <!-- Standard enum list format -->
     <template v-else>
       <ul class="property-enum-values">
+        <!-- Initially visible enum values -->
         <li
           v-for="(enumValue, index) in visibleEnumValues"
           :key="enumValue"
           class="property-enum-value">
           <div class="property-enum-value-content">
             <span class="property-enum-value-label">
-              {{ getFormattedEnumValue(enumValue, index) }}
+              {{ formatEnumValueWithName(enumValue, index) }}
             </span>
             <span class="property-enum-value-description">
-              <ScalarMarkdown :value="getEnumDescription(index)" />
+              <ScalarMarkdown :value="getEnumValueDescription(index)" />
             </span>
           </div>
         </li>
+
+        <!-- Expandable section for remaining values -->
         <Disclosure
-          v-if="hasLongEnumList"
+          v-if="shouldUseLongListDisplay"
           v-slot="{ open }">
           <DisclosurePanel>
             <li
-              v-for="(enumValue, index) in remainingEnumValues"
+              v-for="(enumValue, index) in hiddenEnumValues"
               :key="enumValue"
               class="property-enum-value">
               <span class="property-enum-value-label">
-                {{ getFormattedEnumValue(enumValue, initialEnumCount + index) }}
+                {{
+                  formatEnumValueWithName(
+                    enumValue,
+                    initialVisibleCount + index,
+                  )
+                }}
               </span>
             </li>
           </DisclosurePanel>
+
           <DisclosureButton class="enum-toggle-button">
             <ScalarIcon
               class="enum-toggle-button-icon"
