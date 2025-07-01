@@ -332,3 +332,6 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
 }
 
 export type WorkspaceStore = ReturnType<typeof createWorkspaceStore>
+
+// biome-ignore lint/performance/noBarrelFile: <explanation>
+export { generateClientMutators } from '@/mutators'
