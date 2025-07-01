@@ -15,7 +15,7 @@ const getEnumFromValue = (value?: Record<string, any>): any[] | [] =>
 //
 // - For enums with 9 or fewer values, all values are shown.
 // - For enums with more than 9 values, only first 5 are shown initially.
-// - A “Show more” button reveals the remaining values.
+// - A "Show more" button reveals the remaining values.
 const hasLongEnumList = computed(() => getEnumFromValue(value).length > 9)
 
 const initialEnumCount = computed(() => (hasLongEnumList.value ? 5 : 9))
@@ -51,7 +51,7 @@ const getFormattedEnumValue = (enumValue: any, index: number) => {
     value?.['x-enum-varnames']?.[index] ?? value?.['x-enumNames']?.[index]
 
   // &ThinSpace;=&ThinSpace;
-  return enumVarname ? `${enumValue} = ${enumVarname}` : enumValue.toString()
+  return enumVarname ? `${enumValue} = ${enumVarname}` : String(enumValue)
 }
 
 const getEnumDescription = (index: number) => {
@@ -101,11 +101,11 @@ const getEnumDescription = (index: number) => {
           v-slot="{ open }">
           <DisclosurePanel>
             <li
-              v-for="enumValue in remainingEnumValues"
+              v-for="(enumValue, index) in remainingEnumValues"
               :key="enumValue"
               class="property-enum-value">
               <span class="property-enum-value-label">
-                {{ enumValue }}
+                {{ getFormattedEnumValue(enumValue, initialEnumCount + index) }}
               </span>
             </li>
           </DisclosurePanel>
