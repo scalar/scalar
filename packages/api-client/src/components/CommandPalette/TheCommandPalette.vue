@@ -106,6 +106,7 @@ const availableCommands = [
           params: {
             [PathId.Workspace]: activeWorkspace?.value?.uid ?? 'default',
           },
+          query: { openEnvironmentModal: 'true' },
         },
       },
       {
@@ -116,6 +117,7 @@ const availableCommands = [
           params: {
             [PathId.Workspace]: activeWorkspace?.value?.uid ?? 'default',
           },
+          query: { openCookieModal: 'true' },
         },
       },
     ],
