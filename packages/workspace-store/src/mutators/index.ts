@@ -3,6 +3,7 @@ import { cookieMutators } from '@/mutators/cookie'
 import { environmentMutators } from '@/mutators/environment'
 import { requestMutators } from '@/mutators/request'
 import { requestExampleMutators } from '@/mutators/request-example'
+import { securitySchemeMutators } from '@/mutators/security-schemes'
 
 export function generateClientMutators(store: WorkspaceStore) {
   const mutators = (documentName: string) => {
@@ -11,6 +12,7 @@ export function generateClientMutators(store: WorkspaceStore) {
       requestMutators: requestMutators(store, documentName),
       environmentMutators: environmentMutators(store, documentName),
       cookieMutators: cookieMutators(store, documentName),
+      securitySchemeMutators: securitySchemeMutators(store, documentName),
     }
   }
 
