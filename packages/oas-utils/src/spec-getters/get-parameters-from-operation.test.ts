@@ -31,6 +31,7 @@ describe('getParametersFromOperation', () => {
           in: 'query',
           name: 'api_key',
           required: true,
+          deprecated: false,
         },
       ],
       [],
@@ -52,6 +53,7 @@ describe('getParametersFromOperation', () => {
           in: 'query',
           name: 'foo',
           required: true,
+          deprecated: false,
         },
       ],
       [
@@ -84,6 +86,7 @@ describe('getParametersFromOperation', () => {
           in: 'query',
           description: 'Your API token',
           required: true,
+          deprecated: false,
         },
       ],
       [
