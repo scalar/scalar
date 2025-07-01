@@ -5,6 +5,7 @@ import { getDocument } from '@/mutators/helpers'
 import { requestMutators } from '@/mutators/request'
 import { requestExampleMutators } from '@/mutators/request-example'
 import { securitySchemeMutators } from '@/mutators/security-schemes'
+import { serverMutators } from '@/mutators/server'
 
 /**
  * Generates a set of mutators for managing OpenAPI document and workspace state.
@@ -20,12 +21,20 @@ export function generateClientMutators(store: WorkspaceStore) {
    * @returns An object containing mutators for requests, request examples, security schemes, environments, and cookies
    */
   const documentMutators = (documentName: string) => {
+    const document = getDocument(store, documentName)
+
+    // Make sure the document has a servers array
+    if (document && !document.servers) {
+      document.servers = []
+    }
+
     return {
       requestExampleMutators: requestExampleMutators(store, documentName),
       requestMutators: requestMutators(store, documentName),
       securitySchemeMutators: securitySchemeMutators(store, documentName),
-      environmentMutators: environmentMutators(getDocument(store, documentName)),
-      cookieMutators: cookieMutators(getDocument(store, documentName)),
+      environmentMutators: environmentMutators(document),
+      cookieMutators: cookieMutators(document),
+      serverMutators: serverMutators(document?.servers),
     }
   }
 
@@ -35,9 +44,17 @@ export function generateClientMutators(store: WorkspaceStore) {
    * @returns An object containing mutators for environments and cookies at the workspace level
    */
   const workspaceMutators = () => {
+    const workspace = store.workspace
+
+    // Make sure the workspace has a servers array
+    if (!workspace['x-scalar-client-config-servers']) {
+      workspace['x-scalar-client-config-servers'] = []
+    }
+
     return {
       environmentMutators: environmentMutators(store.workspace),
       cookieMutators: cookieMutators(store.workspace),
+      serverMutators: serverMutators(store.workspace['x-scalar-client-config-servers']),
     }
   }
 
