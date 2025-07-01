@@ -6,7 +6,7 @@ import { computed, inject, type Component } from 'vue'
 import {
   compositions,
   optimizeValueForDisplay,
-} from '@/components/Content/Schema/helpers/optimize-value-for-display'
+} from '@/components/Content/Schema/helpers/optimizeValueForDisplay'
 import type { Schemas } from '@/features/Operation/types/schemas'
 import { SpecificationExtension } from '@/features/specification-extension'
 import { DISCRIMINATOR_CONTEXT } from '@/hooks/useDiscriminator'

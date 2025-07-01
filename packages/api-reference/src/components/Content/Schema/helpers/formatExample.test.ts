@@ -1,5 +1,5 @@
+import { formatExample } from '@/components/Content/Schema/helpers/formatExample'
 import { describe, expect, it } from 'vitest'
-import { formatExample } from './format-example'
 
 describe('formatExample', () => {
   it('formats array examples by wrapping items in quotes and brackets', () => {
