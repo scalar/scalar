@@ -1,6 +1,8 @@
-import type { WorkspaceStore } from '@/client'
-import { getDocument } from '@/mutators/helpers'
-import type { xScalarClientConfigEnvironment } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-environments'
+import type { UnknownObject } from '@/helpers/general'
+import type {
+  xScalarClientConfigEnvironment,
+  XScalarClientConfigEnvironments,
+} from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-environments'
 
 /**
  * Environment mutators for managing client configuration environments in OpenAPI documents.
@@ -10,9 +12,9 @@ import type { xScalarClientConfigEnvironment } from '@/schemas/v3.1/strict/clien
  * @param documentName - The name of the document to operate on
  * @returns Object containing addEnvironment and deleteEnvironment functions
  */
-export const environmentMutators = (store: WorkspaceStore, documentName: string) => {
-  const document = getDocument(store, documentName)
-
+export const environmentMutators = (
+  document?: UnknownObject & { 'x-scalar-client-config-environments'?: XScalarClientConfigEnvironments },
+) => {
   /**
    * Adds a new environment to the document's client configuration.
    * If an environment with the same name already exists, it will log a warning and return false.

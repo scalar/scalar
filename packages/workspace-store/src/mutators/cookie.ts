@@ -1,6 +1,8 @@
-import type { WorkspaceStore } from '@/client'
-import { getDocument } from '@/mutators/helpers'
-import type { XScalarClientConfigCookie } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-cookies'
+import type { UnknownObject } from '@/helpers/general'
+import type {
+  XScalarClientConfigCookie,
+  XScalarClientConfigCookies,
+} from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-cookies'
 
 /**
  * Cookie mutators for managing client configuration cookies in OpenAPI documents.
@@ -10,9 +12,9 @@ import type { XScalarClientConfigCookie } from '@/schemas/v3.1/strict/client-con
  * @param documentName - The name of the document to operate on
  * @returns Object containing addCookie and deleteCookie functions
  */
-export const cookieMutators = (store: WorkspaceStore, documentName: string) => {
-  const document = getDocument(store, documentName)
-
+export const cookieMutators = (
+  document?: UnknownObject & { 'x-scalar-client-config-cookies'?: XScalarClientConfigCookies },
+) => {
   /**
    * Adds a new cookie to the document's client configuration.
    * If a cookie with the same name already exists, it will log a warning and return false.
