@@ -558,5 +558,254 @@ describe('get-schema-type', () => {
         expect(result).toBe('array string[]')
       })
     })
+
+    describe('xml.name property', () => {
+      it('returns xml.name when present and no title or name', () => {
+        const schema: OpenAPIV3_1.SchemaObject = {
+          type: 'object',
+          xml: {
+            name: 'XmlTag',
+          },
+        }
+
+        const result = getSchemaType(schema)
+
+        expect(result).toBe('XmlTag')
+      })
+
+      it('prioritizes title over xml.name', () => {
+        const schema: OpenAPIV3_1.SchemaObject = {
+          title: 'Schema Title',
+          type: 'object',
+          xml: {
+            name: 'XmlTag',
+          },
+        }
+
+        const result = getSchemaType(schema)
+
+        expect(result).toBe('Schema Title')
+      })
+
+      it('prioritizes name over xml.name', () => {
+        const schema: OpenAPIV3_1.SchemaObject = {
+          name: 'SchemaName',
+          type: 'object',
+          xml: {
+            name: 'XmlTag',
+          },
+        }
+
+        const result = getSchemaType(schema)
+
+        expect(result).toBe('SchemaName')
+      })
+
+      it('prioritizes xml.name over type with content encoding', () => {
+        const schema: OpenAPIV3_1.SchemaObject = {
+          type: 'string',
+          contentEncoding: 'base64',
+          xml: {
+            name: 'XmlTag',
+          },
+        }
+
+        const result = getSchemaType(schema)
+
+        expect(result).toBe('XmlTag')
+      })
+
+      it('prioritizes xml.name over type only', () => {
+        const schema: OpenAPIV3_1.SchemaObject = {
+          type: 'string',
+          xml: {
+            name: 'XmlTag',
+          },
+        }
+
+        const result = getSchemaType(schema)
+
+        expect(result).toBe('XmlTag')
+      })
+
+      it('uses xml.name for an array type when items are not defined', () => {
+        const schema: OpenAPIV3_1.SchemaObject = {
+          type: 'array',
+          xml: {
+            name: 'XmlArray',
+          },
+        }
+
+        const result = getSchemaType(schema)
+
+        expect(result).toBe('XmlArray')
+      })
+
+      it('ignores xml.name for an array type when items are defined', () => {
+        const schema: OpenAPIV3_1.SchemaObject = {
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+          xml: {
+            name: 'XmlArray',
+          },
+        }
+
+        const result = getSchemaType(schema)
+
+        expect(result).toBe('array string[]')
+      })
+
+      it('handles xml.name with array type in type array', () => {
+        const schema: OpenAPIV3_1.SchemaObject = {
+          type: ['array', 'null'],
+          xml: {
+            name: 'NullableXmlArray',
+          },
+        }
+
+        const result = getSchemaType(schema)
+
+        expect(result).toBe('array | null')
+      })
+
+      it('handles xml.name with complex array type', () => {
+        const schema: OpenAPIV3_1.SchemaObject = {
+          type: ['string', 'null'],
+          xml: {
+            name: 'NullableString',
+          },
+        }
+
+        const result = getSchemaType(schema)
+
+        expect(result).toBe('string | null')
+      })
+
+      it('handles xml object without name property', () => {
+        const schema: OpenAPIV3_1.SchemaObject = {
+          type: 'object',
+          xml: {},
+        }
+
+        const result = getSchemaType(schema)
+
+        expect(result).toBe('object')
+      })
+
+      it('handles xml.name with empty string', () => {
+        const schema: OpenAPIV3_1.SchemaObject = {
+          type: 'object',
+          xml: {
+            name: '',
+          },
+        }
+
+        const result = getSchemaType(schema)
+
+        expect(result).toBe('object')
+      })
+
+      it('handles xml.name for different schema types', () => {
+        const schemas = [
+          { type: 'string', xml: { name: 'XmlString' }, expected: 'XmlString' },
+          { type: 'number', xml: { name: 'XmlNumber' }, expected: 'XmlNumber' },
+          { type: 'boolean', xml: { name: 'XmlBoolean' }, expected: 'XmlBoolean' },
+          { type: 'integer', xml: { name: 'XmlInteger' }, expected: 'XmlInteger' },
+        ]
+
+        schemas.forEach(({ type, xml, expected }) => {
+          const schema: OpenAPIV3_1.SchemaObject = { type, xml }
+          const result = getSchemaType(schema)
+          expect(result).toBe(expected)
+        })
+      })
+
+      it('handles xml.name with all properties present', () => {
+        const schema: OpenAPIV3_1.SchemaObject = {
+          type: 'string',
+          title: 'Schema Title',
+          name: 'SchemaName',
+          contentEncoding: 'base64',
+          xml: {
+            name: 'XmlTag',
+          },
+        }
+
+        const result = getSchemaType(schema)
+
+        expect(result).toBe('Schema Title')
+      })
+
+      it('handles xml.name in array items', () => {
+        const schema: OpenAPIV3_1.SchemaObject = {
+          type: 'array',
+          items: {
+            type: 'object',
+            xml: {
+              name: 'XmlItem',
+            },
+          },
+        }
+
+        const result = getSchemaType(schema)
+
+        expect(result).toBe('array XmlItem[]')
+      })
+
+      it('handles xml.name in nested array items', () => {
+        const schema: OpenAPIV3_1.SchemaObject = {
+          type: 'array',
+          items: {
+            type: 'array',
+            items: {
+              type: 'object',
+              xml: {
+                name: 'NestedXmlItem',
+              },
+            },
+          },
+        }
+
+        const result = getSchemaType(schema)
+
+        expect(result).toBe('array array NestedXmlItem[][]')
+      })
+
+      it('prioritizes title over xml.name in array items', () => {
+        const schema: OpenAPIV3_1.SchemaObject = {
+          type: 'array',
+          items: {
+            type: 'object',
+            title: 'Item Title',
+            xml: {
+              name: 'XmlItem',
+            },
+          },
+        }
+
+        const result = getSchemaType(schema)
+
+        expect(result).toBe('array Item Title[]')
+      })
+
+      it('prioritizes name over xml.name in array items', () => {
+        const schema: OpenAPIV3_1.SchemaObject = {
+          type: 'array',
+          items: {
+            type: 'object',
+            name: 'ItemName',
+            xml: {
+              name: 'XmlItem',
+            },
+          },
+        }
+
+        const result = getSchemaType(schema)
+
+        expect(result).toBe('array ItemName[]')
+      })
+    })
   })
 })
