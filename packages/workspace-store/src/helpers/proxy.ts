@@ -1,7 +1,7 @@
 import { isReactive, toRaw } from 'vue'
-import { getValueByPath, parseJsonPointer } from './json-path-utils'
 import { isLocalRef, isObject } from './general'
 import type { UnknownObject } from './general'
+import { getValueByPath, parseJsonPointer } from './json-path-utils'
 
 export const TARGET_SYMBOL = Symbol('target')
 
@@ -49,7 +49,33 @@ function createProxyHandler(
             const referencePath = parseJsonPointer(ref)
             const resolvedValue = getValueByPath(sourceDocument, referencePath)
 
-            // preserve the first $ref to maintain the original reference
+            // Extract sibling keywords (all properties except $ref)
+            const siblingKeywords: Record<string, unknown> = {}
+            for (const [key, val] of Object.entries(value)) {
+              if (key !== '$ref') {
+                siblingKeywords[`x-sibling-${key}`] = val
+              }
+            }
+
+            // If there are sibling keywords, merge them with the resolved value
+            if (Object.keys(siblingKeywords).length > 0) {
+              const mergedValue = isObject(resolvedValue)
+                ? {
+                    ...resolvedValue,
+                    ...siblingKeywords,
+                    'x-original-ref': originalRef ?? ref,
+                  }
+                : {
+                    ...siblingKeywords,
+                    'x-original-ref': originalRef ?? ref,
+                    value: resolvedValue,
+                  }
+
+              // preserve the first $ref to maintain the original reference
+              return deepResolveNestedRefs(mergedValue, originalRef ?? ref)
+            }
+
+            // No sibling keywords, preserve the first $ref to maintain the original reference
             return deepResolveNestedRefs(resolvedValue, originalRef ?? ref)
           }
         }
