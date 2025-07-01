@@ -1,5 +1,4 @@
-import type { WorkspaceStore } from '@/client'
-import { getDocument } from '@/mutators/helpers'
+import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
 export type OperationIdentifier = {
@@ -11,25 +10,20 @@ export type OperationIdentifier = {
  * Provides mutator functions for managing OpenAPI operations (requests) within a workspace store.
  * This module contains utilities for moving and deleting API operations while maintaining
  * document integrity and preventing conflicts.
- * 
- * @param store - The workspace store containing the OpenAPI documents
- * @param documentName - The name of the document to operate on
+ *
+ * @param document - The OpenAPI document to operate on
  * @returns Object containing mutator functions for request operations
  */
-export const requestMutators = (store: WorkspaceStore, documentName: string) => {
-  const document = getDocument(store, documentName)
-
+export const requestMutators = (document?: OpenApiDocument) => {
   /**
    * Moves an operation from one path/method to another within the OpenAPI document.
    * This function handles the relocation of API operations while preserving their configuration
    * and preventing accidental overwrites of existing operations.
-   * 
+   *
    * @param source - The current location of the operation to move
    * @param destination - The target location for the operation (path and/or method)
    * @returns true if the operation was successfully moved, false otherwise
-   * 
-   * @example
-   * 
+   *
    * @example
    * // Move an operation to a completely new path and method
    * moveOperation({
@@ -40,7 +34,7 @@ export const requestMutators = (store: WorkspaceStore, documentName: string) => 
   const moveOperation = ({
     source,
     destination,
-  }: { source: OperationIdentifier, destination: OperationIdentifier }) => {
+  }: { source: OperationIdentifier; destination: OperationIdentifier }) => {
     if (!document || !document.paths) {
       return false
     }
@@ -75,15 +69,15 @@ export const requestMutators = (store: WorkspaceStore, documentName: string) => 
 
   /**
    * Deletes an operation from the OpenAPI document at the specified path and method.
-   * 
+   *
    * @param path - The path of the operation to delete
    * @param method - The HTTP method of the operation to delete
    * @returns void - Returns early if document, path, or operation doesn't exist
-   * 
+   *
    * @example
    * // Delete a GET operation from /users endpoint
    * deleteRequest({ path: '/users', method: 'get' })
-   * 
+   *
    * @example
    * // Delete a POST operation from /auth/login endpoint
    * deleteRequest({ path: '/auth/login', method: 'post' })

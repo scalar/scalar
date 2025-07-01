@@ -1,18 +1,15 @@
-import type { WorkspaceStore } from '@/client'
-import { getDocument } from '@/mutators/helpers'
+import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import type { SecuritySchemeObject } from '@/schemas/v3.1/strict/security-scheme'
 
 /**
- * Security Scheme mutators for managing security schemes in OpenAPI documents.
- * Provides functions to add and delete security schemes from the document's components.securitySchemes object.
+ * Provides mutator functions for managing security schemes within OpenAPI documents.
+ * This module contains utilities for adding and deleting security schemes that are
+ * stored in the document's components.securitySchemes object.
  *
- * @param store - The workspace store containing the documents
- * @param documentName - The name of the document to operate on
- * @returns Object containing addSecurityScheme and deleteSecurityScheme functions
+ * @param document - The OpenAPI document to operate on
+ * @returns Object containing mutator functions for security scheme operations
  */
-export const securitySchemeMutators = (store: WorkspaceStore, documentName: string) => {
-  const document = getDocument(store, documentName)
-
+export const securitySchemeMutators = (document?: OpenApiDocument) => {
   /**
    * Adds a new security scheme to the document's components.securitySchemes.
    * If a security scheme with the same type already exists, it will return false.

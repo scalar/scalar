@@ -43,9 +43,9 @@ export type WorkspaceExtensions = Static<typeof WorkspaceExtensionsSchema>
 export const WorkspaceSchema = compose(
   WorkspaceMetaSchema,
   Type.Object({
-    documents: Type.Record(Type.String(), Type.Partial(WorkspaceDocumentSchema)),
+    documents: Type.Record(Type.String(), WorkspaceDocumentSchema),
     /** Active document is possibly undefined if we attempt to lookup with an invalid key */
-    activeDocument: Type.Union([Type.Undefined(), Type.Partial(WorkspaceDocumentSchema)]),
+    activeDocument: Type.Union([Type.Undefined(), WorkspaceDocumentSchema]),
   }),
   WorkspaceExtensionsSchema,
 )

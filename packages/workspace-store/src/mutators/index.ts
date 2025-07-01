@@ -29,9 +29,9 @@ export function generateClientMutators(store: WorkspaceStore) {
     }
 
     return {
-      requestExampleMutators: requestExampleMutators(store, documentName),
-      requestMutators: requestMutators(store, documentName),
-      securitySchemeMutators: securitySchemeMutators(store, documentName),
+      requestExampleMutators: requestExampleMutators(document),
+      requestMutators: requestMutators(document),
+      securitySchemeMutators: securitySchemeMutators(document),
       environmentMutators: environmentMutators(document),
       cookieMutators: cookieMutators(document),
       serverMutators: serverMutators(document?.servers),
