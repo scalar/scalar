@@ -716,8 +716,8 @@ describe('get-schema-type', () => {
         ]
 
         schemas.forEach(({ type, xml, expected }) => {
-          const schema: OpenAPIV3_1.SchemaObject = { type, xml }
-          const result = getSchemaType(schema)
+          const schema = { type, xml }
+          const result = getSchemaType(schema as OpenAPIV3_1.SchemaObject)
           expect(result).toBe(expected)
         })
       })
