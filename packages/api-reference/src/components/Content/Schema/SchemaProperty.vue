@@ -6,7 +6,7 @@ import {
   compositions,
   optimizeValueForDisplay,
 } from '@/components/Content/Schema/helpers/optimizeValueForDisplay'
-import SchemaPropertyEnum from '@/components/Content/Schema/SchemaPropertyEnum.vue'
+import SchemaEnumValues from '@/components/Content/Schema/SchemaEnumValues.vue'
 import type { Schemas } from '@/features/Operation/types/schemas'
 import { SpecificationExtension } from '@/features/specification-extension'
 import { DISCRIMINATOR_CONTEXT } from '@/hooks/useDiscriminator'
@@ -282,7 +282,7 @@ const shouldRenderObjectProperties = computed(() => {
         :value="generatePropertyDescription(optimizedValue) || ''" />
     </div>
     <!-- Enum -->
-    <SchemaPropertyEnum :value="optimizedValue" />
+    <SchemaEnumValues :value="optimizedValue" />
     <!-- Object -->
     <div
       v-if="shouldRenderObjectProperties"

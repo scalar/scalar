@@ -38,6 +38,28 @@ const shouldShowEnumDescriptions = computed(() => {
     typeof enumDescriptions === 'object' && !Array.isArray(enumDescriptions)
   )
 })
+
+/**
+ * Formats the enum value with the enum varname if available.
+ *
+ * @example 100 = Unauthorized
+ * @example 200 = AccessDenied
+ * @example 300 = Unknown
+ */
+const getFormattedEnumValue = (enumValue: any, index: number) => {
+  const enumVarname =
+    value?.['x-enum-varnames']?.[index] ?? value?.['x-enumNames']?.[index]
+
+  // &ThinSpace;=&ThinSpace;
+  return enumVarname ? `${enumValue} = ${enumVarname}` : enumValue.toString()
+}
+
+const getEnumDescription = (index: number) => {
+  return (
+    value?.['x-enum-descriptions']?.[index] ??
+    value?.['x-enumDescriptions']?.[index]
+  )
+}
 </script>
 <template>
   <div
@@ -65,16 +87,14 @@ const shouldShowEnumDescriptions = computed(() => {
           v-for="(enumValue, index) in visibleEnumValues"
           :key="enumValue"
           class="property-enum-value">
-          <span class="property-enum-value-label">
-            <!-- TODO: Equal sign only if both sides are filled -->
-            <!-- TODO: Description tooltip -->
-            {{ enumValue }}&ThinSpace;=&ThinSpace;{{
-              value?.['x-enum-varnames']?.[index]
-            }}
-            <span class="property-enum-value-description">
-              <ScalarMarkdown :value="value?.['x-enumDescriptions']?.[index]" />
+          <div class="property-enum-value-content">
+            <span class="property-enum-value-label">
+              {{ getFormattedEnumValue(enumValue, index) }}
             </span>
-          </span>
+            <span class="property-enum-value-description">
+              <ScalarMarkdown :value="getEnumDescription(index)" />
+            </span>
+          </div>
         </li>
         <Disclosure
           v-if="hasLongEnumList"
@@ -126,10 +146,17 @@ const shouldShowEnumDescriptions = computed(() => {
   align-items: stretch;
   position: relative;
 }
+
+.property-enum-value-content {
+  display: flex;
+  flex-direction: column;
+  padding: 3px 0;
+}
+
 .property-enum-value-label {
   display: flex;
-  padding: 3px 0;
   font-family: var(--scalar-font-code);
+  color: var(--scalar-color-2);
 }
 .property-enum-value:last-of-type .property-enum-value-label {
   padding-bottom: 0;
@@ -163,7 +190,6 @@ const shouldShowEnumDescriptions = computed(() => {
 }
 
 .property-enum-value-description {
-  color: var(--scalar-color-2);
-  margin-left: 6px;
+  color: var(--scalar-color-3);
 }
 </style>
