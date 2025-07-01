@@ -289,16 +289,16 @@ When no configuration is provided it will return the default configuration
 
 The workspace store provides several methods for managing document persistence and exporting:
 
-##### Download Document
+##### Export Document
 
 Export the specified document in JSON or YAML format:
 
 ```ts
-// Download the specified document as JSON
-const jsonString = store.download('documentName', 'json')
+// Export the specified document as JSON
+const jsonString = store.exportDocument('documentName', 'json')
 
-// Download the specified document as YAML
-const yamlString = store.download('documentName', 'yaml')
+// Export the specified document as YAML
+const yamlString = store.exportDocument('documentName', 'yaml')
 ```
 
 The download method returns the original, unmodified document (before any reactive wrapping) to preserve the initial structure without external references or modifications.
@@ -309,7 +309,7 @@ Persist the current state of the specified document back to the original documen
 
 ```ts
 // Save the specified document state
-const excludedDiffs = store.save('documentName')
+const excludedDiffs = store.saveDocument('documentName')
 
 // Check if any changes were excluded from being applied
 if (excludedDiffs) {
@@ -317,7 +317,7 @@ if (excludedDiffs) {
 }
 ```
 
-The save method takes the current reactive document state and persists it. It returns an array of diffs that were excluded from being applied or undefined if no specified document is available.
+The `saveDocument` method takes the current reactive document state and persists it. It returns an array of diffs that were excluded from being applied or undefined if no specified document is available.
 
 ##### Revert Document Changes
 
@@ -325,10 +325,10 @@ Revert the specified document to its original state, discarding all unsaved chan
 
 ```ts
 // Revert the specified document to its original state
-store.revert('documentName')
+store.revertDocumentChanges('documentName')
 ```
 
-The revert method restores the specified document to its initial state by copying the original document (before any modifications) back to the specified document.
+The `revertDocumentChanges` method restores the specified document to its initial state by copying the original document (before any modifications) back to the specified document.
 
 **Warning:** This operation will discard all unsaved changes to the specified document.
 
@@ -352,5 +352,5 @@ const store = createWorkspaceStore({
 store.workspace.documents['api'].info.title = 'Updated API Title'
 
 // This will restore the original title since we did not commit the changes yet
-store.revert()
+store.revertDocumentChanges()
 ```

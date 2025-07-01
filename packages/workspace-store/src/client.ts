@@ -357,12 +357,12 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
      *
      * @example
      * // Download a document as JSON
-     * const jsonString = store.download('api', 'json')
+     * const jsonString = store.exportDocument('api', 'json')
      *
      * // Download a document as YAML
-     * const yamlString = store.download('api', 'yaml')
+     * const yamlString = store.exportDocument('api', 'yaml')
      */
-    download: (documentName: string, format: 'json' | 'yaml') => {
+    exportDocument: (documentName: string, format: 'json' | 'yaml') => {
       const originalDocument = originalDocuments[documentName]
 
       if (!originalDocument) {
@@ -382,16 +382,16 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
      * corresponding entry in the originalDocuments map, which holds the unmodified source documents.
      * The update is performed in-place to preserve reactivity, and a deep clone is used to avoid
      * mutating the reactive state directly.
-
+     *
      * @param documentName - The name of the document to save.
      * @returns An array of diffs that were excluded from being applied (e.g., changes to excluded keys),
      *          or undefined if the document does not exist or cannot be updated.
      *
      * @example
      * // Save the current state of the document named 'api'
-     * const excludedDiffs = store.save('api')
+     * const excludedDiffs = store.saveDocument('api')
      */
-    save(documentName: string) {
+    saveDocument(documentName: string) {
       const originalDocument = originalDocuments[documentName]
       // Get the raw state of the active document to avoid diff issues
       const updatedDocument = toRaw(getRaw(workspace.documents[documentName]))
@@ -412,16 +412,16 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
      * by copying the original document (from the `originalDocuments` map) back into the current reactive document.
      * The operation preserves Vue reactivity by updating the existing reactive object in place.
      *
-     * Note: All unsaved changes to the specified document will be lost after this operation.
+     * **Warning:** This operation will discard all unsaved changes to the specified document.
      *
      * @param documentName - The name of the document to revert.
      * @returns void
      *
      * @example
      * // Revert the document named 'api' to its original state
-     * store.revert('api')
+     * store.revertDocumentChanges('api')
      */
-    revert(documentName: string) {
+    revertDocumentChanges(documentName: string) {
       const originalDocument = originalDocuments[documentName]
       // Get the raw state of the current document to avoid diff issues
       // This ensures that we don't diff the references

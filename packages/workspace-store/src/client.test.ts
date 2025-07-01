@@ -657,11 +657,15 @@ describe('create-workspace-store', () => {
         ],
       })
 
-      expect(store.download('api-1', 'json')).toBe('{"info":{"title":"My API","version":"1.0.0"},"openapi":"3.1.1"}')
+      expect(store.exportDocument('api-1', 'json')).toBe(
+        '{"info":{"title":"My API","version":"1.0.0"},"openapi":"3.1.1"}',
+      )
 
-      expect(store.download('api-2', 'json')).toBe('{"info":{"title":"My API 2","version":"1.2.0"},"openapi":"3.1.1"}')
+      expect(store.exportDocument('api-2', 'json')).toBe(
+        '{"info":{"title":"My API 2","version":"1.2.0"},"openapi":"3.1.1"}',
+      )
 
-      expect(store.download('api-3', 'json')).toBe(
+      expect(store.exportDocument('api-3', 'json')).toBe(
         '{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}',
       )
     })
@@ -690,11 +694,11 @@ describe('create-workspace-store', () => {
         ],
       })
 
-      expect(store.download('api-1', 'yaml')).toBe('info:\n  title: My API\n  version: 1.0.0\nopenapi: 3.1.1\n')
+      expect(store.exportDocument('api-1', 'yaml')).toBe('info:\n  title: My API\n  version: 1.0.0\nopenapi: 3.1.1\n')
 
-      expect(store.download('api-2', 'yaml')).toBe('info:\n  title: My API 2\n  version: 1.2.0\nopenapi: 3.1.1\n')
+      expect(store.exportDocument('api-2', 'yaml')).toBe('info:\n  title: My API 2\n  version: 1.2.0\nopenapi: 3.1.1\n')
 
-      expect(store.download('api-3', 'yaml')).toBe(
+      expect(store.exportDocument('api-3', 'yaml')).toBe(
         `openapi: 3.1.1\ninfo:\n  title: My API\n  version: 1.0.0\ncomponents:\n  schemas:\n    User:\n      type: object\n      properties:\n        id:\n          type: string\n          description: The user ID\n        name:\n          type: string\n          description: The user name\n        email:\n          type: string\n          format: email\n          description: The user email\npaths:\n  /users:\n    get:\n      summary: Get all users\n      responses:\n        "200":\n          description: Successful response\n          content:\n            application/json:\n              schema:\n                type: array\n                items:\n                  $ref: "#/components/schemas/User"\n`,
       )
     })
@@ -730,15 +734,19 @@ describe('create-workspace-store', () => {
       }
 
       // Write the changes back to the original document
-      store.save('api-3')
+      store.saveDocument('api-3')
 
       // Should return the original document without any modifications
-      expect(store.download('api-1', 'json')).toBe('{"info":{"title":"My API","version":"1.0.0"},"openapi":"3.1.1"}')
+      expect(store.exportDocument('api-1', 'json')).toBe(
+        '{"info":{"title":"My API","version":"1.0.0"},"openapi":"3.1.1"}',
+      )
 
-      expect(store.download('api-2', 'json')).toBe('{"info":{"title":"My API 2","version":"1.2.0"},"openapi":"3.1.1"}')
+      expect(store.exportDocument('api-2', 'json')).toBe(
+        '{"info":{"title":"My API 2","version":"1.2.0"},"openapi":"3.1.1"}',
+      )
 
       // Should return the updated document without any extensions
-      expect(store.download('api-3', 'json')).toEqual(
+      expect(store.exportDocument('api-3', 'json')).toEqual(
         '{"openapi":"3.1.1","info":{"title":"Updated API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}',
       )
     })
@@ -779,10 +787,10 @@ describe('create-workspace-store', () => {
       await store.resolve(['paths'])
 
       // Write the changes back to the original document
-      store.save('default')
+      store.saveDocument('default')
 
       // Should return the updated document without any extensions
-      expect(store.download('default', 'json')).toEqual(
+      expect(store.exportDocument('default', 'json')).toEqual(
         '{"openapi":"3.1.1","info":{"title":"Updated API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}},"/external":{"get":{"$ref":"http://localhost:9988"}}}}',
       )
     })
@@ -820,15 +828,19 @@ describe('create-workspace-store', () => {
       expect(store.workspace?.documents['api-3']?.info?.title).toBe('Updated API')
 
       // Revert the changes
-      store.revert('api-3')
+      store.revertDocumentChanges('api-3')
 
       // Should return the original document without any modifications
-      expect(store.download('api-1', 'json')).toBe('{"info":{"title":"My API","version":"1.0.0"},"openapi":"3.1.1"}')
+      expect(store.exportDocument('api-1', 'json')).toBe(
+        '{"info":{"title":"My API","version":"1.0.0"},"openapi":"3.1.1"}',
+      )
 
-      expect(store.download('api-2', 'json')).toBe('{"info":{"title":"My API 2","version":"1.2.0"},"openapi":"3.1.1"}')
+      expect(store.exportDocument('api-2', 'json')).toBe(
+        '{"info":{"title":"My API 2","version":"1.2.0"},"openapi":"3.1.1"}',
+      )
 
       // Should return the updated document without any extensions
-      expect(store.download('api-3', 'json')).toEqual(
+      expect(store.exportDocument('api-3', 'json')).toEqual(
         '{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}',
       )
     })
