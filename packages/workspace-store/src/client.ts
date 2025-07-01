@@ -345,21 +345,22 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
       )
     },
     /**
-     * Downloads the active document in the specified format.
+     * Downloads the specified document in the requested format.
      *
-     * This method serializes the original, unmodified document (before any reactive wrapping)
-     * to either JSON or YAML format. The original document is used to preserve the
-     * initial structure without any external references or modifications.
+     * This method serializes the original, unmodified document (prior to any reactive wrapping or runtime changes)
+     * to either JSON or YAML. The original document is used to ensure the output matches the initial structure,
+     * without any runtime modifications or external references.
      *
-     * @param format - The output format: 'json' for JSON string or 'yaml' for YAML string
-     * @returns A string representation of the document in the requested format
+     * @param documentName - The name of the document to download
+     * @param format - The output format: 'json' for a JSON string, or 'yaml' for a YAML string
+     * @returns The document as a string in the requested format, or undefined if the document does not exist
      *
      * @example
-     * // Download as JSON
-     * const jsonString = store.download('json')
+     * // Download a document as JSON
+     * const jsonString = store.download('api', 'json')
      *
-     * // Download as YAML
-     * const yamlString = store.download('yaml')
+     * // Download a document as YAML
+     * const yamlString = store.download('api', 'yaml')
      */
     download: (documentName: string, format: 'json' | 'yaml') => {
       const originalDocument = originalDocuments[documentName]
@@ -375,19 +376,20 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
       return YAML.stringify(originalDocument)
     },
     /**
-     * Saves the current state of the active document back to the original documents map.
+     * Persists the current state of the specified document back to the original documents map.
      *
-     * This method takes the current reactive document state and persists it to the
-     * originalDocuments map, which stores the unmodified documents before reactive wrapping.
-     * The document is deep cloned to prevent mutations from affecting the reactive state.
-     *
-     * Note: Currently, external references are not filtered out when saving.
-     *
-     * @returns An array of diffs that were excluded from being applied (changes to excluded keys) or undefined if no active document is available
+     * This method takes the current (reactive) document state and applies its changes to the
+     * corresponding entry in the originalDocuments map, which holds the unmodified source documents.
+     * The update is performed in-place to preserve reactivity, and a deep clone is used to avoid
+     * mutating the reactive state directly.
+
+     * @param documentName - The name of the document to save.
+     * @returns An array of diffs that were excluded from being applied (e.g., changes to excluded keys),
+     *          or undefined if the document does not exist or cannot be updated.
      *
      * @example
-     * // Save the current document state
-     * const excludedDiffs = store.save()
+     * // Save the current state of the document named 'api'
+     * const excludedDiffs = store.save('api')
      */
     save(documentName: string) {
       const originalDocument = originalDocuments[documentName]
@@ -404,24 +406,24 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
       return excludedDiffs
     },
     /**
-     * Reverts the active document to its original state.
+     * Reverts the specified document to its original state.
      *
-     * This method restores the active document to its initial state by copying
-     * the original document (before any modifications) back to the active document.
-     * The original document is retrieved from the originalDocuments map and applied
-     * to the current reactive document state.
+     * This method restores the document identified by `documentName` to its initial, unmodified state
+     * by copying the original document (from the `originalDocuments` map) back into the current reactive document.
+     * The operation preserves Vue reactivity by updating the existing reactive object in place.
      *
-     * Note: This operation will discard all unsaved changes to the active document.
+     * Note: All unsaved changes to the specified document will be lost after this operation.
      *
+     * @param documentName - The name of the document to revert.
      * @returns void
      *
      * @example
-     * // Revert the active document to its original state
-     * store.revert()
+     * // Revert the document named 'api' to its original state
+     * store.revert('api')
      */
     revert(documentName: string) {
       const originalDocument = originalDocuments[documentName]
-      // Get the raw state of the active document to avoid diff issues
+      // Get the raw state of the current document to avoid diff issues
       // This ensures that we don't diff the references
       // Note:  We still keep the vue proxy for reactivity
       //        This is important since we are writing back to the active document
@@ -431,7 +433,7 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
         return
       }
 
-      // Update the original document with the current state of the active document
+      // Overwrite the current document with the original state, discarding unsaved changes.
       applySelectiveUpdates(updatedDocument, originalDocument)
     },
   }
