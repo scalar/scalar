@@ -6,6 +6,7 @@ import { requestMutators } from '@/mutators/request'
 import { requestExampleMutators } from '@/mutators/request-example'
 import { securitySchemeMutators } from '@/mutators/security-schemes'
 import { serverMutators } from '@/mutators/server'
+import type { SecurityScheme } from '@scalar/types/entities'
 
 /**
  * Generates a set of mutators for managing OpenAPI document and workspace state.
@@ -23,15 +24,31 @@ export function generateClientMutators(store: WorkspaceStore) {
   const documentMutators = (documentName: string) => {
     const document = getDocument(store, documentName)
 
-    // Make sure the document has a servers array
-    if (document && !document.servers) {
-      document.servers = []
+    if (document) {
+      // Make sure the document has a servers array
+      if (!document.servers) {
+        document.servers = []
+      }
+
+      // Make sure the document has the securitySchema object
+      if (!document.components) {
+        document.components = {}
+      }
+
+      if (!document.components.securitySchemes) {
+        document.components.securitySchemes = {}
+      }
     }
 
     return {
       requestExampleMutators: requestExampleMutators(document),
       requestMutators: requestMutators(document),
-      securitySchemeMutators: securitySchemeMutators(document),
+      // TODO: remove the type assertion
+      // Here we expect that the securitySchemes does not contain references because of the magic proxy
+      // but we still need to check for references
+      securitySchemeMutators: securitySchemeMutators(
+        document?.components?.securitySchemes as Record<string, SecurityScheme>,
+      ),
       environmentMutators: environmentMutators(document),
       cookieMutators: cookieMutators(document),
       serverMutators: serverMutators(document?.servers),
@@ -51,10 +68,16 @@ export function generateClientMutators(store: WorkspaceStore) {
       workspace['x-scalar-client-config-servers'] = []
     }
 
+    // Make sure the workspace has the securitySchema object
+    if (!store.workspace['x-scalar-client-config-security-schemes']) {
+      store.workspace['x-scalar-client-config-security-schemes'] = {}
+    }
+
     return {
       environmentMutators: environmentMutators(store.workspace),
       cookieMutators: cookieMutators(store.workspace),
       serverMutators: serverMutators(store.workspace['x-scalar-client-config-servers']),
+      securitySchemeMutators: securitySchemeMutators(store.workspace['x-scalar-client-config-security-schemes']),
     }
   }
 

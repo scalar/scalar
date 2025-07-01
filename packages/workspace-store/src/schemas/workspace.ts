@@ -5,6 +5,7 @@ import { compose } from '@/schemas/compose'
 import { xScalarClientConfigEnvironmentsSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-environments'
 import { xScalarClientConfigCookiesSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-cookies'
 import { ServerObjectSchema } from '@/schemas/v3.1/strict/server'
+import { SecuritySchemeObjectSchema } from '@/schemas/v3.1/strict/security-scheme'
 
 const WorkspaceDocumentMetaSchema = Type.Partial(
   Type.Object({
@@ -35,6 +36,7 @@ export const WorkspaceExtensionsSchema = Type.Partial(
     'x-scalar-client-config-environments': xScalarClientConfigEnvironmentsSchema,
     'x-scalar-client-config-cookies': xScalarClientConfigCookiesSchema,
     'x-scalar-client-config-servers': Type.Array(ServerObjectSchema),
+    'x-scalar-client-config-security-schemes': Type.Record(Type.String(), SecuritySchemeObjectSchema),
   }),
 )
 

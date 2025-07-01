@@ -1,4 +1,3 @@
-import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import type { SecuritySchemeObject } from '@/schemas/v3.1/strict/security-scheme'
 
 /**
@@ -9,7 +8,7 @@ import type { SecuritySchemeObject } from '@/schemas/v3.1/strict/security-scheme
  * @param document - The OpenAPI document to operate on
  * @returns Object containing mutator functions for security scheme operations
  */
-export const securitySchemeMutators = (document?: OpenApiDocument) => {
+export const securitySchemeMutators = (target?: Record<string, SecuritySchemeObject>) => {
   /**
    * Adds a new security scheme to the document's components.securitySchemes.
    * If a security scheme with the same type already exists, it will return false.
@@ -31,24 +30,12 @@ export const securitySchemeMutators = (document?: OpenApiDocument) => {
    *   console.log('Security scheme already exists')
    * }
    */
-  const addSecurityScheme = (securityScheme: SecuritySchemeObject) => {
-    if (!document) {
+  const addSecurityScheme = (name: string, securityScheme: SecuritySchemeObject) => {
+    if (!target) {
       return false
     }
 
-    if (!document.components) {
-      document.components = {}
-    }
-
-    if (!document.components.securitySchemes) {
-      document.components.securitySchemes = {}
-    }
-
-    if (document.components.securitySchemes[securityScheme.type]) {
-      return false
-    }
-
-    document.components.securitySchemes[securityScheme.type] = securityScheme
+    target[name] = securityScheme
     return true
   }
 
@@ -64,11 +51,11 @@ export const securitySchemeMutators = (document?: OpenApiDocument) => {
    * deleteSecurityScheme('apiKey')
    */
   const deleteSecurityScheme = (name: string) => {
-    if (!document || !document.components || !document.components.securitySchemes) {
+    if (!target || !target[name]) {
       return false
     }
 
-    delete document.components.securitySchemes[name]
+    delete target[name]
     return true
   }
 
