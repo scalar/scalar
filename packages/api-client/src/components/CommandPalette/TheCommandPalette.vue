@@ -101,12 +101,22 @@ const availableCommands = [
       {
         name: 'Add Environment',
         icon: 'Brackets',
-        path: 'environment.default',
+        path: {
+          name: 'environment.default',
+          params: {
+            [PathId.Workspace]: activeWorkspace?.value?.uid ?? 'default',
+          },
+        },
       },
       {
         name: 'Add Cookie',
         icon: 'Cookie',
-        path: 'cookies.default',
+        path: {
+          name: 'cookies.default',
+          params: {
+            [PathId.Workspace]: activeWorkspace?.value?.uid ?? 'default',
+          },
+        },
       },
     ],
   },
