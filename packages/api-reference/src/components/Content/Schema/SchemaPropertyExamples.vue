@@ -2,7 +2,7 @@
 import { ScalarIcon } from '@scalar/components'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 
-import { formatExample } from '@/components/Content/Schema/helpers/format-example'
+import { formatExample } from '@/components/Content/Schema/helpers/formatExample'
 
 defineProps<{
   examples?: Record<string, unknown>
