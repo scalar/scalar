@@ -361,12 +361,18 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
      * // Download as YAML
      * const yamlString = store.download('yaml')
      */
-    download: (format: 'json' | 'yaml') => {
-      if (format === 'json') {
-        return JSON.stringify(originalDocuments[getActiveDocumentName()])
+    download: (documentName: string, format: 'json' | 'yaml') => {
+      const originalDocument = originalDocuments[documentName]
+
+      if (!originalDocument) {
+        return
       }
 
-      return YAML.stringify(originalDocuments[getActiveDocumentName()])
+      if (format === 'json') {
+        return JSON.stringify(originalDocument)
+      }
+
+      return YAML.stringify(originalDocument)
     },
     /**
      * Saves the current state of the active document back to the original documents map.
@@ -383,14 +389,15 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
      * // Save the current document state
      * const excludedDiffs = store.save()
      */
-    save() {
-      // Early return if no active document is available
-      if (!workspace.activeDocument) {
+    save(documentName: string) {
+      const originalDocument = originalDocuments[documentName]
+      // Get the raw state of the active document to avoid diff issues
+      const updatedDocument = toRaw(getRaw(workspace.documents[documentName]))
+
+      // If either the original or updated document is not available, return undefined
+      if (!originalDocument || !updatedDocument) {
         return
       }
-      const originalDocument = originalDocuments[getActiveDocumentName()]
-      // Get the raw state of the active document to avoid diff issues
-      const updatedDocument = toRaw(getRaw(workspace.activeDocument))
 
       // Update the original document with the current state of the active document
       const excludedDiffs = applySelectiveUpdates(originalDocument, updatedDocument)
@@ -412,17 +419,17 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
      * // Revert the active document to its original state
      * store.revert()
      */
-    revert() {
-      if (!workspace.activeDocument) {
-        return
-      }
-
-      const originalDocument = originalDocuments[getActiveDocumentName()]
+    revert(documentName: string) {
+      const originalDocument = originalDocuments[documentName]
       // Get the raw state of the active document to avoid diff issues
       // This ensures that we don't diff the references
       // Note:  We still keep the vue proxy for reactivity
       //        This is important since we are writing back to the active document
-      const updatedDocument = getRaw(workspace.activeDocument)
+      const updatedDocument = getRaw(workspace.documents[documentName])
+
+      if (!originalDocument || !updatedDocument) {
+        return
+      }
 
       // Update the original document with the current state of the active document
       applySelectiveUpdates(updatedDocument, originalDocument)
