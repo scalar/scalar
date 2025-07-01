@@ -5,7 +5,7 @@ import type { XScalarClientConfigCookie } from '@/schemas/v3.1/strict/client-con
 /**
  * Cookie mutators for managing client configuration cookies in OpenAPI documents.
  * Provides functions to add and delete cookies from the document's x-scalar-client-config-cookies extension.
- * 
+ *
  * @param store - The workspace store containing the documents
  * @param documentName - The name of the document to operate on
  * @returns Object containing addCookie and deleteCookie functions
@@ -16,10 +16,10 @@ export const cookieMutators = (store: WorkspaceStore, documentName: string) => {
   /**
    * Adds a new cookie to the document's client configuration.
    * If a cookie with the same name already exists, it will log a warning and return false.
-   * 
+   *
    * @param cookie - The cookie configuration to add
    * @returns true if the cookie was added successfully, false if it already exists
-   * 
+   *
    * @example
    * // Add a new authentication cookie
    * const success = addCookie({
@@ -28,7 +28,7 @@ export const cookieMutators = (store: WorkspaceStore, documentName: string) => {
    *   domain: '.example.com',
    *   path: '/'
    * })
-   * 
+   *
    * if (success) {
    *   console.log('Cookie added successfully')
    * } else {
@@ -54,24 +54,25 @@ export const cookieMutators = (store: WorkspaceStore, documentName: string) => {
   }
 
   /**
-   * Deletes a cookie from the document's client configuration by name.
-   * If the document or cookies object doesn't exist, the function returns early.
-   * 
-   * @param cookieName - The name of the cookie to delete
-   * 
+   * Removes a cookie from the document's x-scalar-client-config-cookies extension by its name.
+   * Returns false if the document or cookies object does not exist, otherwise deletes the cookie and returns true.
+   *
+   * @param cookieName - The name of the cookie to remove
+   *
    * @example
-   * // Delete an authentication cookie
+   * // Remove an authentication cookie
    * deleteCookie('auth-token')
-   * 
-   * // Delete a session cookie
+   *
+   * // Remove a session cookie
    * deleteCookie('session-id')
    */
   const deleteCookie = (cookieName: string) => {
     if (!document || !document['x-scalar-client-config-cookies']) {
-      return
+      return false
     }
 
     delete document['x-scalar-client-config-cookies'][cookieName]
+    return true
   }
 
   return {
