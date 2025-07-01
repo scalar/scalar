@@ -389,6 +389,7 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
         return
       }
       const originalDocument = originalDocuments[getActiveDocumentName()]
+      // Get the raw state of the active document to avoid diff issues
       const updatedDocument = toRaw(getRaw(workspace.activeDocument))
 
       // Update the original document with the current state of the active document
@@ -417,7 +418,11 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
       }
 
       const originalDocument = originalDocuments[getActiveDocumentName()]
-      const updatedDocument = toRaw(getRaw(workspace.activeDocument))
+      // Get the raw state of the active document to avoid diff issues
+      // This ensures that we don't diff the references
+      // Note:  We still keep the vue proxy for reactivity
+      //        This is important since we are writing back to the active document
+      const updatedDocument = getRaw(workspace.activeDocument)
 
       // Update the original document with the current state of the active document
       applySelectiveUpdates(updatedDocument, originalDocument)
