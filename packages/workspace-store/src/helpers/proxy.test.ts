@@ -153,9 +153,8 @@ describe('createMagicProxy', () => {
     // This is the key issue: both constraints should be preserved and applied
     expect(resolvedSchema).toEqual({
       type: 'string',
-      pattern: 'bar$', // from the referenced schema
+      pattern: '^foo.*bar$', // merged pattern requiring both constraints
       'x-original-ref': '#/components/schemas/Foo',
-      'x-sibling-pattern': '^foo', // sibling keyword should be preserved separately
     })
   })
 })
