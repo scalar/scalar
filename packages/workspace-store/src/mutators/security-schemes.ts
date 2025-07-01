@@ -1,12 +1,11 @@
 import type { SecuritySchemeObject } from '@/schemas/v3.1/strict/security-scheme'
 
 /**
- * Provides mutator functions for managing security schemes within OpenAPI documents.
- * This module contains utilities for adding and deleting security schemes that are
- * stored in the document's components.securitySchemes object.
+ * Mutator utilities for managing security schemes in an OpenAPI document.
+ * This module contains utilities for adding and deleting security schemes.
  *
- * @param document - The OpenAPI document to operate on
- * @returns Object containing mutator functions for security scheme operations
+ * @param target - The securitySchemes object from the OpenAPI document's components section
+ * @returns An object with mutator functions for security scheme operations
  */
 export const securitySchemeMutators = (target?: Record<string, SecuritySchemeObject>) => {
   /**
