@@ -2,7 +2,7 @@ import { createMagicProxy } from '@/helpers/proxy'
 import { describe, expect, it } from 'vitest'
 
 describe('createMagicProxy', () => {
-  it('should correctly proxy internal refs', () => {
+  it('proxies internal refs', () => {
     const input = {
       a: 'hello',
       b: {
@@ -15,7 +15,7 @@ describe('createMagicProxy', () => {
     expect(result.b).toBe('hello')
   })
 
-  it('should correctly proxy deep nested refs', () => {
+  it('proxies deep nested refs', () => {
     const input = {
       a: {
         b: {
@@ -35,7 +35,7 @@ describe('createMagicProxy', () => {
     expect(result.a.b.c.e.prop).toBe('hello')
   })
 
-  it('should correctly proxy multi refs', () => {
+  it('proxies multi-level refs', () => {
     const input = {
       a: {
         b: {
@@ -59,7 +59,7 @@ describe('createMagicProxy', () => {
     expect(result.d).toBe('hello')
   })
 
-  it('should preserve information about the ref when the ref is resolved', () => {
+  it('preserves ref information when resolving', () => {
     const input = {
       a: {
         b: {
@@ -82,7 +82,7 @@ describe('createMagicProxy', () => {
     })
   })
 
-  it('should preserve the first ref on nested refs', () => {
+  it('preserves first ref on nested refs', () => {
     const input = {
       a: {
         b: {
@@ -108,7 +108,7 @@ describe('createMagicProxy', () => {
     })
   })
 
-  it('should preserve sibling keywords alongside $ref (OpenAPI 3.1/JSON Schema 2020-12)', () => {
+  it('preserves sibling keywords alongside $ref (OpenAPI 3.1/JSON Schema 2020-12)', () => {
     const input = {
       components: {
         schemas: {
