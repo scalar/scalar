@@ -10,8 +10,8 @@ const THIN_SPACE = ' '
 type SchemaValue = {
   'enum'?: any[]
   'items'?: { enum?: any[] }
-  'x-enumDescriptions'?: Record<string, string>
-  'x-enum-descriptions'?: string[]
+  'x-enumDescriptions'?: Record<string, string> | string[]
+  'x-enum-descriptions'?: Record<string, string> | string[]
   'x-enum-varnames'?: string[]
   'x-enumNames'?: string[]
 } & Record<string, any>
@@ -55,10 +55,43 @@ const formatEnumValueWithName = (enumValue: any, index: number): string => {
  * Supports both x-enum-descriptions and x-enumDescriptions formats.
  */
 const getEnumValueDescription = (index: number): string | undefined => {
-  return (
-    value?.['x-enum-descriptions']?.[index] ??
-    value?.['x-enumDescriptions']?.[index]
-  )
+  // Check if it's an array before using number index
+  const enumDescriptions = value?.['x-enum-descriptions']
+
+  if (Array.isArray(enumDescriptions)) {
+    return enumDescriptions[index]
+  }
+
+  const xEnumDescriptions = value?.['x-enumDescriptions']
+
+  if (Array.isArray(xEnumDescriptions)) {
+    return xEnumDescriptions[index]
+  }
+
+  return undefined
+}
+
+/**
+ * Gets the description for an enum value from object format.
+ * Used when x-enumDescriptions is an object mapping enum values to descriptions.
+ */
+const getEnumValueDescriptionFromObject = (
+  enumValue: any,
+): string | undefined => {
+  // Check if it's an object before using string index
+  const enumDescriptions = value?.['x-enumDescriptions']
+
+  if (enumDescriptions && !Array.isArray(enumDescriptions)) {
+    return enumDescriptions[enumValue]
+  }
+
+  const xEnumDescriptions = value?.['x-enum-descriptions']
+
+  if (xEnumDescriptions && !Array.isArray(xEnumDescriptions)) {
+    return xEnumDescriptions[enumValue]
+  }
+
+  return undefined
 }
 
 // Computed properties
@@ -90,10 +123,24 @@ const hiddenEnumValues = computed(() =>
 
 /**
  * Determines if we should show enum descriptions as key-value pairs.
- * This is used when x-enumDescriptions is an object mapping enum values to descriptions.
+ * This only applies to object format of x-enumDescriptions.
  */
 const shouldShowDescriptionsAsKeyValue = computed(() => {
-  const descriptions = value?.['x-enumDescriptions']
+  const descriptions =
+    value?.['x-enumDescriptions'] ?? value?.['x-enum-descriptions']
+  return (
+    descriptions &&
+    typeof descriptions === 'object' &&
+    !Array.isArray(descriptions)
+  )
+})
+
+/**
+ * Determines if x-enumDescriptions is in object format (not array).
+ */
+const isObjectFormat = computed(() => {
+  const descriptions =
+    value?.['x-enumDescriptions'] ?? value?.['x-enum-descriptions']
   return (
     descriptions &&
     typeof descriptions === 'object' &&
@@ -116,7 +163,7 @@ const shouldRender = computed(() => hasEnumValues.value && !isDiscriminator)
     <template v-if="shouldShowDescriptionsAsKeyValue">
       <div class="property-list">
         <div
-          v-for="enumValue in enumValues"
+          v-for="(enumValue, index) in enumValues"
           :key="enumValue"
           class="property">
           <div class="property-heading">
@@ -124,7 +171,11 @@ const shouldRender = computed(() => hasEnumValues.value && !isDiscriminator)
           </div>
           <div class="property-description">
             <ScalarMarkdown
-              :value="value?.['x-enumDescriptions']?.[enumValue]" />
+              :value="
+                isObjectFormat
+                  ? getEnumValueDescriptionFromObject(enumValue)
+                  : getEnumValueDescription(index)
+              " />
           </div>
         </div>
       </div>
