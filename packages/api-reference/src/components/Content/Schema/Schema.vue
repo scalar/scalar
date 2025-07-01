@@ -136,6 +136,15 @@ const shouldShowDescription = computed(() => {
     return false
   }
 
+  // Will be shown in the properties anyway
+  if (
+    !schema.value.properties &&
+    !schema.value.patternProperties &&
+    !schema.value.additionalProperties
+  ) {
+    return false
+  }
+
   // Merged allOf schemas at level 0 should not show individual descriptions
   // to prevent duplicates with the request body description
   if (props.level === 0) {
