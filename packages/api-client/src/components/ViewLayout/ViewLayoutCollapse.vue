@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
-import { useId } from 'vue'
+import { onMounted, ref, useId } from 'vue'
 
 const {
   defaultOpen = true,
@@ -13,8 +13,23 @@ const {
   layout?: 'client' | 'reference'
 }>()
 
+const emit = defineEmits<{
+  (e: 'update:modelValue', v: boolean): void
+}>()
+
 const id = useId()
+const isOpen = ref(defaultOpen)
+
+const toggleOpen = () => {
+  isOpen.value = !isOpen.value
+  emit('update:modelValue', isOpen.value)
+}
+
+onMounted(() => {
+  emit('update:modelValue', isOpen.value)
+})
 </script>
+
 <template>
   <Disclosure
     v-slot="{ open }"
@@ -22,7 +37,8 @@ const id = useId()
     class="group/collapse focus-within:text-c-1 text-c-2 border-b"
     :class="{ 'last-of-type:first-of-type:border-b-0': layout === 'reference' }"
     :defaultOpen="defaultOpen"
-    :static="layout === 'reference' ? true : undefined">
+    :static="layout === 'reference' ? true : undefined"
+    @click="toggleOpen">
     <section
       :aria-labelledby="id"
       class="contents">

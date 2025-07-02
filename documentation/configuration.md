@@ -478,7 +478,7 @@ You can pass information to the config object to configure meta information out 
 {
   metaData: {
     title: 'Page title',
-    description: 'My page page',
+    description: 'My page description',
     ogDescription: 'Still about my my page',
     ogTitle: 'Page title',
     ogImage: 'https://example.com/image.png',

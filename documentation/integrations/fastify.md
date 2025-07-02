@@ -209,7 +209,7 @@ fastify.put(
       },
       response: {
         201: {
-          description: 'Succesful response',
+          description: 'Successful response',
           type: 'object',
           properties: {
             hello: { type: 'string' },
