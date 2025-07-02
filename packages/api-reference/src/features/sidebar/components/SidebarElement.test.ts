@@ -155,7 +155,7 @@ describe('SidebarElement', () => {
     const { isOperationDeprecated } = await import('@/libs/openapi')
     vi.mocked(isOperationDeprecated).mockReturnValue(true)
 
-    const item = createMockTraversedEntry({ type: 'text' })
+    const item = createMockTraversedEntry()
     const wrapper = mount(SidebarElement, {
       props: {
         id: 'test-id',
@@ -222,15 +222,14 @@ describe('SidebarElement', () => {
 
   it('handles webhook operations correctly', () => {
     const operation = createMockOperation()
-    const item = createMockTraversedOperation(operation, {
-      type: 'webhook',
-      name: 'test-webhook',
-      webhook: operation,
-    })
+    const item = createMockTraversedOperation(operation)
     const wrapper = mount(SidebarElement, {
       props: {
         id: 'test-id',
-        item,
+        item: {
+          ...item,
+          webhook: operation,
+        },
       },
     })
 
