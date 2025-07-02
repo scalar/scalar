@@ -1,0 +1,23 @@
+{
+  "name": "scalar-fastapi",
+  "description": "Scalar FastAPI integration",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "integrations/fastapi"
+  },
+  "private": true,
+  "version": "1.2.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "python3 run_tests.py"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
