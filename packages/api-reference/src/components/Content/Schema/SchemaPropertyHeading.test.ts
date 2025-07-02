@@ -335,4 +335,102 @@ describe('SchemaPropertyHeading', () => {
     expect(detailsElement.text()).toContain('multiple of:')
     expect(detailsElement.text()).toContain('0.001')
   })
+
+  describe('exclusiveMinimum and exclusiveMaximum', () => {
+    it('renders exclusiveMinimum property', () => {
+      const wrapper = mount(SchemaPropertyHeading, {
+        props: {
+          value: {
+            type: 'number',
+            exclusiveMinimum: 5,
+          },
+        },
+      })
+      const detailsElement = wrapper.find('.property-heading')
+      expect(detailsElement.text()).toContain('greater than:')
+      expect(detailsElement.text()).toContain('5')
+    })
+
+    it('renders exclusiveMaximum property', () => {
+      const wrapper = mount(SchemaPropertyHeading, {
+        props: {
+          value: {
+            type: 'number',
+            exclusiveMaximum: 10,
+          },
+        },
+      })
+      const detailsElement = wrapper.find('.property-heading')
+      expect(detailsElement.text()).toContain('less than:')
+      expect(detailsElement.text()).toContain('10')
+    })
+
+    it('renders both exclusiveMinimum and exclusiveMaximum properties', () => {
+      const wrapper = mount(SchemaPropertyHeading, {
+        props: {
+          value: {
+            type: 'number',
+            exclusiveMinimum: 1,
+            exclusiveMaximum: 10,
+          },
+        },
+      })
+      const detailsElement = wrapper.find('.property-heading')
+      expect(detailsElement.text()).toContain('greater than:')
+      expect(detailsElement.text()).toContain('1')
+      expect(detailsElement.text()).toContain('less than:')
+      expect(detailsElement.text()).toContain('10')
+    })
+
+    it('renders minimum and maximum properties when exclusive values are not present', () => {
+      const wrapper = mount(SchemaPropertyHeading, {
+        props: {
+          value: {
+            type: 'number',
+            minimum: 0,
+            maximum: 100,
+          },
+        },
+      })
+      const detailsElement = wrapper.find('.property-heading')
+      expect(detailsElement.text()).toContain('min:')
+      expect(detailsElement.text()).toContain('0')
+      expect(detailsElement.text()).toContain('max:')
+      expect(detailsElement.text()).toContain('100')
+    })
+
+    it('renders exclusiveMinimum and maximum properties together', () => {
+      const wrapper = mount(SchemaPropertyHeading, {
+        props: {
+          value: {
+            type: 'number',
+            exclusiveMinimum: 1,
+            maximum: 100,
+          },
+        },
+      })
+      const detailsElement = wrapper.find('.property-heading')
+      expect(detailsElement.text()).toContain('greater than:')
+      expect(detailsElement.text()).toContain('1')
+      expect(detailsElement.text()).toContain('max:')
+      expect(detailsElement.text()).toContain('100')
+    })
+
+    it('renders minimum and exclusiveMaximum properties together', () => {
+      const wrapper = mount(SchemaPropertyHeading, {
+        props: {
+          value: {
+            type: 'number',
+            minimum: 0,
+            exclusiveMaximum: 10,
+          },
+        },
+      })
+      const detailsElement = wrapper.find('.property-heading')
+      expect(detailsElement.text()).toContain('min:')
+      expect(detailsElement.text()).toContain('0')
+      expect(detailsElement.text()).toContain('less than:')
+      expect(detailsElement.text()).toContain('10')
+    })
+  })
 })
