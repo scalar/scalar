@@ -51,9 +51,10 @@ function handleBack(event: KeyboardEvent) {
 </script>
 <template>
   <textarea
+    id="command-action-input"
     ref="input"
     v-model="model"
-    class="min-h-8 w-full flex-1 resize-none border-none py-1.5 pl-8 text-sm outline-none"
+    class="min-h-8 w-full flex-1 resize-none border border-transparent py-1.5 pl-8.5 text-sm outline-none focus:border-b-1"
     :placeholder="props.placeholder ?? ''"
     wrap="hard"
     v-bind="$attrs"
