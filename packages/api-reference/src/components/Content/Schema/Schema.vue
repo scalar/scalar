@@ -241,6 +241,7 @@ const handleDiscriminatorChange = (type: string) => {
           </template>
         </DisclosureButton>
         <DisclosurePanel
+          v-if="!additionalProperties || open"
           as="ul"
           :static="!shouldShowToggle">
           <!-- Schema properties -->
