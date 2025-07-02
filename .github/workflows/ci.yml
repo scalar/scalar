@@ -836,3 +836,93 @@ jobs:
         name: Publish Scalar.Aspire NuGet package
         working-directory: integrations/aspire/src/Scalar.Aspire
         run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
+
+  fastapi-build-test:
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    needs: [build]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Setup Python
+        uses: actions/setup-python@4d7c8a1b7a623a5ab0d00e87e3f3c2b3e4b5e6f7
+        with:
+          python-version: '3.11'
+
+      - name: Install build dependencies
+        working-directory: integrations/fastapi
+        run: |
+          python -m pip install --upgrade pip
+          pip install build
+
+      - name: Build Python package
+        working-directory: integrations/fastapi
+        run: python -m build
+
+      - name: Test package installation
+        working-directory: integrations/fastapi
+        run: |
+          pip install dist/*.whl
+          python -c "import scalar_fastapi; print('FastAPI package imported successfully')"
+
+  fastapi-publish:
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    concurrency:
+      group: fastapi-publish
+      cancel-in-progress: false
+    needs:
+      [
+        harden_security,
+        build,
+        format,
+        types,
+        test-packages,
+        test-integrations,
+        fastapi-build-test,
+      ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Check for FastAPI integration changes
+        id: changed-files
+        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94
+        with:
+          files_yaml: |
+            fastapi_integration:
+              - integrations/fastapi/**
+
+      - if: steps.changed-files.outputs.fastapi_integration_any_changed == 'true'
+        name: Extract version from setup.py
+        working-directory: integrations/fastapi
+        run: |
+          VERSION=$(python -c "import ast; print(ast.literal_eval(open('setup.py').read().split('version=')[1].split(',')[0]))")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - if: steps.changed-files.outputs.fastapi_integration_any_changed == 'true'
+        name: Setup Python
+        uses: actions/setup-python@4d7c8a1b7a623a5ab0d00e87e3f3c2b3e4b5e6f7
+        with:
+          python-version: '3.11'
+
+      - if: steps.changed-files.outputs.fastapi_integration_any_changed == 'true'
+        name: Install build dependencies
+        working-directory: integrations/fastapi
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - if: steps.changed-files.outputs.fastapi_integration_any_changed == 'true'
+        name: Build Python package
+        working-directory: integrations/fastapi
+        run: python -m build
+
+      - if: steps.changed-files.outputs.fastapi_integration_any_changed == 'true'
+        name: Publish to PyPI
+        working-directory: integrations/fastapi
+        run: |
+          twine upload --username __token__ --password ${{ secrets.PYPI_TOKEN }} dist/*
