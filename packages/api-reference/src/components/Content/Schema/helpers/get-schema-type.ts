@@ -8,7 +8,7 @@ export const getSchemaType = (value: OpenAPIV3_1.SchemaObject): string => {
     // Handle array types that include 'array' - we need to process items
     if (value.type.includes('array') && value.items) {
       const itemType = getSchemaType(value.items)
-      const wrappedItemType = itemType && itemType.includes(' | ') ? `(${itemType})` : itemType
+      const wrappedItemType = itemType?.includes(' | ') ? `(${itemType})` : itemType
       const baseType = itemType ? `array ${wrappedItemType}[]` : 'array'
 
       // Remove 'array' from the type array and join the rest
@@ -26,7 +26,7 @@ export const getSchemaType = (value: OpenAPIV3_1.SchemaObject): string => {
   // Handle array schemas with items
   if (value?.type === 'array' && value.items) {
     const itemType = getSchemaType(value.items)
-    const wrappedItemType = itemType && itemType.includes(' | ') ? `(${itemType})` : itemType
+    const wrappedItemType = itemType?.includes(' | ') ? `(${itemType})` : itemType
     const baseType = itemType ? `array ${wrappedItemType}[]` : 'array'
 
     // Handle nullable arrays
@@ -43,6 +43,10 @@ export const getSchemaType = (value: OpenAPIV3_1.SchemaObject): string => {
 
   if (value?.name) {
     return value.name
+  }
+
+  if (value?.xml?.name) {
+    return value.xml.name
   }
 
   if (value?.type && value.contentEncoding) {
