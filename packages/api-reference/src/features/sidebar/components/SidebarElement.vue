@@ -9,6 +9,7 @@ import { combineUrlAndPath } from '@scalar/oas-utils/helpers'
 import type { TraversedEntry } from '@/features/traverse-schema'
 import { useConfig } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
+import { isOperationDeprecated } from '@/libs/openapi'
 
 import SidebarHttpBadge from './SidebarHttpBadge.vue'
 
@@ -90,7 +91,8 @@ const onAnchorClick = async (ev: Event) => {
       :class="{
         'sidebar-group-item__folder': hasChildren,
         'active_page': isActive,
-        'deprecated': 'deprecated' in item && item.deprecated,
+        'deprecated':
+          'operation' in item && isOperationDeprecated(item.operation),
       }"
       @click="handleClick">
       <!-- If children are detected then show the nesting icon -->
