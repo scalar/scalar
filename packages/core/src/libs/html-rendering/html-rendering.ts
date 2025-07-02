@@ -84,43 +84,30 @@ export const getHtmlDocument = (givenConfiguration: Partial<HtmlRenderingConfigu
  * The script tags to load the @scalar/api-reference package from the CDN.
  */
 export function getScriptTags(configuration: Partial<ApiReferenceConfiguration>, cdn?: string) {
-  // Extract function properties before stringifying
-  const {
-    tagsSorter,
-    operationsSorter,
-    generateHeadingSlug,
-    generateModelSlug,
-    generateTagSlug,
-    generateOperationSlug,
-    generateWebhookSlug,
-    onLoaded,
-    redirect,
-    onSpecUpdate,
-    onServerChange,
-    ...restConfig
-  } = configuration
+  const restConfig = { ...configuration }
 
-  // Create the function strings if they exist
   const functionProps: string[] = []
-  const functionProperties = [
-    { name: 'tagsSorter', value: tagsSorter },
-    { name: 'operationsSorter', value: operationsSorter },
-    { name: 'generateHeadingSlug', value: generateHeadingSlug },
-    { name: 'generateModelSlug', value: generateModelSlug },
-    { name: 'generateTagSlug', value: generateTagSlug },
-    { name: 'generateOperationSlug', value: generateOperationSlug },
-    { name: 'generateWebhookSlug', value: generateWebhookSlug },
-    { name: 'onLoaded', value: onLoaded },
-    { name: 'redirect', value: redirect },
-    { name: 'onSpecUpdate', value: onSpecUpdate },
-    { name: 'onServerChange', value: onServerChange },
-  ]
+  const functionKeys = [
+    'tagsSorter',
+    'operationsSorter',
+    'generateHeadingSlug',
+    'generateModelSlug',
+    'generateTagSlug',
+    'generateOperationSlug',
+    'generateWebhookSlug',
+    'onLoaded',
+    'redirect',
+    'onSpecUpdate',
+    'onServerChange',
+  ] as const
 
-  functionProperties.forEach(({ name, value }) => {
+  for (const key of functionKeys) {
+    const value = configuration[key]
     if (value && typeof value === 'function') {
-      functionProps.push(`"${name}": ${value.toString()}`)
+      functionProps.push(`"${key}": ${value.toString()}`)
+      delete restConfig[key]
     }
-  })
+  }
 
   // Stringify the rest of the configuration
   const configString = JSON.stringify(restConfig, null, 2)
