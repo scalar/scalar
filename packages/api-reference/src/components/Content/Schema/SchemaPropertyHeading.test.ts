@@ -107,8 +107,9 @@ describe('SchemaPropertyHeading', () => {
         },
       },
     })
+
     const constElement = wrapper.find('.property-const')
-    expect(constElement.exists()).toBe(false)
+    expect(constElement.exists()).toBe(true)
   })
 
   it('renders const value in array items', async () => {

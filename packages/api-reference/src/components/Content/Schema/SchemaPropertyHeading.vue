@@ -47,7 +47,7 @@ const flattenDefaultValue = (value: Record<string, any>) => {
 }
 
 const constValue = computed(() => {
-  if (isDefined(value?.const)) {
+  if (value?.const !== undefined) {
     return value?.const
   }
 
@@ -64,7 +64,8 @@ const constValue = computed(() => {
       return value.items.enum[0]
     }
   }
-  return null
+
+  return undefined
 })
 
 /** Gets the model name */
@@ -180,7 +181,7 @@ const modelName = computed(() => {
       class="property-deprecated">
       <Badge>deprecated</Badge>
     </div>
-    <!-- Don’t use `isDefined` here, we want to show `const` when the value is `null` -->
+    <!-- Don't use `isDefined` here, we want to show `const` when the value is `null` -->
     <div
       v-if="constValue !== undefined"
       class="property-const">
