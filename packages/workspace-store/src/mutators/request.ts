@@ -63,6 +63,11 @@ export const requestMutators = (document?: OpenApiDocument) => {
     // delete the request from the old location
     delete pathObject[source.method]
 
+    if (!document.paths[newPath]) {
+      // If the new path does not exist, create it
+      document.paths[newPath] = {}
+    }
+
     document.paths[newPath][newMethod] = operation
     return true
   }
@@ -84,23 +89,24 @@ export const requestMutators = (document?: OpenApiDocument) => {
    */
   const deleteRequest = ({ path, method }: OperationIdentifier) => {
     if (!document) {
-      return
+      return false
     }
 
     const pathObject = document?.paths?.[path]
 
     if (!pathObject) {
-      return
+      return false
     }
 
     const operation = pathObject[method]
 
     if (!operation) {
-      return
+      return false
     }
 
     // Delete the request by slug
     delete pathObject[method]
+    return true
   }
 
   return {

@@ -44,17 +44,15 @@ export const requestExampleMutators = (document?: WorkspaceDocument) => {
       return false
     }
 
-    const pathObject = document.paths[path]
-
-    if (!pathObject) {
+    if (!document.paths[path]) {
       document.paths[path] = {}
     }
 
-    if (!pathObject[method]) {
-      pathObject[method] = {}
+    if (!document.paths[path][method]) {
+      document.paths[path][method] = {}
     }
 
-    const operation = pathObject[method]
+    const operation = document.paths[path][method]
 
     if (isReference(operation)) {
       return false
@@ -63,6 +61,11 @@ export const requestExampleMutators = (document?: WorkspaceDocument) => {
     // Create a new request example if it doesn't exist
     if (!operation['x-scalar-client-config-request-example']) {
       operation['x-scalar-client-config-request-example'] = {}
+    }
+
+    if (operation['x-scalar-client-config-request-example'][slug]) {
+      console.warn(`Request example with slug "${slug}" already exists for ${method.toUpperCase()} ${path}.`)
+      return false
     }
 
     operation['x-scalar-client-config-request-example'][slug] = request

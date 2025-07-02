@@ -39,7 +39,7 @@ export const cookieMutators = (
    */
   const addCookie = (cookie: XScalarClientConfigCookie) => {
     if (!document) {
-      return
+      return false
     }
 
     if (!document['x-scalar-client-config-cookies']) {

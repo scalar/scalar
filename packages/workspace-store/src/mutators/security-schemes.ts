@@ -35,6 +35,11 @@ export const securitySchemeMutators = (target?: ComponentsObject['securityScheme
       return false
     }
 
+    if (target[name]) {
+      // Security scheme with this name already exists
+      return false
+    }
+
     target[name] = securityScheme
     return true
   }
