@@ -9,6 +9,7 @@ import { getDiscriminatorSchemaName } from '@/hooks/useDiscriminator'
 
 import { getSchemaType } from './helpers/get-schema-type'
 import { getModelName } from './helpers/schema-name'
+import RenderString from './RenderString.vue'
 import SchemaPropertyDetail from './SchemaPropertyDetail.vue'
 import SchemaPropertyExamples from './SchemaPropertyExamples.vue'
 
@@ -180,11 +181,11 @@ const modelName = computed(() => {
       <Badge>deprecated</Badge>
     </div>
     <div
-      v-if="isDefined(constValue)"
+      v-if="constValue !== undefined"
       class="property-const">
       <SchemaPropertyDetail truncate>
         <template #prefix>const: </template>
-        {{ constValue }}
+        <RenderString :value="constValue" />
       </SchemaPropertyDetail>
     </div>
     <template v-else>
