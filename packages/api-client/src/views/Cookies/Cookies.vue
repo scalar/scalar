@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useModal } from '@scalar/components'
 import { cookieSchema, type Cookie } from '@scalar/oas-utils/entities/cookie'
-import { computed, onBeforeUnmount, onMounted } from 'vue'
+import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { Sidebar } from '@/components'
@@ -131,6 +131,16 @@ const activeCookie = computed<Cookie | undefined>(
 
 const hasCookies = computed(
   () => Object.keys(cookies).length > 0 && activeCookie.value,
+)
+
+watch(
+  () => route.query.openCookieModal,
+  (newVal) => {
+    if (newVal === 'true') {
+      openCookieModal()
+    }
+  },
+  { immediate: true },
 )
 </script>
 <template>

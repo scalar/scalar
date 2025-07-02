@@ -142,6 +142,17 @@ describe('html-rendering', () => {
       expect(tags).toContain('"onServerChange": (server) => console.log("server changed", server)')
     })
 
+    it('handle configuration properties that accept both string and function types', () => {
+      const config = {
+        tagsSorter: 'alpha' as const,
+        operationsSorter: 'method' as const,
+      }
+
+      const tags = getScriptTags(config, 'https://example.com/script.js')
+      expect(tags).toContain('"tagsSorter": "alpha"')
+      expect(tags).toContain('"operationsSorter": "method"')
+    })
+
     it('generates complete HTML document with configuration', () => {
       const config = {
         theme: 'kepler' as const,

@@ -25,12 +25,12 @@
     "dev": "vite-node ./src/index.ts",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
+    "generate-json-schemas": "vite-node ./scripts/generate-json-schemas.ts",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "test": "vitest",
     "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check",
-    "generate-json-schemas": "vite-node ./scripts/generate-json-schemas.ts"
+    "types:check": "scalar-types-check"
   },
   "type": "module",
   "exports": {

@@ -97,7 +97,7 @@ jobs:
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Scan for vulnerabilities
-        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0
+        uses: aquasecurity/trivy-action@76071ef0d7ec797419534a183b498b4d6366cf37
         with:
           scan-type: 'image'
           image-ref: 'scalarapi/api-reference:latest'
@@ -150,7 +150,7 @@ jobs:
       # You might ask why we need a GitHub Action to install Biome.
       # Well, it's because GHA throws an error when it's run through pnpm.# > Error: Cannot find module '@biomejs/cli-linux-x64/biome'
       - name: Setup Biome
-        uses: biomejs/setup-biome@a9763ed3d2388f5746f9dc3e1a55df7f4609bc89
+        uses: biomejs/setup-biome@454fa0d884737805f48d7dc236c1761a0ac3cc13
         with:
           version: 1.9.4
       - name: Lint code
@@ -760,7 +760,7 @@ jobs:
 
       - name: Check for Aspire package.json changes
         id: changed-files
-        uses: step-security/changed-files@3dbe17c78367e7d60f00d78ae6781a35be47b4a1
+        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94
         with:
           files_yaml: |
             aspire_package:

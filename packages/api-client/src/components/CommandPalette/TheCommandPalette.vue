@@ -101,12 +101,24 @@ const availableCommands = [
       {
         name: 'Add Environment',
         icon: 'Brackets',
-        path: 'environment.default',
+        path: {
+          name: 'environment.default',
+          params: {
+            [PathId.Workspace]: activeWorkspace?.value?.uid ?? 'default',
+          },
+          query: { openEnvironmentModal: 'true' },
+        },
       },
       {
         name: 'Add Cookie',
         icon: 'Cookie',
-        path: 'cookies.default',
+        path: {
+          name: 'cookies.default',
+          params: {
+            [PathId.Workspace]: activeWorkspace?.value?.uid ?? 'default',
+          },
+          query: { openCookieModal: 'true' },
+        },
       },
     ],
   },
@@ -400,7 +412,7 @@ onBeforeUnmount(() => {
         v-else
         class="flex-1 p-1.5">
         <button
-          class="hover:bg-b-3 text-c-3 active:text-c-1 absolute z-1 my-1.25 mr-1.5 rounded p-0.75"
+          class="hover:bg-b-3 text-c-3 active:text-c-1 absolute z-1 mt-[0.5px] rounded p-1.5"
           type="button"
           @click="activeCommand = null">
           <ScalarIcon

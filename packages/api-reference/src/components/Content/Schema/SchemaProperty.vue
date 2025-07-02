@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
+import { ScalarMarkdown } from '@scalar/components'
 import { computed, inject, type Component } from 'vue'
 
 import {
   compositions,
   optimizeValueForDisplay,
 } from '@/components/Content/Schema/helpers/optimizeValueForDisplay'
+import SchemaEnumValues from '@/components/Content/Schema/SchemaEnumValues.vue'
 import type { Schemas } from '@/features/Operation/types/schemas'
 import { SpecificationExtension } from '@/features/specification-extension'
 import { DISCRIMINATOR_CONTEXT } from '@/hooks/useDiscriminator'
@@ -113,22 +113,6 @@ const generatePropertyDescription = (property?: Record<string, any>) => {
 
 const getEnumFromValue = (value?: Record<string, any>): any[] | [] =>
   value?.enum || value?.items?.enum || []
-
-// These helpers manage how enum values are displayed:
-//
-// - For enums with 9 or fewer values, all values are shown.
-// - For enums with more than 9 values, only first 5 are shown initially.
-// - A “Show more” button reveals the remaining values.
-const hasLongEnumList = computed(
-  () => getEnumFromValue(optimizedValue.value).length > 9,
-)
-const initialEnumCount = computed(() => (hasLongEnumList.value ? 5 : 9))
-const visibleEnumValues = computed(() =>
-  getEnumFromValue(optimizedValue.value).slice(0, initialEnumCount.value),
-)
-const remainingEnumValues = computed(() =>
-  getEnumFromValue(optimizedValue.value).slice(initialEnumCount.value),
-)
 
 /** Simplified composition with `null` type. */
 const optimizedValue = computed(() => optimizeValueForDisplay(props.value))
@@ -242,18 +226,6 @@ const shouldRenderObjectProperties = computed(() => {
 
   return isObjectType && hasPropertiesToRender
 })
-
-const shouldShowEnumDescriptions = computed(() => {
-  if (!optimizedValue.value?.['x-enumDescriptions']) {
-    return false
-  }
-
-  const enumDescriptions = optimizedValue.value['x-enumDescriptions']
-
-  return (
-    typeof enumDescriptions === 'object' && !Array.isArray(enumDescriptions)
-  )
-})
 </script>
 <template>
   <component
@@ -310,62 +282,7 @@ const shouldShowEnumDescriptions = computed(() => {
         :value="generatePropertyDescription(optimizedValue) || ''" />
     </div>
     <!-- Enum -->
-    <div
-      v-if="getEnumFromValue(optimizedValue)?.length > 0 && !isDiscriminator"
-      class="property-enum">
-      <template v-if="shouldShowEnumDescriptions">
-        <div class="property-list">
-          <div
-            v-for="enumValue in getEnumFromValue(optimizedValue)"
-            :key="enumValue"
-            class="property">
-            <div class="property-heading">
-              <div class="property-name">
-                {{ enumValue }}
-              </div>
-            </div>
-            <div class="property-description">
-              <ScalarMarkdown
-                :value="optimizedValue?.['x-enumDescriptions']?.[enumValue]" />
-            </div>
-          </div>
-        </div>
-      </template>
-      <template v-else>
-        <ul class="property-enum-values">
-          <li
-            v-for="enumValue in visibleEnumValues"
-            :key="enumValue"
-            class="property-enum-value">
-            <span class="property-enum-value-label">
-              {{ enumValue }}
-            </span>
-          </li>
-          <Disclosure
-            v-if="hasLongEnumList"
-            v-slot="{ open }">
-            <DisclosurePanel>
-              <li
-                v-for="enumValue in remainingEnumValues"
-                :key="enumValue"
-                class="property-enum-value">
-                <span class="property-enum-value-label">
-                  {{ enumValue }}
-                </span>
-              </li>
-            </DisclosurePanel>
-            <DisclosureButton class="enum-toggle-button">
-              <ScalarIcon
-                class="enum-toggle-button-icon"
-                :class="{ 'enum-toggle-button-icon--open': open }"
-                icon="Add"
-                size="sm" />
-              {{ open ? 'Hide values' : 'Show all values' }}
-            </DisclosureButton>
-          </Disclosure>
-        </ul>
-      </template>
-    </div>
+    <SchemaEnumValues :value="optimizedValue" />
     <!-- Object -->
     <div
       v-if="shouldRenderObjectProperties"
@@ -516,10 +433,7 @@ const shouldShowEnumDescriptions = computed(() => {
   line-height: 1.4;
   font-size: var(--scalar-small);
 }
-.property-heading:empty + .property-description:last-of-type,
-.property-description:first-of-type:last-of-type {
-  margin-top: 0;
-}
+
 .property-description:has(+ .property-rule) {
   margin-bottom: 9px;
 }
@@ -563,49 +477,6 @@ const shouldShowEnumDescriptions = computed(() => {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
-.property-enum-value {
-  color: var(--scalar-color-3);
-  line-height: 1.5;
-  word-break: break-word;
-  display: flex;
-  align-items: stretch;
-  position: relative;
-}
-.property-enum-value-label {
-  display: flex;
-  padding: 3px 0;
-  font-family: var(--scalar-font-code);
-}
-.property-enum-value:last-of-type .property-enum-value-label {
-  padding-bottom: 0;
-}
-.property-enum-value::before {
-  content: '';
-  margin-right: 12px;
-  width: var(--scalar-border-width);
-  display: block;
-  background: currentColor;
-  color: var(--scalar-color-3);
-}
-.property-enum-value:after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: 8px;
-  height: var(--scalar-border-width);
-  background: currentColor;
-}
-.property-enum-value:last-of-type::after {
-  bottom: 0;
-  height: 50%;
-  background: var(--scalar-background-1);
-  border-top: var(--scalar-border-width) solid currentColor;
-}
-.property-enum-values {
-  margin-top: 8px;
-  list-style: none;
-}
 
 .property-example {
   background: transparent;
@@ -624,14 +495,7 @@ const shouldShowEnumDescriptions = computed(() => {
   border-radius: var(--scalar-radius);
   padding: 3px 4px;
 }
-.property-list {
-  border: var(--scalar-border-width) solid var(--scalar-border-color);
-  border-radius: var(--scalar-radius);
-  margin-top: 10px;
-}
-.property-list .property:last-of-type {
-  padding-bottom: 10px;
-}
+
 .property-name {
   font-family: var(--scalar-font-code);
   font-weight: var(--scalar-semibold);
