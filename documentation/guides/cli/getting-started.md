@@ -109,5 +109,5 @@ jobs:
       - name: Validate OpenAPI File
         # Replace `./my-openapi-file.yaml` with the correct path and filename for your project.
         # Or: run `npx @scalar/cli init` and add the config file to your repository.
-        run: npx @scalar/cli validate ./my-openapi-file.yaml
+        run: npx @scalar/cli document validate docs/openapi.yaml
 ```

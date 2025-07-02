@@ -4,6 +4,8 @@ import { type Collection, collectionSchema, requestSchema, serverSchema } from '
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
+import { nextTick } from 'vue'
+import type { VueWrapper } from '@vue/test-utils'
 
 import RequestAuth from './RequestAuth.vue'
 
@@ -98,6 +100,16 @@ describe('RequestAuth.vue', () => {
       }),
     }) as const
 
+  const clickAuthSelect = async (wrapper: VueWrapper) => {
+    const dropdownButton = wrapper
+      .findAll('button')
+      .filter((node) => node.text().includes('Auth Type'))
+      .at(0)
+    expect(dropdownButton?.text()).toContain('Auth Type')
+    await dropdownButton?.trigger('click')
+    await nextTick()
+  }
+
   it('renders the basics', async () => {
     const wrapper = mount(RequestAuth, {
       props: createBaseProps(),
@@ -112,20 +124,21 @@ describe('RequestAuth.vue', () => {
   it('calls correct mutator when selecting auth scheme', async () => {
     const wrapper = mount(RequestAuth, {
       props: createBaseProps(),
+      attachTo: document.body,
     })
 
-    // Find and click the combobox
-    const dropdownButton = wrapper
-      .findAll('button')
-      .filter((node) => node.text().includes('Auth Type'))
-      .at(0)
-    expect(dropdownButton?.text()).toContain('Auth Type')
-    await dropdownButton?.trigger('click')
+    await clickAuthSelect(wrapper)
 
     // Select a security scheme
-    const option = wrapper.findAll('li').find((node) => node.text().includes('bearerAuth'))
-    expect(option?.text()).toContain('bearerAuth')
-    await option?.trigger('click')
+    await nextTick()
+
+    const options = document.querySelectorAll('li[role="option"]')
+    const bearerAuthOption = Array.from(options).find((option) => option.textContent?.includes('bearerAuth'))
+
+    expect(bearerAuthOption?.textContent).toContain('bearerAuth')
+
+    bearerAuthOption?.dispatchEvent(new Event('click'))
+    await nextTick()
 
     // Verify mutation
     expect(requestMutators.edit).toHaveBeenCalledWith('test-operation', 'selectedSecuritySchemeUids', ['bearer-auth'])
@@ -161,9 +174,34 @@ describe('RequestAuth.vue', () => {
     props.operation.security = [{ 'Client ID': [], 'Client Key': [] }, {}]
 
     const wrapper = mount(RequestAuth, {
+      attachTo: document.body,
       props,
     })
 
-    expect(wrapper.text()).toContain('Client ID & Client Key Required')
+    expect(wrapper.text()).toContain('Required')
+
+    await clickAuthSelect(wrapper)
+
+    const options = document.querySelectorAll('li[role="option"]')
+    const clientIdOption = Array.from(options).find((option) => option.textContent?.includes('Client ID & Client Key'))
+
+    expect(clientIdOption).toBeDefined()
+    expect(clientIdOption?.textContent).toContain('Client ID & Client Key')
+  })
+
+  it('opens auth select when auth indicator is clicked', async () => {
+    const wrapper = mount(RequestAuth, {
+      props: createBaseProps(),
+      attachTo: document.body,
+    })
+
+    const requiredIndicator = wrapper.findAll('span').find((node) => node.text().includes('Required'))
+    await requiredIndicator?.trigger('click')
+
+    const options = document.querySelectorAll('li[role="option"]')
+    const bearerAuthOption = Array.from(options).find((option) => option.textContent?.includes('bearerAuth'))
+
+    expect(bearerAuthOption).toBeDefined()
+    expect(bearerAuthOption?.textContent).toContain('bearerAuth')
   })
 })

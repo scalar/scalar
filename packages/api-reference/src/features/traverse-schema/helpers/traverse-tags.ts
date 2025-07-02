@@ -94,8 +94,8 @@ const getSortedTagEntries = (
         const operationB = 'operation' in b ? b.operation : b.webhook
 
         return operationsSorter(
-          { method: a.method, path: pathA, operation: operationA },
-          { method: b.method, path: pathB, operation: operationB },
+          { method: a.method, httpVerb: a.method, path: pathA, operation: operationA },
+          { method: b.method, httpVerb: b.method, path: pathB, operation: operationB },
         )
       })
     }

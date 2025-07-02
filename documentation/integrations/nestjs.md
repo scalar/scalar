@@ -53,6 +53,22 @@ app.use(
 )
 ```
 
+## Using with Fastify Adapter
+
+When using NestJS with the Fastify adapter instead of Express, you need to set the `withFastify` option to `true`:
+
+```ts
+/* ... */
+
+app.use(
+  '/reference',
+  apiReference({
+    url: '/openapi.json',
+    withFastify: true, // Required when using Fastify adapter
+  }),
+)
+```
+
 The NestJS middleware takes our universal configuration object, [read more about configuration](https://github.com/scalar/scalar/tree/main/packages/api-reference#props) in the core package README.
 
 ### Themes

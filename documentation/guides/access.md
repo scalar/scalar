@@ -22,7 +22,7 @@ To add a domain to an access group, type in the domain name you want to give acc
 ![Scalar Add Domain Access](https://api.scalar.com/cdn/images/UCkGjASrXpR8OxgWEj32i/xffMOI_k_Lqhr0kKzYqCM.png "Scalar Add Domain Access")
 
 
-### Add Domains with Access
+### Add Emails with Access
 To add only specific emails to an access group, type in the email you want to give access to and hit "add".
 ![Scalar Add Email Access](https://api.scalar.com/cdn/images/UCkGjASrXpR8OxgWEj32i/sUeH6ekrSfTDB6a7yiQIA.png "Scalar Add Email Access")
 
@@ -40,7 +40,7 @@ Once you selected a group, your docs will be private with only that access group
 
 ![Scalar Private Docs](https://api.scalar.com/cdn/images/UCkGjASrXpR8OxgWEj32i/O5TMvLdShzTbUJtb-8_I-.png "Scalar Private Docs")
 
-You can [customize](/scalar/scalar-docs/getting-started) your login page to your branding if you want, and when you delete the access group changes will be made immedietly and access will be revoked.
+You can [customize](/scalar/scalar-docs/getting-started) your login page to your branding if you want, and when you delete the access group changes will be made immediately and access will be revoked.
 
 
 
