@@ -1,0 +1,41 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:base"],
+  "schedule": ["monthly"],
+  "prConcurrentLimit": 0,
+  "packageRules": [
+    {
+      "matchManagers": ["github-actions"],
+      "matchPaths": ["/"]
+    },
+    {
+      "matchManagers": ["npm"],
+      "matchPaths": ["/"],
+      "ignoreDeps": ["vite", "vitest", "rollup", "tsup"]
+    },
+    {
+      "matchManagers": ["nuget"],
+      "matchPaths": ["/integrations/aspnetcore"],
+      "ignoreDeps": ["rollup", "vite", "vitest"]
+    },
+    {
+      "matchManagers": ["npm"],
+      "matchPaths": ["/projects/scalar-app"],
+      "allowedVersions": "!/^(?!@todesktop/|electron$).*$/",
+      "groupName": "todesktop dependencies",
+      "groupSlug": "todesktop-deps",
+      "matchPackageNames": ["@todesktop/*"]
+    },
+    {
+      "matchManagers": ["npm"],
+      "matchPaths": ["/projects/scalar-app"],
+      "groupName": "electron dependencies",
+      "groupSlug": "electron-deps",
+      "matchPackageNames": ["electron"]
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "prCreation": "immediate"
+  }
+}
