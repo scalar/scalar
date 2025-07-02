@@ -2,7 +2,7 @@ import type { ServerObject } from '@/schemas/v3.1/strict/server'
 
 /**
  * Provides mutator functions for managing an array of OpenAPI ServerObject entries.
- * 
+ *
  * @param target - The array of ServerObject to mutate. If not provided, mutators will be no-ops.
  * @returns An object with addServer and deleteServer methods.
  */
