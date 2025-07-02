@@ -196,9 +196,9 @@ paths:
 +      x-scalar-stability: 'experimental'
 ```
 
-## x-enumDescriptions
+## x-enum-descriptions
 
-You can add a descriptions to `enum` values with `x-enumDescriptions`:
+You can add a descriptions to `enum` values with `x-enum-descriptions`:
 
 ```diff
 openapi: 3.1.0
@@ -214,12 +214,45 @@ components:
       - too_expensive
       - unused
       - other
-+      x-enumDescriptions:
++      x-enum-descriptions:
 +        missing_features: Missing features
 +        too_expensive: Too expensive
 +        unused: Unused
 +        other: Other
 ```
+
+Aliases: `x-enumDescriptions`
+
+## x-enum-varnames
+
+You can provide variable names for `enum` values with `x-enum-varnames`. These names will be displayed alongside the enum values in the format `value = varname`:
+
+```diff
+openapi: 3.1.0
+info:
+  title: Example
+  version: 1.0
+components:
+  schemas:
+    HttpStatusCode:
+      type: integer
+      enum:
+      - 100
+      - 200
+      - 300
+      - 400
+      - 500
++      x-enum-varnames:
++      - Continue
++      - OK
++      - MultipleChoices
++      - BadRequest
++      - InternalServerError
+```
+
+This will display as: `100 = Continue`, `200 = OK`, `300 = MultipleChoices`, etc.
+
+Aliases: `x-enumNames`
 
 ## x-scalar-sdk-installation
 
