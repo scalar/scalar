@@ -180,6 +180,7 @@ const modelName = computed(() => {
       class="property-deprecated">
       <Badge>deprecated</Badge>
     </div>
+    <!-- Don’t use `isDefined` here, we want to show `const` when the value is `null` -->
     <div
       v-if="constValue !== undefined"
       class="property-const">
