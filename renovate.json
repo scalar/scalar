@@ -1,34 +1,34 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:base"],
+  "extends": ["config:recommended"],
   "schedule": ["monthly"],
   "prConcurrentLimit": 0,
   "packageRules": [
     {
       "matchManagers": ["github-actions"],
-      "matchPaths": ["/"]
+      "matchFileNames": ["/"]
     },
     {
       "matchManagers": ["npm"],
-      "matchPaths": ["/"],
+      "matchFileNames": ["/"],
       "ignoreDeps": ["vite", "vitest", "rollup", "tsup"]
     },
     {
       "matchManagers": ["nuget"],
-      "matchPaths": ["/integrations/aspnetcore"],
+      "matchFileNames": ["/integrations/aspnetcore"],
       "ignoreDeps": ["rollup", "vite", "vitest"]
     },
     {
       "matchManagers": ["npm"],
-      "matchPaths": ["/projects/scalar-app"],
-      "allowedVersions": "!/^(?!@todesktop/|electron$).*$/",
+      "matchFileNames": ["/projects/scalar-app"],
+      "allowedVersions": "/^(@todesktop/|electron$)/",
       "groupName": "todesktop dependencies",
       "groupSlug": "todesktop-deps",
       "matchPackageNames": ["@todesktop/*"]
     },
     {
       "matchManagers": ["npm"],
-      "matchPaths": ["/projects/scalar-app"],
+      "matchFileNames": ["/projects/scalar-app"],
       "groupName": "electron dependencies",
       "groupSlug": "electron-deps",
       "matchPackageNames": ["electron"]
