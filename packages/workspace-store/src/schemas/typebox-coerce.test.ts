@@ -1,5 +1,5 @@
 import { coerceValue } from '@/schemas/typebox-coerce'
-import { compose } from '@/schemas/v3.1/compose'
+import { compose } from '@/schemas/compose'
 import { Type } from '@sinclair/typebox'
 import { describe, expect, it } from 'vitest'
 import { Storage } from '@google-cloud/storage'

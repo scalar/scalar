@@ -1,7 +1,7 @@
 import { type Static, Type } from '@sinclair/typebox'
 import { OpenAPIDocumentSchema } from './v3.1/strict/openapi-document'
 import { extensions } from '@/schemas/extensions'
-import { compose } from '@/schemas/v3.1/compose'
+import { compose } from '@/schemas/compose'
 
 const WorkspaceDocumentMetaSchema = Type.Partial(
   Type.Object({
