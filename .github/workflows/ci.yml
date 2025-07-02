@@ -892,7 +892,7 @@ jobs:
         with:
           files_yaml: |
             fastapi_integration:
-              - integrations/fastapi/**
+              - integrations/fastapi/package.json
 
       - if: steps.changed-files.outputs.fastapi_integration_any_changed == 'true'
         name: Setup Python
