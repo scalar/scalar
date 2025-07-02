@@ -305,7 +305,7 @@ The download method returns the original, unmodified document (before any reacti
 
 ##### Save Document Changes
 
-Persist the current state of the specified document back to the original document:
+Persist the current state of the specified document back to the intermediate document (local saved version of the document):
 
 ```ts
 // Save the specified document state
@@ -321,7 +321,7 @@ The `saveDocument` method takes the current reactive document state and persists
 
 ##### Revert Document Changes
 
-Revert the specified document to its original state, discarding all unsaved changes:
+Revert the specified document to its most recent local saved state, discarding all unsaved changes:
 
 ```ts
 // Revert the specified document to its original state
