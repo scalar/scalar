@@ -6,7 +6,7 @@ On top of that, we've added a few things for your convenience:
 
 ## Custom Specification Extensions
 
-You an add custom specification extensions (starting with a `x-`) through [our plugin API](configuration.md).
+You can add custom specification extensions (starting with a `x-`) through [our plugin API](configuration.md).
 
 ## x-scalar-environments
 
@@ -36,7 +36,7 @@ x-scalar-environments:
 
 ## x-scalar-active-environment
 
-You can also specify the default active environment a user will have :) if theres none set here we pick the first from the `x-scalar-environments` to be the default
+You can also specify the default active environment a user will have :) if there's none set here we pick the first from the `x-scalar-environments` to be the default
 
 ```
 x-scalar-active-environment: staging
