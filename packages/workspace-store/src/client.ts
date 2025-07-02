@@ -464,10 +464,10 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
     },
     /**
      * Commits the specified document.
-     * 
+     *
      * This method is intended to finalize and persist the current state of the document,
      * potentially syncing it with a remote registry or marking it as the latest committed version.
-     * 
+     *
      * @param documentName - The name of the document to commit.
      * @remarks
      * The actual commit logic is not implemented yet.
