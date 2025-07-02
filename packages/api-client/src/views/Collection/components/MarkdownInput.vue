@@ -27,6 +27,13 @@ watch(mode, (newMode) => {
     })
   }
 })
+
+const handleBlur = () => {
+  // Delay mode switch until after DOM updates to avoid input typing issue
+  requestAnimationFrame(() => {
+    mode.value = 'preview'
+  })
+}
 </script>
 
 <template>
@@ -88,7 +95,7 @@ watch(mode, (newMode) => {
             :environment="environment"
             :modelValue="modelValue"
             :workspace="workspace"
-            @blur="mode = 'preview'"
+            @blur="handleBlur"
             @update:modelValue="emit('update:modelValue', $event)" />
         </template>
       </div>
