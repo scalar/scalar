@@ -138,7 +138,7 @@ cd apidemo
 ./manage.py runserver
 ```
 
-Once its running, we can then go to `http://127.0.0.1:8000/api/docs/` to view our API Reference.
+Once it's running, we can then go to `http://127.0.0.1:8000/api/docs/` to view our API Reference.
 
 ![Django Ninja API reference](https://github.com/user-attachments/assets/10a1778a-efa0-4903-b0cb-974ea4135982)
 
