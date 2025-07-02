@@ -6,7 +6,6 @@ import { requestMutators } from '@/mutators/request'
 import { requestExampleMutators } from '@/mutators/request-example'
 import { securitySchemeMutators } from '@/mutators/security-schemes'
 import { serverMutators } from '@/mutators/server'
-import type { SecurityScheme } from '@scalar/types/entities'
 
 /**
  * Generates a set of mutators for managing OpenAPI document and workspace state.
@@ -43,12 +42,7 @@ export function generateClientMutators(store: WorkspaceStore) {
     return {
       requestExampleMutators: requestExampleMutators(document),
       requestMutators: requestMutators(document),
-      // TODO: remove the type assertion
-      // Here we expect that the securitySchemes does not contain references because of the magic proxy
-      // but we still need to check for references
-      securitySchemeMutators: securitySchemeMutators(
-        document?.components?.securitySchemes as Record<string, SecurityScheme>,
-      ),
+      securitySchemeMutators: securitySchemeMutators(document?.components?.securitySchemes),
       environmentMutators: environmentMutators(document),
       cookieMutators: cookieMutators(document),
       serverMutators: serverMutators(document?.servers),

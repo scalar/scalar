@@ -1,3 +1,4 @@
+import type { ComponentsObject } from '@/schemas/v3.1/strict/components'
 import type { SecuritySchemeObject } from '@/schemas/v3.1/strict/security-scheme'
 
 /**
@@ -7,7 +8,7 @@ import type { SecuritySchemeObject } from '@/schemas/v3.1/strict/security-scheme
  * @param target - The securitySchemes object from the OpenAPI document's components section
  * @returns An object with mutator functions for security scheme operations
  */
-export const securitySchemeMutators = (target?: Record<string, SecuritySchemeObject>) => {
+export const securitySchemeMutators = (target?: ComponentsObject['securitySchemes']) => {
   /**
    * Adds a new security scheme to the document's components.securitySchemes.
    * If a security scheme with the same type already exists, it will return false.
