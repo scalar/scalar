@@ -10,7 +10,7 @@ defineProps<{
 <template>
   <!-- Example -->
   <ScalarCodeBlock
-    v-if="response?.example"
+    v-if="response?.example !== undefined"
     class="bg-b-2 -outline-offset-2"
     :content="response?.example"
     lang="json" />
