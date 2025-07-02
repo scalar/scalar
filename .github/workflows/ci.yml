@@ -150,7 +150,7 @@ jobs:
       # You might ask why we need a GitHub Action to install Biome.
       # Well, it's because GHA throws an error when it's run through pnpm.# > Error: Cannot find module '@biomejs/cli-linux-x64/biome'
       - name: Setup Biome
-        uses: biomejs/setup-biome@a9763ed3d2388f5746f9dc3e1a55df7f4609bc89
+        uses: biomejs/setup-biome@454fa0d884737805f48d7dc236c1761a0ac3cc13
         with:
           version: 1.9.4
       - name: Lint code
