@@ -2545,6 +2545,9 @@ importers:
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../helpers
+      '@scalar/json-diff':
+        specifier: workspace:*
+        version: link:../json-diff
       '@scalar/openapi-parser':
         specifier: workspace:*
         version: link:../openapi-parser
@@ -2563,6 +2566,9 @@ importers:
       vue:
         specifier: catalog:*
         version: 3.5.12(typescript@5.6.2)
+      yaml:
+        specifier: catalog:*
+        version: 2.8.0
     devDependencies:
       '@google-cloud/storage':
         specifier: catalog:*
@@ -33320,7 +33326,7 @@ snapshots:
 
   openapi3-ts@4.3.3:
     dependencies:
-      yaml: 2.6.0
+      yaml: 2.8.0
 
   opener@1.5.2: {}
 
@@ -33841,7 +33847,7 @@ snapshots:
   postcss-load-config@5.1.0(jiti@2.4.2)(postcss@8.5.3)(tsx@4.19.1):
     dependencies:
       lilconfig: 3.1.2
-      yaml: 2.6.0
+      yaml: 2.8.0
     optionalDependencies:
       jiti: 2.4.2
       postcss: 8.5.3
@@ -37009,7 +37015,7 @@ snapshots:
       vfile-message: 4.0.2
       vfile-reporter: 8.1.1
       vfile-statistics: 3.0.0
-      yaml: 2.6.0
+      yaml: 2.8.0
     transitivePeerDependencies:
       - supports-color
 
@@ -37146,7 +37152,7 @@ snapshots:
       pathe: 1.1.2
       scule: 1.3.0
       unplugin: 1.16.0
-      yaml: 2.6.0
+      yaml: 2.8.0
     optionalDependencies:
       vue-router: 4.4.5(vue@3.5.12(typescript@5.6.2))
     transitivePeerDependencies:
@@ -37168,7 +37174,7 @@ snapshots:
       pathe: 1.1.2
       scule: 1.3.0
       unplugin: 1.16.0
-      yaml: 2.6.0
+      yaml: 2.8.0
     optionalDependencies:
       vue-router: 4.4.5(vue@3.5.12(typescript@5.6.2))
     transitivePeerDependencies:

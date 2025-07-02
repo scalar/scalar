@@ -3,10 +3,11 @@ import { createWorkspaceStore } from '@/client'
 import { beforeEach, afterEach, describe, expect, it } from 'vitest'
 import fastify, { type FastifyInstance } from 'fastify'
 import { defaultReferenceConfig } from '@/schemas/reference-config'
+import { setTimeout } from 'node:timers/promises'
 
 // Test document
-const getDocument = () => ({
-  openapi: '3.0.0',
+const getDocument = (version?: string) => ({
+  openapi: version ?? '3.0.0',
   info: { title: 'My API', version: '1.0.0' },
   components: {
     schemas: {
@@ -56,6 +57,7 @@ const getDocument = () => ({
 
 describe('create-workspace-store', () => {
   let server: FastifyInstance
+  const port = 9988
 
   beforeEach(() => {
     server = fastify({ logger: false })
@@ -63,6 +65,7 @@ describe('create-workspace-store', () => {
 
   afterEach(async () => {
     await server.close()
+    await setTimeout(100)
   })
 
   it('correctly update workspace metadata', async () => {
@@ -258,12 +261,11 @@ describe('create-workspace-store', () => {
       res.send(contents)
     })
 
-    const PORT = 9988
-    await server.listen({ port: PORT })
+    await server.listen({ port })
 
     const serverStore = await createServerWorkspaceStore({
       mode: 'ssr',
-      baseUrl: `http://localhost:${PORT}`,
+      baseUrl: `http://localhost:${port}`,
       documents: [
         {
           name: 'default',
@@ -305,15 +307,14 @@ describe('create-workspace-store', () => {
   })
 
   it('load files form the remote url', async () => {
-    const PORT = 9989
-    const url = `http://localhost:${PORT}`
+    const url = `http://localhost:${port}`
 
     // Send the default document
     server.get('/', (_, reply) => {
       reply.send(getDocument())
     })
 
-    await server.listen({ port: PORT })
+    await server.listen({ port })
 
     const store = createWorkspaceStore()
 
@@ -391,12 +392,11 @@ describe('create-workspace-store', () => {
       res.send(contents)
     })
 
-    const PORT = 6672
-    await server.listen({ port: PORT })
+    await server.listen({ port })
 
     const serverStore = await createServerWorkspaceStore({
       mode: 'ssr',
-      baseUrl: `http://localhost:${PORT}`,
+      baseUrl: `http://localhost:${port}`,
       documents: [
         {
           name: 'default',
@@ -416,7 +416,7 @@ describe('create-workspace-store', () => {
 
     // The operation should not be resolved on the fly
     expect(store.workspace.activeDocument?.paths?.['/users']?.get).toEqual({
-      '$ref': `http://localhost:${PORT}/default/operations/~1users/get#`,
+      '$ref': `http://localhost:${port}/default/operations/~1users/get#`,
       $global: true,
     })
 
@@ -629,6 +629,220 @@ describe('create-workspace-store', () => {
         ...defaultReferenceConfig.appearance,
         css: 'body { background: #f0f0f0; }\n.scalar-reference { color: red; }',
       },
+    })
+  })
+
+  describe('download original document', () => {
+    it('gets the original document from the store json', async () => {
+      const store = createWorkspaceStore({
+        documents: [
+          {
+            name: 'api-1',
+            document: {
+              info: { title: 'My API', version: '1.0.0' },
+              openapi: '3.1.1',
+            },
+          },
+          {
+            name: 'api-2',
+            document: {
+              info: { title: 'My API 2', version: '1.2.0' },
+              openapi: '3.1.1',
+            },
+          },
+          {
+            name: 'api-3',
+            document: getDocument(),
+          },
+        ],
+      })
+
+      expect(store.exportDocument('api-1', 'json')).toBe(
+        '{"info":{"title":"My API","version":"1.0.0"},"openapi":"3.1.1"}',
+      )
+
+      expect(store.exportDocument('api-2', 'json')).toBe(
+        '{"info":{"title":"My API 2","version":"1.2.0"},"openapi":"3.1.1"}',
+      )
+
+      expect(store.exportDocument('api-3', 'json')).toBe(
+        '{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}',
+      )
+    })
+
+    it('gets the original document from the store yaml', async () => {
+      const store = createWorkspaceStore({
+        documents: [
+          {
+            name: 'api-1',
+            document: {
+              info: { title: 'My API', version: '1.0.0' },
+              openapi: '3.1.1',
+            },
+          },
+          {
+            name: 'api-2',
+            document: {
+              info: { title: 'My API 2', version: '1.2.0' },
+              openapi: '3.1.1',
+            },
+          },
+          {
+            name: 'api-3',
+            document: getDocument(),
+          },
+        ],
+      })
+
+      expect(store.exportDocument('api-1', 'yaml')).toBe('info:\n  title: My API\n  version: 1.0.0\nopenapi: 3.1.1\n')
+
+      expect(store.exportDocument('api-2', 'yaml')).toBe('info:\n  title: My API 2\n  version: 1.2.0\nopenapi: 3.1.1\n')
+
+      expect(store.exportDocument('api-3', 'yaml')).toBe(
+        `openapi: 3.1.1\ninfo:\n  title: My API\n  version: 1.0.0\ncomponents:\n  schemas:\n    User:\n      type: object\n      properties:\n        id:\n          type: string\n          description: The user ID\n        name:\n          type: string\n          description: The user name\n        email:\n          type: string\n          format: email\n          description: The user email\npaths:\n  /users:\n    get:\n      summary: Get all users\n      responses:\n        "200":\n          description: Successful response\n          content:\n            application/json:\n              schema:\n                type: array\n                items:\n                  $ref: "#/components/schemas/User"\n`,
+      )
+    })
+  })
+
+  describe('save document', () => {
+    it('writes back to the original document', async () => {
+      const store = createWorkspaceStore({
+        documents: [
+          {
+            name: 'api-1',
+            document: {
+              info: { title: 'My API', version: '1.0.0' },
+              openapi: '3.1.1',
+            },
+          },
+          {
+            name: 'api-2',
+            document: {
+              info: { title: 'My API 2', version: '1.2.0' },
+              openapi: '3.1.1',
+            },
+          },
+          {
+            name: 'api-3',
+            document: getDocument(),
+          },
+        ],
+      })
+
+      if (store.workspace.documents['api-3']?.info?.title) {
+        store.workspace.documents['api-3'].info.title = 'Updated API'
+      }
+
+      // Write the changes back to the original document
+      store.saveDocument('api-3')
+
+      // Should return the original document without any modifications
+      expect(store.exportDocument('api-1', 'json')).toBe(
+        '{"info":{"title":"My API","version":"1.0.0"},"openapi":"3.1.1"}',
+      )
+
+      expect(store.exportDocument('api-2', 'json')).toBe(
+        '{"info":{"title":"My API 2","version":"1.2.0"},"openapi":"3.1.1"}',
+      )
+
+      // Should return the updated document without any extensions
+      expect(store.exportDocument('api-3', 'json')).toEqual(
+        '{"openapi":"3.1.1","info":{"title":"Updated API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}',
+      )
+    })
+
+    it('does not write back external bundled documents', async () => {
+      const document = getDocument()
+
+      server.get('/*', () => {
+        return { description: 'This is an external document' }
+      })
+
+      await server.listen({ port })
+
+      const store = createWorkspaceStore({
+        documents: [
+          {
+            name: 'default',
+            document: {
+              ...document,
+              paths: {
+                ...document.paths,
+                '/external': {
+                  get: {
+                    $ref: `http://localhost:${port}`,
+                  },
+                },
+              },
+            },
+          },
+        ],
+      })
+
+      if (store.workspace.activeDocument?.info?.title) {
+        store.workspace.activeDocument.info.title = 'Updated API'
+      }
+
+      // Bundle external documents
+      await store.resolve(['paths'])
+
+      // Write the changes back to the original document
+      store.saveDocument('default')
+
+      // Should return the updated document without any extensions
+      expect(store.exportDocument('default', 'json')).toEqual(
+        '{"openapi":"3.1.1","info":{"title":"Updated API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}},"/external":{"get":{"$ref":"http://localhost:9988"}}}}',
+      )
+    })
+  })
+
+  describe('revert', () => {
+    it('should revert the changes made to the document', async () => {
+      const store = createWorkspaceStore({
+        documents: [
+          {
+            name: 'api-1',
+            document: {
+              info: { title: 'My API', version: '1.0.0' },
+              openapi: '3.1.1',
+            },
+          },
+          {
+            name: 'api-2',
+            document: {
+              info: { title: 'My API 2', version: '1.2.0' },
+              openapi: '3.1.1',
+            },
+          },
+          {
+            name: 'api-3',
+            document: getDocument(),
+          },
+        ],
+      })
+
+      if (store.workspace.documents['api-3']?.info?.title) {
+        store.workspace.documents['api-3'].info.title = 'Updated API'
+      }
+
+      expect(store.workspace?.documents['api-3']?.info?.title).toBe('Updated API')
+
+      // Revert the changes
+      store.revertDocumentChanges('api-3')
+
+      // Should return the original document without any modifications
+      expect(store.exportDocument('api-1', 'json')).toBe(
+        '{"info":{"title":"My API","version":"1.0.0"},"openapi":"3.1.1"}',
+      )
+
+      expect(store.exportDocument('api-2', 'json')).toBe(
+        '{"info":{"title":"My API 2","version":"1.2.0"},"openapi":"3.1.1"}',
+      )
+
+      // Should return the updated document without any extensions
+      expect(store.exportDocument('api-3', 'json')).toEqual(
+        '{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}',
+      )
     })
   })
 })

@@ -213,6 +213,6 @@ export function createMagicProxy<T extends UnknownObject>(
  * const proxy = createMagicProxy({ foo: { $ref: '#/bar' } })
  * const raw = getRaw(proxy) // { foo: { $ref: '#/bar' } }
  */
-export function getRaw(obj: UnknownObject) {
-  return (obj as { [TARGET_SYMBOL]: UnknownObject })[TARGET_SYMBOL]
+export function getRaw<T extends UnknownObject>(obj: T): T {
+  return (obj as T & { [TARGET_SYMBOL]: T })[TARGET_SYMBOL]
 }

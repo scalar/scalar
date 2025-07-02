@@ -284,3 +284,73 @@ console.log(store.config['x-scalar-reference-config'].features.showModels)
 ```
 
 When no configuration is provided it will return the default configuration
+
+#### Document Persistence and Export
+
+The workspace store provides several methods for managing document persistence and exporting:
+
+##### Export Document
+
+Export the specified document in JSON or YAML format:
+
+```ts
+// Export the specified document as JSON
+const jsonString = store.exportDocument('documentName', 'json')
+
+// Export the specified document as YAML
+const yamlString = store.exportDocument('documentName', 'yaml')
+```
+
+The download method returns the original, unmodified document (before any reactive wrapping) to preserve the initial structure without external references or modifications.
+
+##### Save Document Changes
+
+Persist the current state of the specified document back to the original document:
+
+```ts
+// Save the specified document state
+const excludedDiffs = store.saveDocument('documentName')
+
+// Check if any changes were excluded from being applied
+if (excludedDiffs) {
+  console.log('Some changes were excluded:', excludedDiffs)
+}
+```
+
+The `saveDocument` method takes the current reactive document state and persists it. It returns an array of diffs that were excluded from being applied or undefined if no specified document is available.
+
+##### Revert Document Changes
+
+Revert the specified document to its original state, discarding all unsaved changes:
+
+```ts
+// Revert the specified document to its original state
+store.revertDocumentChanges('documentName')
+```
+
+The `revertDocumentChanges` method restores the specified document to its initial state by copying the original document (before any modifications) back to the specified document.
+
+**Warning:** This operation will discard all unsaved changes to the specified document.
+
+##### Complete Example
+
+```ts
+const store = createWorkspaceStore({
+  documents: [
+    {
+      name: 'api',
+      document: {
+        openapi: '3.0.0',
+        info: { title: 'My API', version: '1.0.0' },
+        paths: {},
+      },
+    },
+  ],
+})
+
+// Make some changes to the document
+store.workspace.documents['api'].info.title = 'Updated API Title'
+
+// This will restore the original title since we did not commit the changes yet
+store.revertDocumentChanges()
+```

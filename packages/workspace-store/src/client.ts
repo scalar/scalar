@@ -1,17 +1,20 @@
-import type { WorkspaceMeta, WorkspaceDocumentMeta, Workspace } from './schemas/workspace'
-import { createMagicProxy } from './helpers/proxy'
-import { isObject } from '@/helpers/general'
-import { getValueByPath } from '@/helpers/json-path-utils'
+import YAML from 'yaml'
+import { reactive, toRaw } from 'vue'
 import { bundle, upgrade } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins-browser'
+
 import { createNavigation, type createNavigationOptions } from '@/navigation'
+import type { DeepTransform } from '@/types'
+import { createMagicProxy, getRaw } from '@/helpers/proxy'
+import { deepClone, isObject } from '@/helpers/general'
+import { mergeObjects } from '@/helpers/merge-object'
+import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
+import { getValueByPath } from '@/helpers/json-path-utils'
+import type { WorkspaceMeta, WorkspaceDocumentMeta, Workspace } from '@/schemas/workspace'
 import { extensions } from '@/schemas/extensions'
-import { reactive } from 'vue'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema } from '@/schemas/v3.1/strict/openapi-document'
 import { defaultReferenceConfig } from '@/schemas/reference-config'
-import { mergeObjects } from '@/helpers/merge-object'
-import type { DeepTransform } from '@/types'
 import type { Config } from '@/schemas/workspace-specification/config'
 
 /**
@@ -112,6 +115,22 @@ type WorkspaceProps = {
  * @returns An object containing methods and getters for managing the workspace
  */
 export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
+  /**
+   * Stores the original, unmodified documents before they are wrapped in reactive proxies.
+   * These are the input documents in their raw form - not dereferenced, not bundled.
+   * This preserves the original document structure.
+   * The documents in this map are deep clones to prevent mutations from affecting the original data.
+   * We keep these original documents so we can write them back to the registry when needed.
+   */
+  const originalDocuments = {} as Workspace['documents']
+  /**
+   * A map of document configurations keyed by document name.
+   * This stores the configuration options for each document in the workspace,
+   * allowing for document-specific settings like navigation options, appearance,
+   * and other reference configuration.
+   */
+  const documentConfigs: Record<string, Config> = {}
+
   // Create a reactive workspace object with proxied documents
   // Each document is wrapped in a proxy to enable reactive updates and reference resolution
   const workspace = reactive<Workspace>({
@@ -132,26 +151,31 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
   })
 
   /**
-   * A map of document configurations keyed by document name.
-   * This stores the configuration options for each document in the workspace,
-   * allowing for document-specific settings like navigation options, appearance,
-   * and other reference configuration.
+   * Returns the name of the currently active document in the workspace.
+   * The active document is determined by the 'x-scalar-active-document' metadata field,
+   * falling back to the first document in the workspace if no active document is specified.
+   *
+   * @returns The name of the active document or an empty string if no document is found
    */
-  const documentConfigs: Record<string, Config> = {}
+  function getActiveDocumentName() {
+    return workspace[extensions.workspace.activeDocument] ?? Object.keys(workspace.documents)[0] ?? ''
+  }
 
-  // Add a document to the store synchronously from and in-mem open api document
+  // Add a document to the store synchronously from an in-memory OpenAPI document
   function addDocumentSync(input: ObjectDoc) {
     const { name, meta } = input
 
     const document = coerceValue(OpenAPIDocumentSchema, upgrade(input.document).specification)
 
+    // Create a deep clone of the document with metadata to preserve original structure
+    originalDocuments[name] = deepClone({ ...document, ...meta })
+    // Add the document config to the documentConfigs map
+    documentConfigs[name] = input.config ?? {}
+
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (document[extensions.document.navigation] === undefined) {
       document[extensions.document.navigation] = createNavigation(document, input.config ?? {}).entries
     }
-
-    // Add the document config to the documentConfigs map
-    documentConfigs[name] = input.config ?? {}
 
     workspace.documents[name] = createMagicProxy({ ...document, ...meta })
   }
@@ -202,12 +226,7 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
       key: K,
       value: WorkspaceDocumentMeta[K],
     ) {
-      const currentDocument =
-        workspace.documents[
-          name === 'active'
-            ? (workspace[extensions.workspace.activeDocument] ?? Object.keys(workspace.documents)[0] ?? '')
-            : name
-        ]
+      const currentDocument = workspace.documents[name === 'active' ? getActiveDocumentName() : name]
 
       if (!currentDocument) {
         throw 'Please select a valid document'
@@ -320,13 +339,102 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
      * falling back to the first document if none is specified.
      */
     get config() {
-      const activeDocumentKey =
-        workspace[extensions.workspace.activeDocument] ?? Object.keys(workspace.documents)[0] ?? ''
-
       return mergeObjects<typeof defaultConfig>(
         mergeObjects(defaultConfig, workspaceProps?.config ?? {}),
-        documentConfigs[activeDocumentKey] ?? {},
+        documentConfigs[getActiveDocumentName()] ?? {},
       )
+    },
+    /**
+     * Downloads the specified document in the requested format.
+     *
+     * This method serializes the original, unmodified document (prior to any reactive wrapping or runtime changes)
+     * to either JSON or YAML. The original document is used to ensure the output matches the initial structure,
+     * without any runtime modifications or external references.
+     *
+     * @param documentName - The name of the document to download
+     * @param format - The output format: 'json' for a JSON string, or 'yaml' for a YAML string
+     * @returns The document as a string in the requested format, or undefined if the document does not exist
+     *
+     * @example
+     * // Download a document as JSON
+     * const jsonString = store.exportDocument('api', 'json')
+     *
+     * // Download a document as YAML
+     * const yamlString = store.exportDocument('api', 'yaml')
+     */
+    exportDocument: (documentName: string, format: 'json' | 'yaml') => {
+      const originalDocument = originalDocuments[documentName]
+
+      if (!originalDocument) {
+        return
+      }
+
+      if (format === 'json') {
+        return JSON.stringify(originalDocument)
+      }
+
+      return YAML.stringify(originalDocument)
+    },
+    /**
+     * Persists the current state of the specified document back to the original documents map.
+     *
+     * This method takes the current (reactive) document state and applies its changes to the
+     * corresponding entry in the originalDocuments map, which holds the unmodified source documents.
+     * The update is performed in-place to preserve reactivity, and a deep clone is used to avoid
+     * mutating the reactive state directly.
+     *
+     * @param documentName - The name of the document to save.
+     * @returns An array of diffs that were excluded from being applied (e.g., changes to excluded keys),
+     *          or undefined if the document does not exist or cannot be updated.
+     *
+     * @example
+     * // Save the current state of the document named 'api'
+     * const excludedDiffs = store.saveDocument('api')
+     */
+    saveDocument(documentName: string) {
+      const originalDocument = originalDocuments[documentName]
+      // Get the raw state of the active document to avoid diff issues
+      const updatedDocument = toRaw(getRaw(workspace.documents[documentName]))
+
+      // If either the original or updated document is not available, return undefined
+      if (!originalDocument || !updatedDocument) {
+        return
+      }
+
+      // Update the original document with the current state of the active document
+      const excludedDiffs = applySelectiveUpdates(originalDocument, updatedDocument)
+      return excludedDiffs
+    },
+    /**
+     * Reverts the specified document to its original state.
+     *
+     * This method restores the document identified by `documentName` to its initial, unmodified state
+     * by copying the original document (from the `originalDocuments` map) back into the current reactive document.
+     * The operation preserves Vue reactivity by updating the existing reactive object in place.
+     *
+     * **Warning:** This operation will discard all unsaved changes to the specified document.
+     *
+     * @param documentName - The name of the document to revert.
+     * @returns void
+     *
+     * @example
+     * // Revert the document named 'api' to its original state
+     * store.revertDocumentChanges('api')
+     */
+    revertDocumentChanges(documentName: string) {
+      const originalDocument = originalDocuments[documentName]
+      // Get the raw state of the current document to avoid diff issues
+      // This ensures that we don't diff the references
+      // Note:  We still keep the vue proxy for reactivity
+      //        This is important since we are writing back to the active document
+      const updatedDocument = getRaw(workspace.documents[documentName])
+
+      if (!originalDocument || !updatedDocument) {
+        return
+      }
+
+      // Overwrite the current document with the original state, discarding unsaved changes.
+      applySelectiveUpdates(updatedDocument, originalDocument)
     },
   }
 }
