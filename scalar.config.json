@@ -32,6 +32,50 @@
             {
               "path": "documentation/guides/docs/github-sync.md",
               "type": "page"
+            },
+            {
+              "name": "Components",
+              "type": "folder",
+              "defaultOpen": true,
+              "icon": "phosphor/regular/puzzle-piece",
+              "children": [
+                {
+                  "path": "documentation/guides/docs/components/markdown-support.md",
+                  "type": "page"
+                },
+                {
+                  "path": "documentation/guides/docs/components/buttons.md",
+                  "type": "page"
+                },
+                {
+                  "path": "documentation/guides/docs/components/callouts.md",
+                  "type": "page"
+                },
+                {
+                  "path": "documentation/guides/docs/components/math.md",
+                  "type": "page"
+                },
+                {
+                  "path": "documentation/guides/docs/components/embeds.md",
+                  "type": "page"
+                },
+                {
+                  "path": "documentation/guides/docs/components/code-blocks.md",
+                  "type": "page"
+                },
+                {
+                  "path": "documentation/guides/docs/components/images.md",
+                  "type": "page"
+                },
+                {
+                  "path": "documentation/guides/docs/components/tabs.md",
+                  "type": "page"
+                },
+                {
+                  "path": "documentation/guides/docs/components/steps.md",
+                  "type": "page"
+                }
+              ]
             }
           ]
         },
@@ -323,7 +367,7 @@
     }
   ],
   "siteConfig": {
-    "headScript": "function addFathomAnalytics(){let t=document.createElement(\"script\");t.src=\"https:\/\/cdn.usefathom.com\/script.js\",t.setAttribute(\"data-spa\",\"auto\"),t.setAttribute(\"data-site\",\"RSYAEMNM\"),t.defer=!0,document.head.appendChild(t)}\"loading\"===document.readyState?document.addEventListener(\"DOMContentLoaded\",addFathomAnalytics):addFathomAnalytics();",
+    "headScript": "const script=document.createElement(\"script\");script.src=\"https:\/\/cdn.jsdelivr.net\/npm\/@tailwindcss\/browser@4\",script.onload=function(){console.log(\"Tailwind CSS script loaded successfully\")},script.onerror=function(){console.error(\"Failed to load Tailwind CSS script\")},document.head.appendChild(script);;function addFathomAnalytics(){let t=document.createElement(\"script\");t.src=\"https:\/\/cdn.usefathom.com\/script.js\",t.setAttribute(\"data-spa\",\"auto\"),t.setAttribute(\"data-site\",\"RSYAEMNM\"),t.defer=!0,document.head.appendChild(t)}\"loading\"===document.readyState?document.addEventListener(\"DOMContentLoaded\",addFathomAnalytics):addFathomAnalytics();",
     "logo": {
       "darkMode": "https://scalar.com/logo-light.svg",
       "lightMode": "https://scalar.com/logo-dark.svg"
