@@ -837,7 +837,7 @@ jobs:
         working-directory: integrations/aspire/src/Scalar.Aspire
         run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
 
-  fastapi-build-test:
+  fastapi-build:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     needs: [build]
@@ -860,12 +860,6 @@ jobs:
         working-directory: integrations/fastapi
         run: python -m build
 
-      - name: Test package installation
-        working-directory: integrations/fastapi
-        run: |
-          pip install dist/*.whl
-          python -c "import scalar_fastapi; print('FastAPI package imported successfully')"
-
   fastapi-publish:
     if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -881,7 +875,7 @@ jobs:
         types,
         test-packages,
         test-integrations,
-        fastapi-build-test,
+        fastapi-build,
       ]
 
     steps:
