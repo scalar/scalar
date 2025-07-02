@@ -40,14 +40,14 @@ An icon to display alongside the button text. Can be either a path to a local Sc
 <scalar-button
   title="Download SDK"
   href="https://github.com/scalar/scalar"
-  icon="solid/interface-download">
+  icon="phosphor/regular/house">
 </scalar-button>
 
 ```html
 <scalar-button
   title="Download SDK"
   href="https://github.com/scalar/scalar"
-  icon="solid/interface-download">
+  icon="phosphor/regular/house">
 </scalar-button>
 ```
 
@@ -56,13 +56,13 @@ An icon to display alongside the button text. Can be either a path to a local Sc
 <scalar-button
   title="Visit Website"
   href="https://scalar.com"
-  icon="https://example.com/icon.svg">
+  icon="https://scalar.com/logo-dark.svg">
 </scalar-button>
 
 ```html
 <scalar-button
   title="Visit Website"
   href="https://scalar.com"
-  icon="https://example.com/icon.svg">
+  icon="https://scalar.com/logo-dark.svg">
 </scalar-button>
 ```

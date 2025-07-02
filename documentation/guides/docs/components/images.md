@@ -59,13 +59,13 @@ Defaults to `actual`.
 ### Basic Image
 
 <scalar-image
-  src="https://example.com/screenshot.png"
+  src="https://avatars.githubusercontent.com/u/6176314?v=4"
   alt="Application screenshot">
 </scalar-image>
 
 ```html
 <scalar-image
-  src="https://example.com/screenshot.png"
+  src="https://avatars.githubusercontent.com/u/6176314?v=4"
   alt="Application screenshot">
 </scalar-image>
 ```
@@ -73,14 +73,14 @@ Defaults to `actual`.
 ### Image with Caption
 
 <scalar-image
-  src="https://example.com/diagram.png"
+  src="https://avatars.githubusercontent.com/u/6176314?v=4"
   alt="System architecture diagram"
   caption="High-level system architecture showing data flow">
 </scalar-image>
 
 ```html
 <scalar-image
-  src="https://example.com/diagram.png"
+  src="https://avatars.githubusercontent.com/u/6176314?v=4"
   alt="System architecture diagram"
   caption="High-level system architecture showing data flow">
 </scalar-image>
@@ -89,17 +89,17 @@ Defaults to `actual`.
 ### Clickable Image
 
 <scalar-image
-  src="https://example.com/thumbnail.png"
+  src="https://avatars.githubusercontent.com/u/301879?s=200&v=4"
   alt="Click to view full size"
-  href="https://example.com/full-size.png"
+  href="https://github.com/scalar/scalar"
   caption="Click to view full resolution">
 </scalar-image>
 
 ```html
 <scalar-image
-  src="https://example.com/thumbnail.png"
+  src="https://avatars.githubusercontent.com/u/301879?s=200&v=4"
   alt="Click to view full size"
-  href="https://example.com/full-size.png"
+  href="https://github.com/scalar/scalar"
   caption="Click to view full resolution">
 </scalar-image>
 ```
@@ -107,7 +107,7 @@ Defaults to `actual`.
 ### Custom Sized Image
 
 <scalar-image
-  src="https://example.com/logo.png"
+  src="https://avatars.githubusercontent.com/u/301879?s=200&v=4"
   alt="Company logo"
   width="200"
   height="100"
@@ -116,7 +116,7 @@ Defaults to `actual`.
 
 ```html
 <scalar-image
-  src="https://example.com/logo.png"
+  src="https://avatars.githubusercontent.com/u/301879?s=200&v=4"
   alt="Company logo"
   width="200"
   height="100"
@@ -127,16 +127,16 @@ Defaults to `actual`.
 ### Dark Mode Image
 
 <scalar-image
-  src="https://example.com/light-mode.png"
-  darkModeSrc="https://example.com/dark-mode.png"
+  src="https://avatars.githubusercontent.com/u/301879?s=200&v=4"
+  darkModeSrc="https://avatars.githubusercontent.com/u/301879?s=200&v=4"
   alt="Theme-aware illustration"
   caption="Automatically adapts to user's theme preference">
 </scalar-image>
 
 ```html
 <scalar-image
-  src="https://example.com/light-mode.png"
-  darkModeSrc="https://example.com/dark-mode.png"
+  src="https://avatars.githubusercontent.com/u/301879?s=200&v=4"
+  darkModeSrc="https://avatars.githubusercontent.com/u/301879?s=200&v=4"
   alt="Theme-aware illustration"
   caption="Automatically adapts to user's theme preference">
 </scalar-image>
@@ -145,7 +145,7 @@ Defaults to `actual`.
 ### Full Width Image
 
 <scalar-image
-  src="https://example.com/hero-image.png"
+  src="https://pbs.twimg.com/profile_banners/1599772885857538051/1740351609/1500x500"
   alt="Hero section background"
   size="full"
   caption="Full-width hero image">
@@ -153,7 +153,7 @@ Defaults to `actual`.
 
 ```html
 <scalar-image
-  src="https://example.com/hero-image.png"
+  src="https://pbs.twimg.com/profile_banners/1599772885857538051/1740351609/1500x500"
   alt="Hero section background"
   size="full"
   caption="Full-width hero image">
