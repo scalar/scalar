@@ -4,6 +4,10 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
  * Computes the human-readable type for a schema.
  **/
 export const getSchemaType = (value: OpenAPIV3_1.SchemaObject): string => {
+  if (value?.const !== undefined) {
+    return 'const'
+  }
+
   if (Array.isArray(value?.type)) {
     // Handle array types that include 'array' - we need to process items
     if (value.type.includes('array') && value.items) {
