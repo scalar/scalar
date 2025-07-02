@@ -8,8 +8,8 @@ import { ScalarIconCaretDown } from '@scalar/icons'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed, ref } from 'vue'
 
+import { getSchemaType } from '@/components/Content/Schema/helpers/get-schema-type'
 import { mergeAllOfSchemas } from '@/components/Content/Schema/helpers/merge-all-of-schemas'
-import { getModelNameFromSchema } from '@/components/Content/Schema/helpers/schema-name'
 import type { Schemas } from '@/features/Operation/types/schemas'
 
 import {
@@ -40,7 +40,7 @@ const listboxOptions = computed(() =>
   compositionDisplay.value.map(
     (schema: OpenAPIV3_1.SchemaObject, index: number) => ({
       id: String(index),
-      label: getModelNameFromSchema(schema) || 'Schema',
+      label: getSchemaType(schema) || 'Schema',
     }),
   ),
 )
@@ -206,11 +206,6 @@ const shouldRenderSchema = computed(() => {
         </button>
       </ScalarListbox>
       <div class="composition-panel">
-        <div
-          v-if="compositionSchema?.description"
-          class="property-description border-x border-t p-2">
-          <ScalarMarkdown :value="compositionSchema.description" />
-        </div>
         <Schema
           v-if="shouldRenderSchema"
           :compact="compact"

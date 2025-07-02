@@ -14,7 +14,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Attach sticky disk
-        uses: useblacksmith/stickydisk@13999b27edd7a1490f2451c7ae8f007441f9bd89
+        uses: useblacksmith/stickydisk@bc0c024fcc3b738a9ad43776e261cbc53fab37af
         with:
           key: ${{ github.repository }}-${{ matrix.node-version }}-turbo-cache
           path: /
