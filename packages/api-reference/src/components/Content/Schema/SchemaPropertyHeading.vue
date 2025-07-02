@@ -124,23 +124,19 @@ const modelName = computed(() => {
         <ScreenReader>Format:</ScreenReader>
         {{ value.format }}
       </SchemaPropertyDetail>
-      <SchemaPropertyDetail
-        v-if="isDefined(value.minimum) && value.exclusiveMinimum">
+      <SchemaPropertyDetail v-if="isDefined(value.exclusiveMinimum)">
         <template #prefix>greater than: </template>
-        {{ value.minimum }}
+        {{ value.exclusiveMinimum }}
       </SchemaPropertyDetail>
-      <SchemaPropertyDetail
-        v-if="isDefined(value.minimum) && !value.exclusiveMinimum">
+      <SchemaPropertyDetail v-if="isDefined(value.minimum)">
         <template #prefix>min: </template>
         {{ value.minimum }}
       </SchemaPropertyDetail>
-      <SchemaPropertyDetail
-        v-if="isDefined(value.maximum) && value.exclusiveMaximum">
+      <SchemaPropertyDetail v-if="isDefined(value.exclusiveMaximum)">
         <template #prefix>less than: </template>
-        {{ value.maximum }}
+        {{ value.exclusiveMaximum }}
       </SchemaPropertyDetail>
-      <SchemaPropertyDetail
-        v-if="isDefined(value.maximum) && !value.exclusiveMaximum">
+      <SchemaPropertyDetail v-if="isDefined(value.maximum)">
         <template #prefix>max: </template>
         {{ value.maximum }}
       </SchemaPropertyDetail>
