@@ -312,6 +312,9 @@ button.schema-card-title:hover {
 .schema-properties-open > .schema-properties {
   width: fit-content;
 }
+.schema-card-description {
+  color: var(--scalar-color-2);
+}
 .schema-card-description + .schema-properties {
   width: fit-content;
 }
