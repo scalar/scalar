@@ -8,6 +8,7 @@ import ScreenReader from '@/components/ScreenReader.vue'
 import type { Schemas } from '@/features/Operation/types/schemas'
 import { DISCRIMINATOR_CONTEXT } from '@/hooks/useDiscriminator'
 
+import { isTypeObject } from './helpers/is-type-object'
 import SchemaHeading from './SchemaHeading.vue'
 import SchemaProperty from './SchemaProperty.vue'
 
@@ -72,18 +73,6 @@ const discriminator = computed(
   () => discriminatorContext?.value?.selectedType || props.discriminator,
 )
 
-/* Returns true if the schema is an object schema */
-const isObjectSchema = (
-  schema: unknown,
-): schema is OpenAPIV3_1.SchemaObject => {
-  return (
-    schema !== null &&
-    typeof schema === 'object' &&
-    'type' in schema &&
-    schema.type === 'object'
-  )
-}
-
 /* Returns the resolved schema from discriminator context when available for display */
 const schema = computed(() => {
   // Get the merged schema from the discriminator context
@@ -97,8 +86,8 @@ const schema = computed(() => {
     mergedSchema &&
     props.level === 0 &&
     props.hasDiscriminator &&
-    isObjectSchema(originalSchema) &&
-    isObjectSchema(mergedSchema)
+    isTypeObject(originalSchema) &&
+    isTypeObject(mergedSchema)
   ) {
     return mergedSchema
   }
@@ -245,14 +234,7 @@ const handleDiscriminatorChange = (type: string) => {
           as="ul"
           :static="!shouldShowToggle">
           <!-- Schema properties -->
-          <template
-            v-if="
-              schema &&
-              typeof schema === 'object' &&
-              ('properties' in schema ||
-                'additionalProperties' in schema ||
-                'patternProperties' in schema)
-            ">
+          <template v-if="isTypeObject(schema)">
             <!-- Regular properties -->
             <template v-if="schema.properties">
               <SchemaProperty
