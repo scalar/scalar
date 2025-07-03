@@ -53,7 +53,7 @@ export type ObjectDoc = {
  * - UrlDoc: Document loaded from a URL with optional fetch configuration
  * - ObjectDoc: Direct document object with metadata
  */
-type WorkspaceDocumentInput = UrlDoc | ObjectDoc
+export type WorkspaceDocumentInput = UrlDoc | ObjectDoc
 
 const defaultConfig: DeepTransform<Config, 'NonNullable'> = {
   'x-scalar-reference-config': defaultReferenceConfig,
