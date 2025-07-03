@@ -490,7 +490,7 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
      * can be imported later to fully restore the workspace to this exact state, including all documents
      * and their configurations.
      *
-     * @returns {string} A JSON string representing the complete workspace state.
+     * @returns A JSON string representing the complete workspace state.
      */
     export() {
       return JSON.stringify({
