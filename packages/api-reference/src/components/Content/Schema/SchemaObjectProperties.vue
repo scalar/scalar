@@ -40,6 +40,29 @@ const getAdditionalPropertiesName = (
 
   return 'propertyName*'
 }
+
+/**
+ * Get the value for additional properties.
+ *
+ * When additionalProperties is true or an empty object, it should render as { type: 'anything' }.
+ */
+const getAdditionalPropertiesValue = (
+  additionalProperties: OpenAPIV3_1.SchemaObject | boolean,
+) => {
+  if (
+    additionalProperties === true ||
+    (typeof additionalProperties === 'object' &&
+      Object.keys(additionalProperties).length === 0) ||
+    !('type' in additionalProperties)
+  ) {
+    return {
+      type: 'anything',
+      ...(typeof additionalProperties === 'object' ? additionalProperties : {}),
+    }
+  }
+
+  return additionalProperties
+}
 </script>
 
 <template>
@@ -114,14 +137,15 @@ const getAdditionalPropertiesName = (
       :name="getAdditionalPropertiesName(schema.additionalProperties)"
       :hideModelNames="hideModelNames"
       :schemas="schemas"
-      :resolvedSchema="schema.additionalProperties"
-      :value="{
-        ...schema.additionalProperties,
-      }"
+      :resolvedSchema="
+        getAdditionalPropertiesValue(schema.additionalProperties)
+      "
+      :value="getAdditionalPropertiesValue(schema.additionalProperties)"
       :discriminatorMapping="discriminatorMapping"
       :discriminatorPropertyName="discriminatorPropertyName"
       :isDiscriminator="false"
       :modelValue="discriminator"
+      noncollapsible
       @update:modelValue="handleDiscriminatorChange" />
   </template>
 </template>

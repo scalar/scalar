@@ -117,6 +117,36 @@ describe('SchemaObjectProperties', () => {
     expect(prop.attributes('data-name')).toBe('customName*')
   })
 
+  it('handles additionalProperties as boolean true correctly', () => {
+    const schema: OpenAPIV3_1.SchemaObject = {
+      type: 'object',
+      additionalProperties: true,
+    }
+
+    const wrapper = mount(SchemaObjectProperties, {
+      props: { schema },
+    })
+
+    const prop = wrapper.find('.schema-property')
+    expect(prop.exists()).toBe(true)
+    expect(prop.attributes('data-name')).toBe('propertyName*')
+  })
+
+  it('handles additionalProperties as empty object correctly', () => {
+    const schema: OpenAPIV3_1.SchemaObject = {
+      type: 'object',
+      additionalProperties: {},
+    }
+
+    const wrapper = mount(SchemaObjectProperties, {
+      props: { schema },
+    })
+
+    const prop = wrapper.find('.schema-property')
+    expect(prop.exists()).toBe(true)
+    expect(prop.attributes('data-name')).toBe('propertyName*')
+  })
+
   it('does not render anything if schema has no properties, patternProperties, or additionalProperties', () => {
     const schema: OpenAPIV3_1.SchemaObject = { type: 'object' }
 
