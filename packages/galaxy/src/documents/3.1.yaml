@@ -2,7 +2,7 @@ openapi: 3.1.1
 info:
   title: Scalar Galaxy
   description: |
-    The Scalar Galaxy is an example OpenAPI specification to test OpenAPI tools and libraries. It's a fictional universe with fictional planets and fictional data. Get all the data for [all planets](#tag/planets/GET/planets).
+    The Scalar Galaxy is an example OpenAPI document to test OpenAPI tools and libraries. It's a fictional universe with fictional planets and fictional data. Get all the data for [all planets](#tag/planets/GET/planets).
 
     ## Resources
 
