@@ -23,11 +23,13 @@ import {
   ScalarIconCaretLeft,
   ScalarIconListDashes,
 } from '@scalar/icons'
+import { Transition, ref, useTemplateRef, watch } from 'vue'
 
 import { ScalarIconLegacyAdapter } from '../ScalarIcon'
 import ScalarSidebarButton from './ScalarSidebarButton.vue'
 import ScalarSidebarItems from './ScalarSidebarItems.vue'
 import ScalarSidebarSpacer from './ScalarSidebarSpacer.vue'
+import { findScrollContainer } from './findScrollContainer'
 import type { ScalarSidebarItemProps } from './types'
 import { useSidebarGroups } from './useSidebarGroups'
 import { useSidebarNestedItem } from './useSidebarNestedItems'
@@ -52,10 +54,28 @@ defineSlots<{
 
 const { level } = useSidebarGroups({ reset: true })
 
+const el = useTemplateRef('el')
+const scrollContainer = ref<HTMLElement>()
+
+const scrollTop = ref(0)
+
+/**
+ * Calculate how far down the nearest scroll container is scrolled
+ *
+ * We offset the nested items by this amount when animating them
+ * in so they appear in line with the parent items list.
+ */
+function recalculateScrollTop() {
+  scrollContainer.value = findScrollContainer(el.value)
+  scrollTop.value = scrollContainer.value?.scrollTop ?? 0
+}
+
 defineOptions({ inheritAttrs: false })
 </script>
 <template>
-  <li class="group/item group/nested-items contents">
+  <li
+    ref="el"
+    class="group/item group/nested-items contents">
     <slot name="button">
       <ScalarSidebarButton
         is="button"
@@ -79,10 +99,14 @@ defineOptions({ inheritAttrs: false })
       </ScalarSidebarButton>
     </slot>
     <!-- Make sure the div is around for the entire transition -->
-    <Transition :duration="300">
+    <Transition
+      @before-enter="recalculateScrollTop"
+      @after-enter="scrollTop = 0"
+      :duration="300">
       <div
         v-if="open"
-        class="absolute inset-0 translate-x-full">
+        class="absolute inset-0 translate-x-full"
+        :style="{ top: `${scrollTop}px` }">
         <ScalarSidebarItems v-bind="$attrs">
           <slot name="back">
             <ScalarSidebarButton

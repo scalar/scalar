@@ -36,7 +36,9 @@ const { is = 'a', indent = 0 } = defineProps<ScalarSidebarItemProps>()
 defineSlots<ScalarSidebarItemSlots>()
 
 const variants = cva({
-  base: ['group/button flex rounded px-2 font-sidebar text-c-2 no-underline'],
+  base: [
+    'group/button flex items-stretch rounded px-2 font-sidebar text-c-2 no-underline',
+  ],
   variants: {
     selected: {
       true: 'group/button-selected cursor-auto bg-b-2 text-c-1 font-sidebar-active',
