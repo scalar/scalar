@@ -885,88 +885,348 @@ describe('getExampleFromSchema', () => {
     ).toBe(undefined)
   })
 
-  it('allows any additonalProperty', () => {
-    expect(
-      getExampleFromSchema({
-        type: 'object',
-        additionalProperties: {},
-      }),
-    ).toMatchObject({
-      ANY_ADDITIONAL_PROPERTY: 'anything',
+  describe('additionalProperties', () => {
+    it('allows any additonalProperty', () => {
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          additionalProperties: {},
+        }),
+      ).toMatchObject({
+        'propertyName*': 'anything',
+      })
+
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          additionalProperties: true,
+        }),
+      ).toMatchObject({
+        'propertyName*': 'anything',
+      })
     })
 
-    expect(
-      getExampleFromSchema({
-        type: 'object',
-        additionalProperties: true,
-      }),
-    ).toMatchObject({
-      ANY_ADDITIONAL_PROPERTY: 'anything',
-    })
-  })
+    it('adds an additionalProperty with specific types', () => {
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          additionalProperties: {
+            type: 'integer',
+          },
+        }),
+      ).toMatchObject({
+        'propertyName*': 1,
+      })
 
-  it('adds an additionalProperty with specific types', () => {
-    expect(
-      getExampleFromSchema({
-        type: 'object',
-        additionalProperties: {
-          type: 'integer',
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          additionalProperties: {
+            type: 'boolean',
+          },
+        }),
+      ).toMatchObject({
+        'propertyName*': true,
+      })
+
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          additionalProperties: {
+            type: 'boolean',
+            default: false,
+          },
+        }),
+      ).toMatchObject({
+        'propertyName*': false,
+      })
+
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          additionalProperties: {
+            type: 'string',
+          },
+        }),
+      ).toMatchObject({
+        'propertyName*': '',
+      })
+
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          additionalProperties: {
+            type: 'object',
+            properties: {
+              foo: {
+                type: 'string',
+              },
+            },
+          },
+        }),
+      ).toMatchObject({
+        'propertyName*': {
+          foo: '',
         },
-      }),
-    ).toMatchObject({
-      ANY_ADDITIONAL_PROPERTY: 1,
+      })
     })
 
-    expect(
-      getExampleFromSchema({
-        type: 'object',
-        additionalProperties: {
-          type: 'boolean',
+    it('uses x-additionalPropertiesName when provided', () => {
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          additionalProperties: {
+            type: 'string',
+            'x-additionalPropertiesName': 'customField',
+          },
+        }),
+      ).toMatchObject({
+        'customField*': '',
+      })
+
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          additionalProperties: {
+            type: 'integer',
+            'x-additionalPropertiesName': 'sensorId',
+          },
+        }),
+      ).toMatchObject({
+        'sensorId*': 1,
+      })
+
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          additionalProperties: {
+            type: 'boolean',
+            'x-additionalPropertiesName': 'isActive',
+          },
+        }),
+      ).toMatchObject({
+        'isActive*': true,
+      })
+    })
+
+    it('uses x-additionalPropertiesName with complex object types', () => {
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          additionalProperties: {
+            type: 'object',
+            'x-additionalPropertiesName': 'metadata',
+            properties: {
+              key: {
+                type: 'string',
+                example: 'version',
+              },
+              value: {
+                type: 'string',
+                example: '1.0.0',
+              },
+            },
+          },
+        }),
+      ).toMatchObject({
+        'metadata*': {
+          key: 'version',
+          value: '1.0.0',
         },
-      }),
-    ).toMatchObject({
-      ANY_ADDITIONAL_PROPERTY: true,
+      })
     })
 
-    expect(
-      getExampleFromSchema({
-        type: 'object',
-        additionalProperties: {
-          type: 'boolean',
-          default: false,
+    it('uses x-additionalPropertiesName with any type (additionalProperties: true)', () => {
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          additionalProperties: {
+            'x-additionalPropertiesName': 'dynamicField',
+          },
+        }),
+      ).toMatchObject({
+        'dynamicField*': null,
+      })
+    })
+
+    it('uses x-additionalPropertiesName with empty object (additionalProperties: {})', () => {
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          additionalProperties: {
+            'x-additionalPropertiesName': 'flexibleProperty',
+          },
+        }),
+      ).toMatchObject({
+        'flexibleProperty*': null,
+      })
+    })
+
+    it('trims whitespace from x-additionalPropertiesName', () => {
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          additionalProperties: {
+            type: 'string',
+            'x-additionalPropertiesName': '  trimmedField  ',
+          },
+        }),
+      ).toMatchObject({
+        'trimmedField*': '',
+      })
+    })
+
+    it('falls back to propertyName* when x-additionalPropertiesName is empty string', () => {
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          additionalProperties: {
+            type: 'string',
+            'x-additionalPropertiesName': '',
+          },
+        }),
+      ).toMatchObject({
+        'propertyName*': '',
+      })
+    })
+
+    it('falls back to propertyName* when x-additionalPropertiesName is only whitespace', () => {
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          additionalProperties: {
+            type: 'string',
+            'x-additionalPropertiesName': '   ',
+          },
+        }),
+      ).toMatchObject({
+        'propertyName*': '',
+      })
+    })
+
+    it('falls back to propertyName* when x-additionalPropertiesName is not a string', () => {
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          additionalProperties: {
+            type: 'string',
+            'x-additionalPropertiesName': 123,
+          },
+        }),
+      ).toMatchObject({
+        'propertyName*': '',
+      })
+
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          additionalProperties: {
+            type: 'string',
+            'x-additionalPropertiesName': null,
+          },
+        }),
+      ).toMatchObject({
+        'propertyName*': '',
+      })
+
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          additionalProperties: {
+            type: 'string',
+            'x-additionalPropertiesName': {},
+          },
+        }),
+      ).toMatchObject({
+        'propertyName*': '',
+      })
+    })
+
+    it('handles x-additionalPropertiesName with special characters', () => {
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          additionalProperties: {
+            type: 'string',
+            'x-additionalPropertiesName': 'field-name',
+          },
+        }),
+      ).toMatchObject({
+        'field-name*': '',
+      })
+
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          additionalProperties: {
+            type: 'string',
+            'x-additionalPropertiesName': 'field_name',
+          },
+        }),
+      ).toMatchObject({
+        'field_name*': '',
+      })
+
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          additionalProperties: {
+            type: 'string',
+            'x-additionalPropertiesName': 'fieldName',
+          },
+        }),
+      ).toMatchObject({
+        'fieldName*': '',
+      })
+    })
+
+    it('works with x-additionalPropertiesName in nested schemas', () => {
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          properties: {
+            config: {
+              type: 'object',
+              additionalProperties: {
+                type: 'string',
+                'x-additionalPropertiesName': 'setting',
+              },
+            },
+          },
+        }),
+      ).toMatchObject({
+        config: {
+          'setting*': '',
         },
-      }),
-    ).toMatchObject({
-      ANY_ADDITIONAL_PROPERTY: false,
+      })
     })
 
-    expect(
-      getExampleFromSchema({
+    it('handles multiple additionalProperties with different x-additionalPropertiesName', () => {
+      // This test demonstrates that the function correctly handles
+      // the x-additionalPropertiesName extension in different contexts
+      const schema1 = {
         type: 'object',
         additionalProperties: {
           type: 'string',
+          'x-additionalPropertiesName': 'tag',
         },
-      }),
-    ).toMatchObject({
-      ANY_ADDITIONAL_PROPERTY: '',
-    })
+      }
 
-    expect(
-      getExampleFromSchema({
+      const schema2 = {
         type: 'object',
         additionalProperties: {
-          type: 'object',
-          properties: {
-            foo: {
-              type: 'string',
-            },
-          },
+          type: 'number',
+          'x-additionalPropertiesName': 'score',
         },
-      }),
-    ).toMatchObject({
-      ANY_ADDITIONAL_PROPERTY: {
-        foo: '',
-      },
+      }
+
+      expect(getExampleFromSchema(schema1)).toMatchObject({
+        'tag*': '',
+      })
+
+      expect(getExampleFromSchema(schema2)).toMatchObject({
+        'score*': 1,
+      })
     })
   })
 
