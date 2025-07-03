@@ -86,6 +86,7 @@ const getAdditionalPropertiesName = (
     <SchemaProperty
       v-for="property in Object.keys(schema.patternProperties)"
       :key="property"
+      variant="patternProperties"
       :compact="compact"
       :hideHeading="hideHeading"
       :level="level + 1"
@@ -106,6 +107,7 @@ const getAdditionalPropertiesName = (
   <!-- additionalProperties -->
   <template v-if="schema.additionalProperties">
     <SchemaProperty
+      variant="additionalProperties"
       :compact="compact"
       :hideHeading="hideHeading"
       :level="level + 1"
