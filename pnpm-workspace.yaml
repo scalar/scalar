@@ -33,15 +33,15 @@ catalogs:
     chokidar: 4.0.3
     commander: 13.1.0
     concurrently: 9.1.2
-    esbuild: 0.25.2
+    esbuild: 0.25.3
     express: 5.1.0
     fastify: ^5.3.3
     nanoid: 5.1.5
-    next: ^15.2.3
+    next: ^15.3.3
     picomatch: 4.0.2
     postcss: ^8.4.38
     prettier: 3.5.3
-    rollup: 4.40.1
+    rollup: 4.40.2
     semver: 7.7.2
     stdout-update: 4.0.1
     tailwindcss: ^4.1.7
