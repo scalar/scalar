@@ -76,3 +76,7 @@ export const split = <T>(array: T[], condition: (element: T) => boolean) => {
     [[], []],
   )
 }
+
+export const safeAssign = <T extends Record<string, unknown>>(target: T, source: Partial<T>) => {
+  Object.assign(target, source)
+}
