@@ -58,10 +58,11 @@ defineSlots<{
 
 const { level } = useSidebarGroups({ reset: true })
 
+/** The root element ref */
 const el = useTemplateRef('el')
-const scrollContainer = ref<HTMLElement>()
 
-const scrollTop = ref(0)
+/** How far down to offset the nested items by when animating them in */
+const offset = ref(0)
 
 // Transition hooks
 
@@ -69,8 +70,7 @@ function onOpen() {
   // Calculate how far down the nearest scroll container is scrolled
   // We offset the nested items by this amount when animating them
   // in so they appear in line with the parent items list.
-  scrollContainer.value = findScrollContainer(el.value)
-  scrollTop.value = scrollContainer.value?.scrollTop ?? 0
+  offset.value = findScrollContainer(el.value).scrollTop ?? 0
 
   // Focus the first button in the nested items
   nextTick(() =>
@@ -79,14 +79,10 @@ function onOpen() {
       ?.focus({ preventScroll: true }),
   )
 }
-
-function afterOpen() {
-  scrollTop.value = 0
-}
-
 function onClose() {
   nextTick(() => {
     el.value?.querySelector('button')?.focus({ preventScroll: true })
+    findScrollContainer(el.value).scrollTop = offset.value
   })
 }
 
@@ -96,7 +92,8 @@ defineOptions({ inheritAttrs: false })
   <li
     ref="el"
     class="group/item group/nested-items contents"
-    :class="{ 'group/nested-items-open': open }">
+    :class="{ 'group/nested-items-open': open }"
+    :style="{ '--nested-items-offset': `${offset}px` }">
     <slot name="button">
       <ScalarSidebarButton
         is="button"
@@ -123,14 +120,14 @@ defineOptions({ inheritAttrs: false })
     </slot>
     <!-- Make sure the div is around for the entire transition -->
     <Transition
-      @before-enter="onOpen"
-      @after-enter="afterOpen"
-      @before-leave="onClose"
+      @enter="onOpen"
+      @leave="onClose"
+      enter-active-class="top-(--nested-items-offset)"
+      leave-active-class="top-(--nested-items-offset)"
       :duration="300">
       <div
         v-if="open"
-        class="absolute inset-0 translate-x-full"
-        :style="{ top: `${scrollTop}px` }">
+        class="absolute inset-0 translate-x-full">
         <ScalarSidebarItems v-bind="$attrs">
           <slot name="back">
             <ScalarSidebarButton

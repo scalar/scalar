@@ -16,7 +16,7 @@ function getOverflowValues(element: HTMLElement) {
  */
 export function findScrollContainer(element?: HTMLElement | null, direction: 'x' | 'y' = 'y') {
   if (!element) {
-    return undefined
+    return document.documentElement
   }
 
   let parent = element.parentElement
