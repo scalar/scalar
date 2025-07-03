@@ -1,7 +1,9 @@
-/** Hard limit for rendering circular references */
 const MAX_LEVELS_DEEP = 5
 /** Sets the max number of properties after the third level to prevent exponential horizontal growth */
 const MAX_PROPERTIES = 10
+
+/** The default name for additional properties. */
+const DEFAULT_ADDITIONAL_PROPERTIES_NAME = 'propertyName*'
 
 const genericExampleValues: Record<string, string> = {
   // 'date-time': '1970-01-01T00:00:00Z',
@@ -227,10 +229,19 @@ export const getExampleFromSchema = (
         // or an empty object {}
         (typeof schema.additionalProperties === 'object' && !Object.keys(schema.additionalProperties).length)
 
+      // Get the custom name for additional properties if available
+      const additionalPropertiesName =
+        typeof schema.additionalProperties === 'object' &&
+        schema.additionalProperties['x-additionalPropertiesName'] &&
+        typeof schema.additionalProperties['x-additionalPropertiesName'] === 'string' &&
+        schema.additionalProperties['x-additionalPropertiesName'].trim().length > 0
+          ? `${schema.additionalProperties['x-additionalPropertiesName'].trim()}*`
+          : DEFAULT_ADDITIONAL_PROPERTIES_NAME
+
       if (anyTypeIsValid) {
-        response['ANY_ADDITIONAL_PROPERTY'] = 'anything'
+        response[additionalPropertiesName] = 'anything'
       } else if (schema.additionalProperties !== false) {
-        response['ANY_ADDITIONAL_PROPERTY'] = getExampleFromSchema(schema.additionalProperties, options, level + 1)
+        response[additionalPropertiesName] = getExampleFromSchema(schema.additionalProperties, options, level + 1)
       }
     }
 
