@@ -18,7 +18,7 @@ const selected = defineModel<string>('selected')
         '--scalar-sidebar-indent-border-hover': 'var(--scalar-color-3)',
         '--scalar-sidebar-indent-border-active': 'var(--scalar-color-accent)',
       }">
-      <div class="flex flex-col flex-1 min-h-0 custom-scroll">
+      <div class="flex flex-col flex-1 min-h-0 custom-scroll overflow-x-clip">
         <slot name="search">
           <div class="px-3 pt-3 sticky z-1 top-0 bg-sidebar-b-1">
             <ScalarSidebarSearchInput />
