@@ -186,5 +186,45 @@ describe('is-type-object', () => {
 
       expect(isTypeObject(schema)).toBe(true)
     })
+
+    it('returns true for schema with union type including object', () => {
+      const schema: OpenAPIV3_1.SchemaObject = {
+        type: ['object', 'null'],
+        properties: {
+          name: { type: 'string' },
+        },
+      }
+
+      expect(isTypeObject(schema)).toBe(true)
+    })
+
+    it('returns true for schema with union type object first', () => {
+      const schema: OpenAPIV3_1.SchemaObject = {
+        type: ['object', 'string'],
+        properties: {
+          name: { type: 'string' },
+        },
+      }
+
+      expect(isTypeObject(schema)).toBe(true)
+    })
+
+    it('returns false for schema with union type not including object', () => {
+      const schema: OpenAPIV3_1.SchemaObject = {
+        type: ['string', 'null'],
+        minLength: 1,
+      }
+
+      expect(isTypeObject(schema)).toBe(false)
+    })
+
+    it('returns false for schema with union type array', () => {
+      const schema: OpenAPIV3_1.SchemaObject = {
+        type: ['array', 'null'],
+        items: { type: 'string' },
+      }
+
+      expect(isTypeObject(schema)).toBe(false)
+    })
   })
 })

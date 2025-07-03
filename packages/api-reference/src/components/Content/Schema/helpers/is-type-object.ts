@@ -10,6 +10,12 @@ export const isTypeObject = (schema: unknown): schema is OpenAPIV3_1.SchemaObjec
   }
 
   const hasType = 'type' in schema
+
+  // Handle union types (type: ['object', 'null'])
+  if (hasType && Array.isArray(schema.type)) {
+    return schema.type.includes('object')
+  }
+
   const hasTypeObject = hasType && schema.type === 'object'
 
   // type: object
