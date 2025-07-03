@@ -23,7 +23,7 @@ import {
   ScalarIconCaretLeft,
   ScalarIconListDashes,
 } from '@scalar/icons'
-import { Transition, ref, useTemplateRef, watch } from 'vue'
+import { Transition, nextTick, ref, useTemplateRef, watch } from 'vue'
 
 import { ScalarIconLegacyAdapter } from '../ScalarIcon'
 import ScalarSidebarButton from './ScalarSidebarButton.vue'
@@ -63,15 +63,31 @@ const scrollContainer = ref<HTMLElement>()
 
 const scrollTop = ref(0)
 
-/**
- * Calculate how far down the nearest scroll container is scrolled
- *
- * We offset the nested items by this amount when animating them
- * in so they appear in line with the parent items list.
- */
-function recalculateScrollTop() {
+// Transition hooks
+
+function onOpen() {
+  // Calculate how far down the nearest scroll container is scrolled
+  // We offset the nested items by this amount when animating them
+  // in so they appear in line with the parent items list.
   scrollContainer.value = findScrollContainer(el.value)
   scrollTop.value = scrollContainer.value?.scrollTop ?? 0
+
+  // Focus the first button in the nested items
+  nextTick(() =>
+    el.value
+      ?.querySelector<HTMLButtonElement>('button:not([aria-expanded="true"])')
+      ?.focus({ preventScroll: true }),
+  )
+}
+
+function afterOpen() {
+  scrollTop.value = 0
+}
+
+function onClose() {
+  nextTick(() => {
+    el.value?.querySelector('button')?.focus({ preventScroll: true })
+  })
 }
 
 defineOptions({ inheritAttrs: false })
@@ -107,8 +123,9 @@ defineOptions({ inheritAttrs: false })
     </slot>
     <!-- Make sure the div is around for the entire transition -->
     <Transition
-      @before-enter="recalculateScrollTop"
-      @after-enter="scrollTop = 0"
+      @before-enter="onOpen"
+      @after-enter="afterOpen"
+      @before-leave="onClose"
       :duration="300">
       <div
         v-if="open"

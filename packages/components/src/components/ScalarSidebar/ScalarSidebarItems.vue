@@ -46,11 +46,15 @@ const { cx } = useBindCx()
 
 /* Hide the buttons from the keyboard when a nested item is open */
 .group\/items.-translate-x-full .group\/button {
+  /* Required to prevent the button from being focused */
   display: none;
+  /* Required to prevent the button from taking up scroll space */
+  max-height: 0;
 
-  transition-property: display;
+  transition-property: display, max-height;
   transition-behavior: allow-discrete;
-  transition-duration: 300s;
+  transition-duration: 0s;
+  transition-delay: 300ms;
 }
 
 /* Show the buttons within a nested item when it is open */
@@ -58,6 +62,7 @@ const { cx } = useBindCx()
   > *
   > .group\/items.translate-x-0
   .group\/button {
+  max-height: calc(infinity * 1px);
   display: flex;
 }
 </style>
