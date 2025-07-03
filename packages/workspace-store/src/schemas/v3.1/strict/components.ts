@@ -31,17 +31,27 @@ import { CallbackObjectSchema, PathItemObjectSchema } from '@/schemas/v3.1/stric
 export type ComponentsObjectSchemaType = TIntersect<
   [
     TObject<{
+      /** Schema Objects that define input and output data types. These can be objects, primitives, and arrays, and are a superset of JSON Schema Specification Draft 2020-12. */
       schemas: TOptional<TRecord<TString, typeof SchemaObjectSchema>>
+      /** Response Objects that describe a single response from an API operation, including headers, content, and links. */
       responses: TOptional<TRecord<TString, TUnion<[typeof ResponseObjectSchema, typeof ReferenceObjectSchema]>>>
+      /** Parameter Objects that describe a single operation parameter with a unique combination of name and location (query, header, path, or cookie). */
       parameters: TOptional<TRecord<TString, TUnion<[typeof ParameterObjectSchema, typeof ReferenceObjectSchema]>>>
+      /** Example Objects that group example values with metadata for demonstrating usage of properties, parameters, and objects. */
       examples: TOptional<TRecord<TString, TUnion<[typeof ExampleObjectSchema, typeof ReferenceObjectSchema]>>>
+      /** Request Body Objects that describe a single request body with content and optional required flag. */
       requestBodies: TOptional<TRecord<TString, TUnion<[typeof RequestBodyObjectSchema, typeof ReferenceObjectSchema]>>>
+      /** Header Objects that describe HTTP response headers and multipart representation headers, following Parameter Object structure. */
       headers: TOptional<TRecord<TString, TUnion<[typeof HeaderObjectSchema, typeof ReferenceObjectSchema]>>>
+      /** Security Scheme Objects that define security mechanisms for API operations (apiKey, http, mutualTLS, oauth2, openIdConnect). */
       securitySchemes: TOptional<
         TRecord<TString, TUnion<[typeof SecuritySchemeObjectSchema, typeof ReferenceObjectSchema]>>
       >
+      /** Link Objects that represent design-time links for responses, providing relationships and traversal mechanisms between operations. */
       links: TOptional<TRecord<TString, TUnion<[typeof LinkObjectSchema, typeof ReferenceObjectSchema]>>>
+      /** Callback Objects that describe out-of-band callbacks related to parent operations, with Path Item Objects for request definitions. */
       callbacks: TOptional<TRecord<TString, TUnion<[typeof CallbackObjectSchema, typeof ReferenceObjectSchema]>>>
+      /** Path Item Objects that describe operations available on a single path, including HTTP methods and shared parameters. */
       pathItems: TOptional<TRecord<TString, typeof PathItemObjectSchema>>
     }>,
     typeof ExtensionsSchema,
