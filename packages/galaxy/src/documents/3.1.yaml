@@ -719,6 +719,18 @@ components:
             - ice_giant
             - dwarf
             - super_earth
+          x-enum-varnames:
+            - Terrestrial
+            - GasGiant
+            - IceGiant
+            - Dwarf
+            - SuperEarth
+          x-enum-descriptions:
+            terrestrial: Rocky planets with solid surfaces, like Earth and Mars
+            gas_giant: Large planets composed mainly of hydrogen and helium, like Jupiter and Saturn
+            ice_giant: Planets composed of water, ammonia, and methane ices, like Uranus and Neptune
+            dwarf: Small planetary bodies that don't meet full planet criteria, like Pluto
+            super_earth: Rocky planets larger than Earth but smaller than gas giants
           examples:
             - terrestrial
         habitabilityIndex:
@@ -878,6 +890,14 @@ components:
             - moon
             - asteroid
             - comet
+          x-enum-varnames:
+            - Moon
+            - Asteroid
+            - Comet
+          x-enum-descriptions:
+            moon: Natural satellites that orbit planets
+            asteroid: Rocky objects that orbit the sun, typically found in the asteroid belt
+            comet: Icy bodies that release gas when approaching the sun, creating visible tails
           examples:
             - moon
         orbit:
