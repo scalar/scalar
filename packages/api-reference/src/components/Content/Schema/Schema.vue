@@ -8,6 +8,7 @@ import ScreenReader from '@/components/ScreenReader.vue'
 import type { Schemas } from '@/features/Operation/types/schemas'
 import { DISCRIMINATOR_CONTEXT } from '@/hooks/useDiscriminator'
 
+import CompositionObject from './CompositionObject.vue'
 import SchemaHeading from './SchemaHeading.vue'
 import SchemaProperty from './SchemaProperty.vue'
 
@@ -15,12 +16,9 @@ const props = withDefaults(
   defineProps<{
     value?:
       | OpenAPIV3_1.OperationObject
-      | OpenAPIV3_1.SchemaObject
       | OpenAPIV3_1.ArraySchemaObject
       | OpenAPIV3_1.NonArraySchemaObject
       | OpenAPIV3_1.SchemaObject
-      | OpenAPIV3_1.ArraySchemaObject
-      | OpenAPIV3_1.NonArraySchemaObject
     /** Track how deep we've gone */
     level?: number
     /* Show as a heading */
@@ -161,8 +159,32 @@ const handleClick = (e: MouseEvent) =>
 const handleDiscriminatorChange = (type: string) => {
   emit('update:modelValue', type)
 }
+
+const hasComposition = computed(() => {
+  return (
+    schema.value?.allOf ||
+    schema.value?.oneOf ||
+    schema.value?.anyOf ||
+    schema.value?.not
+  )
+})
 </script>
 <template>
+  <template v-if="hasComposition">
+    <CompositionObject
+      :schema="value"
+      :schemas="schemas">
+      <template #default="{ schema: selectSchema }">
+        <Schema
+          :value="selectSchema"
+          :level="level + 1"
+          :compact="compact"
+          :name="name"
+          :noncollapsible="level != 0 ? false : true"
+          :schemas="schemas" />
+      </template>
+    </CompositionObject>
+  </template>
   <Disclosure
     v-if="typeof value === 'object' && Object.keys(value).length"
     v-slot="{ open }"
