@@ -36,7 +36,7 @@ type WorkspaceDocumentMetaInput = {
  * Represents a document that is loaded from a URL.
  * This type extends WorkspaceDocumentMetaInput to include URL-specific properties.
  */
-export type UrlDoc = {
+type UrlDoc = {
   /** URL to fetch the OpenAPI document from */
   url: string
   /** Optional custom fetch implementation to use when retrieving the document. By default the global fetch implementation will be used */
@@ -44,7 +44,7 @@ export type UrlDoc = {
 } & WorkspaceDocumentMetaInput
 
 /** Represents a document that is provided directly as an object rather than loaded from a URL */
-export type ObjectDoc = {
+type ObjectDoc = {
   /** The OpenAPI document object containing the API specification */
   document: Record<string, unknown>
 } & WorkspaceDocumentMetaInput
@@ -53,7 +53,7 @@ export type ObjectDoc = {
  * - UrlDoc: Document loaded from a URL with optional fetch configuration
  * - ObjectDoc: Direct document object with metadata
  */
-export type WorkspaceDocumentInput = UrlDoc | ObjectDoc
+type WorkspaceDocumentInput = UrlDoc | ObjectDoc
 
 const defaultConfig: DeepTransform<Config, 'NonNullable'> = {
   'x-scalar-reference-config': defaultReferenceConfig,
