@@ -41,6 +41,7 @@ import {
   useMultipleDocuments,
 } from '@/features/multiple-documents'
 import { NAV_STATE_SYMBOL } from '@/hooks/useNavState'
+import ScalarRequestExampleBlock from '@/v2/blocks/scalar-request-example-block/components/ScalarRequestExampleBlock.vue'
 import { onCustomEvent } from '@/v2/events'
 
 const props = defineProps<{
@@ -250,27 +251,13 @@ useFavicon(favicon)
     v-if="selectedConfiguration?.customCss">
     {{ selectedConfiguration.customCss }}
   </component>
-  <ApiReferenceLayout
-    :configuration="selectedConfiguration"
-    :isDark="!!store.workspace['x-scalar-dark-mode']"
-    @toggleDarkMode="() => toggleColorMode()"
-    @updateContent="$emit('updateContent', $event)">
-    <template #footer>
-      <slot name="footer" />
-    </template>
-    <!-- Expose the content end slot as a slot for the footer -->
-    <template #content-end>
-      <slot name="footer" />
-    </template>
-    <template #document-selector>
-      <DocumentSelector
-        v-model="selectedDocumentIndex"
-        :options="availableDocuments" />
-    </template>
-    <template #sidebar-start>
-      <slot name="sidebar-start" />
-    </template>
-  </ApiReferenceLayout>
+  <ScalarRequestExampleBlock
+    :method="'get'"
+    :path="'/planets'"
+    :document="{
+      url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+      name: 'galaxy',
+    }" />
 </template>
 
 <style>
