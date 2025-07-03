@@ -41,15 +41,19 @@ useSidebarNestedItem(open)
 
 defineSlots<{
   /** The text content of the button */
-  default?: () => any
+  'default'?: () => any
   /** Override the entire button */
-  button?: () => any
+  'button'?: () => any
   /** Override the icon */
-  icon?: () => any
+  'icon'?: () => any
+  /** Override the aside slot */
+  'aside'?: () => any
   /** Override the back button */
-  back?: () => any
+  'back'?: () => any
+  /** Override the back button label */
+  'back-label'?: () => any
   /** The list of sidebar subitems */
-  items?: () => any
+  'items'?: () => any
 }>()
 
 const { level } = useSidebarGroups({ reset: true })
@@ -94,7 +98,9 @@ defineOptions({ inheritAttrs: false })
         </template>
         <slot />
         <template #aside>
-          <ScalarIconArrowRight class="size-4 text-c-2" />
+          <slot name="aside">
+            <ScalarIconArrowRight class="size-4 text-c-2" />
+          </slot>
         </template>
       </ScalarSidebarButton>
     </slot>
@@ -116,7 +122,7 @@ defineOptions({ inheritAttrs: false })
               <template #icon>
                 <ScalarIconCaretLeft class="size-4 -m-px text-c-2" />
               </template>
-              Back
+              <slot name="back-label">Back</slot>
             </ScalarSidebarButton>
           </slot>
           <ScalarSidebarSpacer class="h-3" />
