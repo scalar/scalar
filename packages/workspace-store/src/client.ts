@@ -36,7 +36,7 @@ type WorkspaceDocumentMetaInput = {
  * Represents a document that is loaded from a URL.
  * This type extends WorkspaceDocumentMetaInput to include URL-specific properties.
  */
-type UrlDoc = {
+export type UrlDoc = {
   /** URL to fetch the OpenAPI document from */
   url: string
   /** Optional custom fetch implementation to use when retrieving the document. By default the global fetch implementation will be used */
@@ -44,7 +44,7 @@ type UrlDoc = {
 } & WorkspaceDocumentMetaInput
 
 /** Represents a document that is provided directly as an object rather than loaded from a URL */
-type ObjectDoc = {
+export type ObjectDoc = {
   /** The OpenAPI document object containing the API specification */
   document: Record<string, unknown>
 } & WorkspaceDocumentMetaInput
@@ -104,6 +104,41 @@ type WorkspaceProps = {
 }
 
 /**
+ * Type definition for the workspace store return object.
+ * This explicit type is needed to avoid TypeScript inference limits.
+ *
+ * @see https://github.com/microsoft/TypeScript/issues/43817#issuecomment-827746462
+ */
+export type WorkspaceStore = {
+  /** Returns the reactive workspace object with an additional activeDocument getter */
+  readonly workspace: Workspace
+  /** Updates a specific metadata field in the workspace */
+  update<K extends keyof WorkspaceMeta>(key: K, value: WorkspaceMeta[K]): void
+  /** Updates a specific metadata field in a document */
+  updateDocument<K extends keyof WorkspaceDocumentMeta>(
+    name: 'active' | (string & {}),
+    key: K,
+    value: WorkspaceDocumentMeta[K],
+  ): void
+  /** Resolves a reference in the active document by following the provided path and resolving any external $ref references */
+  resolve(path: string[]): Promise<unknown>
+  /** Adds a new document to the workspace */
+  addDocument(input: WorkspaceDocumentInput): Promise<void>
+  /** Similar to addDocument but requires and in-mem object to be provided and loads the document synchronously */
+  addDocumentSync(input: ObjectDoc): void
+  /** Returns the merged configuration for the active document */
+  readonly config: Config
+  /** Downloads the specified document in the requested format */
+  exportDocument(documentName: string, format: 'json' | 'yaml'): string | undefined
+  /** Persists the current state of the specified document back to the original documents map */
+  saveDocument(documentName: string): unknown[] | undefined
+  /** Reverts the specified document to its original state */
+  revertDocumentChanges(documentName: string): void
+  /** Commits the specified document */
+  commitDocument(documentName: string): void
+}
+
+/**
  * Creates a reactive workspace store that manages documents and their metadata.
  * The store provides functionality for accessing, updating, and resolving document references.
  *
@@ -114,7 +149,7 @@ type WorkspaceProps = {
  *  this allows atomic awaiting and does not block page load for the store initialization
  * @returns An object containing methods and getters for managing the workspace
  */
-export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
+export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): WorkspaceStore => {
   /**
    * Holds the original, unmodified documents as they were initially loaded into the workspace.
    * These documents are stored in their raw form—prior to any reactive wrapping, dereferencing, or bundling.
@@ -483,8 +518,6 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
     },
   }
 }
-
-export type WorkspaceStore = ReturnType<typeof createWorkspaceStore>
 
 // biome-ignore lint/performance/noBarrelFile: <explanation>
 export { generateClientMutators } from '@/mutators'
