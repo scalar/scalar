@@ -77,6 +77,30 @@ export const split = <T>(array: T[], condition: (element: T) => boolean) => {
   )
 }
 
+/**
+ * Safely assigns properties from a source object to a target object.
+ *
+ * This function uses Object.assign to copy enumerable properties from the source object
+ * to the target object. It's a type-safe wrapper around Object.assign that ensures
+ * the source object is compatible with the target object's type.
+ *
+ * @param target - The target object to assign properties to
+ * @param source - The source object containing properties to assign
+ * @template T - The type of the target object
+ *
+ * @example
+ * ```ts
+ * const target = { name: 'John', age: 30 }
+ * const source = { age: 31, city: 'New York' }
+ * safeAssign(target, source)
+ * // target is now: { name: 'John', age: 31, city: 'New York' }
+ *
+ * const config = { theme: 'dark', language: 'en' }
+ * const updates = { theme: 'light' }
+ * safeAssign(config, updates)
+ * // config is now: { theme: 'light', language: 'en' }
+ * ```
+ */
 export const safeAssign = <T extends Record<string, unknown>>(target: T, source: Partial<T>) => {
   Object.assign(target, source)
 }

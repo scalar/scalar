@@ -354,3 +354,18 @@ store.workspace.documents['api'].info.title = 'Updated API Title'
 // This will restore the original title since we did not commit the changes yet
 store.revertDocumentChanges()
 ```
+
+### Workspace State Persistence
+
+The workspace store provides methods to persist and restore the complete workspace state, including all documents, configurations, and metadata. This is useful for saving work between sessions or sharing workspace configurations.
+
+```ts
+const client = createWorkspaceStore()
+// Get the current workspace state
+const currentWorkspaceState = client.export()
+
+// Persist on some kind of storage
+
+// Reload the workspace state
+client.loadWorkspace(currentWorkspaceState)
+```
