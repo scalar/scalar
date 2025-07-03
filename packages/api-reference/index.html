@@ -49,15 +49,51 @@ paths:
                 properties:
                   foo:
                     type: string
-                    description: Foo
+                    description: This is wild.
                   bar:
                     type: string
-                    description: Bar
+                    description: Wow, imagine sending this over the wire.
                 patternProperties:
                   '^[a-z]+$':
                     type: string
-                    description: Pattern property
-                additionalProperties: true
+                    description: Looks like a pattern property
+                additionalProperties:
+                  x-additionalPropertiesName: percentage
+                  type: integer
+                  minimum: 0
+                  maximum: 100
+                  description: I don't know the name of this property, but it's a percentage.
+components:
+  schemas:
+    Pet:
+      oneOf:
+        - $ref: '#/components/schemas/Dog'
+        - $ref: '#/components/schemas/Cat'
+    Dog:
+      type: object
+      properties:
+        name:
+          type: string
+    Cat:
+      type: object
+      properties:
+        name:
+          type: string
+        color:
+          type: string
+        age:
+          type: number
+        owner:
+          type: object
+          properties:
+            name:
+              type: string
+            age:
+              type: number
+            pets:
+              type: array
+              items:
+                $ref: '#/components/schemas/Pet'
 `,
           },
           {
