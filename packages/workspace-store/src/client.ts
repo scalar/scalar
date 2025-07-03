@@ -17,7 +17,6 @@ import { OpenAPIDocumentSchema } from '@/schemas/v3.1/strict/openapi-document'
 import { defaultReferenceConfig } from '@/schemas/reference-config'
 import type { Config } from '@/schemas/workspace-specification/config'
 import { InMemoryWorkspaceSchema, type InMemoryWorkspace } from '@/schemas/inmemory-workspace'
-import { Value } from '@sinclair/typebox/value'
 
 /**
  * Input type for workspace document metadata and configuration.
@@ -521,7 +520,7 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
      * @param input - The serialized workspace JSON string to import.
      */
     loadWorkspace(input: string) {
-      const result = Value.Parse(InMemoryWorkspaceSchema, input)
+      const result = coerceValue(InMemoryWorkspaceSchema, JSON.parse(input))
 
       // Assign the magic proxy to the documents
       safeAssign(

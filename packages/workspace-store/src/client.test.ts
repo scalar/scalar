@@ -845,4 +845,229 @@ describe('create-workspace-store', () => {
       )
     })
   })
+
+  describe('export', () => {
+    it('should export the workspace internal state as a json document', () => {
+      const store = createWorkspaceStore({
+        documents: [
+          {
+            name: 'default',
+            document: {
+              openapi: '3.0.0',
+              info: {
+                title: 'My API',
+                version: '1.0.0',
+              },
+            },
+            config: {
+              'x-scalar-reference-config': {
+                features: {
+                  showModels: false,
+                  showDownload: false,
+                },
+              },
+            },
+            meta: {
+              'x-scalar-active-server': 'server-1',
+            },
+          },
+        ],
+        meta: {
+          'x-scalar-active-document': 'default',
+          'x-scalar-dark-mode': true,
+          'x-scalar-default-client': 'curl',
+          'x-scalar-theme': 'saturn',
+        },
+      })
+
+      store.addDocumentSync({
+        name: 'pet-store',
+        document: {
+          openapi: '3.0.0',
+          info: {
+            title: 'Pet Store API',
+            version: '1.0.0',
+          },
+          paths: {
+            '/users': {
+              get: {
+                description: 'Get all users',
+              },
+            },
+          },
+        },
+      })
+
+      expect(store.export()).toBe(
+        JSON.stringify({
+          documents: {
+            default: {
+              openapi: '3.1.1',
+              info: { title: 'My API', version: '1.0.0' },
+              'x-scalar-navigation': [],
+              'x-scalar-active-server': 'server-1',
+            },
+            'pet-store': {
+              openapi: '3.1.1',
+              info: { title: 'Pet Store API', version: '1.0.0' },
+              paths: { '/users': { get: { description: 'Get all users' } } },
+              'x-scalar-navigation': [
+                {
+                  id: '',
+                  title: '/users',
+                  path: '/users',
+                  method: 'get',
+                  ref: '#/paths/~1users/get',
+                  type: 'operation',
+                },
+              ],
+            },
+          },
+          meta: {
+            'x-scalar-active-document': 'default',
+            'x-scalar-dark-mode': true,
+            'x-scalar-default-client': 'curl',
+            'x-scalar-theme': 'saturn',
+          },
+          documentConfigs: {
+            default: { 'x-scalar-reference-config': { 'features': { 'showModels': false, 'showDownload': false } } },
+            'pet-store': {},
+          },
+          originalDocuments: {
+            default: {
+              openapi: '3.1.1',
+              info: { title: 'My API', version: '1.0.0' },
+              'x-scalar-active-server': 'server-1',
+            },
+            'pet-store': {
+              openapi: '3.1.1',
+              info: { title: 'Pet Store API', version: '1.0.0' },
+              paths: { '/users': { get: { description: 'Get all users' } } },
+            },
+          },
+          intermediateDocuments: {
+            default: {
+              openapi: '3.1.1',
+              info: { title: 'My API', version: '1.0.0' },
+              'x-scalar-active-server': 'server-1',
+            },
+            'pet-store': {
+              openapi: '3.1.1',
+              info: { title: 'Pet Store API', version: '1.0.0' },
+              'paths': { '/users': { 'get': { 'description': 'Get all users' } } },
+            },
+          },
+        }),
+      )
+    })
+  })
+
+  describe.only('loadWorkspace', () => {
+    it('should load the workspace from a json document', () => {
+      const store = createWorkspaceStore()
+
+      // Load the workspace form a json document
+      store.loadWorkspace(
+        JSON.stringify({
+          documents: {
+            default: {
+              openapi: '3.1.1',
+              info: { title: 'My API', version: '1.0.0' },
+              'x-scalar-navigation': [],
+              'x-scalar-active-server': 'server-1',
+            },
+            'pet-store': {
+              openapi: '3.1.1',
+              info: { title: 'Pet Store API', version: '1.0.0' },
+              paths: { '/users': { get: { description: 'Get all users' } } },
+              'x-scalar-navigation': [
+                {
+                  id: '',
+                  title: '/users',
+                  path: '/users',
+                  method: 'get',
+                  ref: '#/paths/~1users/get',
+                  type: 'operation',
+                },
+              ],
+            },
+          },
+          meta: {
+            'x-scalar-active-document': 'default',
+            'x-scalar-dark-mode': true,
+            'x-scalar-default-client': 'curl',
+            'x-scalar-theme': 'saturn',
+          },
+          documentConfigs: {
+            default: { 'x-scalar-reference-config': { 'features': { 'showModels': false, 'showDownload': false } } },
+            'pet-store': {},
+          },
+          originalDocuments: {
+            default: {
+              openapi: '3.1.1',
+              info: { title: 'My API', version: '1.0.0' },
+              'x-scalar-active-server': 'server-1',
+            },
+            'pet-store': {
+              openapi: '3.1.1',
+              info: { title: 'Pet Store API', version: '1.0.0' },
+              paths: { '/users': { get: { description: 'Get all users' } } },
+            },
+          },
+          intermediateDocuments: {
+            default: {
+              openapi: '3.1.1',
+              info: { title: 'My API', version: '1.0.0' },
+              'x-scalar-active-server': 'server-1',
+            },
+            'pet-store': {
+              openapi: '3.1.1',
+              info: { title: 'Pet Store API', version: '1.0.0' },
+              'paths': { '/users': { 'get': { 'description': 'Get all users' } } },
+            },
+          },
+        }),
+      )
+
+      // Should have loaded the workspace correctly
+      expect(store.workspace.activeDocument).toEqual({
+        openapi: '3.1.1',
+        info: { title: 'My API', version: '1.0.0' },
+        'x-scalar-navigation': [],
+        'x-scalar-active-server': 'server-1',
+      })
+
+      expect(store.config['x-scalar-reference-config'].features.showModels).toBe(false)
+      expect(store.config['x-scalar-reference-config'].features.showDownload).toBe(false)
+
+      expect(store.workspace.documents).toEqual({
+        default: {
+          openapi: '3.1.1',
+          info: { title: 'My API', version: '1.0.0' },
+          'x-scalar-navigation': [],
+          'x-scalar-active-server': 'server-1',
+        },
+        'pet-store': {
+          openapi: '3.1.1',
+          info: { title: 'Pet Store API', version: '1.0.0' },
+          paths: { '/users': { get: { description: 'Get all users' } } },
+          'x-scalar-navigation': [
+            {
+              id: '',
+              title: '/users',
+              path: '/users',
+              method: 'get',
+              ref: '#/paths/~1users/get',
+              type: 'operation',
+            },
+          ],
+        },
+      })
+
+      expect(store.workspace['x-scalar-theme']).toBe('saturn')
+      expect(store.workspace['x-scalar-dark-mode']).toBe(true)
+      expect(store.workspace['x-scalar-active-document']).toBe('default')
+      expect(store.workspace['x-scalar-default-client']).toBe('curl')
+    })
+  })
 })
