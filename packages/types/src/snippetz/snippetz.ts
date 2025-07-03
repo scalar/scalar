@@ -10,6 +10,7 @@ export const AVAILABLE_CLIENTS = [
   'clojure/clj_http',
   'csharp/httpclient',
   'csharp/restsharp',
+  'dart/http',
   'go/native',
   'http/http1.1',
   'java/asynchttp',
@@ -38,11 +39,11 @@ export const AVAILABLE_CLIENTS = [
   'python/httpx_async',
   'r/httr',
   'ruby/native',
+  'rust/reqwest',
   'shell/curl',
   'shell/httpie',
   'shell/wget',
   'swift/nsurlsession',
-  'dart/http',
 ] as const
 
 export type AvailableClients = typeof AVAILABLE_CLIENTS
