@@ -170,6 +170,12 @@ export const WithNestedSidebars: Story = {
       </template>
     </ScalarSidebarGroup>
     ${nestedItemGroups}
+    <ScalarSidebarNestedItems>
+      More nested items
+      <template #items>
+        ${nestedItemGroups}
+      </template>
+    </ScalarSidebarNestedItems>
   </ScalarSidebarItems>
 </ScalarSidebarPlayground>
 `,
