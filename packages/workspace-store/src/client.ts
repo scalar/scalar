@@ -116,13 +116,27 @@ type WorkspaceProps = {
  */
 export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
   /**
-   * Stores the original, unmodified documents before they are wrapped in reactive proxies.
-   * These are the input documents in their raw form - not dereferenced, not bundled.
-   * This preserves the original document structure.
-   * The documents in this map are deep clones to prevent mutations from affecting the original data.
-   * We keep these original documents so we can write them back to the registry when needed.
+   * Holds the original, unmodified documents as they were initially loaded into the workspace.
+   * These documents are stored in their raw form—prior to any reactive wrapping, dereferencing, or bundling.
+   * This map preserves the pristine structure of each document, using deep clones to ensure that
+   * subsequent mutations in the workspace do not affect the originals.
+   * The originals are retained so that we can restore, compare, or sync with the remote registry as needed.
    */
   const originalDocuments = {} as Workspace['documents']
+
+  /**
+   * Stores the intermediate state of documents after local edits but before syncing with the remote registry.
+   *
+   * This map acts as a local "saved" version of the document, reflecting the user's changes after they hit "save".
+   * The `originalDocuments` map, by contrast, always mirrors the document as it exists in the remote registry.
+   *
+   * Use this map to stage local changes that are ready to be propagated back to the remote registry.
+   * This separation allows us to distinguish between:
+   *   - The last known remote version (`originalDocuments`)
+   *   - The latest locally saved version (`intermediateDocuments`)
+   *   - The current in-memory (possibly unsaved) workspace document (`workspace.documents`)
+   */
+  const intermediateDocuments = {} as Workspace['documents']
   /**
    * A map of document configurations keyed by document name.
    * This stores the configuration options for each document in the workspace,
@@ -167,8 +181,16 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
 
     const document = coerceValue(OpenAPIDocumentSchema, upgrade(input.document).specification)
 
-    // Create a deep clone of the document with metadata to preserve original structure
+    // Store the original document in the originalDocuments map
+    // This is used to track the original state of the document as it was loaded into the workspace
     originalDocuments[name] = deepClone({ ...document, ...meta })
+    // Store the intermediate document state for local edits
+    // This is used to track the last saved state of the document
+    // It allows us to differentiate between the original document and the latest saved version
+    // This is important for local edits that are not yet synced with the remote registry
+    // The intermediate document is used to store the latest saved state of the document
+    // This allows us to track changes and revert to the last saved state if needed
+    intermediateDocuments[name] = deepClone({ ...document, ...meta })
     // Add the document config to the documentConfigs map
     documentConfigs[name] = input.config ?? {}
 
@@ -345,46 +367,50 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
       )
     },
     /**
-     * Downloads the specified document in the requested format.
+     * Exports the specified document in the requested format.
      *
-     * This method serializes the original, unmodified document (prior to any reactive wrapping or runtime changes)
-     * to either JSON or YAML. The original document is used to ensure the output matches the initial structure,
-     * without any runtime modifications or external references.
+     * This method serializes the most recently saved local version of the document (from the intermediateDocuments map)
+     * to either JSON or YAML. The exported document reflects the last locally saved state, including any edits
+     * that have been saved but not yet synced to a remote registry. Runtime/in-memory changes that have not been saved
+     * will not be included.
      *
-     * @param documentName - The name of the document to download
-     * @param format - The output format: 'json' for a JSON string, or 'yaml' for a YAML string
-     * @returns The document as a string in the requested format, or undefined if the document does not exist
+     * @param documentName - The name of the document to export.
+     * @param format - The output format: 'json' for a JSON string, or 'yaml' for a YAML string.
+     * @returns The document as a string in the requested format, or undefined if the document does not exist.
      *
      * @example
-     * // Download a document as JSON
+     * // Export a document as JSON
      * const jsonString = store.exportDocument('api', 'json')
      *
-     * // Download a document as YAML
+     * // Export a document as YAML
      * const yamlString = store.exportDocument('api', 'yaml')
      */
     exportDocument: (documentName: string, format: 'json' | 'yaml') => {
-      const originalDocument = originalDocuments[documentName]
+      const intermediateDocument = intermediateDocuments[documentName]
 
-      if (!originalDocument) {
+      if (!intermediateDocument) {
         return
       }
 
       if (format === 'json') {
-        return JSON.stringify(originalDocument)
+        return JSON.stringify(intermediateDocument)
       }
 
-      return YAML.stringify(originalDocument)
+      return YAML.stringify(intermediateDocument)
     },
     /**
-     * Persists the current state of the specified document back to the original documents map.
+     * Saves the current state of the specified document to the intermediate documents map.
      *
-     * This method takes the current (reactive) document state and applies its changes to the
-     * corresponding entry in the originalDocuments map, which holds the unmodified source documents.
-     * The update is performed in-place to preserve reactivity, and a deep clone is used to avoid
-     * mutating the reactive state directly.
+     * This function captures the latest (reactive) state of the document from the workspace and
+     * applies its changes to the corresponding entry in the `intermediateDocuments` map.
+     * The `intermediateDocuments` map represents the most recently "saved" local version of the document,
+     * which may include edits not yet synced to the remote registry.
+     *
+     * The update is performed in-place. A deep clone of the current document
+     * state is used to avoid mutating the reactive object directly.
      *
      * @param documentName - The name of the document to save.
-     * @returns An array of diffs that were excluded from being applied (e.g., changes to excluded keys),
+     * @returns An array of diffs that were excluded from being applied (such as changes to ignored keys),
      *          or undefined if the document does not exist or cannot be updated.
      *
      * @example
@@ -392,49 +418,63 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
      * const excludedDiffs = store.saveDocument('api')
      */
     saveDocument(documentName: string) {
-      const originalDocument = originalDocuments[documentName]
-      // Get the raw state of the active document to avoid diff issues
+      const intermediateDocument = intermediateDocuments[documentName]
+      // Obtain the raw state of the current document to ensure accurate diffing
       const updatedDocument = toRaw(getRaw(workspace.documents[documentName]))
 
-      // If either the original or updated document is not available, return undefined
-      if (!originalDocument || !updatedDocument) {
+      // If either the intermediate or updated document is missing, do nothing
+      if (!intermediateDocument || !updatedDocument) {
         return
       }
 
-      // Update the original document with the current state of the active document
-      const excludedDiffs = applySelectiveUpdates(originalDocument, updatedDocument)
+      // Apply changes from the current document to the intermediate document in place
+      const excludedDiffs = applySelectiveUpdates(intermediateDocument, updatedDocument)
       return excludedDiffs
     },
     /**
-     * Reverts the specified document to its original state.
+     * Restores the specified document to its last locally saved state.
      *
-     * This method restores the document identified by `documentName` to its initial, unmodified state
-     * by copying the original document (from the `originalDocuments` map) back into the current reactive document.
-     * The operation preserves Vue reactivity by updating the existing reactive object in place.
+     * This method updates the current reactive document (in the workspace) with the contents of the
+     * corresponding intermediate document (from the `intermediateDocuments` map), effectively discarding
+     * any unsaved in-memory changes and reverting to the last saved version.
+     * Vue reactivity is preserved by updating the existing reactive object in place.
      *
-     * **Warning:** This operation will discard all unsaved changes to the specified document.
+     * **Warning:** This operation will discard all unsaved (in-memory) changes to the specified document.
      *
-     * @param documentName - The name of the document to revert.
+     * @param documentName - The name of the document to restore.
      * @returns void
      *
      * @example
-     * // Revert the document named 'api' to its original state
+     * // Restore the document named 'api' to its last saved state
      * store.revertDocumentChanges('api')
      */
     revertDocumentChanges(documentName: string) {
-      const originalDocument = originalDocuments[documentName]
-      // Get the raw state of the current document to avoid diff issues
-      // This ensures that we don't diff the references
-      // Note:  We still keep the vue proxy for reactivity
-      //        This is important since we are writing back to the active document
+      const intermediateDocument = intermediateDocuments[documentName]
+      // Get the raw state of the current document to avoid diffing resolved references.
+      // This ensures we update the actual data, not the references.
+      // Note: We keep the Vue proxy for reactivity by updating the object in place.
       const updatedDocument = getRaw(workspace.documents[documentName])
 
-      if (!originalDocument || !updatedDocument) {
+      if (!intermediateDocument || !updatedDocument) {
         return
       }
 
-      // Overwrite the current document with the original state, discarding unsaved changes.
-      applySelectiveUpdates(updatedDocument, originalDocument)
+      // Overwrite the current document with the last saved state, discarding unsaved changes.
+      applySelectiveUpdates(updatedDocument, intermediateDocument)
+    },
+    /**
+     * Commits the specified document.
+     *
+     * This method is intended to finalize and persist the current state of the document,
+     * potentially syncing it with a remote registry or marking it as the latest committed version.
+     *
+     * @param documentName - The name of the document to commit.
+     * @remarks
+     * The actual commit logic is not implemented yet.
+     */
+    commitDocument(documentName: string) {
+      // TODO: Implement commit logic
+      console.warn(`Commit operation for document '${documentName}' is not implemented yet.`)
     },
   }
 }
