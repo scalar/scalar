@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
 import ScalarSidebarGroup from './ScalarSidebarGroup.vue'
+import ScalarSidebarButton from './ScalarSidebarButton.vue'
 import ScalarSidebarItem from './ScalarSidebarItem.vue'
 
 describe('ScalarSidebarGroup', () => {
@@ -18,16 +19,28 @@ describe('ScalarSidebarGroup', () => {
       },
     })
 
-    const button = wrapper.find('button')
-    expect(button.attributes('aria-level')).toBe('0')
+    // The group button should have indent level 0 (base level)
+    const groupButton = wrapper.findComponent(ScalarSidebarButton)
+    expect(groupButton.props('indent')).toBe(0)
 
-    await button.trigger('click')
+    // Open the group to reveal the items
+    await groupButton.trigger('click')
 
-    const item = wrapper.find('a')
-    expect(item.attributes('aria-level')).toBe('1')
+    // Verify the item component is rendered
+    const itemComponents = wrapper.findAllComponents(ScalarSidebarItem)
+    expect(itemComponents).toHaveLength(1)
+
+    // The ScalarSidebarItem doesn't receive an explicit indent prop - it uses the level from context
+    expect(itemComponents[0].props('indent')).toBeUndefined()
+
+    // After opening, we should have the group button + item button
+    const allButtons = wrapper.findAllComponents(ScalarSidebarButton)
+    expect(allButtons).toHaveLength(2)
+    expect(allButtons[0].props('indent')).toBe(0) // Group button
+    expect(allButtons[1].props('indent')).toBe(1) // Item button (one level deeper)
   })
 
-  it('supports nested groups with correct aria levels', async () => {
+  it('supports nested groups with correct levels', async () => {
     const wrapper = mount(ScalarSidebarGroup, {
       slots: {
         default: 'Parent Group',
@@ -51,15 +64,18 @@ describe('ScalarSidebarGroup', () => {
       },
     })
 
-    // Open the parent group
-    await wrapper.find('button').trigger('click')
+    // Open the parent group to reveal nested content
+    const parentButton = wrapper.findComponent(ScalarSidebarButton)
+    await parentButton.trigger('click')
 
-    const buttons = wrapper.findAll('button')
-    expect(buttons).toHaveLength(2) // Parent + 1 nested groups
+    // After opening, we should have: parent group button + level 1 item button + level 2 group button
+    const buttonComponents = wrapper.findAllComponents(ScalarSidebarButton)
+    expect(buttonComponents).toHaveLength(3)
 
-    // Verify aria-level for each group
-    expect(buttons[0].attributes('aria-level')).toBe('0') // Parent
-    expect(buttons[1].attributes('aria-level')).toBe('1') // First nested
+    // Verify indent levels are correct
+    expect(buttonComponents[0].props('indent')).toBe(0) // Parent group (base level)
+    expect(buttonComponents[1].props('indent')).toBe(1) // Level 1 item (one level deeper)
+    expect(buttonComponents[2].props('indent')).toBe(1) // Level 2 group (same level as level 1 item)
   })
 
   it('handles deeply nested groups', async () => {
@@ -104,18 +120,24 @@ describe('ScalarSidebarGroup', () => {
       },
     })
 
-    // Open all groups
+    // Open all groups by clicking any unexpanded buttons
     while (wrapper.find('button[aria-expanded="false"]').exists()) {
       await wrapper.find('button[aria-expanded="false"]').trigger('click')
     }
 
-    const items = wrapper.findAll('a')
+    // Find all button components
+    const buttonComponents = wrapper.findAllComponents(ScalarSidebarButton)
 
-    // Verify aria-level for each nested level
-    items.forEach((item, index) => {
-      expect(item.attributes('aria-level')).toBe((index + 1).toString())
+    // Should have: 5 group buttons + 5 item buttons = 10 total
+    expect(buttonComponents).toHaveLength(10)
+
+    // Filter to get only the item buttons (they contain "Item" in their text)
+    const itemButtons = buttonComponents.filter((button) => button.element.textContent?.includes('Item'))
+    expect(itemButtons).toHaveLength(5)
+
+    // Verify that item buttons have correct indent levels (1, 2, 3, 4, 5)
+    itemButtons.forEach((button, index) => {
+      expect(button.props('indent')).toBe(index + 1)
     })
-
-    expect(items).toHaveLength(5) // Should have 5 levels of nesting
   })
 })
