@@ -248,6 +248,25 @@ const handleDiscriminatorChange = (type: string) => {
             :discriminatorPropertyName="discriminatorPropertyName"
             :hasDiscriminator="hasDiscriminator"
             @update:modelValue="handleDiscriminatorChange" />
+
+          <!-- Not an object -->
+          <template v-else>
+            <SchemaProperty
+              v-if="schema"
+              :compact="compact"
+              :hideHeading="hideHeading"
+              :hideModelNames="hideModelNames"
+              :level="level"
+              :name="(schema as OpenAPIV3_1.SchemaObject).name"
+              :schemas="schemas"
+              :value="
+                value.discriminator?.propertyName === name ? value : schema
+              "
+              :discriminatorMapping="discriminatorMapping"
+              :discriminatorPropertyName="discriminatorPropertyName"
+              :modelValue="discriminator"
+              @update:modelValue="handleDiscriminatorChange" />
+          </template>
         </DisclosurePanel>
       </div>
     </div>
