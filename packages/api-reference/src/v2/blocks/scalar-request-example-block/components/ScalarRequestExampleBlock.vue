@@ -1,0 +1,76 @@
+<script lang="ts" setup>
+import type {
+  WorkspaceDocumentInput,
+  WorkspaceStore,
+} from '@scalar/workspace-store/client'
+import { ref, watch } from 'vue'
+
+import { getStore } from '@/v2/blocks/helpers/get-store'
+
+import RequestExample, { type RequestExampleProps } from './RequestExample.vue'
+
+type Props = Pick<RequestExampleProps, 'method' | 'path'> & {
+  document: WorkspaceDocumentInput
+  store?: WorkspaceStore
+}
+
+const { method, path, document } = defineProps<Props>()
+
+/** Either creates or grabs a global/prop store */
+const store = getStore(document)
+
+/** The resolved operation from the workspace store */
+const operation = ref<RequestExampleProps['operation'] | null>(null)
+
+// Ensure we resolve this operation as soon as we have an active document
+watch(
+  () => store.workspace.activeDocument,
+  async (activeDocument) => {
+    if (!activeDocument) {
+      return
+    }
+
+    try {
+      await store.resolve(['paths', path, method])
+      // @ts-expect-error - We should add connect to our http method types
+      const pathItem = activeDocument.paths?.[path]?.[method]
+      console.log(pathItem)
+    } catch (error) {
+      console.error('Failed to resolve operation:', error)
+    }
+  },
+)
+
+/**
+ * Resolve the operation from the workspace store
+ */
+const resolveOperation = async () => {
+  try {
+    await store.resolve(['paths', path, method])
+    const activeDocument = store.workspace.activeDocument
+    const pathItem = activeDocument?.paths?.[path]
+    if (pathItem && method in pathItem) {
+      operation.value = (pathItem as any)[
+        method
+      ] as RequestExampleProps['operation']
+    }
+  } catch (error) {
+    console.error('Failed to resolve operation:', error)
+  }
+}
+resolveOperation()
+console.log(store)
+</script>
+
+<template>
+  <RequestExample
+    v-if="operation"
+    :method="method"
+    :path="path"
+    :operation="operation" />
+  <div
+    v-else
+    class="p-4 text-gray-500">
+    Loading operation...
+  </div>
+</template>

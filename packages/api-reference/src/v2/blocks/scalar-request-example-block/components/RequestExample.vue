@@ -1,37 +1,5 @@
-<script setup lang="ts">
-import {
-  ScalarButton,
-  ScalarCodeBlock,
-  ScalarCombobox,
-} from '@scalar/components'
-import { freezeElement } from '@scalar/helpers/dom/freeze-element'
-import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
-import { ScalarIconCaretDown } from '@scalar/icons'
-import type { XCodeSample } from '@scalar/openapi-types/schemas/extensions'
-import { type AvailableClients } from '@scalar/snippetz'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
-import {
-  isReference,
-  type Dereference,
-} from '@scalar/workspace-store/schemas/v3.1/type-guard'
-import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
-
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/Card'
-import { HttpMethod } from '@/components/HttpMethod'
-import ScreenReader from '@/components/ScreenReader.vue'
-import { ExamplePicker } from '@/features/example-request'
-import { findClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
-import {
-  generateClientOptions,
-  generateCustomId,
-} from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
-import { generateCodeSnippet } from '@/v2/blocks/scalar-request-example-block/helpers/generate-code-snippet'
-import { getSecrets } from '@/v2/blocks/scalar-request-example-block/helpers/get-secrets'
-import type { ClientOption } from '@/v2/blocks/scalar-request-example-block/types'
-
-type Props = {
+<script lang="ts">
+export type RequestExampleProps = {
   /**
    * List of all allowed clients, this will determine which clients are available in the dropdown
    *
@@ -94,6 +62,42 @@ type Props = {
   }
 }
 
+export default {}
+</script>
+
+<script setup lang="ts">
+import {
+  ScalarButton,
+  ScalarCodeBlock,
+  ScalarCombobox,
+} from '@scalar/components'
+import { freezeElement } from '@scalar/helpers/dom/freeze-element'
+import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
+import { ScalarIconCaretDown } from '@scalar/icons'
+import type { XCodeSample } from '@scalar/openapi-types/schemas/extensions'
+import { type AvailableClients } from '@scalar/snippetz'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
+import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
+import {
+  isReference,
+  type Dereference,
+} from '@scalar/workspace-store/schemas/v3.1/type-guard'
+import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
+
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/Card'
+import { HttpMethod } from '@/components/HttpMethod'
+import ScreenReader from '@/components/ScreenReader.vue'
+import { ExamplePicker } from '@/features/example-request'
+import { findClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
+import {
+  generateClientOptions,
+  generateCustomId,
+} from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
+import { generateCodeSnippet } from '@/v2/blocks/scalar-request-example-block/helpers/generate-code-snippet'
+import { getSecrets } from '@/v2/blocks/scalar-request-example-block/helpers/get-secrets'
+import type { ClientOption } from '@/v2/blocks/scalar-request-example-block/types'
+
 const {
   allowedClients,
   selectedClient = 'shell/curl',
@@ -108,7 +112,7 @@ const {
   config = {
     hideClientSelector: false,
   },
-} = defineProps<Props>()
+} = defineProps<RequestExampleProps>()
 
 const emit = defineEmits<{
   'update:selectedClient': [id: AvailableClients[number]]
