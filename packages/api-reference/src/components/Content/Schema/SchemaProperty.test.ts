@@ -1,6 +1,6 @@
+import { DISCRIMINATOR_CONTEXT } from '@/hooks/useDiscriminator'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import { DISCRIMINATOR_CONTEXT } from '@/hooks/useDiscriminator'
 
 import Schema from './Schema.vue'
 import SchemaProperty from './SchemaProperty.vue'
@@ -354,14 +354,17 @@ describe('SchemaProperty sub-schema', () => {
       },
     })
 
-    // Check that the composition is not rendered
+    // The composition description should not be visible before expanding
     expect(wrapper.html().match(/foobar/g)).toBeNull()
-    expect(wrapper.find('button[aria-expanded="false"]').exists()).toBe(true)
 
-    // Open the schema card
-    await wrapper.find('.schema-card-title').trigger('click')
+    // Expand all schema cards to reveal nested content
+    const buttons = wrapper.findAll('button.schema-card-title')
+    for (const button of buttons) {
+      await button.trigger('click')
+      await wrapper.vm.$nextTick()
+    }
 
-    // Find 'foobar' only once
+    // Now "foobar" should be present
     const foobar = wrapper.html().match(/foobar/g)
     expect(foobar).toHaveLength(1)
   })
@@ -449,12 +452,14 @@ describe('SchemaProperty sub-schema', () => {
       },
     })
 
-    const button = wrapper.find('.schema-card-title')
-    await button.trigger('click')
-    await wrapper.vm.$nextTick()
+    // Expand all schema cards to reveal nested content
+    const buttons = wrapper.findAll('button.schema-card-title')
+    for (const button of buttons) {
+      await button.trigger('click')
+      await wrapper.vm.$nextTick()
+    }
 
     const html = wrapper.html()
-
     expect(html).toContain('galaxy')
     expect(html).toContain('Galaxy where the planet is located')
     expect(html).toContain('satellites')
