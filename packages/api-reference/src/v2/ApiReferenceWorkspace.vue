@@ -36,6 +36,7 @@ import {
 } from 'vue'
 
 import ApiReferenceLayout from '@/components/ApiReferenceLayout.vue'
+import OperationPath from '@/components/OperationPath.vue'
 import {
   DocumentSelector,
   useMultipleDocuments,
@@ -254,10 +255,24 @@ useFavicon(favicon)
   <ScalarRequestExampleBlock
     :method="'get'"
     :path="'/planets'"
-    :document="{
-      url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-      name: 'galaxy',
-    }" />
+    url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json"
+    name="galaxy" />
+  <ScalarRequestExampleBlock
+    :method="'get'"
+    :path="'/planets'"
+    url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json">
+    <template #header>
+      <OperationPath
+        class="example-path"
+        :deprecated="true"
+        :path="'/planets'" />
+    </template>
+  </ScalarRequestExampleBlock>
+
+  <ScalarRequestExampleBlock
+    :method="'post'"
+    :path="'/planets'"
+    url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json" />
 </template>
 
 <style>

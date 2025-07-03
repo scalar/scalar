@@ -55,11 +55,10 @@ export type RequestExampleProps = {
    */
   generateLabel?: () => string
   /**
-   * Config options for the block
+   * Whether to hide the client selector
+   * @default false
    */
-  config?: {
-    hideClientSelector?: boolean
-  }
+  hideClientSelector?: boolean
 }
 
 export default {}
@@ -109,9 +108,7 @@ const {
   path,
   operation,
   generateLabel,
-  config = {
-    hideClientSelector: false,
-  },
+  hideClientSelector = false,
 } = defineProps<RequestExampleProps>()
 
 const emit = defineEmits<{
@@ -256,7 +253,7 @@ const id = useId()
       <!-- Client picker -->
       <template
         #actions
-        v-if="!config.hideClientSelector">
+        v-if="!hideClientSelector">
         <ScalarCombobox
           class="max-h-80"
           :modelValue="localSelectedClient"

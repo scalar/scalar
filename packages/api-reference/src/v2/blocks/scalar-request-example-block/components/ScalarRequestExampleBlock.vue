@@ -1,23 +1,17 @@
 <script lang="ts" setup>
-import type {
-  WorkspaceDocumentInput,
-  WorkspaceStore,
-} from '@scalar/workspace-store/client'
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { ref, watch } from 'vue'
 
-import { getStore } from '@/v2/blocks/helpers/get-store'
+import { getStore, type GetStoreProps } from '@/v2/blocks/helpers/get-store'
 
 import RequestExample, { type RequestExampleProps } from './RequestExample.vue'
 
-type Props = Pick<RequestExampleProps, 'method' | 'path'> & {
-  document: WorkspaceDocumentInput
-  store?: WorkspaceStore
-}
+type Props = Pick<RequestExampleProps, 'method' | 'path'> & GetStoreProps
 
-const { method, path, document } = defineProps<Props>()
+const { method, path, ...getStoreProps } = defineProps<Props>()
 
 /** Either creates or grabs a global/prop store */
-const store = getStore(document)
+const store = getStore(getStoreProps)
 
 /** The resolved operation from the workspace store */
 const operation = ref<RequestExampleProps['operation'] | null>(null)
@@ -32,9 +26,11 @@ watch(
 
     try {
       await store.resolve(['paths', path, method])
-      // @ts-expect-error - We should add connect to our http methods in the store
-      const pathItem = activeDocument.paths?.[path]?.[method]
-      console.log(pathItem)
+      // TODO: remove this before merge
+      const pathItem = activeDocument.paths?.[path]?.[method as 'get']
+      if (pathItem) {
+        operation.value = pathItem
+      }
     } catch (error) {
       console.error('Failed to resolve operation:', error)
     }
