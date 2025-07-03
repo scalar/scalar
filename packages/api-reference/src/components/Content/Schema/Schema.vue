@@ -10,6 +10,7 @@ import { DISCRIMINATOR_CONTEXT } from '@/hooks/useDiscriminator'
 
 import { isTypeObject } from './helpers/is-type-object'
 import SchemaHeading from './SchemaHeading.vue'
+import SchemaObjectProperties from './SchemaObjectProperties.vue'
 import SchemaProperty from './SchemaProperty.vue'
 
 const props = withDefaults(
@@ -233,10 +234,13 @@ const handleDiscriminatorChange = (type: string) => {
           v-if="!additionalProperties || open"
           as="ul"
           :static="!shouldShowToggle">
+          <SchemaObjectProperties
+            v-if="isTypeObject(schema)"
+            :schema="schema" />
           <!-- Schema properties -->
-          <template v-if="isTypeObject(schema)">
-            <!-- Regular properties -->
-            <template v-if="schema.properties">
+          <!--<template v-if="isTypeObject(schema)">-->
+          <!-- Regular properties -->
+          <!--<template v-if="schema.properties">
               <SchemaProperty
                 v-for="property in Object.keys(schema.properties)"
                 :key="property"
@@ -272,10 +276,10 @@ const handleDiscriminatorChange = (type: string) => {
                 "
                 :modelValue="discriminator"
                 @update:modelValue="handleDiscriminatorChange" />
-            </template>
+            </template>-->
 
-            <!-- Pattern properties -->
-            <template v-if="schema.patternProperties">
+          <!-- Pattern properties -->
+          <!--<template v-if="schema.patternProperties">
               <SchemaProperty
                 v-for="property in Object.keys(schema.patternProperties)"
                 :key="property"
@@ -294,15 +298,15 @@ const handleDiscriminatorChange = (type: string) => {
                 :discriminatorMapping="discriminatorMapping"
                 :discriminatorPropertyName="discriminatorPropertyName"
                 @update:modelValue="handleDiscriminatorChange" />
-            </template>
+            </template>-->
 
-            <!-- Additional properties -->
-            <template v-if="schema.additionalProperties">
-              <!--
-                Allows any type of additional property value
-                @see https://swagger.io/docs/specification/data-models/dictionaries/#free-form
-               -->
-              <SchemaProperty
+          <!-- Additional properties -->
+          <!--
+              Allows any type of additional property value
+              @see https://swagger.io/docs/specification/data-models/dictionaries/#free-form
+             -->
+          <!--template v-if="schema.additionalProperties">
+              <!--<SchemaProperty
                 v-if="
                   schema.additionalProperties === true ||
                   Object.keys(schema.additionalProperties).length === 0 ||
@@ -342,10 +346,10 @@ const handleDiscriminatorChange = (type: string) => {
                 :discriminatorPropertyName="discriminatorPropertyName"
                 @update:modelValue="handleDiscriminatorChange" />
             </template>
-          </template>
+          </template>-->
 
           <!-- Single property -->
-          <template v-else>
+          <!--<template v-else>
             <SchemaProperty
               v-if="schema"
               :compact="compact"
@@ -361,7 +365,7 @@ const handleDiscriminatorChange = (type: string) => {
               :discriminatorPropertyName="discriminatorPropertyName"
               :modelValue="discriminator"
               @update:modelValue="handleDiscriminatorChange" />
-          </template>
+          </template>-->
         </DisclosurePanel>
       </div>
     </div>
