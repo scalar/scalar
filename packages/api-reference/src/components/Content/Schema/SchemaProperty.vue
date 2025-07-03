@@ -157,7 +157,7 @@ const displayPropertyHeading = (
     additional ||
     pattern ||
     value?.deprecated ||
-    value?.const ||
+    value?.const !== undefined ||
     (value?.enum && value.enum.length === 1) ||
     value?.type ||
     value?.nullable === true ||

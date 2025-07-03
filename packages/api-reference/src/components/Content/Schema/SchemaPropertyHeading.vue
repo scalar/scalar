@@ -9,6 +9,7 @@ import { getDiscriminatorSchemaName } from '@/hooks/useDiscriminator'
 
 import { getSchemaType } from './helpers/get-schema-type'
 import { getModelName } from './helpers/schema-name'
+import RenderString from './RenderString.vue'
 import SchemaPropertyDetail from './SchemaPropertyDetail.vue'
 import SchemaPropertyExamples from './SchemaPropertyExamples.vue'
 
@@ -46,7 +47,7 @@ const flattenDefaultValue = (value: Record<string, any>) => {
 }
 
 const constValue = computed(() => {
-  if (isDefined(value?.const)) {
+  if (value?.const !== undefined) {
     return value?.const
   }
 
@@ -63,7 +64,8 @@ const constValue = computed(() => {
       return value.items.enum[0]
     }
   }
-  return null
+
+  return undefined
 })
 
 /** Gets the model name */
@@ -179,12 +181,13 @@ const modelName = computed(() => {
       class="property-deprecated">
       <Badge>deprecated</Badge>
     </div>
+    <!-- Don't use `isDefined` here, we want to show `const` when the value is `null` -->
     <div
-      v-if="isDefined(constValue)"
+      v-if="constValue !== undefined"
       class="property-const">
       <SchemaPropertyDetail truncate>
         <template #prefix>const: </template>
-        {{ constValue }}
+        <RenderString :value="constValue" />
       </SchemaPropertyDetail>
     </div>
     <template v-else>
