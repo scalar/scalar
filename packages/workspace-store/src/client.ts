@@ -324,6 +324,11 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
         console.error(`Can not load the document '${name}'`)
         workspace.documents[name] = {
           ...meta,
+          info: {
+            title: `Document '${name}' could not be loaded`,
+            version: 'unknown',
+          },
+          openapi: '3.1.0',
         }
         return
       }
@@ -480,3 +485,6 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
 }
 
 export type WorkspaceStore = ReturnType<typeof createWorkspaceStore>
+
+// biome-ignore lint/performance/noBarrelFile: <explanation>
+export { generateClientMutators } from '@/mutators'
