@@ -74,7 +74,7 @@ const { cx } = useBindCx()
     <component
       :is="is"
       v-if="open"
-      v-bind="cx('flex flex-col gap-px')">
+      v-bind="cx('group/items flex flex-col gap-px')">
       <slot
         name="items"
         :open="!!open" />
