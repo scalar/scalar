@@ -36,7 +36,7 @@ type WorkspaceDocumentMetaInput = {
  * Represents a document that is loaded from a URL.
  * This type extends WorkspaceDocumentMetaInput to include URL-specific properties.
  */
-type UrlDoc = {
+export type UrlDoc = {
   /** URL to fetch the OpenAPI document from */
   url: string
   /** Optional custom fetch implementation to use when retrieving the document. By default the global fetch implementation will be used */
@@ -44,7 +44,7 @@ type UrlDoc = {
 } & WorkspaceDocumentMetaInput
 
 /** Represents a document that is provided directly as an object rather than loaded from a URL */
-type ObjectDoc = {
+export type ObjectDoc = {
   /** The OpenAPI document object containing the API specification */
   document: Record<string, unknown>
 } & WorkspaceDocumentMetaInput
