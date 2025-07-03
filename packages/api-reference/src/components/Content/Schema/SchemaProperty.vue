@@ -42,6 +42,7 @@ const props = withDefaults(
     discriminatorMapping?: Record<string, string>
     discriminatorPropertyName?: string
     isDiscriminator?: boolean
+    variant?: 'additionalProperties' | 'patternProperties'
   }>(),
   {
     level: 0,
@@ -259,7 +260,19 @@ const shouldRenderObjectProperties = computed(() => {
       <template
         v-if="name"
         #name>
-        {{ name }}
+        <template v-if="variant === 'patternProperties'">
+          <span class="property-name-pattern-properties">
+            {{ name }}
+          </span>
+        </template>
+        <template v-else-if="variant === 'additionalProperties'">
+          <span class="property-name-additional-properties">
+            {{ name }}
+          </span>
+        </template>
+        <template v-else>
+          {{ name }}
+        </template>
       </template>
       <template
         v-if="optimizedValue?.example"
@@ -519,5 +532,26 @@ const shouldRenderObjectProperties = computed(() => {
 }
 .enum-toggle-button-icon--open {
   transform: rotate(45deg);
+}
+
+.property-name-additional-properties::before,
+.property-name-pattern-properties::before {
+  text-transform: uppercase;
+  font-size: var(--scalar-micro);
+  display: inline-block;
+  padding: 2px 4px;
+  border-radius: var(--scalar-radius);
+  color: var(--scalar-color-1);
+  border: 1px solid var(--scalar-border-color);
+  background-color: var(--scalar-background-2);
+  margin-right: 4px;
+}
+
+.property-name-pattern-properties::before {
+  content: 'regex';
+}
+
+.property-name-additional-properties::before {
+  content: 'unknown';
 }
 </style>
