@@ -4,6 +4,9 @@
   "prConcurrentLimit": 0,
   "labels": ["dependencies"],
   "rangeStrategy": "bump",
+  "vulnerabilityAlerts": {
+    "rangeStrategy": "bump"
+  },
   "packageRules": [
     {
       "description": "Keep these package as low as possible for best compatibility",
