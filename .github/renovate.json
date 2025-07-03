@@ -1,0 +1,13 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", ":dependencyDashboardApproval"],
+  "prConcurrentLimit": 0,
+  "packageRules": [
+    {
+      "description": "Keep these package as low as possible for best compatibility",
+      "matchFileNames": ["**/Scalar.AspNetCore.*.csproj"],
+      "matchPackageNames": ["Microsoft.AspNetCore.OpenApi", "Swashbuckle.AspNetCore.SwaggerGen"],
+      "enabled": false
+    }
+  ]
+}
