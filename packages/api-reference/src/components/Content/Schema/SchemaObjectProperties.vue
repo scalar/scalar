@@ -18,8 +18,16 @@ const { level = 0, hideModelNames = false } = defineProps<{
   hasDiscriminator?: boolean
 }>()
 
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: string): void
+}>()
+
+/**
+ * Handles discriminator type changes from child SchemaProperty components.
+ * Propagates the change up to the parent component.
+ */
 const handleDiscriminatorChange = (type: string) => {
-  // TODO: Implement
+  emit('update:modelValue', type)
 }
 
 /**
