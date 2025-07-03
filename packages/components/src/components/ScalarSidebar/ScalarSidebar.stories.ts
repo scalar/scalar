@@ -137,6 +137,9 @@ export const WithNestedSidebars: Story = {
   <ScalarSidebarItems>
     <ScalarSidebarNestedItems>
       Nested Items Level 1
+      <template #back-label>
+        Top Level Sidebar
+      </template>
       <template #items>
         <ScalarSidebarNestedItems>
           Nested Items Level 2
