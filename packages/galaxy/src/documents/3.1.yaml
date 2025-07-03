@@ -734,13 +734,15 @@ components:
             mass:
               type: number
               format: float
-              description: Mass in Earth masses
+              exclusiveMinimum: 0
+              description: Mass in Earth masses (must be greater than 0)
               examples:
                 - 0.107
             radius:
               type: number
               format: float
-              description: Radius in Earth radii
+              exclusiveMinimum: 0
+              description: Radius in Earth radii (must be greater than 0)
               examples:
                 - 0.532
             gravity:
@@ -784,6 +786,7 @@ components:
               percentage:
                 type: number
                 format: float
+                exclusiveMaximum: 100
                 examples:
                   - 95.3
         discoveredAt:
