@@ -687,6 +687,7 @@ components:
       required:
         - id
         - name
+      additionalProperties: false
       xml:
         name: planet
       properties:
@@ -730,6 +731,11 @@ components:
             - 0.68
         physicalProperties:
           type: object
+          additionalProperties:
+            x-additionalPropertiesName: measurement
+            type: number
+            format: float
+            description: Additional physical measurements for the planet
           properties:
             mass:
               type: number
@@ -753,6 +759,11 @@ components:
                 - 0.378
             temperature:
               type: object
+              additionalProperties:
+                x-additionalPropertiesName: temperatureMetric
+                type: number
+                format: float
+                description: Additional temperature-related measurements in Kelvin
               properties:
                 min:
                   type: number
@@ -777,6 +788,10 @@ components:
           description: Atmospheric composition
           items:
             type: object
+            additionalProperties:
+              x-additionalPropertiesName: atmosphericData
+              type: string
+              description: Additional atmospheric composition data
             properties:
               compound:
                 type: string
