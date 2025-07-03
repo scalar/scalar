@@ -32,7 +32,7 @@ watch(
 
     try {
       await store.resolve(['paths', path, method])
-      // @ts-expect-error - We should add connect to our http method types
+      // @ts-expect-error - We should add connect to our http methods in the store
       const pathItem = activeDocument.paths?.[path]?.[method]
       console.log(pathItem)
     } catch (error) {
@@ -40,26 +40,6 @@ watch(
     }
   },
 )
-
-/**
- * Resolve the operation from the workspace store
- */
-const resolveOperation = async () => {
-  try {
-    await store.resolve(['paths', path, method])
-    const activeDocument = store.workspace.activeDocument
-    const pathItem = activeDocument?.paths?.[path]
-    if (pathItem && method in pathItem) {
-      operation.value = (pathItem as any)[
-        method
-      ] as RequestExampleProps['operation']
-    }
-  } catch (error) {
-    console.error('Failed to resolve operation:', error)
-  }
-}
-resolveOperation()
-console.log(store)
 </script>
 
 <template>
