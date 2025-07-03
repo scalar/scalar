@@ -44,17 +44,20 @@ const { cx } = useBindCx()
 <style>
 @reference "../../style.css";
 
-.group\/items > .group\/item:not(.group\/nested-items) > * {
-  max-height: calc(infinity * 1px);
+/* Hide the buttons from the keyboard when a nested item is open */
+.group\/items.-translate-x-full .group\/button {
+  display: none;
+
+  transition-property: display;
+  transition-behavior: allow-discrete;
+  transition-duration: 300s;
 }
 
-.group\/items.-translate-x-full > .group\/item:not(.group\/nested-items) > * {
-  /* Squish the items so they don't affect the scrolling */
-  max-height: 0;
-
-  /* Delay the max height transition so it's after transform */
-  transition-property: max-height;
-  transition-duration: 0s;
-  transition-delay: 300ms;
+/* Show the buttons within a nested item when it is open */
+.group\/item.group\/nested-items-open
+  > *
+  > .group\/items.translate-x-0
+  .group\/button {
+  display: flex;
 }
 </style>

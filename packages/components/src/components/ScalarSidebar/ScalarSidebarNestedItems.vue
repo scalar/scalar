@@ -79,7 +79,8 @@ defineOptions({ inheritAttrs: false })
 <template>
   <li
     ref="el"
-    class="group/item group/nested-items contents">
+    class="group/item group/nested-items contents"
+    :class="{ 'group/nested-items-open': open }">
     <slot name="button">
       <ScalarSidebarButton
         is="button"
