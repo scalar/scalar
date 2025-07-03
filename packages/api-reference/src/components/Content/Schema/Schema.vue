@@ -177,7 +177,7 @@ const handleDiscriminatorChange = (type: string) => {
         :class="{
           'schema-properties-open': open,
         }">
-        <!-- Special toggle to show additional properties -->
+        <!-- Toggle to collapse/expand long lists of properties -->
         <div
           v-if="additionalProperties"
           v-show="!open"
@@ -226,7 +226,7 @@ const handleDiscriminatorChange = (type: string) => {
               icon="Add"
               size="sm" />
             <SchemaHeading
-              :name="(value?.title ?? name) as string"
+              :name="value?.title ?? name"
               :value="value" />
           </template>
         </DisclosureButton>
@@ -234,138 +234,20 @@ const handleDiscriminatorChange = (type: string) => {
           v-if="!additionalProperties || open"
           as="ul"
           :static="!shouldShowToggle">
+          <!-- Object properties -->
           <SchemaObjectProperties
             v-if="isTypeObject(schema)"
-            :schema="schema" />
-          <!-- Schema properties -->
-          <!--<template v-if="isTypeObject(schema)">-->
-          <!-- Regular properties -->
-          <!--<template v-if="schema.properties">
-              <SchemaProperty
-                v-for="property in Object.keys(schema.properties)"
-                :key="property"
-                :compact="compact"
-                :hideHeading="hideHeading"
-                :level="level + 1"
-                :name="property"
-                :hideModelNames="hideModelNames"
-                :required="
-                  schema.required?.includes(property) ||
-                  schema.properties[property]?.required === true
-                "
-                :schemas="schemas"
-                :resolvedSchema="schema.properties[property]"
-                :value="{
-                  ...schema.properties[property],
-                  parent: schema,
-                  isDiscriminator:
-                    property === discriminatorPropertyName ||
-                    schema.discriminator?.propertyName === property,
-                }"
-                :discriminatorMapping="
-                  schema.discriminator?.mapping || discriminatorMapping
-                "
-                :discriminatorPropertyName="
-                  schema.discriminator?.propertyName ||
-                  discriminatorPropertyName
-                "
-                :isDiscriminator="
-                  property ===
-                  (schema.discriminator?.propertyName ||
-                    discriminatorPropertyName)
-                "
-                :modelValue="discriminator"
-                @update:modelValue="handleDiscriminatorChange" />
-            </template>-->
-
-          <!-- Pattern properties -->
-          <!--<template v-if="schema.patternProperties">
-              <SchemaProperty
-                v-for="property in Object.keys(schema.patternProperties)"
-                :key="property"
-                :compact="compact"
-                :hideHeading="hideHeading"
-                :level="level"
-                :name="property"
-                :hideModelNames="hideModelNames"
-                pattern
-                :schemas="schemas"
-                :value="
-                  value.discriminator?.propertyName === property
-                    ? value
-                    : schema.patternProperties[property]
-                "
-                :discriminatorMapping="discriminatorMapping"
-                :discriminatorPropertyName="discriminatorPropertyName"
-                @update:modelValue="handleDiscriminatorChange" />
-            </template>-->
-
-          <!-- Additional properties -->
-          <!--
-              Allows any type of additional property value
-              @see https://swagger.io/docs/specification/data-models/dictionaries/#free-form
-             -->
-          <!--template v-if="schema.additionalProperties">
-              <!--<SchemaProperty
-                v-if="
-                  schema.additionalProperties === true ||
-                  Object.keys(schema.additionalProperties).length === 0 ||
-                  !('type' in schema.additionalProperties)
-                "
-                additional
-                :compact="compact"
-                :hideHeading="hideHeading"
-                :hideModelNames="hideModelNames"
-                :level="level"
-                noncollapsible
-                :schemas="schemas"
-                :value="{
-                  type: 'anything',
-                  ...(typeof schema.additionalProperties === 'object'
-                    ? schema.additionalProperties
-                    : {}),
-                }"
-                :discriminatorMapping="discriminatorMapping"
-                :discriminatorPropertyName="discriminatorPropertyName"
-                @update:modelValue="handleDiscriminatorChange" />
-              <SchemaProperty
-                v-else
-                additional
-                :compact="compact"
-                :hideHeading="hideHeading"
-                :hideModelNames="hideModelNames"
-                :level="level"
-                noncollapsible
-                :schemas="schemas"
-                :value="
-                  value.discriminator?.propertyName === name
-                    ? value
-                    : schema.additionalProperties
-                "
-                :discriminatorMapping="discriminatorMapping"
-                :discriminatorPropertyName="discriminatorPropertyName"
-                @update:modelValue="handleDiscriminatorChange" />
-            </template>
-          </template>-->
-
-          <!-- Single property -->
-          <!--<template v-else>
-            <SchemaProperty
-              v-if="schema"
-              :compact="compact"
-              :hideHeading="hideHeading"
-              :hideModelNames="hideModelNames"
-              :level="level"
-              :name="(schema as OpenAPIV3_1.SchemaObject).name"
-              :schemas="schemas"
-              :value="
-                value.discriminator?.propertyName === name ? value : schema
-              "
-              :discriminatorMapping="discriminatorMapping"
-              :discriminatorPropertyName="discriminatorPropertyName"
-              :modelValue="discriminator"
-              @update:modelValue="handleDiscriminatorChange" />
-          </template>-->
+            :schema="schema"
+            :compact="compact"
+            :hideHeading="hideHeading"
+            :level="level + 1"
+            :hideModelNames="hideModelNames"
+            :schemas="schemas"
+            :discriminator="discriminator"
+            :discriminatorMapping="discriminatorMapping"
+            :discriminatorPropertyName="discriminatorPropertyName"
+            :hasDiscriminator="hasDiscriminator"
+            @update:modelValue="handleDiscriminatorChange" />
         </DisclosurePanel>
       </div>
     </div>
