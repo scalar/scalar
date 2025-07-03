@@ -174,13 +174,13 @@ const hasComposition = computed(() => {
     <CompositionObject
       :schema="value"
       :schemas="schemas">
-      <template #default="{ schema: selectSchema }">
+      <template #default="{ schema: selectedSchema }">
         <Schema
-          :value="selectSchema"
+          :value="selectedSchema"
           :level="level + 1"
           :compact="compact"
           :name="name"
-          :noncollapsible="level != 0 ? false : true"
+          :noncollapsible="true"
           :schemas="schemas" />
       </template>
     </CompositionObject>
