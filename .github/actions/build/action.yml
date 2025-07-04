@@ -15,7 +15,7 @@ runs:
     - name: Install pnpm
       uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2
     - name: Use Node.js ${{ inputs.node-version }}
-      uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
+      uses: actions/setup-node@08f58d1471bff7f3a07d167b4ad7df25d5fcfcb6
       with:
         node-version: ${{ inputs.node-version }}
         cache: 'pnpm'
