@@ -1,14 +1,27 @@
 <script lang="ts" setup>
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import { ref, watch } from 'vue'
+import { isOperationDeprecated } from '@scalar/oas-utils/helpers'
+import { computed, ref, watch } from 'vue'
 
+import OperationPath from '@/components/OperationPath.vue'
 import { getStore, type GetStoreProps } from '@/v2/blocks/helpers/get-store'
 
 import RequestExample, { type RequestExampleProps } from './RequestExample.vue'
 
 type Props = Omit<RequestExampleProps, 'operation'> & GetStoreProps
 
-const { method, path, selectedServer, ...getStoreProps } = defineProps<Props>()
+const {
+  method,
+  path,
+  allowedClients,
+  selectedClient,
+  selectedServer,
+  selectedContentType,
+  selectedExample,
+  fallback,
+  generateLabel,
+  hideClientSelector,
+  ...getStoreProps
+} = defineProps<Props>()
 
 /** Either creates or grabs a global/prop store */
 const store = getStore(getStoreProps)
@@ -16,8 +29,16 @@ const store = getStore(getStoreProps)
 /** The resolved operation from the workspace store */
 const operation = ref<RequestExampleProps['operation'] | null>(null)
 
-/** The currently selected server */
-const server = getServer(selectedServer)
+/** Grab the selected server, or the first one */
+const server = computed(() => {
+  if (selectedServer) {
+    return selectedServer
+  }
+
+  if (store.workspace.activeDocument?.servers?.length) {
+    return store.workspace.activeDocument.servers[0]
+  }
+})
 
 // Ensure we resolve this operation as soon as we have an active document
 watch(
@@ -46,10 +67,21 @@ watch(
     v-if="operation"
     :method="method"
     :path="path"
-    :operation="operation" />
-  <div
-    v-else
-    class="p-4 text-gray-500">
-    Loading operation...
-  </div>
+    :operation="operation"
+    :allowed-clients="allowedClients"
+    :selected-client="selectedClient"
+    :selected-server="server"
+    :selected-content-type="selectedContentType"
+    :selected-example="selectedExample"
+    :security-schemes="securitySchemes"
+    :fallback="fallback"
+    :generate-label="generateLabel"
+    :hide-client-selector="hideClientSelector">
+    <template #header>
+      <OperationPath
+        class="font-code text-c-2 [&_em]:text-c-1 [&_em]:not-italic"
+        :deprecated="isOperationDeprecated(operation)"
+        :path="path" />
+    </template>
+  </RequestExample>
 </template>

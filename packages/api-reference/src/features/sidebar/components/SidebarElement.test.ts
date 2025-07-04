@@ -99,7 +99,7 @@ describe('SidebarElement', () => {
   })
 
   it('applies deprecated class when operation is deprecated via deprecated property', async () => {
-    const { isOperationDeprecated } = await import('@/libs/openapi')
+    const { isOperationDeprecated } = await import('@scalar/oas-utils/helpers')
     vi.mocked(isOperationDeprecated).mockReturnValue(true)
 
     const operation = createMockOperation({ deprecated: true })
@@ -116,7 +116,7 @@ describe('SidebarElement', () => {
   })
 
   it('applies deprecated class when operation is deprecated via x-scalar-stability', async () => {
-    const { isOperationDeprecated } = await import('@/libs/openapi')
+    const { isOperationDeprecated } = await import('@scalar/oas-utils/helpers')
     vi.mocked(isOperationDeprecated).mockReturnValue(true)
 
     const operation = createMockOperation({
@@ -135,7 +135,7 @@ describe('SidebarElement', () => {
   })
 
   it('does not apply deprecated class when operation is not deprecated', async () => {
-    const { isOperationDeprecated } = await import('@/libs/openapi')
+    const { isOperationDeprecated } = await import('@scalar/oas-utils/helpers')
     vi.mocked(isOperationDeprecated).mockReturnValue(false)
 
     const operation = createMockOperation()
@@ -152,7 +152,7 @@ describe('SidebarElement', () => {
   })
 
   it('does not apply deprecated class for non-operation items', async () => {
-    const { isOperationDeprecated } = await import('@/libs/openapi')
+    const { isOperationDeprecated } = await import('@scalar/oas-utils/helpers')
     vi.mocked(isOperationDeprecated).mockReturnValue(true)
 
     const item = createMockTraversedEntry()
@@ -237,7 +237,7 @@ describe('SidebarElement', () => {
   })
 
   it('calls isOperationDeprecated with correct operation object', async () => {
-    const { isOperationDeprecated } = await import('@/libs/openapi')
+    const { isOperationDeprecated } = await import('@scalar/oas-utils/helpers')
     vi.mocked(isOperationDeprecated).mockReturnValue(false)
 
     const operation = createMockOperation({
@@ -257,7 +257,7 @@ describe('SidebarElement', () => {
   })
 
   it('handles deprecated property taking precedence over x-scalar-stability', async () => {
-    const { isOperationDeprecated } = await import('@/libs/openapi')
+    const { isOperationDeprecated } = await import('@scalar/oas-utils/helpers')
     vi.mocked(isOperationDeprecated).mockReturnValue(false)
 
     const operation = createMockOperation({

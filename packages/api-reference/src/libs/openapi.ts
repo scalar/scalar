@@ -1,6 +1,5 @@
 import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
 import { isDereferenced } from '@scalar/openapi-types/helpers'
-import { XScalarStability } from '@scalar/types/legacy'
 
 import type { ContentSchema } from '../types'
 
@@ -173,46 +172,6 @@ export function createEmptySpecification(partialSpecification?: Partial<OpenAPI.
     servers: [],
     tags: [],
   }) as OpenAPI.Document
-}
-
-/**
- * Returns if an operation is considered deprecated.
- */
-export function isOperationDeprecated(operation: OpenAPIV3_1.OperationObject): boolean {
-  if (operation.deprecated !== undefined) {
-    return operation.deprecated
-  }
-  if (operation['x-scalar-stability'] && operation['x-scalar-stability'] === XScalarStability.Deprecated) {
-    return true
-  }
-  return false
-}
-
-/**
- * Get operation stability.
- */
-export function getOperationStability(operation: OpenAPIV3_1.OperationObject): XScalarStability | undefined {
-  if (operation.deprecated) {
-    return XScalarStability.Deprecated
-  }
-  return operation['x-scalar-stability']
-}
-
-/**
- * Get Operation stability color
- */
-export function getOperationStabilityColor(operation: OpenAPIV3_1.OperationObject): string {
-  const stability = getOperationStability(operation)
-  if (stability === XScalarStability.Deprecated) {
-    return 'text-red'
-  }
-  if (stability === XScalarStability.Experimental) {
-    return 'text-orange'
-  }
-  if (stability === XScalarStability.Stable) {
-    return 'text-green'
-  }
-  return ''
 }
 
 export type ParameterMap = {

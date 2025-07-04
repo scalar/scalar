@@ -67,7 +67,7 @@ export const getStore = (props: GetStoreProps): WorkspaceStore => {
   const name = getDocumentName(documentProps, Object.keys(store.workspace.documents).length)
 
   // Load up the document if we aren't already loading it
-  if (!documentMap.has(name)) {
+  if (!documentMap.has(name) && !store.workspace.documents[name]) {
     documentMap.set(
       name,
       store.addDocument(
