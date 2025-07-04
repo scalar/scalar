@@ -40,7 +40,7 @@ jobs:
       - name: Run E2E tests (jsdelivr)
         run: |
           CI=1 pnpm test:e2e:jsdelivr
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@de65e23aa2b7e23d713bb51fbfcb6d502f8667d8
         id: artifact-upload
         if: ${{ failure() }}
         with:
