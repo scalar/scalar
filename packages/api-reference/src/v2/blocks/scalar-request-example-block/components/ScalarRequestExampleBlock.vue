@@ -3,6 +3,7 @@ import { isOperationDeprecated } from '@scalar/oas-utils/helpers'
 import { computed, ref, watch } from 'vue'
 
 import OperationPath from '@/components/OperationPath.vue'
+import { blockStore } from '@/v2/blocks/helpers/block-store'
 import { getStore, type GetStoreProps } from '@/v2/blocks/helpers/get-store'
 
 import RequestExample, { type RequestExampleProps } from './RequestExample.vue'
@@ -17,6 +18,7 @@ const {
   selectedServer,
   selectedContentType,
   selectedExample,
+  securitySchemes,
   fallback,
   generateLabel,
   hideClientSelector,
@@ -77,7 +79,8 @@ watch(
     :path="path"
     :operation="operation"
     :allowed-clients="allowedClients"
-    :selected-client="selectedClient"
+    :selected-client="blockStore.selectedClient ?? selectedClient"
+    @update:selected-client="blockStore.selectedClient = $event"
     :selected-server="server"
     :selected-content-type="selectedContentType"
     :selected-example="selectedExample"
@@ -94,7 +97,9 @@ watch(
       </slot>
     </template>
 
-    <template #footer>
+    <template
+      v-if="$slots.footer"
+      #footer>
       <slot name="footer" />
     </template>
   </RequestExample>
