@@ -846,7 +846,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Setup Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        uses: actions/setup-python@532b046aaf352bab5717122cc0ea52b7f12266a3
         with:
           python-version: '3.11'
 
@@ -896,7 +896,7 @@ jobs:
 
       - if: steps.changed-files.outputs.fastapi_integration_any_changed == 'true'
         name: Setup Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        uses: actions/setup-python@532b046aaf352bab5717122cc0ea52b7f12266a3
         with:
           python-version: '3.11'
 
