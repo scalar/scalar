@@ -336,7 +336,7 @@ describe('SchemaProperty sub-schema', () => {
     expect(foobar).toHaveLength(1)
   })
 
-  it('renders compositions for object of array items', async () => {
+  it('renders array of objects with oneOf', async () => {
     const wrapper = mount(SchemaProperty, {
       props: {
         value: {

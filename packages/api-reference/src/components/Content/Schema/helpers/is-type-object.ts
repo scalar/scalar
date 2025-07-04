@@ -9,6 +9,14 @@ export const isTypeObject = (schema: unknown): schema is OpenAPIV3_1.SchemaObjec
     return false
   }
 
+  // Check for composition keywords - if present, this should be handled by composition logic
+  const hasComposition = 'oneOf' in schema || 'anyOf' in schema || 'allOf' in schema || 'not' in schema
+
+  // If it has composition keywords, it should not be treated as a simple object schema
+  if (hasComposition) {
+    return false
+  }
+
   const hasType = 'type' in schema
 
   // Handle union types (type: ['object', 'null'])
