@@ -28,6 +28,12 @@ export const pathItemObjectSchemaBuilder = <O extends TSchema>(operation: O) =>
       delete: Type.Optional(operation),
       /** A definition of a PATCH operation on this path. */
       patch: Type.Optional(operation),
+      /** A definition of a CONNECT operation on this path. */
+      connect: Type.Optional(operation),
+      /** A definition of a OPTIONS operation on this path. */
+      options: Type.Optional(operation),
+      /** A definition of a HEAD operation on this path. */
+      head: Type.Optional(operation),
       /** A definition of a TRACE operation on this path. */
       trace: Type.Optional(operation),
       /** An alternative servers array to service all operations in this path. If a servers array is specified at the OpenAPI Object level, it will be overridden by this value. */
