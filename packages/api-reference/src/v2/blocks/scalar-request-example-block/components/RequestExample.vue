@@ -61,6 +61,12 @@ export type RequestExampleProps = {
   hideClientSelector?: boolean
 }
 
+/**
+ * Request Example
+ *
+ * The core component for rendering a request example block,
+ * this component does not have much of its own state but operates on props and emitted events
+ */
 export default {}
 </script>
 
@@ -98,7 +104,7 @@ import type { ClientOption } from '@/v2/blocks/scalar-request-example-block/type
 
 const {
   allowedClients,
-  selectedClient = 'shell/curl',
+  selectedClient,
   selectedServer = { url: '/' },
   selectedContentType,
   selectedExample,
@@ -167,7 +173,10 @@ const localSelectedClient = ref<ClientOption>(
 watch(
   () => selectedClient,
   (newClient) => {
-    localSelectedClient.value = findClient(clients.value, newClient)
+    const client = findClient(clients.value, newClient)
+    if (client) {
+      localSelectedClient.value = client
+    }
   },
 )
 
