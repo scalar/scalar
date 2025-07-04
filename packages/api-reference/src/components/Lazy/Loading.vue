@@ -1,4 +1,6 @@
 <script lang="ts">
+// TODO: Refactor this file
+// @ts-nocheck
 /** We use this global var to ensure that we only show loading once on config change */
 const hasLoaded = ref(false)
 </script>
@@ -14,9 +16,9 @@ import type {
 import { onMounted, ref, watch } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
-import { lazyBus } from '@/components/Content/Lazy/lazyBus'
 import { Schema } from '@/components/Content/Schema'
-import { TagSection } from '@/components/Content/Tag'
+import { Tag } from '@/components/Content/Tags'
+import { lazyBus } from '@/components/Lazy'
 import {
   Section,
   SectionContainer,
@@ -60,8 +62,7 @@ const hideTag = ref(false)
 const tags = ref<(TagType & { lazyOperations: TransformedOperation[] })[]>([])
 const models = ref<string[]>([])
 
-const { getModelId, getSectionId, getTagId, hash, isIntersectionEnabled } =
-  useNavState()
+const { getSectionId, getTagId, hash, isIntersectionEnabled } = useNavState()
 
 const isLoading = ref(!hasLoaded.value && layout !== 'classic' && hash.value)
 
@@ -192,12 +193,11 @@ onMounted(() => {
     <template
       v-for="(tag, idx) in tags"
       :key="tag.name + idx">
-      <TagSection
+      <Tag
         v-if="tag.operations && tag.operations.length > 0"
-        :collection="collection"
-        :spec="parsedSpec"
-        id="lazy-{{ getTagId(tag) }}"
-        :tag="tag">
+        :id="`lazy-{{ getTagId(tag) }}`"
+        :tag="tag"
+        :layout="layout">
         <Operation
           v-for="transformedOperation in tag.lazyOperations"
           :path="transformedOperation.path"
@@ -208,7 +208,7 @@ onMounted(() => {
           :collection="collection"
           :layout="layout"
           :server="server" />
-      </TagSection>
+      </Tag>
     </template>
 
     <!-- Models -->
