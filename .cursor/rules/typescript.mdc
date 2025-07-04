@@ -20,6 +20,7 @@ You write TypeScript code that is clear, predictable, and easy to maintain. The 
 * Use readonly when possible.
 * Avoid enums. Use string literal unions instead.
 * Always use const instead of let.
+* Use satisfies instead of as
 
 ## Naming Conventions
 * Be descriptive.
