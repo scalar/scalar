@@ -19,7 +19,12 @@
     <!-- Initialize the Scalar API Reference -->
     <script type="module">
       Scalar.createApiReference('#app', {
+        // alpha
         tagsSorter: 'alpha',
+        // reverse alpha
+        // tagsSorter: (a, b) => {
+        //   return -a.name.localeCompare(b.name)
+        // },
         sources: [
           {
             title: 'Test API 1.0',
