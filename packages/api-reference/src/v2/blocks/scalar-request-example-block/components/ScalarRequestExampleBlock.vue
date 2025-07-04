@@ -6,15 +6,18 @@ import { getStore, type GetStoreProps } from '@/v2/blocks/helpers/get-store'
 
 import RequestExample, { type RequestExampleProps } from './RequestExample.vue'
 
-type Props = Pick<RequestExampleProps, 'method' | 'path'> & GetStoreProps
+type Props = Omit<RequestExampleProps, 'operation'> & GetStoreProps
 
-const { method, path, ...getStoreProps } = defineProps<Props>()
+const { method, path, selectedServer, ...getStoreProps } = defineProps<Props>()
 
 /** Either creates or grabs a global/prop store */
 const store = getStore(getStoreProps)
 
 /** The resolved operation from the workspace store */
 const operation = ref<RequestExampleProps['operation'] | null>(null)
+
+/** The currently selected server */
+const server = getServer(selectedServer)
 
 // Ensure we resolve this operation as soon as we have an active document
 watch(
@@ -26,8 +29,8 @@ watch(
 
     try {
       await store.resolve(['paths', path, method])
-      // TODO: remove this before merge
-      const pathItem = activeDocument.paths?.[path]?.[method as 'get']
+      const pathItem = activeDocument.paths?.[path]?.[method]
+
       if (pathItem) {
         operation.value = pathItem
       }
