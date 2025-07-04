@@ -4,20 +4,20 @@ import { RequestAuth } from '@scalar/api-client/views/Request/RequestSection/Req
 import { ScalarErrorBoundary } from '@scalar/components'
 import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { ApiReferenceConfiguration } from '@scalar/types'
 import { computed } from 'vue'
 
 import { BaseUrl } from '@/features/base-url'
-import { useConfig } from '@/hooks/useConfig'
 
 import { ClientLibraries } from '../ClientLibraries'
 import Introduction from './Introduction.vue'
 
-const { layout } = defineProps<{
+const { layout, config } = defineProps<{
   document: OpenAPIV3_1.Document
   layout: 'modern' | 'classic'
+  config?: ApiReferenceConfiguration
 }>()
 
-const config = useConfig()
 const { collections, securitySchemes, servers } = useWorkspace()
 const {
   activeCollection: _activeCollection,
@@ -28,8 +28,8 @@ const {
 
 /** Match the collection by slug if provided */
 const activeCollection = computed(() => {
-  if (config.value.slug) {
-    const collection = collections[getSlugUid(config.value.slug)]
+  if (config?.slug) {
+    const collection = collections[getSlugUid(config.slug)]
     if (collection) {
       return collection
     }
@@ -58,7 +58,9 @@ const introCardsSlot = computed(() =>
 )
 </script>
 <template>
-  <Introduction :document="document">
+  <Introduction
+    :document="document"
+    :config="config">
     <template #[introCardsSlot]>
       <ScalarErrorBoundary>
         <div
