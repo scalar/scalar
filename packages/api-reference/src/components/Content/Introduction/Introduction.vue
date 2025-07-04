@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { ApiReferenceConfiguration } from '@scalar/types'
 import { computed, inject, onMounted, type Ref } from 'vue'
 
 import { Badge } from '@/components/Badge'
@@ -16,13 +17,13 @@ import { OPENAPI_VERSION_SYMBOL } from '@/features/download-link'
 import DownloadLink from '@/features/download-link/DownloadLink.vue'
 import { SpecificationExtension } from '@/features/specification-extension'
 import { DEFAULT_INTRODUCTION_SLUG } from '@/features/traverse-schema'
-import { useConfig } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
 
 import Description from './Description.vue'
 
-const { document } = defineProps<{
+const { document, config } = defineProps<{
   document: OpenAPIV3_1.Document
+  config?: ApiReferenceConfiguration
 }>()
 
 const { getHeadingId } = useNavState()
@@ -46,8 +47,7 @@ const version = computed(() => {
 })
 
 /** Trigger the onLoaded event when the component is mounted */
-const config = useConfig()
-onMounted(() => config.value.onLoaded?.())
+onMounted(() => config?.onLoaded?.())
 </script>
 <template>
   <SectionContainer>

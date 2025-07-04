@@ -12,62 +12,70 @@ import { computed } from 'vue'
 import { HttpMethod } from '@/components/HttpMethod'
 import { SectionHeaderTag } from '@/components/Section'
 import { useSidebar } from '@/features/sidebar'
+import type { TraversedOperation } from '@/features/traverse-schema'
+import type { TraversedWebhook } from '@/features/traverse-schema/types'
 import { isOperationDeprecated } from '@/libs/openapi'
 
-const { transformedOperation } = defineProps<{
-  transformedOperation: TransformedOperation
-  collection: Collection
+const { operation } = defineProps<{
+  operation: TraversedOperation | TraversedWebhook
   isCollapsed?: boolean
 }>()
 
 const { scrollToOperation } = useSidebar()
 
 // TODO in V2 we need to do the same loading trick as the initial load
-const scrollHandler = async (givenOperation: TransformedOperation) => {
+const scrollHandler = async (
+  givenOperation: Pick<TransformedOperation, 'id'>,
+) => {
   scrollToOperation(givenOperation.id, true)
 }
 
-/** The title of the operation (summary or path) */
-const title = computed(
-  () => transformedOperation?.name || transformedOperation?.path,
-)
+const path = computed(() => {
+  if ('path' in operation) {
+    return operation.path
+  }
+
+  return operation.webhook.summary
+})
 </script>
 
 <template>
   <li
-    :key="transformedOperation.id"
+    :key="operation.id"
     class="contents">
     <!-- If collapsed add hidden headers so they show up for screen readers -->
     <SectionHeaderTag
       v-if="isCollapsed"
       class="sr-only"
       :level="3">
-      {{ title }} (Hidden)
+      {{ operation.title }} (Hidden)
     </SectionHeaderTag>
     <a
       class="endpoint"
-      :href="`#${transformedOperation.id}`"
-      @click.prevent="scrollHandler(transformedOperation)">
+      :href="`#${operation.id}`"
+      @click.prevent="scrollHandler(operation)">
       <div class="flex min-w-[62px] flex-row items-center justify-end gap-2">
         <ScalarIconWebhooksLogo
-          v-if="transformedOperation.isWebhook"
+          v-if="'isWebhook' in operation && operation.isWebhook"
           :style="{
-            color: getHttpMethodInfo(transformedOperation.httpVerb).colorVar,
+            color: getHttpMethodInfo(operation.method).colorVar,
           }" />
         <HttpMethod
           class="endpoint-method min-w-0"
-          :method="transformedOperation.httpVerb" />
+          :method="operation.method" />
       </div>
       <span
         class="endpoint-path"
         :class="{
-          deprecated: isOperationDeprecated(
-            transformedOperation.information as OpenAPIV3_1.OperationObject<{
-              'x-scalar-stability': XScalarStability
-            }>,
-          ),
+          deprecated:
+            'operation' in operation &&
+            isOperationDeprecated(
+              operation.operation as OpenAPIV3_1.OperationObject<{
+                'x-scalar-stability': XScalarStability
+              }>,
+            ),
         }">
-        {{ transformedOperation.path }}
+        {{ path }}
       </span>
     </a>
   </li>

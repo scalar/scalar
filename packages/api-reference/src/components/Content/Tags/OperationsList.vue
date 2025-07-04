@@ -1,41 +1,48 @@
 <script setup lang="ts">
-import type { Collection } from '@scalar/oas-utils/entities/spec'
-import type { Tag } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
 import { Card, CardContent, CardHeader } from '@/components/Card'
 import ScreenReader from '@/components/ScreenReader.vue'
+import type { TraversedTag } from '@/features/traverse-schema'
+import type {
+  TraversedOperation,
+  TraversedWebhook,
+} from '@/features/traverse-schema/types'
 
 import OperationsListItem from './OperationsListItem.vue'
 
-const props = defineProps<{
-  tag: Tag
-  collection: Collection
+const { tag } = defineProps<{
+  tag: TraversedTag
   isCollapsed?: boolean
 }>()
 
-const tagName = computed(() => props.tag['x-displayName'] ?? props.tag.name)
+const operationsOrWebhooks = computed(
+  (): (TraversedOperation | TraversedWebhook)[] => {
+    return tag.children?.filter(
+      (child) => 'operation' in child || 'webhook' in child,
+    )
+  },
+)
 </script>
 
 <template>
-  <template v-if="tag.operations?.length > 0">
+  <template v-if="tag.children?.length > 0">
     <Card class="scalar-card-sticky">
       <CardHeader muted>
-        <ScreenReader>{{ tagName }}</ScreenReader>
+        <ScreenReader>{{ tag.title }}</ScreenReader>
         Operations
       </CardHeader>
       <CardContent
         class="custom-scroll"
         muted>
         <ul
-          :aria-label="`${tagName} endpoints`"
+          :aria-label="`${tag.title} endpoints`"
           class="endpoints">
           <OperationsListItem
-            v-for="operation in tag.operations"
-            :key="operation.id"
-            :collection="collection"
+            v-for="operationOrWebhook in operationsOrWebhooks"
+            :key="operationOrWebhook.id"
             :isCollapsed="isCollapsed"
-            :transformedOperation="operation" />
+            :operation="operationOrWebhook" />
         </ul>
       </CardContent>
     </Card>
