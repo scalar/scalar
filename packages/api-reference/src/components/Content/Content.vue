@@ -99,10 +99,10 @@ const activeServer = computed(() => {
 
     <!-- Models -->
     <ModelsSection
+      v-if="!config?.hideModels"
       :document="document"
       :parsedSpec="parsedSpec"
-      :layout="layout"
-      :config="config" />
+      :layout="layout" />
     <slot name="end" />
   </div>
 </template>

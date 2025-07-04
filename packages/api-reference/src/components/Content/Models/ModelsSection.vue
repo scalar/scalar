@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { Spec } from '@scalar/types/legacy'
 
 import Models from './Models.vue'
@@ -11,7 +10,6 @@ withDefaults(
     document: OpenAPIV3_1.Document
     parsedSpec: Spec
     layout?: 'modern' | 'classic'
-    config?: ApiReferenceConfiguration
   }>(),
   {
     layout: 'modern',
@@ -19,7 +17,7 @@ withDefaults(
 )
 </script>
 <template>
-  <template v-if="document?.components?.schemas && !config?.hideModels">
+  <template v-if="document?.components?.schemas">
     <ModelsAccordion
       v-if="layout === 'classic'"
       :schemas="document?.components?.schemas" />
