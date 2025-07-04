@@ -1,9 +1,4 @@
 <script setup lang="ts">
-// TODO: Can we duplicate less code? Look at traverseDocument
-// TODO: x-tagGroups
-// TODO: Classic layout
-// TODO: Traverse webhooks
-
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
