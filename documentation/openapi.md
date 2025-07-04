@@ -158,25 +158,32 @@ Aliases: `x-internal`
 
 ## x-additionalPropertiesName
 
-You can add a custom attribute name to `additionalProperties` with `x-additionalPropertiesName`.
+OpenAPI allows description of "additionalProperties" that may be included in a schema. Their names are unknown, but the field types can be added to the API description so that producers and consumers understand whether additional fields are permitted and any additional rules that apply.
 
-```diff
-openapi: 3.1.0
-info:
-  title: Example
-  version: 1.0
+Since the field names are not specified, they are displayed with a generic name in the API reference documentation. Use `x-additionalPropertiesName` to display a more meaningful name in this scenario.
+
+The following example shows a schema that accepts any fields as long as the values are numbers between 0-100, for a set of sensors reporting fill levels:
+
+```yaml
 components:
   schemas:
-    Planet:
-      required:
-        - name
+    FillLevel:
+      type: object
       properties:
-        name:
+        reportTime:
           type: string
+          format: date-time
+          description: Report creation time.
+      required:
+        - reportTime
       additionalProperties:
-+        x-additionalPropertiesName: anyCustomAttribute
-        type: string
+        x-additionalPropertiesName: percentage
+        type: integer
+        minimum: 0
+        maximum: 100
 ```
+
+The additional properties appear in the documentation as `percentage*`.
 
 ## x-scalar-stability
 
