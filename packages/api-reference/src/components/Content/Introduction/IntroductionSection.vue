@@ -99,13 +99,6 @@ const introCardsSlot = computed(() =>
   </Introduction>
 </template>
 
-<style>
-.narrow-references-container {
-  container-name: narrow-references-container;
-  container-type: inline-size;
-}
-</style>
-
 <style scoped>
 .render-loading {
   height: calc(var(--full-height) - var(--refs-header-height));
