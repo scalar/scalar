@@ -23,6 +23,11 @@ const {
   ...getStoreProps
 } = defineProps<Props>()
 
+defineSlots<{
+  header: () => unknown
+  footer: () => unknown
+}>()
+
 /** Either creates or grabs a global/prop store */
 const store = getStore(getStoreProps)
 
@@ -38,6 +43,9 @@ const server = computed(() => {
   if (store.workspace.activeDocument?.servers?.length) {
     return store.workspace.activeDocument.servers[0]
   }
+
+  // This will trigger our logic to create a proper URL
+  return { url: '/' }
 })
 
 // Ensure we resolve this operation as soon as we have an active document
@@ -78,10 +86,16 @@ watch(
     :generate-label="generateLabel"
     :hide-client-selector="hideClientSelector">
     <template #header>
-      <OperationPath
-        class="font-code text-c-2 [&_em]:text-c-1 [&_em]:not-italic"
-        :deprecated="isOperationDeprecated(operation)"
-        :path="path" />
+      <slot name="header">
+        <OperationPath
+          class="font-code text-c-2 [&_em]:text-c-1 [&_em]:not-italic"
+          :deprecated="isOperationDeprecated(operation)"
+          :path="path" />
+      </slot>
+    </template>
+
+    <template #footer>
+      <slot name="footer" />
     </template>
   </RequestExample>
 </template>

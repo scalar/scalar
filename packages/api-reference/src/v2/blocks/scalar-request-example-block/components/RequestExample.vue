@@ -99,7 +99,7 @@ import type { ClientOption } from '@/v2/blocks/scalar-request-example-block/type
 const {
   allowedClients,
   selectedClient = 'shell/curl',
-  selectedServer,
+  selectedServer = { url: '/' },
   selectedContentType,
   selectedExample,
   securitySchemes = [],
