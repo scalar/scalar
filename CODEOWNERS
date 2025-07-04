@@ -3,6 +3,7 @@
 
 # Root level code owners
 /.github @hanspagel @geoffgscott
+/.github/renovate.json @xC0dex @hanspagel
 /*.md @hanspagel @marclave
 
 # Documentation
