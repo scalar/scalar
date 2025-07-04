@@ -296,8 +296,13 @@ export const authorizeServers = async (
       headers,
       body: formData,
     })
-    const { access_token } = await resp.json()
-    return [null, access_token]
+    const responseData = await resp.json()
+
+    // Use custom token name if specified, otherwise default to access_token
+    const tokenName = flow['x-tokenName'] || 'access_token'
+    const accessToken = responseData[tokenName]
+
+    return [null, accessToken]
   } catch {
     return [new Error('Failed to get an access token. Please check your credentials.'), null]
   }
