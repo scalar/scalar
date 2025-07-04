@@ -96,6 +96,48 @@ describe('upgradeFromThreeToThreeOne', () => {
         type: ['string', 'null'],
       })
     })
+
+    it('migrates nullable types with properties', async () => {
+      const result = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {
+          '/test': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'foobar',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        nullable: true,
+                        properties: {
+                          name: {
+                            type: 'string',
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+
+      expect(result.paths['/test'].get.responses['200'].content['application/json'].schema).toEqual({
+        nullable: true,
+        properties: {
+          name: {
+            type: 'string',
+          },
+        },
+      })
+    })
   })
 
   describe('exclusiveMinimum and exclusiveMaximum', () => {

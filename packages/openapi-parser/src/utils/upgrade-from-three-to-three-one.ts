@@ -58,7 +58,7 @@ export function upgradeFromThreeToThreeOne(originalContent: UnknownObject) {
 
 const applyChangesToDocument = (schema: UnknownObject, path: string[]) => {
   // 1. Handle nullable types
-  if (schema.type !== 'undefined' && schema.nullable === true) {
+  if (schema.type !== undefined && schema.nullable === true) {
     schema.type = [schema.type, 'null']
     delete schema.nullable
   }
