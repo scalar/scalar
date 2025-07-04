@@ -1,19 +1,16 @@
 <script setup lang="ts">
-import type { Collection } from '@scalar/oas-utils/entities/spec'
-import type { Spec, Tag as TagType } from '@scalar/types/legacy'
 import { computed, nextTick, ref, useId } from 'vue'
 
-import Tag from '@/components/Content/Tag/Tag.vue'
 import { SectionContainer } from '@/components/Section'
 import ShowMoreButton from '@/components/ShowMoreButton.vue'
 import { useSidebar } from '@/features/sidebar'
-import { useNavState } from '@/hooks/useNavState'
+import type { TraversedTag } from '@/features/traverse-schema'
 
-const props = defineProps<{
-  id?: string
-  tag: TagType
-  collection: Collection
-  spec: Spec
+import TagSection from './TagSection.vue'
+
+const { tag, moreThanOneTag } = defineProps<{
+  tag: TraversedTag
+  moreThanOneTag: boolean
 }>()
 
 const sectionContainerRef = ref<HTMLElement>()
@@ -22,23 +19,19 @@ const contentsRef = ref<HTMLElement>()
 const headerId = useId()
 
 const { collapsedSidebarItems } = useSidebar()
-const { getTagId } = useNavState()
-const tagId = computed(() => props.id || getTagId(props.tag) || '')
-
-const moreThanOneTag = computed(
-  () => props.spec.tags?.length && props.spec.tags?.length > 1,
-)
 
 const moreThanOneDefaultTag = computed(
   () =>
-    moreThanOneTag.value ||
-    props.tag?.name !== 'default' ||
-    props.tag?.description !== '',
+    moreThanOneTag || tag?.title !== 'default' || tag?.tag.description !== '',
 )
 
 async function focusContents() {
   await nextTick()
   contentsRef.value?.querySelector('button')?.focus()
+}
+
+const isCollapsed = (tagId: string) => {
+  return !collapsedSidebarItems[tagId]
 }
 </script>
 
@@ -48,17 +41,15 @@ async function focusContents() {
     :aria-labelledby="headerId"
     class="tag-section-container"
     role="region">
-    <Tag
+    <TagSection
       v-if="moreThanOneDefaultTag"
-      :id="id"
-      :collection="collection"
       :headerId="headerId"
-      :isCollapsed="!collapsedSidebarItems[tagId]"
+      :isCollapsed="isCollapsed(tag.id)"
       :tag="tag" />
     <ShowMoreButton
-      v-if="!collapsedSidebarItems[tagId] && moreThanOneTag"
-      :id="tagId"
-      :aria-label="`Show all ${tag['x-displayName'] ?? tag.name} endpoints`"
+      v-if="isCollapsed(tag.id) && moreThanOneTag"
+      :id="tag.id"
+      :aria-label="`Show all ${tag.title} endpoints`"
       @click="focusContents" />
     <div
       v-else

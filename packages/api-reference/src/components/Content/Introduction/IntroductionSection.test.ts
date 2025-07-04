@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Mock } from 'vitest'
 import { computed, reactive, ref } from 'vue'
 
-import Introduction from './Introduction.vue'
+import IntroductionSection from './IntroductionSection.vue'
 
 // Mock the useSidebar hook and SIDEBAR_SYMBOL
 vi.mock('@/features/sidebar/hooks/useSidebar', () => ({
@@ -31,7 +31,7 @@ beforeEach(() => {
   })
 })
 
-describe('Introduction', () => {
+describe('IntroductionSection', () => {
   it('renders the given information', () => {
     const example = {
       openapi: '3.1.1',
@@ -42,7 +42,7 @@ describe('Introduction', () => {
       },
     } satisfies Spec
 
-    const wrapper = mount(Introduction, {
+    const wrapper = mount(IntroductionSection, {
       props: {
         document: example,
       },
@@ -63,7 +63,7 @@ describe('Introduction', () => {
       },
     } satisfies Spec
 
-    const wrapper = mount(Introduction, {
+    const wrapper = mount(IntroductionSection, {
       props: {
         document: example,
       },
@@ -86,7 +86,7 @@ describe('Introduction', () => {
       },
     } satisfies Spec
 
-    const wrapper = mount(Introduction, {
+    const wrapper = mount(IntroductionSection, {
       props: {
         document: example,
       },
@@ -107,7 +107,7 @@ describe('Introduction', () => {
       },
     } satisfies Spec
 
-    const wrapper = mount(Introduction, {
+    const wrapper = mount(IntroductionSection, {
       props: {
         document: example,
       },
@@ -127,7 +127,7 @@ describe('Introduction', () => {
       },
     } satisfies Spec
 
-    const wrapper = mount(Introduction, {
+    const wrapper = mount(IntroductionSection, {
       props: {
         document: example,
       },
@@ -146,7 +146,7 @@ describe('Introduction', () => {
       },
     } satisfies Spec
 
-    const wrapper = mount(Introduction, {
+    const wrapper = mount(IntroductionSection, {
       props: {
         document: example,
       },
@@ -166,7 +166,7 @@ describe('Introduction', () => {
       },
     } satisfies Spec
 
-    const wrapper = mount(Introduction, {
+    const wrapper = mount(IntroductionSection, {
       props: {
         document: example,
       },
@@ -186,7 +186,7 @@ describe('Introduction', () => {
       },
     } satisfies Spec
 
-    const wrapper = mount(Introduction, {
+    const wrapper = mount(IntroductionSection, {
       props: {
         // @ts-expect-error testing invalid type
         document: example,
@@ -207,7 +207,7 @@ describe('Introduction', () => {
       },
     } satisfies Spec
 
-    const wrapper = mount(Introduction, {
+    const wrapper = mount(IntroductionSection, {
       props: {
         // @ts-expect-error testing invalid type
         document: example,

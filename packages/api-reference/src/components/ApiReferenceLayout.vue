@@ -424,9 +424,8 @@ watch(hash, (newHash, oldHash) => {
         :aria-label="`Open API Documentation for ${dereferencedDocument?.info?.title}`"
         class="references-rendered">
         <Content
-          :layout="configuration.layout"
           :document="dereferencedDocument"
-          :parsedSpec="parsedDocument">
+          :config="configuration">
           <template #start>
             <slot
               v-bind="referenceSlotProps"

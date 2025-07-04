@@ -4,11 +4,12 @@ import { ScalarIcon } from '@scalar/components'
 import type { TargetId } from '@scalar/types/snippetz'
 import { ref } from 'vue'
 
-import { useFeaturedHttpClients } from '@/components/Content/ClientLibraries/useFeaturedHttpClients'
 import {
   useHttpClientStore,
   type HttpClientState,
 } from '@/stores/useHttpClientStore'
+
+import { useFeaturedHttpClients } from './useFeaturedHttpClients'
 
 defineProps<{
   /** The id of the tab panel that contains for the non featured clients */

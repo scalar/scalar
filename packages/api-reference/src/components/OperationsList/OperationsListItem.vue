@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { getHttpMethodInfo } from '@scalar/helpers/http/http-info'
 import { ScalarIconWebhooksLogo } from '@scalar/icons'
-import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { isOperationDeprecated } from '@scalar/oas-utils/helpers'
 import type {
   OpenAPIV3_1,
@@ -13,58 +12,76 @@ import { computed } from 'vue'
 import { HttpMethod } from '@/components/HttpMethod'
 import { SectionHeaderTag } from '@/components/Section'
 import { useSidebar } from '@/features/sidebar'
+import type {
+  TraversedEntry,
+  TraversedOperation,
+  TraversedWebhook,
+} from '@/features/traverse-schema'
 
-const { transformedOperation } = defineProps<{
-  transformedOperation: TransformedOperation
-  collection: Collection
+const { operation } = defineProps<{
+  operation: TraversedOperation | TraversedWebhook
   isCollapsed?: boolean
 }>()
 
 const { scrollToOperation } = useSidebar()
 
-// TODO in V2 we need to do the same loading trick as the initial load
-const scrollHandler = async (givenOperation: TransformedOperation) => {
+const scrollHandler = async (
+  givenOperation: Pick<TransformedOperation, 'id'>,
+) => {
   scrollToOperation(givenOperation.id, true)
 }
 
-/** The title of the operation (summary or path) */
-const title = computed(
-  () => transformedOperation?.name || transformedOperation?.path,
-)
+const pathOrTitle = computed(() => {
+  if ('path' in operation) {
+    return operation.path
+  }
+
+  return operation.title
+})
+
+const isDeprecated = (
+  operation: TraversedEntry,
+): operation is TraversedOperation =>
+  'operation' in operation &&
+  isOperationDeprecated(
+    operation.operation as OpenAPIV3_1.OperationObject<{
+      'x-scalar-stability': XScalarStability
+    }>,
+  )
+
+const isWebhook = (operation: TraversedEntry): operation is TraversedWebhook =>
+  'webhook' in operation
 </script>
 
 <template>
   <li
-    :key="transformedOperation.id"
+    :key="operation.id"
     class="contents">
     <!-- If collapsed add hidden headers so they show up for screen readers -->
     <SectionHeaderTag
       v-if="isCollapsed"
       class="sr-only"
       :level="3">
-      {{ title }} (Hidden)
+      {{ operation.title }} (Hidden)
     </SectionHeaderTag>
     <a
       class="endpoint"
-      :href="`#${transformedOperation.id}`"
-      @click.prevent="scrollHandler(transformedOperation)">
+      :href="`#${operation.id}`"
+      @click.prevent="scrollHandler(operation)">
       <HttpMethod
         class="endpoint-method items-center justify-end gap-2"
-        :method="transformedOperation.httpVerb">
+        :method="operation.method">
         <ScalarIconWebhooksLogo
-          v-if="transformedOperation.isWebhook"
+          v-if="isWebhook(operation)"
+          :style="{
+            color: getHttpMethodInfo(operation.method).colorVar,
+          }"
           class="size-3.5" />
       </HttpMethod>
       <span
         class="endpoint-path"
-        :class="{
-          deprecated: isOperationDeprecated(
-            transformedOperation.information as OpenAPIV3_1.OperationObject<{
-              'x-scalar-stability': XScalarStability
-            }>,
-          ),
-        }">
-        {{ transformedOperation.path }}
+        :class="{ deprecated: isDeprecated(operation) }">
+        {{ pathOrTitle }}
       </span>
     </a>
   </li>

@@ -1,6 +1,6 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
-import { lazyBus } from '@/components/Content/Lazy/lazyBus'
+import { lazyBus } from '@/components/Lazy'
 import { type Ref, computed, reactive, ref } from 'vue'
 
 import type { TraverseSpecOptions } from '@/features/traverse-schema'
