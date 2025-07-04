@@ -6,11 +6,12 @@ import type { Spec } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
 import { IntroductionSection } from '@/components/Content/Introduction'
+import { SectionFlare } from '@/components/SectionFlare'
 import { useConfig } from '@/hooks/useConfig'
 
 import { Loading } from './Lazy'
 import { Models, ModelsAccordion } from './Models'
-import { TagList } from './Tag'
+import { TagList } from './Tags'
 
 withDefaults(
   defineProps<{
@@ -55,19 +56,12 @@ const activeServer = computed(() => {
 })
 </script>
 <template>
-  <!-- For adding gradients + animations to introduction of documents that :before / :after won't work for -->
-  <div class="section-flare">
-    <div class="section-flare-item"></div>
-    <div class="section-flare-item"></div>
-    <div class="section-flare-item"></div>
-    <div class="section-flare-item"></div>
-    <div class="section-flare-item"></div>
-    <div class="section-flare-item"></div>
-    <div class="section-flare-item"></div>
-    <div class="section-flare-item"></div>
-  </div>
+  <SectionFlare />
+
   <div class="narrow-references-container">
     <slot name="start" />
+
+    <!-- Loading State -->
     <Loading
       v-if="activeCollection"
       :document="document"
@@ -76,6 +70,7 @@ const activeServer = computed(() => {
       :parsedSpec="parsedSpec"
       :server="activeServer" />
 
+    <!-- Introduction -->
     <IntroductionSection
       v-if="document?.info?.title || document?.info?.description"
       :document="document"
@@ -84,6 +79,7 @@ const activeServer = computed(() => {
       v-else
       name="empty-state" />
 
+    <!-- Tags -->
     <template v-if="parsedSpec.tags && activeCollection">
       <template v-if="parsedSpec['x-tagGroups']">
         <TagList
@@ -129,6 +125,7 @@ const activeServer = computed(() => {
       </TagList>
     </template>
 
+    <!-- Models -->
     <template v-if="document?.components?.schemas && !config.hideModels">
       <ModelsAccordion
         v-if="layout === 'classic'"
@@ -145,13 +142,5 @@ const activeServer = computed(() => {
 .narrow-references-container {
   container-name: narrow-references-container;
   container-type: inline-size;
-}
-</style>
-
-<style scoped>
-.section-flare {
-  top: 0;
-  right: 0;
-  pointer-events: none;
 }
 </style>

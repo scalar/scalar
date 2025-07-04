@@ -16,7 +16,7 @@ import { onMounted, ref, watch } from 'vue'
 import { Anchor } from '@/components/Anchor'
 import { lazyBus } from '@/components/Content/Lazy/lazyBus'
 import { Schema } from '@/components/Content/Schema'
-import { TagSection } from '@/components/Content/Tag'
+import { TagSection } from '@/components/Content/Tags'
 import {
   Section,
   SectionContainer,
