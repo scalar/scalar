@@ -39,7 +39,7 @@ defineSlots<{
 }>()
 
 const variants = cva({
-  base: 'size-3.5 -m-px transition-transform duration-100',
+  base: 'size-4 transition-transform duration-100',
   variants: { open: { true: 'rotate-90' } },
   defaultVariants: { open: false },
 })

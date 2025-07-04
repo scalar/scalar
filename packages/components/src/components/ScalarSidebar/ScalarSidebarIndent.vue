@@ -43,11 +43,11 @@ const { cx } = useBindCx()
       class="relative w-[var(--scalar-sidebar-indent)]">
       <!-- Indent Border -->
       <div
-        class="scalar-sidebar-indent-border absolute left-1.5 inset-y-0 w-border bg-sidebar-indent-border" />
+        class="scalar-sidebar-indent-border absolute left-2 inset-y-0 w-border bg-sidebar-indent-border" />
       <!-- Indent Border Active or Hover -->
       <div
         v-if="index === indents.length - 1"
-        class="absolute left-1.5 inset-y-0 w-border"
+        class="absolute left-2 inset-y-0 w-border"
         :class="
           disabled
             ? ''

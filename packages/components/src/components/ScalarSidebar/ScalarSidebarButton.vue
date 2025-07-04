@@ -68,7 +68,7 @@ const { cx } = useBindCx()
     <div class="flex items-center gap-1 flex-1 py-2 leading-5">
       <div
         v-if="icon || $slots.icon"
-        class="size-3.5">
+        class="size-4">
         <slot name="icon">
           <ScalarIconLegacyAdapter
             v-if="icon"
