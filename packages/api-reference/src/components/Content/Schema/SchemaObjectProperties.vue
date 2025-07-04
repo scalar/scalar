@@ -61,6 +61,7 @@ const getAdditionalPropertiesValue = (
     additionalProperties === true ||
     (typeof additionalProperties === 'object' &&
       Object.keys(additionalProperties).length === 0) ||
+    typeof additionalProperties !== 'object' ||
     !('type' in additionalProperties)
   ) {
     return {
