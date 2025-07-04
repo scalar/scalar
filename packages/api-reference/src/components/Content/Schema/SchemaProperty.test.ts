@@ -305,24 +305,60 @@ describe('SchemaProperty', () => {
     })
   })
 
-  describe('pattern properties', () => {
-    it('displays pattern properties badge for object with pattern properties', async () => {
+  describe('variant prop', () => {
+    it('displays pattern properties with variant prop', async () => {
       const wrapper = mount(SchemaProperty, {
         props: {
-          pattern: true,
+          variant: 'patternProperties',
+          name: '^foo-',
           value: {
-            type: 'object',
-            patternProperties: {
-              '^foo-': {
-                type: 'string',
-              },
-            },
+            type: 'string',
           },
         },
       })
 
-      const badge = wrapper.find('.property-pattern')
-      expect(badge.exists()).toBe(true)
+      // Check that the pattern property name is rendered with the special styling
+      const patternName = wrapper.find('.property-name-pattern-properties')
+      expect(patternName.exists()).toBe(true)
+      expect(patternName.text()).toBe('^foo-')
+    })
+
+    it('displays additional properties with variant prop', async () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          variant: 'additionalProperties',
+          name: 'propertyName*',
+          value: {
+            type: 'anything',
+          },
+        },
+      })
+
+      // Check that the additional property name is rendered with the special styling
+      const additionalName = wrapper.find('.property-name-additional-properties')
+      expect(additionalName.exists()).toBe(true)
+      expect(additionalName.text()).toBe('propertyName*')
+    })
+
+    it('displays regular property names without variant styling', async () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          name: 'regularProperty',
+          value: {
+            type: 'string',
+          },
+        },
+      })
+
+      // Check that regular property names don't have special styling
+      const patternName = wrapper.find('.property-name-pattern-properties')
+      const additionalName = wrapper.find('.property-name-additional-properties')
+
+      expect(patternName.exists()).toBe(false)
+      expect(additionalName.exists()).toBe(false)
+
+      // The name should still be rendered in the slot
+      expect(wrapper.text()).toContain('regularProperty')
     })
   })
 

@@ -33,8 +33,6 @@ const props = withDefaults(
     required?: boolean
     compact?: boolean
     description?: string
-    additional?: boolean
-    pattern?: boolean
     withExamples?: boolean
     hideModelNames?: boolean
     schemas?: Schemas
@@ -149,14 +147,10 @@ const currentDiscriminator = computed(() => {
 const displayPropertyHeading = (
   value?: Record<string, any>,
   name?: string,
-  additional?: boolean,
-  pattern?: boolean,
   required?: boolean,
 ) => {
   return (
     name ||
-    additional ||
-    pattern ||
     value?.deprecated ||
     value?.const !== undefined ||
     (value?.enum && value.enum.length === 1) ||
@@ -241,18 +235,8 @@ const shouldRenderObjectProperties = computed(() => {
       },
     ]">
     <SchemaPropertyHeading
-      v-if="
-        displayPropertyHeading(
-          optimizedValue,
-          name,
-          additional,
-          pattern,
-          required,
-        )
-      "
-      :additional="additional"
+      v-if="displayPropertyHeading(optimizedValue, name, required)"
       :enum="getEnumFromValue(optimizedValue).length > 0"
-      :pattern="pattern"
       :required="required"
       :value="optimizedValue"
       :schemas="schemas"
