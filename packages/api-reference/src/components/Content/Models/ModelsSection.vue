@@ -3,7 +3,8 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { Spec } from '@scalar/types/legacy'
 
-import { Models, ModelsAccordion } from '.'
+import Models from './Models.vue'
+import ModelsAccordion from './ModelsAccordion.vue'
 
 withDefaults(
   defineProps<{
