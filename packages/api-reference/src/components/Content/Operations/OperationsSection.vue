@@ -3,10 +3,8 @@ import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
-import type { Spec } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
-import NewTagSection from '@/components/Content/Tags/NewTagSection.vue'
 import TagSection from '@/components/Content/Tags/TagSection.vue'
 import { Operation } from '@/features/Operation'
 import {
@@ -16,11 +14,8 @@ import {
 } from '@/features/traverse-schema'
 import { traversePaths } from '@/features/traverse-schema/helpers/traverse-paths'
 
-import { TagList } from '../Tags'
-
-const { document, parsedSpec, layout, config } = defineProps<{
+const { document, layout, config } = defineProps<{
   document: OpenAPIV3_1.Document
-  parsedSpec: Spec
   layout: 'modern' | 'classic'
   config?: ApiReferenceConfiguration
 }>()
@@ -99,18 +94,13 @@ const entries = computed((): TraversedEntry[] => {
     v-for="entry in entries"
     :key="entry.id">
     <template v-if="'tag' in entry">
-      <!-- Tag Group? -->
+      <!-- TODO: Tag Group? -->
 
       <!-- Tag Section -->
       <template v-if="'tag' in entry">
         <TagSection
           :tag="entry"
-          :collection="activeCollection!"
-          :spec="parsedSpec">
-          <!-- <NewTagSection
-            v-if="'tag' in entry"
-            :tag="entry" /> -->
-
+          :collection="activeCollection!">
           <!-- Children -->
           <template
             v-if="
@@ -119,9 +109,9 @@ const entries = computed((): TraversedEntry[] => {
             <template
               v-for="child in entry.children"
               :key="child.id">
+              <!-- TODO: Tag -->
               <!-- Operation -->
               <template v-if="'operation' in child">
-                <!-- <div>* {{ child.title }}</div> -->
                 <Operation
                   :path="child.path"
                   :method="child.method"
@@ -138,8 +128,6 @@ const entries = computed((): TraversedEntry[] => {
           </template>
         </TagSection>
       </template>
-
-      <br />
     </template>
   </template>
 

@@ -86,7 +86,6 @@ const activeServer = computed(() => {
     <!-- Operations -->
     <OperationsSection
       :document="document"
-      :parsedSpec="parsedSpec"
       :layout="layout"
       :config="config" />
 
