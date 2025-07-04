@@ -226,5 +226,119 @@ describe('is-type-object', () => {
 
       expect(isTypeObject(schema)).toBe(false)
     })
+
+    it('returns false for schema with oneOf composition', () => {
+      const schema: OpenAPIV3_1.SchemaObject = {
+        oneOf: [{ type: 'string' }, { type: 'number' }],
+      }
+
+      expect(isTypeObject(schema)).toBe(false)
+    })
+
+    it('returns false for schema with anyOf composition', () => {
+      const schema: OpenAPIV3_1.SchemaObject = {
+        anyOf: [{ type: 'object', properties: { name: { type: 'string' } } }, { type: 'null' }],
+      }
+
+      expect(isTypeObject(schema)).toBe(false)
+    })
+
+    it('returns false for schema with allOf composition', () => {
+      const schema: OpenAPIV3_1.SchemaObject = {
+        allOf: [{ type: 'object' }, { properties: { id: { type: 'string' } } }],
+      }
+
+      expect(isTypeObject(schema)).toBe(false)
+    })
+
+    it('returns false for schema with not composition', () => {
+      const schema: OpenAPIV3_1.SchemaObject = {
+        not: { type: 'string' },
+      }
+
+      expect(isTypeObject(schema)).toBe(false)
+    })
+
+    it('returns false for schema with multiple composition keywords', () => {
+      const schema: OpenAPIV3_1.SchemaObject = {
+        oneOf: [{ type: 'string' }],
+        anyOf: [{ type: 'number' }],
+        allOf: [{ type: 'object' }],
+        not: { type: 'boolean' },
+      }
+
+      expect(isTypeObject(schema)).toBe(false)
+    })
+
+    it('returns false for schema with composition and object properties', () => {
+      const schema: OpenAPIV3_1.SchemaObject = {
+        oneOf: [{ type: 'string' }],
+        properties: {
+          name: { type: 'string' },
+        },
+        additionalProperties: false,
+      }
+
+      expect(isTypeObject(schema)).toBe(false)
+    })
+
+    it('returns false for schema with composition and type object', () => {
+      const schema: OpenAPIV3_1.SchemaObject = {
+        type: 'object',
+        oneOf: [{ type: 'string' }],
+        properties: {
+          name: { type: 'string' },
+        },
+      }
+
+      expect(isTypeObject(schema)).toBe(false)
+    })
+
+    it('returns false for schema with composition and union type including object', () => {
+      const schema: OpenAPIV3_1.SchemaObject = {
+        type: ['object', 'null'],
+        oneOf: [{ type: 'string' }],
+        properties: {
+          name: { type: 'string' },
+        },
+      }
+
+      expect(isTypeObject(schema)).toBe(false)
+    })
+
+    it('returns false for schema with empty oneOf array', () => {
+      const schema: OpenAPIV3_1.SchemaObject = {
+        oneOf: [],
+      }
+
+      expect(isTypeObject(schema)).toBe(false)
+    })
+
+    it('returns false for schema with empty anyOf array', () => {
+      const schema: OpenAPIV3_1.SchemaObject = {
+        anyOf: [],
+      }
+
+      expect(isTypeObject(schema)).toBe(false)
+    })
+
+    it('returns false for schema with empty allOf array', () => {
+      const schema: OpenAPIV3_1.SchemaObject = {
+        allOf: [],
+      }
+
+      expect(isTypeObject(schema)).toBe(false)
+    })
+
+    it('returns false for schema with composition and other non-object properties', () => {
+      const schema: OpenAPIV3_1.SchemaObject = {
+        oneOf: [{ type: 'string' }],
+        title: 'Composition Schema',
+        description: 'A schema with composition',
+        required: ['field'],
+      }
+
+      expect(isTypeObject(schema)).toBe(false)
+    })
   })
 })
