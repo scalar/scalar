@@ -1,5 +1,6 @@
 import { getTag } from '@/navigation/helpers/get-tag'
-import type { TagsMap, TraversedSchema, TraverseSpecOptions } from '@/navigation/types'
+import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
+import type { TraversedSchema } from '@/schemas/navigation'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
 

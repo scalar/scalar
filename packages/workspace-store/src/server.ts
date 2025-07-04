@@ -12,7 +12,7 @@ import type { OperationObject } from '@/schemas/v3.1/strict/path-operations'
 import { fetchUrls, readFiles } from '@scalar/openapi-parser/plugins'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import type { ComponentsObject } from '@/schemas/v3.1/strict/components'
-import type { TraversedEntry } from '@/navigation/types'
+import type { TraversedEntry } from '@/schemas/navigation'
 
 const DEFAULT_ASSETS_FOLDER = 'assets'
 export const WORKSPACE_FILE_NAME = 'scalar-workspace.json'
