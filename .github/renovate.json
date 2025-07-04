@@ -13,6 +13,18 @@
       "matchFileNames": ["**/Scalar.AspNetCore.*.csproj"],
       "matchPackageNames": ["Microsoft.AspNetCore.OpenApi", "Swashbuckle.AspNetCore.SwaggerGen"],
       "enabled": false
+    },
+    {
+      "description": "Disable patch updates for Aspire.Hosting for best compatibility",
+      "matchFileNames": ["**/Scalar.Aspire.csproj"],
+      "matchPackageNames": ["Aspire.Hosting"],
+      "matchUpdateTypes": ["patch"],
+      "enabled": false
+    },
+    {
+      "description": "Disable .NET SDK updates",
+      "matchFileNames": ["**/global.json"],
+      "enabled": false
     }
   ]
 }
