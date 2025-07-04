@@ -1,10 +1,17 @@
 <script setup lang="ts">
+// TODO: Can we duplicate less code? Look at traverseDocument
+// TODO: x-tagGroups
+
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { Spec } from '@scalar/types/legacy'
 import { computed } from 'vue'
+
+import { traverseTags } from '@/features/traverse-schema'
+import { traversePaths } from '@/features/traverse-schema/helpers/traverse-paths'
+import type { TagsMap } from '@/features/traverse-schema/types'
 
 import { TagList } from '../Tags'
 
@@ -44,8 +51,66 @@ const activeServer = computed(() => {
 
   return servers[activeCollection.value.servers[0]]
 })
+
+const tags = computed(() => {
+  // Create a map of tags
+  const tagsMap: TagsMap = new Map(
+    document.tags?.map((tag: OpenAPIV3_1.TagObject) => [
+      tag.name ?? 'Untitled Tag',
+      { tag, entries: [] },
+    ]) ?? [],
+  )
+
+  // Create a default tag if no tags exist
+  if (!tagsMap.has('default')) {
+    tagsMap.set('default', { tag: { name: 'default' }, entries: [] })
+  }
+
+  // Create a map of titles for the mobile header
+  const titlesMap = new Map<string, string>()
+  traversePaths(document, tagsMap, titlesMap, () => 'operation-id')
+
+  // Traverse the tags
+  const result = traverseTags(document, tagsMap, titlesMap, {
+    getTagId: (tag) => tag.name ?? 'Untitled Tag',
+    tagsSorter: config?.tagsSorter,
+    operationsSorter: config?.operationsSorter,
+  })
+
+  console.log('TAGS', result)
+
+  return result
+})
 </script>
 <template>
+  <template
+    v-if="tags.length"
+    v-for="tag in tags"
+    :key="tag">
+    <template v-if="'tag' in tag">
+      <!-- Tag Heading -->
+      <div class="font-bold">
+        {{ tag.title }}
+      </div>
+      <div>
+        {{ tag.tag.description }}
+      </div>
+      <!-- Children -->
+      <template
+        v-if="'children' in tag && tag.children && tag.children?.length">
+        <template
+          v-for="child in tag.children"
+          :key="child.id">
+          <!-- Operation -->
+          <template v-if="'operation' in child">
+            <div>* {{ child.title }}</div>
+          </template>
+        </template>
+      </template>
+      <br />
+    </template>
+  </template>
+
   <template v-if="parsedSpec.tags && activeCollection">
     <template v-if="parsedSpec['x-tagGroups']">
       <TagList
