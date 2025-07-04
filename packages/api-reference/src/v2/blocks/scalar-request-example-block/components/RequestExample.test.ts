@@ -373,9 +373,7 @@ describe('RequestExample', () => {
       const wrapper = mount(RequestExample, {
         props: {
           ...defaultProps,
-          config: {
-            hideClientSelector: true,
-          },
+          hideClientSelector: true,
         },
       })
 

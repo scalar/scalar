@@ -4,11 +4,15 @@ import { computed, ref, watch } from 'vue'
 
 import OperationPath from '@/components/OperationPath.vue'
 import { blockStore } from '@/v2/blocks/helpers/block-store'
-import { getStore, type GetStoreProps } from '@/v2/blocks/helpers/get-store'
+import { getDocumentName } from '@/v2/blocks/helpers/get-document-name'
+import {
+  getWorkspaceStore,
+  type GetWorkspaceStoreProps,
+} from '@/v2/blocks/helpers/get-workspace-store'
 
 import RequestExample, { type RequestExampleProps } from './RequestExample.vue'
 
-type Props = Omit<RequestExampleProps, 'operation'> & GetStoreProps
+type Props = Omit<RequestExampleProps, 'operation'> & GetWorkspaceStoreProps
 
 const {
   method,
@@ -22,7 +26,7 @@ const {
   fallback,
   generateLabel,
   hideClientSelector,
-  ...getStoreProps
+  ...getWorkspaceStoreProps
 } = defineProps<Props>()
 
 defineSlots<{
@@ -31,9 +35,20 @@ defineSlots<{
 }>()
 
 /** Either creates or grabs a global/prop store */
-const store = getStore(getStoreProps)
+const store = getWorkspaceStore(getWorkspaceStoreProps)
 
-/** The resolved operation from the workspace store */
+/** Current document */
+const document = computed(() => {
+  /** Grab the name of the document also used as the index */
+  const documentName = getDocumentName(
+    getWorkspaceStoreProps,
+    Object.keys(store.workspace.documents).length,
+  )
+
+  return store.workspace.documents[documentName]
+})
+
+/** De-referenced and resolved operation from the workspace store */
 const operation = ref<RequestExampleProps['operation'] | null>(null)
 
 /** Grab the selected server, or the first one */
@@ -42,8 +57,8 @@ const server = computed(() => {
     return selectedServer
   }
 
-  if (store.workspace.activeDocument?.servers?.length) {
-    return store.workspace.activeDocument.servers[0]
+  if (document.value?.servers?.length) {
+    return document.value.servers[0]
   }
 
   // This will trigger our logic to create a proper URL
@@ -60,7 +75,7 @@ watch(
 
     try {
       await store.resolve(['paths', path, method])
-      const pathItem = activeDocument.paths?.[path]?.[method]
+      const pathItem = document.value?.paths?.[path]?.[method]
 
       if (pathItem) {
         operation.value = pathItem
