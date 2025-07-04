@@ -102,38 +102,48 @@ const entries = computed((): TraversedEntry[] => {
       <!-- Tag Group? -->
 
       <!-- Tag Section -->
-      <NewTagSection
-        v-if="'tag' in entry"
-        :tag="entry" />
+      <template v-if="'tag' in entry">
+        <TagSection
+          :tag="entry"
+          :collection="activeCollection!"
+          :spec="parsedSpec">
+          <!-- <NewTagSection
+            v-if="'tag' in entry"
+            :tag="entry" /> -->
 
-      <!-- Children -->
-      <template
-        v-if="'children' in entry && entry.children && entry.children?.length">
-        <template
-          v-for="child in entry.children"
-          :key="child.id">
-          <!-- Operation -->
-          <template v-if="'operation' in child">
-            <div>* {{ child.title }}</div>
-            <!-- <Operation
-              :path="child.path"
-              :method="child.method"
-              :isWebhook="
-                Boolean('isWebhook' in child && child.isWebhook) || false
-              "
-              :id="child.id"
-              :document="document"
-              :collection="activeCollection!"
-              :layout="layout"
-              :server="activeServer" /> -->
+          <!-- Children -->
+          <template
+            v-if="
+              'children' in entry && entry.children && entry.children?.length
+            ">
+            <template
+              v-for="child in entry.children"
+              :key="child.id">
+              <!-- Operation -->
+              <template v-if="'operation' in child">
+                <!-- <div>* {{ child.title }}</div> -->
+                <Operation
+                  :path="child.path"
+                  :method="child.method"
+                  :isWebhook="
+                    Boolean('isWebhook' in child && child.isWebhook) || false
+                  "
+                  :id="child.id"
+                  :document="document"
+                  :collection="activeCollection!"
+                  :layout="layout"
+                  :server="activeServer" />
+              </template>
+            </template>
           </template>
-        </template>
+        </TagSection>
       </template>
+
       <br />
     </template>
   </template>
 
-  <template v-if="parsedSpec.tags && activeCollection">
+  <!-- <template v-if="parsedSpec.tags && activeCollection">
     <template v-if="parsedSpec['x-tagGroups']">
       <TagList
         v-for="tagGroup in parsedSpec['x-tagGroups']"
@@ -157,10 +167,10 @@ const entries = computed((): TraversedEntry[] => {
       :server="activeServer"
       :spec="parsedSpec"
       :tags="parsedSpec.tags" />
-  </template>
+  </template>-->
 
   <!-- Webhooks -->
-  <template v-if="parsedSpec.webhooks?.length && activeCollection">
+  <!-- <template v-if="parsedSpec.webhooks?.length && activeCollection">
     <TagList
       :document="document"
       id="webhooks"
@@ -176,5 +186,5 @@ const entries = computed((): TraversedEntry[] => {
         },
       ]">
     </TagList>
-  </template>
+  </template> -->
 </template>

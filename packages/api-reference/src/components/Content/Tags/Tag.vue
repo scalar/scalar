@@ -15,14 +15,15 @@ import {
   SectionHeaderTag,
 } from '@/components/Section'
 import { SpecificationExtension } from '@/features/specification-extension'
+import type { TraversedTag } from '@/features/traverse-schema'
 import { useConfig } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
 
 import OperationsList from './OperationsList.vue'
 
-const props = defineProps<{
+const { id, tag, collection, headerId, isCollapsed } = defineProps<{
   id?: string
-  tag: Tag
+  tag: TraversedTag
   collection: Collection
   headerId?: string
   isCollapsed?: boolean
@@ -31,21 +32,28 @@ const props = defineProps<{
 const { getTagId } = useNavState()
 const config = useConfig()
 
-const tagId = computed(() => props.id || getTagId(props.tag) || '')
-
-const title = computed(() => props.tag['x-displayName'] ?? props.tag.name)
+const tagId = computed(
+  () =>
+    id ||
+    getTagId({
+      name: tag.title,
+      description: tag.tag?.description ?? '',
+    }) ||
+    '',
+)
 </script>
 <template>
   <Section
+    v-if="tag"
     :id="tagId"
-    :label="tag.name.toUpperCase()"
+    :label="tag.title?.toUpperCase()"
     role="none">
     <SectionHeader v-show="!config.isLoading">
       <Anchor :id="tagId">
         <SectionHeaderTag
           :id="headerId"
           :level="2">
-          {{ title }}
+          {{ tag.title }}
           <ScreenReader v-if="isCollapsed"> (Collapsed)</ScreenReader>
         </SectionHeaderTag>
       </Anchor>
@@ -55,7 +63,7 @@ const title = computed(() => props.tag['x-displayName'] ?? props.tag.name)
         <SectionColumn>
           <ScalarMarkdown
             :clamp="isCollapsed ? '7' : false"
-            :value="tag.description"
+            :value="tag.tag?.description ?? ''"
             withImages />
         </SectionColumn>
         <SectionColumn>
