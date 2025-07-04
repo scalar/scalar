@@ -15,7 +15,6 @@ const props = defineProps<{
   id?: string
   tag: TraversedTag
   collection: Collection
-  spec: Spec
 }>()
 
 const sectionContainerRef = ref<HTMLElement>()
