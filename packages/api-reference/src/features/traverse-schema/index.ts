@@ -4,6 +4,7 @@ export type {
   TraversedEntry,
   TraversedDescription,
   TraversedTag,
+  TagsMap,
 } from './types'
 
 export { traverseDocument } from './helpers/traverse-document'
