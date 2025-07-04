@@ -1,7 +1,7 @@
 import { isReactive, toRaw } from 'vue'
-import { getValueByPath, parseJsonPointer } from './json-path-utils'
 import { isLocalRef, isObject } from './general'
 import type { UnknownObject } from './general'
+import { getValueByPath, parseJsonPointer } from './json-path-utils'
 
 export const TARGET_SYMBOL = Symbol('target')
 
@@ -49,7 +49,47 @@ function createProxyHandler(
             const referencePath = parseJsonPointer(ref)
             const resolvedValue = getValueByPath(sourceDocument, referencePath)
 
-            // preserve the first $ref to maintain the original reference
+            // Extract sibling keywords (all properties except $ref)
+            const siblingKeywords: Record<string, unknown> = {}
+            for (const [key, val] of Object.entries(value)) {
+              if (key !== '$ref') {
+                siblingKeywords[key] = val
+              }
+            }
+
+            // If there are sibling keywords, merge them with the resolved value
+            if (Object.keys(siblingKeywords).length > 0) {
+              const mergedValue: Record<string, unknown> = isObject(resolvedValue)
+                ? {
+                    ...resolvedValue,
+                    ...siblingKeywords,
+                    'x-original-ref': originalRef ?? ref,
+                  }
+                : {
+                    ...siblingKeywords,
+                    'x-original-ref': originalRef ?? ref,
+                    value: resolvedValue,
+                  }
+
+              // Special handling for pattern merging when both resolved value and sibling have patterns
+              if (isObject(resolvedValue) && 'pattern' in resolvedValue && 'pattern' in siblingKeywords) {
+                const resolvedPattern = resolvedValue.pattern as string
+                const siblingPattern = siblingKeywords.pattern as string
+
+                // Merge patterns by combining constraints
+                // Remove anchors from individual patterns and combine them
+                const cleanResolvedPattern = resolvedPattern.replace(/^\^|\$$/g, '')
+                const cleanSiblingPattern = siblingPattern.replace(/^\^|\$$/g, '')
+
+                // Create a pattern that requires both constraints
+                mergedValue.pattern = `^${cleanSiblingPattern}.*${cleanResolvedPattern}$`
+              }
+
+              // preserve the first $ref to maintain the original reference
+              return deepResolveNestedRefs(mergedValue, originalRef ?? ref)
+            }
+
+            // No sibling keywords, preserve the first $ref to maintain the original reference
             return deepResolveNestedRefs(resolvedValue, originalRef ?? ref)
           }
         }
