@@ -42,7 +42,7 @@ defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 </script>
 <template>
-  <li class="group/sidebar-section contents">
+  <li class="group/item group/sidebar-section contents">
     <ScalarSidebarSpacer
       class="group/spacer-before h-3"
       :indent="level" />
