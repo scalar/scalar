@@ -1,2 +1,1 @@
-export { default as Models } from './Models.vue'
-export { default as ModelsAccordion } from './ModelsAccordion.vue'
+export { default as ModelsSection } from './ModelsSection.vue'

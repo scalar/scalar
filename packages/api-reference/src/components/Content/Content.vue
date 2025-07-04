@@ -6,12 +6,13 @@ import type { Spec } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
 import { IntroductionSection } from '@/components/Content/Introduction'
+import { ModelsSection } from '@/components/Content/Models'
 import { SectionFlare } from '@/components/SectionFlare'
 import { useConfig } from '@/hooks/useConfig'
 
 import { Loading } from './Lazy'
-import { Models, ModelsAccordion } from './Models'
-import { TagList } from './Tags'
+import { OperationsSection } from './Operations'
+import { WebhooksSection } from './Webhooks'
 
 withDefaults(
   defineProps<{
@@ -36,6 +37,7 @@ const activeCollection = computed(() => {
       return collection
     }
   }
+
   return _activeCollection.value
 })
 
@@ -74,66 +76,33 @@ const activeServer = computed(() => {
     <IntroductionSection
       v-if="document?.info?.title || document?.info?.description"
       :document="document"
-      :layout="layout" />
+      :layout="layout"
+      :config="config" />
+    <!-- Empty State -->
     <slot
       v-else
       name="empty-state" />
 
-    <!-- Tags -->
-    <template v-if="parsedSpec.tags && activeCollection">
-      <template v-if="parsedSpec['x-tagGroups']">
-        <TagList
-          v-for="tagGroup in parsedSpec['x-tagGroups']"
-          :document="document"
-          :key="tagGroup.name"
-          :collection="activeCollection"
-          :layout="layout"
-          :server="activeServer"
-          :spec="parsedSpec"
-          :tags="
-            tagGroup.tags
-              .map((name) => parsedSpec.tags?.find((t) => t.name === name))
-              .filter((tag) => !!tag)
-          " />
-      </template>
-      <TagList
-        v-else
-        :collection="activeCollection"
-        :document="document"
-        :layout="layout"
-        :server="activeServer"
-        :spec="parsedSpec"
-        :tags="parsedSpec.tags" />
-    </template>
+    <!-- Operations -->
+    <OperationsSection
+      :document="document"
+      :parsedSpec="parsedSpec"
+      :layout="layout"
+      :config="config" />
 
     <!-- Webhooks -->
-    <template v-if="parsedSpec.webhooks?.length && activeCollection">
-      <TagList
-        :document="document"
-        id="webhooks"
-        :collection="activeCollection"
-        :layout="layout"
-        :server="activeServer"
-        :spec="parsedSpec"
-        :tags="[
-          {
-            name: 'Webhooks',
-            description: '',
-            operations: parsedSpec.webhooks,
-          },
-        ]">
-      </TagList>
-    </template>
+    <WebhooksSection
+      :document="document"
+      :parsedSpec="parsedSpec"
+      :layout="layout"
+      :config="config" />
 
     <!-- Models -->
-    <template v-if="document?.components?.schemas && !config.hideModels">
-      <ModelsAccordion
-        v-if="layout === 'classic'"
-        :schemas="document?.components?.schemas" />
-      <Models
-        v-else
-        :schemas="document?.components?.schemas" />
-    </template>
+    <ModelsSection
+      :document="document"
+      :parsedSpec="parsedSpec"
+      :layout="layout"
+      :config="config" />
     <slot name="end" />
   </div>
 </template>
