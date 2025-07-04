@@ -9,9 +9,15 @@ import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { Spec } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
-import { traverseTags } from '@/features/traverse-schema'
+import NewTagSection from '@/components/Content/Tags/NewTagSection.vue'
+import TagSection from '@/components/Content/Tags/TagSection.vue'
+import { Operation } from '@/features/Operation'
+import {
+  traverseTags,
+  type TagsMap,
+  type TraversedEntry,
+} from '@/features/traverse-schema'
 import { traversePaths } from '@/features/traverse-schema/helpers/traverse-paths'
-import type { TagsMap } from '@/features/traverse-schema/types'
 
 import { TagList } from '../Tags'
 
@@ -52,7 +58,12 @@ const activeServer = computed(() => {
   return servers[activeCollection.value.servers[0]]
 })
 
-const tags = computed(() => {
+/**
+ * A list of tags including their children and operations.
+ *
+ * Matches the sidebar.
+ */
+const entries = computed((): TraversedEntry[] => {
   // Create a map of tags
   const tagsMap: TagsMap = new Map(
     document.tags?.map((tag: OpenAPIV3_1.TagObject) => [
@@ -68,7 +79,12 @@ const tags = computed(() => {
 
   // Create a map of titles for the mobile header
   const titlesMap = new Map<string, string>()
-  traversePaths(document, tagsMap, titlesMap, () => 'operation-id')
+  traversePaths(
+    document,
+    tagsMap,
+    titlesMap,
+    (operation) => operation.summary ?? '',
+  )
 
   // Traverse the tags
   const result = traverseTags(document, tagsMap, titlesMap, {
@@ -77,33 +93,42 @@ const tags = computed(() => {
     operationsSorter: config?.operationsSorter,
   })
 
-  console.log('TAGS', result)
-
   return result
 })
 </script>
 <template>
   <template
-    v-if="tags.length"
-    v-for="tag in tags"
-    :key="tag">
-    <template v-if="'tag' in tag">
-      <!-- Tag Heading -->
-      <div class="font-bold">
-        {{ tag.title }}
-      </div>
-      <div>
-        {{ tag.tag.description }}
-      </div>
+    v-if="entries.length"
+    v-for="entry in entries"
+    :key="entry.id">
+    <template v-if="'tag' in entry">
+      <!-- Tag Group? -->
+
+      <!-- Tag Section -->
+      <NewTagSection
+        v-if="'tag' in entry"
+        :tag="entry" />
+
       <!-- Children -->
       <template
-        v-if="'children' in tag && tag.children && tag.children?.length">
+        v-if="'children' in entry && entry.children && entry.children?.length">
         <template
-          v-for="child in tag.children"
+          v-for="child in entry.children"
           :key="child.id">
           <!-- Operation -->
           <template v-if="'operation' in child">
             <div>* {{ child.title }}</div>
+            <!-- <Operation
+              :path="child.path"
+              :method="child.method"
+              :isWebhook="
+                Boolean('isWebhook' in child && child.isWebhook) || false
+              "
+              :id="child.id"
+              :document="document"
+              :collection="activeCollection!"
+              :layout="layout"
+              :server="activeServer" /> -->
           </template>
         </template>
       </template>

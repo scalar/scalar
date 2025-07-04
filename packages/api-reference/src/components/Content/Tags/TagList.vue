@@ -72,7 +72,8 @@ const isLazy = (index: number) =>
           (collapsedSidebarItems[getTagId(tag)] && operationIndex > 0)
         ">
         <ScalarErrorBoundary>
-          <Operation
+          <slot :operation="transformedOperation" />
+          <!-- <Operation
             :path="transformedOperation.path"
             :method="transformedOperation.httpVerb"
             :isWebhook="transformedOperation.isWebhook"
@@ -80,7 +81,7 @@ const isLazy = (index: number) =>
             :document="document"
             :collection="collection"
             :layout="layout"
-            :server="server" />
+            :server="server" /> -->
         </ScalarErrorBoundary>
       </Lazy>
     </Component>
