@@ -18,7 +18,7 @@ export type RequestExampleProps = {
   /**
    * Which server from the spec to use for the code example
    */
-  selectedServer?: ServerObject
+  selectedServer?: ServerObject | undefined
   /**
    * The selected content type from the requestBody.content, this will determine which examples are available
    * as well as the content type of the code example
@@ -86,7 +86,6 @@ import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
 
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/Card'
 import { HttpMethod } from '@/components/HttpMethod'
-import ScreenReader from '@/components/ScreenReader.vue'
 import { ExamplePicker } from '@/features/example-request'
 import { findClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import {
@@ -239,15 +238,18 @@ const id = useId()
       <div
         :id="`${id}-header`"
         class="request-header">
-        <ScreenReader>Request Example for</ScreenReader>
+        <span class="sr-only">Request Example for</span>
         <HttpMethod
           as="span"
           class="request-method"
           :method="method" />
+
         <span
           v-if="generateLabel"
           v-html="generateLabel()" />
-        <slot name="header" />
+        <slot
+          v-else
+          name="header" />
       </div>
 
       <!-- Client picker -->
