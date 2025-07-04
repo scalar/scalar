@@ -1,1 +1,1 @@
-export { default as Introduction } from './Introduction.vue'
+export { default as IntroductionSection } from './IntroductionSection.vue'
