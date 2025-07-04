@@ -7,7 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import SidebarElement from './SidebarElement.vue'
 
 // Mock the dependencies
-vi.mock('@/libs/openapi', () => ({
+vi.mock('@scalar/oas-utils/helpers', () => ({
   isOperationDeprecated: vi.fn(),
 }))
 
@@ -238,7 +238,7 @@ describe('SidebarElement', () => {
 
   it('calls isOperationDeprecated with correct operation object', async () => {
     const { isOperationDeprecated } = await import('@scalar/oas-utils/helpers')
-    vi.mocked(isOperationDeprecated).mockReturnValue(false)
+    vi.mocked(isOperationDeprecated).mockReturnValue(true)
 
     const operation = createMockOperation({
       deprecated: true,
