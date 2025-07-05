@@ -60,7 +60,6 @@ import type {
   ReferenceLayoutSlot,
   ReferenceSlotProps,
 } from '@/types'
-import ScalarRequestExampleBlock from '@/v2/blocks/scalar-request-example-block/components/ScalarRequestExampleBlock.vue'
 
 const {
   rawSpec,
@@ -449,14 +448,6 @@ watch(hash, (newHash, oldHash) => {
       <main
         :aria-label="`Open API Documentation for ${dereferencedDocument?.info?.title}`"
         class="references-rendered">
-        <ScalarRequestExampleBlock
-          :method="'post'"
-          :path="'/user/signup'"
-          url="https://gist.githubusercontent.com/amritk/671d0cc97c2fc856918a4a86b0a3605f/raw/df3df7d66f3bce77f834aa24955005130004c4d0/custom-example.json" />
-        <ScalarRequestExampleBlock
-          :method="'get'"
-          :path="'/planets'"
-          url="https://gist.githubusercontent.com/amritk/671d0cc97c2fc856918a4a86b0a3605f/raw/df3df7d66f3bce77f834aa24955005130004c4d0/custom-example.json" />
         <Content
           :layout="configuration.layout"
           :document="dereferencedDocument"
