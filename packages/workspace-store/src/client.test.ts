@@ -898,7 +898,7 @@ describe('create-workspace-store', () => {
         },
       })
 
-      expect(store.export()).toBe(
+      expect(store.exportWorkspace()).toBe(
         JSON.stringify({
           documents: {
             default: {

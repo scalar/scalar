@@ -362,7 +362,7 @@ The workspace store provides methods to persist and restore the complete workspa
 ```ts
 const client = createWorkspaceStore()
 // Get the current workspace state
-const currentWorkspaceState = client.export()
+const currentWorkspaceState = client.exportWorkspace()
 
 // Persist on some kind of storage
 

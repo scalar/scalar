@@ -492,7 +492,7 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
      *
      * @returns A JSON string representing the complete workspace state.
      */
-    export() {
+    exportWorkspace() {
       return JSON.stringify({
         documents: {
           ...Object.fromEntries(
