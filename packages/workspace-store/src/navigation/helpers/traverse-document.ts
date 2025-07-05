@@ -1,9 +1,10 @@
+import type { TraversedEntry } from '@/schemas/navigation'
 import { traverseDescription } from './traverse-description'
 import { traversePaths } from './traverse-paths'
 import { traverseSchemas } from './traverse-schemas'
 import { traverseTags } from './traverse-tags'
 import { traverseWebhooks } from './traverse-webhooks'
-import type { TagsMap, TraversedEntry, TraverseSpecOptions } from '@/navigation/types'
+import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
 /**
