@@ -73,10 +73,16 @@
 <br>
 
 <p>
-	<img width="48.494%" height="330" src="https://github.com/user-attachments/assets/73dcef95-fc4f-4111-bb09-f3ce37453a81#gh-light-mode-only">
-	<img width="48.494%" height="330" src="https://github.com/user-attachments/assets/1da6b904-34be-4760-b535-0dd2160e6d12#gh-light-mode-only">
-	<img width="48.494%" height="330" src="https://github.com/user-attachments/assets/c792c977-8551-432c-9417-3ea05e408151#gh-dark-mode-only">
-	<img width="48.494%" height="330" src="https://github.com/user-attachments/assets/54a9ea69-c50a-4f49-8c3e-ddd6f8fbe1f3#gh-dark-mode-only">
+	<picture>
+		<source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/73dcef95-fc4f-4111-bb09-f3ce37453a81#gh-light-mode-only">
+		<source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/c792c977-8551-432c-9417-3ea05e408151#gh-dark-mode-only">
+		<img width="48.494%" height="330" src="https://github.com/user-attachments/assets/73dcef95-fc4f-4111-bb09-f3ce37453a81#gh-light-mode-only" alt="Scalar API client">
+	</picture>
+	<picture>
+		<source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/1da6b904-34be-4760-b535-0dd2160e6d12#gh-light-mode-only">
+		<source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/54a9ea69-c50a-4f49-8c3e-ddd6f8fbe1f3#gh-dark-mode-only">
+		<img width="48.494%" height="330" src="https://github.com/user-attachments/assets/1da6b904-34be-4760-b535-0dd2160e6d12#gh-light-mode-only" alt="Scalar API client">
+	</picture>
 </p>
 
 ### Quickstart
