@@ -49,11 +49,12 @@ export type ObjectDoc = {
   document: Record<string, unknown>
 } & WorkspaceDocumentMetaInput
 
-/** Union type representing the possible input formats for a workspace document:
+/**
+ * Union type representing the possible input formats for a workspace document:
  * - UrlDoc: Document loaded from a URL with optional fetch configuration
  * - ObjectDoc: Direct document object with metadata
  */
-type WorkspaceDocumentInput = UrlDoc | ObjectDoc
+export type WorkspaceDocumentInput = UrlDoc | ObjectDoc
 
 const defaultConfig: DeepTransform<Config, 'NonNullable'> = {
   'x-scalar-reference-config': defaultReferenceConfig,

@@ -4,12 +4,15 @@ import { scrollToId } from '@scalar/helpers/dom/scroll-to-id'
 import { getHttpMethodInfo } from '@scalar/helpers/http/http-info'
 import { sleep } from '@scalar/helpers/testing/sleep'
 import { ScalarIconWebhooksLogo } from '@scalar/icons'
-import { combineUrlAndPath } from '@scalar/oas-utils/helpers'
+import {
+  combineUrlAndPath,
+  isOperationDeprecated,
+} from '@scalar/oas-utils/helpers'
+import type { OpenAPIV3_1, XScalarStability } from '@scalar/types'
 
 import type { TraversedEntry } from '@/features/traverse-schema'
 import { useConfig } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
-import { isOperationDeprecated } from '@/libs/openapi'
 
 import SidebarHttpBadge from './SidebarHttpBadge.vue'
 
@@ -92,7 +95,12 @@ const onAnchorClick = async (ev: Event) => {
         'sidebar-group-item__folder': hasChildren,
         'active_page': isActive,
         'deprecated':
-          'operation' in item && isOperationDeprecated(item.operation),
+          'operation' in item &&
+          isOperationDeprecated(
+            item.operation as OpenAPIV3_1.OperationObject<{
+              'x-scalar-stability': XScalarStability
+            }>,
+          ),
       }"
       @click="handleClick">
       <!-- If children are detected then show the nesting icon -->

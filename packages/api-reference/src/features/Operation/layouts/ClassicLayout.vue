@@ -10,7 +10,12 @@ import type {
   Request,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import type { OpenAPIV3_1 } from '@scalar/types/legacy'
+import {
+  getOperationStability,
+  getOperationStabilityColor,
+  isOperationDeprecated,
+} from '@scalar/oas-utils/helpers'
+import type { OpenAPIV3_1, XScalarStability } from '@scalar/types/legacy'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed } from 'vue'
 
@@ -24,11 +29,6 @@ import { ExampleResponses } from '@/features/example-responses'
 import type { Schemas } from '@/features/Operation/types/schemas'
 import { TestRequestButton } from '@/features/test-request-button'
 import { useConfig } from '@/hooks/useConfig'
-import {
-  getOperationStability,
-  getOperationStabilityColor,
-  isOperationDeprecated,
-} from '@/libs/openapi'
 
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
@@ -37,7 +37,9 @@ const { request, operation, path, isWebhook } = defineProps<{
   id: string
   path: string
   method: OpenAPIV3_1.HttpMethods
-  operation: OpenAPIV3_1.OperationObject
+  operation: OpenAPIV3_1.OperationObject<{
+    'x-scalar-stability': XScalarStability
+  }>
   isWebhook: boolean
   /**
    * @deprecated Use `document` instead
