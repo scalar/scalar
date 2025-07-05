@@ -1,5 +1,13 @@
 # @scalar/themes
 
+## 0.13.8
+
+### Patch Changes
+
+- 3fdc2f2: feat(api-reference): unify inconsistent font styles across scalar client and ref, and improve consistency"
+- Updated dependencies [ad2e3e6]
+  - @scalar/types@0.2.7
+
 ## 0.13.7
 
 ### Patch Changes

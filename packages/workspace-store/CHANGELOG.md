@@ -1,5 +1,23 @@
 # @scalar/workspace-store
 
+## 0.8.0
+
+### Minor Changes
+
+- d56f354: feat(workspace-store): differentiate the local saved document with the last known remote version of the document
+- b6ac5b9: feat(workspace-store): create workspace mutators
+- dbc09b9: feat(workspace-store): create extensions schemas for the api-client
+- 20939a8: feat(workspace-store): add support for managing original document state with download and save APIs
+- 909cf33: feat(workspace-store): add workspace specification schema
+
+### Patch Changes
+
+- f8ef4ab: fix: add a few missing http methods and type annotations
+- Updated dependencies [ad2e3e6]
+  - @scalar/types@0.2.7
+  - @scalar/openapi-parser@0.18.1
+  - @scalar/code-highlight@0.1.5
+
 ## 0.7.1
 
 ### Patch Changes

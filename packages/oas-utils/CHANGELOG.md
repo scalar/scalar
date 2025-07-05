@@ -1,5 +1,23 @@
 # @scalar/oas-utils
 
+## 0.4.11
+
+### Patch Changes
+
+- 58287f8: refactor: create request examples without transformed operation
+- 74fdc0e: feat: use documentUrl as fallback server
+- Updated dependencies [d56f354]
+- Updated dependencies [b6ac5b9]
+- Updated dependencies [dbc09b9]
+- Updated dependencies [ad2e3e6]
+- Updated dependencies [20939a8]
+- Updated dependencies [909cf33]
+- Updated dependencies [3fdc2f2]
+- Updated dependencies [f8ef4ab]
+  - @scalar/workspace-store@0.8.0
+  - @scalar/types@0.2.7
+  - @scalar/themes@0.13.8
+
 ## 0.4.10
 
 ### Patch Changes

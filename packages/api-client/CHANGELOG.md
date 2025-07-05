@@ -1,5 +1,33 @@
 # @scalar/api-client
 
+## 2.5.15
+
+### Patch Changes
+
+- a696604: feat: opens auth combobox on auth indicator click
+- b2862d9: fix: updates command palette action input style
+- ad2e3e6: feat: new onBeforeRequest hook to modify the request
+- b2862d9: feat: opens modal from command palette action navigation
+- 74fdc0e: feat: use documentUrl as fallback server
+- 3fdc2f2: feat(api-reference): unify inconsistent font styles across scalar client and ref, and improve consistency"
+- 972602f: fix: sets request animation frame to markdown input to avoid input typing issue
+- Updated dependencies [ad2e3e6]
+- Updated dependencies [58287f8]
+- Updated dependencies [74fdc0e]
+- Updated dependencies [ca77d70]
+- Updated dependencies [a696604]
+- Updated dependencies [d93f60c]
+- Updated dependencies [3fdc2f2]
+- Updated dependencies [85a81eb]
+  - @scalar/types@0.2.7
+  - @scalar/oas-utils@0.4.11
+  - @scalar/components@0.14.16
+  - @scalar/snippetz@0.4.0
+  - @scalar/themes@0.13.8
+  - @scalar/openapi-parser@0.18.1
+  - @scalar/postman-to-openapi@0.3.14
+  - @scalar/use-codemirror@0.12.17
+
 ## 2.5.14
 
 ### Patch Changes
