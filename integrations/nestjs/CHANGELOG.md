@@ -1,5 +1,13 @@
 # @scalar/nestjs-api-reference
 
+## 0.5.8
+
+### Patch Changes
+
+- a7f0209: feat: render title option
+- Updated dependencies [ad2e3e6]
+  - @scalar/types@0.2.7
+
 ## 0.5.7
 
 ### Patch Changes
