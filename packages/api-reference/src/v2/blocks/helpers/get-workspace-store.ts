@@ -31,6 +31,23 @@ const createStore = (): WorkspaceStore => {
 }
 
 /**
+ * Splits the props back into a proper document input type to avoid the vue issue + type cast
+ */
+const getDocumentInput = (props: GetWorkspaceStoreProps, name: string): WorkspaceDocumentInput => {
+  const { url, fetch, document, ...rest } = props
+
+  if (url) {
+    return { ...rest, url, fetch, name }
+  }
+
+  if (document) {
+    return { ...rest, document, name }
+  }
+
+  throw new Error('[openapi-blocks] no document or url provided')
+}
+
+/**
  * Grabs either a store from the props or creates one and loads up the document
  *
  * Debate: currently we MUST pass in a store when on a server,
@@ -42,16 +59,12 @@ export const getWorkspaceStore = (props: GetWorkspaceStoreProps): WorkspaceStore
     throw new Error('[openapi-blocks] the store prop is required when using SSR/SSG')
   }
 
-  const { store: storeProp, ...documentProps } = props
-  const store = storeProp ?? createStore()
-
-  const name = getDocumentName(documentProps, Object.keys(store.workspace.documents).length)
-  // We need to re-cast the types due to the above note about vue and unions
-  const addDocumentProps = { ...documentProps, name } as WorkspaceDocumentInput
+  const store = props.store ?? createStore()
+  const name = getDocumentName(props, Object.keys(store.workspace.documents).length)
 
   // Load up the document if we aren't already loading it
   if (!documentMap.has(name) && !store.workspace.documents[name]) {
-    documentMap.set(name, store.addDocument(addDocumentProps))
+    documentMap.set(name, store.addDocument(getDocumentInput(props, name)))
   }
 
   return store

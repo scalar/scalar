@@ -273,6 +273,7 @@ const id = useId()
           placement="bottom-end"
           @update:modelValue="selectClient($event as ClientOption)">
           <ScalarButton
+            data-testid="client-picker"
             class="text-c-1 hover:bg-b-3 flex h-full w-fit gap-1.5 px-1.5 py-0.75 font-normal"
             fullWidth
             variant="ghost">
@@ -345,10 +346,6 @@ const id = useId()
 .request-method {
   font-family: var(--scalar-font-code);
   text-transform: uppercase;
-}
-.request-client-picker {
-  padding-left: 12px;
-  padding-right: 9px;
 }
 .request-card-footer {
   display: flex;
