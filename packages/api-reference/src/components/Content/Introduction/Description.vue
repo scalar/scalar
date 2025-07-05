@@ -110,6 +110,7 @@ const transformHeading = (node: Record<string, any>) => {
 .introduction-description {
   display: flex;
   flex-direction: column;
+  margin-top: 24px;
 }
 .references-classic .introduction-description :deep(img) {
   max-width: 720px;

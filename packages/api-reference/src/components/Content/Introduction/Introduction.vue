@@ -12,8 +12,8 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
-import { OPENAPI_VERSION_SYMBOL } from '@/features/download-link'
-import DownloadLink from '@/features/download-link/DownloadLink.vue'
+import { DownloadLink, OPENAPI_VERSION_SYMBOL } from '@/features/download-link'
+import ExternalDocs from '@/features/ExternalDocs/ExternalDocs.vue'
 import { SpecificationExtension } from '@/features/specification-extension'
 import { DEFAULT_INTRODUCTION_SLUG } from '@/features/traverse-schema'
 import { useConfig } from '@/hooks/useConfig'
@@ -23,6 +23,7 @@ import Description from './Description.vue'
 
 const { document } = defineProps<{
   document: OpenAPIV3_1.Document
+  externalDocs?: OpenAPIV3_1.ExternalDocumentationObject
 }>()
 
 const { getHeadingId } = useNavState()
@@ -79,7 +80,10 @@ onMounted(() => config.value.onLoaded?.())
         </SectionHeader>
         <SectionColumns>
           <SectionColumn>
-            <DownloadLink :title="document.info?.title" />
+            <div class="links">
+              <DownloadLink :title="document.info?.title" />
+              <ExternalDocs :value="externalDocs" />
+            </div>
             <Description :value="document.info?.description" />
           </SectionColumn>
           <SectionColumn v-if="$slots.aside">
@@ -101,5 +105,12 @@ onMounted(() => config.value.onLoaded?.())
   flex-direction: column;
   position: sticky;
   top: calc(var(--refs-header-height) + 24px);
+}
+
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 18px;
 }
 </style>
