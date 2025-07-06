@@ -34,7 +34,7 @@ const createStore = (): WorkspaceStore => {
  * Splits the props back into a proper document input type to avoid the vue issue + type cast
  */
 const getDocumentInput = (props: GetWorkspaceStoreProps, name: string): WorkspaceDocumentInput => {
-  const { url, fetch, document, ...rest } = props
+  const { url, fetch, document, store: _, ...rest } = props
 
   if (url) {
     return { ...rest, url, fetch, name }
@@ -61,9 +61,10 @@ export const getWorkspaceStore = (props: GetWorkspaceStoreProps): WorkspaceStore
 
   const store = props.store ?? createStore()
   const name = getDocumentName(props, Object.keys(store.workspace.documents).length)
+  const hasDocument = props.url || props.document
 
   // Load up the document if we aren't already loading it
-  if (!documentMap.has(name) && !store.workspace.documents[name]) {
+  if (!documentMap.has(name) && !store.workspace.documents[name] && hasDocument) {
     documentMap.set(name, store.addDocument(getDocumentInput(props, name)))
   }
 
