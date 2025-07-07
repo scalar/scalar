@@ -42,6 +42,10 @@ const flattenDefaultValue = (value: Record<string, any>) => {
     return JSON.stringify(value.default)
   }
 
+  if (Array.isArray(value?.default)) {
+    return JSON.stringify(value.default)
+  }
+
   return value?.default
 }
 
