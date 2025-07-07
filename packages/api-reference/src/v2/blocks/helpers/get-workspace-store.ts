@@ -66,7 +66,7 @@ export const getWorkspaceStore = (props: GetWorkspaceStoreProps): WorkspaceStore
   }
 
   const store = props.store ?? createStore()
-  const name = getDocumentName(props, Object.keys(store.workspace.documents).length)
+  const name = getDocumentName(props, store.workspace.documents)
   const hasDocument = props.url || props.document
 
   // Load up the document if we aren't already loading it

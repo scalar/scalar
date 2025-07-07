@@ -50,7 +50,7 @@ const document = computed(() => {
   /** Grab the name of the document also used as the index */
   const documentName = getDocumentName(
     getWorkspaceStoreProps,
-    Object.keys(store.workspace.documents).length,
+    store.workspace.documents,
   )
 
   return store.workspace.documents[documentName]
