@@ -92,7 +92,6 @@ import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
 
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/Card'
 import { HttpMethod } from '@/components/HttpMethod'
-import { ExamplePicker } from '@/features/example-request'
 import { findClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import {
   generateClientOptions,
@@ -101,6 +100,8 @@ import {
 import { generateCodeSnippet } from '@/v2/blocks/scalar-request-example-block/helpers/generate-code-snippet'
 import { getSecrets } from '@/v2/blocks/scalar-request-example-block/helpers/get-secrets'
 import type { ClientOption } from '@/v2/blocks/scalar-request-example-block/types'
+
+import ExamplePicker from './ExamplePicker.vue'
 
 const {
   allowedClients,
@@ -311,7 +312,6 @@ const id = useId()
         v-if="Object.keys(operationExamples).length"
         class="request-card-footer-addon">
         <ExamplePicker
-          class="request-example-selector"
           :examples="operationExamples"
           v-model="selectedExampleKey" />
       </div>
