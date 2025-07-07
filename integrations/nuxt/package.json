@@ -50,7 +50,6 @@
     "dist"
   ],
   "dependencies": {
-    "@nuxt/kit": "^3.17.6",
     "@scalar/api-client": "workspace:*",
     "@scalar/api-reference": "workspace:*",
     "@scalar/types": "workspace:*",
@@ -59,13 +58,14 @@
   "devDependencies": {
     "@nuxt/devtools": "^1.7.0",
     "@nuxt/eslint-config": "^0.7.3",
+    "@nuxt/kit": "^3.17.6",
     "@nuxt/module-builder": "^0.8.4",
     "@nuxt/schema": "^3.17.6",
     "@nuxt/test-utils": "^3.19.2",
     "@types/node": "catalog:*",
     "changelogen": "^0.5.5",
     "cross-env": "^7.0.3",
-    "nuxt": "^3.16.0",
+    "nuxt": "^3.17.6",
     "vitest": "catalog:*"
   }
 }
