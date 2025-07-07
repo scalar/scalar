@@ -1,5 +1,13 @@
 # @scalar/galaxy
 
+## 0.5.3
+
+### Patch Changes
+
+- 80a3560: feat: add additonalProperties
+- 80a3560: feat: add exclusiveMinimum and exclusiveMaximum
+- 80a3560: feat: add x-enum-varnames and x-enum-descriptions
+
 ## 0.5.2
 
 ### Patch Changes
