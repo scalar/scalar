@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.32.5
+
+### Patch Changes
+
+- 5de7e25: fix: classic layout does not show request body
+
 ## 1.32.4
 
 ### Patch Changes
