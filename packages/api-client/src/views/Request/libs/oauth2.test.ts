@@ -368,6 +368,21 @@ describe('oauth2', () => {
       })
     })
 
+    it('should use custom token name when x-tokenName is specified', async () => {
+      const customFlow = {
+        ...flow,
+        'x-tokenName': 'custom_access_token',
+      } as const
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () => Promise.resolve({ custom_access_token: 'custom_token_123' }),
+      })
+
+      const [error, result] = await authorizeOauth2(customFlow, mockServer)
+      expect(error).toBe(null)
+      expect(result).toBe('custom_token_123')
+    })
+
     it('should handle token request failure', async () => {
       global.fetch = vi.fn().mockRejectedValueOnce(new Error('Network error'))
       const [error, result] = await authorizeOauth2(flow, mockServer)
@@ -422,6 +437,27 @@ describe('oauth2', () => {
       const [error, result] = await promise
       expect(error).toBe(null)
       expect(result).toBe('implicit_token_123')
+    })
+
+    it('should use custom token name when x-tokenName is specified', async () => {
+      const customFlow = {
+        ...flow,
+        'x-tokenName': 'custom_access_token',
+      } as const
+
+      const promise = authorizeOauth2(customFlow, mockServer)
+
+      // Redirect with custom token name
+      mockWindow.location.href = `${customFlow['x-scalar-redirect-uri']}#custom_access_token=custom_implicit_token_123&state=${state}`
+
+      // Run setInterval
+      vi.advanceTimersByTime(200)
+      vi.runAllTicks()
+
+      // Resolve
+      const [error, result] = await promise
+      expect(error).toBe(null)
+      expect(result).toBe('custom_implicit_token_123')
     })
   })
 

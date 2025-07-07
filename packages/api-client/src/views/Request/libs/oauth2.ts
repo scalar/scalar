@@ -152,7 +152,8 @@ export const authorizeOauth2 = async (
 
           try {
             const urlParams = new URL(authWindow.location.href).searchParams
-            accessToken = urlParams.get('access_token')
+            const tokenName = flow['x-tokenName'] || 'access_token'
+            accessToken = urlParams.get(tokenName)
             code = urlParams.get('code')
 
             error = urlParams.get('error')
@@ -160,7 +161,7 @@ export const authorizeOauth2 = async (
 
             // We may get the properties in a hash
             const hashParams = new URLSearchParams(authWindow.location.href.split('#')[1])
-            accessToken ||= hashParams.get('access_token')
+            accessToken ||= hashParams.get(tokenName)
             code ||= hashParams.get('code')
             error ||= hashParams.get('error')
             errorDescription ||= hashParams.get('error_description')
