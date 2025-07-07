@@ -166,7 +166,7 @@ const clients = computed(() =>
 
 /** The locally selected client which would include code samples from this operation only */
 const localSelectedClient = ref<ClientOption>(
-  findClient(clients.value, selectedClient),
+  findClient(clients.value, selectedClient, true),
 )
 
 /** If the globally selected client changes we can update the local one */
@@ -266,7 +266,7 @@ const id = useId()
         #actions
         v-if="!hideClientSelector">
         <ScalarCombobox
-          class="max-h-80"
+          class="scalar-client-picker max-h-80"
           :modelValue="localSelectedClient"
           :options="clients"
           teleport

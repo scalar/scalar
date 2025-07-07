@@ -12,6 +12,8 @@ const DEFAULT_CLIENT = 'shell/curl'
  *
  * @param options - Array of client option groups, each containing a label and array of client options
  * @param id - Optional client identifier to search for (e.g., 'js/fetch', 'python/requests')
+ * @param initial - Whether this is the initial setting of the client, if true it will select a custom example
+ *                  regardless of client id
  *
  * @returns The selected client option. If a specific ID is provided and found, returns that client.
  *          If the ID is not found or not provided, returns the first available client option.
@@ -40,11 +42,13 @@ const DEFAULT_CLIENT = 'shell/curl'
 export const findClient = (
   clientGroups: ClientOptionGroup[],
   clientId?: AvailableClients[number] | undefined,
+  initial = false,
 ): ClientOption => {
   const firstOption = clientGroups[0]?.options[0]
+  const skipClientId = initial && firstOption?.id.startsWith('custom')
 
   // Client ID is passed in
-  if (clientId) {
+  if (!skipClientId && clientId) {
     for (const group of clientGroups) {
       const option = group.options.find((option) => option.id === clientId)
       if (option) {

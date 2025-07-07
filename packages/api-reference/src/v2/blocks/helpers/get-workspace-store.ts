@@ -1,14 +1,20 @@
 import { getDocumentName } from '@/v2/blocks/helpers/get-document-name'
 import {
   createWorkspaceStore,
-  type ObjectDoc,
   type UrlDoc,
   type WorkspaceDocumentInput,
   type WorkspaceStore,
 } from '@scalar/workspace-store/client'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
-/** Vue cannot handle unions in the props so we used partial + intersection here */
-type DocumentInput = Partial<UrlDoc> & Partial<ObjectDoc>
+/**
+ * Vue cannot handle unions in the props so we used partial + intersection here
+ * We also type the document so the user gets proper type hints
+ */
+type DocumentInput = Partial<UrlDoc> &
+  Partial<{
+    document: OpenApiDocument
+  }>
 
 export type GetWorkspaceStoreProps = {
   /** Pass in a store, otherwise we will create a singleton global one */

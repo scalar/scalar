@@ -1,3 +1,13 @@
+<script lang="ts">
+export type ScalarRequestExampleBlockProps = Omit<
+  RequestExampleProps,
+  'operation'
+> &
+  GetWorkspaceStoreProps
+
+export default {}
+</script>
+
 <script lang="ts" setup>
 import { isOperationDeprecated } from '@scalar/oas-utils/helpers'
 import { computed, ref, watch } from 'vue'
@@ -12,8 +22,6 @@ import {
 
 import RequestExample, { type RequestExampleProps } from './RequestExample.vue'
 
-type Props = Omit<RequestExampleProps, 'operation'> & GetWorkspaceStoreProps
-
 const {
   method,
   path,
@@ -27,7 +35,7 @@ const {
   generateLabel,
   hideClientSelector,
   ...getWorkspaceStoreProps
-} = defineProps<Props>()
+} = defineProps<ScalarRequestExampleBlockProps>()
 
 defineSlots<{
   header: () => unknown
@@ -84,6 +92,7 @@ watch(
       console.error('Failed to resolve operation:', error)
     }
   },
+  { immediate: true },
 )
 </script>
 
