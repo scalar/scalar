@@ -132,17 +132,6 @@ describe('SchemaPropertyHeading', () => {
     expect(constElement.text()).toContain('foo')
   })
 
-  it('renders pattern badge', async () => {
-    const wrapper = mount(SchemaPropertyHeading, {
-      props: {
-        pattern: true,
-      },
-    })
-
-    const constElement = wrapper.find('.property-pattern')
-    expect(constElement.text()).toContain('pattern')
-  })
-
   it('renders schema name', async () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
@@ -431,6 +420,36 @@ describe('SchemaPropertyHeading', () => {
       expect(detailsElement.text()).toContain('0')
       expect(detailsElement.text()).toContain('less than:')
       expect(detailsElement.text()).toContain('10')
+    })
+  })
+
+  describe('pattern', () => {
+    it('renders pattern property', () => {
+      const wrapper = mount(SchemaPropertyHeading, {
+        props: {
+          value: {
+            type: 'string',
+            pattern: '^[a-zA-Z0-9]+$',
+          },
+        },
+      })
+      const detailsElement = wrapper.find('.property-heading')
+      expect(detailsElement.text()).toContain('Pattern:')
+      expect(detailsElement.text()).toContain('^[a-zA-Z0-9]+$')
+    })
+
+    it('renders pattern property with complex regex', () => {
+      const wrapper = mount(SchemaPropertyHeading, {
+        props: {
+          value: {
+            type: 'string',
+            pattern: '^\\d{4}-\\d{2}-\\d{2}$',
+          },
+        },
+      })
+      const detailsElement = wrapper.find('.property-heading')
+      expect(detailsElement.text()).toContain('Pattern:')
+      expect(detailsElement.text()).toContain('^\\d{4}-\\d{2}-\\d{2}$')
     })
   })
 })
