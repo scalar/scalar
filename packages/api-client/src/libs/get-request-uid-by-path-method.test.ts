@@ -172,4 +172,132 @@ describe('getRequestUidByPathMethod', () => {
 
     expect(result).toBe('request-1')
   })
+
+  // Test cases for path parameter matching
+  test('should match concrete path to templated path with single parameter', () => {
+    const result = getRequestUidByPathMethod(mockRequests, {
+      path: '/users/123',
+      method: 'GET',
+    })
+
+    expect(result).toBe('request-4')
+  })
+
+  test('should match concrete path to templated path with multiple parameters', () => {
+    const mockRequestsWithMultipleParams = {
+      ...mockRequests,
+      'request-6': operationSchema.parse({
+        uid: 'request-6',
+        path: '/users/{id}/orders/{orderId}',
+        method: 'get',
+      }),
+    }
+
+    const result = getRequestUidByPathMethod(mockRequestsWithMultipleParams, {
+      path: '/users/123/orders/456',
+      method: 'GET',
+    })
+
+    expect(result).toBe('request-6')
+  })
+
+  test('should match concrete path from GitHub issue example', () => {
+    const issueExampleRequests = {
+      'request-issue': operationSchema.parse({
+        uid: 'request-issue',
+        path: '/foo/{version}/bar/{contentType}',
+        method: 'get',
+      }),
+    }
+
+    const result = getRequestUidByPathMethod(issueExampleRequests, {
+      path: '/foo/v3/bar/test',
+      method: 'GET',
+    })
+
+    expect(result).toBe('request-issue')
+  })
+
+  test('should prefer exact match over pattern match', () => {
+    const mockRequestsWithExactAndPattern = {
+      ...mockRequests,
+      'request-exact': operationSchema.parse({
+        uid: 'request-exact',
+        path: '/users/123',
+        method: 'get',
+      }),
+    }
+
+    const result = getRequestUidByPathMethod(mockRequestsWithExactAndPattern, {
+      path: '/users/123',
+      method: 'GET',
+    })
+
+    expect(result).toBe('request-exact')
+  })
+
+  test('should handle complex path patterns with mixed segments', () => {
+    const complexRequests = {
+      'complex-request': operationSchema.parse({
+        uid: 'complex-request',
+        path: '/api/v1/users/{userId}/posts/{postId}/comments',
+        method: 'get',
+      }),
+    }
+
+    const result = getRequestUidByPathMethod(complexRequests, {
+      path: '/api/v1/users/789/posts/abc/comments',
+      method: 'GET',
+    })
+
+    expect(result).toBe('complex-request')
+  })
+
+  test('should not match when path segment count differs', () => {
+    const result = getRequestUidByPathMethod(mockRequests, {
+      path: '/users/123/extra',
+      method: 'GET',
+    })
+
+    expect(result).toBe('request-1') // Falls back to first request
+  })
+
+  test('should handle path parameters with special characters', () => {
+    const specialRequests = {
+      'special-request': operationSchema.parse({
+        uid: 'special-request',
+        path: '/files/{fileName}',
+        method: 'get',
+      }),
+    }
+
+    const result = getRequestUidByPathMethod(specialRequests, {
+      path: '/files/my-file.txt',
+      method: 'GET',
+    })
+
+    expect(result).toBe('special-request')
+  })
+
+  test('should work with the exact GitHub issue example', () => {
+    const githubIssueRequests = {
+      'github-issue-request': operationSchema.parse({
+        uid: 'github-issue-request',
+        path: '/foo/{version}/bar/{contentType}',
+        method: 'get',
+      }),
+      'other-request': operationSchema.parse({
+        uid: 'other-request',
+        path: '/baz',
+        method: 'get',
+      }),
+    }
+
+    const result = getRequestUidByPathMethod(githubIssueRequests, {
+      path: '/foo/v3/bar/test',
+      method: 'GET',
+    })
+
+    expect(result).toBe('github-issue-request')
+  })
 })
