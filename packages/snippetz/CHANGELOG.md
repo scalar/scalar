@@ -1,5 +1,17 @@
 # @scalar/snippetz
 
+## 0.4.0
+
+### Minor Changes
+
+- 85a81eb: add Rust reqwest async/sync
+
+### Patch Changes
+
+- d93f60c: chore(snippetz): move @scalar/types to dependencies
+- Updated dependencies [ad2e3e6]
+  - @scalar/types@0.2.7
+
 ## 0.3.2
 
 ### Patch Changes

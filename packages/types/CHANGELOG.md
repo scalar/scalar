@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.2.7
+
+### Patch Changes
+
+- ad2e3e6: feat: new onBeforeRequest hook to modify the request
+
 ## 0.2.6
 
 ### Patch Changes
