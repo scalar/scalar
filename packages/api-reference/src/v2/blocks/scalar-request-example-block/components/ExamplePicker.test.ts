@@ -27,17 +27,19 @@ describe('ExamplePicker', () => {
     const wrapper = mount(ExamplePicker, {
       props: {
         examples: mockExamples,
+        modelValue: '',
       },
     })
 
     expect(wrapper.find('[data-testid="example-picker"]').exists()).toBe(true)
-    expect(wrapper.text()).toContain('Select an example')
+    expect(wrapper.text()).toContain('First Example')
   })
 
   it('generates correct options from examples', () => {
     const wrapper = mount(ExamplePicker, {
       props: {
         examples: mockExamples,
+        modelValue: '',
       },
     })
 
@@ -56,6 +58,7 @@ describe('ExamplePicker', () => {
     const wrapper = mount(ExamplePicker, {
       props: {
         examples: {},
+        modelValue: '',
       },
     })
 
@@ -77,6 +80,7 @@ describe('ExamplePicker', () => {
     const wrapper = mount(ExamplePicker, {
       props: {
         examples: examplesWithoutSummary,
+        modelValue: '',
       },
     })
 
@@ -90,6 +94,7 @@ describe('ExamplePicker', () => {
     const wrapper = mount(ExamplePicker, {
       props: {
         examples: mockExamples,
+        modelValue: '',
       },
     })
 
@@ -107,31 +112,34 @@ describe('ExamplePicker', () => {
     const wrapper = mount(ExamplePicker, {
       props: {
         examples: mockExamples,
+        modelValue: '',
       },
     })
 
     // Initially no example selected
-    expect(wrapper.text()).toContain('Select an example')
+    expect(wrapper.text()).toContain('First Example')
 
     // Set a selected example
     await wrapper.setProps({
       examples: mockExamples,
+      modelValue: 'example-1',
     })
 
     // Simulate model update
     const combobox = wrapper.findComponent({ name: 'ScalarCombobox' })
-    await combobox.vm.$emit('update:modelValue', { id: 'example-1', label: 'First Example' })
+    await combobox.vm.$emit('update:modelValue', { id: 'example-2', label: 'Second Example' })
 
     await nextTick()
 
     // The button should now show the selected example
-    expect(wrapper.text()).toContain('First Example')
+    expect(wrapper.text()).toContain('Second Example')
   })
 
   it('emits model update when example is selected', async () => {
     const wrapper = mount(ExamplePicker, {
       props: {
         examples: mockExamples,
+        modelValue: '',
       },
     })
 
@@ -165,6 +173,7 @@ describe('ExamplePicker', () => {
     const wrapper = mount(ExamplePicker, {
       props: {
         examples: specialExamples,
+        modelValue: '',
       },
     })
 
@@ -182,19 +191,29 @@ describe('ExamplePicker', () => {
     const wrapper = mount(ExamplePicker, {
       props: {
         examples: mockExamples,
+        modelValue: '',
       },
     })
 
     const vm = wrapper.vm as any
-
-    // Test when no example is selected
-    expect(vm.selectedExample).toBeUndefined()
 
     // Test when an example is selected
     vm.selectedExampleKey = 'example-1'
     expect(vm.selectedExample).toEqual({
       id: 'example-1',
       label: 'First Example',
+    })
+
+    vm.selectedExampleKey = 'example-2'
+    expect(vm.selectedExample).toEqual({
+      id: 'example-2',
+      label: 'Second Example',
+    })
+
+    vm.selectedExampleKey = 'example-3'
+    expect(vm.selectedExample).toEqual({
+      id: 'example-3',
+      label: 'example-3',
     })
   })
 
@@ -207,6 +226,7 @@ describe('ExamplePicker', () => {
     const wrapper = mount(ExamplePicker, {
       props: {
         examples: problematicExamples,
+        modelValue: '',
       },
     })
 

@@ -313,7 +313,8 @@ const id = useId()
         class="request-card-footer-addon">
         <ExamplePicker
           :examples="operationExamples"
-          v-model="selectedExampleKey" />
+          v-model="selectedExampleKey"
+          @update:modelValue="emit('update:selectedExample', $event)" />
       </div>
 
       <!-- Footer -->

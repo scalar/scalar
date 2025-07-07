@@ -12,7 +12,7 @@ const props = defineProps<{
   examples: Record<string, ExampleObject>
 }>()
 
-const selectedExampleKey = defineModel<string>()
+const selectedExampleKey = defineModel<string>({ required: true })
 
 /** Generate the options for the combobox */
 const exampleOptions = computed<ScalarComboboxOption[]>(() => {
@@ -23,8 +23,11 @@ const exampleOptions = computed<ScalarComboboxOption[]>(() => {
 })
 
 /** Get the currently selected example */
-const selectedExample = computed<ScalarComboboxOption | undefined>(() =>
-  exampleOptions.value.find((option) => option.id === selectedExampleKey.value),
+const selectedExample = computed<ScalarComboboxOption>(
+  () =>
+    exampleOptions.value.find(
+      (option) => option.id === selectedExampleKey.value,
+    ) ?? exampleOptions.value[0],
 )
 
 /** Generate label for an example */
