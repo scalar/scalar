@@ -5,7 +5,7 @@ import { computed, inject, type Component } from 'vue'
 import {
   compositions,
   optimizeValueForDisplay,
-} from '@/components/Content/Schema/helpers/optimizeValueForDisplay'
+} from '@/components/Content/Schema/helpers/optimize-value-for-display'
 import SchemaEnumValues from '@/components/Content/Schema/SchemaEnumValues.vue'
 import type { Schemas } from '@/features/Operation/types/schemas'
 import { SpecificationExtension } from '@/features/specification-extension'
