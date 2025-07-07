@@ -16,6 +16,10 @@ export const getRequestUidByPathMethod = (
     return requestUid
   }
 
+  // In case theres no path or method provided, return the first
+  if (!path || !method) {
+    return Object.keys(requests)[0]
+  }
 
   // Convert requests record to array for findRequestByPathMethod
   const requestsArray = Object.values(requests)
