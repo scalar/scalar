@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
+import { tagSchema } from '@scalar/oas-utils/entities/spec'
 import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
@@ -11,8 +12,11 @@ import {
   traverseTags,
   type TagsMap,
   type TraversedEntry,
+  type TraversedOperation,
+  type TraversedTag,
 } from '@/features/traverse-schema'
 import { traversePaths } from '@/features/traverse-schema/helpers/traverse-paths'
+import type { TraversedWebhook } from '@/features/traverse-schema/types'
 
 const { document, layout, config } = defineProps<{
   document: OpenAPIV3_1.Document
@@ -87,46 +91,106 @@ const entries = computed((): TraversedEntry[] => {
 
   return result
 })
+
+const isTagGroup = (entry: TraversedEntry): entry is TraversedTag =>
+  'isGroup' in entry && entry.isGroup
+
+const isTag = (entry: TraversedEntry): entry is TraversedTag =>
+  'tag' in entry && !isTagGroup(entry)
+
+const isOperation = (entry: TraversedEntry): entry is TraversedOperation =>
+  'operation' in entry
+
+const isWebhook = (entry: TraversedEntry): entry is TraversedWebhook =>
+  'webhook' in entry
 </script>
 <template>
   <template
     v-if="entries.length"
     v-for="entry in entries"
     :key="entry.id">
-    <template v-if="'tag' in entry">
-      <!-- TODO: Tag Group? -->
-
-      <!-- Tag Section -->
-      <template v-if="'tag' in entry">
-        <TagSection
-          :tag="entry"
-          :collection="activeCollection!">
-          <!-- Children -->
+    <!-- Tag -->
+    <template v-if="isTag(entry)">
+      <TagSection
+        :tag="entry"
+        :collection="activeCollection!">
+        <template
+          v-if="
+            'children' in entry && entry.children && entry.children?.length
+          ">
+          <!-- Operations -->
           <template
-            v-if="
-              'children' in entry && entry.children && entry.children?.length
-            ">
-            <template
-              v-for="child in entry.children"
-              :key="child.id">
-              <!-- TODO: Tag -->
-              <!-- Operation -->
-              <template v-if="'operation' in child">
-                <Operation
-                  :path="child.path"
-                  :method="child.method"
-                  :isWebhook="
-                    Boolean('isWebhook' in child && child.isWebhook) || false
-                  "
-                  :id="child.id"
-                  :document="document"
-                  :collection="activeCollection!"
-                  :layout="layout"
-                  :server="activeServer" />
-              </template>
+            v-for="child in entry.children"
+            :key="child.id">
+            <!-- Operation -->
+            <template v-if="isOperation(child)">
+              <Operation
+                :path="child.path"
+                :method="child.method"
+                :isWebhook="
+                  Boolean('isWebhook' in child && child.isWebhook) || false
+                "
+                :id="child.id"
+                :document="document"
+                :collection="activeCollection!"
+                :layout="layout"
+                :server="activeServer" />
             </template>
           </template>
-        </TagSection>
+        </template>
+      </TagSection>
+    </template>
+
+    <!-- Tag Group -->
+    <template v-else-if="isTagGroup(entry)">
+      <template
+        v-for="child in entry.children"
+        :key="child.id">
+        <!-- Tag -->
+        <template v-if="isTag(child)">
+          <TagSection
+            :tag="child"
+            :collection="activeCollection!">
+            <template
+              v-if="
+                'children' in child && child.children && child.children?.length
+              ">
+              {{ child.children }}
+              <!-- Operations -->
+              <template
+                v-for="grandchild in child.children"
+                :key="grandchild.id">
+                {{ grandchild }}
+                <template v-if="isOperation(grandchild)">
+                  <Operation
+                    :path="grandchild.path"
+                    :method="grandchild.method"
+                    :isWebhook="
+                      Boolean(
+                        'isWebhook' in grandchild && grandchild.isWebhook,
+                      ) || false
+                    "
+                    :id="grandchild.id"
+                    :document="document"
+                    :collection="activeCollection!"
+                    :layout="layout"
+                    :server="activeServer" />
+                </template>
+                <template v-else-if="isWebhook(grandchild)">
+                  <Operation
+                    :path="grandchild.webhook.path"
+                    :method="grandchild.webhook.method"
+                    :isWebhook="true"
+                    :id="grandchild.id"
+                    :document="document"
+                    :collection="activeCollection!"
+                    :layout="layout"
+                    :server="activeServer" />
+                </template>
+              </template>
+            </template>
+          </TagSection>
+        </template>
       </template>
     </template>
   </template>
