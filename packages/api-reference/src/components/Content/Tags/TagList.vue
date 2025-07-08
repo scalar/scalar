@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// TODO: Delete this file, but make sure the Lazy stuff is moved
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'

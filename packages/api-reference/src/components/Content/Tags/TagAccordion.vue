@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
-import type { Tag } from '@scalar/types/legacy'
 
 import { Anchor } from '@/components/Anchor'
 import {
@@ -8,10 +7,11 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
+import type { TraversedTag } from '@/features/traverse-schema'
 import { useNavState } from '@/hooks/useNavState'
 
 defineProps<{
-  tag: Tag
+  tag: TraversedTag
 }>()
 
 const { getTagId } = useNavState()
@@ -22,13 +22,13 @@ const { getTagId } = useNavState()
       <SectionHeader class="tag-name">
         <Anchor :id="getTagId(tag)">
           <SectionHeaderTag :level="2">
-            {{ tag.name }}
+            {{ tag.title }}
           </SectionHeaderTag>
         </Anchor>
       </SectionHeader>
       <ScalarMarkdown
         class="tag-description"
-        :value="tag.description"
+        :value="tag.tag?.description"
         withImages />
     </template>
     <slot />

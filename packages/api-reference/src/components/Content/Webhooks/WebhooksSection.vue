@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// TODO: Delete this file
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
