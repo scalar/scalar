@@ -41,19 +41,19 @@ useSidebarNestedItem(open)
 
 defineSlots<{
   /** The text content of the button */
-  'default'?: () => any
+  'default'?: () => unknown
   /** Override the entire button */
-  'button'?: () => any
+  'button'?: () => unknown
   /** Override the icon */
-  'icon'?: () => any
+  'icon'?: () => unknown
   /** Override the aside slot */
-  'aside'?: () => any
+  'aside'?: () => unknown
   /** Override the back button */
-  'back'?: () => any
+  'back'?: () => unknown
   /** Override the back button label */
-  'back-label'?: () => any
+  'back-label'?: () => unknown
   /** The list of sidebar subitems */
-  'items'?: () => any
+  'items'?: () => unknown
 }>()
 
 const { level } = useSidebarGroups({ reset: true })
