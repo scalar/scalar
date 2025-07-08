@@ -32,7 +32,7 @@ describe('ScalarRequestExampleBlock', () => {
 
   beforeEach(() => {
     // Reset the block store before each test
-    blockStore.selectedClient = null
+    blockStore.setState('selectedClient', null)
   })
 
   afterEach(() => {

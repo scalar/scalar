@@ -10,7 +10,7 @@ export default {}
 
 <script lang="ts" setup>
 import { isOperationDeprecated } from '@scalar/oas-utils/helpers'
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 import OperationPath from '@/components/OperationPath.vue'
 import { blockStore } from '@/v2/blocks/helpers/block-store'
@@ -94,6 +94,8 @@ watch(
   },
   { immediate: true },
 )
+
+onMounted(() => blockStore.restoreState())
 </script>
 
 <template>
@@ -103,8 +105,8 @@ watch(
     :path="path"
     :operation="operation"
     :allowed-clients="allowedClients"
-    :selected-client="blockStore.selectedClient ?? selectedClient"
-    @update:selected-client="blockStore.selectedClient = $event"
+    :selected-client="blockStore.getState('selectedClient') ?? selectedClient"
+    @update:selected-client="blockStore.setState('selectedClient', $event)"
     :selected-server="server"
     :selected-content-type="selectedContentType"
     :selected-example="selectedExample"

@@ -226,8 +226,8 @@
   ],
   "module": "./dist/index.js",
   "dependencies": {
-    "stringify-object": "^5.0.0",
-    "@scalar/types": "workspace:*"
+    "@scalar/types": "workspace:*",
+    "stringify-object": "^5.0.0"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
