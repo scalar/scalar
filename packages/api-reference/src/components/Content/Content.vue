@@ -83,16 +83,9 @@ const activeServer = computed(() => {
       v-else
       name="empty-state" />
 
-    <!-- Operations -->
+    <!-- Operations & Webhooks -->
     <OperationsSection
       :document="document"
-      :layout="layout"
-      :config="config" />
-
-    <!-- Webhooks -->
-    <WebhooksSection
-      :document="document"
-      :parsedSpec="parsedSpec"
       :layout="layout"
       :config="config" />
 
