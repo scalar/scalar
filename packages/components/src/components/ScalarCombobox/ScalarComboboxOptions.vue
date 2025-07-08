@@ -131,11 +131,9 @@ function moveActive(dir: 1 | -1) {
 
 // Manual autofocus for the input
 const input = ref<HTMLInputElement | null>(null)
-onMounted(() => {
-  setTimeout(() => {
-    input.value?.focus()
-  }, 0)
-})
+
+// This must be a setTimeout to ensure there is no scroll jump. nextTick does not work here.
+onMounted(() => setTimeout(() => input.value?.focus(), 0))
 </script>
 <template>
   <div class="relative flex">
