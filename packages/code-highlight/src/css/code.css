@@ -28,7 +28,7 @@
     display: inline-block;
     counter-increment: linenumber;
     content: counter(linenumber);
-    margin-right: 0.7em;
+    margin-right: 0.875rem;
     /* Variable is set on the code element by the plugin when line numbers are used */
     min-width: calc(var(--line-digits) * 1ch);
     text-align: right;
