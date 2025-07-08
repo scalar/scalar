@@ -30,7 +30,7 @@ const operationsOrWebhooks = computed(
     <Card class="scalar-card-sticky">
       <CardHeader muted>
         <ScreenReader>{{ tag.title }}</ScreenReader>
-        Operations
+        {{ tag.isWebhooks ? 'Webhooks' : 'Operations' }}
       </CardHeader>
       <CardContent
         class="custom-scroll"

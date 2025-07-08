@@ -34,7 +34,7 @@ const path = computed(() => {
     return operation.path
   }
 
-  return operation.webhook.summary
+  return operation.title
 })
 </script>
 
@@ -55,7 +55,7 @@ const path = computed(() => {
       @click.prevent="scrollHandler(operation)">
       <div class="flex min-w-[62px] flex-row items-center justify-end gap-2">
         <ScalarIconWebhooksLogo
-          v-if="'isWebhook' in operation && operation.isWebhook"
+          v-if="'webhook' in operation"
           :style="{
             color: getHttpMethodInfo(operation.method).colorVar,
           }" />
