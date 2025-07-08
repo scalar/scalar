@@ -6,6 +6,7 @@ import { type LoadResult, dereference, load, upgrade } from '@scalar/openapi-par
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { SecuritySchemeOauth2 } from '@scalar/types/entities'
+import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
 import {
   type Oauth2FlowPayload,
   type SecurityScheme,
@@ -570,9 +571,25 @@ export function getServersFromOpenApiDocument(
     documentUrl,
   }: Pick<ApiReferenceConfiguration, 'baseServerURL'> & Pick<ImportSpecToWorkspaceArgs, 'documentUrl'> = {},
 ): Server[] {
-  // If the document doesn't have any servers, try to use the documentUrl as the default server.
-  if (!servers?.length && documentUrl) {
-    return [serverSchema.parse({ url: getBaseUrlFromDocumentUrl(documentUrl) })]
+  // If the document doesn't have any servers
+  if (!servers?.length) {
+    const fallbackUrl = getFallbackUrl()
+
+    // if in a local development environment
+    if (fallbackUrl && isLocalUrl(fallbackUrl)) {
+      // Uses localhost as the fallback server
+      return [serverSchema.parse({ url: fallbackUrl })]
+    }
+
+    // If not localhost and we have a documentUrl, we use it as the fallback
+    if (documentUrl) {
+      return [serverSchema.parse({ url: getBaseUrlFromDocumentUrl(documentUrl) })]
+    }
+
+    // Last fallback to the current window origin
+    if (fallbackUrl) {
+      return [serverSchema.parse({ url: fallbackUrl })]
+    }
   }
 
   // If the servers are not an array, return an empty array.
