@@ -48,7 +48,7 @@ const selectExample = (option: ScalarComboboxOption) => {
 
 <template>
   <ScalarCombobox
-    class="scalar-example-picker max-h-80"
+    class="max-h-80"
     :modelValue="selectedExample"
     :options="exampleOptions"
     teleport
