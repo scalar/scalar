@@ -962,7 +962,7 @@ describe('create-workspace-store', () => {
     })
   })
 
-  describe.only('loadWorkspace', () => {
+  describe('loadWorkspace', () => {
     it('should load the workspace from a json document', () => {
       const store = createWorkspaceStore()
 

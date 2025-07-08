@@ -128,7 +128,7 @@ export type WorkspaceStore = {
   /** Similar to addDocument but requires and in-mem object to be provided and loads the document synchronously */
   addDocumentSync(input: ObjectDoc): void
   /** Returns the merged configuration for the active document */
-  readonly config: Config
+  readonly config: typeof defaultConfig
   /** Downloads the specified document in the requested format */
   exportDocument(documentName: string, format: 'json' | 'yaml'): string | undefined
   /** Persists the current state of the specified document back to the original documents map */
@@ -137,6 +137,10 @@ export type WorkspaceStore = {
   revertDocumentChanges(documentName: string): void
   /** Commits the specified document */
   commitDocument(documentName: string): void
+  /** Serializes the current workspace state to a JSON string for backup, persistence, or sharing. */
+  exportWorkspace(): string
+  /** Imports a workspace from a serialized JSON string. */
+  loadWorkspace(input: string): void
 }
 
 /**
