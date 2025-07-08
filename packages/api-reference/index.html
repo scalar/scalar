@@ -27,6 +27,66 @@
         // },
         sources: [
           {
+            title: 'x-tagGroups',
+            content: `openapi: 3.1.0
+info:
+  title: Example
+  version: 1.0
+tags:
+  - name: Planets
+    // x-displayName: FOOBAR
+x-tagGroups:
+  - name: Galaxy
+    tags:
+      - Planets
+paths:
+  '/planets':
+    get:
+      summary: Get all planets
+      tags:
+        - Planets
+webhooks:
+  newPet:
+    post:
+      requestBody:
+        description: Information about a new pet in the system
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id
+                - name
+                - status
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                  description: Unique identifier for the pet
+                name:
+                  type: string
+                  description: Name of the pet
+                status:
+                  type: string
+                  enum: [available, pending, sold]
+                  description: Pet status in the store
+                species:
+                  type: string
+                  description: Species of the pet
+                age:
+                  type: integer
+                  minimum: 0
+                  description: Age of the pet in years
+                tags:
+                  type: array
+                  items:
+                    type: string
+                  description: Tags associated with the pet
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully`,
+          },
+          {
             title: 'Test API 1.0',
             content: {
               openapi: '3.0.4',
