@@ -1,5 +1,13 @@
 # @scalar/core
 
+## 0.3.7
+
+### Patch Changes
+
+- 66347d4: fix: handle config properties that accept both string and function types
+- Updated dependencies [ad2e3e6]
+  - @scalar/types@0.2.7
+
 ## 0.3.6
 
 ### Patch Changes

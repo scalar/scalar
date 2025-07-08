@@ -66,7 +66,9 @@ const handleDiscriminatorChange = (type: string) => {
 }
 </script>
 <template>
-  <div v-if="requestBody">
+  <div
+    v-if="requestBody"
+    class="request-body">
     <div class="request-body-header">
       <span class="request-body-title">
         <slot name="title" />
@@ -125,11 +127,13 @@ const handleDiscriminatorChange = (type: string) => {
 </template>
 
 <style scoped>
+.request-body {
+  margin-top: 24px;
+}
 .request-body-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 24px;
   padding-bottom: 12px;
   border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
   flex-flow: wrap;

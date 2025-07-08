@@ -134,7 +134,8 @@ const handleDiscriminatorChange = (type: string) => {
       <div class="operation-details-card">
         <div class="operation-details-card-item">
           <OperationParameters
-            :parameters="operation.parameters"
+            :parameters="operation?.parameters"
+            :requestBody="operation?.requestBody"
             :schemas="schemas"
             @update:modelValue="handleDiscriminatorChange" />
         </div>
@@ -327,5 +328,40 @@ const handleDiscriminatorChange = (type: string) => {
   line-height: 1.33;
   padding: 9px;
   margin: 0;
+}
+
+.operation-details-card :deep(.request-body-description) {
+  margin-top: 0;
+  padding: 9px 9px 0 9px;
+  border-top: 1px solid var(--scalar-border-color);
+}
+
+.operation-details-card :deep(.request-body) {
+  margin-top: 0;
+  border-radius: var(--scalar-radius-lg);
+  border: 1px solid var(--scalar-border-color);
+}
+
+.operation-details-card :deep(.request-body-header) {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.operation-details-card :deep(.contents button) {
+  margin-right: 9px;
+}
+
+.operation-details-card :deep(.request-body-schema > .schema-card) {
+  border-radius: var(--scalar-radius-lg);
+  border: 1px solid var(--scalar-border-color);
+  margin: 9px;
+}
+
+.operation-details-card :deep(.request-body-schema .property--level-0) {
+  padding: 0;
+}
+
+.operation-details-card :deep(.selected-content-type) {
+  margin-right: 9px;
 }
 </style>

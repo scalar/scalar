@@ -19,7 +19,7 @@ function toggle() {
 }
 
 const variants = cva({
-  base: 'relative h-3.5 w-6 cursor-pointer rounded-full bg-b-3 transition-colors duration-300',
+  base: 'relative h-3.5 min-w-6 w-6 cursor-pointer rounded-full bg-b-3 transition-colors duration-300',
   variants: {
     checked: { true: 'bg-c-accent' },
     disabled: { true: 'cursor-not-allowed opacity-40' },
@@ -35,7 +35,7 @@ const variants = cva({
     type="button"
     @click="toggle">
     <div
-      class="absolute left-px top-px flex h-3 w-3 items-center justify-center rounded-full bg-white text-c-accent transition-transform duration-300"
+      class="absolute left-px top-px flex h-3 w-3 items-center justify-center rounded-full bg-b-1 text-c-accent transition-transform duration-300"
       :class="{ 'translate-x-2.5': modelValue }" />
     <span
       v-if="label"
