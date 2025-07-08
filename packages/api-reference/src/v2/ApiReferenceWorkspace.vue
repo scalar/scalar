@@ -187,6 +187,10 @@ onCustomEvent(root, 'scalar-update-active-document', (event) => {
   store.update('x-scalar-active-document', event.data.value)
 })
 
+onCustomEvent(root, 'scalar-update-selected-client', (event) => {
+  store.update('x-scalar-default-client', event.data)
+})
+
 // ---------------------------------------------------------------------------
 // TODO: Remove this legacy code block. Directly copied from SingleApiReference.vue
 // Logic should be mapped to the workspace store
