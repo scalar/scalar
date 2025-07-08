@@ -119,7 +119,7 @@ describe('get-workspace-store', () => {
     it('loads document with object when provided', async () => {
       const document = {
         openapi: '3.0.0',
-        info: { title: 'Test API' },
+        info: { title: 'Test API', version: '1.0.0' },
       }
 
       const props: GetWorkspaceStoreProps = {
@@ -137,7 +137,7 @@ describe('get-workspace-store', () => {
       const props: GetWorkspaceStoreProps = {
         document: {
           openapi: '3.0.0',
-          info: { version: '1.0.0' },
+          info: { title: 'Test API', version: '1.0.0' },
         },
       }
 
