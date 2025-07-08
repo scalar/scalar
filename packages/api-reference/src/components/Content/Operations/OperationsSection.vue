@@ -1,22 +1,20 @@
 <script setup lang="ts">
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
-import { tagSchema } from '@scalar/oas-utils/entities/spec'
 import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 import TagSection from '@/components/Content/Tags/TagSection.vue'
 import { Operation } from '@/features/Operation'
 import {
-  traverseTags,
-  type TagsMap,
   type TraversedEntry,
   type TraversedOperation,
   type TraversedTag,
 } from '@/features/traverse-schema'
-import { traversePaths } from '@/features/traverse-schema/helpers/traverse-paths'
+import { traverseDocument } from '@/features/traverse-schema/helpers/traverse-document'
 import type { TraversedWebhook } from '@/features/traverse-schema/types'
+import { useNavState } from '@/hooks/useNavState'
 
 const { document, layout, config } = defineProps<{
   document: OpenAPIV3_1.Document
@@ -26,6 +24,9 @@ const { document, layout, config } = defineProps<{
 
 const { collections, servers } = useWorkspace()
 const { activeCollection: _activeCollection } = useActiveEntities()
+
+// Get navigation state for ID generation functions
+const navState = useNavState()
 
 /** Match the collection by slug if provided */
 const activeCollection = computed(() => {
@@ -60,36 +61,23 @@ const activeServer = computed(() => {
  * Matches the sidebar.
  */
 const entries = computed((): TraversedEntry[] => {
-  // Create a map of tags
-  const tagsMap: TagsMap = new Map(
-    document.tags?.map((tag: OpenAPIV3_1.TagObject) => [
-      tag.name ?? 'Untitled Tag',
-      { tag, entries: [] },
-    ]) ?? [],
-  )
-
-  // Create a default tag if no tags exist
-  if (!tagsMap.has('default')) {
-    tagsMap.set('default', { tag: { name: 'default' }, entries: [] })
+  // TODO: We need to pass the actual config to traverseDocument
+  if (!config) {
+    return []
   }
 
-  // Create a map of titles for the mobile header
-  const titlesMap = new Map<string, string>()
-  traversePaths(
-    document,
-    tagsMap,
-    titlesMap,
-    (operation) => operation.summary ?? '',
-  )
-
-  // Traverse the tags
-  const result = traverseTags(document, tagsMap, titlesMap, {
-    getTagId: (tag) => tag.name ?? 'Untitled Tag',
-    tagsSorter: config?.tagsSorter,
-    operationsSorter: config?.operationsSorter,
+  // Use traverseDocument to process the OpenAPI document
+  const { entries: traversedEntries } = traverseDocument(document, {
+    config: ref(config),
+    getHeadingId: navState.getHeadingId,
+    getOperationId: navState.getOperationId,
+    getWebhookId: navState.getWebhookId,
+    getModelId: navState.getModelId,
+    getTagId: navState.getTagId,
+    getSectionId: navState.getSectionId,
   })
 
-  return result
+  return traversedEntries
 })
 
 const isTagGroup = (entry: TraversedEntry): entry is TraversedTag =>
@@ -103,6 +91,9 @@ const isOperation = (entry: TraversedEntry): entry is TraversedOperation =>
 
 const isWebhook = (entry: TraversedEntry): entry is TraversedWebhook =>
   'webhook' in entry
+
+const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
+  'isWebhooks' in entry && Boolean(entry.isWebhooks)
 </script>
 <template>
   <template
@@ -127,9 +118,20 @@ const isWebhook = (entry: TraversedEntry): entry is TraversedWebhook =>
               <Operation
                 :path="child.path"
                 :method="child.method"
-                :isWebhook="
-                  Boolean('isWebhook' in child && child.isWebhook) || false
-                "
+                :isWebhook="false"
+                :id="child.id"
+                :document="document"
+                :collection="activeCollection!"
+                :layout="layout"
+                :server="activeServer" />
+            </template>
+
+            <!-- Webhook -->
+            <template v-else-if="isWebhook(child)">
+              <Operation
+                :path="child.name"
+                :method="child.method"
+                :isWebhook="true"
                 :id="child.id"
                 :document="document"
                 :collection="activeCollection!"
@@ -155,31 +157,26 @@ const isWebhook = (entry: TraversedEntry): entry is TraversedWebhook =>
               v-if="
                 'children' in child && child.children && child.children?.length
               ">
-              {{ child.children }}
-              <!-- Operations -->
               <template
                 v-for="grandchild in child.children"
                 :key="grandchild.id">
-                {{ grandchild }}
+                <!-- Operation -->
                 <template v-if="isOperation(grandchild)">
                   <Operation
                     :path="grandchild.path"
                     :method="grandchild.method"
-                    :isWebhook="
-                      Boolean(
-                        'isWebhook' in grandchild && grandchild.isWebhook,
-                      ) || false
-                    "
+                    :isWebhook="false"
                     :id="grandchild.id"
                     :document="document"
                     :collection="activeCollection!"
                     :layout="layout"
                     :server="activeServer" />
                 </template>
+                <!-- Webhook -->
                 <template v-else-if="isWebhook(grandchild)">
                   <Operation
-                    :path="grandchild.webhook.path"
-                    :method="grandchild.webhook.method"
+                    :path="grandchild.name"
+                    :method="grandchild.method"
                     :isWebhook="true"
                     :id="grandchild.id"
                     :document="document"
@@ -193,33 +190,49 @@ const isWebhook = (entry: TraversedEntry): entry is TraversedWebhook =>
         </template>
       </template>
     </template>
-  </template>
 
-  <!-- <template v-if="parsedSpec.tags && activeCollection">
-    <template v-if="parsedSpec['x-tagGroups']">
-      <TagList
-        v-for="tagGroup in parsedSpec['x-tagGroups']"
-        :document="document"
-        :key="tagGroup.name"
-        :collection="activeCollection"
-        :layout="layout"
-        :server="activeServer"
-        :spec="parsedSpec"
-        :tags="
-          tagGroup.tags
-            .map((name) => parsedSpec.tags?.find((t) => t.name === name))
-            .filter((tag) => !!tag)
-        " />
+    <!-- Webhooks -->
+    <template v-if="isWebhookGroup(entry)">
+      <!-- TODO: We need something else here, the TagSection has the OperationsList -->
+      <TagSection
+        :tag="entry"
+        :collection="activeCollection!">
+        <template
+          v-if="
+            'children' in entry && entry.children && entry.children?.length
+          ">
+          <template
+            v-for="grandchild in entry.children"
+            :key="grandchild.id">
+            <!-- Operation -->
+            <template v-if="isOperation(grandchild)">
+              <Operation
+                :path="grandchild.path"
+                :method="grandchild.method"
+                :isWebhook="false"
+                :id="grandchild.id"
+                :document="document"
+                :collection="activeCollection!"
+                :layout="layout"
+                :server="activeServer" />
+            </template>
+            <!-- Webhook -->
+            <template v-else-if="isWebhook(grandchild)">
+              <Operation
+                :path="grandchild.name"
+                :method="grandchild.method"
+                :isWebhook="true"
+                :id="grandchild.id"
+                :document="document"
+                :collection="activeCollection!"
+                :layout="layout"
+                :server="activeServer" />
+            </template>
+          </template>
+        </template>
+      </TagSection>
     </template>
-    <TagList
-      v-else
-      :collection="activeCollection"
-      :document="document"
-      :layout="layout"
-      :server="activeServer"
-      :spec="parsedSpec"
-      :tags="parsedSpec.tags" />
-  </template>-->
+  </template>
 
   <!-- Webhooks -->
   <!-- <template v-if="parsedSpec.webhooks?.length && activeCollection">

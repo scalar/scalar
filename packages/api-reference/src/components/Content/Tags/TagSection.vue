@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { Collection } from '@scalar/oas-utils/entities/spec'
-import type { Spec } from '@scalar/types/legacy'
 import { computed, nextTick, ref, useId } from 'vue'
 
 import { SectionContainer } from '@/components/Section'
@@ -14,7 +12,6 @@ import Tag from './Tag.vue'
 const props = defineProps<{
   id?: string
   tag: TraversedTag
-  collection: Collection
 }>()
 
 const sectionContainerRef = ref<HTMLElement>()
@@ -54,7 +51,6 @@ async function focusContents() {
     <Tag
       v-if="moreThanOneDefaultTag"
       :id="id"
-      :collection="collection"
       :headerId="headerId"
       :isCollapsed="!collapsedSidebarItems[tagId]"
       :tag="tag" />

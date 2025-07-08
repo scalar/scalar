@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
-import type { Tag } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
@@ -21,10 +20,9 @@ import { useNavState } from '@/hooks/useNavState'
 
 import OperationsList from './OperationsList.vue'
 
-const { id, tag, collection, headerId, isCollapsed } = defineProps<{
+const { id, tag, headerId, isCollapsed } = defineProps<{
   id?: string
   tag: TraversedTag
-  collection: Collection
   headerId?: string
   isCollapsed?: boolean
 }>()
@@ -67,9 +65,7 @@ const tagId = computed(
             withImages />
         </SectionColumn>
         <SectionColumn>
-          <OperationsList
-            :collection="collection"
-            :tag="tag" />
+          <OperationsList :tag="tag" />
         </SectionColumn>
       </SectionColumns>
     </SectionContent>

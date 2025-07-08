@@ -1,19 +1,18 @@
 <script setup lang="ts">
 import { ScalarErrorBoundary } from '@scalar/components'
-import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
+import type { Collection } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec, Tag as TagType } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
 import { Lazy } from '@/components/Content/Lazy'
-import { Operation } from '@/features/Operation'
 import { useSidebar } from '@/features/sidebar'
 import { useNavState } from '@/hooks/useNavState'
 
 import TagAccordion from './TagAccordion.vue'
 import TagSection from './TagSection.vue'
 
-const { collection, tags, spec, layout, server } = defineProps<{
+const { collection, tags, spec, layout } = defineProps<{
   /** Just to set the id for webhooks, for now */
   id?: string
   document: OpenAPIV3_1.Document
@@ -27,7 +26,6 @@ const { collection, tags, spec, layout, server } = defineProps<{
    */
   spec: Spec
   layout?: 'modern' | 'classic'
-  server?: Server
 }>()
 
 const { getTagId, hash } = useNavState()
@@ -73,15 +71,6 @@ const isLazy = (index: number) =>
         ">
         <ScalarErrorBoundary>
           <slot :operation="transformedOperation" />
-          <!-- <Operation
-            :path="transformedOperation.path"
-            :method="transformedOperation.httpVerb"
-            :isWebhook="transformedOperation.isWebhook"
-            :id="transformedOperation.id"
-            :document="document"
-            :collection="collection"
-            :layout="layout"
-            :server="server" /> -->
         </ScalarErrorBoundary>
       </Lazy>
     </Component>
