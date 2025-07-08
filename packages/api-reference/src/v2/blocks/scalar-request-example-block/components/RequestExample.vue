@@ -65,7 +65,10 @@ export type RequestExampleProps = {
  * Request Example
  *
  * The core component for rendering a request example block,
- * this component does not have much of its own state but operates on props and emitted events
+ * this component does not have much of its own state but operates on props and custom events
+ *
+ * @event scalar-update-selected-client - Emitted when the selected client changes
+ * @event scalar-update-selected-example - Emitted when the selected example changes
  */
 export default {}
 </script>
@@ -100,6 +103,7 @@ import {
 import { generateCodeSnippet } from '@/v2/blocks/scalar-request-example-block/helpers/generate-code-snippet'
 import { getSecrets } from '@/v2/blocks/scalar-request-example-block/helpers/get-secrets'
 import type { ClientOption } from '@/v2/blocks/scalar-request-example-block/types'
+import { emitCustomEvent } from '@/v2/events'
 
 import ExamplePicker from './ExamplePicker.vue'
 
@@ -116,11 +120,6 @@ const {
   generateLabel,
   hideClientSelector = false,
 } = defineProps<RequestExampleProps>()
-
-const emit = defineEmits<{
-  'update:selectedClient': [id: AvailableClients[number]]
-  'update:selectedExample': [name: string]
-}>()
 
 defineSlots<{
   header: () => unknown
@@ -230,7 +229,11 @@ const selectClient = (option: ClientOption) => {
 
   // Emit the change if it's not a custom example
   if (!option.id.startsWith('custom')) {
-    emit('update:selectedClient', option.id as AvailableClients[number])
+    emitCustomEvent(
+      elem.value?.$el,
+      'scalar-update-selected-client',
+      option.id as AvailableClients[number],
+    )
   }
 }
 
@@ -314,7 +317,9 @@ const id = useId()
         <ExamplePicker
           :examples="operationExamples"
           v-model="selectedExampleKey"
-          @update:modelValue="emit('update:selectedExample', $event)" />
+          @update:modelValue="
+            emitCustomEvent(elem?.$el, 'scalar-update-selected-example', $event)
+          " />
       </div>
 
       <!-- Footer -->
