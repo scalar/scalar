@@ -132,7 +132,7 @@ public static class ScalarEndpointRouteBuilderExtensions
         // Handle static assets
         scalarEndpointGroup.MapStaticAssetsEndpoint();
 
-        return scalarEndpointGroup.MapGet("/{documentName?}", (HttpContext httpContext, IOptionsSnapshot<ScalarOptions> optionsSnapshot, string? documentName) =>
+        scalarEndpointGroup.MapGet("/{documentName?}", (HttpContext httpContext, IOptionsSnapshot<ScalarOptions> optionsSnapshot, string? documentName) =>
         {
             if (ShouldRedirectToTrailingSlash(httpContext, documentName, out var redirectUrl))
             {
@@ -187,6 +187,8 @@ public static class ScalarEndpointRouteBuilderExtensions
                   </html>
                   """, "text/html");
         });
+
+        return scalarEndpointGroup;
     }
 
     /// <summary>
