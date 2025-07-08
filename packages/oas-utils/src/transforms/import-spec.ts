@@ -189,9 +189,6 @@ export async function importSpecToWorkspace(
     documentUrl,
   })
 
-  console.log('documentUrl', documentUrl)
-  console.log('collectionServers', collectionServers)
-
   // Store operation servers
   const operationServers: Server[] = []
 

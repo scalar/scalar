@@ -2,7 +2,7 @@ openapi: 3.1.1
 info:
   title: Scalar Galaxy
   description: |
-    The Scalar Galaxy is an example OpenAPI specification to test OpenAPI tools and libraries. It's a fictional universe with fictional planets and fictional data. Get all the data for [all planets](#tag/planets/GET/planets).
+    The Scalar Galaxy is an example OpenAPI document to test OpenAPI tools and libraries. It's a fictional universe with fictional planets and fictional data. Get all the data for [all planets](#tag/planets/GET/planets).
 
     ## Resources
 
@@ -687,6 +687,7 @@ components:
       required:
         - id
         - name
+      additionalProperties: false
       xml:
         name: planet
       properties:
@@ -718,6 +719,18 @@ components:
             - ice_giant
             - dwarf
             - super_earth
+          x-enum-varnames:
+            - Terrestrial
+            - GasGiant
+            - IceGiant
+            - Dwarf
+            - SuperEarth
+          x-enum-descriptions:
+            terrestrial: Rocky planets with solid surfaces, like Earth and Mars
+            gas_giant: Large planets composed mainly of hydrogen and helium, like Jupiter and Saturn
+            ice_giant: Planets composed of water, ammonia, and methane ices, like Uranus and Neptune
+            dwarf: Small planetary bodies that don't meet full planet criteria, like Pluto
+            super_earth: Rocky planets larger than Earth but smaller than gas giants
           examples:
             - terrestrial
         habitabilityIndex:
@@ -730,17 +743,24 @@ components:
             - 0.68
         physicalProperties:
           type: object
+          additionalProperties:
+            x-additionalPropertiesName: measurement
+            type: number
+            format: float
+            description: Additional physical measurements for the planet
           properties:
             mass:
               type: number
               format: float
-              description: Mass in Earth masses
+              exclusiveMinimum: 0
+              description: Mass in Earth masses (must be greater than 0)
               examples:
                 - 0.107
             radius:
               type: number
               format: float
-              description: Radius in Earth radii
+              exclusiveMinimum: 0
+              description: Radius in Earth radii (must be greater than 0)
               examples:
                 - 0.532
             gravity:
@@ -751,6 +771,11 @@ components:
                 - 0.378
             temperature:
               type: object
+              additionalProperties:
+                x-additionalPropertiesName: temperatureMetric
+                type: number
+                format: float
+                description: Additional temperature-related measurements in Kelvin
               properties:
                 min:
                   type: number
@@ -775,6 +800,10 @@ components:
           description: Atmospheric composition
           items:
             type: object
+            additionalProperties:
+              x-additionalPropertiesName: atmosphericData
+              type: string
+              description: Additional atmospheric composition data
             properties:
               compound:
                 type: string
@@ -784,6 +813,7 @@ components:
               percentage:
                 type: number
                 format: float
+                exclusiveMaximum: 100
                 examples:
                   - 95.3
         discoveredAt:
@@ -860,6 +890,14 @@ components:
             - moon
             - asteroid
             - comet
+          x-enum-varnames:
+            - Moon
+            - Asteroid
+            - Comet
+          x-enum-descriptions:
+            moon: Natural satellites that orbit planets
+            asteroid: Rocky objects that orbit the sun, typically found in the asteroid belt
+            comet: Icy bodies that release gas when approaching the sun, creating visible tails
           examples:
             - moon
         orbit:

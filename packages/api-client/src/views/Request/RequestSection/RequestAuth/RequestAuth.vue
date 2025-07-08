@@ -235,7 +235,7 @@ const openAuthCombobox = (event: Event) => {
 </script>
 <template>
   <ViewLayoutCollapse
-    class="group/params"
+    class="group/params relative"
     :itemCount="selectedSchemeOptions.length"
     :layout="layout"
     @update:modelValue="isViewLayoutOpen = $event">

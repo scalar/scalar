@@ -37,7 +37,7 @@ catalogs:
     express: 5.1.0
     fastify: ^5.3.3
     nanoid: 5.1.5
-    next: ^15.2.3
+    next: ^15.3.3
     picomatch: 4.0.2
     postcss: ^8.4.38
     prettier: 3.5.3
@@ -48,7 +48,7 @@ catalogs:
     type-fest: 4.41.0
     vite-node: 3.1.1
     vite: 5.4.19
-    vitest: ^1.6.0
+    vitest: ^1.6.1
     vue: ^3.5.12
     yaml: 2.8.0
     zod: 3.24.1

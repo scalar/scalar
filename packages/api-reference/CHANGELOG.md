@@ -1,5 +1,59 @@
 # @scalar/api-reference
 
+## 1.32.5
+
+### Patch Changes
+
+- 5de7e25: fix: classic layout does not show request body
+
+## 1.32.4
+
+### Patch Changes
+
+- b420f18: fix: exclusiveMinimum and exclusiveMaximum are treated as boolean values
+- e8f1856: fix: maintain backwards compatibility on sorting operations by httpVerb
+- cacadd5: fix: consts are rendered as “Schema” in the composition dropdown
+- ad2e3e6: feat: new onBeforeRequest hook to modify the request
+- cacadd5: fix: const value 0, false, null aren’t rendered at all
+- 495588a: refactor: schema type rendering
+- 67d8b9a: fix: updates defined value check in search modal enter action
+- 93b1140: fix: always shows all properties, expand button does nothing
+- 4295067: feat: use xml.name as a fallback for the schema title
+- 8457fde: fix: deprecated operations aren’t striked in the sidebar anymore
+- 2dc9f8d: style: improve search result rendering
+- cacadd5: fix: doesn’t show example if it’s `null`
+- 0474f02: refactor: create parameters from plain Operation Object
+- 7ea11c1: feat: render x-enum-varnames
+- bd3b6d4: fix: shows composition description three times
+- 3fdc2f2: feat(api-reference): unify inconsistent font styles across scalar client and ref, and improve consistency"
+- Updated dependencies [d56f354]
+- Updated dependencies [b6ac5b9]
+- Updated dependencies [a696604]
+- Updated dependencies [b2862d9]
+- Updated dependencies [dbc09b9]
+- Updated dependencies [ad2e3e6]
+- Updated dependencies [58287f8]
+- Updated dependencies [20939a8]
+- Updated dependencies [909cf33]
+- Updated dependencies [b2862d9]
+- Updated dependencies [74fdc0e]
+- Updated dependencies [ca77d70]
+- Updated dependencies [a696604]
+- Updated dependencies [d93f60c]
+- Updated dependencies [3fdc2f2]
+- Updated dependencies [972602f]
+- Updated dependencies [85a81eb]
+- Updated dependencies [f8ef4ab]
+  - @scalar/workspace-store@0.8.0
+  - @scalar/api-client@2.5.15
+  - @scalar/types@0.2.7
+  - @scalar/oas-utils@0.4.11
+  - @scalar/components@0.14.16
+  - @scalar/snippetz@0.4.0
+  - @scalar/themes@0.13.8
+  - @scalar/openapi-parser@0.18.1
+  - @scalar/code-highlight@0.1.5
+
 ## 1.32.3
 
 ### Patch Changes
