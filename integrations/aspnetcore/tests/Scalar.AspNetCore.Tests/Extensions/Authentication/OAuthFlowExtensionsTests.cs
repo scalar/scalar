@@ -21,6 +21,7 @@ public class OAuthFlowGenericExtensionsTests
             .WithSelectedScopes(selectedScopes)
             .WithToken(token)
             .WithTokenName(tokenName)
+            .AddQueryParameter("custom_param", "value")
             .WithClientId(clientId);
 
         // Assert
@@ -29,6 +30,7 @@ public class OAuthFlowGenericExtensionsTests
         flow.Token.Should().Be(token);
         flow.ClientId.Should().Be(clientId);
         flow.TokenName.Should().Be(tokenName);
+        flow.AdditionalQueryParameters.Should().ContainKey("custom_param").WhoseValue.Should().Be("value");
     }
 }
 
