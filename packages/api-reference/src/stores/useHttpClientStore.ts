@@ -167,7 +167,7 @@ const setHttpClient = (newState: Partial<HttpClientState>) => {
   })
 
   // Save to localStorage
-  safeLocalStorage().setItem(REFERENCE_LS_KEYS.SELECTED_CLIENT, JSON.stringify(httpClient))
+  safeLocalStorage().setItem(REFERENCE_LS_KEYS.SELECTED_CLIENT_DEPRECATED, JSON.stringify(httpClient))
 }
 
 /** Keep track of the available and the selected HTTP client(s) */
