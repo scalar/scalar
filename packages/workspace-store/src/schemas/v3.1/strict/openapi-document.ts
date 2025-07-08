@@ -20,6 +20,8 @@ import { compose } from '@/schemas/compose'
 import { PathItemObjectSchema } from '@/schemas/v3.1/strict/path-operations'
 import { xScalarClientConfigEnvironmentsSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-environments'
 import { xScalarClientConfigCookiesSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-cookies'
+import { extensions } from '@/schemas/extensions'
+import { TraversedEntrySchema } from '@/schemas/navigation'
 
 const OpenApiExtensionsSchema = Type.Partial(
   Type.Object({
@@ -36,6 +38,7 @@ const OpenApiExtensionsSchema = Type.Partial(
     'x-scalar-client-config-icon': Type.String(),
     'x-scalar-client-config-environments': xScalarClientConfigEnvironmentsSchema,
     'x-scalar-client-config-cookies': xScalarClientConfigCookiesSchema,
+    [extensions.document.navigation]: Type.Array(TraversedEntrySchema),
   }),
 )
 

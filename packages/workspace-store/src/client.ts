@@ -6,7 +6,7 @@ import { fetchUrls } from '@scalar/openapi-parser/plugins-browser'
 import { createNavigation, type createNavigationOptions } from '@/navigation'
 import type { DeepTransform } from '@/types'
 import { createMagicProxy, getRaw } from '@/helpers/proxy'
-import { deepClone, isObject } from '@/helpers/general'
+import { deepClone, isObject, safeAssign } from '@/helpers/general'
 import { mergeObjects } from '@/helpers/merge-object'
 import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
 import { getValueByPath } from '@/helpers/json-path-utils'
@@ -16,6 +16,7 @@ import { coerceValue } from '@/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema } from '@/schemas/v3.1/strict/openapi-document'
 import { defaultReferenceConfig } from '@/schemas/reference-config'
 import type { Config } from '@/schemas/workspace-specification/config'
+import { InMemoryWorkspaceSchema, type InMemoryWorkspace } from '@/schemas/inmemory-workspace'
 
 /**
  * Input type for workspace document metadata and configuration.
@@ -127,7 +128,7 @@ export type WorkspaceStore = {
   /** Similar to addDocument but requires and in-mem object to be provided and loads the document synchronously */
   addDocumentSync(input: ObjectDoc): void
   /** Returns the merged configuration for the active document */
-  readonly config: Config
+  readonly config: typeof defaultConfig
   /** Downloads the specified document in the requested format */
   exportDocument(documentName: string, format: 'json' | 'yaml'): string | undefined
   /** Persists the current state of the specified document back to the original documents map */
@@ -136,6 +137,10 @@ export type WorkspaceStore = {
   revertDocumentChanges(documentName: string): void
   /** Commits the specified document */
   commitDocument(documentName: string): void
+  /** Serializes the current workspace state to a JSON string for backup, persistence, or sharing. */
+  exportWorkspace(): string
+  /** Imports a workspace from a serialized JSON string. */
+  loadWorkspace(input: string): void
 }
 
 /**
@@ -515,6 +520,57 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     commitDocument(documentName: string) {
       // TODO: Implement commit logic
       console.warn(`Commit operation for document '${documentName}' is not implemented yet.`)
+    },
+    /**
+     * Serializes the current workspace state to a JSON string for backup, persistence, or sharing.
+     *
+     * This method exports all workspace documents (removing Vue reactivity proxies), workspace metadata,
+     * document configurations, and both the original and intermediate document states. The resulting JSON
+     * can be imported later to fully restore the workspace to this exact state, including all documents
+     * and their configurations.
+     *
+     * @returns A JSON string representing the complete workspace state.
+     */
+    exportWorkspace() {
+      return JSON.stringify({
+        documents: {
+          ...Object.fromEntries(
+            Object.entries(workspace.documents).map(([name, doc]) => [
+              name,
+              // Extract the raw document data for export, removing any Vue reactivity wrappers.
+              // When importing, the document can be wrapped again in a magic proxy.
+              toRaw(getRaw(doc)),
+            ]),
+          ),
+        },
+        meta: workspaceProps?.meta ?? {},
+        documentConfigs,
+        originalDocuments,
+        intermediateDocuments,
+      } as InMemoryWorkspace)
+    },
+    /**
+     * Imports a workspace from a serialized JSON string.
+     *
+     * This method parses the input string using the InMemoryWorkspaceSchema,
+     * then updates the current workspace state, including documents, metadata,
+     * and configuration, with the imported values.
+     *
+     * @param input - The serialized workspace JSON string to import.
+     */
+    loadWorkspace(input: string) {
+      const result = coerceValue(InMemoryWorkspaceSchema, JSON.parse(input))
+
+      // Assign the magic proxy to the documents
+      safeAssign(
+        workspace.documents,
+        Object.fromEntries(Object.entries(result.documents).map(([name, doc]) => [name, createMagicProxy(doc)])),
+      )
+
+      safeAssign(originalDocuments, result.originalDocuments)
+      safeAssign(intermediateDocuments, result.intermediateDocuments)
+      safeAssign(documentConfigs, result.documentConfigs)
+      safeAssign(workspace, result.meta)
     },
   }
 }
