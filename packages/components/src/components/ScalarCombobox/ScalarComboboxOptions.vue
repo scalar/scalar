@@ -131,7 +131,11 @@ function moveActive(dir: 1 | -1) {
 
 // Manual autofocus for the input
 const input = ref<HTMLInputElement | null>(null)
-nextTick(() => input.value?.focus())
+onMounted(() => {
+  setTimeout(() => {
+    input.value?.focus()
+  }, 0)
+})
 </script>
 <template>
   <div class="relative flex">
