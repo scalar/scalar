@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
-import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { computed } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
