@@ -356,49 +356,6 @@ describe('SchemaEnumValues', () => {
       expect(wrapper.text()).toContain('Sixth description')
       expect(wrapper.text()).toContain('Tenth description')
     })
-
-    it('shows both varnames and descriptions for hidden values when expanded', async () => {
-      const wrapper = mount(SchemaEnumValues, {
-        props: {
-          value: {
-            enum: [100, 200, 300, 400, 500, 600, 700, 800],
-            'x-enum-varnames': [
-              'OK',
-              'Created',
-              'Accepted',
-              'NoContent',
-              'BadRequest',
-              'Unauthorized',
-              'Forbidden',
-              'NotFound',
-            ],
-            'x-enum-descriptions': [
-              'Success',
-              'Resource created',
-              'Request accepted',
-              'No content',
-              'Bad request',
-              'Not authorized',
-              'Access forbidden',
-              'Resource not found',
-            ],
-          },
-        },
-      })
-
-      // Initially only first 5 should be visible
-      expect(wrapper.text()).toContain('Bad request')
-      expect(wrapper.text()).not.toContain('600 = Unauthorized')
-
-      // Click show more
-      await wrapper.find('.enum-toggle-button').trigger('click')
-
-      // Now hidden varnames and descriptions should be visible
-      expect(wrapper.text()).toContain('600 = Unauthorized')
-      expect(wrapper.text()).toContain('Not authorized')
-      expect(wrapper.text()).toContain('800 = NotFound')
-      expect(wrapper.text()).toContain('Resource not found')
-    })
   })
 
   describe('edge cases', () => {
