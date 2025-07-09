@@ -136,7 +136,6 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
               <Operation
                 :path="child.path"
                 :method="child.method"
-                :isWebhook="false"
                 :id="child.id"
                 :document
                 :collection="activeCollection"
@@ -183,7 +182,6 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
                   <Operation
                     :path="grandchild.path"
                     :method="grandchild.method"
-                    :isWebhook="false"
                     :id="grandchild.id"
                     :document
                     :collection="activeCollection"
@@ -226,7 +224,6 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
               <Operation
                 :path="grandchild.path"
                 :method="grandchild.method"
-                :isWebhook="false"
                 :id="grandchild.id"
                 :document
                 :collection="activeCollection"
@@ -255,7 +252,6 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
         <Operation
           :path="entry.path"
           :method="entry.method"
-          :isWebhook="false"
           :id="entry.id"
           :document
           :collection="activeCollection"
