@@ -32,7 +32,7 @@ export type FileUploadInputEmits = {
  */
 export type FileUploadInputSlots = {
   /** The default label slot */
-  default: () => any
+  default?(): unknown
   /** The sublabel or error slot */
-  sublabel: () => any
+  sublabel?(): unknown
 }

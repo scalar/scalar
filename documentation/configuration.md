@@ -632,7 +632,9 @@ To make authentication easier you can prefill the credentials for your users:
             'x-scalar-security-query': {
               prompt: 'consent',
               audience: 'scalar'
-            }
+            },
+            // Custom token name for non-standard OAuth2 responses (default: 'access_token')
+            'x-tokenName': 'custom_access_token'
           },
           clientCredentials: {
             token: 'client credentials token',
@@ -640,7 +642,9 @@ To make authentication easier you can prefill the credentials for your users:
             clientSecret: 'your-client-secret',
             tokenUrl: 'https://auth.example.com/oauth2/token',
             // Preselected scopes
-            selectedScopes: ['profile', 'api:read']
+            selectedScopes: ['profile', 'api:read'],
+            // Custom token name for non-standard OAuth2 responses (default: 'access_token')
+            'x-tokenName': 'custom_access_token'
           },
           implicit: {
             token: 'implicit flow token',
@@ -648,7 +652,9 @@ To make authentication easier you can prefill the credentials for your users:
             authorizationUrl: 'https://auth.example.com/oauth2/authorize',
             'x-scalar-redirect-uri': 'https://your-app.com/callback',
             // Preselected scopes
-            selectedScopes: ['openid', 'profile']
+            selectedScopes: ['openid', 'profile'],
+            // Custom token name for non-standard OAuth2 responses (default: 'access_token')
+            'x-tokenName': 'custom_access_token'
           },
           password: {
             token: 'password flow token',
@@ -657,7 +663,9 @@ To make authentication easier you can prefill the credentials for your users:
             tokenUrl: 'https://auth.example.com/oauth2/token',
             username: 'default-username',
             password: 'default-password',
-            selectedScopes: ['profile', 'email']
+            selectedScopes: ['profile', 'email'],
+            // Custom token name for non-standard OAuth2 responses (default: 'access_token')
+            'x-tokenName': 'custom_access_token'
           },
         },
         // Set default scopes for all flows

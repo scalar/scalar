@@ -88,6 +88,7 @@ const contentTypeSelect = cva({
   <div
     v-else
     :class="contentTypeSelect({ dropdown: false })"
+    class="selected-content-type"
     tabindex="0">
     <span>{{ selectedContentType }}</span>
   </div>

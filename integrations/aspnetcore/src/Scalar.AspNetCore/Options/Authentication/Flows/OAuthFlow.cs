@@ -33,4 +33,10 @@ public abstract class OAuthFlow
     /// </summary>
     [JsonPropertyName("x-scalar-security-query")]
     public IDictionary<string, string>? AdditionalQueryParameters { get; set; }
+
+    /// <summary>
+    /// Gets or sets the name of the token used in the OAuth flow.
+    /// </summary>
+    [JsonPropertyName("x-tokenName")]
+    public string? TokenName { get; set; }
 }

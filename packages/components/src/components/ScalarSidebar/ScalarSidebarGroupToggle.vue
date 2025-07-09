@@ -33,13 +33,13 @@ const {
 
 defineSlots<{
   /** Override the toggle icon */
-  default?: (props: { open: boolean }) => any
+  default?(props: { open: boolean }): unknown
   /** Override the screen reader label */
-  label?: (props: { open: boolean }) => any
+  label?(props: { open: boolean }): unknown
 }>()
 
 const variants = cva({
-  base: 'size-3.5 -m-px transition-transform duration-100',
+  base: 'size-4 transition-transform duration-100',
   variants: { open: { true: 'rotate-90' } },
   defaultVariants: { open: false },
 })
@@ -52,9 +52,7 @@ const { cx } = useBindCx()
     :type="is === 'button' ? 'button' : undefined"
     v-bind="cx(variants({ open }))">
     <slot :open="open">
-      <ScalarIconLegacyAdapter
-        :icon="icon"
-        weight="bold" />
+      <ScalarIconLegacyAdapter :icon="icon" />
     </slot>
     <span class="sr-only">
       <slot

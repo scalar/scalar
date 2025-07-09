@@ -29,7 +29,7 @@ const { activeEnvVariables, activeEnvironment, activeWorkspace } =
 const id = useId()
 </script>
 <template>
-  <ViewLayoutSection class="rounded-b-lg">
+  <ViewLayoutSection class="last:rounded-b-lg">
     <template
       v-if="title || $slots.title"
       #title>

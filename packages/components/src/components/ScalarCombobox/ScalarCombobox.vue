@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { Slot } from 'vue'
-
 import type { ScalarFloatingOptions } from '../ScalarFloating'
 import ComboboxOptions from './ScalarComboboxOptions.vue'
 import ComboboxPopover from './ScalarComboboxPopover.vue'
@@ -25,11 +23,11 @@ defineEmits<{
 
 defineSlots<{
   /** The reference element for the combobox */
-  default(props: SlotProps): Slot
+  default(props: SlotProps): unknown
   /** A slot for contents before the combobox options */
-  before?(props: SlotProps): Slot
+  before?(props: SlotProps): unknown
   /** A slot for contents after the combobox options */
-  after?(props: SlotProps): Slot
+  after?(props: SlotProps): unknown
 }>()
 </script>
 <template>

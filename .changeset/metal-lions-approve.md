@@ -2,4 +2,4 @@
 '@scalar/api-reference': patch
 ---
 
-style: improve search result rendering
+fix: updates last download link style

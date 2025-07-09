@@ -1,5 +1,6 @@
 import { getHeadingsFromMarkdown, getLowestHeadingLevel } from '@/navigation/helpers/utils'
-import type { Heading, TraversedDescription } from '@/navigation/types'
+import type { Heading } from '@/navigation/types'
+import type { TraversedDescription } from '@/schemas/navigation'
 
 export const DEFAULT_INTRODUCTION_SLUG = 'introduction'
 
