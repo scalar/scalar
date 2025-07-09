@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import ScalarCombobox from './ScalarCombobox.vue'
@@ -52,6 +52,8 @@ describe('ScalarCombobox', () => {
     })
 
     it('focuses the input when combobox is opened', async () => {
+      vi.useFakeTimers()
+
       const wrapper = mount(ScalarCombobox, {
         props: { options: singleOptions },
         slots: { default: '<button>Toggle</button>' },
@@ -59,12 +61,15 @@ describe('ScalarCombobox', () => {
       })
 
       await wrapper.find('button').trigger('click')
-      await nextTick()
+      // We use a time out to focus the input
+      await vi.runAllTimers()
 
       const input = wrapper.find('input[type="text"]')
       expect(input.element).toBe(document.activeElement)
 
       wrapper.unmount()
+
+      vi.useRealTimers()
     })
 
     it('closes combobox when tabbing out of the input', async () => {
@@ -190,17 +195,21 @@ describe('ScalarComboboxOptions', () => {
     })
 
     it('focuses the input when component is mounted', async () => {
+      vi.useFakeTimers()
+
       const wrapper = mount(ScalarComboboxOptions, {
         props: { options: singleOptions },
         attachTo: document.body,
       })
 
-      await nextTick()
+      await vi.runAllTimers()
 
       const input = wrapper.find('input[type="text"]')
       expect(input.element).toBe(document.activeElement)
 
       wrapper.unmount()
+
+      vi.useRealTimers()
     })
   })
 
