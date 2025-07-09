@@ -47,6 +47,7 @@ import {
 import { NAV_STATE_SYMBOL } from '@/hooks/useNavState'
 import { isClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import { onCustomEvent } from '@/v2/events'
+import { useStore } from '@/v2/hooks/useStore'
 
 const props = defineProps<{
   configuration?: AnyApiReferenceConfiguration
@@ -107,6 +108,9 @@ const root = shallowRef<HTMLElement | null>(null)
  * and this component will use the provided function to get the workspace store.
  */
 const store = props.getWorkspaceStore()
+
+// Provide the workspace store so its accessible to all children
+useStore(store)
 
 /**
  * When the useMultipleDocuments hook is deprecated we will need to handle normalizing the configs.
@@ -205,6 +209,22 @@ onMounted(() => {
     store.update('x-scalar-default-client', storedClient)
   }
 })
+
+// Update the workspace store if default client changes
+watch(
+  () => selectedConfiguration.value.defaultHttpClient,
+  (newValue) => {
+    if (newValue) {
+      const { targetKey, clientKey } = newValue
+      store.update('x-scalar-default-client', `${targetKey}/${clientKey}`)
+    }
+  },
+  { immediate: true },
+)
+
+// Hides any client snippets from the references
+// const { setExcludedClients, setDefaultHttpClient } = useHttpClientStore()
+// mapConfigToState('defaultHttpClient', setDefaultHttpClient)
 
 // ---------------------------------------------------------------------------
 // TODO: Remove this legacy code block. Directly copied from SingleApiReference.vue
