@@ -17,7 +17,7 @@ import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import ScalarSidebarIndent from './ScalarSidebarIndent.vue'
 import type { SidebarGroupLevel } from './useSidebarGroups'
 
-const { indent = 0 } = defineProps<{ indent: SidebarGroupLevel }>()
+const { indent = 0 } = defineProps<{ indent?: SidebarGroupLevel }>()
 
 defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
