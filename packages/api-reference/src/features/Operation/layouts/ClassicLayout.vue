@@ -14,6 +14,7 @@ import {
 } from '@scalar/oas-utils/helpers'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
+import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
 import { computed } from 'vue'
 
@@ -38,6 +39,7 @@ const { operation, path, isWebhook } = defineProps<{
   operation: OperationObject
   isWebhook: boolean
   server: ServerObject | undefined
+  securitySchemes: SecuritySchemeObject[]
   schemas?: Schemas
 }>()
 
@@ -145,6 +147,7 @@ const handleDiscriminatorChange = (type: string) => {
         <RequestExample
           :method="method"
           :selectedServer="server"
+          :securitySchemes="securitySchemes"
           :path="path"
           fallback
           :operation="operation"
