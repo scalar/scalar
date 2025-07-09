@@ -41,7 +41,7 @@ export const createOverridesProxy = <T extends object>(targetObject: T, override
 
       if (hasOverride && overrides && typeof overrides === 'object') {
         // Set the value on the overrides object, but ignore the receiver to avoid proxy issues
-        (overrides as any)[prop] = value
+        ;(overrides as any)[prop] = value
         return true
       }
 
