@@ -26,7 +26,7 @@ const { resolve } = useStore()
 
 // Ensure we resolve any external references
 watch(
-  callbacks,
+  () => callbacks,
   (newCallbacks) =>
     Object.values(newCallbacks).forEach((pathItem) => {
       if (isReference(pathItem)) {

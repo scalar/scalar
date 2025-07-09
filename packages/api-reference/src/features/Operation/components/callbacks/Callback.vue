@@ -1,12 +1,7 @@
 <script setup lang="ts">
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { ScalarIconCaretRight } from '@scalar/icons'
-import {
-  type CallbackObject,
-  type OperationObject,
-  type PathItemObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
-import { isReference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
+import { type OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 
 import { HttpMethod } from '@/components/HttpMethod'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
