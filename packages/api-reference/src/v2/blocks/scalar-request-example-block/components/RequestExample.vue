@@ -270,7 +270,7 @@ const id = useId()
         #actions
         v-if="!hideClientSelector">
         <ScalarCombobox
-          class="scalar-client-picker max-h-80"
+          class="max-h-80"
           :modelValue="localSelectedClient"
           :options="clients"
           teleport
