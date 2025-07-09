@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
-import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { computed } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
 import { useApiClient } from '@/features/api-client-modal'
 import { useConfig } from '@/hooks/useConfig'
 
-const { operation } = defineProps<{
-  operation?: Pick<RequestEntity, 'method' | 'path' | 'uid'>
+const { method, path } = defineProps<{
+  method: HttpMethod
+  path: string
 }>()
 
 const { client } = useApiClient()
@@ -19,26 +20,25 @@ const isButtonVisible = computed(
 )
 
 const handleClick = () => {
-  if (operation && client?.value?.open) {
-    client.value.open({
-      requestUid: operation.uid,
-    })
-  }
+  client.value?.open({
+    method,
+    path,
+  })
 }
 </script>
 <template>
   <!-- Render the Test Request Button -->
   <button
-    v-if="operation && isButtonVisible"
+    v-if="isButtonVisible"
     class="show-api-client-button"
-    :method="operation.method"
+    :method="method"
     type="button"
     @click.stop="handleClick">
     <ScalarIcon
       icon="Play"
       size="sm" />
     <span>Test Request</span>
-    <ScreenReader>({{ operation.method }} {{ operation.path }})</ScreenReader>
+    <ScreenReader>({{ method }} {{ path }})</ScreenReader>
   </button>
   <!-- Render whitespace, so the container doesn't collapse -->
   <template v-else>&nbsp;</template>

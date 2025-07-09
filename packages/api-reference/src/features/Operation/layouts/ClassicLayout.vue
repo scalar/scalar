@@ -1,22 +1,20 @@
 <script setup lang="ts">
 import {
+  ScalarErrorBoundary,
   ScalarIcon,
   ScalarIconButton,
   ScalarMarkdown,
 } from '@scalar/components'
+import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { ScalarIconWebhooksLogo } from '@scalar/icons'
-import type {
-  Collection,
-  Request,
-  Server,
-} from '@scalar/oas-utils/entities/spec'
 import {
   getOperationStability,
   getOperationStabilityColor,
   isOperationDeprecated,
 } from '@scalar/oas-utils/helpers'
-import type { OpenAPIV3_1, XScalarStability } from '@scalar/types/legacy'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
 import { computed } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
@@ -24,33 +22,26 @@ import { Badge } from '@/components/Badge'
 import { HttpMethod } from '@/components/HttpMethod'
 import OperationPath from '@/components/OperationPath.vue'
 import { SectionAccordion } from '@/components/Section'
-import { ExampleRequest } from '@/features/example-request'
 import { ExampleResponses } from '@/features/example-responses'
 import type { Schemas } from '@/features/Operation/types/schemas'
 import { TestRequestButton } from '@/features/test-request-button'
 import { useConfig } from '@/hooks/useConfig'
+import { RequestExample } from '@/v2/blocks/scalar-request-example-block'
 
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
-const { request, operation, path, isWebhook } = defineProps<{
+const { operation, path, isWebhook } = defineProps<{
   id: string
   path: string
-  method: OpenAPIV3_1.HttpMethods
-  operation: OpenAPIV3_1.OperationObject<{
-    'x-scalar-stability': XScalarStability
-  }>
+  method: HttpMethodType
+  operation: OperationObject
   isWebhook: boolean
-  /**
-   * @deprecated Use `document` instead
-   */
-  collection: Collection
-  server: Server | undefined
-  request: Request | undefined
+  server: ServerObject | undefined
   schemas?: Schemas
 }>()
 
-const operationTitle = computed(() => operation?.summary || path || '')
+const operationTitle = computed(() => operation.summary || path || '')
 
 const { copyToClipboard } = useClipboard()
 const config = useConfig()
@@ -105,8 +96,9 @@ const handleDiscriminatorChange = (type: string) => {
     </template>
     <template #actions="{ active }">
       <TestRequestButton
-        v-if="active && request"
-        :operation="request" />
+        v-if="active && !isWebhook"
+        :method="method"
+        :path="path" />
       <ScalarIcon
         v-else-if="!config?.hideTestRequestButton"
         class="endpoint-try-hint size-6"
@@ -121,10 +113,10 @@ const handleDiscriminatorChange = (type: string) => {
         @click.stop="copyToClipboard(path)" />
     </template>
     <template
-      v-if="operation?.description"
+      v-if="operation.description"
       #description>
       <ScalarMarkdown
-        :value="operation?.description"
+        :value="operation.description"
         withImages
         withAnchors
         transformType="heading"
@@ -134,8 +126,8 @@ const handleDiscriminatorChange = (type: string) => {
       <div class="operation-details-card">
         <div class="operation-details-card-item">
           <OperationParameters
-            :parameters="operation?.parameters"
-            :requestBody="operation?.requestBody"
+            :parameters="operation.parameters"
+            :requestBody="operation.requestBody"
             :schemas="schemas"
             @update:modelValue="handleDiscriminatorChange" />
         </div>
@@ -147,13 +139,18 @@ const handleDiscriminatorChange = (type: string) => {
         </div>
       </div>
       <ExampleResponses :responses="operation.responses" />
-      <ExampleRequest
-        :request="request"
-        :method="method"
-        :collection="collection"
-        :operation="operation"
-        :server="server"
-        @update:modelValue="handleDiscriminatorChange" />
+
+      <!-- New Example Request -->
+      <ScalarErrorBoundary>
+        <RequestExample
+          :method="method"
+          :selectedServer="server"
+          :path="path"
+          fallback
+          :operation="operation"
+          :schemas="schemas"
+          @update:modelValue="handleDiscriminatorChange" />
+      </ScalarErrorBoundary>
     </div>
   </SectionAccordion>
 </template>

@@ -16,8 +16,8 @@ import {
   CardTabHeader,
 } from '@/components/Card'
 import ScreenReader from '@/components/ScreenReader.vue'
+import { ExamplePicker } from '@/v2/blocks/scalar-request-example-block'
 
-import { ExamplePicker } from '../example-request'
 import ExampleResponse from './ExampleResponse.vue'
 
 /**
@@ -173,7 +173,7 @@ const showSchema = ref(false)
         v-if="hasMultipleExamples"
         class="response-example-selector"
         :examples="currentJsonResponse?.examples"
-        @update:modelValue="(value) => (selectedExampleKey = value)" />
+        v-model="selectedExampleKey" />
       <div
         v-else-if="currentResponse?.description"
         class="response-description">

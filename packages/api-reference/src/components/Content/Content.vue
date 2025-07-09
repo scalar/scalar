@@ -10,7 +10,6 @@ import { computed } from 'vue'
 import { BaseUrl } from '@/features/base-url'
 import { useConfig } from '@/hooks/useConfig'
 
-import { ClientLibraries } from './ClientLibraries'
 import { Introduction } from './Introduction'
 import { Loading } from './Lazy'
 import { Models, ModelsAccordion } from './Models'
@@ -124,8 +123,8 @@ const introCardsSlot = computed(() =>
                 title="Authentication"
                 :workspace="activeWorkspace" />
             </div>
-            <ClientLibraries
-              class="introduction-card-item scalar-reference-intro-clients" />
+            <!-- <ClientLibraries
+              class="introduction-card-item scalar-reference-intro-clients" /> -->
           </div>
         </ScalarErrorBoundary>
       </template>

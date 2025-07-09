@@ -1,17 +1,14 @@
 <script setup lang="ts">
 import { ScalarErrorBoundary, ScalarMarkdown } from '@scalar/components'
+import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { ScalarIconWebhooksLogo } from '@scalar/icons'
-import type {
-  Collection,
-  Request,
-  Server,
-} from '@scalar/oas-utils/entities/spec'
 import {
   getOperationStability,
   getOperationStabilityColor,
   isOperationDeprecated,
 } from '@scalar/oas-utils/helpers'
-import type { OpenAPIV3_1, XScalarStability } from '@scalar/types/legacy'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
 import { computed, useId } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
@@ -25,34 +22,27 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
-import { ExampleRequest } from '@/features/example-request'
 import { ExampleResponses } from '@/features/example-responses'
 import { TestRequestButton } from '@/features/test-request-button'
 import { useConfig } from '@/hooks/useConfig'
+import { RequestExample } from '@/v2/blocks/scalar-request-example-block'
 
 import Callbacks from '../components/callbacks/Callbacks.vue'
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 import type { Schemas } from '../types/schemas'
 
-const { request, operation, path, isWebhook } = defineProps<{
+const { path, operation, method, isWebhook } = defineProps<{
   id: string
   path: string
-  method: OpenAPIV3_1.HttpMethods
-  operation: OpenAPIV3_1.OperationObject<{
-    'x-scalar-stability': XScalarStability
-  }>
+  method: HttpMethodType
+  operation: OperationObject
   isWebhook: boolean
-  /**
-   * @deprecated Use `document` instead
-   */
-  collection: Collection
-  server: Server | undefined
-  request: Request | undefined
+  server: ServerObject | undefined
   schemas?: Schemas
 }>()
 
-const operationTitle = computed(() => operation?.summary || path || '')
+const operationTitle = computed(() => operation.summary || path || '')
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
@@ -100,41 +90,42 @@ const handleDiscriminatorChange = (type: string) => {
         <SectionColumn>
           <div class="operation-details">
             <ScalarMarkdown
-              :value="operation?.description"
+              :value="operation.description"
               withImages
               withAnchors
               transformType="heading"
               :anchorPrefix="id" />
             <OperationParameters
-              :parameters="operation?.parameters"
-              :requestBody="operation?.requestBody"
+              :parameters="operation.parameters"
+              :requestBody="operation.requestBody"
               :schemas="schemas"
               @update:modelValue="handleDiscriminatorChange">
             </OperationParameters>
             <OperationResponses
-              :responses="operation?.responses"
+              :responses="operation.responses"
               :schemas="schemas" />
 
             <!-- Callbacks -->
             <ScalarErrorBoundary>
               <Callbacks
-                v-if="operation?.callbacks"
-                :callbacks="operation?.callbacks"
-                :collection="collection"
+                v-if="operation.callbacks"
+                :path="path"
+                :callbacks="operation.callbacks"
+                :method="method"
                 :schemas="schemas" />
             </ScalarErrorBoundary>
           </div>
         </SectionColumn>
         <SectionColumn>
           <div class="examples">
+            <!-- New Example Request -->
             <ScalarErrorBoundary>
-              <ExampleRequest
-                :request="request"
+              <RequestExample
                 :method="method"
-                :collection="collection"
+                :selectedServer="server"
+                :path="path"
                 fallback
                 :operation="operation"
-                :server="server"
                 :schemas="schemas"
                 @update:modelValue="handleDiscriminatorChange">
                 <template #header>
@@ -145,14 +136,17 @@ const handleDiscriminatorChange = (type: string) => {
                 </template>
                 <template
                   #footer
-                  v-if="request">
-                  <TestRequestButton :operation="request" />
+                  v-if="!isWebhook">
+                  <TestRequestButton
+                    :method="method"
+                    :path="path" />
                 </template>
-              </ExampleRequest>
+              </RequestExample>
             </ScalarErrorBoundary>
+
             <ScalarErrorBoundary>
               <ExampleResponses
-                :responses="operation?.responses"
+                :responses="operation.responses"
                 style="margin-top: 12px" />
             </ScalarErrorBoundary>
           </div>
