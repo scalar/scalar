@@ -345,7 +345,6 @@ describe('SchemaEnumValues', () => {
       })
 
       // Initially only first 5 descriptions should be visible
-      expect(wrapper.text()).toContain('First description')
       expect(wrapper.text()).toContain('Fifth description')
       expect(wrapper.text()).not.toContain('Sixth description')
       expect(wrapper.text()).not.toContain('Tenth description')

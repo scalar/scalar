@@ -210,10 +210,18 @@ const shouldRender = computed(() => hasEnumValues.value && !isDiscriminator)
               class="property-enum-value">
               <div class="property-enum-value-content">
                 <span class="property-enum-value-label">
-                  {{ formatEnumValueWithName(enumValue, index) }}
+                  {{
+                    formatEnumValueWithName(
+                      enumValue,
+                      initialVisibleCount + index,
+                    )
+                  }}
                 </span>
                 <span class="property-enum-value-description">
-                  <ScalarMarkdown :value="getEnumValueDescription(index)" />
+                  <ScalarMarkdown
+                    :value="
+                      getEnumValueDescription(initialVisibleCount + index)
+                    " />
                 </span>
               </div>
             </li>
