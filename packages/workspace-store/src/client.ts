@@ -18,6 +18,7 @@ import { defaultReferenceConfig } from '@/schemas/reference-config'
 import type { Config } from '@/schemas/workspace-specification/config'
 import { InMemoryWorkspaceSchema, type InMemoryWorkspace } from '@/schemas/inmemory-workspace'
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
+import { createOverridesProxy } from '@/helpers/overrides-proxy'
 
 /**
  * Input type for workspace document metadata and configuration.
@@ -188,7 +189,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * and other reference configuration.
    */
   const documentConfigs: Record<string, Config> = {}
-  const overrides: Record<string, DeepPartial<OpenApiDocument>> = {}
 
   // Create a reactive workspace object with proxied documents
   // Each document is wrapped in a proxy to enable reactive updates and reference resolution
@@ -238,15 +238,13 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     intermediateDocuments[name] = deepClone({ ...document, ...meta })
     // Add the document config to the documentConfigs map
     documentConfigs[name] = input.config ?? {}
-    // Add the document overrides to the overrides map
-    overrides[name] = input.overrides ?? {}
 
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (document[extensions.document.navigation] === undefined) {
       document[extensions.document.navigation] = createNavigation(document, input.config ?? {}).entries
     }
 
-    workspace.documents[name] = createMagicProxy({ ...document, ...meta })
+    workspace.documents[name] = createOverridesProxy(createMagicProxy({ ...document, ...meta }), input.overrides as any)
   }
 
   // Asynchronously adds a new document to the workspace by loading and validating the input.
