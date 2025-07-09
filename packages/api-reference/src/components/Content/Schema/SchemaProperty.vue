@@ -500,24 +500,4 @@ const shouldRenderObjectProperties = computed(() => {
   font-family: var(--scalar-font-code);
   font-weight: var(--scalar-semibold);
 }
-.enum-toggle-button {
-  align-items: center;
-  border: var(--scalar-border-width) solid var(--scalar-border-color);
-  border-radius: 13.5px;
-  cursor: pointer;
-  color: var(--scalar-color-2);
-  display: flex;
-  font-weight: var(--scalar-semibold);
-  gap: 4px;
-  margin-top: 8px;
-  padding: 6px 10px;
-  user-select: none;
-  white-space: nowrap;
-}
-.enum-toggle-button:hover {
-  color: var(--scalar-color-1);
-}
-.enum-toggle-button-icon--open {
-  transform: rotate(45deg);
-}
 </style>
