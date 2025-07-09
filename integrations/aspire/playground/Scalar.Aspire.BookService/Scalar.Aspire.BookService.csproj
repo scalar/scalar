@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.7" />
   </ItemGroup>
 
 </Project>
