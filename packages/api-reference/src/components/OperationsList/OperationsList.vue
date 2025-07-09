@@ -13,7 +13,6 @@ import OperationsListItem from './OperationsListItem.vue'
 
 const { tag } = defineProps<{
   tag: TraversedTag
-  isCollapsed?: boolean
 }>()
 
 const operationsOrWebhooks = computed(
@@ -41,7 +40,6 @@ const operationsOrWebhooks = computed(
           <OperationsListItem
             v-for="operationOrWebhook in operationsOrWebhooks"
             :key="operationOrWebhook.id"
-            :isCollapsed="isCollapsed"
             :operation="operationOrWebhook" />
         </ul>
       </CardContent>

@@ -3,6 +3,7 @@ import { ScalarMarkdown } from '@scalar/components'
 import { computed } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
+import { OperationsList } from '@/components/OperationsList'
 import ScreenReader from '@/components/ScreenReader.vue'
 import {
   Section,
@@ -16,8 +17,6 @@ import { SpecificationExtension } from '@/features/specification-extension'
 import type { TraversedTag } from '@/features/traverse-schema'
 import { useConfig } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
-
-import OperationsList from './OperationsList.vue'
 
 const { id, tag, headerId, isCollapsed } = defineProps<{
   id?: string
