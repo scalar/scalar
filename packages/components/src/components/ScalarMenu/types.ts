@@ -19,12 +19,12 @@ export type ScalarMenuButtonSlots = {
    * @default The Scalar logo
    * @example <img class="h-full aspect-square bg-b-3 rounded" :src="..." />
    */
-  logo?: () => any
+  logo?(): unknown
   /**
    * Overrides the screen reader label in the menu button
    * @default open ? 'Close Menu' : 'Open Menu'
    */
-  label?: () => any
+  label?(): unknown
 }
 
 /**

@@ -50,16 +50,16 @@ const emit = defineEmits<{
 
 defineSlots<{
   /** Override the entire input */
-  'default'?: (props: {
+  'default'?(props: {
     /** Open the file dialog to select files */
     open: () => void
-  }) => any
+  }): unknown
   /** Override the label */
-  'label'?: () => any
+  'label'?(): unknown
   /** Override the entire drop target */
-  'drop-target'?: () => any
+  'drop-target'?(): unknown
   /** Override the drop target label */
-  'drop-target-label'?: () => any
+  'drop-target-label'?(): unknown
 }>()
 
 /** The selected files */

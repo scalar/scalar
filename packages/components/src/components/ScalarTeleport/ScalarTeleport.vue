@@ -38,7 +38,7 @@ defineProps<{
 
 defineSlots<{
   /** The element to be teleported */
-  default(): any
+  default(): unknown
 }>()
 
 defineOptions({ inheritAttrs: false })

@@ -27,7 +27,7 @@ const props = defineProps<{
 
 defineSlots<{
   /** The content which contains <ScalarTeleports> */
-  default(): any
+  default(): unknown
 }>()
 
 defineOptions({ inheritAttrs: false })

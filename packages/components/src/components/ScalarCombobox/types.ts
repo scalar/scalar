@@ -23,9 +23,9 @@ export function isGroups(options: Option[] | OptionGroup[]): options is OptionGr
 /** Available slots for the combobox */
 export type ComboboxSlots = {
   /** The reference element / trigger for the combobox */
-  default(): any
+  default(): unknown
   /** A slot for contents before the combobox options */
-  before?(): any
+  before?(): unknown
   /** A slot for contents after the combobox options */
-  after?(): any
+  after?(): unknown
 }
