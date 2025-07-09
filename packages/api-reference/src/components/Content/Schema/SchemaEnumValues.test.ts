@@ -205,7 +205,7 @@ describe('SchemaEnumValues', () => {
       })
 
       // When x-enumDescriptions is an object, it uses the special description format
-      expect(wrapper.find('.property-list').exists()).toBe(true)
+      expect(wrapper.find('.property-enum-values').exists()).toBe(true)
       expect(wrapper.text()).toContain('active')
       expect(wrapper.text()).toContain('inactive')
     })
