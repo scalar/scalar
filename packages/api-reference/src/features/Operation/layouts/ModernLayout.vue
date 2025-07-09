@@ -8,6 +8,7 @@ import {
   isOperationDeprecated,
 } from '@scalar/oas-utils/helpers'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
+import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
 import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import { computed, useId } from 'vue'
@@ -39,6 +40,7 @@ const { path, operation, method, isWebhook } = defineProps<{
   method: HttpMethodType
   operation: Dereference<OperationObject>
   isWebhook: boolean
+  securitySchemes: SecuritySchemeObject[]
   server: ServerObject | undefined
   schemas?: Schemas
 }>()
@@ -125,6 +127,7 @@ const handleDiscriminatorChange = (type: string) => {
               <RequestExample
                 :method="method"
                 :selectedServer="server"
+                :securitySchemes="securitySchemes"
                 :path="path"
                 fallback
                 :operation="operation"

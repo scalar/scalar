@@ -1,10 +1,13 @@
 <script lang="ts" setup>
+import { useWorkspace } from '@scalar/api-client/store'
+import { filterSecurityRequirements } from '@scalar/api-client/views/Request/RequestSection'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import type { Server } from '@scalar/oas-utils/entities/spec'
+import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { isReference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import { computed } from 'vue'
 
+import { convertSecurityScheme } from '@/helpers/convert-security-scheme'
 import { useOperationDiscriminator } from '@/hooks/useOperationDiscriminator'
 import { useStore } from '@/v2/hooks/useStore'
 
@@ -16,6 +19,7 @@ const {
   document,
   server,
   isWebhook,
+  collection,
   path,
   method,
 } = defineProps<{
@@ -25,6 +29,8 @@ const {
   layout?: 'modern' | 'classic'
   id: string
   server: Server | undefined
+  /** @deprecated Use `document` instead, we just need the selected security scheme uids for now */
+  collection: Collection
   /** @deprecated Use the new workspace store instead*/
   document?: OpenAPIV3_1.Document
 }>()
@@ -51,6 +57,19 @@ const { handleDiscriminatorChange } = useOperationDiscriminator(
     : document?.paths?.[path]?.[method],
   document?.components?.schemas,
 )
+
+/**
+ * TEMP
+ * This still uses the client store and formats it into the new store format
+ */
+const { securitySchemes } = useWorkspace()
+const selectedSecuritySchemes = computed(() =>
+  filterSecurityRequirements(
+    operation.value?.security || document?.security,
+    collection.selectedSecuritySchemeUids,
+    securitySchemes,
+  ).map(convertSecurityScheme),
+)
 </script>
 
 <template>
@@ -61,6 +80,7 @@ const { handleDiscriminatorChange } = useOperationDiscriminator(
         :isWebhook="isWebhook"
         :method="method"
         :operation="operation"
+        :securitySchemes="selectedSecuritySchemes"
         :path="path"
         :schemas="document?.components?.schemas"
         :server="server"
@@ -71,6 +91,7 @@ const { handleDiscriminatorChange } = useOperationDiscriminator(
         :id="id"
         :isWebhook="isWebhook"
         :method="method"
+        :securitySchemes="selectedSecuritySchemes"
         :path="path"
         :operation="operation"
         :schemas="document?.components?.schemas"
