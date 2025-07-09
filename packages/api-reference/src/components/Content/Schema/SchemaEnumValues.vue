@@ -208,14 +208,14 @@ const shouldRender = computed(() => hasEnumValues.value && !isDiscriminator)
               v-for="(enumValue, index) in hiddenEnumValues"
               :key="enumValue"
               class="property-enum-value">
-              <span class="property-enum-value-label">
-                {{
-                  formatEnumValueWithName(
-                    enumValue,
-                    initialVisibleCount + index,
-                  )
-                }}
-              </span>
+              <div class="property-enum-value-content">
+                <span class="property-enum-value-label">
+                  {{ formatEnumValueWithName(enumValue, index) }}
+                </span>
+                <span class="property-enum-value-description">
+                  <ScalarMarkdown :value="getEnumValueDescription(index)" />
+                </span>
+              </div>
             </li>
           </DisclosurePanel>
 
