@@ -110,6 +110,10 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
   width: calc(100% + 18px);
 }
 
+.download-button:last-of-type::before {
+  width: calc(100% + 15px);
+}
+
 .download-button:hover::before {
   background: var(--scalar-background-2);
   border: var(--scalar-border-width) solid var(--scalar-border-color);
