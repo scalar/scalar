@@ -6,7 +6,12 @@ import type {
   Request,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import type { OpenAPIV3_1 } from '@scalar/types/legacy'
+import {
+  getOperationStability,
+  getOperationStabilityColor,
+  isOperationDeprecated,
+} from '@scalar/oas-utils/helpers'
+import type { OpenAPIV3_1, XScalarStability } from '@scalar/types/legacy'
 import { computed, useId } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
@@ -24,11 +29,6 @@ import { ExampleRequest } from '@/features/example-request'
 import { ExampleResponses } from '@/features/example-responses'
 import { TestRequestButton } from '@/features/test-request-button'
 import { useConfig } from '@/hooks/useConfig'
-import {
-  getOperationStability,
-  getOperationStabilityColor,
-  isOperationDeprecated,
-} from '@/libs/openapi'
 
 import Callbacks from '../components/callbacks/Callbacks.vue'
 import OperationParameters from '../components/OperationParameters.vue'
@@ -39,7 +39,9 @@ const { request, operation, path, isWebhook } = defineProps<{
   id: string
   path: string
   method: OpenAPIV3_1.HttpMethods
-  operation: OpenAPIV3_1.OperationObject
+  operation: OpenAPIV3_1.OperationObject<{
+    'x-scalar-stability': XScalarStability
+  }>
   isWebhook: boolean
   /**
    * @deprecated Use `document` instead
@@ -137,7 +139,7 @@ const handleDiscriminatorChange = (type: string) => {
                 @update:modelValue="handleDiscriminatorChange">
                 <template #header>
                   <OperationPath
-                    class="example-path"
+                    class="font-code text-c-2 [&_em]:text-c-1 [&_em]:not-italic"
                     :deprecated="operation?.deprecated"
                     :path="path" />
                 </template>
@@ -167,13 +169,5 @@ const handleDiscriminatorChange = (type: string) => {
 }
 .deprecated * {
   text-decoration: line-through;
-}
-.example-path {
-  color: var(--scalar-color-2);
-  font-family: var(--scalar-font-code);
-}
-.example-path :deep(em) {
-  color: var(--scalar-color-1);
-  font-style: normal;
 }
 </style>

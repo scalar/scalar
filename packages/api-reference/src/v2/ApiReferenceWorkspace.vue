@@ -14,6 +14,10 @@
  * No state updates should be handled in children of this components. When updates are required
  * a custom event should be emitted to the workspace store and handled here.
  */
+import {
+  REFERENCE_LS_KEYS,
+  safeLocalStorage,
+} from '@scalar/helpers/object/local-storage'
 import { parseJsonOrYaml, redirectToProxy } from '@scalar/oas-utils/helpers'
 import type {
   AnyApiReferenceConfiguration,
@@ -185,6 +189,20 @@ onCustomEvent(root, 'scalar-update-dark-mode', (event) => {
 
 onCustomEvent(root, 'scalar-update-active-document', (event) => {
   store.update('x-scalar-active-document', event.data.value)
+})
+
+onCustomEvent(root, 'scalar-update-selected-client', (event) => {
+  store.update('x-scalar-default-client', event.data)
+  safeLocalStorage().setItem(REFERENCE_LS_KEYS.SELECTED_CLIENT, event.data)
+})
+
+onMounted(() => {
+  const storedClient = safeLocalStorage().getItem(
+    REFERENCE_LS_KEYS.SELECTED_CLIENT,
+  )
+  if (storedClient) {
+    store.update('x-scalar-default-client', storedClient)
+  }
 })
 
 // ---------------------------------------------------------------------------

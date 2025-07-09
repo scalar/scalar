@@ -1,6 +1,8 @@
 import type { ClientOption, ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 import type { AvailableClients } from '@scalar/snippetz'
 
+const DEFAULT_CLIENT = 'shell/curl'
+
 /**
  * Finds and returns the appropriate client option from a list of client option groups.
  *
@@ -10,7 +12,7 @@ import type { AvailableClients } from '@scalar/snippetz'
  *
  * @param options - Array of client option groups, each containing a label and array of client options
  * @param id - Optional client identifier to search for (e.g., 'js/fetch', 'python/requests')
- *
+
  * @returns The selected client option. If a specific ID is provided and found, returns that client.
  *          If the ID is not found or not provided, returns the first available client option.
  *
@@ -45,6 +47,16 @@ export const findClient = (
   if (clientId) {
     for (const group of clientGroups) {
       const option = group.options.find((option) => option.id === clientId)
+      if (option) {
+        return option
+      }
+    }
+  }
+
+  // If we dont have any custom examples, lets select the default client
+  if (!firstOption?.id.startsWith('custom')) {
+    for (const group of clientGroups) {
+      const option = group.options.find((option) => option.id === DEFAULT_CLIENT)
       if (option) {
         return option
       }

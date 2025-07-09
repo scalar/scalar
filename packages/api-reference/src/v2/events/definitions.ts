@@ -1,3 +1,5 @@
+import type { AvailableClients } from '@scalar/snippetz'
+
 /**
  * Event definitions for scalar blocks
  *
@@ -18,6 +20,14 @@ export type ApiReferenceEvents = {
     data: {
       value: string
     }
+  }
+  /** Controls the selected client in our code example blocks */
+  'scalar-update-selected-client': {
+    data: AvailableClients[number]
+  }
+  /** Controls the selected example key in our operation blocks + children */
+  'scalar-update-selected-example': {
+    data: string
   }
 }
 
