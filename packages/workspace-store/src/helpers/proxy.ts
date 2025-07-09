@@ -3,7 +3,7 @@ import { getValueByPath, parseJsonPointer } from './json-path-utils'
 import { isLocalRef, isObject } from './general'
 import type { UnknownObject } from './general'
 
-export const TARGET_SYMBOL = Symbol('target')
+const isMagicProxy = Symbol('isMagicProxy')
 
 /**
  * Creates a proxy handler that automatically resolves JSON references ($ref) in an object.
@@ -24,7 +24,7 @@ function createProxyHandler(
         return target
       }
 
-      if (property === '__isProxy') {
+      if (property === isMagicProxy) {
         return true
       }
 
@@ -203,6 +203,7 @@ export function createMagicProxy<T extends UnknownObject>(
   return proxy
 }
 
+export const TARGET_SYMBOL = Symbol('magicProxyTarget')
 /**
  * Gets the raw (non-proxied) version of an object created by createMagicProxy.
  * This is useful when you need to access the original object without the magic proxy wrapper.
@@ -214,5 +215,9 @@ export function createMagicProxy<T extends UnknownObject>(
  * const raw = getRaw(proxy) // { foo: { $ref: '#/bar' } }
  */
 export function getRaw<T extends UnknownObject>(obj: T): T {
-  return (obj as T & { [TARGET_SYMBOL]: T })[TARGET_SYMBOL]
+  if ((obj as T & { [isMagicProxy]: boolean | undefined })[isMagicProxy]) {
+    return (obj as T & { [TARGET_SYMBOL]: T })[TARGET_SYMBOL]
+  }
+
+  return obj
 }

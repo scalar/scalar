@@ -18,7 +18,7 @@ import { defaultReferenceConfig } from '@/schemas/reference-config'
 import type { Config } from '@/schemas/workspace-specification/config'
 import { InMemoryWorkspaceSchema, type InMemoryWorkspace } from '@/schemas/inmemory-workspace'
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
-import { createOverridesProxy } from '@/helpers/overrides-proxy'
+import { createOverridesProxy, unpackOverridesProxy } from '@/helpers/overrides-proxy'
 
 /**
  * Input type for workspace document metadata and configuration.
@@ -189,6 +189,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * and other reference configuration.
    */
   const documentConfigs: Record<string, Config> = {}
+  const overrides: Record<string, DeepPartial<OpenApiDocument>> = {}
 
   // Create a reactive workspace object with proxied documents
   // Each document is wrapped in a proxy to enable reactive updates and reference resolution
@@ -244,7 +245,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       document[extensions.document.navigation] = createNavigation(document, input.config ?? {}).entries
     }
 
-    workspace.documents[name] = createOverridesProxy(createMagicProxy({ ...document, ...meta }), input.overrides as any)
+    overrides[name] = input.overrides ?? {}
+
+    workspace.documents[name] = createOverridesProxy(createMagicProxy({ ...document, ...meta }), input.overrides)
   }
 
   // Asynchronously adds a new document to the workspace by loading and validating the input.
@@ -474,7 +477,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     saveDocument(documentName: string) {
       const intermediateDocument = intermediateDocuments[documentName]
       // Obtain the raw state of the current document to ensure accurate diffing
-      const updatedDocument = toRaw(getRaw(workspace.documents[documentName]))
+      // Remove the magic proxy while preserving the overrides proxy to ensure accurate updates
+      const updatedDocument = createOverridesProxy(
+        getRaw(unpackOverridesProxy(workspace.documents[documentName])),
+        overrides[documentName],
+      )
 
       // If either the intermediate or updated document is missing, do nothing
       if (!intermediateDocument || !updatedDocument) {

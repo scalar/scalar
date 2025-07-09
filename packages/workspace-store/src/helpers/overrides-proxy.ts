@@ -1,9 +1,8 @@
 import { isObject, type UnknownObject } from '@/helpers/general'
-import type { DeepPartial } from '@/types'
 
 const isOverridesProxy = Symbol('isOverridesProxy')
 
-export const createOverridesProxy = <T extends object>(targetObject: T, overrides?: DeepPartial<T> | undefined): T => {
+export const createOverridesProxy = <T extends object>(targetObject: T, overrides?: unknown): T => {
   if (!targetObject || typeof targetObject !== 'object') {
     return targetObject
   }
@@ -29,6 +28,25 @@ export const createOverridesProxy = <T extends object>(targetObject: T, override
       // If neither exists, return undefined
       // @ts-ignore
       return createOverridesProxy(value, overrides?.[prop])
+    },
+
+    set(target, prop, value, receiver) {
+      if (prop === isOverridesProxy || prop === TARGET_SYMBOL) {
+        // Don't allow setting these special properties
+        return false
+      }
+
+      // Check if there's an override for this property
+      const hasOverride = overrides && Reflect.has(overrides, prop)
+
+      if (hasOverride && overrides && typeof overrides === 'object') {
+        // Set the value on the overrides object, but ignore the receiver to avoid proxy issues
+        (overrides as any)[prop] = value
+        return true
+      }
+
+      // Set the value on the original target
+      return Reflect.set(target, prop, value, receiver)
     },
   }
 

@@ -1070,4 +1070,81 @@ describe('create-workspace-store', () => {
       expect(store.workspace['x-scalar-default-client']).toBe('curl')
     })
   })
+
+  describe('override documents', () => {
+    it('override documents with new content', async () => {
+      const store = createWorkspaceStore({
+        documents: [
+          {
+            name: 'default',
+            document: {
+              openapi: '3.0.0',
+              info: { title: 'My API', version: '1.0.0' },
+            },
+            overrides: {
+              openapi: '3.1.1',
+              info: { title: 'My Updated API', version: '2.0.0' },
+            },
+          },
+        ],
+      })
+
+      expect(store.workspace.documents['default'].info.title).toBe('My Updated API')
+      expect(store.workspace.documents['default'].info.version).toBe('2.0.0')
+      expect(store.workspace.documents['default'].openapi).toBe('3.1.1')
+    })
+
+    it('edit the override values', async () => {
+      const store = createWorkspaceStore({
+        documents: [
+          {
+            name: 'default',
+            document: {
+              openapi: '3.0.0',
+              info: { title: 'My API', version: '1.0.0' },
+            },
+            overrides: {
+              openapi: '3.1.1',
+              info: { title: 'My Updated API', version: '2.0.0' },
+            },
+          },
+        ],
+      })
+
+      store.workspace.documents['default'].info.title = 'Edited title'
+
+      expect(store.workspace.documents['default'].info.title).toBe('Edited title')
+      expect(store.workspace.documents['default'].info.version).toBe('2.0.0')
+      expect(store.workspace.documents['default'].openapi).toBe('3.1.1')
+    })
+
+    it('writes back the overrides to the intermediate object', async () => {
+      const store = createWorkspaceStore({
+        documents: [
+          {
+            name: 'default',
+            document: {
+              openapi: '3.0.0',
+              info: { title: 'My API', version: '1.0.0' },
+            },
+            overrides: {
+              openapi: '3.1.1',
+              info: { title: 'My Updated API', version: '2.0.0' },
+            },
+          },
+        ],
+      })
+
+      store.workspace.documents['default'].info.title = 'Edited title'
+
+      expect(store.workspace.documents['default'].info.title).toBe('Edited title')
+      expect(store.workspace.documents['default'].info.version).toBe('2.0.0')
+      expect(store.workspace.documents['default'].openapi).toBe('3.1.1')
+
+      store.saveDocument('default')
+      expect(store.exportDocument('default', 'json')).toBe(
+        '{"openapi":"3.1.1","info":{"title":"Edited title","version":"2.0.0"}}',
+      )
+    })
+  })
 })

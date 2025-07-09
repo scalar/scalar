@@ -37,4 +37,22 @@ describe.only('createOverridesProxy', () => {
     const unpacked = unpackOverridesProxy(proxy)
     expect(unpacked).toEqual(input)
   })
+
+  it('should set values on the original target object', () => {
+    const input = { a: 1, b: { c: 2 } }
+    const overrides = { a: 3 }
+    const proxy = createOverridesProxy(input, overrides)
+    proxy.b.c = 4
+    expect(input.b.c).toBe(4)
+    expect(overrides.a).toBe(3)
+  })
+
+  it('should set values on the overridden object', () => {
+    const input = { a: 1, b: { c: 2 } }
+    const overrides = { a: 3 }
+    const proxy = createOverridesProxy(input, overrides)
+    proxy.a = 5
+    expect(input.b.c).toBe(2)
+    expect(overrides.a).toBe(5)
+  })
 })
