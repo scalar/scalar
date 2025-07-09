@@ -25,11 +25,11 @@ import { ScalarColorModeToggle } from '../ScalarColorModeToggle'
 
 defineSlots<{
   /** Footer content at the top of the footer */
-  default: () => any
+  default?(): unknown
   /** Replaces the Powered by Scalar link */
-  description: () => any
+  description?(): unknown
   /** Replaces the color mode toggle */
-  toggle: () => any
+  toggle?(): unknown
 }>()
 
 defineOptions({ inheritAttrs: false })

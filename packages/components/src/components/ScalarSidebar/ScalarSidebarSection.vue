@@ -31,9 +31,9 @@ const { is = 'ul' } = defineProps<ScalarSidebarItemProps>()
 
 defineSlots<{
   /** The text content of the toggle */
-  default?: () => any
+  default?(): unknown
   /** The list of sidebar subitems */
-  items?: () => any
+  items?(): unknown
 }>()
 
 const { level } = useSidebarGroups({ increment: false })

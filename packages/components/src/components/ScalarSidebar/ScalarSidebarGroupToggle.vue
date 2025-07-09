@@ -33,9 +33,9 @@ const {
 
 defineSlots<{
   /** Override the toggle icon */
-  default?: (props: { open: boolean }) => any
+  default?(props: { open: boolean }): unknown
   /** Override the screen reader label */
-  label?: (props: { open: boolean }) => any
+  label?(props: { open: boolean }): unknown
 }>()
 
 const variants = cva({

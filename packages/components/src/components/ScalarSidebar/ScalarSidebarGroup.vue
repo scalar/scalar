@@ -32,11 +32,11 @@ const open = defineModel<boolean>()
 
 defineSlots<{
   /** The text content of the toggle */
-  default?: (props: { open: boolean }) => any
+  default?(props: { open: boolean }): unknown
   /** Override the entire toggle button */
-  button?: (props: { open: boolean; level: SidebarGroupLevel }) => any
+  button?(props: { open: boolean; level: SidebarGroupLevel }): unknown
   /** The list of sidebar subitems */
-  items?: (props: { open: boolean }) => any
+  items?(props: { open: boolean }): unknown
 }>()
 
 const { level } = useSidebarGroups({ increment: true })

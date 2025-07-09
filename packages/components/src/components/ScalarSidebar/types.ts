@@ -20,11 +20,11 @@ export type ScalarSidebarItemProps = {
 /** Scalar Sidebar Item Slots */
 export type ScalarSidebarItemSlots = {
   /** The main text content of the button */
-  default?: () => any
+  default?(): unknown
   /** Override the icon */
-  icon?: () => any
+  icon?(): unknown
   /** The content to display to the right of the text content */
-  aside?: () => any
+  aside?(): unknown
   /** The indent to display before content */
-  indent?: () => any
+  indent?(): unknown
 }

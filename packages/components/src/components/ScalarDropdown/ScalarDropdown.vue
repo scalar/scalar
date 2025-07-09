@@ -30,12 +30,12 @@ defineSlots<{
   default(props: {
     /** Whether or not the dropdown is open */
     open: boolean
-  }): any
+  }): unknown
   /** The list of dropdown items */
   items(props: {
     /** Whether or not the dropdown is open */
     open: boolean
-  }): any
+  }): unknown
 }>()
 
 defineOptions({ inheritAttrs: false })

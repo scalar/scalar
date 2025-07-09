@@ -9,7 +9,7 @@ import {
   size,
   useFloating,
 } from '@floating-ui/vue'
-import { type Ref, type Slot, computed, ref, watch } from 'vue'
+import { type Ref, computed, ref } from 'vue'
 
 import { ScalarTeleport } from '../ScalarTeleport'
 import type { FloatingOptions } from './types'
@@ -26,7 +26,7 @@ const {
 
 defineSlots<{
   /** The reference element for the element in the #floating slot */
-  default(): Slot
+  default(): unknown
   /** The floating element */
   floating?(props: {
     /** The width of the reference element if `resize` is true and placement is on the y axis */
@@ -35,7 +35,7 @@ defineSlots<{
     height?: string
     /** The middleware data return by Floating UI */
     data?: MiddlewareData
-  }): Slot
+  }): unknown
 }>()
 
 defineOptions({ inheritAttrs: false })
