@@ -6,6 +6,7 @@ import type { ApiReferenceConfiguration } from '@scalar/types'
 import { computed, ref } from 'vue'
 
 import TagSection from '@/components/Content/Tags/TagSection.vue'
+import { SectionContainer } from '@/components/Section'
 import { Operation } from '@/features/Operation'
 import {
   type TraversedEntry,
@@ -25,21 +26,40 @@ const { document, layout, config } = defineProps<{
 const { collections, servers } = useWorkspace()
 const { activeCollection: _activeCollection } = useActiveEntities()
 
-// Get navigation state for ID generation functions
-const navState = useNavState()
+/**
+ * Generate IDs for the different types of entities
+ */
+const {
+  getHeadingId,
+  getOperationId,
+  getWebhookId,
+  getModelId,
+  getTagId,
+  getSectionId,
+} = useNavState()
 
-/** Match the collection by slug if provided */
+/**
+ * Match the collection by slug if provided
+ *
+ * @deprecated
+ **/
 const activeCollection = computed(() => {
   if (config?.slug) {
     const collection = collections[getSlugUid(config.slug)]
+
     if (collection) {
       return collection
     }
   }
+
   return _activeCollection.value
 })
 
-/** Ensure the server is the one selected in the collection */
+/**
+ * Ensure the server is the one selected in the collection
+ *
+ * @deprecated
+ **/
 const activeServer = computed(() => {
   if (!activeCollection.value) {
     return undefined
@@ -61,7 +81,6 @@ const activeServer = computed(() => {
  * Matches the sidebar.
  */
 const entries = computed((): TraversedEntry[] => {
-  // TODO: We need to pass the actual config to traverseDocument
   if (!config) {
     return []
   }
@@ -69,12 +88,12 @@ const entries = computed((): TraversedEntry[] => {
   // Use traverseDocument to process the OpenAPI document
   const { entries: traversedEntries } = traverseDocument(document, {
     config: ref(config),
-    getHeadingId: navState.getHeadingId,
-    getOperationId: navState.getOperationId,
-    getWebhookId: navState.getWebhookId,
-    getModelId: navState.getModelId,
-    getTagId: navState.getTagId,
-    getSectionId: navState.getSectionId,
+    getHeadingId,
+    getOperationId,
+    getWebhookId,
+    getModelId,
+    getTagId,
+    getSectionId,
   })
 
   return traversedEntries
@@ -97,19 +116,18 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
 </script>
 <template>
   <template
-    v-if="entries.length"
+    v-if="entries.length && activeCollection"
     v-for="entry in entries"
     :key="entry.id">
     <!-- Tag -->
     <template v-if="isTag(entry)">
       <TagSection
         :tag="entry"
-        :collection="activeCollection!">
+        :collection="activeCollection">
         <template
           v-if="
             'children' in entry && entry.children && entry.children?.length
           ">
-          <!-- Operations -->
           <template
             v-for="child in entry.children"
             :key="child.id">
@@ -120,9 +138,9 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
                 :method="child.method"
                 :isWebhook="false"
                 :id="child.id"
-                :document="document"
-                :collection="activeCollection!"
-                :layout="layout"
+                :document
+                :collection="activeCollection"
+                :layout
                 :server="activeServer" />
             </template>
 
@@ -131,11 +149,11 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
               <Operation
                 :path="child.name"
                 :method="child.method"
-                :isWebhook="true"
+                isWebhook
                 :id="child.id"
-                :document="document"
-                :collection="activeCollection!"
-                :layout="layout"
+                :document
+                :collection="activeCollection"
+                :layout
                 :server="activeServer" />
             </template>
           </template>
@@ -152,7 +170,7 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
         <template v-if="isTag(child)">
           <TagSection
             :tag="child"
-            :collection="activeCollection!">
+            :collection="activeCollection">
             <template
               v-if="
                 'children' in child && child.children && child.children?.length
@@ -167,9 +185,9 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
                     :method="grandchild.method"
                     :isWebhook="false"
                     :id="grandchild.id"
-                    :document="document"
-                    :collection="activeCollection!"
-                    :layout="layout"
+                    :document
+                    :collection="activeCollection"
+                    :layout
                     :server="activeServer" />
                 </template>
                 <!-- Webhook -->
@@ -177,11 +195,11 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
                   <Operation
                     :path="grandchild.name"
                     :method="grandchild.method"
-                    :isWebhook="true"
+                    isWebhook
                     :id="grandchild.id"
-                    :document="document"
-                    :collection="activeCollection!"
-                    :layout="layout"
+                    :document
+                    :collection="activeCollection"
+                    :layout
                     :server="activeServer" />
                 </template>
               </template>
@@ -193,10 +211,9 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
 
     <!-- Webhooks -->
     <template v-if="isWebhookGroup(entry)">
-      <!-- TODO: We need something else here, the TagSection has the OperationsList -->
       <TagSection
         :tag="entry"
-        :collection="activeCollection!">
+        :collection="activeCollection">
         <template
           v-if="
             'children' in entry && entry.children && entry.children?.length
@@ -211,9 +228,9 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
                 :method="grandchild.method"
                 :isWebhook="false"
                 :id="grandchild.id"
-                :document="document"
-                :collection="activeCollection!"
-                :layout="layout"
+                :document
+                :collection="activeCollection"
+                :layout
                 :server="activeServer" />
             </template>
             <!-- Webhook -->
@@ -221,35 +238,30 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
               <Operation
                 :path="grandchild.name"
                 :method="grandchild.method"
-                :isWebhook="true"
+                isWebhook
                 :id="grandchild.id"
-                :document="document"
-                :collection="activeCollection!"
-                :layout="layout"
+                :document
+                :collection="activeCollection"
+                :layout
                 :server="activeServer" />
             </template>
           </template>
         </template>
       </TagSection>
     </template>
+    <!-- Operations -->
+    <template v-if="isOperation(entry)">
+      <SectionContainer>
+        <Operation
+          :path="entry.path"
+          :method="entry.method"
+          :isWebhook="false"
+          :id="entry.id"
+          :document
+          :collection="activeCollection"
+          :layout
+          :server="activeServer" />
+      </SectionContainer>
+    </template>
   </template>
-
-  <!-- Webhooks -->
-  <!-- <template v-if="parsedSpec.webhooks?.length && activeCollection">
-    <TagList
-      :document="document"
-      id="webhooks"
-      :collection="activeCollection"
-      :layout="layout"
-      :server="activeServer"
-      :spec="parsedSpec"
-      :tags="[
-        {
-          name: 'Webhooks',
-          description: '',
-          operations: parsedSpec.webhooks,
-        },
-      ]">
-    </TagList>
-  </template> -->
 </template>
