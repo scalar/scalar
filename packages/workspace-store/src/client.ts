@@ -189,6 +189,15 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * and other reference configuration.
    */
   const documentConfigs: Record<string, Config> = {}
+  /**
+   * Stores per-document overrides for OpenAPI documents.
+   * This object is used to override specific fields of a document
+   * when you cannot (or should not) modify the source document directly.
+   * For example, this enables UI-driven or temporary changes to be applied
+   * on top of the original document, without mutating the source.
+   * The key is the document name, and the value is a deep partial
+   * OpenAPI document representing the overridden fields.
+   */
   const overrides: Record<string, DeepPartial<OpenApiDocument>> = {}
 
   // Create a reactive workspace object with proxied documents
@@ -239,14 +248,15 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     intermediateDocuments[name] = deepClone({ ...document, ...meta })
     // Add the document config to the documentConfigs map
     documentConfigs[name] = input.config ?? {}
+    // Store the overrides for this document, or an empty object if none are provided
+    overrides[name] = input.overrides ?? {}
 
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (document[extensions.document.navigation] === undefined) {
       document[extensions.document.navigation] = createNavigation(document, input.config ?? {}).entries
     }
 
-    overrides[name] = input.overrides ?? {}
-
+    // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map
     workspace.documents[name] = createOverridesProxy(createMagicProxy({ ...document, ...meta }), input.overrides)
   }
 
