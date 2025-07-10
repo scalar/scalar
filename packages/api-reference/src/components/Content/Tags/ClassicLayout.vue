@@ -10,7 +10,6 @@ import {
 import type { TraversedTag } from '@/features/traverse-schema'
 
 defineProps<{
-  id: string
   tag: TraversedTag
 }>()
 </script>
@@ -19,7 +18,7 @@ defineProps<{
   <SectionContainerAccordion class="tag-section">
     <template #title>
       <SectionHeader class="tag-name">
-        <Anchor :id="id">
+        <Anchor :id="tag.id">
           <SectionHeaderTag :level="2">
             {{ tag.title }}
           </SectionHeaderTag>

@@ -5,12 +5,10 @@ import { SectionContainer } from '@/components/Section'
 import ShowMoreButton from '@/components/ShowMoreButton.vue'
 import { useSidebar } from '@/features/sidebar'
 import type { TraversedTag } from '@/features/traverse-schema'
-import { useNavState } from '@/hooks/useNavState'
 
 import TagSection from './TagSection.vue'
 
-const { id, tag } = defineProps<{
-  id: string
+const { tag } = defineProps<{
   tag: TraversedTag
 }>()
 
@@ -20,8 +18,6 @@ const contentsRef = ref<HTMLElement>()
 const headerId = useId()
 
 const { collapsedSidebarItems } = useSidebar()
-const { getTagId } = useNavState()
-const tagId = computed(() => id || getTagId(tag) || '')
 
 const moreThanOneTag = computed(
   () => true,
@@ -54,13 +50,12 @@ const isCollapsed = (tagId: string) => {
     role="region">
     <TagSection
       v-if="moreThanOneDefaultTag"
-      :id="id"
       :headerId="headerId"
-      :isCollapsed="isCollapsed(tagId)"
+      :isCollapsed="isCollapsed(tag.id)"
       :tag="tag" />
     <ShowMoreButton
-      v-if="isCollapsed(tagId) && moreThanOneTag"
-      :id="tagId"
+      v-if="isCollapsed(tag.id) && moreThanOneTag"
+      :id="tag.id"
       :aria-label="`Show all ${tag.title} endpoints`"
       @click="focusContents" />
     <div

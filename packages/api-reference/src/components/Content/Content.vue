@@ -63,13 +63,14 @@ const activeServer = computed(() => {
     <slot name="start" />
 
     <!-- Loading State -->
-    <Loading
+    <!-- TODO: Fix -->
+    <!-- <Loading
       v-if="activeCollection"
       :document="document"
       :collection="activeCollection"
       :layout="layout"
       :parsedSpec="parsedSpec"
-      :server="activeServer" />
+      :server="activeServer" /> -->
 
     <!-- Introduction -->
     <IntroductionSection
