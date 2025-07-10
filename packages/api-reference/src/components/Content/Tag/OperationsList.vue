@@ -19,7 +19,7 @@ const tagName = computed(() => props.tag['x-displayName'] ?? props.tag.name)
 
 <template>
   <template v-if="tag.operations?.length > 0">
-    <Card class="scalar-card-sticky">
+    <Card class="endpoints-card">
       <CardHeader muted>
         <ScreenReader>{{ tagName }}</ScreenReader>
         Operations
@@ -47,5 +47,9 @@ const tagName = computed(() => props.tag['x-displayName'] ?? props.tag.name)
   overflow: auto;
   background: var(--scalar-background-2);
   padding: 10px 12px;
+}
+.endpoints-card {
+  position: sticky;
+  top: calc(var(--refs-header-height) + 24px);
 }
 </style>

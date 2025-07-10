@@ -111,7 +111,8 @@ const showSchema = ref(false)
   <Card
     v-if="orderedStatusCodes.length"
     aria-label="Example Responses"
-    role="region">
+    role="region"
+    class="response-card">
     <CardTabHeader
       muted
       x="as"
@@ -189,6 +190,10 @@ const showSchema = ref(false)
 </template>
 
 <style scoped>
+.response-card {
+  font-size: var(--scalar-font-size-3);
+}
+
 .markdown :deep(*) {
   margin: 0;
 }
