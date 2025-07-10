@@ -7,6 +7,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
+import { ClientLibraries } from '@/components/Content/ClientLibraries'
 import { BaseUrl } from '@/features/base-url'
 import { useConfig } from '@/hooks/useConfig'
 
@@ -123,8 +124,8 @@ const introCardsSlot = computed(() =>
                 title="Authentication"
                 :workspace="activeWorkspace" />
             </div>
-            <!-- <ClientLibraries
-              class="introduction-card-item scalar-reference-intro-clients" /> -->
+            <ClientLibraries
+              class="introduction-card-item scalar-reference-intro-clients" />
           </div>
         </ScalarErrorBoundary>
       </template>
