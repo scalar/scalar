@@ -21,11 +21,13 @@ const props = withDefaults(
     collapsableItems?: boolean
     withExamples?: boolean
     schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
+    propertyHeading?: boolean
   }>(),
   {
     showChildren: false,
     collapsableItems: false,
     withExamples: true,
+    propertyHeading: true,
   },
 )
 
@@ -114,6 +116,7 @@ const shouldShowParameter = computed(() => {
                 }
               : parameter.examples || parameter.schema?.examples,
           }"
+          :propertyHeading="propertyHeading"
           :withExamples="withExamples" />
       </DisclosurePanel>
     </Disclosure>
