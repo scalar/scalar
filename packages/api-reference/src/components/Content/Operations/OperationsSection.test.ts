@@ -1,12 +1,20 @@
 import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from '@scalar/types'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import OperationsSection from './OperationsSection.vue'
 
-const mockScrollToOperation = vi.fn()
+let mockCollapsedSidebarItems: Record<string, boolean> = {}
+
 vi.mock('@/features/sidebar', () => ({
   useSidebar: () => ({
-    scrollToOperation: mockScrollToOperation,
+    scrollToOperation: vi.fn(),
+    collapsedSidebarItems: mockCollapsedSidebarItems,
+    toggleCollapsedSidebarItem: vi.fn(),
+    setCollapsedSidebarItem: vi.fn(),
+    items: {
+      entries: [],
+      titles: new Map(),
+    },
   }),
 }))
 
@@ -36,6 +44,11 @@ function createConfiguration(config: Partial<ApiReferenceConfiguration> = {}): A
 }
 
 describe('OperationsSection', () => {
+  beforeEach(() => {
+    // Reset the mock to have all sections expanded by default
+    mockCollapsedSidebarItems = {}
+  })
+
   it('renders a single operation summary when document has one operation and no tag', () => {
     const document = {
       openapi: '3.1.0',
@@ -63,5 +76,322 @@ describe('OperationsSection', () => {
     })
 
     expect(wrapper.text()).toContain('Say Hello')
+  })
+
+  it('renders operations grouped under tags', () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test',
+        version: '1.0.0',
+      },
+      tags: [{ name: 'Users', description: 'User management operations' }],
+      paths: {
+        '/users': {
+          get: {
+            tags: ['Users'],
+            summary: 'Get Users',
+            responses: { '200': { description: 'OK' } },
+          },
+          post: {
+            tags: ['Users'],
+            summary: 'Create User',
+            responses: { '201': { description: 'Created' } },
+          },
+        },
+      },
+    } as const
+
+    const wrapper = mount(OperationsSection, {
+      props: {
+        document,
+        config: createConfiguration(),
+      },
+    })
+
+    expect(wrapper.text()).toContain('Users')
+    expect(wrapper.text()).toContain('Get Users')
+    expect(wrapper.text()).toContain('Create User')
+  })
+
+  it('renders webhooks grouped under webhook section', () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test',
+        version: '1.0.0',
+      },
+      webhooks: {
+        'user.created': {
+          post: {
+            summary: 'User Created Webhook',
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+        'user.updated': {
+          post: {
+            summary: 'User Updated Webhook',
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    } as const
+
+    const wrapper = mount(OperationsSection, {
+      props: {
+        document,
+        config: createConfiguration(),
+      },
+    })
+
+    expect(wrapper.text()).toContain('Webhooks')
+    expect(wrapper.text()).toContain('User Created Webhook')
+    expect(wrapper.text()).toContain('User Updated Webhook')
+  })
+
+  it('renders webhooks with tags', () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test',
+        version: '1.0.0',
+      },
+      tags: [{ name: 'Webhooks', description: 'Webhook operations' }],
+      webhooks: {
+        'user.created': {
+          post: {
+            tags: ['Webhooks'],
+            summary: 'User Created Webhook',
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    } as const
+
+    const wrapper = mount(OperationsSection, {
+      props: {
+        document,
+        config: createConfiguration(),
+      },
+    })
+
+    expect(wrapper.text()).toContain('Webhooks')
+    expect(wrapper.text()).toContain('User Created Webhook')
+  })
+
+  it('renders tag groups with x-tagGroups extension', () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test',
+        version: '1.0.0',
+      },
+      tags: [
+        { name: 'Users', description: 'User operations' },
+        { name: 'Posts', description: 'Post operations' },
+      ],
+      'x-tagGroups': [
+        {
+          name: 'Content Management',
+          tags: ['Users', 'Posts'],
+        },
+      ],
+      paths: {
+        '/users': {
+          get: {
+            tags: ['Users'],
+            summary: 'Get Users',
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+        '/posts': {
+          get: {
+            tags: ['Posts'],
+            summary: 'Get Posts',
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    } as const
+
+    const wrapper = mount(OperationsSection, {
+      props: {
+        document,
+        config: createConfiguration(),
+      },
+    })
+
+    expect(wrapper.text()).toContain('Content Management')
+    expect(wrapper.text()).toContain('Users')
+    expect(wrapper.text()).toContain('Posts')
+    expect(wrapper.text()).toContain('Get Users')
+    expect(wrapper.text()).toContain('Get Posts')
+  })
+
+  it('renders operations and webhooks mixed under tags', () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test',
+        version: '1.0.0',
+      },
+      tags: [{ name: 'Events', description: 'Event operations and webhooks' }],
+      paths: {
+        '/events': {
+          get: {
+            tags: ['Events'],
+            summary: 'Get Events',
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      webhooks: {
+        'event.created': {
+          post: {
+            tags: ['Events'],
+            summary: 'Event Created Webhook',
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    } as const
+
+    const wrapper = mount(OperationsSection, {
+      props: {
+        document,
+        config: createConfiguration(),
+      },
+    })
+
+    expect(wrapper.text()).toContain('Events')
+    expect(wrapper.text()).toContain('Get Events')
+    expect(wrapper.text()).toContain('Event Created Webhook')
+  })
+
+  it('renders multiple operations with different methods', () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test',
+        version: '1.0.0',
+      },
+      paths: {
+        '/users': {
+          get: {
+            summary: 'Get Users',
+            responses: { '200': { description: 'OK' } },
+          },
+          post: {
+            summary: 'Create User',
+            responses: { '201': { description: 'Created' } },
+          },
+          put: {
+            summary: 'Update User',
+            responses: { '200': { description: 'OK' } },
+          },
+          delete: {
+            summary: 'Delete User',
+            responses: { '204': { description: 'No Content' } },
+          },
+        },
+      },
+    } as const
+
+    const wrapper = mount(OperationsSection, {
+      props: {
+        document,
+        config: createConfiguration(),
+      },
+    })
+
+    expect(wrapper.text()).toContain('Get Users')
+    expect(wrapper.text()).toContain('Create User')
+    expect(wrapper.text()).toContain('Update User')
+    expect(wrapper.text()).toContain('Delete User')
+  })
+
+  it('renders empty state when no entries exist', () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test',
+        version: '1.0.0',
+      },
+      paths: {},
+    } as const
+
+    const wrapper = mount(OperationsSection, {
+      props: {
+        document,
+        config: createConfiguration(),
+      },
+    })
+
+    // Should not render anything when no operations exist
+    expect(wrapper.text()).toBe('')
+  })
+
+  it('renders complex nested tag groups with multiple levels', () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test',
+        version: '1.0.0',
+      },
+      tags: [
+        { name: 'Users', description: 'User operations' },
+        { name: 'Posts', description: 'Post operations' },
+        { name: 'Comments', description: 'Comment operations' },
+      ],
+      'x-tagGroups': [
+        {
+          name: 'Content Management',
+          tags: ['Users', 'Posts'],
+        },
+        {
+          name: 'Social Features',
+          tags: ['Comments'],
+        },
+      ],
+      paths: {
+        '/users': {
+          get: {
+            tags: ['Users'],
+            summary: 'Get Users',
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+        '/posts': {
+          get: {
+            tags: ['Posts'],
+            summary: 'Get Posts',
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+        '/comments': {
+          get: {
+            tags: ['Comments'],
+            summary: 'Get Comments',
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    } as const
+
+    const wrapper = mount(OperationsSection, {
+      props: {
+        document,
+        config: createConfiguration(),
+      },
+    })
+
+    expect(wrapper.text()).toContain('Content Management')
+    expect(wrapper.text()).toContain('Social Features')
+    expect(wrapper.text()).toContain('Users')
+    expect(wrapper.text()).toContain('Posts')
+    expect(wrapper.text()).toContain('Comments')
+    expect(wrapper.text()).toContain('Get Users')
+    expect(wrapper.text()).toContain('Get Posts')
+    expect(wrapper.text()).toContain('Get Comments')
   })
 })

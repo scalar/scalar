@@ -32,19 +32,11 @@
 info:
   title: Example
   version: 1.0
-tags:
-  - name: Planets
-    // x-displayName: FOOBAR
-x-tagGroups:
-  - name: Galaxy
-    tags:
-      - Planets
 paths:
   '/planets':
     get:
       summary: Get all planets
-      tags:
-        - Planets
+      description: This is an endpoint to get all planets
 webhooks:
   newPet:
     post:
