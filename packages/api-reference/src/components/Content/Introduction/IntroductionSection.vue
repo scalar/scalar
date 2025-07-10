@@ -12,9 +12,8 @@ import { BaseUrl } from '@/features/base-url'
 import { ClientLibraries } from '../ClientLibraries'
 import Introduction from './Introduction.vue'
 
-const { layout, config } = defineProps<{
+const { config } = defineProps<{
   document: OpenAPIV3_1.Document
-  layout: 'modern' | 'classic'
   config?: ApiReferenceConfiguration
 }>()
 
@@ -54,7 +53,7 @@ const activeServer = computed(() => {
 })
 
 const introCardsSlot = computed(() =>
-  layout === 'classic' ? 'after' : 'aside',
+  config?.layout === 'classic' ? 'after' : 'aside',
 )
 </script>
 <template>
@@ -65,7 +64,7 @@ const introCardsSlot = computed(() =>
       <ScalarErrorBoundary>
         <div
           class="introduction-card"
-          :class="{ 'introduction-card-row': layout === 'classic' }">
+          :class="{ 'introduction-card-row': config?.layout === 'classic' }">
           <div
             v-if="activeCollection?.servers?.length"
             class="scalar-reference-intro-server scalar-client introduction-card-item text-sm leading-normal [--scalar-address-bar-height:0px]">

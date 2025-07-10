@@ -1,1 +1,1 @@
-export { default as ModelsSection } from './ModelsSection.vue'
+export { default as Models } from './Models.vue'

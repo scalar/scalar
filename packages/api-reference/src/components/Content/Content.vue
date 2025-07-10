@@ -2,27 +2,21 @@
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { Spec } from '@scalar/types/legacy'
+import type { ApiReferenceConfiguration } from '@scalar/types'
 import { computed } from 'vue'
 
 import { IntroductionSection } from '@/components/Content/Introduction'
-import { ModelsSection } from '@/components/Content/Models'
+import { Models } from '@/components/Content/Models'
 import { SectionFlare } from '@/components/SectionFlare'
 import { useConfig } from '@/hooks/useConfig'
 
 import { Loading } from './Lazy'
 import { OperationsSection } from './Operations'
 
-withDefaults(
-  defineProps<{
-    document: OpenAPIV3_1.Document
-    parsedSpec: Spec
-    layout?: 'modern' | 'classic'
-  }>(),
-  {
-    layout: 'modern',
-  },
-)
+defineProps<{
+  document: OpenAPIV3_1.Document
+  config: ApiReferenceConfiguration
+}>()
 
 const config = useConfig()
 const { collections, servers } = useWorkspace()
@@ -66,7 +60,7 @@ const activeServer = computed(() => {
     <!-- TODO: Fix -->
     <!-- <Loading
       v-if="activeCollection"
-      :document="document"
+      :document
       :collection="activeCollection"
       :layout="layout"
       :parsedSpec="parsedSpec"
@@ -75,9 +69,8 @@ const activeServer = computed(() => {
     <!-- Introduction -->
     <IntroductionSection
       v-if="document?.info?.title || document?.info?.description"
-      :document="document"
-      :layout="layout"
-      :config="config" />
+      :document
+      :config />
     <!-- Empty State -->
     <slot
       v-else
@@ -85,15 +78,15 @@ const activeServer = computed(() => {
 
     <!-- Operations & Webhooks -->
     <OperationsSection
-      :document="document"
-      :config="config" />
+      :document
+      :config />
 
     <!-- Models -->
-    <ModelsSection
+    <Models
       v-if="!config?.hideModels"
-      :document="document"
-      :parsedSpec="parsedSpec"
-      :layout="layout" />
+      :document
+      :config />
+
     <slot name="end" />
   </div>
 </template>
