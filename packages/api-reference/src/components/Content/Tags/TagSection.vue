@@ -19,6 +19,7 @@ const contentsRef = ref<HTMLElement>()
 
 const headerId = useId()
 
+// TODO: use isCollapsed
 const { collapsedSidebarItems } = useSidebar()
 const { getTagId } = useNavState()
 const tagId = computed(() => props.id || getTagId(props.tag) || '')
@@ -41,7 +42,9 @@ async function focusContents() {
   contentsRef.value?.querySelector('button')?.focus()
 }
 
-const TODO_ALWAYS_DISABLED = false
+const isCollapsed = (tagId: string) => {
+  return collapsedSidebarItems[tagId] === true
+}
 </script>
 
 <template>
@@ -54,12 +57,10 @@ const TODO_ALWAYS_DISABLED = false
       v-if="moreThanOneDefaultTag"
       :id="id"
       :headerId="headerId"
-      :isCollapsed="!collapsedSidebarItems[tagId] && TODO_ALWAYS_DISABLED"
+      :isCollapsed="isCollapsed(tagId)"
       :tag="tag" />
     <ShowMoreButton
-      v-if="
-        !collapsedSidebarItems[tagId] && moreThanOneTag && TODO_ALWAYS_DISABLED
-      "
+      v-if="isCollapsed(tagId) && moreThanOneTag"
       :id="tagId"
       :aria-label="`Show all ${tag.title} endpoints`"
       @click="focusContents" />
