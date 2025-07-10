@@ -34,6 +34,7 @@ import type { Schemas } from '@/features/Operation/types/schemas'
 import { TestRequestButton } from '@/features/test-request-button'
 import { useConfig } from '@/hooks/useConfig'
 import { RequestExample } from '@/v2/blocks/scalar-request-example-block'
+import { useStore } from '@/v2/hooks/useStore'
 
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
@@ -52,6 +53,7 @@ const { operation, path, isWebhook } = defineProps<{
 const operationTitle = computed(() => operation.summary || path || '')
 
 const { copyToClipboard } = useClipboard()
+const { workspace } = useStore()
 const config = useConfig()
 
 const emit = defineEmits<{
@@ -164,6 +166,7 @@ const handleDiscriminatorChange = (type: string) => {
           class="operation-example-card"
           :method="method"
           :selectedServer="server"
+          :selectedClient="workspace['x-scalar-default-client']"
           :securitySchemes="securitySchemes"
           :path="path"
           fallback

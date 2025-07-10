@@ -28,6 +28,7 @@ import { ExampleResponses } from '@/features/example-responses'
 import { TestRequestButton } from '@/features/test-request-button'
 import { useConfig } from '@/hooks/useConfig'
 import { RequestExample } from '@/v2/blocks/scalar-request-example-block'
+import { useStore } from '@/v2/hooks/useStore'
 
 import Callbacks from '../components/callbacks/Callbacks.vue'
 import OperationParameters from '../components/OperationParameters.vue'
@@ -52,6 +53,7 @@ const emit = defineEmits<{
 }>()
 
 const labelId = useId()
+const { workspace } = useStore()
 const config = useConfig()
 
 const handleDiscriminatorChange = (type: string) => {
@@ -128,6 +130,7 @@ const handleDiscriminatorChange = (type: string) => {
                 :method="method"
                 :selectedServer="server"
                 :securitySchemes="securitySchemes"
+                :selectedClient="workspace['x-scalar-default-client']"
                 :path="path"
                 fallback
                 :operation="operation"
