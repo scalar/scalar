@@ -282,7 +282,7 @@ const handleDiscriminatorChange = (type: string) => {
 }
 
 .endpoint-content > * {
-  max-height: unset;
+  min-width: 0;
 }
 
 .operation-details-card {

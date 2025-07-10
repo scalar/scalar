@@ -327,7 +327,11 @@ function updateHttpClient(value: string) {
 }
 
 /** Update the selected example and the operation ID */
-function handleExampleUpdate(value: string) {
+function handleExampleUpdate(value: string | undefined) {
+  if (!value) {
+    return
+  }
+
   selectedExampleKey.value = value
   operationId.value = operation.operationId
 
@@ -422,7 +426,7 @@ watch(discriminator, (newValue) => {
   <Card
     v-if="availableTargets.length || customRequestExamples.length"
     :aria-labelledby="`${id}-header`"
-    class="dark-mode"
+    class="request-card dark-mode"
     ref="elem"
     role="region">
     <CardHeader muted>
@@ -494,7 +498,7 @@ watch(discriminator, (newValue) => {
   </Card>
   <Card
     v-else-if="fallback"
-    class="dark-mode">
+    class="request-card dark-mode">
     <CardContent class="request-card-simple">
       <div class="request-header">
         <HttpMethod
@@ -508,9 +512,8 @@ watch(discriminator, (newValue) => {
   </Card>
 </template>
 <style scoped>
-.request {
-  display: flex;
-  flex-wrap: nowrap;
+.request-card {
+  font-size: var(--scalar-font-size-3);
 }
 .request-header {
   display: flex;

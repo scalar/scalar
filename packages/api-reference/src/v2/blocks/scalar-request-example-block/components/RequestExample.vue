@@ -243,7 +243,7 @@ const id = useId()
   <Card
     v-if="clients.length"
     :aria-labelledby="`${id}-header`"
-    class="dark-mode"
+    class="request-card dark-mode"
     ref="elem"
     role="region">
     <!-- Header -->
@@ -330,7 +330,7 @@ const id = useId()
   <!-- Fallback card with just method and path in the case of no examples -->
   <Card
     v-else-if="fallback"
-    class="dark-mode">
+    class="request-card dark-mode">
     <CardContent class="request-card-simple">
       <div class="request-header">
         <HttpMethod
@@ -344,6 +344,9 @@ const id = useId()
   </Card>
 </template>
 <style scoped>
+.request-card {
+  font-size: var(--scalar-font-size-3);
+}
 .request-header {
   display: flex;
   gap: 6px;
