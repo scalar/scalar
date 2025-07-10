@@ -40,15 +40,14 @@ const variants = cva({
     'group/button flex items-stretch rounded px-2 font-sidebar text-c-2 no-underline',
   ],
   variants: {
-    selected: {
-      true: 'group/button-selected cursor-auto bg-b-2 text-c-1 font-sidebar-active',
-    },
+    active: { true: 'text-c-1 font-sidebar-active' },
     disabled: { true: 'cursor-auto' },
+    selected: { true: 'cursor-auto bg-b-2 text-c-1 font-sidebar-active' },
   },
   compoundVariants: [
     { selected: false, disabled: false, class: 'hover:bg-b-2' },
   ],
-  defaultVariants: { selected: false, disabled: false },
+  defaultVariants: { selected: false, disabled: false, active: false },
 })
 defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
@@ -58,7 +57,7 @@ const { cx } = useBindCx()
     :is="is"
     :aria-selected="selected"
     :type="is === 'button' ? 'button' : undefined"
-    v-bind="cx(variants({ selected, disabled }))">
+    v-bind="cx(variants({ selected, disabled, active }))">
     <slot name="indent">
       <ScalarSidebarIndent
         :indent
