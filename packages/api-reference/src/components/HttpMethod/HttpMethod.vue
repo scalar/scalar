@@ -16,7 +16,9 @@ const props = defineProps<{
 }>()
 
 /** Grabs the method info object which contains abbreviation, color, and background color etc */
-const httpMethodInfo = computed(() => getHttpMethodInfo(props.method))
+const httpMethodInfo = computed(() =>
+  getHttpMethodInfo(String(props.method || '')),
+)
 
 /** Full method name */
 const normalized = computed(() => normalizeHttpMethod(props.method))
