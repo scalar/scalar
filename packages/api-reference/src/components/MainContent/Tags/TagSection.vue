@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
-import { computed } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { OperationsList } from '@/components/OperationsList'
@@ -16,36 +15,23 @@ import {
 import { SpecificationExtension } from '@/features/specification-extension'
 import type { TraversedTag } from '@/features/traverse-schema'
 import { useConfig } from '@/hooks/useConfig'
-import { useNavState } from '@/hooks/useNavState'
 
-const { id, tag, headerId, isCollapsed } = defineProps<{
-  id?: string
+const { tag, headerId, isCollapsed } = defineProps<{
   tag: TraversedTag
   headerId?: string
   isCollapsed?: boolean
 }>()
 
-const { getTagId } = useNavState()
 const config = useConfig()
-
-const tagId = computed(
-  () =>
-    id ||
-    getTagId({
-      name: tag.title,
-      description: tag.tag?.description ?? '',
-    }) ||
-    '',
-)
 </script>
 <template>
   <Section
     v-if="tag"
-    :id="tagId"
+    :id="tag.id"
     :label="tag.title?.toUpperCase()"
     role="none">
     <SectionHeader v-show="!config.isLoading">
-      <Anchor :id="tagId">
+      <Anchor :id="tag.id">
         <SectionHeaderTag
           :id="headerId"
           :level="2">
