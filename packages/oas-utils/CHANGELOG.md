@@ -1,5 +1,19 @@
 # @scalar/oas-utils
 
+## 0.4.12
+
+### Patch Changes
+
+- c826b3e: fix: uses relative document URL as server URL
+- 80acf84: feat: add code sample block wrapper with global state
+- Updated dependencies [a0cadac]
+- Updated dependencies [c10e191]
+- Updated dependencies [661c7e9]
+- Updated dependencies [80acf84]
+  - @scalar/workspace-store@0.9.0
+  - @scalar/types@0.2.8
+  - @scalar/themes@0.13.9
+
 ## 0.4.11
 
 ### Patch Changes

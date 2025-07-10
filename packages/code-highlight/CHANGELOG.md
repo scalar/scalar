@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.1.6
+
+### Patch Changes
+
+- 903f975: feat: increases code line margin to enhance alignment
+
 ## 0.1.5
 
 ### Patch Changes

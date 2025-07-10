@@ -1,5 +1,14 @@
 # @scalar/aspire
 
+## 0.1.7
+
+### Patch Changes
+
+- 9daf5da: feat: support x-tokenName extension
+- Updated dependencies [6a7509a]
+- Updated dependencies [80acf84]
+  - @scalar/api-reference@1.32.6
+
 ## 0.1.6
 
 ### Patch Changes

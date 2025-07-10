@@ -1,5 +1,34 @@
 # @scalar/api-reference
 
+## 1.32.6
+
+### Patch Changes
+
+- 6a7509a: fix: updates last download link style
+- 80acf84: feat: add code sample block wrapper with global state
+- Updated dependencies [a0cadac]
+- Updated dependencies [c10e191]
+- Updated dependencies [661c7e9]
+- Updated dependencies [c826b3e]
+- Updated dependencies [cd1c367]
+- Updated dependencies [903f975]
+- Updated dependencies [244edda]
+- Updated dependencies [80acf84]
+- Updated dependencies [4d89219]
+- Updated dependencies [244edda]
+- Updated dependencies [244edda]
+- Updated dependencies [1db9130]
+- Updated dependencies [9e81b17]
+  - @scalar/workspace-store@0.9.0
+  - @scalar/api-client@2.5.16
+  - @scalar/types@0.2.8
+  - @scalar/themes@0.13.9
+  - @scalar/oas-utils@0.4.12
+  - @scalar/components@0.14.17
+  - @scalar/code-highlight@0.1.6
+  - @scalar/openapi-parser@0.18.1
+  - @scalar/snippetz@0.4.1
+
 ## 1.32.5
 
 ### Patch Changes

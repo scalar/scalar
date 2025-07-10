@@ -1,5 +1,18 @@
 # @scalar/aspnetcore
 
+## 2.6.0
+
+### Minor Changes
+
+- 5d9e89d: feat: return scalar endpoint group instead of endpoint
+
+### Patch Changes
+
+- 9daf5da: feat: support x-tokenName extension
+- Updated dependencies [6a7509a]
+- Updated dependencies [80acf84]
+  - @scalar/api-reference@1.32.6
+
 ## 2.5.6
 
 ### Patch Changes
