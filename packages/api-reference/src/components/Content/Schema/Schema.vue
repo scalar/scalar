@@ -405,7 +405,7 @@ const handleDiscriminatorChange = (type: string) => {
 
   color: var(--scalar-color-2);
   font-weight: var(--scalar-semibold);
-  font-size: var(--scalar-micro);
+  font-size: var(--scalar-mini);
   border-bottom: var(--scalar-border-width) solid transparent;
 }
 button.schema-card-title {
@@ -424,6 +424,9 @@ button.schema-card-title:hover {
 }
 .schema-properties-open > .schema-properties {
   width: fit-content;
+}
+.schema-card-description {
+  color: var(--scalar-color-2);
 }
 .schema-card-description + .schema-properties {
   width: fit-content;
@@ -464,7 +467,7 @@ button.schema-card-title:hover {
 }
 .schema-card-title--compact {
   color: var(--scalar-color-2);
-  padding: 6px;
+  padding: 6px 10px 6px 8px;
   height: auto;
   border-bottom: none;
 }
@@ -494,7 +497,7 @@ button.schema-card-title:hover {
   border: none;
 }
 :deep(.schema-card-description) p {
-  font-size: var(--scalar-mini, var(--scalar-paragraph));
+  font-size: var(--scalar-small, var(--scalar-paragraph));
   color: var(--scalar-color-2);
   line-height: 1.5;
   margin-bottom: 0;
