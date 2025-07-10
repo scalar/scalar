@@ -1,7 +1,7 @@
 import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from '@scalar/types'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import OperationsSection from './OperationsAndWebhooks.vue'
+import OperationsAndWebhooks from './OperationsAndWebhooks.vue'
 
 let mockCollapsedSidebarItems: Record<string, boolean> = {}
 
@@ -43,7 +43,7 @@ function createConfiguration(config: Partial<ApiReferenceConfiguration> = {}): A
   return apiReferenceConfigurationSchema.parse(config)
 }
 
-describe('OperationsSection', () => {
+describe('OperationsAndWebhooks', () => {
   beforeEach(() => {
     // Reset the mock to have all sections expanded by default
     mockCollapsedSidebarItems = {}
@@ -67,7 +67,7 @@ describe('OperationsSection', () => {
         },
       } as const
 
-      const wrapper = mount(OperationsSection, {
+      const wrapper = mount(OperationsAndWebhooks, {
         props: {
           document,
           config: createConfiguration({
@@ -108,7 +108,7 @@ describe('OperationsSection', () => {
         },
       } as const
 
-      const wrapper = mount(OperationsSection, {
+      const wrapper = mount(OperationsAndWebhooks, {
         props: {
           document,
           config: createConfiguration(),
@@ -131,7 +131,7 @@ describe('OperationsSection', () => {
         paths: {},
       } as const
 
-      const wrapper = mount(OperationsSection, {
+      const wrapper = mount(OperationsAndWebhooks, {
         props: {
           document,
           config: createConfiguration(),
@@ -168,7 +168,7 @@ describe('OperationsSection', () => {
         },
       } as const
 
-      const wrapper = mount(OperationsSection, {
+      const wrapper = mount(OperationsAndWebhooks, {
         props: {
           document,
           config: createConfiguration(),
@@ -215,7 +215,7 @@ describe('OperationsSection', () => {
         },
       } as const
 
-      const wrapper = mount(OperationsSection, {
+      const wrapper = mount(OperationsAndWebhooks, {
         props: {
           document,
           config: createConfiguration(),
@@ -277,7 +277,7 @@ describe('OperationsSection', () => {
         },
       } as const
 
-      const wrapper = mount(OperationsSection, {
+      const wrapper = mount(OperationsAndWebhooks, {
         props: {
           document,
           config: createConfiguration(),
@@ -319,7 +319,7 @@ describe('OperationsSection', () => {
         },
       } as const
 
-      const wrapper = mount(OperationsSection, {
+      const wrapper = mount(OperationsAndWebhooks, {
         props: {
           document,
           config: createConfiguration(),
@@ -350,7 +350,7 @@ describe('OperationsSection', () => {
         },
       } as const
 
-      const wrapper = mount(OperationsSection, {
+      const wrapper = mount(OperationsAndWebhooks, {
         props: {
           document,
           config: createConfiguration(),
@@ -391,7 +391,7 @@ describe('OperationsSection', () => {
         },
       } as const
 
-      const wrapper = mount(OperationsSection, {
+      const wrapper = mount(OperationsAndWebhooks, {
         props: {
           document,
           config: createConfiguration(),
