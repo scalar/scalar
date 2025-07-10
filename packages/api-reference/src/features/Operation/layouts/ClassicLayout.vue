@@ -16,6 +16,7 @@ import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
+import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import { computed } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
@@ -24,20 +25,19 @@ import { HttpMethod } from '@/components/HttpMethod'
 import OperationPath from '@/components/OperationPath.vue'
 import { SectionAccordion } from '@/components/Section'
 import { ExampleResponses } from '@/features/example-responses'
+import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
+import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
 import type { Schemas } from '@/features/Operation/types/schemas'
 import { TestRequestButton } from '@/features/test-request-button'
 import { useConfig } from '@/hooks/useConfig'
 import { RequestExample } from '@/v2/blocks/scalar-request-example-block'
 import { useStore } from '@/v2/hooks/useStore'
 
-import OperationParameters from '../components/OperationParameters.vue'
-import OperationResponses from '../components/OperationResponses.vue'
-
 const { operation, path, isWebhook } = defineProps<{
   id: string
   path: string
   method: HttpMethodType
-  operation: OperationObject
+  operation: Dereference<OperationObject>
   isWebhook: boolean
   server: ServerObject | undefined
   securitySchemes: SecuritySchemeObject[]

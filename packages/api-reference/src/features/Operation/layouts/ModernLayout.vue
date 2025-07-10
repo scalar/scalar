@@ -10,6 +10,7 @@ import {
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
+import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import { computed, useId } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
@@ -24,21 +25,20 @@ import {
   SectionHeaderTag,
 } from '@/components/Section'
 import { ExampleResponses } from '@/features/example-responses'
+import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
+import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
+import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
+import type { Schemas } from '@/features/Operation/types/schemas'
 import { TestRequestButton } from '@/features/test-request-button'
 import { useConfig } from '@/hooks/useConfig'
 import { RequestExample } from '@/v2/blocks/scalar-request-example-block'
 import { useStore } from '@/v2/hooks/useStore'
 
-import Callbacks from '../components/callbacks/Callbacks.vue'
-import OperationParameters from '../components/OperationParameters.vue'
-import OperationResponses from '../components/OperationResponses.vue'
-import type { Schemas } from '../types/schemas'
-
 const { path, operation, method, isWebhook } = defineProps<{
   id: string
   path: string
   method: HttpMethodType
-  operation: OperationObject
+  operation: Dereference<OperationObject>
   isWebhook: boolean
   securitySchemes: SecuritySchemeObject[]
   server: ServerObject | undefined
