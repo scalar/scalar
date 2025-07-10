@@ -61,6 +61,5 @@ if (isLazy) {
 }
 </script>
 <template>
-  LAZY {{ id }}
   <slot v-if="readyToRender" />
 </template>
