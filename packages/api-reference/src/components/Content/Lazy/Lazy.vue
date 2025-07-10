@@ -1,4 +1,11 @@
 <script lang="ts" setup>
+/**
+ * Lazily renders content when the browser has idle time available.
+ *
+ * When server-side rendering, content renders immediately.
+ *
+ * @link https://medium.com/js-dojo/lazy-rendering-in-vue-to-improve-performance-dcccd445d5f
+ */
 import { nextTick, ref } from 'vue'
 
 import { lazyBus } from './lazyBus'
@@ -10,13 +17,6 @@ import { lazyBus } from './lazyBus'
  */
 const DEFAULT_LAZY_TIMEOUT = 300
 
-/**
- * Lazily renders content when the browser has idle time available.
- *
- * When server-side rendering, content renders immediately.
- *
- * @link https://medium.com/js-dojo/lazy-rendering-in-vue-to-improve-performance-dcccd445d5f
- */
 const {
   id,
   isLazy = true,
