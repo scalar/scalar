@@ -38,20 +38,26 @@ const {
 const { resolve, workspace } = useStore()
 
 /**
- * Operation from the new workspace store
+ * Operation from the new workspace store, ensure we are de-referenced
+ * TODO: loading/error states
  */
 const operation = computed(() => {
   const initialKey = isWebhook ? 'webhooks' : 'paths'
   const entity = workspace.activeDocument?.[initialKey]?.[path]?.[method]
+
+  if (isReference(entity)) {
+    return null
+  }
 
   return entity
 })
 
 /**
  * Handle the selection of discriminator in the request body (anyOf, oneOf…)
+ *
+ * TODO: update this to use the new store
  */
 const { handleDiscriminatorChange } = useOperationDiscriminator(
-  // TODO update this to use the new store
   isWebhook
     ? document?.webhooks?.[path]?.[method]
     : document?.paths?.[path]?.[method],

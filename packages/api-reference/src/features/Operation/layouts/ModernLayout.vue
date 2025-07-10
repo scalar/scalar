@@ -25,15 +25,14 @@ import {
   SectionHeaderTag,
 } from '@/components/Section'
 import { ExampleResponses } from '@/features/example-responses'
+import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
+import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
+import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
+import type { Schemas } from '@/features/Operation/types/schemas'
 import { TestRequestButton } from '@/features/test-request-button'
 import { useConfig } from '@/hooks/useConfig'
 import { RequestExample } from '@/v2/blocks/scalar-request-example-block'
 import { useStore } from '@/v2/hooks/useStore'
-
-import Callbacks from '../components/callbacks/Callbacks.vue'
-import OperationParameters from '../components/OperationParameters.vue'
-import OperationResponses from '../components/OperationResponses.vue'
-import type { Schemas } from '../types/schemas'
 
 const { path, operation, method, isWebhook } = defineProps<{
   id: string

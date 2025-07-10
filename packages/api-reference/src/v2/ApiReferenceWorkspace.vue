@@ -19,10 +19,12 @@ import {
   safeLocalStorage,
 } from '@scalar/helpers/object/local-storage'
 import { parseJsonOrYaml, redirectToProxy } from '@scalar/oas-utils/helpers'
+import type { ReferenceConfiguration } from '@scalar/types'
 import type {
-  AnyApiReferenceConfiguration,
-  ApiReferenceConfiguration,
-} from '@scalar/types'
+  AvailableClients,
+  ClientId,
+  TargetId,
+} from '@scalar/types/snippetz'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { type WorkspaceStore } from '@scalar/workspace-store/client'
 import { useSeoMeta } from '@unhead/vue'
@@ -46,12 +48,13 @@ import {
   useMultipleDocuments,
 } from '@/features/multiple-documents'
 import { NAV_STATE_SYMBOL } from '@/hooks/useNavState'
+import { useHttpClientStore } from '@/stores/useHttpClientStore'
 import { isClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import { onCustomEvent } from '@/v2/events'
 import { useStore } from '@/v2/hooks/useStore'
 
 const props = defineProps<{
-  configuration?: AnyApiReferenceConfiguration
+  configuration?: ReferenceConfiguration
   getWorkspaceStore: () => WorkspaceStore
 }>()
 
@@ -74,6 +77,9 @@ const {
   hash: ref(''),
   hashPrefix: ref(''),
 })
+
+const { httpClient, setExcludedClients, setDefaultHttpClient } =
+  useHttpClientStore()
 
 /**
  * Creates a proxy function that redirects requests through a proxy URL.
@@ -183,6 +189,13 @@ onMounted(() => {
       addDocument(config)
     }
   })
+
+  const storedClient = safeLocalStorage().getItem(
+    REFERENCE_LS_KEYS.SELECTED_CLIENT,
+  )
+  if (isClient(storedClient)) {
+    store.update('x-scalar-default-client', storedClient)
+  }
 })
 
 // onCustomEvent(root, 'scalar-update-sidebar', (event) => {
@@ -200,14 +213,31 @@ onCustomEvent(root, 'scalar-update-active-document', (event) => {
 onCustomEvent(root, 'scalar-update-selected-client', (event) => {
   store.update('x-scalar-default-client', event.detail)
   safeLocalStorage().setItem(REFERENCE_LS_KEYS.SELECTED_CLIENT, event.detail)
+
+  // Temp to keep the old stuff working, remove when moved over to new store
+  const [targetKey, clientKey] = event.detail.split('/') as [
+    TargetId,
+    ClientId<TargetId>,
+  ]
+  setDefaultHttpClient({
+    targetKey,
+    clientKey,
+  })
 })
 
-onMounted(() => {
-  const storedClient = safeLocalStorage().getItem(
-    REFERENCE_LS_KEYS.SELECTED_CLIENT,
-  )
-  if (isClient(storedClient)) {
-    store.update('x-scalar-default-client', storedClient)
+// Temp to keep the old stuff working, remove when moved over to new store.
+watch(
+  () => selectedConfiguration.value.hiddenClients,
+  (newValue) => newValue && setExcludedClients(newValue),
+)
+watch(httpClient, (newClient) => {
+  const clientId = `${newClient.targetKey}/${newClient.clientKey}`
+  if (
+    newClient &&
+    store.workspace.activeDocument?.['x-scalar-default-client'] !== clientId &&
+    isClient(clientId)
+  ) {
+    store.update('x-scalar-default-client', clientId)
   }
 })
 
@@ -217,15 +247,18 @@ watch(
   (newValue) => {
     if (newValue) {
       const { targetKey, clientKey } = newValue
-      store.update('x-scalar-default-client', `${targetKey}/${clientKey}`)
+
+      const clientId = `${targetKey}/${clientKey}`
+      if (isClient(clientId)) {
+        store.update('x-scalar-default-client', clientId)
+      }
+
+      // Temp to keep the old stuff working, remove when moved over to new store
+      setDefaultHttpClient(newValue)
     }
   },
   { immediate: true },
 )
-
-// Hides any client snippets from the references
-// const { setExcludedClients, setDefaultHttpClient } = useHttpClientStore()
-// mapConfigToState('defaultHttpClient', setDefaultHttpClient)
 
 // ---------------------------------------------------------------------------
 // TODO: Remove this legacy code block. Directly copied from SingleApiReference.vue
