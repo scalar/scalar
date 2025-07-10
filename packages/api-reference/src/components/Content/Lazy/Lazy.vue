@@ -3,6 +3,11 @@ import { nextTick, ref } from 'vue'
 
 import { lazyBus } from './lazyBus'
 
+/**
+ * The default timeout for lazy loading
+ *
+ * Note: For browsers *without* requestIdleCallback support only.
+ */
 const DEFAULT_LAZY_TIMEOUT = 300
 
 /**
@@ -31,7 +36,12 @@ const onIdle = (cb: () => void) => {
   } else if ('requestIdleCallback' in window) {
     setTimeout(() => window.requestIdleCallback(cb), lazyTimeout)
   } else {
-    setTimeout(() => nextTick(cb), lazyTimeout ?? DEFAULT_LAZY_TIMEOUT)
+    setTimeout(() => {
+      nextTick(() => {
+        cb()
+      }),
+        lazyTimeout ?? DEFAULT_LAZY_TIMEOUT
+    })
   }
 }
 
