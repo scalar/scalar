@@ -3,6 +3,7 @@ import { ScalarErrorBoundary } from '@scalar/components'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed, useId } from 'vue'
 
+import { Lazy } from '@/components/Lazy'
 import {
   CompactSection,
   Section,
@@ -14,7 +15,6 @@ import ShowMoreButton from '@/components/ShowMoreButton.vue'
 import { useSidebar } from '@/features/sidebar'
 import { useNavState } from '@/hooks/useNavState'
 
-import { Lazy } from '../Lazy'
 import { Schema, SchemaHeading } from '../Schema'
 
 const props = defineProps<{

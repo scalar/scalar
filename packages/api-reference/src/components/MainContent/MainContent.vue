@@ -5,12 +5,12 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import { computed } from 'vue'
 
-import { IntroductionSection } from '@/components/MainContent/Introduction'
+import { Loading } from '@/components/Lazy'
+import { Introduction } from '@/components/MainContent/Introduction'
 import { Models } from '@/components/MainContent/Models'
 import { SectionFlare } from '@/components/SectionFlare'
 import { useConfig } from '@/hooks/useConfig'
 
-import { Loading } from './Lazy'
 import { OperationsAndWebhooks } from './Operations'
 
 defineProps<{
@@ -66,8 +66,7 @@ const activeServer = computed(() => {
       :parsedSpec="parsedSpec"
       :server="activeServer" /> -->
 
-    <!-- Introduction -->
-    <IntroductionSection
+    <Introduction
       v-if="document?.info?.title || document?.info?.description"
       :document
       :config />

@@ -2,6 +2,7 @@
 import { ScalarMarkdown } from '@scalar/components'
 import { computed, inject, type Component } from 'vue'
 
+<<<<<<< HEAD
 import SchemaEnumValues from '@/components/Content/Schema/SchemaEnumValues.vue'
 import {
   compositions,
@@ -12,13 +13,20 @@ import SchemaEnumValues from '@/components/Content/Schema/SchemaEnumValues.vue'
 =======
 } from '@/components/MainContent/Schema/helpers/optimizeValueForDisplay'
 >>>>>>> 96375d1c8 (refactor: rename components):packages/api-reference/src/components/MainContent/Schema/SchemaProperty.vue
+=======
+>>>>>>> e3b71b93f (refactor: move more components around)
 import type { Schemas } from '@/features/Operation/types/schemas'
 import { SpecificationExtension } from '@/features/specification-extension'
 import { DISCRIMINATOR_CONTEXT } from '@/hooks/useDiscriminator'
 
+import {
+  compositions,
+  optimizeValueForDisplay,
+} from './helpers/optimizeValueForDisplay'
 import Schema from './Schema.vue'
 import SchemaComposition from './SchemaComposition.vue'
 import SchemaDiscriminator from './SchemaDiscriminator.vue'
+import SchemaEnumValues from './SchemaEnumValues.vue'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 
 /**

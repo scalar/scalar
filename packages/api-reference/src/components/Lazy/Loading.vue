@@ -15,7 +15,7 @@ import type {
 import { onMounted, ref, watch } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
-import { lazyBus } from '@/components/MainContent/Lazy'
+import { lazyBus } from '@/components/Lazy'
 import { Schema } from '@/components/MainContent/Schema'
 import { Tag } from '@/components/MainContent/Tags'
 import {

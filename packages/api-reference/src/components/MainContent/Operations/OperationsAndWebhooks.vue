@@ -5,7 +5,6 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import { computed, ref } from 'vue'
 
-import { Tag } from '@/components/MainContent/Tags'
 import { SectionContainer } from '@/components/Section'
 import { Operation } from '@/features/Operation'
 import {
@@ -16,6 +15,8 @@ import {
 import { traverseDocument } from '@/features/traverse-schema/helpers/traverse-document'
 import type { TraversedWebhook } from '@/features/traverse-schema/types'
 import { useNavState } from '@/hooks/useNavState'
+
+import { Tag } from '../Tags'
 
 const { document, config } = defineProps<{
   document: OpenAPIV3_1.Document
