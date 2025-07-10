@@ -36,6 +36,7 @@ import {
   ref,
   shallowRef,
   toRef,
+  useTemplateRef,
   watch,
 } from 'vue'
 
@@ -97,7 +98,7 @@ provide(NAV_STATE_SYMBOL, { isIntersectionEnabled, hash, hashPrefix })
 
 // ---------------------------------------------------------------------------
 
-const root = shallowRef<HTMLElement | null>(null)
+const root = useTemplateRef<HTMLElement>('root')
 
 /** Injected workspace store. This is provided as functional getter to avoid converting the original object to a reactive prop object
  *
@@ -283,33 +284,35 @@ useFavicon(favicon)
 
 <template>
   <!-- SingleApiReference -->
-  <!-- Inject any custom CSS directly into a style tag -->
-  <component
-    :is="'style'"
-    v-if="selectedConfiguration?.customCss">
-    {{ selectedConfiguration.customCss }}
-  </component>
-  <ApiReferenceLayout
-    :configuration="selectedConfiguration"
-    :isDark="!!store.workspace['x-scalar-dark-mode']"
-    @toggleDarkMode="() => toggleColorMode()"
-    @updateContent="$emit('updateContent', $event)">
-    <template #footer>
-      <slot name="footer" />
-    </template>
-    <!-- Expose the content end slot as a slot for the footer -->
-    <template #content-end>
-      <slot name="footer" />
-    </template>
-    <template #document-selector>
-      <DocumentSelector
-        v-model="selectedDocumentIndex"
-        :options="availableDocuments" />
-    </template>
-    <template #sidebar-start>
-      <slot name="sidebar-start" />
-    </template>
-  </ApiReferenceLayout>
+  <div ref="root">
+    <!-- Inject any custom CSS directly into a style tag -->
+    <component
+      :is="'style'"
+      v-if="selectedConfiguration?.customCss">
+      {{ selectedConfiguration.customCss }}
+    </component>
+    <ApiReferenceLayout
+      :configuration="selectedConfiguration"
+      :isDark="!!store.workspace['x-scalar-dark-mode']"
+      @toggleDarkMode="() => toggleColorMode()"
+      @updateContent="$emit('updateContent', $event)">
+      <template #footer>
+        <slot name="footer" />
+      </template>
+      <!-- Expose the content end slot as a slot for the footer -->
+      <template #content-end>
+        <slot name="footer" />
+      </template>
+      <template #document-selector>
+        <DocumentSelector
+          v-model="selectedDocumentIndex"
+          :options="availableDocuments" />
+      </template>
+      <template #sidebar-start>
+        <slot name="sidebar-start" />
+      </template>
+    </ApiReferenceLayout>
+  </div>
 </template>
 
 <style>
