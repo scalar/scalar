@@ -1,83 +1,72 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, useId } from 'vue'
+import { ScalarMarkdown } from '@scalar/components'
+import { computed } from 'vue'
 
-import { SectionContainer } from '@/components/Section'
-import ShowMoreButton from '@/components/ShowMoreButton.vue'
-import { useSidebar } from '@/features/sidebar'
+import { Anchor } from '@/components/Anchor'
+import { OperationsList } from '@/components/OperationsList'
+import ScreenReader from '@/components/ScreenReader.vue'
+import {
+  Section,
+  SectionColumn,
+  SectionColumns,
+  SectionContent,
+  SectionHeader,
+  SectionHeaderTag,
+} from '@/components/Section'
+import { SpecificationExtension } from '@/features/specification-extension'
 import type { TraversedTag } from '@/features/traverse-schema'
+import { useConfig } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
 
-import Tag from './Tag.vue'
-
-const props = defineProps<{
+const { id, tag, headerId, isCollapsed } = defineProps<{
   id?: string
   tag: TraversedTag
+  headerId?: string
+  isCollapsed?: boolean
 }>()
 
-const sectionContainerRef = ref<HTMLElement>()
-const contentsRef = ref<HTMLElement>()
-
-const headerId = useId()
-
-// TODO: use isCollapsed
-const { collapsedSidebarItems } = useSidebar()
 const { getTagId } = useNavState()
-const tagId = computed(() => props.id || getTagId(props.tag) || '')
+const config = useConfig()
 
-const moreThanOneTag = computed(
-  () => true,
-  // TODO:
-  // () => props.spec.tags?.length && props.spec.tags?.length > 1,
-)
-
-const moreThanOneDefaultTag = computed(
+const tagId = computed(
   () =>
-    moreThanOneTag.value ||
-    props.tag?.title !== 'default' ||
-    props.tag?.tag.description !== '',
+    id ||
+    getTagId({
+      name: tag.title,
+      description: tag.tag?.description ?? '',
+    }) ||
+    '',
 )
-
-async function focusContents() {
-  await nextTick()
-  contentsRef.value?.querySelector('button')?.focus()
-}
-
-const isCollapsed = (tagId: string) => {
-  return collapsedSidebarItems[tagId] === true
-}
 </script>
-
 <template>
-  <SectionContainer
-    ref="sectionContainerRef"
-    :aria-labelledby="headerId"
-    class="tag-section-container"
-    role="region">
-    <Tag
-      v-if="moreThanOneDefaultTag"
-      :id="id"
-      :headerId="headerId"
-      :isCollapsed="isCollapsed(tagId)"
-      :tag="tag" />
-    <ShowMoreButton
-      v-if="isCollapsed(tagId) && moreThanOneTag"
-      :id="tagId"
-      :aria-label="`Show all ${tag.title} endpoints`"
-      @click="focusContents" />
-    <div
-      v-else
-      ref="contentsRef"
-      class="contents">
-      <slot />
-    </div>
-  </SectionContainer>
+  <Section
+    v-if="tag"
+    :id="tagId"
+    :label="tag.title?.toUpperCase()"
+    role="none">
+    <SectionHeader v-show="!config.isLoading">
+      <Anchor :id="tagId">
+        <SectionHeaderTag
+          :id="headerId"
+          :level="2">
+          {{ tag.title }}
+          <ScreenReader v-if="isCollapsed"> (Collapsed)</ScreenReader>
+        </SectionHeaderTag>
+      </Anchor>
+    </SectionHeader>
+    <SectionContent :loading="config.isLoading">
+      <SectionColumns>
+        <SectionColumn>
+          <ScalarMarkdown
+            :clamp="isCollapsed ? '7' : false"
+            :value="tag.tag?.description ?? ''"
+            withImages />
+        </SectionColumn>
+        <SectionColumn>
+          <OperationsList :tag="tag" />
+        </SectionColumn>
+      </SectionColumns>
+    </SectionContent>
+    <SpecificationExtension :value="tag" />
+  </Section>
 </template>
-
-<style scoped>
-.section-container {
-  border-top: var(--scalar-border-width) solid var(--scalar-border-color);
-}
-.section-container:has(.show-more) {
-  background-color: color-mix(in srgb, var(--scalar-background-2), transparent);
-}
-</style>

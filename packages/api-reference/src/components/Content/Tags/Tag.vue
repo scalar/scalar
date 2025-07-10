@@ -1,72 +1,35 @@
 <script setup lang="ts">
-import { ScalarMarkdown } from '@scalar/components'
 import { computed } from 'vue'
 
-import { Anchor } from '@/components/Anchor'
-import { OperationsList } from '@/components/OperationsList'
-import ScreenReader from '@/components/ScreenReader.vue'
-import {
-  Section,
-  SectionColumn,
-  SectionColumns,
-  SectionContent,
-  SectionHeader,
-  SectionHeaderTag,
-} from '@/components/Section'
-import { SpecificationExtension } from '@/features/specification-extension'
 import type { TraversedTag } from '@/features/traverse-schema'
-import { useConfig } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
 
-const { id, tag, headerId, isCollapsed } = defineProps<{
-  id?: string
-  tag: TraversedTag
-  headerId?: string
-  isCollapsed?: boolean
-}>()
+import ClassicLayout from './ClassicLayout.vue'
+import ModernLayout from './ModernLayout.vue'
 
 const { getTagId } = useNavState()
-const config = useConfig()
 
-const tagId = computed(
-  () =>
-    id ||
-    getTagId({
-      name: tag.title,
-      description: tag.tag?.description ?? '',
-    }) ||
-    '',
-)
+const { tag } = defineProps<{
+  tag: TraversedTag
+  layout: 'classic' | 'modern'
+}>()
+
+const tagId = computed(() => getTagId(tag.tag))
 </script>
+
 <template>
-  <Section
-    v-if="tag"
-    :id="tagId"
-    :label="tag.title?.toUpperCase()"
-    role="none">
-    <SectionHeader v-show="!config.isLoading">
-      <Anchor :id="tagId">
-        <SectionHeaderTag
-          :id="headerId"
-          :level="2">
-          {{ tag.title }}
-          <ScreenReader v-if="isCollapsed"> (Collapsed)</ScreenReader>
-        </SectionHeaderTag>
-      </Anchor>
-    </SectionHeader>
-    <SectionContent :loading="config.isLoading">
-      <SectionColumns>
-        <SectionColumn>
-          <ScalarMarkdown
-            :clamp="isCollapsed ? '7' : false"
-            :value="tag.tag?.description ?? ''"
-            withImages />
-        </SectionColumn>
-        <SectionColumn>
-          <OperationsList :tag="tag" />
-        </SectionColumn>
-      </SectionColumns>
-    </SectionContent>
-    <SpecificationExtension :value="tag" />
-  </Section>
+  <template v-if="layout === 'classic'">
+    <ClassicLayout
+      v-bind="$props"
+      :id="tagId">
+      <slot />
+    </ClassicLayout>
+  </template>
+  <template v-else>
+    <ModernLayout
+      v-bind="$props"
+      :id="tagId">
+      <slot />
+    </ModernLayout>
+  </template>
 </template>

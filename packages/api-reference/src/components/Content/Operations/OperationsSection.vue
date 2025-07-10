@@ -5,7 +5,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import { computed, ref } from 'vue'
 
-import TagSection from '@/components/Content/Tags/TagSection.vue'
+import { Tag } from '@/components/Content/Tags'
 import { SectionContainer } from '@/components/Section'
 import { Operation } from '@/features/Operation'
 import {
@@ -120,9 +120,9 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
     :key="entry.id">
     <!-- Tag -->
     <template v-if="isTag(entry)">
-      <TagSection
+      <Tag
         :tag="entry"
-        :collection="activeCollection">
+        :layout="config.layout">
         <template
           v-if="
             'children' in entry && entry.children && entry.children?.length
@@ -156,7 +156,7 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
             </template>
           </template>
         </template>
-      </TagSection>
+      </Tag>
     </template>
 
     <!-- Tag Group -->
@@ -166,9 +166,9 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
         :key="child.id">
         <!-- Tag -->
         <template v-if="isTag(child)">
-          <TagSection
+          <Tag
             :tag="child"
-            :collection="activeCollection">
+            :layout="config.layout">
             <template
               v-if="
                 'children' in child && child.children && child.children?.length
@@ -201,16 +201,16 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
                 </template>
               </template>
             </template>
-          </TagSection>
+          </Tag>
         </template>
       </template>
     </template>
 
     <!-- Webhooks -->
     <template v-if="isWebhookGroup(entry)">
-      <TagSection
+      <Tag
         :tag="entry"
-        :collection="activeCollection">
+        :layout="config.layout">
         <template
           v-if="
             'children' in entry && entry.children && entry.children?.length
@@ -243,7 +243,7 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
             </template>
           </template>
         </template>
-      </TagSection>
+      </Tag>
     </template>
     <!-- Operations -->
     <template v-if="isOperation(entry)">

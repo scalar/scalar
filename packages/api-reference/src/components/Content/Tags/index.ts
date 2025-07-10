@@ -1,1 +1,1 @@
-export { default as TagSection } from './TagSection.vue'
+export { default as Tag } from './Tag.vue'

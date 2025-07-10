@@ -8,19 +8,18 @@ import {
   SectionHeaderTag,
 } from '@/components/Section'
 import type { TraversedTag } from '@/features/traverse-schema'
-import { useNavState } from '@/hooks/useNavState'
 
 defineProps<{
+  id: string
   tag: TraversedTag
 }>()
-
-const { getTagId } = useNavState()
 </script>
+
 <template>
   <SectionContainerAccordion class="tag-section">
     <template #title>
       <SectionHeader class="tag-name">
-        <Anchor :id="getTagId(tag)">
+        <Anchor :id="id">
           <SectionHeaderTag :level="2">
             {{ tag.title }}
           </SectionHeaderTag>
@@ -34,6 +33,7 @@ const { getTagId } = useNavState()
     <slot />
   </SectionContainerAccordion>
 </template>
+
 <style scoped>
 .tag-section {
   margin-bottom: 48px;
