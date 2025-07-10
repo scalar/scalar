@@ -3,51 +3,53 @@ import { nextTick, ref } from 'vue'
 
 import { lazyBus } from './lazyBus'
 
+const DEFAULT_LAZY_TIMEOUT = 300
+
 /**
- * Component which loads lazily when the browser is "idle"
- * Disabled if being rendered from the server
+ * Lazily renders content when the browser has idle time available.
+ *
+ * When server-side rendering, content renders immediately.
  *
  * @link https://medium.com/js-dojo/lazy-rendering-in-vue-to-improve-performance-dcccd445d5f
  */
-const props = withDefaults(
-  defineProps<{
-    // Identifier for loaded event, if no ID is passed then no event is dispatched
-    id?: string
-    // To lazyload or not to lazyload, that is the question
-    isLazy?: boolean
-    // Amount of time in ms to wait before triggering requestIdleCallback
-    lazyTimeout?: number
-  }>(),
-  {
-    isLazy: true,
-    lazyTimeout: 0,
-  },
-)
+const {
+  id,
+  isLazy = true,
+  lazyTimeout = 0,
+} = defineProps<{
+  // Identifier for loaded event, if no ID is passed then no event is dispatched
+  id?: string
+  // To lazyload or not to lazyload, that is the question
+  isLazy?: boolean
+  // Amount of time in ms to wait before triggering requestIdleCallback
+  lazyTimeout?: number
+}>()
 
-const onIdle = (cb = () => {}) => {
+const onIdle = (cb: () => void) => {
   if (typeof window === 'undefined') {
-    // Do nothing and load on the client only
+    // SSR: Do nothing and load client-side
   } else if ('requestIdleCallback' in window) {
-    setTimeout(() => window.requestIdleCallback(cb), props.lazyTimeout)
+    setTimeout(() => window.requestIdleCallback(cb), lazyTimeout)
   } else {
-    setTimeout(() => nextTick(cb), props.lazyTimeout ?? 300)
+    setTimeout(() => nextTick(cb), lazyTimeout ?? DEFAULT_LAZY_TIMEOUT)
   }
 }
 
-const shouldRender = ref(!props.isLazy)
+const readyToRender = ref(!isLazy)
 
 // Fire the event for non-lazy components as well to keep track of loading
-if (props.isLazy) {
+if (isLazy) {
   onIdle(() => {
-    shouldRender.value = true
-    if (props.id) {
-      nextTick(() => lazyBus.emit({ id: props.id! }))
+    readyToRender.value = true
+
+    if (id) {
+      nextTick(() => lazyBus.emit({ id }))
     }
   })
-} else if (props.id) {
-  nextTick(() => lazyBus.emit({ id: props.id! }))
+} else if (id) {
+  nextTick(() => lazyBus.emit({ id }))
 }
 </script>
 <template>
-  <slot v-if="shouldRender" />
+  <slot v-if="readyToRender" />
 </template>
