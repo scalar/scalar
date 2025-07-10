@@ -40,6 +40,8 @@ async function focusContents() {
   await nextTick()
   contentsRef.value?.querySelector('button')?.focus()
 }
+
+const TODO_ALWAYS_DISABLED = false
 </script>
 
 <template>
@@ -52,10 +54,12 @@ async function focusContents() {
       v-if="moreThanOneDefaultTag"
       :id="id"
       :headerId="headerId"
-      :isCollapsed="!collapsedSidebarItems[tagId]"
+      :isCollapsed="!collapsedSidebarItems[tagId] && TODO_ALWAYS_DISABLED"
       :tag="tag" />
     <ShowMoreButton
-      v-if="!collapsedSidebarItems[tagId] && moreThanOneTag"
+      v-if="
+        !collapsedSidebarItems[tagId] && moreThanOneTag && TODO_ALWAYS_DISABLED
+      "
       :id="tagId"
       :aria-label="`Show all ${tag.title} endpoints`"
       @click="focusContents" />
