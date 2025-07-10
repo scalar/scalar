@@ -7,7 +7,7 @@ import { formatExample } from '@/components/MainContent/Schema/helpers/formatExa
 =======
 >>>>>>> e3b71b93f (refactor: move more components around)
 import { describe, expect, it } from 'vitest'
-import { formatExample } from './helpers/formatExample'
+import { formatExample } from './formatExample'
 
 describe('formatExample', () => {
   it('formats array examples by wrapping items in quotes and brackets', () => {
