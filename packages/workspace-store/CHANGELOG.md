@@ -1,5 +1,20 @@
 # @scalar/workspace-store
 
+## 0.9.0
+
+### Minor Changes
+
+- a0cadac: feat(workspace-store) add persistence layer to workspace store
+
+### Patch Changes
+
+- 80acf84: feat: add code sample block wrapper with global state
+- Updated dependencies [c10e191]
+- Updated dependencies [903f975]
+  - @scalar/types@0.2.8
+  - @scalar/code-highlight@0.1.6
+  - @scalar/openapi-parser@0.18.1
+
 ## 0.8.0
 
 ### Minor Changes

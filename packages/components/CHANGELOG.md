@@ -1,5 +1,21 @@
 # @scalar/components
 
+## 0.14.17
+
+### Patch Changes
+
+- cd1c367: refactor(components): update slot definitions to use unknown instead of any
+- 4d89219: fix: rollback scalar combobox options timeout
+- 244edda: fix: updates scalar toggle background and width
+- 1db9130: feat(components): add nested sidebar component
+- Updated dependencies [661c7e9]
+- Updated dependencies [c826b3e]
+- Updated dependencies [903f975]
+- Updated dependencies [80acf84]
+  - @scalar/themes@0.13.9
+  - @scalar/oas-utils@0.4.12
+  - @scalar/code-highlight@0.1.6
+
 ## 0.14.16
 
 ### Patch Changes

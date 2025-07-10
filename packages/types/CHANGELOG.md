@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.2.8
+
+### Patch Changes
+
+- c10e191: feat(oauth2): add support for x-tokenName extension
+
 ## 0.2.7
 
 ### Patch Changes
