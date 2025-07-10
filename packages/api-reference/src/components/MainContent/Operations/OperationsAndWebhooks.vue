@@ -5,7 +5,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import { computed, ref } from 'vue'
 
-import { Tag } from '@/components/Content/Tags'
+import { Tag } from '@/components/MainContent/Tags'
 import { SectionContainer } from '@/components/Section'
 import { Operation } from '@/features/Operation'
 import {

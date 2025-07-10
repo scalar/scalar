@@ -5,13 +5,13 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import { computed } from 'vue'
 
-import { IntroductionSection } from '@/components/Content/Introduction'
-import { Models } from '@/components/Content/Models'
+import { IntroductionSection } from '@/components/MainContent/Introduction'
+import { Models } from '@/components/MainContent/Models'
 import { SectionFlare } from '@/components/SectionFlare'
 import { useConfig } from '@/hooks/useConfig'
 
 import { Loading } from './Lazy'
-import { OperationsSection } from './Operations'
+import { OperationsAndWebhooks } from './Operations'
 
 defineProps<{
   document: OpenAPIV3_1.Document
@@ -77,7 +77,7 @@ const activeServer = computed(() => {
       name="empty-state" />
 
     <!-- Operations & Webhooks -->
-    <OperationsSection
+    <OperationsAndWebhooks
       :document
       :config />
 

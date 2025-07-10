@@ -4,7 +4,7 @@ import { ScalarIcon } from '@scalar/components'
 import type { TargetId } from '@scalar/types/snippetz'
 import { ref } from 'vue'
 
-import { useFeaturedHttpClients } from '@/components/Content/ClientLibraries/useFeaturedHttpClients'
+import { useFeaturedHttpClients } from '@/components/MainContent/ClientLibraries/useFeaturedHttpClients'
 import {
   useHttpClientStore,
   type HttpClientState,

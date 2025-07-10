@@ -2,7 +2,11 @@
 import { ScalarIcon } from '@scalar/components'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 
+<<<<<<< HEAD:packages/api-reference/src/components/Content/Schema/SchemaPropertyExamples.vue
 import { formatExample } from '@/components/Content/Schema/helpers/format-example'
+=======
+import { formatExample } from '@/components/MainContent/Schema/helpers/formatExample'
+>>>>>>> 96375d1c8 (refactor: rename components):packages/api-reference/src/components/MainContent/Schema/SchemaPropertyExamples.vue
 
 defineProps<{
   examples?: Record<string, unknown>

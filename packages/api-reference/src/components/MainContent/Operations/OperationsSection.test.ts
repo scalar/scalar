@@ -1,7 +1,7 @@
 import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from '@scalar/types'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import OperationsSection from './OperationsSection.vue'
+import OperationsSection from './OperationsAndWebhooks.vue'
 
 let mockCollapsedSidebarItems: Record<string, boolean> = {}
 

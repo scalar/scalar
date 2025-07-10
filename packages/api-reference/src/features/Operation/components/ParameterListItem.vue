@@ -7,7 +7,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ContentType } from '@scalar/types/legacy'
 import { computed, ref } from 'vue'
 
-import { SchemaProperty } from '@/components/Content/Schema'
+import { SchemaProperty } from '@/components/MainContent/Schema'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 import ParameterHeaders from './ParameterHeaders.vue'
