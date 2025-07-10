@@ -54,6 +54,7 @@ const { cx } = useBindCx()
         class="group/group-button"
         :aria-expanded="open"
         :indent="level"
+        :active
         :selected
         :disabled
         :icon
@@ -81,11 +82,3 @@ const { cx } = useBindCx()
     </component>
   </li>
 </template>
-<style>
-@reference "../../style.css";
-
-/* Set the font weight and color of the button when a subitem is selected */
-.group\/item:has(.group\/button-selected) > .group\/group-button {
-  @apply font-sidebar-active text-c-1;
-}
-</style>
