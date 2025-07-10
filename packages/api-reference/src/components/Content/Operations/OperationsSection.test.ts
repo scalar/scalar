@@ -35,7 +35,7 @@ function createConfiguration(config: Partial<ApiReferenceConfiguration> = {}): A
   return apiReferenceConfigurationSchema.parse(config)
 }
 
-describe('OperationsSection.vue', () => {
+describe('OperationsSection', () => {
   it('renders a single operation summary when document has one operation and no tag', () => {
     const document = {
       openapi: '3.1.0',
@@ -56,7 +56,9 @@ describe('OperationsSection.vue', () => {
     const wrapper = mount(OperationsSection, {
       props: {
         document,
-        config: createConfiguration(),
+        config: createConfiguration({
+          tagsSorter: 'alpha',
+        }),
       },
     })
 
