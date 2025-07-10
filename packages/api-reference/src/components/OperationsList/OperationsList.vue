@@ -15,7 +15,7 @@ const { tag } = defineProps<{
   tag: TraversedTag
 }>()
 
-const operationsOrWebhooks = computed(
+const operationsAndWebhooks = computed(
   (): (TraversedOperation | TraversedWebhook)[] => {
     return tag.children?.filter(
       (child) => 'operation' in child || 'webhook' in child,
@@ -38,7 +38,7 @@ const operationsOrWebhooks = computed(
           :aria-label="`${tag.title} endpoints`"
           class="endpoints">
           <OperationsListItem
-            v-for="operationOrWebhook in operationsOrWebhooks"
+            v-for="operationOrWebhook in operationsAndWebhooks"
             :key="operationOrWebhook.id"
             :operation="operationOrWebhook" />
         </ul>

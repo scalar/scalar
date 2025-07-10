@@ -4,6 +4,7 @@ export type {
   TraversedEntry,
   TraversedDescription,
   TraversedTag,
+  TraversedWebhook,
   TagsMap,
 } from './types'
 

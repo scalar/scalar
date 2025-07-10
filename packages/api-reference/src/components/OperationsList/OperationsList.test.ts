@@ -8,7 +8,7 @@ describe('OperationsList', () => {
   const createMockOperation = (overrides: Partial<TraversedOperation> = {}): TraversedOperation => ({
     id: 'test-operation-1',
     title: 'Test Operation',
-    method: 'GET',
+    method: 'get',
     path: '/test',
     operation: {
       summary: 'Test Operation',
@@ -24,7 +24,7 @@ describe('OperationsList', () => {
   const createMockWebhook = (overrides: Partial<TraversedWebhook> = {}): TraversedWebhook => ({
     id: 'test-webhook-1',
     title: 'Test Webhook',
-    method: 'POST',
+    method: 'post',
     name: 'test-webhook',
     webhook: {
       summary: 'Test Webhook',
@@ -70,7 +70,7 @@ describe('OperationsList', () => {
   it('shows Operations header when tag has operation children', () => {
     const operations = [
       createMockOperation({ id: 'op-1', title: 'Get Users' }),
-      createMockOperation({ id: 'op-2', title: 'Create User', method: 'POST' }),
+      createMockOperation({ id: 'op-2', title: 'Create User', method: 'post' }),
     ]
     const tag = createMockTag({ children: operations })
 
@@ -94,7 +94,7 @@ describe('OperationsList', () => {
   it('shows Webhooks header when tag has webhook children and isWebhooks flag', () => {
     const webhooks = [
       createMockWebhook({ id: 'webhook-1', title: 'User Created' }),
-      createMockWebhook({ id: 'webhook-2', title: 'User Updated', method: 'PUT' }),
+      createMockWebhook({ id: 'webhook-2', title: 'User Updated', method: 'put' }),
     ]
     const tag = createMockTag({
       children: webhooks,

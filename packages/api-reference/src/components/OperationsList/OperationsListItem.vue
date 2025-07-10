@@ -2,18 +2,17 @@
 import { getHttpMethodInfo } from '@scalar/helpers/http/http-info'
 import { ScalarIconWebhooksLogo } from '@scalar/icons'
 import { isOperationDeprecated } from '@scalar/oas-utils/helpers'
-import type {
-  OpenAPIV3_1,
-  TransformedOperation,
-  XScalarStability,
-} from '@scalar/types/legacy'
+import type { TransformedOperation } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
 import { SectionHeaderTag } from '@/components/Section'
 import { useSidebar } from '@/features/sidebar'
-import type { TraversedOperation } from '@/features/traverse-schema'
-import type { TraversedWebhook } from '@/features/traverse-schema/types'
+import type {
+  TraversedEntry,
+  TraversedOperation,
+  TraversedWebhook,
+} from '@/features/traverse-schema'
 
 const { operation } = defineProps<{
   operation: TraversedOperation | TraversedWebhook
@@ -29,13 +28,21 @@ const scrollHandler = async (
   scrollToOperation(givenOperation.id, true)
 }
 
-const path = computed(() => {
+const pathOrTitle = computed(() => {
   if ('path' in operation) {
     return operation.path
   }
 
   return operation.title
 })
+
+const isDeprecated = (
+  operation: TraversedEntry,
+): operation is TraversedOperation =>
+  'operation' in operation && isOperationDeprecated(operation.operation)
+
+const isWebhook = (operation: TraversedEntry): operation is TraversedWebhook =>
+  'webhook' in operation
 </script>
 
 <template>
@@ -55,7 +62,7 @@ const path = computed(() => {
       @click.prevent="scrollHandler(operation)">
       <div class="flex min-w-[62px] flex-row items-center justify-end gap-2">
         <ScalarIconWebhooksLogo
-          v-if="'webhook' in operation"
+          v-if="isWebhook(operation)"
           :style="{
             color: getHttpMethodInfo(operation.method).colorVar,
           }" />
@@ -65,16 +72,8 @@ const path = computed(() => {
       </div>
       <span
         class="endpoint-path"
-        :class="{
-          deprecated:
-            'operation' in operation &&
-            isOperationDeprecated(
-              operation.operation as OpenAPIV3_1.OperationObject<{
-                'x-scalar-stability': XScalarStability
-              }>,
-            ),
-        }">
-        {{ path }}
+        :class="{ deprecated: isDeprecated(operation) }">
+        {{ pathOrTitle }}
       </span>
     </a>
   </li>
