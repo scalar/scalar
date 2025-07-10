@@ -12,7 +12,6 @@ import { useConfig } from '@/hooks/useConfig'
 
 import { Loading } from './Lazy'
 import { OperationsSection } from './Operations'
-import { WebhooksSection } from './Webhooks'
 
 withDefaults(
   defineProps<{
