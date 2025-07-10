@@ -85,7 +85,6 @@ const activeServer = computed(() => {
     <!-- Operations & Webhooks -->
     <OperationsSection
       :document="document"
-      :layout="layout"
       :config="config" />
 
     <!-- Models -->

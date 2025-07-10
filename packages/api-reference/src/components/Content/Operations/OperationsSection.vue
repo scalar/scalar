@@ -17,10 +17,9 @@ import { traverseDocument } from '@/features/traverse-schema/helpers/traverse-do
 import type { TraversedWebhook } from '@/features/traverse-schema/types'
 import { useNavState } from '@/hooks/useNavState'
 
-const { document, layout, config } = defineProps<{
+const { document, config } = defineProps<{
   document: OpenAPIV3_1.Document
-  layout: 'modern' | 'classic'
-  config?: ApiReferenceConfiguration
+  config: ApiReferenceConfiguration
 }>()
 
 const { collections, servers } = useWorkspace()
@@ -139,7 +138,7 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
                 :id="child.id"
                 :document
                 :collection="activeCollection"
-                :layout
+                :layout="config.layout"
                 :server="activeServer" />
             </template>
 
@@ -152,7 +151,7 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
                 :id="child.id"
                 :document
                 :collection="activeCollection"
-                :layout
+                :layout="config.layout"
                 :server="activeServer" />
             </template>
           </template>
@@ -185,7 +184,7 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
                     :id="grandchild.id"
                     :document
                     :collection="activeCollection"
-                    :layout
+                    :layout="config.layout"
                     :server="activeServer" />
                 </template>
                 <!-- Webhook -->
@@ -197,7 +196,7 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
                     :id="grandchild.id"
                     :document
                     :collection="activeCollection"
-                    :layout
+                    :layout="config.layout"
                     :server="activeServer" />
                 </template>
               </template>
@@ -227,7 +226,7 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
                 :id="grandchild.id"
                 :document
                 :collection="activeCollection"
-                :layout
+                :layout="config.layout"
                 :server="activeServer" />
             </template>
             <!-- Webhook -->
@@ -239,7 +238,7 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
                 :id="grandchild.id"
                 :document
                 :collection="activeCollection"
-                :layout
+                :layout="config.layout"
                 :server="activeServer" />
             </template>
           </template>
@@ -255,7 +254,7 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
           :id="entry.id"
           :document
           :collection="activeCollection"
-          :layout
+          :layout="config.layout"
           :server="activeServer" />
       </SectionContainer>
     </template>
