@@ -42,7 +42,7 @@ async function focusContents() {
 }
 
 const isCollapsed = (tagId: string) => {
-  return collapsedSidebarItems[tagId] === true
+  return !collapsedSidebarItems[tagId]
 }
 </script>
 
