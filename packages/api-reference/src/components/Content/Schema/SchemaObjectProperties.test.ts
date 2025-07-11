@@ -156,4 +156,31 @@ describe('SchemaObjectProperties', () => {
 
     expect(wrapper.findAll('.schema-property')).toHaveLength(0)
   })
+
+  it('does not set discriminator within nested property name presence', () => {
+    const nestedSchema: OpenAPIV3_1.SchemaObject = {
+      type: 'object',
+      properties: {
+        type: { type: 'string' },
+        name: { type: 'string' },
+      },
+    }
+
+    const wrapper = mount(SchemaObjectProperties, {
+      props: {
+        schema: nestedSchema,
+        discriminatorPropertyName: 'type',
+        discriminatorMapping: {
+          planet: '#/components/schemas/Planet',
+          satellite: '#/components/schemas/Satellite',
+        },
+      },
+    })
+
+    const schemaProperties = wrapper.findAllComponents({ name: 'SchemaProperty' })
+    expect(schemaProperties).toHaveLength(2)
+
+    const typeProperty = schemaProperties.find((comp) => comp.props('name') === 'type')
+    expect(typeProperty?.props('isDiscriminator')).toBe(false)
+  })
 })
