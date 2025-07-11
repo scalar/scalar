@@ -247,7 +247,7 @@ const id = useId()
     ref="elem"
     role="region">
     <!-- Header -->
-    <CardHeader>
+    <CardHeader class="pr-0.75">
       <div
         :id="`${id}-header`"
         class="request-header">
@@ -289,9 +289,7 @@ const id = useId()
     </CardHeader>
 
     <!-- Code snippet -->
-    <CardContent
-      borderless
-      class="request-editor-section custom-scroll p-0">
+    <CardContent class="request-editor-section custom-scroll p-0">
       <div
         :id="`${id}-example`"
         class="code-snippet">
