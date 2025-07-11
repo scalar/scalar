@@ -35,7 +35,7 @@ const {
   document?: OpenAPIV3_1.Document
 }>()
 
-const { resolve, workspace } = useStore()
+const { workspace } = useStore()
 
 /**
  * Operation from the new workspace store, ensure we are de-referenced
@@ -58,10 +58,8 @@ const operation = computed(() => {
  * TODO: update this to use the new store
  */
 const { handleDiscriminatorChange } = useOperationDiscriminator(
-  isWebhook
-    ? document?.webhooks?.[path]?.[method]
-    : document?.paths?.[path]?.[method],
-  document?.components?.schemas,
+  operation.value,
+  workspace.activeDocument?.components?.schemas,
 )
 
 /**
@@ -88,7 +86,7 @@ const selectedSecuritySchemes = computed(() =>
         :operation="operation"
         :securitySchemes="selectedSecuritySchemes"
         :path="path"
-        :schemas="document?.components?.schemas"
+        :schemas="workspace.activeDocument?.components?.schemas"
         :server="server"
         @update:modelValue="handleDiscriminatorChange" />
     </template>
@@ -100,7 +98,7 @@ const selectedSecuritySchemes = computed(() =>
         :securitySchemes="selectedSecuritySchemes"
         :path="path"
         :operation="operation"
-        :schemas="document?.components?.schemas"
+        :schemas="workspace.activeDocument?.components?.schemas"
         :server="server"
         @update:modelValue="handleDiscriminatorChange" />
     </template>
