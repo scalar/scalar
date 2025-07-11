@@ -14,9 +14,9 @@ defineProps<{
   <template v-if="document?.components?.schemas">
     <ClassicLayout
       v-if="config?.layout === 'classic'"
-      :schemas="document?.components?.schemas" />
+      :schemas="document.components.schemas" />
     <ModernLayout
       v-else
-      :schemas="document?.components?.schemas" />
+      :schemas="document.components.schemas" />
   </template>
 </template>
