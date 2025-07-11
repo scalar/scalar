@@ -32,7 +32,7 @@ const id = useId()
 
 const { copyToClipboard } = useClipboard()
 
-const selectedExampleKey = ref<string>()
+const selectedExampleKey = ref<string>('')
 
 // Bring the status codes in the right order.
 const orderedStatusCodes = computed(() => Object.keys(responses ?? {}).sort())
@@ -104,7 +104,7 @@ const currentResponseWithExample = computed(() => ({
 
 const changeTab = (index: number) => {
   selectedResponseIndex.value = index
-  selectedExampleKey.value = undefined
+  selectedExampleKey.value = ''
 }
 
 const showSchema = ref(false)

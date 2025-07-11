@@ -19,24 +19,18 @@ import {
   safeLocalStorage,
 } from '@scalar/helpers/object/local-storage'
 import { parseJsonOrYaml, redirectToProxy } from '@scalar/oas-utils/helpers'
-import type { ReferenceConfiguration } from '@scalar/types'
-import type {
-  AvailableClients,
-  ClientId,
-  TargetId,
-} from '@scalar/types/snippetz'
+import type { AnyApiReferenceConfiguration } from '@scalar/types'
+import type { ClientId, TargetId } from '@scalar/types/snippetz'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { type WorkspaceStore } from '@scalar/workspace-store/client'
 import { useSeoMeta } from '@unhead/vue'
 import { useFavicon } from '@vueuse/core'
 import {
   computed,
-  onBeforeUnmount,
   onMounted,
   onServerPrefetch,
   provide,
   ref,
-  shallowRef,
   toRef,
   useTemplateRef,
   watch,
@@ -54,7 +48,7 @@ import { onCustomEvent } from '@/v2/events'
 import { useStore } from '@/v2/hooks/useStore'
 
 const props = defineProps<{
-  configuration?: ReferenceConfiguration
+  configuration?: AnyApiReferenceConfiguration
   getWorkspaceStore: () => WorkspaceStore
 }>()
 
