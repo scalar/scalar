@@ -425,21 +425,15 @@ watch(discriminator, (newValue) => {
 <template>
   <Card
     v-if="availableTargets.length || customRequestExamples.length"
-    :aria-labelledby="`${id}-header`"
     class="request-card dark-mode"
-    ref="elem"
-    role="region">
+    ref="elem">
     <CardHeader class="pr-0.75">
-      <div
-        :id="`${id}-header`"
-        class="request-header">
-        <ScreenReader>Request Example for</ScreenReader>
-        <HttpMethod
-          as="span"
-          class="request-method"
-          :method="method" />
-        <slot name="header" />
-      </div>
+      <ScreenReader>Request Example for</ScreenReader>
+      <HttpMethod
+        as="span"
+        class="request-method"
+        :method="method" />
+      <slot name="header" />
       <template #actions>
         <TextSelect
           class="request-client-picker"
@@ -511,14 +505,10 @@ watch(discriminator, (newValue) => {
 .request-card {
   font-size: var(--scalar-font-size-3);
 }
-.request-header {
-  display: flex;
-  gap: 6px;
-  text-transform: initial;
-}
 .request-method {
   font-family: var(--scalar-font-code);
   text-transform: uppercase;
+  margin-right: 6px;
 }
 .request-client-picker {
   padding-left: 12px;
