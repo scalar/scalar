@@ -3,6 +3,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed, inject, onMounted, type Ref } from 'vue'
 
 import { Badge } from '@/components/Badge'
+import { Lazy } from '@/components/Content/Lazy'
 import {
   Section,
   SectionColumn,
@@ -25,7 +26,7 @@ const { document } = defineProps<{
   document: OpenAPIV3_1.Document
 }>()
 
-const { getHeadingId } = useNavState()
+const { getHeadingId, hash } = useNavState()
 
 /**
  * Get the OpenAPI/Swagger specification version from the API definition.
@@ -50,50 +51,52 @@ const config = useConfig()
 onMounted(() => config.value.onLoaded?.())
 </script>
 <template>
-  <SectionContainer>
-    <!-- If the #after slot is used, we need to add a gap to the section. -->
-    <Section
-      class="introduction-section gap-12"
-      :id="
-        getHeadingId({
-          slug: DEFAULT_INTRODUCTION_SLUG,
-          depth: 1,
-          value: 'Introduction',
-        })
-      ">
-      <SectionContent
-        :loading="
-          config.isLoading ??
-          (!document?.info?.description && !document?.info?.title)
+  <Lazy :isLazy="Boolean(hash)">
+    <SectionContainer>
+      <!-- If the #after slot is used, we need to add a gap to the section. -->
+      <Section
+        class="introduction-section gap-12"
+        :id="
+          getHeadingId({
+            slug: DEFAULT_INTRODUCTION_SLUG,
+            depth: 1,
+            value: 'Introduction',
+          })
         ">
-        <div class="flex gap-1">
-          <Badge v-if="version">{{ version }}</Badge>
-          <Badge v-if="oasVersion">OAS {{ oasVersion }}</Badge>
-        </div>
-        <SectionHeader
-          :loading="!document.info?.title"
-          tight>
-          <SectionHeaderTag :level="1">
-            {{ document.info?.title }}
-          </SectionHeaderTag>
-        </SectionHeader>
-        <SectionColumns>
-          <SectionColumn>
-            <DownloadLink :title="document.info?.title" />
-            <Description :value="document.info?.description" />
-          </SectionColumn>
-          <SectionColumn v-if="$slots.aside">
-            <div class="sticky-cards">
-              <slot name="aside" />
-            </div>
-          </SectionColumn>
-        </SectionColumns>
-        <SpecificationExtension :value="document" />
-        <SpecificationExtension :value="document.info" />
-      </SectionContent>
-      <slot name="after" />
-    </Section>
-  </SectionContainer>
+        <SectionContent
+          :loading="
+            config.isLoading ??
+            (!document?.info?.description && !document?.info?.title)
+          ">
+          <div class="flex gap-1">
+            <Badge v-if="version">{{ version }}</Badge>
+            <Badge v-if="oasVersion">OAS {{ oasVersion }}</Badge>
+          </div>
+          <SectionHeader
+            :loading="!document.info?.title"
+            tight>
+            <SectionHeaderTag :level="1">
+              {{ document.info?.title }}
+            </SectionHeaderTag>
+          </SectionHeader>
+          <SectionColumns>
+            <SectionColumn>
+              <DownloadLink :title="document.info?.title" />
+              <Description :value="document.info?.description" />
+            </SectionColumn>
+            <SectionColumn v-if="$slots.aside">
+              <div class="sticky-cards">
+                <slot name="aside" />
+              </div>
+            </SectionColumn>
+          </SectionColumns>
+          <SpecificationExtension :value="document" />
+          <SpecificationExtension :value="document.info" />
+        </SectionContent>
+        <slot name="after" />
+      </Section>
+    </SectionContainer>
+  </Lazy>
 </template>
 <style scoped>
 .sticky-cards {

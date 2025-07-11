@@ -12,7 +12,6 @@ import { useConfig } from '@/hooks/useConfig'
 
 import { ClientLibraries } from './ClientLibraries'
 import { Introduction } from './Introduction'
-import { Loading } from './Lazy'
 import { Models, ModelsAccordion } from './Models'
 import { TagList } from './Tag'
 
@@ -81,14 +80,6 @@ const introCardsSlot = computed(() =>
   </div>
   <div class="narrow-references-container">
     <slot name="start" />
-    <Loading
-      v-if="activeCollection"
-      :document="document"
-      :collection="activeCollection"
-      :layout="layout"
-      :parsedSpec="parsedSpec"
-      :server="activeServer" />
-
     <Introduction
       v-if="document?.info?.title || document?.info?.description"
       :document="document">
