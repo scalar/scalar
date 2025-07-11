@@ -7,27 +7,27 @@ import type { AvailableClients } from '@scalar/snippetz'
  */
 export type ApiReferenceEvents = {
   'scalar-update-sidebar': {
-    data: {
+    detail: {
       value: boolean
     }
   }
   'scalar-update-dark-mode': {
-    data: {
+    detail: {
       value: boolean
     }
   }
   'scalar-update-active-document': {
-    data: {
+    detail: {
       value: string
     }
   }
   /** Controls the selected client in our code example blocks */
   'scalar-update-selected-client': {
-    data: AvailableClients[number]
+    detail: AvailableClients[number]
   }
   /** Controls the selected example key in our operation blocks + children */
   'scalar-update-selected-example': {
-    data: string
+    detail: string
   }
 }
 
@@ -41,9 +41,9 @@ export type ApiReferenceEvent = Prettify<keyof ApiReferenceEvents>
 export function emitCustomEvent<E extends ApiReferenceEvent>(
   target: HTMLElement,
   event: E,
-  data: ApiReferenceEvents[E]['data'],
+  detail: ApiReferenceEvents[E]['detail'],
 ) {
-  const instance = new CustomEvent(event, { detail: data, bubbles: true, composed: true, cancelable: true })
+  const instance = new CustomEvent(event, { detail, bubbles: true, composed: true, cancelable: true })
 
   target.dispatchEvent(instance)
 }
