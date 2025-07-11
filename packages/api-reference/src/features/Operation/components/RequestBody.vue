@@ -4,7 +4,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ContentType, RequestBody } from '@scalar/types/legacy'
 import { computed, ref } from 'vue'
 
-import { Schema } from '@/components/Content/Schema'
+import { Schema } from '@/components/MainContent/Schema'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 

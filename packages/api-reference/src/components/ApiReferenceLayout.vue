@@ -40,8 +40,8 @@ import {
 } from 'vue'
 
 import ClassicHeader from '@/components/ClassicHeader.vue'
-import { Content } from '@/components/Content'
 import GettingStarted from '@/components/GettingStarted.vue'
+import { MainContent } from '@/components/MainContent'
 import MobileHeader from '@/components/MobileHeader.vue'
 import { ApiClientModal } from '@/features/api-client-modal'
 import { useDocumentSource } from '@/features/document-source'
@@ -448,10 +448,9 @@ watch(hash, (newHash, oldHash) => {
       <main
         :aria-label="`Open API Documentation for ${dereferencedDocument?.info?.title}`"
         class="references-rendered">
-        <Content
-          :layout="configuration.layout"
+        <MainContent
           :document="dereferencedDocument"
-          :parsedSpec="parsedDocument">
+          :config="configuration">
           <template #start>
             <slot
               v-bind="referenceSlotProps"
@@ -495,7 +494,7 @@ watch(hash, (newHash, oldHash) => {
               v-bind="referenceSlotProps"
               name="content-end" />
           </template>
-        </Content>
+        </MainContent>
       </main>
       <div
         v-if="$slots.footer"

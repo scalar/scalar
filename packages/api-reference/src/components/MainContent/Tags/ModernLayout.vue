@@ -1,0 +1,70 @@
+<script setup lang="ts">
+import { computed, nextTick, ref, useId } from 'vue'
+
+import { SectionContainer } from '@/components/Section'
+import ShowMoreButton from '@/components/ShowMoreButton.vue'
+import { useSidebar } from '@/features/sidebar'
+import type { TraversedTag } from '@/features/traverse-schema'
+
+import TagSection from './TagSection.vue'
+
+const { tag, moreThanOneTag } = defineProps<{
+  tag: TraversedTag
+  moreThanOneTag: boolean
+}>()
+
+const sectionContainerRef = ref<HTMLElement>()
+const contentsRef = ref<HTMLElement>()
+
+const headerId = useId()
+
+const { collapsedSidebarItems } = useSidebar()
+
+const moreThanOneDefaultTag = computed(
+  () =>
+    moreThanOneTag || tag?.title !== 'default' || tag?.tag.description !== '',
+)
+
+async function focusContents() {
+  await nextTick()
+  contentsRef.value?.querySelector('button')?.focus()
+}
+
+const isCollapsed = (tagId: string) => {
+  return !collapsedSidebarItems[tagId]
+}
+</script>
+
+<template>
+  <SectionContainer
+    ref="sectionContainerRef"
+    :aria-labelledby="headerId"
+    class="tag-section-container"
+    role="region">
+    <TagSection
+      v-if="moreThanOneDefaultTag"
+      :headerId="headerId"
+      :isCollapsed="isCollapsed(tag.id)"
+      :tag="tag" />
+    <ShowMoreButton
+      v-if="isCollapsed(tag.id) && moreThanOneTag"
+      :id="tag.id"
+      :aria-label="`Show all ${tag.title} endpoints`"
+      @click="focusContents" />
+    <div
+      v-else
+      ref="contentsRef"
+      class="contents">
+      <slot />
+    </div>
+  </SectionContainer>
+</template>
+
+<style scoped>
+.section-container {
+  border-top: var(--scalar-border-width) solid var(--scalar-border-color);
+}
+.section-container:has(.show-more) {
+  background-color: color-mix(in srgb, var(--scalar-background-2), transparent);
+}
+</style>

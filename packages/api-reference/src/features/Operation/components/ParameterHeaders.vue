@@ -3,7 +3,7 @@ import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
-import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
+import SchemaProperty from '@/components/MainContent/Schema/SchemaProperty.vue'
 
 defineProps<{
   headers: { [key: string]: OpenAPIV3_1.HeaderObject }

@@ -20,7 +20,7 @@ import type { FuseResult } from 'fuse.js'
 import { nanoid } from 'nanoid'
 import { ref, toRef, watch } from 'vue'
 
-import { lazyBus } from '@/components/Content/Lazy/lazyBus'
+import { lazyBus } from '@/components/Lazy'
 import {
   useSearchIndex,
   type EntryType,
