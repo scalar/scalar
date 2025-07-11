@@ -107,4 +107,39 @@ describe('createMagicProxy', () => {
       'x-original-ref': '#/a/b/c/d',
     })
   })
+
+  it('should resolve the references inside an array', () => {
+    const input = {
+      $defs: {
+        a: {
+          b: {
+            prop: 'hello',
+          },
+          c: {
+            someOtherProp: 'world',
+          },
+        },
+      },
+      a: {
+        b: [
+          {
+            $ref: '#/$defs/a/b',
+          },
+          {
+            $ref: '#/$defs/a/c',
+          },
+        ],
+      },
+    }
+
+    const result = createMagicProxy(input)
+    expect(JSON.stringify(result.a)).toEqual(
+      JSON.stringify({
+        'b': [
+          { 'prop': 'hello', 'x-original-ref': '#/$defs/a/b' },
+          { 'someOtherProp': 'world', 'x-original-ref': '#/$defs/a/c' },
+        ],
+      }),
+    )
+  })
 })

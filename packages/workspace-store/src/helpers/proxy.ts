@@ -15,9 +15,9 @@ export const TARGET_SYMBOL = Symbol('target')
  * @returns A proxy handler that automatically resolves $ref references
  */
 function createProxyHandler(
-  sourceDocument: UnknownObject,
-  resolvedProxyCache?: WeakMap<object, UnknownObject>,
-): ProxyHandler<UnknownObject> {
+  sourceDocument: UnknownObject | UnknownObject[],
+  resolvedProxyCache?: WeakMap<object, UnknownObject | UnknownObject[]>,
+): ProxyHandler<UnknownObject | UnknownObject[]> {
   return {
     get(target, property, receiver) {
       if (property === TARGET_SYMBOL) {
@@ -38,7 +38,7 @@ function createProxyHandler(
        *   - For all other objects: creates a proxy for lazy resolution
        */
       const deepResolveNestedRefs = (value: unknown, originalRef?: string) => {
-        if (!isObject(value)) {
+        if (!isObject(value) && !Array.isArray(value)) {
           return value
         }
 
@@ -172,12 +172,12 @@ function createProxyHandler(
  * // proxy1 and proxy2 are the same instance due to caching
  * console.log(proxy1 === proxy2) // true
  */
-export function createMagicProxy<T extends UnknownObject>(
+export function createMagicProxy<T extends UnknownObject | UnknownObject[]>(
   targetObject: T,
   sourceDocument: T = targetObject,
   resolvedProxyCache?: WeakMap<object, T>,
 ): T {
-  if (!isObject(targetObject)) {
+  if (!isObject(targetObject) && !Array.isArray(targetObject)) {
     return targetObject
   }
 
