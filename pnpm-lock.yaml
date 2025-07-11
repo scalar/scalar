@@ -665,6 +665,9 @@ importers:
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../../packages/api-reference
+      '@scalar/components':
+        specifier: workspace:*
+        version: link:../../packages/components
       '@scalar/galaxy':
         specifier: workspace:*
         version: link:../../packages/galaxy

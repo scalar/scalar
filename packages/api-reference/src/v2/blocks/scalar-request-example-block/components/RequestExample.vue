@@ -76,6 +76,10 @@ export default {}
 <script setup lang="ts">
 import {
   ScalarButton,
+  ScalarCard,
+  ScalarCardFooter,
+  ScalarCardHeader,
+  ScalarCardSection,
   ScalarCodeBlock,
   ScalarCombobox,
 } from '@scalar/components'
@@ -93,7 +97,6 @@ import {
 } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
 
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/Card'
 import { HttpMethod } from '@/components/HttpMethod'
 import { findClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import {
@@ -240,31 +243,23 @@ const selectClient = (option: ClientOption) => {
 const id = useId()
 </script>
 <template>
-  <Card
+  <ScalarCard
     v-if="clients.length"
-    :aria-labelledby="`${id}-header`"
-    class="dark-mode"
-    ref="elem"
-    role="region">
+    class="request-card dark-mode"
+    ref="elem">
     <!-- Header -->
-    <CardHeader muted>
-      <div
-        :id="`${id}-header`"
-        class="request-header">
-        <span class="sr-only">Request Example for</span>
-        <HttpMethod
-          as="span"
-          class="request-method"
-          :method="method" />
-
-        <span
-          v-if="generateLabel"
-          v-html="generateLabel()" />
-        <slot
-          v-else
-          name="header" />
-      </div>
-
+    <ScalarCardHeader class="pr-0.75">
+      <span class="sr-only">Request Example for</span>
+      <HttpMethod
+        as="span"
+        class="request-method"
+        :method="method" />
+      <span
+        v-if="generateLabel"
+        v-html="generateLabel()" />
+      <slot
+        v-else
+        name="header" />
       <!-- Client picker -->
       <template
         #actions
@@ -286,13 +281,10 @@ const id = useId()
           </ScalarButton>
         </ScalarCombobox>
       </template>
-    </CardHeader>
+    </ScalarCardHeader>
 
     <!-- Code snippet -->
-    <CardContent
-      borderless
-      class="request-editor-section custom-scroll"
-      frameless>
+    <ScalarCardSection class="request-editor-section custom-scroll p-0">
       <div
         :id="`${id}-example`"
         class="code-snippet">
@@ -303,13 +295,12 @@ const id = useId()
           :lang="localSelectedClient.lang"
           lineNumbers />
       </div>
-    </CardContent>
+    </ScalarCardSection>
 
     <!-- Footer -->
-    <CardFooter
+    <ScalarCardFooter
       v-if="Object.keys(operationExamples).length || $slots.footer"
-      class="request-card-footer"
-      contrast>
+      class="request-card-footer bg-b-3">
       <!-- Example picker -->
       <div
         v-if="Object.keys(operationExamples).length"
@@ -324,14 +315,14 @@ const id = useId()
 
       <!-- Footer -->
       <slot name="footer" />
-    </CardFooter>
-  </Card>
+    </ScalarCardFooter>
+  </ScalarCard>
 
   <!-- Fallback card with just method and path in the case of no examples -->
-  <Card
+  <ScalarCard
     v-else-if="fallback"
-    class="dark-mode">
-    <CardContent class="request-card-simple">
+    class="request-card dark-mode">
+    <ScalarCardSection class="request-card-simple">
       <div class="request-header">
         <HttpMethod
           as="span"
@@ -340,18 +331,17 @@ const id = useId()
         <slot name="header" />
       </div>
       <slot name="footer" />
-    </CardContent>
-  </Card>
+    </ScalarCardSection>
+  </ScalarCard>
 </template>
 <style scoped>
-.request-header {
-  display: flex;
-  gap: 6px;
-  text-transform: initial;
+.request-card {
+  font-size: var(--scalar-font-size-3);
 }
 .request-method {
   font-family: var(--scalar-font-code);
   text-transform: uppercase;
+  margin-right: 6px;
 }
 .request-card-footer {
   display: flex;

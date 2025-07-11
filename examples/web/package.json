@@ -25,6 +25,7 @@
   "type": "module",
   "dependencies": {
     "@scalar/api-reference": "workspace:*",
+    "@scalar/components": "workspace:*",
     "@scalar/galaxy": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",

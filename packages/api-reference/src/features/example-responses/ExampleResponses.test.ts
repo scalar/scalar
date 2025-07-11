@@ -20,7 +20,7 @@ describe('ExampleResponses', () => {
       },
     })
 
-    const tabs = wrapper.findAllComponents({ name: 'CardTab' })
+    const tabs = wrapper.findAllComponents({ name: 'ExampleResponseTab' })
     const codeBlock = wrapper.findAllComponents({ name: 'ScalarCodeBlock' })
     const examplePicker = wrapper.findComponent({ name: 'ExamplePicker' })
 
@@ -50,7 +50,7 @@ describe('ExampleResponses', () => {
       },
     })
 
-    const tabs = wrapper.findAllComponents({ name: 'CardTab' })
+    const tabs = wrapper.findAllComponents({ name: 'ExampleResponseTab' })
     const codeBlock = wrapper.findAllComponents({ name: 'ScalarCodeBlock' })
     const examplePicker = wrapper.findComponent({ name: 'ExamplePicker' })
     const textSelectLabel = wrapper.find('.text-select-label')
@@ -84,7 +84,7 @@ describe('ExampleResponses', () => {
       },
     })
 
-    const tabs = wrapper.findAllComponents({ name: 'CardTab' })
+    const tabs = wrapper.findAllComponents({ name: 'ExampleResponseTab' })
     const codeBlock = wrapper.findAllComponents({ name: 'ScalarCodeBlock' })
     const examplePicker = wrapper.findComponent({ name: 'ExamplePicker' })
 
@@ -112,7 +112,7 @@ describe('ExampleResponses', () => {
       },
     })
 
-    const tabs = wrapper.findAllComponents({ name: 'CardTab' })
+    const tabs = wrapper.findAllComponents({ name: 'ExampleResponseTab' })
     const codeBlock = wrapper.findAllComponents({ name: 'ScalarCodeBlock' })
     const examplePicker = wrapper.findComponent({ name: 'ExamplePicker' })
 
@@ -140,7 +140,7 @@ describe('ExampleResponses', () => {
       },
     })
 
-    const tabs = wrapper.findAllComponents({ name: 'CardTab' })
+    const tabs = wrapper.findAllComponents({ name: 'ExampleResponseTab' })
     const codeBlock = wrapper.findAllComponents({ name: 'ScalarCodeBlock' })
     const examplePicker = wrapper.findComponent({ name: 'ExamplePicker' })
 
@@ -184,7 +184,7 @@ describe('ExampleResponses', () => {
       },
     })
 
-    const tabs = wrapper.findAllComponents({ name: 'CardTab' })
+    const tabs = wrapper.findAllComponents({ name: 'ExampleResponseTab' })
     expect(tabs.length).toBe(3)
     expect(tabs[0].text()).toContain('200')
     expect(tabs[1].text()).toContain('400')
@@ -231,7 +231,7 @@ describe('ExampleResponses', () => {
       },
     })
 
-    const tabs = wrapper.findAllComponents({ name: 'CardTab' })
+    const tabs = wrapper.findAllComponents({ name: 'ExampleResponseTab' })
     expect(tabs.length).toBe(3)
     expect(tabs[0].text()).toContain('200')
     expect(tabs[1].text()).toContain('404')
@@ -278,7 +278,7 @@ describe('ExampleResponses', () => {
       },
     })
 
-    const tabs = wrapper.findAllComponents({ name: 'CardTab' })
+    const tabs = wrapper.findAllComponents({ name: 'ExampleResponseTab' })
     expect(tabs.length).toBe(3)
     expect(tabs[0].text()).toContain('403')
     expect(tabs[1].text()).toContain('404')
@@ -385,7 +385,7 @@ describe('ExampleResponses', () => {
       },
     })
 
-    const tabs = wrapper.findAllComponents({ name: 'CardTab' })
+    const tabs = wrapper.findAllComponents({ name: 'ExampleResponseTab' })
     const codeBlock = wrapper.findAllComponents({ name: 'ScalarCodeBlock' })
 
     expect(tabs.length).toBe(1)

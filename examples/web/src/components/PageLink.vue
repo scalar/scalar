@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { Card, CardContent, CardHeader } from '@scalar/api-reference'
+import {
+  ScalarCard,
+  ScalarCardHeader,
+  ScalarCardSection,
+} from '@scalar/components'
 import { RouterLink } from 'vue-router'
 
 defineProps<{
@@ -11,26 +15,26 @@ defineProps<{
   <RouterLink
     v-if="to"
     :to="{ name: to }">
-    <Card>
-      <CardHeader>
+    <ScalarCard>
+      <ScalarCardHeader>
         <slot name="title" />
-      </CardHeader>
-      <CardContent class="description">
+      </ScalarCardHeader>
+      <ScalarCardSection class="description">
         <slot name="description" />
-      </CardContent>
-    </Card>
+      </ScalarCardSection>
+    </ScalarCard>
   </RouterLink>
   <a
     v-else-if="href"
     :href="href">
-    <Card>
-      <CardHeader>
+    <ScalarCard>
+      <ScalarCardHeader>
         <slot name="title" />
-      </CardHeader>
-      <CardContent class="description">
+      </ScalarCardHeader>
+      <ScalarCardSection class="description">
         <slot name="description" />
-      </CardContent>
-    </Card>
+      </ScalarCardSection>
+    </ScalarCard>
   </a>
 </template>
 
