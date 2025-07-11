@@ -7,6 +7,7 @@ import ModernLayout from './ModernLayout.vue'
 defineProps<{
   tag: TraversedTag
   layout: 'classic' | 'modern'
+  moreThanOneTag: boolean
 }>()
 </script>
 

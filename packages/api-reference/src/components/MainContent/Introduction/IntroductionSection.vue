@@ -63,7 +63,7 @@ onMounted(() => config?.onLoaded?.())
       ">
       <SectionContent
         :loading="
-          config.isLoading ??
+          config?.isLoading ??
           (!document?.info?.description && !document?.info?.title)
         ">
         <div class="flex gap-1">
