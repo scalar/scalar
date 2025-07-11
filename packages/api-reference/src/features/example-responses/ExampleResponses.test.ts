@@ -53,7 +53,7 @@ describe('ExampleResponses', () => {
     const tabs = wrapper.findAllComponents({ name: 'ExampleResponseTab' })
     const codeBlock = wrapper.findAllComponents({ name: 'ScalarCodeBlock' })
     const examplePicker = wrapper.findComponent({ name: 'ExamplePicker' })
-    const textSelectLabel = wrapper.find('.text-select-label')
+    const textSelectLabel = wrapper.find('[data-testid="example-picker"]')
 
     expect(tabs.length).toBe(1)
     expect(tabs[0].text()).toContain('200')
