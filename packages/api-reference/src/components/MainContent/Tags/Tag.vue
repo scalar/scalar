@@ -4,7 +4,7 @@ import type { TraversedTag } from '@/features/traverse-schema'
 import ClassicLayout from './ClassicLayout.vue'
 import ModernLayout from './ModernLayout.vue'
 
-const { tag } = defineProps<{
+defineProps<{
   tag: TraversedTag
   layout: 'classic' | 'modern'
 }>()

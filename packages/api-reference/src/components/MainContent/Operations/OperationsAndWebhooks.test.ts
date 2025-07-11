@@ -45,8 +45,17 @@ function createConfiguration(config: Partial<ApiReferenceConfiguration> = {}): A
 
 describe('OperationsAndWebhooks', () => {
   beforeEach(() => {
-    // Reset the mock to have all sections expanded by default
-    mockCollapsedSidebarItems = {}
+    // Expand all tags by default, it's easier to test the output
+    mockCollapsedSidebarItems = {
+      'tag/usertag': true,
+      'tag/posttag': true,
+      'tag/commenttag': true,
+      'tag/contentmanagement': true,
+      'tag/socialfeatures': true,
+      'tag/events': true,
+      'tag/webhooks': true,
+      'tag/default': true,
+    }
   })
 
   describe('basic operation rendering', () => {
