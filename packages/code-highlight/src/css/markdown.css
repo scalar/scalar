@@ -258,46 +258,63 @@
   }
 
   .markdown summary {
-    background-color: var(--scalar-background-2);
-    border-radius: var(--scalar-radius);
+    border-radius: 2.5px;
     display: flex;
-    align-items: top;
-    height: 40px;
-    padding: 11px 0px 11px 37px;
+    align-items: flex-start;
+    gap: 10px;
+    min-height: 40px;
+    padding: 7px 14px;
     position: relative;
     font-weight: var(--scalar-semibold);
+    line-height: var(--markdown-line-height);
     cursor: pointer;
     user-select: none;
+  }
+
+  .markdown summary:hover {
+    background-color: var(--scalar-background-2);
   }
 
   .markdown details[open] {
     padding-bottom: var(--markdown-spacing-md);
   }
 
-  .markdown details[open] summary {
+  .markdown details[open] > summary {
     border-bottom: var(--markdown-border);
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
   }
 
-  .markdown summary::after {
+  .markdown summary::before {
     display: block;
     content: "";
-    position: absolute;
-    top: calc(var(--markdown-spacing-sm) + 1px);
-    left: 10px;
+    flex-shrink: 0;
     width: var(--markdown-spacing-md);
     height: var(--markdown-spacing-md);
     background-color: var(--scalar-color-3);
-    mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 256 256"><path d="M184.49,136.49l-80,80a12,12,0,0,1-17-17L159,128,87.51,56.49a12,12,0,1,1,17-17l80,80A12,12,0,0,1,184.49,136.49Z"></path></svg>');
+    mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="1em" height="1em"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"></path></svg>');
+    margin-top: 5px;
   }
 
-  .markdown summary:hover::after {
+  .markdown summary:hover::before {
     background-color: var(--scalar-color-1);
   }
 
-  .markdown details[open] summary::after {
+  .markdown details[open] > summary::before {
     transform: rotate(90deg);
+  }
+
+  .markdown details:has(+ details) {
+    border-bottom: 0;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    margin-bottom: 0;
+  }
+
+  .markdown details:has(+ details) + details,
+  .markdown details:has(+ details) + details > summary {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
   }
 
   /* Links */
