@@ -42,6 +42,7 @@ const props = withDefaults(
     discriminatorMapping?: Record<string, string>
     discriminatorPropertyName?: string
     isDiscriminator?: boolean
+    propertyHeading?: boolean
   }>(),
   {
     level: 0,
@@ -49,6 +50,7 @@ const props = withDefaults(
     compact: false,
     withExamples: true,
     hideModelNames: false,
+    propertyHeading: true,
   },
 )
 
@@ -247,7 +249,7 @@ const shouldRenderObjectProperties = computed(() => {
           additional,
           pattern,
           required,
-        )
+        ) && propertyHeading
       "
       :additional="additional"
       :enum="getEnumFromValue(optimizedValue).length > 0"
