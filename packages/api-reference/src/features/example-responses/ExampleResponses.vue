@@ -8,17 +8,13 @@ import {
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed, ref, useId } from 'vue'
 
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardTab,
-  CardTabHeader,
-} from '@/components/Card'
+import { Card, CardContent, CardFooter } from '@/components/Card'
 import ScreenReader from '@/components/ScreenReader.vue'
 
 import { ExamplePicker } from '../example-request'
 import ExampleResponse from './ExampleResponse.vue'
+import ExampleResponseTab from './ExampleResponseTab.vue'
+import ExampleResponseTabList from './ExampleResponseTabList.vue'
 
 /**
  * TODO: copyToClipboard isn't using the right content if there are multiple examples
@@ -113,16 +109,16 @@ const showSchema = ref(false)
     aria-label="Example Responses"
     role="region"
     class="response-card">
-    <CardTabHeader
+    <ExampleResponseTabList
       x="as"
       @change="changeTab">
-      <CardTab
+      <ExampleResponseTab
         v-for="statusCode in orderedStatusCodes"
         :key="statusCode"
         :aria-controls="id">
         <ScreenReader>Status:</ScreenReader>
         {{ statusCode }}
-      </CardTab>
+      </ExampleResponseTab>
 
       <template #actions>
         <button
@@ -146,28 +142,26 @@ const showSchema = ref(false)
           <span class="scalar-card-checkbox-checkmark" />
         </label>
       </template>
-    </CardTabHeader>
-    <div class="scalar-card-container custom-scroll">
-      <CardContent>
-        <template v-if="currentJsonResponse?.schema">
-          <ScalarCodeBlock
-            v-if="showSchema && currentResponseWithExample"
-            :id="id"
-            class="-outline-offset-2"
-            :content="currentResponseWithExample"
-            lang="json" />
-          <ExampleResponse
-            v-else
-            :id="id"
-            :response="currentResponseWithExample" />
-        </template>
-        <!-- Without Schema: Don't show tabs -->
+    </ExampleResponseTabList>
+    <CardContent class="grid">
+      <template v-if="currentJsonResponse?.schema">
+        <ScalarCodeBlock
+          v-if="showSchema && currentResponseWithExample"
+          :id="id"
+          class="-outline-offset-2"
+          :content="currentResponseWithExample"
+          lang="json" />
         <ExampleResponse
           v-else
           :id="id"
           :response="currentResponseWithExample" />
-      </CardContent>
-    </div>
+      </template>
+      <!-- Without Schema: Don't show tabs -->
+      <ExampleResponse
+        v-else
+        :id="id"
+        :response="currentResponseWithExample" />
+    </CardContent>
     <CardFooter
       v-if="currentResponse?.description || hasMultipleExamples"
       class="response-card-footer">
@@ -254,14 +248,6 @@ const showSchema = ref(false)
 .example-response-tab {
   display: block;
   margin: 6px;
-}
-.scalar-card-container {
-  flex: 1;
-  background: var(--scalar-background-2);
-  display: grid;
-}
-.scalar-card-container :deep(.cm-scroller) {
-  overflow-y: hidden;
 }
 
 .scalar-card-checkbox {
