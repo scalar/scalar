@@ -429,7 +429,7 @@ watch(discriminator, (newValue) => {
     class="request-card dark-mode"
     ref="elem"
     role="region">
-    <CardHeader muted>
+    <CardHeader>
       <div
         :id="`${id}-header`"
         class="request-header">
@@ -462,10 +462,7 @@ watch(discriminator, (newValue) => {
         </TextSelect>
       </template>
     </CardHeader>
-    <CardContent
-      borderless
-      class="request-editor-section custom-scroll"
-      frameless>
+    <CardContent class="request-editor-section custom-scroll border-none p-0">
       <!-- Multiple examples -->
       <div
         :id="`${id}-example`"
@@ -482,8 +479,7 @@ watch(discriminator, (newValue) => {
       v-if="
         (hasMultipleExamples || !config.hideTestRequestButton) && $slots.footer
       "
-      class="request-card-footer"
-      contrast>
+      class="request-card-footer bg-b-3">
       <div
         v-if="hasMultipleExamples"
         class="request-card-footer-addon">

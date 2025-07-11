@@ -247,7 +247,7 @@ const id = useId()
     ref="elem"
     role="region">
     <!-- Header -->
-    <CardHeader muted>
+    <CardHeader>
       <div
         :id="`${id}-header`"
         class="request-header">
@@ -291,8 +291,7 @@ const id = useId()
     <!-- Code snippet -->
     <CardContent
       borderless
-      class="request-editor-section custom-scroll"
-      frameless>
+      class="request-editor-section custom-scroll p-0">
       <div
         :id="`${id}-example`"
         class="code-snippet">
@@ -308,8 +307,7 @@ const id = useId()
     <!-- Footer -->
     <CardFooter
       v-if="Object.keys(operationExamples).length || $slots.footer"
-      class="request-card-footer"
-      contrast>
+      class="request-card-footer bg-b-3">
       <!-- Example picker -->
       <div
         v-if="Object.keys(operationExamples).length"
