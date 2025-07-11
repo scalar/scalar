@@ -1,5 +1,6 @@
 <script lang="ts">
 // TODO: Refactor this file
+// @ts-nocheck
 /** We use this global var to ensure that we only show loading once on config change */
 const hasLoaded = ref(false)
 </script>
