@@ -412,4 +412,301 @@ describe('OperationsAndWebhooks', () => {
       expect(wrapper.text()).toContain('Event Created Webhook')
     })
   })
+
+  describe('sorting configuration', () => {
+    describe('tagsSorter', () => {
+      it('sorts tags alphabetically when using alpha option', () => {
+        const document = {
+          openapi: '3.1.0',
+          info: {
+            title: 'Test',
+            version: '1.0.0',
+          },
+          tags: [
+            { name: 'Zebra', description: 'Zebra operations' },
+            { name: 'Alpha', description: 'Alpha operations' },
+            { name: 'Beta', description: 'Beta operations' },
+          ],
+          paths: {
+            '/zebra': {
+              get: {
+                tags: ['Zebra'],
+                summary: 'Get Zebra',
+                responses: { '200': { description: 'OK' } },
+              },
+            },
+            '/alpha': {
+              get: {
+                tags: ['Alpha'],
+                summary: 'Get Alpha',
+                responses: { '200': { description: 'OK' } },
+              },
+            },
+            '/beta': {
+              get: {
+                tags: ['Beta'],
+                summary: 'Get Beta',
+                responses: { '200': { description: 'OK' } },
+              },
+            },
+          },
+        } as const
+
+        const wrapper = mount(OperationsAndWebhooks, {
+          props: {
+            document,
+            config: createConfiguration({
+              tagsSorter: 'alpha',
+            }),
+          },
+        })
+
+        const text = wrapper.text()
+        const alphaIndex = text.indexOf('Alpha')
+        const betaIndex = text.indexOf('Beta')
+        const zebraIndex = text.indexOf('Zebra')
+
+        // Verify alphabetical order: Alpha, Beta, Zebra
+        expect(alphaIndex).toBeLessThan(betaIndex)
+        expect(betaIndex).toBeLessThan(zebraIndex)
+      })
+
+      it('sorts tags in reverse alphabetical order with custom function', () => {
+        const document = {
+          openapi: '3.1.0',
+          info: {
+            title: 'Test',
+            version: '1.0.0',
+          },
+          tags: [
+            { name: 'Alpha', description: 'Alpha operations' },
+            { name: 'Beta', description: 'Beta operations' },
+            { name: 'Zebra', description: 'Zebra operations' },
+          ],
+          paths: {
+            '/alpha': {
+              get: {
+                tags: ['Alpha'],
+                summary: 'Get Alpha',
+                responses: { '200': { description: 'OK' } },
+              },
+            },
+            '/beta': {
+              get: {
+                tags: ['Beta'],
+                summary: 'Get Beta',
+                responses: { '200': { description: 'OK' } },
+              },
+            },
+            '/zebra': {
+              get: {
+                tags: ['Zebra'],
+                summary: 'Get Zebra',
+                responses: { '200': { description: 'OK' } },
+              },
+            },
+          },
+        } as const
+
+        const wrapper = mount(OperationsAndWebhooks, {
+          props: {
+            document,
+            config: createConfiguration({
+              // reverse alphabetical order
+              tagsSorter: (a, b) => -a.name.localeCompare(b.name),
+            }),
+          },
+        })
+
+        const text = wrapper.text()
+        const alphaIndex = text.indexOf('Alpha')
+        const betaIndex = text.indexOf('Beta')
+        const zebraIndex = text.indexOf('Zebra')
+
+        // Verify reverse alphabetical order: Zebra, Beta, Alpha
+        expect(zebraIndex).toBeLessThan(betaIndex)
+        expect(betaIndex).toBeLessThan(alphaIndex)
+      })
+    })
+
+    describe('operationsSorter', () => {
+      it('sorts operations alphabetically when using alpha option', () => {
+        const document = {
+          openapi: '3.1.0',
+          info: {
+            title: 'Test',
+            version: '1.0.0',
+          },
+          tags: [{ name: 'TestTag', description: 'Test operations' }],
+          paths: {
+            '/zebra': {
+              get: {
+                tags: ['TestTag'],
+                summary: 'Get Zebra',
+                responses: { '200': { description: 'OK' } },
+              },
+            },
+            '/alpha': {
+              get: {
+                tags: ['TestTag'],
+                summary: 'Get Alpha',
+                responses: { '200': { description: 'OK' } },
+              },
+            },
+            '/beta': {
+              get: {
+                tags: ['TestTag'],
+                summary: 'Get Beta',
+                responses: { '200': { description: 'OK' } },
+              },
+            },
+          },
+        } as const
+
+        const wrapper = mount(OperationsAndWebhooks, {
+          props: {
+            document,
+            config: createConfiguration({
+              operationsSorter: 'alpha',
+            }),
+          },
+        })
+
+        const text = wrapper.text()
+        const alphaIndex = text.indexOf('Get Alpha')
+        const betaIndex = text.indexOf('Get Beta')
+        const zebraIndex = text.indexOf('Get Zebra')
+
+        // Verify alphabetical order: Get Alpha, Get Beta, Get Zebra
+        expect(alphaIndex).toBeLessThan(betaIndex)
+        expect(betaIndex).toBeLessThan(zebraIndex)
+      })
+
+      it('sorts operations by HTTP method with custom function', () => {
+        const document = {
+          openapi: '3.1.0',
+          info: {
+            title: 'Test',
+            version: '1.0.0',
+          },
+          tags: [{ name: 'TestTag', description: 'Test operations' }],
+          paths: {
+            '/users': {
+              delete: {
+                tags: ['TestTag'],
+                summary: 'Delete User',
+                responses: { '204': { description: 'No Content' } },
+              },
+              get: {
+                tags: ['TestTag'],
+                summary: 'Get User',
+                responses: { '200': { description: 'OK' } },
+              },
+              post: {
+                tags: ['TestTag'],
+                summary: 'Create User',
+                responses: { '201': { description: 'Created' } },
+              },
+              put: {
+                tags: ['TestTag'],
+                summary: 'Update User',
+                responses: { '200': { description: 'OK' } },
+              },
+            },
+          },
+        } as const
+
+        const wrapper = mount(OperationsAndWebhooks, {
+          props: {
+            document,
+            config: createConfiguration({
+              operationsSorter: (a, b) => {
+                const methodOrder = ['get', 'post', 'put', 'delete']
+                const methodComparison = methodOrder.indexOf(a.method) - methodOrder.indexOf(b.method)
+
+                if (methodComparison !== 0) {
+                  return methodComparison
+                }
+
+                return a.path.localeCompare(b.path)
+              },
+            }),
+          },
+        })
+
+        const text = wrapper.text()
+        const getIndex = text.indexOf('Get User')
+        const postIndex = text.indexOf('Create User')
+        const putIndex = text.indexOf('Update User')
+        const deleteIndex = text.indexOf('Delete User')
+
+        // Verify method order: GET, POST, PUT, DELETE
+        expect(getIndex).toBeLessThan(postIndex)
+        expect(postIndex).toBeLessThan(putIndex)
+        expect(putIndex).toBeLessThan(deleteIndex)
+      })
+
+      it('sorts operations by method when using a custom function', () => {
+        const document = {
+          openapi: '3.1.0',
+          info: {
+            title: 'Test',
+            version: '1.0.0',
+          },
+          tags: [{ name: 'TestTag', description: 'Test operations' }],
+          paths: {
+            '/users': {
+              delete: {
+                tags: ['TestTag'],
+                summary: 'Delete User',
+                responses: { '204': { description: 'No Content' } },
+              },
+              get: {
+                tags: ['TestTag'],
+                summary: 'Get User',
+                responses: { '200': { description: 'OK' } },
+              },
+              post: {
+                tags: ['TestTag'],
+                summary: 'Create User',
+                responses: { '201': { description: 'Created' } },
+              },
+              put: {
+                tags: ['TestTag'],
+                summary: 'Update User',
+                responses: { '200': { description: 'OK' } },
+              },
+            },
+          },
+        } as const
+
+        const wrapper = mount(OperationsAndWebhooks, {
+          props: {
+            document,
+            config: createConfiguration({
+              operationsSorter: (a, b) => {
+                const methodOrder = ['get', 'post', 'put', 'delete']
+                const methodComparison = methodOrder.indexOf(a.method) - methodOrder.indexOf(b.method)
+                if (methodComparison !== 0) {
+                  return methodComparison
+                }
+                return a.path.localeCompare(b.path)
+              },
+            }),
+          },
+        })
+
+        const text = wrapper.text()
+        const getIndex = text.indexOf('Get User')
+        const postIndex = text.indexOf('Create User')
+        const putIndex = text.indexOf('Update User')
+        const deleteIndex = text.indexOf('Delete User')
+
+        // Verify method order: GET, POST, PUT, DELETE
+        expect(getIndex).toBeLessThan(postIndex)
+        expect(postIndex).toBeLessThan(putIndex)
+        expect(putIndex).toBeLessThan(deleteIndex)
+      })
+    })
+  })
 })
