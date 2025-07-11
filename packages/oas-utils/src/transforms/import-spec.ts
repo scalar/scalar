@@ -553,7 +553,7 @@ export async function importSpecToWorkspace(
 function getBaseUrlFromDocumentUrl(documentUrl: string): string | undefined {
   try {
     const url = new URL(documentUrl)
-    return `${url.protocol}//${url.hostname}`
+    return `${url.protocol}//${url.hostname}${url.port ? `:${url.port}` : ''}`
   } catch {
     // If the documentUrl is not a valid URL, we can't use it
     return undefined
