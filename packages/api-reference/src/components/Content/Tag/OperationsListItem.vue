@@ -49,7 +49,7 @@ const title = computed(
       :href="`#${transformedOperation.id}`"
       @click.prevent="scrollHandler(transformedOperation)">
       <HttpMethod
-        class="endpoint-method"
+        class="endpoint-method items-center justify-end gap-2"
         :method="transformedOperation.httpVerb">
         <ScalarIconWebhooksLogo
           v-if="transformedOperation.isWebhook"
@@ -93,9 +93,6 @@ const title = computed(
   color: var(--scalar-color-1);
   min-width: 62px;
   display: inline-flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
   line-height: 1.55;
   font-family: var(--scalar-font-code);
   font-size: var(--scalar-small);

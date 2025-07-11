@@ -41,13 +41,14 @@ const tagName = computed(() => props.tag['x-displayName'] ?? props.tag.name)
 </template>
 
 <style scoped>
+.endpoints-card {
+  position: sticky;
+  top: calc(var(--refs-header-height) + 24px);
+  font-size: var(--scalar-font-size-3);
+}
 .endpoints {
   overflow: auto;
   background: var(--scalar-background-2);
   padding: 10px 12px;
-}
-.endpoints-card {
-  position: sticky;
-  top: calc(var(--refs-header-height) + 24px);
 }
 </style>

@@ -429,7 +429,7 @@ watch(discriminator, (newValue) => {
     class="request-card dark-mode"
     ref="elem"
     role="region">
-    <CardHeader>
+    <CardHeader class="pr-0.75">
       <div
         :id="`${id}-header`"
         class="request-header">
