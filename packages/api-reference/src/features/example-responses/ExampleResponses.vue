@@ -147,7 +147,7 @@ const showSchema = ref(false)
         </label>
       </template>
     </ExampleResponseTabList>
-    <ScalarCardSection class="grid">
+    <ScalarCardSection class="grid flex-1">
       <template v-if="currentJsonResponse?.schema">
         <ScalarCodeBlock
           v-if="showSchema && currentResponseWithExample"
