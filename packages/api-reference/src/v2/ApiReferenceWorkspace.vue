@@ -45,6 +45,7 @@ import {
   useMultipleDocuments,
 } from '@/features/multiple-documents'
 import { NAV_STATE_SYMBOL } from '@/hooks/useNavState'
+import { isClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import { onCustomEvent } from '@/v2/events'
 
 const props = defineProps<{
@@ -184,23 +185,23 @@ onMounted(() => {
 // })
 
 onCustomEvent(root, 'scalar-update-dark-mode', (event) => {
-  store.update('x-scalar-dark-mode', event.data.value)
+  store.update('x-scalar-dark-mode', event.detail.value)
 })
 
 onCustomEvent(root, 'scalar-update-active-document', (event) => {
-  store.update('x-scalar-active-document', event.data.value)
+  store.update('x-scalar-active-document', event.detail.value)
 })
 
 onCustomEvent(root, 'scalar-update-selected-client', (event) => {
-  store.update('x-scalar-default-client', event.data)
-  safeLocalStorage().setItem(REFERENCE_LS_KEYS.SELECTED_CLIENT, event.data)
+  store.update('x-scalar-default-client', event.detail)
+  safeLocalStorage().setItem(REFERENCE_LS_KEYS.SELECTED_CLIENT, event.detail)
 })
 
 onMounted(() => {
   const storedClient = safeLocalStorage().getItem(
     REFERENCE_LS_KEYS.SELECTED_CLIENT,
   )
-  if (storedClient) {
+  if (isClient(storedClient)) {
     store.update('x-scalar-default-client', storedClient)
   }
 })

@@ -44,6 +44,13 @@ const getLabel = (key: string | null) => {
 const selectExample = (option: ScalarComboboxOption) => {
   selectedExampleKey.value = option.id
 }
+
+// For testing
+defineExpose({
+  getLabel,
+  selectedExample,
+  selectedExampleKey,
+})
 </script>
 
 <template>

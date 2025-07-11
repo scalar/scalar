@@ -98,14 +98,8 @@ describe('ExamplePicker', () => {
       },
     })
 
-    // Access the component instance to test the getLabel method
-    const vm = wrapper.vm as any
-
     // Test with null key
-    expect(vm.getLabel(null)).toBe('Select an example')
-
-    // Test with undefined key
-    expect(vm.getLabel(undefined)).toBe('Select an example')
+    expect(wrapper.vm.getLabel(null)).toBe('Select an example')
   })
 
   it('updates selected example when model value changes', async () => {
@@ -150,8 +144,7 @@ describe('ExamplePicker', () => {
 
     // Verify the selectExample method was called with the correct option
     // This tests the internal logic of the component
-    const vm = wrapper.vm as any
-    expect(vm.selectedExampleKey).toBe('example-2')
+    expect(wrapper.vm.selectedExampleKey).toBe('example-2')
   })
 
   it('handles examples with special characters in keys', () => {
@@ -195,7 +188,7 @@ describe('ExamplePicker', () => {
       },
     })
 
-    const vm = wrapper.vm as any
+    const vm = wrapper.vm
 
     // Test when an example is selected
     vm.selectedExampleKey = 'example-1'

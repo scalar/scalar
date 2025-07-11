@@ -18,6 +18,11 @@ defineProps<{
  * TODO: Reference config should set the appropriate workspace properties
  */
 const workspaceStore = createWorkspaceStore()
+
+if (typeof window !== 'undefined') {
+  // @ts-expect-error - For debugging purposes expose the store
+  window.dataDumpWorkspace = () => workspaceStore
+}
 </script>
 
 <template>
