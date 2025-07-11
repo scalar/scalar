@@ -234,6 +234,7 @@ const shouldRender = computed(() => hasEnumValues.value && !isDiscriminator)
   font-size: var(--scalar-font-size-3);
   list-style: none;
   margin-top: 8px;
+  padding-left: 2px;
 }
 
 .enum-toggle-button {

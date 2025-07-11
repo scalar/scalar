@@ -76,7 +76,7 @@ defineProps<{
   left: -12px;
   width: 8px;
   height: var(--scalar-border-width);
-  background: currentColor;
+  background: var(--scalar-color-2);
 }
 
 .property-enum-value:last-of-type::after {
