@@ -433,7 +433,7 @@ const shouldRenderObjectProperties = computed(() => {
 .property-description {
   margin-top: 6px;
   line-height: 1.4;
-  font-size: var(--scalar-micro);
+  font-size: var(--scalar-small);
 }
 
 .property-description:has(+ .property-rule) {
