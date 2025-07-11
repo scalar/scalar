@@ -2,6 +2,7 @@
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { ScalarIconCaretRight } from '@scalar/icons'
 import { type OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
+import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 
 import { HttpMethod } from '@/components/HttpMethod'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
@@ -9,7 +10,7 @@ import OperationResponses from '@/features/Operation/components/OperationRespons
 import type { Schemas } from '@/features/Operation/types/schemas'
 
 const { method, name, schemas, url, path, operationMethod } = defineProps<{
-  callback: OperationObject
+  callback: Dereference<OperationObject>
   method: HttpMethodType
   path: string
   operationMethod: HttpMethodType
