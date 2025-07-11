@@ -123,7 +123,8 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
     <template v-if="isTag(entry)">
       <Tag
         :tag="entry"
-        :layout="config.layout">
+        :layout="config.layout"
+        :moreThanOneTag="entries.filter(isTag).length > 1">
         <template
           v-if="
             'children' in entry && entry.children && entry.children?.length
@@ -169,7 +170,8 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
         <template v-if="isTag(child)">
           <Tag
             :tag="child"
-            :layout="config.layout">
+            :layout="config.layout"
+            :moreThanOneTag="entry.children.filter(isTag).length > 1">
             <template
               v-if="
                 'children' in child && child.children && child.children?.length
@@ -211,7 +213,8 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
     <template v-if="isWebhookGroup(entry)">
       <Tag
         :tag="entry"
-        :layout="config.layout">
+        :layout="config.layout"
+        :moreThanOneTag="entries.filter(isTag).length > 1">
         <template
           v-if="
             'children' in entry && entry.children && entry.children?.length

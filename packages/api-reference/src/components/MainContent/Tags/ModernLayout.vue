@@ -8,8 +8,9 @@ import type { TraversedTag } from '@/features/traverse-schema'
 
 import TagSection from './TagSection.vue'
 
-const { tag } = defineProps<{
+const { tag, moreThanOneTag } = defineProps<{
   tag: TraversedTag
+  moreThanOneTag: boolean
 }>()
 
 const sectionContainerRef = ref<HTMLElement>()
@@ -19,17 +20,9 @@ const headerId = useId()
 
 const { collapsedSidebarItems } = useSidebar()
 
-const moreThanOneTag = computed(
-  () => true,
-  // TODO:
-  // () => spec.tags?.length && spec.tags?.length > 1,
-)
-
 const moreThanOneDefaultTag = computed(
   () =>
-    moreThanOneTag.value ||
-    tag?.title !== 'default' ||
-    tag?.tag.description !== '',
+    moreThanOneTag || tag?.title !== 'default' || tag?.tag.description !== '',
 )
 
 async function focusContents() {
