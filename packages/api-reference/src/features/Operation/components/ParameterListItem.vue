@@ -156,7 +156,7 @@ const shouldShowParameter = computed(() => {
   color: var(--scalar-color-1);
 }
 .parameter-item-type {
-  font-size: var(--scalar-micro);
+  font-size: var(--scalar-mini);
   color: var(--scalar-color-2);
   margin-right: 6px;
   line-height: 1.4;

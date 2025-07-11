@@ -382,7 +382,7 @@ const shouldRenderObjectProperties = computed(() => {
   display: flex;
   flex-direction: column;
   padding: 8px;
-  font-size: var(--scalar-mini);
+  font-size: var(--scalar-small);
   position: relative;
 }
 .property.property--level-0:has(

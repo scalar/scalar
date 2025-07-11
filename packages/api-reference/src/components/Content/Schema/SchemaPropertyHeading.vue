@@ -259,27 +259,27 @@ const modelName = computed(() => {
 }
 
 .property-required {
-  font-size: var(--scalar-micro);
+  font-size: var(--scalar-mini);
   color: var(--scalar-color-orange);
 }
 
 .property-read-only {
-  font-size: var(--scalar-micro);
+  font-size: var(--scalar-mini);
   color: var(--scalar-color-blue);
 }
 
 .property-write-only {
-  font-size: var(--scalar-micro);
+  font-size: var(--scalar-mini);
   color: var(--scalar-color-green);
 }
 
 .property-discriminator {
-  font-size: var(--scalar-micro);
+  font-size: var(--scalar-mini);
   color: var(--scalar-color-purple);
 }
 
 .property-detail {
-  font-size: var(--scalar-micro);
+  font-size: var(--scalar-mini);
   color: var(--scalar-color-2);
   display: flex;
   align-items: center;

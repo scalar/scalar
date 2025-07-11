@@ -74,7 +74,7 @@ const { copyToClipboard } = useClipboard()
 .property-example {
   display: flex;
   flex-direction: column;
-  font-size: var(--scalar-micro);
+  font-size: var(--scalar-mini);
   position: relative;
 }
 .property-example:hover:before {
