@@ -15,6 +15,7 @@ import {
   getOperationStabilityColor,
   isOperationDeprecated,
 } from '@scalar/oas-utils/helpers'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
@@ -42,6 +43,7 @@ const { operation, path, isWebhook } = defineProps<{
   path: string
   method: HttpMethodType
   operation: Dereference<OperationObject>
+  oldOperation: OpenAPIV3_1.OperationObject
   isWebhook: boolean
   server: ServerObject | undefined
   securitySchemes: SecuritySchemeObject[]
@@ -132,15 +134,15 @@ const handleDiscriminatorChange = (type: string) => {
       <div class="operation-details-card">
         <div class="operation-details-card-item">
           <OperationParameters
-            :parameters="operation.parameters"
-            :requestBody="operation.requestBody"
+            :parameters="oldOperation.parameters"
+            :requestBody="oldOperation.requestBody"
             :schemas="schemas"
             @update:modelValue="handleDiscriminatorChange" />
         </div>
         <div class="operation-details-card-item">
           <OperationResponses
             :collapsableItems="false"
-            :responses="operation.responses"
+            :responses="oldOperation.responses"
             :schemas="schemas" />
         </div>
         <div
