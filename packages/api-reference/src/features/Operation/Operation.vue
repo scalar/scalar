@@ -52,14 +52,20 @@ const operation = computed(() => {
   return entity
 })
 
+const oldOperation = computed(() =>
+  isWebhook
+    ? document?.webhooks?.[path]?.[method]
+    : document?.paths?.[path]?.[method],
+)
+
 /**
  * Handle the selection of discriminator in the request body (anyOf, oneOf…)
  *
  * TODO: update this to use the new store
  */
 const { handleDiscriminatorChange } = useOperationDiscriminator(
-  operation.value,
-  workspace.activeDocument?.components?.schemas,
+  oldOperation.value,
+  document?.components?.schemas,
 )
 
 /**
@@ -84,9 +90,10 @@ const selectedSecuritySchemes = computed(() =>
         :isWebhook="isWebhook"
         :method="method"
         :operation="operation"
+        :oldOperation="oldOperation"
         :securitySchemes="selectedSecuritySchemes"
         :path="path"
-        :schemas="workspace.activeDocument?.components?.schemas"
+        :schemas="document?.components?.schemas"
         :server="server"
         @update:modelValue="handleDiscriminatorChange" />
     </template>
@@ -95,10 +102,11 @@ const selectedSecuritySchemes = computed(() =>
         :id="id"
         :isWebhook="isWebhook"
         :method="method"
+        :oldOperation="oldOperation"
         :securitySchemes="selectedSecuritySchemes"
         :path="path"
         :operation="operation"
-        :schemas="workspace.activeDocument?.components?.schemas"
+        :schemas="document?.components?.schemas"
         :server="server"
         @update:modelValue="handleDiscriminatorChange" />
     </template>
