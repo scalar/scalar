@@ -3,7 +3,7 @@ import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { useId } from 'vue'
 
 import ScalarCardSection from './ScalarCardSection.vue'
-import { useCardRegionHeading } from './useCardRegion'
+import { useCardHeading } from './useCardHeading'
 
 /**
  * Scalar Card Header - Header section for cards with automatic accessibility setup
@@ -15,7 +15,7 @@ const { cx } = useBindCx()
 const id = useId()
 
 // Set the heading id for the card
-useCardRegionHeading(id)
+useCardHeading(id)
 </script>
 <template>
   <ScalarCardSection
