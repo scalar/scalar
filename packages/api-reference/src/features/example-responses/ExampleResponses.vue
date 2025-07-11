@@ -1,5 +1,12 @@
 <script lang="ts" setup>
-import { ScalarCodeBlock, ScalarIcon, ScalarMarkdown } from '@scalar/components'
+import {
+  ScalarCard,
+  ScalarCardFooter,
+  ScalarCardSection,
+  ScalarCodeBlock,
+  ScalarIcon,
+  ScalarMarkdown,
+} from '@scalar/components'
 import type { Operation } from '@scalar/oas-utils/entities/spec'
 import {
   getObjectKeys,
@@ -8,7 +15,6 @@ import {
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed, ref, useId } from 'vue'
 
-import { Card, CardContent, CardFooter } from '@/components/Card'
 import ScreenReader from '@/components/ScreenReader.vue'
 
 import { ExamplePicker } from '../example-request'
@@ -104,7 +110,7 @@ const changeTab = (index: number) => {
 const showSchema = ref(false)
 </script>
 <template>
-  <Card
+  <ScalarCard
     v-if="orderedStatusCodes.length"
     aria-label="Example Responses"
     role="region"
@@ -141,7 +147,7 @@ const showSchema = ref(false)
         </label>
       </template>
     </ExampleResponseTabList>
-    <CardContent class="grid">
+    <ScalarCardSection class="grid">
       <template v-if="currentJsonResponse?.schema">
         <ScalarCodeBlock
           v-if="showSchema && currentResponseWithExample"
@@ -159,8 +165,8 @@ const showSchema = ref(false)
         v-else
         :id="id"
         :response="currentResponseWithExample" />
-    </CardContent>
-    <CardFooter
+    </ScalarCardSection>
+    <ScalarCardFooter
       v-if="currentResponse?.description || hasMultipleExamples"
       class="response-card-footer">
       <ExamplePicker
@@ -175,8 +181,8 @@ const showSchema = ref(false)
           class="markdown"
           :value="currentResponse.description" />
       </div>
-    </CardFooter>
-  </Card>
+    </ScalarCardFooter>
+  </ScalarCard>
 </template>
 
 <style scoped>

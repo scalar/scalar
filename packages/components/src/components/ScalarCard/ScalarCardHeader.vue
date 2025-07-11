@@ -1,11 +1,13 @@
 <script lang="ts" setup>
-import { useBindCx } from '@scalar/components'
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { useId } from 'vue'
 
-import { useCardRegionHeading } from '@/components/Card/useCardRegion'
+import ScalarCardSection from './ScalarCardSection.vue'
+import { useCardRegionHeading } from './useCardRegion'
 
-import CardContent from './CardContent.vue'
-
+/**
+ * Scalar Card Header - Header section for cards with automatic accessibility setup
+ */
 defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 
@@ -16,7 +18,7 @@ const id = useId()
 useCardRegionHeading(id)
 </script>
 <template>
-  <CardContent
+  <ScalarCardSection
     v-bind="
       cx('scalar-card-header leading-[1.35] font-medium py-2.25 px-3 shrink-0')
     ">
@@ -30,5 +32,5 @@ useCardRegionHeading(id)
       class="flex">
       <slot name="actions" />
     </div>
-  </CardContent>
+  </ScalarCardSection>
 </template>

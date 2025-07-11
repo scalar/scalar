@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { useBindCx } from '@scalar/components'
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { computed } from 'vue'
 
 import { useCardRegion } from './useCardRegion'
 
+/**
+ * Scalar Card - A composable card component with region-based accessibility
+ */
 const { label } = defineProps<{
   /** The a11y label for the card region */
   label?: string
