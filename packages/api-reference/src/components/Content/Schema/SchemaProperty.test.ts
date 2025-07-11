@@ -265,7 +265,7 @@ describe('SchemaProperty sub-schema', () => {
       },
     })
 
-    const enumList = wrapper.find('.property-enum .property-list')
+    const enumList = wrapper.find('.property-enum .property-enum-values')
     const html = enumList.html()
 
     expect(html).toContain('Ice giant')

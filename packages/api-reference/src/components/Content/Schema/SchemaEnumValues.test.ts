@@ -205,7 +205,7 @@ describe('SchemaEnumValues', () => {
       })
 
       // When x-enumDescriptions is an object, it uses the special description format
-      expect(wrapper.find('.property-list').exists()).toBe(true)
+      expect(wrapper.find('.property-enum-values').exists()).toBe(true)
       expect(wrapper.text()).toContain('active')
       expect(wrapper.text()).toContain('inactive')
     })
@@ -321,6 +321,39 @@ describe('SchemaEnumValues', () => {
       expect(wrapper.text()).toContain('value1')
       expect(wrapper.text()).toContain('value5')
       expect(wrapper.find('.enum-toggle-button').exists()).toBe(true)
+    })
+
+    it('shows descriptions for hidden enum values when expanded', async () => {
+      const wrapper = mount(SchemaEnumValues, {
+        props: {
+          value: {
+            enum: [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
+            'x-enum-descriptions': [
+              'First description',
+              'Second description',
+              'Third description',
+              'Fourth description',
+              'Fifth description',
+              'Sixth description',
+              'Seventh description',
+              'Eighth description',
+              'Ninth description',
+              'Tenth description',
+            ],
+          },
+        },
+      })
+
+      // Initially only first 5 descriptions should be visible
+      expect(wrapper.text()).toContain('Fifth description')
+      expect(wrapper.text()).not.toContain('Sixth description')
+      expect(wrapper.text()).not.toContain('Tenth description')
+
+      await wrapper.find('.enum-toggle-button').trigger('click')
+
+      // Now hidden descriptions should be visible
+      expect(wrapper.text()).toContain('Sixth description')
+      expect(wrapper.text()).toContain('Tenth description')
     })
   })
 
