@@ -34,46 +34,221 @@ describe('TagSection', () => {
     ...overrides,
   })
 
-  it('renders tag title and description', () => {
-    const mockTag = createMockTag()
+  describe('basic rendering', () => {
+    it('renders tag title and description', () => {
+      const mockTag = createMockTag()
 
-    const wrapper = mount(TagSection, {
-      props: {
-        tag: mockTag,
-      },
+      const wrapper = mount(TagSection, {
+        props: {
+          tag: mockTag,
+        },
+      })
+
+      expect(wrapper.text()).toContain('Test Tag')
+      expect(wrapper.text()).toContain('This is a test tag description')
     })
 
-    expect(wrapper.text()).toContain('Test Tag')
-    expect(wrapper.text()).toContain('This is a test tag description')
+    it('renders section with correct id and label', () => {
+      const mockTag = createMockTag({
+        id: 'custom-tag-id',
+        title: 'Custom Tag Title',
+      })
+
+      const wrapper = mount(TagSection, {
+        props: {
+          tag: mockTag,
+        },
+      })
+
+      const section = wrapper.findComponent({ name: 'Section' })
+      expect(section.props('id')).toBe('custom-tag-id')
+      expect(section.props('label')).toBe('CUSTOM TAG TITLE')
+    })
+
+    it('renders anchor with correct id', () => {
+      const mockTag = createMockTag({
+        id: 'anchor-tag-id',
+      })
+
+      const wrapper = mount(TagSection, {
+        props: {
+          tag: mockTag,
+        },
+      })
+
+      const anchor = wrapper.findComponent({ name: 'Anchor' })
+      expect(anchor.props('id')).toBe('anchor-tag-id')
+    })
   })
 
-  it('handles tag with null tag property gracefully', () => {
-    const mockTag = createMockTag({ tag: null as any })
+  describe('markdown rendering', () => {
+    it('renders markdown with images enabled', () => {
+      const mockTag = createMockTag()
 
-    const wrapper = mount(TagSection, {
-      props: {
-        tag: mockTag,
-      },
+      const wrapper = mount(TagSection, {
+        props: {
+          tag: mockTag,
+        },
+      })
+
+      const markdown = wrapper.findComponent({ name: 'ScalarMarkdown' })
+      expect(markdown.props('withImages')).toBe(true)
     })
 
-    expect(wrapper.text()).toContain('Test Tag')
-    expect(wrapper.text()).toContain('')
+    it('passes tag to SpecificationExtension component', () => {
+      const mockTag = createMockTag()
+
+      const wrapper = mount(TagSection, {
+        props: {
+          tag: mockTag,
+        },
+      })
+
+      const specExtension = wrapper.findComponent({ name: 'SpecificationExtension' })
+      expect(specExtension.props('value')).toMatchObject(mockTag.tag)
+    })
   })
 
-  it('handles tag with empty description', () => {
-    const mockTag = createMockTag({
-      tag: {
-        description: '',
-      },
+  describe('collapsed state', () => {
+    it('shows screen reader text when collapsed', () => {
+      const mockTag = createMockTag()
+
+      const wrapper = mount(TagSection, {
+        props: {
+          tag: mockTag,
+          isCollapsed: true,
+        },
+      })
+
+      expect(wrapper.text()).toContain('(Collapsed)')
     })
 
-    const wrapper = mount(TagSection, {
-      props: {
-        tag: mockTag,
-      },
+    it('does not show screen reader text when not collapsed', () => {
+      const mockTag = createMockTag()
+
+      const wrapper = mount(TagSection, {
+        props: {
+          tag: mockTag,
+          isCollapsed: false,
+        },
+      })
+
+      expect(wrapper.text()).not.toContain('(Collapsed)')
     })
 
-    expect(wrapper.text()).toContain('Test Tag')
-    expect(wrapper.text()).toContain('')
+    it('applies clamp to markdown when collapsed', () => {
+      const mockTag = createMockTag()
+
+      const wrapper = mount(TagSection, {
+        props: {
+          tag: mockTag,
+          isCollapsed: true,
+        },
+      })
+
+      const markdown = wrapper.findComponent({ name: 'ScalarMarkdown' })
+      expect(markdown.props('clamp')).toBe('7')
+    })
+
+    it('does not apply clamp to markdown when not collapsed', () => {
+      const mockTag = createMockTag()
+
+      const wrapper = mount(TagSection, {
+        props: {
+          tag: mockTag,
+          isCollapsed: false,
+        },
+      })
+
+      const markdown = wrapper.findComponent({ name: 'ScalarMarkdown' })
+      expect(markdown.props('clamp')).toBe(false)
+    })
+  })
+
+  describe('edge cases and error handling', () => {
+    it('handles tag with null tag property gracefully', () => {
+      const mockTag = createMockTag({ tag: null as any })
+
+      const wrapper = mount(TagSection, {
+        props: {
+          tag: mockTag,
+        },
+      })
+
+      expect(wrapper.text()).toContain('Test Tag')
+      expect(wrapper.text()).toContain('')
+    })
+
+    it('handles tag with empty description', () => {
+      const mockTag = createMockTag({
+        tag: {
+          description: '',
+        },
+      })
+
+      const wrapper = mount(TagSection, {
+        props: {
+          tag: mockTag,
+        },
+      })
+
+      expect(wrapper.text()).toContain('Test Tag')
+      expect(wrapper.text()).toContain('')
+    })
+
+    it('does not render when tag is null', () => {
+      const wrapper = mount(TagSection, {
+        props: {
+          tag: null as any,
+        },
+      })
+
+      expect(wrapper.findComponent({ name: 'Section' }).exists()).toBe(false)
+    })
+  })
+
+  describe('tag variations', () => {
+    it('handles tag with children', () => {
+      const mockTag = createMockTag({
+        children: [
+          {
+            id: 'child-1',
+            title: 'Child 1',
+            type: 'operation',
+          } as any,
+          {
+            id: 'child-2',
+            title: 'Child 2',
+            type: 'operation',
+          } as any,
+        ],
+      })
+
+      const wrapper = mount(TagSection, {
+        props: {
+          tag: mockTag,
+        },
+      })
+
+      // Component should still render correctly with children
+      expect(wrapper.text()).toContain('Test Tag')
+      expect(wrapper.text()).toContain('This is a test tag description')
+    })
+
+    it('handles tag group correctly', () => {
+      const mockTag = createMockTag({
+        isGroup: true,
+        title: 'Tag Group',
+      })
+
+      const wrapper = mount(TagSection, {
+        props: {
+          tag: mockTag,
+        },
+      })
+
+      expect(wrapper.text()).toContain('Tag Group')
+      expect(wrapper.text()).toContain('This is a test tag description')
+    })
   })
 })

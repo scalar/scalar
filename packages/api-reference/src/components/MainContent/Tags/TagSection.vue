@@ -53,6 +53,6 @@ const config = useConfig()
         </SectionColumn>
       </SectionColumns>
     </SectionContent>
-    <SpecificationExtension :value="tag" />
+    <SpecificationExtension :value="tag.tag" />
   </Section>
 </template>
