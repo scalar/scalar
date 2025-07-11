@@ -1,3 +1,17 @@
+<script lang="ts">
+/**
+ * Scalar card header component
+ *
+ * Will automatically be used as the aria-labelledby for the parent ScalarCard component
+ *
+ * @example
+ * <ScalarCard>
+ *   <ScalarCardHeader>Header</ScalarCardHeader>
+ *   ...
+ * </ScalarCard>
+ */
+export default {}
+</script>
 <script lang="ts" setup>
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { useId } from 'vue'

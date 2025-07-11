@@ -1,3 +1,15 @@
+<script lang="ts">
+/**
+ * Scalar card footer component
+ *
+ * @example
+ * <ScalarCard>
+ *   ...
+ *   <ScalarCardFooter>Footer</ScalarCardFooter>
+ * </ScalarCard>
+ */
+export default {}
+</script>
 <script lang="ts" setup>
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 
