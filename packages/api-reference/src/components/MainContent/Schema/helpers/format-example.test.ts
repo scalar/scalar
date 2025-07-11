@@ -1,9 +1,5 @@
-<<<<<<<< HEAD:packages/api-reference/src/components/MainContent/Schema/helpers/format-example.test.ts
-import { formatExample } from '@/components/Content/Schema/helpers/format-example'
-========
-import { formatExample } from '@/components/MainContent/Schema/helpers/formatExample'
->>>>>>>> 96375d1c8 (refactor: rename components):packages/api-reference/src/components/MainContent/Schema/helpers/formatExample.test.ts
 import { describe, expect, it } from 'vitest'
+import { formatExample } from './format-example'
 
 describe('formatExample', () => {
   it('formats array examples by wrapping items in quotes and brackets', () => {
