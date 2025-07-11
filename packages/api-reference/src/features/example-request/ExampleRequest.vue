@@ -5,7 +5,13 @@ import {
   getSnippet,
 } from '@scalar/api-client/views/Components/CodeSnippet'
 import { filterSecurityRequirements } from '@scalar/api-client/views/Request/RequestSection'
-import { ScalarCodeBlock } from '@scalar/components'
+import {
+  ScalarCard,
+  ScalarCardFooter,
+  ScalarCardHeader,
+  ScalarCardSection,
+  ScalarCodeBlock,
+} from '@scalar/components'
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import {
   createExampleFromRequest,
@@ -27,7 +33,6 @@ import {
   type ComponentPublicInstance,
 } from 'vue'
 
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/Card'
 import { HttpMethod } from '@/components/HttpMethod'
 import ScreenReader from '@/components/ScreenReader.vue'
 import type { Schemas } from '@/features/Operation/types/schemas'
@@ -423,11 +428,11 @@ watch(discriminator, (newValue) => {
 })
 </script>
 <template>
-  <Card
+  <ScalarCard
     v-if="availableTargets.length || customRequestExamples.length"
     class="request-card dark-mode"
     ref="elem">
-    <CardHeader class="pr-0.75">
+    <ScalarCardHeader class="pr-0.75">
       <ScreenReader>Request Example for</ScreenReader>
       <HttpMethod
         as="span"
@@ -455,8 +460,9 @@ watch(discriminator, (newValue) => {
           </template>
         </TextSelect>
       </template>
-    </CardHeader>
-    <CardContent class="request-editor-section custom-scroll border-none p-0">
+    </ScalarCardHeader>
+    <ScalarCardSection
+      class="request-editor-section custom-scroll border-none p-0">
       <!-- Multiple examples -->
       <div
         :id="`${id}-example`"
@@ -468,8 +474,8 @@ watch(discriminator, (newValue) => {
           :lang="language"
           lineNumbers />
       </div>
-    </CardContent>
-    <CardFooter
+    </ScalarCardSection>
+    <ScalarCardFooter
       v-if="
         (hasMultipleExamples || !config.hideTestRequestButton) && $slots.footer
       "
@@ -484,12 +490,12 @@ watch(discriminator, (newValue) => {
           @update:modelValue="handleExampleUpdate" />
       </div>
       <slot name="footer" />
-    </CardFooter>
-  </Card>
-  <Card
+    </ScalarCardFooter>
+  </ScalarCard>
+  <ScalarCard
     v-else-if="fallback"
     class="request-card dark-mode">
-    <CardContent class="request-card-simple">
+    <ScalarCardSection class="request-card-simple">
       <div class="request-header">
         <HttpMethod
           as="span"
@@ -498,8 +504,8 @@ watch(discriminator, (newValue) => {
         <slot name="header" />
       </div>
       <slot name="footer" />
-    </CardContent>
-  </Card>
+    </ScalarCardSection>
+  </ScalarCard>
 </template>
 <style scoped>
 .request-card {

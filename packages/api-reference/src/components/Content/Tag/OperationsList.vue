@@ -1,9 +1,13 @@
 <script setup lang="ts">
+import {
+  ScalarCard,
+  ScalarCardHeader,
+  ScalarCardSection,
+} from '@scalar/components'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
 import type { Tag } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
-import { Card, CardContent, CardHeader } from '@/components/Card'
 import ScreenReader from '@/components/ScreenReader.vue'
 
 import OperationsListItem from './OperationsListItem.vue'
@@ -19,12 +23,12 @@ const tagName = computed(() => props.tag['x-displayName'] ?? props.tag.name)
 
 <template>
   <template v-if="tag.operations?.length > 0">
-    <Card class="endpoints-card">
-      <CardHeader>
+    <ScalarCard class="endpoints-card">
+      <ScalarCardHeader>
         <ScreenReader>{{ tagName }}</ScreenReader>
         Operations
-      </CardHeader>
-      <CardContent class="custom-scroll">
+      </ScalarCardHeader>
+      <ScalarCardSection class="custom-scroll">
         <ul
           :aria-label="`${tagName} endpoints`"
           class="endpoints">
@@ -35,8 +39,8 @@ const tagName = computed(() => props.tag['x-displayName'] ?? props.tag.name)
             :isCollapsed="isCollapsed"
             :transformedOperation="operation" />
         </ul>
-      </CardContent>
-    </Card>
+      </ScalarCardSection>
+    </ScalarCard>
   </template>
 </template>
 
