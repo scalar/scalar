@@ -2,7 +2,7 @@
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { computed } from 'vue'
 
-import { useCardRegion } from './useCardRegion'
+import { useCardRegion } from './useCardHeading'
 
 /**
  * Scalar Card - A composable card component with region-based accessibility

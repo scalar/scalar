@@ -3,14 +3,15 @@ import { inject, provide, ref, type InjectionKey, type Ref } from 'vue'
 /**
  * Tracks the region heading id for card accessibility
  */
-export const CARD_REGION_SYMBOL = Symbol() as InjectionKey<Ref<string | undefined>>
+export const CARD_Heading_SYMBOL = Symbol() as InjectionKey<Ref<string | undefined>>
 
 /**
- * Set the region heading id for card accessibility.
+ * Set the region heading id for a ScalarCardHeader component.
+ *
  * This should be called from ScalarCardHeader components.
  */
-export const useCardRegionHeading = (id: string) => {
-  const region = inject(CARD_REGION_SYMBOL)
+export const useCardHeading = (id: string) => {
+  const region = inject(CARD_Heading_SYMBOL, undefined)
   if (region) {
     region.value = id
   }
@@ -18,12 +19,13 @@ export const useCardRegionHeading = (id: string) => {
 
 /**
  * Get the region heading id if set.
- * This provides and manages the heading id for accessibility.
+ *
+ * This should be called from ScalarCard components.
  */
 export const useCardRegion = () => {
   // Create a new ref for any child nested items to update
   const id = ref<string>()
-  provide(CARD_REGION_SYMBOL, id)
+  provide(CARD_Heading_SYMBOL, id)
 
   return {
     /** The region heading id ref */
