@@ -114,7 +114,6 @@ const showSchema = ref(false)
     role="region"
     class="response-card">
     <CardTabHeader
-      muted
       x="as"
       @change="changeTab">
       <CardTab
@@ -149,7 +148,7 @@ const showSchema = ref(false)
       </template>
     </CardTabHeader>
     <div class="scalar-card-container custom-scroll">
-      <CardContent muted>
+      <CardContent>
         <template v-if="currentJsonResponse?.schema">
           <ScalarCodeBlock
             v-if="showSchema && currentResponseWithExample"
@@ -171,8 +170,7 @@ const showSchema = ref(false)
     </div>
     <CardFooter
       v-if="currentResponse?.description || hasMultipleExamples"
-      class="response-card-footer"
-      muted>
+      class="response-card-footer">
       <ExamplePicker
         v-if="hasMultipleExamples"
         class="response-example-selector"
@@ -224,7 +222,6 @@ const showSchema = ref(false)
   flex-shrink: 0;
   padding: 10px 12px;
   gap: 8px;
-  border-top: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 .response-example-selector {
   align-self: flex-start;

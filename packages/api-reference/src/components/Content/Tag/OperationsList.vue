@@ -20,13 +20,11 @@ const tagName = computed(() => props.tag['x-displayName'] ?? props.tag.name)
 <template>
   <template v-if="tag.operations?.length > 0">
     <Card class="endpoints-card">
-      <CardHeader muted>
+      <CardHeader>
         <ScreenReader>{{ tagName }}</ScreenReader>
         Operations
       </CardHeader>
-      <CardContent
-        class="custom-scroll"
-        muted>
+      <CardContent class="custom-scroll">
         <ul
           :aria-label="`${tagName} endpoints`"
           class="endpoints">

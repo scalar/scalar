@@ -1,13 +1,13 @@
 <script lang="ts" setup>
-import CardContent from './CardContent.vue'
-import type { CardContentProps } from './types'
+import { useBindCx } from '@scalar/components'
 
-const props = defineProps<CardContentProps>()
+import CardContent from './CardContent.vue'
+
+defineOptions({ inheritAttrs: false })
+const { cx } = useBindCx()
 </script>
 <template>
-  <CardContent
-    v-bind="props"
-    class="scalar-card-header">
+  <CardContent v-bind="cx('scalar-card-header')">
     <div class="scalar-card-header-slots">
       <div class="scalar-card-header-slot scalar-card-header-title">
         <slot />
@@ -30,6 +30,7 @@ const props = defineProps<CardContentProps>()
   margin-top: -9px;
 }
 .scalar-card-header-slots {
+  flex: 1;
   display: flex;
   justify-content: space-between;
   line-height: 1.35;

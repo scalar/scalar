@@ -48,16 +48,13 @@ const title = computed(
       class="endpoint"
       :href="`#${transformedOperation.id}`"
       @click.prevent="scrollHandler(transformedOperation)">
-      <div class="flex min-w-[62px] flex-row items-center justify-end gap-2">
+      <HttpMethod
+        class="endpoint-method"
+        :method="transformedOperation.httpVerb">
         <ScalarIconWebhooksLogo
           v-if="transformedOperation.isWebhook"
-          :style="{
-            color: getHttpMethodInfo(transformedOperation.httpVerb).colorVar,
-          }" />
-        <HttpMethod
-          class="endpoint-method min-w-0"
-          :method="transformedOperation.httpVerb" />
-      </div>
+          class="size-3.5" />
+      </HttpMethod>
       <span
         class="endpoint-path"
         :class="{
@@ -95,7 +92,10 @@ const title = computed(
 .endpoint-path {
   color: var(--scalar-color-1);
   min-width: 62px;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
   line-height: 1.55;
   font-family: var(--scalar-font-code);
   font-size: var(--scalar-small);

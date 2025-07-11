@@ -1,16 +1,13 @@
 <script lang="ts" setup>
-import CardContent from './CardContent.vue'
-import type { CardContentProps } from './types'
+import { useBindCx } from '@scalar/components'
 
-const props = defineProps<CardContentProps>()
+import CardContent from './CardContent.vue'
+
+defineOptions({ inheritAttrs: false })
+const { cx } = useBindCx()
 </script>
 <template>
-  <CardContent v-bind="props">
+  <CardContent v-bind="cx('scalar-card-footer')">
     <slot />
   </CardContent>
 </template>
-<style scoped>
-.scalar-card-footer {
-  flex-shrink: 0;
-}
-</style>
