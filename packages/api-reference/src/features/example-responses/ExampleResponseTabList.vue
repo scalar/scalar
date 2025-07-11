@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { TabGroup, TabList } from '@headlessui/vue'
 
-import CardHeader from './CardHeader.vue'
+import CardHeader from '@/components/Card/CardHeader.vue'
 
 const emit = defineEmits<{
   (e: 'change', index: number): void
