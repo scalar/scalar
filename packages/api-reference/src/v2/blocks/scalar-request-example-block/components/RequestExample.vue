@@ -242,29 +242,21 @@ const id = useId()
 <template>
   <Card
     v-if="clients.length"
-    :aria-labelledby="`${id}-header`"
     class="request-card dark-mode"
-    ref="elem"
-    role="region">
+    ref="elem">
     <!-- Header -->
     <CardHeader class="pr-0.75">
-      <div
-        :id="`${id}-header`"
-        class="request-header">
-        <span class="sr-only">Request Example for</span>
-        <HttpMethod
-          as="span"
-          class="request-method"
-          :method="method" />
-
-        <span
-          v-if="generateLabel"
-          v-html="generateLabel()" />
-        <slot
-          v-else
-          name="header" />
-      </div>
-
+      <span class="sr-only">Request Example for</span>
+      <HttpMethod
+        as="span"
+        class="request-method"
+        :method="method" />
+      <span
+        v-if="generateLabel"
+        v-html="generateLabel()" />
+      <slot
+        v-else
+        name="header" />
       <!-- Client picker -->
       <template
         #actions
@@ -343,14 +335,10 @@ const id = useId()
 .request-card {
   font-size: var(--scalar-font-size-3);
 }
-.request-header {
-  display: flex;
-  gap: 6px;
-  text-transform: initial;
-}
 .request-method {
   font-family: var(--scalar-font-code);
   text-transform: uppercase;
+  margin-right: 6px;
 }
 .request-card-footer {
   display: flex;

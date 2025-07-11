@@ -106,9 +106,7 @@ const showSchema = ref(false)
     aria-label="Example Responses"
     role="region"
     class="response-card">
-    <ExampleResponseTabList
-      x="as"
-      @change="changeTab">
+    <ExampleResponseTabList @change="changeTab">
       <ExampleResponseTab
         v-for="statusCode in orderedStatusCodes"
         :key="statusCode"
