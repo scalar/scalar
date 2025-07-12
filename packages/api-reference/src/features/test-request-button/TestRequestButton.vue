@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
+import { ScalarIconPlay } from '@scalar/icons'
 import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 import { computed } from 'vue'
 
@@ -34,9 +35,9 @@ const handleClick = () => {
     :method="operation.method"
     type="button"
     @click.stop="handleClick">
-    <ScalarIcon
-      icon="Play"
-      size="sm" />
+    <ScalarIconPlay
+      class="size-3"
+      weight="fill" />
     <span>Test Request</span>
     <ScreenReader>({{ operation.method }} {{ operation.path }})</ScreenReader>
   </button>

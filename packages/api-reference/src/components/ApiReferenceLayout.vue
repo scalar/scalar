@@ -593,7 +593,6 @@ watch(hash, (newHash, oldHash) => {
 }
 .scalar-api-reference.references-classic,
 .references-classic .references-rendered {
-  --full-height: fit-content !important;
   height: initial !important;
   max-height: initial !important;
 }
