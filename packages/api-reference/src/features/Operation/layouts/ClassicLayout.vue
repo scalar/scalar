@@ -325,7 +325,7 @@ const handleDiscriminatorChange = (type: string) => {
 }
 .operation-details-card :deep(.parameter-item) {
   margin: 0;
-  padding: 0 9px;
+  padding: 0;
 }
 .operation-details-card :deep(.property) {
   padding: 9px;
@@ -390,12 +390,11 @@ const handleDiscriminatorChange = (type: string) => {
   margin-right: 9px;
 }
 
-.operation-details-card :deep(.request-body-schema > .schema-card) {
-  border-radius: var(--scalar-radius-lg);
-  border: var(--scalar-border-width) solid var(--scalar-border-color);
-  margin: 9px;
+.operation-details-card
+  :deep(.schema-card--open + .schema-card:not(.schema-card--open)) {
+  margin-inline: 9px;
+  margin-bottom: 9px;
 }
-
 .operation-details-card :deep(.request-body-schema .property--level-0) {
   padding: 0;
 }
