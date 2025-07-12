@@ -30,6 +30,7 @@ import OperationPath from '@/components/OperationPath.vue'
 import { SectionAccordion } from '@/components/Section'
 import { ExampleRequest } from '@/features/example-request'
 import { ExampleResponses } from '@/features/example-responses'
+import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import type { Schemas } from '@/features/Operation/types/schemas'
 import { TestRequestButton } from '@/features/test-request-button'
 import { useConfig } from '@/hooks/useConfig'
@@ -146,6 +147,14 @@ const handleDiscriminatorChange = (type: string) => {
             :collapsableItems="false"
             :responses="operation.responses"
             :schemas="schemas" />
+        </div>
+        <div
+          v-if="operation?.callbacks"
+          class="operation-details-card-item">
+          <Callbacks
+            :callbacks="operation.callbacks"
+            :schemas="schemas"
+            :collection="collection" />
         </div>
       </div>
       <ExampleResponses
@@ -286,16 +295,14 @@ const handleDiscriminatorChange = (type: string) => {
   }
 }
 
-.endpoint-content > * {
-  max-height: unset;
-}
-
 .operation-details-card {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  min-width: 0;
 }
-.operation-details-card-item :deep(.parameter-list) {
+.operation-details-card-item :deep(.parameter-list),
+.operation-details-card-item :deep(.callbacks-list) {
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-radius: var(--scalar-radius-lg);
   margin-top: 0;
@@ -325,7 +332,8 @@ const handleDiscriminatorChange = (type: string) => {
   margin: 0;
 }
 .operation-details-card :deep(.parameter-list-title),
-.operation-details-card :deep(.request-body-title) {
+.operation-details-card :deep(.request-body-title),
+.operation-details-card :deep(.callbacks-title) {
   text-transform: uppercase;
   font-weight: var(--scalar-bold);
   font-size: var(--scalar-mini);
@@ -333,6 +341,32 @@ const handleDiscriminatorChange = (type: string) => {
   line-height: 1.33;
   padding: 9px;
   margin: 0;
+}
+
+.operation-details-card :deep(.callback-list-item-title) {
+  padding-left: 28px;
+  padding-right: 12px;
+}
+
+.operation-details-card :deep(.callback-list-item-icon) {
+  left: 6px;
+}
+
+.operation-details-card :deep(.callback-operation-container) {
+  padding-inline: 9px;
+  padding-bottom: 9px;
+}
+
+.operation-details-card :deep(.callback-operation-container > .request-body),
+.operation-details-card :deep(.callback-operation-container > .parameter-list) {
+  border: none;
+}
+
+.operation-details-card
+  :deep(.callback-operation-container > .request-body > .request-body-header) {
+  padding: 0;
+  padding-bottom: 9px;
+  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 
 .operation-details-card :deep(.request-body-description) {
