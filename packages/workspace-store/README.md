@@ -369,3 +369,22 @@ const currentWorkspaceState = client.exportWorkspace()
 // Reload the workspace state
 client.loadWorkspace(currentWorkspaceState)
 ```
+
+### Create workspace from specification
+
+Create the workspace from a specification object
+
+```ts
+await store.importWorkspaceFromSpecification({
+  workspace: 'v1',
+  info: { title: 'My Workspace' },
+  documents: {
+    api: { $ref: '/specs/api.yaml' },
+    petstore: { $ref: '/specs/petstore.yaml' }
+  },
+  overrides: {
+    api: { config: { features: { showModels: true } } }
+  },
+  "x-scalar-dark-mode": true
+})
+```

@@ -4,7 +4,7 @@ import { bundle, upgrade } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins-browser'
 
 import { createNavigation, type createNavigationOptions } from '@/navigation'
-import type { DeepTransform } from '@/types'
+import type { DeepPartial, DeepRequired } from '@/types'
 import { createMagicProxy, getRaw } from '@/helpers/proxy'
 import { deepClone, isObject, safeAssign } from '@/helpers/general'
 import { mergeObjects } from '@/helpers/merge-object'
@@ -13,10 +13,12 @@ import { getValueByPath } from '@/helpers/json-path-utils'
 import type { WorkspaceMeta, WorkspaceDocumentMeta, Workspace } from '@/schemas/workspace'
 import { extensions } from '@/schemas/extensions'
 import { coerceValue } from '@/schemas/typebox-coerce'
-import { OpenAPIDocumentSchema } from '@/schemas/v3.1/strict/openapi-document'
+import { OpenAPIDocumentSchema, type OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import { defaultReferenceConfig } from '@/schemas/reference-config'
 import type { Config } from '@/schemas/workspace-specification/config'
 import { InMemoryWorkspaceSchema, type InMemoryWorkspace } from '@/schemas/inmemory-workspace'
+import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
+import { createOverridesProxy, unpackOverridesProxy } from '@/helpers/overrides-proxy'
 
 /**
  * Input type for workspace document metadata and configuration.
@@ -31,6 +33,8 @@ type WorkspaceDocumentMetaInput = {
   name: string
   /** Optional configuration for generating navigation structure */
   config?: Config & Partial<createNavigationOptions>
+  /** Overrides for the document */
+  overrides?: DeepPartial<OpenApiDocument>
 }
 
 /**
@@ -57,7 +61,7 @@ export type ObjectDoc = {
  */
 export type WorkspaceDocumentInput = UrlDoc | ObjectDoc
 
-const defaultConfig: DeepTransform<Config, 'NonNullable'> = {
+const defaultConfig: DeepRequired<Config> = {
   'x-scalar-reference-config': defaultReferenceConfig,
 }
 
@@ -142,6 +146,8 @@ export type WorkspaceStore = {
   exportWorkspace(): string
   /** Imports a workspace from a serialized JSON string. */
   loadWorkspace(input: string): void
+  /** Imports a workspace from a specification object */
+  importWorkspaceFromSpecification(specification: WorkspaceSpecification): Promise<void>
 }
 
 /**
@@ -164,7 +170,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * The originals are retained so that we can restore, compare, or sync with the remote registry as needed.
    */
   const originalDocuments = {} as Workspace['documents']
-
   /**
    * Stores the intermediate state of documents after local edits but before syncing with the remote registry.
    *
@@ -185,6 +190,16 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * and other reference configuration.
    */
   const documentConfigs: Record<string, Config> = {}
+  /**
+   * Stores per-document overrides for OpenAPI documents.
+   * This object is used to override specific fields of a document
+   * when you cannot (or should not) modify the source document directly.
+   * For example, this enables UI-driven or temporary changes to be applied
+   * on top of the original document, without mutating the source.
+   * The key is the document name, and the value is a deep partial
+   * OpenAPI document representing the overridden fields.
+   */
+  const overrides: Record<string, DeepPartial<OpenApiDocument>> = {}
 
   // Create a reactive workspace object with proxied documents
   // Each document is wrapped in a proxy to enable reactive updates and reference resolution
@@ -234,13 +249,39 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     intermediateDocuments[name] = deepClone({ ...document, ...meta })
     // Add the document config to the documentConfigs map
     documentConfigs[name] = input.config ?? {}
+    // Store the overrides for this document, or an empty object if none are provided
+    overrides[name] = input.overrides ?? {}
 
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (document[extensions.document.navigation] === undefined) {
       document[extensions.document.navigation] = createNavigation(document, input.config ?? {}).entries
     }
 
-    workspace.documents[name] = createMagicProxy({ ...document, ...meta })
+    // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map
+    workspace.documents[name] = createOverridesProxy(createMagicProxy({ ...document, ...meta }), input.overrides)
+  }
+
+  // Asynchronously adds a new document to the workspace by loading and validating the input.
+  // If loading fails, a placeholder error document is added instead.
+  async function addDocument(input: WorkspaceDocumentInput) {
+    const { name, meta, config } = input
+
+    const resolve = await loadDocument(input)
+
+    if (!resolve.ok || !isObject(resolve.data)) {
+      console.error(`Can not load the document '${name}'`)
+      workspace.documents[name] = {
+        ...meta,
+        info: {
+          title: `Document '${name}' could not be loaded`,
+          version: 'unknown',
+        },
+        openapi: '3.1.0',
+      }
+      return
+    }
+
+    addDocumentSync({ document: resolve.data, name, meta, config })
   }
 
   // Add any initial documents to the store
@@ -356,26 +397,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
      *   }
      * })
      */
-    addDocument: async (input: WorkspaceDocumentInput) => {
-      const { name, meta, config } = input
-
-      const resolve = await loadDocument(input)
-
-      if (!resolve.ok || !isObject(resolve.data)) {
-        console.error(`Can not load the document '${name}'`)
-        workspace.documents[name] = {
-          ...meta,
-          info: {
-            title: `Document '${name}' could not be loaded`,
-            version: 'unknown',
-          },
-          openapi: '3.1.0',
-        }
-        return
-      }
-
-      addDocumentSync({ document: resolve.data, name, meta, config })
-    },
+    addDocument,
     /**
      * Similar to addDocument but requires and in-mem object to be provided and loads the document synchronously
      * @param document - The document content to add. This should be a valid OpenAPI/Swagger document or other supported format
@@ -466,7 +488,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     saveDocument(documentName: string) {
       const intermediateDocument = intermediateDocuments[documentName]
       // Obtain the raw state of the current document to ensure accurate diffing
-      const updatedDocument = toRaw(getRaw(workspace.documents[documentName]))
+      // Remove the magic proxy while preserving the overrides proxy to ensure accurate updates
+      const updatedDocument = createOverridesProxy(
+        getRaw(unpackOverridesProxy(workspace.documents[documentName])),
+        overrides[documentName],
+      )
 
       // If either the intermediate or updated document is missing, do nothing
       if (!intermediateDocument || !updatedDocument) {
@@ -572,6 +598,43 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       safeAssign(intermediateDocuments, result.intermediateDocuments)
       safeAssign(documentConfigs, result.documentConfigs)
       safeAssign(workspace, result.meta)
+    },
+    /**
+     * Imports a workspace from a WorkspaceSpecification object.
+     *
+     * This method assigns workspace metadata and adds all documents defined in the specification.
+     * Each document is added using its $ref and optional overrides.
+     *
+     * @example
+     * ```ts
+     * await store.importWorkspaceFromSpecification({
+     *   documents: {
+     *     api: { $ref: '/specs/api.yaml' },
+     *     petstore: { $ref: '/specs/petstore.yaml' }
+     *   },
+     *   overrides: {
+     *     api: { config: { features: { showModels: true } } }
+     *   },
+     *   info: { title: 'My Workspace' },
+     *   workspace: 'v1',
+     *   "x-scalar-dark-mode": true
+     * })
+     * ```
+     *
+     * @param specification - The workspace specification to import.
+     */
+    importWorkspaceFromSpecification: async (specification: WorkspaceSpecification) => {
+      const { documents, overrides, info, workspace: workspaceVersion, ...meta } = specification
+
+      // Assign workspace metadata
+      safeAssign(workspace, meta)
+
+      // Add workspace documents
+      await Promise.all([
+        Object.entries(documents ?? {}).map(([name, doc]) => {
+          addDocument({ url: doc.$ref, name, overrides: overrides?.[name] })
+        }),
+      ])
     },
   }
 }
