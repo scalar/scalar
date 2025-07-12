@@ -146,8 +146,11 @@ const handleDiscriminatorChange = (type: string) => {
             :schemas="schemas" />
         </div>
       </div>
-      <ExampleResponses :responses="operation.responses" />
+      <ExampleResponses
+        class="operation-example-card"
+        :responses="operation.responses" />
       <ExampleRequest
+        class="operation-example-card"
         :request="request"
         :method="method"
         :collection="collection"
@@ -363,5 +366,11 @@ const handleDiscriminatorChange = (type: string) => {
 
 .operation-details-card :deep(.selected-content-type) {
   margin-right: 9px;
+}
+
+.operation-example-card {
+  position: sticky;
+  top: calc(var(--refs-header-height) + 24px);
+  max-height: calc(((var(--full-height) - var(--refs-header-height)) - 48px));
 }
 </style>
