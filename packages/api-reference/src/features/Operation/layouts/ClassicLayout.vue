@@ -4,7 +4,11 @@ import {
   ScalarIconButton,
   ScalarMarkdown,
 } from '@scalar/components'
-import { ScalarIconWebhooksLogo } from '@scalar/icons'
+import {
+  ScalarIconCopy,
+  ScalarIconPlay,
+  ScalarIconWebhooksLogo,
+} from '@scalar/icons'
 import type {
   Collection,
   Request,
@@ -107,14 +111,12 @@ const handleDiscriminatorChange = (type: string) => {
       <TestRequestButton
         v-if="active && request"
         :operation="request" />
-      <ScalarIcon
+      <ScalarIconPlay
         v-else-if="!config?.hideTestRequestButton"
-        class="endpoint-try-hint size-6"
-        icon="Play"
-        thickness="1.75px" />
+        class="endpoint-try-hint size-4.5" />
       <ScalarIconButton
         class="endpoint-copy p-0.5"
-        icon="Clipboard"
+        :icon="ScalarIconCopy"
         label="Copy endpoint URL"
         size="xs"
         variant="ghost"
