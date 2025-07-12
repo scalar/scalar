@@ -375,4 +375,11 @@ const handleDiscriminatorChange = (type: string) => {
   top: calc(var(--refs-header-height) + 24px);
   max-height: calc(((var(--full-height) - var(--refs-header-height)) - 48px));
 }
+
+@media (max-width: 600px) {
+  .operation-example-card {
+    max-height: unset;
+    position: static;
+  }
+}
 </style>
