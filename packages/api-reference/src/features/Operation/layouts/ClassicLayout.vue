@@ -202,7 +202,7 @@ const handleDiscriminatorChange = (type: string) => {
   background: currentColor;
   opacity: 0.15;
 
-  border-radius: var(--scalar-radius-lg);
+  border-radius: var(--scalar-radius);
 }
 
 .endpoint-anchor {
@@ -291,7 +291,7 @@ const handleDiscriminatorChange = (type: string) => {
   gap: 12px;
 }
 .operation-details-card-item :deep(.parameter-list) {
-  border: 1px solid var(--scalar-border-color);
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-radius: var(--scalar-radius-lg);
   margin-top: 0;
 }
@@ -333,13 +333,13 @@ const handleDiscriminatorChange = (type: string) => {
 .operation-details-card :deep(.request-body-description) {
   margin-top: 0;
   padding: 9px 9px 0 9px;
-  border-top: 1px solid var(--scalar-border-color);
+  border-top: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 
 .operation-details-card :deep(.request-body) {
   margin-top: 0;
   border-radius: var(--scalar-radius-lg);
-  border: 1px solid var(--scalar-border-color);
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 
 .operation-details-card :deep(.request-body-header) {
@@ -353,7 +353,7 @@ const handleDiscriminatorChange = (type: string) => {
 
 .operation-details-card :deep(.request-body-schema > .schema-card) {
   border-radius: var(--scalar-radius-lg);
-  border: 1px solid var(--scalar-border-color);
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
   margin: 9px;
 }
 

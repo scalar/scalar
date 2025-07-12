@@ -70,7 +70,7 @@ const isHovered = useElementHover(button)
 
 .section-accordion-transparent {
   background: transparent;
-  border: 1px solid var(--scalar-border-color);
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 
 .section-accordion-button {
@@ -104,7 +104,7 @@ const isHovered = useElementHover(button)
   color: var(--scalar-color-1);
 }
 .section-accordion-content {
-  border-top: 1px solid var(--scalar-border-color);
+  border-top: var(--scalar-border-width) solid var(--scalar-border-color);
   display: flex;
   flex-direction: column;
 }
