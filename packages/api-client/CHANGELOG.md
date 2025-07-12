@@ -1,5 +1,16 @@
 # @scalar/api-client
 
+## 2.5.17
+
+### Patch Changes
+
+- Updated dependencies [934dff9]
+- Updated dependencies [71958fd]
+  - @scalar/components@0.14.18
+  - @scalar/oas-utils@0.4.13
+  - @scalar/use-codemirror@0.12.19
+  - @scalar/postman-to-openapi@0.3.16
+
 ## 2.5.16
 
 ### Patch Changes

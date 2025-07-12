@@ -1,5 +1,15 @@
 # @scalar/components
 
+## 0.14.18
+
+### Patch Changes
+
+- 934dff9: feat(components): sidebar component follow up
+- Updated dependencies [6ab3a21]
+- Updated dependencies [71958fd]
+  - @scalar/code-highlight@0.1.7
+  - @scalar/oas-utils@0.4.13
+
 ## 0.14.17
 
 ### Patch Changes

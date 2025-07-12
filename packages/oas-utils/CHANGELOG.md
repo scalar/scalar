@@ -1,5 +1,14 @@
 # @scalar/oas-utils
 
+## 0.4.13
+
+### Patch Changes
+
+- 71958fd: fix: include port in server URL
+- Updated dependencies [a85480e]
+- Updated dependencies [8b9c48e]
+  - @scalar/workspace-store@0.10.0
+
 ## 0.4.12
 
 ### Patch Changes

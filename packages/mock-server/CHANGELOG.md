@@ -1,5 +1,13 @@
 # @scalar/mock-server
 
+## 0.5.16
+
+### Patch Changes
+
+- 3e657c9: feat(mock-server): update galaxy.scalar.com to use default theme
+- Updated dependencies [71958fd]
+  - @scalar/oas-utils@0.4.13
+
 ## 0.5.15
 
 ### Patch Changes

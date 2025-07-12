@@ -1,5 +1,17 @@
 # @scalar/workspace-store
 
+## 0.10.0
+
+### Minor Changes
+
+- 8b9c48e: fix(workspace-store): support local ref resolution on arrays
+
+### Patch Changes
+
+- a85480e: feat: lay the groundwork for the block implementation PR
+- Updated dependencies [6ab3a21]
+  - @scalar/code-highlight@0.1.7
+
 ## 0.9.0
 
 ### Minor Changes

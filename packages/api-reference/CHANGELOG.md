@@ -1,5 +1,26 @@
 # @scalar/api-reference
 
+## 1.32.7
+
+### Patch Changes
+
+- a85480e: feat: lay the groundwork for the block implementation PR
+- 1a6c0a4: feat: increases property font sizes + updates description color
+- 9be7ca9: fix: show description for expandable enum values
+- c2ff19e: fix: updates enum values style
+- 7325520: feat: render additionalProperties and patternProperties
+- 134c455: fix: updates example request selected type presence check for discriminator
+- Updated dependencies [a85480e]
+- Updated dependencies [934dff9]
+- Updated dependencies [8b9c48e]
+- Updated dependencies [6ab3a21]
+- Updated dependencies [71958fd]
+  - @scalar/workspace-store@0.10.0
+  - @scalar/components@0.14.18
+  - @scalar/code-highlight@0.1.7
+  - @scalar/oas-utils@0.4.13
+  - @scalar/api-client@2.5.17
+
 ## 1.32.6
 
 ### Patch Changes
