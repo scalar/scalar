@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
+import {
+  ScalarIconCaretDown,
+  ScalarIconCaretLeft,
+  ScalarIconCaretRight,
+} from '@scalar/icons'
 import { useElementHover } from '@vueuse/core'
 import { ref } from 'vue'
 
@@ -36,9 +41,9 @@ const isHovered = useElementHover(button)
             :active="isHovered || open"
             name="actions" />
         </div>
-        <ScalarIcon
-          class="section-accordion-chevron size-5"
-          :icon="open ? 'ChevronDown' : 'ChevronRight'" />
+        <ScalarIconCaretRight
+          class="section-accordion-chevron size-4.5 transition-transform"
+          :class="{ 'rotate-90': open }" />
       </DisclosureButton>
       <DisclosurePanel class="section-accordion-content">
         <div
