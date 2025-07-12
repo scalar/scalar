@@ -119,6 +119,7 @@ const handleDiscriminatorChange = (type: string) => {
             <ScalarErrorBoundary>
               <Callbacks
                 v-if="operation?.callbacks"
+                class="mt-6"
                 :callbacks="operation?.callbacks"
                 :collection="collection"
                 :schemas="schemas" />
