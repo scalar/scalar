@@ -106,8 +106,8 @@ const getAdditionalPropertiesValue = (
         schema.discriminator?.propertyName || discriminatorPropertyName
       "
       :isDiscriminator="
-        property ===
-        (schema.discriminator?.propertyName || discriminatorPropertyName)
+        property === schema.discriminator?.propertyName &&
+        !!schema.discriminator
       "
       :modelValue="discriminator"
       @update:modelValue="handleDiscriminatorChange" />
