@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.1.7
+
+### Patch Changes
+
+- 6ab3a21: feat: updates markdown details component style
+
 ## 0.1.6
 
 ### Patch Changes

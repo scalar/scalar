@@ -1,5 +1,18 @@
 # @scalar/aspire
 
+## 0.1.8
+
+### Patch Changes
+
+- db64eac: ci: improved ci build
+- Updated dependencies [a85480e]
+- Updated dependencies [1a6c0a4]
+- Updated dependencies [9be7ca9]
+- Updated dependencies [c2ff19e]
+- Updated dependencies [7325520]
+- Updated dependencies [134c455]
+  - @scalar/api-reference@1.32.7
+
 ## 0.1.7
 
 ### Patch Changes
