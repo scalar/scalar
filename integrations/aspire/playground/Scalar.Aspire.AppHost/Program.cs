@@ -9,7 +9,17 @@ var userService = builder
 
 var bookService = builder.AddProject<Scalar_Aspire_BookService>("book-service");
 
-var scalar = builder.AddScalarApiReference(options => options.WithCdnUrl("https://cdn.jsdelivr.net/npm/@scalar/api-reference"));
+var keycloak = builder
+    .AddKeycloak("keycloak", 8080)
+    .WithDataVolume()
+    .WithRealmImport("./Realms")
+    .WithEnvironment("KC_BOOTSTRAP_ADMIN_USERNAME", "admin")
+    .WithEnvironment("KC_BOOTSTRAP_ADMIN_PASSWORD", "admin");
+
+var scalar = builder
+    .AddScalarApiReference(options => options.WithCdnUrl("https://cdn.jsdelivr.net/npm/@scalar/api-reference"))
+    .WithReference(keycloak);
+
 
 scalar
     .WithApiReference(userService, options =>
@@ -20,9 +30,18 @@ scalar
     })
     .WithApiReference(bookService, options =>
     {
-        options.WithTheme(ScalarTheme.Saturn);
-        options.WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
-        options.WithOpenApiRoutePattern("/swagger/{documentName}.json");
+        options
+            .WithTheme(ScalarTheme.Saturn)
+            .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
+            .WithOpenApiRoutePattern("/swagger/{documentName}.json")
+            .AddPreferredSecuritySchemes("oauth2")
+            .AddAuthorizationCodeFlow("oauth2", flow =>
+            {
+                flow.WithClientId("admin-cli");
+            });
     });
+
+
+bookService.WithEnvironment("Keycloak", keycloak.GetEndpoint("http"));
 
 builder.Build().Run();
