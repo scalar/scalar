@@ -73,7 +73,6 @@
     "dev:reference:react": "turbo playground --filter @scalar/api-reference-react",
     "dev:void-server": "pnpm --filter @scalar/void-server dev",
     "dev:web": "turbo dev --filter @scalar-examples/web",
-    "format:packages": "pnpm syncpack fix-mismatches --types 'prod,dev' || true && pnpm syncpack set-semver-ranges && vite-node scripts/format-package.ts && pnpm install -r",
     "format:check": "pnpm prettier --check . && biome format",
     "format": "prettier --write . && biome format --write",
     "lint:check": "biome lint --diagnostic-level=error",
