@@ -547,7 +547,7 @@ onServerPrefetch(async () => await new Promise((r) => setTimeout(r, 1)))
   /* Markdown Alert */
   .markdown .markdown-alert {
     align-items: stretch;
-    border-radius: var(--scalar-radius-lg);
+    border-radius: var(--scalar-radius);
     background-color: color-mix(
       in srgb,
       var(--scalar-background-2),
@@ -555,65 +555,127 @@ onServerPrefetch(async () => await new Promise((r) => setTimeout(r, 1)))
     );
     border: var(--markdown-border);
     display: flex;
-    font-size: var(--scalar-small);
     gap: var(--markdown-spacing-sm);
-    padding: calc(var(--markdown-spacing-sm) - 0.5px);
-    padding-left: 42px;
+    padding: 10px 14px;
     position: relative;
   }
 
-  .markdown .markdown-alert::before {
+  .markdown .markdown-alert .markdown-alert-icon::before {
     content: '';
-    position: absolute;
-    left: var(--markdown-spacing-sm);
-    top: calc(var(--markdown-spacing-sm) + 0.5px);
-    width: 16px;
-    height: 16px;
+    display: block;
+    width: 18px;
+    height: 18px;
     background-color: currentColor;
+    flex-shrink: 0;
+    margin-top: 3px;
     mask-repeat: no-repeat;
     mask-size: contain;
     mask-position: center;
   }
 
-  .markdown .markdown-alert.markdown-alert-note::before,
-  .markdown .markdown-alert.markdown-alert-tip::before {
-    mask-image: url('data:image/svg+xml,<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 17v-6a.5.5 0 0 0-.5-.5l-.5.001h-1M12 17h-2m2 0h2m-2 5c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10Z" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path fill-rule="evenodd" clip-rule="evenodd" d="M10.75 7.5a1 1 0 1 1 2 0 1 1 0 0 1-2 0Z" fill="currentColor"/></svg>');
+  .markdown .markdown-alert.markdown-alert-note {
+    background-color: color-mix(
+      in srgb,
+      var(--scalar-color-blue),
+      transparent 97%
+    );
+    border: var(--scalar-border-width) solid
+      color-mix(in srgb, var(--scalar-color-blue), transparent 50%);
   }
 
-  .markdown .markdown-alert.markdown-alert-important::before,
-  .markdown .markdown-alert.markdown-alert-warning::before {
-    mask-image: url('data:image/svg+xml,<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 8v4m10 0c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2s10 4.477 10 10Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path fill-rule="evenodd" clip-rule="evenodd" d="M11 16a1 1 0 1 1 2 0 1 1 0 0 1-2 0Z" fill="currentColor"/></svg>');
+  .markdown .markdown-alert.markdown-alert-tip {
+    background-color: color-mix(
+      in srgb,
+      var(--scalar-color-2),
+      transparent 97%
+    );
+    border: var(--scalar-border-width) solid
+      color-mix(in srgb, var(--scalar-color-2), transparent 50%);
   }
 
-  .markdown .markdown-alert.markdown-alert-caution::before {
-    mask-image: url('data:image/svg+xml,<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 8v4m3.312-10a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586l-4.688-4.688A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2h6.624Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path fill-rule="evenodd" clip-rule="evenodd" d="M11 16a1 1 0 1 1 2 0 1 1 0 0 1-2 0Z" fill="currentColor"/></svg>');
-    color: var(--scalar-color-red);
-  }
-
-  .markdown .markdown-alert.markdown-alert-success::before {
-    mask-image: url('data:image/svg+xml,<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 9.5 10.5 15 8 12.5m14-.5c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2s10 4.477 10 10Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>');
-    color: var(--scalar-color-green);
-  }
-
-  .markdown .markdown-alert.markdown-alert-note::before {
+  .markdown .markdown-alert.markdown-alert-note .markdown-alert-icon::before,
+  .markdown .markdown-alert.markdown-alert-tip .markdown-alert-icon::before {
+    mask-image: url('data:image/svg+xml,<svg data-v-852d534d="" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="icon-placeholder"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v40A8,8,0,0,1,144,176ZM112,84a12,12,0,1,1,12,12A12,12,0,0,1,112,84Z"></path></svg>');
     color: var(--scalar-color-blue);
   }
 
-  .markdown .markdown-alert.markdown-alert-tip::before {
+  .markdown .markdown-alert.markdown-alert-important,
+  .markdown .markdown-alert.markdown-alert-warning {
+    background-color: color-mix(
+      in srgb,
+      var(--scalar-color-orange),
+      transparent 97%
+    );
+    border: var(--scalar-border-width) solid
+      color-mix(in srgb, var(--scalar-color-orange), transparent 50%);
+  }
+
+  .markdown
+    .markdown-alert.markdown-alert-important
+    .markdown-alert-icon::before,
+  .markdown
+    .markdown-alert.markdown-alert-warning
+    .markdown-alert-icon::before {
+    mask-image: url('data:image/svg+xml,<svg data-v-852d534d="" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="icon-placeholder"><path d="M236.8,188.09,149.35,36.22h0a24.76,24.76,0,0,0-42.7,0L19.2,188.09a23.51,23.51,0,0,0,0,23.72A24.35,24.35,0,0,0,40.55,224h174.9a24.35,24.35,0,0,0,21.33-12.19A23.51,23.51,0,0,0,236.8,188.09ZM222.93,203.8a8.5,8.5,0,0,1-7.48,4.2H40.55a8.5,8.5,0,0,1-7.48-4.2,7.59,7.59,0,0,1,0-7.72L120.52,44.21a8.75,8.75,0,0,1,15,0l87.45,151.87A7.59,7.59,0,0,1,222.93,203.8ZM120,144V104a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,180Z"></path></svg>');
+  }
+
+  .markdown .markdown-alert.markdown-alert-caution {
+    background-color: color-mix(
+      in srgb,
+      var(--scalar-color-red),
+      transparent 97%
+    );
+    border: var(--scalar-border-width) solid
+      color-mix(in srgb, var(--scalar-color-red), transparent 50%);
+  }
+
+  .markdown
+    .markdown-alert.markdown-alert-caution
+    .markdown-alert-icon::before {
+    mask-image: url('data:image/svg+xml,<svg data-v-852d534d="" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="icon-placeholder"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V80a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,172Z"></path></svg>');
+    color: var(--scalar-color-red);
+  }
+
+  .markdown .markdown-alert.markdown-alert-success {
+    background-color: color-mix(
+      in srgb,
+      var(--scalar-color-green),
+      transparent 97%
+    );
+    border: var(--scalar-border-width) solid
+      color-mix(in srgb, var(--scalar-color-green), transparent 50%);
+  }
+
+  .markdown
+    .markdown-alert.markdown-alert-success
+    .markdown-alert-icon::before {
+    mask-image: url('data:image/svg+xml,<svg data-v-852d534d="" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="icon-placeholder"><path d="M173.66,98.34a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35A8,8,0,0,1,173.66,98.34ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"></path></svg>');
+    color: var(--scalar-color-green);
+  }
+
+  .markdown .markdown-alert.markdown-alert-note .markdown-alert-icon::before {
+    color: var(--scalar-color-blue);
+  }
+
+  .markdown .markdown-alert.markdown-alert-tip .markdown-alert-icon::before {
     color: var(--scalar-color-2);
   }
 
-  .markdown .markdown-alert.markdown-alert-important::before {
+  .markdown
+    .markdown-alert.markdown-alert-important
+    .markdown-alert-icon::before {
     color: var(--scalar-color-purple);
   }
 
-  .markdown .markdown-alert.markdown-alert-warning::before {
+  .markdown
+    .markdown-alert.markdown-alert-warning
+    .markdown-alert-icon::before {
     color: var(--scalar-color-orange);
   }
 
   .markdown .markdown-alert .markdown-alert-content {
     margin: 0;
-    line-height: 20px;
+    line-height: var(--markdown-line-height);
   }
 }
 </style>
