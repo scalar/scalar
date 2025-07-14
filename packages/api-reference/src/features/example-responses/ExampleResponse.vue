@@ -38,7 +38,7 @@ defineProps<{
 .empty-state {
   margin: 10px 0 10px 12px;
   text-align: center;
-  font-size: var(--scalar-micro);
+  font-size: var(--scalar-mini);
   min-height: 56px;
   display: flex;
   align-items: center;

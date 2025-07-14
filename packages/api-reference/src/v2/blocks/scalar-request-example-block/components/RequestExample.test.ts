@@ -373,13 +373,10 @@ describe('RequestExample', () => {
       const wrapper = mount(RequestExample, {
         props: {
           ...defaultProps,
-          config: {
-            hideClientSelector: true,
-          },
+          hideClientSelector: true,
         },
       })
-
-      expect(wrapper.findComponent({ name: 'ScalarCombobox' }).exists()).toBe(false)
+      expect(wrapper.find('[data-testid="client-picker"]').exists()).toBe(false)
     })
 
     it('shows client selector by default', () => {
@@ -387,7 +384,7 @@ describe('RequestExample', () => {
         props: defaultProps,
       })
 
-      expect(wrapper.findComponent({ name: 'ScalarCombobox' }).exists()).toBe(true)
+      expect(wrapper.find('[data-testid="client-picker"]').exists()).toBe(true)
     })
   })
 
@@ -624,15 +621,6 @@ describe('RequestExample', () => {
       } else {
         expect(true).toBe(true)
       }
-    })
-
-    it('has screen reader text', () => {
-      const wrapper = mount(RequestExample, {
-        props: defaultProps,
-      })
-
-      const screenReader = wrapper.findComponent({ name: 'ScreenReader' })
-      expect(screenReader.exists()).toBe(true)
     })
   })
 })

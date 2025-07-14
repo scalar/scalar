@@ -224,7 +224,7 @@ const showSchema = ref(false)
 }
 .response-description {
   font-weight: var(--scalar-semibold);
-  font-size: var(--scalar-micro);
+  font-size: var(--scalar-mini);
   color: var(--scalar-color--1);
 
   display: flex;

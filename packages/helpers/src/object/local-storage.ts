@@ -19,7 +19,15 @@ export const LS_KEYS = {
  * to ensure we do not have any conflicts
  */
 export const REFERENCE_LS_KEYS = {
-  SELECTED_CLIENT: 'scalar-reference-selected-client',
+  /**
+   * We should remove after some time as we no longer store an object
+   * @deprecated
+   */
+  SELECTED_CLIENT_DEPRECATED: 'scalar-reference-selected-client',
+  /**
+   * Store the selected client as a string in localStorage
+   */
+  SELECTED_CLIENT: 'scalar-reference-selected-client-v2',
 } as const
 
 /**

@@ -29,9 +29,9 @@ defineProps<{
 
 defineSlots<{
   /** The menu contents */
-  default(): any
+  default(): unknown
   /** Overrides the backdrop for the dropdown */
-  backdrop?(): any
+  backdrop?(): unknown
 }>()
 
 defineOptions({ inheritAttrs: false })

@@ -7,7 +7,7 @@
 <style scoped>
 .badge {
   color: var(--scalar-color-2);
-  font-size: var(--scalar-micro);
+  font-size: var(--scalar-mini);
   background: var(--scalar-background-2);
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   padding: 2px 6px;

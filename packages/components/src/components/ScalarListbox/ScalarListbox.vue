@@ -43,7 +43,7 @@ defineSlots<{
   default(props: {
     /** Whether or not the listbox is open */
     open: boolean
-  }): any
+  }): unknown
 }>()
 
 defineOptions({ inheritAttrs: false })

@@ -2,6 +2,7 @@
 import { getHttpMethodInfo } from '@scalar/helpers/http/http-info'
 import { ScalarIconWebhooksLogo } from '@scalar/icons'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
+import { isOperationDeprecated } from '@scalar/oas-utils/helpers'
 import type {
   OpenAPIV3_1,
   TransformedOperation,
@@ -12,7 +13,6 @@ import { computed } from 'vue'
 import { HttpMethod } from '@/components/HttpMethod'
 import { SectionHeaderTag } from '@/components/Section'
 import { useSidebar } from '@/features/sidebar'
-import { isOperationDeprecated } from '@/libs/openapi'
 
 const { transformedOperation } = defineProps<{
   transformedOperation: TransformedOperation

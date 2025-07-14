@@ -24,7 +24,6 @@ const {
   enum?: boolean
   required?: boolean
   additional?: boolean
-  pattern?: boolean
   withExamples?: boolean
   hideModelNames?: boolean
   schemas?: Schemas
@@ -40,6 +39,10 @@ const flattenDefaultValue = (value: Record<string, any>) => {
   }
 
   if (typeof value?.default === 'string') {
+    return JSON.stringify(value.default)
+  }
+
+  if (Array.isArray(value?.default)) {
     return JSON.stringify(value.default)
   }
 
@@ -88,10 +91,7 @@ const modelName = computed(() => {
       v-if="$slots.name"
       class="property-name"
       :class="{ deprecated: value?.deprecated }">
-      <slot
-        v-if="!pattern"
-        name="name" />
-      <template v-else>&sol;<slot name="name" />&sol;</template>
+      <slot name="name" />
     </div>
     <div
       v-if="value?.isDiscriminator"
@@ -166,11 +166,6 @@ const modelName = computed(() => {
         {{ value['x-additionalPropertiesName'] }}
       </template>
       <template v-else>additional properties</template>
-    </div>
-    <div
-      v-if="pattern"
-      class="property-pattern">
-      <Badge>pattern</Badge>
     </div>
     <div
       v-if="value?.deprecated"
@@ -259,27 +254,27 @@ const modelName = computed(() => {
 }
 
 .property-required {
-  font-size: var(--scalar-micro);
+  font-size: var(--scalar-mini);
   color: var(--scalar-color-orange);
 }
 
 .property-read-only {
-  font-size: var(--scalar-micro);
+  font-size: var(--scalar-mini);
   color: var(--scalar-color-blue);
 }
 
 .property-write-only {
-  font-size: var(--scalar-micro);
+  font-size: var(--scalar-mini);
   color: var(--scalar-color-green);
 }
 
 .property-discriminator {
-  font-size: var(--scalar-micro);
+  font-size: var(--scalar-mini);
   color: var(--scalar-color-purple);
 }
 
 .property-detail {
-  font-size: var(--scalar-micro);
+  font-size: var(--scalar-mini);
   color: var(--scalar-color-2);
   display: flex;
   align-items: center;

@@ -15,13 +15,13 @@ import type {
 defineSlots<
   {
     /** Overrides the entire menu button */
-    button?: (p: ScalarMenuButtonProps) => any
+    button?(p: ScalarMenuButtonProps): unknown
     /** Overrides the products list */
-    products?: (p: ScalarMenuSlotProps) => any
+    products?(p: ScalarMenuSlotProps): unknown
     /** Adds items the profile section (e.g. a team picker) */
-    profile?: (p: ScalarMenuSlotProps) => any
+    profile?(p: ScalarMenuSlotProps): unknown
     /** Overrides the resources section */
-    sections?: (p: ScalarMenuSlotProps) => any
+    sections?(p: ScalarMenuSlotProps): unknown
   } & ScalarMenuButtonSlots
 >()
 

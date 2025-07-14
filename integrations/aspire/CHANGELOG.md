@@ -1,5 +1,27 @@
 # @scalar/aspire
 
+## 0.1.8
+
+### Patch Changes
+
+- db64eac: ci: improved ci build
+- Updated dependencies [a85480e]
+- Updated dependencies [1a6c0a4]
+- Updated dependencies [9be7ca9]
+- Updated dependencies [c2ff19e]
+- Updated dependencies [7325520]
+- Updated dependencies [134c455]
+  - @scalar/api-reference@1.32.7
+
+## 0.1.7
+
+### Patch Changes
+
+- 9daf5da: feat: support x-tokenName extension
+- Updated dependencies [6a7509a]
+- Updated dependencies [80acf84]
+  - @scalar/api-reference@1.32.6
+
 ## 0.1.6
 
 ### Patch Changes

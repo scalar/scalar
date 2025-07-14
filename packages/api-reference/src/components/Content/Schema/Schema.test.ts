@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import Schema from './Schema.vue'
 
 describe('Schema', () => {
-  describe('additionalProperties prop', () => {
+  describe('additionalProperties Vue prop', () => {
     it('shows special toggle button when additionalProperties is true', () => {
       const wrapper = mount(Schema, {
         props: {
@@ -13,7 +13,6 @@ describe('Schema', () => {
             properties: {
               name: { type: 'string' },
             },
-            additionalProperties: true,
           },
           additionalProperties: true,
         },
@@ -32,7 +31,6 @@ describe('Schema', () => {
             properties: {
               name: { type: 'string' },
             },
-            additionalProperties: true,
           },
           additionalProperties: false,
         },
@@ -50,7 +48,6 @@ describe('Schema', () => {
             properties: {
               name: { type: 'string' },
             },
-            additionalProperties: true,
           },
           additionalProperties: true,
           name: 'User',
@@ -70,7 +67,6 @@ describe('Schema', () => {
             properties: {
               name: { type: 'string' },
             },
-            additionalProperties: true,
           },
           additionalProperties: true,
         },
@@ -95,7 +91,6 @@ describe('Schema', () => {
             properties: {
               name: { type: 'string' },
             },
-            additionalProperties: true,
           },
           additionalProperties: true,
         },
@@ -112,60 +107,6 @@ describe('Schema', () => {
       // Now additional properties should be visible
       const disclosurePanelAfter = wrapper.find('ul')
       expect(disclosurePanelAfter.exists()).toBe(true)
-    })
-
-    it('handles additionalProperties as boolean true correctly', async () => {
-      const wrapper = mount(Schema, {
-        props: {
-          value: {
-            type: 'object',
-            properties: {
-              name: { type: 'string' },
-            },
-            additionalProperties: true,
-          },
-          additionalProperties: true,
-        },
-      })
-
-      const toggleButton = wrapper.find('.schema-card-title--compact')
-      await toggleButton.trigger('click')
-
-      // Should render SchemaProperty with type 'anything' for boolean true
-      const schemaProperties = wrapper.findAllComponents({ name: 'SchemaProperty' })
-      const additionalProperty = schemaProperties.find((prop) => prop.props('additional') === true)
-
-      expect(additionalProperty).toBeDefined()
-      expect(additionalProperty?.props('value')).toEqual({
-        type: 'anything',
-      })
-    })
-
-    it('handles additionalProperties as empty object correctly', async () => {
-      const wrapper = mount(Schema, {
-        props: {
-          value: {
-            type: 'object',
-            properties: {
-              name: { type: 'string' },
-            },
-            additionalProperties: {},
-          },
-          additionalProperties: true,
-        },
-      })
-
-      const toggleButton = wrapper.find('.schema-card-title--compact')
-      await toggleButton.trigger('click')
-
-      // Should render SchemaProperty with type 'anything' for empty object
-      const schemaProperties = wrapper.findAllComponents({ name: 'SchemaProperty' })
-      const additionalProperty = schemaProperties.find((prop) => prop.props('additional') === true)
-
-      expect(additionalProperty).toBeDefined()
-      expect(additionalProperty?.props('value')).toEqual({
-        type: 'anything',
-      })
     })
 
     it('prevents click propagation when noncollapsible is true', async () => {
@@ -256,9 +197,65 @@ describe('Schema', () => {
       await toggleButton.trigger('click')
 
       const schemaProperties = wrapper.findAllComponents({ name: 'SchemaProperty' })
-      const additionalProperty = schemaProperties.find((prop) => prop.props('additional') === true)
+      const additionalProperty = schemaProperties.find((prop) => prop.props('variant') === 'additionalProperties')
 
       expect(additionalProperty?.props('noncollapsible')).toBe(true)
+    })
+  })
+
+  describe('JSON Schema additionalProperties field', () => {
+    it('handles additionalProperties as boolean true correctly', async () => {
+      const wrapper = mount(Schema, {
+        props: {
+          value: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+            },
+            additionalProperties: true,
+          },
+          additionalProperties: true,
+        },
+      })
+
+      const toggleButton = wrapper.find('.schema-card-title--compact')
+      await toggleButton.trigger('click')
+
+      // Should render SchemaProperty with variant 'additionalProperties' for boolean true
+      const schemaProperties = wrapper.findAllComponents({ name: 'SchemaProperty' })
+      const additionalProperty = schemaProperties.find((prop) => prop.props('variant') === 'additionalProperties')
+
+      expect(additionalProperty).toBeDefined()
+      expect(additionalProperty?.props('value')).toEqual({
+        type: 'anything',
+      })
+    })
+
+    it('handles additionalProperties as empty object correctly', async () => {
+      const wrapper = mount(Schema, {
+        props: {
+          value: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+            },
+            additionalProperties: {},
+          },
+          additionalProperties: true,
+        },
+      })
+
+      const toggleButton = wrapper.find('.schema-card-title--compact')
+      await toggleButton.trigger('click')
+
+      // Should render SchemaProperty with variant 'additionalProperties' for empty object
+      const schemaProperties = wrapper.findAllComponents({ name: 'SchemaProperty' })
+      const additionalProperty = schemaProperties.find((prop) => prop.props('variant') === 'additionalProperties')
+
+      expect(additionalProperty).toBeDefined()
+      expect(additionalProperty?.props('value')).toEqual({
+        type: 'anything',
+      })
     })
   })
 })

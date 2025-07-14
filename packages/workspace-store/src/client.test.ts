@@ -875,7 +875,7 @@ describe('create-workspace-store', () => {
         meta: {
           'x-scalar-active-document': 'default',
           'x-scalar-dark-mode': true,
-          'x-scalar-default-client': 'curl',
+          'x-scalar-default-client': 'c/libcurl',
           'x-scalar-theme': 'saturn',
         },
       })
@@ -926,7 +926,7 @@ describe('create-workspace-store', () => {
           meta: {
             'x-scalar-active-document': 'default',
             'x-scalar-dark-mode': true,
-            'x-scalar-default-client': 'curl',
+            'x-scalar-default-client': 'c/libcurl',
             'x-scalar-theme': 'saturn',
           },
           documentConfigs: {
@@ -995,7 +995,7 @@ describe('create-workspace-store', () => {
           meta: {
             'x-scalar-active-document': 'default',
             'x-scalar-dark-mode': true,
-            'x-scalar-default-client': 'curl',
+            'x-scalar-default-client': 'c/libcurl',
             'x-scalar-theme': 'saturn',
           },
           documentConfigs: {
@@ -1067,7 +1067,7 @@ describe('create-workspace-store', () => {
       expect(store.workspace['x-scalar-theme']).toBe('saturn')
       expect(store.workspace['x-scalar-dark-mode']).toBe(true)
       expect(store.workspace['x-scalar-active-document']).toBe('default')
-      expect(store.workspace['x-scalar-default-client']).toBe('curl')
+      expect(store.workspace['x-scalar-default-client']).toBe('c/libcurl')
     })
   })
 

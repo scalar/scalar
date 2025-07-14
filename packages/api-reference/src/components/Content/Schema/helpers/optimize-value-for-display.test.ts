@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { optimizeValueForDisplay } from './optimizeValueForDisplay'
+import { optimizeValueForDisplay } from './optimize-value-for-display'
 
 describe('optimizeValueForDisplay', () => {
   it('should return the original value if it is not an object', () => {

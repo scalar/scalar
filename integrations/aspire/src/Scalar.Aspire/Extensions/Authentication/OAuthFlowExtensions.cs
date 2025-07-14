@@ -66,4 +66,16 @@ public static class OAuthFlowExtensions
         flow.AdditionalQueryParameters.TryAdd(key, value);
         return flow;
     }
+    
+    /// <summary>
+    /// Sets the name of the token used in the OAuth flow.
+    /// </summary>
+    /// <typeparam name="T">The type of OAuth flow.</typeparam>
+    /// <param name="flow"><see cref="OAuthFlow"/>.</param>
+    /// <param name="tokenName">The name of the token.</param>
+    public static T WithTokenName<T>(this T flow, string? tokenName) where T : OAuthFlow
+    {
+        flow.TokenName = tokenName;
+        return flow;
+    }
 }

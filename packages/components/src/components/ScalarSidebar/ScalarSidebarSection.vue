@@ -31,9 +31,9 @@ const { is = 'ul' } = defineProps<ScalarSidebarItemProps>()
 
 defineSlots<{
   /** The text content of the toggle */
-  default?: () => any
+  default?(): unknown
   /** The list of sidebar subitems */
-  items?: () => any
+  items?(): unknown
 }>()
 
 const { level } = useSidebarGroups({ increment: false })
@@ -42,7 +42,7 @@ defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 </script>
 <template>
-  <li class="group/sidebar-section contents">
+  <li class="group/item group/sidebar-section contents">
     <ScalarSidebarSpacer
       class="group/spacer-before h-3"
       :indent="level" />

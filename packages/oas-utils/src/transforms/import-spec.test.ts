@@ -1110,6 +1110,37 @@ describe('getServersFromOpenApiDocument', () => {
     expect(result.servers).toMatchObject([{ url: 'https://example.com' }])
   })
 
+  it('does not use a relative document URL as a server', async () => {
+    const originalLocation = typeof window !== 'undefined' ? window.location : { origin: undefined }
+    vi.stubGlobal('window', {
+      location: {
+        origin: 'http://localhost:1234',
+      },
+    })
+
+    const result = await importSpecToWorkspace(
+      {
+        // no servers defined
+      },
+      {
+        documentUrl: '/docs/openapi.json',
+      },
+    )
+
+    if (result.error) {
+      throw result.error
+    }
+
+    expect(result.servers).toMatchObject([
+      {
+        url: 'http://localhost:1234',
+      },
+    ])
+
+    // Restore the original window.location
+    vi.stubGlobal('location', originalLocation)
+  })
+
   it('prefixes relative servers with window.location.origin', async () => {
     const originalLocation = typeof window !== 'undefined' ? window.location : { origin: undefined }
     vi.stubGlobal('window', {

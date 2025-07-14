@@ -25,7 +25,7 @@ const { is = 'button' } = defineProps<{
 
 defineSlots<{
   /** The contents of the button */
-  default?: () => any
+  default?(): unknown
 }>()
 
 const variants = cva({

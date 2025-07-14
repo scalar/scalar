@@ -18,11 +18,7 @@ import type { Component } from 'vue'
 
 import { type Icon, ScalarIconLegacyAdapter } from '../ScalarIcon'
 
-const {
-  is = 'div',
-  open = false,
-  icon = ScalarIconCaretRight,
-} = defineProps<{
+const { is = 'div', open = false } = defineProps<{
   /** Override the element tag */
   is?: Component | string
   /** Whether or not the toggle is open */
@@ -33,13 +29,13 @@ const {
 
 defineSlots<{
   /** Override the toggle icon */
-  default?: (props: { open: boolean }) => any
+  default?(props: { open: boolean }): unknown
   /** Override the screen reader label */
-  label?: (props: { open: boolean }) => any
+  label?(props: { open: boolean }): unknown
 }>()
 
 const variants = cva({
-  base: 'size-3.5 -m-px transition-transform duration-100',
+  base: 'size-4 flex items-center justify-center transition-transform duration-100',
   variants: { open: { true: 'rotate-90' } },
   defaultVariants: { open: false },
 })
@@ -53,8 +49,12 @@ const { cx } = useBindCx()
     v-bind="cx(variants({ open }))">
     <slot :open="open">
       <ScalarIconLegacyAdapter
-        :icon="icon"
-        weight="bold" />
+        v-if="icon"
+        :icon="icon" />
+      <ScalarIconCaretRight
+        class="size-3"
+        weight="bold"
+        v-else />
     </slot>
     <span class="sr-only">
       <slot

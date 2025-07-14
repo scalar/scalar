@@ -327,7 +327,11 @@ function updateHttpClient(value: string) {
 }
 
 /** Update the selected example and the operation ID */
-function handleExampleUpdate(value: string) {
+function handleExampleUpdate(value: string | undefined) {
+  if (!value) {
+    return
+  }
+
   selectedExampleKey.value = value
   operationId.value = operation.operationId
 
@@ -363,8 +367,8 @@ const handleDiscriminatorChange = (type: string) => {
   try {
     isUpdating.value = true
 
-    // Update the example with the selected type and merged properties
-    const example = requestExamples[operation.examples[0]]
+    // Update the example with the selected type and merged properties only if we have an example
+    const example = requestExamples[request?.examples?.[0] ?? '']
     if (example && exampleContext?.generateExampleValue) {
       // Generate the new example value
       const currentValue = example.body?.raw?.value

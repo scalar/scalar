@@ -1,5 +1,13 @@
 # @scalar/themes
 
+## 0.13.9
+
+### Patch Changes
+
+- 661c7e9: feat(themes): updates dark/light mode accent on default theme
+- Updated dependencies [c10e191]
+  - @scalar/types@0.2.8
+
 ## 0.13.8
 
 ### Patch Changes
