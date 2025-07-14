@@ -14,6 +14,7 @@ onlyBuiltDependencies:
   - core-js
   - core-js-pure
   - electron
+  - esbuild
   - lefthook
   - vue-demi
 catalogs:
