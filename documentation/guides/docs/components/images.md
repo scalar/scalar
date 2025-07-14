@@ -92,7 +92,7 @@ Defaults to `actual`.
   src="https://avatars.githubusercontent.com/u/301879?s=200&v=4"
   alt="Click to view full size"
   href="https://github.com/scalar/scalar"
-  caption="Click to view full resolution">
+  caption="Click to access the link">
 </scalar-image>
 
 ```html
@@ -100,7 +100,7 @@ Defaults to `actual`.
   src="https://avatars.githubusercontent.com/u/301879?s=200&v=4"
   alt="Click to view full size"
   href="https://github.com/scalar/scalar"
-  caption="Click to view full resolution">
+  caption="Click to access the link">
 </scalar-image>
 ```
 
