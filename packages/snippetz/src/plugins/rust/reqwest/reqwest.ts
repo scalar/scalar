@@ -1,5 +1,5 @@
-import type { Plugin } from '@scalar/types/snippetz'
 import { toRustString } from '@/plugins/rust/rustString'
+import type { Plugin } from '@scalar/types/snippetz'
 
 /**
  * rust/reqwest
@@ -19,7 +19,7 @@ export const rustReqwest: Plugin = {
     normalizedRequest.method = normalizedRequest.method.toUpperCase()
 
     // Start building the Rust code
-    let code = `let client = reqwest::Client::new();\n`
+    let code = 'let client = reqwest::Client::new();\n'
 
     // Handle query string
     const queryString = normalizedRequest.queryString?.length
@@ -68,10 +68,8 @@ export const rustReqwest: Plugin = {
     }
 
     // Handle body
-    let isJsonRequest = false
     if (normalizedRequest.postData) {
       if (normalizedRequest.postData.mimeType === 'application/json') {
-        isJsonRequest = true
         code += `\n    .json(&serde_json::json!(${normalizedRequest.postData.text}))`
       } else if (normalizedRequest.postData.mimeType === 'application/x-www-form-urlencoded') {
         const formData =
@@ -86,9 +84,9 @@ export const rustReqwest: Plugin = {
             ?.map((param) => {
               if (param.fileName) {
                 return `\n        let part = reqwest::multipart::Part::text(${toRustString(param.value || '')})\n            .file_name(${toRustString(param.fileName)});\n        form = form.part(${toRustString(param.name)}, part);`
-              } else {
-                return `\n        form = form.text(${toRustString(param.name)}, ${toRustString(param.value || '')});`
               }
+
+              return `\n        form = form.text(${toRustString(param.name)}, ${toRustString(param.value || '')});`
             })
             .join('') || ''
         code += `\n        let mut form = reqwest::multipart::Form::new();${formParts}\n            form\n        })`
@@ -98,13 +96,7 @@ export const rustReqwest: Plugin = {
     }
 
     code += ';\n'
-    code += `let response = request.send().await?;\n`
-
-    if (isJsonRequest) {
-      code += `let body = response.json::<serde_json::Value>().await?;\n`
-    } else {
-      code += `let body = response.text().await?;\n`
-    }
+    code += 'let response = request.send().await?;'
 
     return code
   },
