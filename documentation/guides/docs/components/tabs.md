@@ -25,50 +25,56 @@ The ID of the tab that should be active by default. If not specified, the first 
 
 <scalar-tabs>
   <scalar-tab title="JavaScript">
-    ```javascript
-    function greet(name) {
-      return `Hello, ${name}!`;
-    }
-    
-    console.log(greet('World'));
-    ```
+
+  ```javascript
+  function greet(name) {
+    return `Hello, ${name}!`;
+  }
+  
+  console.log(greet('World'));
+  ```
   </scalar-tab>
   
   <scalar-tab title="TypeScript">
-    ```typescript
-    function greet(name: string): string {
-      return `Hello, ${name}!`;
-    }
-    
-    console.log(greet('World'));
-    ```
+
+  ```typescript
+  function greet(name: string): string {
+    return `Hello, ${name}!`;
+  }
+  
+  console.log(greet('World'));
+  ```
   </scalar-tab>
   
   <scalar-tab title="Python">
-    ```python
-    def greet(name):
-        return f"Hello, {name}!"
-    
-    print(greet("World"))
-    ```
+
+  ```python
+  def greet(name):
+      return f"Hello, {name}!"
+  
+  print(greet("World"))
+  ```
   </scalar-tab>
 </scalar-tabs>
 
 ````html
 <scalar-tabs>
   <scalar-tab title="JavaScript">
-    ```javascript function greet(name) { return `Hello, ${name}!`; }
-    console.log(greet('World')); ```
+
+  ```javascript function greet(name) { return `Hello, ${name}!`; }
+  console.log(greet('World')); ```
   </scalar-tab>
 
   <scalar-tab title="TypeScript">
-    ```typescript function greet(name: string): string { return `Hello,
-    ${name}!`; } console.log(greet('World')); ```
+
+  ```typescript function greet(name: string): string { return `Hello,
+  ${name}!`; } console.log(greet('World')); ```
   </scalar-tab>
 
   <scalar-tab title="Python">
-    ```python def greet(name): return f"Hello, {name}!" print(greet("World"))
-    ```
+
+  ```python def greet(name): return f"Hello, {name}!" print(greet("World"))
+  ```
   </scalar-tab>
 </scalar-tabs>
 ````
@@ -77,38 +83,42 @@ The ID of the tab that should be active by default. If not specified, the first 
 
 <scalar-tabs default="TypeScript">
   <scalar-tab title="JavaScript">
-    ```javascript
-    const user = {
-      name: "John",
-      age: 30
-    };
-    ```
+
+  ```javascript
+  const user = {
+    name: "John",
+    age: 30
+  };
+  ```
   </scalar-tab>
   
   <scalar-tab title="TypeScript">
-    ```typescript
-    interface User {
-      name: string;
-      age: number;
-    }
-    
-    const user: User = {
-      name: "John",
-      age: 30
-    };
-    ```
+
+  ```typescript
+  interface User {
+    name: string;
+    age: number;
+  }
+  
+  const user: User = {
+    name: "John",
+    age: 30
+  };
+  ```
   </scalar-tab>
 </scalar-tabs>
 
 ````html
 <scalar-tabs default="TypeScript">
   <scalar-tab title="JavaScript">
-    ```javascript const user = { name: "John", age: 30 }; ```
+
+  ```javascript const user = { name: "John", age: 30 }; ```
   </scalar-tab>
 
   <scalar-tab title="TypeScript">
-    ```typescript interface User { name: string; age: number; } const user: User
-    = { name: "John", age: 30 }; ```
+
+  ```typescript interface User { name: string; age: number; } const user: User
+  = { name: "John", age: 30 }; ```
   </scalar-tab>
 </scalar-tabs>
 ````
@@ -123,39 +133,45 @@ The ID of the tab that should be active by default. If not specified, the first 
   </scalar-tab>
   
   <scalar-tab title="Code Example">
-    ```bash
-    npm install @scalar/guide-elements
-    ```
-    
-    This tab contains a code example with additional text.
+
+  ```bash
+  npm install @scalar/guide-elements
+  ```
+
+  This tab contains a code example with additional text.
   </scalar-tab>
   
   <scalar-tab title="Configuration">
-    ```json
-    {
-      "theme": "dark",
-      "interactive": true,
-      "features": ["tabs", "steps", "callouts"]
-    }
-    ```
+
+  ```json
+  {
+    "theme": "dark",
+    "interactive": true,
+    "features": ["tabs", "steps", "callouts"]
+  }
+  ```
   </scalar-tab>
 </scalar-tabs>
 
 ````html
 <scalar-tabs>
   <scalar-tab title="Overview">
-    This is the overview tab with plain text content. You can include
-    **markdown** formatting and other elements.
+  This is the overview tab with plain text content. You can include
+  **markdown** formatting and other elements.
   </scalar-tab>
 
   <scalar-tab title="Code Example">
-    ```bash npm install @scalar/guide-elements ``` This tab contains a code
-    example with additional text.
+
+  ```bash npm install @scalar/guide-elements```
+  
+  This tab contains a code example with additional text.
   </scalar-tab>
 
   <scalar-tab title="Configuration">
-    ```json { "theme": "dark", "interactive": true, "features": ["tabs",
-    "steps", "callouts"] } ```
+
+  ```json { "theme": "dark", "interactive": true, "features": ["tabs",
+  "steps", "callouts"] }
+  ```
   </scalar-tab>
 </scalar-tabs>
 ````
