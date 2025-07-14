@@ -176,19 +176,26 @@ onServerPrefetch(async () => await new Promise((r) => setTimeout(r, 1)))
 
   .markdown ol {
     counter-reset: item;
-    padding-left: 37.5px;
+    padding-left: 5px;
+  }
+
+  .markdown ol li {
+    display: flex;
+    gap: 5px;
+    padding-left: 3px;
   }
 
   .markdown ol li::before {
     content: counter(item) '\002E';
     counter-increment: item;
+    display: flex;
     font: var(--scalar-font);
+    font-variant-numeric: tabular-nums;
     font-weight: var(--scalar-semibold);
-    position: absolute;
-    top: 0;
-    left: -24px;
+    justify-content: center;
     line-height: var(--markdown-line-height);
-    margin-right: var(--markdown-spacing-sm);
+    width: 24px;
+    white-space: nowrap;
   }
 
   .markdown ol li::before,
