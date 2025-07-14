@@ -191,6 +191,7 @@ const createBodyCall = (postData: any): string | null => {
 const buildRustCode = (url: string, method: string, chainedCalls: string[]): string => {
   const code = [
     'let client = reqwest::Client::new();',
+    '',
     `let request = client.${method.toLowerCase()}(${toRustString(url)})`,
   ]
 
@@ -202,6 +203,7 @@ const buildRustCode = (url: string, method: string, chainedCalls: string[]): str
   code[code.length - 1] = lastPart + ';'
 
   // Add response handling
+  code.push('')
   code.push('let response = request.send().await?;')
 
   return code.join('\n')

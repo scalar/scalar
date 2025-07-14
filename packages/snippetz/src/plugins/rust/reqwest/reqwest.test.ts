@@ -9,7 +9,9 @@ describe('rustReqwest', () => {
     })
 
     expect(result).toBe(`let client = reqwest::Client::new();
+
 let request = client.get("https://example.com");
+
 let response = request.send().await?;`)
   })
 
@@ -20,7 +22,9 @@ let response = request.send().await?;`)
     })
 
     expect(result).toBe(`let client = reqwest::Client::new();
+
 let request = client.post("https://example.com");
+
 let response = request.send().await?;`)
   })
 
@@ -36,8 +40,10 @@ let response = request.send().await?;`)
     })
 
     expect(result).toBe(`let client = reqwest::Client::new();
+
 let request = client.get("https://example.com")
     .header("Content-Type", "application/json");
+
 let response = request.send().await?;`)
   })
 
@@ -48,7 +54,9 @@ let response = request.send().await?;`)
     })
 
     expect(result).toBe(`let client = reqwest::Client::new();
+
 let request = client.get("https://example.com");
+
 let response = request.send().await?;`)
   })
 
@@ -71,9 +79,11 @@ let response = request.send().await?;`)
     })
 
     expect(result).toBe(`let client = reqwest::Client::new();
+
 let request = client.post("https://example.com")
     .header("Content-Type", "application/json")
     .json(&serde_json::json!({"hello":"world"}));
+
 let response = request.send().await?;`)
   })
 
@@ -93,7 +103,9 @@ let response = request.send().await?;`)
     })
 
     expect(result).toBe(`let client = reqwest::Client::new();
+
 let request = client.get("https://example.com?foo=bar&bar=foo");
+
 let response = request.send().await?;`)
   })
 
@@ -113,8 +125,10 @@ let response = request.send().await?;`)
     })
 
     expect(result).toBe(`let client = reqwest::Client::new();
+
 let request = client.get("https://example.com")
     .header("Cookie", "foo=bar; bar=foo");
+
 let response = request.send().await?;`)
   })
 
@@ -125,7 +139,9 @@ let response = request.send().await?;`)
     })
 
     expect(result).toBe(`let client = reqwest::Client::new();
+
 let request = client.get("https://example.com");
+
 let response = request.send().await?;`)
   })
 
@@ -143,8 +159,10 @@ let response = request.send().await?;`)
     )
 
     expect(result).toBe(`let client = reqwest::Client::new();
+
 let request = client.get("https://example.com")
     .basic_auth("user", "pass");
+
 let response = request.send().await?;`)
   })
 
@@ -154,7 +172,9 @@ let response = request.send().await?;`)
     })
 
     expect(result).toBe(`let client = reqwest::Client::new();
+
 let request = client.get("https://example.com");
+
 let response = request.send().await?;`)
   })
 
@@ -172,7 +192,9 @@ let response = request.send().await?;`)
     )
 
     expect(result).toBe(`let client = reqwest::Client::new();
+
 let request = client.get("https://example.com");
+
 let response = request.send().await?;`)
   })
 
@@ -190,7 +212,9 @@ let response = request.send().await?;`)
     )
 
     expect(result).toBe(`let client = reqwest::Client::new();
+
 let request = client.get("https://example.com");
+
 let response = request.send().await?;`)
   })
 
@@ -208,8 +232,10 @@ let response = request.send().await?;`)
     )
 
     expect(result).toBe(`let client = reqwest::Client::new();
+
 let request = client.get("https://example.com")
     .basic_auth("user@example.com", "pass:word!");
+
 let response = request.send().await?;`)
   })
 
@@ -224,7 +250,9 @@ let response = request.send().await?;`)
     )
 
     expect(result).toBe(`let client = reqwest::Client::new();
+
 let request = client.get("https://example.com");
+
 let response = request.send().await?;`)
   })
 
@@ -248,6 +276,7 @@ let response = request.send().await?;`)
     })
 
     expect(result).toBe(`let client = reqwest::Client::new();
+
 let request = client.post("https://example.com")
     .multipart({
         let mut form = reqwest::multipart::Form::new();
@@ -257,6 +286,7 @@ let request = client.post("https://example.com")
         form = form.text("field", "value");
             form
         });
+
 let response = request.send().await?;`)
   })
 
@@ -276,8 +306,10 @@ let response = request.send().await?;`)
     })
 
     expect(result).toBe(`let client = reqwest::Client::new();
+
 let request = client.post("https://example.com")
     .form(&[("special chars!@#", "value")]);
+
 let response = request.send().await?;`)
   })
 
@@ -292,8 +324,10 @@ let response = request.send().await?;`)
     })
 
     expect(result).toBe(`let client = reqwest::Client::new();
+
 let request = client.post("https://example.com")
     .body("binary content");
+
 let response = request.send().await?;`)
   })
 
@@ -309,8 +343,10 @@ let response = request.send().await?;`)
     })
 
     expect(result).toBe(`let client = reqwest::Client::new();
+
 let request = client.get("https://example.com")
     .header("Accept-Encoding", "gzip, deflate");
+
 let response = request.send().await?;`)
   })
 
@@ -320,7 +356,9 @@ let response = request.send().await?;`)
     })
 
     expect(result).toBe(`let client = reqwest::Client::new();
+
 let request = client.get("https://example.com/path with spaces/[brackets]");
+
 let response = request.send().await?;`)
   })
 
@@ -340,7 +378,9 @@ let response = request.send().await?;`)
     })
 
     expect(result).toBe(`let client = reqwest::Client::new();
+
 let request = client.get("https://example.com?q=hello%20world%20%26%20more&special=!%40%23%24%25%5E%26*()");
+
 let response = request.send().await?;`)
   })
 
@@ -350,7 +390,9 @@ let response = request.send().await?;`)
     })
 
     expect(result).toBe(`let client = reqwest::Client::new();
+
 let request = client.get("");
+
 let response = request.send().await?;`)
   })
 
@@ -360,7 +402,9 @@ let response = request.send().await?;`)
     })
 
     expect(result).toBe(`let client = reqwest::Client::new();
+
 let request = client.get("https://example.com/${'a'.repeat(2000)}");
+
 let response = request.send().await?;`)
   })
 
@@ -374,8 +418,10 @@ let response = request.send().await?;`)
     })
 
     expect(result).toBe(`let client = reqwest::Client::new();
+
 let request = client.get("https://example.com")
     .header("X-Custom", "value2");
+
 let response = request.send().await?;`)
   })
 
@@ -386,7 +432,9 @@ let response = request.send().await?;`)
     })
 
     expect(result).toBe(`let client = reqwest::Client::new();
+
 let request = client.get("https://example.com");
+
 let response = request.send().await?;`)
   })
 
@@ -406,12 +454,14 @@ let response = request.send().await?;`)
     })
 
     expect(result).toBe(`let client = reqwest::Client::new();
+
 let request = client.post("https://example.com")
     .multipart({
         let mut form = reqwest::multipart::Form::new();
         form = form.text("file", "");
             form
         });
+
 let response = request.send().await?;`)
   })
 
@@ -437,9 +487,11 @@ let response = request.send().await?;`)
     })
 
     expect(result).toBe(`let client = reqwest::Client::new();
+
 let request = client.post("https://example.com")
     .header("Content-Type", "application/json")
     .json(&serde_json::json!({"key":"\\\"quotes\\\" and \\\\backslashes\\\\","nested":{"array":["item1",null,null]}}));
+
 let response = request.send().await?;`)
   })
 
@@ -455,8 +507,10 @@ let response = request.send().await?;`)
     })
 
     expect(result).toBe(`let client = reqwest::Client::new();
+
 let request = client.get("https://example.com")
     .header("Cookie", "special%3Bcookie=value%20with%20spaces");
+
 let response = request.send().await?;`)
   })
 
@@ -483,9 +537,11 @@ let response = request.send().await?;`)
     })
 
     expect(result).toBe(`let client = reqwest::Client::new();
+
 let request = client.post("https://example.com")
     .header("Content-Type", "application/json")
     .json(&serde_json::json!({"nested":{"array":[1,2,3],"object":{"foo":"bar"}},"simple":"value"}));
+
 let response = request.send().await?;`)
   })
 })
