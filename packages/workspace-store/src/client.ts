@@ -147,7 +147,7 @@ export type WorkspaceStore = {
   /** Imports a workspace from a serialized JSON string. */
   loadWorkspace(input: string): void
   /** Imports a workspace from a specification object */
-  importWorkspaceFromSpecification(specification: WorkspaceSpecification): Promise<void>
+  importWorkspaceFromSpecification(specification: WorkspaceSpecification): Promise<void[]>
 }
 
 /**
@@ -281,6 +281,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map
     workspace.documents[name] = createOverridesProxy(createMagicProxy({ ...document, ...meta }), input.overrides)
 
+    console.dir(workspace.documents[name], { depth: undefined })
+
     // Write overrides to the intermediate document
     saveDocument(name)
   }
@@ -289,6 +291,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   // If loading fails, a placeholder error document is added instead.
   async function addDocument(input: WorkspaceDocumentInput) {
     const { name, meta, config } = input
+
+    console.log({ input })
 
     const resolve = await loadDocument(input)
 
@@ -630,18 +634,20 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
      *
      * @param specification - The workspace specification to import.
      */
-    importWorkspaceFromSpecification: async (specification: WorkspaceSpecification) => {
+    importWorkspaceFromSpecification: (specification: WorkspaceSpecification) => {
       const { documents, overrides, info, workspace: workspaceVersion, ...meta } = specification
 
       // Assign workspace metadata
       safeAssign(workspace, meta)
 
+      console.log({ message: 'input overrides', overrides })
+
       // Add workspace documents
-      await Promise.all([
+      return Promise.all(
         Object.entries(documents ?? {}).map(([name, doc]) => {
-          addDocument({ url: doc.$ref, name, overrides: overrides?.[name] })
+          return addDocument({ url: doc.$ref, name, overrides: overrides?.[name] })
         }),
-      ])
+      )
     },
   }
 }
