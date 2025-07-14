@@ -85,7 +85,10 @@ const getFirstExampleResponse = () => {
   }
 
   const firstProperty = Object.keys(currentJsonResponse.value.examples)[0]
-  return currentJsonResponse.value.examples[firstProperty]
+  const firstExample = currentJsonResponse.value.examples[firstProperty]
+
+  // Handle the case where the example already has a 'value' property
+  return firstExample?.value ?? firstExample
 }
 
 const currentResponseWithExample = computed(() => ({
