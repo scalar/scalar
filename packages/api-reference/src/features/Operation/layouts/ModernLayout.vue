@@ -168,6 +168,23 @@ const handleDiscriminatorChange = (type: string) => {
   position: sticky;
   top: calc(var(--refs-header-height) + 24px);
 }
+
+.examples > * {
+  max-height: calc(
+    ((var(--full-height) - var(--refs-header-height)) - 60px) / 2
+  );
+  position: relative;
+}
+
+/*
+ * Don't constrain card height on mobile
+ * (or zoomed in screens)
+ */
+@media (max-width: 600px) {
+  .examples > * {
+    max-height: unset;
+  }
+}
 .deprecated * {
   text-decoration: line-through;
 }

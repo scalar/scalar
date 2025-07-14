@@ -295,6 +295,10 @@ const handleDiscriminatorChange = (type: string) => {
   }
 }
 
+.endpoint-content > * {
+  min-width: 0;
+}
+
 .operation-details-card {
   display: flex;
   flex-direction: column;
