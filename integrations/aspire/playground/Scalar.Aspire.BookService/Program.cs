@@ -14,7 +14,9 @@ builder.Services.AddOpenApi(options =>
             {
                 AuthorizationCode = new OpenApiOAuthFlow
                 {
+                    // localhost for the user interaction
                     AuthorizationUrl = new Uri($"{keycloakUrl}/realms/scalar/protocol/openid-connect/auth"),
+                    // keycloak for the proxy
                     TokenUrl = new Uri("http://keycloak/realms/scalar/protocol/openid-connect/token")
                 }
             }
