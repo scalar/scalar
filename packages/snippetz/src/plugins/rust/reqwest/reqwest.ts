@@ -18,8 +18,8 @@ export const rustReqwest: Plugin = {
     // Normalize method to uppercase
     normalizedRequest.method = normalizedRequest.method.toUpperCase()
 
-    // Start building the Rust code
-    let code = 'let client = reqwest::Client::new();\n'
+    // Build Rust code parts
+    const parts: string[] = ['let client = reqwest::Client::new();']
 
     // Handle query string
     const queryString = normalizedRequest.queryString?.length
@@ -32,7 +32,7 @@ export const rustReqwest: Plugin = {
 
     // Start building request
     const method = normalizedRequest.method.toLowerCase()
-    code += `let request = client.${method}(${toRustString(url)})`
+    parts.push(`let request = client.${method}(${toRustString(url)})`)
 
     // Handle headers
     const headers =
@@ -54,50 +54,65 @@ export const rustReqwest: Plugin = {
       headers['Cookie'] = cookieString
     }
 
+    // Collect chained calls
+    const chainedCalls: string[] = []
+
     // Add Authorization header if credentials are provided
     if (options?.auth) {
       const { username, password } = options.auth
       if (username && password) {
-        code += `\n    .basic_auth(${toRustString(username)}, ${toRustString(password)})`
+        chainedCalls.push(`    .basic_auth(${toRustString(username)}, ${toRustString(password)})`)
       }
     }
 
     // Add headers to request
     for (const [key, value] of Object.entries(headers)) {
-      code += `\n    .header(${toRustString(key)}, ${toRustString(value)})`
+      chainedCalls.push(`    .header(${toRustString(key)}, ${toRustString(value)})`)
     }
 
     // Handle body
     if (normalizedRequest.postData) {
       if (normalizedRequest.postData.mimeType === 'application/json') {
-        code += `\n    .json(&serde_json::json!(${normalizedRequest.postData.text}))`
+        chainedCalls.push(`    .json(&serde_json::json!(${normalizedRequest.postData.text}))`)
       } else if (normalizedRequest.postData.mimeType === 'application/x-www-form-urlencoded') {
         const formData =
           normalizedRequest.postData.params
             ?.map((param) => `(${toRustString(param.name)}, ${toRustString(param.value || '')})`)
             .join(', ') || ''
-        code += `\n    .form(&[${formData}])`
+        chainedCalls.push(`    .form(&[${formData}])`)
       } else if (normalizedRequest.postData.mimeType === 'multipart/form-data') {
-        code += '\n    .multipart({'
         const formParts =
           normalizedRequest.postData.params
             ?.map((param) => {
               if (param.fileName) {
-                return `\n        let part = reqwest::multipart::Part::text(${toRustString(param.value || '')})\n            .file_name(${toRustString(param.fileName)});\n        form = form.part(${toRustString(param.name)}, part);`
+                return `        let part = reqwest::multipart::Part::text(${toRustString(param.value || '')})
+            .file_name(${toRustString(param.fileName)});
+        form = form.part(${toRustString(param.name)}, part);`
               }
 
-              return `\n        form = form.text(${toRustString(param.name)}, ${toRustString(param.value || '')});`
+              return `        form = form.text(${toRustString(param.name)}, ${toRustString(param.value || '')});`
             })
-            .join('') || ''
-        code += `\n        let mut form = reqwest::multipart::Form::new();${formParts}\n            form\n        })`
+            .join('\n') || ''
+
+        chainedCalls.push(`    .multipart({
+        let mut form = reqwest::multipart::Form::new();
+${formParts}
+            form
+        })`)
       } else {
-        code += `\n    .body(${toRustString(normalizedRequest.postData.text || '')})`
+        chainedCalls.push(`    .body(${toRustString(normalizedRequest.postData.text || '')})`)
       }
     }
 
-    code += ';\n'
-    code += 'let response = request.send().await?;'
+    // Add all chained calls to parts
+    parts.push(...chainedCalls)
 
-    return code
+    // Add semicolon to the last part (either request line or last chained call)
+    const lastPart = parts[parts.length - 1]
+    parts[parts.length - 1] = lastPart + ';'
+
+    parts.push('let response = request.send().await?;')
+
+    return parts.join('\n')
   },
 }
