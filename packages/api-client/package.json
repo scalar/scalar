@@ -30,7 +30,7 @@
     "playground:app": "vite ./playground/app -c ./vite.config.ts",
     "playground:modal": "vite ./playground/modal -c ./vite.config.ts",
     "playground:web": "vite ./playground/web -c ./vite.config.ts",
-    "build:playground:web": "vite build ./playground/web --outDir ./playground/web/dist --config ./vite.config.ts",
+    "build:playground:web": "vite build ./playground/web --outDir ./playground/web/dist --emptyOutDir",
     "preview": "vite preview",
     "test": "vitest",
     "types:build": "scalar-types-build-vue",

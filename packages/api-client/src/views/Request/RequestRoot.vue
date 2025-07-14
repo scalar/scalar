@@ -103,7 +103,9 @@ const executeRequest = async () => {
     securitySchemes: securitySchemes,
     server,
     pluginManager,
-    workspaceId: activeWorkspace.value?.uid,
+    workspaceId: activeWorkspace.value?.uid
+      ? String(activeWorkspace.value.uid)
+      : undefined,
   })
 
   // Call the onRequestSent callback if it exists

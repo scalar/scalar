@@ -96,10 +96,11 @@ const loadConfig = () => {
 const saveConfig = () => {
   if (activeWorkspace.value?.uid) {
     if (config.enabled && config.key.trim()) {
+      const trimmedDescription = config.description?.trim()
       saveApiKey(activeWorkspace.value.uid, {
         key: config.key.trim(),
         enabled: config.enabled,
-        description: config.description?.trim() || undefined,
+        ...(trimmedDescription && { description: trimmedDescription }),
       })
     } else if (!config.enabled) {
       removeApiKey(activeWorkspace.value.uid)
