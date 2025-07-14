@@ -42,13 +42,13 @@
   },
   "devDependencies": {
     "@docusaurus/types": "^3.6.0",
-    "@types/react": "^19.0.1",
-    "@types/react-dom": "^19.0.2",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
     "path": "^0.12.7",
     "postcss": "catalog:*",
     "postcss-cli": "^11.0.0",
     "postcss-nesting": "^12.1.5",
-    "react": "^19.0.0",
+    "react": "^19.1.0",
     "shx": "^0.4.0"
   },
   "peerDependencies": {

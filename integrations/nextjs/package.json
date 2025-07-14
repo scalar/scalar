@@ -49,12 +49,12 @@
   "devDependencies": {
     "@scalar/api-reference": "workspace:*",
     "@types/node": "catalog:*",
-    "@types/react": "^19.0.1",
-    "@types/react-dom": "^19.0.2",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.3.4",
     "next": "^15.3.3",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "vite": "catalog:*",
     "vite-plugin-dts": "^4.3.0"
   },

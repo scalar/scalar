@@ -51,12 +51,12 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@types/react": "^19.0.1",
-    "@types/react-dom": "^19.0.2",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.3.4",
     "path": "^0.12.7",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "rollup-preserve-directives": "^1.1.1",
     "vite": "catalog:*"
   },

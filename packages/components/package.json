@@ -45,8 +45,8 @@
   "module": "./dist/index.js",
   "dependencies": {
     "@floating-ui/utils": "^0.2.2",
-    "@floating-ui/vue": "^1.0.2",
-    "@headlessui/vue": "^1.7.20",
+    "@floating-ui/vue": "^1.1.7",
+    "@headlessui/vue": "^1.7.23",
     "@scalar/code-highlight": "workspace:*",
     "@scalar/icons": "workspace:*",
     "@scalar/oas-utils": "workspace:*",

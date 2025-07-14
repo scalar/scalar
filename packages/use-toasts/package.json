@@ -50,7 +50,7 @@
     "@vitest/coverage-v8": "^1.6.0",
     "@vue/test-utils": "^2.4.1",
     "vite": "catalog:*",
-    "vite-plugin-css-injected-by-js": "^3.4.0",
+    "vite-plugin-css-injected-by-js": "^3.5.2",
     "vitest": "catalog:*"
   }
 }
