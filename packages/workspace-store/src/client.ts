@@ -231,6 +231,30 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     return workspace[extensions.workspace.activeDocument] ?? Object.keys(workspace.documents)[0] ?? ''
   }
 
+  // Save the current state of the specified document to the intermediate documents map.
+  // This function captures the latest (reactive) state of the document from the workspace and
+  // applies its changes to the corresponding entry in the `intermediateDocuments` map.
+  // The `intermediateDocuments` map represents the most recently "saved" local version of the document,
+  // which may include edits not yet synced to the remote registry.
+  function saveDocument(documentName: string) {
+    const intermediateDocument = intermediateDocuments[documentName]
+    // Obtain the raw state of the current document to ensure accurate diffing
+    // Remove the magic proxy while preserving the overrides proxy to ensure accurate updates
+    const updatedDocument = createOverridesProxy(
+      getRaw(unpackOverridesProxy(workspace.documents[documentName])),
+      overrides[documentName],
+    )
+
+    // If either the intermediate or updated document is missing, do nothing
+    if (!intermediateDocument || !updatedDocument) {
+      return
+    }
+
+    // Apply changes from the current document to the intermediate document in place
+    const excludedDiffs = applySelectiveUpdates(intermediateDocument, updatedDocument)
+    return excludedDiffs
+  }
+
   // Add a document to the store synchronously from an in-memory OpenAPI document
   function addDocumentSync(input: ObjectDoc) {
     const { name, meta } = input
@@ -259,6 +283,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map
     workspace.documents[name] = createOverridesProxy(createMagicProxy({ ...document, ...meta }), input.overrides)
+
+    // Write overrides to the intermediate document
+    saveDocument(name)
   }
 
   // Asynchronously adds a new document to the workspace by loading and validating the input.
@@ -485,24 +512,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
      * // Save the current state of the document named 'api'
      * const excludedDiffs = store.saveDocument('api')
      */
-    saveDocument(documentName: string) {
-      const intermediateDocument = intermediateDocuments[documentName]
-      // Obtain the raw state of the current document to ensure accurate diffing
-      // Remove the magic proxy while preserving the overrides proxy to ensure accurate updates
-      const updatedDocument = createOverridesProxy(
-        getRaw(unpackOverridesProxy(workspace.documents[documentName])),
-        overrides[documentName],
-      )
-
-      // If either the intermediate or updated document is missing, do nothing
-      if (!intermediateDocument || !updatedDocument) {
-        return
-      }
-
-      // Apply changes from the current document to the intermediate document in place
-      const excludedDiffs = applySelectiveUpdates(intermediateDocument, updatedDocument)
-      return excludedDiffs
-    },
+    saveDocument,
     /**
      * Restores the specified document to its last locally saved state.
      *
@@ -525,7 +535,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // Get the raw state of the current document to avoid diffing resolved references.
       // This ensures we update the actual data, not the references.
       // Note: We keep the Vue proxy for reactivity by updating the object in place.
-      const updatedDocument = getRaw(workspace.documents[documentName])
+      const updatedDocument = createOverridesProxy(
+        getRaw(unpackOverridesProxy(workspace.documents[documentName])),
+        overrides[documentName],
+      )
 
       if (!intermediateDocument || !updatedDocument) {
         return

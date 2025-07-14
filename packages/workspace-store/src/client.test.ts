@@ -1181,5 +1181,36 @@ describe('create-workspace-store', () => {
       expect(newStore.workspace.documents['default'].info.version).toBe('2.0.0')
       expect(newStore.workspace.documents['default'].openapi).toBe('3.1.1')
     })
+
+    it('should revert the changes made to the overrides', async () => {
+      const store = createWorkspaceStore({
+        documents: [
+          {
+            name: 'default',
+            document: {
+              openapi: '3.0.0',
+              info: { title: 'My API', version: '1.0.0' },
+            },
+            overrides: {
+              openapi: '3.1.1',
+              info: { title: 'My Updated API', version: '2.0.0' },
+            },
+          },
+        ],
+      })
+
+      store.workspace.documents['default'].info.title = 'Edited title'
+
+      expect(store.workspace.documents['default'].info.title).toBe('Edited title')
+      expect(store.workspace.documents['default'].info.version).toBe('2.0.0')
+      expect(store.workspace.documents['default'].openapi).toBe('3.1.1')
+
+      // Revert the changes
+      store.revertDocumentChanges('default')
+
+      expect(store.workspace.documents['default'].info.title).toBe('My Updated API')
+      expect(store.workspace.documents['default'].info.version).toBe('2.0.0')
+      expect(store.workspace.documents['default'].openapi).toBe('3.1.1')
+    })
   })
 })
