@@ -103,6 +103,7 @@ const executeRequest = async () => {
     securitySchemes: securitySchemes,
     server,
     pluginManager,
+    workspaceId: activeWorkspace.value?.uid,
   })
 
   // Call the onRequestSent callback if it exists

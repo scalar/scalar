@@ -18,8 +18,10 @@ import type {
 } from '@scalar/oas-utils/entities/spec'
 
 import { isElectron } from '@/libs/electron'
-import { httpStatusCodes, isDefined, mergeUrls, redirectToProxy, shouldUseProxy } from '@scalar/oas-utils/helpers'
+import { httpStatusCodes, isDefined, redirectToProxy, shouldUseProxy } from '@scalar/oas-utils/helpers'
+import { mergeUrls } from '@scalar/helpers/url/merge-urls'
 import { buildRequestSecurity } from './build-request-security'
+import { getApiKeyForUrl, doesUrlRequireApiKey } from '@/libs/api-key-manager'
 
 export type RequestStatus = 'start' | 'stop' | 'abort'
 
@@ -46,6 +48,7 @@ export const createRequestOperation = ({
   server,
   status,
   pluginManager,
+  workspaceId,
 }: {
   environment: object | undefined
   example: RequestExample
@@ -57,6 +60,7 @@ export const createRequestOperation = ({
   server?: Server | undefined
   status?: EventBus<RequestStatus>
   pluginManager?: PluginManager
+  workspaceId?: string
 }): ErrorResponse<{
   controller: AbortController
   sendRequest: () => SendRequestResponse
@@ -136,8 +140,14 @@ export const createRequestOperation = ({
       headers['X-Scalar-User-Agent'] = headers['user-agent']
     }
 
+    // Get API key for this workspace if it's needed for the server URL
+    const resolvedWorkspaceId = workspaceId || 'default' // Use passed workspace ID or fallback to 'default'
+
+    const apiKey = getApiKeyForUrl(resolvedWorkspaceId, serverString)
+    const shouldInjectApiKey = doesUrlRequireApiKey(serverString)
+
     // Combine the url with the path and server + query params
-    url = mergeUrls(url, pathString, urlParams)
+    url = (mergeUrls as any)(url, pathString, urlParams, false, apiKey || undefined, shouldInjectApiKey)
 
     /** Cookie header */
     const cookieHeader = replaceTemplateVariables(getCookieHeader(cookieParams, headers['Cookie']), env)
