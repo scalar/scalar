@@ -18,7 +18,7 @@ import { defaultReferenceConfig } from '@/schemas/reference-config'
 import type { Config } from '@/schemas/workspace-specification/config'
 import { InMemoryWorkspaceSchema, type InMemoryWorkspace } from '@/schemas/inmemory-workspace'
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
-import { createOverridesProxy, unpackOverridesProxy } from '@/helpers/overrides-proxy'
+import { createOverridesProxy } from '@/helpers/overrides-proxy'
 
 /**
  * Input type for workspace document metadata and configuration.
@@ -240,10 +240,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     const intermediateDocument = intermediateDocuments[documentName]
     // Obtain the raw state of the current document to ensure accurate diffing
     // Remove the magic proxy while preserving the overrides proxy to ensure accurate updates
-    const updatedDocument = createOverridesProxy(
-      getRaw(unpackOverridesProxy(workspace.documents[documentName])),
-      overrides[documentName],
-    )
+    const updatedDocument = createOverridesProxy(getRaw(workspace.documents[documentName]), overrides[documentName])
 
     // If either the intermediate or updated document is missing, do nothing
     if (!intermediateDocument || !updatedDocument) {
@@ -535,10 +532,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // Get the raw state of the current document to avoid diffing resolved references.
       // This ensures we update the actual data, not the references.
       // Note: We keep the Vue proxy for reactivity by updating the object in place.
-      const updatedDocument = createOverridesProxy(
-        getRaw(unpackOverridesProxy(workspace.documents[documentName])),
-        overrides[documentName],
-      )
+      const updatedDocument = createOverridesProxy(getRaw(workspace.documents[documentName]), overrides[documentName])
 
       if (!intermediateDocument || !updatedDocument) {
         return
@@ -579,7 +573,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               name,
               // Extract the raw document data for export, removing any Vue reactivity wrappers.
               // When importing, the document can be wrapped again in a magic proxy.
-              createOverridesProxy(getRaw(unpackOverridesProxy(doc)), overrides[name]),
+              createOverridesProxy(getRaw(doc), overrides[name]),
             ]),
           ),
         },
