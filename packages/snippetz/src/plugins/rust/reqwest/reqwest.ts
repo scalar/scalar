@@ -2,6 +2,47 @@ import { toRustString } from '@/plugins/rust/rustString'
 import type { Plugin } from '@scalar/types/snippetz'
 
 /**
+ * rust/reqwest plugin for generating Rust reqwest HTTP client code
+ */
+export const rustReqwest: Plugin = {
+  target: 'rust',
+  client: 'reqwest',
+  title: 'reqwest',
+  generate(request, options?: { auth?: { username: string; password: string } }) {
+    // Normalization
+    const normalizedRequest = normalizeRequest(request)
+
+    // Query string
+    const queryString = buildQueryString(normalizedRequest.queryString)
+    const url = buildUrl(normalizedRequest.url, queryString)
+
+    // Headers and cookies
+    const headers = processHeaders(normalizedRequest)
+
+    // Chained calls
+    const chainedCalls: string[] = []
+
+    // Auth
+    const authCall = createAuthCall(options?.auth)
+    if (authCall) {
+      chainedCalls.push(authCall)
+    }
+
+    // Headers
+    chainedCalls.push(...createHeaderCalls(headers))
+
+    // Body
+    const bodyCall = createBodyCall(normalizedRequest.postData)
+    if (bodyCall) {
+      chainedCalls.push(bodyCall)
+    }
+
+    // Code
+    return buildRustCode(url, normalizedRequest.method, chainedCalls)
+  },
+}
+
+/**
  * Helper function to create indented strings
  */
 const indent = (level: number, text: string): string => {
@@ -32,110 +73,136 @@ const createMultipartPart = (param: { name: string; value?: string; fileName?: s
 }
 
 /**
- * rust/reqwest
+ * Normalizes the request object with defaults
  */
-export const rustReqwest: Plugin = {
-  target: 'rust',
-  client: 'reqwest',
-  title: 'reqwest',
-  generate(request, options?: { auth?: { username: string; password: string } }) {
-    // Defaults
-    const normalizedRequest = {
-      method: 'GET',
-      ...request,
-    }
+const normalizeRequest = (request: any) => {
+  return {
+    ...request,
+    method: (request.method || 'GET').toUpperCase(),
+  }
+}
 
-    // Normalize method to uppercase
-    normalizedRequest.method = normalizedRequest.method.toUpperCase()
+/**
+ * Builds the query string from request parameters
+ */
+const buildQueryString = (queryParams?: Array<{ name: string; value: string }>): string => {
+  if (!queryParams?.length) {
+    return ''
+  }
 
-    // Build Rust code parts
-    const parts: string[] = ['let client = reqwest::Client::new();']
+  const queryPairs = queryParams.map((param) => `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value)}`)
+  return `?${queryPairs.join('&')}`
+}
 
-    // Handle query string
-    const queryString = normalizedRequest.queryString?.length
-      ? '?' +
-        normalizedRequest.queryString
-          .map((param) => `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value)}`)
-          .join('&')
-      : ''
-    const url = `${normalizedRequest.url}${queryString}`
+/**
+ * Builds the complete URL with query string
+ */
+const buildUrl = (baseUrl: string, queryString: string): string => {
+  return `${baseUrl}${queryString}`
+}
 
-    // Start building request
-    const method = normalizedRequest.method.toLowerCase()
-    parts.push(`let request = client.${method}(${toRustString(url)})`)
+/**
+ * Processes headers and cookies into a headers object
+ */
+const processHeaders = (request: any): Record<string, string> => {
+  const headers: Record<string, string> = {}
 
-    // Handle headers
-    const headers =
-      normalizedRequest.headers?.reduce(
-        (acc, header) => {
-          if (header.value && !/[; ]/.test(header.name)) {
-            acc[header.name] = header.value
-          }
-          return acc
-        },
-        {} as Record<string, string>,
-      ) || {}
-
-    // Handle cookies
-    if (normalizedRequest.cookies && normalizedRequest.cookies.length > 0) {
-      const cookieString = normalizedRequest.cookies
-        .map((cookie) => `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`)
-        .join('; ')
-      headers['Cookie'] = cookieString
-    }
-
-    // Collect chained calls
-    const chainedCalls: string[] = []
-
-    // Add Authorization header if credentials are provided
-    if (options?.auth) {
-      const { username, password } = options.auth
-      if (username && password) {
-        chainedCalls.push(createChainedCall('basic_auth', toRustString(username), toRustString(password)))
+  // Process regular headers
+  if (request.headers) {
+    for (const header of request.headers) {
+      if (header.value && !/[; ]/.test(header.name)) {
+        headers[header.name] = header.value
       }
     }
+  }
 
-    // Add headers to request
-    for (const [key, value] of Object.entries(headers)) {
-      chainedCalls.push(createChainedCall('header', toRustString(key), toRustString(value)))
+  // Process cookies
+  if (request.cookies?.length > 0) {
+    const cookieString = request.cookies
+      .map((cookie: any) => `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`)
+      .join('; ')
+    headers['Cookie'] = cookieString
+  }
+
+  return headers
+}
+
+/**
+ * Creates authentication chained call if credentials are provided
+ */
+const createAuthCall = (auth?: { username: string; password: string }): string | null => {
+  if (!auth?.username || !auth?.password) {
+    return null
+  }
+
+  return createChainedCall('basic_auth', toRustString(auth.username), toRustString(auth.password))
+}
+
+/**
+ * Creates header chained calls from headers object
+ */
+const createHeaderCalls = (headers: Record<string, string>): string[] => {
+  return Object.entries(headers).map(([key, value]) =>
+    createChainedCall('header', toRustString(key), toRustString(value)),
+  )
+}
+
+/**
+ * Creates body chained call based on content type
+ */
+const createBodyCall = (postData: any): string | null => {
+  if (!postData) {
+    return null
+  }
+
+  const { mimeType, text, params } = postData
+
+  switch (mimeType) {
+    case 'application/json':
+      return createChainedCall('json', `&serde_json::json!(${text})`)
+
+    case 'application/x-www-form-urlencoded': {
+      const formData =
+        params?.map((param: any) => `(${toRustString(param.name)}, ${toRustString(param.value || '')})`).join(', ') ||
+        ''
+      return createChainedCall('form', `&[${formData}]`)
     }
 
-    // Handle body
-    if (normalizedRequest.postData) {
-      if (normalizedRequest.postData.mimeType === 'application/json') {
-        chainedCalls.push(createChainedCall('json', `&serde_json::json!(${normalizedRequest.postData.text})`))
-      } else if (normalizedRequest.postData.mimeType === 'application/x-www-form-urlencoded') {
-        const formData =
-          normalizedRequest.postData.params
-            ?.map((param) => `(${toRustString(param.name)}, ${toRustString(param.value || '')})`)
-            .join(', ') || ''
-        chainedCalls.push(createChainedCall('form', `&[${formData}]`))
-      } else if (normalizedRequest.postData.mimeType === 'multipart/form-data') {
-        const formParts = normalizedRequest.postData.params?.map(createMultipartPart).join('\n') || ''
-
-        const multipartBlock = [
-          '.multipart({',
-          indent(2, 'let mut form = reqwest::multipart::Form::new();'),
-          formParts,
-          indent(3, 'form'),
-          indent(2, '})'),
-        ].join('\n')
-
-        chainedCalls.push(indent(1, multipartBlock))
-      } else {
-        chainedCalls.push(createChainedCall('body', toRustString(normalizedRequest.postData.text || '')))
-      }
+    case 'multipart/form-data': {
+      const formParts = params?.map(createMultipartPart).join('\n') || ''
+      const multipartBlock = [
+        '.multipart({',
+        indent(2, 'let mut form = reqwest::multipart::Form::new();'),
+        formParts,
+        indent(3, 'form'),
+        indent(2, '})'),
+      ].join('\n')
+      return indent(1, multipartBlock)
     }
 
-    // Add all chained calls to parts
-    parts.push(...chainedCalls)
+    default:
+      return createChainedCall('body', toRustString(text || ''))
+  }
+}
 
-    // Add semicolon to the last part (either request line or last chained call)
-    const lastPart = parts[parts.length - 1]
-    parts[parts.length - 1] = lastPart + ';'
+/**
+ * Builds the complete Rust code by assembling all code
+ */
+const buildRustCode = (url: string, method: string, chainedCalls: string[]): string => {
+  const code = [
+    'let client = reqwest::Client::new();',
+    `let request = client.${method.toLowerCase()}(${toRustString(url)})`,
+  ]
 
-    parts.push('let response = request.send().await?;')
+  // Add all chained calls
+  code.push(...chainedCalls)
 
-    return parts.join('\n')
-  },
+  // Add semicolon to the last chained call
+  const lastPart = code[code.length - 1]
+  code[code.length - 1] = lastPart + ';'
+
+  // Add response handling
+  code.push('let response = request.send().await?;')
+
+  return code.join('\n')
 }
