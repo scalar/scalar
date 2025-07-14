@@ -1252,5 +1252,33 @@ describe('create-workspace-store', () => {
         '{"documents":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}},"x-scalar-navigation":[{"id":"Get all users","title":"Get all users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation"},{"id":"","title":"Models","children":[{"id":"User","title":"User","name":"User","ref":"#/content/components/schemas/User","type":"model"}],"type":"text"}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}}}',
       )
     })
+
+    it('should add the overrides to the workspace when we import from the specifications', async () => {
+      server.get('/default', () => {
+        return getDocument()
+      })
+      await server.listen({ port })
+
+      const store = createWorkspaceStore()
+      await store.importWorkspaceFromSpecification({
+        info: {
+          title: 'Scalar Workspace',
+        },
+        workspace: 'draft',
+        documents: {
+          'default': {
+            $ref: `http://localhost:${port}/default`,
+          },
+        },
+        overrides: {
+          default: {
+            openapi: '3.1.1',
+            info: { title: 'My Updated API', version: '2.0.0' },
+          },
+        },
+      })
+
+      expect(store.workspace.documents['default'].info.title).toBe('My Updated API')
+    })
   })
 })

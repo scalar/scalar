@@ -281,8 +281,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map
     workspace.documents[name] = createOverridesProxy(createMagicProxy({ ...document, ...meta }), input.overrides)
 
-    console.dir(workspace.documents[name], { depth: undefined })
-
     // Write overrides to the intermediate document
     saveDocument(name)
   }
@@ -290,9 +288,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   // Asynchronously adds a new document to the workspace by loading and validating the input.
   // If loading fails, a placeholder error document is added instead.
   async function addDocument(input: WorkspaceDocumentInput) {
-    const { name, meta, config } = input
-
-    console.log({ input })
+    const { name, meta } = input
 
     const resolve = await loadDocument(input)
 
@@ -309,7 +305,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return
     }
 
-    addDocumentSync({ document: resolve.data, name, meta, config })
+    addDocumentSync({ ...input, document: resolve.data })
   }
 
   // Add any initial documents to the store
@@ -640,13 +636,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // Assign workspace metadata
       safeAssign(workspace, meta)
 
-      console.log({ message: 'input overrides', overrides })
-
       // Add workspace documents
       return Promise.all(
-        Object.entries(documents ?? {}).map(([name, doc]) => {
-          return addDocument({ url: doc.$ref, name, overrides: overrides?.[name] })
-        }),
+        Object.entries(documents ?? {}).map(([name, doc]) =>
+          addDocument({ url: doc.$ref, name, overrides: overrides?.[name] }),
+        ),
       )
     },
   }
