@@ -103,7 +103,7 @@
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",
     "vite-plugin-banner": "^0.7.1",
-    "vite-plugin-css-injected-by-js": "^3.5.2",
+    "vite-plugin-css-injected-by-js": "^3.4.0",
     "vitest": "catalog:*"
   }
 }
