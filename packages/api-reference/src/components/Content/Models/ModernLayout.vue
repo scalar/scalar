@@ -3,7 +3,6 @@ import { ScalarErrorBoundary } from '@scalar/components'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed, useId } from 'vue'
 
-import { Lazy } from '@/components/Lazy'
 import {
   CompactSection,
   Section,
@@ -57,43 +56,36 @@ const models = computed(() => {
           Models
         </SectionHeaderTag>
       </SectionHeader>
-      <Lazy
-        id="models"
-        :isLazy="false" />
       <div
         class="models-list"
         :class="{ 'models-list-truncated': !showAllModels }">
-        <Lazy
+        <CompactSection
           v-for="name in models"
-          :id="getModelId({ name })"
           :key="name"
-          isLazy>
-          <CompactSection
-            :id="getModelId({ name })"
-            class="models-list-item"
-            :label="name">
-            <template #heading>
-              <SectionHeaderTag :level="3">
-                <SchemaHeading
-                  :name="
-                    (schemas as any)[name].title ??
-                    (schemas as any)[name].xml?.name ??
-                    name
-                  "
-                  :value="(schemas as any)[name]" />
-              </SectionHeaderTag>
-            </template>
-            <ScalarErrorBoundary>
-              <Schema
-                noncollapsible
-                :hideHeading="true"
-                :hideModelNames="true"
-                :schemas="schemas"
-                :level="1"
+          :id="getModelId({ name })"
+          class="models-list-item"
+          :label="name">
+          <template #heading>
+            <SectionHeaderTag :level="3">
+              <SchemaHeading
+                :name="
+                  (schemas as any)[name].title ??
+                  (schemas as any)[name].xml?.name ??
+                  name
+                "
                 :value="(schemas as any)[name]" />
-            </ScalarErrorBoundary>
-          </CompactSection>
-        </Lazy>
+            </SectionHeaderTag>
+          </template>
+          <ScalarErrorBoundary>
+            <Schema
+              noncollapsible
+              :hideHeading="true"
+              :hideModelNames="true"
+              :schemas="schemas"
+              :level="1"
+              :value="(schemas as any)[name]" />
+          </ScalarErrorBoundary>
+        </CompactSection>
       </div>
       <ShowMoreButton
         v-if="!showAllModels"
