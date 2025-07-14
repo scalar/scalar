@@ -6,6 +6,7 @@ import {
   type ThemeId,
 } from '@scalar/themes'
 
+import ApiKeyManagerMinimal from '@/components/ApiKeyManagerMinimal.vue'
 import IntegrationLogo from '@/components/ImportCollection/IntegrationLogo.vue'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
@@ -83,6 +84,18 @@ const setProxy = (newProxy: string | undefined) =>
         <div>
           <h2 class="mt-10 text-xl font-bold">Settings</h2>
         </div>
+
+        <!-- Pro API Key -->
+        <SettingsSection>
+          <template #title> Pro API Key </template>
+          <template #description>
+            Configure API keys for premium services like DefLlama Pro, CoinGecko
+            Pro, and CoinMarketCap Pro that require authentication via path
+            injection.
+          </template>
+
+          <ApiKeyManagerMinimal />
+        </SettingsSection>
 
         <!-- Proxy -->
         <SettingsSection>

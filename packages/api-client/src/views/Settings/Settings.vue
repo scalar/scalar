@@ -4,7 +4,6 @@ import { ref, type DefineComponent } from 'vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 
-import SettingsApiKeys from './SettingsApiKeys.vue'
 import SettingsGeneral from './SettingsGeneral.vue'
 
 type SettingsGroup = {
@@ -16,10 +15,6 @@ const settings: Record<string, SettingsGroup> = {
   general: {
     component: SettingsGeneral,
     title: 'General',
-  },
-  apikeys: {
-    component: SettingsApiKeys,
-    title: 'API Keys',
   },
 }
 

@@ -95,7 +95,8 @@
     "test:e2e:electron": "pnpm --filter playwright test:e2e electron",
     "types:check": "pnpm run -r --parallel types:check",
     "markdown:check": "remark --frail .",
-    "script": "pnpm --filter @scalar-internal/build-scripts start"
+    "script": "pnpm --filter @scalar-internal/build-scripts start",
+    "build:playground:web": "vite build ./playground/web --outDir ./playground/web/dist"
   },
   "exports": {
     "./css/*.css": {
