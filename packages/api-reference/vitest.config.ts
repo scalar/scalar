@@ -7,6 +7,7 @@ export default mergeConfig(
   viteConfig,
   defineConfig({
     test: {
+      setupFiles: './src/vitest.setup.ts',
       environment: 'jsdom',
       root: fileURLToPath(new URL('./', import.meta.url)),
     },
