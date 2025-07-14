@@ -31,7 +31,10 @@ export const createApiClientWeb = async (
   const { importSpecFile, importSpecFromUrl } = client.store
   router.afterEach(saveActiveWorkspace)
 
-  // Import the spec if needed
+  // Always update the default workspace with the latest spec by resetting and reimporting
+  client.resetStore()
+
+  // Import the latest spec into the default workspace
   if (configuration.url) {
     await importSpecFromUrl(configuration.url, 'default', {
       proxyUrl: configuration.proxyUrl,
