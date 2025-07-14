@@ -53,7 +53,7 @@ describe('TestRequestButton', () => {
     })
 
     expect(wrapper.find('button').exists()).toBe(true)
-    expect(wrapper.find('.scalar-icon').exists()).toBe(true)
+    expect(wrapper.find('svg').exists()).toBe(true)
     expect(wrapper.text()).toContain('Test Request')
     expect(wrapper.text()).toContain('(get /test)')
   })
