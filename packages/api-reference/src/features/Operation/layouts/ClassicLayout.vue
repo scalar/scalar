@@ -4,7 +4,11 @@ import {
   ScalarIconButton,
   ScalarMarkdown,
 } from '@scalar/components'
-import { ScalarIconWebhooksLogo } from '@scalar/icons'
+import {
+  ScalarIconCopy,
+  ScalarIconPlay,
+  ScalarIconWebhooksLogo,
+} from '@scalar/icons'
 import type {
   Collection,
   Request,
@@ -26,6 +30,7 @@ import OperationPath from '@/components/OperationPath.vue'
 import { SectionAccordion } from '@/components/Section'
 import { ExampleRequest } from '@/features/example-request'
 import { ExampleResponses } from '@/features/example-responses'
+import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import type { Schemas } from '@/features/Operation/types/schemas'
 import { TestRequestButton } from '@/features/test-request-button'
 import { useConfig } from '@/hooks/useConfig'
@@ -107,14 +112,12 @@ const handleDiscriminatorChange = (type: string) => {
       <TestRequestButton
         v-if="active && request"
         :operation="request" />
-      <ScalarIcon
+      <ScalarIconPlay
         v-else-if="!config?.hideTestRequestButton"
-        class="endpoint-try-hint size-6"
-        icon="Play"
-        thickness="1.75px" />
+        class="endpoint-try-hint size-4.5" />
       <ScalarIconButton
         class="endpoint-copy p-0.5"
-        icon="Clipboard"
+        :icon="ScalarIconCopy"
         label="Copy endpoint URL"
         size="xs"
         variant="ghost"
@@ -145,9 +148,20 @@ const handleDiscriminatorChange = (type: string) => {
             :responses="operation.responses"
             :schemas="schemas" />
         </div>
+        <div
+          v-if="operation?.callbacks"
+          class="operation-details-card-item">
+          <Callbacks
+            :callbacks="operation.callbacks"
+            :schemas="schemas"
+            :collection="collection" />
+        </div>
       </div>
-      <ExampleResponses :responses="operation.responses" />
+      <ExampleResponses
+        class="operation-example-card"
+        :responses="operation.responses" />
       <ExampleRequest
+        class="operation-example-card"
         :request="request"
         :method="method"
         :collection="collection"
@@ -202,7 +216,7 @@ const handleDiscriminatorChange = (type: string) => {
   background: currentColor;
   opacity: 0.15;
 
-  border-radius: var(--scalar-radius-lg);
+  border-radius: var(--scalar-radius);
 }
 
 .endpoint-anchor {
@@ -281,17 +295,15 @@ const handleDiscriminatorChange = (type: string) => {
   }
 }
 
-.endpoint-content > * {
-  max-height: unset;
-}
-
 .operation-details-card {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  min-width: 0;
 }
-.operation-details-card-item :deep(.parameter-list) {
-  border: 1px solid var(--scalar-border-color);
+.operation-details-card-item :deep(.parameter-list),
+.operation-details-card-item :deep(.callbacks-list) {
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-radius: var(--scalar-radius-lg);
   margin-top: 0;
 }
@@ -313,14 +325,15 @@ const handleDiscriminatorChange = (type: string) => {
 }
 .operation-details-card :deep(.parameter-item) {
   margin: 0;
-  padding: 0 9px;
+  padding: 0;
 }
 .operation-details-card :deep(.property) {
   padding: 9px;
   margin: 0;
 }
 .operation-details-card :deep(.parameter-list-title),
-.operation-details-card :deep(.request-body-title) {
+.operation-details-card :deep(.request-body-title),
+.operation-details-card :deep(.callbacks-title) {
   text-transform: uppercase;
   font-weight: var(--scalar-bold);
   font-size: var(--scalar-mini);
@@ -330,16 +343,42 @@ const handleDiscriminatorChange = (type: string) => {
   margin: 0;
 }
 
+.operation-details-card :deep(.callback-list-item-title) {
+  padding-left: 28px;
+  padding-right: 12px;
+}
+
+.operation-details-card :deep(.callback-list-item-icon) {
+  left: 6px;
+}
+
+.operation-details-card :deep(.callback-operation-container) {
+  padding-inline: 9px;
+  padding-bottom: 9px;
+}
+
+.operation-details-card :deep(.callback-operation-container > .request-body),
+.operation-details-card :deep(.callback-operation-container > .parameter-list) {
+  border: none;
+}
+
+.operation-details-card
+  :deep(.callback-operation-container > .request-body > .request-body-header) {
+  padding: 0;
+  padding-bottom: 9px;
+  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
+}
+
 .operation-details-card :deep(.request-body-description) {
   margin-top: 0;
   padding: 9px 9px 0 9px;
-  border-top: 1px solid var(--scalar-border-color);
+  border-top: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 
 .operation-details-card :deep(.request-body) {
   margin-top: 0;
   border-radius: var(--scalar-radius-lg);
-  border: 1px solid var(--scalar-border-color);
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 
 .operation-details-card :deep(.request-body-header) {
@@ -351,17 +390,29 @@ const handleDiscriminatorChange = (type: string) => {
   margin-right: 9px;
 }
 
-.operation-details-card :deep(.request-body-schema > .schema-card) {
-  border-radius: var(--scalar-radius-lg);
-  border: 1px solid var(--scalar-border-color);
-  margin: 9px;
+.operation-details-card
+  :deep(.schema-card--open + .schema-card:not(.schema-card--open)) {
+  margin-inline: 9px;
+  margin-bottom: 9px;
 }
-
 .operation-details-card :deep(.request-body-schema .property--level-0) {
   padding: 0;
 }
 
 .operation-details-card :deep(.selected-content-type) {
   margin-right: 9px;
+}
+
+.operation-example-card {
+  position: sticky;
+  top: calc(var(--refs-header-height) + 24px);
+  max-height: calc(((var(--full-height) - var(--refs-header-height)) - 48px));
+}
+
+@media (max-width: 600px) {
+  .operation-example-card {
+    max-height: unset;
+    position: static;
+  }
 }
 </style>
