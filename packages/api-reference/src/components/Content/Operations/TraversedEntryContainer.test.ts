@@ -1,7 +1,7 @@
 import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from '@scalar/types'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import OperationsAndWebhooks from './OperationsAndWebhooks.vue'
+import TraversedEntryContainer from './TraversedEntryContainer.vue'
 
 let mockCollapsedSidebarItems: Record<string, boolean> = {}
 
@@ -43,7 +43,7 @@ function createConfiguration(config: Partial<ApiReferenceConfiguration> = {}): A
   return apiReferenceConfigurationSchema.parse(config)
 }
 
-describe('OperationsAndWebhooks', () => {
+describe('TraversedEntryContainer', () => {
   beforeEach(() => {
     // Expand all tags by default, it's easier to test the output
     mockCollapsedSidebarItems = {
@@ -76,7 +76,7 @@ describe('OperationsAndWebhooks', () => {
         },
       } as const
 
-      const wrapper = mount(OperationsAndWebhooks, {
+      const wrapper = mount(TraversedEntryContainer, {
         props: {
           document,
           config: createConfiguration({
@@ -117,7 +117,7 @@ describe('OperationsAndWebhooks', () => {
         },
       } as const
 
-      const wrapper = mount(OperationsAndWebhooks, {
+      const wrapper = mount(TraversedEntryContainer, {
         props: {
           document,
           config: createConfiguration(),
@@ -140,7 +140,7 @@ describe('OperationsAndWebhooks', () => {
         paths: {},
       } as const
 
-      const wrapper = mount(OperationsAndWebhooks, {
+      const wrapper = mount(TraversedEntryContainer, {
         props: {
           document,
           config: createConfiguration(),
@@ -177,7 +177,7 @@ describe('OperationsAndWebhooks', () => {
         },
       } as const
 
-      const wrapper = mount(OperationsAndWebhooks, {
+      const wrapper = mount(TraversedEntryContainer, {
         props: {
           document,
           config: createConfiguration(),
@@ -224,7 +224,7 @@ describe('OperationsAndWebhooks', () => {
         },
       } as const
 
-      const wrapper = mount(OperationsAndWebhooks, {
+      const wrapper = mount(TraversedEntryContainer, {
         props: {
           document,
           config: createConfiguration(),
@@ -286,7 +286,7 @@ describe('OperationsAndWebhooks', () => {
         },
       } as const
 
-      const wrapper = mount(OperationsAndWebhooks, {
+      const wrapper = mount(TraversedEntryContainer, {
         props: {
           document,
           config: createConfiguration(),
@@ -328,7 +328,7 @@ describe('OperationsAndWebhooks', () => {
         },
       } as const
 
-      const wrapper = mount(OperationsAndWebhooks, {
+      const wrapper = mount(TraversedEntryContainer, {
         props: {
           document,
           config: createConfiguration(),
@@ -359,7 +359,7 @@ describe('OperationsAndWebhooks', () => {
         },
       } as const
 
-      const wrapper = mount(OperationsAndWebhooks, {
+      const wrapper = mount(TraversedEntryContainer, {
         props: {
           document,
           config: createConfiguration(),
@@ -400,7 +400,7 @@ describe('OperationsAndWebhooks', () => {
         },
       } as const
 
-      const wrapper = mount(OperationsAndWebhooks, {
+      const wrapper = mount(TraversedEntryContainer, {
         props: {
           document,
           config: createConfiguration(),
@@ -452,7 +452,7 @@ describe('OperationsAndWebhooks', () => {
           },
         } as const
 
-        const wrapper = mount(OperationsAndWebhooks, {
+        const wrapper = mount(TraversedEntryContainer, {
           props: {
             document,
             config: createConfiguration({
@@ -508,7 +508,7 @@ describe('OperationsAndWebhooks', () => {
           },
         } as const
 
-        const wrapper = mount(OperationsAndWebhooks, {
+        const wrapper = mount(TraversedEntryContainer, {
           props: {
             document,
             config: createConfiguration({
@@ -563,7 +563,7 @@ describe('OperationsAndWebhooks', () => {
           },
         } as const
 
-        const wrapper = mount(OperationsAndWebhooks, {
+        const wrapper = mount(TraversedEntryContainer, {
           props: {
             document,
             config: createConfiguration({
@@ -616,7 +616,7 @@ describe('OperationsAndWebhooks', () => {
           },
         } as const
 
-        const wrapper = mount(OperationsAndWebhooks, {
+        const wrapper = mount(TraversedEntryContainer, {
           props: {
             document,
             config: createConfiguration({
@@ -680,7 +680,7 @@ describe('OperationsAndWebhooks', () => {
           },
         } as const
 
-        const wrapper = mount(OperationsAndWebhooks, {
+        const wrapper = mount(TraversedEntryContainer, {
           props: {
             document,
             config: createConfiguration({
