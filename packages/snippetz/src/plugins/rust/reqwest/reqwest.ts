@@ -2,6 +2,36 @@ import { toRustString } from '@/plugins/rust/rustString'
 import type { Plugin } from '@scalar/types/snippetz'
 
 /**
+ * Helper function to create indented strings
+ */
+const indent = (level: number, text: string): string => {
+  const spaces = ' '.repeat(level * 4)
+  return `${spaces}${text}`
+}
+
+/**
+ * Helper function to create chained method calls with consistent indentation
+ */
+const createChainedCall = (method: string, ...args: string[]): string => {
+  return indent(1, `.${method}(${args.join(', ')})`)
+}
+
+/**
+ * Helper function to create multipart form parts with proper indentation
+ */
+const createMultipartPart = (param: { name: string; value?: string; fileName?: string }): string => {
+  if (param.fileName) {
+    return [
+      indent(2, `let part = reqwest::multipart::Part::text(${toRustString(param.value || '')})`),
+      indent(3, `.file_name(${toRustString(param.fileName)});`),
+      indent(2, `form = form.part(${toRustString(param.name)}, part);`),
+    ].join('\n')
+  }
+
+  return indent(2, `form = form.text(${toRustString(param.name)}, ${toRustString(param.value || '')});`)
+}
+
+/**
  * rust/reqwest
  */
 export const rustReqwest: Plugin = {
@@ -61,46 +91,39 @@ export const rustReqwest: Plugin = {
     if (options?.auth) {
       const { username, password } = options.auth
       if (username && password) {
-        chainedCalls.push(`    .basic_auth(${toRustString(username)}, ${toRustString(password)})`)
+        chainedCalls.push(createChainedCall('basic_auth', toRustString(username), toRustString(password)))
       }
     }
 
     // Add headers to request
     for (const [key, value] of Object.entries(headers)) {
-      chainedCalls.push(`    .header(${toRustString(key)}, ${toRustString(value)})`)
+      chainedCalls.push(createChainedCall('header', toRustString(key), toRustString(value)))
     }
 
     // Handle body
     if (normalizedRequest.postData) {
       if (normalizedRequest.postData.mimeType === 'application/json') {
-        chainedCalls.push(`    .json(&serde_json::json!(${normalizedRequest.postData.text}))`)
+        chainedCalls.push(createChainedCall('json', `&serde_json::json!(${normalizedRequest.postData.text})`))
       } else if (normalizedRequest.postData.mimeType === 'application/x-www-form-urlencoded') {
         const formData =
           normalizedRequest.postData.params
             ?.map((param) => `(${toRustString(param.name)}, ${toRustString(param.value || '')})`)
             .join(', ') || ''
-        chainedCalls.push(`    .form(&[${formData}])`)
+        chainedCalls.push(createChainedCall('form', `&[${formData}]`))
       } else if (normalizedRequest.postData.mimeType === 'multipart/form-data') {
-        const formParts =
-          normalizedRequest.postData.params
-            ?.map((param) => {
-              if (param.fileName) {
-                return `        let part = reqwest::multipart::Part::text(${toRustString(param.value || '')})
-            .file_name(${toRustString(param.fileName)});
-        form = form.part(${toRustString(param.name)}, part);`
-              }
+        const formParts = normalizedRequest.postData.params?.map(createMultipartPart).join('\n') || ''
 
-              return `        form = form.text(${toRustString(param.name)}, ${toRustString(param.value || '')});`
-            })
-            .join('\n') || ''
+        const multipartBlock = [
+          '.multipart({',
+          indent(2, 'let mut form = reqwest::multipart::Form::new();'),
+          formParts,
+          indent(3, 'form'),
+          indent(2, '})'),
+        ].join('\n')
 
-        chainedCalls.push(`    .multipart({
-        let mut form = reqwest::multipart::Form::new();
-${formParts}
-            form
-        })`)
+        chainedCalls.push(indent(1, multipartBlock))
       } else {
-        chainedCalls.push(`    .body(${toRustString(normalizedRequest.postData.text || '')})`)
+        chainedCalls.push(createChainedCall('body', toRustString(normalizedRequest.postData.text || '')))
       }
     }
 
