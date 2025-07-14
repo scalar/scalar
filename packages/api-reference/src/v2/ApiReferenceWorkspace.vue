@@ -187,7 +187,7 @@ onMounted(() => {
   const storedClient = safeLocalStorage().getItem(
     REFERENCE_LS_KEYS.SELECTED_CLIENT,
   )
-  if (isClient(storedClient)) {
+  if (isClient(storedClient) && !store.workspace['x-scalar-default-client']) {
     store.update('x-scalar-default-client', storedClient)
   }
 })
