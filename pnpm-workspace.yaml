@@ -33,7 +33,7 @@ catalogs:
     chokidar: 4.0.3
     commander: 13.1.0
     concurrently: 9.1.2
-    esbuild: 0.25.2
+    esbuild: 0.25.6
     express: 5.1.0
     fastify: ^5.3.3
     nanoid: 5.1.5
