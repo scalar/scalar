@@ -1,7 +1,11 @@
 <script setup lang="ts">
+import {
+  ScalarCard,
+  ScalarCardHeader,
+  ScalarCardSection,
+} from '@scalar/components'
 import { computed } from 'vue'
 
-import { Card, CardContent, CardHeader } from '@/components/Card'
 import ScreenReader from '@/components/ScreenReader.vue'
 import type { TraversedTag } from '@/features/traverse-schema'
 import type {
@@ -26,14 +30,12 @@ const operationsAndWebhooks = computed(
 
 <template>
   <template v-if="tag.children?.length > 0">
-    <Card class="scalar-card-sticky">
-      <CardHeader muted>
+    <ScalarCard class="endpoints-card">
+      <ScalarCardHeader muted>
         <ScreenReader>{{ tag.title }}</ScreenReader>
         {{ tag.isWebhooks ? 'Webhooks' : 'Operations' }}
-      </CardHeader>
-      <CardContent
-        class="custom-scroll"
-        muted>
+      </ScalarCardHeader>
+      <ScalarCardSection class="custom-scroll">
         <ul
           :aria-label="`${tag.title} endpoints`"
           class="endpoints">
@@ -42,12 +44,17 @@ const operationsAndWebhooks = computed(
             :key="operationOrWebhook.id"
             :operation="operationOrWebhook" />
         </ul>
-      </CardContent>
-    </Card>
+      </ScalarCardSection>
+    </ScalarCard>
   </template>
 </template>
 
 <style scoped>
+.endpoints-card {
+  position: sticky;
+  top: calc(var(--refs-header-height) + 24px);
+  font-size: var(--scalar-font-size-3);
+}
 .endpoints {
   overflow: auto;
   background: var(--scalar-background-2);
