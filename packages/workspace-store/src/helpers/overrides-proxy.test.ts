@@ -1,7 +1,7 @@
 import { createOverridesProxy, unpackOverridesProxy } from '@/helpers/overrides-proxy'
 import { describe, expect, it } from 'vitest'
 
-describe.only('createOverridesProxy', () => {
+describe('createOverridesProxy', () => {
   it('should return the original object if no overrides are provided', () => {
     const input = { a: 1, b: { c: 2 } }
     const result = createOverridesProxy(input)
