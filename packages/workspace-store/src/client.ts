@@ -1,5 +1,5 @@
 import YAML from 'yaml'
-import { reactive, toRaw } from 'vue'
+import { reactive } from 'vue'
 import { bundle, upgrade } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins-browser'
 
@@ -566,7 +566,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               name,
               // Extract the raw document data for export, removing any Vue reactivity wrappers.
               // When importing, the document can be wrapped again in a magic proxy.
-              toRaw(getRaw(doc)),
+              createOverridesProxy(getRaw(unpackOverridesProxy(doc)), overrides[name]),
             ]),
           ),
         },

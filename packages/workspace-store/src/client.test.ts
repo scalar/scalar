@@ -1146,5 +1146,40 @@ describe('create-workspace-store', () => {
         '{"openapi":"3.1.1","info":{"title":"Edited title","version":"2.0.0"}}',
       )
     })
+
+    it('should preserve overrides when exporting and reloading the workspace', async () => {
+      const store = createWorkspaceStore({
+        documents: [
+          {
+            name: 'default',
+            document: {
+              openapi: '3.0.0',
+              info: { title: 'My API', version: '1.0.0' },
+            },
+            overrides: {
+              openapi: '3.1.1',
+              info: { title: 'My Updated API', version: '2.0.0' },
+            },
+          },
+        ],
+      })
+
+      store.workspace.documents['default'].info.title = 'Edited title'
+
+      expect(store.workspace.documents['default'].info.title).toBe('Edited title')
+      expect(store.workspace.documents['default'].info.version).toBe('2.0.0')
+      expect(store.workspace.documents['default'].openapi).toBe('3.1.1')
+
+      store.saveDocument('default')
+      const exported = store.exportWorkspace()
+
+      // Create a new store and load the exported workspace
+      const newStore = createWorkspaceStore()
+      newStore.loadWorkspace(exported)
+
+      expect(newStore.workspace.documents['default'].info.title).toBe('Edited title')
+      expect(newStore.workspace.documents['default'].info.version).toBe('2.0.0')
+      expect(newStore.workspace.documents['default'].openapi).toBe('3.1.1')
+    })
   })
 })
