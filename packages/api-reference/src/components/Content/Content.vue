@@ -7,7 +7,7 @@ import { Models } from '@/components/Content/Models'
 import { SectionFlare } from '@/components/SectionFlare'
 import { useConfig } from '@/hooks/useConfig'
 
-import { OperationsAndWebhooks } from './Operations'
+import { TraversedEntryContainer } from './Operations'
 
 defineProps<{
   document: OpenAPIV3_1.Document
@@ -33,8 +33,8 @@ const config = useConfig()
       v-else
       name="empty-state" />
 
-    <!-- Operations & Webhooks -->
-    <OperationsAndWebhooks
+    <!-- Loop on traversed entries -->
+    <TraversedEntryContainer
       :document
       :config />
 

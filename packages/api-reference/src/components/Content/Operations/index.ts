@@ -1,1 +1,1 @@
-export { default as OperationsAndWebhooks } from './OperationsAndWebhooks.vue'
+export { default as TraversedEntryContainer } from './TraversedEntryContainer.vue'
