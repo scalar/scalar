@@ -145,6 +145,8 @@ const handleDiscriminatorChange = (type: string) => {
             :responses="oldOperation.responses"
             :schemas="schemas" />
         </div>
+
+        <!-- Callbacks -->
         <div
           v-if="operation?.callbacks"
           class="operation-details-card-item">
