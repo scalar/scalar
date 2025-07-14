@@ -1,5 +1,5 @@
-import { toRustString } from '@/plugins/rust/rustString'
 import type { Plugin } from '@scalar/types/snippetz'
+import { toRustString } from '../rustString'
 
 /**
  * rust/reqwest plugin for generating Rust reqwest HTTP client code
@@ -70,6 +70,36 @@ const createMultipartPart = (param: { name: string; value?: string; fileName?: s
   }
 
   return indent(2, `form = form.text(${toRustString(param.name)}, ${toRustString(param.value || '')});`)
+}
+
+/**
+ * Formats JSON for Rust's serde_json::json! macro with proper indentation
+ */
+const formatJsonForRust = (jsonText: string): string => {
+  try {
+    const jsonData = JSON.parse(jsonText)
+    const prettyJson = JSON.stringify(jsonData, null, 4)
+
+    // Split into lines and add proper indentation for Rust
+    const lines = prettyJson.split('\n')
+    const rustLines = lines.map((line, index) => {
+      if (index === 0) {
+        // First line (opening brace)
+        return line
+      }
+      if (index === lines.length - 1) {
+        // Last line (closing brace)
+        return indent(1, line)
+      }
+      // Middle lines
+      return indent(1, line)
+    })
+
+    return rustLines.join('\n')
+  } catch {
+    // If JSON parsing fails, return the original text
+    return jsonText
+  }
 }
 
 /**
@@ -158,8 +188,10 @@ const createBodyCall = (postData: any): string | null => {
   const { mimeType, text, params } = postData
 
   switch (mimeType) {
-    case 'application/json':
-      return createChainedCall('json', `&serde_json::json!(${text})`)
+    case 'application/json': {
+      const formattedJson = formatJsonForRust(text)
+      return createChainedCall('json', `&serde_json::json!(${formattedJson})`)
+    }
 
     case 'application/x-www-form-urlencoded': {
       const formData =

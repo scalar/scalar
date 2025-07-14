@@ -82,7 +82,9 @@ let response = request.send().await?;`)
 
 let request = client.post("https://example.com")
     .header("Content-Type", "application/json")
-    .json(&serde_json::json!({"hello":"world"}));
+    .json(&serde_json::json!({
+        "hello": "world"
+    }));
 
 let response = request.send().await?;`)
   })
@@ -490,7 +492,16 @@ let response = request.send().await?;`)
 
 let request = client.post("https://example.com")
     .header("Content-Type", "application/json")
-    .json(&serde_json::json!({"key":"\\\"quotes\\\" and \\\\backslashes\\\\","nested":{"array":["item1",null,null]}}));
+    .json(&serde_json::json!({
+        "key": "\\"quotes\\" and \\\\backslashes\\\\",
+        "nested": {
+            "array": [
+                "item1",
+                null,
+                null
+            ]
+        }
+    }));
 
 let response = request.send().await?;`)
   })
@@ -540,7 +551,19 @@ let response = request.send().await?;`)
 
 let request = client.post("https://example.com")
     .header("Content-Type", "application/json")
-    .json(&serde_json::json!({"nested":{"array":[1,2,3],"object":{"foo":"bar"}},"simple":"value"}));
+    .json(&serde_json::json!({
+        "nested": {
+            "array": [
+                1,
+                2,
+                3
+            ],
+            "object": {
+                "foo": "bar"
+            }
+        },
+        "simple": "value"
+    }));
 
 let response = request.send().await?;`)
   })
