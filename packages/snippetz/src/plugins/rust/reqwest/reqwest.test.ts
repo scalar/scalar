@@ -41,7 +41,8 @@ let response = request.send().await?;`)
 
     expect(result).toBe(`let client = reqwest::Client::new();
 
-let request = client.get("https://example.com")
+let request = client
+    .get("https://example.com")
     .header("Content-Type", "application/json");
 
 let response = request.send().await?;`)
@@ -80,7 +81,8 @@ let response = request.send().await?;`)
 
     expect(result).toBe(`let client = reqwest::Client::new();
 
-let request = client.post("https://example.com")
+let request = client
+    .post("https://example.com")
     .header("Content-Type", "application/json")
     .json(&serde_json::json!({
         "hello": "world"
@@ -128,7 +130,8 @@ let response = request.send().await?;`)
 
     expect(result).toBe(`let client = reqwest::Client::new();
 
-let request = client.get("https://example.com")
+let request = client
+    .get("https://example.com")
     .header("Cookie", "foo=bar; bar=foo");
 
 let response = request.send().await?;`)
@@ -162,7 +165,8 @@ let response = request.send().await?;`)
 
     expect(result).toBe(`let client = reqwest::Client::new();
 
-let request = client.get("https://example.com")
+let request = client
+    .get("https://example.com")
     .basic_auth("user", "pass");
 
 let response = request.send().await?;`)
@@ -235,7 +239,8 @@ let response = request.send().await?;`)
 
     expect(result).toBe(`let client = reqwest::Client::new();
 
-let request = client.get("https://example.com")
+let request = client
+    .get("https://example.com")
     .basic_auth("user@example.com", "pass:word!");
 
 let response = request.send().await?;`)
@@ -279,7 +284,8 @@ let response = request.send().await?;`)
 
     expect(result).toBe(`let client = reqwest::Client::new();
 
-let request = client.post("https://example.com")
+let request = client
+    .post("https://example.com")
     .multipart({
         let mut form = reqwest::multipart::Form::new();
         let part = reqwest::multipart::Part::text("")
@@ -309,7 +315,8 @@ let response = request.send().await?;`)
 
     expect(result).toBe(`let client = reqwest::Client::new();
 
-let request = client.post("https://example.com")
+let request = client
+    .post("https://example.com")
     .form(&[("special chars!@#", "value")]);
 
 let response = request.send().await?;`)
@@ -327,7 +334,8 @@ let response = request.send().await?;`)
 
     expect(result).toBe(`let client = reqwest::Client::new();
 
-let request = client.post("https://example.com")
+let request = client
+    .post("https://example.com")
     .body("binary content");
 
 let response = request.send().await?;`)
@@ -346,7 +354,8 @@ let response = request.send().await?;`)
 
     expect(result).toBe(`let client = reqwest::Client::new();
 
-let request = client.get("https://example.com")
+let request = client
+    .get("https://example.com")
     .header("Accept-Encoding", "gzip, deflate");
 
 let response = request.send().await?;`)
@@ -421,7 +430,8 @@ let response = request.send().await?;`)
 
     expect(result).toBe(`let client = reqwest::Client::new();
 
-let request = client.get("https://example.com")
+let request = client
+    .get("https://example.com")
     .header("X-Custom", "value2");
 
 let response = request.send().await?;`)
@@ -457,7 +467,8 @@ let response = request.send().await?;`)
 
     expect(result).toBe(`let client = reqwest::Client::new();
 
-let request = client.post("https://example.com")
+let request = client
+    .post("https://example.com")
     .multipart({
         let mut form = reqwest::multipart::Form::new();
         form = form.text("file", "");
@@ -490,7 +501,8 @@ let response = request.send().await?;`)
 
     expect(result).toBe(`let client = reqwest::Client::new();
 
-let request = client.post("https://example.com")
+let request = client
+    .post("https://example.com")
     .header("Content-Type", "application/json")
     .json(&serde_json::json!({
         "key": "\\"quotes\\" and \\\\backslashes\\\\",
@@ -519,7 +531,8 @@ let response = request.send().await?;`)
 
     expect(result).toBe(`let client = reqwest::Client::new();
 
-let request = client.get("https://example.com")
+let request = client
+    .get("https://example.com")
     .header("Cookie", "special%3Bcookie=value%20with%20spaces");
 
 let response = request.send().await?;`)
@@ -549,7 +562,8 @@ let response = request.send().await?;`)
 
     expect(result).toBe(`let client = reqwest::Client::new();
 
-let request = client.post("https://example.com")
+let request = client
+    .post("https://example.com")
     .header("Content-Type", "application/json")
     .json(&serde_json::json!({
         "nested": {

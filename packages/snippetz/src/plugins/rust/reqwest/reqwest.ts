@@ -221,14 +221,18 @@ const createBodyCall = (postData: any): string | null => {
  * Builds the complete Rust code by assembling all code
  */
 const buildRustCode = (url: string, method: string, chainedCalls: string[]): string => {
-  const code = [
-    'let client = reqwest::Client::new();',
-    '',
-    `let request = client.${method.toLowerCase()}(${toRustString(url)})`,
-  ]
+  const code = ['let client = reqwest::Client::new();', '']
 
-  // Add all chained calls
-  code.push(...chainedCalls)
+  // Add chained calls with proper formatting
+  if (chainedCalls.length > 0) {
+    code.push('let request = client')
+    code.push(indent(1, `.${method.toLowerCase()}(${toRustString(url)})`))
+
+    // Add a newline before the first chained call
+    code.push(...chainedCalls)
+  } else {
+    code.push(`let request = client.${method.toLowerCase()}(${toRustString(url)})`)
+  }
 
   // Add semicolon to the last chained call
   const lastPart = code[code.length - 1]
