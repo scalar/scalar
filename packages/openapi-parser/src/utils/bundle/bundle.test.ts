@@ -1513,6 +1513,85 @@ describe('bundle', () => {
       })
     })
   })
+
+  describe('bundle with a certain depth', () => {
+    let server: FastifyInstance
+    const PORT = 7299
+    const url = `http://localhost:${PORT}`
+
+    beforeEach(() => {
+      server = fastify({ logger: false })
+    })
+
+    afterEach(async () => {
+      await server.close()
+      await setTimeout(100)
+    })
+
+    it('bundles external urls', async () => {
+      const external = {
+        prop: 'I am external json prop',
+      }
+      server.get('/', (_, reply) => {
+        reply.send(external)
+      })
+
+      await server.listen({ port: PORT })
+
+      const input = {
+        a: {
+          b: {
+            c: {
+              d: {
+                e: {
+                  // Deep ref
+                  '$ref': `http://localhost:${PORT}#/prop`,
+                },
+              },
+            },
+          },
+        },
+        d: {
+          e: {
+            '$ref': `http://localhost:${PORT}#/prop`,
+          },
+        },
+      }
+
+      await bundle(input, {
+        plugins: [fetchUrls()],
+        treeShake: false,
+        depth: 2,
+      })
+
+      expect(input).toEqual({
+        'x-ext': {
+          [await getHash(url)]: {
+            ...external,
+          },
+        },
+        'x-ext-urls': {
+          [await getHash(url)]: url,
+        },
+        a: {
+          b: {
+            c: {
+              d: {
+                e: {
+                  $ref: `${url}#/prop`,
+                },
+              },
+            },
+          },
+        },
+        d: {
+          e: {
+            $ref: `#/x-ext/${await getHash(url)}/prop`,
+          },
+        },
+      })
+    })
+  })
 })
 
 describe('isRemoteUrl', () => {
