@@ -1,5 +1,11 @@
 from typing import Union
 from fastapi import FastAPI
+import sys
+import os
+
+# Use the local scalar_fastapi package
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
 from scalar_fastapi import get_scalar_api_reference, Theme
 
 app = FastAPI()
