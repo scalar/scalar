@@ -40,6 +40,21 @@ class SearchHotKey(Enum):
     Z = "z"
 
 
+class Theme(Enum):
+    ALTERNATE = "alternate"
+    DEFAULT = "default"
+    MOON = "moon"
+    PURPLE = "purple"
+    SOLARIZED = "solarized"
+    BLUE_PLANET = "bluePlanet"
+    SATURN = "saturn"
+    KEPLER = "kepler"
+    MARS = "mars"
+    DEEP_SPACE = "deepSpace"
+    LASERWAVE = "laserwave"
+    NONE = "none"
+
+
 scalar_theme = """
 /* basic theme */
 .light-mode {
@@ -301,6 +316,15 @@ def get_scalar_api_reference(
             """
         ),
     ] = 'fastapi',
+    theme: Annotated[
+        Theme,
+        Doc(
+            """
+            The theme to use for Scalar.
+            Default is "default".
+            """
+        ),
+    ] = Theme.DEFAULT,
 ) -> HTMLResponse:
     html = f"""
     <!DOCTYPE html>
@@ -343,6 +367,7 @@ def get_scalar_api_reference(
         authentication: {json.dumps(authentication)},
         hideClientButton: {json.dumps(hide_client_button)},
         _integration: {json.dumps(integration)},
+        theme: "{theme.value}",
       }}
 
       document.getElementById('api-reference').dataset.configuration =
