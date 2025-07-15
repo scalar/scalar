@@ -119,6 +119,31 @@ function getWebviewContent(openAPIContent: string, webview: vscode.Webview, exte
             margin: 0;
             padding: 0;
         }
+
+        /* Use VS Code theme variables */
+        .light-mode {
+          --scalar-color-1: var(--vscode-text-foreground, #121212);
+          --scalar-color-2: var(--vscode-text-muted-foreground, rgba(0, 0, 0, 0.6));
+          --scalar-color-3: var(--vscode-text-disabled-foreground, rgba(0, 0, 0, 0.4));
+          --scalar-color-accent: var(--vscode-button-background, #0a85d1);
+          --scalar-background-1: var(--vscode-editor-background, #fff);
+          --scalar-background-2: var(--vscode-sideBar-background, #f6f5f4);
+          --scalar-background-3: var(--vscode-panel-background, #f1ede9);
+          --scalar-background-accent: var(--vscode-button-hover-background, #5369d20f);
+          --scalar-border-color: var(--vscode-border-color, rgba(0, 0, 0, 0.08));
+        }
+
+        .dark-mode {
+          --scalar-color-1: var(--vscode-text-foreground, rgba(255, 255, 255, 0.81));
+          --scalar-color-2: var(--vscode-text-muted-foreground, rgba(255, 255, 255, 0.443));
+          --scalar-color-3: var(--vscode-text-disabled-foreground, rgba(255, 255, 255, 0.282));
+          --scalar-color-accent: var(--vscode-button-background, #8ab4f8);
+          --scalar-background-1: var(--vscode-editor-background, #202020);
+          --scalar-background-2: var(--vscode-sideBar-background, #272727);
+          --scalar-background-3: var(--vscode-panel-background, #333333);
+          --scalar-background-accent: var(--vscode-button-hover-background, #8ab4f81f);
+          --scalar-border-color: var(--vscode-border-color, rgba(255, 255, 255, 0.1));
+        }
     </style>
 </head>
 <body>
