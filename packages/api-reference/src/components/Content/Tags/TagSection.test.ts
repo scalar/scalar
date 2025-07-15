@@ -2,6 +2,7 @@ import type { TraversedTag } from '@/features/traverse-schema'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import TagSection from './TagSection.vue'
+import { createMockSidebar } from '@/helpers/test-utils'
 
 // Mock the useConfig hook
 vi.mock('@/hooks/useConfig', () => ({
@@ -12,14 +13,7 @@ vi.mock('@/hooks/useConfig', () => ({
 
 // Mock the sidebar like in ModernLayout.test.ts
 vi.mock('@/features/sidebar', () => ({
-  useSidebar: vi.fn(() => ({
-    collapsedSidebarItems: {},
-    isSidebarOpen: { value: true },
-    items: { entries: [], titles: new Map() },
-    scrollToOperation: vi.fn(),
-    setCollapsedSidebarItem: vi.fn(),
-    toggleCollapsedSidebarItem: vi.fn(),
-  })),
+  useSidebar: vi.fn(() => createMockSidebar()),
 }))
 
 describe('TagSection', () => {

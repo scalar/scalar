@@ -1,8 +1,25 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import Models from './Models.vue'
+
+// Mock useSidebar composable
+vi.mock('@/features/sidebar', () => ({
+  useSidebar: vi.fn(() => ({
+    collapsedSidebarItems: {
+      'model/user': true,
+      'model/pet': true,
+    },
+  })),
+}))
+
+// Mock useNavState composable
+vi.mock('@/hooks/useNavState', () => ({
+  useNavState: vi.fn(() => ({
+    getModelId: vi.fn(({ name }: { name: string }) => `model-${name}`),
+  })),
+}))
 
 describe('Models', () => {
   const mockDocument: OpenAPIV3_1.Document = {
@@ -59,22 +76,16 @@ describe('Models', () => {
           document: mockDocument,
           config: mockConfigClassic,
         },
-        global: {
-          stubs: {
-            ClassicLayout: {
-              template: '<div data-testid="classic-layout"><slot /></div>',
-              props: ['schemas'],
-            },
-            ModernLayout: {
-              template: '<div data-testid="modern-layout"><slot /></div>',
-              props: ['schemas'],
-            },
-          },
-        },
       })
 
-      expect(wrapper.find('[data-testid="classic-layout"]').exists()).toBe(true)
-      expect(wrapper.find('[data-testid="modern-layout"]').exists()).toBe(false)
+      // Check that the component renders and contains "Models" text
+      expect(wrapper.text()).toContain('Models')
+
+      // Check that it contains schema names
+      expect(wrapper.text()).toContain('User')
+      expect(wrapper.text()).toContain('Pet')
+      expect(wrapper.findComponent({ name: 'ClassicLayout' }).exists()).toBe(true)
+      expect(wrapper.findComponent({ name: 'ModernLayout' }).exists()).toBe(false)
     })
 
     it('renders ModernLayout when config.layout is modern', () => {
@@ -83,47 +94,32 @@ describe('Models', () => {
           document: mockDocument,
           config: mockConfigModern,
         },
-        global: {
-          stubs: {
-            ClassicLayout: {
-              template: '<div data-testid="classic-layout"><slot /></div>',
-              props: ['schemas'],
-            },
-            ModernLayout: {
-              template: '<div data-testid="modern-layout"><slot /></div>',
-              props: ['schemas'],
-            },
-          },
-        },
       })
 
-      expect(wrapper.find('[data-testid="classic-layout"]').exists()).toBe(false)
-      expect(wrapper.find('[data-testid="modern-layout"]').exists()).toBe(true)
+      // Check that the component renders and contains "Models" text
+      expect(wrapper.text()).toContain('Models')
+
+      // Check that it contains schema names
+      expect(wrapper.text()).toContain('User')
+      expect(wrapper.text()).toContain('Pet')
+      expect(wrapper.findComponent({ name: 'ClassicLayout' }).exists()).toBe(false)
+      expect(wrapper.findComponent({ name: 'ModernLayout' }).exists()).toBe(true)
     })
   })
 
   describe('props passing', () => {
-    it('passes schemas to ClassicLayout', () => {
+    it('passes schemas to ClassicLayout', async () => {
       const wrapper = mount(Models, {
         props: {
           document: mockDocument,
           config: mockConfigClassic,
         },
-        global: {
-          stubs: {
-            ClassicLayout: {
-              template: '<div data-testid="classic-layout">{{ schemas ? "has schemas" : "no schemas" }}</div>',
-              props: ['schemas'],
-            },
-            ModernLayout: {
-              template: '<div data-testid="modern-layout"></div>',
-              props: ['schemas'],
-            },
-          },
-        },
       })
 
-      expect(wrapper.find('[data-testid="classic-layout"]').text()).toContain('has schemas')
+      // Verify that schemas are passed by checking that schema names are rendered
+      expect(wrapper.text()).toContain('User')
+      expect(wrapper.text()).toContain('Pet')
+      expect(wrapper.findComponent({ name: 'ClassicLayout' }).exists()).toBe(true)
     })
 
     it('passes schemas to ModernLayout', () => {
@@ -132,21 +128,12 @@ describe('Models', () => {
           document: mockDocument,
           config: mockConfigModern,
         },
-        global: {
-          stubs: {
-            ClassicLayout: {
-              template: '<div data-testid="classic-layout"></div>',
-              props: ['schemas'],
-            },
-            ModernLayout: {
-              template: '<div data-testid="modern-layout">{{ schemas ? "has schemas" : "no schemas" }}</div>',
-              props: ['schemas'],
-            },
-          },
-        },
       })
 
-      expect(wrapper.find('[data-testid="modern-layout"]').text()).toContain('has schemas')
+      // Verify that schemas are passed by checking that schema names are rendered
+      expect(wrapper.text()).toContain('User')
+      expect(wrapper.text()).toContain('Pet')
+      expect(wrapper.findComponent({ name: 'ModernLayout' }).exists()).toBe(true)
     })
   })
 
@@ -157,17 +144,27 @@ describe('Models', () => {
           document: { ...mockDocument, components: {} },
           config: mockConfigClassic,
         },
-        global: {
-          stubs: {
-            ClassicLayout: {
-              template: '<div data-testid="classic-layout"></div>',
-              props: ['schemas'],
-            },
-            ModernLayout: {
-              template: '<div data-testid="modern-layout"></div>',
-              props: ['schemas'],
-            },
-          },
+      })
+
+      expect(wrapper.text()).toBe('')
+    })
+
+    it('renders nothing if document.components is undefined', () => {
+      const wrapper = mount(Models, {
+        props: {
+          document: { ...mockDocument, components: undefined },
+          config: mockConfigClassic,
+        },
+      })
+
+      expect(wrapper.text()).toBe('')
+    })
+
+    it('renders nothing if document is undefined', () => {
+      const wrapper = mount(Models, {
+        props: {
+          document: undefined as any,
+          config: mockConfigClassic,
         },
       })
 
