@@ -4,6 +4,7 @@ import { filterSecurityRequirements } from '@scalar/api-client/views/Request/Req
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { isReference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import { computed } from 'vue'
 
@@ -21,6 +22,7 @@ const {
   collection,
   path,
   method,
+  store,
 } = defineProps<{
   path: string
   method: HttpMethod
@@ -28,6 +30,7 @@ const {
   layout?: 'modern' | 'classic'
   id: string
   server: Server | undefined
+  store: WorkspaceStore
   /** @deprecated Use `document` instead, we just need the selected security scheme uids for now */
   collection: Collection
   /** @deprecated Use the new workspace store instead*/
@@ -40,7 +43,7 @@ const {
  */
 const operation = computed(() => {
   const initialKey = isWebhook ? 'webhooks' : 'paths'
-  const entity = workspace.activeDocument?.[initialKey]?.[path]?.[method]
+  const entity = store.workspace.activeDocument?.[initialKey]?.[path]?.[method]
 
   if (isReference(entity)) {
     return null
@@ -89,6 +92,7 @@ const selectedSecuritySchemes = computed(() =>
         :operation="operation"
         :oldOperation="oldOperation"
         :securitySchemes="selectedSecuritySchemes"
+        :store="store"
         :path="path"
         :schemas="document?.components?.schemas"
         :server="server"
@@ -102,6 +106,7 @@ const selectedSecuritySchemes = computed(() =>
         :oldOperation="oldOperation"
         :securitySchemes="selectedSecuritySchemes"
         :path="path"
+        :store="store"
         :operation="operation"
         :schemas="document?.components?.schemas"
         :server="server"

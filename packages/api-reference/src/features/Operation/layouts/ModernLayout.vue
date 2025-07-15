@@ -8,6 +8,7 @@ import {
   isOperationDeprecated,
 } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
@@ -33,7 +34,6 @@ import type { Schemas } from '@/features/Operation/types/schemas'
 import { TestRequestButton } from '@/features/test-request-button'
 import { useConfig } from '@/hooks/useConfig'
 import { RequestExample } from '@/v2/blocks/scalar-request-example-block'
-import { useStore } from '@/v2/hooks/useStore'
 
 const { path, operation, method, isWebhook } = defineProps<{
   id: string
@@ -45,6 +45,7 @@ const { path, operation, method, isWebhook } = defineProps<{
   securitySchemes: SecuritySchemeObject[]
   server: ServerObject | undefined
   schemas?: Schemas
+  store: WorkspaceStore
 }>()
 
 const operationTitle = computed(() => operation.summary || path || '')
@@ -54,7 +55,6 @@ const emit = defineEmits<{
 }>()
 
 const labelId = useId()
-const { workspace } = useStore()
 const config = useConfig()
 
 const handleDiscriminatorChange = (type: string) => {
@@ -131,7 +131,7 @@ const handleDiscriminatorChange = (type: string) => {
                 :method="method"
                 :selectedServer="server"
                 :securitySchemes="securitySchemes"
-                :selectedClient="workspace['x-scalar-default-client']"
+                :selectedClient="store.workspace['x-scalar-default-client']"
                 :path="path"
                 fallback
                 :operation="operation"

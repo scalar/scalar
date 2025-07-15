@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
 import { Introduction } from '@/components/Content/Introduction'
 import { Models } from '@/components/Content/Models'
@@ -12,6 +13,7 @@ import { TraversedEntryContainer } from './Operations'
 defineProps<{
   document: OpenAPIV3_1.Document
   config: ApiReferenceConfiguration
+  store: WorkspaceStore
 }>()
 
 const config = useConfig()
@@ -36,7 +38,8 @@ const config = useConfig()
     <!-- Loop on traversed entries -->
     <TraversedEntryContainer
       :document
-      :config />
+      :config
+      :store />
 
     <!-- Models -->
     <Models
