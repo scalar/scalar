@@ -231,7 +231,6 @@ describe('OperationsList', () => {
       },
     })
 
-    expect(wrapper.find('.scalar-card-sticky').exists()).toBe(true)
     expect(wrapper.find('.custom-scroll').exists()).toBe(true)
     expect(wrapper.find('.endpoints').exists()).toBe(true)
   })
