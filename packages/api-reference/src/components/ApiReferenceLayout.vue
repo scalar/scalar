@@ -62,6 +62,7 @@ const {
   configuration: providedConfiguration,
   originalDocument: providedOriginalDocument,
   dereferencedDocument: providedDereferencedDocument,
+  store,
 } = defineProps<ReferenceLayoutProps>()
 
 defineEmits<{
@@ -425,7 +426,8 @@ watch(hash, (newHash, oldHash) => {
         class="references-rendered">
         <Content
           :document="dereferencedDocument"
-          :config="configuration">
+          :config="configuration"
+          :store="store">
           <template #start>
             <slot
               v-bind="referenceSlotProps"

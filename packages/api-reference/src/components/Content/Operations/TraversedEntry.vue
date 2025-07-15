@@ -2,6 +2,7 @@
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
 import { Tag } from '@/components/Content/Tags'
 import { SectionContainer } from '@/components/Section'
@@ -19,6 +20,7 @@ defineProps<{
   config: ApiReferenceConfiguration
   activeCollection: Collection
   activeServer: Server | undefined
+  store: WorkspaceStore
 }>()
 
 /**
@@ -54,6 +56,7 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
           :document="document"
           :collection="activeCollection"
           :layout="config.layout"
+          :store="store"
           :server="activeServer" />
       </SectionContainer>
     </template>
@@ -63,12 +66,13 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
       <Tag
         :tag="entry"
         :layout="config.layout"
-        :more-than-one-tag="entries.filter(isTag).length > 1">
+        :moreThanOneTag="entries.filter(isTag).length > 1">
         <template v-if="'children' in entry && entry.children?.length">
           <TraversedEntry
             :entries="entry.children"
             :document="document"
             :config="config"
+            :store="store"
             :activeCollection="activeCollection"
             :activeServer="activeServer" />
         </template>
@@ -81,6 +85,7 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
         :entries="entry.children || []"
         :document="document"
         :config="config"
+        :store="store"
         :activeCollection="activeCollection"
         :activeServer="activeServer" />
     </template>
@@ -96,6 +101,7 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
             :entries="entry.children"
             :document="document"
             :config="config"
+            :store="store"
             :activeCollection="activeCollection"
             :activeServer="activeServer" />
         </template>

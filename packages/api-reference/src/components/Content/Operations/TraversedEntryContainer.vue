@@ -3,6 +3,7 @@ import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { computed, ref } from 'vue'
 
 import { type TraversedEntry as TraversedEntryType } from '@/features/traverse-schema'
@@ -14,6 +15,7 @@ import TraversedEntry from './TraversedEntry.vue'
 const { document, config } = defineProps<{
   document: OpenAPIV3_1.Document
   config: ApiReferenceConfiguration
+  store: WorkspaceStore
 }>()
 
 const { collections, servers } = useWorkspace()
@@ -103,6 +105,7 @@ const entries = computed((): TraversedEntryType[] => {
       :document="document"
       :config="config"
       :activeCollection="activeCollection"
-      :activeServer="activeServer" />
+      :activeServer="activeServer"
+      :store="store" />
   </template>
 </template>

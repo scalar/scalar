@@ -1,5 +1,6 @@
 import type { AnyApiReferenceConfiguration, ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { OpenAPIV3_1, Spec } from '@scalar/types/legacy'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
 export type { ApiReferenceConfiguration }
 
@@ -39,6 +40,10 @@ export type ReferenceLayoutProps = {
    * @deprecated Use `originalDocument` instead.
    */
   rawSpec?: string
+  /**
+   * @deprecated this is just temporary until we switch to the new store, we prop drill it down
+   */
+  store: WorkspaceStore
 }
 
 export type GettingStartedExamples = 'Petstore' | 'CoinMarketCap'

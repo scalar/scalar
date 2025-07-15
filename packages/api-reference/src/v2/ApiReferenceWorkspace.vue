@@ -48,7 +48,7 @@ import { onCustomEvent } from '@/v2/events'
 
 const props = defineProps<{
   configuration?: AnyApiReferenceConfiguration
-  workspaceStore: WorkspaceStore
+  store: WorkspaceStore
 }>()
 
 // ---------------------------------------------------------------------------
@@ -99,15 +99,7 @@ provide(NAV_STATE_SYMBOL, { isIntersectionEnabled, hash, hashPrefix })
 
 const root = useTemplateRef<HTMLElement>('root')
 
-/** Injected workspace store. This is provided as functional getter to avoid converting the original object to a reactive prop object
- *
- * In normal standalone mode the ApiReference.vue component will provide the workspace store
- * and this component will use it.
- *
- * In external mode the ApiReference.vue component will not provide the workspace store
- * and this component will use the provided function to get the workspace store.
- */
-const store = props.workspaceStore
+const store = props.store
 
 /**
  * When the useMultipleDocuments hook is deprecated we will need to handle normalizing the configs.
@@ -317,6 +309,7 @@ useFavicon(favicon)
     <ApiReferenceLayout
       :configuration="selectedConfiguration"
       :isDark="!!store.workspace['x-scalar-dark-mode']"
+      :store="store"
       @toggleDarkMode="() => toggleColorMode()"
       @updateContent="$emit('updateContent', $event)">
       <template #footer>
