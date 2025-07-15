@@ -45,13 +45,13 @@
         </p>
         <div class="text-c-3 bg-c-1 rounded border p-2 font-mono text-xs">
           <span class="text-c-2">Base URL:</span>
-          https://pro-api.defillama.com<br />
+          https://pro-api.llama.fi<br />
           <span class="text-c-2">API Key:</span>
           {{ config.key || 'your-api-key' }}<br />
           <span class="text-c-2">Endpoint:</span> /coins/latest<br />
           <span class="text-c-2">Final URL:</span>
           <span class="text-blue-600">
-            https://pro-api.defillama.com/{{
+            https://pro-api.llama.fi/{{
               config.key || 'your-api-key'
             }}/coins/latest
           </span>

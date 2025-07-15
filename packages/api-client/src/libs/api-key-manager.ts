@@ -93,12 +93,7 @@ export const getApiKeyValue = (workspaceId: string): string | null => {
 /**
  * List of URLs that require API key injection as path segments
  */
-const API_KEY_REQUIRED_URLS = [
-  'https://pro-api.coingecko.com',
-  'https://pro-api.coinmarketcap.com',
-  'https://pro-api.defillama.com',
-  'https://pro-api.llama.fi',
-]
+const API_KEY_REQUIRED_URLS = ['https://pro-api.llama.fi']
 
 /**
  * Checks if a given URL requires API key injection in the path

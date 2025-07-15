@@ -9,3 +9,14 @@ export {
   createWebHashRouter,
   createWebHistoryRouter,
 } from './router'
+
+// Export API key management functions
+export {
+  saveApiKey,
+  getApiKey,
+  removeApiKey,
+  isApiKeyEnabled,
+  getApiKeyValue,
+  doesUrlRequireApiKey,
+  getApiKeyForUrl,
+} from './libs/api-key-manager'

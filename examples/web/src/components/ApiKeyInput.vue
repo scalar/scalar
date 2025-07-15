@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { getApiKey, isApiKeyEnabled, saveApiKey } from '@scalar/api-client'
 import { onMounted, ref, watch } from 'vue'
 
-/** API key storage key for localStorage */
-const API_KEY_STORAGE_KEY = 'scalar-web-example-api-key'
+const WORKSPACE_ID = 'default'
 
 /** Reactive API key value */
 const apiKey = ref('')
@@ -10,33 +10,29 @@ const apiKey = ref('')
 /** Whether API key is enabled */
 const isEnabled = ref(false)
 
-/** Load API key from localStorage on mount */
+/** Load API key from API key manager on mount */
 onMounted(() => {
-  const stored = localStorage.getItem(API_KEY_STORAGE_KEY)
+  const stored = getApiKey(WORKSPACE_ID)
   if (stored) {
-    try {
-      const parsed = JSON.parse(stored)
-      apiKey.value = parsed.key || ''
-      isEnabled.value = parsed.enabled || false
-    } catch (error) {
-      console.warn('Failed to parse stored API key:', error)
-    }
+    apiKey.value = stored.key || ''
+    isEnabled.value = stored.enabled || false
   }
 })
 
-/** Save API key to localStorage whenever it changes */
+/** Save API key to API key manager whenever it changes */
 watch(
   [apiKey, isEnabled],
   () => {
     const config = {
       key: apiKey.value.trim(),
       enabled: isEnabled.value,
+      description: 'API Key for Pro API requests',
     }
 
     if (config.enabled && config.key) {
-      localStorage.setItem(API_KEY_STORAGE_KEY, JSON.stringify(config))
+      saveApiKey(WORKSPACE_ID, config)
     } else {
-      localStorage.removeItem(API_KEY_STORAGE_KEY)
+      saveApiKey(WORKSPACE_ID, { enabled: false, key: '', description: '' })
     }
   },
   { deep: true },
@@ -82,10 +78,10 @@ const handleKeyChange = (event: Event) => {
         @input="handleKeyChange" />
       <p class="description">
         Your API key will be injected into requests to
-        <code>https://pro-api.defillama.com</code> endpoints.
+        <code>https://pro-api.llama.fi</code> endpoints.
         <br />
         <small>
-          <strong>URL Format:</strong> https://pro-api.defillama.com/<span
+          <strong>URL Format:</strong> https://pro-api.llama.fi/<span
             class="highlight"
             >your-api-key</span
           >/endpoint

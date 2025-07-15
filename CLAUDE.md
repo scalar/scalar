@@ -592,7 +592,7 @@ Value: ethereum:0xdF574c24545E5FfEcb9a659c229253D4111d87e1,coingecko:ethereum...
 
 **Problem**: Some APIs require API keys to be injected as path segments rather than headers or query parameters.
 
-**Example**: `https://pro-api.defillama.com/{apiKey}/coins/latest`
+**Example**: `https://pro-api.llama.fi/{apiKey}/coins/latest`
 
 **Complete Implementation**:
 
@@ -604,9 +604,6 @@ Value: ethereum:0xdF574c24545E5FfEcb9a659c229253D4111d87e1,coingecko:ethereum...
   - `doesUrlRequireApiKey()` - checks against hardcoded URL list
   - `getApiKeyForUrl()` - returns key only if URL requires it
 - **URL-Specific Logic**: Hardcoded list of URLs requiring API key injection
-  - `https://pro-api.coingecko.com`
-  - `https://pro-api.coinmarketcap.com`
-  - `https://pro-api.defillama.com`
   - `https://pro-api.llama.fi`
 
 ##### B. Enhanced URL Merging (`packages/helpers/src/url/merge-urls.ts`)
@@ -698,9 +695,6 @@ if (configuration.url) {
 ```typescript
 // Hardcoded in api-key-manager.ts
 const API_KEY_REQUIRED_URLS = [
-  'https://pro-api.coingecko.com',
-  'https://pro-api.coinmarketcap.com', 
-  'https://pro-api.defillama.com',
   'https://pro-api.llama.fi',
 ]
 

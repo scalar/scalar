@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { getApiKeyValue } from '@scalar/api-client'
 import { ApiReference } from '@scalar/api-reference'
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { reactive, watch } from 'vue'
@@ -7,7 +8,6 @@ import { useRoute } from 'vue-router'
 // Import the spec.json file
 import specContent from '../../spec.json'
 import ApiKeyInput from '../components/ApiKeyInput.vue'
-import { getApiKeyValue } from '../utils/api-key-helper'
 
 const route = useRoute()
 
@@ -23,7 +23,7 @@ const configuration = reactive(
 
 // Watch for API key changes and update configuration
 watch(
-  () => getApiKeyValue(),
+  () => getApiKeyValue('default'),
   (apiKey) => {
     // Update configuration when API key changes
     configuration.apiKey = apiKey || undefined

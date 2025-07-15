@@ -30,8 +30,8 @@ The example uses the DefiLlama API specification located in `spec.json`. This fi
 Each API reference page includes an API key input component that allows you to:
 
 - **Store API Keys**: Securely store your DefiLlama Pro API key in localStorage
-- **Auto-injection**: Automatically inject the API key into requests to `https://pro-api.defillama.com`
-- **URL Format**: Keys are injected as path segments: `https://pro-api.defillama.com/{your-key}/endpoint`
+- **Auto-injection**: Automatically inject the API key into requests to `https://pro-api.llama.fi`
+- **URL Format**: Keys are injected as path segments: `https://pro-api.llama.fi/{your-key}/endpoint`
 - **Toggle Control**: Enable/disable API key usage with a simple toggle
 
 ### How It Works
@@ -44,9 +44,6 @@ Each API reference page includes an API key input component that allows you to:
 ### Supported APIs
 
 The API key injection works for these services:
-- `https://pro-api.defillama.com` (DefiLlama Pro)
-- `https://pro-api.coingecko.com` (CoinGecko Pro)
-- `https://pro-api.coinmarketcap.com` (CoinMarketCap Pro)
 - `https://pro-api.llama.fi` (Llama Pro)
 
 ## Available Routes

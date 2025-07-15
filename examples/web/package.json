@@ -7,7 +7,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scalar/scalar.git",
-    "directory": "examples/web"
+    "directory": "examples\\web"
   },
   "version": "0.4.2",
   "private": true,
@@ -24,6 +24,7 @@
   },
   "type": "module",
   "dependencies": {
+    "@scalar/api-client": "workspace:*",
     "@scalar/api-reference": "workspace:*",
     "@scalar/galaxy": "workspace:*",
     "@scalar/themes": "workspace:*",

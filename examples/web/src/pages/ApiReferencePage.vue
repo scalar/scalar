@@ -1,5 +1,11 @@
 <script setup lang="ts">
 import {
+  getApiKey,
+  getApiKeyValue,
+  isApiKeyEnabled,
+  saveApiKey,
+} from '@scalar/api-client'
+import {
   ApiReferenceLayout,
   type ApiReferenceConfiguration,
 } from '@scalar/api-reference'
@@ -13,9 +19,13 @@ import DevReferencesOptions from '../components/DevReferencesOptions.vue'
 import DevToolbar from '../components/DevToolbar.vue'
 import MonacoEditor from '../components/MonacoEditor.vue'
 import SlotPlaceholder from '../components/SlotPlaceholder.vue'
-import { getApiKeyValue } from '../utils/api-key-helper'
 
 const content = ref('')
+
+// Helper function to get API key value for the default workspace
+const getApiKeyForDefaultWorkspace = () => {
+  return getApiKeyValue('default')
+}
 
 const configuration = reactive<Partial<ApiReferenceConfiguration>>({
   theme: 'default',
@@ -24,6 +34,7 @@ const configuration = reactive<Partial<ApiReferenceConfiguration>>({
   showSidebar: true,
   layout: 'modern',
   content,
+  hideClientButton: false, // Ensure API client is visible
   // authentication: {
   //   // The OpenAPI file has keys for all security schemes:
   //   // Which one should be used by default?
@@ -67,7 +78,7 @@ watch(
 
 // Watch for API key changes and update configuration
 watch(
-  () => getApiKeyValue(),
+  () => getApiKeyForDefaultWorkspace(),
   (apiKey) => {
     // Update configuration when API key changes
     // This ensures the client can access the API key for requests
