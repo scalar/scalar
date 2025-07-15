@@ -1,11 +1,6 @@
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import { ScalarIcon } from '@scalar/components'
-import {
-  ScalarIconCaretDown,
-  ScalarIconCaretLeft,
-  ScalarIconCaretRight,
-} from '@scalar/icons'
+import { ScalarIconCaretRight } from '@scalar/icons'
 import { useElementHover } from '@vueuse/core'
 import { ref } from 'vue'
 

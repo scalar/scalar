@@ -14,7 +14,7 @@ import { useNavState } from '@/hooks/useNavState'
 import { SchemaHeading, SchemaProperty } from '../Schema'
 
 const props = defineProps<{
-  schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
+  schemas?: Record<string, OpenAPIV3_1.SchemaObject> | undefined
 }>()
 
 const models = computed(() => {
