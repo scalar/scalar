@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getApiKey, isApiKeyEnabled, saveApiKey } from '@scalar/api-client'
+import { getApiKey, saveApiKey } from '@scalar/api-client'
 import { onMounted, ref, watch } from 'vue'
 
 const WORKSPACE_ID = 'default'
@@ -7,44 +7,28 @@ const WORKSPACE_ID = 'default'
 /** Reactive API key value */
 const apiKey = ref('')
 
-/** Whether API key is enabled */
-const isEnabled = ref(false)
-
 /** Load API key from API key manager on mount */
 onMounted(() => {
   const stored = getApiKey(WORKSPACE_ID)
   if (stored) {
     apiKey.value = stored.key || ''
-    isEnabled.value = stored.enabled || false
   }
 })
 
 /** Save API key to API key manager whenever it changes */
 watch(
-  [apiKey, isEnabled],
+  apiKey,
   () => {
     const config = {
       key: apiKey.value.trim(),
-      enabled: isEnabled.value,
-      description: 'API Key for Pro API requests',
+      enabled: true, // Always enabled
+      description: 'DefiLlama Pro API Key',
     }
 
-    if (config.enabled && config.key) {
-      saveApiKey(WORKSPACE_ID, config)
-    } else {
-      saveApiKey(WORKSPACE_ID, { enabled: false, key: '', description: '' })
-    }
+    saveApiKey(WORKSPACE_ID, config)
   },
   { deep: true },
 )
-
-/** Toggle API key enabled state */
-const toggleEnabled = () => {
-  isEnabled.value = !isEnabled.value
-  if (!isEnabled.value) {
-    apiKey.value = ''
-  }
-}
 
 /** Handle API key input change */
 const handleKeyChange = (event: Event) => {
@@ -57,25 +41,18 @@ const handleKeyChange = (event: Event) => {
   <div class="api-key-input">
     <div class="header">
       <h3>DefiLlama Pro API Key</h3>
-      <label class="toggle">
-        <input
-          type="checkbox"
-          :checked="isEnabled"
-          @change="toggleEnabled" />
-        <span class="slider"></span>
-        <span class="label">{{ isEnabled ? 'Enabled' : 'Disabled' }}</span>
-      </label>
     </div>
 
-    <div
-      v-if="isEnabled"
-      class="input-section">
+    <div class="input-section">
       <input
-        type="password"
+        type="text"
         :value="apiKey"
         placeholder="Enter your DefiLlama Pro API key"
         class="api-key-field"
         @input="handleKeyChange" />
+      <p class="storage-info">
+        Your key is saved locally in your browser's storage.
+      </p>
       <p class="description">
         Your API key will be injected into requests to
         <code>https://pro-api.llama.fi</code> endpoints.
@@ -102,10 +79,7 @@ const handleKeyChange = (event: Event) => {
 }
 
 .header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .header h3 {
@@ -113,52 +87,6 @@ const handleKeyChange = (event: Event) => {
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--scalar-color-1, #2a2f45);
-}
-
-.toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  user-select: none;
-}
-
-.toggle input {
-  position: relative;
-  width: 40px;
-  height: 20px;
-  appearance: none;
-  background: var(--scalar-background-3, #e1e5e9);
-  border-radius: 20px;
-  outline: none;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.toggle input:checked {
-  background: var(--scalar-color-accent, #0066cc);
-}
-
-.toggle input::before {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 16px;
-  height: 16px;
-  background: white;
-  border-radius: 50%;
-  transition: transform 0.2s;
-}
-
-.toggle input:checked::before {
-  transform: translateX(20px);
-}
-
-.label {
-  font-size: 0.8rem;
-  color: var(--scalar-color-2, #6b7280);
-  font-weight: 500;
 }
 
 .input-section {
@@ -187,6 +115,14 @@ const handleKeyChange = (event: Event) => {
 
 .api-key-field::placeholder {
   color: var(--scalar-color-3, #9ca3af);
+}
+
+.storage-info {
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+  font-size: 0.75rem;
+  color: var(--scalar-color-3, #9ca3af);
+  font-style: italic;
 }
 
 .description {
