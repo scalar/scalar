@@ -1,17 +1,20 @@
 import type { TraversedTag } from '@/features/traverse-schema'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { computed, ref } from 'vue'
 import ModernLayout from './ModernLayout.vue'
+import { createMockSidebar } from '@/helpers/test-utils'
 
+// Mock the sidebar module
 vi.mock('@/features/sidebar', () => ({
-  useSidebar: vi.fn(() => ({
-    collapsedSidebarItems: {},
-    isSidebarOpen: { value: true },
-    items: computed(() => ({ entries: [], titles: new Map() })),
-    scrollToOperation: vi.fn(),
-    setCollapsedSidebarItem: vi.fn(),
-    toggleCollapsedSidebarItem: vi.fn(),
+  useSidebar: vi.fn(() => createMockSidebar()),
+}))
+
+// Mock the config hook
+vi.mock('@/hooks/useConfig', () => ({
+  useConfig: vi.fn(() => ({
+    value: {
+      onShowMore: vi.fn(),
+    },
   })),
 }))
 
@@ -34,15 +37,6 @@ describe('ModernLayout', () => {
       description: 'Test description',
     },
     ...overrides,
-  })
-
-  const createMockSidebar = (collapsedItems: Record<string, boolean> = {}) => ({
-    collapsedSidebarItems: collapsedItems,
-    isSidebarOpen: ref(true),
-    items: computed(() => ({ entries: [], titles: new Map() })),
-    scrollToOperation: vi.fn(),
-    setCollapsedSidebarItem: vi.fn(),
-    toggleCollapsedSidebarItem: vi.fn(),
   })
 
   const mountComponent = (props: { tag: TraversedTag; moreThanOneTag: boolean }, options = {}) => {
@@ -174,9 +168,10 @@ describe('ModernLayout', () => {
       expect(tagSection.props('tag')).toEqual(mockTag)
     })
 
-    it('emits click event when ShowMoreButton is clicked', async () => {
+    it('calls setCollapsedSidebarItem when ShowMoreButton is clicked', async () => {
       const { useSidebar } = await import('@/features/sidebar')
-      vi.mocked(useSidebar).mockReturnValue(createMockSidebar({ 'test-tag': false }))
+      const mockSidebar = createMockSidebar({ 'test-tag': false })
+      vi.mocked(useSidebar).mockReturnValue(mockSidebar)
 
       const wrapper = mountComponent({
         tag: createMockTag(),
@@ -184,9 +179,9 @@ describe('ModernLayout', () => {
       })
 
       const showMoreButton = wrapper.findComponent({ name: 'ShowMoreButton' })
-      await showMoreButton.vm.$emit('click')
+      await showMoreButton.find('button').trigger('click')
 
-      expect(showMoreButton.emitted('click')).toBeTruthy()
+      expect(mockSidebar.setCollapsedSidebarItem).toHaveBeenCalledWith('test-tag', true)
     })
 
     it('handles tag with null tag property gracefully', () => {

@@ -95,13 +95,15 @@
     "script": "pnpm --filter @scalar-internal/build-scripts start"
   },
   "exports": {
-    "./css/*.css": {
-      "import": "./dist/css/*.css",
-      "require": "./dist/css/*.css"
-    },
     "./*.css": {
       "import": "./dist/*.css",
-      "require": "./dist/*.css"
+      "require": "./dist/*.css",
+      "default": "./dist/*.css"
+    },
+    "./css/*.css": {
+      "import": "./dist/css/*.css",
+      "require": "./dist/css/*.css",
+      "default": "./dist/css/*.css"
     }
   },
   "remarkConfig": {

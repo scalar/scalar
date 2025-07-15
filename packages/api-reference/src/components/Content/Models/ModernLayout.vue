@@ -17,7 +17,7 @@ import { useNavState } from '@/hooks/useNavState'
 import { Schema, SchemaHeading } from '../Schema'
 
 const props = defineProps<{
-  schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
+  schemas?: Record<string, OpenAPIV3_1.SchemaObject>
 }>()
 
 const headerId = useId()
@@ -68,12 +68,8 @@ const models = computed(() => {
           <template #heading>
             <SectionHeaderTag :level="3">
               <SchemaHeading
-                :name="
-                  (schemas as any)[name].title ??
-                  (schemas as any)[name].xml?.name ??
-                  name
-                "
-                :value="(schemas as any)[name]" />
+                :name="schemas[name].title ?? schemas[name].xml?.name ?? name"
+                :value="schemas[name]" />
             </SectionHeaderTag>
           </template>
           <ScalarErrorBoundary>
@@ -83,7 +79,7 @@ const models = computed(() => {
               :hideModelNames="true"
               :schemas="schemas"
               :level="1"
-              :value="(schemas as any)[name]" />
+              :value="schemas[name]" />
           </ScalarErrorBoundary>
         </CompactSection>
       </div>
