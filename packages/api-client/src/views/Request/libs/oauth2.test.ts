@@ -416,6 +416,14 @@ describe('oauth2', () => {
       })
     })
 
+    it('should handle token request failure', async () => {
+      global.fetch = vi.fn().mockRejectedValueOnce(new Error('Network error'))
+      const [error, result] = await authorizeOauth2(flow, mockServer)
+      expect(result).toBe(null)
+      expect(error).toBeInstanceOf(Error)
+      expect(error!.message).toBe('Failed to get an access token. Please check your credentials.')
+    })
+
     it('should use custom token name when x-tokenName is specified', async () => {
       const customFlow = {
         ...flow,
