@@ -12,7 +12,7 @@ vi.mock('@/features/sidebar', () => ({
   }),
 }))
 
-vi.mock('@/libs/openapi', () => ({
+vi.mock('@scalar/oas-utils/helpers', () => ({
   isOperationDeprecated: vi.fn(),
 }))
 
@@ -126,7 +126,7 @@ describe('OperationsListItem', () => {
 
   describe('deprecation', () => {
     it('applies deprecated class when operation is deprecated', async () => {
-      const { isOperationDeprecated } = await import('@/libs/openapi')
+      const { isOperationDeprecated } = await import('@scalar/oas-utils/helpers')
       vi.mocked(isOperationDeprecated).mockReturnValue(true)
 
       const operation = createMockOperation({
@@ -150,7 +150,7 @@ describe('OperationsListItem', () => {
     })
 
     it('does not apply deprecated class when operation is not deprecated', async () => {
-      const { isOperationDeprecated } = await import('@/libs/openapi')
+      const { isOperationDeprecated } = await import('@scalar/oas-utils/helpers')
       vi.mocked(isOperationDeprecated).mockReturnValue(false)
 
       const operation = createMockOperation()
@@ -164,7 +164,7 @@ describe('OperationsListItem', () => {
     })
 
     it('does not apply deprecated class for webhooks', async () => {
-      const { isOperationDeprecated } = await import('@/libs/openapi')
+      const { isOperationDeprecated } = await import('@scalar/oas-utils/helpers')
       vi.mocked(isOperationDeprecated).mockReturnValue(true)
 
       const webhook = createMockWebhook()
