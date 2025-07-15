@@ -3,10 +3,8 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import type { CallbackObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import { isReference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
-import { watch } from 'vue'
 
 import type { Schemas } from '@/features/Operation/types/schemas'
-import { useStore } from '@/v2/hooks/useStore'
 
 import Callback from './Callback.vue'
 
@@ -21,20 +19,6 @@ const {
   callbacks: CallbackObject
   schemas?: Schemas
 }>()
-
-const { resolve } = useStore()
-
-// Ensure we resolve any external references
-watch(
-  () => callbacks,
-  (newCallbacks) =>
-    Object.values(newCallbacks).forEach((pathItem) => {
-      if (isReference(pathItem)) {
-        resolve(['paths', path, operationMethod])
-      }
-    }),
-  { immediate: true },
-)
 </script>
 
 <template>

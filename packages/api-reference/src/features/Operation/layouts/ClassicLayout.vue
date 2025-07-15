@@ -17,6 +17,7 @@ import {
 } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
@@ -36,7 +37,6 @@ import type { Schemas } from '@/features/Operation/types/schemas'
 import { TestRequestButton } from '@/features/test-request-button'
 import { useConfig } from '@/hooks/useConfig'
 import { RequestExample } from '@/v2/blocks/scalar-request-example-block'
-import { useStore } from '@/v2/hooks/useStore'
 
 const { operation, path, isWebhook } = defineProps<{
   id: string
@@ -48,12 +48,12 @@ const { operation, path, isWebhook } = defineProps<{
   server: ServerObject | undefined
   securitySchemes: SecuritySchemeObject[]
   schemas?: Schemas
+  store: WorkspaceStore
 }>()
 
 const operationTitle = computed(() => operation.summary || path || '')
 
 const { copyToClipboard } = useClipboard()
-const { workspace } = useStore()
 const config = useConfig()
 
 const emit = defineEmits<{
@@ -168,7 +168,7 @@ const handleDiscriminatorChange = (type: string) => {
           class="operation-example-card"
           :method="method"
           :selectedServer="server"
-          :selectedClient="workspace['x-scalar-default-client']"
+          :selectedClient="store.workspace['x-scalar-default-client']"
           :securitySchemes="securitySchemes"
           :path="path"
           fallback
