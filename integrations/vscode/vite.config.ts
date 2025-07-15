@@ -9,6 +9,15 @@ export default defineConfig({
     },
     rollupOptions: {
       external: ['vscode'],
+      input: {
+        extension: './src/extension.ts',
+        'scalar-api-reference': './src/scalar-api-reference.js',
+      },
+      output: {
+        entryFileNames: '[name].js',
+        chunkFileNames: '[name].js',
+        assetFileNames: '[name].[ext]',
+      },
     },
     sourcemap: true,
     outDir: 'dist',

@@ -9,6 +9,15 @@ export function activate(context: vscode.ExtensionContext) {
   // This line of code will only be executed once when your extension is activated
   console.log('Congratulations, your extension "vscode-scalar" is now active!')
 
+  // Load the bundled scalar-api-reference
+  try {
+    // The bundled file will be available in the dist folder
+    require('./scalar-api-reference.js')
+    console.log('Scalar API Reference loaded successfully')
+  } catch (error) {
+    console.error('Failed to load Scalar API Reference:', error)
+  }
+
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with registerCommand
   // The commandId parameter must match the command field in package.json
@@ -44,13 +53,14 @@ export function activate(context: vscode.ExtensionContext) {
       {
         enableScripts: true,
         retainContextWhenHidden: true,
+        localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'dist')],
       },
     )
 
     // Function to update the webview content
     const updateWebviewContent = () => {
       const content = document.getText()
-      panel.webview.html = getWebviewContent(content, fileName)
+      panel.webview.html = getWebviewContent(content, fileName, panel.webview, context.extensionUri)
     }
 
     // Set initial content
@@ -92,7 +102,17 @@ export function activate(context: vscode.ExtensionContext) {
 // This method is called when your extension is deactivated
 export function deactivate() {}
 
-function getWebviewContent(openAPIContent: string, fileName: string) {
+function getWebviewContent(
+  openAPIContent: string,
+  fileName: string,
+  webview: vscode.Webview,
+  extensionUri: vscode.Uri,
+) {
+  // Get the URI for the bundled scalar-api-reference.js file
+  const scalarApiReferenceUri = webview.asWebviewUri(
+    vscode.Uri.joinPath(extensionUri, 'dist', 'scalar-api-reference.js'),
+  )
+
   // Escape the content for safe HTML insertion
   const escapedContent = openAPIContent
     .replace(/&/g, '&amp;')
@@ -172,6 +192,20 @@ function getWebviewContent(openAPIContent: string, fileName: string) {
         <div class="content">${escapedContent || '<div class="no-content">No content available</div>'}</div>
     </div>
     <div class="status" id="status">Live Preview</div>
+
+    <!-- Mount the Scalar API Reference -->
+    <div id="scalar"></div>
+
+    <!-- Load the bundled Scalar API Reference -->
+    <script src="${scalarApiReferenceUri}"></script>
+
+    <!-- Initialize the Scalar API Reference -->
+    <script>
+      Scalar.createApiReference('#scalar', {
+        content: '',
+      })
+    </script>
+
     <script>
         // Handle communication with the extension
         const vscode = acquireVsCodeApi();
@@ -195,6 +229,9 @@ function getWebviewContent(openAPIContent: string, fileName: string) {
 
         // Listen for content updates (this will be called when the webview is updated)
         updateStatus();
+
+        // Log that Scalar API Reference is loaded
+        console.log('Scalar API Reference loaded in webview');
     </script>
 </body>
 </html>`
