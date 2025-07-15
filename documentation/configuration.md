@@ -635,7 +635,7 @@ To make authentication easier you can prefill the credentials for your users:
             },
             // Set additional body parameters for the Token request
             'x-scalar-security-body': {
-              audience: 'scalar',
+              audience: 'scalar'
             },
             // Custom token name for non-standard OAuth2 responses (default: 'access_token')
             'x-tokenName': 'custom_access_token'

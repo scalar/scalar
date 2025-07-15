@@ -338,7 +338,7 @@ app.MapScalarApiReference(options => options
         // Alternatively, set body parameters using the property
         flow.AdditionalBodyParameters = new Dictionary<string, string>
         {   
-             ["audience"] = "https://api.example.com",
+             ["audience"] = "https://api.example.com"
         };
     })
 );
