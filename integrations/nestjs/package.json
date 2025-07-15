@@ -52,7 +52,7 @@
     "@scalar/types": "workspace:*"
   },
   "devDependencies": {
-    "@nestjs/common": "^11.0.16",
+    "@nestjs/common": "^10.0.0",
     "@nestjs/platform-fastify": "^10.3.8",
     "@nestjs/testing": "^10.0.0",
     "@scalar/api-reference": "workspace:*",

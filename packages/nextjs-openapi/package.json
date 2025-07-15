@@ -49,8 +49,8 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@types/node": "catalog:*",
-    "@types/react": "^19.1.8",
-    "@types/react-dom": "^19.1.6",
+    "@types/react": "catalog:*",
+    "@types/react-dom": "catalog:*",
     "next": "catalog:*",
     "openapi-types": "^12.1.3"
   }
