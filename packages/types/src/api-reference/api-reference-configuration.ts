@@ -189,6 +189,8 @@ export const apiClientConfigurationSchema = z.object({
   spec: specConfigurationSchema.optional(),
   /** Prefill authentication */
   authentication: z.any().optional(), // Temp until we bring in the new auth
+  /** API key for requests that require path-based API key injection */
+  apiKey: z.string().optional(),
   /** Base URL for the API server */
   baseServerURL: z.string().optional(),
   /**
