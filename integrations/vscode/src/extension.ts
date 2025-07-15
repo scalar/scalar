@@ -48,7 +48,7 @@ export function activate(context: vscode.ExtensionContext) {
     // Create and show a new webview panel
     const panel = vscode.window.createWebviewPanel(
       'openAPIPreview', // Identifies the type of the webview
-      `OpenAPI Preview - ${document.fileName.split('/').pop()}`, // Title of the panel displayed to the user
+      `Scalar API Reference - ${document.fileName.split('/').pop()}`, // Title of the panel displayed to the user
       vscode.ViewColumn.One, // Editor column to show the new webview panel in
       {
         enableScripts: true,
@@ -60,7 +60,7 @@ export function activate(context: vscode.ExtensionContext) {
     // Function to update the webview content
     const updateWebviewContent = () => {
       const content = document.getText()
-      panel.webview.html = getWebviewContent(content, fileName, panel.webview, context.extensionUri)
+      panel.webview.html = getWebviewContent(content, panel.webview, context.extensionUri)
     }
 
     // Set initial content
@@ -102,97 +102,26 @@ export function activate(context: vscode.ExtensionContext) {
 // This method is called when your extension is deactivated
 export function deactivate() {}
 
-function getWebviewContent(
-  openAPIContent: string,
-  fileName: string,
-  webview: vscode.Webview,
-  extensionUri: vscode.Uri,
-) {
+function getWebviewContent(openAPIContent: string, webview: vscode.Webview, extensionUri: vscode.Uri) {
   // Get the URI for the bundled scalar-api-reference.js file
   const scalarApiReferenceUri = webview.asWebviewUri(
     vscode.Uri.joinPath(extensionUri, 'dist', 'scalar-api-reference.js'),
   )
-
-  // Escape the content for safe HTML insertion
-  const escapedContent = openAPIContent
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;')
 
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OpenAPI Preview</title>
+    <title>Scalar</title>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Monaco', 'Menlo', monospace;
             margin: 0;
-            padding: 20px;
-            background-color: var(--vscode-editor-background);
-            color: var(--vscode-editor-foreground);
-            line-height: 1.6;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        h1 {
-            color: var(--vscode-editor-foreground);
-            border-bottom: 1px solid var(--vscode-panel-border);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-        .file-info {
-            background-color: var(--vscode-textBlockQuote-background);
-            border-left: 4px solid var(--vscode-textBlockQuote-border);
-            padding: 10px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-        }
-        .content {
-            background-color: var(--vscode-textCodeBlock-background);
-            border: 1px solid var(--vscode-panel-border);
-            border-radius: 4px;
-            padding: 20px;
-            overflow-x: auto;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
-            font-size: 14px;
-        }
-        .no-content {
-            text-align: center;
-            padding: 40px;
-            color: var(--vscode-descriptionForeground);
-            font-style: italic;
-        }
-        .status {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            background-color: var(--vscode-notifications-background);
-            color: var(--vscode-notifications-foreground);
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            opacity: 0.8;
+            padding: 0;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>New OpenAPI Preview</h1>
-        <div class="file-info">
-            <strong>Active File:</strong> ${fileName.split('/').pop()}
-        </div>
-        <div class="content">${escapedContent || '<div class="no-content">No content available</div>'}</div>
-    </div>
-    <div class="status" id="status">Live Preview</div>
-
     <!-- Mount the Scalar API Reference -->
     <div id="scalar"></div>
 
@@ -202,36 +131,8 @@ function getWebviewContent(
     <!-- Initialize the Scalar API Reference -->
     <script>
       Scalar.createApiReference('#scalar', {
-        content: '',
+        content: ${openAPIContent},
       })
-    </script>
-
-    <script>
-        // Handle communication with the extension
-        const vscode = acquireVsCodeApi();
-
-        // Example of sending a message to the extension
-        function sendMessage() {
-            vscode.postMessage({
-                command: 'alert',
-                text: 'Hello from webview!'
-            });
-        }
-
-        // Update status when content changes
-        function updateStatus() {
-            const status = document.getElementById('status');
-            status.textContent = 'Updated: ' + new Date().toLocaleTimeString();
-            setTimeout(() => {
-                status.textContent = 'Live Preview';
-            }, 2000);
-        }
-
-        // Listen for content updates (this will be called when the webview is updated)
-        updateStatus();
-
-        // Log that Scalar API Reference is loaded
-        console.log('Scalar API Reference loaded in webview');
     </script>
 </body>
 </html>`
