@@ -4,11 +4,9 @@ import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
-import { type TraversedEntry as TraversedEntryType } from '@/features/traverse-schema'
-import { traverseDocument } from '@/features/traverse-schema/helpers/traverse-document'
-import { useNavState } from '@/hooks/useNavState'
+import { useSidebar } from '@/features/sidebar'
 
 import TraversedEntry from './TraversedEntry.vue'
 
@@ -20,18 +18,6 @@ const { document, config } = defineProps<{
 
 const { collections, servers } = useWorkspace()
 const { activeCollection: _activeCollection } = useActiveEntities()
-
-/**
- * Generate IDs for the different types of entities
- */
-const {
-  getHeadingId,
-  getOperationId,
-  getWebhookId,
-  getModelId,
-  getTagId,
-  getSectionId,
-} = useNavState()
 
 /**
  * Match the collection by slug if provided
@@ -70,38 +56,14 @@ const activeServer = computed(() => {
   return servers[activeCollection.value.servers[0]]
 })
 
-/**
- * A list of tags including their children and operations.
- *
- * Matches the sidebar.
- *
- * TODO: remove this and use the one that comes from the workspace store
- */
-const entries = computed((): TraversedEntryType[] => {
-  if (!config) {
-    return []
-  }
-
-  // Use traverseDocument to process the OpenAPI document
-  const { entries: traversedEntries } = traverseDocument(document, {
-    config: ref(config),
-    getHeadingId,
-    getOperationId,
-    getWebhookId,
-    getModelId,
-    getTagId,
-    getSectionId,
-  })
-
-  return traversedEntries
-})
+const { items } = useSidebar()
 </script>
 
 <template>
-  <template v-if="entries.length && activeCollection">
+  <template v-if="items.entries.length && activeCollection">
     <!-- Use recursive component for cleaner rendering -->
     <TraversedEntry
-      :entries="entries"
+      :entries="items.entries"
       :document="document"
       :config="config"
       :activeCollection="activeCollection"
