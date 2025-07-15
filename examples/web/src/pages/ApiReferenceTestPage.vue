@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { ApiReference } from '@scalar/api-reference'
-import content from '@scalar/galaxy/latest.yaml?raw'
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
-import { reactive } from 'vue'
+import { reactive, watch } from 'vue'
 import { useRoute } from 'vue-router'
+
+// Import the spec.json file
+import specContent from '../../spec.json'
+import ApiKeyInput from '../components/ApiKeyInput.vue'
+import { getApiKeyValue } from '../utils/api-key-helper'
 
 const route = useRoute()
 
@@ -13,10 +17,29 @@ const configuration = reactive(
     isEditable: false,
     layout: `${route.params['layout']}`,
     darkMode: !!route.query['darkMode'],
-    content,
+    content: specContent,
   }),
+)
+
+// Watch for API key changes and update configuration
+watch(
+  () => getApiKeyValue(),
+  (apiKey) => {
+    // Update configuration when API key changes
+    configuration.apiKey = apiKey || undefined
+  },
+  { immediate: true },
 )
 </script>
 <template>
-  <ApiReference :configuration="configuration" />
+  <div class="api-reference-test-page">
+    <ApiKeyInput />
+    <ApiReference :configuration="configuration" />
+  </div>
 </template>
+
+<style scoped>
+.api-reference-test-page {
+  padding: 1rem;
+}
+</style>

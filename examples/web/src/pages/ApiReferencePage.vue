@@ -6,10 +6,14 @@ import {
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 
+// Import the spec.json file
+import specContent from '../../spec.json'
+import ApiKeyInput from '../components/ApiKeyInput.vue'
 import DevReferencesOptions from '../components/DevReferencesOptions.vue'
 import DevToolbar from '../components/DevToolbar.vue'
 import MonacoEditor from '../components/MonacoEditor.vue'
 import SlotPlaceholder from '../components/SlotPlaceholder.vue'
+import { getApiKeyValue } from '../utils/api-key-helper'
 
 const content = ref('')
 
@@ -32,7 +36,9 @@ const configuration = reactive<Partial<ApiReferenceConfiguration>>({
 })
 
 onMounted(() => {
-  content.value = window.localStorage?.getItem('api-reference-content') ?? ''
+  // Use spec.json as default content if nothing is saved in localStorage
+  const savedContent = window.localStorage?.getItem('api-reference-content')
+  content.value = savedContent || JSON.stringify(specContent, null, 2)
 })
 
 watch(
@@ -58,38 +64,58 @@ watch(
     document.body.classList.toggle('light-mode', !isDark)
   },
 )
+
+// Watch for API key changes and update configuration
+watch(
+  () => getApiKeyValue(),
+  (apiKey) => {
+    // Update configuration when API key changes
+    // This ensures the client can access the API key for requests
+    configuration.apiKey = apiKey || undefined
+  },
+  { immediate: true },
+)
 </script>
 <template>
-  <ApiReferenceLayout
-    :isDark="isDarkMode"
-    @toggleDarkMode="() => toggleColorMode()"
-    :configuration="configuration"
-    @changeTheme="configuration.theme = $event.id"
-    @updateContent="(v) => (content = v)">
-    <template #header>
-      <DevToolbar>
-        <DevReferencesOptions v-model="configProxy" />
-      </DevToolbar>
-    </template>
-    <template #sidebar-start>
-      <SlotPlaceholder>sidebar-start</SlotPlaceholder>
-    </template>
-    <template #sidebar-end>
-      <SlotPlaceholder>sidebar-end</SlotPlaceholder>
-    </template>
-    <template #editor>
-      <MonacoEditor
-        v-model="content"
-        :darkMode="configuration.darkMode" />
-    </template>
-    <template #content-start>
-      <SlotPlaceholder>content-start</SlotPlaceholder>
-    </template>
-    <template #content-end>
-      <SlotPlaceholder>content-end</SlotPlaceholder>
-    </template>
-    <template #footer>
-      <SlotPlaceholder>footer</SlotPlaceholder>
-    </template>
-  </ApiReferenceLayout>
+  <div class="api-reference-page">
+    <ApiKeyInput />
+    <ApiReferenceLayout
+      :isDark="isDarkMode"
+      @toggleDarkMode="() => toggleColorMode()"
+      :configuration="configuration"
+      @changeTheme="configuration.theme = $event.id"
+      @updateContent="(v) => (content = v)">
+      <template #header>
+        <DevToolbar>
+          <DevReferencesOptions v-model="configProxy" />
+        </DevToolbar>
+      </template>
+      <template #sidebar-start>
+        <SlotPlaceholder>sidebar-start</SlotPlaceholder>
+      </template>
+      <template #sidebar-end>
+        <SlotPlaceholder>sidebar-end</SlotPlaceholder>
+      </template>
+      <template #editor>
+        <MonacoEditor
+          v-model="content"
+          :darkMode="configuration.darkMode" />
+      </template>
+      <template #content-start>
+        <SlotPlaceholder>content-start</SlotPlaceholder>
+      </template>
+      <template #content-end>
+        <SlotPlaceholder>content-end</SlotPlaceholder>
+      </template>
+      <template #footer>
+        <SlotPlaceholder>footer</SlotPlaceholder>
+      </template>
+    </ApiReferenceLayout>
+  </div>
 </template>
+
+<style scoped>
+.api-reference-page {
+  padding: 1rem;
+}
+</style>

@@ -1,0 +1,2582 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "description": "Docs for defillama's open API\n\nNeed higher rate limits or priority support? We offer a premium plan for 300$/mo. To get it, go to https://defillama.com/subscription\n",
+    "version": "1.0.0-oas3",
+    "title": "DefiLlama API"
+  },
+  "tags": [
+    {
+      "name": "TVL",
+      "description": "Retrieve TVL data"
+    },
+    {
+      "name": "coins",
+      "description": "General blockchain data used by defillama and open-sourced"
+    },
+    {
+      "name": "stablecoins",
+      "description": "Data from our stablecoins dashboard"
+    },
+    {
+      "name": "yields",
+      "description": "Data from our yields/APY dashboard"
+    },
+    {
+      "name": "volumes",
+      "description": "Data from our volumes dashboards"
+    },
+    {
+      "name": "fees and revenue",
+      "description": "Data from our fees and revenue dashboard"
+    },
+    {
+      "name": "active users",
+      "description": "Data about active users on our chains and protocols dashboards"
+    },
+    {
+      "name": "Unlocks",
+      "description": "Data about token unlocks from our Unlocks dashboard"
+    },
+    {
+      "name": "main page",
+      "description": "Data from dashboards on our side menu"
+    },
+    {
+      "name": "token liquidity",
+      "description": "Provides the available liquidity for swapping from one token to another on a specific chain"
+    },
+    {
+      "name": "ETFs",
+      "description": "Tradfi ETFs"
+    },
+    {
+      "name": "meta",
+      "description": "Get information about your API Key"
+    },
+    {
+      "name": "narratives",
+      "description": "Track performance of narratives"
+    },
+    {
+      "name": "perps",
+      "description": "Perpetual futures and derivatives data"
+    },
+    {
+      "name": "bridges",
+      "description": "Cross-chain bridge volume and transaction data"
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://api.llama.fi"
+    }
+  ],
+  "paths": {
+    "/api/tokenProtocols/{symbol}": {
+      "get": {
+        "tags": ["TVL"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Lists the amount of a certain token within all protocols. Data for the Token Usage page",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "description": "token slug",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "usdt"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/protocols": {
+      "get": {
+        "tags": ["TVL"],
+        "summary": "List all protocols on defillama along with their tvl",
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/api/protocols": {
+      "get": {
+        "tags": ["TVL"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "List all protocols on defillama along with their tvl",
+        "responses": {
+          "200": {
+            "description": "Array of all protocols with their TVL data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "example": "2269"
+                      },
+                      "name": {
+                        "type": "string",
+                        "example": "Aave"
+                      },
+                      "symbol": {
+                        "type": "string",
+                        "example": "AAVE"
+                      },
+                      "category": {
+                        "type": "string",
+                        "example": "Lending"
+                      },
+                      "chains": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": ["Ethereum", "Polygon"]
+                      },
+                      "tvl": {
+                        "type": "number",
+                        "example": 5200000000
+                      },
+                      "chainTvls": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "number"
+                        },
+                        "example": {
+                          "Ethereum": 3200000000,
+                          "Polygon": 2000000000
+                        }
+                      },
+                      "change_1d": {
+                        "type": "number",
+                        "example": 2.1
+                      },
+                      "change_7d": {
+                        "type": "number",
+                        "example": -5.3
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/protocol/{protocol}": {
+      "get": {
+        "tags": ["TVL"],
+        "summary": "Get historical TVL of a protocol and breakdowns by token and chain",
+        "parameters": [
+          {
+            "name": "protocol",
+            "in": "path",
+            "description": "protocol slug",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "aave"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/api/protocol/{protocol}": {
+      "get": {
+        "tags": ["TVL"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Get historical TVL of a protocol and breakdowns by token and chain",
+        "parameters": [
+          {
+            "name": "protocol",
+            "in": "path",
+            "description": "protocol slug",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "aave"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Protocol details with historical TVL data and chain breakdowns",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "parent#aave"
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "AAVE"
+                    },
+                    "symbol": {
+                      "type": "string",
+                      "example": "AAVE"
+                    },
+                    "category": {
+                      "type": "string",
+                      "example": "Lending"
+                    },
+                    "chains": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": ["Ethereum", "Polygon", "Avalanche"]
+                    },
+                    "currentChainTvls": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "number"
+                      },
+                      "example": {
+                        "Ethereum": 3200000000,
+                        "Polygon": 1500000000
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Protocol not found"
+          }
+        }
+      }
+    },
+    "/v2/historicalChainTvl": {
+      "get": {
+        "tags": ["TVL"],
+        "summary": "Get historical TVL (excludes liquid staking and double counted tvl) of DeFi on all chains",
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/v2/historicalChainTvl/{chain}": {
+      "get": {
+        "tags": ["TVL"],
+        "summary": "Get historical TVL (excludes liquid staking and double counted tvl) of a chain",
+        "parameters": [
+          {
+            "name": "chain",
+            "in": "path",
+            "required": true,
+            "description": "chain slug, you can get these from /chains or the chains property on /protocols",
+            "schema": {
+              "type": "string",
+              "example": "Ethereum"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/tvl/{protocol}": {
+      "get": {
+        "tags": ["TVL"],
+        "summary": "Simplified endpoint to get current TVL of a protocol",
+        "description": "Simplified endpoint that only returns a number, the current TVL of a protocol",
+        "parameters": [
+          {
+            "name": "protocol",
+            "in": "path",
+            "required": true,
+            "description": "protocol slug",
+            "schema": {
+              "type": "string",
+              "example": "uniswap"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/v2/chains": {
+      "get": {
+        "tags": ["TVL"],
+        "summary": "Get current TVL of all chains",
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/api/v2/chains": {
+      "get": {
+        "tags": ["TVL"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Get current TVL of all chains",
+        "responses": {
+          "200": {
+            "description": "Array of all chains with their TVL data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "gecko_id": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "CoinGecko ID for the chain's native token",
+                        "example": "ethereum"
+                      },
+                      "tvl": {
+                        "type": "number",
+                        "description": "Total Value Locked in USD",
+                        "example": 65998652431.40251
+                      },
+                      "tokenSymbol": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Native token symbol",
+                        "example": "ETH"
+                      },
+                      "cmcId": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "CoinMarketCap ID",
+                        "example": "1027"
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "Chain name",
+                        "example": "Ethereum"
+                      },
+                      "chainId": {
+                        "type": "number",
+                        "nullable": true,
+                        "description": "Chain ID number",
+                        "example": 1
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/prices/current/{coins}": {
+      "get": {
+        "tags": ["coins"],
+        "summary": "Get current prices of tokens by contract address",
+        "description": "The goal of this API is to price as many tokens as possible, including exotic ones that never get traded, which makes them impossible to price by looking at markets.\n\nThe base of our data are prices pulled from coingecko, which is then extended through multiple means:\n- We price all bridged tokens by using the price of the token in it's original chain, so we fetch all bridged versions of USDC on arbitrum, fantom, avax... and price all them using the price for the token on Ethereum, which we know. Right now we support 10 different bridging protocols.\n- We have multiple adapters to price specialized sets of tokens by running custom code:\n  - We price yearn's yToken LPs by checking how much underlying token can be withdrawn for each LP\n  - Aave, compound and euler LP tokens are also priced based on their relationship against underlying tokens\n  - Uniswap, curve, balancer and stargate LPs are priced using the underlying tokens in each pair\n  - GMX's GLP token is priced based on the value of tokens given on withdrawal (which includes calculations based on trader's PnL)\n  \n  - Synthetix tokens are priced using forex prices of the coin they are pegged to\n- For tokens that we haven't been able to price in any other way, we find the pool with most liquidity for each on uniswap, curve and serum and then use the prices provided on those exchanges.\n  \n  Unlike all the other tokens, we can't confirm that these prices are correct, so we only ingest the ones that have sufficient liquidity and, even in that case, we attach a `confidence` value to them that is related to the depth of liquidity and which represents our confidence in the quality of each price. API consumers can choose to filter out prices with low confidence values.\n  \n Our API server is fully open source and we are constantly adding more pricing adapters, extending the amount of tokens we support.\n  \nTokens are queried using {chain}:{address}, where chain is an identifier such as ethereum, bsc, polygon, avax... You can also get tokens by coingecko id by setting `coingecko` as the chain, eg: coingecko:ethereum, coingecko:bitcoin. Examples:\n  - ethereum:0xdF574c24545E5FfEcb9a659c229253D4111d87e1\n  - bsc:0x762539b45a1dcce3d36d080f74d1aed37844b878\n  - coingecko:ethereum\n  - arbitrum:0x4277f8f2c384827b5273592ff7cebd9f2c1ac258\n",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "coins",
+            "in": "path",
+            "required": true,
+            "description": "set of comma-separated tokens defined as {chain}:{address}",
+            "schema": {
+              "type": "string",
+              "example": "ethereum:0xdF574c24545E5FfEcb9a659c229253D4111d87e1,coingecko:ethereum,bsc:0x762539b45a1dcce3d36d080f74d1aed37844b878,ethereum:0xdB25f211AB05b1c97D595516F45794528a807ad8"
+            }
+          },
+          {
+            "name": "searchWidth",
+            "in": "query",
+            "required": false,
+            "description": "time range on either side to find price data, defaults to 6 hours",
+            "schema": {
+              "type": "string",
+              "example": "4h"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "coins": {
+                      "type": "object",
+                      "properties": {
+                        "ethereum:0xdF574c24545E5FfEcb9a659c229253D4111d87e1": {
+                          "type": "object",
+                          "properties": {
+                            "decimals": {
+                              "type": "number",
+                              "example": 8
+                            },
+                            "price": {
+                              "type": "number",
+                              "example": 0.022053735051098835
+                            },
+                            "symbol": {
+                              "type": "string",
+                              "example": "cDAI"
+                            },
+                            "timestamp": {
+                              "type": "number",
+                              "example": 0.99
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Internal error"
+          }
+        }
+      }
+    },
+    "/prices/historical/{timestamp}/{coins}": {
+      "get": {
+        "tags": ["coins"],
+        "summary": "Get historical prices of tokens by contract address",
+        "description": "See /prices/current for explanation on how prices are sourced.",
+        "servers": [
+          {
+            "url": "https://coins.llama.fi"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "coins",
+            "in": "path",
+            "required": true,
+            "description": "set of comma-separated tokens defined as {chain}:{address}",
+            "schema": {
+              "type": "string",
+              "example": "ethereum:0xdF574c24545E5FfEcb9a659c229253D4111d87e1,coingecko:ethereum,bsc:0x762539b45a1dcce3d36d080f74d1aed37844b878,ethereum:0xdB25f211AB05b1c97D595516F45794528a807ad8"
+            }
+          },
+          {
+            "name": "timestamp",
+            "in": "path",
+            "required": true,
+            "description": "UNIX timestamp of time when you want historical prices",
+            "schema": {
+              "type": "number",
+              "example": 1648680149
+            }
+          },
+          {
+            "name": "searchWidth",
+            "in": "query",
+            "required": false,
+            "description": "time range on either side to find price data, defaults to 6 hours",
+            "schema": {
+              "type": "string",
+              "example": "4h"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "coins": {
+                      "type": "object",
+                      "properties": {
+                        "ethereum:0xdF574c24545E5FfEcb9a659c229253D4111d87e1": {
+                          "type": "object",
+                          "properties": {
+                            "decimals": {
+                              "type": "number",
+                              "example": 8
+                            },
+                            "price": {
+                              "type": "number",
+                              "example": 0.022053735051098835
+                            },
+                            "symbol": {
+                              "type": "string",
+                              "example": "cDAI"
+                            },
+                            "timestamp": {
+                              "type": "number",
+                              "example": 1648680149
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Internal error"
+          }
+        }
+      }
+    },
+    "/batchHistorical": {
+      "get": {
+        "tags": ["coins"],
+        "summary": "Get historical prices for multiple tokens at multiple different timestamps",
+        "description": "Strings accepted by period and searchWidth:\nCan use regular chart candle notion like ‘4h’ etc where:\nW = week, D = day, H = hour, M = minute (not case sensitive)\n",
+        "servers": [
+          {
+            "url": "https://coins.llama.fi"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "coins",
+            "in": "query",
+            "required": true,
+            "description": "object where keys are coins in the form {chain}:{address}, and values are arrays of requested timestamps",
+            "schema": {
+              "type": "string",
+              "example": "{\"avax:0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e\": [1666876743, 1666862343], \"coingecko:ethereum\": [1666869543, 1666862343]}\n"
+            }
+          },
+          {
+            "name": "searchWidth",
+            "in": "query",
+            "required": false,
+            "description": "time range on either side to find price data, defaults to 6 hours",
+            "schema": {
+              "type": "string",
+              "example": 600
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "coins": {
+                      "type": "object",
+                      "properties": {
+                        "avax:0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e": {
+                          "type": "object",
+                          "properties": {
+                            "symbol": {
+                              "type": "string",
+                              "example": "USDC"
+                            },
+                            "prices": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "timestamp": {
+                                    "type": "number",
+                                    "example": 1666876674
+                                  },
+                                  "price": {
+                                    "type": "number",
+                                    "example": 0.999436
+                                  },
+                                  "confidence": {
+                                    "type": "number",
+                                    "example": 0.99
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Internal error"
+          }
+        }
+      }
+    },
+    "/chart/{coins}": {
+      "get": {
+        "tags": ["coins"],
+        "summary": "Get token prices at regular time intervals",
+        "description": "Strings accepted by period and searchWidth:\nCan use regular chart candle notion like ‘4h’ etc where:\nW = week, D = day, H = hour, M = minute (not case sensitive)\n",
+        "servers": [
+          {
+            "url": "https://coins.llama.fi"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "coins",
+            "in": "path",
+            "required": true,
+            "description": "set of comma-separated tokens defined as {chain}:{address}",
+            "schema": {
+              "type": "string",
+              "example": "ethereum:0xdF574c24545E5FfEcb9a659c229253D4111d87e1,coingecko:ethereum,bsc:0x762539b45a1dcce3d36d080f74d1aed37844b878,ethereum:0xdB25f211AB05b1c97D595516F45794528a807ad8"
+            }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "description": "unix timestamp of earliest data point requested",
+            "schema": {
+              "type": "number",
+              "example": 1664364537
+            }
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "description": "unix timestamp of latest data point requested",
+            "schema": {
+              "type": "number",
+              "example": null
+            }
+          },
+          {
+            "name": "span",
+            "in": "query",
+            "required": false,
+            "description": "number of data points returned, defaults to 0",
+            "schema": {
+              "type": "number",
+              "example": 10
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "description": "duration between data points, defaults to 24 hours",
+            "schema": {
+              "type": "string",
+              "example": "2d"
+            }
+          },
+          {
+            "name": "searchWidth",
+            "in": "query",
+            "required": false,
+            "description": "time range on either side to find price data, defaults to 10% of period",
+            "schema": {
+              "type": "string",
+              "example": 600
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "coins": {
+                      "type": "object",
+                      "properties": {
+                        "ethereum:0xdF574c24545E5FfEcb9a659c229253D4111d87e1": {
+                          "type": "object",
+                          "properties": {
+                            "decimals": {
+                              "type": "number",
+                              "example": 8
+                            },
+                            "confidence": {
+                              "type": "number",
+                              "example": 0.99
+                            },
+                            "prices": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "timestamp": {
+                                    "type": "number",
+                                    "example": 1666790570
+                                  },
+                                  "price": {
+                                    "type": "number",
+                                    "example": 0.984519
+                                  }
+                                }
+                              }
+                            },
+                            "symbol": {
+                              "type": "string",
+                              "example": "HUSD"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Internal error"
+          }
+        }
+      }
+    },
+    "/percentage/{coins}": {
+      "get": {
+        "tags": ["coins"],
+        "summary": "Get percentage change in price over time",
+        "description": "Strings accepted by period:\nCan use regular chart candle notion like ‘4h’ etc where:\nW = week, D = day, H = hour, M = minute (not case sensitive)\n",
+        "servers": [
+          {
+            "url": "https://coins.llama.fi"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "coins",
+            "in": "path",
+            "required": true,
+            "description": "set of comma-separated tokens defined as {chain}:{address}",
+            "schema": {
+              "type": "string",
+              "example": "ethereum:0xdF574c24545E5FfEcb9a659c229253D4111d87e1,coingecko:ethereum,bsc:0x762539b45a1dcce3d36d080f74d1aed37844b878,ethereum:0xdB25f211AB05b1c97D595516F45794528a807ad8"
+            }
+          },
+          {
+            "name": "timestamp",
+            "in": "query",
+            "required": false,
+            "description": "timestamp of data point requested, defaults to time now",
+            "schema": {
+              "type": "number",
+              "example": 1664364537
+            }
+          },
+          {
+            "name": "lookForward",
+            "in": "query",
+            "required": false,
+            "description": "whether you want the duration after your given timestamp or not, defaults to false (looking back)",
+            "schema": {
+              "type": "boolean",
+              "example": false
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "description": "duration between data points, defaults to 24 hours",
+            "schema": {
+              "type": "string",
+              "example": "3w"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "coins": {
+                      "type": "object",
+                      "properties": {
+                        "ethereum:0xdF574c24545E5FfEcb9a659c229253D4111d87e1": {
+                          "type": "number",
+                          "example": -2.3009954568977147
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Internal error"
+          }
+        }
+      }
+    },
+    "/prices/first/{coins}": {
+      "get": {
+        "tags": ["coins"],
+        "summary": "Get earliest timestamp price record for coins",
+        "servers": [
+          {
+            "url": "https://coins.llama.fi"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "coins",
+            "in": "path",
+            "required": true,
+            "description": "set of comma-separated tokens defined as {chain}:{address}",
+            "schema": {
+              "type": "string",
+              "example": "ethereum:0xdF574c24545E5FfEcb9a659c229253D4111d87e1,coingecko:ethereum,bsc:0x762539b45a1dcce3d36d080f74d1aed37844b878,ethereum:0xdB25f211AB05b1c97D595516F45794528a807ad8"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "coins": {
+                      "type": "object",
+                      "properties": {
+                        "ethereum:0xdF574c24545E5FfEcb9a659c229253D4111d87e1": {
+                          "type": "object",
+                          "properties": {
+                            "price": {
+                              "type": "number",
+                              "example": 0.9992047673109988
+                            },
+                            "symbol": {
+                              "type": "string",
+                              "example": "HUSD"
+                            },
+                            "timestamp": {
+                              "type": "number",
+                              "example": 1568883821
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Internal error"
+          }
+        }
+      }
+    },
+    "/block/{chain}/{timestamp}": {
+      "get": {
+        "tags": ["coins"],
+        "summary": "Get the closest block to a timestamp",
+        "description": "Runs binary search over a blockchain's blocks to get the closest one to a timestamp.\nEvery time this is run we add new data to our database, so each query permanently speeds up future queries.\n",
+        "servers": [
+          {
+            "url": "https://coins.llama.fi"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "chain",
+            "in": "path",
+            "description": "Chain which you want to get the block from",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "timestamp",
+            "in": "path",
+            "description": "UNIX timestamp of the block you are searching for",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "height": {
+                      "type": "integer",
+                      "format": "uint",
+                      "example": 11150916
+                    },
+                    "timestamp": {
+                      "type": "integer",
+                      "format": "uint",
+                      "example": 1603964988
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid chain or timestamp provided"
+          }
+        }
+      }
+    },
+    "/stablecoins": {
+      "get": {
+        "tags": ["stablecoins"],
+        "summary": "List all stablecoins along with their circulating amounts",
+        "servers": [
+          {
+            "url": "https://stablecoins.llama.fi"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "includePrices",
+            "in": "query",
+            "required": false,
+            "description": "set whether to include current stablecoin prices",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/stablecoins/stablecoins": {
+      "get": {
+        "tags": ["stablecoins"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "List all stablecoins along with their circulating amounts",
+        "parameters": [
+          {
+            "name": "includePrices",
+            "in": "query",
+            "required": false,
+            "description": "set whether to include current stablecoin prices",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of all stablecoins with their circulation data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "peggedAssets": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "example": "1"
+                          },
+                          "name": {
+                            "type": "string",
+                            "example": "Tether"
+                          },
+                          "symbol": {
+                            "type": "string",
+                            "example": "USDT"
+                          },
+                          "pegType": {
+                            "type": "string",
+                            "example": "peggedUSD"
+                          },
+                          "pegMechanism": {
+                            "type": "string",
+                            "example": "fiat-backed"
+                          },
+                          "circulating": {
+                            "type": "object",
+                            "properties": {
+                              "peggedUSD": {
+                                "type": "number",
+                                "example": 159510682147.76874
+                              }
+                            }
+                          },
+                          "chains": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "example": ["Ethereum", "Tron", "BSC"]
+                          },
+                          "price": {
+                            "type": "number",
+                            "example": 1.001
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stablecoincharts/all": {
+      "get": {
+        "tags": ["stablecoins"],
+        "summary": "Get historical mcap sum of all stablecoins",
+        "servers": [
+          {
+            "url": "https://stablecoins.llama.fi"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "stablecoin",
+            "in": "query",
+            "required": false,
+            "description": "stablecoin ID, you can get these from /stablecoins",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/stablecoincharts/{chain}": {
+      "get": {
+        "tags": ["stablecoins"],
+        "summary": "Get historical mcap sum of all stablecoins in a chain",
+        "servers": [
+          {
+            "url": "https://stablecoins.llama.fi"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "chain",
+            "in": "path",
+            "required": true,
+            "description": "chain slug, you can get these from /chains or the chains property on /protocols",
+            "schema": {
+              "type": "string",
+              "example": "Ethereum"
+            }
+          },
+          {
+            "name": "stablecoin",
+            "in": "query",
+            "required": false,
+            "description": "stablecoin ID, you can get these from /stablecoins",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/stablecoin/{asset}": {
+      "get": {
+        "tags": ["stablecoins"],
+        "summary": "Get historical mcap and historical chain distribution of a stablecoin",
+        "servers": [
+          {
+            "url": "https://stablecoins.llama.fi"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "asset",
+            "in": "path",
+            "required": true,
+            "description": "stablecoin ID, you can get these from /stablecoins",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/stablecoinchains": {
+      "get": {
+        "tags": ["stablecoins"],
+        "summary": "Get current mcap sum of all stablecoins on each chain",
+        "servers": [
+          {
+            "url": "https://stablecoins.llama.fi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/stablecoinprices": {
+      "get": {
+        "tags": ["stablecoins"],
+        "summary": "Get historical prices of all stablecoins",
+        "servers": [
+          {
+            "url": "https://stablecoins.llama.fi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/pools": {
+      "get": {
+        "tags": ["yields"],
+        "summary": "Retrieve the latest data for all pools, including enriched information such as predictions",
+        "servers": [
+          {
+            "url": "https://yields.llama.fi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/chart/{pool}": {
+      "get": {
+        "tags": ["yields"],
+        "summary": "Get historical APY and TVL of a pool",
+        "servers": [
+          {
+            "url": "https://yields.llama.fi"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "pool",
+            "in": "path",
+            "required": true,
+            "description": "pool id, can be retrieved from /pools (property is called pool)",
+            "schema": {
+              "type": "string",
+              "example": "747c1d2a-c668-4682-b9f9-296708a3dd90"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/overview/dexs": {
+      "get": {
+        "tags": ["volumes"],
+        "summary": "List all dexs along with summaries of their volumes and dataType history data",
+        "servers": [
+          {
+            "url": "https://api.llama.fi"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "excludeTotalDataChart",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude aggregated chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          },
+          {
+            "name": "excludeTotalDataChartBreakdown",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude broken down chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/overview/dexs/{chain}": {
+      "get": {
+        "tags": ["volumes"],
+        "summary": "List all dexs along with summaries of their volumes and dataType history data filtering by chain",
+        "servers": [
+          {
+            "url": "https://api.llama.fi"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "chain",
+            "in": "path",
+            "required": true,
+            "description": "chain name, list of all supported chains can be found under allChains attribute in /overview/dexs response",
+            "schema": {
+              "type": "string",
+              "example": "ethereum"
+            }
+          },
+          {
+            "name": "excludeTotalDataChart",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude aggregated chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          },
+          {
+            "name": "excludeTotalDataChartBreakdown",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude broken down chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/summary/dexs/{protocol}": {
+      "get": {
+        "tags": ["volumes"],
+        "summary": "Get summary of dex volume with historical data",
+        "servers": [
+          {
+            "url": "https://api.llama.fi"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "protocol",
+            "in": "path",
+            "required": true,
+            "description": "protocol slug",
+            "schema": {
+              "type": "string",
+              "example": "uniswap"
+            }
+          },
+          {
+            "name": "excludeTotalDataChart",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude aggregated chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          },
+          {
+            "name": "excludeTotalDataChartBreakdown",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude broken down chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/overview/options": {
+      "get": {
+        "tags": ["volumes"],
+        "summary": "List all options dexs along with summaries of their volumes and dataType history data",
+        "servers": [
+          {
+            "url": "https://api.llama.fi"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "excludeTotalDataChart",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude aggregated chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          },
+          {
+            "name": "excludeTotalDataChartBreakdown",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude broken down chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          },
+          {
+            "name": "dataType",
+            "in": "query",
+            "required": false,
+            "description": "Desired data type, dailyNotionalVolume by default.",
+            "schema": {
+              "type": "string",
+              "enum": ["dailyPremiumVolume", "dailyNotionalVolume"],
+              "example": "dailyPremiumVolume"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/overview/options/{chain}": {
+      "get": {
+        "tags": ["volumes"],
+        "summary": "List all options dexs along with summaries of their volumes and dataType history data filtering by chain",
+        "servers": [
+          {
+            "url": "https://api.llama.fi"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "chain",
+            "in": "path",
+            "required": true,
+            "description": "chain name, list of all supported chains can be found under allChains attribute in /overview/options response",
+            "schema": {
+              "type": "string",
+              "example": "ethereum"
+            }
+          },
+          {
+            "name": "excludeTotalDataChart",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude aggregated chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          },
+          {
+            "name": "excludeTotalDataChartBreakdown",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude broken down chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          },
+          {
+            "name": "dataType",
+            "in": "query",
+            "required": false,
+            "description": "Desired data type, dailyNotionalVolume by default.",
+            "schema": {
+              "type": "string",
+              "enum": ["dailyPremiumVolume", "dailyNotionalVolume"],
+              "example": "dailyPremiumVolume"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/summary/options/{protocol}": {
+      "get": {
+        "tags": ["volumes"],
+        "summary": "Get summary of options dex volume with historical data",
+        "servers": [
+          {
+            "url": "https://api.llama.fi"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "protocol",
+            "in": "path",
+            "required": true,
+            "description": "protocol slug",
+            "schema": {
+              "type": "string",
+              "example": "derive"
+            }
+          },
+          {
+            "name": "dataType",
+            "in": "query",
+            "required": false,
+            "description": "Desired data type, dailyNotionalVolume by default.",
+            "schema": {
+              "type": "string",
+              "enum": ["dailyPremiumVolume", "dailyNotionalVolume"],
+              "example": "dailyPremiumVolume"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/overview/fees": {
+      "get": {
+        "tags": ["fees and revenue"],
+        "summary": "List all protocols along with summaries of their fees and revenue and dataType history data",
+        "servers": [
+          {
+            "url": "https://api.llama.fi"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "excludeTotalDataChart",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude aggregated chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          },
+          {
+            "name": "excludeTotalDataChartBreakdown",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude broken down chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          },
+          {
+            "name": "dataType",
+            "in": "query",
+            "required": false,
+            "description": "Desired data type, dailyFees by default.",
+            "schema": {
+              "type": "string",
+              "enum": ["dailyFees", "dailyRevenue"],
+              "example": "dailyFees"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/overview/fees/{chain}": {
+      "get": {
+        "tags": ["fees and revenue"],
+        "summary": "List all protocols along with summaries of their fees and revenue and dataType history data by chain",
+        "servers": [
+          {
+            "url": "https://api.llama.fi"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "chain",
+            "in": "path",
+            "required": true,
+            "description": "chain name, list of all supported chains can be found under allChains attribute in /overview/fees response",
+            "schema": {
+              "type": "string",
+              "example": "ethereum"
+            }
+          },
+          {
+            "name": "excludeTotalDataChart",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude aggregated chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          },
+          {
+            "name": "excludeTotalDataChartBreakdown",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude broken down chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          },
+          {
+            "name": "dataType",
+            "in": "query",
+            "required": false,
+            "description": "Desired data type, dailyFees by default.",
+            "schema": {
+              "type": "string",
+              "enum": ["dailyFees", "dailyRevenue"],
+              "example": "dailyFees"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/summary/fees/{protocol}": {
+      "get": {
+        "tags": ["fees and revenue"],
+        "summary": "Get summary of protocol fees and revenue with historical data",
+        "servers": [
+          {
+            "url": "https://api.llama.fi"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "protocol",
+            "in": "path",
+            "required": true,
+            "description": "protocol slug",
+            "schema": {
+              "type": "string",
+              "example": "derive"
+            }
+          },
+          {
+            "name": "dataType",
+            "in": "query",
+            "required": false,
+            "description": "Desired data type, dailyFees by default.",
+            "schema": {
+              "type": "string",
+              "enum": ["dailyFees", "dailyRevenue"],
+              "example": "dailyFees"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/api/inflows/{protocol}/{timestamp}": {
+      "get": {
+        "tags": ["TVL"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Lists the amount of inflows and outflows for a protocol at a given date",
+        "parameters": [
+          {
+            "name": "protocol",
+            "in": "path",
+            "description": "protocol slug",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "compound-v3"
+            }
+          },
+          {
+            "name": "timestamp",
+            "in": "path",
+            "description": "unix timestamp",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1700006400
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/api/chainAssets": {
+      "get": {
+        "tags": ["TVL"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Get assets of all chains",
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/stablecoins/stablecoindominance/{chain}": {
+      "get": {
+        "tags": ["stablecoins"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Get stablecoin dominance per chain along with the info about the larges coin in a chain",
+        "parameters": [
+          {
+            "name": "chain",
+            "in": "path",
+            "required": true,
+            "description": "chain slug, you can get these from /chains or the chains property on /protocols",
+            "schema": {
+              "type": "string",
+              "example": "Ethereum"
+            }
+          },
+          {
+            "name": "stablecoin",
+            "in": "query",
+            "required": false,
+            "description": "stablecoin ID, you can get these from /stablecoins",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/api/activeUsers": {
+      "get": {
+        "tags": ["active users"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Get active users on our chains and protocols pages",
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/api/userData/{type}/{protocolId}": {
+      "get": {
+        "tags": ["active users"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Get user data by type and protocol",
+        "parameters": [
+          {
+            "name": "protocolId",
+            "in": "path",
+            "description": "protocol id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "name": "type",
+            "in": "path",
+            "description": "protocol id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "activeUsers"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/api/emissions": {
+      "get": {
+        "tags": ["Unlocks"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "List of all tokens along with basic info for each",
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/api/emission/{protocol}": {
+      "get": {
+        "tags": ["Unlocks"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Unlocks data for a given token/protocol. You can find a list of available slugs to query by querying /emissions and then extracting the key `gecko_id`",
+        "parameters": [
+          {
+            "name": "protocol",
+            "in": "path",
+            "description": "protocol slug",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "aave"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/api/categories": {
+      "get": {
+        "tags": ["main page"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Overview of all categories accross all protocols",
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/api/forks": {
+      "get": {
+        "tags": ["main page"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Overview of all categories accross all protocols",
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/api/oracles": {
+      "get": {
+        "tags": ["main page"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Overview of all categories accross all protocols",
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/api/hacks": {
+      "get": {
+        "tags": ["main page"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Overview of all hacks on our Hacks dashboard",
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/api/raises": {
+      "get": {
+        "tags": ["main page"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Overview of all raises on our Raises dashboard",
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/api/treasuries": {
+      "get": {
+        "tags": ["main page"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "List all protocols on our Treasuries dashboard",
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/api/entities": {
+      "get": {
+        "tags": ["main page"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "List all entities",
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/api/historicalLiquidity/{token}": {
+      "get": {
+        "tags": ["token liquidity"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Provides the name of contracts on a determined chain",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "description": "token slug",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "usdt"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/yields/pools": {
+      "get": {
+        "tags": ["yields"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Retrieve the latest data for all pools, including enriched information such as predictions",
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/yields/poolsOld": {
+      "get": {
+        "tags": ["yields"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Same as /pools but it also includes a new parameter `pool_old` which usually contains pool address (but not guaranteed)",
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/yields/chart/{pool}": {
+      "get": {
+        "tags": ["yields"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Get historical APY and TVL of a pool",
+        "parameters": [
+          {
+            "name": "pool",
+            "in": "path",
+            "required": true,
+            "description": "pool id, can be retrieved from /pools (property is called pool)",
+            "schema": {
+              "type": "string",
+              "example": "747c1d2a-c668-4682-b9f9-296708a3dd90"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/yields/poolsBorrow": {
+      "get": {
+        "tags": ["yields"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Borrow costs APY of assets from lending markets",
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/yields/chartLendBorrow/{pool}": {
+      "get": {
+        "tags": ["yields"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Historical borrow cost APY from a pool on a lending market, pool ids should be obtained from /poolsBorrow",
+        "parameters": [
+          {
+            "name": "pool",
+            "in": "path",
+            "required": true,
+            "description": "pool id, can be retrieved from /poolsBorrow (property is called pool)",
+            "schema": {
+              "type": "string",
+              "example": "71418c17-d2aa-4eff-b68a-806fff9ec951"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/yields/perps": {
+      "get": {
+        "tags": ["yields"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Funding rates and Open Interest of perps across exchanges, including both Decentralized and Centralized",
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/yields/lsdRates": {
+      "get": {
+        "tags": ["yields"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "APY rates of multiple LSDs",
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/etfs/overview": {
+      "get": {
+        "tags": ["ETFs"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Get BTC ETFs and their metrics (aum, price, fees...)",
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/etfs/overviewEth": {
+      "get": {
+        "tags": ["ETFs"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Get ETH ETFs",
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/etfs/history": {
+      "get": {
+        "tags": ["ETFs"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Historical AUM of all BTC ETFs",
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/etfs/historyEth": {
+      "get": {
+        "tags": ["ETFs"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Historical AUM of all BTC ETFs",
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/fdv/performance/{period}": {
+      "get": {
+        "tags": ["narratives"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Get chart of narratives based on category performance (with individual coins weighted by mcap)",
+        "parameters": [
+          {
+            "name": "period",
+            "in": "path",
+            "required": true,
+            "description": "One of ['7', '30', 'ytd', '365']",
+            "schema": {
+              "type": "string",
+              "example": "30"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/api/overview/derivatives": {
+      "get": {
+        "tags": ["perps"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Lists all derivatives along summaries of their volumes filtering by chain",
+        "parameters": [
+          {
+            "name": "excludeTotalDataChart",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude aggregated chart from response",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "excludeTotalDataChartBreakdown",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude broken down chart from response",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/api/summary/derivatives/{protocol}": {
+      "get": {
+        "tags": ["perps"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Volume Details about a specific perp protocol",
+        "parameters": [
+          {
+            "name": "protocol",
+            "in": "path",
+            "required": true,
+            "description": "protocol slug",
+            "schema": {
+              "type": "string",
+              "example": "hyperliquid"
+            }
+          },
+          {
+            "name": "excludeTotalDataChart",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude aggregated chart from response",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "excludeTotalDataChartBreakdown",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude broken down chart from response",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/bridges": {
+      "get": {
+        "tags": ["bridges"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "List all bridges along with summaries of recent bridge volumes.",
+        "parameters": [
+          {
+            "name": "includeChains",
+            "in": "query",
+            "required": false,
+            "description": "set whether to include current previous day volume breakdown by chain",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/bridge/{id}": {
+      "get": {
+        "tags": ["bridges"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Get summary of bridge volume and volume breakdown by chain",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "bridge ID, you can get these from /bridges",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/bridgevolume/{chain}": {
+      "get": {
+        "tags": ["bridges"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Get historical volumes for a bridge, chain, or bridge on a particular chain",
+        "parameters": [
+          {
+            "name": "chain",
+            "in": "path",
+            "required": true,
+            "description": "chain slug, you can get these from /chains. Call also use 'all' for volume on all chains.",
+            "schema": {
+              "type": "string",
+              "example": "Ethereum"
+            }
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "description": "bridge ID, you can get these from /bridges",
+            "schema": {
+              "type": "integer",
+              "example": 5
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/bridgedaystats/{timestamp}/{chain}": {
+      "get": {
+        "tags": ["bridges"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Get a 24hr token and address volume breakdown for a bridge",
+        "parameters": [
+          {
+            "name": "timestamp",
+            "in": "path",
+            "required": true,
+            "description": "Unix timestamp. Data returned will be for the 24hr period starting at 00:00 UTC that the timestamp lands in.",
+            "schema": {
+              "type": "integer",
+              "example": 1667304000
+            }
+          },
+          {
+            "name": "chain",
+            "in": "path",
+            "required": true,
+            "description": "chain slug, you can get these from /chains.",
+            "schema": {
+              "type": "string",
+              "example": "Ethereum"
+            }
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "description": "bridge ID, you can get these from /bridges",
+            "schema": {
+              "type": "integer",
+              "example": 5
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/transactions/{id}": {
+      "get": {
+        "tags": ["bridges"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Get all transactions for a bridge within a date range",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "bridge ID, you can get these from /bridges",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "name": "starttimestamp",
+            "in": "query",
+            "required": false,
+            "description": "start timestamp (Unix Timestamp) for date range",
+            "schema": {
+              "type": "integer",
+              "example": 1667260800
+            }
+          },
+          {
+            "name": "endtimestamp",
+            "in": "query",
+            "required": false,
+            "description": "end timestamp (Unix timestamp) for date range",
+            "schema": {
+              "type": "integer",
+              "example": 1667347200
+            }
+          },
+          {
+            "name": "sourcechain",
+            "in": "query",
+            "required": false,
+            "description": "Returns only transactions that are bridging from the specified source chain.",
+            "schema": {
+              "type": "string",
+              "example": "Polygon"
+            }
+          },
+          {
+            "name": "address",
+            "in": "query",
+            "required": false,
+            "description": "Returns only transactions with specified address as \"from\" or \"to\". Addresses are quried in the form {chain}:{address}, where chain is an identifier such as ethereum, bsc, polygon, avax... .",
+            "schema": {
+              "type": "string",
+              "example": "ethereum:0x69b4B4390Bd1f0aE84E090Fe8af7AbAd2d95Cc8E"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "limit to number of transactions returned, maximum is 6000",
+            "schema": {
+              "type": "integer",
+              "example": 200
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/usage/APIKEY": {
+      "get": {
+        "tags": ["meta"],
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Get amount of credits left in the api key, these reset on the 1st of each month",
+        "responses": {
+          "200": {
+            "description": "credits left"
+          }
+        }
+      }
+    }
+  }
+}

@@ -25,33 +25,36 @@ const inDevelopment = import.meta.env.DEV
       <PageLink to="standalone-api-reference">
         <template #title>Standalone API Reference</template>
         <template #description>
-          Modern API documentation with pre-configured search and all the bells
-          and whistles.
+          Modern API documentation using the DefiLlama API specification with
+          pre-configured search and all the bells and whistles.
         </template>
       </PageLink>
       <PageLink to="api-reference">
         <template #title>Basic API Reference</template>
         <template #description>
-          The customizable API documentation, pretty bare bones if you ask me.
+          The customizable API documentation using the DefiLlama API
+          specification, with editor support for customization.
         </template>
       </PageLink>
       <PageLink to="classic-api-reference">
         <template #title>API Reference (Classic Layout)</template>
         <template #description>
-          Classic API documentation with search. Looks like Swagger UI if it was
-          born today.
+          Classic API documentation with search using the DefiLlama API
+          specification. Looks like Swagger UI if it was born today.
         </template>
       </PageLink>
       <PageLink to="embedded-api-reference">
         <template #title>API Reference as an Embed</template>
         <template #description>
-          API documentation within a pre-existing website.
+          API documentation using the DefiLlama API specification within a
+          pre-existing website.
         </template>
       </PageLink>
       <PageLink to="path-routing-api-reference">
         <template #title>API Reference with Path Routing</template>
         <template #description>
-          Standalone API Reference with path routing instead of hash routing
+          Standalone API Reference using the DefiLlama API specification with
+          path routing instead of hash routing.
         </template>
       </PageLink>
     </div>
