@@ -72,10 +72,17 @@
   "git.pullTags": false,
   "vue.complete.casing.props": "camel",
   "vue.complete.casing.tags": "pascal",
-  "tailwindCSS.experimental.classRegex": [
-    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
-    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+  "tailwindCSS.classAttributes": [
+    "class",
+    "className",
+    "enterFromClass",
+    "enterToClass",
+    "enterActiveClass",
+    "leaveFromClass",
+    "leaveToClass",
+    "leaveActiveClass"
   ],
+  "tailwindCSS.classFunctions": ["tw", "clsx", "cx"],
   "tailwindCSS.experimental.configFile": {
     "packages/api-client/src/style.css": "packages/api-client/**",
     "packages/api-reference/src/style.css": "packages/api-reference/**",
