@@ -9,7 +9,6 @@ import { computed } from 'vue'
 
 import { convertSecurityScheme } from '@/helpers/convert-security-scheme'
 import { useOperationDiscriminator } from '@/hooks/useOperationDiscriminator'
-import { useStore } from '@/v2/hooks/useStore'
 
 import ClassicLayout from './layouts/ClassicLayout.vue'
 import ModernLayout from './layouts/ModernLayout.vue'
@@ -34,8 +33,6 @@ const {
   /** @deprecated Use the new workspace store instead*/
   document?: OpenAPIV3_1.Document
 }>()
-
-const { workspace } = useStore()
 
 /**
  * Operation from the new workspace store, ensure we are de-referenced

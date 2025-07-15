@@ -45,11 +45,10 @@ import { NAV_STATE_SYMBOL } from '@/hooks/useNavState'
 import { useHttpClientStore } from '@/stores/useHttpClientStore'
 import { isClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import { onCustomEvent } from '@/v2/events'
-import { useStore } from '@/v2/hooks/useStore'
 
 const props = defineProps<{
   configuration?: AnyApiReferenceConfiguration
-  getWorkspaceStore: () => WorkspaceStore
+  workspaceStore: WorkspaceStore
 }>()
 
 // ---------------------------------------------------------------------------
@@ -108,10 +107,7 @@ const root = useTemplateRef<HTMLElement>('root')
  * In external mode the ApiReference.vue component will not provide the workspace store
  * and this component will use the provided function to get the workspace store.
  */
-const store = props.getWorkspaceStore()
-
-// Provide the workspace store so its accessible to all children
-useStore(store)
+const store = props.workspaceStore
 
 /**
  * When the useMultipleDocuments hook is deprecated we will need to handle normalizing the configs.
