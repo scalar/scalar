@@ -11,7 +11,7 @@ export default defineConfig({
       external: ['vscode'],
     },
     sourcemap: true,
-    outDir: 'out',
+    outDir: 'dist',
   },
   plugins: [],
 })

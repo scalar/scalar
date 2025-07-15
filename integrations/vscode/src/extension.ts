@@ -15,7 +15,7 @@ export function activate(context: vscode.ExtensionContext) {
   const helloWorldDisposable = vscode.commands.registerCommand('vscode-scalar.helloWorld', () => {
     // The code you place here will be executed every time your command is executed
     // Display a message box to the user
-    vscode.window.showInformationMessage('Hello World from cursor!')
+    vscode.window.showInformationMessage('Hello World from ME!')
   })
 
   // Register the new OpenAPI preview command
@@ -165,13 +165,11 @@ function getWebviewContent(openAPIContent: string, fileName: string) {
 </head>
 <body>
     <div class="container">
-        <h1>OpenAPI Preview</h1>
+        <h1>New OpenAPI Preview</h1>
         <div class="file-info">
-            <strong>File:</strong> ${fileName.split('/').pop()}
+            <strong>Active File:</strong> ${fileName.split('/').pop()}
         </div>
-        <div class="content">
-            ${escapedContent || '<div class="no-content">No content available</div>'}
-        </div>
+        <div class="content">${escapedContent || '<div class="no-content">No content available</div>'}</div>
     </div>
     <div class="status" id="status">Live Preview</div>
     <script>
