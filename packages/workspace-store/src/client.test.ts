@@ -1072,7 +1072,7 @@ describe('create-workspace-store', () => {
     })
   })
 
-  describe.only('addDocument error handling', () => {
+  describe('addDocument error handling', () => {
     beforeEach(() => {
       resetConsoleSpies()
     })
