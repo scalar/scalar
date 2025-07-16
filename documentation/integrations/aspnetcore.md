@@ -313,14 +313,14 @@ app.MapScalarApiReference(options => options
 
 ##### Adding Custom OAuth Parameters
 
-Many OAuth providers require additional parameters:
+Some OAuth providers require additional parameters:
 
 ```csharp
 app.MapScalarApiReference(options => options
     .AddAuthorizationCodeFlow("OAuth2", flow =>
     {
         flow.ClientId = "your-client-id";
-        // Add provider-specific parameters
+        // Add custom query parameters to the authorization request
         flow
             .AddQueryParameter("audience", "https://api.example.com")
             .AddQueryParameter("resource", "https://graph.microsoft.com");
@@ -330,6 +330,15 @@ app.MapScalarApiReference(options => options
         {
             ["audience"] = "https://api.example.com",
             ["resource"] = "https://graph.microsoft.com"
+        };
+
+        // Add custom body parameters for the token request
+        flow.AddBodyParameter("audience", "custom_value");
+
+        // Alternatively, set body parameters using the property
+        flow.AdditionalBodyParameters = new Dictionary<string, string>
+        {   
+             ["audience"] = "https://api.example.com"
         };
     })
 );
