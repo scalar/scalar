@@ -7,13 +7,13 @@ import { reactive, ref } from 'vue'
 vi.mock('@/hooks/useLayout', () => ({
   useLayout: vi.fn(),
 }))
-export const mockUseLayout = useLayout as Mock
+export const mockUseLayout = useLayout as Mock<[], ReturnType<typeof useLayout>>
 
 // Mock the useSidebar hook
 vi.mock('@/hooks/useSidebar', () => ({
   useSidebar: vi.fn(),
 }))
-export const mockUseSidebar = useSidebar as Mock
+export const mockUseSidebar = useSidebar as Mock<[], ReturnType<typeof useSidebar>>
 
 /** Spy on console.warn */
 export const consoleWarnSpy = vi.spyOn(console, 'warn')
