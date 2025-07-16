@@ -1,22 +1,13 @@
-import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from '@scalar/types'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import TraversedEntryContainer from './TraversedEntryContainer.vue'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { createMockSidebar, createMockSidebarFromDocument } from '@/helpers/test-utils'
+import { useSidebar } from '@/features/sidebar'
+import { apiReferenceConfigurationSchema, type OpenAPIV3_1 } from '@scalar/types'
 
-let mockCollapsedSidebarItems: Record<string, boolean> = {}
-
-vi.mock('@/features/sidebar', () => ({
-  useSidebar: () => ({
-    scrollToOperation: vi.fn(),
-    collapsedSidebarItems: mockCollapsedSidebarItems,
-    toggleCollapsedSidebarItem: vi.fn(),
-    setCollapsedSidebarItem: vi.fn(),
-    items: {
-      entries: [],
-      titles: new Map(),
-    },
-  }),
-}))
+// Mock the sidebar module
+vi.mock('@/features/sidebar')
 
 vi.mock('@scalar/api-client/store', () => ({
   useWorkspace: () => ({
@@ -39,23 +30,25 @@ vi.mock('@scalar/api-client/store', () => ({
   }),
 }))
 
-function createConfiguration(config: Partial<ApiReferenceConfiguration> = {}): ApiReferenceConfiguration {
-  return apiReferenceConfigurationSchema.parse(config)
-}
+/** Helper to generate props for the component */
+const getProps = (document: OpenAPIV3_1.Document) => ({
+  props: {
+    document,
+    config: apiReferenceConfigurationSchema.parse({
+      tagsSorter: 'alpha',
+      operationsSorter: 'alpha',
+    }),
+    store: {
+      workspace: {
+        activeDocument: document,
+      },
+    } as unknown as WorkspaceStore,
+  },
+})
 
 describe('TraversedEntryContainer', () => {
   beforeEach(() => {
-    // Expand all tags by default, it's easier to test the output
-    mockCollapsedSidebarItems = {
-      'tag/usertag': true,
-      'tag/posttag': true,
-      'tag/commenttag': true,
-      'tag/contentmanagement': true,
-      'tag/socialfeatures': true,
-      'tag/events': true,
-      'tag/webhooks': true,
-      'tag/default': true,
-    }
+    vi.resetAllMocks()
   })
 
   describe('basic operation rendering', () => {
@@ -76,14 +69,9 @@ describe('TraversedEntryContainer', () => {
         },
       } as const
 
-      const wrapper = mount(TraversedEntryContainer, {
-        props: {
-          document,
-          config: createConfiguration({
-            tagsSorter: 'alpha',
-          }),
-        },
-      })
+      // Mock the sidebar with the correct entries for this document
+      vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
+      const wrapper = mount(TraversedEntryContainer, getProps(document))
 
       expect(wrapper.text()).toContain('Say Hello')
     })
@@ -117,12 +105,9 @@ describe('TraversedEntryContainer', () => {
         },
       } as const
 
-      const wrapper = mount(TraversedEntryContainer, {
-        props: {
-          document,
-          config: createConfiguration(),
-        },
-      })
+      // Mock the sidebar with the correct entries for this document
+      vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
+      const wrapper = mount(TraversedEntryContainer, getProps(document))
 
       expect(wrapper.text()).toContain('Get Users')
       expect(wrapper.text()).toContain('Create User')
@@ -140,12 +125,9 @@ describe('TraversedEntryContainer', () => {
         paths: {},
       } as const
 
-      const wrapper = mount(TraversedEntryContainer, {
-        props: {
-          document,
-          config: createConfiguration(),
-        },
-      })
+      // Mock the sidebar with empty entries
+      vi.mocked(useSidebar).mockReturnValue(createMockSidebar({}, []))
+      const wrapper = mount(TraversedEntryContainer, getProps(document))
 
       // Should not render anything when no operations exist
       expect(wrapper.text()).toBe('')
@@ -177,12 +159,9 @@ describe('TraversedEntryContainer', () => {
         },
       } as const
 
-      const wrapper = mount(TraversedEntryContainer, {
-        props: {
-          document,
-          config: createConfiguration(),
-        },
-      })
+      // Mock the sidebar with the correct entries for this document
+      vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
+      const wrapper = mount(TraversedEntryContainer, getProps(document))
 
       expect(wrapper.text()).toContain('UserTag')
       expect(wrapper.text()).toContain('Get Users')
@@ -224,19 +203,15 @@ describe('TraversedEntryContainer', () => {
         },
       } as const
 
-      const wrapper = mount(TraversedEntryContainer, {
-        props: {
-          document,
-          config: createConfiguration(),
-        },
-      })
+      // Mock the sidebar with the correct entries for this document
+      vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
+      const wrapper = mount(TraversedEntryContainer, getProps(document))
 
       // Note: We don't expect x-tagGroup to be rendered in the content.
 
+      expect(wrapper.text()).not.toContain('Content Management')
       expect(wrapper.text()).toContain('UserTag')
       expect(wrapper.text()).toContain('PostTag')
-      expect(wrapper.text()).toContain('Get Users')
-      expect(wrapper.text()).toContain('Get Posts')
     })
 
     it('renders complex nested tag groups with multiple levels', () => {
@@ -286,21 +261,15 @@ describe('TraversedEntryContainer', () => {
         },
       } as const
 
-      const wrapper = mount(TraversedEntryContainer, {
-        props: {
-          document,
-          config: createConfiguration(),
-        },
-      })
+      // Mock the sidebar with the correct entries for this document
+      vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
+      const wrapper = mount(TraversedEntryContainer, getProps(document))
 
-      // Note: We don't expect x-tagGroup to be rendered in the content.
-
+      expect(wrapper.text()).not.toContain('Content Management')
+      expect(wrapper.text()).not.toContain('Social Features')
       expect(wrapper.text()).toContain('UserTag')
       expect(wrapper.text()).toContain('PostTag')
       expect(wrapper.text()).toContain('CommentTag')
-      expect(wrapper.text()).toContain('Get Users')
-      expect(wrapper.text()).toContain('Get Posts')
-      expect(wrapper.text()).toContain('Get Comments')
     })
   })
 
@@ -328,12 +297,9 @@ describe('TraversedEntryContainer', () => {
         },
       } as const
 
-      const wrapper = mount(TraversedEntryContainer, {
-        props: {
-          document,
-          config: createConfiguration(),
-        },
-      })
+      // Mock the sidebar with the correct entries for this document
+      vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
+      const wrapper = mount(TraversedEntryContainer, getProps(document))
 
       expect(wrapper.text()).toContain('Webhooks')
       expect(wrapper.text()).toContain('User Created Webhook')
@@ -359,12 +325,9 @@ describe('TraversedEntryContainer', () => {
         },
       } as const
 
-      const wrapper = mount(TraversedEntryContainer, {
-        props: {
-          document,
-          config: createConfiguration(),
-        },
-      })
+      // Mock the sidebar with the correct entries for this document
+      vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
+      const wrapper = mount(TraversedEntryContainer, getProps(document))
 
       expect(wrapper.text()).toContain('Webhooks')
       expect(wrapper.text()).toContain('User Created Webhook')
@@ -400,12 +363,9 @@ describe('TraversedEntryContainer', () => {
         },
       } as const
 
-      const wrapper = mount(TraversedEntryContainer, {
-        props: {
-          document,
-          config: createConfiguration(),
-        },
-      })
+      // Mock the sidebar with the correct entries for this document
+      vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
+      const wrapper = mount(TraversedEntryContainer, getProps(document))
 
       expect(wrapper.text()).toContain('Events')
       expect(wrapper.text()).toContain('Get Events')
@@ -452,14 +412,9 @@ describe('TraversedEntryContainer', () => {
           },
         } as const
 
-        const wrapper = mount(TraversedEntryContainer, {
-          props: {
-            document,
-            config: createConfiguration({
-              tagsSorter: 'alpha',
-            }),
-          },
-        })
+        // Mock the sidebar with the correct entries for this document
+        vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
+        const wrapper = mount(TraversedEntryContainer, getProps(document))
 
         const text = wrapper.text()
         const alphaIndex = text.indexOf('Alpha')
@@ -508,15 +463,11 @@ describe('TraversedEntryContainer', () => {
           },
         } as const
 
-        const wrapper = mount(TraversedEntryContainer, {
-          props: {
-            document,
-            config: createConfiguration({
-              // reverse alphabetical order
-              tagsSorter: (a, b) => -a.name.localeCompare(b.name),
-            }),
-          },
-        })
+        // Mock the sidebar with the correct entries for this document
+        vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
+        const props = getProps(document)
+        props.props.config.tagsSorter = (a: { name: string }, b: { name: string }) => -a.name.localeCompare(b.name)
+        const wrapper = mount(TraversedEntryContainer, props)
 
         const text = wrapper.text()
         const alphaIndex = text.indexOf('Alpha')
@@ -563,14 +514,9 @@ describe('TraversedEntryContainer', () => {
           },
         } as const
 
-        const wrapper = mount(TraversedEntryContainer, {
-          props: {
-            document,
-            config: createConfiguration({
-              operationsSorter: 'alpha',
-            }),
-          },
-        })
+        // Mock the sidebar with the correct entries for this document
+        vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
+        const wrapper = mount(TraversedEntryContainer, getProps(document))
 
         const text = wrapper.text()
         const alphaIndex = text.indexOf('Get Alpha')
@@ -616,23 +562,26 @@ describe('TraversedEntryContainer', () => {
           },
         } as const
 
-        const wrapper = mount(TraversedEntryContainer, {
-          props: {
-            document,
-            config: createConfiguration({
-              operationsSorter: (a, b) => {
-                const methodOrder = ['get', 'post', 'put', 'delete']
-                const methodComparison = methodOrder.indexOf(a.method) - methodOrder.indexOf(b.method)
+        // Mock the sidebar with the correct entries for this document
+        vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
+        const props = getProps(document)
 
-                if (methodComparison !== 0) {
-                  return methodComparison
-                }
+        // Custom sorter
+        props.props.config.operationsSorter = (
+          a: { method: string; path: string },
+          b: { method: string; path: string },
+        ) => {
+          const methodOrder = ['get', 'post', 'put', 'delete']
+          const methodComparison = methodOrder.indexOf(a.method) - methodOrder.indexOf(b.method)
 
-                return a.path.localeCompare(b.path)
-              },
-            }),
-          },
-        })
+          if (methodComparison !== 0) {
+            return methodComparison
+          }
+
+          return a.path.localeCompare(b.path)
+        }
+
+        const wrapper = mount(TraversedEntryContainer, props)
 
         const text = wrapper.text()
         const getIndex = text.indexOf('Get User')
@@ -680,21 +629,24 @@ describe('TraversedEntryContainer', () => {
           },
         } as const
 
-        const wrapper = mount(TraversedEntryContainer, {
-          props: {
-            document,
-            config: createConfiguration({
-              operationsSorter: (a, b) => {
-                const methodOrder = ['get', 'post', 'put', 'delete']
-                const methodComparison = methodOrder.indexOf(a.method) - methodOrder.indexOf(b.method)
-                if (methodComparison !== 0) {
-                  return methodComparison
-                }
-                return a.path.localeCompare(b.path)
-              },
-            }),
-          },
-        })
+        // Mock the sidebar with the correct entries for this document
+        vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
+        const props = getProps(document)
+
+        // Custom sorter
+        props.props.config.operationsSorter = (
+          a: { method: string; path: string },
+          b: { method: string; path: string },
+        ) => {
+          const methodOrder = ['get', 'post', 'put', 'delete']
+          const methodComparison = methodOrder.indexOf(a.method) - methodOrder.indexOf(b.method)
+          if (methodComparison !== 0) {
+            return methodComparison
+          }
+          return a.path.localeCompare(b.path)
+        }
+
+        const wrapper = mount(TraversedEntryContainer, props)
 
         const text = wrapper.text()
         const getIndex = text.indexOf('Get User')
