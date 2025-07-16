@@ -1125,7 +1125,7 @@ describe('create-workspace-store', () => {
     it('allows relative urls', async () => {
       const store = createWorkspaceStore()
 
-      // Mock fetch to return a successful response but with non-object data
+      // We dont' care about the response, we just want to make sure the fetch is called
       const mockFetch = vi.fn().mockResolvedValue({
         ok: true,
       })
