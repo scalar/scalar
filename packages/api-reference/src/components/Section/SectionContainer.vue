@@ -1,6 +1,21 @@
+<script setup lang="ts">
+defineProps<{
+  /**
+   * Skips rendering the section container div and its styles, rendering only the slot directly.
+   */
+  omit?: boolean
+}>()
+</script>
+
 <template>
-  <div class="section-container"><slot /></div>
+  <slot v-if="omit" />
+  <div
+    v-else
+    class="section-container">
+    <slot />
+  </div>
 </template>
+
 <style scoped>
 .section-container {
   position: relative;

@@ -3,6 +3,7 @@ import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { computed } from 'vue'
 
 import { Tag } from '@/components/Content/Tags'
 import { SectionContainer } from '@/components/Section'
@@ -14,7 +15,8 @@ import {
 } from '@/features/traverse-schema'
 import type { TraversedWebhook } from '@/features/traverse-schema/types'
 
-defineProps<{
+const { level = 0 } = defineProps<{
+  level?: number
   entries: TraversedEntry[]
   document: OpenAPIV3_1.Document
   config: ApiReferenceConfiguration
@@ -40,15 +42,17 @@ const isWebhook = (entry: TraversedEntry): entry is TraversedWebhook =>
 
 const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
   'isWebhooks' in entry && Boolean(entry.isWebhooks)
+
+const isRootLevel = computed(() => level === 0)
 </script>
 
 <template>
   <template
     v-for="entry in entries"
     :key="entry.id">
-    <!-- Handle operations at root level -->
     <template v-if="isOperation(entry) || isWebhook(entry)">
-      <SectionContainer>
+      <!-- Operation or Webhook -->
+      <SectionContainer :omit="!isRootLevel">
         <Operation
           :path="isWebhook(entry) ? entry.name : entry.path"
           :method="entry.method"
@@ -62,14 +66,15 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
       </SectionContainer>
     </template>
 
-    <!-- Handle webhook groups -->
     <template v-else-if="isWebhookGroup(entry)">
+      <!-- Webhook Heading -->
       <Tag
         :tag="entry"
         :layout="config.layout"
         :moreThanOneTag="entries.filter(isTag).length > 1">
         <template v-if="'children' in entry && entry.children?.length">
           <TraversedEntry
+            :level="level + 1"
             :entries="entry.children"
             :document="document"
             :config="config"
@@ -80,9 +85,10 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
       </Tag>
     </template>
 
-    <!-- Handle tag groups -->
     <template v-else-if="isTagGroup(entry)">
+      <!-- Tag Group -->
       <TraversedEntry
+        :level="level + 1"
         :entries="entry.children || []"
         :document="document"
         :config="config"
@@ -91,14 +97,15 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
         :activeServer="activeServer" />
     </template>
 
-    <!-- Handle regular tags -->
     <template v-else-if="isTag(entry)">
+      <!-- Tag -->
       <Tag
         :tag="entry"
         :layout="config.layout"
         :more-than-one-tag="entries.filter(isTag).length > 1">
         <template v-if="'children' in entry && entry.children?.length">
           <TraversedEntry
+            :level="level + 1"
             :entries="entry.children"
             :document="document"
             :config="config"
