@@ -50,7 +50,7 @@ public static class PasswordFlowExtensions
     }
 
     /// <summary>
-    /// Sets the location where authentication credentials should be placed in HTTP requests for the client credentials flow.
+    /// Sets the location where authentication credentials should be placed in HTTP requests for the password flow.
     /// </summary>
     /// <param name="flow">T<see cref="PasswordFlow"/>.</param>
     /// <param name="credentialsLocation">The location for credentials.</param>

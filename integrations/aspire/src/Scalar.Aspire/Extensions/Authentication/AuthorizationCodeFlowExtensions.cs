@@ -61,7 +61,7 @@ public static class AuthorizationCodeFlowExtensions
     }
 
     /// <summary>
-    /// Sets the location where authentication credentials should be placed in HTTP requests for the client credentials flow.
+    /// Sets the location where authentication credentials should be placed in HTTP requests for the authorization code flow.
     /// </summary>
     /// <param name="flow">T<see cref="AuthorizationCodeFlow"/>.</param>
     /// <param name="credentialsLocation">The location for credentials.</param>
