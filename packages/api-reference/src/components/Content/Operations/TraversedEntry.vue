@@ -57,7 +57,8 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
           :collection="activeCollection"
           :layout="config.layout"
           :store="store"
-          :server="activeServer" />
+          :server="activeServer"
+          :isWebhook="isWebhook(entry)" />
       </SectionContainer>
     </template>
 

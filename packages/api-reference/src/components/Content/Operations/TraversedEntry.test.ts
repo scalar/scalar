@@ -1,13 +1,41 @@
 import { collectionSchema, serverSchema } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { apiReferenceConfigurationSchema } from '@scalar/types'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import type { TraversedEntry, TraversedOperation, TraversedTag } from '@/features/traverse-schema'
 import type { TraversedWebhook } from '@/features/traverse-schema/types'
 
 import TraversedEntryComponent from './TraversedEntry.vue'
+import { createMockSidebar } from '@/helpers/test-utils'
+
+// Mock the sidebar module
+vi.mock('@/features/sidebar', () => ({
+  useSidebar: vi.fn(() => createMockSidebar()),
+}))
+
+vi.mock('@scalar/api-client/store', () => ({
+  useWorkspace: () => ({
+    collections: {
+      'default': {
+        uid: 'default',
+        servers: ['server1'],
+        selectedServerUid: 'server1',
+      },
+    },
+    servers: {
+      'server1': {
+        uid: 'server1',
+        url: 'https://api.example.com',
+      },
+    },
+  }),
+  useActiveEntities: () => ({
+    activeCollection: { value: { uid: 'default', servers: ['server1'], selectedServerUid: 'server1' } },
+  }),
+}))
 
 describe('TraversedEntry', () => {
   const mockDocument: OpenAPIV3_1.Document = {
@@ -16,7 +44,35 @@ describe('TraversedEntry', () => {
       title: 'Test API',
       version: '1.0.0',
     },
-    paths: {},
+    paths: {
+      '/users': {
+        get: {
+          summary: 'Get Users',
+          responses: { '200': { description: 'OK' } },
+        },
+        post: {
+          summary: 'Create User',
+          responses: { '201': { description: 'Created' } },
+        },
+      },
+    },
+    webhooks: {
+      'user.created': {
+        post: {
+          summary: 'User Created',
+          responses: { '200': { description: 'OK' } },
+        },
+      },
+      'user.updated': {
+        put: {
+          summary: 'User Updated',
+          responses: { '200': { description: 'OK' } },
+        },
+      },
+    },
+    components: {
+      schemas: {},
+    },
   }
 
   const mockConfig = apiReferenceConfigurationSchema.parse({
@@ -38,6 +94,19 @@ describe('TraversedEntry', () => {
     uid: 'server1',
     name: 'Test Server',
     url: 'https://api.example.com',
+  })
+
+  // Mock WorkspaceStore with documents
+  const mockStore = createWorkspaceStore({
+    documents: [
+      {
+        name: 'default',
+        document: mockDocument,
+      },
+    ],
+    meta: {
+      'x-scalar-active-document': 'default',
+    },
   })
 
   const createMockOperation = (overrides: Partial<TraversedOperation> = {}): TraversedOperation => ({
@@ -113,11 +182,13 @@ describe('TraversedEntry', () => {
           config: mockConfig,
           activeCollection: mockCollection,
           activeServer: mockServer,
+          store: mockStore,
         },
       })
 
-      expect(wrapper.find('[data-testid="operation"]').exists()).toBe(true)
-      expect(wrapper.find('[data-testid="operation"]').text()).toBe('/users get operation-1')
+      // Check that Operation component is rendered
+      expect(wrapper.findComponent({ name: 'Operation' }).exists()).toBe(true)
+      expect(wrapper.text()).toContain('Get Users')
     })
 
     it('renders multiple operations correctly', () => {
@@ -133,13 +204,14 @@ describe('TraversedEntry', () => {
           config: mockConfig,
           activeCollection: mockCollection,
           activeServer: mockServer,
+          store: mockStore,
         },
       })
 
-      const operationElements = wrapper.findAll('[data-testid="operation"]')
-      expect(operationElements).toHaveLength(2)
-      expect(operationElements[0].text()).toBe('/users get op-1')
-      expect(operationElements[1].text()).toBe('/users post op-2')
+      const operationComponents = wrapper.findAllComponents({ name: 'Operation' })
+      expect(operationComponents).toHaveLength(2)
+      expect(wrapper.text()).toContain('Get Users')
+      expect(wrapper.text()).toContain('Create User')
     })
   })
 
@@ -155,12 +227,13 @@ describe('TraversedEntry', () => {
           config: mockConfig,
           activeCollection: mockCollection,
           activeServer: mockServer,
+          store: mockStore,
         },
       })
 
-      expect(wrapper.find('[data-testid="operation"]').exists()).toBe(true)
-      // Webhooks use name instead of path
-      expect(wrapper.find('[data-testid="operation"]').text()).toBe('user.created POST webhook-1')
+      // Check that Operation component is rendered for webhooks
+      expect(wrapper.findComponent({ name: 'Operation' }).exists()).toBe(true)
+      expect(wrapper.text()).toContain('User Created')
     })
 
     it('renders multiple webhooks correctly', () => {
@@ -176,13 +249,14 @@ describe('TraversedEntry', () => {
           config: mockConfig,
           activeCollection: mockCollection,
           activeServer: mockServer,
+          store: mockStore,
         },
       })
 
-      const operationElements = wrapper.findAll('[data-testid="operation"]')
-      expect(operationElements).toHaveLength(2)
-      expect(operationElements[0].text()).toBe('user.created post webhook-1')
-      expect(operationElements[1].text()).toBe('user.updated put webhook-2')
+      const operationComponents = wrapper.findAllComponents({ name: 'Operation' })
+      expect(operationComponents).toHaveLength(2)
+      expect(wrapper.text()).toContain('User Created')
+      expect(wrapper.text()).toContain('User Updated')
     })
   })
 
@@ -198,19 +272,13 @@ describe('TraversedEntry', () => {
           config: mockConfig,
           activeCollection: mockCollection,
           activeServer: mockServer,
-        },
-        global: {
-          stubs: {
-            Tag: {
-              template: '<div data-testid="tag">{{ tag.title }} <slot /></div>',
-              props: ['tag', 'layout', 'moreThanOneTag'],
-            },
-          },
+          store: mockStore,
         },
       })
 
-      expect(wrapper.find('[data-testid="tag"]').exists()).toBe(true)
-      expect(wrapper.find('[data-testid="tag"]').text()).toBe('Users')
+      // Check that Tag component is rendered
+      expect(wrapper.findComponent({ name: 'Tag' }).exists()).toBe(true)
+      expect(wrapper.text()).toContain('Users')
     })
 
     it('renders tag with children correctly', () => {
@@ -226,12 +294,13 @@ describe('TraversedEntry', () => {
           config: mockConfig,
           activeCollection: mockCollection,
           activeServer: mockServer,
+          store: mockStore,
         },
       })
 
-      expect(wrapper.find('[data-testid="tag"]').exists()).toBe(true)
-      expect(wrapper.find('[data-testid="operation"]').exists()).toBe(true)
-      expect(wrapper.find('[data-testid="operation"]').text()).toBe('/users get child-op-1')
+      expect(wrapper.findComponent({ name: 'Tag' }).exists()).toBe(true)
+      expect(wrapper.findComponent({ name: 'Operation' }).exists()).toBe(true)
+      expect(wrapper.text()).toContain('Get Users')
     })
 
     it('does not render tag when it has no children', () => {
@@ -245,19 +314,12 @@ describe('TraversedEntry', () => {
           config: mockConfig,
           activeCollection: mockCollection,
           activeServer: mockServer,
-        },
-        global: {
-          stubs: {
-            Tag: {
-              template: '<div data-testid="tag">{{ tag.title }} <slot /></div>',
-              props: ['tag', 'layout', 'moreThanOneTag'],
-            },
-          },
+          store: mockStore,
         },
       })
 
-      expect(wrapper.find('[data-testid="tag"]').exists()).toBe(true)
-      expect(wrapper.find('[data-testid="operation"]').exists()).toBe(false)
+      expect(wrapper.findComponent({ name: 'Tag' }).exists()).toBe(true)
+      expect(wrapper.findComponent({ name: 'Operation' }).exists()).toBe(false)
     })
   })
 
@@ -275,12 +337,13 @@ describe('TraversedEntry', () => {
           config: mockConfig,
           activeCollection: mockCollection,
           activeServer: mockServer,
+          store: mockStore,
         },
       })
 
       // Tag groups render their children directly without a Tag wrapper
-      expect(wrapper.find('[data-testid="operation"]').exists()).toBe(true)
-      expect(wrapper.find('[data-testid="operation"]').text()).toBe('/users get group-op-1')
+      expect(wrapper.findComponent({ name: 'Operation' }).exists()).toBe(true)
+      expect(wrapper.text()).toContain('Get Users')
     })
 
     it('renders empty tag group correctly', () => {
@@ -294,11 +357,12 @@ describe('TraversedEntry', () => {
           config: mockConfig,
           activeCollection: mockCollection,
           activeServer: mockServer,
+          store: mockStore,
         },
       })
 
       // Empty tag groups should not render anything
-      expect(wrapper.find('[data-testid="operation"]').exists()).toBe(false)
+      expect(wrapper.findComponent({ name: 'Operation' }).exists()).toBe(false)
     })
   })
 
@@ -316,13 +380,13 @@ describe('TraversedEntry', () => {
           config: mockConfig,
           activeCollection: mockCollection,
           activeServer: mockServer,
+          store: mockStore,
         },
       })
 
-      expect(wrapper.find('[data-testid="tag"]').exists()).toBe(true)
-      expect(wrapper.find('[data-testid="tag"]').text()).toBe('Webhooks')
-      expect(wrapper.find('[data-testid="operation"]').exists()).toBe(true)
-      expect(wrapper.find('[data-testid="operation"]').text()).toBe('user.created post group-webhook-1')
+      expect(wrapper.findComponent({ name: 'Tag' }).exists()).toBe(true)
+      expect(wrapper.findComponent({ name: 'Operation' }).exists()).toBe(true)
+      expect(wrapper.text()).toContain('User Created')
     })
 
     it('renders empty webhook group correctly', () => {
@@ -336,19 +400,12 @@ describe('TraversedEntry', () => {
           config: mockConfig,
           activeCollection: mockCollection,
           activeServer: mockServer,
-        },
-        global: {
-          stubs: {
-            Tag: {
-              template: '<div data-testid="tag">{{ tag.title }} <slot /></div>',
-              props: ['tag', 'layout', 'moreThanOneTag'],
-            },
-          },
+          store: mockStore,
         },
       })
 
-      expect(wrapper.find('[data-testid="tag"]').exists()).toBe(true)
-      expect(wrapper.find('[data-testid="operation"]').exists()).toBe(false)
+      expect(wrapper.findComponent({ name: 'Tag' }).exists()).toBe(true)
+      expect(wrapper.findComponent({ name: 'Operation' }).exists()).toBe(false)
     })
   })
 
@@ -371,17 +428,18 @@ describe('TraversedEntry', () => {
           config: mockConfig,
           activeCollection: mockCollection,
           activeServer: mockServer,
+          store: mockStore,
         },
       })
 
-      const operationElements = wrapper.findAll('[data-testid="operation"]')
-      expect(operationElements).toHaveLength(3)
-      expect(operationElements[0].text()).toBe('/users get op-1')
-      expect(operationElements[1].text()).toBe('user.created post webhook-1')
-      expect(operationElements[2].text()).toBe('/users post tag-op-1')
+      const operationComponents = wrapper.findAllComponents({ name: 'Operation' })
+      expect(operationComponents).toHaveLength(3)
+      expect(wrapper.text()).toContain('Get Users')
+      expect(wrapper.text()).toContain('User Created')
+      expect(wrapper.text()).toContain('Create User')
 
-      expect(wrapper.find('[data-testid="tag"]').exists()).toBe(true)
-      expect(wrapper.find('[data-testid="tag"]').text()).toBe('Users')
+      expect(wrapper.findComponent({ name: 'Tag' }).exists()).toBe(true)
+      expect(wrapper.text()).toContain('Users')
     })
   })
 
@@ -399,21 +457,17 @@ describe('TraversedEntry', () => {
           config: mockConfig,
           activeCollection: mockCollection,
           activeServer: mockServer,
-        },
-        global: {
-          stubs: {
-            Tag: {
-              template: '<div data-testid="tag">{{ moreThanOneTag }}</div>',
-              props: ['tag', 'layout', 'moreThanOneTag'],
-            },
-          },
+          store: mockStore,
         },
       })
 
-      const tagElements = wrapper.findAll('[data-testid="tag"]')
-      expect(tagElements).toHaveLength(2)
-      expect(tagElements[0].text()).toBe('true')
-      expect(tagElements[1].text()).toBe('true')
+      const tagComponents = wrapper.findAllComponents({ name: 'Tag' })
+      expect(tagComponents).toHaveLength(2)
+
+      // Check that moreThanOneTag prop is passed correctly
+      tagComponents.forEach((tagComponent) => {
+        expect(tagComponent.props('moreThanOneTag')).toBe(true)
+      })
     })
 
     it('passes moreThanOneTag as false when only one tag exists', () => {
@@ -426,20 +480,13 @@ describe('TraversedEntry', () => {
           config: mockConfig,
           activeCollection: mockCollection,
           activeServer: mockServer,
-        },
-        global: {
-          stubs: {
-            Tag: {
-              template: '<div data-testid="tag">{{ moreThanOneTag }}</div>',
-              props: ['tag', 'layout', 'moreThanOneTag'],
-            },
-          },
+          store: mockStore,
         },
       })
 
-      const tagElement = wrapper.find('[data-testid="tag"]')
-      expect(tagElement.exists()).toBe(true)
-      expect(tagElement.text()).toBe('false')
+      const tagComponent = wrapper.findComponent({ name: 'Tag' })
+      expect(tagComponent.exists()).toBe(true)
+      expect(tagComponent.props('moreThanOneTag')).toBe(false)
     })
   })
 
@@ -454,11 +501,12 @@ describe('TraversedEntry', () => {
           config: mockConfig,
           activeCollection: mockCollection,
           activeServer: mockServer,
+          store: mockStore,
         },
       })
 
-      expect(wrapper.find('[data-testid="tag"]').exists()).toBe(false)
-      expect(wrapper.find('[data-testid="operation"]').exists()).toBe(false)
+      expect(wrapper.findComponent({ name: 'Tag' }).exists()).toBe(false)
+      expect(wrapper.findComponent({ name: 'Operation' }).exists()).toBe(false)
     })
 
     it('handles undefined children in tag', () => {
@@ -472,19 +520,12 @@ describe('TraversedEntry', () => {
           config: mockConfig,
           activeCollection: mockCollection,
           activeServer: mockServer,
-        },
-        global: {
-          stubs: {
-            Tag: {
-              template: '<div data-testid="tag">{{ tag.title }} <slot /></div>',
-              props: ['tag', 'layout', 'moreThanOneTag'],
-            },
-          },
+          store: mockStore,
         },
       })
 
-      expect(wrapper.find('[data-testid="tag"]').exists()).toBe(true)
-      expect(wrapper.find('[data-testid="operation"]').exists()).toBe(false)
+      expect(wrapper.findComponent({ name: 'Tag' }).exists()).toBe(true)
+      expect(wrapper.findComponent({ name: 'Operation' }).exists()).toBe(false)
     })
 
     it('handles undefined children in tag group', () => {
@@ -498,10 +539,11 @@ describe('TraversedEntry', () => {
           config: mockConfig,
           activeCollection: mockCollection,
           activeServer: mockServer,
+          store: mockStore,
         },
       })
 
-      expect(wrapper.find('[data-testid="operation"]').exists()).toBe(false)
+      expect(wrapper.findComponent({ name: 'Operation' }).exists()).toBe(false)
     })
   })
 
@@ -517,11 +559,17 @@ describe('TraversedEntry', () => {
           config: mockConfig,
           activeCollection: mockCollection,
           activeServer: mockServer,
+          store: mockStore,
         },
       })
 
-      const operationElement = wrapper.find('[data-testid="operation"]')
-      expect(operationElement.text()).toBe('/users get operation-1 modern test-collection server1')
+      const operationComponent = wrapper.findComponent({ name: 'Operation' })
+      expect(operationComponent.props('path')).toBe('/users')
+      expect(operationComponent.props('method')).toBe('get')
+      expect(operationComponent.props('id')).toBe('operation-1')
+      expect(operationComponent.props('layout')).toBe('modern')
+      expect(operationComponent.props('store')).toStrictEqual(mockStore)
+      expect(operationComponent.props('server')).toStrictEqual(mockServer)
     })
 
     it('passes correct props to Tag component', () => {
@@ -535,19 +583,14 @@ describe('TraversedEntry', () => {
           config: mockConfig,
           activeCollection: mockCollection,
           activeServer: mockServer,
-        },
-        global: {
-          stubs: {
-            Tag: {
-              template: '<div data-testid="tag">{{ tag.title }} {{ layout }} {{ moreThanOneTag }}</div>',
-              props: ['tag', 'layout', 'moreThanOneTag'],
-            },
-          },
+          store: mockStore,
         },
       })
 
-      const tagElement = wrapper.find('[data-testid="tag"]')
-      expect(tagElement.text()).toBe('Users modern false')
+      const tagComponent = wrapper.findComponent({ name: 'Tag' })
+      expect(tagComponent.props('tag')).toEqual(tag)
+      expect(tagComponent.props('layout')).toBe('modern')
+      expect(tagComponent.props('moreThanOneTag')).toBe(false)
     })
   })
 })
