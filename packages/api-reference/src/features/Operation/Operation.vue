@@ -26,7 +26,7 @@ const {
 } = defineProps<{
   path: string
   method: HttpMethod
-  isWebhook?: boolean
+  isWebhook: boolean
   layout?: 'modern' | 'classic'
   id: string
   server: Server | undefined
