@@ -81,6 +81,7 @@
             "url": "https://pro-api.llama.fi"
           }
         ],
+        "x-scalar-tier": "pro",
         "summary": "Lists the amount of a certain token within all protocols. Data for the Token Usage page",
         "parameters": [
           {
@@ -419,7 +420,7 @@
         "description": "The goal of this API is to price as many tokens as possible, including exotic ones that never get traded, which makes them impossible to price by looking at markets.\n\nThe base of our data are prices pulled from coingecko, which is then extended through multiple means:\n- We price all bridged tokens by using the price of the token in it's original chain, so we fetch all bridged versions of USDC on arbitrum, fantom, avax... and price all them using the price for the token on Ethereum, which we know. Right now we support 10 different bridging protocols.\n- We have multiple adapters to price specialized sets of tokens by running custom code:\n  - We price yearn's yToken LPs by checking how much underlying token can be withdrawn for each LP\n  - Aave, compound and euler LP tokens are also priced based on their relationship against underlying tokens\n  - Uniswap, curve, balancer and stargate LPs are priced using the underlying tokens in each pair\n  - GMX's GLP token is priced based on the value of tokens given on withdrawal (which includes calculations based on trader's PnL)\n  \n  - Synthetix tokens are priced using forex prices of the coin they are pegged to\n- For tokens that we haven't been able to price in any other way, we find the pool with most liquidity for each on uniswap, curve and serum and then use the prices provided on those exchanges.\n  \n  Unlike all the other tokens, we can't confirm that these prices are correct, so we only ingest the ones that have sufficient liquidity and, even in that case, we attach a `confidence` value to them that is related to the depth of liquidity and which represents our confidence in the quality of each price. API consumers can choose to filter out prices with low confidence values.\n  \n Our API server is fully open source and we are constantly adding more pricing adapters, extending the amount of tokens we support.\n  \nTokens are queried using {chain}:{address}, where chain is an identifier such as ethereum, bsc, polygon, avax... You can also get tokens by coingecko id by setting `coingecko` as the chain, eg: coingecko:ethereum, coingecko:bitcoin. Examples:\n  - ethereum:0xdF574c24545E5FfEcb9a659c229253D4111d87e1\n  - bsc:0x762539b45a1dcce3d36d080f74d1aed37844b878\n  - coingecko:ethereum\n  - arbitrum:0x4277f8f2c384827b5273592ff7cebd9f2c1ac258\n",
         "servers": [
           {
-            "url": "https://pro-api.llama.fi"
+            "url": "https://coins.llama.fi"
           }
         ],
         "parameters": [
@@ -1278,11 +1279,6 @@
       "get": {
         "tags": ["volumes"],
         "summary": "List all dexs along with summaries of their volumes and dataType history data",
-        "servers": [
-          {
-            "url": "https://api.llama.fi"
-          }
-        ],
         "parameters": [
           {
             "name": "excludeTotalDataChart",
@@ -1316,11 +1312,6 @@
       "get": {
         "tags": ["volumes"],
         "summary": "List all dexs along with summaries of their volumes and dataType history data filtering by chain",
-        "servers": [
-          {
-            "url": "https://api.llama.fi"
-          }
-        ],
         "parameters": [
           {
             "name": "chain",
@@ -1364,11 +1355,6 @@
       "get": {
         "tags": ["volumes"],
         "summary": "Get summary of dex volume with historical data",
-        "servers": [
-          {
-            "url": "https://api.llama.fi"
-          }
-        ],
         "parameters": [
           {
             "name": "protocol",
@@ -1412,11 +1398,6 @@
       "get": {
         "tags": ["volumes"],
         "summary": "List all options dexs along with summaries of their volumes and dataType history data",
-        "servers": [
-          {
-            "url": "https://api.llama.fi"
-          }
-        ],
         "parameters": [
           {
             "name": "excludeTotalDataChart",
@@ -1461,11 +1442,6 @@
       "get": {
         "tags": ["volumes"],
         "summary": "List all options dexs along with summaries of their volumes and dataType history data filtering by chain",
-        "servers": [
-          {
-            "url": "https://api.llama.fi"
-          }
-        ],
         "parameters": [
           {
             "name": "chain",
@@ -1520,11 +1496,6 @@
       "get": {
         "tags": ["volumes"],
         "summary": "Get summary of options dex volume with historical data",
-        "servers": [
-          {
-            "url": "https://api.llama.fi"
-          }
-        ],
         "parameters": [
           {
             "name": "protocol",
@@ -1559,11 +1530,6 @@
       "get": {
         "tags": ["fees and revenue"],
         "summary": "List all protocols along with summaries of their fees and revenue and dataType history data",
-        "servers": [
-          {
-            "url": "https://api.llama.fi"
-          }
-        ],
         "parameters": [
           {
             "name": "excludeTotalDataChart",
@@ -1608,11 +1574,6 @@
       "get": {
         "tags": ["fees and revenue"],
         "summary": "List all protocols along with summaries of their fees and revenue and dataType history data by chain",
-        "servers": [
-          {
-            "url": "https://api.llama.fi"
-          }
-        ],
         "parameters": [
           {
             "name": "chain",
@@ -1667,11 +1628,6 @@
       "get": {
         "tags": ["fees and revenue"],
         "summary": "Get summary of protocol fees and revenue with historical data",
-        "servers": [
-          {
-            "url": "https://api.llama.fi"
-          }
-        ],
         "parameters": [
           {
             "name": "protocol",

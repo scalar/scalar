@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { getApiKeyValue } from '@scalar/api-client'
 import { ApiReference } from '@scalar/api-reference'
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
-import { reactive, watch } from 'vue'
+import { reactive } from 'vue'
 
 // Import the spec.json file
-import specContent from '../../spec.json'
+import specContent from '../../../../spec.json'
 import ApiKeyInput from '../components/ApiKeyInput.vue'
 import SlotPlaceholder from '../components/SlotPlaceholder.vue'
 
