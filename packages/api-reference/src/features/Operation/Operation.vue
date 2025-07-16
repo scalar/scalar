@@ -1,15 +1,12 @@
 <script lang="ts" setup>
 import { useWorkspace } from '@scalar/api-client/store'
-import { filterSecurityRequirements } from '@scalar/api-client/views/Request/RequestSection'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { isReference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import { computed } from 'vue'
 
-import { convertSecurityScheme } from '@/helpers/convert-security-scheme'
+import { getPointer } from '@/blocks/helpers/getPointer'
+import { useBlockProps } from '@/blocks/hooks/useBlockProps'
 import { useOperationDiscriminator } from '@/hooks/useOperationDiscriminator'
-import { useStore } from '@/v2/hooks/useStore'
 
 import ClassicLayout from './layouts/ClassicLayout.vue'
 import ModernLayout from './layouts/ModernLayout.vue'
@@ -17,42 +14,35 @@ import ModernLayout from './layouts/ModernLayout.vue'
 const {
   layout = 'modern',
   document,
+  collection,
   server,
   isWebhook,
-  collection,
   path,
   method,
 } = defineProps<{
+  document?: OpenAPIV3_1.Document
   path: string
-  method: HttpMethod
+  method: OpenAPIV3_1.HttpMethods
   isWebhook?: boolean
   layout?: 'modern' | 'classic'
   id: string
-  server: Server | undefined
-  /** @deprecated Use `document` instead, we just need the selected security scheme uids for now */
+  /**
+   * @deprecated Use `document` instead
+   */
   collection: Collection
-  /** @deprecated Use the new workspace store instead*/
-  document?: OpenAPIV3_1.Document
+  server: Server | undefined
 }>()
 
-const { workspace } = useStore()
+const store = useWorkspace()
 
 /**
- * Operation from the new workspace store, ensure we are de-referenced
- * TODO: loading/error states
+ * NEW: We're using the dereferenced document to get the operation.
+ *
+ * This will come from the new workspace store soon.
+ *
+ * This is what we want to use in the future.
  */
-const operation = computed(() => {
-  const initialKey = isWebhook ? 'webhooks' : 'paths'
-  const entity = workspace.activeDocument?.[initialKey]?.[path]?.[method]
-
-  if (isReference(entity)) {
-    return null
-  }
-
-  return entity
-})
-
-const oldOperation = computed(() =>
+const operation = computed(() =>
   isWebhook
     ? document?.webhooks?.[path]?.[method]
     : document?.paths?.[path]?.[method],
@@ -60,54 +50,68 @@ const oldOperation = computed(() =>
 
 /**
  * Handle the selection of discriminator in the request body (anyOf, oneOf…)
- *
- * TODO: update this to use the new store
  */
 const { handleDiscriminatorChange } = useOperationDiscriminator(
-  oldOperation.value,
+  operation.value,
   document?.components?.schemas,
 )
 
 /**
- * TEMP
- * This still uses the client store and formats it into the new store format
+ * Resolve the matching operation from the store
+ *
+ * @deprecated TODO: In the future, we won't need this. We want to work with more or less plain OpenAPI objects.
  */
-const { securitySchemes } = useWorkspace()
-const selectedSecuritySchemes = computed(() =>
-  filterSecurityRequirements(
-    operation.value?.security || document?.security,
-    collection.selectedSecuritySchemeUids,
-    securitySchemes,
-  ).map(convertSecurityScheme),
-)
+const { operation: request } = useBlockProps({
+  store,
+  collection,
+  location: getPointer([isWebhook ? 'webhooks' : 'paths', path, method]),
+})
+
+/** Return operation server if available or fallback to the collection server */
+const operationServer = computed(() => {
+  if (!request.value) {
+    return server
+  }
+
+  if (request.value?.selectedServerUid) {
+    const operationServer = store.servers[request.value.selectedServerUid]
+
+    if (operationServer) {
+      return operationServer
+    }
+  }
+
+  // Fallback to the provided server
+  return server
+})
 </script>
 
 <template>
-  <template v-if="operation">
+  <template v-if="collection && operation">
     <template v-if="layout === 'classic'">
       <ClassicLayout
         :id="id"
+        :operation="operation"
+        :collection="collection"
         :isWebhook="isWebhook"
         :method="method"
-        :operation="operation"
-        :oldOperation="oldOperation"
-        :securitySchemes="selectedSecuritySchemes"
         :path="path"
+        :request="request"
         :schemas="document?.components?.schemas"
-        :server="server"
+        :server="operationServer"
         @update:modelValue="handleDiscriminatorChange" />
     </template>
     <template v-else>
       <ModernLayout
         :id="id"
+        :collection="collection"
         :isWebhook="isWebhook"
         :method="method"
-        :oldOperation="oldOperation"
-        :securitySchemes="selectedSecuritySchemes"
         :path="path"
+        :request="request"
         :operation="operation"
         :schemas="document?.components?.schemas"
-        :server="server"
+        :server="operationServer"
         @update:modelValue="handleDiscriminatorChange" />
     </template>
   </template>
