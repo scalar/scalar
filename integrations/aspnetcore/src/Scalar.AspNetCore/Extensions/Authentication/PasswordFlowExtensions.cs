@@ -48,4 +48,15 @@ public static class PasswordFlowExtensions
         flow.Password = password;
         return flow;
     }
+
+    /// <summary>
+    /// Sets the location where authentication credentials should be placed in HTTP requests for the password flow.
+    /// </summary>
+    /// <param name="flow">T<see cref="PasswordFlow"/>.</param>
+    /// <param name="credentialsLocation">The location for credentials.</param>
+    public static PasswordFlow WithCredentialsLocation(this PasswordFlow flow, CredentialsLocation? credentialsLocation)
+    {
+        flow.CredentialsLocation = credentialsLocation;
+        return flow;
+    }
 }
