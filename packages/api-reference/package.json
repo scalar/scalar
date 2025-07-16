@@ -95,7 +95,6 @@
     "@types/react": "catalog:*",
     "@types/react-dom": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
-    "@vitest/ui": "^3.2.4",
     "@vue/server-renderer": "^3.5.17",
     "@vue/test-utils": "^2.4.1",
     "react": "catalog:*",
