@@ -1,9 +1,9 @@
-import { describe, it, expect } from 'vitest'
 import type { TraversedEntry, TraversedOperation, TraversedTag } from '@/schemas/navigation'
-import { traverseTags } from './traverse-tags'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { describe, expect, it } from 'vitest'
+import { traverseTags } from './traverse-tags'
 
 type TagGroup = { name: string; tags: string[] }
 
@@ -162,7 +162,7 @@ describe('traverseTags', () => {
     expect((result[1] as TraversedOperation).method).toBe('post')
   })
 
-  it.only('should handle custom operationSorter using [deprecated] httpVerb', () => {
+  it('should handle custom operationSorter using [deprecated] httpVerb', () => {
     const document = createMockDocument()
     const tagsMap = new Map([
       [
