@@ -5,10 +5,6 @@ import { createLimiter } from '@/utils/bundle/create-limiter'
 type FetchConfig = Partial<{
   headers: { headers: HeadersInit; domains: string[] }[]
   fetch: (input: string | URL | globalThis.Request, init?: RequestInit) => Promise<Response>
-  /**
-   * Used to validate the URL, defaults to checking for remote URLs
-   */
-  validate?: (url: string) => boolean
 }>
 
 /**
@@ -91,7 +87,7 @@ export function fetchUrls(config?: FetchConfig & Partial<{ limit: number | null 
   const limiter = config?.limit ? createLimiter(config.limit) : <T>(fn: () => Promise<T>) => fn()
 
   return {
-    validate: config?.validate ?? isRemoteUrl,
+    validate: isRemoteUrl,
     exec: (value) => fetchUrl(value, limiter, config),
   }
 }
