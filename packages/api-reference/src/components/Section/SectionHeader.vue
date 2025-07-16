@@ -16,6 +16,9 @@ defineProps<{
       :class="{ tight }">
       <slot />
     </div>
+    <slot
+      v-if="$slots.links"
+      name="links" />
   </div>
 </template>
 
@@ -25,6 +28,7 @@ defineProps<{
 .section-header-wrapper {
   display: grid;
   grid-template-columns: 1fr;
+  gap: 48px;
 }
 
 @variant xl {

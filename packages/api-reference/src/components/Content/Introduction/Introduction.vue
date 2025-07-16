@@ -14,6 +14,9 @@ import {
 } from '@/components/Section'
 import { DownloadLink, OPENAPI_VERSION_SYMBOL } from '@/features/download-link'
 import ExternalDocs from '@/features/ExternalDocs/ExternalDocs.vue'
+import Contact from '@/features/InfoObject/Contact.vue'
+import License from '@/features/InfoObject/License.vue'
+import TermsOfService from '@/features/InfoObject/TermsOfService.vue'
 import { SpecificationExtension } from '@/features/specification-extension'
 import { DEFAULT_INTRODUCTION_SLUG } from '@/features/traverse-schema'
 import { useConfig } from '@/hooks/useConfig'
@@ -24,6 +27,9 @@ import Description from './Description.vue'
 const { document } = defineProps<{
   document: OpenAPIV3_1.Document
   externalDocs?: OpenAPIV3_1.ExternalDocumentationObject
+  contact?: OpenAPIV3_1.ContactObject
+  license?: OpenAPIV3_1.LicenseObject
+  termsOfService?: OpenAPIV3_1.InfoObject['termsOfService']
 }>()
 
 const { getHeadingId } = useNavState()
@@ -77,12 +83,20 @@ onMounted(() => config.value.onLoaded?.())
           <SectionHeaderTag :level="1">
             {{ document.info?.title }}
           </SectionHeaderTag>
+          <template #links>
+            <div
+              class="align-center ml-2 inline-flex justify-end gap-2 text-sm">
+              <ExternalDocs :value="externalDocs" />
+              <Contact :value="contact" />
+              <License :value="license" />
+              <TermsOfService :value="termsOfService" />
+            </div>
+          </template>
         </SectionHeader>
         <SectionColumns>
           <SectionColumn>
             <div class="links">
               <DownloadLink :title="document.info?.title" />
-              <ExternalDocs :value="externalDocs" />
             </div>
             <Description :value="document.info?.description" />
           </SectionColumn>
