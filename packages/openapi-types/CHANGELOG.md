@@ -1,5 +1,11 @@
 # @scalar/openapi-types
 
+## 0.3.6
+
+### Patch Changes
+
+- 591562f: feat: add support for x-scalar-security-body extension
+
 ## 0.3.5
 
 ### Patch Changes

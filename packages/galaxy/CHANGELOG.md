@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.5.4
+
+### Patch Changes
+
+- 926de55: fix: broken internal link
+
 ## 0.5.3
 
 ### Patch Changes

@@ -1,5 +1,29 @@
 # @scalar/api-client
 
+## 2.5.18
+
+### Patch Changes
+
+- 591562f: feat: add support for x-scalar-security-body extension
+- Updated dependencies [a04cc15]
+- Updated dependencies [591562f]
+- Updated dependencies [85ee2ce]
+- Updated dependencies [fbb7daa]
+- Updated dependencies [fbaaa12]
+- Updated dependencies [85ee2ce]
+- Updated dependencies [97721b5]
+- Updated dependencies [85ee2ce]
+- Updated dependencies [8a67f4f]
+  - @scalar/components@0.14.19
+  - @scalar/openapi-types@0.3.6
+  - @scalar/types@0.2.9
+  - @scalar/snippetz@0.4.2
+  - @scalar/themes@0.13.10
+  - @scalar/use-codemirror@0.12.20
+  - @scalar/oas-utils@0.4.14
+  - @scalar/openapi-parser@0.18.1
+  - @scalar/postman-to-openapi@0.3.17
+
 ## 2.5.17
 
 ### Patch Changes
