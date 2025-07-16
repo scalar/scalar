@@ -1122,6 +1122,23 @@ describe('create-workspace-store', () => {
       expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
     })
 
+    it('allows relative urls', async () => {
+      const store = createWorkspaceStore()
+
+      // Mock fetch to return a successful response but with non-object data
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+      })
+
+      await store.addDocument({
+        name: 'relative-doc',
+        url: 'examples/openapi.json',
+        fetch: mockFetch,
+      })
+
+      expect(mockFetch).toHaveBeenCalledWith('examples/openapi.json', { headers: undefined })
+    })
+
     it('logs different errors for different failure conditions', async () => {
       const store = createWorkspaceStore()
 
