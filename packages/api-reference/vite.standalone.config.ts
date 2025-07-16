@@ -49,12 +49,6 @@ export default defineConfig({
     },
     cssCodeSplit: false,
     minify: 'terser',
-    // With the default terserOptions, highlight.js breaks the build.
-    // * They're using terser, too.
-    // * Copying their options fixes the build.
-    // * `max_line_len: 80` is the one setting that makes the difference.
-    //
-    // Source: https://github.com/highlightjs/highlight.js/blob/b9ae5fea90514b864f2c9b2889d7d3302d6156dc/tools/build_config.js#L58-L73
     terserOptions: {
       format: {
         max_line_len: 80,
@@ -66,8 +60,25 @@ export default defineConfig({
       formats: ['umd'],
     },
     rollupOptions: {
+      external: [
+        'vue',
+        '@scalar/api-client',
+        '@scalar/api-client/layouts/Modal',
+        '@scalar/components',
+        '@scalar/use-codemirror',
+        '@scalar/use-toasts',
+        '@scalar/themes',
+      ],
       output: {
         entryFileNames: '[name].js',
+        globals: {
+          vue: 'Vue',
+          '@scalar/api-client': 'ScalarApiClient',
+          '@scalar/components': 'ScalarComponents',
+          '@scalar/use-codemirror': 'ScalarUseCodemirror',
+          '@scalar/use-toasts': 'ScalarUseToasts',
+          '@scalar/themes': 'ScalarThemes',
+        },
       },
     },
   },

@@ -133,7 +133,6 @@ async function importCollection() {
         activeWorkspace.value?.uid ?? '',
         {
           proxyUrl: activeWorkspace.value?.proxyUrl,
-          watchMode: watchMode.value,
         },
       )
 

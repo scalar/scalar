@@ -11,7 +11,6 @@ import SlotPlaceholder from '../components/SlotPlaceholder.vue'
 
 const configuration = reactive(
   apiReferenceConfigurationSchema.parse({
-    proxyUrl: import.meta.env.VITE_REQUEST_PROXY_URL,
     isEditable: false,
     // Add path routing option
     ...(window.location.pathname.startsWith('/path-routing')
@@ -21,16 +20,6 @@ const configuration = reactive(
       : {}),
     content: specContent,
   }),
-)
-
-// Watch for API key changes and update configuration
-watch(
-  () => getApiKeyValue('default'),
-  (apiKey) => {
-    // Update configuration when API key changes
-    configuration.apiKey = apiKey || undefined
-  },
-  { immediate: true },
 )
 </script>
 <template>

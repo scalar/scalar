@@ -18,6 +18,7 @@ import { Anchor } from '@/components/Anchor'
 import { Badge } from '@/components/Badge'
 import { HttpMethod } from '@/components/HttpMethod'
 import OperationPath from '@/components/OperationPath.vue'
+import { ProBadge } from '@/components/ProBadge'
 import { SectionAccordion } from '@/components/Section'
 import { ExampleRequest } from '@/features/example-request'
 import { ExampleResponses } from '@/features/example-responses'
@@ -90,6 +91,8 @@ const handleDiscriminatorChange = (type: string) => {
                 :class="getOperationStabilityColor(operation)">
                 {{ getOperationStability(operation) }}
               </Badge>
+
+              <ProBadge :operation="operation" />
 
               <Badge
                 v-if="isWebhook"

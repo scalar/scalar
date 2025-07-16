@@ -68,6 +68,11 @@ const title = computed(
           ),
         }">
         {{ transformedOperation.path }}
+        <span
+          v-if="transformedOperation.information?.['x-scalar-tier'] === 'pro'"
+          class="pro-indicator">
+          PRO
+        </span>
       </span>
     </a>
   </li>
@@ -113,5 +118,16 @@ const title = computed(
 
 .deprecated {
   text-decoration: line-through;
+}
+
+.pro-indicator {
+  margin-left: 8px;
+  color: var(--scalar-color-orange);
+  font-size: var(--scalar-micro);
+  font-weight: var(--scalar-bold);
+  background: color-mix(in srgb, var(--scalar-color-orange), transparent 90%);
+  padding: 1px 4px;
+  border-radius: 6px;
+  display: inline-block;
 }
 </style>

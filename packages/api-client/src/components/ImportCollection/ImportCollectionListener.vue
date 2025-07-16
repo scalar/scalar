@@ -75,7 +75,6 @@ async function handleImportCollection(
       workspace: activeWorkspace.value,
       source,
       // Use watch mode by default.
-      watchMode: true,
       onSuccess(collection: Collection | undefined) {
         if (collection) {
           redirectToFirstRequestInCollection(collection)

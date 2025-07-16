@@ -81,6 +81,7 @@
             "url": "https://pro-api.llama.fi"
           }
         ],
+        "x-scalar-tier": "pro",
         "summary": "Lists the amount of a certain token within all protocols. Data for the Token Usage page",
         "parameters": [
           {
@@ -1278,11 +1279,6 @@
       "get": {
         "tags": ["volumes"],
         "summary": "List all dexs along with summaries of their volumes and dataType history data",
-        "servers": [
-          {
-            "url": "https://api.llama.fi"
-          }
-        ],
         "parameters": [
           {
             "name": "excludeTotalDataChart",
@@ -1316,11 +1312,6 @@
       "get": {
         "tags": ["volumes"],
         "summary": "List all dexs along with summaries of their volumes and dataType history data filtering by chain",
-        "servers": [
-          {
-            "url": "https://api.llama.fi"
-          }
-        ],
         "parameters": [
           {
             "name": "chain",
@@ -1364,11 +1355,6 @@
       "get": {
         "tags": ["volumes"],
         "summary": "Get summary of dex volume with historical data",
-        "servers": [
-          {
-            "url": "https://api.llama.fi"
-          }
-        ],
         "parameters": [
           {
             "name": "protocol",
@@ -1412,11 +1398,6 @@
       "get": {
         "tags": ["volumes"],
         "summary": "List all options dexs along with summaries of their volumes and dataType history data",
-        "servers": [
-          {
-            "url": "https://api.llama.fi"
-          }
-        ],
         "parameters": [
           {
             "name": "excludeTotalDataChart",
@@ -1461,11 +1442,6 @@
       "get": {
         "tags": ["volumes"],
         "summary": "List all options dexs along with summaries of their volumes and dataType history data filtering by chain",
-        "servers": [
-          {
-            "url": "https://api.llama.fi"
-          }
-        ],
         "parameters": [
           {
             "name": "chain",
@@ -1520,11 +1496,6 @@
       "get": {
         "tags": ["volumes"],
         "summary": "Get summary of options dex volume with historical data",
-        "servers": [
-          {
-            "url": "https://api.llama.fi"
-          }
-        ],
         "parameters": [
           {
             "name": "protocol",
@@ -1559,11 +1530,6 @@
       "get": {
         "tags": ["fees and revenue"],
         "summary": "List all protocols along with summaries of their fees and revenue and dataType history data",
-        "servers": [
-          {
-            "url": "https://api.llama.fi"
-          }
-        ],
         "parameters": [
           {
             "name": "excludeTotalDataChart",
@@ -1608,11 +1574,6 @@
       "get": {
         "tags": ["fees and revenue"],
         "summary": "List all protocols along with summaries of their fees and revenue and dataType history data by chain",
-        "servers": [
-          {
-            "url": "https://api.llama.fi"
-          }
-        ],
         "parameters": [
           {
             "name": "chain",
@@ -1667,11 +1628,6 @@
       "get": {
         "tags": ["fees and revenue"],
         "summary": "Get summary of protocol fees and revenue with historical data",
-        "servers": [
-          {
-            "url": "https://api.llama.fi"
-          }
-        ],
         "parameters": [
           {
             "name": "protocol",

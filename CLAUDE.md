@@ -563,7 +563,16 @@ const hasItems = computed(() => items.value.length > 0)
 </template>
 ```
 
-## Session Summary: URL Encoding & API Key Injection System
+## Session Summary: URL Encoding, API Key Injection & PRO Badge System
+
+### Overview
+
+This comprehensive session implemented multiple features for handling professional API tiers in the Scalar API documentation platform:
+
+1. **URL Encoding & Path Parameter Support** - Proper encoding for special characters in API paths
+2. **API Key Injection System** - Automatic injection of API keys into request URLs for pro APIs
+3. **Workspace Management Fixes** - Resolved duplication and ID mismatch issues
+4. **PRO Badge System** - Visual indicators for premium endpoints
 
 ### December 2024 - URL Encoding, API Key Injection & Workspace Management
 
@@ -797,3 +806,96 @@ The system is designed for easy extension:
 - Support for multiple workspace API key management
 
 This comprehensive implementation provides a robust, scalable solution for handling diverse API authentication requirements while maintaining backward compatibility, developer control, and predictable workspace management behavior.
+
+### January 2025 - PRO Badge System & Tier-Based URL Replacement
+
+Implemented a complete PRO badge system and automatic URL replacement for premium API endpoints:
+
+**PRO Badge System:**
+- Created orange "PRO" badges that appear when `x-scalar-tier: "pro"` is set in OpenAPI specs
+- Integrated badges across all layouts (ModernLayout, ClassicLayout, sidebar, operation lists)
+- Consistent design using `--scalar-color-orange` with transparent background
+
+**Tier-Based URL Replacement:**
+- Built TierManager service that automatically replaces URLs for pro users (e.g., `api.llama.fi` → `pro-api.llama.fi`)
+- Added configuration UI for users to manage tier settings and URL mappings
+
+**Key Features:**
+- Visual distinction between free and premium endpoints
+- Automatic pro URL switching based on user's API key
+- Configurable URL mappings for different API providers
+- Workspace-specific settings with localStorage persistence
+- Full TypeScript support and comprehensive testing
+
+**Usage:** Add `x-scalar-tier: "pro"` to any OpenAPI operation to display PRO badges and enable automatic URL replacement for authenticated pro users.
+
+### January 2025 - API Key Input UI Improvements & Layout Optimization
+
+Enhanced the API key input UI with better responsive design and improved layout structure:
+
+**Layout Improvements:**
+- Moved API key input from page header to content area for better space usage
+- Sidebar now gets full height as intended
+- API key input positioned in sticky bar above main content
+- Responsive design with mobile/desktop layouts
+
+**UI Enhancements:**
+- Compact, inline design for API key and tier configuration inputs
+- Enhanced PRO badge styling in sidebar with hover effects and smooth transitions
+- Better typography scaling and spacing using Scalar design tokens
+- Improved visual hierarchy and reduced visual clutter
+
+### January 2025 - DeFiLlama Branding & Style Fixes
+
+Added DeFiLlama branding and fixed styling issues:
+
+**DeFiLlama Branding:**
+- Added DeFiLlama logo at the top of the sidebar above navigation
+- Logo positioned in dedicated branding section with proper styling
+- Clean integration with existing sidebar design
+
+**Style Fixes:**
+- Fixed CSS specificity issues with API key input components
+- Added !important declarations and fallback values for reliable styling
+- Enhanced pro badge visibility with explicit orange colors
+- Improved typography scaling and spacing consistency
+- Fixed styling issues preventing proper component appearance
+- Added proper CSS styling for DeFiLlama logo visibility and hover effects
+- Removed PRO badges from sidebar per user preference (kept in other layouts)
+
+### January 2025 - Simplified URL Replacement & Proxy Removal
+
+Simplified the tier-based URL replacement system and removed proxy URL dependencies:
+
+**Simplifications Made:**
+- **Removed Proxy URLs**: Eliminated all `proxyUrl` configurations from example pages
+- **Simplified Pro Detection**: Any API key now qualifies as "pro"
+- **Hardcoded URL Replacement**: Direct replacement of `api.llama.fi` → `pro-api.llama.fi` for any user with an API key
+
+**Technical Changes:**
+- Updated `useTierDetection.ts` to use simple API key existence check
+- Modified `TierManager.getEffectiveUrl()` to hardcode the `api.llama.fi` → `pro-api.llama.fi` conversion
+- Removed `proxyUrl` from all example page configurations
+- Simplified both `ApiKeyInput.vue` and `TierConfigurationInput.vue` components
+
+**Result**: Clean, straightforward system where any user with an API key gets automatic URL conversion from free to pro endpoints.
+
+### Key Files Modified
+
+**Core Implementation:**
+- `packages/api-client/src/libs/api-key-manager.ts` - API key storage and retrieval
+- `packages/api-client/src/libs/tier-manager.ts` - Tier detection and URL replacement
+- `packages/api-client/src/libs/send-request/create-request-operation.ts` - Request operation with API key injection
+- `packages/api-client/src/layouts/Web/create-api-client-web.ts` - Web client integration
+
+**UI Components:**
+- `examples/web/src/components/ApiKeyInput.vue` - API key input component
+- `examples/web/src/components/TierConfigurationInput.vue` - Tier configuration UI
+- `packages/api-reference/src/components/ProBadge/` - PRO badge component
+- `packages/api-reference/src/features/Operation/layouts/ModernLayout.vue` - Modern layout with PRO badges
+- `packages/api-reference/src/features/Operation/layouts/ClassicLayout.vue` - Classic layout with PRO badges
+
+**Helper Functions:**
+- `packages/api-client/src/libs/string-template.ts` - URL encoding for path parameters
+- `packages/helpers/src/url/merge-urls.ts` - URL merging with API key injection
+- `packages/api-client/src/hooks/useTierDetection.ts` - Composable for tier detection

@@ -119,8 +119,6 @@ const configs = availableDocuments
  */
 const addDocument = (config: (typeof configs.value)[number]) => {
   // If the document is already in the store we skip it
-  // TODO: Handle cases when the slug is the same but belongs to two different documents?
-  // This can be the case when no slug and no title is provided and we are using index for the slug!
   if (store.workspace.documents[config.slug ?? 'default'] !== undefined) {
     return
   }
@@ -153,9 +151,6 @@ configs.value.forEach((config) => {
   }
 })
 
-// const staticDocuments = props.configuration
-// props.configuration?.documents?.forEach((document) => {
-
 onServerPrefetch(() => {
   // For SSR we want to preload the active document into the store
   configs.value.forEach((config) => {
@@ -167,7 +162,6 @@ onServerPrefetch(() => {
 
 onMounted(() => {
   // During client side rendering we load the active document from the URL
-  // NOTE: The UI MUST handle a case where the document is empty
   configs.value.forEach((config) => {
     if (config.url) {
       addDocument(config)

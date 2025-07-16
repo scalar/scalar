@@ -1,19 +1,13 @@
 import { type ErrorResponse, normalizeError } from '@/libs'
 import type { StoreContext } from '@/store/store-context'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
-import { createHash, fetchDocument } from '@scalar/oas-utils/helpers'
+import { fetchDocument } from '@scalar/oas-utils/helpers'
 import { type ImportSpecToWorkspaceArgs, importSpecToWorkspace } from '@scalar/oas-utils/transforms'
-import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { toRaw } from 'vue'
 
-/** Maps the specs by URL */
-export const specDictionary: Record<string, { hash: number; schema: OpenAPIV3.Document | OpenAPIV3_1.Document }> = {}
-
-type ImportSpecFileArgs = ImportSpecToWorkspaceArgs &
-  Pick<ApiReferenceConfiguration, 'servers'> & {
-    dereferencedDocument?: OpenAPIV3_1.Document
-  }
+/** Import spec file arguments */
+type ImportSpecFileArgs = ImportSpecToWorkspaceArgs & Pick<ApiReferenceConfiguration, 'servers'>
 
 /** Generate the import functions from a store context */
 export function importSpecFileFactory({
@@ -40,14 +34,6 @@ export function importSpecFileFactory({
       console.groupEnd()
 
       return undefined
-    }
-
-    // Store the schema for live updates
-    if (options.documentUrl && typeof spec === 'string') {
-      specDictionary[options.documentUrl] = {
-        hash: createHash(spec),
-        schema: workspaceEntities.schema,
-      }
     }
 
     // Add all basic entities to the store

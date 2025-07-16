@@ -262,48 +262,23 @@ export const createApiClient = ({
     resetStore,
     /**
      * Update the API client config
-     *
-     * Deletes the current store before importing again for now, in the future will Diff and only update what is needed
      */
     updateConfig: async (_newConfig: Partial<ApiClientConfiguration>) => {
       const newConfig = apiClientConfigurationSchema.parse(_newConfig)
 
-      // When to rigger rebuilding the store (until we diff) this is just a temp hack BUT do not put anything that
-      // has a default here as it will always trigger as the config has already been parsed
-      if (
-        newConfig.url ||
-        newConfig.content ||
-        newConfig.servers ||
-        newConfig.authentication ||
-        newConfig.slug ||
-        newConfig.title ||
-        newConfig.baseServerURL ||
-        newConfig.proxyUrl ||
-        newConfig.showSidebar
-      ) {
-        // Update the spec, reset the store first
-        resetStore()
+      // Update the config ref
+      configuration.value = newConfig
 
-        /** Add any extra properties to the config */
-        const config = {
-          ...newConfig,
-          useCollectionSecurity: isReadOnly,
-        }
-
-        // Update the config ref
-        configuration.value = config
-
-        if (newConfig.url) {
-          await importSpecFromUrl(newConfig.url, activeWorkspace.value?.uid ?? 'default', config)
-        } else if (newConfig.content) {
-          await importSpecFile(newConfig.content, activeWorkspace.value?.uid ?? 'default', config)
-        } else {
-          console.error(
-            '[@scalar/api-client-modal] Could not create the API client.',
-            'Please provide an OpenAPI document: { url: "…" }',
-            'Read more: https://github.com/scalar/scalar/tree/main/packages/api-client',
-          )
-        }
+      if (newConfig.url) {
+        await importSpecFromUrl(newConfig.url, activeWorkspace.value?.uid ?? 'default', configuration.value)
+      } else if (newConfig.content) {
+        await importSpecFile(newConfig.content, activeWorkspace.value?.uid ?? 'default', configuration.value)
+      } else {
+        console.error(
+          '[@scalar/api-client-modal] Could not create the API client.',
+          'Please provide an OpenAPI document: { url: "…" }',
+          'Read more: https://github.com/scalar/scalar/tree/main/packages/api-client',
+        )
       }
     },
     /** Update the currently selected server via URL */

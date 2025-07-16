@@ -216,28 +216,16 @@ const sidebarOpened = ref(false)
 
 // Open a sidebar tag
 watch(dereferencedDocument, (newDoc) => {
-  // Scroll to given hash
-  if (hash.value) {
-    const hashSectionId = getSectionId(hash.value)
-    if (hashSectionId) {
-      setCollapsedSidebarItem(hashSectionId, true)
-    }
-  }
   // Open the first tag
-  else {
-    const firstTag = newDoc.tags?.[0]
-
-    if (firstTag) {
-      setCollapsedSidebarItem(getTagId(firstTag), true)
-    }
+  const firstTag = newDoc.tags?.[0]
+  if (firstTag) {
+    setCollapsedSidebarItem(getTagId(firstTag), true)
   }
-
   sidebarOpened.value = true
 })
 
 /**
- * Temporarily moved this here so we can use the sidebar items
- * Parsed document (legacy data structure)
+ * Parsed document
  */
 const parsedDocument = ref<Spec>(createEmptySpecification() as Spec)
 watch(

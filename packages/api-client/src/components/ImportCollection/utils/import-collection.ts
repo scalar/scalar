@@ -8,14 +8,12 @@ export async function importCollection({
   store,
   workspace,
   source,
-  watchMode,
   onSuccess,
   onError,
 }: {
   store: WorkspaceStore
   workspace: Workspace | undefined
   source: string | null | undefined
-  watchMode: boolean
   onSuccess: (collection: Collection | undefined) => void
   onError: (error: Error) => void
 }) {
@@ -24,7 +22,6 @@ export async function importCollection({
       if (isUrl(source)) {
         const [error, entities] = await store.importSpecFromUrl(source, workspace.uid, {
           proxyUrl: workspace.proxyUrl,
-          watchMode: watchMode,
         })
 
         if (!error) {

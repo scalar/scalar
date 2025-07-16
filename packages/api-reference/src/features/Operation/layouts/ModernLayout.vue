@@ -12,6 +12,7 @@ import { computed, useId } from 'vue'
 import { Anchor } from '@/components/Anchor'
 import { Badge } from '@/components/Badge'
 import OperationPath from '@/components/OperationPath.vue'
+import { ProBadge } from '@/components/ProBadge'
 import {
   Section,
   SectionColumn,
@@ -77,6 +78,8 @@ const handleDiscriminatorChange = (type: string) => {
         :class="getOperationStabilityColor(operation)">
         {{ getOperationStability(operation) }}
       </Badge>
+
+      <ProBadge :operation="operation" />
 
       <Badge
         v-if="isWebhook"

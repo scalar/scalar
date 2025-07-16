@@ -1,34 +1,71 @@
 <script setup lang="ts">
 import { getApiKey, saveApiKey } from '@scalar/api-client'
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 const WORKSPACE_ID = 'default'
 
 /** Reactive API key value */
 const apiKey = ref('')
 
+/** Track the previous API key value to detect actual changes */
+const previousApiKey = ref('')
+
+/** Track if we've loaded the initial value */
+const isInitialized = ref(false)
+
+/** Check if user has any API key (simplified logic) */
+const isProUser = computed(() => {
+  return !!apiKey.value?.trim()
+})
+
 /** Load API key from API key manager on mount */
 onMounted(() => {
   const stored = getApiKey(WORKSPACE_ID)
   if (stored) {
     apiKey.value = stored.key || ''
+    previousApiKey.value = stored.key || ''
   }
+  isInitialized.value = true
 })
 
-/** Save API key to API key manager whenever it changes */
-watch(
-  apiKey,
-  () => {
-    const config = {
-      key: apiKey.value.trim(),
-      enabled: true, // Always enabled
-      description: 'DefiLlama Pro API Key',
-    }
+/** Save API key when it changes */
+const handleApiKeyChange = async () => {
+  // Don't do anything on initial load
+  if (!isInitialized.value) return
 
-    saveApiKey(WORKSPACE_ID, config)
-  },
-  { deep: true },
-)
+  // Check if the value actually changed
+  const trimmedKey = apiKey.value.trim()
+  const previousTrimmed = previousApiKey.value.trim()
+
+  if (trimmedKey === previousTrimmed) {
+    return // No actual change
+  }
+
+  const config = {
+    key: trimmedKey,
+    enabled: true,
+    description: 'DefiLlama Pro API Key',
+  }
+
+  // Save the API key
+  saveApiKey(WORKSPACE_ID, config)
+
+  // Update previous value
+  previousApiKey.value = apiKey.value
+}
+
+/** Debounced API key change handler */
+let debounceTimer: ReturnType<typeof setTimeout> | null = null
+watch(apiKey, (newValue) => {
+  if (debounceTimer) clearTimeout(debounceTimer)
+
+  // Only set timer if value actually changed from previous
+  if (newValue.trim() !== previousApiKey.value.trim()) {
+    debounceTimer = setTimeout(() => {
+      handleApiKeyChange()
+    }, 1000) // Wait 1 second after user stops typing
+  }
+})
 
 /** Handle API key input change */
 const handleKeyChange = (event: Event) => {
@@ -40,16 +77,25 @@ const handleKeyChange = (event: Event) => {
 <template>
   <div class="api-key-input">
     <div class="header">
-      <h3>DefiLlama Pro API Key</h3>
+      <div class="title-section">
+        <h3>DefiLlama Pro API Key</h3>
+        <div
+          v-if="isProUser"
+          class="pro-badge">
+          PRO
+        </div>
+      </div>
     </div>
 
     <div class="input-section">
-      <input
-        type="text"
-        :value="apiKey"
-        placeholder="Enter your DefiLlama Pro API key"
-        class="api-key-field"
-        @input="handleKeyChange" />
+      <div class="input-wrapper">
+        <input
+          type="text"
+          :value="apiKey"
+          placeholder="Enter your DefiLlama Pro API key"
+          class="api-key-field"
+          @input="handleKeyChange" />
+      </div>
       <p class="storage-info">
         Your key is saved locally in your browser's storage.
       </p>
@@ -70,102 +116,213 @@ const handleKeyChange = (event: Event) => {
 
 <style scoped>
 .api-key-input {
-  background: var(--scalar-background-2, #f8f9fa);
-  border: 1px solid var(--scalar-border-color, #e1e5e9);
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1.5rem;
-  font-family: 'Inter', sans-serif;
+  background: var(--scalar-background-2, #f8f9fa) !important;
+  border: var(--scalar-border-width, 1px) solid
+    var(--scalar-border-color, #e1e5e9) !important;
+  border-radius: var(--scalar-radius, 6px) !important;
+  padding: var(--scalar-spacing-3, 12px) !important;
+  font-family: var(--scalar-font, 'Inter', sans-serif) !important;
+  box-shadow: var(--scalar-shadow-1, 0 1px 3px rgba(0, 0, 0, 0.1)) !important;
+  transition: all 0.15s ease !important;
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.api-key-input:hover {
+  border-color: var(--scalar-border-color-hover, #d1d5db) !important;
 }
 
 .header {
-  margin-bottom: 1rem;
+  margin-bottom: var(--scalar-spacing-2);
+}
+
+.title-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--scalar-spacing-2);
+  flex-wrap: wrap;
 }
 
 .header h3 {
-  margin: 0;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--scalar-color-1, #2a2f45);
+  margin: 0 !important;
+  font-size: var(--scalar-mini, 13px) !important;
+  font-weight: var(--scalar-semibold, 600) !important;
+  color: var(--scalar-color-1, #2a2f45) !important;
+  line-height: 1.4 !important;
+}
+
+.pro-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 2px 6px !important;
+  background: rgba(255, 165, 0, 0.1) !important;
+  color: #ff8c00 !important;
+  font-size: var(--scalar-micro, 11px) !important;
+  font-weight: var(--scalar-bold, 700) !important;
+  border-radius: 4px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
 }
 
 .input-section {
-  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--scalar-spacing-2);
+}
+
+.input-wrapper {
+  position: relative;
 }
 
 .api-key-field {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid var(--scalar-border-color, #e1e5e9);
-  border-radius: 6px;
-  font-size: 0.9rem;
-  font-family: 'Monaco', 'Menlo', monospace;
-  background: var(--scalar-background-1, #ffffff);
-  color: var(--scalar-color-1, #2a2f45);
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
+  width: 100% !important;
+  min-width: 0 !important;
+  padding: var(--scalar-spacing-2, 8px) !important;
+  border: var(--scalar-border-width, 1px) solid
+    var(--scalar-border-color, #e1e5e9) !important;
+  border-radius: var(--scalar-radius, 6px) !important;
+  font-size: var(--scalar-mini, 13px) !important;
+  font-family: var(--scalar-font-code, 'Monaco', 'Menlo', monospace) !important;
+  background: var(--scalar-background-1, #ffffff) !important;
+  color: var(--scalar-color-1, #2a2f45) !important;
+  transition: all 0.15s ease !important;
+  box-sizing: border-box !important;
 }
 
 .api-key-field:focus {
-  outline: none;
-  border-color: var(--scalar-color-accent, #0066cc);
-  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
+  outline: none !important;
+  border-color: var(--scalar-color-accent, #0066cc) !important;
+  box-shadow: 0 0 0 1px var(--scalar-color-accent, #0066cc) !important;
+  transform: translateY(-1px) !important;
+}
+
+.api-key-field:hover:not(:focus) {
+  border-color: var(--scalar-border-color-hover);
 }
 
 .api-key-field::placeholder {
-  color: var(--scalar-color-3, #9ca3af);
+  color: var(--scalar-color-3);
+  opacity: 1;
+}
+
+.api-key-field:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .storage-info {
-  margin-top: 0.5rem;
-  margin-bottom: 0;
-  font-size: 0.75rem;
-  color: var(--scalar-color-3, #9ca3af);
+  margin: 0;
+  font-size: 10px;
+  color: var(--scalar-color-3);
   font-style: italic;
+  line-height: 1.3;
+  opacity: 0.8;
+}
+
+.reload-info {
+  display: inline-block;
+  color: var(--scalar-color-accent, #0066cc);
+  font-weight: var(--scalar-semibold);
+  margin-left: 4px;
 }
 
 .description {
-  margin-top: 0.75rem;
-  font-size: 0.8rem;
-  color: var(--scalar-color-2, #6b7280);
+  margin: 0;
+  font-size: var(--scalar-micro);
+  color: var(--scalar-color-3);
   line-height: 1.4;
 }
 
 .description code {
-  background: var(--scalar-background-3, #f3f4f6);
-  padding: 0.2em 0.4em;
-  border-radius: 3px;
-  font-family: 'Monaco', 'Menlo', monospace;
-  font-size: 0.85em;
+  background: var(--scalar-background-3);
+  padding: 0.1em 0.3em;
+  border-radius: var(--scalar-radius-sm);
+  font-family: var(--scalar-font-code);
+  font-size: 0.9em;
+  color: var(--scalar-color-2);
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 
 .description small {
   display: block;
-  margin-top: 0.5rem;
+  margin-top: var(--scalar-spacing-1);
   opacity: 0.8;
+  font-size: 10px;
 }
 
 .highlight {
-  color: var(--scalar-color-accent, #0066cc);
-  font-weight: 600;
+  color: var(--scalar-color-accent);
+  font-weight: var(--scalar-semibold);
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
+/* Responsive Design */
+@media (max-width: 640px) {
   .api-key-input {
-    background: var(--scalar-background-2, #1f2937);
-    border-color: var(--scalar-border-color, #374151);
+    padding: var(--scalar-spacing-3);
+    margin-bottom: var(--scalar-spacing-4);
+  }
+
+  .header h3 {
+    font-size: var(--scalar-mini);
   }
 
   .api-key-field {
-    background: var(--scalar-background-1, #111827);
-    border-color: var(--scalar-border-color, #374151);
-    color: var(--scalar-color-1, #f9fafb);
+    padding: var(--scalar-spacing-2-5);
+    font-size: var(--scalar-mini);
+  }
+
+  .title-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--scalar-spacing-1);
+  }
+
+  .description {
+    font-size: var(--scalar-micro);
+  }
+
+  .description small {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .api-key-field {
+    font-size: 14px;
+    padding: 10px;
   }
 
   .description code {
-    background: var(--scalar-background-3, #374151);
+    word-break: break-all;
+    white-space: pre-wrap;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .api-key-input {
+    border-width: 2px;
+  }
+
+  .api-key-field:focus {
+    box-shadow: 0 0 0 2px var(--scalar-color-accent);
+  }
+
+  .pro-badge {
+    border: 1px solid var(--scalar-color-orange);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .api-key-input,
+  .api-key-field {
+    transition: none;
+  }
+
+  .api-key-field:focus {
+    transform: none;
   }
 }
 </style>

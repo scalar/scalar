@@ -9,7 +9,7 @@ import { useActiveEntities } from '@/store/active-entities'
 
 import { importCollection } from './utils/import-collection'
 
-const { source, watchMode = true } = defineProps<{
+const { source } = defineProps<{
   source?: string | null
   variant?: 'button' | 'link'
   watchMode?: boolean
@@ -29,7 +29,6 @@ async function handleImportCollection() {
     store,
     workspace: activeWorkspace.value,
     source: source,
-    watchMode: watchMode,
     onSuccess(collection: Collection | undefined) {
       if (collection) {
         redirectToFirstRequestInCollection(collection)

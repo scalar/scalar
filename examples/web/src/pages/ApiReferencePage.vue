@@ -29,7 +29,6 @@ const getApiKeyForDefaultWorkspace = () => {
 
 const configuration = reactive<Partial<ApiReferenceConfiguration>>({
   theme: 'default',
-  proxyUrl: import.meta.env.VITE_REQUEST_PROXY_URL,
   isEditable: false,
   showSidebar: true,
   layout: 'modern',
@@ -82,14 +81,13 @@ watch(
   (apiKey) => {
     // Update configuration when API key changes
     // This ensures the client can access the API key for requests
-    configuration.apiKey = apiKey || undefined
+    // Note: The API key is managed by the API key manager and automatically injected into requests
   },
   { immediate: true },
 )
 </script>
 <template>
   <div class="api-reference-page">
-    <ApiKeyInput />
     <ApiReferenceLayout
       :isDark="isDarkMode"
       @toggleDarkMode="() => toggleColorMode()"
@@ -102,7 +100,12 @@ watch(
         </DevToolbar>
       </template>
       <template #sidebar-start>
-        <SlotPlaceholder>sidebar-start</SlotPlaceholder>
+        <div class="sidebar-branding">
+          <img
+            src="https://defillama.com/defillama-press-kit/defi/PNG/defillama.png"
+            alt="DeFiLlama"
+            class="defillama-logo" />
+        </div>
       </template>
       <template #sidebar-end>
         <SlotPlaceholder>sidebar-end</SlotPlaceholder>
@@ -113,7 +116,10 @@ watch(
           :darkMode="configuration.darkMode" />
       </template>
       <template #content-start>
-        <SlotPlaceholder>content-start</SlotPlaceholder>
+        <div class="api-settings-bar">
+          <ApiKeyInput />
+          <TierConfigurationInput />
+        </div>
       </template>
       <template #content-end>
         <SlotPlaceholder>content-end</SlotPlaceholder>
@@ -127,6 +133,54 @@ watch(
 
 <style scoped>
 .api-reference-page {
-  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--scalar-background-1);
+}
+
+.api-settings-bar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--scalar-spacing-4);
+  padding: var(--scalar-spacing-4);
+  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
+  background: var(--scalar-background-1);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  margin-bottom: var(--scalar-spacing-4);
+  border-radius: 0;
+}
+
+@media (min-width: 768px) {
+  .api-settings-bar {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--scalar-spacing-6);
+  }
+}
+
+.sidebar-branding {
+  padding: var(--scalar-spacing-4) var(--scalar-spacing-3);
+  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
+  background: var(--scalar-sidebar-background-1, var(--scalar-background-1));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.defillama-logo {
+  height: 32px;
+  width: auto;
+  max-width: 120px;
+  object-fit: contain;
+  filter: brightness(0.9);
+  transition: all 0.15s ease;
+}
+
+.defillama-logo:hover {
+  filter: brightness(1);
+  transform: scale(1.02);
 }
 </style>

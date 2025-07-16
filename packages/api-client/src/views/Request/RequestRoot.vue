@@ -16,7 +16,6 @@ import { validateParameters } from '@/libs/validate-parameters'
 import { usePluginManager } from '@/plugins'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
-import { useOpenApiWatcher } from '@/views/Request/hooks/useOpenApiWatcher'
 
 import RequestSidebar from './RequestSidebar.vue'
 
@@ -140,8 +139,6 @@ onMounted(() => {
   events.executeRequest.on(executeRequest)
   events.cancelRequest.on(cancelRequest)
 })
-
-useOpenApiWatcher()
 
 /**
  * Need to manually remove listener on unmount due to vueuse memory leak
