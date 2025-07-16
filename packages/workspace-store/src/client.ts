@@ -83,7 +83,8 @@ const defaultConfig: DeepTransform<Config, 'NonNullable'> = {
  */
 async function loadDocument(workspaceDocument: WorkspaceDocumentInput) {
   if ('url' in workspaceDocument) {
-    return fetchUrls({ fetch: workspaceDocument.fetch }).exec(workspaceDocument.url)
+    // validate normally checks for local files, but we want to fetch them anyway ex: examples/openapi.json
+    return fetchUrls({ fetch: workspaceDocument.fetch, validate: () => true }).exec(workspaceDocument.url)
   }
 
   return {

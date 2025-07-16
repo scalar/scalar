@@ -5,7 +5,23 @@ import { createLimiter } from '@/utils/bundle/create-limiter'
 type FetchConfig = Partial<{
   headers: { headers: HeadersInit; domains: string[] }[]
   fetch: (input: string | URL | globalThis.Request, init?: RequestInit) => Promise<Response>
+  /**
+   * Used to validate the URL, defaults to checking for remote URLs
+   */
+  validate?: (url: string) => boolean
 }>
+
+/**
+ * Safely checks for host from a URL
+ * Needed because we cannot create a URL from a relative remote URL ex: examples/openapi.json
+ */
+const getHost = (url: string): string | null => {
+  try {
+    return new URL(url).host
+  } catch {
+    return null
+  }
+}
 
 /**
  * Fetches and normalizes data from a remote URL
@@ -27,10 +43,10 @@ export async function fetchUrl(
   config?: FetchConfig,
 ): Promise<ResolveResult> {
   try {
-    const domain = new URL(url).host
+    const host = getHost(url)
 
     // Get the headers that match the domain
-    const headers = config?.headers?.find((a) => a.domains.find((d) => d === domain) !== undefined)?.headers
+    const headers = config?.headers?.find((a) => a.domains.find((d) => d === host) !== undefined)?.headers
 
     const exec = config?.fetch ?? fetch
 
@@ -75,7 +91,7 @@ export function fetchUrls(config?: FetchConfig & Partial<{ limit: number | null 
   const limiter = config?.limit ? createLimiter(config.limit) : <T>(fn: () => Promise<T>) => fn()
 
   return {
-    validate: isRemoteUrl,
+    validate: config?.validate ?? isRemoteUrl,
     exec: (value) => fetchUrl(value, limiter, config),
   }
 }
