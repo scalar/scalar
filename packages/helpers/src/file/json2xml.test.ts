@@ -8,7 +8,7 @@ describe('getUrlFromServerState', () => {
       foo: 'bar',
     })
 
-    expect(xml).toMatchObject('<foo>bar</foo>')
+    expect(xml).toBe('<foo>bar</foo>')
   })
 
   it('wraps array items', () => {
@@ -18,6 +18,6 @@ describe('getUrlFromServerState', () => {
       },
     })
 
-    expect(xml).toMatchObject('<urls><url>https://example.com</url><url>https://example.com</url></urls>')
+    expect(xml).toBe('<urls><url>https://example.com</url><url>https://example.com</url></urls>')
   })
 })
