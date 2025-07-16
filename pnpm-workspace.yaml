@@ -10,22 +10,30 @@ packages:
   - '!**/.output/**'
 onlyBuiltDependencies:
   - '@biomejs/biome'
+  - '@nestjs/core'
   - '@todesktop/cli'
   - core-js
   - core-js-pure
   - electron
+  - esbuild
   - lefthook
   - vue-demi
 catalogs:
   '*':
     '@fastify/swagger': ^8.10.1
+    '@floating-ui/vue': ^1.1.7
     '@google-cloud/storage': 7.16.0
+    '@headlessui/tailwindcss': ^0.2.2
+    '@headlessui/vue': ^1.7.23
     '@sinclair/typebox': 0.34.37
     '@tailwindcss/vite': ^4.1.7
     '@types/express': 5.0.3
     '@types/node': ^22.9.0
     '@types/picomatch': 3.0.1
+    '@types/react-dom': ^19.1.6
+    '@types/react': ^19.1.8
     '@types/semver': 7.5.8
+    '@typescript-eslint/parser': ^8.0.0
     '@vitejs/plugin-vue': ^5.0.4
     '@vueuse/core': ^10.10.0
     '@vueuse/integrations': ^11.2.0
@@ -36,11 +44,16 @@ catalogs:
     esbuild: 0.25.2
     express: 5.1.0
     fastify: ^5.3.3
+    flatted: ^3.3.3
+    fuse.js: ^7.1.0
+    microdiff: ^1.5.0
     nanoid: 5.1.5
     next: ^15.3.3
     picomatch: 4.0.2
     postcss: ^8.4.38
     prettier: 3.5.3
+    react-dom: ^19.1.0
+    react: ^19.1.0
     rollup: 4.40.1
     semver: 7.7.2
     stdout-update: 4.0.1
@@ -49,6 +62,6 @@ catalogs:
     vite-node: 3.1.1
     vite: 5.4.19
     vitest: ^1.6.1
-    vue: ^3.5.12
+    vue: ^3.5.17
     yaml: 2.8.0
     zod: 3.24.1

@@ -76,7 +76,6 @@
     "@scalar/build-tooling": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@vitejs/plugin-vue": "catalog:*",
-    "@vitest/coverage-v8": "^1.6.0",
     "vite": "catalog:*",
     "vitest": "catalog:*",
     "vue": "catalog:*"

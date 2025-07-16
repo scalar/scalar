@@ -66,6 +66,7 @@
     "changelogen": "^0.5.5",
     "cross-env": "^7.0.3",
     "nuxt": "^3.12.4",
+    "vite": "catalog:*",
     "vitest": "catalog:*"
   }
 }
