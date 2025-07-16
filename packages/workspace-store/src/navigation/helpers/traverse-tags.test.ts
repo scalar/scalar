@@ -162,6 +162,30 @@ describe('traverseTags', () => {
     expect((result[1] as TraversedOperation).method).toBe('post')
   })
 
+  it.only('should handle custom operationSorter using [deprecated] httpVerb', () => {
+    const document = createMockDocument()
+    const tagsMap = new Map([
+      [
+        'default',
+        {
+          tag: createMockTag('default'),
+          entries: [createMockEntry('POST Operation', 'post'), createMockEntry('GET Operation', 'get')],
+        },
+      ],
+    ])
+    const titlesMap = new Map<string, string>()
+    const options = {
+      getTagId: (tag: TagObject) => tag.name ?? '',
+      tagsSorter: 'alpha',
+      operationsSorter: (a: { httpVerb: string }, b: { httpVerb: string }) =>
+        (a.httpVerb || '').localeCompare(b.httpVerb || ''),
+    } as const
+
+    const result = traverseTags(document, tagsMap, titlesMap, options)
+    expect((result[0] as TraversedOperation).method).toBe('get')
+    expect((result[1] as TraversedOperation).method).toBe('post')
+  })
+
   it('should handle custom tag sorter', () => {
     const document = createMockDocument()
     const tagsMap = new Map([
