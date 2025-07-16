@@ -379,8 +379,8 @@ await store.importWorkspaceFromSpecification({
   workspace: 'v1',
   info: { title: 'My Workspace' },
   documents: {
-    api: { $ref: '/specs/api.yaml' },
-    petstore: { $ref: '/specs/petstore.yaml' }
+    api: { $ref: '/examples/api.yaml' },
+    petstore: { $ref: '/examples/petstore.yaml' }
   },
   overrides: {
     api: { config: { features: { showModels: true } } }
