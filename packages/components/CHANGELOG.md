@@ -1,5 +1,22 @@
 # @scalar/components
 
+## 0.14.19
+
+### Patch Changes
+
+- a04cc15: feat(components): create scalar card component
+- 85ee2ce: feat: updates markdown ordered list style
+- fbaaa12: fix(components): update add scalar classes to always watch for the headless root
+- 85ee2ce: feat: updates markdown alert component style
+- 97721b5: feat: updates scalar search input style
+- 85ee2ce: feat: moves markdown style from code-highlight to components package
+- Updated dependencies [85ee2ce]
+- Updated dependencies [85ee2ce]
+- Updated dependencies [8a67f4f]
+  - @scalar/code-highlight@0.1.8
+  - @scalar/themes@0.13.10
+  - @scalar/oas-utils@0.4.14
+
 ## 0.14.18
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @scalar/themes
 
+## 0.13.10
+
+### Patch Changes
+
+- 8a67f4f: fix(api-reference): classic layout improvements
+- Updated dependencies [591562f]
+  - @scalar/types@0.2.9
+
 ## 0.13.9
 
 ### Patch Changes

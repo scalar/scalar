@@ -1,5 +1,17 @@
 # @scalar/aspnetcore
 
+## 2.6.2
+
+### Patch Changes
+
+- 591562f: feat: add support for x-scalar-security-body extension
+- Updated dependencies [a04cc15]
+- Updated dependencies [b5bcce7]
+- Updated dependencies [97721b5]
+- Updated dependencies [9978a16]
+- Updated dependencies [8a67f4f]
+  - @scalar/api-reference@1.32.8
+
 ## 2.6.1
 
 ### Patch Changes

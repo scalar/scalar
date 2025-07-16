@@ -1,5 +1,37 @@
 # @scalar/api-reference
 
+## 1.32.8
+
+### Patch Changes
+
+- a04cc15: feat(components): create scalar card component
+- b5bcce7: feat: implement new request example openapi block in references
+- 97721b5: fix: prevents navigation on enter in search modal if no result
+- 9978a16: fix: example response has an additional value key
+- 8a67f4f: fix(api-reference): classic layout improvements
+- Updated dependencies [a04cc15]
+- Updated dependencies [591562f]
+- Updated dependencies [85ee2ce]
+- Updated dependencies [fbb7daa]
+- Updated dependencies [3f2ea8a]
+- Updated dependencies [fbaaa12]
+- Updated dependencies [828c894]
+- Updated dependencies [85ee2ce]
+- Updated dependencies [97721b5]
+- Updated dependencies [b5bcce7]
+- Updated dependencies [85ee2ce]
+- Updated dependencies [8a67f4f]
+  - @scalar/components@0.14.19
+  - @scalar/openapi-types@0.3.6
+  - @scalar/api-client@2.5.18
+  - @scalar/types@0.2.9
+  - @scalar/snippetz@0.4.2
+  - @scalar/workspace-store@0.10.1
+  - @scalar/code-highlight@0.1.8
+  - @scalar/themes@0.13.10
+  - @scalar/oas-utils@0.4.14
+  - @scalar/openapi-parser@0.18.1
+
 ## 1.32.7
 
 ### Patch Changes
