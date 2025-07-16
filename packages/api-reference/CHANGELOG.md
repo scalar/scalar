@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.32.9
+
+### Patch Changes
+
+- 8c6f6fe: fix: rollback workspace store
+
 ## 1.32.8
 
 ### Patch Changes
