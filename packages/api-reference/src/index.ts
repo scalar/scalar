@@ -12,6 +12,7 @@ export { useSidebar, Sidebar } from '@/features/sidebar'
 export { parse } from '@/helpers/parse'
 export { createEmptySpecification } from '@/libs/openapi'
 export { useNavState } from '@/hooks/useNavState'
+export { useHttpClientStore } from '@/stores/useHttpClientStore'
 export type {
   ApiReferenceConfiguration,
   ReferenceProps,

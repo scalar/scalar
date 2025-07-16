@@ -1,26 +1,26 @@
 <script setup lang="ts">
 import {
-  ScalarErrorBoundary,
+  ScalarIcon,
   ScalarIconButton,
   ScalarMarkdown,
 } from '@scalar/components'
-import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import {
   ScalarIconCopy,
   ScalarIconPlay,
   ScalarIconWebhooksLogo,
 } from '@scalar/icons'
+import type {
+  Collection,
+  Request,
+  Server,
+} from '@scalar/oas-utils/entities/spec'
 import {
   getOperationStability,
   getOperationStabilityColor,
   isOperationDeprecated,
 } from '@scalar/oas-utils/helpers'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1, XScalarStability } from '@scalar/types/legacy'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
-import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import { computed } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
@@ -28,32 +28,36 @@ import { Badge } from '@/components/Badge'
 import { HttpMethod } from '@/components/HttpMethod'
 import OperationPath from '@/components/OperationPath.vue'
 import { SectionAccordion } from '@/components/Section'
+import { ExampleRequest } from '@/features/example-request'
 import { ExampleResponses } from '@/features/example-responses'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
-import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
-import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
 import type { Schemas } from '@/features/Operation/types/schemas'
 import { TestRequestButton } from '@/features/test-request-button'
 import { useConfig } from '@/hooks/useConfig'
-import { RequestExample } from '@/v2/blocks/scalar-request-example-block'
-import { useStore } from '@/v2/hooks/useStore'
 
-const { operation, path, isWebhook } = defineProps<{
+import OperationParameters from '../components/OperationParameters.vue'
+import OperationResponses from '../components/OperationResponses.vue'
+
+const { request, operation, path, isWebhook } = defineProps<{
   id: string
   path: string
-  method: HttpMethodType
-  operation: Dereference<OperationObject>
-  oldOperation: OpenAPIV3_1.OperationObject
+  method: OpenAPIV3_1.HttpMethods
+  operation: OpenAPIV3_1.OperationObject<{
+    'x-scalar-stability': XScalarStability
+  }>
   isWebhook: boolean
-  server: ServerObject | undefined
-  securitySchemes: SecuritySchemeObject[]
+  /**
+   * @deprecated Use `document` instead
+   */
+  collection: Collection
+  server: Server | undefined
+  request: Request | undefined
   schemas?: Schemas
 }>()
 
-const operationTitle = computed(() => operation.summary || path || '')
+const operationTitle = computed(() => operation?.summary || path || '')
 
 const { copyToClipboard } = useClipboard()
-const { workspace } = useStore()
 const config = useConfig()
 
 const emit = defineEmits<{
@@ -106,9 +110,8 @@ const handleDiscriminatorChange = (type: string) => {
     </template>
     <template #actions="{ active }">
       <TestRequestButton
-        v-if="active && !isWebhook"
-        :method="method"
-        :path="path" />
+        v-if="active && request"
+        :operation="request" />
       <ScalarIconPlay
         v-else-if="!config?.hideTestRequestButton"
         class="endpoint-try-hint size-4.5" />
@@ -121,10 +124,10 @@ const handleDiscriminatorChange = (type: string) => {
         @click.stop="copyToClipboard(path)" />
     </template>
     <template
-      v-if="operation.description"
+      v-if="operation?.description"
       #description>
       <ScalarMarkdown
-        :value="operation.description"
+        :value="operation?.description"
         withImages
         withAnchors
         transformType="heading"
@@ -134,48 +137,37 @@ const handleDiscriminatorChange = (type: string) => {
       <div class="operation-details-card">
         <div class="operation-details-card-item">
           <OperationParameters
-            :parameters="oldOperation.parameters"
-            :requestBody="oldOperation.requestBody"
+            :parameters="operation?.parameters"
+            :requestBody="operation?.requestBody"
             :schemas="schemas"
             @update:modelValue="handleDiscriminatorChange" />
         </div>
         <div class="operation-details-card-item">
           <OperationResponses
             :collapsableItems="false"
-            :responses="oldOperation.responses"
+            :responses="operation.responses"
             :schemas="schemas" />
         </div>
-
-        <!-- Callbacks -->
         <div
           v-if="operation?.callbacks"
           class="operation-details-card-item">
           <Callbacks
-            :method="method"
-            :path="path"
             :callbacks="operation.callbacks"
-            :schemas="schemas" />
+            :schemas="schemas"
+            :collection="collection" />
         </div>
       </div>
-
       <ExampleResponses
         class="operation-example-card"
         :responses="operation.responses" />
-
-      <!-- New Example Request -->
-      <ScalarErrorBoundary>
-        <RequestExample
-          class="operation-example-card"
-          :method="method"
-          :selectedServer="server"
-          :selectedClient="workspace['x-scalar-default-client']"
-          :securitySchemes="securitySchemes"
-          :path="path"
-          fallback
-          :operation="operation"
-          :schemas="schemas"
-          @update:modelValue="handleDiscriminatorChange" />
-      </ScalarErrorBoundary>
+      <ExampleRequest
+        class="operation-example-card"
+        :request="request"
+        :method="method"
+        :collection="collection"
+        :operation="operation"
+        :server="server"
+        @update:modelValue="handleDiscriminatorChange" />
     </div>
   </SectionAccordion>
 </template>
