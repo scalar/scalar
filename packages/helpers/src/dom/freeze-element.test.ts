@@ -4,10 +4,10 @@ import { freezeElement } from './freeze-element'
 describe('freezeElement', () => {
   let container: HTMLDivElement
   let targetElement: HTMLDivElement
-  let getBoundingClientRectSpy: MockInstance<[], DOMRect>
-  let scrollBySpy: MockInstance<[x: number, y: number], void>
-  let cancelAnimationFrameSpy: MockInstance<[handle: number], void>
-  let disconnectSpy: MockInstance<[], void>
+  let getBoundingClientRectSpy: MockInstance<() => DOMRect>
+  let scrollBySpy: MockInstance<(x: number, y: number) => void>
+  let cancelAnimationFrameSpy: MockInstance<(handle: number) => void>
+  let disconnectSpy: MockInstance<() => void>
 
   beforeEach(() => {
     // Set up DOM elements
