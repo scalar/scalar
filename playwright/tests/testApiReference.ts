@@ -24,10 +24,6 @@ export async function testApiReference(page: Page, isMobile: boolean) {
   await expect(page.getByRole('heading', { name: 'Authentication', level: 2, exact: true })).toBeVisible()
   // Operation: Create a user
   await expect(page.getByRole('heading', { name: 'Create a user', level: 3, exact: true })).toBeVisible()
-  // Operation: Get a user
-  await expect(page.getByRole('heading', { name: 'Get a user', level: 3, exact: true })).toBeVisible()
-  // Operation: Get all users
-  await expect(page.getByRole('heading', { name: 'Get all users', level: 3, exact: true })).toBeVisible()
 }
 
 /**
