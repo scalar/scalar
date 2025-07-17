@@ -44,7 +44,7 @@ const updateServer = (newServer: string) => {
     :id="id"
     class="border"
     :class="{
-      'rounded-b-lg': !server?.description,
+      'rounded-b-lg': !server?.description && !server?.variables,
     }">
     <ServerSelector
       v-if="collection?.servers?.length"
