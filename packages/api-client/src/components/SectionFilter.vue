@@ -44,7 +44,7 @@ const navigateSection = (direction: 'next' | 'prev') => {
     @keydown.left="navigateSection('prev')"
     @keydown.right="navigateSection('next')">
     <div
-      class="request-section-content request-section-content-filter fade-request-section-content text-c-3 pointer-events-auto relative hidden w-full justify-end gap-[1.5px] rounded py-2 text-xs xl:flex">
+      class="request-section-content request-section-content-filter fade-request-section-content text-c-3 pointer-events-auto relative hidden w-full justify-end gap-[1.5px] rounded py-1.75 text-xs xl:flex">
       <SectionFilterButton
         v-for="filter in filters"
         :key="filter"
@@ -56,7 +56,7 @@ const navigateSection = (direction: 'next' | 'prev') => {
         {{ filter }}
       </SectionFilterButton>
       <div
-        class="context-bar-group-hover:text-c-1 absolute top-1/2 -right-[30px] flex -translate-y-1/2 items-center">
+        class="filter-button context-bar-group-hover:text-c-1 absolute -right-[30px] flex items-center">
         <span class="context-bar-group-hover:hidden mr-1.5">{{ model }}</span>
         <ScalarIcon
           icon="FilterList"
@@ -94,7 +94,7 @@ const navigateSection = (direction: 'next' | 'prev') => {
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: fit-content;
   background-color: var(--scalar-background-1);
   opacity: 0;
   transition: all 0.3s ease-in-out;
@@ -141,6 +141,10 @@ const navigateSection = (direction: 'next' | 'prev') => {
 .filter-hover:has(:focus-visible):before {
   opacity: 0.9;
   backdrop-filter: blur(10px);
+}
+.filter-button {
+  top: 50%;
+  transform: translateY(-50%);
 }
 .context-bar-group:hover .context-bar-group-hover\:text-c-1,
 .context-bar-group:has(:focus-visible) .context-bar-group-hover\:text-c-1 {

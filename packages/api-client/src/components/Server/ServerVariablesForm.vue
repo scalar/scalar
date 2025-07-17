@@ -38,7 +38,7 @@ const getVariable = (name: string) => {
       :key="name">
       <label
         class="group/label flex w-full"
-        :class="layout === 'reference' && 'border-x border-b'">
+        :class="layout === 'reference' && 'rounded-b-lg border-x border-b'">
         <span
           class="mr-1.5 flex items-center py-1.5 pl-3 group-has-[input]/label:mr-0 after:content-[':']">
           {{ name }}
