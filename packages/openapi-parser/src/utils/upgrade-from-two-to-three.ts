@@ -4,16 +4,18 @@ import type { UnknownObject } from '@scalar/types/utils'
 import { traverse } from './traverse'
 
 /** Update the flow names to OpenAPI 3.1.0 format */
-const upgradeFlow = (
-  flow: 'implicit' | 'password' | 'application' | 'accessCode',
-): 'implicit' | 'password' | 'clientCredentials' | 'authorizationCode' => {
+const upgradeFlow = (flow: string): 'implicit' | 'password' | 'clientCredentials' | 'authorizationCode' => {
   switch (flow) {
     case 'application':
       return 'clientCredentials'
     case 'accessCode':
       return 'authorizationCode'
+    case 'implicit':
+      return 'implicit'
+    case 'password':
+      return 'password'
     default:
-      return flow
+      return flow as never
   }
 }
 
