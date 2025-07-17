@@ -1,4 +1,4 @@
-import fs from 'node:fs/promises'
+import { readFile } from 'node:fs/promises'
 
 import { serve } from '@hono/node-server'
 import { Scalar } from '@scalar/hono-api-reference'
@@ -8,19 +8,25 @@ import type { Context } from 'hono'
 
 const port = process.env.PORT || 5052
 
-/**
- * Load the specification from the workspace.
- * We do not want a circular dependency as galaxy uses mock server for its playground
- */
-const specification = await fs.readFile('../galaxy/src/documents/3.1.yaml', 'utf8').catch(() => {
-  console.error('[@scalar/mock-server] Missing @scalar/galaxy. Please build it and try again.')
+const useLocalJsBundle = process.env.LOCAL_JS_BUNDLE === 'true'
 
-  return ''
-})
+/**
+ * Read the OpenAPI document from the filesystem.
+ *
+ * We do not want to import from the package, to avoid a circular dependency as @scalar/galaxy uses @scalar/mock-server
+ * for its playground.
+ */
+const document = await readFile(new URL('../../../galaxy/src/documents/3.1.yaml', import.meta.url), 'utf8').catch(
+  () => {
+    console.error('[@scalar/mock-server] Missing @scalar/galaxy. Please build it and try again.')
+
+    return ''
+  },
+)
 
 // Create the server instance
 const app = await createMockServer({
-  specification,
+  specification: document,
   onRequest: (opts: { context: Context }) => {
     console.log(`${opts.context.req.method} ${opts.context.req.url}`)
   },
@@ -31,7 +37,7 @@ app.get(
   '/',
   Scalar({
     pageTitle: 'Scalar Galaxy',
-
+    cdn: useLocalJsBundle ? '/scalar.js' : undefined,
     sources: [
       {
         title: 'Scalar Galaxy',
@@ -41,12 +47,20 @@ app.get(
         title: 'Petstore (OpenAPI 3.1)',
         url: 'https://petstore31.swagger.io/api/v31/openapi.json',
       },
+      {
+        title: 'Petstore (Swagger 2.0)',
+        url: 'https://petstore.swagger.io/v2/swagger.json',
+      },
     ],
     theme: 'default',
     proxyUrl: 'https://proxy.scalar.com',
     baseServerURL: `http://localhost:${port}`,
   }),
 )
+
+if (useLocalJsBundle) {
+  app.get('/scalar.js', async (c) => c.text(await readFile(new URL('./scalar.js', import.meta.url), 'utf8')))
+}
 
 // Start the server
 serve(

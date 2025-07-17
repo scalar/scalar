@@ -23,6 +23,9 @@
   },
   "scripts": {
     "build": "scalar-build-esbuild",
+    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet",
+    "dev:local": "export LOCAL_JS_BUNDLE=true && nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet",
+    "copy:standalone": "export LOCAL_JS_BUNDLE=true && shx cp ../../../packages/api-reference/dist/browser/standalone.js ./src/scalar.js",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
