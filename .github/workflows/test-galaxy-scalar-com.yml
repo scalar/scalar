@@ -1,18 +1,14 @@
-name: Test CDN Build (jsdelivr)
+name: Test @scalar/mock-server playground (galaxy.scalar.com)
 
 on:
-  schedule:
-    # every hour
-    - cron: '0 * * * *'
+  push:
+    branches:
+      - main
   pull_request:
-    paths:
-      - 'playwright/tests/**'
-      - 'examples/cdn-api-reference/**'
-      - '.github/workflows/test-cdn-jsdelivr.yml'
 
 jobs:
   test:
-    if: github.repository == 'scalar/scalar' || github.event_name != 'schedule'
+    if: github.repository == 'scalar/scalar'
     runs-on: ubuntu-22.04
     timeout-minutes: 15
     strategy:
@@ -35,11 +31,11 @@ jobs:
         run: npx playwright install
       - name: Install Playwright dependencies
         run: npx playwright install-deps
-      - name: Start HTML server
-        run: pnpm --filter @scalar-examples/cdn-api-reference dev &
-      - name: Run E2E tests (jsdelivr)
+      - name: Start @scalar/mock-server playground (galaxy.scalar.com)
+        run: pnpm --filter @scalar/mock-server dev:local &
+      - name: Run E2E tests (galaxy.scalar.com)
         run: |
-          CI=1 pnpm test:e2e:jsdelivr
+          CI=1 pnpm test:e2e:galaxy-scalar-com
       - uses: actions/upload-artifact@de65e23aa2b7e23d713bb51fbfcb6d502f8667d8
         id: artifact-upload
         if: ${{ failure() }}
