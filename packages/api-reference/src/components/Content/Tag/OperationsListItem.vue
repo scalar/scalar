@@ -66,7 +66,7 @@ const title = computed(
         }">
         {{ transformedOperation.path }}
         <span
-          v-if="transformedOperation.information?.['x-scalar-tier'] === 'pro'"
+          v-if="transformedOperation.information?.['x-pro-only'] === true"
           class="pro-indicator">
           PRO
         </span>

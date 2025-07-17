@@ -13,14 +13,14 @@ import { Badge } from '@/components/Badge'
 
 const { operation } = defineProps<{
   operation?: {
-    'x-scalar-tier'?: string
+    'x-pro-only'?: boolean
     [key: string]: any
   }
 }>()
 
-/** Only show the PRO badge when x-scalar-tier is explicitly set to "pro" */
+/** Only show the PRO badge when x-pro-only is explicitly set to "pro" */
 const showProBadge = computed(() => {
-  return operation?.['x-scalar-tier'] === 'pro'
+  return operation?.['x-pro-only'] === true
 })
 </script>
 

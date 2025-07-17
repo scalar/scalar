@@ -3,21 +3,38 @@ import { ApiReference } from '@scalar/api-reference'
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { ref } from 'vue'
 
-// Import the defillama-openapi.json file
-import specContent from '../../../../defillama-openapi.json'
+// Import the new spec files
+import freeSpecContent from '../../../../defillama-openapi-free.json'
+import proSpecContent from '../../../../defillama-openapi-pro.json'
 import ApiKeyInput from '../components/ApiKeyInput.vue'
 import SlotPlaceholder from '../components/SlotPlaceholder.vue'
 
 // Create a deep copy of the spec to avoid mutating the original
 const getUpdatedSpec = (baseUrl: string) => {
-  const spec = JSON.parse(JSON.stringify(specContent))
-  
-  // Update the base server URL
-  spec.servers = [{
-    url: baseUrl
-  }]
-  
-  return spec
+  if (baseUrl === 'https://pro-api.llama.fi') {
+    const spec = JSON.parse(JSON.stringify(proSpecContent))
+    spec.servers = [{ url: baseUrl }]
+    return spec
+  }
+
+  // Free plan: merge free spec with x-pro-only endpoints from pro spec
+  const freeSpec = JSON.parse(JSON.stringify(freeSpecContent))
+  const proSpec = JSON.parse(JSON.stringify(proSpecContent))
+
+  // Add pro-only endpoints to the free spec
+  for (const path in proSpec.paths) {
+    for (const method in proSpec.paths[path]) {
+      if (proSpec.paths[path][method]['x-pro-only']) {
+        if (!freeSpec.paths[path]) {
+          freeSpec.paths[path] = {}
+        }
+        freeSpec.paths[path][method] = proSpec.paths[path][method]
+      }
+    }
+  }
+
+  freeSpec.servers = [{ url: baseUrl }]
+  return freeSpec
 }
 
 // Track the current base URL to prevent unnecessary reloads
