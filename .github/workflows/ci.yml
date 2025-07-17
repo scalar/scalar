@@ -791,7 +791,7 @@ jobs:
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Build and push Aspire Docker image
-        uses: useblacksmith/build-push-action@574eb0ee0b59c6a687ace24192f0727dfb65d6d7
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83
         with:
           context: integrations/aspire
           file: integrations/aspire/src/Scalar.Aspire.Service/Dockerfile
