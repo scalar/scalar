@@ -1,6 +1,10 @@
 import { readFileSync, writeFileSync } from 'fs'
 
-type change = {
+/**
+ * Represents a single change in the changelog.
+ * Contains commit information and associated pull request details.
+ */
+type Change = {
   commitType:
     | 'feat'
     | 'fix'
@@ -22,25 +26,41 @@ type change = {
   pullRequestDescription: string
   pullRequestDiffContent?: string
   pullRequestSummary?: string
+  isDep: boolean
 }
 
-type dependency = {
+/**
+ * Represents a dependency update with package name and version.
+ */
+type Dependency = {
   packageName: string
   version: string
 }
 
-type packageChangelog = {
+/**
+ * Represents the changelog for a specific package.
+ * Contains version information, change type, and all changes.
+ */
+type PackageChangelog = {
   version: string | null
   changeType: 'patch' | 'minor' | 'major' | null
-  changes: change[]
-  dependencies: dependency[]
+  changes: Change[]
+  dependencies: Dependency[]
 }
 
-type changelog = {
+/**
+ * Represents the complete changelog structure.
+ * Contains timestamp and changelogs for all packages.
+ */
+type Changelog = {
   timestamp: string
-  packageChangelogs: { [packageName: string]: packageChangelog }
+  packageChangelogs: { [packageName: string]: PackageChangelog }
 }
 
+/**
+ * Configuration for GitHub API access.
+ * Should be set via environment variables in production.
+ */
 type GitHubConfig = {
   token: string
   owner: string
@@ -84,7 +104,7 @@ function formatTimestamp(): string {
 
 /**
  * Fetches the pull request URL, description, diff URL, and files changed for a given commit hash using GitHub API.
- * Uses hardcoded API key and repository details.
+ * Uses configuration object for API access details.
  */
 async function getPullRequestInfo(
   commitHash: string,
@@ -127,7 +147,6 @@ async function getPullRequestInfo(
       let diffContent: string | undefined
 
       if (prResponse.ok) {
-        const prDetails = await prResponse.json()
         // Optionally get the actual diff content
         if (pr.diff_url) {
           const diffResponse = await fetch(pr.diff_url, {
@@ -180,14 +199,53 @@ function extractCommitType(
   // Match conventional commit format: type(scope): description
   const conventionalMatch = commitMessage.match(/^(\w+)(?:\([^)]+\))?:\s*(.+)/)
   if (conventionalMatch) {
-    return conventionalMatch[1].toLowerCase() as any
+    const commitType = conventionalMatch[1].toLowerCase()
+
+    // Validate the commit type against our allowed types
+    const validTypes = [
+      'feat',
+      'fix',
+      'chore',
+      'refactor',
+      'docs',
+      'style',
+      'test',
+      'perf',
+      'build',
+      'ci',
+      'revert',
+    ] as const
+
+    if (validTypes.includes(commitType as any)) {
+      return commitType as (typeof validTypes)[number]
+    }
+
+    return 'other'
   }
 
   return null
 }
 
-export async function parseChangelog(input: string, config: GitHubConfig): Promise<changelog> {
-  const changelog: changelog = {
+/**
+ * Finds the actual commit message for a given commit hash by searching through the file content.
+ * Looks for lines like: -   commitHash: actual commit message
+ */
+function findActualCommitMessage(fileContent: string, commitHash: string): string | null {
+  const lines = fileContent.split(/\r?\n/)
+
+  for (const line of lines) {
+    // Look for lines that start with the commit hash followed by a colon
+    const match = line.match(/^\s*-\s+([a-f0-9]{7}):\s*(.+)/)
+    if (match && match[1] === commitHash) {
+      return match[2]
+    }
+  }
+
+  return null
+}
+
+export async function parseChangelog(input: string, config: GitHubConfig): Promise<Changelog> {
+  const changelog: Changelog = {
     timestamp: formatTimestamp(),
     packageChangelogs: {},
   }
@@ -198,24 +256,25 @@ export async function parseChangelog(input: string, config: GitHubConfig): Promi
   for (const line of lines) {
     if (line.startsWith('## @')) {
       const packageSectionLine = line
-      console.log(packageSectionLine)
       if (packageSectionLine) {
         const parts = packageSectionLine.split('@')
-        const packageName = parts[1]
-        const version = parts[2].split(' ')[0]
-        currentPackageName = packageName
-        changelog.packageChangelogs[packageName] = {
-          version: version,
-          changeType: null,
-          changes: [],
-          dependencies: [],
+        if (parts.length >= 2) {
+          const packageName = parts[1]
+          const version = parts[2]?.split(' ')[0] || null
+          currentPackageName = packageName
+          changelog.packageChangelogs[packageName] = {
+            version: version,
+            changeType: null,
+            changes: [],
+            dependencies: [],
+          }
         }
       }
     }
     if (line.startsWith('###') && currentPackageName) {
-      const versionType = line.split('###')[1].trim().toLowerCase()
-      if (versionType) {
-        changelog.packageChangelogs[currentPackageName].changeType = versionType as 'patch' | 'minor' | 'major' | null
+      const versionType = line.split('###')[1]?.trim().toLowerCase()
+      if (versionType && ['patch', 'minor', 'major'].includes(versionType)) {
+        changelog.packageChangelogs[currentPackageName].changeType = versionType as 'patch' | 'minor' | 'major'
       }
     }
     if (line.startsWith('-   ') && currentPackageName) {
@@ -239,22 +298,47 @@ export async function parseChangelog(input: string, config: GitHubConfig): Promi
           pullRequestUrl,
           pullRequestDescription,
           pullRequestDiffContent,
+          isDep: false,
         })
       }
     }
-    if (line.startsWith('    -   ') && currentPackageName) {
-      const parts = line.split('@')
-      const packageName = parts[1]
-      const version = parts[2].split(' ')[0]
-      changelog.packageChangelogs[currentPackageName].dependencies.push({
-        packageName,
-        version,
-      })
+    if (line.startsWith('-   Updated dependencies') && currentPackageName) {
+      // Parse dependency line like: -   Updated dependencies [a04cc15]
+      const match = line.match(/^\s*-\s+Updated dependencies \[([a-f0-9]{7})\]/)
+      if (match) {
+        const [, commitHash] = match
+        let commitMessage = 'Updated dependencies'
+
+        // Try to find the actual commit message for this hash
+        const actualCommitMessage = findActualCommitMessage(input, commitHash)
+        if (actualCommitMessage) {
+          commitMessage = actualCommitMessage
+        }
+
+        const commitType = extractCommitType(commitMessage)
+        const commitUrl = `https://github.com/${config.owner}/${config.repo}/commit/${commitHash}`
+        const {
+          url: pullRequestUrl,
+          description: pullRequestDescription,
+          diffContent: pullRequestDiffContent,
+        } = await getPullRequestInfo(commitHash, config)
+
+        changelog.packageChangelogs[currentPackageName].changes.push({
+          commitType,
+          commitHash,
+          commitMessage,
+          commitUrl,
+          pullRequestUrl,
+          pullRequestDescription,
+          pullRequestDiffContent,
+          isDep: true,
+        })
+      }
     }
   }
   return changelog
 }
-const content = readFileSync('input-2.md', 'utf-8')
+const content = readFileSync('input.md', 'utf-8')
 
 // Parse changelog asynchronously
 parseChangelog(content, {

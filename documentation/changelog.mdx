@@ -1,11 +1,11 @@
+import { useState } from 'react'
 import changelogData from '../documentation/changelog.json'
 
-## Enhanced Changelog Display
-
-Here's a comprehensive component to display all the changelog data with enhanced features:
+# Changelog
+*Last updated: {changelogData.timestamp}*
 
 export const EnhancedChangelog = ({ data }) => {
-  const packages = Object.entries(data.packageChangelogs)
+  const [selectedPackage, setSelectedPackage] = useState('all')
   
   // Priority packages to show at the top
   const priorityPackages = [
@@ -14,82 +14,56 @@ export const EnhancedChangelog = ({ data }) => {
     'scalar/api-client'
   ]
   
-  // Collect and deduplicate all dependencies
-  const allDependencies = new Map()
-  packages.forEach(([packageName, pkg]) => {
-    if (pkg.dependencies) {
-      pkg.dependencies.forEach(dep => {
-        // Use the dependency package name as key, keep the latest version encountered
-        if (!allDependencies.has(dep.packageName) || 
-            allDependencies.get(dep.packageName).version < dep.version) {
-          allDependencies.set(dep.packageName, {
-            ...dep,
-            updatedIn: packageName // Track which package this dependency was updated in
-          })
+  // Process and filter packages
+  const processedPackages = Object.entries(data.packageChangelogs)
+    .filter(([, pkg]) => pkg.changes?.length > 0)
+    .map(([name, pkg]) => {
+      // Deduplicate changes by commit hash, preferring non-dependency versions
+      const uniqueChanges = new Map()
+      
+      pkg.changes.forEach(change => {
+        const key = change.commitHash
+        const existing = uniqueChanges.get(key)
+        
+        if (!existing || (!change.isDep && existing.isDep)) {
+          uniqueChanges.set(key, change)
         }
       })
-    }
-  })
+      
+      return [name, { ...pkg, changes: Array.from(uniqueChanges.values()) }]
+    })
+    .sort(([nameA, pkgA], [nameB, pkgB]) => {
+      const priorityIndexA = priorityPackages.indexOf(nameA)
+      const priorityIndexB = priorityPackages.indexOf(nameB)
+      
+      // Priority packages first, sorted by priority order
+      if (priorityIndexA !== -1 && priorityIndexB !== -1) {
+        return priorityIndexA - priorityIndexB
+      }
+      if (priorityIndexA !== -1) return -1
+      if (priorityIndexB !== -1) return 1
+      
+      // Then by changes count (descending)
+      return (pkgB.changes?.length || 0) - (pkgA.changes?.length || 0)
+    })
   
-  // Convert dependencies to changes format
-  const dependencyChanges = Array.from(allDependencies.values()).map(dep => ({
-    commitType: 'chore',
-    commitMessage: `update ${dep.packageName} to v${dep.version}`,
-    commitHash: 'deps',
-    commitUrl: '#',
-    pullRequestSummary: `Dependency update: ${dep.packageName} has been updated to version ${dep.version}`,
-    isDependencyUpdate: true,
-    originalDependency: dep
-  }))
-  
-  // Filter out empty packages (no changes and no dependencies)
-  const filteredPackages = packages.filter(([name, pkg]) => 
-    (pkg.changes && pkg.changes.length > 0) || (pkg.dependencies && pkg.dependencies.length > 0)
-  )
-  
-  // Sort packages: priority first, then by changes count (desc), then dependencies only
-  const sortedPackages = filteredPackages.sort(([nameA, pkgA], [nameB, pkgB]) => {
-    const priorityIndexA = priorityPackages.indexOf(nameA)
-    const priorityIndexB = priorityPackages.indexOf(nameB)
-    
-    // If both are priority packages, sort by priority order
-    if (priorityIndexA !== -1 && priorityIndexB !== -1) {
-      return priorityIndexA - priorityIndexB
-    }
-    
-    // Priority packages always come first
-    if (priorityIndexA !== -1) return -1
-    if (priorityIndexB !== -1) return 1
-    
-    // For non-priority packages, sort by changes count (packages with changes first)
-    const changesA = pkgA.changes?.length || 0
-    const changesB = pkgB.changes?.length || 0
-    
-    // If one has changes and other doesn't, prioritize the one with changes
-    if (changesA > 0 && changesB === 0) return -1
-    if (changesB > 0 && changesA === 0) return 1
-    
-    // If both have changes, sort by count descending
-    if (changesA > 0 && changesB > 0) {
-      return changesB - changesA
-    }
-    
-    // If neither has changes (dependencies only), sort alphabetically
-    return nameA.localeCompare(nameB)
-  })
+  // Filter based on selection
+  const displayedPackages = selectedPackage === 'all' 
+    ? processedPackages 
+    : processedPackages.filter(([name]) => name === selectedPackage)
   
   const getCommitTypeBadge = (type) => {
     const badgeClasses = {
       feat: 'bg-green-100 text-green-700',
-      fix: 'bg-red-100 text-red-700',
+      fix: 'bg-blue-100 text-blue-700',
       chore: 'bg-gray-100 text-gray-700',
       refactor: 'bg-yellow-100 text-yellow-700',
-      docs: 'bg-blue-100 text-blue-700',
+      docs: 'bg-slate-100 text-slate-700',
       style: 'bg-purple-100 text-purple-700',
       test: 'bg-cyan-100 text-cyan-700',
       perf: 'bg-orange-100 text-orange-700',
       build: 'bg-lime-100 text-lime-700',
-      ci: 'bg-slate-100 text-slate-700',
+      ci: 'bg-gray-100 text-gray-700',
       revert: 'bg-pink-100 text-pink-700',
       other: 'bg-gray-100 text-gray-700'
     }
@@ -115,155 +89,180 @@ export const EnhancedChangelog = ({ data }) => {
     )
   }
   
-  const isPriorityPackage = (name) => priorityPackages.includes(name)
-  const hasChanges = (pkg) => pkg.changes && pkg.changes.length > 0
+  // Find base package for dependency updates
+  const findBasePackageForDependency = (commitHash) => {
+    for (const [packageName, pkg] of processedPackages) {
+      const baseChange = pkg.changes.find(change => 
+        change.commitHash === commitHash && !change.isDep
+      )
+      if (baseChange) return packageName
+    }
+    return null
+  }
   
   return (
     <div className="scalar-app font-sans text-c-1 bg-b-1">
-      <div className="space-y-6">
-        {sortedPackages.map(([name, pkgData]) => (
+      {/* Package Filter */}
+      <div className="mb-4 p-4 bg-b-2 rounded-lg border border-solid border-border">
+        <div className="flex items-center gap-4 flex-wrap">
+          <label htmlFor="package-filter" className="text-sm font-medium text-c-1 whitespace-nowrap">
+            Filter packages:
+          </label>
+          <select
+            id="package-filter"
+            value={selectedPackage}
+            onChange={(e) => setSelectedPackage(e.target.value)}
+            className="flex-1 min-w-64 px-3 py-2 bg-white border border-solid border-border rounded-md text-sm text-c-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="all">All packages ({processedPackages.length})</option>
+            {processedPackages.map(([packageName]) => (
+              <option key={packageName} value={packageName}>
+                {packageName}
+              </option>
+            ))}
+          </select>
+          {selectedPackage !== 'all' && (
+            <button
+              onClick={() => setSelectedPackage('all')}
+              className="px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+      </div>
+      
+      {/* Package List */}
+      <div className="space-y-2">
+        {displayedPackages.map(([name, pkgData]) => (
           <div 
             key={name} 
             id={name.replace(/\//g, '-')} 
             className={`bg-b-2 rounded-lg shadow-sm transition-all duration-200 ${
-              isPriorityPackage(name) 
+              priorityPackages.includes(name) 
                 ? 'bg-blue-50/30' 
-                : hasChanges(pkgData) 
-                  ? 'hover:shadow-md' 
-                  : 'opacity-90'
+                : 'hover:shadow-md'
             }`}
           >
-          <div className="p-6">
-            {/* Package Header */}
-            <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-              <div className="flex items-center gap-3">
-                <h3 className="text-lg font-semibold text-c-1 m-0">
-                  {name}
-                </h3>
-                {isPriorityPackage(name) && (
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
-                    Core Package
-                  </span>
-                )}
+            <div className="p-4">
+              {/* Package Header */}
+              <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+                <div className="flex items-center gap-3">
+                  <h3 className="text-lg font-semibold text-c-1 m-0">
+                    {name}
+                  </h3>
+                  {priorityPackages.includes(name) && (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                      Core Package
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <code className="px-2.5 py-1 bg-b-3 text-c-2 rounded text-sm font-mono">
+                    v{pkgData.version}
+                  </code>
+                  {pkgData.changeType && getChangeTypeBadge(pkgData.changeType)}
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <code className="px-2.5 py-1 bg-b-3 text-c-2 rounded text-sm font-mono">
-                  v{pkgData.version}
-                </code>
-                {pkgData.changeType && getChangeTypeBadge(pkgData.changeType)}
-              </div>
-            </div>
 
-            {/* Changes Section */}
-            {pkgData.changes && pkgData.changes.length > 0 && (
-              <div className="mb-8">
-                <h4 className="text-base font-semibold text-c-1 mb-4 flex items-center gap-2">
-                  <span>Changes</span>
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-b-3 text-c-2">
-                    {pkgData.changes.length}
-                  </span>
-                </h4>
-                <div className="space-y-4">
-                  {pkgData.changes.map((change, index) => (
-                    <div 
-                      key={index} 
-                      className="p-4 bg-b-1 rounded-lg border border-solid border-border hover:bg-b-1.5 transition-colors"
-                    >
-                      {/* Change metadata */}
-                      <div className="flex items-center gap-2 mb-3 flex-wrap">
-                        {change.commitType && getCommitTypeBadge(change.commitType)}
-                        <a 
-                          href={change.commitUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center px-2 py-1 bg-b-3 text-c-3 rounded text-xs font-mono hover:text-c-1 transition-colors"
-                        >
-                          {change.commitHash}
-                        </a>
-                        {change.pullRequestUrl && (
+              {/* Changes Section */}
+              {pkgData.changes?.length > 0 && (
+                <div>
+                  <h4 className="text-base font-semibold text-c-1 mb-3 flex items-center gap-2">
+                    <span>Changes</span>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-b-3 text-c-2">
+                      {pkgData.changes.length}
+                    </span>
+                  </h4>
+                  <div className="space-y-3">
+                    {pkgData.changes.map((change, index) => (
+                      <div 
+                        key={index} 
+                        className="p-3 bg-b-1 rounded-lg border border-solid border-border hover:bg-b-1.5 transition-colors"
+                      >
+                        {/* Change metadata */}
+                        <div className="flex items-center gap-2 mb-2 flex-wrap">
+                          {change.commitType && getCommitTypeBadge(change.commitType)}
                           <a 
-                            href={change.pullRequestUrl}
+                            href={change.commitUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs font-medium hover:bg-blue-100 transition-colors"
+                            className="inline-flex items-center px-2 py-1 bg-b-3 text-c-3 rounded text-xs font-mono hover:text-c-1 transition-colors"
                           >
-                            PR #{change.pullRequestUrl.split('/').pop()}
+                            {change.commitHash}
                           </a>
+                          {change.pullRequestUrl && (
+                            <a 
+                              href={change.pullRequestUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs font-medium hover:bg-blue-100 transition-colors"
+                            >
+                              PR #{change.pullRequestUrl.split('/').pop()}
+                            </a>
+                          )}
+                          {change.isDep && (
+                            (() => {
+                              const basePackage = findBasePackageForDependency(change.commitHash)
+                              return basePackage ? (
+                                <a
+                                  href={`#${basePackage.replace(/\//g, '-')}`}
+                                  className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-700 hover:bg-orange-200 transition-colors cursor-pointer"
+                                  title={`View original change in ${basePackage}`}
+                                >
+                                  Dependency Update → {basePackage}
+                                </a>
+                              ) : (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-b-3 text-c-2">
+                                  Dependency Update
+                                </span>
+                              )
+                            })()
+                          )}
+                        </div>
+                        
+                        {/* Commit message */}
+                        <div className="text-sm text-c-1 leading-relaxed mb-2 font-medium">
+                          {change.commitMessage}
+                        </div>
+
+                        {/* AI Summary */}
+                        {change.pullRequestSummary && (
+                          <details className="group mb-2">
+                            <summary className="cursor-pointer text-xs font-medium text-blue-700 hover:text-blue-900 transition-colors list-none select-none">
+                              <span className="inline-flex items-center gap-1">
+                                <span className="transform transition-transform group-open:rotate-90">▶</span>
+                                AI Summary
+                              </span>
+                            </summary>
+                            <div className="mt-2 p-2 bg-blue-50/50 border border-blue-200/50 rounded-md text-sm text-blue-800 leading-relaxed max-h-48 overflow-auto">
+                              {change.pullRequestSummary}
+                            </div>
+                          </details>
+                        )}
+
+                        {/* PR Description */}
+                        {change.pullRequestDescription && (
+                          <details className="group">
+                            <summary className="cursor-pointer text-xs font-medium text-c-3 hover:text-c-1 transition-colors list-none select-none">
+                              <span className="inline-flex items-center gap-1">
+                                <span className="transform transition-transform group-open:rotate-90">▶</span>
+                                View Pull Request Description
+                              </span>
+                            </summary>
+                            <div className="mt-2 p-2 bg-b-2 border border-solid border-border rounded text-xs text-c-2 leading-relaxed max-h-48 overflow-auto whitespace-pre-wrap">
+                              {change.pullRequestDescription}
+                            </div>
+                          </details>
                         )}
                       </div>
-                      
-                      {/* Commit message */}
-                      <div className="text-sm text-c-1 leading-relaxed mb-3 font-medium">
-                        {change.commitMessage}
-                      </div>
-
-                      {/* AI Summary (collapsible) */}
-                      {change.pullRequestSummary && (
-                        <details className="group mb-3">
-                          <summary className="cursor-pointer text-xs font-medium text-blue-700 hover:text-blue-900 transition-colors list-none select-none">
-                            <span className="inline-flex items-center gap-1">
-                              <span className="transform transition-transform group-open:rotate-90">▶</span>
-                              AI Summary
-                            </span>
-                          </summary>
-                          <div className="mt-2 p-3 bg-blue-50/50 border border-blue-200/50 rounded-md text-sm text-blue-800 leading-relaxed max-h-48 overflow-auto">
-                            {change.pullRequestSummary}
-                          </div>
-                        </details>
-                      )}
-
-                      {/* PR Description (collapsible) */}
-                      {change.pullRequestDescription && (
-                        <details className="group">
-                          <summary className="cursor-pointer text-xs font-medium text-c-3 hover:text-c-1 transition-colors list-none select-none">
-                            <span className="inline-flex items-center gap-1">
-                              <span className="transform transition-transform group-open:rotate-90">▶</span>
-                              View Pull Request Description
-                            </span>
-                          </summary>
-                          <div className="mt-2 p-3 bg-b-2 border border-solid border-border rounded text-xs text-c-2 leading-relaxed max-h-48 overflow-auto whitespace-pre-wrap">
-                            {change.pullRequestDescription}
-                          </div>
-                        </details>
-                      )}
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
-
-                      {/* Dependencies Section */}
-            {pkgData.dependencies && pkgData.dependencies.length > 0 && (
-              <div>
-                <h4 className="text-base font-semibold text-c-1 mb-4 flex items-center gap-2">
-                  <span>Updated Dependencies</span>
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-b-3 text-c-2">
-                    {pkgData.dependencies.length}
-                  </span>
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {pkgData.dependencies.map((dep, index) => (
-                    <div
-                      key={index}
-                      className="p-3 bg-b-1 border border-solid border-border rounded-lg hover:bg-b-1.5 transition-colors"
-                    >
-                      <a 
-                        href={`#${dep.packageName.replace(/\//g, '-')}`}
-                        className="font-medium text-c-1 hover:text-blue-600 transition-colors no-underline"
-                      >
-                        {dep.packageName}
-                      </a>
-                      <div className="text-xs text-c-3 mt-1 font-mono">
-                        v{dep.version}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
       </div>
     </div>
   )
@@ -272,19 +271,30 @@ export const EnhancedChangelog = ({ data }) => {
 ## Quick Stats
 
 export const ChangelogStats = ({ data }) => {
-  const packages = Object.entries(data.packageChangelogs)
-  const totalPackages = packages.length
-  const totalChanges = packages.reduce((sum, [, pkg]) => sum + (pkg.changes?.length || 0), 0)
-  const totalDependencies = packages.reduce((sum, [, pkg]) => sum + (pkg.dependencies?.length || 0), 0)
+  // Process packages the same way as main component
+  const processedPackages = Object.entries(data.packageChangelogs)
+    .filter(([, pkg]) => pkg.changes?.length > 0)
+    .map(([name, pkg]) => {
+      const uniqueChanges = new Map()
+      
+      pkg.changes.forEach(change => {
+        const key = change.commitHash
+        const existing = uniqueChanges.get(key)
+        
+        if (!existing || (!change.isDep && existing.isDep)) {
+          uniqueChanges.set(key, change)
+        }
+      })
+      
+      return [name, { ...pkg, changes: Array.from(uniqueChanges.values()) }]
+    })
   
-  const changeTypeStats = packages.reduce((stats, [, pkg]) => {
-    if (pkg.changeType) {
-      stats[pkg.changeType] = (stats[pkg.changeType] || 0) + 1
-    }
-    return stats
-  }, {})
-
-  const commitTypeStats = packages.reduce((stats, [, pkg]) => {
+  const totalPackages = processedPackages.length
+  const totalChanges = processedPackages.reduce((sum, [, pkg]) => sum + (pkg.changes?.length || 0), 0)
+  const dependencyChanges = processedPackages.reduce((sum, [, pkg]) => 
+    sum + (pkg.changes?.filter(change => change.isDep)?.length || 0), 0)
+  
+  const commitTypeStats = processedPackages.reduce((stats, [, pkg]) => {
     pkg.changes?.forEach(change => {
       if (change.commitType) {
         stats[change.commitType] = (stats[change.commitType] || 0) + 1
@@ -316,10 +326,10 @@ export const ChangelogStats = ({ data }) => {
         
         <div className="p-4 bg-yellow-50 rounded-lg text-center border border-yellow-200">
           <div className="text-2xl font-bold text-yellow-700">
-            {totalDependencies}
+            {dependencyChanges}
           </div>
           <div className="text-sm text-yellow-600 font-medium">
-            Dependencies Updated
+            Dependency Changes
           </div>
         </div>
         
