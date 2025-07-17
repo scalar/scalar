@@ -1,14 +1,14 @@
-import { WORKSPACE_SYMBOL } from '@/store/store'
-import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
-import RequestSection from './RequestSection.vue'
-import { mockUseLayout } from '@/vitest.setup'
 import type { ClientLayout } from '@/hooks/useLayout'
+import { WORKSPACE_SYMBOL } from '@/store/store'
+import { mockUseLayout } from '@/vitest.setup'
+import { mount } from '@vue/test-utils'
+import { describe, expect, it, vi } from 'vitest'
+import RequestSection from './RequestSection.vue'
 
 describe('RequestSection', () => {
   const createWrapper = (props = {}, mockStore = {}, layout: ClientLayout = 'desktop') => {
     // Mock the useLayout hook for this specific test
-    mockUseLayout.mockReturnValue({ layout })
+    vi.mocked(mockUseLayout).mockReturnValue({ layout })
 
     const defaultMockStore = {
       requestMutators: {

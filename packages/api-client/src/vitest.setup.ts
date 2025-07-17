@@ -1,19 +1,19 @@
 import { useLayout } from '@/hooks/useLayout'
 import { useSidebar } from '@/hooks/useSidebar'
-import { afterEach, beforeEach, expect, vi, type Mock } from 'vitest'
+import { afterEach, beforeEach, expect, vi } from 'vitest'
 import { reactive, ref } from 'vue'
 
 // Mock the useLayout hook
 vi.mock('@/hooks/useLayout', () => ({
   useLayout: vi.fn(),
 }))
-export const mockUseLayout = useLayout as Mock<[], ReturnType<typeof useLayout>>
+export const mockUseLayout = useLayout
 
 // Mock the useSidebar hook
 vi.mock('@/hooks/useSidebar', () => ({
   useSidebar: vi.fn(),
 }))
-export const mockUseSidebar = useSidebar as Mock<[], ReturnType<typeof useSidebar>>
+export const mockUseSidebar = useSidebar
 
 /** Spy on console.warn */
 export const consoleWarnSpy = vi.spyOn(console, 'warn')
@@ -43,11 +43,11 @@ export const disableConsoleError = () => (isConsoleErrorEnabled = false)
 
 // Set default values for the mocks
 beforeEach(() => {
-  mockUseLayout.mockReturnValue({
+  vi.mocked(mockUseLayout).mockReturnValue({
     layout: 'desktop',
   })
 
-  mockUseSidebar.mockReturnValue({
+  vi.mocked(mockUseSidebar).mockReturnValue({
     isSidebarOpen: ref(false),
     collapsedSidebarFolders: reactive({}),
     setCollapsedSidebarFolder: vi.fn(),
