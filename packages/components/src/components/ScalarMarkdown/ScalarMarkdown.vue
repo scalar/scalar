@@ -138,7 +138,7 @@ onServerPrefetch(async () => await new Promise((r) => setTimeout(r, 1)))
 
   .markdown p {
     color: inherit;
-    line-height: var(--markdown-line-height);
+    line-height: 22px;
     display: block;
   }
 
