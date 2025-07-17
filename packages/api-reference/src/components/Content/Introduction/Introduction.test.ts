@@ -3,7 +3,6 @@ import { useSidebar } from '@/features/sidebar/hooks/useSidebar'
 import type { Spec } from '@scalar/types/legacy'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { Mock } from 'vitest'
 import { computed, reactive, ref } from 'vue'
 
 import Introduction from './Introduction.vue'
@@ -14,11 +13,11 @@ vi.mock('@/features/sidebar/hooks/useSidebar', () => ({
   SIDEBAR_SYMBOL: Symbol(),
 }))
 
-const mockUseSidebar = useSidebar as Mock<[], ReturnType<typeof useSidebar>>
+const mockUseSidebar = useSidebar
 
 // Set default values for the mocks
 beforeEach(() => {
-  mockUseSidebar.mockReturnValue({
+  vi.mocked(mockUseSidebar).mockReturnValue({
     collapsedSidebarItems: reactive({}),
     isSidebarOpen: ref(false),
     items: computed(() => ({
