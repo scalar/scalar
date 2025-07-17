@@ -3,8 +3,8 @@ import { ApiReference } from '@scalar/api-reference'
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { reactive } from 'vue'
 
-// Import the spec.json file
-import specContent from '../../../../spec.json'
+// Import the defillama-openapi.json file
+import specContent from '../../../../defillama-openapi.json'
 import ApiKeyInput from '../components/ApiKeyInput.vue'
 import SlotPlaceholder from '../components/SlotPlaceholder.vue'
 

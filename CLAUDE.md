@@ -794,7 +794,7 @@ pnpm dev:client:web
 3. Make request to `/prices/current/{coins}` endpoint
 4. Verify API key appears in final URL
 5. Reload page multiple times - no duplicate workspaces created
-6. Modify spec.json - changes immediately reflected
+6. Modify defillama-openapi.json - changes immediately reflected
 
 #### 9. Future Extensibility
 

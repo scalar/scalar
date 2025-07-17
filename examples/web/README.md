@@ -5,7 +5,7 @@ This example demonstrates how to use the Scalar API Reference components in a Vu
 ## Features
 
 - Multiple API reference layouts (modern, classic, embedded)
-- Uses the DefiLlama API specification (`spec.json`) as the example OpenAPI document
+- Uses the DefiLlama API specification (`defillama-openapi.json`) as the example OpenAPI document
 - **API Key Management**: Store and manage DefiLlama Pro API keys locally
 - Editable configuration with live preview
 - Dark mode support
@@ -14,7 +14,7 @@ This example demonstrates how to use the Scalar API Reference components in a Vu
 
 ## API Specification
 
-The example uses the DefiLlama API specification located in `spec.json`. This file contains a comprehensive OpenAPI 3.0 specification with:
+The example uses the DefiLlama API specification located in `defillama-openapi.json`. This file contains a comprehensive OpenAPI 3.0 specification with:
 
 - TVL (Total Value Locked) data endpoints
 - Cryptocurrency price data
@@ -75,7 +75,7 @@ pnpm build
 
 To use your own OpenAPI specification:
 
-1. Replace the `spec.json` file with your own OpenAPI document
+1. Replace the `defillama-openapi.json` file with your own OpenAPI document
 2. The components will automatically use the new specification
 3. Both JSON and YAML formats are supported
 
