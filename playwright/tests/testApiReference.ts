@@ -5,7 +5,7 @@ import { type Page, expect } from '@playwright/test'
  */
 export async function testApiReference(page: Page, isMobile: boolean) {
   // The heading
-  await expect(page.getByRole('heading', { name: 'Scalar Galaxy' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Scalar Galaxy', level: 1, exact: true })).toBeVisible()
   // Body Text
   await expect(page.getByText('The Scalar Galaxy is an example OpenAPI')).toBeVisible()
   // http client
@@ -19,6 +19,15 @@ export async function testApiReference(page: Page, isMobile: boolean) {
     // Close the mobile menu
     await page.getByRole('button', { name: 'Close Menu' }).click()
   }
+
+  // Tag: Authentication
+  await expect(page.getByRole('heading', { name: 'Authentication', level: 2, exact: true })).toBeVisible()
+  // Operation: Create a user
+  await expect(page.getByRole('heading', { name: 'Create a user', level: 3, exact: true })).toBeVisible()
+  // Operation: Get a user
+  await expect(page.getByRole('heading', { name: 'Get a user', level: 3, exact: true })).toBeVisible()
+  // Operation: Get all users
+  await expect(page.getByRole('heading', { name: 'Get all users', level: 3, exact: true })).toBeVisible()
 }
 
 /**

@@ -4,7 +4,7 @@ import { Scalar } from '@scalar/hono-api-reference'
 import { createMockServer } from '@scalar/mock-server'
 import type { Context } from 'hono'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { configureApiReference, createApp, loadDocument, main, startServer } from './index'
+import { configureApiReference, createApp, loadDocument, main, startServer } from './galaxy-scalar-com'
 
 // Mock all external dependencies
 vi.mock('node:fs/promises')
@@ -15,7 +15,7 @@ vi.mock('@scalar/mock-server')
 // Mock environment variables
 const originalEnv = process.env
 
-describe('index', () => {
+describe('galaxy-scalar-com', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     process.env = { ...originalEnv }

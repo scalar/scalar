@@ -37,6 +37,8 @@ jobs:
         run: npx playwright install-deps
       - name: Start HTML server
         run: pnpm --filter @scalar-examples/cdn-api-reference dev &
+      - name: Start @scalar/mock-server playground (galaxy.scalar.com)
+        run: pnpm --filter @scalar/mock-server dev:local &
       - name: Run E2E tests (jsdelivr)
         run: |
           CI=1 pnpm test:e2e:jsdelivr
