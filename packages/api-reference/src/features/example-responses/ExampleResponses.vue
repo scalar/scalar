@@ -32,8 +32,6 @@ const id = useId()
 
 const { copyToClipboard } = useClipboard()
 
-const selectedExampleKey = ref<string>('')
-
 // Bring the status codes in the right order.
 const orderedStatusCodes = computed(() => Object.keys(responses ?? {}).sort())
 
@@ -73,6 +71,10 @@ const currentJsonResponse = computed(() => {
     currentResponse.value
   )
 })
+
+const selectedExampleKey = ref<string>(
+  Object.keys(currentJsonResponse.value.examples ?? {})[0] ?? '',
+)
 
 /**
  * Gets the first example response if there are multiple example responses
