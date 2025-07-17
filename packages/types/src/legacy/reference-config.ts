@@ -237,10 +237,7 @@ export type Tag = {
   'description': string
   'operations': TransformedOperation[]
   'x-displayName'?: string
-  'externalDocs'?:
-    | OpenAPIV2.ExternalDocumentationObject
-    | OpenAPIV3.ExternalDocumentationObject
-    | OpenAPIV3_1.ExternalDocumentationObject
+  'externalDocs'?: OpenAPIV3_1.ExternalDocumentationObject
 }
 
 export type TagGroup = {
