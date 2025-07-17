@@ -21,7 +21,8 @@ describe('local-storage', () => {
   describe('REFERENCE_LS_KEYS', () => {
     it('has all expected keys', () => {
       expect(REFERENCE_LS_KEYS).toEqual({
-        SELECTED_CLIENT: 'scalar-reference-selected-client',
+        SELECTED_CLIENT_DEPRECATED: 'scalar-reference-selected-client',
+        SELECTED_CLIENT: 'scalar-reference-selected-client-v2',
       })
     })
   })

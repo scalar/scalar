@@ -54,7 +54,7 @@ public static class OAuthFlowExtensions
     }
 
     /// <summary>
-    /// Adds a query parameter that should be included in the OAuth request.
+    /// Adds a query parameter that should be included in the auth request.
     /// </summary>
     /// <typeparam name="T">The type of OAuth flow.</typeparam>
     /// <param name="flow"><see cref="OAuthFlow"/>.</param>
@@ -64,6 +64,32 @@ public static class OAuthFlowExtensions
     {
         flow.AdditionalQueryParameters ??= new Dictionary<string, string>();
         flow.AdditionalQueryParameters.TryAdd(key, value);
+        return flow;
+    }
+    
+    /// <summary>
+    /// Adds a body parameter that should be included in the token request.
+    /// </summary>
+    /// <typeparam name="T">The type of OAuth flow.</typeparam>
+    /// <param name="flow"><see cref="OAuthFlow"/>.</param>
+    /// <param name="key">The parameter key.</param>
+    /// <param name="value">The parameter value.</param>
+    public static T AddBodyParameter<T>(this T flow, string key, string value) where T : OAuthFlow
+    {
+        flow.AdditionalBodyParameters ??= new Dictionary<string, string>();
+        flow.AdditionalBodyParameters.TryAdd(key, value);
+        return flow;
+    }
+
+    /// <summary>
+    /// Sets the name of the token used in the OAuth flow.
+    /// </summary>
+    /// <typeparam name="T">The type of OAuth flow.</typeparam>
+    /// <param name="flow"><see cref="OAuthFlow"/>.</param>
+    /// <param name="tokenName">The name of the token.</param>
+    public static T WithTokenName<T>(this T flow, string? tokenName) where T : OAuthFlow
+    {
+        flow.TokenName = tokenName;
         return flow;
     }
 }

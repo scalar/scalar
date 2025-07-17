@@ -1,7 +1,9 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
+import { ScalarIcon } from '@scalar/components'
 import { computed } from 'vue'
+
+import SchemaEnumPropertyItem from './SchemaEnumPropertyItem.vue'
 
 const ENUM_DISPLAY_THRESHOLD = 9
 const INITIAL_VISIBLE_COUNT = 5
@@ -160,63 +162,42 @@ const shouldRender = computed(() => hasEnumValues.value && !isDiscriminator)
     v-if="shouldRender"
     class="property-enum">
     <!-- Key-value description format -->
-    <template v-if="shouldShowDescriptionsAsKeyValue">
-      <div class="property-list">
-        <div
+    <template v-if="isObjectFormat">
+      <ul class="property-enum-values">
+        <SchemaEnumPropertyItem
           v-for="(enumValue, index) in enumValues"
           :key="enumValue"
-          class="property">
-          <div class="property-heading">
-            <div class="property-name">{{ enumValue }}</div>
-          </div>
-          <div class="property-description">
-            <ScalarMarkdown
-              :value="
-                isObjectFormat
-                  ? getEnumValueDescriptionFromObject(enumValue)
-                  : getEnumValueDescription(index)
-              " />
-          </div>
-        </div>
-      </div>
+          :label="enumValue"
+          :description="
+            isObjectFormat
+              ? getEnumValueDescriptionFromObject(enumValue)
+              : getEnumValueDescription(index)
+          " />
+      </ul>
     </template>
 
     <!-- Standard enum list format -->
     <template v-else>
       <ul class="property-enum-values">
-        <!-- Initially visible enum values -->
-        <li
+        <SchemaEnumPropertyItem
           v-for="(enumValue, index) in visibleEnumValues"
           :key="enumValue"
-          class="property-enum-value">
-          <div class="property-enum-value-content">
-            <span class="property-enum-value-label">
-              {{ formatEnumValueWithName(enumValue, index) }}
-            </span>
-            <span class="property-enum-value-description">
-              <ScalarMarkdown :value="getEnumValueDescription(index)" />
-            </span>
-          </div>
-        </li>
+          :label="formatEnumValueWithName(enumValue, index)"
+          :description="getEnumValueDescription(index)" />
 
-        <!-- Expandable section for remaining values -->
         <Disclosure
           v-if="shouldUseLongListDisplay"
           v-slot="{ open }">
           <DisclosurePanel>
-            <li
+            <SchemaEnumPropertyItem
               v-for="(enumValue, index) in hiddenEnumValues"
               :key="enumValue"
-              class="property-enum-value">
-              <span class="property-enum-value-label">
-                {{
-                  formatEnumValueWithName(
-                    enumValue,
-                    initialVisibleCount + index,
-                  )
-                }}
-              </span>
-            </li>
+              :label="
+                formatEnumValueWithName(enumValue, initialVisibleCount + index)
+              "
+              :description="
+                getEnumValueDescription(initialVisibleCount + index)
+              " />
           </DisclosurePanel>
 
           <DisclosureButton class="enum-toggle-button">
@@ -244,62 +225,39 @@ const shouldRender = computed(() => hasEnumValues.value && !isDiscriminator)
   border-radius: var(--scalar-radius);
   margin-top: 10px;
 }
+
 .property-list .property:last-of-type {
   padding-bottom: 10px;
 }
 
-.property-enum-value {
-  color: var(--scalar-color-3);
-  line-height: 1.5;
-  word-break: break-word;
-  display: flex;
-  align-items: stretch;
-  position: relative;
-}
-
-.property-enum-value-content {
-  display: flex;
-  flex-direction: column;
-  padding: 3px 0;
-}
-
-.property-enum-value-label {
-  display: flex;
-  font-family: var(--scalar-font-code);
-  color: var(--scalar-color-2);
-}
-.property-enum-value:last-of-type .property-enum-value-label {
-  padding-bottom: 0;
-}
-.property-enum-value::before {
-  content: '';
-  margin-right: 12px;
-  width: var(--scalar-border-width);
-  display: block;
-  background: currentColor;
-  color: var(--scalar-color-3);
-}
-.property-enum-value:after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: 8px;
-  height: var(--scalar-border-width);
-  background: currentColor;
-}
-.property-enum-value:last-of-type::after {
-  bottom: 0;
-  height: 50%;
-  background: var(--scalar-background-1);
-  border-top: var(--scalar-border-width) solid currentColor;
-}
 .property-enum-values {
-  margin-top: 8px;
+  font-size: var(--scalar-font-size-3);
   list-style: none;
+  margin-top: 8px;
+  padding-left: 2px;
 }
 
-.property-enum-value-description {
-  color: var(--scalar-color-3);
+.enum-toggle-button {
+  align-items: center;
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  border-radius: 13.5px;
+  cursor: pointer;
+  color: var(--scalar-color-2);
+  display: flex;
+  font-weight: var(--scalar-semibold);
+  font-size: var(--scalar-font-size-5);
+  gap: 4px;
+  margin-top: 8px;
+  padding: 6px;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.enum-toggle-button:hover {
+  color: var(--scalar-color-1);
+}
+
+.enum-toggle-button-icon--open {
+  transform: rotate(45deg);
 }
 </style>

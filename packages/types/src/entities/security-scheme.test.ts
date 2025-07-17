@@ -198,12 +198,21 @@ describe('Security Schemas', () => {
             'x-scalar-security-query': {
               prompt: 'consent',
             },
+            'x-scalar-security-body': {
+              audience: 'foo',
+            },
           },
         },
       }
 
       const result = securityOauthSchema.safeParse(oauth2AuthCode)
       expect(result.success).toBe(true)
+      expect(result.data?.flows.authorizationCode?.['x-scalar-security-query']).toEqual({
+        prompt: 'consent',
+      })
+      expect(result.data?.flows.authorizationCode?.['x-scalar-security-body']).toEqual({
+        audience: 'foo',
+      })
     })
 
     it('should validate a valid OAuth2 client credentials flow schema', () => {

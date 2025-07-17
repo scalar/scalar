@@ -1,5 +1,65 @@
 # @scalar/api-client
 
+## 2.5.18
+
+### Patch Changes
+
+- 591562f: feat: add support for x-scalar-security-body extension
+- Updated dependencies [a04cc15]
+- Updated dependencies [591562f]
+- Updated dependencies [85ee2ce]
+- Updated dependencies [fbb7daa]
+- Updated dependencies [fbaaa12]
+- Updated dependencies [85ee2ce]
+- Updated dependencies [97721b5]
+- Updated dependencies [85ee2ce]
+- Updated dependencies [8a67f4f]
+  - @scalar/components@0.14.19
+  - @scalar/openapi-types@0.3.6
+  - @scalar/types@0.2.9
+  - @scalar/snippetz@0.4.2
+  - @scalar/themes@0.13.10
+  - @scalar/use-codemirror@0.12.20
+  - @scalar/oas-utils@0.4.14
+  - @scalar/openapi-parser@0.18.1
+  - @scalar/postman-to-openapi@0.3.17
+
+## 2.5.17
+
+### Patch Changes
+
+- Updated dependencies [934dff9]
+- Updated dependencies [71958fd]
+  - @scalar/components@0.14.18
+  - @scalar/oas-utils@0.4.13
+  - @scalar/use-codemirror@0.12.19
+  - @scalar/postman-to-openapi@0.3.16
+
+## 2.5.16
+
+### Patch Changes
+
+- c10e191: feat(oauth2): add support for x-tokenName extension
+- 244edda: fix: updates collection server form style
+- 244edda: fix: updates collection form style inconsistencies
+- 9e81b17: fix: allow client.open to use concrete paths
+- Updated dependencies [c10e191]
+- Updated dependencies [661c7e9]
+- Updated dependencies [c826b3e]
+- Updated dependencies [cd1c367]
+- Updated dependencies [80acf84]
+- Updated dependencies [4d89219]
+- Updated dependencies [244edda]
+- Updated dependencies [1db9130]
+  - @scalar/types@0.2.8
+  - @scalar/themes@0.13.9
+  - @scalar/oas-utils@0.4.12
+  - @scalar/components@0.14.17
+  - @scalar/openapi-parser@0.18.1
+  - @scalar/snippetz@0.4.1
+  - @scalar/use-codemirror@0.12.18
+  - @scalar/postman-to-openapi@0.3.15
+
 ## 2.5.15
 
 ### Patch Changes

@@ -1,9 +1,10 @@
-import { createServerWorkspaceStore } from '@/server'
-import { createWorkspaceStore } from '@/client'
-import { beforeEach, afterEach, describe, expect, it } from 'vitest'
-import fastify, { type FastifyInstance } from 'fastify'
-import { defaultReferenceConfig } from '@/schemas/reference-config'
 import { setTimeout } from 'node:timers/promises'
+import { createWorkspaceStore } from '@/client'
+import { defaultReferenceConfig } from '@/schemas/reference-config'
+import { createServerWorkspaceStore } from '@/server'
+import { consoleErrorSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
+import fastify, { type FastifyInstance } from 'fastify'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Test document
 const getDocument = (version?: string) => ({
@@ -875,7 +876,7 @@ describe('create-workspace-store', () => {
         meta: {
           'x-scalar-active-document': 'default',
           'x-scalar-dark-mode': true,
-          'x-scalar-default-client': 'curl',
+          'x-scalar-default-client': 'c/libcurl',
           'x-scalar-theme': 'saturn',
         },
       })
@@ -926,7 +927,7 @@ describe('create-workspace-store', () => {
           meta: {
             'x-scalar-active-document': 'default',
             'x-scalar-dark-mode': true,
-            'x-scalar-default-client': 'curl',
+            'x-scalar-default-client': 'c/libcurl',
             'x-scalar-theme': 'saturn',
           },
           documentConfigs: {
@@ -995,7 +996,7 @@ describe('create-workspace-store', () => {
           meta: {
             'x-scalar-active-document': 'default',
             'x-scalar-dark-mode': true,
-            'x-scalar-default-client': 'curl',
+            'x-scalar-default-client': 'c/libcurl',
             'x-scalar-theme': 'saturn',
           },
           documentConfigs: {
@@ -1067,7 +1068,98 @@ describe('create-workspace-store', () => {
       expect(store.workspace['x-scalar-theme']).toBe('saturn')
       expect(store.workspace['x-scalar-dark-mode']).toBe(true)
       expect(store.workspace['x-scalar-active-document']).toBe('default')
-      expect(store.workspace['x-scalar-default-client']).toBe('curl')
+      expect(store.workspace['x-scalar-default-client']).toBe('c/libcurl')
+    })
+  })
+
+  describe('addDocument error handling', () => {
+    beforeEach(() => {
+      resetConsoleSpies()
+    })
+
+    afterEach(() => {
+      resetConsoleSpies()
+    })
+
+    it('logs specific error when resolve.ok is false', async () => {
+      const store = createWorkspaceStore()
+
+      // Mock fetch to return a failed response
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 404,
+        statusText: 'Not Found',
+      })
+
+      await store.addDocument({
+        name: 'failed-doc',
+        url: 'https://example.com/api.json',
+        fetch: mockFetch,
+      })
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith("Failed to fetch document 'failed-doc': request was not successful")
+      expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
+    })
+
+    it('logs specific error when resolve.data is not an object', async () => {
+      const store = createWorkspaceStore()
+
+      // Mock fetch to return a successful response but with non-object data
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve('not an object'),
+      })
+
+      await store.addDocument({
+        name: 'invalid-doc',
+        url: 'https://example.com/api.json',
+        fetch: mockFetch,
+      })
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        "Failed to load document 'invalid-doc': response data is not a valid object",
+      )
+      expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
+    })
+
+    it('logs different errors for different failure conditions', async () => {
+      const store = createWorkspaceStore()
+
+      // Test first condition: resolve.ok is false
+      const mockFetch1 = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+        statusText: 'Internal Server Error',
+      })
+
+      await store.addDocument({
+        name: 'server-error-doc',
+        url: 'https://example.com/api.json',
+        fetch: mockFetch1,
+      })
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        "Failed to fetch document 'server-error-doc': request was not successful",
+      )
+
+      // Reset the spy
+      resetConsoleSpies()
+
+      // Test second condition: resolve.data is not an object
+      const mockFetch2 = vi.fn().mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve(null),
+      })
+
+      await store.addDocument({
+        name: 'null-data-doc',
+        url: 'https://example.com/api2.json',
+        fetch: mockFetch2,
+      })
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        "Failed to load document 'null-data-doc': response data is not a valid object",
+      )
     })
   })
 })

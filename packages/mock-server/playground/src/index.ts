@@ -10,7 +10,7 @@ const port = process.env.PORT || 5052
 
 /**
  * Load the specification from the workspace.
- * We do not want a circular depedency as galaxy uses mock server for its playground
+ * We do not want a circular dependency as galaxy uses mock server for its playground
  */
 const specification = await fs.readFile('../galaxy/src/documents/3.1.yaml', 'utf8').catch(() => {
   console.error('[@scalar/mock-server] Missing @scalar/galaxy. Please build it and try again.')
@@ -31,6 +31,7 @@ app.get(
   '/',
   Scalar({
     pageTitle: 'Scalar Galaxy',
+
     sources: [
       {
         title: 'Scalar Galaxy',
@@ -41,6 +42,7 @@ app.get(
         url: 'https://petstore31.swagger.io/api/v31/openapi.json',
       },
     ],
+    theme: 'default',
     proxyUrl: 'https://proxy.scalar.com',
     baseServerURL: `http://localhost:${port}`,
   }),

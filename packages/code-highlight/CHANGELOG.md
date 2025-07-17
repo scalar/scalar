@@ -1,5 +1,24 @@
 # @scalar/code-highlight
 
+## 0.1.8
+
+### Patch Changes
+
+- 85ee2ce: feat: updates markdown alert component style
+- 85ee2ce: feat: moves markdown style from code-highlight to components package
+
+## 0.1.7
+
+### Patch Changes
+
+- 6ab3a21: feat: updates markdown details component style
+
+## 0.1.6
+
+### Patch Changes
+
+- 903f975: feat: increases code line margin to enhance alignment
+
 ## 0.1.5
 
 ### Patch Changes

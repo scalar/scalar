@@ -1,5 +1,18 @@
 # @scalar/sveltekit
 
+## 0.1.15
+
+### Patch Changes
+
+- 44aecdd: feat: set default \_integration to svelte
+  - @scalar/core@0.3.9
+
+## 0.1.14
+
+### Patch Changes
+
+- @scalar/core@0.3.8
+
 ## 0.1.13
 
 ### Patch Changes

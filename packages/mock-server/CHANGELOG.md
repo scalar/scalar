@@ -1,5 +1,31 @@
 # @scalar/mock-server
 
+## 0.5.17
+
+### Patch Changes
+
+- Updated dependencies [591562f]
+  - @scalar/openapi-types@0.3.6
+  - @scalar/oas-utils@0.4.14
+  - @scalar/openapi-parser@0.18.1
+
+## 0.5.16
+
+### Patch Changes
+
+- 3e657c9: feat(mock-server): update galaxy.scalar.com to use default theme
+- Updated dependencies [71958fd]
+  - @scalar/oas-utils@0.4.13
+
+## 0.5.15
+
+### Patch Changes
+
+- Updated dependencies [c826b3e]
+- Updated dependencies [80acf84]
+  - @scalar/oas-utils@0.4.12
+  - @scalar/openapi-parser@0.18.1
+
 ## 0.5.14
 
 ### Patch Changes

@@ -16,7 +16,7 @@
     "openapi",
     "scalar"
   ],
-  "version": "0.8.0",
+  "version": "0.10.1",
   "engines": {
     "node": ">=18"
   },
@@ -67,9 +67,9 @@
   "dependencies": {
     "@scalar/code-highlight": "workspace:*",
     "@scalar/helpers": "workspace:*",
+    "@scalar/json-diff": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
-    "@scalar/json-diff": "workspace:*",
     "@scalar/types": "workspace:*",
     "@sinclair/typebox": "catalog:*",
     "github-slugger": "^2.0.0",

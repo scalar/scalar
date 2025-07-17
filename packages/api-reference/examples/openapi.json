@@ -1,0 +1,20 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Relative URL Example",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/hello-world": {
+      "get": {
+        "summary": "Hello World",
+        "description": "Returns a simple hello world message",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    }
+  }
+}

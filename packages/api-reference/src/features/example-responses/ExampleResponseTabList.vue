@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { TabGroup, TabList } from '@headlessui/vue'
-
-import CardHeader from './CardHeader.vue'
+import { ScalarCardHeader } from '@scalar/components'
 
 const emit = defineEmits<{
   (e: 'change', index: number): void
@@ -12,7 +11,7 @@ const changeTab = (index: number) => {
 }
 </script>
 <template>
-  <CardHeader class="scalar-card-header scalar-card-header-tabs">
+  <ScalarCardHeader class="scalar-card-header scalar-card-header-tabs">
     <TabGroup @change="changeTab">
       <TabList class="tab-list custom-scroll">
         <slot />
@@ -21,7 +20,7 @@ const changeTab = (index: number) => {
     <template #actions>
       <slot name="actions" />
     </template>
-  </CardHeader>
+  </ScalarCardHeader>
 </template>
 <style scoped>
 .tab-list {

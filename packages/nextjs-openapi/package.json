@@ -16,7 +16,7 @@
     "scalar",
     "references"
   ],
-  "version": "0.2.10",
+  "version": "0.2.12",
   "engines": {
     "node": ">=20"
   },
@@ -49,8 +49,8 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@types/node": "catalog:*",
-    "@types/react": "^19.0.1",
-    "@types/react-dom": "^19.0.2",
+    "@types/react": "catalog:*",
+    "@types/react-dom": "catalog:*",
     "next": "catalog:*",
     "openapi-types": "^12.1.3"
   }

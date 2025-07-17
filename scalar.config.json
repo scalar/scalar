@@ -89,6 +89,54 @@
             {
               "path": "documentation/guides/sdks/getting-started.md",
               "type": "page"
+            },
+            {
+              "name": "Configuration",
+              "type": "folder",
+              "defaultOpen": true,
+              "icon": "phosphor/regular/plug",
+              "children": [
+                {
+                  "name": "TypeScript",
+                  "path": "documentation/guides/sdks/configuration/typescript.md",
+                  "type": "page"
+                },
+                {
+                  "name": "Python",
+                  "path": "documentation/guides/sdks/configuration/python.md",
+                  "type": "page"
+                },
+                {
+                  "name": "Go",
+                  "path": "documentation/guides/sdks/configuration/go.md",
+                  "type": "page"
+                },
+                {
+                  "name": "Java",
+                  "path": "documentation/guides/sdks/configuration/java.md",
+                  "type": "page"
+                },
+                {
+                  "name": "C#",
+                  "path": "documentation/guides/sdks/configuration/csharp.md",
+                  "type": "page"
+                },
+                {
+                  "name": "PHP",
+                  "path": "documentation/guides/sdks/configuration/php.md",
+                  "type": "page"
+                },
+                {
+                  "name": "Ruby",
+                  "path": "documentation/guides/sdks/configuration/ruby.md",
+                  "type": "page"
+                },
+                {
+                  "name": "Swift",
+                  "path": "documentation/guides/sdks/configuration/swift.md",
+                  "type": "page"
+                }
+              ]
             }
           ]
         },

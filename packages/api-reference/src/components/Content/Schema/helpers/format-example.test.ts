@@ -1,4 +1,4 @@
-import { formatExample } from '@/components/Content/Schema/helpers/formatExample'
+import { formatExample } from '@/components/Content/Schema/helpers/format-example'
 import { describe, expect, it } from 'vitest'
 
 describe('formatExample', () => {

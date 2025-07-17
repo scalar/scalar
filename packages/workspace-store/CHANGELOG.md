@@ -1,5 +1,47 @@
 # @scalar/workspace-store
 
+## 0.10.1
+
+### Patch Changes
+
+- 3f2ea8a: fix: shows different console errors whether the request wasn't successful or the data isn't a valid object
+- 828c894: fix: update workspace traversal with fixes from sidebar
+- b5bcce7: feat: implement new request example openapi block in references
+- Updated dependencies [591562f]
+- Updated dependencies [85ee2ce]
+- Updated dependencies [85ee2ce]
+  - @scalar/openapi-types@0.3.6
+  - @scalar/types@0.2.9
+  - @scalar/code-highlight@0.1.8
+  - @scalar/openapi-parser@0.18.1
+
+## 0.10.0
+
+### Minor Changes
+
+- 8b9c48e: fix(workspace-store): support local ref resolution on arrays
+
+### Patch Changes
+
+- a85480e: feat: lay the groundwork for the block implementation PR
+- Updated dependencies [6ab3a21]
+  - @scalar/code-highlight@0.1.7
+
+## 0.9.0
+
+### Minor Changes
+
+- a0cadac: feat(workspace-store) add persistence layer to workspace store
+
+### Patch Changes
+
+- 80acf84: feat: add code sample block wrapper with global state
+- Updated dependencies [c10e191]
+- Updated dependencies [903f975]
+  - @scalar/types@0.2.8
+  - @scalar/code-highlight@0.1.6
+  - @scalar/openapi-parser@0.18.1
+
 ## 0.8.0
 
 ### Minor Changes

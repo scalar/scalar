@@ -550,13 +550,13 @@ export async function importSpecToWorkspace(
  * Extracts the base URL (protocol + hostname) from a document URL.
  * Falls back to the original URL if it's not a valid URL.
  */
-function getBaseUrlFromDocumentUrl(documentUrl: string): string {
+function getBaseUrlFromDocumentUrl(documentUrl: string): string | undefined {
   try {
     const url = new URL(documentUrl)
-    return `${url.protocol}//${url.hostname}`
+    return `${url.protocol}//${url.hostname}${url.port ? `:${url.port}` : ''}`
   } catch {
-    // If the documentUrl is not a valid URL, fall back to using it as-is
-    return documentUrl
+    // If the documentUrl is not a valid URL, we can't use it
+    return undefined
   }
 }
 
@@ -572,7 +572,11 @@ export function getServersFromOpenApiDocument(
 ): Server[] {
   // If the document doesn't have any servers, try to use the documentUrl as the default server.
   if (!servers?.length && documentUrl) {
-    return [serverSchema.parse({ url: getBaseUrlFromDocumentUrl(documentUrl) })]
+    const newServerUrl = getBaseUrlFromDocumentUrl(documentUrl)
+
+    if (newServerUrl) {
+      return [serverSchema.parse({ url: newServerUrl })]
+    }
   }
 
   // If the servers are not an array, return an empty array.
@@ -596,7 +600,11 @@ export function getServersFromOpenApiDocument(
           }
 
           if (documentUrl) {
-            parsedSchema.url = combineUrlAndPath(getBaseUrlFromDocumentUrl(documentUrl), parsedSchema.url)
+            const baseUrl = getBaseUrlFromDocumentUrl(documentUrl)
+
+            if (baseUrl) {
+              parsedSchema.url = combineUrlAndPath(baseUrl, parsedSchema.url)
+            }
 
             return parsedSchema
           }

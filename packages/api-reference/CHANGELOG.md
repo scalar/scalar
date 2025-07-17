@@ -1,5 +1,93 @@
 # @scalar/api-reference
 
+## 1.32.9
+
+### Patch Changes
+
+- 8c6f6fe: fix: rollback workspace store
+
+## 1.32.8
+
+### Patch Changes
+
+- a04cc15: feat(components): create scalar card component
+- b5bcce7: feat: implement new request example openapi block in references
+- 97721b5: fix: prevents navigation on enter in search modal if no result
+- 9978a16: fix: example response has an additional value key
+- 8a67f4f: fix(api-reference): classic layout improvements
+- Updated dependencies [a04cc15]
+- Updated dependencies [591562f]
+- Updated dependencies [85ee2ce]
+- Updated dependencies [fbb7daa]
+- Updated dependencies [3f2ea8a]
+- Updated dependencies [fbaaa12]
+- Updated dependencies [828c894]
+- Updated dependencies [85ee2ce]
+- Updated dependencies [97721b5]
+- Updated dependencies [b5bcce7]
+- Updated dependencies [85ee2ce]
+- Updated dependencies [8a67f4f]
+  - @scalar/components@0.14.19
+  - @scalar/openapi-types@0.3.6
+  - @scalar/api-client@2.5.18
+  - @scalar/types@0.2.9
+  - @scalar/snippetz@0.4.2
+  - @scalar/workspace-store@0.10.1
+  - @scalar/code-highlight@0.1.8
+  - @scalar/themes@0.13.10
+  - @scalar/oas-utils@0.4.14
+  - @scalar/openapi-parser@0.18.1
+
+## 1.32.7
+
+### Patch Changes
+
+- a85480e: feat: lay the groundwork for the block implementation PR
+- 1a6c0a4: feat: increases property font sizes + updates description color
+- 9be7ca9: fix: show description for expandable enum values
+- c2ff19e: fix: updates enum values style
+- 7325520: feat: render additionalProperties and patternProperties
+- 134c455: fix: updates example request selected type presence check for discriminator
+- Updated dependencies [a85480e]
+- Updated dependencies [934dff9]
+- Updated dependencies [8b9c48e]
+- Updated dependencies [6ab3a21]
+- Updated dependencies [71958fd]
+  - @scalar/workspace-store@0.10.0
+  - @scalar/components@0.14.18
+  - @scalar/code-highlight@0.1.7
+  - @scalar/oas-utils@0.4.13
+  - @scalar/api-client@2.5.17
+
+## 1.32.6
+
+### Patch Changes
+
+- 6a7509a: fix: updates last download link style
+- 80acf84: feat: add code sample block wrapper with global state
+- Updated dependencies [a0cadac]
+- Updated dependencies [c10e191]
+- Updated dependencies [661c7e9]
+- Updated dependencies [c826b3e]
+- Updated dependencies [cd1c367]
+- Updated dependencies [903f975]
+- Updated dependencies [244edda]
+- Updated dependencies [80acf84]
+- Updated dependencies [4d89219]
+- Updated dependencies [244edda]
+- Updated dependencies [244edda]
+- Updated dependencies [1db9130]
+- Updated dependencies [9e81b17]
+  - @scalar/workspace-store@0.9.0
+  - @scalar/api-client@2.5.16
+  - @scalar/types@0.2.8
+  - @scalar/themes@0.13.9
+  - @scalar/oas-utils@0.4.12
+  - @scalar/components@0.14.17
+  - @scalar/code-highlight@0.1.6
+  - @scalar/openapi-parser@0.18.1
+  - @scalar/snippetz@0.4.1
+
 ## 1.32.5
 
 ### Patch Changes

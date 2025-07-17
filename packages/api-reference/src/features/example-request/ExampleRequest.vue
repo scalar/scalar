@@ -5,7 +5,13 @@ import {
   getSnippet,
 } from '@scalar/api-client/views/Components/CodeSnippet'
 import { filterSecurityRequirements } from '@scalar/api-client/views/Request/RequestSection'
-import { ScalarCodeBlock } from '@scalar/components'
+import {
+  ScalarCard,
+  ScalarCardFooter,
+  ScalarCardHeader,
+  ScalarCardSection,
+  ScalarCodeBlock,
+} from '@scalar/components'
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import {
   createExampleFromRequest,
@@ -27,7 +33,6 @@ import {
   type ComponentPublicInstance,
 } from 'vue'
 
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/Card'
 import { HttpMethod } from '@/components/HttpMethod'
 import ScreenReader from '@/components/ScreenReader.vue'
 import type { Schemas } from '@/features/Operation/types/schemas'
@@ -327,7 +332,11 @@ function updateHttpClient(value: string) {
 }
 
 /** Update the selected example and the operation ID */
-function handleExampleUpdate(value: string) {
+function handleExampleUpdate(value: string | undefined) {
+  if (!value) {
+    return
+  }
+
   selectedExampleKey.value = value
   operationId.value = operation.operationId
 
@@ -363,8 +372,8 @@ const handleDiscriminatorChange = (type: string) => {
   try {
     isUpdating.value = true
 
-    // Update the example with the selected type and merged properties
-    const example = requestExamples[operation.examples[0]]
+    // Update the example with the selected type and merged properties only if we have an example
+    const example = requestExamples[request?.examples?.[0] ?? '']
     if (example && exampleContext?.generateExampleValue) {
       // Generate the new example value
       const currentValue = example.body?.raw?.value
@@ -419,23 +428,17 @@ watch(discriminator, (newValue) => {
 })
 </script>
 <template>
-  <Card
+  <ScalarCard
     v-if="availableTargets.length || customRequestExamples.length"
-    :aria-labelledby="`${id}-header`"
-    class="dark-mode"
-    ref="elem"
-    role="region">
-    <CardHeader muted>
-      <div
-        :id="`${id}-header`"
-        class="request-header">
-        <ScreenReader>Request Example for</ScreenReader>
-        <HttpMethod
-          as="span"
-          class="request-method"
-          :method="method" />
-        <slot name="header" />
-      </div>
+    class="request-card dark-mode"
+    ref="elem">
+    <ScalarCardHeader class="pr-0.75">
+      <ScreenReader>Request Example for</ScreenReader>
+      <HttpMethod
+        as="span"
+        class="request-method"
+        :method="method" />
+      <slot name="header" />
       <template #actions>
         <TextSelect
           class="request-client-picker"
@@ -457,29 +460,26 @@ watch(discriminator, (newValue) => {
           </template>
         </TextSelect>
       </template>
-    </CardHeader>
-    <CardContent
-      borderless
-      class="request-editor-section custom-scroll"
-      frameless>
+    </ScalarCardHeader>
+    <ScalarCardSection
+      class="request-editor-section custom-scroll border-none p-0">
       <!-- Multiple examples -->
       <div
         :id="`${id}-example`"
         class="code-snippet">
         <ScalarCodeBlock
-          class="bg-b-2 -outline-offset-2"
+          class="bg-b-2 !min-h-full -outline-offset-2"
           :content="generatedCode"
           :hideCredentials="secretCredentials"
           :lang="language"
           lineNumbers />
       </div>
-    </CardContent>
-    <CardFooter
+    </ScalarCardSection>
+    <ScalarCardFooter
       v-if="
         (hasMultipleExamples || !config.hideTestRequestButton) && $slots.footer
       "
-      class="request-card-footer"
-      contrast>
+      class="request-card-footer bg-b-3">
       <div
         v-if="hasMultipleExamples"
         class="request-card-footer-addon">
@@ -490,12 +490,12 @@ watch(discriminator, (newValue) => {
           @update:modelValue="handleExampleUpdate" />
       </div>
       <slot name="footer" />
-    </CardFooter>
-  </Card>
-  <Card
+    </ScalarCardFooter>
+  </ScalarCard>
+  <ScalarCard
     v-else-if="fallback"
-    class="dark-mode">
-    <CardContent class="request-card-simple">
+    class="request-card dark-mode">
+    <ScalarCardSection class="request-card-simple">
       <div class="request-header">
         <HttpMethod
           as="span"
@@ -504,22 +504,17 @@ watch(discriminator, (newValue) => {
         <slot name="header" />
       </div>
       <slot name="footer" />
-    </CardContent>
-  </Card>
+    </ScalarCardSection>
+  </ScalarCard>
 </template>
 <style scoped>
-.request {
-  display: flex;
-  flex-wrap: nowrap;
-}
-.request-header {
-  display: flex;
-  gap: 6px;
-  text-transform: initial;
+.request-card {
+  font-size: var(--scalar-font-size-3);
 }
 .request-method {
   font-family: var(--scalar-font-code);
   text-transform: uppercase;
+  margin-right: 6px;
 }
 .request-client-picker {
   padding-left: 12px;

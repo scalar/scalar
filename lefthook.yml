@@ -3,15 +3,9 @@ pre-commit:
     vite-cleanup:
       glob: '*'
       run: find . -name 'vite.config.ts.timestamp-*' -delete
-    package_format:
-      glob: 'pnpm-lock.yaml'
-      run: pnpm script packages format; git add \*package.json pnpm-lock.yaml; echo PACKAGE FILES FORMATTED
     biome-format:
       glob: '*'
       run: 'pnpm biome format --write && git add {staged_files}'
-    prettier:
-      glob: '*.{js,ts,jsx,tsx,vue,md,json,css,scss,html,yml,yaml}'
-      run: 'pnpm prettier --write {staged_files} && git add {staged_files}'
     lint:
       glob: '*'
       run: 'pnpm biome lint --diagnostic-level=error --fix'

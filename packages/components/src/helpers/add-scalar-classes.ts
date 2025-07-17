@@ -1,28 +1,46 @@
+const CLASS_NAME = 'scalar-app'
+const ROOT_ID = 'headlessui-portal-root'
+
 /**
- * Helper method for adding the scalar classes to HeadlessUI portal root
+ * Type guard to check if an element is an HTMLElement
+ */
+const isHTMLElement = (element: Node | Element | null): element is HTMLElement => {
+  return element !== null && element instanceof HTMLElement
+}
+
+/**
+ * Helper method for adding the scalar classes to an element
+ */
+const addClasses = (el?: HTMLElement | undefined | null) => {
+  if (!el || el.classList.contains(CLASS_NAME)) {
+    return
+  }
+
+  el.classList.add(CLASS_NAME)
+}
+
+/**
+ * Makes sure the scalar classes are added to the HeadlessUI portal root
+ *
+ * Returns the mutation observer instance
  */
 export const addScalarClassesToHeadless = () => {
-  const headlessRoot = document.getElementById('headlessui-portal-root')
+  // Add classes to the element if it already exists
+  addClasses(document.getElementById(ROOT_ID))
 
-  // The element already exists
-  if (headlessRoot) {
-    headlessRoot.classList.add('scalar-app')
-    headlessRoot.classList.add('scalar-client')
-  }
+  // Mutation observer to catch the element being added or removed later
+  const observer = new MutationObserver((records: MutationRecord[]) =>
+    records.forEach(({ addedNodes }) =>
+      addedNodes.forEach((node) => {
+        if (isHTMLElement(node) && node.id === ROOT_ID) {
+          addClasses(node)
+        }
+      }),
+    ),
+  )
 
-  // Mutation observer to catch the element being added later
-  else {
-    const observer = new MutationObserver((records: MutationRecord[]) => {
-      const headlessMutation = records.find((record) =>
-        Array.from(record.addedNodes).find((node) => (node as HTMLDivElement).id === 'headlessui-portal-root'),
-      )
-      if (headlessMutation) {
-        const el = headlessMutation.addedNodes[0] as HTMLDivElement
-        el.classList.add('scalar-app')
-        el.classList.add('scalar-client')
-        observer.disconnect()
-      }
-    })
-    observer.observe(document.body, { childList: true })
-  }
+  // Observe the body for changes to the portal root
+  observer.observe(document.body, { childList: true })
+
+  return observer
 }

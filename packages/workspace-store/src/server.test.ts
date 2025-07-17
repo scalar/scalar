@@ -241,7 +241,7 @@ describe('create-server-store', () => {
         meta: {
           'x-scalar-active-document': 'test',
           'x-scalar-dark-mode': true,
-          'x-scalar-default-client': 'node',
+          'x-scalar-default-client': 'node/fetch',
           'x-scalar-theme': 'default',
         },
       })
@@ -324,7 +324,7 @@ describe('create-server-store', () => {
         },
         'x-scalar-active-document': 'test',
         'x-scalar-dark-mode': true,
-        'x-scalar-default-client': 'node',
+        'x-scalar-default-client': 'node/fetch',
         'x-scalar-theme': 'default',
       })
 

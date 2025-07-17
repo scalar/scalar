@@ -19,7 +19,6 @@ export default {}
 <script setup lang="ts">
 import type { ScalarSidebarItemProps } from '@/components/ScalarSidebar/types'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
-import type { Component } from 'vue'
 
 import ScalarSidebarButton from './ScalarSidebarButton.vue'
 import ScalarSidebarGroupToggle from './ScalarSidebarGroupToggle.vue'
@@ -28,7 +27,7 @@ import { type SidebarGroupLevel, useSidebarGroups } from './useSidebarGroups'
 
 const { is = 'ul' } = defineProps<ScalarSidebarItemProps>()
 
-const open = defineModel<boolean>()
+const open = defineModel<boolean>({ default: false })
 
 defineSlots<{
   /** The text content of the toggle */
@@ -55,9 +54,10 @@ const { cx } = useBindCx()
         class="group/group-button"
         :aria-expanded="open"
         :indent="level"
-        :selected="selected"
-        :disabled="disabled"
-        :icon="icon"
+        :active
+        :selected
+        :disabled
+        :icon
         @click="open = !open">
         <template #indent>
           <ScalarSidebarIndent
@@ -75,18 +75,10 @@ const { cx } = useBindCx()
     <component
       :is="is"
       v-if="open"
-      v-bind="cx('flex flex-col gap-px')">
+      v-bind="cx('group/items flex flex-col gap-px')">
       <slot
         name="items"
         :open="!!open" />
     </component>
   </li>
 </template>
-<style>
-@reference "../../style.css";
-
-/* Set the font weight and color of the button when a subitem is selected */
-.group\/item:has(.font-sidebar-active) > .group\/group-button {
-  @apply font-sidebar-active text-c-1;
-}
-</style>

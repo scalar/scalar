@@ -5,7 +5,13 @@ import type { TagObject } from '@/schemas/v3.1/strict/tag'
 /** Map of tagNames and their entries */
 export type TagsMap = Map<string, { tag: TagObject; entries: TraversedEntry[] }>
 
-type OperationSortValue = { method: string; path: string; ref: string }
+type OperationSortValue = {
+  method: string
+  path: string
+  ref: string
+  /** @deprecated use method instead */
+  httpVerb: string
+}
 
 /** Configuration options for traversing an OpenAPI specification document.
  *

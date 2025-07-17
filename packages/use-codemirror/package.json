@@ -16,7 +16,7 @@
     "vue",
     "vue3"
   ],
-  "version": "0.12.17",
+  "version": "0.12.20",
   "engines": {
     "node": ">=20"
   },
@@ -76,7 +76,6 @@
     "@scalar/build-tooling": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@vitejs/plugin-vue": "catalog:*",
-    "@vitest/coverage-v8": "^1.6.0",
     "vite": "catalog:*",
     "vitest": "catalog:*",
     "vue": "catalog:*"

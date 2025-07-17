@@ -18,7 +18,7 @@
     "rest",
     "testing"
   ],
-  "version": "2.5.15",
+  "version": "2.5.18",
   "engines": {
     "node": ">=20"
   },
@@ -201,8 +201,8 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
-    "@headlessui/tailwindcss": "^0.2.0",
-    "@headlessui/vue": "^1.7.20",
+    "@headlessui/tailwindcss": "catalog:*",
+    "@headlessui/vue": "catalog:*",
     "@scalar/components": "workspace:*",
     "@scalar/draggable": "workspace:*",
     "@scalar/helpers": "workspace:*",
@@ -224,8 +224,8 @@
     "@vueuse/core": "catalog:*",
     "@vueuse/integrations": "catalog:*",
     "focus-trap": "^7",
-    "fuse.js": "^7.0.0",
-    "microdiff": "^1.4.0",
+    "fuse.js": "catalog:*",
+    "microdiff": "catalog:*",
     "nanoid": "catalog:*",
     "pretty-bytes": "^6.1.1",
     "pretty-ms": "^8.0.0",

@@ -19,7 +19,7 @@
     "post-response scripts",
     "api client"
   ],
-  "version": "0.0.17",
+  "version": "0.0.20",
   "private": true,
   "engines": {
     "node": ">=18"
@@ -90,7 +90,7 @@
   "module": "dist/index.js",
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.3",
-    "@headlessui/vue": "^1.7.20",
+    "@headlessui/vue": "catalog:*",
     "@scalar/components": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "vue": "catalog:*"

@@ -36,15 +36,18 @@ const { is = 'a', indent = 0 } = defineProps<ScalarSidebarItemProps>()
 defineSlots<ScalarSidebarItemSlots>()
 
 const variants = cva({
-  base: ['group/button flex rounded px-2 font-sidebar text-c-2 no-underline'],
+  base: [
+    'group/button flex items-stretch rounded px-2 font-sidebar text-c-2 no-underline',
+  ],
   variants: {
-    selected: { true: 'cursor-auto bg-b-2 text-c-1 font-sidebar-active' },
+    active: { true: 'text-c-1 font-sidebar-active' },
     disabled: { true: 'cursor-auto' },
+    selected: { true: 'cursor-auto bg-b-2 text-c-1 font-sidebar-active' },
   },
   compoundVariants: [
     { selected: false, disabled: false, class: 'hover:bg-b-2' },
   ],
-  defaultVariants: { selected: false, disabled: false },
+  defaultVariants: { selected: false, disabled: false, active: false },
 })
 defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
@@ -52,10 +55,9 @@ const { cx } = useBindCx()
 <template>
   <component
     :is="is"
-    :aria-level="indent"
     :aria-selected="selected"
     :type="is === 'button' ? 'button' : undefined"
-    v-bind="cx(variants({ selected, disabled }))">
+    v-bind="cx(variants({ selected, disabled, active }))">
     <slot name="indent">
       <ScalarSidebarIndent
         :indent
@@ -65,7 +67,7 @@ const { cx } = useBindCx()
     <div class="flex items-center gap-1 flex-1 py-2 leading-5">
       <div
         v-if="icon || $slots.icon"
-        class="size-3.5">
+        class="size-4">
         <slot name="icon">
           <ScalarIconLegacyAdapter
             v-if="icon"
@@ -74,7 +76,9 @@ const { cx } = useBindCx()
       </div>
       <slot />
     </div>
-    <div v-if="$slots.aside">
+    <div
+      v-if="$slots.aside"
+      class="flex items-center">
       <slot name="aside" />
     </div>
   </component>

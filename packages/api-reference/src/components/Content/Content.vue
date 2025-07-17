@@ -268,15 +268,6 @@ const introCardsSlot = computed(() =>
   :deep(.scalar-card:nth-of-type(2) .scalar-card-header) {
   display: none;
 }
-.references-classic
-  .introduction-card-row
-  :deep(
-    .scalar-card:nth-of-type(2)
-      .scalar-card-header.scalar-card--borderless
-      + .scalar-card-content
-  ) {
-  margin-top: 0;
-}
 .section-flare {
   top: 0;
   right: 0;

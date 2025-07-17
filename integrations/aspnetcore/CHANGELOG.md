@@ -1,5 +1,49 @@
 # @scalar/aspnetcore
 
+## 2.6.3
+
+### Patch Changes
+
+- Updated dependencies [8c6f6fe]
+  - @scalar/api-reference@1.32.9
+
+## 2.6.2
+
+### Patch Changes
+
+- 591562f: feat: add support for x-scalar-security-body extension
+- Updated dependencies [a04cc15]
+- Updated dependencies [b5bcce7]
+- Updated dependencies [97721b5]
+- Updated dependencies [9978a16]
+- Updated dependencies [8a67f4f]
+  - @scalar/api-reference@1.32.8
+
+## 2.6.1
+
+### Patch Changes
+
+- Updated dependencies [a85480e]
+- Updated dependencies [1a6c0a4]
+- Updated dependencies [9be7ca9]
+- Updated dependencies [c2ff19e]
+- Updated dependencies [7325520]
+- Updated dependencies [134c455]
+  - @scalar/api-reference@1.32.7
+
+## 2.6.0
+
+### Minor Changes
+
+- 5d9e89d: feat: return scalar endpoint group instead of endpoint
+
+### Patch Changes
+
+- 9daf5da: feat: support x-tokenName extension
+- Updated dependencies [6a7509a]
+- Updated dependencies [80acf84]
+  - @scalar/api-reference@1.32.6
+
 ## 2.5.6
 
 ### Patch Changes

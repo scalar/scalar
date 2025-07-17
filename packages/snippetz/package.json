@@ -9,7 +9,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/snippetz"
   },
-  "version": "0.4.0",
+  "version": "0.4.2",
   "engines": {
     "node": ">=20"
   },
@@ -226,8 +226,8 @@
   ],
   "module": "./dist/index.js",
   "dependencies": {
-    "stringify-object": "^5.0.0",
-    "@scalar/types": "workspace:*"
+    "@scalar/types": "workspace:*",
+    "stringify-object": "^5.0.0"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",

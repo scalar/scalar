@@ -1,5 +1,20 @@
 # @scalar/snippetz
 
+## 0.4.2
+
+### Patch Changes
+
+- fbb7daa: feat: improved rust/reqwest output
+- Updated dependencies [591562f]
+  - @scalar/types@0.2.9
+
+## 0.4.1
+
+### Patch Changes
+
+- Updated dependencies [c10e191]
+  - @scalar/types@0.2.8
+
 ## 0.4.0
 
 ### Minor Changes

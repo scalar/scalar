@@ -19,7 +19,7 @@
     "testing",
     "react"
   ],
-  "version": "0.7.7",
+  "version": "0.7.9",
   "engines": {
     "node": ">=20"
   },
@@ -41,17 +41,17 @@
     "@scalar/types": "workspace:*"
   },
   "devDependencies": {
-    "@docusaurus/types": "^3.6.0",
-    "@types/react": "^19.0.1",
-    "@types/react-dom": "^19.0.2",
+    "@docusaurus/types": "^3.7.0",
+    "@types/react": "catalog:*",
+    "@types/react-dom": "catalog:*",
     "path": "^0.12.7",
     "postcss": "catalog:*",
     "postcss-cli": "^11.0.0",
     "postcss-nesting": "^12.1.5",
-    "react": "^19.0.0",
+    "react": "catalog:*",
     "shx": "^0.4.0"
   },
   "peerDependencies": {
-    "react": "^18.0.0"
+    "react": "^18.0.0 || ^19.0.0"
   }
 }

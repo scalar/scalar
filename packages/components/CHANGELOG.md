@@ -1,5 +1,48 @@
 # @scalar/components
 
+## 0.14.19
+
+### Patch Changes
+
+- a04cc15: feat(components): create scalar card component
+- 85ee2ce: feat: updates markdown ordered list style
+- fbaaa12: fix(components): update add scalar classes to always watch for the headless root
+- 85ee2ce: feat: updates markdown alert component style
+- 97721b5: feat: updates scalar search input style
+- 85ee2ce: feat: moves markdown style from code-highlight to components package
+- Updated dependencies [85ee2ce]
+- Updated dependencies [85ee2ce]
+- Updated dependencies [8a67f4f]
+  - @scalar/code-highlight@0.1.8
+  - @scalar/themes@0.13.10
+  - @scalar/oas-utils@0.4.14
+
+## 0.14.18
+
+### Patch Changes
+
+- 934dff9: feat(components): sidebar component follow up
+- Updated dependencies [6ab3a21]
+- Updated dependencies [71958fd]
+  - @scalar/code-highlight@0.1.7
+  - @scalar/oas-utils@0.4.13
+
+## 0.14.17
+
+### Patch Changes
+
+- cd1c367: refactor(components): update slot definitions to use unknown instead of any
+- 4d89219: fix: rollback scalar combobox options timeout
+- 244edda: fix: updates scalar toggle background and width
+- 1db9130: feat(components): add nested sidebar component
+- Updated dependencies [661c7e9]
+- Updated dependencies [c826b3e]
+- Updated dependencies [903f975]
+- Updated dependencies [80acf84]
+  - @scalar/themes@0.13.9
+  - @scalar/oas-utils@0.4.12
+  - @scalar/code-highlight@0.1.6
+
 ## 0.14.16
 
 ### Patch Changes

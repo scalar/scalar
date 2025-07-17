@@ -16,7 +16,7 @@
     "specification",
     "yaml"
   ],
-  "version": "0.4.11",
+  "version": "0.4.14",
   "engines": {
     "node": ">=20"
   },
@@ -108,8 +108,8 @@
     "@scalar/types": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
     "@types/har-format": "^1.2.15",
-    "flatted": "^3.3.1",
-    "microdiff": "^1.4.0",
+    "flatted": "catalog:*",
+    "microdiff": "catalog:*",
     "nanoid": "catalog:*",
     "type-fest": "catalog:*",
     "yaml": "catalog:*",

@@ -167,6 +167,12 @@ function onSearchResultEnter() {
   }
 
   const results = searchResultsWithPlaceholderResults.value
+
+  // Prevents the user from navigating if there are no results
+  if (results.length === 0) {
+    return
+  }
+
   onSearchResultClick(results[selectedSearchIndex.value])
 }
 </script>

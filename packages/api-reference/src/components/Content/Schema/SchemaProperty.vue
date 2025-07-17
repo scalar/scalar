@@ -5,7 +5,7 @@ import { computed, inject, type Component } from 'vue'
 import {
   compositions,
   optimizeValueForDisplay,
-} from '@/components/Content/Schema/helpers/optimizeValueForDisplay'
+} from '@/components/Content/Schema/helpers/optimize-value-for-display'
 import SchemaEnumValues from '@/components/Content/Schema/SchemaEnumValues.vue'
 import type { Schemas } from '@/features/Operation/types/schemas'
 import { SpecificationExtension } from '@/features/specification-extension'
@@ -33,8 +33,6 @@ const props = withDefaults(
     required?: boolean
     compact?: boolean
     description?: string
-    additional?: boolean
-    pattern?: boolean
     withExamples?: boolean
     hideModelNames?: boolean
     schemas?: Schemas
@@ -42,6 +40,7 @@ const props = withDefaults(
     discriminatorMapping?: Record<string, string>
     discriminatorPropertyName?: string
     isDiscriminator?: boolean
+    variant?: 'additionalProperties' | 'patternProperties'
   }>(),
   {
     level: 0,
@@ -148,14 +147,10 @@ const currentDiscriminator = computed(() => {
 const displayPropertyHeading = (
   value?: Record<string, any>,
   name?: string,
-  additional?: boolean,
-  pattern?: boolean,
   required?: boolean,
 ) => {
   return (
     name ||
-    additional ||
-    pattern ||
     value?.deprecated ||
     value?.const !== undefined ||
     (value?.enum && value.enum.length === 1) ||
@@ -240,18 +235,8 @@ const shouldRenderObjectProperties = computed(() => {
       },
     ]">
     <SchemaPropertyHeading
-      v-if="
-        displayPropertyHeading(
-          optimizedValue,
-          name,
-          additional,
-          pattern,
-          required,
-        )
-      "
-      :additional="additional"
+      v-if="displayPropertyHeading(optimizedValue, name, required)"
       :enum="getEnumFromValue(optimizedValue).length > 0"
-      :pattern="pattern"
       :required="required"
       :value="optimizedValue"
       :schemas="schemas"
@@ -259,7 +244,19 @@ const shouldRenderObjectProperties = computed(() => {
       <template
         v-if="name"
         #name>
-        {{ name }}
+        <template v-if="variant === 'patternProperties'">
+          <span class="property-name-pattern-properties">
+            {{ name }}
+          </span>
+        </template>
+        <template v-else-if="variant === 'additionalProperties'">
+          <span class="property-name-additional-properties">
+            {{ name }}
+          </span>
+        </template>
+        <template v-else>
+          {{ name }}
+        </template>
       </template>
       <template
         v-if="optimizedValue?.example"
@@ -382,14 +379,16 @@ const shouldRenderObjectProperties = computed(() => {
   display: flex;
   flex-direction: column;
   padding: 8px;
-  font-size: var(--scalar-mini);
+  font-size: var(--scalar-small);
   position: relative;
 }
+
 .property.property--level-0:has(
     .property-rule .schema-properties.schema-properties-open > ul li.property
   ) {
   padding-top: 0;
 }
+
 /* increase z-index for example hovers */
 .property:hover {
   z-index: 1;
@@ -399,9 +398,11 @@ const shouldRenderObjectProperties = computed(() => {
 .property--compact.property--level-1 {
   padding: 8px 0;
 }
+
 .composition-panel .property.property.property.property--level-0 {
   padding: 0px;
 }
+
 .property--compact.property--level-0
   .composition-panel
   .property--compact.property--level-1 {
@@ -413,6 +414,7 @@ const shouldRenderObjectProperties = computed(() => {
   padding-top: 8px;
   padding-bottom: 8px;
 }
+
 .property--deprecated {
   background: repeating-linear-gradient(
     -45deg,
@@ -437,6 +439,7 @@ const shouldRenderObjectProperties = computed(() => {
 .property-description:has(+ .property-rule) {
   margin-bottom: 9px;
 }
+
 :deep(.property-description) * {
   color: var(--scalar-color-2) !important;
 }
@@ -465,11 +468,13 @@ const shouldRenderObjectProperties = computed(() => {
   padding: 6px;
   border-top: var(--scalar-border-width) solid var(--scalar-border-color);
 }
+
 .property-rule {
   border-radius: var(--scalar-radius-lg);
   display: flex;
   flex-direction: column;
 }
+
 .property-rule
   :deep(
     .composition-panel .schema-card .schema-properties.schema-properties-open
@@ -485,10 +490,12 @@ const shouldRenderObjectProperties = computed(() => {
   flex-direction: row;
   gap: 8px;
 }
+
 .property-example-label,
 .property-example-value {
   padding: 3px 0 0 0;
 }
+
 .property-example-value {
   background: var(--scalar-background-2);
   border-top: 0;
@@ -500,24 +507,25 @@ const shouldRenderObjectProperties = computed(() => {
   font-family: var(--scalar-font-code);
   font-weight: var(--scalar-semibold);
 }
-.enum-toggle-button {
-  align-items: center;
-  border: var(--scalar-border-width) solid var(--scalar-border-color);
-  border-radius: 13.5px;
-  cursor: pointer;
-  color: var(--scalar-color-2);
-  display: flex;
-  font-weight: var(--scalar-semibold);
-  gap: 4px;
-  margin-top: 8px;
-  padding: 6px 10px;
-  user-select: none;
-  white-space: nowrap;
-}
-.enum-toggle-button:hover {
+
+.property-name-additional-properties::before,
+.property-name-pattern-properties::before {
+  text-transform: uppercase;
+  font-size: var(--scalar-micro);
+  display: inline-block;
+  padding: 2px 4px;
+  border-radius: var(--scalar-radius);
   color: var(--scalar-color-1);
+  border: 1px solid var(--scalar-border-color);
+  background-color: var(--scalar-background-2);
+  margin-right: 4px;
 }
-.enum-toggle-button-icon--open {
-  transform: rotate(45deg);
+
+.property-name-pattern-properties::before {
+  content: 'regex';
+}
+
+.property-name-additional-properties::before {
+  content: 'unknown';
 }
 </style>

@@ -1,37 +1,5 @@
-<script setup lang="ts">
-import {
-  ScalarButton,
-  ScalarCodeBlock,
-  ScalarCombobox,
-} from '@scalar/components'
-import { freezeElement } from '@scalar/helpers/dom/freeze-element'
-import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
-import { ScalarIconCaretDown } from '@scalar/icons'
-import type { XCodeSample } from '@scalar/openapi-types/schemas/extensions'
-import { type AvailableClients } from '@scalar/snippetz'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
-import {
-  isReference,
-  type Dereference,
-} from '@scalar/workspace-store/schemas/v3.1/type-guard'
-import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
-
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/Card'
-import { HttpMethod } from '@/components/HttpMethod'
-import ScreenReader from '@/components/ScreenReader.vue'
-import { ExamplePicker } from '@/features/example-request'
-import { findClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
-import {
-  generateClientOptions,
-  generateCustomId,
-} from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
-import { generateCodeSnippet } from '@/v2/blocks/scalar-request-example-block/helpers/generate-code-snippet'
-import { getSecrets } from '@/v2/blocks/scalar-request-example-block/helpers/get-secrets'
-import type { ClientOption } from '@/v2/blocks/scalar-request-example-block/types'
-
-type Props = {
+<script lang="ts">
+export type RequestExampleProps = {
   /**
    * List of all allowed clients, this will determine which clients are available in the dropdown
    *
@@ -50,7 +18,7 @@ type Props = {
   /**
    * Which server from the spec to use for the code example
    */
-  selectedServer?: ServerObject
+  selectedServer?: ServerObject | undefined
   /**
    * The selected content type from the requestBody.content, this will determine which examples are available
    * as well as the content type of the code example
@@ -87,17 +55,65 @@ type Props = {
    */
   generateLabel?: () => string
   /**
-   * Config options for the block
+   * Whether to hide the client selector
+   * @default false
    */
-  config?: {
-    hideClientSelector?: boolean
-  }
+  hideClientSelector?: boolean
 }
+
+/**
+ * Request Example
+ *
+ * The core component for rendering a request example block,
+ * this component does not have much of its own state but operates on props and custom events
+ *
+ * @event scalar-update-selected-client - Emitted when the selected client changes
+ * @event scalar-update-selected-example - Emitted when the selected example changes
+ */
+export default {}
+</script>
+
+<script setup lang="ts">
+import {
+  ScalarButton,
+  ScalarCard,
+  ScalarCardFooter,
+  ScalarCardHeader,
+  ScalarCardSection,
+  ScalarCodeBlock,
+  ScalarCombobox,
+} from '@scalar/components'
+import { freezeElement } from '@scalar/helpers/dom/freeze-element'
+import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
+import { ScalarIconCaretDown } from '@scalar/icons'
+import type { XCodeSample } from '@scalar/openapi-types/schemas/extensions'
+import { type AvailableClients } from '@scalar/snippetz'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
+import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
+import {
+  isReference,
+  type Dereference,
+} from '@scalar/workspace-store/schemas/v3.1/type-guard'
+import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
+
+import { HttpMethod } from '@/components/HttpMethod'
+import { findClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
+import {
+  generateClientOptions,
+  generateCustomId,
+} from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
+import { generateCodeSnippet } from '@/v2/blocks/scalar-request-example-block/helpers/generate-code-snippet'
+import { getSecrets } from '@/v2/blocks/scalar-request-example-block/helpers/get-secrets'
+import type { ClientOption } from '@/v2/blocks/scalar-request-example-block/types'
+import { emitCustomEvent } from '@/v2/events'
+
+import ExamplePicker from './ExamplePicker.vue'
 
 const {
   allowedClients,
-  selectedClient = 'shell/curl',
-  selectedServer,
+  selectedClient,
+  selectedServer = { url: '/' },
   selectedContentType,
   selectedExample,
   securitySchemes = [],
@@ -105,15 +121,8 @@ const {
   path,
   operation,
   generateLabel,
-  config = {
-    hideClientSelector: false,
-  },
-} = defineProps<Props>()
-
-const emit = defineEmits<{
-  'update:selectedClient': [id: AvailableClients[number]]
-  'update:selectedExample': [name: string]
-}>()
+  hideClientSelector = false,
+} = defineProps<RequestExampleProps>()
 
 defineSlots<{
   header: () => unknown
@@ -167,7 +176,10 @@ const localSelectedClient = ref<ClientOption>(
 watch(
   () => selectedClient,
   (newClient) => {
-    localSelectedClient.value = findClient(clients.value, newClient)
+    const client = findClient(clients.value, newClient)
+    if (client) {
+      localSelectedClient.value = client
+    }
   },
 )
 
@@ -220,39 +232,38 @@ const selectClient = (option: ClientOption) => {
 
   // Emit the change if it's not a custom example
   if (!option.id.startsWith('custom')) {
-    emit('update:selectedClient', option.id as AvailableClients[number])
+    emitCustomEvent(
+      elem.value?.$el,
+      'scalar-update-selected-client',
+      option.id as AvailableClients[number],
+    )
   }
 }
 
 const id = useId()
 </script>
 <template>
-  <Card
+  <ScalarCard
     v-if="clients.length"
-    :aria-labelledby="`${id}-header`"
-    class="dark-mode"
-    ref="elem"
-    role="region">
+    class="request-card dark-mode"
+    ref="elem">
     <!-- Header -->
-    <CardHeader muted>
-      <div
-        :id="`${id}-header`"
-        class="request-header">
-        <ScreenReader>Request Example for</ScreenReader>
-        <HttpMethod
-          as="span"
-          class="request-method"
-          :method="method" />
-        <span
-          v-if="generateLabel"
-          v-html="generateLabel()" />
-        <slot name="header" />
-      </div>
-
+    <ScalarCardHeader class="pr-0.75">
+      <span class="sr-only">Request Example for</span>
+      <HttpMethod
+        as="span"
+        class="request-method"
+        :method="method" />
+      <span
+        v-if="generateLabel"
+        v-html="generateLabel()" />
+      <slot
+        v-else
+        name="header" />
       <!-- Client picker -->
       <template
         #actions
-        v-if="!config.hideClientSelector">
+        v-if="!hideClientSelector">
         <ScalarCombobox
           class="max-h-80"
           :modelValue="localSelectedClient"
@@ -261,6 +272,7 @@ const id = useId()
           placement="bottom-end"
           @update:modelValue="selectClient($event as ClientOption)">
           <ScalarButton
+            data-testid="client-picker"
             class="text-c-1 hover:bg-b-3 flex h-full w-fit gap-1.5 px-1.5 py-0.75 font-normal"
             fullWidth
             variant="ghost">
@@ -269,13 +281,10 @@ const id = useId()
           </ScalarButton>
         </ScalarCombobox>
       </template>
-    </CardHeader>
+    </ScalarCardHeader>
 
     <!-- Code snippet -->
-    <CardContent
-      borderless
-      class="request-editor-section custom-scroll"
-      frameless>
+    <ScalarCardSection class="request-editor-section custom-scroll p-0">
       <div
         :id="`${id}-example`"
         class="code-snippet">
@@ -286,33 +295,34 @@ const id = useId()
           :lang="localSelectedClient.lang"
           lineNumbers />
       </div>
-    </CardContent>
+    </ScalarCardSection>
 
     <!-- Footer -->
-    <CardFooter
+    <ScalarCardFooter
       v-if="Object.keys(operationExamples).length || $slots.footer"
-      class="request-card-footer"
-      contrast>
+      class="request-card-footer bg-b-3">
       <!-- Example picker -->
       <div
         v-if="Object.keys(operationExamples).length"
         class="request-card-footer-addon">
         <ExamplePicker
-          class="request-example-selector"
           :examples="operationExamples"
-          v-model="selectedExampleKey" />
+          v-model="selectedExampleKey"
+          @update:modelValue="
+            emitCustomEvent(elem?.$el, 'scalar-update-selected-example', $event)
+          " />
       </div>
 
       <!-- Footer -->
       <slot name="footer" />
-    </CardFooter>
-  </Card>
+    </ScalarCardFooter>
+  </ScalarCard>
 
   <!-- Fallback card with just method and path in the case of no examples -->
-  <Card
+  <ScalarCard
     v-else-if="fallback"
-    class="dark-mode">
-    <CardContent class="request-card-simple">
+    class="request-card dark-mode">
+    <ScalarCardSection class="request-card-simple">
       <div class="request-header">
         <HttpMethod
           as="span"
@@ -321,22 +331,17 @@ const id = useId()
         <slot name="header" />
       </div>
       <slot name="footer" />
-    </CardContent>
-  </Card>
+    </ScalarCardSection>
+  </ScalarCard>
 </template>
 <style scoped>
-.request-header {
-  display: flex;
-  gap: 6px;
-  text-transform: initial;
+.request-card {
+  font-size: var(--scalar-font-size-3);
 }
 .request-method {
   font-family: var(--scalar-font-code);
   text-transform: uppercase;
-}
-.request-client-picker {
-  padding-left: 12px;
-  padding-right: 9px;
+  margin-right: 6px;
 }
 .request-card-footer {
   display: flex;

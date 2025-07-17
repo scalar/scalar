@@ -18,7 +18,7 @@
     "testing",
     "react"
   ],
-  "version": "0.7.29",
+  "version": "0.7.33",
   "engines": {
     "node": ">=20"
   },
@@ -50,15 +50,15 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@types/react": "^19.0.1",
-    "@types/react-dom": "^19.0.2",
+    "@types/react": "catalog:*",
+    "@types/react-dom": "catalog:*",
     "@vitejs/plugin-react": "^4.3.4",
     "character-entities": "^2.0.2",
     "decode-named-character-reference": "^1.0.2",
     "path": "^0.12.7",
     "random-words": "^2.0.1",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "catalog:*",
+    "react-dom": "catalog:*",
     "rollup-preserve-directives": "^1.1.1",
     "vite": "catalog:*",
     "vue": "catalog:*"

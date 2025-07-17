@@ -70,8 +70,6 @@
   --scalar-lifted-brightness: 1.45;
   --scalar-backdrop-brightness: 0.5;
 
-  --scalar-link-color: var(--scalar-color-accent);
-  --scalar-link-color-hover: var(--scalar-color-accent);
   --scalar-text-decoration-color: currentColor;
   --scalar-text-decoration-color-hover: currentColor;
 }
@@ -89,8 +87,6 @@
   --scalar-lifted-brightness: 1;
   --scalar-backdrop-brightness: 1;
 
-  --scalar-link-color: var(--scalar-color-accent);
-  --scalar-link-color-hover: var(--scalar-color-accent);
   --scalar-text-decoration-color: currentColor;
   --scalar-text-decoration-color-hover: currentColor;
 }
