@@ -20,6 +20,11 @@
           "type": "page"
         },
         {
+          "name": "Changelog",
+          "path": "documentation/changelog.mdx",
+          "type": "page"
+        },
+        {
           "name": "Scalar Docs",
           "type": "folder",
           "defaultOpen": false,
