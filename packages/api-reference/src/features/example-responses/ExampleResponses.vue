@@ -16,8 +16,8 @@ import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed, ref, useId } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
+import { ExamplePicker } from '@/v2/blocks/scalar-request-example-block'
 
-import { ExamplePicker } from '../example-request'
 import ExampleResponse from './ExampleResponse.vue'
 import ExampleResponseTab from './ExampleResponseTab.vue'
 import ExampleResponseTabList from './ExampleResponseTabList.vue'
@@ -31,8 +31,6 @@ const { responses } = defineProps<{ responses: Operation['responses'] }>()
 const id = useId()
 
 const { copyToClipboard } = useClipboard()
-
-const selectedExampleKey = ref<string>()
 
 // Bring the status codes in the right order.
 const orderedStatusCodes = computed(() => Object.keys(responses ?? {}).sort())
@@ -74,6 +72,10 @@ const currentJsonResponse = computed(() => {
   )
 })
 
+const selectedExampleKey = ref<string>(
+  Object.keys(currentJsonResponse.value.examples ?? {})[0] ?? '',
+)
+
 /**
  * Gets the first example response if there are multiple example responses
  * or the only example if there is only one example response.
@@ -104,7 +106,7 @@ const currentResponseWithExample = computed(() => ({
 
 const changeTab = (index: number) => {
   selectedResponseIndex.value = index
-  selectedExampleKey.value = undefined
+  selectedExampleKey.value = ''
 }
 
 const showSchema = ref(false)
@@ -173,7 +175,7 @@ const showSchema = ref(false)
         v-if="hasMultipleExamples"
         class="response-example-selector"
         :examples="currentJsonResponse?.examples"
-        @update:modelValue="(value) => (selectedExampleKey = value)" />
+        v-model="selectedExampleKey" />
       <div
         v-else-if="currentResponse?.description"
         class="response-description">

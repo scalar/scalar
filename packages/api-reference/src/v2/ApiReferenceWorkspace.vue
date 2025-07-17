@@ -19,23 +19,20 @@ import {
   safeLocalStorage,
 } from '@scalar/helpers/object/local-storage'
 import { parseJsonOrYaml, redirectToProxy } from '@scalar/oas-utils/helpers'
-import type {
-  AnyApiReferenceConfiguration,
-  ApiReferenceConfiguration,
-} from '@scalar/types'
+import type { AnyApiReferenceConfiguration } from '@scalar/types'
+import type { ClientId, TargetId } from '@scalar/types/snippetz'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { type WorkspaceStore } from '@scalar/workspace-store/client'
 import { useSeoMeta } from '@unhead/vue'
 import { useFavicon } from '@vueuse/core'
 import {
   computed,
-  onBeforeUnmount,
   onMounted,
   onServerPrefetch,
   provide,
   ref,
-  shallowRef,
   toRef,
+  useTemplateRef,
   watch,
 } from 'vue'
 
@@ -45,8 +42,10 @@ import {
   useMultipleDocuments,
 } from '@/features/multiple-documents'
 import { NAV_STATE_SYMBOL } from '@/hooks/useNavState'
+import { useHttpClientStore } from '@/stores/useHttpClientStore'
 import { isClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import { onCustomEvent } from '@/v2/events'
+import { useStore } from '@/v2/hooks/useStore'
 
 const props = defineProps<{
   configuration?: AnyApiReferenceConfiguration
@@ -73,6 +72,9 @@ const {
   hashPrefix: ref(''),
 })
 
+const { httpClient, setExcludedClients, setDefaultHttpClient } =
+  useHttpClientStore()
+
 /**
  * Creates a proxy function that redirects requests through a proxy URL.
  * This is used to handle CORS issues by routing requests through a proxy server.
@@ -96,7 +98,7 @@ provide(NAV_STATE_SYMBOL, { isIntersectionEnabled, hash, hashPrefix })
 
 // ---------------------------------------------------------------------------
 
-const root = shallowRef<HTMLElement | null>(null)
+const root = useTemplateRef<HTMLElement>('root')
 
 /** Injected workspace store. This is provided as functional getter to avoid converting the original object to a reactive prop object
  *
@@ -107,6 +109,9 @@ const root = shallowRef<HTMLElement | null>(null)
  * and this component will use the provided function to get the workspace store.
  */
 const store = props.getWorkspaceStore()
+
+// Provide the workspace store so its accessible to all children
+useStore(store)
 
 /**
  * When the useMultipleDocuments hook is deprecated we will need to handle normalizing the configs.
@@ -172,6 +177,13 @@ onMounted(() => {
       addDocument(config)
     }
   })
+
+  const storedClient = safeLocalStorage().getItem(
+    REFERENCE_LS_KEYS.SELECTED_CLIENT,
+  )
+  if (isClient(storedClient) && !store.workspace['x-scalar-default-client']) {
+    store.update('x-scalar-default-client', storedClient)
+  }
 })
 
 // onCustomEvent(root, 'scalar-update-sidebar', (event) => {
@@ -189,16 +201,52 @@ onCustomEvent(root, 'scalar-update-active-document', (event) => {
 onCustomEvent(root, 'scalar-update-selected-client', (event) => {
   store.update('x-scalar-default-client', event.detail)
   safeLocalStorage().setItem(REFERENCE_LS_KEYS.SELECTED_CLIENT, event.detail)
+
+  // Temp to keep the old stuff working, remove when moved over to new store
+  const [targetKey, clientKey] = event.detail.split('/') as [
+    TargetId,
+    ClientId<TargetId>,
+  ]
+  setDefaultHttpClient({
+    targetKey,
+    clientKey,
+  })
 })
 
-onMounted(() => {
-  const storedClient = safeLocalStorage().getItem(
-    REFERENCE_LS_KEYS.SELECTED_CLIENT,
-  )
-  if (isClient(storedClient)) {
-    store.update('x-scalar-default-client', storedClient)
+// Temp to keep the old stuff working, remove when moved over to new store.
+watch(
+  () => selectedConfiguration.value.hiddenClients,
+  (newValue) => newValue && setExcludedClients(newValue),
+)
+watch(httpClient, (newClient) => {
+  const clientId = `${newClient.targetKey}/${newClient.clientKey}`
+  if (
+    newClient &&
+    store.workspace.activeDocument?.['x-scalar-default-client'] !== clientId &&
+    isClient(clientId)
+  ) {
+    store.update('x-scalar-default-client', clientId)
   }
 })
+
+// Update the workspace store if default client changes
+watch(
+  () => selectedConfiguration.value.defaultHttpClient,
+  (newValue) => {
+    if (newValue) {
+      const { targetKey, clientKey } = newValue
+
+      const clientId = `${targetKey}/${clientKey}`
+      if (isClient(clientId)) {
+        store.update('x-scalar-default-client', clientId)
+      }
+
+      // Temp to keep the old stuff working, remove when moved over to new store
+      setDefaultHttpClient(newValue)
+    }
+  },
+  { immediate: true },
+)
 
 // ---------------------------------------------------------------------------
 // TODO: Remove this legacy code block. Directly copied from SingleApiReference.vue
@@ -257,33 +305,35 @@ useFavicon(favicon)
 
 <template>
   <!-- SingleApiReference -->
-  <!-- Inject any custom CSS directly into a style tag -->
-  <component
-    :is="'style'"
-    v-if="selectedConfiguration?.customCss">
-    {{ selectedConfiguration.customCss }}
-  </component>
-  <ApiReferenceLayout
-    :configuration="selectedConfiguration"
-    :isDark="!!store.workspace['x-scalar-dark-mode']"
-    @toggleDarkMode="() => toggleColorMode()"
-    @updateContent="$emit('updateContent', $event)">
-    <template #footer>
-      <slot name="footer" />
-    </template>
-    <!-- Expose the content end slot as a slot for the footer -->
-    <template #content-end>
-      <slot name="footer" />
-    </template>
-    <template #document-selector>
-      <DocumentSelector
-        v-model="selectedDocumentIndex"
-        :options="availableDocuments" />
-    </template>
-    <template #sidebar-start>
-      <slot name="sidebar-start" />
-    </template>
-  </ApiReferenceLayout>
+  <div ref="root">
+    <!-- Inject any custom CSS directly into a style tag -->
+    <component
+      :is="'style'"
+      v-if="selectedConfiguration?.customCss">
+      {{ selectedConfiguration.customCss }}
+    </component>
+    <ApiReferenceLayout
+      :configuration="selectedConfiguration"
+      :isDark="!!store.workspace['x-scalar-dark-mode']"
+      @toggleDarkMode="() => toggleColorMode()"
+      @updateContent="$emit('updateContent', $event)">
+      <template #footer>
+        <slot name="footer" />
+      </template>
+      <!-- Expose the content end slot as a slot for the footer -->
+      <template #content-end>
+        <slot name="footer" />
+      </template>
+      <template #document-selector>
+        <DocumentSelector
+          v-model="selectedDocumentIndex"
+          :options="availableDocuments" />
+      </template>
+      <template #sidebar-start>
+        <slot name="sidebar-start" />
+      </template>
+    </ApiReferenceLayout>
+  </div>
 </template>
 
 <style>

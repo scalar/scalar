@@ -88,6 +88,7 @@ import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-met
 import { ScalarIconCaretDown } from '@scalar/icons'
 import type { XCodeSample } from '@scalar/openapi-types/schemas/extensions'
 import { type AvailableClients } from '@scalar/snippetz'
+import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/example'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
@@ -196,6 +197,11 @@ const generatedCode = computed<string>(() => {
       )
     }
 
+    const selectedExample =
+      operationExamples.value[selectedExampleKey.value || '']
+    const example =
+      (selectedExample as ExampleObject)?.value ?? selectedExample?.summary
+
     return generateCodeSnippet({
       clientId: localSelectedClient.value.id as AvailableClients[number],
       operation,
@@ -204,7 +210,7 @@ const generatedCode = computed<string>(() => {
       securitySchemes,
       contentType: selectedContentType,
       path,
-      example: operationExamples.value[selectedExampleKey.value || ''],
+      example,
     })
   } catch (error) {
     console.error('[generateSnippet]', error)
@@ -289,7 +295,7 @@ const id = useId()
         :id="`${id}-example`"
         class="code-snippet">
         <ScalarCodeBlock
-          class="bg-b-2 -outline-offset-2"
+          class="bg-b-2 !min-h-full -outline-offset-2"
           :content="generatedCode"
           :hideCredentials="secretCredentials"
           :lang="localSelectedClient.lang"

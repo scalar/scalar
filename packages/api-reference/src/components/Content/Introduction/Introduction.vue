@@ -53,7 +53,7 @@ onMounted(() => config.value.onLoaded?.())
   <SectionContainer>
     <!-- If the #after slot is used, we need to add a gap to the section. -->
     <Section
-      class="introduction-section gap-12"
+      class="introduction-section z-1 gap-12"
       :id="
         getHeadingId({
           slug: DEFAULT_INTRODUCTION_SLUG,

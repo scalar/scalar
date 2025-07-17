@@ -418,6 +418,25 @@ describe('upgradeFromTwoToThree', () => {
             'write:pets': 'modify pets in your account',
           },
         },
+        petstore_application: {
+          type: 'oauth2',
+          flow: 'application',
+          tokenUrl: 'https://petstore.swagger.io/oauth/token',
+          scopes: {
+            'read:pets': 'read your pets',
+            'write:pets': 'modify pets in your account',
+          },
+        },
+        petstore_access_code: {
+          type: 'oauth2',
+          flow: 'accessCode',
+          authorizationUrl: 'https://petstore.swagger.io/oauth/authorize',
+          tokenUrl: 'https://petstore.swagger.io/oauth/token',
+          scopes: {
+            'read:pets': 'read your pets',
+            'write:pets': 'modify pets in your account',
+          },
+        },
       },
       paths: {
         '/pets': {
@@ -447,6 +466,31 @@ describe('upgradeFromTwoToThree', () => {
         flows: {
           implicit: {
             authorizationUrl: 'https://petstore.swagger.io/oauth/authorize',
+            scopes: {
+              'read:pets': 'read your pets',
+              'write:pets': 'modify pets in your account',
+            },
+          },
+        },
+      },
+      petstore_application: {
+        type: 'oauth2',
+        flows: {
+          clientCredentials: {
+            tokenUrl: 'https://petstore.swagger.io/oauth/token',
+            scopes: {
+              'read:pets': 'read your pets',
+              'write:pets': 'modify pets in your account',
+            },
+          },
+        },
+      },
+      petstore_access_code: {
+        type: 'oauth2',
+        flows: {
+          authorizationCode: {
+            authorizationUrl: 'https://petstore.swagger.io/oauth/authorize',
+            tokenUrl: 'https://petstore.swagger.io/oauth/token',
             scopes: {
               'read:pets': 'read your pets',
               'write:pets': 'modify pets in your account',

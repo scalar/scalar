@@ -19,10 +19,7 @@ import {
   hasObtrusiveScrollbars,
   type ThemeId,
 } from '@scalar/themes'
-import {
-  apiReferenceConfigurationSchema,
-  type ApiReferenceConfiguration,
-} from '@scalar/types/api-reference'
+import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import type { Spec } from '@scalar/types/legacy'
 import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 import { ScalarToasts, useToasts } from '@scalar/use-toasts'
@@ -54,7 +51,6 @@ import { useNavState } from '@/hooks/useNavState'
 import { downloadDocument, downloadEventBus } from '@/libs/download'
 import { createEmptySpecification } from '@/libs/openapi'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
-import { useHttpClientStore } from '@/stores/useHttpClientStore'
 import type {
   ReferenceLayoutProps,
   ReferenceLayoutSlot,
@@ -283,27 +279,6 @@ provide(
     plugins: configuration.value.plugins,
   }),
 )
-
-/** Helper utility to map configuration props to the ApiReference internal state */
-function mapConfigToState<K extends keyof ApiReferenceConfiguration>(
-  key: K,
-  setter: (val: NonNullable<ApiReferenceConfiguration[K]>) => any,
-) {
-  watch(
-    () => configuration.value[key],
-    (newValue) => {
-      if (typeof newValue !== 'undefined') {
-        setter(newValue)
-      }
-    },
-    { immediate: true },
-  )
-}
-
-// Hides any client snippets from the references
-const { setExcludedClients, setDefaultHttpClient } = useHttpClientStore()
-mapConfigToState('defaultHttpClient', setDefaultHttpClient)
-mapConfigToState('hiddenClients', setExcludedClients)
 
 const themeStyleTag = computed(
   () => `<style>
