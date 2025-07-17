@@ -1,7 +1,7 @@
 import type { Plugin } from 'rollup'
 import type { BuildOptions, LibraryOptions } from 'vite'
 
-import { createRollupConfig, type StrictPluginOptions } from '../rollup'
+import { type StrictPluginOptions, createRollupConfig } from '../rollup'
 
 /**
  * Creates a standard Scalar library vite build config
@@ -29,7 +29,6 @@ export function createViteBuildOptions(props: {
        * Default the css filename to align with Vite5 behavior
        * This can still be overridden by the consumer of this function
        */
-      // @ts-expect-error Allow this property for compat with Vite6
       cssFileName: 'style',
       ...props?.options?.lib,
       entry: props.entry,

@@ -60,7 +60,7 @@ catalogs:
     tailwindcss: ^4.1.7
     type-fest: 4.41.0
     vite-node: 3.1.1
-    vite: 5.4.19
+    vite: 6.0.11
     vitest: ^1.6.1
     vue: ^3.5.17
     yaml: 2.8.0
