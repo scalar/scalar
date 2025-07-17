@@ -90,18 +90,9 @@ const introCardsSlot = computed(() =>
       :server="activeServer" />
 
     <Introduction
-      v-if="
-        document?.info?.title ||
-        document?.info?.description ||
-        document?.info?.contact ||
-        document?.info?.license ||
-        document?.info?.termsOfService
-      "
+      v-if="document?.info?.title || document?.info?.description"
       :document="document"
-      :externalDocs="activeCollection?.externalDocs"
-      :contact="document?.info?.contact"
-      :license="document?.info?.license"
-      :termsOfService="document?.info?.termsOfService">
+      :externalDocs="activeCollection?.externalDocs">
       <template #[introCardsSlot]>
         <ScalarErrorBoundary>
           <div

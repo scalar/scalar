@@ -39,6 +39,15 @@ describe('Introduction', () => {
         title: 'Hello World',
         description: 'Example description',
         version: '1.0.0',
+        contact: {
+          name: 'Marc from Scalar',
+          email: 'marc@scalar.com',
+        },
+        license: {
+          name: 'MIT',
+          url: 'https://opensource.org/license/MIT',
+        },
+        termsOfService: 'https://scalar.com/terms',
       },
     } satisfies Spec
 
@@ -56,6 +65,9 @@ describe('Introduction', () => {
     expect(wrapper.html()).toContain('Example description')
     expect(wrapper.html()).toContain('v1.0.0')
     expect(wrapper.html()).toContain('Documentation')
+    expect(wrapper.html()).toContain('Marc from Scalar')
+    expect(wrapper.html()).toContain('MIT')
+    expect(wrapper.html()).toContain('Terms of Service')
   })
 
   it('renders loading state when info is empty', () => {

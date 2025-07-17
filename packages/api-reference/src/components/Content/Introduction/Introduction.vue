@@ -27,9 +27,6 @@ import Description from './Description.vue'
 const { document } = defineProps<{
   document: OpenAPIV3_1.Document
   externalDocs?: OpenAPIV3_1.ExternalDocumentationObject
-  contact?: OpenAPIV3_1.ContactObject
-  license?: OpenAPIV3_1.LicenseObject
-  termsOfService?: OpenAPIV3_1.InfoObject['termsOfService']
 }>()
 
 const { getHeadingId } = useNavState()
@@ -87,9 +84,9 @@ onMounted(() => config.value.onLoaded?.())
             <div
               class="align-center ml-2 inline-flex justify-end gap-2 text-sm">
               <ExternalDocs :value="externalDocs" />
-              <Contact :value="contact" />
-              <License :value="license" />
-              <TermsOfService :value="termsOfService" />
+              <Contact :value="document.info?.contact" />
+              <License :value="document.info?.license" />
+              <TermsOfService :value="document.info?.termsOfService" />
             </div>
           </template>
         </SectionHeader>
