@@ -55,7 +55,7 @@ const title = computed(() => props.tag['x-displayName'] ?? props.tag.name)
       <SectionColumns>
         <SectionColumn>
           <div
-            class="links"
+            class="mb-4.5 flex gap-2"
             v-if="tag.externalDocs">
             <ExternalDocs :value="tag.externalDocs" />
           </div>
@@ -74,11 +74,3 @@ const title = computed(() => props.tag['x-displayName'] ?? props.tag.name)
     <SpecificationExtension :value="tag" />
   </Section>
 </template>
-
-<style scoped>
-.links {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 18px;
-}
-</style>
