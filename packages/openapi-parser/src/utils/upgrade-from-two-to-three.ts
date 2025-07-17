@@ -3,6 +3,20 @@ import type { UnknownObject } from '@scalar/types/utils'
 
 import { traverse } from './traverse'
 
+/** Update the flow names to OpenAPI 3.1.0 format */
+const upgradeFlow = (
+  flow: 'implicit' | 'password' | 'application' | 'accessCode',
+): 'implicit' | 'password' | 'clientCredentials' | 'authorizationCode' => {
+  switch (flow) {
+    case 'application':
+      return 'clientCredentials'
+    case 'accessCode':
+      return 'authorizationCode'
+    default:
+      return flow
+  }
+}
+
 /**
  * Upgrade Swagger 2.0 to OpenAPI 3.0
  *
@@ -237,12 +251,14 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
             scopes?: Record<string, string>
           }
 
+          // Convert flow values to OpenAPI 3.1.0 format
+
           // Assert that securitySchemes is of type OpenAPIV3.SecuritySchemeObject
           Object.assign((specification.components as OpenAPIV3.ComponentsObject).securitySchemes, {
             [key]: {
               type: 'oauth2',
               flows: {
-                [flow as string]: Object.assign(
+                [upgradeFlow(flow)]: Object.assign(
                   {},
                   authorizationUrl && { authorizationUrl },
                   tokenUrl && { tokenUrl },
