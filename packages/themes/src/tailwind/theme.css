@@ -27,13 +27,27 @@
 
   /* Font Sizes */
   --text-\*: initial;
-  --text-3xs: var(--scalar-font-size-7);
-  --text-xxs: var(--scalar-font-size-6);
-  --text-xs: var(--scalar-font-size-5);
-  --text-sm: var(--scalar-font-size-4);
-  --text-base: var(--scalar-font-size-3);
-  --text-lg: var(--scalar-font-size-2);
-  --text-xl: var(--scalar-font-size-1);
+
+  --text-3xs: var(--scalar-font-size-7); /* 10px */
+  --text-3xs-line-height: var(--scalar-line-height-5); /* 18px */
+
+  --text-xxs: var(--scalar-font-size-6); /* 12px */
+  --text-xxs-line-height: var(--scalar-line-height-5); /* 18px */
+
+  --text-xs: var(--scalar-font-size-5); /* 12px */
+  --text-xs-line-height: var(--scalar-line-height-5); /* 18px */
+
+  --text-sm: var(--scalar-font-size-4); /* 13px */
+  --text-sm-line-height: var(--scalar-line-height-4); /* 20px */
+
+  --text-base: var(--scalar-font-size-3); /* 14px */
+  --text-base-line-height: var(--scalar-line-height-3); /* 22px */
+
+  --text-lg: var(--scalar-font-size-2); /* 16px */
+  --text-lg-line-height: var(--scalar-line-height-2); /* 26px */
+
+  --text-xl: var(--scalar-font-size-1); /* 21px */
+  --text-xl-line-height: var(--scalar-line-height-1); /* 32px */
 
   /* Font Weights */
   --font-weight-\*: initial;
