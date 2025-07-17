@@ -8,7 +8,7 @@ describe('replaceVariables', () => {
       replaceVariables('foo{bar}foo', {
         bar: 'foo',
       }),
-    ).toMatchObject('foofoofoo')
+    ).toBe('foofoofoo')
   })
 
   it('replaces variables with a double bracket', () => {
@@ -16,11 +16,11 @@ describe('replaceVariables', () => {
       replaceVariables('foo{{bar}}foo', {
         bar: 'foo',
       }),
-    ).toMatchObject('foofoofoo')
+    ).toBe('foofoofoo')
   })
 
   it('replaces variables with a custom callback', () => {
-    expect(replaceVariables('foo{{bar}}foo', (match) => (match === 'bar' ? '<span>foo</span>' : ''))).toMatchObject(
+    expect(replaceVariables('foo{{bar}}foo', (match) => (match === 'bar' ? '<span>foo</span>' : ''))).toBe(
       'foo<span>foo</span>foo',
     )
   })
