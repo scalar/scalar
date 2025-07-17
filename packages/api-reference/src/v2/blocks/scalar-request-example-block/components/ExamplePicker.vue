@@ -3,6 +3,7 @@ import {
   ScalarButton,
   ScalarDropdown,
   ScalarDropdownItem,
+  ScalarIcon,
 } from '@scalar/components'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/example'
@@ -36,9 +37,7 @@ defineExpose({
 </script>
 
 <template>
-  <ScalarDropdown
-    placement="bottom"
-    resize>
+  <ScalarDropdown placement="bottom-start">
     <ScalarButton
       data-testid="example-picker"
       class="text-c-1 hover:bg-b-2 flex h-full w-fit gap-1.5 px-1.5 py-0.75 font-normal"
@@ -52,7 +51,19 @@ defineExpose({
         v-for="(_, key) in examples"
         :key="key"
         @click="selectExample(key)">
-        {{ getLabel(key) }}
+        <div
+          class="flex h-4 w-4 items-center justify-center rounded-full p-[3px]"
+          :class="
+            selectedExampleKey === key
+              ? 'bg-c-accent text-b-1'
+              : 'shadow-border text-transparent'
+          ">
+          <ScalarIcon
+            class="size-2.5"
+            icon="Checkmark"
+            thickness="3" />
+        </div>
+        <span class="overflow-hidden text-ellipsis">{{ getLabel(key) }}</span>
       </ScalarDropdownItem>
     </template>
   </ScalarDropdown>
