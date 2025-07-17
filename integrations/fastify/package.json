@@ -69,7 +69,7 @@
     "shx": "^0.4.0",
     "terser": "^5.30.0",
     "vite": "catalog:*",
-    "vite-plugin-static-copy": "^1.0.2",
+    "vite-plugin-static-copy": "^2.2.0",
     "vitest": "catalog:*",
     "yaml": "catalog:*"
   }

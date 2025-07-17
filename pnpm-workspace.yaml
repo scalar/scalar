@@ -35,14 +35,14 @@ catalogs:
     '@types/react': ^19.1.8
     '@types/semver': 7.5.8
     '@typescript-eslint/parser': ^8.0.0
-    '@vitejs/plugin-vue': ^5.0.4
     '@vueuse/core': ^11.2.0
+    '@vitejs/plugin-vue': ^5.2.4
     '@vueuse/integrations': ^11.2.0
     ansis: 4.1.0
     chokidar: 4.0.3
     commander: 13.1.0
     concurrently: 9.1.2
-    esbuild: 0.25.2
+    esbuild: 0.25.6
     express: 5.1.0
     fastify: ^5.3.3
     flatted: ^3.3.3
@@ -60,9 +60,9 @@ catalogs:
     stdout-update: 4.0.1
     tailwindcss: ^4.1.7
     type-fest: 4.41.0
-    vite-node: 3.1.1
-    vite: 5.4.19
-    vitest: ^1.6.1
+    vite-node: 3.2.4
+    vite: 6.0.11
+    vitest: ^3.2.4
     vue: ^3.5.17
     yaml: 2.8.0
     zod: 3.24.1
