@@ -242,7 +242,7 @@ const openAuthCombobox = (event: Event) => {
     <template #title>
       <div
         :id="titleId"
-        class="inline-flex items-center gap-0.5">
+        class="inline-flex items-center gap-0.5 leading-[20px]">
         <span>{{ title }}</span>
         <!-- Authentication indicator -->
         <span
