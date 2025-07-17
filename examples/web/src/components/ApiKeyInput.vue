@@ -18,6 +18,10 @@ const isProUser = computed(() => {
   return !!apiKey.value?.trim()
 })
 
+const emit = defineEmits<{
+  (e: 'apiKeyChange', key: string | null): void
+}>()
+
 /** Load API key from API key manager on mount */
 onMounted(() => {
   const stored = getApiKey(WORKSPACE_ID)
@@ -26,6 +30,9 @@ onMounted(() => {
     previousApiKey.value = stored.key || ''
   }
   isInitialized.value = true
+  
+  // Emit initial state
+  emit('apiKeyChange', apiKey.value.trim() || null)
 })
 
 /** Save API key when it changes */
@@ -52,6 +59,9 @@ const handleApiKeyChange = async () => {
 
   // Update previous value
   previousApiKey.value = apiKey.value
+  
+  // Emit the change
+  emit('apiKeyChange', trimmedKey || null)
 }
 
 /** Debounced API key change handler */

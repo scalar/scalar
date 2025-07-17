@@ -1,11 +1,6 @@
 import { z } from 'zod'
-
-const DescriptionSchema = z.object({
-  /**
-   * A description for security scheme. CommonMark syntax MAY be used for rich text representation.
-   */
-  description: z.string().optional(),
-})
+import { DescriptionSchema } from './description-object'
+import { XScalarSecurityBody } from '../../extensions/x-scalar-security-body'
 
 export const ApiKeyInValues = ['query', 'header', 'cookie'] as const
 
@@ -80,18 +75,20 @@ const tokenUrl = z.string().default('')
  *
  * Configuration details for a supported OAuth Flow
  */
-export const OAuthFlowObjectSchema = z.object({
-  /**
-   * The URL to be used for obtaining refresh tokens. This MUST be in the form of a URL. The OAuth2 standard requires
-   * the use of TLS.
-   */
-  refreshUrl: z.string().optional(),
-  /**
-   * REQUIRED. The available scopes for the OAuth2 security scheme. A map
-   * between the scope name and a short description for it. The map MAY be empty.
-   */
-  scopes: z.record(z.string(), z.string().optional()).optional().default({}).catch({}),
-})
+export const OAuthFlowObjectSchema = z
+  .object({
+    /**
+     * The URL to be used for obtaining refresh tokens. This MUST be in the form of a URL. The OAuth2 standard requires
+     * the use of TLS.
+     */
+    refreshUrl: z.string().optional(),
+    /**
+     * REQUIRED. The available scopes for the OAuth2 security scheme. A map
+     * between the scope name and a short description for it. The map MAY be empty.
+     */
+    scopes: z.record(z.string(), z.string().optional()).optional().default({}).catch({}),
+  })
+  .merge(XScalarSecurityBody)
 
 export const ImplicitFlowSchema = OAuthFlowObjectSchema.extend({
   type: z.literal('implicit').optional(),

@@ -3,7 +3,9 @@ import type { Oauth2Flow, Server } from '@scalar/oas-utils/entities/spec'
 import { shouldUseProxy } from '@scalar/oas-utils/helpers'
 
 /** Oauth2 security schemes which are not implicit */
-type NonImplicitFlow = Exclude<Oauth2Flow, { type: 'implicit' }>
+type NonImplicitFlow = Exclude<Oauth2Flow, { type: 'implicit' }> & {
+  'x-scalar-security-body'?: Record<string, string>
+}
 
 type PKCEState = {
   codeVerifier: string

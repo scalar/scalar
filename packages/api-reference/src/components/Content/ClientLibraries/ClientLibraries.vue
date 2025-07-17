@@ -54,7 +54,7 @@ function handleChange(i: number) {
 // Restore selected client from localStorage
 onMounted(() => {
   const storedClient = localStorage.getItem(
-    REFERENCE_LS_KEYS.SELECTED_CLIENT_DEPRECATED,
+    REFERENCE_LS_KEYS.SELECTED_CLIENT,
   )
   if (storedClient) {
     setHttpClient(JSON.parse(storedClient))

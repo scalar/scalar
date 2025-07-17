@@ -121,6 +121,7 @@
             "url": "https://pro-api.llama.fi"
           }
         ],
+        "x-scalar-tier": "pro",
         "summary": "List all protocols on defillama along with their tvl",
         "responses": {
           "200": {
@@ -217,6 +218,7 @@
             "url": "https://pro-api.llama.fi"
           }
         ],
+        "x-scalar-tier": "pro",
         "summary": "Get historical TVL of a protocol and breakdowns by token and chain",
         "parameters": [
           {
@@ -285,10 +287,38 @@
     "/v2/historicalChainTvl": {
       "get": {
         "tags": ["TVL"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
         "summary": "Get historical TVL (excludes liquid staking and double counted tvl) of DeFi on all chains",
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "Historical TVL data for all chains combined",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "date": {
+                        "type": "number",
+                        "description": "Unix timestamp",
+                        "example": 1609459200
+                      },
+                      "tvl": {
+                        "type": "number",
+                        "description": "Total Value Locked in USD across all chains",
+                        "example": 15000000000
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -296,6 +326,12 @@
     "/v2/historicalChainTvl/{chain}": {
       "get": {
         "tags": ["TVL"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
         "summary": "Get historical TVL (excludes liquid staking and double counted tvl) of a chain",
         "parameters": [
           {
@@ -311,7 +347,32 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "Historical TVL data for the specified chain",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "date": {
+                        "type": "number",
+                        "description": "Unix timestamp",
+                        "example": 1609459200
+                      },
+                      "tvl": {
+                        "type": "number",
+                        "description": "Total Value Locked in USD for this chain",
+                        "example": 45000000000
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Chain not found"
           }
         }
       }
@@ -319,6 +380,12 @@
     "/tvl/{protocol}": {
       "get": {
         "tags": ["TVL"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
         "summary": "Simplified endpoint to get current TVL of a protocol",
         "description": "Simplified endpoint that only returns a number, the current TVL of a protocol",
         "parameters": [
@@ -335,7 +402,19 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "Current TVL of the protocol in USD",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "number",
+                  "description": "Total Value Locked in USD",
+                  "example": 4962012809.795062
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Protocol not found"
           }
         }
       }
@@ -359,6 +438,7 @@
             "url": "https://pro-api.llama.fi"
           }
         ],
+        "x-scalar-tier": "pro",
         "summary": "Get current TVL of all chains",
         "responses": {
           "200": {
@@ -581,7 +661,7 @@
       "get": {
         "tags": ["coins"],
         "summary": "Get historical prices for multiple tokens at multiple different timestamps",
-        "description": "Strings accepted by period and searchWidth:\nCan use regular chart candle notion like ‘4h’ etc where:\nW = week, D = day, H = hour, M = minute (not case sensitive)\n",
+        "description": "Strings accepted by period and searchWidth:\nCan use regular chart candle notion like '4h' etc where:\nW = week, D = day, H = hour, M = minute (not case sensitive)\n",
         "servers": [
           {
             "url": "https://coins.llama.fi"
@@ -666,7 +746,7 @@
       "get": {
         "tags": ["coins"],
         "summary": "Get token prices at regular time intervals",
-        "description": "Strings accepted by period and searchWidth:\nCan use regular chart candle notion like ‘4h’ etc where:\nW = week, D = day, H = hour, M = minute (not case sensitive)\n",
+        "description": "Strings accepted by period and searchWidth:\nCan use regular chart candle notion like '4h' etc where:\nW = week, D = day, H = hour, M = minute (not case sensitive)\n",
         "servers": [
           {
             "url": "https://coins.llama.fi"
@@ -795,7 +875,7 @@
       "get": {
         "tags": ["coins"],
         "summary": "Get percentage change in price over time",
-        "description": "Strings accepted by period:\nCan use regular chart candle notion like ‘4h’ etc where:\nW = week, D = day, H = hour, M = minute (not case sensitive)\n",
+        "description": "Strings accepted by period:\nCan use regular chart candle notion like '4h' etc where:\nW = week, D = day, H = hour, M = minute (not case sensitive)\n",
         "servers": [
           {
             "url": "https://coins.llama.fi"
@@ -1278,6 +1358,12 @@
     "/overview/dexs": {
       "get": {
         "tags": ["volumes"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
         "summary": "List all dexs along with summaries of their volumes and dataType history data",
         "parameters": [
           {
@@ -1303,7 +1389,79 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "Overview of all DEXs with volume data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "protocols": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "example": "Uniswap"
+                          },
+                          "displayName": {
+                            "type": "string",
+                            "example": "Uniswap V3"
+                          },
+                          "total24h": {
+                            "type": "number",
+                            "example": 1500000000
+                          },
+                          "total7d": {
+                            "type": "number",
+                            "example": 10000000000
+                          },
+                          "change_1d": {
+                            "type": "number",
+                            "example": 5.2
+                          },
+                          "change_7d": {
+                            "type": "number",
+                            "example": -2.1
+                          },
+                          "chains": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "example": ["Ethereum", "Polygon"]
+                          }
+                        }
+                      }
+                    },
+                    "totalDataChart": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "oneOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "object"
+                            }
+                          ]
+                        },
+                        "example": [1640995200, 2500000000]
+                      }
+                    },
+                    "allChains": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": ["Ethereum", "BSC", "Polygon"]
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1311,6 +1469,12 @@
     "/overview/dexs/{chain}": {
       "get": {
         "tags": ["volumes"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
         "summary": "List all dexs along with summaries of their volumes and dataType history data filtering by chain",
         "parameters": [
           {
@@ -1346,7 +1510,43 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "Overview of DEXs on specified chain with volume data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "protocols": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "example": "Uniswap"
+                          },
+                          "total24h": {
+                            "type": "number",
+                            "example": 800000000
+                          },
+                          "change_1d": {
+                            "type": "number",
+                            "example": 3.2
+                          }
+                        }
+                      }
+                    },
+                    "totalDataChart": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "example": [1640995200, 1200000000]
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1354,6 +1554,12 @@
     "/summary/dexs/{protocol}": {
       "get": {
         "tags": ["volumes"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
         "summary": "Get summary of dex volume with historical data",
         "parameters": [
           {
@@ -1389,7 +1595,55 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "DEX protocol volume summary with historical data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "example": "Uniswap"
+                    },
+                    "total24h": {
+                      "type": "number",
+                      "example": 1500000000
+                    },
+                    "totalAllTime": {
+                      "type": "number",
+                      "example": 500000000000
+                    },
+                    "totalDataChart": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "example": [1640995200, 1500000000]
+                      }
+                    },
+                    "totalDataChartBreakdown": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "example": [
+                          1640995200,
+                          {
+                            "Uniswap V3": 1200000000,
+                            "Uniswap V2": 300000000
+                          }
+                        ]
+                      }
+                    },
+                    "chains": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": ["Ethereum", "Polygon"]
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1397,6 +1651,12 @@
     "/overview/options": {
       "get": {
         "tags": ["volumes"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
         "summary": "List all options dexs along with summaries of their volumes and dataType history data",
         "parameters": [
           {
@@ -1433,7 +1693,43 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "Overview of all options DEXs with volume data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "protocols": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "example": "Deribit"
+                          },
+                          "total24h": {
+                            "type": "number",
+                            "example": 500000000
+                          },
+                          "change_1d": {
+                            "type": "number",
+                            "example": 8.5
+                          }
+                        }
+                      }
+                    },
+                    "totalDataChart": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "example": [1640995200, 750000000]
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1441,6 +1737,12 @@
     "/overview/options/{chain}": {
       "get": {
         "tags": ["volumes"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
         "summary": "List all options dexs along with summaries of their volumes and dataType history data filtering by chain",
         "parameters": [
           {
@@ -1495,6 +1797,12 @@
     "/summary/options/{protocol}": {
       "get": {
         "tags": ["volumes"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
         "summary": "Get summary of options dex volume with historical data",
         "parameters": [
           {
@@ -1529,6 +1837,12 @@
     "/overview/fees": {
       "get": {
         "tags": ["fees and revenue"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
         "summary": "List all protocols along with summaries of their fees and revenue and dataType history data",
         "parameters": [
           {
@@ -1565,7 +1879,67 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "Overview of all protocols with fees and revenue data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "protocols": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "example": "Uniswap"
+                          },
+                          "total24h": {
+                            "type": "number",
+                            "example": 5000000
+                          },
+                          "revenue24h": {
+                            "type": "number",
+                            "example": 2000000
+                          },
+                          "change_1d": {
+                            "type": "number",
+                            "example": 12.5
+                          },
+                          "chains": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "example": ["Ethereum", "Polygon"]
+                          }
+                        }
+                      }
+                    },
+                    "totalDataChart": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "example": [1640995200, 25000000]
+                      }
+                    },
+                    "totalDataChartBreakdown": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "example": [
+                          1640995200,
+                          {
+                            "Uniswap": 5000000,
+                            "Compound": 3000000
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1573,6 +1947,12 @@
     "/overview/fees/{chain}": {
       "get": {
         "tags": ["fees and revenue"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
         "summary": "List all protocols along with summaries of their fees and revenue and dataType history data by chain",
         "parameters": [
           {
@@ -1627,6 +2007,12 @@
     "/summary/fees/{protocol}": {
       "get": {
         "tags": ["fees and revenue"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
         "summary": "Get summary of protocol fees and revenue with historical data",
         "parameters": [
           {
@@ -2530,6 +2916,1119 @@
         "responses": {
           "200": {
             "description": "credits left"
+          }
+        }
+      }
+    },
+    "/api/v2/historicalChainTvl": {
+      "get": {
+        "tags": ["TVL"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Get historical TVL (excludes liquid staking and double counted tvl) of DeFi on all chains",
+        "responses": {
+          "200": {
+            "description": "Historical TVL data for all chains combined",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "date": {
+                        "type": "number",
+                        "description": "Unix timestamp",
+                        "example": 1609459200
+                      },
+                      "tvl": {
+                        "type": "number",
+                        "description": "Total Value Locked in USD across all chains",
+                        "example": 15000000000
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/historicalChainTvl/{chain}": {
+      "get": {
+        "tags": ["TVL"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Get historical TVL (excludes liquid staking and double counted tvl) of a chain",
+        "parameters": [
+          {
+            "name": "chain",
+            "in": "path",
+            "required": true,
+            "description": "chain slug, you can get these from /chains or the chains property on /protocols",
+            "schema": {
+              "type": "string",
+              "example": "Ethereum"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Historical TVL data for the specified chain",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "date": {
+                        "type": "number",
+                        "description": "Unix timestamp",
+                        "example": 1609459200
+                      },
+                      "tvl": {
+                        "type": "number",
+                        "description": "Total Value Locked in USD for this chain",
+                        "example": 45000000000
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Chain not found"
+          }
+        }
+      }
+    },
+    "/api/tvl/{protocol}": {
+      "get": {
+        "tags": ["TVL"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Simplified endpoint to get current TVL of a protocol",
+        "description": "Simplified endpoint that only returns a number, the current TVL of a protocol",
+        "parameters": [
+          {
+            "name": "protocol",
+            "in": "path",
+            "required": true,
+            "description": "protocol slug",
+            "schema": {
+              "type": "string",
+              "example": "uniswap"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current TVL of the protocol in USD",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "number",
+                  "description": "Total Value Locked in USD",
+                  "example": 4962012809.795062
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Protocol not found"
+          }
+        }
+      }
+    },
+    "/stablecoins/stablecoincharts/all": {
+      "get": {
+        "tags": ["stablecoins"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Get historical mcap sum of all stablecoins",
+        "parameters": [
+          {
+            "name": "stablecoin",
+            "in": "query",
+            "required": false,
+            "description": "stablecoin ID, you can get these from /stablecoins",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Historical market cap data for all stablecoins",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "date": {
+                        "type": "number",
+                        "example": 1609459200
+                      },
+                      "totalCirculating": {
+                        "type": "object",
+                        "properties": {
+                          "peggedUSD": {
+                            "type": "number",
+                            "example": 45000000000
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stablecoins/stablecoincharts/{chain}": {
+      "get": {
+        "tags": ["stablecoins"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Get historical mcap sum of all stablecoins in a chain",
+        "parameters": [
+          {
+            "name": "chain",
+            "in": "path",
+            "required": true,
+            "description": "chain slug, you can get these from /chains or the chains property on /protocols",
+            "schema": {
+              "type": "string",
+              "example": "Ethereum"
+            }
+          },
+          {
+            "name": "stablecoin",
+            "in": "query",
+            "required": false,
+            "description": "stablecoin ID, you can get these from /stablecoins",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Historical market cap data for stablecoins on specified chain",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "date": {
+                        "type": "number",
+                        "example": 1609459200
+                      },
+                      "totalCirculating": {
+                        "type": "object",
+                        "properties": {
+                          "peggedUSD": {
+                            "type": "number",
+                            "example": 12000000000
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stablecoins/stablecoin/{asset}": {
+      "get": {
+        "tags": ["stablecoins"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Get historical mcap and historical chain distribution of a stablecoin",
+        "parameters": [
+          {
+            "name": "asset",
+            "in": "path",
+            "required": true,
+            "description": "stablecoin ID, you can get these from /stablecoins",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Historical market cap and chain distribution for specific stablecoin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "1"
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "Tether"
+                    },
+                    "symbol": {
+                      "type": "string",
+                      "example": "USDT"
+                    },
+                    "totalCirculating": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "date": {
+                            "type": "number",
+                            "example": 1609459200
+                          },
+                          "totalCirculating": {
+                            "type": "number",
+                            "example": 50000000000
+                          }
+                        }
+                      }
+                    },
+                    "chainCirculating": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "date": {
+                              "type": "number",
+                              "example": 1609459200
+                            },
+                            "circulating": {
+                              "type": "number",
+                              "example": 20000000000
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stablecoins/stablecoinchains": {
+      "get": {
+        "tags": ["stablecoins"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Get current mcap sum of all stablecoins on each chain",
+        "responses": {
+          "200": {
+            "description": "Current market cap of stablecoins by chain",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "example": "Ethereum"
+                      },
+                      "totalCirculating": {
+                        "type": "object",
+                        "properties": {
+                          "peggedUSD": {
+                            "type": "number",
+                            "example": 75000000000
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stablecoins/stablecoinprices": {
+      "get": {
+        "tags": ["stablecoins"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Get historical prices of all stablecoins",
+        "responses": {
+          "200": {
+            "description": "Historical prices for all stablecoins",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "date": {
+                        "type": "number",
+                        "example": 1609459200
+                      },
+                      "prices": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "number"
+                        },
+                        "example": {
+                          "USDT": 1.001,
+                          "USDC": 0.999,
+                          "DAI": 1.002
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/overview/dexs": {
+      "get": {
+        "tags": ["volumes"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "List all dexs along with summaries of their volumes and dataType history data",
+        "parameters": [
+          {
+            "name": "excludeTotalDataChart",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude aggregated chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          },
+          {
+            "name": "excludeTotalDataChartBreakdown",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude broken down chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Overview of all DEXs with volume data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "protocols": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "example": "Uniswap"
+                          },
+                          "displayName": {
+                            "type": "string",
+                            "example": "Uniswap V3"
+                          },
+                          "total24h": {
+                            "type": "number",
+                            "example": 1500000000
+                          },
+                          "total7d": {
+                            "type": "number",
+                            "example": 10000000000
+                          },
+                          "change_1d": {
+                            "type": "number",
+                            "example": 5.2
+                          },
+                          "change_7d": {
+                            "type": "number",
+                            "example": -2.1
+                          },
+                          "chains": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "example": ["Ethereum", "Polygon"]
+                          }
+                        }
+                      }
+                    },
+                    "totalDataChart": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "oneOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "object"
+                            }
+                          ]
+                        },
+                        "example": [1640995200, 2500000000]
+                      }
+                    },
+                    "allChains": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": ["Ethereum", "BSC", "Polygon"]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/overview/dexs/{chain}": {
+      "get": {
+        "tags": ["volumes"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "List all dexs along with summaries of their volumes and dataType history data filtering by chain",
+        "parameters": [
+          {
+            "name": "chain",
+            "in": "path",
+            "required": true,
+            "description": "chain name, list of all supported chains can be found under allChains attribute in /overview/dexs response",
+            "schema": {
+              "type": "string",
+              "example": "ethereum"
+            }
+          },
+          {
+            "name": "excludeTotalDataChart",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude aggregated chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          },
+          {
+            "name": "excludeTotalDataChartBreakdown",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude broken down chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Overview of DEXs on specified chain with volume data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "protocols": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "example": "Uniswap"
+                          },
+                          "total24h": {
+                            "type": "number",
+                            "example": 800000000
+                          },
+                          "change_1d": {
+                            "type": "number",
+                            "example": 3.2
+                          }
+                        }
+                      }
+                    },
+                    "totalDataChart": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "example": [1640995200, 1200000000]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/summary/dexs/{protocol}": {
+      "get": {
+        "tags": ["volumes"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Get summary of dex volume with historical data",
+        "parameters": [
+          {
+            "name": "protocol",
+            "in": "path",
+            "required": true,
+            "description": "protocol slug",
+            "schema": {
+              "type": "string",
+              "example": "uniswap"
+            }
+          },
+          {
+            "name": "excludeTotalDataChart",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude aggregated chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          },
+          {
+            "name": "excludeTotalDataChartBreakdown",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude broken down chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "DEX protocol volume summary with historical data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "example": "Uniswap"
+                    },
+                    "total24h": {
+                      "type": "number",
+                      "example": 1500000000
+                    },
+                    "totalAllTime": {
+                      "type": "number",
+                      "example": 500000000000
+                    },
+                    "totalDataChart": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "example": [1640995200, 1500000000]
+                      }
+                    },
+                    "totalDataChartBreakdown": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "example": [
+                          1640995200,
+                          {
+                            "Uniswap V3": 1200000000,
+                            "Uniswap V2": 300000000
+                          }
+                        ]
+                      }
+                    },
+                    "chains": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": ["Ethereum", "Polygon"]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/overview/options": {
+      "get": {
+        "tags": ["volumes"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "List all options dexs along with summaries of their volumes and dataType history data",
+        "parameters": [
+          {
+            "name": "excludeTotalDataChart",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude aggregated chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          },
+          {
+            "name": "excludeTotalDataChartBreakdown",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude broken down chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          },
+          {
+            "name": "dataType",
+            "in": "query",
+            "required": false,
+            "description": "Desired data type, dailyNotionalVolume by default.",
+            "schema": {
+              "type": "string",
+              "enum": ["dailyPremiumVolume", "dailyNotionalVolume"],
+              "example": "dailyPremiumVolume"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Overview of all options DEXs with volume data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "protocols": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "example": "Deribit"
+                          },
+                          "total24h": {
+                            "type": "number",
+                            "example": 500000000
+                          },
+                          "change_1d": {
+                            "type": "number",
+                            "example": 8.5
+                          }
+                        }
+                      }
+                    },
+                    "totalDataChart": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "example": [1640995200, 750000000]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/overview/options/{chain}": {
+      "get": {
+        "tags": ["volumes"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "List all options dexs along with summaries of their volumes and dataType history data filtering by chain",
+        "parameters": [
+          {
+            "name": "chain",
+            "in": "path",
+            "required": true,
+            "description": "chain name, list of all supported chains can be found under allChains attribute in /overview/options response",
+            "schema": {
+              "type": "string",
+              "example": "ethereum"
+            }
+          },
+          {
+            "name": "excludeTotalDataChart",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude aggregated chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          },
+          {
+            "name": "excludeTotalDataChartBreakdown",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude broken down chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          },
+          {
+            "name": "dataType",
+            "in": "query",
+            "required": false,
+            "description": "Desired data type, dailyNotionalVolume by default.",
+            "schema": {
+              "type": "string",
+              "enum": ["dailyPremiumVolume", "dailyNotionalVolume"],
+              "example": "dailyPremiumVolume"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/api/summary/options/{protocol}": {
+      "get": {
+        "tags": ["volumes"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Get summary of options dex volume with historical data",
+        "parameters": [
+          {
+            "name": "protocol",
+            "in": "path",
+            "required": true,
+            "description": "protocol slug",
+            "schema": {
+              "type": "string",
+              "example": "derive"
+            }
+          },
+          {
+            "name": "dataType",
+            "in": "query",
+            "required": false,
+            "description": "Desired data type, dailyNotionalVolume by default.",
+            "schema": {
+              "type": "string",
+              "enum": ["dailyPremiumVolume", "dailyNotionalVolume"],
+              "example": "dailyPremiumVolume"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/api/overview/fees": {
+      "get": {
+        "tags": ["fees and revenue"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "List all protocols along with summaries of their fees and revenue and dataType history data",
+        "parameters": [
+          {
+            "name": "excludeTotalDataChart",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude aggregated chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          },
+          {
+            "name": "excludeTotalDataChartBreakdown",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude broken down chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          },
+          {
+            "name": "dataType",
+            "in": "query",
+            "required": false,
+            "description": "Desired data type, dailyFees by default.",
+            "schema": {
+              "type": "string",
+              "enum": ["dailyFees", "dailyRevenue"],
+              "example": "dailyFees"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Overview of all protocols with fees and revenue data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "protocols": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "example": "Uniswap"
+                          },
+                          "total24h": {
+                            "type": "number",
+                            "example": 5000000
+                          },
+                          "revenue24h": {
+                            "type": "number",
+                            "example": 2000000
+                          },
+                          "change_1d": {
+                            "type": "number",
+                            "example": 12.5
+                          },
+                          "chains": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "example": ["Ethereum", "Polygon"]
+                          }
+                        }
+                      }
+                    },
+                    "totalDataChart": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "example": [1640995200, 25000000]
+                      }
+                    },
+                    "totalDataChartBreakdown": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "example": [
+                          1640995200,
+                          {
+                            "Uniswap": 5000000,
+                            "Compound": 3000000
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/overview/fees/{chain}": {
+      "get": {
+        "tags": ["fees and revenue"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "List all protocols along with summaries of their fees and revenue and dataType history data by chain",
+        "parameters": [
+          {
+            "name": "chain",
+            "in": "path",
+            "required": true,
+            "description": "chain name, list of all supported chains can be found under allChains attribute in /overview/fees response",
+            "schema": {
+              "type": "string",
+              "example": "ethereum"
+            }
+          },
+          {
+            "name": "excludeTotalDataChart",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude aggregated chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          },
+          {
+            "name": "excludeTotalDataChartBreakdown",
+            "in": "query",
+            "required": false,
+            "description": "true to exclude broken down chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          },
+          {
+            "name": "dataType",
+            "in": "query",
+            "required": false,
+            "description": "Desired data type, dailyFees by default.",
+            "schema": {
+              "type": "string",
+              "enum": ["dailyFees", "dailyRevenue"],
+              "example": "dailyFees"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/api/summary/fees/{protocol}": {
+      "get": {
+        "tags": ["fees and revenue"],
+        "x-scalar-tier": "pro",
+        "servers": [
+          {
+            "url": "https://pro-api.llama.fi"
+          }
+        ],
+        "summary": "Get summary of protocol fees and revenue with historical data",
+        "parameters": [
+          {
+            "name": "protocol",
+            "in": "path",
+            "required": true,
+            "description": "protocol slug",
+            "schema": {
+              "type": "string",
+              "example": "derive"
+            }
+          },
+          {
+            "name": "dataType",
+            "in": "query",
+            "required": false,
+            "description": "Desired data type, dailyFees by default.",
+            "schema": {
+              "type": "string",
+              "enum": ["dailyFees", "dailyRevenue"],
+              "example": "dailyFees"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
           }
         }
       }

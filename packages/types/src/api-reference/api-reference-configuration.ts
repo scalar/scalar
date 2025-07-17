@@ -462,6 +462,17 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
     operationsSorter: z
       .union([z.literal('alpha'), z.literal('method'), z.function().args(z.any(), z.any()).returns(z.number())])
       .optional(),
+    /**
+     * Callback fired when the API key changes
+     * @param apiKey - The new API key value or null if removed
+     * @param currentBaseUrl - The current base URL being used
+     * @returns void or Promise<void>
+     */
+    onApiKeyChange: z
+      .function()
+      .args(z.string().nullable(), z.string())
+      .returns(z.void().or(z.void().promise()))
+      .optional(),
   }),
 )
 
