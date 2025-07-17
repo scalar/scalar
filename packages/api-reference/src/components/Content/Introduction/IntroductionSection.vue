@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { computed, inject, onMounted, type Ref } from 'vue'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import { computed, inject, type Ref } from 'vue'
 
 import { Badge } from '@/components/Badge'
 import {
