@@ -28,7 +28,7 @@ const changeTab = (index: number) => {
   gap: 6px;
   position: relative;
   flex: 1;
-  --tab-list-padding-y: 9px;
+  --tab-list-padding-y: 7px;
   --tab-list-padding-x: 12px;
   padding: var(--tab-list-padding-y) var(--tab-list-padding-x);
   overflow: auto;
