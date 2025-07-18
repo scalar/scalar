@@ -724,7 +724,7 @@ jobs:
         run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
 
   aspire-publish:
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
+    # if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     concurrency:
@@ -786,6 +786,10 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392
+
+      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Setup Buildx
         uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435
 
@@ -795,7 +799,7 @@ jobs:
         with:
           context: integrations/aspire
           file: integrations/aspire/src/Scalar.Aspire.Service/Dockerfile
-          push: true
+          push: false
           # With ARM
           platforms: |
             linux/amd64
@@ -829,10 +833,10 @@ jobs:
         working-directory: integrations/aspire/src/Scalar.Aspire
         run: dotnet pack -c Release --no-restore --output nupkgs /p:Version=$VERSION
 
-      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
-        name: Publish Scalar.Aspire NuGet package
-        working-directory: integrations/aspire/src/Scalar.Aspire
-        run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
+      # - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
+      #   name: Publish Scalar.Aspire NuGet package
+      #   working-directory: integrations/aspire/src/Scalar.Aspire
+      #   run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
 
   fastapi-build-test:
     runs-on: blacksmith-2vcpu-ubuntu-2204
