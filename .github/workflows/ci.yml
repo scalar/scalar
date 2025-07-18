@@ -805,7 +805,7 @@ jobs:
           load: true
           platforms: ${{ matrix.docker_platform }}
           tags: |
-            scalarapi/aspire-api-reference:${{ matrix.docker_platform }}
+            scalarapi/aspire-api-reference:${{ matrix.platform }}
 
   aspire-publish-nuget:
     # if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
