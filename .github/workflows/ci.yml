@@ -728,7 +728,7 @@ jobs:
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 10
     concurrency:
-      group: aspire-publish
+      group: aspire-publish-${{ matrix.platform }}
       cancel-in-progress: false
     strategy:
       matrix:
