@@ -72,7 +72,38 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "example": "Portal"
+                      },
+                      "category": {
+                        "type": "string",
+                        "example": "Bridge"
+                      },
+                      "amountUsd": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "number"
+                        },
+                        "example": {
+                          "coingecko:tether-avalanche-bridged-usdt-e": 6485.2310529788765,
+                          "coingecko:xcusdt": 45.514624238131,
+                          "coingecko:layerzero-bridged-usdt-aptos": 7312.740629193999
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -106,7 +137,115 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "outflows": {
+                      "type": "number",
+                      "example": -160563462.23474675
+                    },
+                    "oldTokens": {
+                      "type": "object",
+                      "properties": {
+                        "date": {
+                          "type": "number",
+                          "example": 1700005031
+                        },
+                        "tvl": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "number"
+                          },
+                          "example": {
+                            "POLYGONUSDC": 2800590.050521,
+                            "STMATIC": 5910852.971103674,
+                            "USDC.E": 213182.234023,
+                            "WETH": 138751.92261049704,
+                            "WSTETH": 21205.858768287606,
+                            "COMP": 899912.2484411557,
+                            "ARB": 5191395.55706979,
+                            "UNI": 3276947.8126982865,
+                            "WBTC": 15237.12702489,
+                            "WMATIC": 4316699.376111328,
+                            "USDBC": 1567657.999816,
+                            "GMX": 44027.42587184711,
+                            "CBETH": 10011.824096757742,
+                            "LINK": 2915041.329272804,
+                            "USDC": 27302168.767972,
+                            "MATICX": 5999572.681088426
+                          }
+                        }
+                      }
+                    },
+                    "currentTokens": {
+                      "type": "object",
+                      "properties": {
+                        "date": {
+                          "type": "number",
+                          "example": 1752771743
+                        },
+                        "tvl": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "number"
+                          },
+                          "example": {
+                            "SKY": 1839111.3665808514,
+                            "WSUPEROETHB": 610.1258731272615,
+                            "RETH": 335.9162918778323,
+                            "WEETH": 21264.320107593303,
+                            "STMATIC": 43248.612454883136,
+                            "TETH": 7537.467077317422,
+                            "USDT": 23936602.852221,
+                            "USDC.E": 457484.93217,
+                            "USDS": 986286.7461886762,
+                            "FBTC": 7.88084468,
+                            "WUSDM": 9912.583708525639,
+                            "COMP": 199962.19982196926,
+                            "UNI": 748399.6623864435,
+                            "WRON": 48676.91287257022,
+                            "WBTC": 8346.44481716,
+                            "EZETH": 9378.908917279387,
+                            "SDEUSD": 4476349.521512799,
+                            "OSETH": 1751.011747340086,
+                            "USDT0": 4807642.14842,
+                            "LINK": 629790.4518594383,
+                            "DEUSD": 14779291.40757071,
+                            "MATICX": 239292.60540364735,
+                            "ETHX": 7.643953648e-9,
+                            "POLYGONUSDC": 1130561.097829,
+                            "OP": 474055.27558234957,
+                            "RSWETH": 0.7588296185577288,
+                            "SFRAX": 32550977.989188965,
+                            "METH": 1256.0286269578846,
+                            "WETH": 106772.79955793211,
+                            "WSTETH": 127030.77547884149,
+                            "ARB": 8082828.497277849,
+                            "RSETH": 13198.88264941232,
+                            "WMATIC": 1192273.6401273129,
+                            "GMX": 6408.6736121308695,
+                            "USDBC": 200217.562935,
+                            "CBETH": 2094.7317932368333,
+                            "USDE": 1660443.2086449957,
+                            "ETH": 657.5898609775202,
+                            "SUSDS": 2360827.122683512,
+                            "USDC": 67152880.13345899,
+                            "TBTC": 297.109236856541,
+                            "AXS": 156.95240126041227,
+                            "CBBTC": 722.70428829,
+                            "WRSETH": 208.78735872239974,
+                            "AERO": 3582072.5610455093
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -117,7 +256,113 @@
         "summary": "Get assets of all chains",
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "chain": {
+                      "type": "object",
+                      "properties": {
+                        "canonical": {
+                          "type": "object",
+                          "properties": {
+                            "total": {
+                              "type": "string",
+                              "example": "4482065428.82707789718257509123"
+                            },
+                            "breakdown": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "example": {
+                                "AGLD": "8.25709",
+                                "STPT": "263726.9847408758",
+                                "APU": "43899.14483171882",
+                                "CTX": "595333.6768847435",
+                                "APW": "37727.892544515686"
+                              }
+                            }
+                          }
+                        },
+                        "native": {
+                          "type": "object",
+                          "properties": {
+                            "total": {
+                              "type": "string",
+                              "example": "10848868127.0093572327157505031494340578574406321858"
+                            },
+                            "breakdown": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "example": {
+                                "BENI": "1322294.3731837485",
+                                "ANIME": "10.7583162713828217314035397949084",
+                                "SACA": "114132.47631920826",
+                                "HOKK": "4966.3804669563400723148947324498025",
+                                "TOSHI": "91927630.6839119443580116994151258714"
+                              }
+                            }
+                          }
+                        },
+                        "thirdParty": {
+                          "type": "object",
+                          "properties": {
+                            "total": {
+                              "type": "string",
+                              "example": "3182802062.49398527398560408906"
+                            },
+                            "breakdown": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "example": {
+                                "BRZ": "1810685.01887618296911",
+                                "BOBA": "0",
+                                "BURN": "0",
+                                "GGTK": "0.6545695",
+                                "GYFI": "2618437.7978"
+                              }
+                            }
+                          }
+                        },
+                        "total": {
+                          "type": "object",
+                          "properties": {
+                            "total": {
+                              "type": "string",
+                              "example": "18513735618.330420403"
+                            },
+                            "breakdown": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "example": {
+                                "AGLD": "8.25709",
+                                "STPT": "263726.9847408758",
+                                "APU": "43899.14483171882",
+                                "CTX": "595333.6768847435",
+                                "APW": "37727.892544515686"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "timestamp": {
+                      "type": "number",
+                      "example": 1752843956
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "x-pro-only": true
@@ -151,7 +396,57 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "date": {
+                        "type": "string",
+                        "example": "1752796800"
+                      },
+                      "totalCirculatingUSD": {
+                        "type": "object",
+                        "properties": {
+                          "peggedUSD": {
+                            "type": "number",
+                            "example": 129531632690.44954
+                          },
+                          "peggedVAR": {
+                            "type": "number",
+                            "example": 100466426.71408615
+                          },
+                          "peggedEUR": {
+                            "type": "number",
+                            "example": 286714265.91542196
+                          }
+                        }
+                      },
+                      "greatestMcap": {
+                        "type": "object",
+                        "properties": {
+                          "gecko_id": {
+                            "type": "string",
+                            "example": "tether"
+                          },
+                          "symbol": {
+                            "type": "string",
+                            "example": "USDT"
+                          },
+                          "mcap": {
+                            "type": "number",
+                            "example": 65836754910.17763
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "x-pro-only": true
@@ -163,7 +458,94 @@
         "summary": "Get active users on our chains and protocols pages",
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "example": "Compound V2"
+                      },
+                      "users": {
+                        "type": "object",
+                        "properties": {
+                          "value": {
+                            "type": "number",
+                            "example": 72
+                          },
+                          "end": {
+                            "type": "number",
+                            "example": 1752832840
+                          }
+                        }
+                      },
+                      "txs": {
+                        "type": "object",
+                        "properties": {
+                          "value": {
+                            "type": "string",
+                            "example": "103"
+                          },
+                          "end": {
+                            "type": "number",
+                            "example": 1752832840
+                          }
+                        }
+                      },
+                      "gasUsd": {
+                        "type": "object",
+                        "properties": {
+                          "value": {
+                            "type": "number",
+                            "example": 331.61595785000003
+                          },
+                          "end": {
+                            "type": "number",
+                            "example": 1752832840
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "example": {
+                    "114": {
+                      "name": "Compound V2",
+                      "users": {
+                        "value": 72,
+                        "end": 1752832840
+                      },
+                      "txs": {
+                        "value": "103",
+                        "end": 1752832840
+                      },
+                      "gasUsd": {
+                        "value": 331.61595785000003,
+                        "end": 1752832840
+                      }
+                    },
+                    "121": {
+                      "name": "CREAM Lending",
+                      "users": {
+                        "value": 7,
+                        "end": 1752832840
+                      },
+                      "txs": {
+                        "value": "16",
+                        "end": 1752832840
+                      },
+                      "gasUsd": {
+                        "value": 36.184285131821,
+                        "end": 1752832840
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "x-pro-only": true
@@ -209,7 +591,110 @@
         "summary": "List of all tokens along with basic info for each",
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "token": {
+                        "type": "string",
+                        "example": "coingecko:whitebit"
+                      },
+                      "sources": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": ["https://cdn.whitebit.com/wbt/whitepaper-en.pdf"]
+                      },
+                      "protocolId": {
+                        "type": "string",
+                        "example": "6143"
+                      },
+                      "name": {
+                        "type": "string",
+                        "example": "WhiteBIT"
+                      },
+                      "circSupply": {
+                        "type": "number",
+                        "example": 293500000
+                      },
+                      "circSupply30d": {
+                        "type": "number",
+                        "example": 293500000
+                      },
+                      "totalLocked": {
+                        "type": "number",
+                        "example": 81500000
+                      },
+                      "maxSupply": {
+                        "type": "number",
+                        "example": 375000000
+                      },
+                      "gecko_id": {
+                        "type": "string",
+                        "example": "whitebit"
+                      },
+                      "events": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "description": {
+                              "type": "string",
+                              "example": "A cliff of {tokens[0]} tokens was unlocked from Funds 1 on {timestamp}"
+                            },
+                            "timestamp": {
+                              "type": "number",
+                              "example": 1659657600
+                            },
+                            "noOfTokens": {
+                              "type": "array",
+                              "items": {
+                                "type": "number"
+                              },
+                              "example": [120000000]
+                            },
+                            "category": {
+                              "type": "string",
+                              "example": "noncirculating"
+                            },
+                            "unlockType": {
+                              "type": "string",
+                              "example": "cliff"
+                            }
+                          }
+                        }
+                      },
+                      "nextEvent": {
+                        "type": "object",
+                        "properties": {
+                          "date": {
+                            "type": "number",
+                            "example": 1773360001
+                          },
+                          "toUnlock": {
+                            "type": "number",
+                            "example": 81500000
+                          }
+                        }
+                      },
+                      "unlocksPerDay": {
+                        "type": "number",
+                        "example": 0
+                      },
+                      "mcap": {
+                        "type": "number",
+                        "example": 6577845629.249915
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "x-pro-only": true
@@ -227,13 +712,262 @@
             "required": true,
             "schema": {
               "type": "string",
-              "example": "aave"
+              "example": "hyperliquid"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "body": {
+                      "type": "object",
+                      "properties": {
+                        "documentedData": {
+                          "type": "object",
+                          "properties": {
+                            "data": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "label": {
+                                    "type": "string",
+                                    "example": "Hyper Foundation Budget"
+                                  },
+                                  "data": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "timestamp": {
+                                          "type": "number",
+                                          "example": 1732838400
+                                        },
+                                        "unlocked": {
+                                          "type": "number",
+                                          "example": 60000000
+                                        },
+                                        "rawEmission": {
+                                          "type": "number",
+                                          "example": 60000000
+                                        },
+                                        "burned": {
+                                          "type": "number",
+                                          "example": 0
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "tokenAllocation": {
+                              "type": "object",
+                              "properties": {
+                                "current": {
+                                  "type": "object",
+                                  "properties": {
+                                    "insiders": {
+                                      "type": "number",
+                                      "example": 16
+                                    },
+                                    "noncirculating": {
+                                      "type": "number",
+                                      "example": 0.8
+                                    },
+                                    "publicSale": {
+                                      "type": "number",
+                                      "example": 0
+                                    },
+                                    "airdrop": {
+                                      "type": "number",
+                                      "example": 82.5
+                                    },
+                                    "farming": {
+                                      "type": "number",
+                                      "example": 0.7
+                                    }
+                                  }
+                                },
+                                "final": {
+                                  "type": "object",
+                                  "properties": {
+                                    "insiders": {
+                                      "type": "number",
+                                      "example": 45.8
+                                    },
+                                    "noncirculating": {
+                                      "type": "number",
+                                      "example": 0.5
+                                    },
+                                    "publicSale": {
+                                      "type": "number",
+                                      "example": 0
+                                    },
+                                    "airdrop": {
+                                      "type": "number",
+                                      "example": 47.7
+                                    },
+                                    "farming": {
+                                      "type": "number",
+                                      "example": 6
+                                    }
+                                  }
+                                },
+                                "progress": {
+                                  "type": "object",
+                                  "properties": {
+                                    "insiders": {
+                                      "type": "number",
+                                      "example": 20.1
+                                    },
+                                    "noncirculating": {
+                                      "type": "number",
+                                      "example": 100
+                                    },
+                                    "publicSale": {
+                                      "type": "number",
+                                      "example": 100
+                                    },
+                                    "airdrop": {
+                                      "type": "number",
+                                      "example": 100
+                                    },
+                                    "farming": {
+                                      "type": "number",
+                                      "example": 6.5
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "metadata": {
+                          "type": "object",
+                          "properties": {
+                            "notes": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              },
+                              "example": [
+                                "The Community Rewards schedule has been linearly extrapolated using the rate of unlocks as of 4 March 2025.",
+                                "The remaining allocation, not shown on the chart, belongs to Community Rewards. It has been excluded here to avoid obscuring the remaining data.",
+                                "Most vesting schedules will complete between 2027–2028; some will continue after 2028. Here we have used an end date of end of 2027.",
+                                "Although the full allocations for Hyper Foundation Budget and Community Grants were unlocked at TGE it is unclear what their spend rate is."
+                              ]
+                            },
+                            "token": {
+                              "type": "string",
+                              "example": "coingecko:hyperliquid"
+                            },
+                            "sources": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              },
+                              "example": ["https://hyperfnd.medium.com/hype-genesis-1830a4dc2e3f"]
+                            },
+                            "protocolIds": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              },
+                              "example": ["4481", "5448", "5507", "5761"]
+                            },
+                            "total": {
+                              "type": "number",
+                              "example": 1000000000
+                            },
+                            "chain": {
+                              "type": "string",
+                              "example": "hyperliquid"
+                            },
+                            "name": {
+                              "type": "string",
+                              "example": "Hyperliquid"
+                            },
+                            "gecko_id": {
+                              "type": "string",
+                              "example": "hyperliquid"
+                            },
+                            "defillamaIds": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              },
+                              "example": ["4481"]
+                            },
+                            "categories": {
+                              "type": "object",
+                              "properties": {
+                                "insiders": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "example": ["Core Contributors", "Hyper Foundation Budget"]
+                                },
+                                "noncirculating": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "example": ["Community Grants"]
+                                },
+                                "publicSale": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "example": ["HIP-2"]
+                                },
+                                "airdrop": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "example": ["Genesis Distribution"]
+                                },
+                                "farming": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "example": ["Community Rewards"]
+                                }
+                              }
+                            },
+                            "protocolCategory": {
+                              "type": "string",
+                              "example": "Bridge"
+                            },
+                            "chainName": {
+                              "type": "string",
+                              "example": "Hyperliquid L1"
+                            },
+                            "pId": {
+                              "type": "string",
+                              "example": "4481"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "lastModified": {
+                      "type": "string",
+                      "example": "2025-07-18T13:30:56.000Z"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "x-pro-only": true
@@ -245,7 +979,131 @@
         "summary": "Overview of all categories accross all protocols",
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "chart": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "object",
+                          "properties": {
+                            "tvl": {
+                              "type": "number",
+                              "example": 45997965191.323425
+                            },
+                            "staking": {
+                              "type": "number",
+                              "example": 117946591.34734812
+                            },
+                            "pool2": {
+                              "type": "number",
+                              "example": 4467.975298299099
+                            },
+                            "doublecounted": {
+                              "type": "number",
+                              "example": 1259137973.0377812
+                            },
+                            "borrowed": {
+                              "type": "number",
+                              "example": 714082.8186222482
+                            },
+                            "offers": {
+                              "type": "number",
+                              "example": 0
+                            },
+                            "vesting": {
+                              "type": "number",
+                              "example": 0.0009596433739281769
+                            },
+                            "treasury": {
+                              "type": "number",
+                              "example": 11142.746348986766
+                            },
+                            "liquidstaking": {
+                              "type": "number",
+                              "example": 20838772668.74201
+                            },
+                            "dcAndLsOverlap": {
+                              "type": "number",
+                              "example": 24954437702.556156
+                            }
+                          }
+                        }
+                      },
+                      "example": {
+                        "1747440000": {
+                          "Bridge": {
+                            "tvl": 45997965191.323425,
+                            "staking": 117946591.34734812,
+                            "pool2": 4467.975298299099,
+                            "doublecounted": 1259137973.0377812,
+                            "borrowed": 714082.8186222482,
+                            "offers": 0,
+                            "vesting": 0.0009596433739281769
+                          }
+                        }
+                      }
+                    },
+                    "categories": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "example": {
+                        "Bridge": [
+                          "WBTC",
+                          "RenVM",
+                          "The Tokenized Bitcoin",
+                          "hBTC",
+                          "Rhino.fi",
+                          "Strudel Finance",
+                          "Connext",
+                          "Injective Bridge",
+                          "pNetwork",
+                          "Allbridge Classic",
+                          "Multichain"
+                        ],
+                        "Risk Curators": [
+                          "9Summits",
+                          "Alphaping",
+                          "Apostro",
+                          "B.Protocol Curator",
+                          "Block Analitica",
+                          "Clearstar",
+                          "Euler DAO",
+                          "Fence Finance",
+                          "Gauntlet",
+                          "Hakutora",
+                          "Hyperithm",
+                          "K3 Capital",
+                          "LlamaRisk",
+                          "M11 Credit",
+                          "MEV Capital",
+                          "Ouroboros Capital",
+                          "Re7 Labs",
+                          "Relend Network",
+                          "Steakhouse Financial",
+                          "Tulipa Capital",
+                          "Alterscope",
+                          "Yearn Curating",
+                          "CIAN Curating",
+                          "Vault Bridge"
+                        ],
+                        "DAO Service Provider": ["CreateDAO"]
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "x-pro-only": true
@@ -258,7 +1116,104 @@
         "summary": "Overview of all categories accross all protocols",
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "chart": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "object",
+                          "properties": {
+                            "staking": {
+                              "type": "number",
+                              "example": 712008453.6943725
+                            },
+                            "tvl": {
+                              "type": "number",
+                              "example": 2580053162.908216
+                            },
+                            "pool2": {
+                              "type": "number",
+                              "example": 146782.46894897142
+                            },
+                            "doublecounted": {
+                              "type": "number",
+                              "example": 3013724.782369083
+                            },
+                            "borrowed": {
+                              "type": "number",
+                              "example": 925950.5791909688
+                            },
+                            "vesting": {
+                              "type": "number",
+                              "example": 0.0033932788318303733
+                            },
+                            "liquidstaking": {
+                              "type": "number",
+                              "example": 1184348.1365500058
+                            },
+                            "dcAndLsOverlap": {
+                              "type": "number",
+                              "example": 1184348.1365500058
+                            }
+                          }
+                        }
+                      },
+                      "example": {
+                        "1752624000": {
+                          "Uniswap V2": {
+                            "staking": 712008453.6943725,
+                            "tvl": 2580053162.908216,
+                            "pool2": 146782.46894897142,
+                            "doublecounted": 3013724.782369083,
+                            "borrowed": 925950.5791909688,
+                            "vesting": 0.0033932788318303733
+                          }
+                        }
+                      }
+                    },
+                    "forks": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "example": {
+                        "Uniswap V2": [
+                          "SushiSwap",
+                          "Varen",
+                          "PancakeSwap AMM",
+                          "Defi Swap",
+                          "Energiswap",
+                          "Pangolin",
+                          "Cometh",
+                          "Honeyswap",
+                          "0.exchange",
+                          "YetiSwap",
+                          "Swapr V2",
+                          "Lydia",
+                          "Levinswap",
+                          "SpookySwap V2",
+                          "Quickswap Dex",
+                          "SpiritSwap AMM",
+                          "ViperSwap",
+                          "HyperJump",
+                          "Dfyn Network",
+                          "Unicly"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -269,7 +1224,97 @@
         "summary": "Overview of all categories accross all protocols",
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "chart": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "object",
+                          "properties": {
+                            "tvl": {
+                              "type": "number",
+                              "example": 48896114862.57202
+                            },
+                            "staking": {
+                              "type": "number",
+                              "example": 1564643922.8114228
+                            },
+                            "pool2": {
+                              "type": "number",
+                              "example": 107245076.47312777
+                            },
+                            "borrowed": {
+                              "type": "number",
+                              "example": 25132031822.258495
+                            },
+                            "treasury": {
+                              "type": "number",
+                              "example": 52.078623852211784
+                            },
+                            "vesting": {
+                              "type": "number",
+                              "example": 3347.9893057455306
+                            }
+                          }
+                        }
+                      },
+                      "example": {
+                        "1752624000": {
+                          "Chainlink": {
+                            "tvl": 48896114862.57202,
+                            "staking": 1564643922.8114228,
+                            "pool2": 107245076.47312777,
+                            "borrowed": 25132031822.258495,
+                            "treasury": 52.078623852211784,
+                            "vesting": 3347.9893057455306
+                          }
+                        }
+                      }
+                    },
+                    "oracles": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "example": {
+                        "Chainlink": ["AAVE V2", "Compound V2", "Synthetix v1+v2", "CREAM Lending"]
+                      }
+                    },
+                    "chainsByOracle": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "example": {
+                        "Chainlink": [
+                          "Ethereum",
+                          "Arbitrum",
+                          "BSC",
+                          "Avalanche",
+                          "Base",
+                          "Solana",
+                          "Polygon",
+                          "OP Mainnet",
+                          "Linea"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "x-pro-only": true
@@ -281,7 +1326,70 @@
         "summary": "Overview of all hacks on our Hacks dashboard",
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "date": {
+                        "type": "number",
+                        "example": 1711065600
+                      },
+                      "name": {
+                        "type": "string",
+                        "example": "Super Sushi Samurai"
+                      },
+                      "classification": {
+                        "type": "string",
+                        "example": "Protocol Logic"
+                      },
+                      "technique": {
+                        "type": "string",
+                        "example": "Infinite Mint and Dump"
+                      },
+                      "amount": {
+                        "type": "number",
+                        "example": 4800000
+                      },
+                      "chain": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": ["Blast"]
+                      },
+                      "bridgeHack": {
+                        "type": "boolean",
+                        "example": false
+                      },
+                      "targetType": {
+                        "type": "string",
+                        "example": "Gaming"
+                      },
+                      "source": {
+                        "type": "string",
+                        "example": "https://rekt.news/sss-rekt/"
+                      },
+                      "returnedFunds": {
+                        "type": ["number", "null"],
+                        "example": null
+                      },
+                      "defillamaId": {
+                        "type": ["number", "null"],
+                        "example": null
+                      },
+                      "language": {
+                        "type": ["string", "null"],
+                        "example": "Solidity"
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "x-pro-only": true
@@ -293,7 +1401,85 @@
         "summary": "Overview of all raises on our Raises dashboard",
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "raises": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "date": {
+                            "type": "number",
+                            "example": 1740528000
+                          },
+                          "name": {
+                            "type": "string",
+                            "example": "Ethena Labs"
+                          },
+                          "round": {
+                            "type": "string",
+                            "example": "Strategic"
+                          },
+                          "amount": {
+                            "type": "number",
+                            "example": 16
+                          },
+                          "chains": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "example": ["Ethereum"]
+                          },
+                          "sector": {
+                            "type": "string",
+                            "example": "Ethena is a synthetic dollar protocol built on Ethereum"
+                          },
+                          "category": {
+                            "type": "string",
+                            "example": "DeFi"
+                          },
+                          "categoryGroup": {
+                            "type": "string",
+                            "example": "DeFi & CeFi"
+                          },
+                          "source": {
+                            "type": "string",
+                            "example": "https://www.benzinga.com/pressreleases/25/02/g43966782/mexc-invests-20-million-in-usde-to-drive-stablecoin-adoption-launches-1-000-000-reward-event"
+                          },
+                          "leadInvestors": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "example": ["MEXC Ventures"]
+                          },
+                          "otherInvestors": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "example": []
+                          },
+                          "valuation": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "defillamaId": {
+                            "type": "string",
+                            "example": "parent#ethena"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "x-pro-only": true
@@ -305,7 +1491,151 @@
         "summary": "List all protocols on our Treasuries dashboard",
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "example": "6355-treasury"
+                      },
+                      "name": {
+                        "type": "string",
+                        "example": "SharpLink Gaming (treasury)"
+                      },
+                      "address": {
+                        "type": ["string", "null"],
+                        "example": null
+                      },
+                      "symbol": {
+                        "type": "string",
+                        "example": "-"
+                      },
+                      "url": {
+                        "type": "string",
+                        "example": "https://www.sharplink.com/"
+                      },
+                      "description": {
+                        "type": "string",
+                        "example": "SharpLink is one of the first Nasdaq-listed companies to develop a treasury strategy centered on ETH"
+                      },
+                      "chain": {
+                        "type": "string",
+                        "example": "Ethereum"
+                      },
+                      "logo": {
+                        "type": "string",
+                        "example": "https://icons.llama.fi/sharplink-gaming.jpg"
+                      },
+                      "audits": {
+                        "type": "string",
+                        "example": "0"
+                      },
+                      "audit_note": {
+                        "type": ["string", "null"],
+                        "example": null
+                      },
+                      "gecko_id": {
+                        "type": ["string", "null"],
+                        "example": null
+                      },
+                      "cmcId": {
+                        "type": ["string", "null"],
+                        "example": null
+                      },
+                      "category": {
+                        "type": "string",
+                        "example": "Treasury Manager"
+                      },
+                      "chains": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": ["Ethereum"]
+                      },
+                      "module": {
+                        "type": "string",
+                        "example": "treasury/sharplink-gaming.js"
+                      },
+                      "treasury": {
+                        "type": "string",
+                        "example": "sharplink-gaming.js"
+                      },
+                      "forkedFromIds": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": []
+                      },
+                      "twitter": {
+                        "type": "string",
+                        "example": "SharpLinkGaming"
+                      },
+                      "slug": {
+                        "type": "string",
+                        "example": "sharplink-gaming-(treasury)"
+                      },
+                      "tvl": {
+                        "type": "number",
+                        "example": 976150507.157045
+                      },
+                      "chainTvls": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "number"
+                        },
+                        "example": {
+                          "Ethereum": 976150507.157045
+                        }
+                      },
+                      "change_1h": {
+                        "type": "number",
+                        "example": -1.1231970563777622
+                      },
+                      "change_1d": {
+                        "type": "number",
+                        "example": 15.845546813803097
+                      },
+                      "change_7d": {
+                        "type": "number",
+                        "example": 75.57040101595928
+                      },
+                      "tokenBreakdowns": {
+                        "type": "object",
+                        "properties": {
+                          "ownTokens": {
+                            "type": "number",
+                            "example": 0
+                          },
+                          "stablecoins": {
+                            "type": "number",
+                            "example": 0.003
+                          },
+                          "majors": {
+                            "type": "number",
+                            "example": 67481592.5634468
+                          },
+                          "others": {
+                            "type": "number",
+                            "example": 908668914.5905982
+                          }
+                        }
+                      },
+                      "mcap": {
+                        "type": ["number", "null"],
+                        "example": null
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "x-pro-only": true
@@ -317,7 +1647,128 @@
         "summary": "List all entities",
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "example": "entity-8"
+                      },
+                      "name": {
+                        "type": "string",
+                        "example": "Blockchain Capital"
+                      },
+                      "url": {
+                        "type": "string",
+                        "example": "https://blockchain.capital"
+                      },
+                      "description": {
+                        "type": "string",
+                        "example": "Blockchain Capital is a leading venture firm in the blockchain industry. In the last 9 years we have made over 160 investments in companies and protocols in the sector, across different stages, geographies and asset types."
+                      },
+                      "logo": {
+                        "type": "string",
+                        "example": "https://icons.llama.fi/blockchain-capital.jpg"
+                      },
+                      "category": {
+                        "type": "string",
+                        "example": "VC"
+                      },
+                      "module": {
+                        "type": "string",
+                        "example": "entities/blockchain-capital.js"
+                      },
+                      "twitter": {
+                        "type": "string",
+                        "example": "blockchaincap"
+                      },
+                      "symbol": {
+                        "type": "string",
+                        "example": ""
+                      },
+                      "chain": {
+                        "type": "string",
+                        "example": "Ethereum"
+                      },
+                      "gecko_id": {
+                        "type": ["string", "null"],
+                        "example": null
+                      },
+                      "cmcId": {
+                        "type": ["string", "null"],
+                        "example": null
+                      },
+                      "chains": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": ["Ethereum"]
+                      },
+                      "slug": {
+                        "type": "string",
+                        "example": "blockchain-capital"
+                      },
+                      "tvl": {
+                        "type": "number",
+                        "example": 131402986.1539898
+                      },
+                      "chainTvls": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "number"
+                        },
+                        "example": {
+                          "Ethereum": 131402986.1539898
+                        }
+                      },
+                      "change_1h": {
+                        "type": "number",
+                        "example": 0.5368786705972184
+                      },
+                      "change_1d": {
+                        "type": "number",
+                        "example": 5.632604890674784
+                      },
+                      "change_7d": {
+                        "type": "number",
+                        "example": 11.27548502629729
+                      },
+                      "tokenBreakdowns": {
+                        "type": "object",
+                        "properties": {
+                          "ownTokens": {
+                            "type": "number",
+                            "example": 0
+                          },
+                          "stablecoins": {
+                            "type": "number",
+                            "example": 0.06493662312
+                          },
+                          "majors": {
+                            "type": "number",
+                            "example": 29628575.4114822
+                          },
+                          "others": {
+                            "type": "number",
+                            "example": 101774410.67757098
+                          }
+                        }
+                      },
+                      "mcap": {
+                        "type": ["number", "null"],
+                        "example": null
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "x-pro-only": true
