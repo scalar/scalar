@@ -8,7 +8,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="section-header-wrapper">
+  <div class="section-header-wrapper xl:gap-12">
     <LoadingSkeleton v-if="loading" />
     <div
       v-else
@@ -28,7 +28,6 @@ defineProps<{
 .section-header-wrapper {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 48px;
 }
 
 @variant xl {

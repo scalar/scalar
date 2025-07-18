@@ -70,7 +70,7 @@ onMounted(() => config.value.onLoaded?.())
           config.isLoading ??
           (!document?.info?.description && !document?.info?.title)
         ">
-        <div class="flex gap-1">
+        <div class="flex gap-1.5">
           <Badge v-if="version">{{ version }}</Badge>
           <Badge v-if="oasVersion">OAS {{ oasVersion }}</Badge>
         </div>
@@ -82,11 +82,19 @@ onMounted(() => config.value.onLoaded?.())
           </SectionHeaderTag>
           <template #links>
             <div
-              class="align-center ml-2 inline-flex justify-end gap-2 text-sm">
-              <ExternalDocs :value="externalDocs" />
-              <Contact :value="document.info?.contact" />
-              <License :value="document.info?.license" />
-              <TermsOfService :value="document.info?.termsOfService" />
+              class="mb-3 flex h-auto min-h-8 max-w-full items-center gap-2 overflow-auto text-xs whitespace-nowrap xl:mb-1.5">
+              <ExternalDocs
+                v-if="externalDocs"
+                :value="externalDocs" />
+              <Contact
+                v-if="document.info?.contact"
+                :value="document.info?.contact" />
+              <License
+                v-if="document.info?.license"
+                :value="document.info?.license" />
+              <TermsOfService
+                v-if="document.info?.termsOfService"
+                :value="document.info?.termsOfService" />
             </div>
           </template>
         </SectionHeader>
@@ -116,12 +124,5 @@ onMounted(() => config.value.onLoaded?.())
   flex-direction: column;
   position: sticky;
   top: calc(var(--refs-header-height) + 24px);
-}
-
-.links {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  margin-bottom: 18px;
 }
 </style>
