@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.2.10
+
+### Patch Changes
+
+- fb62e1b: feat: add externalDocs
+
 ## 0.2.9
 
 ### Patch Changes

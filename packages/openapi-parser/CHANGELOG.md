@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.18.2
+
+### Patch Changes
+
+- 1c2b9f3: feat: add application and accessCode to swagger 2 upgrader
+
 ## 0.18.1
 
 ### Patch Changes
