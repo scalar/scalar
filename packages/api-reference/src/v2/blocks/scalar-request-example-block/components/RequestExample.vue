@@ -251,11 +251,9 @@ const selectClient = (option: ClientOption) => {
 const id = useId()
 </script>
 <template>
-  <!-- External docs -->
-  <LinkList>
-    <ExternalDocs
-      v-if="operation.externalDocs"
-      :value="operation.externalDocs" />
+  <!-- External Docs -->
+  <LinkList v-if="operation.externalDocs">
+    <ExternalDocs :value="operation.externalDocs" />
   </LinkList>
   <ScalarCard
     v-if="clients.length"
