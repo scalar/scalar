@@ -9,12 +9,32 @@ import type { TraversedEntry, TraversedOperation, TraversedTag } from '@/feature
 import type { TraversedWebhook } from '@/features/traverse-schema/types'
 
 import TraversedEntryComponent from './TraversedEntry.vue'
-import { createMockSidebar } from '@/helpers/test-utils'
+import { createMockPluginManager, createMockSidebar } from '@/helpers/test-utils'
+import { useNavState } from '@/hooks/useNavState'
+import { ref } from 'vue'
 
-// Mock the sidebar module
-vi.mock('@/features/sidebar', () => ({
-  useSidebar: vi.fn(() => createMockSidebar()),
-}))
+// Helper function to create mock useNavState return value
+const createMockNavState = (hashValue: string | undefined | null) => ({
+  hash: ref(hashValue as string),
+  isIntersectionEnabled: ref(true),
+  setHashPrefix: vi.fn(),
+  getFullHash: vi.fn(),
+  getHashedUrl: vi.fn(),
+  replaceUrlState: vi.fn(),
+  getReferenceId: vi.fn(),
+  getWebhookId: vi.fn(),
+  getModelId: vi.fn(),
+  getHeadingId: vi.fn(),
+  getOperationId: vi.fn(),
+  getPathRoutingId: vi.fn(),
+  getSectionId: vi.fn(),
+  getTagId: vi.fn(),
+  updateHash: vi.fn(),
+})
+
+vi.mock('@/features/sidebar', () => ({ useSidebar: vi.fn(() => createMockSidebar()) }))
+vi.mock('@/hooks/useNavState', () => ({ useNavState: vi.fn(() => createMockNavState('')) }))
+vi.mock('@/plugins/hooks/usePluginManager', () => ({ usePluginManager: () => createMockPluginManager() }))
 
 vi.mock('@scalar/api-client/store', () => ({
   useWorkspace: () => ({
@@ -47,11 +67,25 @@ describe('TraversedEntry', () => {
     paths: {
       '/users': {
         get: {
+          tags: ['users'],
           summary: 'Get Users',
           responses: { '200': { description: 'OK' } },
         },
         post: {
+          tags: ['users'],
           summary: 'Create User',
+          responses: { '201': { description: 'Created' } },
+        },
+      },
+      '/planets': {
+        get: {
+          tags: ['planets'],
+          summary: 'Get Planets',
+          responses: { '200': { description: 'OK' } },
+        },
+        post: {
+          tags: ['planets'],
+          summary: 'Create Planet',
           responses: { '201': { description: 'Created' } },
         },
       },
@@ -70,6 +104,16 @@ describe('TraversedEntry', () => {
         },
       },
     },
+    tags: [
+      {
+        name: 'users',
+        description: 'User management operations',
+      },
+      {
+        name: 'planets',
+        description: 'Planet management operations',
+      },
+    ],
     components: {
       schemas: {},
     },
@@ -591,6 +635,197 @@ describe('TraversedEntry', () => {
       expect(tagComponent.props('tag')).toEqual(tag)
       expect(tagComponent.props('layout')).toBe('modern')
       expect(tagComponent.props('moreThanOneTag')).toBe(false)
+    })
+  })
+
+  describe('isLazy method', () => {
+    it('returns false for all indices when no hash is present', () => {
+      // Mock useNavState to return empty hash
+      vi.mocked(useNavState).mockReturnValue(createMockNavState(''))
+
+      const wrapper = mount(TraversedEntryComponent, {
+        props: {
+          entries: [createMockOperation()],
+          document: mockDocument,
+          config: mockConfig,
+          activeCollection: mockCollection,
+          activeServer: mockServer,
+          store: mockStore,
+        },
+      })
+
+      const component = wrapper.vm as any
+      expect(component.isLazy(0)).toBe(false)
+      expect(component.isLazy(1)).toBe(false)
+      expect(component.isLazy(10)).toBe(false)
+    })
+
+    it.only('returns false for all tags after the first tag', () => {
+      // Mock useNavState to return hash matching the first operation
+      vi.mocked(useNavState).mockReturnValue(createMockNavState('tag/users/get/users'))
+
+      const entries = [
+        createMockTag({
+          id: 'tag/users',
+          title: 'Users',
+          tag: { name: 'users' },
+          children: [
+            createMockOperation({
+              id: 'tag/users/get/users',
+              path: '/users',
+              method: 'get',
+              operation: { summary: 'Get Users' },
+            }),
+            createMockOperation({
+              id: 'tag/users/post/users',
+              path: '/users',
+              method: 'post',
+              operation: { summary: 'Create User' },
+            }),
+          ],
+        }),
+        createMockTag({
+          id: 'tag/planets',
+          title: 'Planets',
+          tag: { name: 'planets' },
+          children: [
+            createMockOperation({
+              id: 'tag/planets/get/planets',
+              path: '/planets',
+              method: 'get',
+              operation: { summary: 'Get Planets' },
+            }),
+            createMockOperation({
+              id: 'tag/planets/post/planets',
+              path: '/planets',
+              method: 'post',
+              operation: { summary: 'Create Planet' },
+            }),
+          ],
+        }),
+      ]
+
+      const wrapper = mount(TraversedEntryComponent, {
+        props: {
+          entries,
+          document: mockDocument,
+          config: mockConfig,
+          activeCollection: mockCollection,
+          activeServer: mockServer,
+          store: mockStore,
+        },
+      })
+
+      const [tag1, tag2] = wrapper.findAllComponents({ name: 'Lazy' })
+      expect(tag1.vm.isLazy).toBe(false)
+      expect(tag2.vm.isLazy).toBe(true)
+    })
+
+    it('returns false for all indices when hash matches webhook', async () => {
+      // Mock useNavState to return hash matching a webhook
+      vi.mocked(useNavState).mockReturnValue(createMockNavState('webhook/POST/user.created'))
+
+      const entries = [
+        createMockWebhook({ id: 'webhook-1', name: 'user.created', method: 'post' }),
+        createMockWebhook({ id: 'webhook-2', name: 'user.updated', method: 'put' }),
+      ]
+
+      const wrapper = mount(TraversedEntryComponent, {
+        props: {
+          entries,
+          document: mockDocument,
+          config: mockConfig,
+          activeCollection: mockCollection,
+          activeServer: mockServer,
+          store: mockStore,
+        },
+      })
+
+      const component = wrapper.vm as any
+      expect(component.isLazy(0)).toBe(false)
+      expect(component.isLazy(1)).toBe(false)
+    })
+
+    it('returns false for all indices when hash matches tag', () => {
+      // Mock useNavState to return hash matching a tag
+      vi.mocked(useNavState).mockReturnValue(createMockNavState('tag/users'))
+
+      const entries = [createMockTag({ id: 'tag-1', title: 'Users' }), createMockTag({ id: 'tag-2', title: 'Posts' })]
+
+      const wrapper = mount(TraversedEntryComponent, {
+        props: {
+          entries,
+          document: mockDocument,
+          config: mockConfig,
+          activeCollection: mockCollection,
+          activeServer: mockServer,
+          store: mockStore,
+        },
+      })
+
+      const component = wrapper.vm as any
+      expect(component.isLazy(0)).toBe(false)
+      expect(component.isLazy(1)).toBe(false)
+    })
+
+    it('returns false for negative indices', () => {
+      // Mock useNavState to return a hash
+      vi.mocked(useNavState).mockReturnValue(createMockNavState('tag/users/get/users'))
+
+      const wrapper = mount(TraversedEntryComponent, {
+        props: {
+          entries: [createMockOperation()],
+          document: mockDocument,
+          config: mockConfig,
+          activeCollection: mockCollection,
+          activeServer: mockServer,
+          store: mockStore,
+        },
+      })
+
+      const component = wrapper.vm as any
+      expect(component.isLazy(-1)).toBe(false)
+      expect(component.isLazy(-10)).toBe(false)
+    })
+
+    it('returns false for very large indices', () => {
+      // Mock useNavState to return a hash
+      vi.mocked(useNavState).mockReturnValue(createMockNavState('tag/users/get/users'))
+
+      const wrapper = mount(TraversedEntryComponent, {
+        props: {
+          entries: [createMockOperation()],
+          document: mockDocument,
+          config: mockConfig,
+          activeCollection: mockCollection,
+          activeServer: mockServer,
+          store: mockStore,
+        },
+      })
+
+      const component = wrapper.vm as any
+      expect(component.isLazy(1000)).toBe(false)
+      expect(component.isLazy(999999)).toBe(false)
+    })
+
+    it('returns false for non-numeric indices', () => {
+      // Mock useNavState to return a hash
+      vi.mocked(useNavState).mockReturnValue(createMockNavState('tag/users/get/users'))
+
+      const wrapper = mount(TraversedEntryComponent, {
+        props: {
+          entries: [createMockOperation()],
+          document: mockDocument,
+          config: mockConfig,
+          activeCollection: mockCollection,
+          activeServer: mockServer,
+          store: mockStore,
+        },
+      })
+
+      const component = wrapper.vm as any
+      expect(component.isLazy('0' as any)).toBe(false)
+      expect(component.isLazy('invalid' as any)).toBe(false)
     })
   })
 })
