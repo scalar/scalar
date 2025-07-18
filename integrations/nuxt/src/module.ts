@@ -1,4 +1,4 @@
-import { addComponent, addPlugin, createResolver, defineNuxtModule, extendPages } from '@nuxt/kit'
+import { addComponent, createResolver, defineNuxtModule, extendPages } from '@nuxt/kit'
 
 import type { Configuration } from './types'
 
@@ -54,20 +54,39 @@ export default defineNuxtModule<ModuleOptions>({
      * Last time this was fixed on the nuxt side so we removed this and it started working
      * however its back so we add this back in
      *
+     * TODO: commented out, if this works then just
+     *
      * error:
      * doesn't provide an export named: 'default'
      */
-    _nuxt.options.vite.optimizeDeps ||= {}
-    _nuxt.options.vite.optimizeDeps.include ||= []
-    _nuxt.options.vite.optimizeDeps.include.push(
-      '@scalar/nuxt > @scalar/api-reference',
-      '@scalar/nuxt > jsonpointer',
-      '@scalar/nuxt > ajv-draft-04',
-      '@scalar/nuxt > ajv-formats',
-      '@scalar/nuxt > ajv',
-      '@scalar/nuxt > asjv-draft-04 > ajv',
-      '@scalar/nuxt > asjv-formats > ajv',
-    )
+    _nuxt.options.vite ||= {}
+    // _nuxt.options.vite.optimizeDeps ||= {}
+    // _nuxt.options.vite.optimizeDeps.include ||= []
+    // _nuxt.options.vite.optimizeDeps.include.push(
+    //   '@scalar/nuxt > @scalar/api-reference',
+    //   '@scalar/nuxt > jsonpointer',
+    //   '@scalar/nuxt > ajv-draft-04',
+    //   '@scalar/nuxt > ajv-formats',
+    //   '@scalar/nuxt > ajv',
+    //   '@scalar/nuxt > ajv-draft-04 > ajv',
+    //   '@scalar/nuxt > ajv-formats > ajv',
+    //   '@scalar/nuxt > whatwg-mimetype',
+    // )
+
+    // Ensure proper handling of CommonJS modules
+    _nuxt.options.vite.ssr ||= {}
+    if (Array.isArray(_nuxt.options.vite.ssr.noExternal)) {
+      _nuxt.options.vite.ssr.noExternal.push('ajv-draft-04', 'ajv-formats', 'ajv', 'jsonpointer', 'whatwg-mimetype')
+    } else {
+      _nuxt.options.vite.ssr.noExternal = [
+        ...(Array.isArray(_nuxt.options.vite.ssr.noExternal) ? _nuxt.options.vite.ssr.noExternal : []),
+        'ajv-draft-04',
+        'ajv-formats',
+        'ajv',
+        'jsonpointer',
+        'whatwg-mimetype',
+      ]
+    }
 
     // Also check for Nitro OpenAPI auto generation
     _nuxt.hook('nitro:config', (config) => {
@@ -135,8 +154,5 @@ export default defineNuxtModule<ModuleOptions>({
         })
       })
     }
-
-    // Do not add the extension since the `.ts` will be transpiled to `.mjs` after `npm run prepack`
-    addPlugin(resolver.resolve('./runtime/plugins/hydrateClient'))
   },
 })
