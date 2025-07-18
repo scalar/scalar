@@ -1,10 +1,19 @@
 <script lang="ts" setup>
-import { ApiReferenceLayout, parse } from '@scalar/api-reference'
+import { ApiReferenceWorkspace } from '@scalar/api-reference'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
-import { useFetch, useHead, useRequestURL, useSeoMeta } from '#imports'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import {
+  useAsyncData,
+  useFetch,
+  useHead,
+  useRequestURL,
+  useRoute,
+  useSeoMeta,
+  useState,
+} from '#imports'
 import type { Configuration } from '~/src/types'
-import { onMounted, reactive, ref, toRaw, watch } from 'vue'
+import { onMounted, ref, toRaw, watch } from 'vue'
 
 const props = defineProps<{
   configuration: Configuration
@@ -23,27 +32,58 @@ const content = props.configuration.spec?.content ?? props.configuration.content
 // @ts-expect-error support the old syntax for a bit
 const url = props.configuration.spec?.url ?? props.configuration.url
 
+// Get the route to check if OpenAPI is enabled
+const currentRoute = useRoute()
+const meta = currentRoute.meta as { isOpenApiEnabled?: boolean }
+
 // Grab spec if we can
-const document =
-  typeof content === 'function'
-    ? toRaw(content())
-    : content
-      ? toRaw(content)
-      : url
-        ? (await useFetch<string>(url, { responseType: 'text' })).data.value
-        : (await useFetch<string>('/_openapi.json', { responseType: 'text' }))
-            .data.value
+const document = useState<string | null>('document', () => null)
+
+// If the document is not set, we need to fetch it
+if (!document.value) {
+  // If the content is a function, we need to call it
+  if (typeof content === 'function') {
+    document.value = content()
+  }
+  // Otherwise its a string
+  else if (content) {
+    document.value = content
+  }
+  // Fetch the url
+  else if (url) {
+    try {
+      const response = await useFetch<string>(url, { responseType: 'text' })
+      document.value = response.data.value || null
+    } catch (error) {
+      console.error('Failed to fetch spec from URL:', error)
+    }
+  }
+  // Or grab from nitro
+  else if (meta.isOpenApiEnabled) {
+    try {
+      // Use useAsyncData for proper server-to-client data flow
+      const { data } = await useAsyncData('openapi-spec', async () => {
+        const response = await $fetch<string>('/_openapi.json', {
+          responseType: 'text',
+        })
+        return response
+      })
+      document.value = data.value || null
+    } catch (error) {
+      console.error('Failed to fetch OpenAPI spec from /_openapi.json:', error)
+    }
+  }
+}
 
 // Set the fetched spec to the config content to prevent ApiReferenceLayout from fetching it again on the client side
-props.configuration.content = document
+props.configuration.content = document.value
 
 // Check for empty spec
 if (!document) {
-  throw new Error('You must provide a document for Scalar API References')
+  throw new Error(
+    'You must provide a document for Scalar API References. Either provide a spec URL/content, or enable experimental openAPI in the Nitro config.',
+  )
 }
-
-const parsedSpec = reactive(await parse(document))
-const rawSpec = JSON.stringify(document)
 
 // Load up the metadata
 if (props.configuration?.metaData) {
@@ -90,15 +130,35 @@ const config: Partial<ApiReferenceConfiguration> = {
   layout: 'modern',
   ...props.configuration,
 }
+
+const route = useRoute()
+
+// Lets create the new workspace store as well
+const store = createWorkspaceStore()
+
+// Parse the document if it's a string
+let parsedDocument: Record<string, unknown>
+if (typeof document === 'string') {
+  try {
+    parsedDocument = JSON.parse(document)
+  } catch (error) {
+    console.error('Failed to parse OpenAPI document:', error)
+    throw new Error('Invalid OpenAPI document format')
+  }
+} else {
+  parsedDocument = document as Record<string, unknown>
+}
+
+store.addDocumentSync({
+  name: route.name as string,
+  document: parsedDocument,
+})
 </script>
 
 <template>
-  <ApiReferenceLayout
-    :configuration="config"
-    :isDark="!!isDark"
-    :parsedSpec="parsedSpec"
-    :rawSpec="rawSpec"
-    @toggleDarkMode="() => toggleColorMode()" />
+  <ApiReferenceWorkspace
+    :getWorkspaceStore="() => store"
+    :configuration="config" />
 </template>
 
 <style>

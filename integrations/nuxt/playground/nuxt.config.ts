@@ -4,7 +4,7 @@ export default defineNuxtConfig({
 
   devtools: { enabled: false },
 
-  modules: ['@scalar/nuxt'],
+  modules: ['../src/module'],
 
   nitro: {
     experimental: {

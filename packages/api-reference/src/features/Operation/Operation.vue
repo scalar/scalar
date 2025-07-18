@@ -83,7 +83,7 @@ const selectedSecuritySchemes = computed(() =>
 </script>
 
 <template>
-  <template v-if="operation">
+  <template v-if="operation && oldOperation">
     <template v-if="layout === 'classic'">
       <ClassicLayout
         :id="id"

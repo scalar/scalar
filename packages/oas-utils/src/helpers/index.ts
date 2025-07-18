@@ -7,7 +7,6 @@ export { prettyPrintJson, replaceCircularDependencies } from './pretty-print-jso
 export { shouldUseProxy, redirectToProxy } from './redirect-to-proxy'
 export { schemaModel } from './schema-model'
 export { shouldIgnoreEntity } from './should-ignore-entity'
-export { defaultStateFactory, ssrState } from './ssr-state'
 export { isOperationDeprecated, getOperationStability, getOperationStabilityColor } from './operation-stability'
 
 /**
