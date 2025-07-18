@@ -173,7 +173,6 @@ const handleDiscriminatorChange = (type: string) => {
           :path="path"
           fallback
           :operation="operation"
-          :schemas="schemas"
           @update:modelValue="handleDiscriminatorChange" />
       </ScalarErrorBoundary>
     </div>
