@@ -16,7 +16,7 @@
 :where(.scalar-app) {
   /* Apply styles that are normally applied to `html`. */
   font-family: var(--scalar-font);
-  line-height: 1.15;
+  line-height: 1;
   color: var(--scalar-color-1);
 
   -webkit-text-size-adjust: 100%;
