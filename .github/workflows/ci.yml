@@ -832,10 +832,10 @@ jobs:
         working-directory: integrations/aspire/src/Scalar.Aspire
         run: dotnet pack -c Release --no-restore --output nupkgs /p:Version=$VERSION
 
-      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
-        name: Publish Scalar.Aspire NuGet package
-        working-directory: integrations/aspire/src/Scalar.Aspire
-        run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
+      # - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
+      #   name: Publish Scalar.Aspire NuGet package
+      #   working-directory: integrations/aspire/src/Scalar.Aspire
+      #   run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
 
   fastapi-build-test:
     runs-on: blacksmith-2vcpu-ubuntu-2204
