@@ -19,7 +19,7 @@ describe('Handles yaml and json parsing', () => {
   })
 
   it('transforms Yaml to JSON', () => {
-    expect(transformToJson('openapi: 3.0.0')).toMatchObject(JSON.stringify({ openapi: '3.0.0' }))
+    expect(transformToJson('openapi: 3.0.0')).toBe(JSON.stringify({ openapi: '3.0.0' }))
   })
 })
 
