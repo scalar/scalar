@@ -68,7 +68,7 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
   margin: 0 0.5px 8px;
   position: relative;
   width: fit-content;
-  z-index: 0;
+  z-index: 1;
 }
 
 .download-container:has(:focus-visible)::before,
