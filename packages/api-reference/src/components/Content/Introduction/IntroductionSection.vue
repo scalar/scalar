@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
-import { computed, inject, type Ref } from 'vue'
+import { computed, inject, onMounted, type Ref } from 'vue'
 
 import { Badge } from '@/components/Badge'
+import { LinkList } from '@/components/LinkList'
 import {
   Section,
   SectionColumn,
@@ -13,8 +14,9 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
-import { OPENAPI_VERSION_SYMBOL } from '@/features/download-link'
-import DownloadLink from '@/features/download-link/DownloadLink.vue'
+import { DownloadLink, OPENAPI_VERSION_SYMBOL } from '@/features/download-link'
+import { ExternalDocs } from '@/features/external-docs'
+import { Contact, License, TermsOfService } from '@/features/info-object'
 import { SpecificationExtension } from '@/features/specification-extension'
 import { DEFAULT_INTRODUCTION_SLUG } from '@/features/traverse-schema'
 import { useNavState } from '@/hooks/useNavState'
@@ -45,6 +47,9 @@ const version = computed(() => {
       ? `v${document.info.version}`
       : undefined
 })
+
+/** Trigger the onLoaded event when the component is mounted */
+onMounted(() => config?.onLoaded?.())
 </script>
 <template>
   <SectionContainer>
@@ -63,7 +68,7 @@ const version = computed(() => {
           config?.isLoading ??
           (!document?.info?.description && !document?.info?.title)
         ">
-        <div class="flex gap-1">
+        <div class="flex gap-1.5">
           <Badge v-if="version">{{ version }}</Badge>
           <Badge v-if="oasVersion">OAS {{ oasVersion }}</Badge>
         </div>
@@ -73,10 +78,26 @@ const version = computed(() => {
           <SectionHeaderTag :level="1">
             {{ document.info?.title }}
           </SectionHeaderTag>
+          <template #links>
+            <LinkList>
+              <ExternalDocs :value="document.externalDocs" />
+              <Contact
+                v-if="document.info?.contact"
+                :value="document.info?.contact" />
+              <License
+                v-if="document.info?.license"
+                :value="document.info?.license" />
+              <TermsOfService
+                v-if="document.info?.termsOfService"
+                :value="document.info?.termsOfService" />
+            </LinkList>
+          </template>
         </SectionHeader>
         <SectionColumns>
           <SectionColumn>
-            <DownloadLink :title="document.info?.title" />
+            <div class="links">
+              <DownloadLink :title="document.info?.title" />
+            </div>
             <Description :value="document.info?.description" />
           </SectionColumn>
           <SectionColumn v-if="$slots.aside">
