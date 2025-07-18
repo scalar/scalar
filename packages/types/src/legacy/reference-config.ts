@@ -225,13 +225,6 @@ export type ScalarState = {
   }[]
 }
 
-export type SSRState = {
-  payload: {
-    data: ScalarState
-  }
-  url: string
-}
-
 export type Tag = {
   'name': string
   'description': string
