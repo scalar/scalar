@@ -1804,7 +1804,159 @@
         "summary": "Retrieve the latest data for all pools, including enriched information such as predictions",
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "Array of all yield farming pools with their data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "chain": {
+                            "type": "string",
+                            "example": "Ethereum"
+                          },
+                          "project": {
+                            "type": "string",
+                            "example": "lido"
+                          },
+                          "symbol": {
+                            "type": "string",
+                            "example": "STETH"
+                          },
+                          "tvlUsd": {
+                            "type": "number",
+                            "example": 32493036117
+                          },
+                          "apyBase": {
+                            "type": "number",
+                            "example": 2.84
+                          },
+                          "apyReward": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "apy": {
+                            "type": "number",
+                            "example": 2.84
+                          },
+                          "rewardTokens": {
+                            "type": ["array", "null"],
+                            "items": {
+                              "type": "string"
+                            },
+                            "example": null
+                          },
+                          "pool": {
+                            "type": "string",
+                            "example": "747c1d2a-c668-4682-b9f9-296708a3dd90"
+                          },
+                          "apyPct1D": {
+                            "type": "number",
+                            "example": -0.04
+                          },
+                          "apyPct7D": {
+                            "type": "number",
+                            "example": -0.056
+                          },
+                          "apyPct30D": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "stablecoin": {
+                            "type": "boolean",
+                            "example": false
+                          },
+                          "ilRisk": {
+                            "type": "string",
+                            "example": "no"
+                          },
+                          "exposure": {
+                            "type": "string",
+                            "example": "single"
+                          },
+                          "predictions": {
+                            "type": "object",
+                            "properties": {
+                              "predictedClass": {
+                                "type": "string",
+                                "example": "Stable/Up"
+                              },
+                              "predictedProbability": {
+                                "type": "number",
+                                "example": 74
+                              },
+                              "binnedConfidence": {
+                                "type": "number",
+                                "example": 2
+                              }
+                            }
+                          },
+                          "poolMeta": {
+                            "type": ["string", "null"],
+                            "example": null
+                          },
+                          "mu": {
+                            "type": "number",
+                            "example": 3.7747
+                          },
+                          "sigma": {
+                            "type": "number",
+                            "example": 0.05236
+                          },
+                          "count": {
+                            "type": "number",
+                            "example": 1141
+                          },
+                          "outlier": {
+                            "type": "boolean",
+                            "example": false
+                          },
+                          "underlyingTokens": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "example": ["0x0000000000000000000000000000000000000000"]
+                          },
+                          "il7d": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "apyBase7d": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "apyMean30d": {
+                            "type": "number",
+                            "example": 2.73539
+                          },
+                          "volumeUsd1d": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "volumeUsd7d": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "apyBaseInception": {
+                            "type": ["number", "null"],
+                            "example": null
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1815,7 +1967,191 @@
         "summary": "Same as /pools but it also includes a new parameter `pool_old` which usually contains pool address (but not guaranteed)",
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "pool": {
+                            "type": "string",
+                            "example": "747c1d2a-c668-4682-b9f9-296708a3dd90"
+                          },
+                          "timestamp": {
+                            "type": "string",
+                            "example": "2025-07-18T16:01:37.482Z"
+                          },
+                          "project": {
+                            "type": "string",
+                            "example": "lido"
+                          },
+                          "chain": {
+                            "type": "string",
+                            "example": "Ethereum"
+                          },
+                          "symbol": {
+                            "type": "string",
+                            "example": "STETH"
+                          },
+                          "poolMeta": {
+                            "type": ["string", "null"],
+                            "example": null
+                          },
+                          "underlyingTokens": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "example": ["0x0000000000000000000000000000000000000000"]
+                          },
+                          "rewardTokens": {
+                            "type": ["array", "null"],
+                            "items": {
+                              "type": "string"
+                            },
+                            "example": null
+                          },
+                          "tvlUsd": {
+                            "type": "number",
+                            "example": 32414496934
+                          },
+                          "apy": {
+                            "type": "number",
+                            "example": 2.84
+                          },
+                          "apyBase": {
+                            "type": "number",
+                            "example": 2.84
+                          },
+                          "apyReward": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "il7d": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "apyBase7d": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "volumeUsd1d": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "volumeUsd7d": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "apyBaseInception": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "url": {
+                            "type": "string",
+                            "example": "https://lido.fi/#networks"
+                          },
+                          "apyPct1D": {
+                            "type": "number",
+                            "example": -0.04
+                          },
+                          "apyPct7D": {
+                            "type": "number",
+                            "example": -0.056
+                          },
+                          "apyPct30D": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "apyMean30d": {
+                            "type": "number",
+                            "example": 2.73524
+                          },
+                          "stablecoin": {
+                            "type": "boolean",
+                            "example": false
+                          },
+                          "ilRisk": {
+                            "type": "string",
+                            "example": "no"
+                          },
+                          "exposure": {
+                            "type": "string",
+                            "example": "single"
+                          },
+                          "return": {
+                            "type": "number",
+                            "example": 0.00008
+                          },
+                          "count": {
+                            "type": "number",
+                            "example": 1141
+                          },
+                          "apyMeanExpanding": {
+                            "type": "number",
+                            "example": 3.77993
+                          },
+                          "apyStdExpanding": {
+                            "type": "number",
+                            "example": 1.04969
+                          },
+                          "mu": {
+                            "type": "number",
+                            "example": 3.7747
+                          },
+                          "sigma": {
+                            "type": "number",
+                            "example": 0.05236
+                          },
+                          "outlier": {
+                            "type": "boolean",
+                            "example": false
+                          },
+                          "project_factorized": {
+                            "type": "number",
+                            "example": -1
+                          },
+                          "chain_factorized": {
+                            "type": "number",
+                            "example": 0
+                          },
+                          "predictions": {
+                            "type": "object",
+                            "properties": {
+                              "predictedClass": {
+                                "type": "string",
+                                "example": "Stable/Up"
+                              },
+                              "predictedProbability": {
+                                "type": "number",
+                                "example": 74
+                              },
+                              "binnedConfidence": {
+                                "type": "number",
+                                "example": 2
+                              }
+                            }
+                          },
+                          "pool_old": {
+                            "type": "string",
+                            "example": "0xae7ab96520de3a18e5e111b5eaab095312d7fe84-ethereum"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "x-pro-only": true
@@ -1839,7 +2175,56 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "timestamp": {
+                            "type": "string",
+                            "example": "2022-05-03T00:00:00.000Z"
+                          },
+                          "tvlUsd": {
+                            "type": "number",
+                            "example": 11074372760
+                          },
+                          "apy": {
+                            "type": "number",
+                            "example": 3.6
+                          },
+                          "apyBase": {
+                            "type": "number",
+                            "example": 3.6
+                          },
+                          "apyReward": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "il7d": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "apyBase7d": {
+                            "type": ["number", "null"],
+                            "example": null
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1850,7 +2235,191 @@
         "summary": "Borrow costs APY of assets from lending markets",
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "chain": {
+                            "type": "string",
+                            "example": "Ethereum"
+                          },
+                          "project": {
+                            "type": "string",
+                            "example": "aave-v3"
+                          },
+                          "symbol": {
+                            "type": "string",
+                            "example": "WETH"
+                          },
+                          "tvlUsd": {
+                            "type": "number",
+                            "example": 604781668
+                          },
+                          "apyBase": {
+                            "type": "number",
+                            "example": 3.98975
+                          },
+                          "apyReward": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "apy": {
+                            "type": "number",
+                            "example": 3.98975
+                          },
+                          "rewardTokens": {
+                            "type": ["array", "null"],
+                            "items": {
+                              "type": "string"
+                            },
+                            "example": null
+                          },
+                          "pool": {
+                            "type": "string",
+                            "example": "e880e828-ca59-4ec6-8d4f-27182a4dc23d"
+                          },
+                          "apyPct1D": {
+                            "type": "number",
+                            "example": 0.54117
+                          },
+                          "apyPct7D": {
+                            "type": "number",
+                            "example": 1.93811
+                          },
+                          "apyPct30D": {
+                            "type": "number",
+                            "example": 2.08545
+                          },
+                          "stablecoin": {
+                            "type": "boolean",
+                            "example": false
+                          },
+                          "ilRisk": {
+                            "type": "string",
+                            "example": "no"
+                          },
+                          "exposure": {
+                            "type": "string",
+                            "example": "single"
+                          },
+                          "predictions": {
+                            "type": "object",
+                            "properties": {
+                              "predictedClass": {
+                                "type": "string",
+                                "example": "Stable/Up"
+                              },
+                              "predictedProbability": {
+                                "type": "number",
+                                "example": 72
+                              },
+                              "binnedConfidence": {
+                                "type": "number",
+                                "example": 2
+                              }
+                            }
+                          },
+                          "poolMeta": {
+                            "type": ["string", "null"],
+                            "example": null
+                          },
+                          "sigma": {
+                            "type": "number",
+                            "example": 0.02094
+                          },
+                          "count": {
+                            "type": "number",
+                            "example": 891
+                          },
+                          "outlier": {
+                            "type": "boolean",
+                            "example": false
+                          },
+                          "underlyingTokens": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "example": ["0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"]
+                          },
+                          "il7d": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "apyBase7d": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "apyMean30d": {
+                            "type": "number",
+                            "example": 2.15424
+                          },
+                          "volumeUsd1d": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "volumeUsd7d": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "apyBaseInception": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "apyBaseBorrow": {
+                            "type": "number",
+                            "example": 5.0324
+                          },
+                          "apyRewardBorrow": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "totalSupplyUsd": {
+                            "type": "number",
+                            "example": 8988967658
+                          },
+                          "totalBorrowUsd": {
+                            "type": "number",
+                            "example": 8384185990
+                          },
+                          "debtCeilingUsd": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "ltv": {
+                            "type": "number",
+                            "example": 0.805
+                          },
+                          "borrowable": {
+                            "type": "boolean",
+                            "example": true
+                          },
+                          "mintedCoin": {
+                            "type": ["string", "null"],
+                            "example": null
+                          },
+                          "borrowFactor": {
+                            "type": ["number", "null"],
+                            "example": null
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "x-pro-only": true
@@ -1868,13 +2437,66 @@
             "description": "pool id, can be retrieved from /poolsBorrow (property is called pool)",
             "schema": {
               "type": "string",
-              "example": "71418c17-d2aa-4eff-b68a-806fff9ec951"
+              "example": "e880e828-ca59-4ec6-8d4f-27182a4dc23d"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "timestamp": {
+                            "type": "string",
+                            "example": "2023-02-06T23:01:24.670Z"
+                          },
+                          "totalSupplyUsd": {
+                            "type": ["number", "null"],
+                            "example": 60767153
+                          },
+                          "totalBorrowUsd": {
+                            "type": ["number", "null"],
+                            "example": 33150230
+                          },
+                          "debtCeilingUsd": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "apyBase": {
+                            "type": ["number", "null"],
+                            "example": 1.66533
+                          },
+                          "apyReward": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "apyBaseBorrow": {
+                            "type": ["number", "null"],
+                            "example": 3.59132
+                          },
+                          "apyRewardBorrow": {
+                            "type": ["number", "null"],
+                            "example": null
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "x-pro-only": true
@@ -1886,7 +2508,84 @@
         "summary": "Funding rates and Open Interest of perps across exchanges, including both Decentralized and Centralized",
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "perp_id": {
+                            "type": "string",
+                            "example": "61533906-1626-45fc-b3ed-9a1103705373"
+                          },
+                          "timestamp": {
+                            "type": "string",
+                            "example": "2025-07-18T18:01:44.811Z"
+                          },
+                          "marketplace": {
+                            "type": "string",
+                            "example": "Binance"
+                          },
+                          "market": {
+                            "type": "string",
+                            "example": "1000000BOBUSDT"
+                          },
+                          "baseAsset": {
+                            "type": "string",
+                            "example": "1000000BOT"
+                          },
+                          "fundingRate": {
+                            "type": "number",
+                            "example": 0.00005
+                          },
+                          "fundingRatePrevious": {
+                            "type": "number",
+                            "example": 0.00045224
+                          },
+                          "fundingTimePrevious": {
+                            "type": "number",
+                            "example": 1752854400000
+                          },
+                          "openInterest": {
+                            "type": "number",
+                            "example": 51144394
+                          },
+                          "indexPrice": {
+                            "type": "number",
+                            "example": 0.05108
+                          },
+                          "fundingRate7dAverage": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "fundingRate7dSum": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "fundingRate30dAverage": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "fundingRate30dSum": {
+                            "type": ["number", "null"],
+                            "example": null
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "x-pro-only": true
@@ -1898,7 +2597,63 @@
         "summary": "APY rates of multiple LSDs",
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "description": "The name of the LSD token"
+                      },
+                      "symbol": {
+                        "type": "string",
+                        "description": "The symbol of the LSD token"
+                      },
+                      "address": {
+                        "type": "string",
+                        "description": "The contract address of the LSD token"
+                      },
+                      "type": {
+                        "type": "string",
+                        "description": "The type of the LSD token (e.g., accruing)"
+                      },
+                      "expectedRate": {
+                        "type": "number",
+                        "description": "The expected rate of the LSD token"
+                      },
+                      "marketRate": {
+                        "type": "number",
+                        "description": "The current market rate of the LSD token"
+                      },
+                      "ethPeg": {
+                        "type": "number",
+                        "description": "The ETH peg value"
+                      },
+                      "fee": {
+                        "type": "number",
+                        "description": "The fee percentage"
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "name": "Dinero (pxETH)",
+                    "symbol": "APXETH",
+                    "address": "0x04c154b66cb340f3ae24111cc767e0184ed00cc6",
+                    "type": "accruing",
+                    "expectedRate": 1,
+                    "marketRate": 0.9976125452932897,
+                    "ethPeg": -0.23874547067103125,
+                    "fee": 0.1
+                  }
+                ]
+              }
+            }
           }
         },
         "x-pro-only": true
@@ -1910,7 +2665,104 @@
         "summary": "Get BTC ETFs and their metrics (aum, price, fees...)",
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "timestamp": {
+                        "type": "integer",
+                        "description": "Current timestamp"
+                      },
+                      "timestamp_as_of": {
+                        "type": "integer",
+                        "description": "Timestamp as of date"
+                      },
+                      "ticker": {
+                        "type": "string",
+                        "description": "ETF ticker symbol"
+                      },
+                      "issuer": {
+                        "type": "string",
+                        "description": "ETF issuer name"
+                      },
+                      "etf_name": {
+                        "type": "string",
+                        "description": "Full ETF name"
+                      },
+                      "etf_type": {
+                        "type": "string",
+                        "description": "Type of ETF (e.g., spot)"
+                      },
+                      "custodian": {
+                        "type": "string",
+                        "description": "Custodian name"
+                      },
+                      "pct_fee": {
+                        "type": "number",
+                        "description": "Percentage fee"
+                      },
+                      "url": {
+                        "type": "string",
+                        "description": "ETF URL"
+                      },
+                      "price": {
+                        "type": "number",
+                        "description": "Current price"
+                      },
+                      "volume": {
+                        "type": "number",
+                        "description": "Trading volume"
+                      },
+                      "shares": {
+                        "type": "integer",
+                        "description": "Number of shares"
+                      },
+                      "underlying": {
+                        "type": "number",
+                        "nullable": true,
+                        "description": "Underlying asset amount"
+                      },
+                      "underlying_price": {
+                        "type": "number",
+                        "description": "Underlying asset price"
+                      },
+                      "aum": {
+                        "type": "number",
+                        "description": "Assets under management"
+                      },
+                      "flows": {
+                        "type": "number",
+                        "description": "Net flows"
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "timestamp": 1732278611,
+                    "timestamp_as_of": 1732147200,
+                    "ticker": "IBIT",
+                    "issuer": "Blackrock",
+                    "etf_name": "iShares Bitcoin Trust",
+                    "etf_type": "spot",
+                    "custodian": "Coinbase",
+                    "pct_fee": 0.25,
+                    "url": "https://www.blackrock.com/us/individual/products/333011/ishares-bitcoin-trust",
+                    "price": 55.9,
+                    "volume": 5105037034.5,
+                    "shares": 846080000,
+                    "underlying": null,
+                    "underlying_price": 98855,
+                    "aum": 47313346647,
+                    "flows": 645378400
+                  }
+                ]
+              }
+            }
           }
         },
         "x-pro-only": true
@@ -1922,7 +2774,104 @@
         "summary": "Get ETH ETFs",
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "timestamp": {
+                        "type": "integer",
+                        "description": "Current timestamp"
+                      },
+                      "timestamp_as_of": {
+                        "type": "integer",
+                        "description": "Timestamp as of date"
+                      },
+                      "ticker": {
+                        "type": "string",
+                        "description": "ETF ticker symbol"
+                      },
+                      "issuer": {
+                        "type": "string",
+                        "description": "ETF issuer name"
+                      },
+                      "etf_name": {
+                        "type": "string",
+                        "description": "Full ETF name"
+                      },
+                      "etf_type": {
+                        "type": "string",
+                        "description": "Type of ETF (e.g., spot)"
+                      },
+                      "custodian": {
+                        "type": "string",
+                        "description": "Custodian name"
+                      },
+                      "pct_fee": {
+                        "type": "number",
+                        "description": "Percentage fee"
+                      },
+                      "url": {
+                        "type": "string",
+                        "description": "ETF URL"
+                      },
+                      "price": {
+                        "type": "number",
+                        "description": "Current price"
+                      },
+                      "volume": {
+                        "type": "number",
+                        "description": "Trading volume"
+                      },
+                      "shares": {
+                        "type": "integer",
+                        "description": "Number of shares"
+                      },
+                      "underlying": {
+                        "type": "number",
+                        "nullable": true,
+                        "description": "Underlying asset amount"
+                      },
+                      "underlying_price": {
+                        "type": "number",
+                        "description": "Underlying asset price"
+                      },
+                      "aum": {
+                        "type": "number",
+                        "description": "Assets under management"
+                      },
+                      "flows": {
+                        "type": "number",
+                        "description": "Net flows"
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "timestamp": 1732278617,
+                    "timestamp_as_of": 1732147200,
+                    "ticker": "ETHE",
+                    "issuer": "Grayscale",
+                    "etf_name": "Grayscale Ethereum Trust",
+                    "etf_type": "spot",
+                    "custodian": "Coinbase",
+                    "pct_fee": 2.5,
+                    "url": "https://etfs.grayscale.com/ethe",
+                    "price": 28.18,
+                    "volume": 182128523.56,
+                    "shares": 180448500,
+                    "underlying": 1517091.9224,
+                    "underlying_price": 3352.05,
+                    "aum": 5089266904.78,
+                    "flows": 0
+                  }
+                ]
+              }
+            }
           }
         },
         "x-pro-only": true
@@ -1934,7 +2883,75 @@
         "summary": "Historical AUM of all BTC ETFs",
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "timestamp": {
+                        "type": "integer",
+                        "description": "Timestamp"
+                      },
+                      "timestamp_exact": {
+                        "type": "integer",
+                        "description": "Exact timestamp"
+                      },
+                      "ticker": {
+                        "type": "string",
+                        "description": "ETF ticker symbol"
+                      },
+                      "price": {
+                        "type": "number",
+                        "description": "Price at timestamp"
+                      },
+                      "volume": {
+                        "type": "number",
+                        "description": "Volume at timestamp"
+                      },
+                      "aum": {
+                        "type": "number",
+                        "description": "Assets under management at timestamp"
+                      },
+                      "underlying": {
+                        "type": "number",
+                        "nullable": true,
+                        "description": "Underlying asset amount"
+                      },
+                      "shares": {
+                        "type": "number",
+                        "description": "Number of shares"
+                      },
+                      "underlying_price": {
+                        "type": "number",
+                        "description": "Underlying asset price"
+                      },
+                      "flows": {
+                        "type": "number",
+                        "nullable": true,
+                        "description": "Net flows"
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "timestamp": 1704931200,
+                    "timestamp_exact": 1705017598,
+                    "ticker": "ARKB",
+                    "price": 46.76,
+                    "volume": 279749462.16,
+                    "aum": 46855730.4,
+                    "underlying": null,
+                    "shares": 1002047.271171942,
+                    "underlying_price": 46396,
+                    "flows": null
+                  }
+                ]
+              }
+            }
           }
         },
         "x-pro-only": true
@@ -1946,7 +2963,75 @@
         "summary": "Historical AUM of all BTC ETFs",
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "timestamp": {
+                        "type": "integer",
+                        "description": "Timestamp"
+                      },
+                      "timestamp_exact": {
+                        "type": "integer",
+                        "description": "Exact timestamp"
+                      },
+                      "ticker": {
+                        "type": "string",
+                        "description": "ETF ticker symbol"
+                      },
+                      "price": {
+                        "type": "number",
+                        "description": "Price at timestamp"
+                      },
+                      "volume": {
+                        "type": "number",
+                        "description": "Volume at timestamp"
+                      },
+                      "aum": {
+                        "type": "number",
+                        "description": "Assets under management at timestamp"
+                      },
+                      "underlying": {
+                        "type": "number",
+                        "nullable": true,
+                        "description": "Underlying asset amount"
+                      },
+                      "shares": {
+                        "type": "number",
+                        "description": "Number of shares"
+                      },
+                      "underlying_price": {
+                        "type": "number",
+                        "description": "Underlying asset price"
+                      },
+                      "flows": {
+                        "type": "number",
+                        "nullable": true,
+                        "description": "Net flows"
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "timestamp": 1721779200,
+                    "timestamp_exact": 1721865445,
+                    "ticker": "ETHA",
+                    "price": 25.5,
+                    "volume": 255655477.5,
+                    "aum": 269883322,
+                    "underlying": null,
+                    "shares": 10520000,
+                    "underlying_price": 3336.28,
+                    "flows": 16326800
+                  }
+                ]
+              }
+            }
           }
         },
         "x-pro-only": true
@@ -1970,7 +3055,138 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "date": {
+                        "type": "integer",
+                        "description": "Date timestamp"
+                      },
+                      "Analytics": {
+                        "type": "number",
+                        "description": "Analytics category performance"
+                      },
+                      "Artificial Intelligence (AI)": {
+                        "type": "number",
+                        "description": "AI category performance"
+                      },
+                      "Bitcoin": {
+                        "type": "number",
+                        "description": "Bitcoin category performance"
+                      },
+                      "Bridge Governance Tokens": {
+                        "type": "number",
+                        "description": "Bridge governance tokens category performance"
+                      },
+                      "Centralized Exchange (CEX) Token": {
+                        "type": "number",
+                        "description": "CEX token category performance"
+                      },
+                      "Data Availability": {
+                        "type": "number",
+                        "description": "Data availability category performance"
+                      },
+                      "Decentralized Finance (DeFi)": {
+                        "type": "number",
+                        "description": "DeFi category performance"
+                      },
+                      "Decentralized Identifier (DID)": {
+                        "type": "number",
+                        "description": "DID category performance"
+                      },
+                      "DePIN": {
+                        "type": "number",
+                        "description": "DePIN category performance"
+                      },
+                      "Ethereum": {
+                        "type": "number",
+                        "description": "Ethereum category performance"
+                      },
+                      "Gaming (GameFi)": {
+                        "type": "number",
+                        "description": "Gaming category performance"
+                      },
+                      "Liquid Staking Governance Tokens": {
+                        "type": "number",
+                        "description": "Liquid staking governance tokens category performance"
+                      },
+                      "Meme": {
+                        "type": "number",
+                        "description": "Meme category performance"
+                      },
+                      "NFT Marketplace": {
+                        "type": "number",
+                        "description": "NFT marketplace category performance"
+                      },
+                      "Oracle": {
+                        "type": "number",
+                        "description": "Oracle category performance"
+                      },
+                      "PolitiFi": {
+                        "type": "number",
+                        "description": "PolitiFi category performance"
+                      },
+                      "Prediction Markets": {
+                        "type": "number",
+                        "description": "Prediction markets category performance"
+                      },
+                      "Real World Assets (RWA)": {
+                        "type": "number",
+                        "description": "RWA category performance"
+                      },
+                      "Rollup": {
+                        "type": "number",
+                        "description": "Rollup category performance"
+                      },
+                      "Smart Contract Platform": {
+                        "type": "number",
+                        "description": "Smart contract platform category performance"
+                      },
+                      "SocialFi": {
+                        "type": "number",
+                        "description": "SocialFi category performance"
+                      },
+                      "Solana": {
+                        "type": "number",
+                        "description": "Solana category performance"
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "date": 1751846400,
+                    "Analytics": 0,
+                    "Artificial Intelligence (AI)": 0,
+                    "Bitcoin": 0,
+                    "Bridge Governance Tokens": 0,
+                    "Centralized Exchange (CEX) Token": 0,
+                    "Data Availability": 0,
+                    "Decentralized Finance (DeFi)": 0,
+                    "Decentralized Identifier (DID)": 0,
+                    "DePIN": 0,
+                    "Ethereum": 0,
+                    "Gaming (GameFi)": 0,
+                    "Liquid Staking Governance Tokens": 0,
+                    "Meme": 0,
+                    "NFT Marketplace": 0,
+                    "Oracle": 0,
+                    "PolitiFi": 0,
+                    "Prediction Markets": 0,
+                    "Real World Assets (RWA)": 0,
+                    "Rollup": 0,
+                    "Smart Contract Platform": 0,
+                    "SocialFi": 0,
+                    "Solana": 0
+                  }
+                ]
+              }
+            }
           }
         },
         "x-pro-only": true
@@ -2002,7 +3218,366 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "totalDataChart": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": [
+                          {
+                            "type": "integer",
+                            "description": "Timestamp"
+                          },
+                          {
+                            "type": "number",
+                            "description": "Volume value"
+                          }
+                        ]
+                      },
+                      "description": "Total data chart with timestamps and volumes"
+                    },
+                    "totalDataChartBreakdown": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": [
+                          {
+                            "type": "integer",
+                            "description": "Timestamp"
+                          },
+                          {
+                            "type": "object",
+                            "description": "Protocol breakdown"
+                          }
+                        ]
+                      },
+                      "description": "Total data chart breakdown by protocol"
+                    },
+                    "breakdown24h": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "24 hour breakdown"
+                    },
+                    "breakdown30d": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "30 day breakdown"
+                    },
+                    "chain": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Chain filter"
+                    },
+                    "allChains": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "All available chains"
+                    },
+                    "total24h": {
+                      "type": "number",
+                      "description": "Total 24 hour volume"
+                    },
+                    "total48hto24h": {
+                      "type": "number",
+                      "description": "Total 48h to 24h volume"
+                    },
+                    "total7d": {
+                      "type": "number",
+                      "description": "Total 7 day volume"
+                    },
+                    "total14dto7d": {
+                      "type": "number",
+                      "description": "Total 14d to 7d volume"
+                    },
+                    "total60dto30d": {
+                      "type": "number",
+                      "description": "Total 60d to 30d volume"
+                    },
+                    "total30d": {
+                      "type": "number",
+                      "description": "Total 30 day volume"
+                    },
+                    "total1y": {
+                      "type": "number",
+                      "description": "Total 1 year volume"
+                    },
+                    "change_1d": {
+                      "type": "number",
+                      "description": "1 day change percentage"
+                    },
+                    "change_7d": {
+                      "type": "number",
+                      "description": "7 day change percentage"
+                    },
+                    "change_1m": {
+                      "type": "number",
+                      "description": "1 month change percentage"
+                    },
+                    "change_7dover7d": {
+                      "type": "number",
+                      "description": "7d over 7d change percentage"
+                    },
+                    "change_30dover30d": {
+                      "type": "number",
+                      "description": "30d over 30d change percentage"
+                    },
+                    "total7DaysAgo": {
+                      "type": "number",
+                      "description": "Total volume 7 days ago"
+                    },
+                    "total30DaysAgo": {
+                      "type": "number",
+                      "description": "Total volume 30 days ago"
+                    },
+                    "totalAllTime": {
+                      "type": "number",
+                      "description": "Total all time volume"
+                    },
+                    "protocols": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "total24h": {
+                            "type": "number",
+                            "description": "Protocol 24 hour volume"
+                          },
+                          "total48hto24h": {
+                            "type": "number",
+                            "description": "Protocol 48h to 24h volume"
+                          },
+                          "total7d": {
+                            "type": "number",
+                            "description": "Protocol 7 day volume"
+                          },
+                          "total14dto7d": {
+                            "type": "number",
+                            "description": "Protocol 14d to 7d volume"
+                          },
+                          "total60dto30d": {
+                            "type": "number",
+                            "description": "Protocol 60d to 30d volume"
+                          },
+                          "total30d": {
+                            "type": "number",
+                            "description": "Protocol 30 day volume"
+                          },
+                          "total1y": {
+                            "type": "number",
+                            "description": "Protocol 1 year volume"
+                          },
+                          "totalAllTime": {
+                            "type": "number",
+                            "description": "Protocol all time volume"
+                          },
+                          "average1y": {
+                            "type": "number",
+                            "description": "Protocol average 1 year volume"
+                          },
+                          "change_1d": {
+                            "type": "number",
+                            "description": "Protocol 1 day change percentage"
+                          },
+                          "change_7d": {
+                            "type": "number",
+                            "description": "Protocol 7 day change percentage"
+                          },
+                          "change_1m": {
+                            "type": "number",
+                            "description": "Protocol 1 month change percentage"
+                          },
+                          "change_7dover7d": {
+                            "type": "number",
+                            "description": "Protocol 7d over 7d change percentage"
+                          },
+                          "change_30dover30d": {
+                            "type": "number",
+                            "description": "Protocol 30d over 30d change percentage"
+                          },
+                          "breakdown24h": {
+                            "type": "object",
+                            "description": "Protocol 24 hour breakdown"
+                          },
+                          "breakdown30d": {
+                            "type": "object",
+                            "description": "Protocol 30 day breakdown"
+                          },
+                          "total7DaysAgo": {
+                            "type": "number",
+                            "description": "Protocol volume 7 days ago"
+                          },
+                          "total30DaysAgo": {
+                            "type": "number",
+                            "description": "Protocol volume 30 days ago"
+                          },
+                          "defillamaId": {
+                            "type": "string",
+                            "description": "DefiLlama protocol ID"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Protocol name"
+                          },
+                          "displayName": {
+                            "type": "string",
+                            "description": "Protocol display name"
+                          },
+                          "module": {
+                            "type": "string",
+                            "description": "Protocol module"
+                          },
+                          "category": {
+                            "type": "string",
+                            "description": "Protocol category"
+                          },
+                          "logo": {
+                            "type": "string",
+                            "description": "Protocol logo URL"
+                          },
+                          "chains": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "description": "Protocol chains"
+                          },
+                          "protocolType": {
+                            "type": "string",
+                            "description": "Protocol type"
+                          },
+                          "methodologyURL": {
+                            "type": "string",
+                            "description": "Methodology URL"
+                          },
+                          "methodology": {
+                            "type": "object",
+                            "description": "Methodology details"
+                          },
+                          "latestFetchIsOk": {
+                            "type": "boolean",
+                            "description": "Latest fetch status"
+                          },
+                          "parentProtocol": {
+                            "type": "string",
+                            "description": "Parent protocol"
+                          },
+                          "slug": {
+                            "type": "string",
+                            "description": "Protocol slug"
+                          },
+                          "linkedProtocols": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "description": "Linked protocols"
+                          },
+                          "id": {
+                            "type": "string",
+                            "description": "Protocol ID"
+                          }
+                        }
+                      },
+                      "description": "List of protocols"
+                    }
+                  }
+                },
+                "example": {
+                  "totalDataChart": [[1614211200, 24949], [1614297600, 103833], [1614384000, 49317]],
+                  "totalDataChartBreakdown": [
+                    [
+                      1614211200,
+                      {
+                        "dYdX V3": 24949
+                      }
+                    ],
+                    [
+                      1614297600,
+                      {
+                        "dYdX V3": 103833
+                      }
+                    ]
+                  ],
+                  "breakdown24h": null,
+                  "breakdown30d": null,
+                  "chain": null,
+                  "allChains": ["Hyperliquid L1", "Solana", "Ethereum", "Arbitrum"],
+                  "total24h": 23537303133,
+                  "total48hto24h": 20741840211,
+                  "total7d": 125290755214,
+                  "total14dto7d": 71055642206,
+                  "total60dto30d": 397917690387,
+                  "total30d": 383278222548,
+                  "total1y": 3515064792266,
+                  "change_1d": 13.48,
+                  "change_7d": 40.49,
+                  "change_1m": 35.06,
+                  "change_7dover7d": 76.33,
+                  "change_30dover30d": -3.68,
+                  "total7DaysAgo": 16753244737,
+                  "total30DaysAgo": 17427351125,
+                  "totalAllTime": 6567303144819,
+                  "protocols": [
+                    {
+                      "total24h": 8479946,
+                      "total48hto24h": 3440780,
+                      "total7d": 78424631,
+                      "total14dto7d": 60033358,
+                      "total60dto30d": 92505218,
+                      "total30d": 166435382,
+                      "total1y": 9698297388,
+                      "totalAllTime": 55654843707,
+                      "average1y": 26865089.717451524,
+                      "change_1d": 146.45,
+                      "change_7d": -55.7,
+                      "change_1m": 1226.98,
+                      "change_7dover7d": 30.64,
+                      "change_30dover30d": 79.92,
+                      "breakdown24h": {
+                        "optimism": {
+                          "Synthetix v1+v2": 3547540
+                        }
+                      },
+                      "breakdown30d": {
+                        "optimism": {
+                          "Synthetix v1+v2": 166435382
+                        }
+                      },
+                      "total7DaysAgo": 19143749,
+                      "total30DaysAgo": 639043,
+                      "defillamaId": "115",
+                      "name": "Synthetix v1+v2",
+                      "displayName": "Synthetix v1+v2",
+                      "module": "synthetix",
+                      "category": "Synthetics",
+                      "logo": "https://icons.llamao.fi/icons/protocols/synthetix.png",
+                      "chains": ["OP Mainnet"],
+                      "protocolType": "protocol",
+                      "methodologyURL": "https://github.com/DefiLlama/dimension-adapters/blob/master/dexs/synthetix",
+                      "methodology": {
+                        "UserFees": "Fees paid by users",
+                        "Fees": "Fees paid by users",
+                        "Revenue": "Fees paid by users",
+                        "ProtocolRevenue": "Percentage of fees going to treasury",
+                        "SupplySideRevenue": "LPs revenue"
+                      },
+                      "latestFetchIsOk": true,
+                      "parentProtocol": "parent#synthetix",
+                      "slug": "synthetix-v1+v2",
+                      "linkedProtocols": ["Synthetix", "Synthetix v1+v2", "Synthetix V3"],
+                      "id": "115"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-pro-only": true
@@ -2044,157 +3619,289 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Protocol ID"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Protocol name"
+                    },
+                    "url": {
+                      "type": "string",
+                      "description": "Protocol URL"
+                    },
+                    "referralUrl": {
+                      "type": "string",
+                      "description": "Referral URL"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "Protocol description"
+                    },
+                    "logo": {
+                      "type": "string",
+                      "description": "Protocol logo URL"
+                    },
+                    "gecko_id": {
+                      "type": "string",
+                      "description": "CoinGecko ID"
+                    },
+                    "cmcId": {
+                      "type": "string",
+                      "description": "CoinMarketCap ID"
+                    },
+                    "chains": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Supported chains"
+                    },
+                    "twitter": {
+                      "type": "string",
+                      "description": "Twitter handle"
+                    },
+                    "github": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "GitHub repositories"
+                    },
+                    "symbol": {
+                      "type": "string",
+                      "description": "Token symbol"
+                    },
+                    "address": {
+                      "type": "string",
+                      "description": "Protocol address"
+                    },
+                    "childProtocols": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      },
+                      "description": "Child protocols"
+                    },
+                    "linkedProtocols": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Linked protocols"
+                    },
+                    "defillamaId": {
+                      "type": "string",
+                      "description": "DefiLlama protocol ID"
+                    },
+                    "disabled": {
+                      "type": "boolean",
+                      "nullable": true,
+                      "description": "Whether protocol is disabled"
+                    },
+                    "displayName": {
+                      "type": "string",
+                      "description": "Display name"
+                    },
+                    "module": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Module name"
+                    },
+                    "category": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Protocol category"
+                    },
+                    "methodologyURL": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Methodology URL"
+                    },
+                    "methodology": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "Methodology details"
+                    },
+                    "forkedFrom": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Forked from protocol"
+                    },
+                    "audits": {
+                      "type": "array",
+                      "nullable": true,
+                      "description": "Audit information"
+                    },
+                    "audit_links": {
+                      "type": "array",
+                      "nullable": true,
+                      "description": "Audit links"
+                    },
+                    "versionKey": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Version key"
+                    },
+                    "governanceID": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Governance ID"
+                    },
+                    "treasury": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Treasury address"
+                    },
+                    "parentProtocol": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Parent protocol"
+                    },
+                    "previousNames": {
+                      "type": "array",
+                      "nullable": true,
+                      "description": "Previous names"
+                    },
+                    "latestFetchIsOk": {
+                      "type": "boolean",
+                      "description": "Latest fetch status"
+                    },
+                    "slug": {
+                      "type": "string",
+                      "description": "Protocol slug"
+                    },
+                    "protocolType": {
+                      "type": "string",
+                      "description": "Protocol type"
+                    },
+                    "total24h": {
+                      "type": "number",
+                      "description": "24 hour volume"
+                    },
+                    "total48hto24h": {
+                      "type": "number",
+                      "description": "48h to 24h volume"
+                    },
+                    "total7d": {
+                      "type": "number",
+                      "description": "7 day volume"
+                    },
+                    "totalAllTime": {
+                      "type": "number",
+                      "description": "All time volume"
+                    },
+                    "totalDataChart": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": [
+                          {
+                            "type": "integer",
+                            "description": "Timestamp"
+                          },
+                          {
+                            "type": "number",
+                            "description": "Volume value"
+                          }
+                        ]
+                      },
+                      "description": "Total data chart with timestamps and volumes"
+                    },
+                    "totalDataChartBreakdown": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": [
+                          {
+                            "type": "integer",
+                            "description": "Timestamp"
+                          },
+                          {
+                            "type": "object",
+                            "description": "Chain and protocol breakdown"
+                          }
+                        ]
+                      },
+                      "description": "Total data chart breakdown by chain and protocol"
+                    },
+                    "change_1d": {
+                      "type": "number",
+                      "description": "1 day change percentage"
+                    }
+                  }
+                },
+                "example": {
+                  "id": "parent#hyperliquid",
+                  "name": "Hyperliquid",
+                  "url": "https://hyperliquid.xyz",
+                  "referralUrl": "https://app.hyperliquid.xyz/join/DEFILLAMAO",
+                  "description": "Hyperliquid is a decentralized perpetual exchange with best-in-class speed, liquidity, and price",
+                  "logo": "https://icons.llama.fi/hyperliquid.png",
+                  "gecko_id": "hyperliquid",
+                  "cmcId": "32196",
+                  "chains": ["Hyperliquid L1"],
+                  "twitter": "HyperliquidX",
+                  "github": ["hyperliquid-dex"],
+                  "symbol": "HYPE",
+                  "address": "hyperliquid:0x0d01dc56dcaaca66ad901c959b4011ec",
+                  "childProtocols": [{}],
+                  "linkedProtocols": ["Hyperliquid", "Hyperliquid Perps"],
+                  "defillamaId": "parent#hyperliquid",
+                  "disabled": null,
+                  "displayName": "Hyperliquid",
+                  "module": null,
+                  "category": null,
+                  "methodologyURL": null,
+                  "methodology": null,
+                  "forkedFrom": null,
+                  "audits": null,
+                  "audit_links": null,
+                  "versionKey": null,
+                  "governanceID": null,
+                  "treasury": null,
+                  "parentProtocol": null,
+                  "previousNames": null,
+                  "latestFetchIsOk": true,
+                  "slug": "hyperliquid",
+                  "protocolType": "protocol",
+                  "total24h": 16946528076,
+                  "total48hto24h": 14792562336,
+                  "total7d": 86747987334,
+                  "totalAllTime": 2003035982525,
+                  "totalDataChart": [[1752710400, 16946528076], [1752796800, 21220070880]],
+                  "totalDataChartBreakdown": [
+                    [
+                      1752710400,
+                      {
+                        "Hyperliquid L1": {
+                          "Hyperliquid Perps": 16946528076
+                        }
+                      }
+                    ],
+                    [
+                      1752796800,
+                      {
+                        "Hyperliquid L1": {
+                          "Hyperliquid Perps": 21220070880
+                        }
+                      }
+                    ]
+                  ],
+                  "change_1d": 14.56
+                }
+              }
+            }
           }
         },
         "x-pro-only": true
-      }
-    },
-    "/overview/fees": {
-      "get": {
-        "tags": ["fees and revenue"],
-        "summary": "List all protocols along with summaries of their fees and revenue and dataType history data",
-        "servers": [
-          {
-            "url": "https://api.llama.fi"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "excludeTotalDataChart",
-            "in": "query",
-            "required": false,
-            "description": "true to exclude aggregated chart from response",
-            "schema": {
-              "type": "boolean",
-              "example": true
-            }
-          },
-          {
-            "name": "excludeTotalDataChartBreakdown",
-            "in": "query",
-            "required": false,
-            "description": "true to exclude broken down chart from response",
-            "schema": {
-              "type": "boolean",
-              "example": true
-            }
-          },
-          {
-            "name": "dataType",
-            "in": "query",
-            "required": false,
-            "description": "Desired data type, dailyFees by default.",
-            "schema": {
-              "type": "string",
-              "enum": ["dailyFees", "dailyRevenue", "dailyHoldersRevenue"],
-              "example": "dailyFees"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation"
-          }
-        }
-      }
-    },
-    "/overview/fees/{chain}": {
-      "get": {
-        "tags": ["fees and revenue"],
-        "summary": "List all protocols along with summaries of their fees and revenue and dataType history data by chain",
-        "servers": [
-          {
-            "url": "https://api.llama.fi"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "chain",
-            "in": "path",
-            "required": true,
-            "description": "chain name, list of all supported chains can be found under allChains attribute in /overview/fees response",
-            "schema": {
-              "type": "string",
-              "example": "ethereum"
-            }
-          },
-          {
-            "name": "excludeTotalDataChart",
-            "in": "query",
-            "required": false,
-            "description": "true to exclude aggregated chart from response",
-            "schema": {
-              "type": "boolean",
-              "example": true
-            }
-          },
-          {
-            "name": "excludeTotalDataChartBreakdown",
-            "in": "query",
-            "required": false,
-            "description": "true to exclude broken down chart from response",
-            "schema": {
-              "type": "boolean",
-              "example": true
-            }
-          },
-          {
-            "name": "dataType",
-            "in": "query",
-            "required": false,
-            "description": "Desired data type, dailyFees by default.",
-            "schema": {
-              "type": "string",
-              "enum": ["dailyFees", "dailyRevenue", "dailyHoldersRevenue"],
-              "example": "dailyFees"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation"
-          }
-        }
-      }
-    },
-    "/summary/fees/{protocol}": {
-      "get": {
-        "tags": ["fees and revenue"],
-        "summary": "Get summary of protocol fees and revenue with historical data",
-        "servers": [
-          {
-            "url": "https://api.llama.fi"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "protocol",
-            "in": "path",
-            "required": true,
-            "description": "protocol slug",
-            "schema": {
-              "type": "string",
-              "example": "lyra"
-            }
-          },
-          {
-            "name": "dataType",
-            "in": "query",
-            "required": false,
-            "description": "Desired data type, dailyFees by default.",
-            "schema": {
-              "type": "string",
-              "enum": ["dailyFees", "dailyRevenue", "dailyHoldersRevenue"],
-              "example": "dailyFees"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation"
-          }
-        }
       }
     },
     "/bridges": {
@@ -2220,7 +3927,114 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "bridges": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "description": "Bridge ID"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Bridge name"
+                          },
+                          "displayName": {
+                            "type": "string",
+                            "description": "Bridge display name"
+                          },
+                          "icon": {
+                            "type": "string",
+                            "description": "Bridge icon"
+                          },
+                          "volumePrevDay": {
+                            "type": "number",
+                            "description": "Previous day volume"
+                          },
+                          "volumePrev2Day": {
+                            "type": "number",
+                            "description": "Previous 2 days volume"
+                          },
+                          "lastHourlyVolume": {
+                            "type": "number",
+                            "description": "Last hourly volume"
+                          },
+                          "last24hVolume": {
+                            "type": "number",
+                            "description": "Last 24 hours volume"
+                          },
+                          "lastDailyVolume": {
+                            "type": "number",
+                            "description": "Last daily volume"
+                          },
+                          "dayBeforeLastVolume": {
+                            "type": "number",
+                            "description": "Day before last volume"
+                          },
+                          "weeklyVolume": {
+                            "type": "number",
+                            "description": "Weekly volume"
+                          },
+                          "monthlyVolume": {
+                            "type": "number",
+                            "description": "Monthly volume"
+                          },
+                          "chains": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "description": "Supported chains"
+                          },
+                          "destinationChain": {
+                            "type": "string",
+                            "description": "Destination chain"
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "Bridge URL"
+                          },
+                          "slug": {
+                            "type": "string",
+                            "description": "Bridge slug"
+                          }
+                        }
+                      },
+                      "description": "List of bridges"
+                    }
+                  }
+                },
+                "example": {
+                  "bridges": [
+                    {
+                      "id": 80,
+                      "name": "hyperliquid",
+                      "displayName": "Hyperliquid",
+                      "icon": "icons:hyperliquid",
+                      "volumePrevDay": 245562283.16810948,
+                      "volumePrev2Day": 205702464.62591228,
+                      "lastHourlyVolume": 0,
+                      "last24hVolume": 245562283.16810948,
+                      "lastDailyVolume": 245562283.16810948,
+                      "dayBeforeLastVolume": 205702464.62591228,
+                      "weeklyVolume": 1700279485.290507,
+                      "monthlyVolume": 3986810177.448681,
+                      "chains": ["Arbitrum", "Hyperliquid"],
+                      "destinationChain": "Hyperliquid",
+                      "url": "https://app.hyperliquid.xyz/trade",
+                      "slug": "hyperliquid-bridge"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-pro-only": true
@@ -2249,7 +4063,248 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "description": "Bridge ID"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Bridge name"
+                    },
+                    "displayName": {
+                      "type": "string",
+                      "description": "Bridge display name"
+                    },
+                    "lastHourlyVolume": {
+                      "type": "number",
+                      "description": "Last hourly volume"
+                    },
+                    "currentDayVolume": {
+                      "type": "number",
+                      "description": "Current day volume"
+                    },
+                    "lastDailyVolume": {
+                      "type": "number",
+                      "description": "Last daily volume"
+                    },
+                    "dayBeforeLastVolume": {
+                      "type": "number",
+                      "description": "Day before last volume"
+                    },
+                    "weeklyVolume": {
+                      "type": "number",
+                      "description": "Weekly volume"
+                    },
+                    "monthlyVolume": {
+                      "type": "number",
+                      "description": "Monthly volume"
+                    },
+                    "lastHourlyTxs": {
+                      "type": "object",
+                      "properties": {
+                        "deposits": {
+                          "type": "integer",
+                          "description": "Number of deposits"
+                        },
+                        "withdrawals": {
+                          "type": "integer",
+                          "description": "Number of withdrawals"
+                        }
+                      },
+                      "description": "Last hourly transactions"
+                    },
+                    "currentDayTxs": {
+                      "type": "object",
+                      "properties": {
+                        "deposits": {
+                          "type": "integer",
+                          "description": "Number of deposits"
+                        },
+                        "withdrawals": {
+                          "type": "integer",
+                          "description": "Number of withdrawals"
+                        }
+                      },
+                      "description": "Current day transactions"
+                    },
+                    "prevDayTxs": {
+                      "type": "object",
+                      "properties": {
+                        "deposits": {
+                          "type": "integer",
+                          "description": "Number of deposits"
+                        },
+                        "withdrawals": {
+                          "type": "integer",
+                          "description": "Number of withdrawals"
+                        }
+                      },
+                      "description": "Previous day transactions"
+                    },
+                    "dayBeforeLastTxs": {
+                      "type": "object",
+                      "properties": {
+                        "deposits": {
+                          "type": "integer",
+                          "description": "Number of deposits"
+                        },
+                        "withdrawals": {
+                          "type": "integer",
+                          "description": "Number of withdrawals"
+                        }
+                      },
+                      "description": "Day before last transactions"
+                    },
+                    "weeklyTxs": {
+                      "type": "object",
+                      "properties": {
+                        "deposits": {
+                          "type": "integer",
+                          "description": "Number of deposits"
+                        },
+                        "withdrawals": {
+                          "type": "integer",
+                          "description": "Number of withdrawals"
+                        }
+                      },
+                      "description": "Weekly transactions"
+                    },
+                    "monthlyTxs": {
+                      "type": "object",
+                      "properties": {
+                        "deposits": {
+                          "type": "integer",
+                          "description": "Number of deposits"
+                        },
+                        "withdrawals": {
+                          "type": "integer",
+                          "description": "Number of withdrawals"
+                        }
+                      },
+                      "description": "Monthly transactions"
+                    },
+                    "chainBreakdown": {
+                      "type": "object",
+                      "description": "Volume breakdown by chain"
+                    },
+                    "destinationChain": {
+                      "type": "string",
+                      "description": "Destination chain"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "name": "polygon",
+                  "displayName": "Polygon PoS Bridge",
+                  "lastHourlyVolume": 118020.67633222912,
+                  "currentDayVolume": 0,
+                  "lastDailyVolume": 28740605.36474136,
+                  "dayBeforeLastVolume": 17294645.046479236,
+                  "weeklyVolume": 71188570.7201651,
+                  "monthlyVolume": 490635601.59313035,
+                  "lastHourlyTxs": {
+                    "deposits": 10,
+                    "withdrawals": 5
+                  },
+                  "currentDayTxs": {
+                    "deposits": 0,
+                    "withdrawals": 0
+                  },
+                  "prevDayTxs": {
+                    "deposits": 153,
+                    "withdrawals": 150
+                  },
+                  "dayBeforeLastTxs": {
+                    "deposits": 173,
+                    "withdrawals": 195
+                  },
+                  "weeklyTxs": {
+                    "deposits": 2095,
+                    "withdrawals": 1752
+                  },
+                  "monthlyTxs": {
+                    "deposits": 6945,
+                    "withdrawals": 5537
+                  },
+                  "chainBreakdown": {
+                    "Polygon": {
+                      "lastHourlyVolume": 118020.67633222912,
+                      "currentDayVolume": 0,
+                      "lastDailyVolume": 28740605.36474136,
+                      "dayBeforeLastVolume": 17294645.046479236,
+                      "weeklyVolume": 71188570.7201651,
+                      "monthlyVolume": 490635601.59313035,
+                      "last24hVolume": 34766385.06231544,
+                      "lastHourlyTxs": {
+                        "deposits": 10,
+                        "withdrawals": 5
+                      },
+                      "currentDayTxs": {
+                        "deposits": 0,
+                        "withdrawals": 0
+                      },
+                      "prevDayTxs": {
+                        "deposits": 153,
+                        "withdrawals": 150
+                      },
+                      "dayBeforeLastTxs": {
+                        "deposits": 173,
+                        "withdrawals": 195
+                      },
+                      "weeklyTxs": {
+                        "deposits": 2095,
+                        "withdrawals": 1752
+                      },
+                      "monthlyTxs": {
+                        "deposits": 6945,
+                        "withdrawals": 5537
+                      }
+                    },
+                    "Ethereum": {
+                      "lastHourlyVolume": 118020.67633222912,
+                      "currentDayVolume": 0,
+                      "lastDailyVolume": 28740605.36474136,
+                      "dayBeforeLastVolume": 17294645.046479236,
+                      "weeklyVolume": 71188570.7201651,
+                      "monthlyVolume": 490635601.59313035,
+                      "last24hVolume": 34766385.06231544,
+                      "lastHourlyTxs": {
+                        "deposits": 10,
+                        "withdrawals": 5
+                      },
+                      "currentDayTxs": {
+                        "deposits": 0,
+                        "withdrawals": 0
+                      },
+                      "prevDayTxs": {
+                        "deposits": 153,
+                        "withdrawals": 150
+                      },
+                      "dayBeforeLastTxs": {
+                        "deposits": 173,
+                        "withdrawals": 195
+                      },
+                      "weeklyTxs": {
+                        "deposits": 2095,
+                        "withdrawals": 1752
+                      },
+                      "monthlyTxs": {
+                        "deposits": 6945,
+                        "withdrawals": 5537
+                      }
+                    }
+                  },
+                  "destinationChain": "Polygon"
+                }
+              }
+            }
           }
         },
         "x-pro-only": true
@@ -2288,7 +4343,55 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "date": {
+                        "type": "string",
+                        "description": "Date timestamp"
+                      },
+                      "depositUSD": {
+                        "type": "number",
+                        "description": "Deposit volume in USD"
+                      },
+                      "withdrawUSD": {
+                        "type": "number",
+                        "description": "Withdrawal volume in USD"
+                      },
+                      "depositTxs": {
+                        "type": "integer",
+                        "description": "Number of deposit transactions"
+                      },
+                      "withdrawTxs": {
+                        "type": "integer",
+                        "description": "Number of withdrawal transactions"
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "date": "1665964800",
+                    "depositUSD": 11121806.082658675,
+                    "withdrawUSD": 13970177.335270314,
+                    "depositTxs": 218,
+                    "withdrawTxs": 56
+                  },
+                  {
+                    "date": "1666051200",
+                    "depositUSD": 32940139.204768553,
+                    "withdrawUSD": 157541586.9492474,
+                    "depositTxs": 2042,
+                    "withdrawTxs": 708
+                  }
+                ]
+              }
+            }
           }
         },
         "x-pro-only": true
@@ -2337,7 +4440,155 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "date": {
+                      "type": "integer",
+                      "description": "Date timestamp"
+                    },
+                    "totalTokensDeposited": {
+                      "type": "object",
+                      "description": "Total tokens deposited with their details",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "usdValue": {
+                            "type": "number",
+                            "description": "USD value of the token"
+                          },
+                          "amount": {
+                            "type": "string",
+                            "description": "Token amount as string"
+                          },
+                          "symbol": {
+                            "type": "string",
+                            "description": "Token symbol"
+                          },
+                          "decimals": {
+                            "type": "integer",
+                            "description": "Token decimals"
+                          }
+                        }
+                      }
+                    },
+                    "totalTokensWithdrawn": {
+                      "type": "object",
+                      "description": "Total tokens withdrawn with their details",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "usdValue": {
+                            "type": "number",
+                            "description": "USD value of the token"
+                          },
+                          "amount": {
+                            "type": "string",
+                            "description": "Token amount as string"
+                          },
+                          "symbol": {
+                            "type": "string",
+                            "description": "Token symbol"
+                          },
+                          "decimals": {
+                            "type": "integer",
+                            "description": "Token decimals"
+                          }
+                        }
+                      }
+                    },
+                    "totalAddressDeposited": {
+                      "type": "object",
+                      "description": "Total addresses that deposited with their details",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "usdValue": {
+                            "type": "number",
+                            "description": "Total USD value deposited by this address"
+                          },
+                          "txs": {
+                            "type": "integer",
+                            "description": "Number of transactions from this address"
+                          }
+                        }
+                      }
+                    },
+                    "totalAddressWithdrawn": {
+                      "type": "object",
+                      "description": "Total addresses that withdrew with their details",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "usdValue": {
+                            "type": "number",
+                            "description": "Total USD value withdrawn by this address"
+                          },
+                          "txs": {
+                            "type": "integer",
+                            "description": "Number of transactions from this address"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "date": 1752796800,
+                  "totalTokensDeposited": {
+                    "ethereum:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": {
+                      "usdValue": 8538374.477027368,
+                      "amount": "17379331182",
+                      "symbol": "USDC",
+                      "decimals": 6
+                    },
+                    "ethereum:0x6De037ef9aD2725EB40118Bb1702EBb27e4Aeb24": {
+                      "usdValue": 2123785.5869,
+                      "amount": "2123785.5869",
+                      "symbol": "RNDR",
+                      "decimals": 18
+                    }
+                  },
+                  "totalTokensWithdrawn": {
+                    "ethereum:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": {
+                      "usdValue": 3020623.745962119,
+                      "amount": "14680842655",
+                      "symbol": "USDC",
+                      "decimals": 6
+                    },
+                    "ethereum:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2": {
+                      "usdValue": 2214456.1061736266,
+                      "amount": "28501633217143430245",
+                      "symbol": "WETH",
+                      "decimals": 18
+                    }
+                  },
+                  "totalAddressDeposited": {
+                    "ethereum:0x3a23F943181408EAC424116Af7b7790c94Cb97a5": {
+                      "usdValue": 2447787.602843585,
+                      "txs": 13
+                    },
+                    "ethereum:0x348C31025754113F599ccEa72747A726a133799b": {
+                      "usdValue": 2115000,
+                      "txs": 1
+                    }
+                  },
+                  "totalAddressWithdrawn": {
+                    "ethereum:0xb60d0C2E8309518373b40f8Eaa2CAd0d1De3deCb": {
+                      "usdValue": 1196415.6440843595,
+                      "txs": 2
+                    },
+                    "ethereum:0x49c3FeaFDdaefC3Bed06F4ff87CE86610C2c1076": {
+                      "usdValue": 565794.5181076665,
+                      "txs": 1
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "x-pro-only": true
@@ -2416,7 +4667,352 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "description": "Bridge ID"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Bridge name"
+                    },
+                    "displayName": {
+                      "type": "string",
+                      "description": "Bridge display name"
+                    },
+                    "lastHourlyVolume": {
+                      "type": "number",
+                      "description": "Last hourly volume"
+                    },
+                    "currentDayVolume": {
+                      "type": "number",
+                      "description": "Current day volume"
+                    },
+                    "lastDailyVolume": {
+                      "type": "number",
+                      "description": "Last daily volume"
+                    },
+                    "dayBeforeLastVolume": {
+                      "type": "number",
+                      "description": "Day before last volume"
+                    },
+                    "weeklyVolume": {
+                      "type": "number",
+                      "description": "Weekly volume"
+                    },
+                    "monthlyVolume": {
+                      "type": "number",
+                      "description": "Monthly volume"
+                    },
+                    "lastHourlyTxs": {
+                      "type": "object",
+                      "properties": {
+                        "deposits": {
+                          "type": "integer",
+                          "description": "Number of deposit transactions"
+                        },
+                        "withdrawals": {
+                          "type": "integer",
+                          "description": "Number of withdrawal transactions"
+                        }
+                      }
+                    },
+                    "currentDayTxs": {
+                      "type": "object",
+                      "properties": {
+                        "deposits": {
+                          "type": "integer",
+                          "description": "Number of deposit transactions"
+                        },
+                        "withdrawals": {
+                          "type": "integer",
+                          "description": "Number of withdrawal transactions"
+                        }
+                      }
+                    },
+                    "prevDayTxs": {
+                      "type": "object",
+                      "properties": {
+                        "deposits": {
+                          "type": "integer",
+                          "description": "Number of deposit transactions"
+                        },
+                        "withdrawals": {
+                          "type": "integer",
+                          "description": "Number of withdrawal transactions"
+                        }
+                      }
+                    },
+                    "dayBeforeLastTxs": {
+                      "type": "object",
+                      "properties": {
+                        "deposits": {
+                          "type": "integer",
+                          "description": "Number of deposit transactions"
+                        },
+                        "withdrawals": {
+                          "type": "integer",
+                          "description": "Number of withdrawal transactions"
+                        }
+                      }
+                    },
+                    "weeklyTxs": {
+                      "type": "object",
+                      "properties": {
+                        "deposits": {
+                          "type": "integer",
+                          "description": "Number of deposit transactions"
+                        },
+                        "withdrawals": {
+                          "type": "integer",
+                          "description": "Number of withdrawal transactions"
+                        }
+                      }
+                    },
+                    "monthlyTxs": {
+                      "type": "object",
+                      "properties": {
+                        "deposits": {
+                          "type": "integer",
+                          "description": "Number of deposit transactions"
+                        },
+                        "withdrawals": {
+                          "type": "integer",
+                          "description": "Number of withdrawal transactions"
+                        }
+                      }
+                    },
+                    "chainBreakdown": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "lastHourlyVolume": {
+                            "type": "number",
+                            "description": "Last hourly volume"
+                          },
+                          "currentDayVolume": {
+                            "type": "number",
+                            "description": "Current day volume"
+                          },
+                          "lastDailyVolume": {
+                            "type": "number",
+                            "description": "Last daily volume"
+                          },
+                          "dayBeforeLastVolume": {
+                            "type": "number",
+                            "description": "Day before last volume"
+                          },
+                          "weeklyVolume": {
+                            "type": "number",
+                            "description": "Weekly volume"
+                          },
+                          "monthlyVolume": {
+                            "type": "number",
+                            "description": "Monthly volume"
+                          },
+                          "last24hVolume": {
+                            "type": "number",
+                            "description": "Last 24 hour volume"
+                          },
+                          "lastHourlyTxs": {
+                            "type": "object",
+                            "properties": {
+                              "deposits": {
+                                "type": "integer",
+                                "description": "Number of deposit transactions"
+                              },
+                              "withdrawals": {
+                                "type": "integer",
+                                "description": "Number of withdrawal transactions"
+                              }
+                            }
+                          },
+                          "currentDayTxs": {
+                            "type": "object",
+                            "properties": {
+                              "deposits": {
+                                "type": "integer",
+                                "description": "Number of deposit transactions"
+                              },
+                              "withdrawals": {
+                                "type": "integer",
+                                "description": "Number of withdrawal transactions"
+                              }
+                            }
+                          },
+                          "prevDayTxs": {
+                            "type": "object",
+                            "properties": {
+                              "deposits": {
+                                "type": "integer",
+                                "description": "Number of deposit transactions"
+                              },
+                              "withdrawals": {
+                                "type": "integer",
+                                "description": "Number of withdrawal transactions"
+                              }
+                            }
+                          },
+                          "dayBeforeLastTxs": {
+                            "type": "object",
+                            "properties": {
+                              "deposits": {
+                                "type": "integer",
+                                "description": "Number of deposit transactions"
+                              },
+                              "withdrawals": {
+                                "type": "integer",
+                                "description": "Number of withdrawal transactions"
+                              }
+                            }
+                          },
+                          "weeklyTxs": {
+                            "type": "object",
+                            "properties": {
+                              "deposits": {
+                                "type": "integer",
+                                "description": "Number of deposit transactions"
+                              },
+                              "withdrawals": {
+                                "type": "integer",
+                                "description": "Number of withdrawal transactions"
+                              }
+                            }
+                          },
+                          "monthlyTxs": {
+                            "type": "object",
+                            "properties": {
+                              "deposits": {
+                                "type": "integer",
+                                "description": "Number of deposit transactions"
+                              },
+                              "withdrawals": {
+                                "type": "integer",
+                                "description": "Number of withdrawal transactions"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "destinationChain": {
+                      "type": "string",
+                      "description": "Destination chain"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "name": "polygon",
+                  "displayName": "Polygon PoS Bridge",
+                  "lastHourlyVolume": 118020.67633222912,
+                  "currentDayVolume": 0,
+                  "lastDailyVolume": 28740605.36474136,
+                  "dayBeforeLastVolume": 17294645.046479236,
+                  "weeklyVolume": 71188570.7201651,
+                  "monthlyVolume": 490635601.59313035,
+                  "lastHourlyTxs": {
+                    "deposits": 10,
+                    "withdrawals": 5
+                  },
+                  "currentDayTxs": {
+                    "deposits": 0,
+                    "withdrawals": 0
+                  },
+                  "prevDayTxs": {
+                    "deposits": 153,
+                    "withdrawals": 150
+                  },
+                  "dayBeforeLastTxs": {
+                    "deposits": 173,
+                    "withdrawals": 195
+                  },
+                  "weeklyTxs": {
+                    "deposits": 2095,
+                    "withdrawals": 1752
+                  },
+                  "monthlyTxs": {
+                    "deposits": 6945,
+                    "withdrawals": 5537
+                  },
+                  "chainBreakdown": {
+                    "Polygon": {
+                      "lastHourlyVolume": 118020.67633222912,
+                      "currentDayVolume": 0,
+                      "lastDailyVolume": 28740605.36474136,
+                      "dayBeforeLastVolume": 17294645.046479236,
+                      "weeklyVolume": 71188570.7201651,
+                      "monthlyVolume": 490635601.59313035,
+                      "last24hVolume": 34766385.06231544,
+                      "lastHourlyTxs": {
+                        "deposits": 10,
+                        "withdrawals": 5
+                      },
+                      "currentDayTxs": {
+                        "deposits": 0,
+                        "withdrawals": 0
+                      },
+                      "prevDayTxs": {
+                        "deposits": 153,
+                        "withdrawals": 150
+                      },
+                      "dayBeforeLastTxs": {
+                        "deposits": 173,
+                        "withdrawals": 195
+                      },
+                      "weeklyTxs": {
+                        "deposits": 2095,
+                        "withdrawals": 1752
+                      },
+                      "monthlyTxs": {
+                        "deposits": 6945,
+                        "withdrawals": 5537
+                      }
+                    },
+                    "Ethereum": {
+                      "lastHourlyVolume": 118020.67633222912,
+                      "currentDayVolume": 0,
+                      "lastDailyVolume": 28740605.36474136,
+                      "dayBeforeLastVolume": 17294645.046479236,
+                      "weeklyVolume": 71188570.7201651,
+                      "monthlyVolume": 490635601.59313035,
+                      "last24hVolume": 34766385.06231544,
+                      "lastHourlyTxs": {
+                        "deposits": 10,
+                        "withdrawals": 5
+                      },
+                      "currentDayTxs": {
+                        "deposits": 0,
+                        "withdrawals": 0
+                      },
+                      "prevDayTxs": {
+                        "deposits": 153,
+                        "withdrawals": 150
+                      },
+                      "dayBeforeLastTxs": {
+                        "deposits": 173,
+                        "withdrawals": 195
+                      },
+                      "weeklyTxs": {
+                        "deposits": 2095,
+                        "withdrawals": 1752
+                      },
+                      "monthlyTxs": {
+                        "deposits": 6945,
+                        "withdrawals": 5537
+                      }
+                    }
+                  },
+                  "destinationChain": "Polygon"
+                }
+              }
+            }
           }
         },
         "x-pro-only": true
@@ -4099,7 +6695,372 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "totalDataChart": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": [
+                          {
+                            "type": "integer",
+                            "description": "Unix timestamp"
+                          },
+                          {
+                            "type": "number",
+                            "description": "Total volume value"
+                          }
+                        ]
+                      },
+                      "description": "Historical chart data with timestamps and total volumes"
+                    },
+                    "totalDataChartBreakdown": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": [
+                          {
+                            "type": "integer",
+                            "description": "Unix timestamp"
+                          },
+                          {
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "number"
+                            },
+                            "description": "Protocol breakdown with volume values"
+                          }
+                        ]
+                      },
+                      "description": "Historical chart data broken down by protocol"
+                    },
+                    "breakdown24h": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "24-hour breakdown data"
+                    },
+                    "breakdown30d": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "30-day breakdown data"
+                    },
+                    "chain": {
+                      "type": "string",
+                      "description": "Chain name"
+                    },
+                    "allChains": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "List of all supported chains"
+                    },
+                    "total24h": {
+                      "type": "number",
+                      "description": "Total 24-hour volume"
+                    },
+                    "total48hto24h": {
+                      "type": "number",
+                      "description": "Total 48-hour to 24-hour volume"
+                    },
+                    "total7d": {
+                      "type": "number",
+                      "description": "Total 7-day volume"
+                    },
+                    "total14dto7d": {
+                      "type": "number",
+                      "description": "Total 14-day to 7-day volume"
+                    },
+                    "total60dto30d": {
+                      "type": "number",
+                      "description": "Total 60-day to 30-day volume"
+                    },
+                    "total30d": {
+                      "type": "number",
+                      "description": "Total 30-day volume"
+                    },
+                    "total1y": {
+                      "type": "number",
+                      "description": "Total 1-year volume"
+                    },
+                    "change_1d": {
+                      "type": "number",
+                      "description": "1-day change percentage"
+                    },
+                    "change_7d": {
+                      "type": "number",
+                      "description": "7-day change percentage"
+                    },
+                    "change_1m": {
+                      "type": "number",
+                      "description": "1-month change percentage"
+                    },
+                    "change_7dover7d": {
+                      "type": "number",
+                      "description": "7-day over 7-day change percentage"
+                    },
+                    "change_30dover30d": {
+                      "type": "number",
+                      "description": "30-day over 30-day change percentage"
+                    },
+                    "total7DaysAgo": {
+                      "type": "number",
+                      "description": "Total volume 7 days ago"
+                    },
+                    "total30DaysAgo": {
+                      "type": "number",
+                      "description": "Total volume 30 days ago"
+                    },
+                    "totalAllTime": {
+                      "type": "number",
+                      "description": "Total all-time volume"
+                    },
+                    "protocols": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "total24h": {
+                            "type": "number",
+                            "description": "24-hour volume"
+                          },
+                          "total48hto24h": {
+                            "type": "number",
+                            "description": "48-hour to 24-hour volume"
+                          },
+                          "total7d": {
+                            "type": "number",
+                            "description": "7-day volume"
+                          },
+                          "total14dto7d": {
+                            "type": "number",
+                            "description": "14-day to 7-day volume"
+                          },
+                          "total60dto30d": {
+                            "type": "number",
+                            "description": "60-day to 30-day volume"
+                          },
+                          "total30d": {
+                            "type": "number",
+                            "description": "30-day volume"
+                          },
+                          "total1y": {
+                            "type": "number",
+                            "description": "1-year volume"
+                          },
+                          "totalAllTime": {
+                            "type": "number",
+                            "description": "All-time volume"
+                          },
+                          "total7DaysAgo": {
+                            "type": "number",
+                            "description": "Volume 7 days ago"
+                          },
+                          "total30DaysAgo": {
+                            "type": "number",
+                            "description": "Volume 30 days ago"
+                          },
+                          "average1y": {
+                            "type": "number",
+                            "description": "Average 1-year volume"
+                          },
+                          "change_1d": {
+                            "type": "number",
+                            "description": "1-day change percentage"
+                          },
+                          "change_7d": {
+                            "type": "number",
+                            "description": "7-day change percentage"
+                          },
+                          "change_1m": {
+                            "type": "number",
+                            "description": "1-month change percentage"
+                          },
+                          "change_7dover7d": {
+                            "type": "number",
+                            "description": "7-day over 7-day change percentage"
+                          },
+                          "change_30dover30d": {
+                            "type": "number",
+                            "description": "30-day over 30-day change percentage"
+                          },
+                          "defillamaId": {
+                            "type": "string",
+                            "description": "DefiLlama protocol ID"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Protocol name"
+                          },
+                          "displayName": {
+                            "type": "string",
+                            "description": "Protocol display name"
+                          },
+                          "module": {
+                            "type": "string",
+                            "description": "Protocol module name"
+                          },
+                          "category": {
+                            "type": "string",
+                            "description": "Protocol category"
+                          },
+                          "logo": {
+                            "type": "string",
+                            "description": "Protocol logo URL"
+                          },
+                          "chains": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "description": "Supported chains"
+                          },
+                          "protocolType": {
+                            "type": "string",
+                            "description": "Protocol type"
+                          },
+                          "methodologyURL": {
+                            "type": "string",
+                            "description": "Methodology documentation URL"
+                          },
+                          "methodology": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            },
+                            "description": "Protocol methodology details"
+                          },
+                          "latestFetchIsOk": {
+                            "type": "boolean",
+                            "description": "Whether the latest data fetch was successful"
+                          },
+                          "parentProtocol": {
+                            "type": "string",
+                            "description": "Parent protocol identifier"
+                          },
+                          "slug": {
+                            "type": "string",
+                            "description": "Protocol slug"
+                          },
+                          "linkedProtocols": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "description": "Linked protocol names"
+                          },
+                          "id": {
+                            "type": "string",
+                            "description": "Protocol ID"
+                          }
+                        }
+                      },
+                      "description": "List of protocols with their volume data"
+                    }
+                  }
+                },
+                "example": {
+                  "totalDataChart": [[1656201600, 3947]],
+                  "totalDataChartBreakdown": [
+                    [
+                      1656201600,
+                      {
+                        "Premia V2": 3947
+                      }
+                    ],
+                    [
+                      1656288000,
+                      {
+                        "Premia V2": 4716
+                      }
+                    ],
+                    [
+                      1656374400,
+                      {
+                        "Premia V2": 4716
+                      }
+                    ]
+                  ],
+                  "breakdown24h": null,
+                  "breakdown30d": null,
+                  "chain": "Ethereum",
+                  "allChains": [
+                    "Hyperliquid L1",
+                    "Derive Chain",
+                    "Arbitrum",
+                    "Ethereum",
+                    "Base",
+                    "Berachain",
+                    "Sui",
+                    "OP Mainnet",
+                    "Polygon",
+                    "Fantom",
+                    "Sonic",
+                    "Blast",
+                    "Mantle",
+                    "Bitlayer",
+                    "BSC",
+                    "Sei",
+                    "TON"
+                  ],
+                  "total24h": 38508,
+                  "total48hto24h": 57674,
+                  "total7d": 244966,
+                  "total14dto7d": 181066,
+                  "total60dto30d": 1543832,
+                  "total30d": 715276,
+                  "total1y": 38047667,
+                  "change_1d": -33.23,
+                  "change_7d": -0.13,
+                  "change_1m": 619.37,
+                  "change_7dover7d": 35.29,
+                  "change_30dover30d": -53.67,
+                  "total7DaysAgo": 38559,
+                  "total30DaysAgo": 5353,
+                  "totalAllTime": 212572409,
+                  "protocols": [
+                    {
+                      "total24h": 0,
+                      "total48hto24h": 0,
+                      "total7d": 0,
+                      "total14dto7d": 0,
+                      "total60dto30d": 0,
+                      "total30d": 0,
+                      "total1y": 0,
+                      "totalAllTime": 920677,
+                      "total7DaysAgo": 0,
+                      "total30DaysAgo": 0,
+                      "defillamaId": "381",
+                      "name": "Premia V2",
+                      "displayName": "Premia V2",
+                      "module": "premia-v2",
+                      "category": "Options",
+                      "logo": "https://icons.llamao.fi/icons/protocols/premia-v2.jpg",
+                      "chains": ["Ethereum", "Arbitrum", "Fantom", "OP Mainnet"],
+                      "protocolType": "protocol",
+                      "methodologyURL": "https://github.com/DefiLlama/dimension-adapters/blob/master/options/premia-v2.ts",
+                      "methodology": {
+                        "UserFees": "Traders pay taker fees on each trade up to 3% of the option premium.",
+                        "Fees": "Fees paid by users",
+                        "Revenue": "Treasury and token holders revenue",
+                        "ProtocolRevenue": "The protocol collects 20% of the taker fees.",
+                        "HoldersRevenue": "vxPREMIA holders collect 80% of the taker fees.",
+                        "SupplySideRevenue": "Liquidity providers earn revenue from market-making options."
+                      },
+                      "latestFetchIsOk": true,
+                      "parentProtocol": "parent#premia",
+                      "slug": "premia-v2",
+                      "linkedProtocols": ["Premia", "Premia V2", "Premia V3"],
+                      "id": "381"
+                    }
+                  ]
+                }
+              }
+            }
           }
         }
       }
@@ -4133,7 +7094,288 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Protocol ID"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Protocol name"
+                    },
+                    "url": {
+                      "type": "string",
+                      "description": "Protocol website URL"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "Protocol description"
+                    },
+                    "logo": {
+                      "type": "string",
+                      "description": "Protocol logo URL"
+                    },
+                    "gecko_id": {
+                      "type": "string",
+                      "description": "CoinGecko ID"
+                    },
+                    "cmcId": {
+                      "type": "string",
+                      "description": "CoinMarketCap ID"
+                    },
+                    "chains": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Supported chains"
+                    },
+                    "twitter": {
+                      "type": "string",
+                      "description": "Twitter handle"
+                    },
+                    "governanceID": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Governance identifiers"
+                    },
+                    "github": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "GitHub repositories"
+                    },
+                    "treasury": {
+                      "type": "string",
+                      "description": "Treasury information"
+                    },
+                    "symbol": {
+                      "type": "string",
+                      "description": "Token symbol"
+                    },
+                    "address": {
+                      "type": "string",
+                      "description": "Token contract address"
+                    },
+                    "childProtocols": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      },
+                      "description": "Child protocols"
+                    },
+                    "linkedProtocols": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Linked protocol names"
+                    },
+                    "defillamaId": {
+                      "type": "string",
+                      "description": "DefiLlama protocol ID"
+                    },
+                    "disabled": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "Disabled status"
+                    },
+                    "displayName": {
+                      "type": "string",
+                      "description": "Protocol display name"
+                    },
+                    "module": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "Protocol module"
+                    },
+                    "category": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "Protocol category"
+                    },
+                    "methodologyURL": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "Methodology documentation URL"
+                    },
+                    "methodology": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "Protocol methodology details"
+                    },
+                    "forkedFrom": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "Forked from protocol"
+                    },
+                    "audits": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "Audit information"
+                    },
+                    "audit_links": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "Audit links"
+                    },
+                    "versionKey": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "Version key"
+                    },
+                    "parentProtocol": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "Parent protocol"
+                    },
+                    "previousNames": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "Previous protocol names"
+                    },
+                    "latestFetchIsOk": {
+                      "type": "boolean",
+                      "description": "Whether the latest data fetch was successful"
+                    },
+                    "slug": {
+                      "type": "string",
+                      "description": "Protocol slug"
+                    },
+                    "protocolType": {
+                      "type": "string",
+                      "description": "Protocol type"
+                    },
+                    "total24h": {
+                      "type": "number",
+                      "description": "24-hour volume"
+                    },
+                    "total48hto24h": {
+                      "type": "number",
+                      "description": "48-hour to 24-hour volume"
+                    },
+                    "total7d": {
+                      "type": "number",
+                      "description": "7-day volume"
+                    },
+                    "totalAllTime": {
+                      "type": "number",
+                      "description": "All-time volume"
+                    },
+                    "totalDataChart": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": [
+                          {
+                            "type": "integer",
+                            "description": "Unix timestamp"
+                          },
+                          {
+                            "type": "number",
+                            "description": "Volume value"
+                          }
+                        ]
+                      },
+                      "description": "Historical chart data with timestamps and volumes"
+                    },
+                    "totalDataChartBreakdown": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": [
+                          {
+                            "type": "integer",
+                            "description": "Unix timestamp"
+                          },
+                          {
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "number"
+                              }
+                            },
+                            "description": "Chain and protocol breakdown with volume values"
+                          }
+                        ]
+                      },
+                      "description": "Historical chart data broken down by chain and protocol"
+                    },
+                    "change_1d": {
+                      "type": "number",
+                      "description": "1-day change percentage"
+                    }
+                  }
+                },
+                "example": {
+                  "id": "parent#lyra",
+                  "name": "Derive",
+                  "url": "https://derive.xyz",
+                  "description": "Trade options & perps. Earn yield with restaking derivatives.",
+                  "logo": "https://icons.llama.fi/derive.png",
+                  "gecko_id": "derive",
+                  "cmcId": "35014",
+                  "chains": ["OP Mainnet", "Arbitrum", "Derive Chain"],
+                  "twitter": "derivexyz",
+                  "governanceID": ["snapshot:lyra.eth"],
+                  "github": ["lyra-finance"],
+                  "treasury": "lyra.js",
+                  "symbol": "DRV",
+                  "address": "0xb1d1eae60eea9525032a6dcb4c1ce336a1de71be",
+                  "childProtocols": [{}, {}],
+                  "linkedProtocols": ["Derive", "Derive V2", "Derive Options"],
+                  "defillamaId": "parent#lyra",
+                  "disabled": null,
+                  "displayName": "Derive",
+                  "module": null,
+                  "category": null,
+                  "methodologyURL": null,
+                  "methodology": null,
+                  "forkedFrom": null,
+                  "audits": null,
+                  "audit_links": null,
+                  "versionKey": null,
+                  "parentProtocol": null,
+                  "previousNames": null,
+                  "latestFetchIsOk": true,
+                  "slug": "derive",
+                  "protocolType": "protocol",
+                  "total24h": 849389,
+                  "total48hto24h": 529694,
+                  "total7d": 2327481,
+                  "totalAllTime": 156317108,
+                  "totalDataChart": [[1702684800, 15019], [1702771200, 15019]],
+                  "totalDataChartBreakdown": [
+                    [
+                      1702684800,
+                      {
+                        "Ethereum": {
+                          "Derive V2": 15019
+                        }
+                      }
+                    ],
+                    [
+                      1702771200,
+                      {
+                        "Derive Chain": {
+                          "Derive V2": 15019
+                        }
+                      }
+                    ]
+                  ],
+                  "change_1d": 60.35
+                }
+              }
+            }
           }
         }
       }
@@ -4291,7 +7533,67 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "Overview of all protocols with fees and revenue data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "protocols": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "example": "Uniswap"
+                          },
+                          "total24h": {
+                            "type": "number",
+                            "example": 5000000
+                          },
+                          "revenue24h": {
+                            "type": "number",
+                            "example": 2000000
+                          },
+                          "change_1d": {
+                            "type": "number",
+                            "example": 12.5
+                          },
+                          "chains": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "example": ["Ethereum", "Polygon"]
+                          }
+                        }
+                      }
+                    },
+                    "totalDataChart": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "example": [1640995200, 25000000]
+                      }
+                    },
+                    "totalDataChartBreakdown": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "example": [
+                          1640995200,
+                          {
+                            "Uniswap": 5000000,
+                            "Compound": 3000000
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -4325,7 +7627,278 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Protocol ID"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Protocol name"
+                    },
+                    "url": {
+                      "type": "string",
+                      "description": "Protocol URL"
+                    },
+                    "referralUrl": {
+                      "type": "string",
+                      "description": "Referral URL"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "Protocol description"
+                    },
+                    "logo": {
+                      "type": "string",
+                      "description": "Protocol logo URL"
+                    },
+                    "gecko_id": {
+                      "type": "string",
+                      "description": "CoinGecko ID"
+                    },
+                    "cmcId": {
+                      "type": "string",
+                      "description": "CoinMarketCap ID"
+                    },
+                    "chains": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Supported chains"
+                    },
+                    "twitter": {
+                      "type": "string",
+                      "description": "Twitter handle"
+                    },
+                    "github": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "GitHub repositories"
+                    },
+                    "symbol": {
+                      "type": "string",
+                      "description": "Token symbol"
+                    },
+                    "address": {
+                      "type": "string",
+                      "description": "Protocol address"
+                    },
+                    "childProtocols": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      },
+                      "description": "Child protocols"
+                    },
+                    "linkedProtocols": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Linked protocols"
+                    },
+                    "defillamaId": {
+                      "type": "string",
+                      "description": "DefiLlama protocol ID"
+                    },
+                    "disabled": {
+                      "type": "boolean",
+                      "nullable": true,
+                      "description": "Whether protocol is disabled"
+                    },
+                    "displayName": {
+                      "type": "string",
+                      "description": "Display name"
+                    },
+                    "module": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Module name"
+                    },
+                    "category": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Protocol category"
+                    },
+                    "methodologyURL": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Methodology URL"
+                    },
+                    "methodology": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "Methodology details"
+                    },
+                    "forkedFrom": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Forked from protocol"
+                    },
+                    "audits": {
+                      "type": "array",
+                      "nullable": true,
+                      "description": "Audit information"
+                    },
+                    "audit_links": {
+                      "type": "array",
+                      "nullable": true,
+                      "description": "Audit links"
+                    },
+                    "versionKey": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Version key"
+                    },
+                    "governanceID": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Governance ID"
+                    },
+                    "treasury": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Treasury address"
+                    },
+                    "parentProtocol": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Parent protocol"
+                    },
+                    "previousNames": {
+                      "type": "array",
+                      "nullable": true,
+                      "description": "Previous names"
+                    },
+                    "latestFetchIsOk": {
+                      "type": "boolean",
+                      "description": "Latest fetch status"
+                    },
+                    "slug": {
+                      "type": "string",
+                      "description": "Protocol slug"
+                    },
+                    "protocolType": {
+                      "type": "string",
+                      "description": "Protocol type"
+                    },
+                    "total24h": {
+                      "type": "number",
+                      "description": "24 hour fees"
+                    },
+                    "total48hto24h": {
+                      "type": "number",
+                      "description": "48h to 24h fees"
+                    },
+                    "total7d": {
+                      "type": "number",
+                      "description": "7 day fees"
+                    },
+                    "totalAllTime": {
+                      "type": "number",
+                      "description": "All time fees"
+                    },
+                    "change_1d": {
+                      "type": "number",
+                      "description": "1 day change percentage"
+                    },
+                    "totalDataChart": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": [
+                          {
+                            "type": "integer",
+                            "description": "Timestamp"
+                          },
+                          {
+                            "type": "number",
+                            "description": "Fee value"
+                          }
+                        ]
+                      },
+                      "description": "Total data chart with timestamps and fees"
+                    },
+                    "totalDataChartBreakdown": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": [
+                          {
+                            "type": "integer",
+                            "description": "Timestamp"
+                          },
+                          {
+                            "type": "object",
+                            "description": "Chain and protocol breakdown"
+                          }
+                        ]
+                      },
+                      "description": "Total data chart breakdown by chain and protocol"
+                    }
+                  }
+                },
+                "example": {
+                  "id": "parent#hyperliquid",
+                  "name": "Hyperliquid",
+                  "url": "https://hyperliquid.xyz",
+                  "referralUrl": "https://app.hyperliquid.xyz/join/DEFILLAMAO",
+                  "description": "Hyperliquid is a decentralized perpetual exchange with best-in-class speed, liquidity, and price",
+                  "logo": "https://icons.llama.fi/hyperliquid.png",
+                  "gecko_id": "hyperliquid",
+                  "cmcId": "32196",
+                  "chains": ["Hyperliquid L1"],
+                  "twitter": "HyperliquidX",
+                  "github": ["hyperliquid-dex"],
+                  "symbol": "HYPE",
+                  "address": "hyperliquid:0x0d01dc56dcaaca66ad901c959b4011ec",
+                  "childProtocols": [{}],
+                  "linkedProtocols": ["Hyperliquid", "Hyperliquid Spot Orderbook"],
+                  "defillamaId": "parent#hyperliquid",
+                  "disabled": null,
+                  "displayName": "Hyperliquid",
+                  "module": null,
+                  "category": null,
+                  "methodologyURL": null,
+                  "methodology": null,
+                  "forkedFrom": null,
+                  "audits": null,
+                  "audit_links": null,
+                  "versionKey": null,
+                  "governanceID": null,
+                  "treasury": null,
+                  "parentProtocol": null,
+                  "previousNames": null,
+                  "latestFetchIsOk": true,
+                  "slug": "hyperliquid",
+                  "protocolType": "protocol",
+                  "total24h": 4890250,
+                  "total48hto24h": 4550411,
+                  "total7d": 26184696,
+                  "totalAllTime": 499292857,
+                  "change_1d": 7.47,
+                  "totalDataChart": [[1734912000, 1472923]],
+                  "totalDataChartBreakdown": [
+                    [
+                      1734912000,
+                      {
+                        "Hyperliquid L1": {
+                          "Hyperliquid Spot Orderbook": 1472923
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
           }
         }
       }

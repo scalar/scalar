@@ -2171,7 +2171,67 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "Overview of all protocols with fees and revenue data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "protocols": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "example": "Uniswap"
+                          },
+                          "total24h": {
+                            "type": "number",
+                            "example": 5000000
+                          },
+                          "revenue24h": {
+                            "type": "number",
+                            "example": 2000000
+                          },
+                          "change_1d": {
+                            "type": "number",
+                            "example": 12.5
+                          },
+                          "chains": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "example": ["Ethereum", "Polygon"]
+                          }
+                        }
+                      }
+                    },
+                    "totalDataChart": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "example": [1640995200, 25000000]
+                      }
+                    },
+                    "totalDataChartBreakdown": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "example": [
+                          1640995200,
+                          {
+                            "Uniswap": 5000000,
+                            "Compound": 3000000
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -2210,7 +2270,278 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Protocol ID"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Protocol name"
+                    },
+                    "url": {
+                      "type": "string",
+                      "description": "Protocol URL"
+                    },
+                    "referralUrl": {
+                      "type": "string",
+                      "description": "Referral URL"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "Protocol description"
+                    },
+                    "logo": {
+                      "type": "string",
+                      "description": "Protocol logo URL"
+                    },
+                    "gecko_id": {
+                      "type": "string",
+                      "description": "CoinGecko ID"
+                    },
+                    "cmcId": {
+                      "type": "string",
+                      "description": "CoinMarketCap ID"
+                    },
+                    "chains": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Supported chains"
+                    },
+                    "twitter": {
+                      "type": "string",
+                      "description": "Twitter handle"
+                    },
+                    "github": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "GitHub repositories"
+                    },
+                    "symbol": {
+                      "type": "string",
+                      "description": "Token symbol"
+                    },
+                    "address": {
+                      "type": "string",
+                      "description": "Protocol address"
+                    },
+                    "childProtocols": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      },
+                      "description": "Child protocols"
+                    },
+                    "linkedProtocols": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Linked protocols"
+                    },
+                    "defillamaId": {
+                      "type": "string",
+                      "description": "DefiLlama protocol ID"
+                    },
+                    "disabled": {
+                      "type": "boolean",
+                      "nullable": true,
+                      "description": "Whether protocol is disabled"
+                    },
+                    "displayName": {
+                      "type": "string",
+                      "description": "Display name"
+                    },
+                    "module": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Module name"
+                    },
+                    "category": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Protocol category"
+                    },
+                    "methodologyURL": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Methodology URL"
+                    },
+                    "methodology": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "Methodology details"
+                    },
+                    "forkedFrom": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Forked from protocol"
+                    },
+                    "audits": {
+                      "type": "array",
+                      "nullable": true,
+                      "description": "Audit information"
+                    },
+                    "audit_links": {
+                      "type": "array",
+                      "nullable": true,
+                      "description": "Audit links"
+                    },
+                    "versionKey": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Version key"
+                    },
+                    "governanceID": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Governance ID"
+                    },
+                    "treasury": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Treasury address"
+                    },
+                    "parentProtocol": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Parent protocol"
+                    },
+                    "previousNames": {
+                      "type": "array",
+                      "nullable": true,
+                      "description": "Previous names"
+                    },
+                    "latestFetchIsOk": {
+                      "type": "boolean",
+                      "description": "Latest fetch status"
+                    },
+                    "slug": {
+                      "type": "string",
+                      "description": "Protocol slug"
+                    },
+                    "protocolType": {
+                      "type": "string",
+                      "description": "Protocol type"
+                    },
+                    "total24h": {
+                      "type": "number",
+                      "description": "24 hour fees"
+                    },
+                    "total48hto24h": {
+                      "type": "number",
+                      "description": "48h to 24h fees"
+                    },
+                    "total7d": {
+                      "type": "number",
+                      "description": "7 day fees"
+                    },
+                    "totalAllTime": {
+                      "type": "number",
+                      "description": "All time fees"
+                    },
+                    "change_1d": {
+                      "type": "number",
+                      "description": "1 day change percentage"
+                    },
+                    "totalDataChart": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": [
+                          {
+                            "type": "integer",
+                            "description": "Timestamp"
+                          },
+                          {
+                            "type": "number",
+                            "description": "Fee value"
+                          }
+                        ]
+                      },
+                      "description": "Total data chart with timestamps and fees"
+                    },
+                    "totalDataChartBreakdown": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": [
+                          {
+                            "type": "integer",
+                            "description": "Timestamp"
+                          },
+                          {
+                            "type": "object",
+                            "description": "Chain and protocol breakdown"
+                          }
+                        ]
+                      },
+                      "description": "Total data chart breakdown by chain and protocol"
+                    }
+                  }
+                },
+                "example": {
+                  "id": "parent#hyperliquid",
+                  "name": "Hyperliquid",
+                  "url": "https://hyperliquid.xyz",
+                  "referralUrl": "https://app.hyperliquid.xyz/join/DEFILLAMAO",
+                  "description": "Hyperliquid is a decentralized perpetual exchange with best-in-class speed, liquidity, and price",
+                  "logo": "https://icons.llama.fi/hyperliquid.png",
+                  "gecko_id": "hyperliquid",
+                  "cmcId": "32196",
+                  "chains": ["Hyperliquid L1"],
+                  "twitter": "HyperliquidX",
+                  "github": ["hyperliquid-dex"],
+                  "symbol": "HYPE",
+                  "address": "hyperliquid:0x0d01dc56dcaaca66ad901c959b4011ec",
+                  "childProtocols": [{}],
+                  "linkedProtocols": ["Hyperliquid", "Hyperliquid Spot Orderbook"],
+                  "defillamaId": "parent#hyperliquid",
+                  "disabled": null,
+                  "displayName": "Hyperliquid",
+                  "module": null,
+                  "category": null,
+                  "methodologyURL": null,
+                  "methodology": null,
+                  "forkedFrom": null,
+                  "audits": null,
+                  "audit_links": null,
+                  "versionKey": null,
+                  "governanceID": null,
+                  "treasury": null,
+                  "parentProtocol": null,
+                  "previousNames": null,
+                  "latestFetchIsOk": true,
+                  "slug": "hyperliquid",
+                  "protocolType": "protocol",
+                  "total24h": 4890250,
+                  "total48hto24h": 4550411,
+                  "total7d": 26184696,
+                  "totalAllTime": 499292857,
+                  "change_1d": 7.47,
+                  "totalDataChart": [[1734912000, 1472923]],
+                  "totalDataChartBreakdown": [
+                    [
+                      1734912000,
+                      {
+                        "Hyperliquid L1": {
+                          "Hyperliquid Spot Orderbook": 1472923
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
           }
         }
       }
