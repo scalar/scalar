@@ -12,6 +12,7 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
+import LinkList from '@/components/Section/LinkList.vue'
 import { DownloadLink, OPENAPI_VERSION_SYMBOL } from '@/features/download-link'
 import ExternalDocs from '@/features/ExternalDocs/ExternalDocs.vue'
 import Contact from '@/features/InfoObject/Contact.vue'
@@ -81,8 +82,7 @@ onMounted(() => config.value.onLoaded?.())
             {{ document.info?.title }}
           </SectionHeaderTag>
           <template #links>
-            <div
-              class="mb-3 flex h-auto min-h-8 max-w-full items-center gap-2 overflow-auto text-xs whitespace-nowrap xl:mb-1.5">
+            <LinkList>
               <ExternalDocs
                 v-if="externalDocs"
                 :value="externalDocs" />
@@ -95,7 +95,7 @@ onMounted(() => config.value.onLoaded?.())
               <TermsOfService
                 v-if="document.info?.termsOfService"
                 :value="document.info?.termsOfService" />
-            </div>
+            </LinkList>
           </template>
         </SectionHeader>
         <SectionColumns>
