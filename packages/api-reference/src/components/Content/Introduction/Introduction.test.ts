@@ -1,5 +1,6 @@
 import { DownloadLink } from '@/features/download-link'
 import { useSidebar } from '@/features/sidebar/hooks/useSidebar'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -39,8 +40,21 @@ describe('Introduction', () => {
         title: 'Hello World',
         description: 'Example description',
         version: '1.0.0',
+        contact: {
+          name: 'Marc from Scalar',
+          email: 'marc@scalar.com',
+        },
+        license: {
+          name: 'MIT',
+          url: 'https://opensource.org/license/MIT',
+        },
+        termsOfService: 'https://scalar.com/terms',
       },
-    } satisfies Spec
+      externalDocs: {
+        description: 'Documentation',
+        url: 'https://scalar.com',
+      },
+    } satisfies OpenAPIV3_1.Document
 
     const wrapper = mount(Introduction, {
       props: {
@@ -51,6 +65,10 @@ describe('Introduction', () => {
     expect(wrapper.html()).toContain('Hello World')
     expect(wrapper.html()).toContain('Example description')
     expect(wrapper.html()).toContain('v1.0.0')
+    expect(wrapper.html()).toContain('Documentation')
+    expect(wrapper.html()).toContain('Marc from Scalar')
+    expect(wrapper.html()).toContain('MIT')
+    expect(wrapper.html()).toContain('Terms of Service')
   })
 
   it('renders loading state when info is empty', () => {

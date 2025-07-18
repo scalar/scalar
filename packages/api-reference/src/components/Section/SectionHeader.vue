@@ -8,7 +8,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="section-header-wrapper">
+  <div class="section-header-wrapper xl:gap-12">
     <LoadingSkeleton v-if="loading" />
     <div
       v-else
@@ -16,6 +16,9 @@ defineProps<{
       :class="{ tight }">
       <slot />
     </div>
+    <slot
+      v-if="$slots.links"
+      name="links" />
   </div>
 </template>
 
