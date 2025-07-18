@@ -753,11 +753,11 @@ jobs:
 
       - name: Check for Aspire package.json changes
         id: changed-files
-        # uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94
-        # with:
-        #   files_yaml: |
-        #     aspire_package:
-        #       - integrations/aspire/package.json
+        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94
+        with:
+          files_yaml: |
+            aspire_package:
+              - integrations/aspire/package.json
         run: |
           echo "aspire_package_any_changed=true" >> $GITHUB_OUTPUT
 
@@ -801,7 +801,7 @@ jobs:
         with:
           context: integrations/aspire
           file: integrations/aspire/src/Scalar.Aspire.Service/Dockerfile
-          push: false
+          push: true
           # With ARM
           platforms: |
             linux/amd64
@@ -834,10 +834,10 @@ jobs:
         working-directory: integrations/aspire/src/Scalar.Aspire
         run: dotnet pack -c Release --no-restore --output nupkgs /p:Version=$VERSION
 
-      # - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
-      #   name: Publish Scalar.Aspire NuGet package
-      #   working-directory: integrations/aspire/src/Scalar.Aspire
-      #   run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
+      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
+        name: Publish Scalar.Aspire NuGet package
+        working-directory: integrations/aspire/src/Scalar.Aspire
+        run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
 
   fastapi-build-test:
     runs-on: blacksmith-2vcpu-ubuntu-2204
