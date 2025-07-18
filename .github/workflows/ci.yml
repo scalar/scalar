@@ -723,8 +723,8 @@ jobs:
         working-directory: integrations/aspnetcore
         run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
 
-  aspire-publish:
-    #if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
+  aspire-build-docker-image:
+    # if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 10
     concurrency:
@@ -802,10 +802,49 @@ jobs:
           context: integrations/aspire
           file: integrations/aspire/src/Scalar.Aspire.Service/Dockerfile
           push: false
+          load: true
           platforms: ${{ matrix.docker_platform }}
           tags: |
-            scalarapi/aspire-api-reference:latest
-            scalarapi/aspire-api-reference:${{ env.VERSION }}
+            scalarapi/aspire-api-reference:${{ matrix.docker_platform }}
+
+  aspire-publish-nuget:
+    # if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    concurrency:
+      group: aspire-publish-nuget
+      cancel-in-progress: false
+    needs:
+      [
+        harden_security,
+        build,
+        format,
+        types,
+        test-packages,
+        test-integrations,
+        aspire-merge-docker-manifests,
+      ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@09d2acae674a48949e3602304ab46fd20ae0c42f
+
+      - name: Check which files were touched
+        id: changed-files
+        # uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94
+        # with:
+        #   files_yaml: |
+        #     aspire_package:
+        #       - integrations/aspire/package.json
+        run: |
+          echo "aspire_package_any_changed=true" >> $GITHUB_OUTPUT
+
+      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
+        name: Extract version from package.json
+        working-directory: integrations/aspire
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Set version in Constants.cs
@@ -836,6 +875,27 @@ jobs:
       #   name: Publish Scalar.Aspire NuGet package
       #   working-directory: integrations/aspire/src/Scalar.Aspire
       #   run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
+
+  aspire-merge-docker-manifests:
+    needs: aspire-build-docker-image
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    steps:
+      - name: Build Docker image
+        uses: useblacksmith/build-push-action@574eb0ee0b59c6a687ace24192f0727dfb65d6d7
+        with:
+          setup-only: true
+      - name: Log in to DockerHub
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Create and push multi-arch manifest
+        run: |
+          docker manifest create scalarapi/aspire-api-reference \
+            scalarapi/aspire-api-reference:amd64 \
+            scalarapi/aspire-api-reference:arm64
+        #  docker manifest push scalarapi/aspire-api-reference:latest
 
   fastapi-build-test:
     runs-on: blacksmith-2vcpu-ubuntu-2204
