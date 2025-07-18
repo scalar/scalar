@@ -54,11 +54,6 @@ const title = computed(() => props.tag['x-displayName'] ?? props.tag.name)
     <SectionContent :loading="config.isLoading">
       <SectionColumns>
         <SectionColumn>
-          <div
-            class="mb-4.5 flex gap-2"
-            v-if="tag.externalDocs">
-            <ExternalDocs :value="tag.externalDocs" />
-          </div>
           <ScalarMarkdown
             :clamp="isCollapsed ? '7' : false"
             :value="tag.description"
