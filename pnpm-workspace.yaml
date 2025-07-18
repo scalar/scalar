@@ -1,5 +1,5 @@
 packages:
-  - examples/**/*
+  - examples/web
   - integrations/**/*
   - packages/**/*
   - playwright

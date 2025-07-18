@@ -13,7 +13,9 @@ import SlotPlaceholder from '../components/SlotPlaceholder.vue'
 const getUpdatedSpec = (baseUrl: string) => {
   if (baseUrl === 'https://pro-api.llama.fi') {
     const spec = JSON.parse(JSON.stringify(proSpecContent))
-    spec.servers = [{ url: baseUrl }]
+    if (!spec.servers) {
+      spec.servers = [{ url: baseUrl }]
+    }
     return spec
   }
 
@@ -28,12 +30,21 @@ const getUpdatedSpec = (baseUrl: string) => {
         if (!freeSpec.paths[path]) {
           freeSpec.paths[path] = {}
         }
-        freeSpec.paths[path][method] = proSpec.paths[path][method]
+
+        const proOperation = proSpec.paths[path][method]
+
+        // If the pro operation doesn't have its own server, use the pro spec's global server
+        if (!proOperation.servers && proSpec.servers) {
+          proOperation.servers = proSpec.servers
+        }
+        freeSpec.paths[path][method] = proOperation
       }
     }
   }
 
-  freeSpec.servers = [{ url: baseUrl }]
+  if (!freeSpec.servers) {
+    freeSpec.servers = [{ url: baseUrl }]
+  }
   return freeSpec
 }
 
@@ -71,7 +82,9 @@ const handleApiKeyChange = (apiKey: string | null) => {
 <template>
   <div class="standalone-api-reference-page">
     <ApiKeyInput @api-key-change="handleApiKeyChange" />
-    <ApiReference :configuration="configuration">
+    <ApiReference
+      :configuration="configuration"
+      :key="currentBaseUrl">
       <template #footer><SlotPlaceholder>footer</SlotPlaceholder></template>
     </ApiReference>
   </div>

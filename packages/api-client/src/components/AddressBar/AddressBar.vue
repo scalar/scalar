@@ -141,7 +141,6 @@ function handleExecuteRequest() {
   if (isRequesting.value) {
     return
   }
-  isRequesting.value = true
   events.executeRequest.emit({ requestUid: operation.uid })
 }
 

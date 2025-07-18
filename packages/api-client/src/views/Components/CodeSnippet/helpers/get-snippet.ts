@@ -5,6 +5,14 @@ import type { Request as HarRequest } from 'har-format'
 /** Key used to hack around the invalid urls */
 const INVALID_URLS_PREFIX = 'ws://replace.me'
 
+const injectApiKeyPlaceholder = (url: string) => {
+  if (url.startsWith('https://pro-api.llama.fi')) {
+    const urlParts = new URL(url)
+    return `${urlParts.origin}/<API-KEY>${urlParts.pathname}${urlParts.search}`
+  }
+  return url
+}
+
 /**
  * Returns a code example for given operation
  */
@@ -17,6 +25,8 @@ export const getSnippet = <T extends TargetId>(
     if (!harRequest.url) {
       return [new Error('Please enter a URL to see a code snippet'), null]
     }
+
+    harRequest.url = injectApiKeyPlaceholder(harRequest.url)
 
     const separator = harRequest.url.startsWith('/') ? '' : '/'
 

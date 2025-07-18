@@ -11,6 +11,7 @@ import { useClientConfig } from '@/hooks/useClientConfig'
 import { useSidebar } from '@/hooks/useSidebar'
 import { ERRORS } from '@/libs'
 import { createRequestOperation } from '@/libs/send-request'
+import { getApiKey, doesUrlRequireApiKey } from '@/libs/api-key-manager'
 import type { SendRequestResult } from '@/libs/send-request/create-request-operation'
 import { validateParameters } from '@/libs/validate-parameters'
 import { usePluginManager } from '@/plugins'
@@ -67,6 +68,17 @@ const selectedSecuritySchemeUids = computed(
 const executeRequest = async () => {
   if (!activeRequest.value || !activeExample.value || !activeCollection.value) {
     return
+  }
+
+  if (activeWorkspace.value) {
+    const apiKey = getApiKey(activeWorkspace.value.uid)
+    if (
+      doesUrlRequireApiKey(activeServer.value?.url ?? '') &&
+      (!apiKey || !apiKey.key)
+    ) {
+      toast('Please set an API key to use this pro endpoint.', 'warn')
+      return
+    }
   }
 
   invalidParams.value = validateParameters(activeExample.value)

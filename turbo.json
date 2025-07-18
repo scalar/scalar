@@ -12,21 +12,6 @@
       "cache": false,
       "persistent": true,
       "dependsOn": ["^build"]
-    },
-    "playground": {
-      "cache": false,
-      "persistent": true,
-      "dependsOn": ["^build"]
-    },
-    "playground:modal": {
-      "cache": false,
-      "persistent": true,
-      "dependsOn": ["^build"]
-    },
-    "playground:web": {
-      "cache": false,
-      "persistent": true,
-      "dependsOn": ["^build"]
     }
   }
 }

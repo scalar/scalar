@@ -93,7 +93,7 @@ export const getApiKeyValue = (workspaceId: string): string | null => {
 /**
  * List of URLs that require API key injection as path segments
  */
-const API_KEY_REQUIRED_URLS = ['https://pro-api.llama.fi']
+// const API_KEY_REQUIRED_URLS = ['https://pro-api.llama.fi']
 
 /**
  * Checks if a given URL requires API key injection in the path
@@ -103,22 +103,7 @@ const API_KEY_REQUIRED_URLS = ['https://pro-api.llama.fi']
  */
 export const doesUrlRequireApiKey = (url: string): boolean => {
   if (!url) return false
-
-  try {
-    // Handle both full URLs and relative URLs
-    const urlToCheck = url.startsWith('http') ? url : `https://${url}`
-    const urlObj = new URL(urlToCheck)
-    const baseUrl = `${urlObj.protocol}//${urlObj.host}`
-
-    return API_KEY_REQUIRED_URLS.some(
-      (requiredUrl) =>
-        baseUrl.toLowerCase() === requiredUrl.toLowerCase() ||
-        baseUrl.toLowerCase().startsWith(requiredUrl.toLowerCase()),
-    )
-  } catch (error) {
-    console.warn('Invalid URL format:', url, error)
-    return false
-  }
+  return url.startsWith('https://pro-api.llama.fi')
 }
 
 /**

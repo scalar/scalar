@@ -206,7 +206,7 @@ const generatedCode = computed<string>(() => {
       clientId: localSelectedClient.value.id as AvailableClients[number],
       operation,
       method,
-      server: selectedServer,
+      server: operation.servers?.[0] ?? selectedServer,
       securitySchemes,
       contentType: selectedContentType,
       path,
