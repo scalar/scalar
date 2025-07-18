@@ -131,6 +131,8 @@ const defaultRedirectUri = typeof window !== 'undefined' ? window.location.origi
 /** Options for the x-usePkce extension */
 export const pkceOptions = ['SHA-256', 'plain', 'no'] as const
 
+const credentialsLocationExtension = z.enum(['header', 'body']).optional()
+
 /** Oauth2 security scheme */
 const oasSecuritySchemeOauth2 = commonProps.extend({
   type: z.literal('oauth2'),
@@ -152,12 +154,14 @@ const oasSecuritySchemeOauth2 = commonProps.extend({
         clientSecret: z.string().default(''),
         username: z.string().default(''),
         password: z.string().default(''),
+        'x-scalar-credentials-location': credentialsLocationExtension,
       }),
       /** Configuration for the OAuth Client Credentials flow. Previously called application in OpenAPI 2.0. */
       clientCredentials: flowsCommon.extend({
         type: z.literal('clientCredentials').default('clientCredentials'),
         tokenUrl,
         clientSecret: z.string().default(''),
+        'x-scalar-credentials-location': credentialsLocationExtension,
       }),
       /** Configuration for the OAuth Authorization Code flow. Previously called accessCode in OpenAPI 2.0.*/
       authorizationCode: flowsCommon.extend({
@@ -166,7 +170,8 @@ const oasSecuritySchemeOauth2 = commonProps.extend({
         'x-usePkce': z.enum(pkceOptions).optional().default('no'),
         'x-scalar-redirect-uri': z.string().optional().default(defaultRedirectUri),
         tokenUrl,
-        'clientSecret': z.string().default(''),
+        clientSecret: z.string().default(''),
+        'x-scalar-credentials-location': credentialsLocationExtension,
       }),
     })
     .partial()

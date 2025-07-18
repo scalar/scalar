@@ -340,6 +340,13 @@ app.MapScalarApiReference(options => options
         {   
              ["audience"] = "https://api.example.com"
         };
+
+        // Specify where OAuth2 credentials should be sent: 'Header' or 'Body'
+        // This is also available for client credentials and password flows
+        flow.WithCredentialsLocation(CredentialsLocation.Header);
+        
+        // Alternatively, set using the property
+        flow.CredentialsLocation = CredentialsLocation.Body;
     })
 );
 ```

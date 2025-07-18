@@ -26,4 +26,15 @@ public static class ClientCredentialsFlowExtensions
         flow.ClientSecret = clientSecret;
         return flow;
     }
+
+    /// <summary>
+    /// Sets the location where authentication credentials should be placed in HTTP requests for the client credentials flow.
+    /// </summary>
+    /// <param name="flow">T<see cref="ClientCredentialsFlow"/>.</param>
+    /// <param name="credentialsLocation">The location for credentials.</param>
+    public static ClientCredentialsFlow WithCredentialsLocation(this ClientCredentialsFlow flow, CredentialsLocation? credentialsLocation)
+    {
+        flow.CredentialsLocation = credentialsLocation;
+        return flow;
+    }
 }
