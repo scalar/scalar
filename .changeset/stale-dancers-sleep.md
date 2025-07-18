@@ -2,4 +2,4 @@
 '@scalar/themes': patch
 ---
 
-feat: adds a element base style
+feat: adds global base style for anchor tag
