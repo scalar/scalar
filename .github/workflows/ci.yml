@@ -585,6 +585,7 @@ jobs:
         with:
           dotnet-version: |
             9.x
+            8.x
 
       - name: Restore dependencies
         working-directory: integrations/aspnetcore
@@ -801,7 +802,6 @@ jobs:
           context: integrations/aspire
           file: integrations/aspire/src/Scalar.Aspire.Service/Dockerfile
           push: false
-          load: true
           # With ARM
           platforms: |
             linux/amd64
