@@ -21,7 +21,7 @@ onlyBuiltDependencies:
 catalogs:
   '*':
     '@fastify/swagger': ^8.10.1
-    '@floating-ui/utils': ^0.2.10
+    '@floating-ui/utils': ^0.2.2
     '@floating-ui/vue': ^1.1.7
     '@google-cloud/storage': 7.16.0
     '@headlessui/tailwindcss': ^0.2.2
