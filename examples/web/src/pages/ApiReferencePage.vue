@@ -4,6 +4,7 @@ import {
   type ApiReferenceConfiguration,
 } from '@scalar/api-reference'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 
 import DevReferencesOptions from '../components/DevReferencesOptions.vue'
@@ -37,7 +38,11 @@ onMounted(() => {
 
 watch(
   content,
-  () => window.localStorage?.setItem('api-reference-content', content.value),
+  () => {
+    window.localStorage?.setItem('api-reference-content', content.value)
+
+    // TODO: Update the document in the store?
+  },
   { deep: true },
 )
 
@@ -58,9 +63,19 @@ watch(
     document.body.classList.toggle('light-mode', !isDark)
   },
 )
+
+const store = createWorkspaceStore({
+  documents: [
+    {
+      name: 'default',
+      document: JSON.parse(content.value) as Record<string, unknown>,
+    },
+  ],
+})
 </script>
 <template>
   <ApiReferenceLayout
+    :store="store"
     :isDark="isDarkMode"
     @toggleDarkMode="() => toggleColorMode()"
     :configuration="configuration"

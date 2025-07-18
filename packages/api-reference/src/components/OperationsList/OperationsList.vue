@@ -4,40 +4,45 @@ import {
   ScalarCardHeader,
   ScalarCardSection,
 } from '@scalar/components'
-import type { Collection } from '@scalar/oas-utils/entities/spec'
-import type { Tag } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
+import type { TraversedTag } from '@/features/traverse-schema'
+import type {
+  TraversedOperation,
+  TraversedWebhook,
+} from '@/features/traverse-schema/types'
 
 import OperationsListItem from './OperationsListItem.vue'
 
-const props = defineProps<{
-  tag: Tag
-  collection: Collection
-  isCollapsed?: boolean
+const { tag } = defineProps<{
+  tag: TraversedTag
 }>()
 
-const tagName = computed(() => props.tag['x-displayName'] ?? props.tag.name)
+const operationsAndWebhooks = computed(
+  (): (TraversedOperation | TraversedWebhook)[] => {
+    return tag.children?.filter(
+      (child) => 'operation' in child || 'webhook' in child,
+    )
+  },
+)
 </script>
 
 <template>
-  <template v-if="tag.operations?.length > 0">
+  <template v-if="tag.children?.length > 0">
     <ScalarCard class="endpoints-card">
-      <ScalarCardHeader>
-        <ScreenReader>{{ tagName }}</ScreenReader>
-        Operations
+      <ScalarCardHeader muted>
+        <ScreenReader>{{ tag.title }}</ScreenReader>
+        {{ tag.isWebhooks ? 'Webhooks' : 'Operations' }}
       </ScalarCardHeader>
       <ScalarCardSection class="custom-scroll">
         <ul
-          :aria-label="`${tagName} endpoints`"
+          :aria-label="`${tag.title} endpoints`"
           class="endpoints">
           <OperationsListItem
-            v-for="operation in tag.operations"
-            :key="operation.id"
-            :collection="collection"
-            :isCollapsed="isCollapsed"
-            :transformedOperation="operation" />
+            v-for="operationOrWebhook in operationsAndWebhooks"
+            :key="operationOrWebhook.id"
+            :operation="operationOrWebhook" />
         </ul>
       </ScalarCardSection>
     </ScalarCard>

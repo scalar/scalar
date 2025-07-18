@@ -3,18 +3,18 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
-import { useNavState } from '@/hooks/useNavState'
-
 import {
   SectionAccordion,
   SectionContainerAccordion,
   SectionHeader,
   SectionHeaderTag,
-} from '../../Section'
+} from '@/components/Section'
+import { useNavState } from '@/hooks/useNavState'
+
 import { SchemaHeading, SchemaProperty } from '../Schema'
 
 const props = defineProps<{
-  schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
+  schemas?: Record<string, OpenAPIV3_1.SchemaObject> | undefined
 }>()
 
 const models = computed(() => {

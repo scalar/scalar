@@ -8,6 +8,7 @@ import {
   isOperationDeprecated,
 } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
@@ -16,6 +17,7 @@ import { computed, useId } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { Badge } from '@/components/Badge'
+import { LinkList } from '@/components/LinkList'
 import OperationPath from '@/components/OperationPath.vue'
 import {
   Section,
@@ -26,6 +28,7 @@ import {
   SectionHeaderTag,
 } from '@/components/Section'
 import { ExampleResponses } from '@/features/example-responses'
+import { ExternalDocs } from '@/features/external-docs'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
@@ -33,7 +36,6 @@ import type { Schemas } from '@/features/Operation/types/schemas'
 import { TestRequestButton } from '@/features/test-request-button'
 import { useConfig } from '@/hooks/useConfig'
 import { RequestExample } from '@/v2/blocks/scalar-request-example-block'
-import { useStore } from '@/v2/hooks/useStore'
 
 const { path, operation, method, isWebhook } = defineProps<{
   id: string
@@ -45,6 +47,7 @@ const { path, operation, method, isWebhook } = defineProps<{
   securitySchemes: SecuritySchemeObject[]
   server: ServerObject | undefined
   schemas?: Schemas
+  store: WorkspaceStore
 }>()
 
 const operationTitle = computed(() => operation.summary || path || '')
@@ -54,7 +57,6 @@ const emit = defineEmits<{
 }>()
 
 const labelId = useId()
-const { workspace } = useStore()
 const config = useConfig()
 
 const handleDiscriminatorChange = (type: string) => {
@@ -125,13 +127,18 @@ const handleDiscriminatorChange = (type: string) => {
         </SectionColumn>
         <SectionColumn>
           <div class="examples">
+            <!-- External Docs -->
+            <LinkList v-if="operation.externalDocs">
+              <ExternalDocs :value="operation.externalDocs" />
+            </LinkList>
+
             <!-- New Example Request -->
             <ScalarErrorBoundary>
               <RequestExample
                 :method="method"
                 :selectedServer="server"
                 :securitySchemes="securitySchemes"
-                :selectedClient="workspace['x-scalar-default-client']"
+                :selectedClient="store.workspace['x-scalar-default-client']"
                 :path="path"
                 fallback
                 :operation="operation"

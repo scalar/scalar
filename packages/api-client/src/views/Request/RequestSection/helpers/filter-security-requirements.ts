@@ -11,7 +11,7 @@ export const filterSecurityRequirements = (
 ): SecurityScheme[] => {
   // Create a Set of required security combinations for O(1) lookup
   const requiredCombinations = new Set(
-    securityRequirements.map((requirement) => Object.keys(requirement).sort().join(',')),
+    securityRequirements?.map((requirement) => Object.keys(requirement).sort().join(',')) ?? [],
   )
 
   // Process all schemes in a single pass
