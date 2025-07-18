@@ -25,7 +25,6 @@ import Description from './Description.vue'
 
 const { document } = defineProps<{
   document: OpenAPIV3_1.Document
-  externalDocs?: OpenAPIV3_1.ExternalDocumentationObject
 }>()
 
 const { getHeadingId } = useNavState()
@@ -81,9 +80,7 @@ onMounted(() => config.value.onLoaded?.())
           </SectionHeaderTag>
           <template #links>
             <LinkList>
-              <ExternalDocs
-                v-if="externalDocs"
-                :value="externalDocs" />
+              <ExternalDocs :value="document.externalDocs" />
               <Contact
                 v-if="document.info?.contact"
                 :value="document.info?.contact" />
