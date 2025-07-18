@@ -753,11 +753,13 @@ jobs:
 
       - name: Check for Aspire package.json changes
         id: changed-files
-        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94
-        with:
-          files_yaml: |
-            aspire_package:
-              - integrations/aspire/package.json
+        # uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94
+        # with:
+        #   files_yaml: |
+        #     aspire_package:
+        #       - integrations/aspire/package.json
+        run: |
+          echo "aspire_package_any_changed=true" >> $GITHUB_OUTPUT
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Extract version from package.json
