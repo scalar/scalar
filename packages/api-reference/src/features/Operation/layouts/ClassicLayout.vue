@@ -27,9 +27,11 @@ import { computed } from 'vue'
 import { Anchor } from '@/components/Anchor'
 import { Badge } from '@/components/Badge'
 import { HttpMethod } from '@/components/HttpMethod'
+import { LinkList } from '@/components/LinkList'
 import OperationPath from '@/components/OperationPath.vue'
 import { SectionAccordion } from '@/components/Section'
 import { ExampleResponses } from '@/features/example-responses'
+import { ExternalDocs } from '@/features/external-docs'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
@@ -163,18 +165,25 @@ const handleDiscriminatorChange = (type: string) => {
         :responses="operation.responses" />
 
       <!-- New Example Request -->
-      <ScalarErrorBoundary>
-        <RequestExample
-          class="operation-example-card"
-          :method="method"
-          :selectedServer="server"
-          :selectedClient="store.workspace['x-scalar-default-client']"
-          :securitySchemes="securitySchemes"
-          :path="path"
-          fallback
-          :operation="operation"
-          @update:modelValue="handleDiscriminatorChange" />
-      </ScalarErrorBoundary>
+      <div>
+        <!-- External Docs -->
+        <LinkList v-if="operation.externalDocs">
+          <ExternalDocs :value="operation.externalDocs" />
+        </LinkList>
+        <!-- Request Example -->
+        <ScalarErrorBoundary>
+          <RequestExample
+            class="operation-example-card"
+            :method="method"
+            :selectedServer="server"
+            :selectedClient="store.workspace['x-scalar-default-client']"
+            :securitySchemes="securitySchemes"
+            :path="path"
+            fallback
+            :operation="operation"
+            @update:modelValue="handleDiscriminatorChange" />
+        </ScalarErrorBoundary>
+      </div>
     </div>
   </SectionAccordion>
 </template>

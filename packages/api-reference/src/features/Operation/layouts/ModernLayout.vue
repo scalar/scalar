@@ -17,6 +17,7 @@ import { computed, useId } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { Badge } from '@/components/Badge'
+import { LinkList } from '@/components/LinkList'
 import OperationPath from '@/components/OperationPath.vue'
 import {
   Section,
@@ -27,6 +28,7 @@ import {
   SectionHeaderTag,
 } from '@/components/Section'
 import { ExampleResponses } from '@/features/example-responses'
+import { ExternalDocs } from '@/features/external-docs'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
@@ -125,6 +127,11 @@ const handleDiscriminatorChange = (type: string) => {
         </SectionColumn>
         <SectionColumn>
           <div class="examples">
+            <!-- External Docs -->
+            <LinkList v-if="operation.externalDocs">
+              <ExternalDocs :value="operation.externalDocs" />
+            </LinkList>
+
             <!-- New Example Request -->
             <ScalarErrorBoundary>
               <RequestExample
