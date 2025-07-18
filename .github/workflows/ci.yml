@@ -758,8 +758,6 @@ jobs:
           files_yaml: |
             aspire_package:
               - integrations/aspire/package.json
-        run: |
-          echo "aspire_package_any_changed=true" >> $GITHUB_OUTPUT
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Extract version from package.json
