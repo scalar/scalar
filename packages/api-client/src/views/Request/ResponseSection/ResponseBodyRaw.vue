@@ -45,7 +45,7 @@ const getCurrentContent = () => {
       </button>
     </div>
     <div
-      class="body-raw-scroller custom-scroll relative overflow-x-auto overscroll-contain"
+      class="body-raw-scroller relative overflow-auto overscroll-contain"
       tabindex="0">
       <!-- CodeMirror container -->
       <div ref="codeMirrorRef" />
@@ -64,8 +64,8 @@ const getCurrentContent = () => {
 }
 
 .body-raw :deep(.cm-scroller) {
-  overflow: visible;
-  width: fit-content;
+  overflow: auto;
+  min-width: 100%;
 }
 
 /* Copy Button Styles */
