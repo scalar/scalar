@@ -1,8 +1,9 @@
 import { type EventBusKey, useEventBus } from '@vueuse/core'
 
-/**
- * Setup an event bus so we can listen for loaded events
- */
 const lazyEventBusKey: EventBusKey<{ id: string }> = Symbol()
 
+/** All aboard the lazy bus! */
 export const lazyBus = useEventBus(lazyEventBusKey)
+
+/** Set of all ID's which are lazy, doesn't need to be reactive */
+export const lazyIds = new Set<string>()

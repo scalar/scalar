@@ -8,7 +8,7 @@
  */
 import { nextTick, ref } from 'vue'
 
-import { lazyBus } from './lazyBus'
+import { lazyBus, lazyIds } from './lazyBus'
 
 /**
  * The default timeout for lazy loading
@@ -47,13 +47,20 @@ const onIdle = (cb: () => void) => {
 
 const readyToRender = ref(!isLazy)
 
+if (isLazy && id) {
+  lazyIds.add(id)
+}
+
 // Fire the event for non-lazy components as well to keep track of loading
 if (isLazy) {
   onIdle(() => {
     readyToRender.value = true
 
     if (id) {
-      nextTick(() => lazyBus.emit({ id }))
+      nextTick(() => {
+        lazyIds.delete(id)
+        lazyBus.emit({ id })
+      })
     }
   })
 } else if (id) {

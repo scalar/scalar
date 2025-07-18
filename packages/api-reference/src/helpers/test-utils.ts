@@ -33,3 +33,7 @@ export const createMockSidebarFromDocument = (document: OpenAPIV3_1.Document) =>
   })
   return createMockSidebar({}, result.entries)
 }
+
+export const createMockPluginManager = () => ({
+  getSpecificationExtensions: vi.fn(),
+})
