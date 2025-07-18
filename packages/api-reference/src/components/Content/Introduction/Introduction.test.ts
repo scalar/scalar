@@ -1,5 +1,6 @@
 import { DownloadLink } from '@/features/download-link'
 import { useSidebar } from '@/features/sidebar/hooks/useSidebar'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -49,15 +50,15 @@ describe('Introduction', () => {
         },
         termsOfService: 'https://scalar.com/terms',
       },
-    } satisfies Spec
+      externalDocs: {
+        description: 'Documentation',
+        url: 'https://scalar.com',
+      },
+    } satisfies OpenAPIV3_1.Document
 
     const wrapper = mount(Introduction, {
       props: {
         document: example,
-        externalDocs: {
-          description: 'Documentation',
-          url: 'https://scalar.com',
-        },
       },
     })
 
