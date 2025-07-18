@@ -1,7 +1,10 @@
 import type { ClientOption, ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
-import type { AvailableClients } from '@scalar/snippetz'
+import { AVAILABLE_CLIENTS, type AvailableClients } from '@scalar/snippetz'
 
 const DEFAULT_CLIENT = 'shell/curl'
+
+/** Type guard to check if a string is a valid client id */
+export const isClient = (id: any): id is AvailableClients[number] => AVAILABLE_CLIENTS.includes(id)
 
 /**
  * Finds and returns the appropriate client option from a list of client option groups.

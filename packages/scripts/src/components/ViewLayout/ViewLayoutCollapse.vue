@@ -43,7 +43,8 @@ const id = useId()
             ]"
             icon="ChevronRight"
             size="md" />
-          <h2 class="text-c-1 flex flex-1 items-center gap-1.5">
+          <h2
+            class="text-c-1 m-0 flex flex-1 items-center gap-1.5 leading-[20px]">
             <span
               :id="id"
               class="contents">

@@ -4,7 +4,7 @@ This guide will help you start using our Access Groups to manage user access acr
 Make sure you have created a Scalar Account & are logged in ([see create account guide](/scalar/scalar-registry/getting-started#create-your-scalar-account))
 
 ## Create your first access group
-Now let's make our first access group
+Now let's make our first access group!
 
 From the [dashboard](https://dashboard.scalar.com) left-most sidebar under Access > Groups, then click Create Access Group.
 

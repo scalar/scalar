@@ -75,7 +75,7 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
-    "flatted": "^3.3.1",
+    "flatted": "catalog:*",
     "just-clone": "^6.2.0",
     "ts-deepmerge": "^7.0.1",
     "type-fest": "catalog:*"

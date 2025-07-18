@@ -101,7 +101,7 @@ const serverUrlWithoutTrailingSlash = computed(() => {
   </ScalarListbox>
   <div
     v-else
-    class="text-c-1 flex h-auto w-full items-center gap-0.75 rounded-b-lg px-3 py-1.5 text-base whitespace-nowrap">
+    class="text-c-1 flex h-auto w-full items-center gap-0.75 rounded-b-lg px-3 py-1.5 text-base leading-[20px] whitespace-nowrap">
     <span class="sr-only">Server:</span>
     <span class="overflow-x-auto">{{ serverUrlWithoutTrailingSlash }}</span>
   </div>

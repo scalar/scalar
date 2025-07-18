@@ -2,8 +2,6 @@ import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { computed, ref } from 'vue'
-
-import { operationSchema } from '@scalar/oas-utils/entities/spec'
 import TestRequestButton from './TestRequestButton.vue'
 
 const mockClient = ref({
@@ -17,12 +15,6 @@ vi.mock('@/features/api-client-modal', () => ({
 }))
 
 describe('TestRequestButton', () => {
-  it('renders nothing when operation prop is not provided', () => {
-    const wrapper = mount(TestRequestButton)
-    // Just whitespace
-    expect(wrapper.text()).toBe('')
-  })
-
   it('renders nothing when hideTestRequestButton config is true', () => {
     const wrapper = mount(TestRequestButton, {
       global: {
@@ -33,10 +25,8 @@ describe('TestRequestButton', () => {
         },
       },
       props: {
-        operation: operationSchema.parse({
-          method: 'get',
-          path: '/test',
-        }),
+        method: 'get',
+        path: '/test',
       },
     })
     expect(wrapper.text()).toBe('')
@@ -45,15 +35,13 @@ describe('TestRequestButton', () => {
   it('renders button with correct text and icon when operation is provided', () => {
     const wrapper = mount(TestRequestButton, {
       props: {
-        operation: operationSchema.parse({
-          method: 'get',
-          path: '/test',
-        }),
+        method: 'get',
+        path: '/test',
       },
     })
 
     expect(wrapper.find('button').exists()).toBe(true)
-    expect(wrapper.find('.scalar-icon').exists()).toBe(true)
+    expect(wrapper.find('svg').exists()).toBe(true)
     expect(wrapper.text()).toContain('Test Request')
     expect(wrapper.text()).toContain('(get /test)')
   })
@@ -61,10 +49,8 @@ describe('TestRequestButton', () => {
   it('has correct button attributes', () => {
     const wrapper = mount(TestRequestButton, {
       props: {
-        operation: operationSchema.parse({
-          method: 'post',
-          path: '/users',
-        }),
+        method: 'post',
+        path: '/users',
       },
     })
 
@@ -77,18 +63,16 @@ describe('TestRequestButton', () => {
   it('calls client.open with correct params when clicked', async () => {
     const wrapper = mount(TestRequestButton, {
       props: {
-        operation: operationSchema.parse({
-          method: 'delete',
-          path: '/users/1',
-          uid: 'my-random-uuid',
-        }),
+        method: 'delete',
+        path: '/users/1',
       },
     })
 
     await wrapper.find('button').trigger('click')
 
     expect(mockClient.value.open).toHaveBeenCalledWith({
-      requestUid: 'my-random-uuid',
+      method: 'delete',
+      path: '/users/1',
     })
   })
 })

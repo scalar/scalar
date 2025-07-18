@@ -10,13 +10,14 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/fastapi"
   },
+  "version": "1.2.2",
   "private": true,
-  "version": "1.2.1",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
-    "test": "python3 run_tests.py"
+    "test": "python3 run_tests.py",
+    "dev": "cd playground && uvicorn main:app --reload"
   },
   "dependencies": {},
   "devDependencies": {}

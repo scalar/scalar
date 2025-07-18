@@ -7,10 +7,10 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
+import { ClientLibraries } from '@/components/Content/ClientLibraries'
 import { BaseUrl } from '@/features/base-url'
 import { useConfig } from '@/hooks/useConfig'
 
-import { ClientLibraries } from './ClientLibraries'
 import { Introduction } from './Introduction'
 import { Models, ModelsAccordion } from './Models'
 import { TagList } from './Tag'
@@ -90,7 +90,7 @@ const introCardsSlot = computed(() =>
             :class="{ 'introduction-card-row': layout === 'classic' }">
             <div
               v-if="activeCollection?.servers?.length"
-              class="scalar-reference-intro-server scalar-client introduction-card-item text-sm leading-normal [--scalar-address-bar-height:0px]">
+              class="scalar-reference-intro-server scalar-client introduction-card-item text-base leading-normal [--scalar-address-bar-height:0px]">
               <BaseUrl
                 :collection="activeCollection"
                 :server="activeServer" />
@@ -258,15 +258,6 @@ const introCardsSlot = computed(() =>
   .introduction-card-row
   :deep(.scalar-card:nth-of-type(2) .scalar-card-header) {
   display: none;
-}
-.references-classic
-  .introduction-card-row
-  :deep(
-    .scalar-card:nth-of-type(2)
-      .scalar-card-header.scalar-card--borderless
-      + .scalar-card-content
-  ) {
-  margin-top: 0;
 }
 .section-flare {
   top: 0;

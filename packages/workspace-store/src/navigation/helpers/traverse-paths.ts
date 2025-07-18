@@ -30,13 +30,15 @@ const createOperationEntry = (
   getOperationId: TraverseSpecOptions['getOperationId'],
 ): TraversedOperation => {
   const id = getOperationId({ ...operation, method, path }, tag)
-  titlesMap.set(id, operation.summary ?? path)
+  const title = operation.summary?.trim() ? operation.summary : path
+
+  titlesMap.set(id, title)
 
   return {
     id,
-    title: operation.summary ?? path,
+    title,
     path,
-    method: method,
+    method,
     ref,
     type: 'operation',
   }

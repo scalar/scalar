@@ -32,10 +32,10 @@ describe('ExamplePicker', () => {
     })
 
     expect(wrapper.find('[data-testid="example-picker"]').exists()).toBe(true)
-    expect(wrapper.text()).toContain('First Example')
+    expect(wrapper.text()).toContain('Select an example')
   })
 
-  it('generates correct options from examples', () => {
+  it('renders dropdown button with correct text', () => {
     const wrapper = mount(ExamplePicker, {
       props: {
         examples: mockExamples,
@@ -43,15 +43,9 @@ describe('ExamplePicker', () => {
       },
     })
 
-    const combobox = wrapper.findComponent({ name: 'ScalarCombobox' })
-    const options = combobox.props('options')
-
-    expect(options).toHaveLength(3)
-    expect(options).toEqual([
-      { id: 'example-1', label: 'First Example' },
-      { id: 'example-2', label: 'Second Example' },
-      { id: 'example-3', label: 'example-3' }, // Falls back to key when no summary
-    ])
+    const button = wrapper.find('[data-testid="example-picker"]')
+    expect(button.exists()).toBe(true)
+    expect(button.text()).toContain('Select an example')
   })
 
   it('handles empty examples object', () => {
@@ -62,10 +56,6 @@ describe('ExamplePicker', () => {
       },
     })
 
-    const combobox = wrapper.findComponent({ name: 'ScalarCombobox' })
-    const options = combobox.props('options')
-
-    expect(options).toHaveLength(0)
     expect(wrapper.text()).toContain('Select an example')
   })
 
@@ -84,10 +74,8 @@ describe('ExamplePicker', () => {
       },
     })
 
-    const combobox = wrapper.findComponent({ name: 'ScalarCombobox' })
-    const options = combobox.props('options')
-
-    expect(options).toEqual([{ id: 'key-only', label: 'key-only' }])
+    // The button should show "Select an example" when no example is selected
+    expect(wrapper.text()).toContain('Select an example')
   })
 
   it('handles null key in getLabel function', () => {
@@ -98,14 +86,8 @@ describe('ExamplePicker', () => {
       },
     })
 
-    // Access the component instance to test the getLabel method
-    const vm = wrapper.vm as any
-
     // Test with null key
-    expect(vm.getLabel(null)).toBe('Select an example')
-
-    // Test with undefined key
-    expect(vm.getLabel(undefined)).toBe('Select an example')
+    expect(wrapper.vm.getLabel(null)).toBe('Select an example')
   })
 
   it('updates selected example when model value changes', async () => {
@@ -116,8 +98,8 @@ describe('ExamplePicker', () => {
       },
     })
 
-    // Initially no example selected
-    expect(wrapper.text()).toContain('First Example')
+    // Initially shows "Select an example"
+    expect(wrapper.text()).toContain('Select an example')
 
     // Set a selected example
     await wrapper.setProps({
@@ -125,17 +107,13 @@ describe('ExamplePicker', () => {
       modelValue: 'example-1',
     })
 
-    // Simulate model update
-    const combobox = wrapper.findComponent({ name: 'ScalarCombobox' })
-    await combobox.vm.$emit('update:modelValue', { id: 'example-2', label: 'Second Example' })
-
     await nextTick()
 
     // The button should now show the selected example
-    expect(wrapper.text()).toContain('Second Example')
+    expect(wrapper.text()).toContain('First Example')
   })
 
-  it('emits model update when example is selected', async () => {
+  it('updates model value when example is selected', async () => {
     const wrapper = mount(ExamplePicker, {
       props: {
         examples: mockExamples,
@@ -143,15 +121,19 @@ describe('ExamplePicker', () => {
       },
     })
 
-    const combobox = wrapper.findComponent({ name: 'ScalarCombobox' })
-    const selectedOption = { id: 'example-2', label: 'Second Example' }
+    // Initially no example selected
+    expect(wrapper.vm.selectedExampleKey).toBe('')
 
-    await combobox.vm.$emit('update:modelValue', selectedOption)
+    // Update the model value directly
+    await wrapper.setProps({
+      examples: mockExamples,
+      modelValue: 'example-2',
+    })
 
-    // Verify the selectExample method was called with the correct option
-    // This tests the internal logic of the component
-    const vm = wrapper.vm as any
-    expect(vm.selectedExampleKey).toBe('example-2')
+    await nextTick()
+
+    // Verify the selectedExampleKey was updated
+    expect(wrapper.vm.selectedExampleKey).toBe('example-2')
   })
 
   it('handles examples with special characters in keys', () => {
@@ -177,44 +159,33 @@ describe('ExamplePicker', () => {
       },
     })
 
-    const combobox = wrapper.findComponent({ name: 'ScalarCombobox' })
-    const options = combobox.props('options')
-
-    expect(options).toEqual([
-      { id: 'example-with-dashes', label: 'Dashed Example' },
-      { id: 'example_with_underscores', label: 'Underscore Example' },
-      { id: 'example.with.dots', label: 'Dotted Example' },
-    ])
+    // Test that getLabel works with special characters
+    expect(wrapper.vm.getLabel('example-with-dashes')).toBe('Dashed Example')
+    expect(wrapper.vm.getLabel('example_with_underscores')).toBe('Underscore Example')
+    expect(wrapper.vm.getLabel('example.with.dots')).toBe('Dotted Example')
   })
 
-  it('computes selected example correctly', () => {
+  it('shows correct label for selected example', () => {
     const wrapper = mount(ExamplePicker, {
       props: {
         examples: mockExamples,
-        modelValue: '',
+        modelValue: 'example-1',
       },
     })
 
-    const vm = wrapper.vm as any
+    // Should show the summary when available
+    expect(wrapper.text()).toContain('First Example')
 
-    // Test when an example is selected
-    vm.selectedExampleKey = 'example-1'
-    expect(vm.selectedExample).toEqual({
-      id: 'example-1',
-      label: 'First Example',
+    // Test with example that has no summary
+    const wrapper2 = mount(ExamplePicker, {
+      props: {
+        examples: mockExamples,
+        modelValue: 'example-3',
+      },
     })
 
-    vm.selectedExampleKey = 'example-2'
-    expect(vm.selectedExample).toEqual({
-      id: 'example-2',
-      label: 'Second Example',
-    })
-
-    vm.selectedExampleKey = 'example-3'
-    expect(vm.selectedExample).toEqual({
-      id: 'example-3',
-      label: 'example-3',
-    })
+    // Should fall back to the key when no summary
+    expect(wrapper2.text()).toContain('example-3')
   })
 
   it('handles examples with null or undefined values', () => {
@@ -230,13 +201,22 @@ describe('ExamplePicker', () => {
       },
     })
 
-    const combobox = wrapper.findComponent({ name: 'ScalarCombobox' })
-    const options = combobox.props('options')
+    // Should handle null/undefined gracefully in getLabel
+    expect(wrapper.vm.getLabel('null-example')).toBe('null-example')
+    expect(wrapper.vm.getLabel('undefined-example')).toBe('undefined-example')
+  })
 
-    // Should handle null/undefined gracefully
-    expect(options).toEqual([
-      { id: 'null-example', label: 'null-example' },
-      { id: 'undefined-example', label: 'undefined-example' },
-    ])
+  it('generates correct labels for all examples', () => {
+    const wrapper = mount(ExamplePicker, {
+      props: {
+        examples: mockExamples,
+        modelValue: '',
+      },
+    })
+
+    // Test that getLabel generates correct labels for all examples
+    expect(wrapper.vm.getLabel('example-1')).toBe('First Example')
+    expect(wrapper.vm.getLabel('example-2')).toBe('Second Example')
+    expect(wrapper.vm.getLabel('example-3')).toBe('example-3') // Falls back to key when no summary
   })
 })

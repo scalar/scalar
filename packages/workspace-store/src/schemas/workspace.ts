@@ -6,6 +6,7 @@ import { xScalarClientConfigEnvironmentsSchema } from '@/schemas/v3.1/strict/cli
 import { xScalarClientConfigCookiesSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-cookies'
 import { ServerObjectSchema } from '@/schemas/v3.1/strict/server'
 import { SecuritySchemeObjectSchema } from '@/schemas/v3.1/strict/security-scheme'
+import { AVAILABLE_CLIENTS } from '@scalar/types/snippetz'
 
 const WorkspaceDocumentMetaSchema = Type.Partial(
   Type.Object({
@@ -23,7 +24,7 @@ export type WorkspaceDocument = Static<typeof WorkspaceDocumentSchema>
 export const WorkspaceMetaSchema = Type.Partial(
   Type.Object({
     [extensions.workspace.darkMode]: Type.Boolean(),
-    [extensions.workspace.defaultClient]: Type.String(),
+    [extensions.workspace.defaultClient]: Type.Union(AVAILABLE_CLIENTS.map((client) => Type.Literal(client))),
     [extensions.workspace.activeDocument]: Type.String(),
     [extensions.workspace.theme]: Type.String(),
   }),

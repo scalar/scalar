@@ -1,5 +1,12 @@
 <script lang="ts" setup>
-import { ScalarCodeBlock, ScalarIcon, ScalarMarkdown } from '@scalar/components'
+import {
+  ScalarCard,
+  ScalarCardFooter,
+  ScalarCardSection,
+  ScalarCodeBlock,
+  ScalarIcon,
+  ScalarMarkdown,
+} from '@scalar/components'
 import type { Operation } from '@scalar/oas-utils/entities/spec'
 import {
   getObjectKeys,
@@ -8,17 +15,12 @@ import {
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed, ref, useId } from 'vue'
 
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardTab,
-  CardTabHeader,
-} from '@/components/Card'
 import ScreenReader from '@/components/ScreenReader.vue'
+import { ExamplePicker } from '@/v2/blocks/scalar-request-example-block'
 
-import { ExamplePicker } from '../example-request'
 import ExampleResponse from './ExampleResponse.vue'
+import ExampleResponseTab from './ExampleResponseTab.vue'
+import ExampleResponseTabList from './ExampleResponseTabList.vue'
 
 /**
  * TODO: copyToClipboard isn't using the right content if there are multiple examples
@@ -29,8 +31,6 @@ const { responses } = defineProps<{ responses: Operation['responses'] }>()
 const id = useId()
 
 const { copyToClipboard } = useClipboard()
-
-const selectedExampleKey = ref<string>()
 
 // Bring the status codes in the right order.
 const orderedStatusCodes = computed(() => Object.keys(responses ?? {}).sort())
@@ -72,6 +72,10 @@ const currentJsonResponse = computed(() => {
   )
 })
 
+const selectedExampleKey = ref<string>(
+  Object.keys(currentJsonResponse.value.examples ?? {})[0] ?? '',
+)
+
 /**
  * Gets the first example response if there are multiple example responses
  * or the only example if there is only one example response.
@@ -85,7 +89,10 @@ const getFirstExampleResponse = () => {
   }
 
   const firstProperty = Object.keys(currentJsonResponse.value.examples)[0]
-  return currentJsonResponse.value.examples[firstProperty]
+  const firstExample = currentJsonResponse.value.examples[firstProperty]
+
+  // Handle the case where the example already has a 'value' property
+  return firstExample?.value ?? firstExample
 }
 
 const currentResponseWithExample = computed(() => ({
@@ -99,27 +106,25 @@ const currentResponseWithExample = computed(() => ({
 
 const changeTab = (index: number) => {
   selectedResponseIndex.value = index
-  selectedExampleKey.value = undefined
+  selectedExampleKey.value = ''
 }
 
 const showSchema = ref(false)
 </script>
 <template>
-  <Card
+  <ScalarCard
     v-if="orderedStatusCodes.length"
     aria-label="Example Responses"
-    role="region">
-    <CardTabHeader
-      muted
-      x="as"
-      @change="changeTab">
-      <CardTab
+    role="region"
+    class="response-card">
+    <ExampleResponseTabList @change="changeTab">
+      <ExampleResponseTab
         v-for="statusCode in orderedStatusCodes"
         :key="statusCode"
         :aria-controls="id">
         <ScreenReader>Status:</ScreenReader>
         {{ statusCode }}
-      </CardTab>
+      </ExampleResponseTab>
 
       <template #actions>
         <button
@@ -143,37 +148,34 @@ const showSchema = ref(false)
           <span class="scalar-card-checkbox-checkmark" />
         </label>
       </template>
-    </CardTabHeader>
-    <div class="scalar-card-container custom-scroll">
-      <CardContent muted>
-        <template v-if="currentJsonResponse?.schema">
-          <ScalarCodeBlock
-            v-if="showSchema && currentResponseWithExample"
-            :id="id"
-            class="-outline-offset-2"
-            :content="currentResponseWithExample"
-            lang="json" />
-          <ExampleResponse
-            v-else
-            :id="id"
-            :response="currentResponseWithExample" />
-        </template>
-        <!-- Without Schema: Don't show tabs -->
+    </ExampleResponseTabList>
+    <ScalarCardSection class="grid flex-1">
+      <template v-if="currentJsonResponse?.schema">
+        <ScalarCodeBlock
+          v-if="showSchema && currentResponseWithExample"
+          :id="id"
+          class="-outline-offset-2"
+          :content="currentResponseWithExample"
+          lang="json" />
         <ExampleResponse
           v-else
           :id="id"
           :response="currentResponseWithExample" />
-      </CardContent>
-    </div>
-    <CardFooter
+      </template>
+      <!-- Without Schema: Don't show tabs -->
+      <ExampleResponse
+        v-else
+        :id="id"
+        :response="currentResponseWithExample" />
+    </ScalarCardSection>
+    <ScalarCardFooter
       v-if="currentResponse?.description || hasMultipleExamples"
-      class="response-card-footer"
-      muted>
+      class="response-card-footer">
       <ExamplePicker
         v-if="hasMultipleExamples"
         class="response-example-selector"
         :examples="currentJsonResponse?.examples"
-        @update:modelValue="(value) => (selectedExampleKey = value)" />
+        v-model="selectedExampleKey" />
       <div
         v-else-if="currentResponse?.description"
         class="response-description">
@@ -181,11 +183,15 @@ const showSchema = ref(false)
           class="markdown"
           :value="currentResponse.description" />
       </div>
-    </CardFooter>
-  </Card>
+    </ScalarCardFooter>
+  </ScalarCard>
 </template>
 
 <style scoped>
+.response-card {
+  font-size: var(--scalar-font-size-3);
+}
+
 .markdown :deep(*) {
   margin: 0;
 }
@@ -216,7 +222,6 @@ const showSchema = ref(false)
   flex-shrink: 0;
   padding: 10px 12px;
   gap: 8px;
-  border-top: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 .response-example-selector {
   align-self: flex-start;
@@ -249,14 +254,6 @@ const showSchema = ref(false)
 .example-response-tab {
   display: block;
   margin: 6px;
-}
-.scalar-card-container {
-  flex: 1;
-  background: var(--scalar-background-2);
-  display: grid;
-}
-.scalar-card-container :deep(.cm-scroller) {
-  overflow-y: hidden;
 }
 
 .scalar-card-checkbox {

@@ -1,6 +1,7 @@
 import './style.css'
 
 export * from './components/ScalarButton'
+export * from './components/ScalarCard'
 export * from './components/ScalarCodeBlock'
 export * from './components/ScalarColorModeToggle'
 export * from './components/ScalarCombobox'
