@@ -21,6 +21,7 @@ onlyBuiltDependencies:
 catalogs:
   '*':
     '@fastify/swagger': ^8.10.1
+    '@floating-ui/utils': ^0.2.10
     '@floating-ui/vue': ^1.1.7
     '@google-cloud/storage': 7.16.0
     '@headlessui/tailwindcss': ^0.2.2
@@ -35,7 +36,7 @@ catalogs:
     '@types/semver': 7.5.8
     '@typescript-eslint/parser': ^8.0.0
     '@vitejs/plugin-vue': ^5.0.4
-    '@vueuse/core': ^10.10.0
+    '@vueuse/core': ^11.2.0
     '@vueuse/integrations': ^11.2.0
     ansis: 4.1.0
     chokidar: 4.0.3
