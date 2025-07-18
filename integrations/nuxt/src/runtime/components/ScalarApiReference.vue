@@ -146,7 +146,11 @@ if (typeof document === 'string') {
     throw new Error('Invalid OpenAPI document format')
   }
 } else {
-  parsedDocument = document as Record<string, unknown>
+  if (document.value && typeof document.value === 'object') {
+    parsedDocument = document.value
+  } else {
+    throw new Error('Document must be a valid OpenAPI object')
+  }
 }
 
 store.addDocumentSync({
