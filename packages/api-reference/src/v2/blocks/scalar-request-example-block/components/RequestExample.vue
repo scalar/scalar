@@ -99,8 +99,8 @@ import {
 import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
-import LinkList from '@/components/Section/LinkList.vue'
-import ExternalDocs from '@/features/ExternalDocs/ExternalDocs.vue'
+import { LinkList } from '@/components/LinkList'
+import { ExternalDocs } from '@/features/external-docs'
 import { findClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import {
   generateClientOptions,

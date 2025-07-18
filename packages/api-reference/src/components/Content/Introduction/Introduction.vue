@@ -3,6 +3,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed, inject, onMounted, type Ref } from 'vue'
 
 import { Badge } from '@/components/Badge'
+import { LinkList } from '@/components/LinkList'
 import {
   Section,
   SectionColumn,
@@ -12,12 +13,9 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
-import LinkList from '@/components/Section/LinkList.vue'
 import { DownloadLink, OPENAPI_VERSION_SYMBOL } from '@/features/download-link'
-import ExternalDocs from '@/features/ExternalDocs/ExternalDocs.vue'
-import Contact from '@/features/InfoObject/Contact.vue'
-import License from '@/features/InfoObject/License.vue'
-import TermsOfService from '@/features/InfoObject/TermsOfService.vue'
+import { ExternalDocs } from '@/features/external-docs'
+import { Contact, License, TermsOfService } from '@/features/info-object'
 import { SpecificationExtension } from '@/features/specification-extension'
 import { DEFAULT_INTRODUCTION_SLUG } from '@/features/traverse-schema'
 import { useConfig } from '@/hooks/useConfig'
