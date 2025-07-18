@@ -725,11 +725,21 @@ jobs:
 
   aspire-publish:
     if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 10
     concurrency:
       group: aspire-publish
       cancel-in-progress: false
+    strategy:
+      matrix:
+        platform: [amd64, arm64]
+        include:
+          - platform: amd64
+            runner: blacksmith-2vcpu-ubuntu-2204
+            docker_platform: linux/amd64
+          - platform: arm64
+            runner: blacksmith-2vcpu-ubuntu-2204-arm
+            docker_platform: linux/arm64
     needs:
       [
         harden_security,
@@ -745,19 +755,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@09d2acae674a48949e3602304ab46fd20ae0c42f
 
-      - name: Git Status
-        run: git status
-
-      - name: Stash changes
-        run: git stash
-
-      - name: Check for Aspire package.json changes
+      - name: Check which files were touched
         id: changed-files
-        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94
-        with:
-          files_yaml: |
-            aspire_package:
-              - integrations/aspire/package.json
+        # uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94
+        # with:
+        #   files_yaml: |
+        #     aspire_package:
+        #       - integrations/aspire/package.json
+        run: |
+          echo "aspire_package_any_changed=true" >> $GITHUB_OUTPUT
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Extract version from package.json
@@ -791,15 +797,12 @@ jobs:
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Build and push Aspire Docker image
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83
+        uses: useblacksmith/build-push-action@574eb0ee0b59c6a687ace24192f0727dfb65d6d7
         with:
           context: integrations/aspire
           file: integrations/aspire/src/Scalar.Aspire.Service/Dockerfile
-          push: true
-          # With ARM
-          platforms: |
-            linux/amd64
-            linux/arm64
+          push: false
+          platforms: ${{ matrix.docker_platform }}
           tags: |
             scalarapi/aspire-api-reference:latest
             scalarapi/aspire-api-reference:${{ env.VERSION }}
