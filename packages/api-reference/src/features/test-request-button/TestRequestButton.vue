@@ -47,14 +47,15 @@ const handleClick = () => {
 .show-api-client-button {
   appearance: none;
   border: none;
-  padding: 4px 6px;
+  padding: 1px 6px;
   white-space: nowrap;
   border-radius: var(--scalar-radius);
   display: flex;
   justify-content: center;
   align-items: center;
   font-weight: var(--scalar-semibold);
-  font-size: var(--scalar-mini);
+  font-size: var(--scalar-small);
+  line-height: 22px;
   color: var(--scalar-background-2);
   font-family: var(--scalar-font);
   background: var(--scalar-button-1);

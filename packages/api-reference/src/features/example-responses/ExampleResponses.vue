@@ -220,7 +220,7 @@ const showSchema = ref(false)
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  padding: 10px 12px;
+  padding: 7px 12px;
   gap: 8px;
 }
 .response-example-selector {
@@ -229,7 +229,7 @@ const showSchema = ref(false)
 }
 .response-description {
   font-weight: var(--scalar-semibold);
-  font-size: var(--scalar-mini);
+  font-size: var(--scalar-small);
   color: var(--scalar-color--1);
 
   display: flex;
@@ -269,8 +269,8 @@ const showSchema = ref(false)
   color: var(--scalar-color-2);
   width: fit-content;
   white-space: nowrap;
-  margin-right: 9px;
   gap: 6px;
+  padding: 7px 6px;
 }
 .scalar-card-checkbox:has(.scalar-card-checkbox-input:focus-visible)
   .scalar-card-checkbox-checkmark {

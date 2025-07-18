@@ -86,6 +86,7 @@
     "test:e2e": "pnpm --filter playwright test:e2e",
     "test:e2e:ui": "pnpm --filter playwright test:e2e:ui",
     "test:e2e:jsdelivr": "pnpm --filter playwright test:e2e jsdelivr",
+    "test:e2e:galaxy-scalar-com": "pnpm --filter playwright test:e2e galaxy-scalar-com",
     "test:e2e:local": "pnpm --filter playwright test:e2e local",
     "test:e2e:themes": "pnpm --filter playwright test:e2e themes",
     "test:e2e:nuxt": "pnpm --filter playwright test:e2e nuxt",

@@ -254,7 +254,7 @@ const id = useId()
     class="request-card dark-mode"
     ref="elem">
     <!-- Header -->
-    <ScalarCardHeader class="pr-0.75">
+    <ScalarCardHeader class="pr-0.5">
       <span class="sr-only">Request Example for</span>
       <HttpMethod
         as="span"
@@ -279,11 +279,11 @@ const id = useId()
           @update:modelValue="selectClient($event as ClientOption)">
           <ScalarButton
             data-testid="client-picker"
-            class="text-c-1 hover:bg-b-3 flex h-full w-fit gap-1.5 px-1.5 py-0.75 font-normal"
+            class="text-c-2 hover:text-c-1 flex h-full w-fit gap-2 px-1"
             fullWidth
             variant="ghost">
-            <span>{{ localSelectedClient.title }}</span>
-            <ScalarIconCaretDown />
+            <span class="text-base">{{ localSelectedClient.title }}</span>
+            <ScalarIconCaretDown class="size-3.5" />
           </ScalarButton>
         </ScalarCombobox>
       </template>
