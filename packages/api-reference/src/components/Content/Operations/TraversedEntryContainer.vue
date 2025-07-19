@@ -109,10 +109,6 @@ setTimeout(() => resume(), 5000)
 
 const containerRef = useTemplateRef('container')
 
-watch(hash, () => {
-  console.trace()
-})
-
 // We are waiting for the correct element to be loaded and we freeze the scroll position
 if (!hasLazyLoaded.value) {
   const { stop } = useMutationObserver(
