@@ -1,9 +1,11 @@
 import { type EventBusKey, useEventBus } from '@vueuse/core'
+import { ref } from 'vue'
 
-const lazyEventBusKey: EventBusKey<{ id: string }> = Symbol()
+/** Keep track of which elements are loading and which have loaded */
+const lazyEventBusKey: EventBusKey<{ loading?: string; loaded?: string }> = Symbol()
 
 /** All aboard the lazy bus! */
 export const lazyBus = useEventBus(lazyEventBusKey)
 
-/** Set of all ID's which are lazy, doesn't need to be reactive */
-export const lazyIds = new Set<string>()
+/** Ensure we only lazy load once per page load */
+export const hasLazyLoaded = ref(false)

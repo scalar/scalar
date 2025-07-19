@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
+import { scrollToId } from '@scalar/helpers/dom/scroll-to-id'
 import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { useMutationObserver } from '@vueuse/core'
-import { computed, ref, useTemplateRef } from 'vue'
+import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 
-import { lazyIds } from '@/components/Lazy/lazyBus'
+import { hasLazyLoaded, lazyBus } from '@/components/Lazy/lazyBus'
 import { useSidebar } from '@/features/sidebar'
 import { useNavState } from '@/hooks/useNavState'
 
@@ -62,55 +63,90 @@ const activeServer = computed(() => {
 
 const { items } = useSidebar()
 const { hash, isIntersectionEnabled } = useNavState()
-const containerRef = useTemplateRef('container')
 
 /** Keeps track of our unfreeze function */
 const unfreeze = ref<(() => void) | null>(null)
 
+/** Resume scrolling */
+const resume = () => {
+  unfreeze.value?.()
+  hasLazyLoaded.value = true
+  isIntersectionEnabled.value = true
+}
+
+/** So we know when we have loaded all lazy elements */
+const lazyIds = ref<Set<string>>(new Set())
+
+// No need to freeze if we don't have a hash
+if (!hash.value || hash.value.startsWith('description')) {
+  hasLazyLoaded.value = true
+}
+
+// Use the lazybus to handle [un]freezing elements
+lazyBus.on(({ loading, loaded }) => {
+  if (hasLazyLoaded.value) {
+    return
+  }
+
+  // Track which elements are loading
+  if (loading) {
+    lazyIds.value.add(loading)
+  }
+
+  // Track which elements have loaded
+  if (loaded) {
+    lazyIds.value.delete(loaded)
+  }
+
+  // We are empty! Unfreeze the page
+  if (lazyIds.value.size === 0 && unfreeze.value) {
+    setTimeout(() => resume(), 300)
+  }
+})
+
+// Resume scrolling after 5 seconds as a failsafe
+setTimeout(() => resume(), 5000)
+
+const containerRef = useTemplateRef('container')
+
+watch(hash, () => {
+  console.trace()
+})
+
 // We are waiting for the correct element to be loaded and we freeze the scroll position
-const { stop } = useMutationObserver(
-  containerRef,
-  (mutations) => {
-    hash.value &&
-      mutations.forEach((mutation) => {
-        if (mutation.type !== 'childList') {
-          return
-        }
-        mutation.addedNodes.forEach((node) => {
-          if (node.nodeType !== Node.ELEMENT_NODE) {
+if (!hasLazyLoaded.value) {
+  const { stop } = useMutationObserver(
+    containerRef,
+    (mutations) => {
+      hash.value &&
+        mutations.forEach((mutation) => {
+          if (mutation.type !== 'childList') {
             return
           }
 
           const targetId = hash.value
-          const element = node as HTMLElement
-          const foundElement = element.querySelector(`#${targetId}`)
+          const foundElement = window.document.getElementById(targetId)
 
-          if (foundElement) {
+          if (foundElement && !unfreeze.value) {
+            console.log('freezing', foundElement)
             unfreeze.value = freezeElement(foundElement as HTMLElement)
+            scrollToId(targetId)
+            stop()
           }
         })
-
-        if (lazyIds.size === 0 && unfreeze.value) {
-          console.log('stop')
-          stop()
-          setTimeout(() => {
-            unfreeze.value?.()
-            isIntersectionEnabled.value = true
-          }, 300)
-        }
-      })
-  },
-  {
-    childList: true,
-    subtree: true,
-  },
-)
+    },
+    {
+      childList: true,
+      subtree: true,
+    },
+  )
+}
 </script>
 
 <template>
   <div
-    ref="container"
-    v-if="items.entries.length && activeCollection">
+    v-if="items.entries.length && activeCollection"
+    ref="container">
     <!-- Use recursive component for cleaner rendering -->
     <TraversedEntry
       :entries="items.entries"

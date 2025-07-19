@@ -39,6 +39,7 @@ import {
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import { Content } from '@/components/Content'
 import GettingStarted from '@/components/GettingStarted.vue'
+import { hasLazyLoaded } from '@/components/Lazy/lazyBus'
 import MobileHeader from '@/components/MobileHeader.vue'
 import { ApiClientModal } from '@/features/api-client-modal'
 import { useDocumentSource } from '@/features/document-source'
@@ -204,7 +205,7 @@ const showRenderedContent = computed(
 
 // To clear hash when scrolled to the top
 const debouncedScroll = useDebounceFn(() => {
-  if (window.scrollY < 50) {
+  if (window.scrollY < 50 && hasLazyLoaded.value) {
     replaceUrlState('')
   }
 })

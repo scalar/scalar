@@ -63,7 +63,9 @@ defineExpose({
     v-for="(entry, index) in entries"
     :key="entry.id"
     :id="entry.id"
-    :isLazy="index < currentIndex || index > currentIndex + 2">
+    :isLazy="
+      Boolean(hash) && (index < currentIndex || index > currentIndex + 2)
+    ">
     <template v-if="isOperation(entry) || isWebhook(entry)">
       <!-- Operation or Webhook -->
       <SectionContainer :omit="!isRootLevel">
