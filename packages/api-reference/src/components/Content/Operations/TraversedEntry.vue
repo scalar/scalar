@@ -49,14 +49,20 @@ const isRootLevel = computed(() => level === 0)
 const { hash } = useNavState()
 
 /** The index of the current entry */
-const currentIndex = computed(() =>
-  entries.findIndex((entry) => hash.value.startsWith(entry.id)),
-)
+const currentIndex = computed(() => {
+  const targetId = hash.value.startsWith('model') ? 'models' : hash.value
+  return entries.findIndex((entry) => targetId.startsWith(entry.id))
+})
+
 /** Check if the entry should be lazy loaded */
 const isLazy = (index: number) => {
+  if (!hash.value) {
+    return false
+  }
+
   // For models, just make the previous two entries not lazy
   if (hash.value.startsWith('model')) {
-    return index < currentIndex.value - 2
+    return index === currentIndex.value
   }
 
   // Make all previous entries lazy
@@ -82,7 +88,7 @@ defineExpose({
     v-for="(entry, index) in entries"
     :key="entry.id"
     :id="entry.id"
-    :isLazy="Boolean(hash) && isLazy(index)">
+    :isLazy="isLazy(index)">
     <template v-if="isOperation(entry) || isWebhook(entry)">
       <!-- Operation or Webhook -->
       <SectionContainer :omit="!isRootLevel">
