@@ -12,6 +12,7 @@ public class AuthorizationCodeFlowExtensionsTests
         const string tokenUrl = "https://example.com/token";
         const string clientSecret = "test-client-secret";
         const Pkce pkce = Pkce.Sha256;
+        const CredentialsLocation credentialsLocation = CredentialsLocation.Body;
 
         // Act
         flow
@@ -19,7 +20,8 @@ public class AuthorizationCodeFlowExtensionsTests
             .WithRedirectUri(redirectUri)
             .WithTokenUrl(tokenUrl)
             .WithClientSecret(clientSecret)
-            .WithPkce(pkce);
+            .WithPkce(pkce)
+            .WithCredentialsLocation(credentialsLocation);
 
         // Assert
         flow.AuthorizationUrl.Should().Be(authorizationUrl);
@@ -27,5 +29,6 @@ public class AuthorizationCodeFlowExtensionsTests
         flow.TokenUrl.Should().Be(tokenUrl);
         flow.ClientSecret.Should().Be(clientSecret);
         flow.Pkce.Should().Be(pkce);
+        flow.CredentialsLocation.Should().Be(credentialsLocation);
     }
 }

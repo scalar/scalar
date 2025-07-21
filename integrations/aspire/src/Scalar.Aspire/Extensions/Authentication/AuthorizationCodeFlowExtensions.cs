@@ -59,4 +59,15 @@ public static class AuthorizationCodeFlowExtensions
         flow.RedirectUri = redirectUri;
         return flow;
     }
+
+    /// <summary>
+    /// Sets the location where authentication credentials should be placed in HTTP requests for the authorization code flow.
+    /// </summary>
+    /// <param name="flow">T<see cref="AuthorizationCodeFlow"/>.</param>
+    /// <param name="credentialsLocation">The location for credentials.</param>
+    public static AuthorizationCodeFlow WithCredentialsLocation(this AuthorizationCodeFlow flow, CredentialsLocation? credentialsLocation)
+    {
+        flow.CredentialsLocation = credentialsLocation;
+        return flow;
+    }
 }

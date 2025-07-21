@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Scalar.Aspire;
 
 /// <summary>
@@ -14,4 +16,11 @@ public sealed class ClientCredentialsFlow : OAuthFlow
     /// Gets or sets the client secret used for authentication.
     /// </summary>
     public string? ClientSecret { get; set; }
+
+    /// <summary>
+    /// Gets or sets the location where authentication credentials should be placed in HTTP requests.
+    /// </summary>
+    [JsonPropertyName("x-scalar-credentials-location")]
+    [JsonConverter(typeof(CredentialsLocationConverter))]
+    public CredentialsLocation? CredentialsLocation { get; set; }
 }
