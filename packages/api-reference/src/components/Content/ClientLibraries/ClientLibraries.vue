@@ -174,6 +174,7 @@ const installationInstructions = computed(() => {
   border-bottom-right-radius: var(--scalar-radius-lg);
   min-height: fit-content;
 }
+
 .client-libraries-heading {
   font-size: var(--scalar-small);
   font-weight: var(--scalar-font-medium);
@@ -187,6 +188,7 @@ const installationInstructions = computed(() => {
   border-top-left-radius: var(--scalar-radius-lg);
   border-top-right-radius: var(--scalar-radius-lg);
 }
+
 :deep(.scalar-codeblock-pre .hljs) {
   margin-top: 8px;
 }
