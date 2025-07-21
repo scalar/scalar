@@ -32,19 +32,20 @@ import { Tab } from '@headlessui/vue'
   position: relative;
   line-height: 22px;
 }
-.tab:before {
+.tab::before {
   content: '';
   position: absolute;
   z-index: 0;
-  left: -6px;
-  top: -6px;
-  width: calc(100% + 12px);
-  height: calc(100% + 12px);
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(100% + 18px);
+  height: calc(100% + 8px);
   border-radius: var(--scalar-radius);
   background: var(--scalar-background-3);
   opacity: 0;
 }
-.tab:hover:before,
+.tab:not(.tab-selected):hover:before,
 .tab:focus-visible:before {
   opacity: 1;
 }
