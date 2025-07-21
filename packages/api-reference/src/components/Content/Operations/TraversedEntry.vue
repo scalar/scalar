@@ -48,10 +48,29 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
 const isRootLevel = computed(() => level === 0)
 const { hash } = useNavState()
 
-/** The index of the current entry, we make the next two siblings not lazy */
+/** The index of the current entry */
 const currentIndex = computed(() =>
   entries.findIndex((entry) => hash.value.startsWith(entry.id)),
 )
+/** Check if the entry should be lazy loaded */
+const isLazy = (index: number) => {
+  // For models, just make the previous two entries not lazy
+  if (hash.value.startsWith('model')) {
+    return index < currentIndex.value - 2
+  }
+
+  // Make all previous entries lazy
+  if (index < currentIndex.value) {
+    return true
+  }
+
+  // We make the next two siblings not lazy
+  if (index > currentIndex.value + 2) {
+    return true
+  }
+
+  return false
+}
 
 defineExpose({
   currentIndex,
@@ -63,9 +82,7 @@ defineExpose({
     v-for="(entry, index) in entries"
     :key="entry.id"
     :id="entry.id"
-    :isLazy="
-      Boolean(hash) && (index < currentIndex || index > currentIndex + 2)
-    ">
+    :isLazy="Boolean(hash) && isLazy(index)">
     <template v-if="isOperation(entry) || isWebhook(entry)">
       <!-- Operation or Webhook -->
       <SectionContainer :omit="!isRootLevel">
