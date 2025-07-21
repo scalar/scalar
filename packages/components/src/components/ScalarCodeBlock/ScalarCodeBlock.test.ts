@@ -1,16 +1,35 @@
-import { flushPromises, mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
+import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 
 import ScalarCodeBlock from './ScalarCodeBlock.vue'
 
+const mockCopyToClipboard = vi.fn()
+
+vi.mock('@scalar/use-hooks/useClipboard', () => ({
+  useClipboard: vi.fn(() => ({
+    copyToClipboard: mockCopyToClipboard,
+  })),
+}))
+
+const createWrapper = () => {
+  return mount(ScalarCodeBlock, {
+    attrs: {
+      content: 'console.log()',
+      lang: 'js',
+    },
+  })
+}
+
+let wrapper: VueWrapper<InstanceType<typeof ScalarCodeBlock>>
+
+beforeEach(() => {
+  vi.clearAllMocks()
+})
+
 describe('ScalarCodeBlock', () => {
   it('renders properly', async () => {
-    const wrapper = mount(ScalarCodeBlock, {
-      attrs: {
-        content: 'console.log()',
-        lang: 'js',
-      },
-    })
+    wrapper = createWrapper()
 
     await flushPromises()
 
@@ -82,33 +101,29 @@ describe('ScalarCodeBlock', () => {
 <span class="hljs-punctuation">}</span></code>`)
   })
 
-  it('does not render the copy button when content is null', async () => {
-    const wrapper = mount(ScalarCodeBlock, {
-      attrs: {
-        content: null,
-        lang: 'js',
-      },
+  describe('ScalarCodeBlockCopy', () => {
+    it('copies content when copy button is clicked', async () => {
+      wrapper = createWrapper()
+
+      const copyButton = wrapper.find('.scalar-code-copy')
+      expect(copyButton.exists()).toBe(true)
+
+      const button = copyButton.find('button')
+      expect(button.exists()).toBe(true)
+
+      await button.trigger('click')
+
+      expect(mockCopyToClipboard).toHaveBeenCalledWith(prettyPrintJson(wrapper.vm.content))
     })
 
-    await flushPromises()
+    it('does not render the copy button when content is null', async () => {
+      wrapper = createWrapper()
 
-    // Check that the button is not rendered
-    const button = wrapper.find('button.copy-button')
-    expect(button.exists()).toBe(false)
-  })
+      await flushPromises()
 
-  it('does not render the copy button when content is "null"', async () => {
-    const wrapper = mount(ScalarCodeBlock, {
-      attrs: {
-        content: 'null',
-        lang: 'js',
-      },
+      // Check that the button is not rendered
+      const button = wrapper.find('button.copy-button')
+      expect(button.exists()).toBe(false)
     })
-
-    await flushPromises()
-
-    // Check that the button is not rendered
-    const button = wrapper.find('button.copy-button')
-    expect(button.exists()).toBe(false)
   })
 })
