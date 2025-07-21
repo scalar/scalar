@@ -1,5 +1,28 @@
 # @scalar/api-client
 
+## 2.5.19
+
+### Patch Changes
+
+- 60c7bef: fix: updates auth description overflowing line clamp
+- e895f86: fix: enables highlight scroll along mouse scroll for response body
+- cac47ea: fix: sets missing line height contraint and transform reset
+- cac47ea: fix: updates request auth border radius
+- Updated dependencies [60c7bef]
+- Updated dependencies [fb62e1b]
+- Updated dependencies [cac47ea]
+- Updated dependencies [fb62e1b]
+- Updated dependencies [1c2b9f3]
+  - @scalar/components@0.14.20
+  - @scalar/types@0.2.10
+  - @scalar/themes@0.13.11
+  - @scalar/openapi-parser@0.18.2
+  - @scalar/use-codemirror@0.12.21
+  - @scalar/oas-utils@0.4.15
+  - @scalar/snippetz@0.4.3
+  - @scalar/import@0.4.14
+  - @scalar/postman-to-openapi@0.3.18
+
 ## 2.5.18
 
 ### Patch Changes

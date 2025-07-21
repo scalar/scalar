@@ -1,5 +1,16 @@
 # @scalar/components
 
+## 0.14.20
+
+### Patch Changes
+
+- 60c7bef: fix: updates auth description overflowing line clamp
+- cac47ea: fix: sets missing line height contraint and transform reset
+- Updated dependencies [fb62e1b]
+  - @scalar/themes@0.13.11
+  - @scalar/oas-utils@0.4.15
+  - @scalar/code-highlight@0.1.8
+
 ## 0.14.19
 
 ### Patch Changes

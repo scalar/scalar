@@ -1,5 +1,34 @@
 # @scalar/api-reference
 
+## 1.32.10
+
+### Patch Changes
+
+- 3eb8171: fix: value in request example code
+- 60c7bef: fix: updates auth description overflowing line clamp
+- 716a83a: refactor: new request example block
+- 9b4417b: fix: removes unsused prop in layout for request example
+- 2ace00b: fix: prevents introduction card dropdown stacking issue
+- fb62e1b: feat: render External Documentation Objects
+- cac47ea: fix: updates request auth border radius
+- 2ace00b: fix: increases server variables label input font size
+- Updated dependencies [60c7bef]
+- Updated dependencies [e895f86]
+- Updated dependencies [fb62e1b]
+- Updated dependencies [cac47ea]
+- Updated dependencies [fb62e1b]
+- Updated dependencies [1c2b9f3]
+- Updated dependencies [cac47ea]
+  - @scalar/api-client@2.5.19
+  - @scalar/components@0.14.20
+  - @scalar/types@0.2.10
+  - @scalar/themes@0.13.11
+  - @scalar/openapi-parser@0.18.2
+  - @scalar/oas-utils@0.4.15
+  - @scalar/snippetz@0.4.3
+  - @scalar/workspace-store@0.10.2
+  - @scalar/code-highlight@0.1.8
+
 ## 1.32.9
 
 ### Patch Changes

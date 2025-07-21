@@ -1,5 +1,13 @@
 # @scalar/themes
 
+## 0.13.11
+
+### Patch Changes
+
+- fb62e1b: feat: adds global base style for anchor tag
+- Updated dependencies [fb62e1b]
+  - @scalar/types@0.2.10
+
 ## 0.13.10
 
 ### Patch Changes
