@@ -11,7 +11,6 @@ import { syntaxHighlight } from '../src/code'
 import codeExampleLarge from '../src/constants?raw'
 
 import '../src/css/code.css'
-import '../src/css/markdown.css'
 
 import { standardLanguages } from '../src/languages'
 import { htmlFromMarkdown } from '../src/markdown/markdown'

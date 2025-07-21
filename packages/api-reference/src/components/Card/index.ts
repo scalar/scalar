@@ -1,6 +1,0 @@
-export { default as Card } from './Card.vue'
-export { default as CardHeader } from './CardHeader.vue'
-export { default as CardContent } from './CardContent.vue'
-export { default as CardFooter } from './CardFooter.vue'
-export { default as CardTabHeader } from './CardTabHeader.vue'
-export { default as CardTab } from './CardTab.vue'

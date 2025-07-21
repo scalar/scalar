@@ -53,19 +53,19 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "catalog:*",
+    "react-dom": "catalog:*",
     "vue": "catalog:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@types/react": "^19.0.1",
-    "@types/react-dom": "^19.0.2",
+    "@types/react": "catalog:*",
+    "@types/react-dom": "catalog:*",
     "@vitejs/plugin-react": "^4.3.4",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "^2.4.1",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "catalog:*",
+    "react-dom": "catalog:*",
     "vite": "catalog:*",
     "vue": "catalog:*"
   },

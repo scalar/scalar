@@ -27,19 +27,19 @@
   "dependencies": {
     "@scalar/galaxy": "workspace:*",
     "random-words": "^2.0.1",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react": "catalog:*",
+    "react-dom": "catalog:*"
   },
   "devDependencies": {
     "@scalar/api-reference-react": "workspace:*",
-    "@types/react": "^19.0.1",
-    "@types/react-dom": "^19.0.2",
-    "@typescript-eslint/parser": "^6.21.0",
+    "@types/react": "catalog:*",
+    "@types/react-dom": "catalog:*",
+    "@typescript-eslint/parser": "catalog:*",
     "@vitejs/plugin-react": "^4.3.4",
     "@vitejs/plugin-vue": "catalog:*",
     "@vitejs/plugin-vue-jsx": "^3.1.0",
     "autoprefixer": "^10.4.19",
-    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.3",
     "postcss": "catalog:*",
     "tailwindcss": "catalog:*",

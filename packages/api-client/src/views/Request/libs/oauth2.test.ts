@@ -218,6 +218,54 @@ describe('oauth2', () => {
       })
     })
 
+    it('should include x-scalar-security-body parameters in authorization code token request', async () => {
+      const customFlow = {
+        ...flow,
+        'x-scalar-security-body': {
+          audience: 'https://api.example.com',
+          custom_param: 'custom_value',
+        },
+      } as const
+
+      const promise = authorizeOauth2(customFlow, mockServer)
+      const accessToken = 'access_token_123'
+      const code = 'auth_code_123'
+
+      // Mock redirect back from login
+      mockWindow.location.href = `${customFlow['x-scalar-redirect-uri']}?code=${code}&state=${state}`
+
+      // Mock the token exchange
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () => Promise.resolve({ access_token: accessToken }),
+      })
+
+      // Run setInterval
+      vi.advanceTimersByTime(200)
+
+      // Resolve
+      const [error, result] = await promise
+      expect(error).toBe(null)
+      expect(result).toBe(accessToken)
+
+      // Test the server call includes custom body parameters
+      expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
+        method: 'POST',
+        body: new URLSearchParams({
+          client_id: customFlow['x-scalar-client-id'],
+          client_secret: customFlow.clientSecret,
+          redirect_uri: customFlow['x-scalar-redirect-uri'],
+          code,
+          grant_type: 'authorization_code',
+          audience: 'https://api.example.com',
+          custom_param: 'custom_value',
+        }),
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Basic ${secretAuth}`,
+        },
+      })
+    })
+
     // Test user closing the window
     it('should handle window closure before authorization', async () => {
       const promise = authorizeOauth2(flow, mockServer)
@@ -368,6 +416,14 @@ describe('oauth2', () => {
       })
     })
 
+    it('should handle token request failure', async () => {
+      global.fetch = vi.fn().mockRejectedValueOnce(new Error('Network error'))
+      const [error, result] = await authorizeOauth2(flow, mockServer)
+      expect(result).toBe(null)
+      expect(error).toBeInstanceOf(Error)
+      expect(error!.message).toBe('Failed to get an access token. Please check your credentials.')
+    })
+
     it('should use custom token name when x-tokenName is specified', async () => {
       const customFlow = {
         ...flow,
@@ -383,12 +439,38 @@ describe('oauth2', () => {
       expect(result).toBe('custom_token_123')
     })
 
-    it('should handle token request failure', async () => {
-      global.fetch = vi.fn().mockRejectedValueOnce(new Error('Network error'))
-      const [error, result] = await authorizeOauth2(flow, mockServer)
-      expect(result).toBe(null)
-      expect(error).toBeInstanceOf(Error)
-      expect(error!.message).toBe('Failed to get an access token. Please check your credentials.')
+    it('should include x-scalar-security-body parameters in token request', async () => {
+      const customFlow = {
+        ...flow,
+        'x-scalar-security-body': {
+          audience: 'https://api.example.com',
+          custom_param: 'custom_value',
+        },
+      } as const
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () => Promise.resolve({ access_token: 'access_token_123' }),
+      })
+
+      const [error, result] = await authorizeOauth2(customFlow, mockServer)
+      expect(error).toBe(null)
+      expect(result).toBe('access_token_123')
+
+      expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
+        method: 'POST',
+        body: new URLSearchParams({
+          client_id: customFlow['x-scalar-client-id'],
+          scope: scope.join(' '),
+          client_secret: customFlow.clientSecret,
+          grant_type: 'client_credentials',
+          audience: 'https://api.example.com',
+          custom_param: 'custom_value',
+        }),
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Basic ${secretAuth}`,
+        },
+      })
     })
   })
 
@@ -509,6 +591,42 @@ describe('oauth2', () => {
           grant_type: 'password',
           username: flow.username,
           password: flow.password,
+        }),
+        headers: {
+          'Authorization': `Basic ${secretAuth}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      })
+    })
+
+    it('should include x-scalar-security-body parameters in password flow token request', async () => {
+      const customFlow = {
+        ...flow,
+        'x-scalar-security-body': {
+          audience: 'https://api.example.com',
+          custom_param: 'custom_value',
+        },
+      } as const
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () => Promise.resolve({ access_token: 'access_token_123' }),
+      })
+
+      const [error, result] = await authorizeOauth2(customFlow, mockServer)
+      expect(error).toBe(null)
+      expect(result).toBe('access_token_123')
+
+      expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
+        method: 'POST',
+        body: new URLSearchParams({
+          client_id: customFlow['x-scalar-client-id'],
+          scope: scope.join(' '),
+          client_secret: customFlow.clientSecret,
+          grant_type: 'password',
+          username: customFlow.username,
+          password: customFlow.password,
+          audience: 'https://api.example.com',
+          custom_param: 'custom_value',
         }),
         headers: {
           'Authorization': `Basic ${secretAuth}`,

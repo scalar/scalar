@@ -1,5 +1,52 @@
 # @scalar/api-client
 
+## 2.5.19
+
+### Patch Changes
+
+- 60c7bef: fix: updates auth description overflowing line clamp
+- e895f86: fix: enables highlight scroll along mouse scroll for response body
+- cac47ea: fix: sets missing line height contraint and transform reset
+- cac47ea: fix: updates request auth border radius
+- Updated dependencies [60c7bef]
+- Updated dependencies [fb62e1b]
+- Updated dependencies [cac47ea]
+- Updated dependencies [fb62e1b]
+- Updated dependencies [1c2b9f3]
+  - @scalar/components@0.14.20
+  - @scalar/types@0.2.10
+  - @scalar/themes@0.13.11
+  - @scalar/openapi-parser@0.18.2
+  - @scalar/use-codemirror@0.12.21
+  - @scalar/oas-utils@0.4.15
+  - @scalar/snippetz@0.4.3
+  - @scalar/import@0.4.14
+  - @scalar/postman-to-openapi@0.3.18
+
+## 2.5.18
+
+### Patch Changes
+
+- 591562f: feat: add support for x-scalar-security-body extension
+- Updated dependencies [a04cc15]
+- Updated dependencies [591562f]
+- Updated dependencies [85ee2ce]
+- Updated dependencies [fbb7daa]
+- Updated dependencies [fbaaa12]
+- Updated dependencies [85ee2ce]
+- Updated dependencies [97721b5]
+- Updated dependencies [85ee2ce]
+- Updated dependencies [8a67f4f]
+  - @scalar/components@0.14.19
+  - @scalar/openapi-types@0.3.6
+  - @scalar/types@0.2.9
+  - @scalar/snippetz@0.4.2
+  - @scalar/themes@0.13.10
+  - @scalar/use-codemirror@0.12.20
+  - @scalar/oas-utils@0.4.14
+  - @scalar/openapi-parser@0.18.1
+  - @scalar/postman-to-openapi@0.3.17
+
 ## 2.5.17
 
 ### Patch Changes

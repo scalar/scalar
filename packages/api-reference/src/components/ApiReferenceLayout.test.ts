@@ -5,6 +5,7 @@ import { createSSRApp, h } from 'vue'
 import { dereference, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import ApiReferenceLayout from './ApiReferenceLayout.vue'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
 
 const EXAMPLE_API_DEFINITIONS = [
   {
@@ -64,6 +65,8 @@ const EXAMPLE_API_DEFINITIONS = [
   },
 ]
 
+const mockStore = createWorkspaceStore()
+
 describe('ApiReferenceLayout', () => {
   it('has the title in the HTML output', async () => {
     const document = {
@@ -85,6 +88,7 @@ describe('ApiReferenceLayout', () => {
           isDark: false,
           dereferencedDocument: schema as OpenAPIV3_1.Document,
           originalDocument: JSON.stringify(document),
+          store: mockStore,
         }),
     })
 
@@ -127,6 +131,7 @@ test.concurrent.each(files)('$title ($url)', { timeout: 45 * 1000 }, async ({ ti
         isDark: false,
         dereferencedDocument: schema as OpenAPIV3_1.Document,
         originalDocument: document,
+        store: mockStore,
       }),
   })
 

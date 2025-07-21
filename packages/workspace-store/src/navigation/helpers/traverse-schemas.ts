@@ -2,6 +2,7 @@ import { getTag } from '@/navigation/helpers/get-tag'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import type { TraversedSchema } from '@/schemas/navigation'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
+import type { SchemaObject } from '@/schemas/v3.1/strict/schema'
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
 /** Creates a traversed schema entry from an OpenAPI schema object.
@@ -12,19 +13,25 @@ import type { TagObject } from '@/schemas/v3.1/strict/tag'
  * @param getModelId - Function to generate unique IDs for schemas
  * @returns A traversed schema entry with ID, title, name and reference
  */
-const createModelEntry = (
+const createSchemaEntry = (
   ref: string,
   name = 'Unknown',
   titlesMap: Map<string, string>,
   getModelId: TraverseSpecOptions['getModelId'],
   tag?: TagObject,
+  schema?: SchemaObject,
 ): TraversedSchema => {
   const id = getModelId({ name }, tag)
-  titlesMap.set(id, name)
+
+  // Use schema.title if available, otherwise fall back to name
+  // @see https://json-schema.org/draft/2020-12/json-schema-core#section-4.3.5
+  const title = (schema?.title as string) || name
+
+  titlesMap.set(id, title)
 
   return {
     id,
-    title: name,
+    title,
     name,
     ref,
     type: 'model',
@@ -65,12 +72,12 @@ export const traverseSchemas = (
     if (schemas[name]['x-tags']) {
       schemas[name]['x-tags'].forEach((tagName: string) => {
         const { tag } = getTag(tagsMap, tagName)
-        tagsMap.get(tagName)?.entries.push(createModelEntry(ref, name, titlesMap, getModelId, tag))
+        tagsMap.get(tagName)?.entries.push(createSchemaEntry(ref, name, titlesMap, getModelId, tag))
       })
     }
     // Add to untagged
     else {
-      untagged.push(createModelEntry(ref, name, titlesMap, getModelId))
+      untagged.push(createSchemaEntry(ref, name, titlesMap, getModelId, undefined, schemas[name]))
     }
   }
 

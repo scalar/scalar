@@ -22,6 +22,7 @@ public class OAuthFlowGenericExtensionsTests
             .WithToken(token)
             .WithTokenName(tokenName)
             .AddQueryParameter("custom_param", "value")
+            .AddBodyParameter("custom_body_param", "body_value")
             .WithClientId(clientId);
 
         // Assert
@@ -31,6 +32,7 @@ public class OAuthFlowGenericExtensionsTests
         flow.ClientId.Should().Be(clientId);
         flow.TokenName.Should().Be(tokenName);
         flow.AdditionalQueryParameters.Should().ContainKey("custom_param").WhoseValue.Should().Be("value");
+        flow.AdditionalBodyParameters.Should().ContainKey("custom_body_param").WhoseValue.Should().Be("body_value");
     }
 }
 

@@ -2,15 +2,13 @@ import YAML from 'yaml'
 import { reactive } from 'vue'
 import { bundle, upgrade } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins-browser'
-
-import { createNavigation, type createNavigationOptions } from '@/navigation'
 import type { DeepPartial, DeepRequired } from '@/types'
-import { createMagicProxy, getRaw } from '@/helpers/proxy'
-import { deepClone, isObject, safeAssign } from '@/helpers/general'
-import { mergeObjects } from '@/helpers/merge-object'
 import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
+import { deepClone, isObject, safeAssign } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
-import type { WorkspaceMeta, WorkspaceDocumentMeta, Workspace } from '@/schemas/workspace'
+import { mergeObjects } from '@/helpers/merge-object'
+import { createMagicProxy, getRaw } from '@/helpers/proxy'
+import { createNavigation, type createNavigationOptions } from '@/navigation'
 import { extensions } from '@/schemas/extensions'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema, type OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
@@ -19,6 +17,7 @@ import type { Config } from '@/schemas/workspace-specification/config'
 import { InMemoryWorkspaceSchema, type InMemoryWorkspace } from '@/schemas/inmemory-workspace'
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
 import { createOverridesProxy } from '@/helpers/overrides-proxy'
+import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from '@/schemas/workspace'
 
 /**
  * Input type for workspace document metadata and configuration.
@@ -292,16 +291,33 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     const resolve = await loadDocument(input)
 
-    if (!resolve.ok || !isObject(resolve.data)) {
-      console.error(`Can not load the document '${name}'`)
+    if (!resolve.ok) {
+      console.error(`Failed to fetch document '${name}': request was not successful`)
+
       workspace.documents[name] = {
         ...meta,
+        openapi: '3.1.0',
         info: {
           title: `Document '${name}' could not be loaded`,
           version: 'unknown',
         },
-        openapi: '3.1.0',
       }
+
+      return
+    }
+
+    if (!isObject(resolve.data)) {
+      console.error(`Failed to load document '${name}': response data is not a valid object`)
+
+      workspace.documents[name] = {
+        ...meta,
+        openapi: '3.1.0',
+        info: {
+          title: `Document '${name}' could not be loaded`,
+          version: 'unknown',
+        },
+      }
+
       return
     }
 

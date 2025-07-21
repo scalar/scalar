@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components'
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { ScalarIconPlay } from '@scalar/icons'
-import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 import { computed } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
 import { useApiClient } from '@/features/api-client-modal'
 import { useConfig } from '@/hooks/useConfig'
 
-const { operation } = defineProps<{
-  operation?: Pick<RequestEntity, 'method' | 'path' | 'uid'>
+const { method, path } = defineProps<{
+  method: HttpMethod
+  path: string
 }>()
 
 const { client } = useApiClient()
@@ -20,26 +20,25 @@ const isButtonVisible = computed(
 )
 
 const handleClick = () => {
-  if (operation && client?.value?.open) {
-    client.value.open({
-      requestUid: operation.uid,
-    })
-  }
+  client.value?.open({
+    method,
+    path,
+  })
 }
 </script>
 <template>
   <!-- Render the Test Request Button -->
   <button
-    v-if="operation && isButtonVisible"
+    v-if="isButtonVisible"
     class="show-api-client-button"
-    :method="operation.method"
+    :method="method"
     type="button"
     @click.stop="handleClick">
     <ScalarIconPlay
       class="size-3"
       weight="fill" />
     <span>Test Request</span>
-    <ScreenReader>({{ operation.method }} {{ operation.path }})</ScreenReader>
+    <ScreenReader>({{ method }} {{ path }})</ScreenReader>
   </button>
   <!-- Render whitespace, so the container doesn't collapse -->
   <template v-else>&nbsp;</template>
@@ -48,14 +47,15 @@ const handleClick = () => {
 .show-api-client-button {
   appearance: none;
   border: none;
-  padding: 4px 6px;
+  padding: 1px 6px;
   white-space: nowrap;
   border-radius: var(--scalar-radius);
   display: flex;
   justify-content: center;
   align-items: center;
   font-weight: var(--scalar-semibold);
-  font-size: var(--scalar-mini);
+  font-size: var(--scalar-small);
+  line-height: 22px;
   color: var(--scalar-background-2);
   font-family: var(--scalar-font);
   background: var(--scalar-button-1);

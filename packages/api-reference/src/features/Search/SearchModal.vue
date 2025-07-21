@@ -20,7 +20,7 @@ import type { FuseResult } from 'fuse.js'
 import { nanoid } from 'nanoid'
 import { ref, toRef, watch } from 'vue'
 
-import { lazyBus } from '@/components/Content/Lazy/lazyBus'
+import { lazyBus } from '@/components/Lazy'
 import {
   useSearchIndex,
   type EntryType,
@@ -167,6 +167,12 @@ function onSearchResultEnter() {
   }
 
   const results = searchResultsWithPlaceholderResults.value
+
+  // Prevents the user from navigating if there are no results
+  if (results.length === 0) {
+    return
+  }
+
   onSearchResultClick(results[selectedSearchIndex.value])
 }
 </script>

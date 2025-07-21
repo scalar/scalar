@@ -1,5 +1,72 @@
 # @scalar/api-reference
 
+## 1.32.10
+
+### Patch Changes
+
+- 3eb8171: fix: value in request example code
+- 60c7bef: fix: updates auth description overflowing line clamp
+- 716a83a: refactor: new request example block
+- 9b4417b: fix: removes unsused prop in layout for request example
+- 2ace00b: fix: prevents introduction card dropdown stacking issue
+- fb62e1b: feat: render External Documentation Objects
+- cac47ea: fix: updates request auth border radius
+- 2ace00b: fix: increases server variables label input font size
+- Updated dependencies [60c7bef]
+- Updated dependencies [e895f86]
+- Updated dependencies [fb62e1b]
+- Updated dependencies [cac47ea]
+- Updated dependencies [fb62e1b]
+- Updated dependencies [1c2b9f3]
+- Updated dependencies [cac47ea]
+  - @scalar/api-client@2.5.19
+  - @scalar/components@0.14.20
+  - @scalar/types@0.2.10
+  - @scalar/themes@0.13.11
+  - @scalar/openapi-parser@0.18.2
+  - @scalar/oas-utils@0.4.15
+  - @scalar/snippetz@0.4.3
+  - @scalar/workspace-store@0.10.2
+  - @scalar/code-highlight@0.1.8
+
+## 1.32.9
+
+### Patch Changes
+
+- 8c6f6fe: fix: rollback workspace store
+
+## 1.32.8
+
+### Patch Changes
+
+- a04cc15: feat(components): create scalar card component
+- b5bcce7: feat: implement new request example openapi block in references
+- 97721b5: fix: prevents navigation on enter in search modal if no result
+- 9978a16: fix: example response has an additional value key
+- 8a67f4f: fix(api-reference): classic layout improvements
+- Updated dependencies [a04cc15]
+- Updated dependencies [591562f]
+- Updated dependencies [85ee2ce]
+- Updated dependencies [fbb7daa]
+- Updated dependencies [3f2ea8a]
+- Updated dependencies [fbaaa12]
+- Updated dependencies [828c894]
+- Updated dependencies [85ee2ce]
+- Updated dependencies [97721b5]
+- Updated dependencies [b5bcce7]
+- Updated dependencies [85ee2ce]
+- Updated dependencies [8a67f4f]
+  - @scalar/components@0.14.19
+  - @scalar/openapi-types@0.3.6
+  - @scalar/api-client@2.5.18
+  - @scalar/types@0.2.9
+  - @scalar/snippetz@0.4.2
+  - @scalar/workspace-store@0.10.1
+  - @scalar/code-highlight@0.1.8
+  - @scalar/themes@0.13.10
+  - @scalar/oas-utils@0.4.14
+  - @scalar/openapi-parser@0.18.1
+
 ## 1.32.7
 
 ### Patch Changes
