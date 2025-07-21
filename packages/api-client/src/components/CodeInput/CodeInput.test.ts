@@ -162,8 +162,13 @@ describe('CodeInput', () => {
   it('copies content when copy button is clicked', async () => {
     wrapper = createWrapper({ isCopyable: true })
 
-    const copyButton = wrapper.find('.copy-button')
-    await copyButton.trigger('click')
+    const copyButton = wrapper.find('.scalar-code-copy')
+    expect(copyButton.exists()).toBe(true)
+
+    const button = copyButton.find('button')
+    expect(button.exists()).toBe(true)
+
+    await button.trigger('click')
 
     expect(vi.mocked(useClipboard).mock.results[0]?.value.copyToClipboard).toHaveBeenCalledWith(wrapper.vm.modelValue)
   })
