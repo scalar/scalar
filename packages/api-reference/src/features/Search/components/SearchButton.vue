@@ -5,7 +5,8 @@ import type { Spec } from '@scalar/types/legacy'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { useApiClient } from '@/features/api-client-modal'
-import SearchModal from '@/features/Search/SearchModal.vue'
+
+import SearchModal from './SearchModal.vue'
 
 const { searchHotKey = 'k', hideModels = false } = defineProps<{
   spec: Spec
@@ -74,6 +75,5 @@ function handleClick() {
   </ScalarSidebarSearchButton>
   <SearchModal
     :modalState="modalState"
-    :hideModels="hideModels"
-    :parsedSpec="spec" />
+    :hideModels="hideModels" />
 </template>

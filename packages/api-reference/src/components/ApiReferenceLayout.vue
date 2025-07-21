@@ -20,7 +20,6 @@ import {
   type ThemeId,
 } from '@scalar/themes'
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
-import type { Spec } from '@scalar/types/legacy'
 import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 import { ScalarToasts, useToasts } from '@scalar/use-toasts'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
@@ -46,11 +45,9 @@ import { useDocumentSource } from '@/features/document-source'
 import { OPENAPI_VERSION_SYMBOL } from '@/features/download-link'
 import { SearchButton } from '@/features/Search'
 import { Sidebar, useSidebar } from '@/features/sidebar'
-import { parse } from '@/helpers/parse'
 import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
 import { downloadDocument, downloadEventBus } from '@/libs/download'
-import { createEmptySpecification } from '@/libs/openapi'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import type {
   ReferenceLayoutProps,
@@ -358,6 +355,7 @@ watch(hash, (newHash, oldHash) => {
                 v-if="!configuration.hideSearch"
                 class="scalar-api-references-standalone-search">
                 <SearchButton
+                  :spec="dereferencedDocument"
                   :searchHotKey="configuration?.searchHotKey"
                   :hideModels="configuration?.hideModels" />
               </div>

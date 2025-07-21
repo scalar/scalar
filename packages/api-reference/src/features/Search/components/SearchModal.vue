@@ -18,23 +18,21 @@ import type { ScalarIconComponent } from '@scalar/icons/types'
 import type { Spec } from '@scalar/types/legacy'
 import type { FuseResult } from 'fuse.js'
 import { nanoid } from 'nanoid'
-import { ref, toRef, watch } from 'vue'
+import { ref, watch } from 'vue'
 
 import { lazyBus } from '@/components/Lazy'
-import {
-  useSearchIndex,
-  type EntryType,
-  type FuseData,
-} from '@/features/Search/useSearchIndex'
 import { useSidebar } from '@/features/sidebar'
 import SidebarHttpBadge from '@/features/sidebar/components/SidebarHttpBadge.vue'
+
+import { useSearchIndex } from '../hooks/useSearchIndex'
+import type { EntryType, FuseData } from '../types'
 
 const props = defineProps<{
   modalState: ModalState
   hideModels: boolean
 }>()
 
-const specification = toRef(props, 'parsedSpec')
+const specification = ref({} as Spec)
 
 /** Base id for the search form */
 const id = nanoid()
