@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { ScalarIcon } from '@scalar/components'
+import { ScalarCodeBlockCopy } from '@scalar/components'
 import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { useCodeMirror, type CodeMirrorLanguage } from '@scalar/use-codemirror'
-import { useClipboard } from '@scalar/use-hooks/useClipboard'
+import { nanoid } from 'nanoid'
 import { ref, toRef } from 'vue'
 
 const props = defineProps<{
@@ -11,7 +11,8 @@ const props = defineProps<{
 }>()
 
 const codeMirrorRef = ref<HTMLDivElement | null>(null)
-const { copyToClipboard } = useClipboard()
+/** Base id for the code block */
+const id = nanoid()
 
 const { codeMirror } = useCodeMirror({
   codeMirrorRef,
@@ -29,21 +30,12 @@ const getCurrentContent = () => {
 </script>
 <template>
   <div
-    class="body-raw grid min-h-0 overflow-hidden p-px outline-none has-[:focus-visible]:outline">
+    class="scalar-code-block body-raw grid min-h-0 overflow-hidden p-3 pl-1 outline-none has-[:focus-visible]:outline">
     <!-- Copy button -->
-    <div
+    <ScalarCodeBlockCopy
       v-if="getCurrentContent()"
-      class="scalar-code-copy">
-      <button
-        class="copy-button"
-        type="button"
-        @click="copyToClipboard(getCurrentContent())">
-        <span class="sr-only">Copy content</span>
-        <ScalarIcon
-          icon="Clipboard"
-          size="md" />
-      </button>
-    </div>
+      :content="getCurrentContent()"
+      :id="id" />
     <div
       class="body-raw-scroller relative overflow-auto overscroll-contain"
       tabindex="0">
@@ -66,45 +58,5 @@ const getCurrentContent = () => {
 .body-raw :deep(.cm-scroller) {
   overflow: auto;
   min-width: 100%;
-}
-
-/* Copy Button Styles */
-.scalar-code-copy {
-  align-items: flex-start;
-  display: flex;
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  z-index: 10;
-  pointer-events: none;
-  position: sticky;
-  transform: translateX(-6px);
-}
-
-.copy-button {
-  align-items: center;
-  display: flex;
-  background-color: var(--scalar-background-1);
-  border: 1px solid var(--scalar-border-color);
-  border-radius: 3px;
-  color: var(--scalar-color-3);
-  cursor: pointer;
-  height: 30px;
-  opacity: 0;
-  padding: 6px;
-  pointer-events: auto;
-  transition:
-    opacity 0.15s ease-in-out,
-    color 0.15s ease-in-out;
-}
-
-/* Show button on container hover */
-.body-raw:hover .copy-button,
-.copy-button:focus-visible {
-  opacity: 1;
-}
-
-.copy-button:hover {
-  color: var(--scalar-color-1);
 }
 </style>
