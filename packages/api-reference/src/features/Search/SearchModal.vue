@@ -30,7 +30,6 @@ import { useSidebar } from '@/features/sidebar'
 import SidebarHttpBadge from '@/features/sidebar/components/SidebarHttpBadge.vue'
 
 const props = defineProps<{
-  parsedSpec: Spec
   modalState: ModalState
   hideModels: boolean
 }>()
