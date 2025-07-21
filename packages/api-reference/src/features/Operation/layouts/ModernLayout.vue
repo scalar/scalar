@@ -139,6 +139,7 @@ const handleDiscriminatorChange = (type: string) => {
                 :selectedServer="server"
                 :securitySchemes="securitySchemes"
                 :selectedClient="store.workspace['x-scalar-default-client']"
+                :hideClientSelector="config.hiddenClients === true"
                 :path="path"
                 fallback
                 :operation="operation"
