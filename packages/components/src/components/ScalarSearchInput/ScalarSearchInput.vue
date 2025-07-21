@@ -44,7 +44,9 @@ const { classCx, otherAttrs } = useBindCx()
 <template>
   <label
     v-bind="
-      classCx('flex items-center text-lg font-medium h-10 p-3 pr-1 h-14 gap-2')
+      classCx(
+        'flex items-center text-lg font-medium h-10 pl-3 pr-1 py-2 gap-2.25',
+      )
     ">
     <ScalarIconMagnifyingGlass class="text-sidebar-c-search size-4" />
     <input

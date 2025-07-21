@@ -1,5 +1,45 @@
 # @scalar/nuxt
 
+## 0.4.34
+
+### Patch Changes
+
+- Updated dependencies [3eb8171]
+- Updated dependencies [60c7bef]
+- Updated dependencies [716a83a]
+- Updated dependencies [e895f86]
+- Updated dependencies [9b4417b]
+- Updated dependencies [fb62e1b]
+- Updated dependencies [cac47ea]
+- Updated dependencies [2ace00b]
+- Updated dependencies [fb62e1b]
+- Updated dependencies [cac47ea]
+- Updated dependencies [2ace00b]
+  - @scalar/api-reference@1.32.10
+  - @scalar/api-client@2.5.19
+  - @scalar/types@0.2.10
+
+## 0.4.33
+
+### Patch Changes
+
+- Updated dependencies [8c6f6fe]
+  - @scalar/api-reference@1.32.9
+
+## 0.4.32
+
+### Patch Changes
+
+- Updated dependencies [a04cc15]
+- Updated dependencies [591562f]
+- Updated dependencies [b5bcce7]
+- Updated dependencies [97721b5]
+- Updated dependencies [9978a16]
+- Updated dependencies [8a67f4f]
+  - @scalar/api-reference@1.32.8
+  - @scalar/api-client@2.5.18
+  - @scalar/types@0.2.9
+
 ## 0.4.31
 
 ### Patch Changes

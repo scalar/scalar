@@ -223,4 +223,24 @@ describe('traversePaths', () => {
 
     expect(titlesMap.get('GET-/test')).toBe('Test endpoint')
   })
+
+  it('should use the path when the summary is empty', () => {
+    const spec = createBasicSpec()
+    spec.paths = {
+      '/test': {
+        get: {
+          tags: ['Test'],
+          summary: '',
+          operationId: 'testEndpoint',
+        },
+      },
+    }
+
+    const tagsMap: TagsMap = new Map([['Test', { tag: { name: 'Test' }, entries: [] }]])
+    const titlesMap = new Map<string, string>()
+
+    traversePaths(spec, tagsMap, titlesMap, mockGetOperationId)
+
+    expect(titlesMap.get('GET-/test')).toBe('/test')
+  })
 })

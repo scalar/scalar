@@ -1,9 +1,9 @@
-import { describe, it, expect } from 'vitest'
 import type { TraversedEntry, TraversedOperation, TraversedTag } from '@/schemas/navigation'
-import { traverseTags } from './traverse-tags'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { describe, expect, it } from 'vitest'
+import { traverseTags } from './traverse-tags'
 
 type TagGroup = { name: string; tags: string[] }
 
@@ -155,6 +155,30 @@ describe('traverseTags', () => {
       getTagId: (tag: TagObject) => tag.name ?? '',
       tagsSorter: 'alpha',
       operationsSorter: 'method',
+    } as const
+
+    const result = traverseTags(document, tagsMap, titlesMap, options)
+    expect((result[0] as TraversedOperation).method).toBe('get')
+    expect((result[1] as TraversedOperation).method).toBe('post')
+  })
+
+  it('should handle custom operationSorter using [deprecated] httpVerb', () => {
+    const document = createMockDocument()
+    const tagsMap = new Map([
+      [
+        'default',
+        {
+          tag: createMockTag('default'),
+          entries: [createMockEntry('POST Operation', 'post'), createMockEntry('GET Operation', 'get')],
+        },
+      ],
+    ])
+    const titlesMap = new Map<string, string>()
+    const options = {
+      getTagId: (tag: TagObject) => tag.name ?? '',
+      tagsSorter: 'alpha',
+      operationsSorter: (a: { httpVerb: string }, b: { httpVerb: string }) =>
+        (a.httpVerb || '').localeCompare(b.httpVerb || ''),
     } as const
 
     const result = traverseTags(document, tagsMap, titlesMap, options)

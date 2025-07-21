@@ -67,7 +67,7 @@ watch(
     <div
       v-if="selectedSchemeOptions.length > 1"
       class="box-content flex h-8 flex-wrap gap-x-2.5 overflow-hidden border border-b-0 px-3"
-      :class="layout === 'client' && 'border-r-0'">
+      :class="layout === 'client' && 'border-x-0'">
       <div
         v-for="(option, index) in selectedSchemeOptions"
         :key="option.id"

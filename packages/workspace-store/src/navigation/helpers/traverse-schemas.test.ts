@@ -266,6 +266,46 @@ describe('traverseSchemas', () => {
     expect(result[0].title).toBe('ValidSchema')
   })
 
+  it('uses the title attribute of the schema', () => {
+    const content: OpenApiDocument = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      components: {
+        schemas: {
+          ValidSchema: {
+            title: 'Foobar',
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+            },
+          },
+          InternalSchema: {
+            'x-internal': true,
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+            },
+          },
+          IgnoredSchema: {
+            'x-scalar-ignore': true,
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+            },
+          },
+        },
+      },
+    }
+
+    const result = traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
+
+    expect(result).toHaveLength(1)
+    expect(result[0].title).toBe('Foobar')
+  })
+
   describe('x-tags', () => {
     it('should handle schemas with x-tags', () => {
       const content: OpenApiDocument = {

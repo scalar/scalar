@@ -25,10 +25,12 @@
   "type": "module",
   "dependencies": {
     "@scalar/api-reference": "workspace:*",
+    "@scalar/components": "workspace:*",
     "@scalar/galaxy": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
     "@scalar/use-hooks": "workspace:*",
+    "@scalar/workspace-store": "workspace:*",
     "@vueuse/core": "catalog:*",
     "monaco-editor": "^0.47.0",
     "vue": "catalog:*",

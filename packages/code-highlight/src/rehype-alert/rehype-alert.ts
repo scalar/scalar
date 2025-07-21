@@ -99,6 +99,12 @@ export function rehypeAlert() {
           {
             type: 'element',
             tagName: 'div',
+            properties: { className: ['markdown-alert-icon'] },
+            children: [],
+          },
+          {
+            type: 'element',
+            tagName: 'div',
             properties: { className: ['markdown-alert-content'] },
             children: [{ type: 'text', value: ' ' }, ...contentChildren],
           },

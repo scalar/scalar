@@ -138,7 +138,7 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
 <template>
   <div class="relative flex">
     <ScalarIconMagnifyingGlass
-      class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-c-3 size-4" />
+      class="pointer-events-none absolute left-2.5 search-icon text-c-3 size-4" />
     <input
       v-model="query"
       ref="input"
@@ -197,3 +197,9 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
     <slot name="after" />
   </ul>
 </template>
+<style scoped>
+.search-icon {
+  top: 50%;
+  transform: translateY(-50%);
+}
+</style>

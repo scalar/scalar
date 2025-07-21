@@ -117,8 +117,8 @@ const getSortedTagEntries = (
         const pathB = b.type === 'operation' ? b.path : b.name
 
         return operationsSorter(
-          { method: a.method, path: pathA, ref: a.ref },
-          { method: b.method, path: pathB, ref: b.ref },
+          { method: a.method, path: pathA, ref: a.ref, httpVerb: a.method },
+          { method: b.method, path: pathB, ref: b.ref, httpVerb: b.method },
         )
       })
     }

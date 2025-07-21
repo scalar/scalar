@@ -37,14 +37,14 @@ const updateServer = (newServer: string) => {
 </script>
 <template>
   <label
-    class="bg-b-2 flex h-8 items-center rounded-t-lg border border-b-0 px-3 py-2.5 text-base font-medium">
+    class="bg-b-2 flex h-8 items-center rounded-t-lg border border-b-0 px-3 py-2.5 font-medium">
     Server
   </label>
   <div
     :id="id"
     class="border"
     :class="{
-      'rounded-b-lg': !server?.description,
+      'rounded-b-lg': !server?.description && !server?.variables,
     }">
     <ServerSelector
       v-if="collection?.servers?.length"

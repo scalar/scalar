@@ -1,5 +1,30 @@
 # @scalar/workspace-store
 
+## 0.10.2
+
+### Patch Changes
+
+- Updated dependencies [fb62e1b]
+- Updated dependencies [1c2b9f3]
+  - @scalar/types@0.2.10
+  - @scalar/openapi-parser@0.18.2
+  - @scalar/code-highlight@0.1.8
+
+## 0.10.1
+
+### Patch Changes
+
+- 3f2ea8a: fix: shows different console errors whether the request wasn't successful or the data isn't a valid object
+- 828c894: fix: update workspace traversal with fixes from sidebar
+- b5bcce7: feat: implement new request example openapi block in references
+- Updated dependencies [591562f]
+- Updated dependencies [85ee2ce]
+- Updated dependencies [85ee2ce]
+  - @scalar/openapi-types@0.3.6
+  - @scalar/types@0.2.9
+  - @scalar/code-highlight@0.1.8
+  - @scalar/openapi-parser@0.18.1
+
 ## 0.10.0
 
 ### Minor Changes

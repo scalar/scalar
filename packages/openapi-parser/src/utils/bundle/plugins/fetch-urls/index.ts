@@ -8,6 +8,18 @@ type FetchConfig = Partial<{
 }>
 
 /**
+ * Safely checks for host from a URL
+ * Needed because we cannot create a URL from a relative remote URL ex: examples/openapi.json
+ */
+const getHost = (url: string): string | null => {
+  try {
+    return new URL(url).host
+  } catch {
+    return null
+  }
+}
+
+/**
  * Fetches and normalizes data from a remote URL
  * @param url - The URL to fetch data from
  * @returns A promise that resolves to either the normalized data or an error result
@@ -27,10 +39,10 @@ export async function fetchUrl(
   config?: FetchConfig,
 ): Promise<ResolveResult> {
   try {
-    const domain = new URL(url).host
+    const host = getHost(url)
 
     // Get the headers that match the domain
-    const headers = config?.headers?.find((a) => a.domains.find((d) => d === domain) !== undefined)?.headers
+    const headers = config?.headers?.find((a) => a.domains.find((d) => d === host) !== undefined)?.headers
 
     const exec = config?.fetch ?? fetch
 

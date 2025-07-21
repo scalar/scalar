@@ -119,6 +119,8 @@ const flowsCommon = z.object({
   'token': z.string().default(''),
   /** Additional query parameters for the OAuth authorization request. Example: { prompt: 'consent', audience: 'scalar' }. */
   'x-scalar-security-query': z.record(z.string(), z.string()).optional(),
+  /** Additional body parameters for the OAuth token request. Example: { audience: 'foo' }. */
+  'x-scalar-security-body': z.record(z.string(), z.string()).optional(),
   /** Extension to specify custom token name in the response (defaults to 'access_token') */
   'x-tokenName': z.string().optional(),
 })

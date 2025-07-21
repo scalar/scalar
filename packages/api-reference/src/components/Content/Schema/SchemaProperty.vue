@@ -2,18 +2,18 @@
 import { ScalarMarkdown } from '@scalar/components'
 import { computed, inject, type Component } from 'vue'
 
-import {
-  compositions,
-  optimizeValueForDisplay,
-} from '@/components/Content/Schema/helpers/optimize-value-for-display'
-import SchemaEnumValues from '@/components/Content/Schema/SchemaEnumValues.vue'
 import type { Schemas } from '@/features/Operation/types/schemas'
 import { SpecificationExtension } from '@/features/specification-extension'
 import { DISCRIMINATOR_CONTEXT } from '@/hooks/useDiscriminator'
 
+import {
+  compositions,
+  optimizeValueForDisplay,
+} from './helpers/optimize-value-for-display'
 import Schema from './Schema.vue'
 import SchemaComposition from './SchemaComposition.vue'
 import SchemaDiscriminator from './SchemaDiscriminator.vue'
+import SchemaEnumValues from './SchemaEnumValues.vue'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 
 /**

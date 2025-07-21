@@ -1,13 +1,22 @@
 <script setup lang="ts">
-import type { Collection, Operation } from '@scalar/oas-utils/entities/spec'
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
+import type { CallbackObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
+import { isReference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 
 import type { Schemas } from '@/features/Operation/types/schemas'
 
 import Callback from './Callback.vue'
 
-const { callbacks, collection, schemas } = defineProps<{
-  callbacks: Operation['callbacks']
-  collection: Collection
+const {
+  path,
+  method: operationMethod,
+  callbacks,
+  schemas,
+} = defineProps<{
+  path: string
+  method: HttpMethod
+  callbacks: CallbackObject
   schemas?: Schemas
 }>()
 </script>
@@ -20,18 +29,27 @@ const { callbacks, collection, schemas } = defineProps<{
 
     <!-- Loop over names -->
     <template
-      v-for="(callbackUrls, name) in callbacks"
+      v-for="(pathItem, name) in callbacks"
       :key="name">
-      <!-- Loop over methods -->
-      <template v-for="(methods, url) in callbackUrls">
-        <Callback
-          v-for="(callback, method) in methods"
-          :callback="callback"
-          :collection="collection"
-          :method="method"
-          :name="name"
-          :schemas="schemas"
-          :url="url" />
+      <!-- Make sure its not a ref -->
+      <template v-if="!isReference(pathItem)">
+        <!-- Loop over methods -->
+        <template v-for="(methods, url) in pathItem">
+          <!-- Only HTTP Methods -->
+          <template
+            v-for="(callback, method) in methods"
+            :key="method">
+            <Callback
+              v-if="isHttpMethod(method)"
+              :callback="callback"
+              :method="method"
+              :operationMethod="operationMethod"
+              :name="name"
+              :path="path"
+              :schemas="schemas"
+              :url="url" />
+          </template>
+        </template>
       </template>
     </template>
   </div>

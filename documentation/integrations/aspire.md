@@ -59,6 +59,14 @@ You're all set! 🎉 The Aspire dashboard will show a Scalar API Reference resou
 - **Built-in Proxy**: Provides a built-in proxy to handle API requests, eliminating the need for CORS configuration in your services
 - **Familiar Configuration**: Uses familiar configuration options consistent with the `Scalar.AspNetCore` integration
 
+## Service Requirements
+
+To integrate with Scalar for Aspire, each service must expose OpenAPI (Swagger) documents over an HTTP endpoint. Ensure that your service makes its OpenAPI documentation available at a reachable URL.
+
+Currently, only HTTP-based services are supported; HTTPS is not yet supported.
+
+Additionally, any resource you want to include in the API Reference must implement the `IResourceWithServiceDiscovery` interface and define an endpoint named **"http"**.
+
 ## Configuration Options
 
 The `AddScalarApiReference` method accepts an optional `options` parameter, which you can use to customize Scalar using the fluent API.
@@ -179,12 +187,6 @@ var scalar = builder.AddScalarApiReference(options =>
 });
 ```
 
-## Service Requirements
-
-To integrate with Scalar Aspire, each service must expose OpenAPI/Swagger documents over HTTP. Ensure your service serves OpenAPI documentation at a reachable endpoint.
-
-Additionally, only HTTP-based services are supported. Any resource you want to include in the API reference must implement the `IResourceWithServiceDiscovery` interface and define an endpoint named **"http"**.
-
 ### Example Service Configuration
 
 Here's how to configure a service to work with Scalar Aspire:
@@ -215,8 +217,6 @@ app.Run();
 
 ## Troubleshooting
 
-### Common Issues
-
 **Services not appearing in API reference**:
 - Ensure services are properly exposing OpenAPI documents
 - Check that the `OpenApiRoutePattern` matches your service's actual route
@@ -225,6 +225,7 @@ app.Run();
 **Authentication not working**:
 - Confirm security schemes are defined in each service's OpenAPI document
 - Check that scheme names match between service and Scalar configuration
+- Ensure that URLs such as `AuthorizationUrl` or `TokenUrl` in your authentication flows are correct and reachable from the Aspire container
 
 
 For more configuration options and advanced scenarios, refer to the base [.NET ASP.NET Core documentation](https://guides.scalar.com/scalar/scalar-api-references/integrations/net-aspnet-core#configuration-options), as most configuration options are shared between the `Scalar.AspNetCore` and `Scalar.Aspire` integration.

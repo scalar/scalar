@@ -276,6 +276,15 @@ export const authorizeServers = async (
     formData.set('grant_type', 'client_credentials')
   }
 
+  // Additional request body parameters
+  if (flow['x-scalar-security-body']) {
+    Object.entries(flow['x-scalar-security-body']).forEach(([key, value]) => {
+      if (value) {
+        formData.set(key, value)
+      }
+    })
+  }
+
   try {
     const headers: Record<string, string> = {
       'Content-Type': 'application/x-www-form-urlencoded',
