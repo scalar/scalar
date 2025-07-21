@@ -1,5 +1,20 @@
 # @scalar/aspire
 
+## 0.1.11
+
+### Patch Changes
+
+- 2194535: fix: docker build
+- Updated dependencies [3eb8171]
+- Updated dependencies [60c7bef]
+- Updated dependencies [716a83a]
+- Updated dependencies [9b4417b]
+- Updated dependencies [2ace00b]
+- Updated dependencies [fb62e1b]
+- Updated dependencies [cac47ea]
+- Updated dependencies [2ace00b]
+  - @scalar/api-reference@1.32.10
+
 ## 0.1.10
 
 ### Patch Changes
