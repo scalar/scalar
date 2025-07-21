@@ -99,8 +99,6 @@ import {
 import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
-import { LinkList } from '@/components/LinkList'
-import { ExternalDocs } from '@/features/external-docs'
 import { findClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import {
   generateClientOptions,
@@ -251,10 +249,6 @@ const selectClient = (option: ClientOption) => {
 const id = useId()
 </script>
 <template>
-  <!-- External Docs -->
-  <LinkList v-if="operation.externalDocs">
-    <ExternalDocs :value="operation.externalDocs" />
-  </LinkList>
   <ScalarCard
     v-if="clients.length"
     class="request-card dark-mode"

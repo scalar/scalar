@@ -8,10 +8,10 @@ import { ScalarIconCaretDown } from '@scalar/icons'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed, ref } from 'vue'
 
-import { getSchemaType } from '@/components/Content/Schema/helpers/get-schema-type'
-import { mergeAllOfSchemas } from '@/components/Content/Schema/helpers/merge-all-of-schemas'
 import type { Schemas } from '@/features/Operation/types/schemas'
 
+import { getSchemaType } from './helpers/get-schema-type'
+import { mergeAllOfSchemas } from './helpers/merge-all-of-schemas'
 import {
   hasComposition,
   type CompositionKeyword,

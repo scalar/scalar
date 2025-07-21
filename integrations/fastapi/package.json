@@ -16,8 +16,8 @@
     "node": ">=20"
   },
   "scripts": {
-    "test": "python3 run_tests.py",
-    "dev": "cd playground && uvicorn main:app --reload"
+    "dev": "cd playground && uvicorn main:app --reload",
+    "test": "python3 run_tests.py"
   },
   "dependencies": {},
   "devDependencies": {}
