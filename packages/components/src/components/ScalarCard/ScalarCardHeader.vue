@@ -35,7 +35,7 @@ useCardHeading(id)
   <ScalarCardSection
     v-bind="
       cx(
-        'scalar-card-header leading-[22px] font-medium py-[6.75px] px-3 shrink-0',
+        'scalar-card-header leading-[22px] font-medium py-[6.75px] pl-3 pr-1.5 shrink-0',
       )
     ">
     <div
