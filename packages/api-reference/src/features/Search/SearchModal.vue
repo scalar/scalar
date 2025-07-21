@@ -106,7 +106,7 @@ function onSearchResultClick(entry: FuseResult<FuseData>) {
 
   if (!document.getElementById(targetId)) {
     const unsubscribe = lazyBus.on((ev) => {
-      if (ev.id === targetId) {
+      if (ev.loaded === targetId) {
         scrollToId(targetId)
         unsubscribe()
         props.modalState.hide()

@@ -124,7 +124,6 @@ if (!hasLazyLoaded.value) {
           const foundElement = window.document.getElementById(targetId)
 
           if (foundElement && !unfreeze.value) {
-            console.log('freezing', foundElement)
             unfreeze.value = freezeElement(foundElement as HTMLElement)
             scrollToId(targetId)
             stop()

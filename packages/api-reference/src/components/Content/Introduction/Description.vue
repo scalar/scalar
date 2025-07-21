@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { getHeadings, splitContent } from '@scalar/code-highlight/markdown'
 import { ScalarMarkdown } from '@scalar/components'
+import { scrollToId } from '@scalar/helpers/dom/scroll-to-id'
 import GitHubSlugger from 'github-slugger'
-import { computed } from 'vue'
+import { computed, nextTick, onMounted, watch } from 'vue'
 
 import IntersectionObserver from '@/components/IntersectionObserver.vue'
 import { useNavState } from '@/hooks/useNavState'
@@ -44,8 +45,13 @@ const sections = computed(() => {
   return items
 })
 
-const { getHeadingId, getFullHash, isIntersectionEnabled, replaceUrlState } =
-  useNavState()
+const {
+  getHeadingId,
+  getFullHash,
+  hash,
+  isIntersectionEnabled,
+  replaceUrlState,
+} = useNavState()
 
 function handleScroll(headingId = '') {
   if (!isIntersectionEnabled.value) {
@@ -71,6 +77,28 @@ const transformHeading = (node: Record<string, any>) => {
 
   return node
 }
+
+// Ensure we scroll to the correct heading
+// We may need to wait until more content is loaded so that it CAN scroll
+onMounted(() => {
+  if (hash.value.startsWith('description')) {
+    // * If the page has enough content to scroll */
+    const canScroll =
+      document.documentElement.scrollHeight >
+      document.documentElement.clientHeight
+
+    // If the introduction is long enough we can scroll to the heading right now
+    if (canScroll) {
+      scrollToId(hash.value)
+    }
+    // Otherwise we just wait for a couple more elements to load in then scroll
+    else {
+      setTimeout(() => {
+        scrollToId(hash.value)
+      }, 500)
+    }
+  }
+})
 </script>
 
 <template>

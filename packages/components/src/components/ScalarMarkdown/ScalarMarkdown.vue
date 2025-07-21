@@ -59,9 +59,6 @@ const html = computed(() => {
     transformType: props.transformType,
   })
 })
-
-// SSR hack - waits for the watch to complete
-onServerPrefetch(async () => await new Promise((r) => setTimeout(r, 1)))
 </script>
 <template>
   <div
