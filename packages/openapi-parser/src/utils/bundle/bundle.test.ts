@@ -1591,6 +1591,144 @@ describe('bundle', () => {
         },
       })
     })
+
+    it('will not do full bundle if we do specify a depth and reuse the same hash set', async () => {
+      const external = {
+        prop: 'I am external json prop',
+      }
+      server.get('/', (_, reply) => {
+        reply.send(external)
+      })
+
+      await server.listen({ port: PORT })
+
+      const input = {
+        a: {
+          b: {
+            c: {
+              d: {
+                e: {
+                  // Deep ref
+                  '$ref': `http://localhost:${PORT}#/prop`,
+                },
+              },
+            },
+          },
+        },
+        d: {
+          e: {
+            '$ref': `http://localhost:${PORT}#/prop`,
+          },
+        },
+      }
+
+      const visitedNodes = new Set()
+
+      await bundle(input, {
+        plugins: [fetchUrls()],
+        treeShake: false,
+        depth: 2,
+        visitedNodes: visitedNodes,
+      })
+
+      expect(input).toEqual({
+        'x-ext': {
+          [await getHash(url)]: {
+            ...external,
+          },
+        },
+        'x-ext-urls': {
+          [await getHash(url)]: url,
+        },
+        a: {
+          b: {
+            c: {
+              d: {
+                e: {
+                  $ref: `${url}#/prop`,
+                },
+              },
+            },
+          },
+        },
+        d: {
+          e: {
+            $ref: `#/x-ext/${await getHash(url)}/prop`,
+          },
+        },
+      })
+
+      // We run a full bundle on the root of the document without a depth
+      await bundle(input, {
+        plugins: [fetchUrls()],
+        treeShake: false,
+        visitedNodes: visitedNodes,
+        urlMap: true,
+      })
+
+      // Expect the input to be the same as before
+      // because we are reusing the same hash set
+      expect(input).toEqual({
+        'x-ext': {
+          [await getHash(url)]: {
+            ...external,
+          },
+        },
+        'x-ext-urls': {
+          [await getHash(url)]: url,
+        },
+        a: {
+          b: {
+            c: {
+              d: {
+                e: {
+                  $ref: `${url}#/prop`,
+                },
+              },
+            },
+          },
+        },
+        d: {
+          e: {
+            $ref: `#/x-ext/${await getHash(url)}/prop`,
+          },
+        },
+      })
+
+      // When we run a full bundle again without the same hash set we expect a full bundle
+      await bundle(input, {
+        plugins: [fetchUrls()],
+        treeShake: false,
+        urlMap: true,
+      })
+
+      expect(input).toEqual({
+        'x-ext': {
+          [await getHash(url)]: {
+            ...external,
+          },
+        },
+        'x-ext-urls': {
+          [await getHash(url)]: url,
+        },
+        a: {
+          b: {
+            c: {
+              d: {
+                e: {
+                  $ref: `#/x-ext/${await getHash(url)}/prop`,
+                },
+              },
+            },
+          },
+        },
+        d: {
+          e: {
+            $ref: `#/x-ext/${await getHash(url)}/prop`,
+          },
+        },
+      })
+    })
   })
 })
 
