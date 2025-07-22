@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
-import { scrollToId } from '@scalar/helpers/dom/scroll-to-id'
 import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
@@ -127,7 +126,6 @@ if (!hasLazyLoaded.value) {
             unfreeze.value = freezeElement(foundElement as HTMLElement, {
               scrollIntoView: true,
             })
-            scrollToId(targetId)
             stop()
           }
         })

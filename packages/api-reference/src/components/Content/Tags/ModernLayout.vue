@@ -47,7 +47,7 @@ const isCollapsed = (tagId: string) => {
     <!-- Lazy load this part -->
     <Lazy
       :id="`modern-tag-${tag.id}`"
-      :isLazy="Boolean(hash) && hash !== tag.id">
+      :isLazy="Boolean(hash) && hash !== tag.id && hash.startsWith(tag.id)">
       <TagSection
         v-if="moreThanOneDefaultTag"
         :headerId="headerId"
