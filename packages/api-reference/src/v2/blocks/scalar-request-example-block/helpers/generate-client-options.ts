@@ -57,6 +57,7 @@ export const generateClientOptions = (
           title: `${capitalize(group.title)} ${plugin.title}`,
           label: plugin.title,
           targetKey: group.key,
+          targetTitle: group.title,
           clientKey: plugin.client,
         }
       })

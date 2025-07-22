@@ -9,13 +9,15 @@ import type { AvailableClients, ClientId, TargetId } from '@scalar/snippetz'
 export type ClientOption = ScalarComboboxOption & {
   /** A more specific ID */
   id: AvailableClients[number]
-  /** The programming language or tool for code generation (e.g., 'javascript', 'python', 'curl') */
+  /** Programming language or tool for code generation (e.g., 'javascript', 'python', 'curl') */
   lang: TargetId | 'curl' | 'plaintext'
-  /** The title shows when the client is selected in the dropdown */
+  /** Title shows when the client is selected in the dropdown */
   title: string
-  /** The target key for the client */
+  /** Target key for the client */
   targetKey: TargetId
-  /** The client key for the client */
+  /** Title of the target */
+  targetTitle: string
+  /** Client key for the client */
   clientKey: ClientId<TargetId>
 }
 
