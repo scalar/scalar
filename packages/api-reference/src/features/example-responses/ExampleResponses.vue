@@ -7,11 +7,11 @@ import {
   ScalarIcon,
   ScalarMarkdown,
 } from '@scalar/components'
-import type { Operation } from '@scalar/oas-utils/entities/spec'
 import {
   getObjectKeys,
   normalizeMimeTypeObject,
 } from '@scalar/oas-utils/helpers'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed, ref, useId } from 'vue'
 
@@ -26,7 +26,9 @@ import ExampleResponseTabList from './ExampleResponseTabList.vue'
  * TODO: copyToClipboard isn't using the right content if there are multiple examples
  */
 
-const { responses } = defineProps<{ responses: Operation['responses'] }>()
+const { responses } = defineProps<{
+  responses: OpenAPIV3_1.OperationObject['responses']
+}>()
 
 const id = useId()
 
@@ -36,7 +38,7 @@ const { copyToClipboard } = useClipboard()
 const orderedStatusCodes = computed(() => Object.keys(responses ?? {}).sort())
 
 const hasMultipleExamples = computed<boolean>(
-  () => !!currentJsonResponse.value.examples,
+  () => !!currentJsonResponse.value?.examples,
 )
 
 // Keep track of the current selected tab
@@ -50,30 +52,32 @@ const currentResponse = computed(() => {
   return responses?.[currentStatusCode]
 })
 
-const currentJsonResponse = computed(() => {
-  const normalizedContent = normalizeMimeTypeObject(
-    currentResponse.value?.content,
-  )
+const currentJsonResponse = computed<OpenAPIV3_1.ResponseObject | undefined>(
+  () => {
+    const normalizedContent = normalizeMimeTypeObject(
+      currentResponse.value?.content,
+    )
 
-  /** All the keys of the normalized content */
-  const keys = getObjectKeys(normalizedContent ?? {})
+    /** All the keys of the normalized content */
+    const keys = getObjectKeys(normalizedContent ?? {})
 
-  return (
-    // OpenAPI 3.x
-    normalizedContent?.['application/json'] ??
-    normalizedContent?.['application/xml'] ??
-    normalizedContent?.['text/plain'] ??
-    normalizedContent?.['text/html'] ??
-    normalizedContent?.['*/*'] ??
-    // Take the first key - in the future we may want to use the selected content type
-    normalizedContent?.[keys[0]] ??
-    // Swagger 2.0
-    currentResponse.value
-  )
-})
+    return (
+      // OpenAPI 3.x
+      normalizedContent?.['application/json'] ??
+      normalizedContent?.['application/xml'] ??
+      normalizedContent?.['text/plain'] ??
+      normalizedContent?.['text/html'] ??
+      normalizedContent?.['*/*'] ??
+      // Take the first key - in the future we may want to use the selected content type
+      normalizedContent?.[keys[0]] ??
+      // Swagger 2.0
+      currentResponse.value
+    )
+  },
+)
 
 const selectedExampleKey = ref<string>(
-  Object.keys(currentJsonResponse.value.examples ?? {})[0] ?? '',
+  Object.keys(currentJsonResponse.value?.examples ?? {})[0] ?? '',
 )
 
 /**
@@ -82,14 +86,16 @@ const selectedExampleKey = ref<string>(
  */
 const getFirstExampleResponse = () => {
   if (!hasMultipleExamples.value) {
-    return currentJsonResponse.value.example
+    return currentJsonResponse.value?.example
   }
-  if (Array.isArray(currentJsonResponse.value.examples)) {
-    return currentJsonResponse.value.examples[0]
+  if (Array.isArray(currentJsonResponse.value?.examples)) {
+    return currentJsonResponse.value?.examples[0]
   }
 
-  const firstProperty = Object.keys(currentJsonResponse.value.examples)[0]
-  const firstExample = currentJsonResponse.value.examples[firstProperty]
+  const firstProperty = Object.keys(
+    currentJsonResponse.value?.examples ?? {},
+  )[0]
+  const firstExample = currentJsonResponse.value?.examples?.[firstProperty]
 
   // Handle the case where the example already has a 'value' property
   return firstExample?.value ?? firstExample
@@ -99,8 +105,9 @@ const currentResponseWithExample = computed(() => ({
   ...currentJsonResponse.value,
   example:
     hasMultipleExamples.value && selectedExampleKey.value
-      ? (currentJsonResponse.value.examples[selectedExampleKey.value].value ??
-        currentJsonResponse.value.examples[selectedExampleKey.value])
+      ? (currentJsonResponse.value?.examples?.[selectedExampleKey.value]
+          ?.value ??
+        currentJsonResponse.value?.examples?.[selectedExampleKey.value])
       : getFirstExampleResponse(),
 }))
 
