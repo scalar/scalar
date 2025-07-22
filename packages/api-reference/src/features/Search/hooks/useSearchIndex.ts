@@ -12,10 +12,8 @@ const MAX_SEARCH_RESULTS = 25
  */
 export function useSearchIndex({
   specification,
-  hideModels = false,
 }: {
   specification: Ref<Spec>
-  hideModels?: boolean
 }) {
   const fuseDataArray = ref<FuseData[]>([])
   const searchResults = ref<FuseResult<FuseData>[]>([])
@@ -28,9 +26,8 @@ export function useSearchIndex({
   watch(
     specification,
     (newSpec) => {
-      const index = createSearchIndex(newSpec, {
-        hideModels,
-      })
+      // TODO: Add actual data here
+      const index = createSearchIndex([])
 
       fuse.setCollection(index)
     },
@@ -58,8 +55,7 @@ export function useSearchIndex({
 
   const searchResultsWithPlaceholderResults = computed<FuseResult<FuseData>[]>((): FuseResult<FuseData>[] => {
     if (searchText.value.length === 0) {
-      // TODO: This should have the already created index to show some results before we query fuse. 🤔
-      // Maybe we can directly tap into fuse?
+      // Show a few results before we query fuse
       return fuseDataArray.value.slice(0, MAX_SEARCH_RESULTS).map((item) => {
         return {
           item: item,
