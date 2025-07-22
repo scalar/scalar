@@ -355,7 +355,6 @@ watch(hash, (newHash, oldHash) => {
                 v-if="!configuration.hideSearch"
                 class="scalar-api-references-standalone-search">
                 <SearchButton
-                  :spec="dereferencedDocument"
                   :searchHotKey="configuration?.searchHotKey"
                   :hideModels="configuration?.hideModels" />
               </div>
