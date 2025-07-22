@@ -1,28 +1,27 @@
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 import type { XCodeSample } from '@scalar/openapi-types/schemas/extensions'
-import { snippetz, type AvailableClients, type TargetId } from '@scalar/snippetz'
+import { snippetz } from '@scalar/snippetz'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { capitalize } from 'vue'
 
 /** Helper to generate an ID for custom code samples */
 export const generateCustomId = (example: XCodeSample) => `custom/${example.lang}`
 
 /**
- * Generates client options for the request example block by combining built-in snippets
- * with custom code samples. This function creates a structured list of available
- * client options that can be used to generate code examples for different programming
- * languages and frameworks.
+ * Generates client options for the request example block by filtering and organizing
+ * built-in snippets based on the hiddenClients configuration. This function creates
+ * a structured list of available client options that can be used to generate code
+ * examples for different programming languages and frameworks.
  *
- * The function filters built-in clients based on the allowedClients parameter and
- * groups them by their category (e.g., JavaScript, Python, etc.). Custom code samples
- * are added as a separate "Code Examples" group at the top of the list.
- *
- * @param customRequestExamples - Array of custom code samples to include in the options
- * @param allowedClients - Optional array of allowed client IDs to filter built-in clients
- * @returns Array of client option groups, each containing a label and array of client options
+ * The function filters built-in clients based on the hiddenClients parameter and
+ * groups them by their category (e.g., JavaScript, Python, etc.). The hiddenClients
+ * parameter supports multiple formats:
+ * - boolean: true to hide all clients
+ * - array: ['fetch', 'axios'] to hide specific clients across all categories
+ * - object: { node: true, python: ['requests'] } to hide entire categories or specific clients within categories
  */
 export const generateClientOptions = (
-  customRequestExamples: XCodeSample[],
-  allowedClients?: AvailableClients[number][],
+  hiddenClients: ApiReferenceConfiguration['hiddenClients'],
 ): ClientOptionGroup[] => {
   const options = snippetz()
     .clients()
@@ -30,9 +29,26 @@ export const generateClientOptions = (
       const options = group.clients.flatMap((plugin) => {
         const id = `${group.key}/${plugin.client}`
 
-        // Filter out clients that are not in the allowed list
-        if (allowedClients && !allowedClients.includes(id as AvailableClients[number])) {
+        // Hide specific clients across all categories
+        // ex: hiddenClients: ['fetch', 'axios']
+        if (Array.isArray(hiddenClients) && hiddenClients.includes(plugin.client)) {
           return []
+        }
+
+        if (typeof hiddenClients === 'object' && hiddenClients !== null) {
+          const groupConfig = hiddenClients[group.key as keyof typeof hiddenClients]
+
+          // Hide entire category if value is true
+          // ex: hiddenClients: { node: true, python: true }
+          if (groupConfig === true) {
+            return []
+          }
+
+          // Hide specific clients within category if value is an array
+          // ex: hiddenClients: { node: ['fetch', 'axios'], js: ['fetch'] }
+          if (Array.isArray(groupConfig) && groupConfig.includes(plugin.client)) {
+            return []
+          }
         }
 
         return {
@@ -53,27 +69,6 @@ export const generateClientOptions = (
         options,
       }
     })
-
-  /** Generate options for any custom code samples */
-  const customClients = customRequestExamples.map((sample) => {
-    const id = generateCustomId(sample)
-    const label = sample.label || sample.lang || id
-
-    return {
-      id,
-      lang: (sample.lang as TargetId) || 'plaintext',
-      title: label,
-      label,
-    }
-  })
-
-  // Add our custom clients to the top of the list
-  if (customClients.length > 0) {
-    options.unshift({
-      label: 'Code Examples',
-      options: customClients,
-    })
-  }
 
   return options
 }

@@ -10,12 +10,14 @@ import { computed, ref } from 'vue'
 import { hasLazyLoaded, lazyBus } from '@/components/Lazy/lazyBus'
 import { useSidebar } from '@/features/sidebar'
 import { useNavState } from '@/hooks/useNavState'
+import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
 import TraversedEntry from './TraversedEntry.vue'
 
 const { document, config } = defineProps<{
   document: OpenAPIV3_1.Document
   config: ApiReferenceConfiguration
+  clientOptions: ClientOptionGroup[]
   store: WorkspaceStore
 }>()
 
@@ -111,10 +113,11 @@ setTimeout(() => resume(), 5000)
     <!-- Use recursive component for cleaner rendering -->
     <TraversedEntry
       :entries="items.entries"
-      :document="document"
-      :config="config"
-      :activeCollection="activeCollection"
-      :activeServer="activeServer"
-      :store="store" />
+      :activeCollection
+      :activeServer
+      :clientOptions
+      :config
+      :document
+      :store />
   </div>
 </template>

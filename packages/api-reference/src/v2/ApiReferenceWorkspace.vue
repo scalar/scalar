@@ -27,6 +27,7 @@ import { useSeoMeta } from '@unhead/vue'
 import { useFavicon } from '@vueuse/core'
 import {
   computed,
+  onBeforeMount,
   onMounted,
   onServerPrefetch,
   provide,
@@ -163,6 +164,16 @@ onServerPrefetch(() => {
   })
 })
 
+// Do this a big quicker than onMounted
+onBeforeMount(() => {
+  const storedClient = safeLocalStorage().getItem(
+    REFERENCE_LS_KEYS.SELECTED_CLIENT,
+  )
+  if (isClient(storedClient) && !store.workspace['x-scalar-default-client']) {
+    store.update('x-scalar-default-client', storedClient)
+  }
+})
+
 onMounted(() => {
   // During client side rendering we load the active document from the URL
   // NOTE: The UI MUST handle a case where the document is empty
@@ -171,13 +182,6 @@ onMounted(() => {
       addDocument(config)
     }
   })
-
-  const storedClient = safeLocalStorage().getItem(
-    REFERENCE_LS_KEYS.SELECTED_CLIENT,
-  )
-  if (isClient(storedClient) && !store.workspace['x-scalar-default-client']) {
-    store.update('x-scalar-default-client', storedClient)
-  }
 })
 
 // onCustomEvent(root, 'scalar-update-sidebar', (event) => {
