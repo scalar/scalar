@@ -1,36 +1,29 @@
 <script setup lang="ts">
 import { Tab } from '@headlessui/vue'
-import {
-  ScalarCombobox,
-  ScalarIcon,
-  type ScalarComboboxOption,
-  type ScalarComboboxOptionGroup,
-} from '@scalar/components'
-import type { TargetId } from '@scalar/types/snippetz'
+import { ScalarCombobox, ScalarIcon } from '@scalar/components'
+import { freezeElement } from '@scalar/helpers/dom/freeze-element'
+import type { AvailableClients, TargetId } from '@scalar/types/snippetz'
 import { computed, ref } from 'vue'
 
-import {
-  useHttpClientStore,
-  type HttpClientState,
-} from '@/stores/useHttpClientStore'
+import { findClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
+import type {
+  ClientOption,
+  ClientOptionGroup,
+} from '@/v2/blocks/scalar-request-example-block/types'
+import { emitCustomEvent } from '@/v2/events/definitions'
 
-import { useFeaturedHttpClients } from './useFeaturedHttpClients'
+import { isFeaturedClient } from './featured-clients'
 
-defineProps<{
+const { selectedClient } = defineProps<{
+  /** Client options */
+  clientOptions: ClientOptionGroup[]
+  /** The currently selected Http Client */
+  selectedClient?: AvailableClients[number]
+  /** List of featured clients */
+  featuredClients: ClientOption[]
   /** The id of the tab panel that contains for the non featured clients */
   morePanel?: string
 }>()
-
-// Use the template store to keep it accessible globally
-const {
-  httpClient,
-  setHttpClient,
-  availableTargets,
-  getClientTitle,
-  getTargetTitle,
-} = useHttpClientStore()
-
-const { featuredClients, isFeatured } = useFeaturedHttpClients()
 
 const containerRef = ref<HTMLElement>()
 
@@ -41,87 +34,74 @@ const containerRef = ref<HTMLElement>()
 const getIconByLanguageKey = (targetKey: TargetId) =>
   `programming-language-${targetKey === 'js' ? 'javascript' : targetKey}` as const
 
-const isSelectedClient = (language: HttpClientState) => {
-  return (
-    language.targetKey === httpClient.targetKey &&
-    language.clientKey === httpClient.clientKey
+/** Set custom example, or update the selected HTTP client globally */
+const selectClient = (option: ClientOption) => {
+  if (!containerRef.value) {
+    return
+  }
+
+  // We need to freeze the ui to prevent scrolling as the clients change
+  const unfreeze = freezeElement(containerRef.value)
+  setTimeout(() => {
+    unfreeze()
+  }, 300)
+
+  // Update the store
+  emitCustomEvent(
+    containerRef.value,
+    'scalar-update-selected-client',
+    option.id,
   )
 }
 
-/** Transform availableTargets into ComboBox format with grouping */
-const comboboxOptions = computed<ScalarComboboxOptionGroup[]>(() => {
-  return availableTargets.value.map((target: any) => ({
-    label: target.title,
-    options: target.clients.map((client: any) => ({
-      id: `${target.key}-${client.client}`,
-      label: getClientTitle({
-        targetKey: target.key,
-        clientKey: client.client,
-      }),
-      targetKey: target.key,
-      clientKey: client.client,
-    })),
-  }))
-})
-/** Current selected option for the combobox */
-const selectedOption = computed<ScalarComboboxOption | undefined>(() => {
-  if (!httpClient) {
-    return undefined
-  }
-  return {
-    id: `${httpClient.targetKey}-${httpClient.clientKey}`,
-    label: getClientTitle(httpClient),
-    targetKey: httpClient.targetKey,
-    clientKey: httpClient.clientKey,
-  }
-})
-const handleComboboxSelection = (option: ScalarComboboxOption) => {
-  if (option?.targetKey && option?.clientKey) {
-    setHttpClient({
-      targetKey: option.targetKey,
-      clientKey: option.clientKey,
-    })
-  }
-}
+/** Calculates the targetKey from the selected client id */
+const selectedTargetKey = computed(
+  () => selectedClient?.split('/')[0] as TargetId | undefined,
+)
 </script>
 <template>
   <div
     ref="containerRef"
     class="client-libraries-content">
     <Tab
-      v-for="client in featuredClients"
-      :key="client.clientKey"
+      v-for="featuredClient in featuredClients"
+      :key="featuredClient.clientKey"
       class="client-libraries rendered-code-sdks"
       :class="{
-        'client-libraries__active': isSelectedClient(client),
+        'client-libraries__active': featuredClient.id === selectedClient,
       }">
-      <div :class="`client-libraries-icon__${client.targetKey}`">
+      <div :class="`client-libraries-icon__${featuredClient.targetKey}`">
         <ScalarIcon
           class="client-libraries-icon"
-          :icon="getIconByLanguageKey(client.targetKey)" />
+          :icon="getIconByLanguageKey(featuredClient.targetKey)" />
       </div>
-      <span class="client-libraries-text">{{ getTargetTitle(client) }}</span>
+      <span class="client-libraries-text">{{
+        featuredClient.targetTitle
+      }}</span>
     </Tab>
 
+    <!-- Client Dropdown -->
     <ScalarCombobox
-      :options="comboboxOptions"
-      :modelValue="selectedOption"
-      @update:modelValue="handleComboboxSelection"
+      :options="clientOptions"
+      :modelValue="findClient(clientOptions, selectedClient)"
+      @update:modelValue="selectClient($event as ClientOption)"
       placement="bottom-end"
       teleport>
       <button
         class="client-libraries client-libraries__select"
         :class="{
-          'client-libraries__active': httpClient && !isFeatured(httpClient),
+          'client-libraries__active':
+            selectedClient && !isFeaturedClient(selectedClient),
         }">
         <div
           aria-hidden="true"
           class="client-libraries-icon__more">
-          <template v-if="httpClient && !isFeatured(httpClient)">
-            <div :class="`client-libraries-icon__${httpClient.targetKey}`">
+          <template v-if="selectedClient && !isFeaturedClient(selectedClient)">
+            <div :class="`client-libraries-icon__${selectedTargetKey}`">
               <ScalarIcon
                 class="client-libraries-icon"
-                :icon="getIconByLanguageKey(httpClient.targetKey)" />
+                v-if="selectedTargetKey"
+                :icon="getIconByLanguageKey(selectedTargetKey)" />
             </div>
           </template>
           <template v-else>
@@ -142,7 +122,7 @@ const handleComboboxSelection = (option: ScalarComboboxOption) => {
           </template>
         </div>
         <span
-          v-if="availableTargets.length"
+          v-if="clientOptions.length"
           class="client-libraries-text client-libraries-text-more">
           More
         </span>
