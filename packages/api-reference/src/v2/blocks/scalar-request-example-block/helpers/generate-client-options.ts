@@ -23,6 +23,10 @@ export const generateCustomId = (example: XCodeSample) => `custom/${example.lang
 export const generateClientOptions = (
   hiddenClients: ApiReferenceConfiguration['hiddenClients'],
 ): ClientOptionGroup[] => {
+  if (hiddenClients === true) {
+    return []
+  }
+
   const options = snippetz()
     .clients()
     .flatMap((group) => {

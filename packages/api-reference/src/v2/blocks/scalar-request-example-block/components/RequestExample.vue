@@ -49,11 +49,6 @@ export type RequestExampleProps = {
    * A method to generate the label of the block, should return an html string
    */
   generateLabel?: () => string
-  /**
-   * Hides the client selector if there are no custom examples
-   * @default false
-   */
-  hideClientSelector?: boolean
 }
 
 /**
@@ -108,7 +103,6 @@ import ExamplePicker from './ExamplePicker.vue'
 
 const {
   clientOptions,
-  hideClientSelector = false,
   selectedClient,
   selectedServer = { url: '/' },
   selectedContentType,
@@ -160,8 +154,6 @@ const customRequestExamples = computed(() => {
  * Group plugins by target/language to show in a dropdown
  */
 const clients = computed(() => {
-  const _clientOptions = hideClientSelector ? [] : clientOptions
-
   // Handle custom code examples
   if (customRequestExamples.value.length) {
     const customClients = customRequestExamples.value.map((sample) => {
@@ -181,11 +173,11 @@ const clients = computed(() => {
         label: 'Code Examples',
         options: customClients,
       },
-      ..._clientOptions,
+      ...clientOptions,
     ]
   }
 
-  return _clientOptions
+  return clientOptions
 })
 
 /** The locally selected client which would include code samples from this operation only */
