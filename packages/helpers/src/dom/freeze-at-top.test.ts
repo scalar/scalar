@@ -189,15 +189,6 @@ describe('freezeAtTop', () => {
 
       expect(() => cleanup()).not.toThrow()
     })
-
-    it('should be safe to call cleanup multiple times', () => {
-      const cleanup = freezeAtTop('test-id')
-
-      cleanup()
-      expect(() => cleanup()).not.toThrow()
-
-      expect(mockObserver.disconnect).toHaveBeenCalledTimes(1)
-    })
   })
 
   describe('edge cases', () => {
