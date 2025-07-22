@@ -221,6 +221,7 @@ describe('TraversedEntry', () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          clientOptions: [],
           entries,
           document: mockDocument,
           config: mockConfig,
@@ -243,6 +244,7 @@ describe('TraversedEntry', () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          clientOptions: [],
           entries: operations,
           document: mockDocument,
           config: mockConfig,
@@ -266,6 +268,7 @@ describe('TraversedEntry', () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          clientOptions: [],
           entries,
           document: mockDocument,
           config: mockConfig,
@@ -288,6 +291,7 @@ describe('TraversedEntry', () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          clientOptions: [],
           entries: webhooks,
           document: mockDocument,
           config: mockConfig,
@@ -311,6 +315,7 @@ describe('TraversedEntry', () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          clientOptions: [],
           entries,
           document: mockDocument,
           config: mockConfig,
@@ -333,6 +338,7 @@ describe('TraversedEntry', () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          clientOptions: [],
           entries,
           document: mockDocument,
           config: mockConfig,
@@ -353,6 +359,7 @@ describe('TraversedEntry', () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          clientOptions: [],
           entries,
           document: mockDocument,
           config: mockConfig,
@@ -376,6 +383,7 @@ describe('TraversedEntry', () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          clientOptions: [],
           entries,
           document: mockDocument,
           config: mockConfig,
@@ -396,6 +404,7 @@ describe('TraversedEntry', () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          clientOptions: [],
           entries,
           document: mockDocument,
           config: mockConfig,
@@ -419,6 +428,7 @@ describe('TraversedEntry', () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          clientOptions: [],
           entries,
           document: mockDocument,
           config: mockConfig,
@@ -439,6 +449,7 @@ describe('TraversedEntry', () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          clientOptions: [],
           entries,
           document: mockDocument,
           config: mockConfig,
@@ -467,6 +478,7 @@ describe('TraversedEntry', () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          clientOptions: [],
           entries,
           document: mockDocument,
           config: mockConfig,
@@ -496,6 +508,7 @@ describe('TraversedEntry', () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          clientOptions: [],
           entries,
           document: mockDocument,
           config: mockConfig,
@@ -519,6 +532,7 @@ describe('TraversedEntry', () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          clientOptions: [],
           entries,
           document: mockDocument,
           config: mockConfig,
@@ -540,6 +554,7 @@ describe('TraversedEntry', () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          clientOptions: [],
           entries,
           document: mockDocument,
           config: mockConfig,
@@ -559,6 +574,7 @@ describe('TraversedEntry', () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          clientOptions: [],
           entries,
           document: mockDocument,
           config: mockConfig,
@@ -578,6 +594,7 @@ describe('TraversedEntry', () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          clientOptions: [],
           entries,
           document: mockDocument,
           config: mockConfig,
@@ -598,6 +615,7 @@ describe('TraversedEntry', () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          clientOptions: [],
           entries,
           document: mockDocument,
           config: mockConfig,
@@ -622,6 +640,7 @@ describe('TraversedEntry', () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          clientOptions: [],
           entries,
           document: mockDocument,
           config: mockConfig,
@@ -645,6 +664,7 @@ describe('TraversedEntry', () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          clientOptions: [],
           entries: [createMockOperation()],
           document: mockDocument,
           config: mockConfig,
@@ -707,6 +727,7 @@ describe('TraversedEntry', () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          clientOptions: [],
           entries,
           document: mockDocument,
           config: mockConfig,
@@ -732,6 +753,7 @@ describe('TraversedEntry', () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          clientOptions: [],
           entries,
           document: mockDocument,
           config: mockConfig,
@@ -754,6 +776,7 @@ describe('TraversedEntry', () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          clientOptions: [],
           entries,
           document: mockDocument,
           config: mockConfig,
@@ -774,6 +797,7 @@ describe('TraversedEntry', () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          clientOptions: [],
           entries: [createMockOperation()],
           document: mockDocument,
           config: mockConfig,
