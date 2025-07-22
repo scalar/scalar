@@ -12,9 +12,6 @@ export const freezeElement = (element: HTMLElement) => {
     return () => null
   }
 
-  // Get initial position relative to viewport
-  const rect = element.getBoundingClientRect()
-  const initialViewportTop = rect.top
   let rafId: number | null = null
 
   // Create mutation observer to watch for DOM changes
@@ -37,16 +34,7 @@ export const freezeElement = (element: HTMLElement) => {
 
     // Schedule the scroll adjustment for the next frame
     rafId = requestAnimationFrame(() => {
-      const newRect = element.getBoundingClientRect()
-      const currentViewportTop = newRect.top
-
-      // If element has moved from its initial viewport position
-      if (currentViewportTop !== initialViewportTop) {
-        // Calculate how far it moved
-        const diff = currentViewportTop - initialViewportTop
-        // Adjust scroll to maintain position
-        window.scrollBy(0, diff)
-      }
+      element.scrollIntoView()
       rafId = null
     })
   })
