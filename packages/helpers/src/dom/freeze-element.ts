@@ -7,13 +7,7 @@
  * ... content changes ...
  * unfreeze()
  */
-export const freezeElement = (
-  element: HTMLElement,
-  options: {
-    /** Scroll to the element instead of freezing where the window is */
-    scrollIntoView?: boolean
-  } = {},
-) => {
+export const freezeElement = (element: HTMLElement) => {
   if (!element) {
     return () => null
   }
@@ -43,12 +37,6 @@ export const freezeElement = (
 
     // Schedule the scroll adjustment for the next frame
     rafId = requestAnimationFrame(() => {
-      // If scrollToElement is true, we just scroll the element into view
-      if (options.scrollIntoView) {
-        element.scrollIntoView()
-        return
-      }
-
       const newRect = element.getBoundingClientRect()
       const currentViewportTop = newRect.top
 

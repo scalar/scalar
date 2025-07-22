@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
-import { freezeElement } from '@scalar/helpers/dom/freeze-element'
+import { freezeAtTop } from '@scalar/helpers/dom/freeze-at-top'
 import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { useMutationObserver } from '@vueuse/core'
-import { computed, ref, useTemplateRef } from 'vue'
+import { computed, ref } from 'vue'
 
 import { hasLazyLoaded, lazyBus } from '@/components/Lazy/lazyBus'
 import { useSidebar } from '@/features/sidebar'
@@ -63,12 +62,12 @@ const activeServer = computed(() => {
 const { items } = useSidebar()
 const { hash, isIntersectionEnabled } = useNavState()
 
-/** Keeps track of our unfreeze function */
-const unfreeze = ref<(() => void) | null>(null)
+/** Tries to freeze the scroll position of the element */
+const unfreeze = freezeAtTop(hash.value)
 
 /** Resume scrolling */
 const resume = () => {
-  unfreeze.value?.()
+  unfreeze?.()
   hasLazyLoaded.value = true
   isIntersectionEnabled.value = true
 }
@@ -98,50 +97,17 @@ lazyBus.on(({ loading, loaded }) => {
   }
 
   // We are empty! Unfreeze the page
-  if (lazyIds.value.size === 0 && unfreeze.value) {
+  if (lazyIds.value.size === 0) {
     setTimeout(() => resume(), 300)
   }
 })
 
 // Resume scrolling after 5 seconds as a failsafe
 setTimeout(() => resume(), 5000)
-
-const containerRef = useTemplateRef('container')
-
-// We are waiting for the correct element to be loaded and we freeze the scroll position
-if (!hasLazyLoaded.value) {
-  const { stop } = useMutationObserver(
-    containerRef,
-    (mutations) => {
-      hash.value &&
-        mutations.forEach((mutation) => {
-          if (mutation.type !== 'childList') {
-            return
-          }
-
-          const targetId = hash.value
-          const foundElement = window.document.getElementById(targetId)
-
-          if (foundElement && !unfreeze.value) {
-            unfreeze.value = freezeElement(foundElement as HTMLElement, {
-              scrollIntoView: true,
-            })
-            stop()
-          }
-        })
-    },
-    {
-      childList: true,
-      subtree: true,
-    },
-  )
-}
 </script>
 
 <template>
-  <div
-    v-if="items.entries.length && activeCollection"
-    ref="container">
+  <div v-if="items.entries.length && activeCollection">
     <!-- Use recursive component for cleaner rendering -->
     <TraversedEntry
       :entries="items.entries"
