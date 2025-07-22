@@ -1,27 +1,25 @@
 <script setup lang="ts">
 import { TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
-import { useWorkspace } from '@scalar/api-client/store'
 import { ScalarCodeBlock, ScalarMarkdown } from '@scalar/components'
 import type { AvailableClients } from '@scalar/snippetz'
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { computed, ref, useId, watch } from 'vue'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/schemas/workspace'
+import { computed, useId, useTemplateRef } from 'vue'
 
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
+import { emitCustomEvent } from '@/v2/events/definitions'
 
 // import ClientSelector from './ClientSelector.vue'
 import { getFeaturedClients, isFeaturedClient } from './featured-clients'
 
-const { clientOptions, selectedClient } = defineProps<{
+const { clientOptions, document, selectedClient } = defineProps<{
+  /** Current document from the store */
+  document: WorkspaceDocument
   /** Computed list of all available Http Client options */
   clientOptions: ClientOptionGroup[]
   /** The currently selected Http Client */
   selectedClient?: AvailableClients[number]
 }>()
 
-console.log('clientOptions', clientOptions)
-const { collections } = useWorkspace()
-
-const index = ref(0)
 const headingId = useId()
 const morePanel = useId()
 
@@ -34,42 +32,32 @@ const selectedClientOption = computed(
     )[0],
 )
 
-console.log('selectedClientOption', selectedClientOption.value)
-
+/** List of featured clients */
 const featuredClients = computed(() => getFeaturedClients(clientOptions))
 
-// Update the correct tab index
-// watch(
-//   () => store.workspace.activeDocument?.['x-scalar-default-client'],
-//   (client) => {
-//     if (!client) {
-//       return
-//     }
+/** Currently selected tab index */
+const tabIndex = computed(() =>
+  featuredClients.value.findIndex(
+    (featuredClient) => selectedClient === featuredClient.id,
+  ),
+)
 
-//     index.value = featuredClients.findIndex(
-//       (tab) =>
-//         tab.targetKey === client.targetKey &&
-//         tab.clientKey === client.clientKey,
-//     )
-//   },
-//   { immediate: true },
-// )
+const wrapperRef = useTemplateRef('wrapper')
 
-function handleChange(i: number) {
-  // const tab = featuredClients[i]
-  // if (!tab) {
-  //   return
-  // }
-  // setHttpClient(tab)
+/** Emit the selected client event on tab */
+const onTabSelect = (i: number) => {
+  const client = featuredClients.value[i]
+
+  if (!client || !wrapperRef.value) {
+    return
+  }
+
+  emitCustomEvent(wrapperRef.value, 'scalar-update-selected-client', client.id)
 }
 
 const installationInstructions = computed(() => {
-  // Get the current collection from the store
-  const firstCollection = Object.values(collections)[0]
-
   // Get instructions (if we have any)
-  const XScalarSdkInstallation =
-    firstCollection?.info?.['x-scalar-sdk-installation']
+  const XScalarSdkInstallation = document.info['x-scalar-sdk-installation']
 
   // Check whether we have instructions at all
   if (
@@ -95,11 +83,13 @@ const installationInstructions = computed(() => {
 })
 </script>
 <template>
-  <div v-if="clientOptions.length">
+  <div
+    v-if="clientOptions.length"
+    ref="wrapper">
     <TabGroup
       manual
-      :selectedIndex="index"
-      @change="handleChange">
+      :selectedIndex="tabIndex"
+      @change="onTabSelect">
       <div
         :id="headingId"
         class="client-libraries-heading">
