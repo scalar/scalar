@@ -3,6 +3,10 @@
  * Differs from freezeElement as the element doesn't need to exist yet
  */
 export const freezeAtTop = (id: string) => {
+  if (!id) {
+    return () => null
+  }
+
   let rafId: number | null = null
   let element = document.getElementById(id)
 

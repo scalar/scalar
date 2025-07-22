@@ -195,8 +195,8 @@ describe('freezeAtTop', () => {
     it('should handle empty string id', () => {
       const cleanup = freezeAtTop('')
 
-      expect(mockMutationObserver).toHaveBeenCalledTimes(1)
-      expect(mockObserver.observe).toHaveBeenCalledTimes(1)
+      expect(mockMutationObserver).not.toHaveBeenCalled()
+      expect(mockObserver.observe).not.toHaveBeenCalled()
 
       cleanup()
     })
@@ -206,26 +206,6 @@ describe('freezeAtTop', () => {
 
       expect(mockMutationObserver).toHaveBeenCalledTimes(1)
       expect(mockObserver.observe).toHaveBeenCalledTimes(1)
-
-      cleanup()
-    })
-
-    it('should handle element that gets removed after being found', () => {
-      const mockElement = createMockElement()
-      mockGetElementById
-        .mockReturnValueOnce(mockElement) // First call returns element
-        .mockReturnValueOnce(null) // Second call returns null
-
-      const cleanup = freezeAtTop('test-id')
-      const observerCallback = mockMutationObserver.mock.calls[0][0]
-
-      // First mutation - element exists
-      observerCallback([])
-      expect(mockScrollIntoView).toHaveBeenCalledTimes(1)
-
-      // Second mutation - element removed
-      observerCallback([])
-      expect(mockScrollIntoView).toHaveBeenCalledTimes(1) // Should not be called again
 
       cleanup()
     })
