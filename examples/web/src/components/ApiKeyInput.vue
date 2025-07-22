@@ -82,6 +82,12 @@ const handleKeyChange = (event: Event) => {
   const target = event.target as HTMLInputElement
   apiKey.value = target.value
 }
+
+/** Switch to free API by clearing the API key */
+const switchToFreeApi = () => {
+  apiKey.value = ''
+  handleApiKeyChange()
+}
 </script>
 
 <template>
@@ -89,10 +95,13 @@ const handleKeyChange = (event: Event) => {
     <div class="header">
       <div class="title-section">
         <h3>DefiLlama Pro API Key</h3>
-        <div
-          v-if="isProUser"
-          class="pro-badge">
-          PRO
+        <div class="header-actions">
+          <button
+            v-if="isProUser"
+            @click="switchToFreeApi"
+            class="switch-button">
+            Switch to Free API
+          </button>
         </div>
       </div>
     </div>
@@ -146,6 +155,13 @@ const handleKeyChange = (event: Event) => {
   align-items: center;
   justify-content: space-between;
   gap: var(--scalar-spacing-2);
+  flex-wrap: wrap;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--scalar-spacing-3);
   flex-wrap: wrap;
 }
 
@@ -256,6 +272,39 @@ const handleKeyChange = (event: Event) => {
   font-size: 10px;
 }
 
+.switch-button {
+  padding: var(--scalar-spacing-1-5, 6px) var(--scalar-spacing-2, 8px) !important;
+  background: var(--scalar-background-1, #ffffff) !important;
+  border: var(--scalar-border-width, 5px) solid
+    var(--scalar-border-color-hover, #d1d5db) !important;
+  border-radius: var(--scalar-radius, 6px) !important;
+  font-size: var(--scalar-micro, 11px) !important;
+  font-weight: var(--scalar-semibold, 600) !important;
+  color: var(--scalar-color-2, #6b7280) !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  font-family: var(--scalar-font, 'Inter', sans-serif) !important;
+  white-space: nowrap !important;
+}
+
+.switch-button:hover {
+  background: var(--scalar-background-2, #f8f9fa) !important;
+  border-color: var(--scalar-border-color-hover, #d1d5db) !important;
+  color: var(--scalar-color-1, #2a2f45) !important;
+  transform: translateY(-1px) !important;
+}
+
+.switch-button:active {
+  transform: translateY(0) !important;
+  background: var(--scalar-background-3, #e5e7eb) !important;
+}
+
+.switch-button:focus {
+  outline: none !important;
+  border-color: var(--scalar-color-accent, #0066cc) !important;
+  box-shadow: 0 0 0 1px var(--scalar-color-accent, #0066cc) !important;
+}
+
 .highlight {
   color: var(--scalar-color-accent);
   font-weight: var(--scalar-semibold);
@@ -283,12 +332,22 @@ const handleKeyChange = (event: Event) => {
     gap: var(--scalar-spacing-1);
   }
 
+  .header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
   .description {
     font-size: var(--scalar-micro);
   }
 
   .description small {
     font-size: 10px;
+  }
+
+  .switch-button {
+    font-size: var(--scalar-micro);
+    padding: var(--scalar-spacing-1-5) var(--scalar-spacing-2);
   }
 }
 
@@ -322,11 +381,14 @@ const handleKeyChange = (event: Event) => {
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
   .api-key-input,
-  .api-key-field {
+  .api-key-field,
+  .switch-button {
     transition: none;
   }
 
-  .api-key-field:focus {
+  .api-key-field:focus,
+  .switch-button:hover,
+  .switch-button:active {
     transform: none;
   }
 }
