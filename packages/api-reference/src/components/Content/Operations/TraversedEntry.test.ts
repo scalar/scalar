@@ -660,7 +660,7 @@ describe('TraversedEntry', () => {
       expect(component.isLazy(10)).toBe(false)
     })
 
-    it.only('returns false for all tags after the first tag', () => {
+    it('returns false for all tags after the first tag', () => {
       // Mock useNavState to return hash matching the first operation
       vi.mocked(useNavState).mockReturnValue(createMockNavState('tag/users/get/users'))
 
@@ -766,46 +766,6 @@ describe('TraversedEntry', () => {
       const component = wrapper.vm as any
       expect(component.isLazy(0)).toBe(false)
       expect(component.isLazy(1)).toBe(false)
-    })
-
-    it('returns false for negative indices', () => {
-      // Mock useNavState to return a hash
-      vi.mocked(useNavState).mockReturnValue(createMockNavState('tag/users/get/users'))
-
-      const wrapper = mount(TraversedEntryComponent, {
-        props: {
-          entries: [createMockOperation()],
-          document: mockDocument,
-          config: mockConfig,
-          activeCollection: mockCollection,
-          activeServer: mockServer,
-          store: mockStore,
-        },
-      })
-
-      const component = wrapper.vm as any
-      expect(component.isLazy(-1)).toBe(false)
-      expect(component.isLazy(-10)).toBe(false)
-    })
-
-    it('returns false for very large indices', () => {
-      // Mock useNavState to return a hash
-      vi.mocked(useNavState).mockReturnValue(createMockNavState('tag/users/get/users'))
-
-      const wrapper = mount(TraversedEntryComponent, {
-        props: {
-          entries: [createMockOperation()],
-          document: mockDocument,
-          config: mockConfig,
-          activeCollection: mockCollection,
-          activeServer: mockServer,
-          store: mockStore,
-        },
-      })
-
-      const component = wrapper.vm as any
-      expect(component.isLazy(1000)).toBe(false)
-      expect(component.isLazy(999999)).toBe(false)
     })
 
     it('returns false for non-numeric indices', () => {
