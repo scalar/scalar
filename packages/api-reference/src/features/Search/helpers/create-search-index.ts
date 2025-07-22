@@ -1,156 +1,109 @@
 import type { FuseData } from '@/features/Search/types'
 import type { TraversedEntry } from '@/features/traverse-schema'
+import { createParameterMap, extractRequestBody } from '@/libs/openapi'
 
-export function createSearchIndex(
-  entries: TraversedEntry[],
-  {
-    hideModels = false,
-  }: {
-    hideModels?: boolean
-  },
-): FuseData[] {
+export function createSearchIndex(entries: TraversedEntry[]): FuseData[] {
   const index: FuseData[] = []
 
-  // // Headings from the description
-  // const headingsData: FuseData[] = []
-  // const headings = getHeadingsFromMarkdown(newSpec?.info?.description ?? '')
+  /**
+   * Recursively processes entries and their children to build the search index.
+   */
+  function processEntries(entriesToProcess: TraversedEntry[]): void {
+    entriesToProcess.forEach((entry) => {
+      addEntryToIndex(entry, index)
 
-  // if (headings.length) {
-  //   headings.forEach((heading) => {
-  //     headingsData.push({
-  //       type: 'heading',
-  //       title: heading.value,
-  //       description: 'Introduction',
-  //       // href: `#${getHeadingId(heading)}`,
-  //       tag: heading.slug,
-  //       body: '',
-  //     })
-  //   })
+      // Recursively process children if they exist
+      if ('children' in entry && entry.children) {
+        processEntries(entry.children)
+      }
+    })
+  }
 
-  //   index.concat(headingsData)
-  // }
-
-  // // Tags
-  // if (newSpec?.tags?.length) {
-  //   newSpec?.tags?.forEach((tag) => {
-  //     const tagData: FuseData = {
-  //       title: tag['x-displayName'] ?? tag.name,
-  //       // href: `#${getTagId(tag)}`,
-  //       description: tag.description,
-  //       type: 'tag',
-  //       tag: tag.name,
-  //       body: '',
-  //     }
-
-  //     index.push(tagData)
-
-  //     if (tag.operations) {
-  //       tag.operations.forEach((operation) => {
-  //         const parameterMap = createParameterMap(operation.information)
-  //         const bodyData = extractRequestBody(operation.information) || parameterMap
-  //         let body = null
-  //         if (typeof bodyData !== 'boolean') {
-  //           body = bodyData
-  //         }
-
-  //         const operationData: FuseData = {
-  //           type: 'req',
-  //           title: operation.name ?? operation.path,
-  //           href: `#${operation.id}`,
-  //           operationId: operation.information?.operationId,
-  //           description: operation.description ?? '',
-  //           httpVerb: operation.httpVerb,
-  //           path: operation.path,
-  //           tag: tag.name,
-  //           operation,
-  //         }
-
-  //         if (body) {
-  //           operationData.body = body
-  //         }
-
-  //         index.push(operationData)
-  //       })
-  //     }
-  //   })
-  // }
-
-  // // Handle paths with no tags - super hacky but we'll fix it on new store
-  // // @ts-expect-error not sure why spec doesn't have paths, but at this point I'm too afraid to ask
-  // else if (newSpec?.paths) {
-  //   const paths = (newSpec as OpenAPIV3_1.Document).paths
-
-  //   Object.keys(paths ?? {}).forEach((path) => {
-  //     Object.keys(paths?.[path] ?? {}).forEach((method) => {
-  //       const operation = paths?.[path]?.[method]
-
-  //       if (isHttpMethod(method) && operation) {
-  //         const parameterMap = createParameterMap(operation)
-  //         const bodyData = extractRequestBody(operation) || parameterMap
-  //         let body = null
-  //         if (typeof bodyData !== 'boolean') {
-  //           body = bodyData
-  //         }
-
-  //         const operationData: FuseData = {
-  //           type: 'req',
-  //           title: operation.name ?? operation.path,
-  //           href: `#${operation.id}`,
-  //           operationId: operation.information?.operationId,
-  //           description: operation.description ?? '',
-  //           httpVerb: operation.httpVerb,
-  //           path: operation.path,
-  //           operation,
-  //         }
-
-  //         if (body) {
-  //           operationData.body = body
-  //         }
-
-  //         index.push(operationData)
-  //       }
-  //     })
-  //   })
-  // }
-
-  // // Webhooks
-  // const webhooks = newSpec?.webhooks
-  // const webhookData: FuseData[] = []
-
-  // if (webhooks) {
-  //   webhooks.forEach((webhook) => {
-  //     webhookData.push({
-  //       type: 'webhook',
-  //       title: `${webhook.name}`,
-  //       href: `#${webhook.id}`,
-  //       description: 'Webhook',
-  //       httpVerb: webhook.httpVerb,
-  //       tag: webhook.name,
-  //       body: '',
-  //     })
-
-  //     index.concat(webhookData)
-  //   })
-  // }
-
-  // // Schemas
-  // const schemas = hideModels ? {} : getModels(newSpec as OpenAPIV3_1.Document)
-  // const modelData: FuseData[] = []
-
-  // if (schemas) {
-  //   Object.keys(schemas).forEach((k) => {
-  //     modelData.push({
-  //       type: 'model',
-  //       title: `${(schemas[k] as any).title ?? k}`,
-  //       href: `#${getModelId({ name: k })}`,
-  //       description: 'Model',
-  //       tag: k,
-  //       body: '',
-  //     })
-  //   })
-
-  //   index.concat(modelData)
-  // }
+  processEntries(entries)
 
   return index
+}
+
+/**
+ * Adds a single entry to the search index, handling all entry types recursively.
+ */
+function addEntryToIndex(entry: TraversedEntry, index: FuseData[]): void {
+  if ('operation' in entry) {
+    // Handle operations
+    const parameterMap = createParameterMap(entry.operation)
+    const bodyData = extractRequestBody(entry.operation) || parameterMap
+    let body = null
+    if (typeof bodyData !== 'boolean') {
+      body = bodyData
+    }
+
+    const operationData: FuseData = {
+      type: 'req',
+      title: entry.title,
+      href: `#${entry.id}`,
+      operationId: entry.operation.operationId,
+      description: entry.operation.description ?? '',
+      httpVerb: entry.method,
+      path: entry.path,
+      body: body || '',
+    }
+
+    index.push(operationData)
+  } else if ('webhook' in entry) {
+    // Handle webhooks
+    const webhookData: FuseData = {
+      type: 'webhook',
+      title: entry.title,
+      href: `#${entry.id}`,
+      description: 'Webhook',
+      httpVerb: entry.method,
+      body: '',
+    }
+
+    index.push(webhookData)
+  } else if ('schema' in entry) {
+    // Handle schemas/models
+    const modelData: FuseData = {
+      type: 'model',
+      title: entry.title,
+      href: `#${entry.id}`,
+      description: 'Model',
+      body: '',
+    }
+
+    index.push(modelData)
+  } else if ('tag' in entry) {
+    // Handle tags
+    const tagData: FuseData = {
+      title: entry.title,
+      href: `#${entry.id}`,
+      description: entry.tag.description || '',
+      type: 'tag',
+      body: '',
+    }
+
+    index.push(tagData)
+  } else if ('isGroup' in entry) {
+    // Tag group heading
+  } else if ('isModel' in entry) {
+    // Model heading
+  } else if ('isWebhooks' in entry) {
+    // Webhooks heading
+  }
+  // TODO: This is dangerous, don't we have a better way to filter out the Models heading?
+  else if (entry.title === 'Models') {
+    // Models heading
+  }
+  // Handle descriptions
+  else {
+    const descriptionData: FuseData = {
+      type: 'heading',
+      title: 'Introduction',
+      description: entry.title ?? '',
+      href: entry.id,
+      body: '',
+    }
+
+    index.push(descriptionData)
+  }
 }
