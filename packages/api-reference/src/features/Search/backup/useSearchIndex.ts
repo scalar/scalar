@@ -8,7 +8,7 @@ import { type Ref, computed, ref, watch } from 'vue'
 
 const MAX_SEARCH_RESULTS = 25
 
-export type EntryType = 'req' | 'webhook' | 'model' | 'heading' | 'tag'
+export type EntryType = 'operation' | 'webhook' | 'model' | 'heading' | 'tag'
 
 export type FuseData = {
   title: string
@@ -17,7 +17,7 @@ export type FuseData = {
   operationId?: string
   description: string
   body?: string | string[] | ParameterMap
-  httpVerb?: string
+  method?: string
   path?: string
   tag?: string
   operation?: TransformedOperation
@@ -56,7 +56,7 @@ export function useSearchIndex({
       // Medium-high weight - helps with categorization
       { name: 'tag', weight: 0.4 },
       // Medium weight - useful for filtering by method
-      { name: 'httpVerb', weight: 0.3 },
+      { name: 'method', weight: 0.3 },
     ],
 
     // Threshold controls how strict the matching is (0.0 = perfect match, 1.0 = very loose)
@@ -174,12 +174,12 @@ export function useSearchIndex({
               }
 
               const operationData: FuseData = {
-                type: 'req',
+                type: 'operation',
                 title: operation.name ?? operation.path,
                 href: `#${operation.id}`,
                 operationId: operation.information?.operationId,
                 description: operation.description ?? '',
-                httpVerb: operation.httpVerb,
+                method: operation.method,
                 path: operation.path,
                 tag: tag.name,
                 operation,
@@ -213,12 +213,12 @@ export function useSearchIndex({
               }
 
               const operationData: FuseData = {
-                type: 'req',
+                type: 'operation',
                 title: operation.name ?? operation.path,
                 href: `#${operation.id}`,
                 operationId: operation.information?.operationId,
                 description: operation.description ?? '',
-                httpVerb: operation.httpVerb,
+                method: operation.method,
                 path: operation.path,
                 operation,
               }
@@ -244,7 +244,7 @@ export function useSearchIndex({
             title: `${webhook.name}`,
             href: `#${webhook.id}`,
             description: 'Webhook',
-            httpVerb: webhook.httpVerb,
+            method: webhook.method,
             tag: webhook.name,
             body: '',
           })
