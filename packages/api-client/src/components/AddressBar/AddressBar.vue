@@ -187,7 +187,7 @@ function getCompleteUrl(): string {
       // Fallback to basic URL construction if no active example
       const serverString = replaceTemplateVariables(server?.url ?? '', env)
       const pathString = replaceTemplateVariables(operation.path, env)
-      let url = serverString || pathString
+      const url = serverString || pathString
       
       if (!url) return ''
       
