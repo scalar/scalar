@@ -95,14 +95,19 @@ const installationInstructions = computed(() => {
         class="client-libraries-heading">
         Client Libraries
       </div>
+
+      <!-- Tabs -->
       <TabList
         :aria-labelledby="headingId"
         class="client-libraries-list">
         <ClientSelector
+          :clientOptions
           :featuredClients
           :selectedClient
           :morePanel />
       </TabList>
+
+      <!-- Content -->
       <TabPanels>
         <template
           v-if="
