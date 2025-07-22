@@ -4,10 +4,11 @@
  */
 export const freezeAtTop = (id: string) => {
   let rafId: number | null = null
+  let element = document.getElementById(id)
 
   // Create mutation observer to watch for DOM changes
-  const observer = new MutationObserver((mutations) => {
-    const element = document.getElementById(id)
+  const observer = new MutationObserver(() => {
+    element ||= document.getElementById(id)
 
     if (!element) {
       return
@@ -20,7 +21,7 @@ export const freezeAtTop = (id: string) => {
 
     // Schedule the scroll adjustment for the next frame
     rafId = requestAnimationFrame(() => {
-      element.scrollIntoView()
+      element?.scrollIntoView()
       rafId = null
     })
   })
