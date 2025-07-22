@@ -8,7 +8,7 @@ import { computed, useId, useTemplateRef } from 'vue'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 import { emitCustomEvent } from '@/v2/events/definitions'
 
-// import ClientSelector from './ClientSelector.vue'
+import ClientSelector from './ClientSelector.vue'
 import { getFeaturedClients, isFeaturedClient } from './featured-clients'
 
 const { clientOptions, document, selectedClient } = defineProps<{
@@ -98,9 +98,10 @@ const installationInstructions = computed(() => {
       <TabList
         :aria-labelledby="headingId"
         class="client-libraries-list">
-        <!-- <ClientSelector
-          :featured="featuredClients"
-          :morePanel="morePanel" /> -->
+        <ClientSelector
+          :featuredClients
+          :selectedClient
+          :morePanel />
       </TabList>
       <TabPanels>
         <template
