@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { Tab } from '@headlessui/vue'
-import { ScalarCombobox, ScalarIcon } from '@scalar/components'
+import {
+  ScalarCombobox,
+  ScalarIcon,
+  type ScalarComboboxOption,
+  type ScalarComboboxOptionGroup,
+} from '@scalar/components'
 import type { TargetId } from '@scalar/types/snippetz'
 import { computed, ref } from 'vue'
 
@@ -44,14 +49,11 @@ const isSelectedClient = (language: HttpClientState) => {
 }
 
 /** Transform availableTargets into ComboBox format with grouping */
-const comboboxOptions = computed(() => {
+const comboboxOptions = computed<ScalarComboboxOptionGroup[]>(() => {
   return availableTargets.value.map((target: any) => ({
     label: target.title,
     options: target.clients.map((client: any) => ({
-      id: JSON.stringify({
-        targetKey: target.key,
-        clientKey: client.client,
-      }),
+      id: `${target.key}-${client.client}`,
       label: getClientTitle({
         targetKey: target.key,
         clientKey: client.client,
@@ -62,18 +64,18 @@ const comboboxOptions = computed(() => {
   }))
 })
 /** Current selected option for the combobox */
-const selectedOption = computed(() => {
+const selectedOption = computed<ScalarComboboxOption | undefined>(() => {
   if (!httpClient) {
     return undefined
   }
   return {
-    id: JSON.stringify(httpClient),
+    id: `${httpClient.targetKey}-${httpClient.clientKey}`,
     label: getClientTitle(httpClient),
     targetKey: httpClient.targetKey,
     clientKey: httpClient.clientKey,
   }
 })
-const handleComboboxSelection = (option: any) => {
+const handleComboboxSelection = (option: ScalarComboboxOption) => {
   if (option?.targetKey && option?.clientKey) {
     setHttpClient({
       targetKey: option.targetKey,
