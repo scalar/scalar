@@ -1072,6 +1072,217 @@ describe('create-workspace-store', () => {
     })
   })
 
+  describe('override documents', () => {
+    it('override documents with new content', async () => {
+      const store = createWorkspaceStore({
+        documents: [
+          {
+            name: 'default',
+            document: {
+              openapi: '3.0.0',
+              info: { title: 'My API', version: '1.0.0' },
+            },
+            overrides: {
+              openapi: '3.1.1',
+              info: { title: 'My Updated API', version: '2.0.0' },
+            },
+          },
+        ],
+      })
+
+      expect(store.workspace.documents['default'].info.title).toBe('My Updated API')
+      expect(store.workspace.documents['default'].info.version).toBe('2.0.0')
+      expect(store.workspace.documents['default'].openapi).toBe('3.1.1')
+    })
+
+    it('edit the override values', async () => {
+      const store = createWorkspaceStore({
+        documents: [
+          {
+            name: 'default',
+            document: {
+              openapi: '3.0.0',
+              info: { title: 'My API', version: '1.0.0' },
+            },
+            overrides: {
+              openapi: '3.1.1',
+              info: { title: 'My Updated API', version: '2.0.0' },
+            },
+          },
+        ],
+      })
+
+      store.workspace.documents['default'].info.title = 'Edited title'
+
+      expect(store.workspace.documents['default'].info.title).toBe('Edited title')
+      expect(store.workspace.documents['default'].info.version).toBe('2.0.0')
+      expect(store.workspace.documents['default'].openapi).toBe('3.1.1')
+    })
+
+    it('writes back the overrides to the intermediate object', async () => {
+      const store = createWorkspaceStore({
+        documents: [
+          {
+            name: 'default',
+            document: {
+              openapi: '3.0.0',
+              info: { title: 'My API', version: '1.0.0' },
+            },
+            overrides: {
+              openapi: '3.1.1',
+              info: { title: 'My Updated API', version: '2.0.0' },
+            },
+          },
+        ],
+      })
+
+      store.workspace.documents['default'].info.title = 'Edited title'
+
+      expect(store.workspace.documents['default'].info.title).toBe('Edited title')
+      expect(store.workspace.documents['default'].info.version).toBe('2.0.0')
+      expect(store.workspace.documents['default'].openapi).toBe('3.1.1')
+
+      store.saveDocument('default')
+      expect(store.exportDocument('default', 'json')).toBe(
+        '{"openapi":"3.1.1","info":{"title":"Edited title","version":"2.0.0"}}',
+      )
+    })
+
+    it('should preserve overrides when exporting and reloading the workspace', async () => {
+      const store = createWorkspaceStore({
+        documents: [
+          {
+            name: 'default',
+            document: {
+              openapi: '3.0.0',
+              info: { title: 'My API', version: '1.0.0' },
+            },
+            overrides: {
+              openapi: '3.1.1',
+              info: { title: 'My Updated API', version: '2.0.0' },
+            },
+          },
+        ],
+      })
+
+      store.workspace.documents['default'].info.title = 'Edited title'
+
+      expect(store.workspace.documents['default'].info.title).toBe('Edited title')
+      expect(store.workspace.documents['default'].info.version).toBe('2.0.0')
+      expect(store.workspace.documents['default'].openapi).toBe('3.1.1')
+
+      store.saveDocument('default')
+      const exported = store.exportWorkspace()
+
+      // Create a new store and load the exported workspace
+      const newStore = createWorkspaceStore()
+      newStore.loadWorkspace(exported)
+
+      expect(newStore.workspace.documents['default'].info.title).toBe('Edited title')
+      expect(newStore.workspace.documents['default'].info.version).toBe('2.0.0')
+      expect(newStore.workspace.documents['default'].openapi).toBe('3.1.1')
+    })
+
+    it('should revert the changes made to the overrides', async () => {
+      const store = createWorkspaceStore({
+        documents: [
+          {
+            name: 'default',
+            document: {
+              openapi: '3.0.0',
+              info: { title: 'My API', version: '1.0.0' },
+            },
+            overrides: {
+              openapi: '3.1.1',
+              info: { title: 'My Updated API', version: '2.0.0' },
+            },
+          },
+        ],
+      })
+
+      store.workspace.documents['default'].info.title = 'Edited title'
+
+      expect(store.workspace.documents['default'].info.title).toBe('Edited title')
+      expect(store.workspace.documents['default'].info.version).toBe('2.0.0')
+      expect(store.workspace.documents['default'].openapi).toBe('3.1.1')
+
+      // Revert the changes
+      store.revertDocumentChanges('default')
+
+      expect(store.workspace.documents['default'].info.title).toBe('My Updated API')
+      expect(store.workspace.documents['default'].info.version).toBe('2.0.0')
+      expect(store.workspace.documents['default'].openapi).toBe('3.1.1')
+    })
+  })
+
+  describe('importWorkspaceFromSpecification', () => {
+    let server: FastifyInstance
+    const port = 9989
+
+    const url = `http://localhost:${port}`
+
+    beforeEach(() => {
+      server = fastify({ logger: false })
+    })
+
+    afterEach(async () => {
+      await server.close()
+      await setTimeout(100)
+    })
+
+    it('should create a workspace form a specification file', async () => {
+      server.get('/default', () => {
+        return getDocument()
+      })
+      await server.listen({ port })
+
+      const store = createWorkspaceStore()
+      await store.importWorkspaceFromSpecification({
+        info: {
+          title: 'Scalar Workspace',
+        },
+        workspace: 'draft',
+        documents: {
+          'default': {
+            $ref: `${url}/default`,
+          },
+        },
+      })
+
+      expect(store.exportWorkspace()).toBe(
+        '{"documents":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}},"x-scalar-navigation":[{"id":"Get all users","title":"Get all users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation"},{"id":"","title":"Models","children":[{"id":"User","title":"User","name":"User","ref":"#/content/components/schemas/User","type":"model"}],"type":"text"}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}}}',
+      )
+    })
+
+    it('should add the overrides to the workspace when we import from the specifications', async () => {
+      server.get('/default', () => {
+        return getDocument()
+      })
+      await server.listen({ port })
+
+      const store = createWorkspaceStore()
+      await store.importWorkspaceFromSpecification({
+        info: {
+          title: 'Scalar Workspace',
+        },
+        workspace: 'draft',
+        documents: {
+          'default': {
+            $ref: `http://localhost:${port}/default`,
+          },
+        },
+        overrides: {
+          default: {
+            openapi: '3.1.1',
+            info: { title: 'My Updated API', version: '2.0.0' },
+          },
+        },
+      })
+
+      expect(store.workspace.documents['default'].info.title).toBe('My Updated API')
+    })
+  })
+
   describe('addDocument error handling', () => {
     beforeEach(() => {
       resetConsoleSpies()
