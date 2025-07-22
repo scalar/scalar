@@ -1179,4 +1179,115 @@ describe('create-workspace-store', () => {
       )
     })
   })
+
+  describe('replaceDocument', () => {
+    it('should replace the document with the new provided document', () => {
+      const store = createWorkspaceStore({
+        documents: [
+          {
+            name: 'default',
+            document: {
+              openapi: '3.0.0',
+              info: {
+                title: 'My API',
+                version: '1.0.0',
+              },
+              paths: {
+                '/users': {
+                  get: {
+                    summary: 'Get all users',
+                    responses: {
+                      '200': {
+                        description: 'Successful response',
+                        content: {
+                          'application/json': {
+                            schema: {
+                              type: 'array',
+                              items: {
+                                $ref: '#/components/schemas/User',
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              components: {
+                schemas: {
+                  User: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'string', description: 'The user ID' },
+                      name: { type: 'string', description: 'The user name' },
+                      email: { type: 'string', format: 'email', description: 'The user email' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      })
+
+      store.replaceDocument('default', {
+        openapi: '3.0.0',
+        info: {
+          title: 'My API',
+          version: '1.0.0',
+        },
+        paths: {
+          '/users': {
+            get: {
+              summary: 'Get all users',
+              responses: {
+                '200': {
+                  description: 'This is an updated description',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'array',
+                        items: {
+                          $ref: '#/components/schemas/User',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              properties: {
+                id: { type: 'string', description: 'Updated user id schema description' },
+                name: { type: 'string', description: 'The user name' },
+                email: { type: 'string', format: 'email', description: 'The user email' },
+              },
+            },
+          },
+        },
+      })
+
+      expect((store.workspace.documents['default'] as any)?.paths?.['/users'].get.responses?.['200'].description).toBe(
+        'This is an updated description',
+      )
+      expect(
+        (store.workspace.documents['default'] as any)?.components?.schemas?.User?.properties?.id?.description,
+      ).toBe('Updated user id schema description')
+
+      // Check that the internal references are correctly resolved
+      expect(
+        (store.workspace.documents['default'] as any).paths['/users'].get.responses['200'].content['application/json']
+          .schema.items,
+      ).toEqual({
+        ...(store.workspace.documents['default'] as any).components.schemas.User,
+        'x-original-ref': '#/components/schemas/User',
+      })
+    })
+  })
 })
