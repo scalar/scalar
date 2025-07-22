@@ -111,6 +111,11 @@ export async function addPackageFileExports({
     }
   })
 
+  // don't touch the package.json in ./dist
+  if (import.meta.dirname.endsWith('dist')) {
+    return
+  }
+
   // Update the package file with the new exports
   const packageFile = JSON.parse(await fs.readFile('./package.json', 'utf-8'))
   packageFile.exports = allowCss ? { ...packageExports, ...cssExports } : { ...packageExports }
@@ -120,15 +125,17 @@ export async function addPackageFileExports({
     Object.entries(packageFile.exports).sort(([keyA], [keyB]) => keyA.localeCompare(keyB)),
   )
 
-  // Sleep to avoid race conditions
-  // Error: R] Unexpected end of file in JSON
-  // package.json:1:0:
-  //   1 │
-  //     ╵ ^
-  await new Promise((resolve) => setTimeout(resolve, 100))
+  // Output the package name and exports to the console
+  const packageName = packageFile.name
 
-  // Green text
-  console.log('\x1b[32m%s\x1b[0m', 'Updating package.json exports field…')
+  console.log('\x1b[32m%s\x1b[0m', packageName)
+  console.log('  package.json exports:')
+  console.log(
+    Object.entries(packageFile.exports)
+      .map(([key]) => `    ${key}`)
+      .join('\n'),
+  )
+  console.log()
 
   await fs.writeFile('./package.json', `${JSON.stringify(packageFile, null, 2)}\n`)
 }
