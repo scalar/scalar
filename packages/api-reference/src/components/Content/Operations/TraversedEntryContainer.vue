@@ -7,7 +7,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { useMutationObserver } from '@vueuse/core'
-import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
+import { computed, ref, useTemplateRef } from 'vue'
 
 import { hasLazyLoaded, lazyBus } from '@/components/Lazy/lazyBus'
 import { useSidebar } from '@/features/sidebar'
@@ -124,7 +124,9 @@ if (!hasLazyLoaded.value) {
           const foundElement = window.document.getElementById(targetId)
 
           if (foundElement && !unfreeze.value) {
-            unfreeze.value = freezeElement(foundElement as HTMLElement)
+            unfreeze.value = freezeElement(foundElement as HTMLElement, {
+              scrollIntoView: true,
+            })
             scrollToId(targetId)
             stop()
           }
