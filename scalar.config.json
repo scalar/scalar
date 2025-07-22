@@ -300,6 +300,12 @@
                   "type": "page"
                 },
                 {
+                  "name": "Flask",
+                  "slug": "flask",
+                  "path": "documentation/integrations/flask.md",
+                  "type": "page"
+                },
+                {
                   "name": "Go",
                   "slug": "go",
                   "path": "documentation/integrations/go.md",
