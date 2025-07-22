@@ -255,11 +255,7 @@ const selectClient = (option: ClientOption) => {
 
   // Emit the change if it's not a custom example
   if (!option.id.startsWith('custom')) {
-    emitCustomEvent(
-      elem.value?.$el,
-      'scalar-update-selected-client',
-      option.id as AvailableClients[number],
-    )
+    emitCustomEvent(elem.value?.$el, 'scalar-update-selected-client', option.id)
   }
 }
 
