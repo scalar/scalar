@@ -40,6 +40,7 @@ const getProps = (document: OpenAPIV3_1.Document) => ({
   props: {
     document,
     config: apiReferenceConfigurationSchema.parse({}),
+    clientOptions: [],
     store: {
       workspace: {
         activeDocument: document,
