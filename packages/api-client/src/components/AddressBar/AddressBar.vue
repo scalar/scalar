@@ -16,6 +16,11 @@ import { ServerDropdown } from '@/components/Server'
 import { useLayout } from '@/hooks'
 import { useWorkspace } from '@/store'
 import type { EnvVariable } from '@/store/active-entities'
+import { useActiveEntities } from '@/store/active-entities'
+import { createFetchQueryParams } from '@/libs/send-request/create-fetch-query-params'
+import { replaceTemplateVariables } from '@/libs/string-template'
+import { getApiKeyForUrl, doesUrlRequireApiKey } from '@/libs/api-key-manager'
+import { mergeUrls } from '@scalar/helpers/url/merge-urls'
 
 import HttpMethod from '../HttpMethod/HttpMethod.vue'
 import AddressBarHistory from './AddressBarHistory.vue'
@@ -37,6 +42,7 @@ defineEmits<{
 const id = useId()
 
 const { requestMutators, events } = useWorkspace()
+const { activeExample } = useActiveEntities()
 
 const { layout } = useLayout()
 
@@ -160,6 +166,105 @@ events.hotKeys.on((event) => {
 function updateRequestPath(url: string) {
   requestMutators.edit(operation.uid, 'path', url)
 }
+
+/**
+ * Decode specific URL-encoded characters to make URLs more readable
+ * Whitelisted characters that should be decoded back to original form
+ */
+const decodeWhitelistedCharacters = (url: string): string => {
+  return url
+    .replace(/%3A/g, ':')  // Decode colons
+    .replace(/%2C/g, ',')  // Decode commas
+}
+
+/** Get the complete URL including server, query params, and API key injection */
+function getCompleteUrl(): string {
+  try {
+    const env = environment || {}
+    
+    // Get the current active example with user-entered parameter values
+    if (!activeExample.value) {
+      // Fallback to basic URL construction if no active example
+      const serverString = replaceTemplateVariables(server?.url ?? '', env)
+      const pathString = replaceTemplateVariables(operation.path, env)
+      let url = serverString || pathString
+      
+      if (!url) return ''
+      
+      // Get API key injection
+      const resolvedWorkspaceId = workspace.uid || 'default'
+      const apiKey = getApiKeyForUrl(resolvedWorkspaceId, serverString)
+      const shouldInjectApiKey = doesUrlRequireApiKey(serverString)
+      
+      return decodeWhitelistedCharacters((mergeUrls as any)(url, pathString, new URLSearchParams(), false, apiKey || undefined, shouldInjectApiKey))
+    }
+
+    /** Parsed and evaluated values for path parameters */
+    const pathVariables = activeExample.value.parameters.path.reduce<Record<string, string>>((vars, param) => {
+      if (param.enabled) {
+        vars[param.key] = replaceTemplateVariables(param.value, env)
+      }
+      return vars
+    }, {})
+
+    const serverString = replaceTemplateVariables(server?.url ?? '', env)
+    // Replace environment variables, then path variables
+    const pathString = replaceTemplateVariables(replaceTemplateVariables(operation.path, env), pathVariables)
+
+    /**
+     * Start building the main URL, we cannot use the URL class yet as it does not work with relative servers
+     * Also handles the case of no server with pathString
+     */
+    let url = serverString || pathString
+
+    // Handle empty url
+    if (!url) {
+      return ''
+    }
+
+    // Set the server variables (for now we only support default values)
+    Object.entries(server?.variables ?? {}).forEach(([k, v]) => {
+      url = replaceTemplateVariables(url, {
+        [k]: pathVariables[k] || v.default,
+      })
+    })
+
+    // Create query parameters from the current example
+    const urlParams = createFetchQueryParams(activeExample.value, env, operation)
+
+    // Get API key for this workspace if it's needed for the server URL
+    const resolvedWorkspaceId = workspace.uid || 'default'
+    const apiKey = getApiKeyForUrl(resolvedWorkspaceId, serverString)
+    const shouldInjectApiKey = doesUrlRequireApiKey(serverString)
+
+    // Combine the url with the path and server + query params + API key injection
+    const finalUrl = (mergeUrls as any)(url, pathString, urlParams, false, apiKey || undefined, shouldInjectApiKey)
+
+    return decodeWhitelistedCharacters(finalUrl)
+  } catch (error) {
+    console.error('Error building complete URL:', error)
+    // Fallback to basic URL construction
+    return decodeWhitelistedCharacters(`${server?.url || ''}${operation.path || ''}`)
+  }
+}
+
+/** Copy the complete URL to clipboard */
+async function copyUrlToClipboard() {
+  try {
+    const url = getCompleteUrl()
+    await navigator.clipboard.writeText(url)
+    // TODO: Add toast notification for success
+  } catch (error) {
+    console.error('Failed to copy URL to clipboard:', error)
+    // Fallback for older browsers
+    const textArea = document.createElement('textarea')
+    textArea.value = getCompleteUrl()
+    document.body.appendChild(textArea)
+    textArea.select()
+    document.execCommand('copy')
+    document.body.removeChild(textArea)
+  }
+}
 </script>
 <template>
   <div
@@ -228,6 +333,20 @@ function updateRequestPath(url: string) {
       <AddressBarHistory
         :operation="operation"
         :target="id" />
+      
+      <!-- Copy URL Button -->
+      <ScalarButton
+        class="z-context-plus relative h-auto shrink-0 overflow-hidden p-2"
+        title="Copy complete URL to clipboard"
+        variant="ghost"
+        @click="copyUrlToClipboard">
+        <ScalarIcon
+          class="relative shrink-0 fill-current"
+          icon="Clipboard"
+          size="xs" />
+        <span class="sr-only">Copy complete URL to clipboard</span>
+      </ScalarButton>
+      
       <ScalarButton
         ref="sendButtonRef"
         class="z-context-plus relative h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold"

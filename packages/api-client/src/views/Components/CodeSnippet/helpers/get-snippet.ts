@@ -1,16 +1,30 @@
 import type { ErrorResponse } from '@/libs/errors'
 import { type ClientId, type TargetId, snippetz } from '@scalar/snippetz'
 import type { Request as HarRequest } from 'har-format'
+import { getApiKeyValue } from '@/libs/api-key-manager'
 
 /** Key used to hack around the invalid urls */
 const INVALID_URLS_PREFIX = 'ws://replace.me'
 
+/**
+ * Decode specific URL-encoded characters to make URLs more readable
+ * Whitelisted characters that should be decoded back to original form
+ */
+const decodeWhitelistedCharacters = (url: string): string => {
+  return url
+    .replace(/%3A/g, ':') // Decode colons
+    .replace(/%2C/g, ',') // Decode commas
+}
+
 const injectApiKeyPlaceholder = (url: string) => {
   if (url.startsWith('https://pro-api.llama.fi')) {
     const urlParts = new URL(url)
-    return `${urlParts.origin}/<API-KEY>${urlParts.pathname}${urlParts.search}`
+    const actualApiKey = getApiKeyValue('default')
+    const keyToInject = actualApiKey || '<API-KEY>'
+    const finalUrl = `${urlParts.origin}/${keyToInject}${urlParts.pathname}${urlParts.search}`
+    return decodeWhitelistedCharacters(finalUrl)
   }
-  return url
+  return decodeWhitelistedCharacters(url)
 }
 
 /**
