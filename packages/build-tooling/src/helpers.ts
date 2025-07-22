@@ -7,8 +7,8 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
-import { glob } from 'glob'
 import { fileURLToPath } from 'node:url'
+import { glob } from 'glob'
 
 const cssExports = {
   /** Adds provisions for a css folder in the built output */
@@ -119,6 +119,14 @@ export async function addPackageFileExports({
   packageFile.exports = Object.fromEntries(
     Object.entries(packageFile.exports).sort(([keyA], [keyB]) => keyA.localeCompare(keyB)),
   )
+
+  // Sleep for 10ms to avoid race conditions
+
+  // Error: R] Unexpected end of file in JSON
+  // package.json:1:0:
+  //   1 │
+  //     ╵ ^
+  await new Promise((resolve) => setTimeout(resolve, 5))
 
   // Green text
   console.log('\x1b[32m%s\x1b[0m', 'Updating package.json exports field…')
