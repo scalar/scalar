@@ -55,7 +55,7 @@ catalogs:
     prettier: 3.5.3
     react-dom: ^19.1.0
     react: ^19.1.0
-    rollup: 4.40.1
+    rollup: 4.45.1
     semver: 7.7.2
     stdout-update: 4.0.1
     tailwindcss: ^4.1.7
