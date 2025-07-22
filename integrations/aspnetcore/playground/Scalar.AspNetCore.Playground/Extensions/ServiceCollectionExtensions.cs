@@ -1,6 +1,6 @@
 using Asp.Versioning.ApiExplorer;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace Scalar.AspNetCore.Playground.Extensions;
 
@@ -36,6 +36,7 @@ internal static class ServiceCollectionExtensions
                         Name = "X-Api-Key"
                     };
                     document.Components ??= new OpenApiComponents();
+                    document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
                     document.Components.SecuritySchemes.Add(AuthConstants.ApiKeyScheme, securityScheme);
                     return Task.CompletedTask;
                 });

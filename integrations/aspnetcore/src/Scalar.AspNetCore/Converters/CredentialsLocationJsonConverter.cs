@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Scalar.AspNetCore;
 
-internal sealed class CredentialsLocationConverter : JsonConverter<CredentialsLocation>
+internal sealed class CredentialsLocationJsonConverter : JsonConverter<CredentialsLocation>
 {
     public override CredentialsLocation Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
         // We don't have to implement this method because we don't need to deserialize the CredentialsLocation enum.

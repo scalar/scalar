@@ -2,7 +2,7 @@
 
 namespace Scalar.AspNetCore.Tests;
 
-public class CredentialsLocationConverterTests
+public class CredentialsLocationJsonConverterTests
 {
     [Fact]
     public void Converter_ShouldSerializeToStringFast()
