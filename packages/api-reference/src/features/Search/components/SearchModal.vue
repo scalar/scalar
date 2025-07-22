@@ -15,7 +15,6 @@ import {
   ScalarIconTextAlignLeft,
 } from '@scalar/icons'
 import type { ScalarIconComponent } from '@scalar/icons/types'
-import type { Spec } from '@scalar/types/legacy'
 import type { FuseResult } from 'fuse.js'
 import { nanoid } from 'nanoid'
 import { ref, watch } from 'vue'
@@ -32,8 +31,6 @@ const props = defineProps<{
   hideModels: boolean
 }>()
 
-const specification = ref({} as Spec)
-
 /** Base id for the search form */
 const id = nanoid()
 /** An id for the results listbox */
@@ -43,17 +40,15 @@ const instructionsId = `${id}-search-instructions`
 /** Constructs and unique id for a given option */
 const getOptionId = (href: string) => `${id}${href}`
 
+const { items } = useSidebar()
+
 const {
   resetSearch,
-  fuseSearch,
-  selectedSearchIndex,
+  selectedIndex,
   selectedSearchResult,
   searchResultsWithPlaceholderResults,
-  searchText,
-} = useSearchIndex({
-  specification,
-  hideModels: props.hideModels,
-})
+  query,
+} = useSearchIndex(items)
 
 const ENTRY_ICONS: { [x in EntryType]: ScalarIconComponent } = {
   heading: ScalarIconTextAlignLeft,
@@ -116,7 +111,7 @@ function onSearchResultClick(entry: FuseResult<FuseData>) {
 }
 
 // Scroll to the currently selected result
-watch(selectedSearchIndex, (index) => {
+watch(selectedIndex, (index) => {
   if (typeof index !== 'number') {
     return
   }
@@ -135,13 +130,13 @@ const navigateSearchResults = (direction: 'up' | 'down') => {
   const offset = direction === 'up' ? -1 : 1
   const length = searchResultsWithPlaceholderResults.value.length
 
-  if (typeof selectedSearchIndex.value === 'number') {
+  if (typeof selectedIndex.value === 'number') {
     // Ensures we loop around the array by using the remainder
-    const newIndex = (selectedSearchIndex.value + offset + length) % length
-    selectedSearchIndex.value = newIndex
+    const newIndex = (selectedIndex.value + offset + length) % length
+    selectedIndex.value = newIndex
   } else {
     // If no index is selected, we select the first or last item depending on the direction
-    selectedSearchIndex.value = offset === -1 ? length - 1 : 0
+    selectedIndex.value = offset === -1 ? length - 1 : 0
   }
 }
 
@@ -159,7 +154,7 @@ function getFullUrlFromHash(href: string) {
 }
 
 function onSearchResultEnter() {
-  if (!isDefined(selectedSearchIndex.value)) {
+  if (!isDefined(selectedIndex.value)) {
     return
   }
 
@@ -170,7 +165,7 @@ function onSearchResultEnter() {
     return
   }
 
-  onSearchResultClick(results[selectedSearchIndex.value])
+  onSearchResultClick(results[selectedIndex.value])
 }
 </script>
 <template>
@@ -183,7 +178,7 @@ function onSearchResultEnter() {
       class="ref-search-container"
       role="search">
       <ScalarSearchInput
-        v-model="searchText"
+        v-model="query"
         :aria-activedescendant="
           selectedSearchResult
             ? getOptionId(selectedSearchResult.item.href)
@@ -193,8 +188,7 @@ function onSearchResultEnter() {
         :aria-controls="listboxId"
         :aria-describedby="instructionsId"
         role="combobox"
-        @blur="selectedSearchIndex = undefined"
-        @input="fuseSearch"
+        @blur="selectedIndex = undefined"
         @keydown.down.stop.prevent="navigateSearchResults('down')"
         @keydown.enter.stop.prevent="onSearchResultEnter"
         @keydown.up.stop.prevent="navigateSearchResults('up')" />
@@ -210,9 +204,9 @@ function onSearchResultEnter() {
         :key="entry.refIndex"
         :href="getFullUrlFromHash(entry.item.href)"
         :icon="ENTRY_ICONS[entry.item.type]"
-        :selected="selectedSearchIndex === index"
+        :selected="selectedIndex === index"
         @click="onSearchResultClick(entry)"
-        @focus="selectedSearchIndex = index">
+        @focus="selectedIndex = index">
         <span
           :class="{
             deprecated: entry.item.operation?.information?.deprecated,
@@ -254,7 +248,7 @@ function onSearchResultEnter() {
         </template>
       </ScalarSearchResultItem>
       <template #query>
-        {{ searchText }}
+        {{ query }}
       </template>
     </ScalarSearchResultList>
     <div
