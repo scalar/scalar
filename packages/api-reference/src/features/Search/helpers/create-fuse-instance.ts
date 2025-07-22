@@ -18,7 +18,7 @@ export function createFuseInstance(): Fuse<FuseData> {
       // Medium-high weight - helps with categorization
       { name: 'tag', weight: 0.4 },
       // Medium weight - useful for filtering by method
-      { name: 'httpVerb', weight: 0.3 },
+      { name: 'method', weight: 0.3 },
     ],
 
     // Threshold controls how strict the matching is (0.0 = perfect match, 1.0 = very loose)

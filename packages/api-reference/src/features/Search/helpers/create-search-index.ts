@@ -28,82 +28,118 @@ export function createSearchIndex(entries: TraversedEntry[]): FuseData[] {
  * Adds a single entry to the search index, handling all entry types recursively.
  */
 function addEntryToIndex(entry: TraversedEntry, index: FuseData[]): void {
+  // Operation
   if ('operation' in entry) {
-    // Handle operations
-    const parameterMap = createParameterMap(entry.operation)
-    const bodyData = extractRequestBody(entry.operation) || parameterMap
-    let body = null
-    if (typeof bodyData !== 'boolean') {
-      body = bodyData
-    }
+    const requestBodyOrParameterMap = extractRequestBody(entry.operation) || createParameterMap(entry.operation)
+    const body = typeof requestBodyOrParameterMap !== 'boolean' ? requestBodyOrParameterMap : null
 
-    const operationData: FuseData = {
-      type: 'req',
+    index.push({
+      type: 'operation',
       title: entry.title,
       href: `#${entry.id}`,
-      operationId: entry.operation.operationId,
+      // operationId: entry.operation.operationId,
       description: entry.operation.description ?? '',
-      httpVerb: entry.method,
+      method: entry.method,
       path: entry.path,
       body: body || '',
-    }
+      entry,
+    })
 
-    index.push(operationData)
-  } else if ('webhook' in entry) {
-    // Handle webhooks
-    const webhookData: FuseData = {
+    return
+  }
+
+  // Webhook
+  if ('webhook' in entry) {
+    index.push({
       type: 'webhook',
       title: entry.title,
       href: `#${entry.id}`,
       description: 'Webhook',
-      httpVerb: entry.method,
+      method: entry.method,
       body: '',
-    }
+      entry,
+    })
 
-    index.push(webhookData)
-  } else if ('schema' in entry) {
-    // Handle schemas/models
-    const modelData: FuseData = {
+    return
+  }
+
+  // Model
+  if ('schema' in entry) {
+    index.push({
       type: 'model',
       title: entry.title,
       href: `#${entry.id}`,
       description: 'Model',
       body: '',
-    }
+      entry,
+    })
 
-    index.push(modelData)
-  } else if ('tag' in entry) {
-    // Handle tags
-    const tagData: FuseData = {
+    return
+  }
+
+  // Tag
+  if ('tag' in entry) {
+    index.push({
       title: entry.title,
       href: `#${entry.id}`,
       description: entry.tag.description || '',
       type: 'tag',
       body: '',
-    }
+      entry,
+    })
 
-    index.push(tagData)
-  } else if ('isGroup' in entry) {
-    // Tag group heading
-  } else if ('isModel' in entry) {
-    // Model heading
-  } else if ('isWebhooks' in entry) {
-    // Webhooks heading
+    return
   }
-  // TODO: This is dangerous, don't we have a better way to filter out the Models heading?
-  else if (entry.title === 'Models') {
-    // Models heading
-  }
-  // Handle descriptions
-  else {
-    const descriptionData: FuseData = {
-      type: 'heading',
-      title: 'Introduction',
-      description: entry.title ?? '',
-      href: entry.id,
+
+  // Tag group
+  if ('isGroup' in entry) {
+    index.push({
+      title: entry.title,
+      href: `#${entry.id}`,
+      description: 'Tag Group',
+      type: 'tag',
       body: '',
-    }
+      entry,
+    })
 
-    index.push(descriptionData)
+    return
   }
+
+  // Webhooks heading
+  if ('isWebhooks' in entry) {
+    index.push({
+      type: 'heading',
+      title: 'Webhooks',
+      href: `#${entry.id}`,
+      description: 'Heading',
+      body: '',
+      entry,
+    })
+
+    return
+  }
+
+  // Models heading
+  if (entry.title === 'Models') {
+    index.push({
+      type: 'heading',
+      title: 'Models',
+      href: `#${entry.id}`,
+      description: 'Heading',
+      body: '',
+      entry,
+    })
+
+    return
+  }
+
+  // Introduction heading
+  index.push({
+    type: 'heading',
+    title: entry.title ?? '',
+    description: 'Description',
+    href: `#${entry.id}`,
+    body: '',
+    entry,
+  })
 }
