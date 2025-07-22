@@ -2,6 +2,7 @@ import { existsSync, mkdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
+import sharp from 'sharp'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -27,7 +28,7 @@ async function waitForServer(url: string, timeoutMs: number = 5000): Promise<voi
         console.log('✅ Server is available!')
         return
       }
-    } catch (error) {
+    } catch {
       // Server not ready yet, continue waiting
     }
 
@@ -39,8 +40,84 @@ async function waitForServer(url: string, timeoutMs: number = 5000): Promise<voi
 }
 
 /**
+ * Converts a hex color string to RGB values.
+ * Supports both 3-digit (#RGB) and 6-digit (#RRGGBB) hex formats.
+ */
+function hexToRgb(hex: string): { r: number; g: number; b: number } {
+  // Remove the # if present
+  const cleanHex = hex.replace('#', '')
+
+  // Handle 3-digit hex (#RGB)
+  if (cleanHex.length === 3) {
+    const r = Number.parseInt(cleanHex[0] + cleanHex[0], 16)
+    const g = Number.parseInt(cleanHex[1] + cleanHex[1], 16)
+    const b = Number.parseInt(cleanHex[2] + cleanHex[2], 16)
+    return { r, g, b }
+  }
+
+  // Handle 6-digit hex (#RRGGBB)
+  if (cleanHex.length === 6) {
+    const r = Number.parseInt(cleanHex.substring(0, 2), 16)
+    const g = Number.parseInt(cleanHex.substring(2, 4), 16)
+    const b = Number.parseInt(cleanHex.substring(4, 6), 16)
+    return { r, g, b }
+  }
+
+  // Default to light grey if invalid hex
+  return { r: 245, g: 245, b: 245 }
+}
+
+/**
+ * Adds a grey background frame around the screenshot.
+ * Creates a larger canvas with grey background and centers the screenshot on it.
+ */
+async function addFrameToScreenshot(
+  screenshotBuffer: Buffer,
+  frameHeight: number = 40,
+  frameWidth: number = 60,
+  backgroundColor: string = '#f5f5f5',
+): Promise<Buffer> {
+  // Get the original screenshot dimensions
+  const originalImage = sharp(screenshotBuffer)
+  const metadata = await originalImage.metadata()
+
+  if (!metadata.width || !metadata.height) {
+    throw new Error('Could not determine screenshot dimensions')
+  }
+
+  // Calculate new dimensions with frame
+  const newWidth = metadata.width + frameWidth * 2
+  const newHeight = metadata.height + frameHeight * 2
+
+  // Convert hex color to RGB
+  const rgbColor = hexToRgb(backgroundColor)
+
+  // Create a background canvas with the specified color
+  const background = sharp({
+    create: {
+      width: newWidth,
+      height: newHeight,
+      channels: 4,
+      background: { r: rgbColor.r, g: rgbColor.g, b: rgbColor.b, alpha: 1 },
+    },
+  })
+
+  // Composite the screenshot onto the background, centered
+  return background
+    .composite([
+      {
+        input: screenshotBuffer,
+        top: frameHeight,
+        left: frameWidth,
+      },
+    ])
+    .png()
+    .toBuffer()
+}
+
+/**
  * Screenshot script for the Hono API reference demo.
- * Connects to a running server and captures a screenshot of the main page.
+ * Connects to a running server and captures a screenshot of the main page with a frame.
  */
 async function takeScreenshot() {
   const PORT = 5054
@@ -81,15 +158,21 @@ async function takeScreenshot() {
       mkdirSync(screenshotsDir, { recursive: true })
     }
 
-    // Take a viewport-only screenshot
-    const viewportScreenshotPath = join(screenshotsDir, 'hono-api-reference-viewport.png')
-    console.log(`📷 Taking viewport screenshot: ${viewportScreenshotPath}`)
-    await page.screenshot({
-      path: viewportScreenshotPath,
+    // Take a viewport-only screenshot as buffer
+    console.log('📷 Taking viewport screenshot...')
+    const screenshotBuffer = await page.screenshot({
       fullPage: false,
     })
 
-    console.log('✅ Viewport screenshot saved successfully!')
+    // Add frame to the screenshot
+    console.log('🖼️ Adding frame to screenshot...')
+
+    const framedScreenshot = await addFrameToScreenshot(screenshotBuffer, 60, 120, '#505052')
+    // Save the framed screenshot
+    const viewportScreenshotPath = join(screenshotsDir, 'hono-api-reference-viewport.png')
+    await sharp(framedScreenshot).toFile(viewportScreenshotPath)
+
+    console.log(`✅ Framed screenshot saved successfully: ${viewportScreenshotPath}`)
   } catch (error) {
     console.error('❌ Error taking screenshot:', error)
     process.exit(1)
