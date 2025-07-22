@@ -50,7 +50,7 @@ export type RequestExampleProps = {
    */
   generateLabel?: () => string
   /**
-   * Whether to hide the client selector
+   * Hides the client selector if there are no custom examples
    * @default false
    */
   hideClientSelector?: boolean
@@ -108,6 +108,7 @@ import ExamplePicker from './ExamplePicker.vue'
 
 const {
   clientOptions,
+  hideClientSelector = false,
   selectedClient,
   selectedServer = { url: '/' },
   selectedContentType,
@@ -159,6 +160,8 @@ const customRequestExamples = computed(() => {
  * Group plugins by target/language to show in a dropdown
  */
 const clients = computed(() => {
+  const _clientOptions = hideClientSelector ? [] : clientOptions
+
   // Handle custom code examples
   if (customRequestExamples.value.length) {
     const customClients = customRequestExamples.value.map((sample) => {
@@ -178,16 +181,16 @@ const clients = computed(() => {
         label: 'Code Examples',
         options: customClients,
       },
-      ...clientOptions,
+      ..._clientOptions,
     ]
   }
 
-  return clientOptions
+  return _clientOptions
 })
 
 /** The locally selected client which would include code samples from this operation only */
 const localSelectedClient = ref<ClientOption>(
-  findClient(clients.value, selectedClient),
+  findClient(clients.value, selectedClient) ?? null,
 )
 
 /** If the globally selected client changes we can update the local one */
@@ -205,11 +208,11 @@ watch(
 const generatedCode = computed<string>(() => {
   try {
     // Use the selected custom example
-    if (localSelectedClient.value.id.startsWith('custom')) {
+    if (localSelectedClient.value?.id.startsWith('custom')) {
       return (
         customRequestExamples.value.find(
           (example) =>
-            generateCustomId(example) === localSelectedClient.value.id,
+            generateCustomId(example) === localSelectedClient.value?.id,
         )?.source ?? 'Custom example not found'
       )
     }
@@ -220,7 +223,7 @@ const generatedCode = computed<string>(() => {
       (selectedExample as ExampleObject)?.value ?? selectedExample?.summary
 
     return generateCodeSnippet({
-      clientId: localSelectedClient.value.id as AvailableClients[number],
+      clientId: localSelectedClient.value?.id as AvailableClients[number],
       operation,
       method,
       server: selectedServer,
@@ -295,7 +298,7 @@ const id = useId()
             class="text-c-2 hover:text-c-1 flex h-full w-fit gap-2 px-1"
             fullWidth
             variant="ghost">
-            <span class="text-base">{{ localSelectedClient.title }}</span>
+            <span class="text-base">{{ localSelectedClient?.title }}</span>
             <ScalarIconCaretDown class="size-3.5" />
           </ScalarButton>
         </ScalarCombobox>
@@ -311,7 +314,7 @@ const id = useId()
           class="bg-b-2 !min-h-full -outline-offset-2"
           :content="generatedCode"
           :hideCredentials="secretCredentials"
-          :lang="localSelectedClient.lang"
+          :lang="localSelectedClient?.lang"
           lineNumbers />
       </div>
     </ScalarCardSection>
