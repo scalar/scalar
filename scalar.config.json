@@ -74,6 +74,22 @@
                 {
                   "path": "documentation/guides/docs/components/steps.md",
                   "type": "page"
+                },
+                {
+                  "path": "documentation/guides/docs/components/cards.md",
+                  "type": "page"
+                },
+                {
+                  "path": "documentation/guides/docs/components/details.md",
+                  "type": "page"
+                },
+                {
+                  "path": "documentation/guides/docs/components/page-link.md",
+                  "type": "page"
+                },
+                {
+                  "path": "documentation/guides/docs/components/row.md",
+                  "type": "page"
                 }
               ]
             }
