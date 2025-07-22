@@ -1,9 +1,9 @@
 import { URL, fileURLToPath } from 'node:url'
 import vue from '@vitejs/plugin-vue'
 import { webpackStats } from 'rollup-plugin-webpack-stats'
+import { defineConfig } from 'vite'
 import banner from 'vite-plugin-banner'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
-import { defineConfig } from 'vitest/config'
 
 import tailwindcss from '@tailwindcss/vite'
 import licenseBannerTemplate from './license-banner-template.txt'

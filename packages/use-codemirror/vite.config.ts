@@ -1,5 +1,5 @@
 import { alias } from '@scalar/build-tooling'
-import { defineConfig } from 'vitest/config'
+import { defineConfig } from 'vite'
 
 export default defineConfig({
   resolve: {
