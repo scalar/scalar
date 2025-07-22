@@ -5,7 +5,7 @@
   "tasks": {
     "lint:fix": {},
     "build": {
-      "outputs": ["dist/**", "storybook-static/**", ".output", ".nuxt"],
+      "outputs": ["dist/**", "storybook-static/**", ".output", ".nuxt", "examples/docusaurus/build"],
       "dependsOn": ["^build"]
     },
     "dev": {
