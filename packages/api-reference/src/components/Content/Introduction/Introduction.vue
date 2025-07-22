@@ -78,7 +78,7 @@ const { hash } = useNavState()
             :class="{ 'introduction-card-row': config?.layout === 'classic' }">
             <div
               v-if="activeCollection?.servers?.length"
-              class="scalar-reference-intro-server scalar-client introduction-card-item text-sm leading-normal [--scalar-address-bar-height:0px]">
+              class="scalar-reference-intro-server scalar-client introduction-card-item text-base leading-normal [--scalar-address-bar-height:0px]">
               <BaseUrl
                 :collection="activeCollection"
                 :server="activeServer" />
