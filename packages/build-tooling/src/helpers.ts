@@ -120,13 +120,12 @@ export async function addPackageFileExports({
     Object.entries(packageFile.exports).sort(([keyA], [keyB]) => keyA.localeCompare(keyB)),
   )
 
-  // Sleep for 10ms to avoid race conditions
-
+  // Sleep to avoid race conditions
   // Error: R] Unexpected end of file in JSON
   // package.json:1:0:
   //   1 │
   //     ╵ ^
-  await new Promise((resolve) => setTimeout(resolve, 5))
+  await new Promise((resolve) => setTimeout(resolve, 100))
 
   // Green text
   console.log('\x1b[32m%s\x1b[0m', 'Updating package.json exports field…')
