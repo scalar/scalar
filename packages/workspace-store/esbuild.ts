@@ -4,6 +4,7 @@ const entries = [
   './src/schemas.ts',
   './src/client.ts',
   './src/server.ts',
+  './src/schemas/workspace.ts',
   './src/schemas/v3.1/*.ts',
   './src/schemas/v3.1/strict/*.ts',
 ]
