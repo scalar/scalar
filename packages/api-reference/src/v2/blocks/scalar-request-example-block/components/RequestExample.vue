@@ -170,7 +170,7 @@ const clients = computed(() => {
         lang: (sample.lang as TargetId) || 'plaintext',
         title: label,
         label,
-      }
+      } as ClientOption // We yolo assert this as the other properties are only needed in the top selector
     })
 
     return [
@@ -286,7 +286,7 @@ const id = useId()
       <!-- Client picker -->
       <template
         #actions
-        v-if="!hideClientSelector">
+        v-if="clients.length">
         <ScalarCombobox
           class="max-h-80"
           :modelValue="localSelectedClient"

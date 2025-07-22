@@ -1,6 +1,6 @@
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 import type { XCodeSample } from '@scalar/openapi-types/schemas/extensions'
-import { snippetz } from '@scalar/snippetz'
+import { snippetz, type AvailableClients } from '@scalar/snippetz'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { capitalize } from 'vue'
 
@@ -27,7 +27,7 @@ export const generateClientOptions = (
     .clients()
     .flatMap((group) => {
       const options = group.clients.flatMap((plugin) => {
-        const id = `${group.key}/${plugin.client}`
+        const id = `${group.key}/${plugin.client}` as AvailableClients[number]
 
         // Hide specific clients across all categories
         // ex: hiddenClients: ['fetch', 'axios']
@@ -56,6 +56,8 @@ export const generateClientOptions = (
           lang: plugin.client === 'curl' ? ('curl' as const) : group.key,
           title: `${capitalize(group.title)} ${plugin.title}`,
           label: plugin.title,
+          targetKey: group.key,
+          clientKey: plugin.client,
         }
       })
 
