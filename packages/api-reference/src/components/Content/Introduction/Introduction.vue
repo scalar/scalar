@@ -5,6 +5,7 @@ import { ScalarErrorBoundary } from '@scalar/components'
 import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { computed, nextTick, onMounted } from 'vue'
 
 import { Lazy } from '@/components/Lazy'
@@ -19,6 +20,7 @@ const { config } = defineProps<{
   document: OpenAPIV3_1.Document
   config?: ApiReferenceConfiguration
   clientOptions: ClientOptionGroup[]
+  store: WorkspaceStore
 }>()
 
 const { collections, securitySchemes, servers } = useWorkspace()
@@ -103,7 +105,8 @@ const { hash } = useNavState()
             </div>
             <ClientLibraries
               v-if="config?.hiddenClients !== true && clientOptions.length"
-              :clientOptions="clientOptions"
+              :clientOptions
+              :selectedClient="store.workspace['x-scalar-default-client']"
               class="introduction-card-item scalar-reference-intro-clients" />
           </div>
         </ScalarErrorBoundary>
