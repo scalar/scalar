@@ -23,6 +23,7 @@
     "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
+    "screenshot": "vite-node scripts/screenshot.ts & pnpm dev",
     "test": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
@@ -49,7 +50,8 @@
     "@hono/zod-openapi": "^0.8.6",
     "@scalar/build-tooling": "workspace:*",
     "@scalar/openapi-to-markdown": "workspace:*",
-    "hono": "^4.6.5",
+    "hono": "^4.0.0",
+    "playwright": "^1.54.1",
     "vite": "catalog:*",
     "vitest": "catalog:*"
   },
