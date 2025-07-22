@@ -6,9 +6,14 @@ import { REFERENCE_LS_KEYS } from '@scalar/helpers/object/local-storage'
 import { computed, onMounted, ref, useId, watch } from 'vue'
 
 import { useHttpClientStore } from '@/stores/useHttpClientStore'
+import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
 import ClientSelector from './ClientSelector.vue'
 import { useFeaturedHttpClients } from './useFeaturedHttpClients'
+
+const { clientOptions } = defineProps<{
+  clientOptions: ClientOptionGroup[]
+}>()
 
 const {
   availableTargets,

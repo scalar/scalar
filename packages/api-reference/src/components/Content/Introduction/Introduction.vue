@@ -10,6 +10,7 @@ import { computed, nextTick, onMounted } from 'vue'
 import { Lazy } from '@/components/Lazy'
 import { BaseUrl } from '@/features/base-url'
 import { useNavState } from '@/hooks/useNavState'
+import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
 import { ClientLibraries } from '../ClientLibraries'
 import IntroductionSection from './IntroductionSection.vue'
@@ -17,6 +18,7 @@ import IntroductionSection from './IntroductionSection.vue'
 const { config } = defineProps<{
   document: OpenAPIV3_1.Document
   config?: ApiReferenceConfiguration
+  clientOptions: ClientOptionGroup[]
 }>()
 
 const { collections, securitySchemes, servers } = useWorkspace()
@@ -100,6 +102,8 @@ const { hash } = useNavState()
                 :workspace="activeWorkspace" />
             </div>
             <ClientLibraries
+              v-if="config?.hiddenClients !== true && clientOptions.length"
+              :clientOptions="clientOptions"
               class="introduction-card-item scalar-reference-intro-clients" />
           </div>
         </ScalarErrorBoundary>

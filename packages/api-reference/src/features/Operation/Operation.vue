@@ -10,6 +10,7 @@ import { computed } from 'vue'
 
 import { convertSecurityScheme } from '@/helpers/convert-security-scheme'
 import { useOperationDiscriminator } from '@/hooks/useOperationDiscriminator'
+import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
 import ClassicLayout from './layouts/ClassicLayout.vue'
 import ModernLayout from './layouts/ModernLayout.vue'
@@ -26,6 +27,7 @@ const {
 } = defineProps<{
   path: string
   method: HttpMethod
+  clientOptions: ClientOptionGroup[]
   isWebhook: boolean
   layout?: 'modern' | 'classic'
   id: string
@@ -87,10 +89,11 @@ const selectedSecuritySchemes = computed(() =>
     <template v-if="layout === 'classic'">
       <ClassicLayout
         :id="id"
-        :isWebhook="isWebhook"
+        :isWebhook
         :method="method"
         :operation="operation"
         :oldOperation="oldOperation"
+        :clientOptions="clientOptions"
         :securitySchemes="selectedSecuritySchemes"
         :store="store"
         :path="path"
@@ -103,6 +106,7 @@ const selectedSecuritySchemes = computed(() =>
         :id="id"
         :isWebhook="isWebhook"
         :method="method"
+        :clientOptions="clientOptions"
         :oldOperation="oldOperation"
         :securitySchemes="selectedSecuritySchemes"
         :path="path"

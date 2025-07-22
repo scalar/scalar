@@ -1,14 +1,9 @@
 <script lang="ts">
 export type RequestExampleProps = {
   /**
-   * List of all allowed clients, this will determine which clients are available in the dropdown
-   *
-   * For the complete list:
-   * @see https://github.com/scalar/scalar/blob/main/packages/types/src/snippetz/snippetz.ts#L8
-   *
-   * @defaults to all available clients + any included custom code examples
+   * List of all http clients formatted into option groups for the client selector
    */
-  allowedClients?: AvailableClients[number][]
+  clientOptions: ClientOptionGroup[]
   /**
    * Pre-selected client, this will determine which client is initially selected in the dropdown
    *
@@ -87,7 +82,7 @@ import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import type { XCodeSample } from '@scalar/openapi-types/schemas/extensions'
-import { type AvailableClients } from '@scalar/snippetz'
+import { type AvailableClients, type TargetId } from '@scalar/snippetz'
 import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/example'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
@@ -100,19 +95,19 @@ import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
 import { findClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
-import {
-  generateClientOptions,
-  generateCustomId,
-} from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
+import { generateCustomId } from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
 import { generateCodeSnippet } from '@/v2/blocks/scalar-request-example-block/helpers/generate-code-snippet'
 import { getSecrets } from '@/v2/blocks/scalar-request-example-block/helpers/get-secrets'
-import type { ClientOption } from '@/v2/blocks/scalar-request-example-block/types'
+import type {
+  ClientOption,
+  ClientOptionGroup,
+} from '@/v2/blocks/scalar-request-example-block/types'
 import { emitCustomEvent } from '@/v2/events'
 
 import ExamplePicker from './ExamplePicker.vue'
 
 const {
-  allowedClients,
+  clientOptions,
   selectedClient,
   selectedServer = { url: '/' },
   selectedContentType,
@@ -122,7 +117,6 @@ const {
   path,
   operation,
   generateLabel,
-  hideClientSelector = false,
 } = defineProps<RequestExampleProps>()
 
 defineSlots<{
@@ -164,9 +158,32 @@ const customRequestExamples = computed(() => {
 /**
  * Group plugins by target/language to show in a dropdown
  */
-const clients = computed(() =>
-  generateClientOptions(customRequestExamples.value, allowedClients),
-)
+const clients = computed(() => {
+  // Handle custom code examples
+  if (customRequestExamples.value.length) {
+    const customClients = customRequestExamples.value.map((sample) => {
+      const id = generateCustomId(sample)
+      const label = sample.label || sample.lang || id
+
+      return {
+        id,
+        lang: (sample.lang as TargetId) || 'plaintext',
+        title: label,
+        label,
+      }
+    })
+
+    return [
+      {
+        label: 'Code Examples',
+        options: customClients,
+      },
+      ...clientOptions,
+    ]
+  }
+
+  return clientOptions
+})
 
 /** The locally selected client which would include code samples from this operation only */
 const localSelectedClient = ref<ClientOption>(
@@ -250,7 +267,7 @@ const id = useId()
 </script>
 <template>
   <ScalarCard
-    v-if="clients.length"
+    v-if="generatedCode"
     class="request-card dark-mode"
     ref="elem">
     <!-- Header -->
