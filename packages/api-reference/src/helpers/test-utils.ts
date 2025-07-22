@@ -33,3 +33,25 @@ export const createMockSidebarFromDocument = (document: OpenAPIV3_1.Document) =>
   })
   return createMockSidebar({}, result.entries)
 }
+
+export const createMockPluginManager = () => ({
+  getSpecificationExtensions: vi.fn(),
+})
+
+export const createMockNavState = (hash = '') => ({
+  hash: ref(hash),
+  isIntersectionEnabled: ref(true),
+  setHashPrefix: vi.fn(),
+  getFullHash: vi.fn(),
+  getHashedUrl: vi.fn(),
+  replaceUrlState: vi.fn(),
+  getReferenceId: vi.fn(),
+  getWebhookId: vi.fn(),
+  getModelId: vi.fn(),
+  getHeadingId: vi.fn(),
+  getOperationId: vi.fn(),
+  getPathRoutingId: vi.fn(),
+  getSectionId: vi.fn(),
+  getTagId: vi.fn(),
+  updateHash: vi.fn(),
+})
