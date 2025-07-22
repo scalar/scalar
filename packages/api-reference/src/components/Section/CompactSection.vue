@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components'
 import { scrollToId } from '@scalar/helpers/dom/scroll-to-id'
+import { ScalarIconCaretRight } from '@scalar/icons'
 import { nextTick, ref, useId, watch } from 'vue'
 
 import Anchor from '@/components/Anchor/Anchor.vue'
@@ -39,10 +39,10 @@ watch(
       :class="{ 'collapsible-section-trigger-open': open }"
       type="button"
       @click="open = !open">
-      <ScalarIcon
-        :icon="open ? 'ChevronDown' : 'ChevronRight'"
-        size="md"
-        thickness="1.5" />
+      <ScalarIconCaretRight
+        weight="bold"
+        class="size-3 transition-transform duration-100"
+        :class="{ 'rotate-90': open }" />
       <Anchor
         :id="id"
         class="collapsible-section-header">
