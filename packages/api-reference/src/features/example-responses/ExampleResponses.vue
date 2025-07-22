@@ -270,7 +270,7 @@ const showSchema = ref(false)
   width: fit-content;
   white-space: nowrap;
   gap: 6px;
-  padding: 7px;
+  padding: 7px 6px;
 }
 .scalar-card-checkbox:has(.scalar-card-checkbox-input:focus-visible)
   .scalar-card-checkbox-checkmark {
@@ -320,8 +320,8 @@ const showSchema = ref(false)
 }
 
 .scalar-card-checkbox .scalar-card-checkbox-checkmark:after {
-  right: 12.5px;
-  top: 12px;
+  right: 6px;
+  top: 36.5%;
   width: 5px;
   height: 9px;
   border: solid 1px var(--scalar-button-1-color);
