@@ -21,6 +21,10 @@ const { document, config } = defineProps<{
   store: WorkspaceStore
 }>()
 
+const emit = defineEmits<{
+  allEntriesLoaded: [loaded: true]
+}>()
+
 const { collections, servers } = useWorkspace()
 const { activeCollection: _activeCollection } = useActiveEntities()
 
@@ -95,6 +99,7 @@ lazyBus.on(({ loading, loaded }) => {
 
   // We are empty! Unfreeze the page
   if (lazyIds.value.size === 0) {
+    emit('allEntriesLoaded', true)
     setTimeout(() => resume(), 300)
   }
 })
