@@ -52,7 +52,7 @@ const currentResponse = computed(() => {
   return responses?.[currentStatusCode] as ResponseObject | undefined
 })
 
-const currentJsonResponse = computed<MediaTypeObject | undefined>(() => {
+const currentResponseContent = computed<MediaTypeObject | undefined>(() => {
   const normalizedContent = normalizeMimeTypeObject(
     currentResponse.value?.content,
   )
@@ -74,11 +74,13 @@ const currentJsonResponse = computed<MediaTypeObject | undefined>(() => {
 })
 
 const hasMultipleExamples = computed<boolean>(
-  () => !!currentJsonResponse.value?.examples,
+  () =>
+    !!currentResponseContent.value?.examples &&
+    Object.keys(currentResponseContent.value?.examples ?? {}).length > 1,
 )
 
 const selectedExampleKey = ref<string>(
-  Object.keys(currentJsonResponse.value?.examples ?? {})[0] ?? '',
+  Object.keys(currentResponseContent.value?.examples ?? {})[0] ?? '',
 )
 
 /**
@@ -86,7 +88,7 @@ const selectedExampleKey = ref<string>(
  * or the only example if there is only one example response.
  */
 const getFirstExampleResponse = () => {
-  const jsonResponse = toValue(currentJsonResponse)
+  const jsonResponse = toValue(currentResponseContent)
 
   if (!jsonResponse) {
     return undefined
@@ -107,7 +109,7 @@ const getFirstExampleResponse = () => {
 
 const currentExample = computed(() => {
   return hasMultipleExamples.value && selectedExampleKey.value
-    ? currentJsonResponse.value?.examples?.[selectedExampleKey.value]
+    ? currentResponseContent.value?.examples?.[selectedExampleKey.value]
     : getFirstExampleResponse()
 })
 
@@ -135,16 +137,16 @@ const showSchema = ref(false)
 
       <template #actions>
         <button
-          v-if="currentJsonResponse?.example"
+          v-if="currentResponseContent?.example"
           class="code-copy"
           type="button"
-          @click="() => copyToClipboard(currentJsonResponse?.example)">
+          @click="() => copyToClipboard(currentResponseContent?.example)">
           <ScalarIcon
             icon="Clipboard"
             width="12px" />
         </button>
         <label
-          v-if="currentJsonResponse?.schema"
+          v-if="currentResponseContent?.schema"
           class="scalar-card-checkbox">
           Show Schema
           <input
@@ -157,41 +159,41 @@ const showSchema = ref(false)
       </template>
     </ExampleResponseTabList>
     <ScalarCardSection class="grid flex-1">
-      <template v-if="currentJsonResponse?.schema">
+      <template v-if="currentResponseContent?.schema">
         <ScalarCodeBlock
-          v-if="showSchema && currentJsonResponse"
+          v-if="showSchema && currentResponseContent"
           :id="id"
           class="-outline-offset-2"
-          :content="currentJsonResponse.schema"
+          :content="currentResponseContent.schema"
           lang="json" />
         <ExampleResponse
           v-else
           :id="id"
-          :response="currentJsonResponse"
+          :response="currentResponseContent"
           :example="currentExample" />
       </template>
       <!-- Without Schema: Don't show tabs -->
       <ExampleResponse
         v-else
         :id="id"
-        :response="currentJsonResponse"
+        :response="currentResponseContent"
         :example="currentExample" />
     </ScalarCardSection>
     <ScalarCardFooter
       v-if="currentResponse?.description || hasMultipleExamples"
       class="response-card-footer">
-      <ExamplePicker
-        v-if="hasMultipleExamples"
-        class="response-example-selector"
-        :examples="currentJsonResponse?.examples"
-        v-model="selectedExampleKey" />
       <div
-        v-else-if="currentResponse?.description"
+        v-if="currentResponse?.description"
         class="response-description">
         <ScalarMarkdown
           class="markdown"
           :value="currentResponse.description" />
       </div>
+      <ExamplePicker
+        v-if="hasMultipleExamples"
+        class="response-example-selector"
+        :examples="currentResponseContent?.examples"
+        v-model="selectedExampleKey" />
     </ScalarCardFooter>
   </ScalarCard>
 </template>
@@ -227,7 +229,8 @@ const showSchema = ref(false)
 }
 .response-card-footer {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: space-between;
   flex-shrink: 0;
   padding: 7px 12px;
   gap: 8px;
