@@ -11,9 +11,11 @@ import {
   getObjectKeys,
   normalizeMimeTypeObject,
 } from '@scalar/oas-utils/helpers'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
-import { computed, ref, useId } from 'vue'
+import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/media-header-encoding'
+import type { ResponseObject } from '@scalar/workspace-store/schemas/v3.1/strict/response'
+import type { ResponsesObject } from '@scalar/workspace-store/schemas/v3.1/strict/responses'
+import { computed, ref, toValue, useId } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
 import { ExamplePicker } from '@/v2/blocks/scalar-request-example-block'
@@ -27,18 +29,15 @@ import ExampleResponseTabList from './ExampleResponseTabList.vue'
  */
 
 const { responses } = defineProps<{
-  responses: OpenAPIV3_1.OperationObject['responses']
+  responses: ResponsesObject
 }>()
 
 const id = useId()
-
 const { copyToClipboard } = useClipboard()
 
 // Bring the status codes in the right order.
-const orderedStatusCodes = computed(() => Object.keys(responses ?? {}).sort())
-
-const hasMultipleExamples = computed<boolean>(
-  () => !!currentJsonResponse.value?.examples,
+const orderedStatusCodes = computed<string[]>(() =>
+  Object.keys(responses ?? {}).sort(),
 )
 
 // Keep track of the current selected tab
@@ -47,33 +46,34 @@ const selectedResponseIndex = ref<number>(0)
 // Return the whole response object
 const currentResponse = computed(() => {
   const currentStatusCode =
-    orderedStatusCodes.value[selectedResponseIndex.value]
+    toValue(orderedStatusCodes)[toValue(selectedResponseIndex)]
 
-  return responses?.[currentStatusCode]
+  return responses?.[currentStatusCode] as ResponseObject | undefined
 })
 
-const currentJsonResponse = computed<OpenAPIV3_1.ResponseObject | undefined>(
-  () => {
-    const normalizedContent = normalizeMimeTypeObject(
-      currentResponse.value?.content,
-    )
+const currentJsonResponse = computed<MediaTypeObject | undefined>(() => {
+  const normalizedContent = normalizeMimeTypeObject(
+    currentResponse.value?.content,
+  )
 
-    /** All the keys of the normalized content */
-    const keys = getObjectKeys(normalizedContent ?? {})
+  /** All the keys of the normalized content */
+  const keys = getObjectKeys(normalizedContent ?? {})
 
-    return (
-      // OpenAPI 3.x
-      normalizedContent?.['application/json'] ??
-      normalizedContent?.['application/xml'] ??
-      normalizedContent?.['text/plain'] ??
-      normalizedContent?.['text/html'] ??
-      normalizedContent?.['*/*'] ??
-      // Take the first key - in the future we may want to use the selected content type
-      normalizedContent?.[keys[0]] ??
-      // Swagger 2.0
-      currentResponse.value
-    )
-  },
+  return (
+    // OpenAPI 3.x
+    normalizedContent?.['application/json'] ??
+    normalizedContent?.['application/xml'] ??
+    normalizedContent?.['text/plain'] ??
+    normalizedContent?.['text/html'] ??
+    normalizedContent?.['*/*'] ??
+    // Take the first key - in the future we may want to use the selected content type
+    normalizedContent?.[keys[0]] ??
+    undefined
+  )
+})
+
+const hasMultipleExamples = computed<boolean>(
+  () => !!currentJsonResponse.value?.examples,
 )
 
 const selectedExampleKey = ref<string>(
@@ -85,31 +85,30 @@ const selectedExampleKey = ref<string>(
  * or the only example if there is only one example response.
  */
 const getFirstExampleResponse = () => {
+  const jsonResponse = toValue(currentJsonResponse)
+
+  if (!jsonResponse) {
+    return undefined
+  }
+
   if (!hasMultipleExamples.value) {
-    return currentJsonResponse.value?.example
+    return jsonResponse.example
   }
-  if (Array.isArray(currentJsonResponse.value?.examples)) {
-    return currentJsonResponse.value?.examples[0]
+  if (Array.isArray(jsonResponse.examples)) {
+    return jsonResponse.examples[0]
   }
 
-  const firstProperty = Object.keys(
-    currentJsonResponse.value?.examples ?? {},
-  )[0]
-  const firstExample = currentJsonResponse.value?.examples?.[firstProperty]
+  const firstProperty = Object.keys(jsonResponse.examples ?? {})[0]
+  const firstExample = jsonResponse.examples?.[firstProperty]
 
-  // Handle the case where the example already has a 'value' property
-  return firstExample?.value ?? firstExample
+  return firstExample
 }
 
-const currentResponseWithExample = computed(() => ({
-  ...currentJsonResponse.value,
-  example:
-    hasMultipleExamples.value && selectedExampleKey.value
-      ? (currentJsonResponse.value?.examples?.[selectedExampleKey.value]
-          ?.value ??
-        currentJsonResponse.value?.examples?.[selectedExampleKey.value])
-      : getFirstExampleResponse(),
-}))
+const currentExample = computed(() => {
+  return hasMultipleExamples.value && selectedExampleKey.value
+    ? currentJsonResponse.value?.examples?.[selectedExampleKey.value]
+    : getFirstExampleResponse()
+})
 
 const changeTab = (index: number) => {
   selectedResponseIndex.value = index
@@ -159,21 +158,23 @@ const showSchema = ref(false)
     <ScalarCardSection class="grid flex-1">
       <template v-if="currentJsonResponse?.schema">
         <ScalarCodeBlock
-          v-if="showSchema && currentResponseWithExample"
+          v-if="showSchema && currentJsonResponse"
           :id="id"
           class="-outline-offset-2"
-          :content="currentResponseWithExample"
+          :content="currentJsonResponse.schema"
           lang="json" />
         <ExampleResponse
           v-else
           :id="id"
-          :response="currentResponseWithExample" />
+          :response="currentJsonResponse"
+          :example="currentExample" />
       </template>
       <!-- Without Schema: Don't show tabs -->
       <ExampleResponse
         v-else
         :id="id"
-        :response="currentResponseWithExample" />
+        :response="currentJsonResponse"
+        :example="currentExample" />
     </ScalarCardSection>
     <ScalarCardFooter
       v-if="currentResponse?.description || hasMultipleExamples"

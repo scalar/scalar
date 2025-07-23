@@ -1,5 +1,6 @@
 import type { ContentType } from '@scalar/types/legacy'
 
+import type { ResponseObject } from '@scalar/workspace-store/schemas/v3.1/strict/response'
 import { normalizeMimeType } from './normalize-mime-type'
 
 /**
@@ -7,7 +8,7 @@ import { normalizeMimeType } from './normalize-mime-type'
  *
  * Example: `application/json; charset=utf-8` -> `application/json`
  */
-export function normalizeMimeTypeObject(content?: Record<ContentType, any>) {
+export function normalizeMimeTypeObject(content?: ResponseObject['content']): ResponseObject['content'] {
   if (!content) {
     return content
   }
