@@ -25,6 +25,12 @@
       "description": "Disable .NET SDK updates",
       "matchFileNames": ["**/global.json"],
       "enabled": false
+    },
+    {
+      "description": "Disable major updates for Microsoft.AspNetCore packages. We will manually update these after each .NET release.",
+      "matchPackageNames": ["Microsoft.AspNetCore**"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
     }
   ]
 }
