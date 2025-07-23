@@ -77,11 +77,6 @@ const resume = () => {
 /** So we know when we have loaded all lazy elements */
 const lazyIds = ref<Set<string>>(new Set())
 
-// No need to freeze if we don't have a hash
-if (!hash.value || hash.value.startsWith('description')) {
-  hasLazyLoaded.value = true
-}
-
 // Use the lazybus to handle [un]freezing elements
 lazyBus.on(({ loading, loaded }) => {
   if (hasLazyLoaded.value) {
