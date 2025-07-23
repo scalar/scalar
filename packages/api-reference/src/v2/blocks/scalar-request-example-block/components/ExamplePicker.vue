@@ -17,7 +17,7 @@ const selectedExampleKey = defineModel<string>({
 })
 
 /** Generate label for an example */
-const getLabel = (key: string) => {
+const getLabel = (key: string | null) => {
   if (!key) {
     return 'Select an example'
   }
