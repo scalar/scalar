@@ -13,7 +13,7 @@ export type ClientOption = ScalarComboboxOption & {
   lang: TargetId | 'curl' | 'plaintext'
   /** Title shows when the client is selected in the dropdown */
   title: string
-  /** Target key for the client */
+  /** Target key for the client, differs from the lang due to the curl thing */
   targetKey: TargetId
   /** Title of the target */
   targetTitle: string

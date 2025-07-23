@@ -41,7 +41,17 @@ describe('generateClientOptions', () => {
       // Test the first group structure
       expect(result[0]).toEqual({
         label: 'C',
-        options: [{ id: 'c/libcurl', lang: 'c', title: 'C Libcurl', label: 'Libcurl' }],
+        options: [
+          {
+            id: 'c/libcurl',
+            lang: 'c',
+            title: 'C Libcurl',
+            label: 'Libcurl',
+            clientKey: 'libcurl',
+            targetKey: 'c',
+            targetTitle: 'C',
+          },
+        ],
       })
     })
   })
@@ -57,14 +67,28 @@ describe('generateClientOptions', () => {
           lang: 'js',
           title: 'JavaScript ofetch',
           label: 'ofetch',
+          clientKey: 'ofetch',
+          targetKey: 'js',
+          targetTitle: 'JavaScript',
         },
         {
           id: 'js/jquery',
           lang: 'js',
           title: 'JavaScript jQuery',
           label: 'jQuery',
+          clientKey: 'jquery',
+          targetKey: 'js',
+          targetTitle: 'JavaScript',
         },
-        { id: 'js/xhr', lang: 'js', title: 'JavaScript XHR', label: 'XHR' },
+        {
+          id: 'js/xhr',
+          lang: 'js',
+          title: 'JavaScript XHR',
+          label: 'XHR',
+          clientKey: 'xhr',
+          targetKey: 'js',
+          targetTitle: 'JavaScript',
+        },
       ])
       expect(results.find((group) => group.label === 'Node.js')?.options).toStrictEqual([
         {
@@ -72,12 +96,18 @@ describe('generateClientOptions', () => {
           lang: 'node',
           title: 'Node.js ofetch',
           label: 'ofetch',
+          clientKey: 'ofetch',
+          targetKey: 'node',
+          targetTitle: 'Node.js',
         },
         {
           id: 'node/undici',
           lang: 'node',
           title: 'Node.js undici',
           label: 'undici',
+          clientKey: 'undici',
+          targetKey: 'node',
+          targetTitle: 'Node.js',
         },
       ])
     })
