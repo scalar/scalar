@@ -320,7 +320,7 @@ const showSchema = ref(false)
 }
 
 .scalar-card-checkbox .scalar-card-checkbox-checkmark:after {
-  right: 6px;
+  right: 12px;
   top: 36.5%;
   width: 5px;
   height: 9px;
