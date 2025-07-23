@@ -26,6 +26,10 @@ const href = computed((): string | undefined => {
   const urlToImportFrom =
     url ?? (typeof window !== 'undefined' ? window.location.href : undefined)
 
+  if (!urlToImportFrom) {
+    return undefined
+  }
+
   const absoluteUrl = makeUrlAbsolute(urlToImportFrom)
 
   if (!absoluteUrl?.length) {
