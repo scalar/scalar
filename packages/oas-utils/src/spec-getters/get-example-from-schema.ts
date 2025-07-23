@@ -338,11 +338,16 @@ export const getExampleFromSchema = (
   const discriminateSchema = schema.oneOf || schema.anyOf
   // Check if property has the `oneOf` | `anyOf` key
   if (Array.isArray(discriminateSchema) && discriminateSchema.length > 0) {
-    // Get the first item from the `oneOf` | `anyOf` array
-    const firstOneOfItem = discriminateSchema[0]
+    // Find the first non-null type in the oneOf/anyOf array
+    const firstNonNullItem = discriminateSchema.find((item) => item.type !== 'null')
 
-    // Return an example for the first item
-    return getExampleFromSchema(firstOneOfItem, options, level + 1)
+    if (firstNonNullItem) {
+      // Return an example for the first non-null item
+      return getExampleFromSchema(firstNonNullItem, options, level + 1)
+    }
+
+    // If all items are null, return null
+    return null
   }
 
   // Check if schema has the `allOf` key
