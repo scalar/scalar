@@ -13,8 +13,9 @@ import {
 } from '@scalar/oas-utils/helpers'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/media-header-encoding'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { ResponseObject } from '@scalar/workspace-store/schemas/v3.1/strict/response'
-import type { ResponsesObject } from '@scalar/workspace-store/schemas/v3.1/strict/responses'
+import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import { computed, ref, toValue, useId } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
@@ -29,7 +30,7 @@ import ExampleResponseTabList from './ExampleResponseTabList.vue'
  */
 
 const { responses } = defineProps<{
-  responses: ResponsesObject
+  responses: Dereference<OperationObject>['responses']
 }>()
 
 const id = useId()
