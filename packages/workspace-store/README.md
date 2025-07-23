@@ -369,3 +369,43 @@ const currentWorkspaceState = client.exportWorkspace()
 // Reload the workspace state
 client.loadWorkspace(currentWorkspaceState)
 ```
+
+### Replace the Entire Document
+
+When you have a new or updated OpenAPI document and want to overwrite the existing one—regardless of which parts have changed—you can use the `replaceDocument` method. This method efficiently and atomically updates the entire document in place, ensuring that only the necessary changes are applied for optimal performance.
+
+```ts
+const client = createWorkspaceStore({
+  documents: [
+    {
+      name: 'document-name',
+      document: {
+        openapi: '3.1.0',
+        info: {
+          title: 'Document Title',
+          version: '1.0.0',
+        },
+        paths: {},
+        components: {
+          schemas: {},
+        },
+        servers: [],
+      },
+    },
+  ],
+})
+
+// Update the document with the new changes
+client.replaceDocument('document-name', {
+  openapi: '3.1.0',
+  info: {
+    title: 'Updated Document',
+    version: '1.0.0',
+  },
+  paths: {},
+  components: {
+    schemas: {},
+  },
+  servers: [],
+})
+```
