@@ -5,12 +5,15 @@ import {
 } from '@scalar/api-reference'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 
 import DevReferencesOptions from '../components/DevReferencesOptions.vue'
 import DevToolbar from '../components/DevToolbar.vue'
 import MonacoEditor from '../components/MonacoEditor.vue'
 import SlotPlaceholder from '../components/SlotPlaceholder.vue'
+
+// TODO: Editing does not work, make it work again.
+// Requires: https://github.com/scalar/scalar/pull/6319
 
 const content = ref('')
 
@@ -20,31 +23,8 @@ const configuration = reactive<Partial<ApiReferenceConfiguration>>({
   isEditable: false,
   showSidebar: true,
   layout: 'modern',
-  content,
-  // authentication: {
-  //   // The OpenAPI file has keys for all security schemes:
-  //   // Which one should be used by default?
-  //   preferredSecurityScheme: 'my_custom_security_scheme',
-  //   // The `my_custom_security_scheme` security scheme is of type `apiKey`, so prefill the token:
-  //   apiKey: {
-  //     token: 'super-secret-token',
-  //   },
-  // },
+  url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
 })
-
-onMounted(() => {
-  content.value = window.localStorage?.getItem('api-reference-content') ?? ''
-})
-
-watch(
-  content,
-  () => {
-    window.localStorage?.setItem('api-reference-content', content.value)
-
-    // TODO: Update the document in the store?
-  },
-  { deep: true },
-)
 
 const configProxy = computed({
   get: () => configuration,
@@ -64,13 +44,11 @@ watch(
   },
 )
 
-const store = createWorkspaceStore({
-  documents: [
-    {
-      name: 'default',
-      document: JSON.parse(content.value) as Record<string, unknown>,
-    },
-  ],
+const store = createWorkspaceStore()
+
+store.addDocument({
+  name: 'default',
+  url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
 })
 </script>
 <template>
