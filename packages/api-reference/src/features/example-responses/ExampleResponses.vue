@@ -292,8 +292,8 @@ const showSchema = ref(false)
 }
 
 .scalar-card-checkbox-checkmark {
-  height: 17px;
-  width: 17px;
+  height: 16px;
+  width: 16px;
   border-radius: var(--scalar-radius);
   background-color: transparent;
   background-color: var(--scalar-background-3);
@@ -301,7 +301,6 @@ const showSchema = ref(false)
 }
 .scalar-card-checkbox:has(.scalar-card-checkbox-input:checked) {
   color: var(--scalar-color-1);
-  font-weight: var(--scalar-semibold);
 }
 
 .scalar-card-checkbox
@@ -324,8 +323,8 @@ const showSchema = ref(false)
 }
 
 .scalar-card-checkbox .scalar-card-checkbox-checkmark:after {
-  right: 12px;
-  top: 36.5%;
+  right: 11.5px;
+  top: 12.5px;
   width: 5px;
   height: 9px;
   border: solid 1px var(--scalar-button-1-color);
