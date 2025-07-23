@@ -7,7 +7,7 @@ export type RequestExampleProps = {
   /**
    * Pre-selected client, this will determine which client is initially selected in the dropdown
    *
-   * @defaults to js/fetch or a custom sample if one is available
+   * @defaults to shell/curl or a custom sample if one is available
    */
   selectedClient?: AvailableClients[number]
   /**
