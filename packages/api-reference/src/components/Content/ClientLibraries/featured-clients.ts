@@ -8,15 +8,17 @@ const FEATURED_CLIENTS = [
   'node/undici',
   'php/guzzle',
   'python/python3',
-] as const satisfies AvailableClients[number][]
+] satisfies AvailableClients[number][]
 
 /** Whether or not a client is in the featured list */
-export const isFeaturedClient = (clientId: AvailableClients[number] | undefined, featuredClients = FEATURED_CLIENTS) =>
-  clientId && featuredClients.includes(clientId as (typeof featuredClients)[number])
+export const isFeaturedClient = (
+  clientId: AvailableClients[number] | undefined,
+  featuredClients: AvailableClients[number][] = FEATURED_CLIENTS,
+) => Boolean(clientId && featuredClients.includes(clientId as (typeof featuredClients)[number]))
 
 /** Client option arry that matches the featured list */
 export const getFeaturedClients = (
   clientOptions: ClientOptionGroup[],
-  featuredClients = FEATURED_CLIENTS,
+  featuredClients: AvailableClients[number][] = FEATURED_CLIENTS,
 ): ClientOption[] =>
   clientOptions.flatMap((option) => option.options.filter((option) => isFeaturedClient(option.id, featuredClients)))
