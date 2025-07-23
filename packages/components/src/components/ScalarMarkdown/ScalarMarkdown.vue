@@ -164,7 +164,6 @@ const html = computed(() => {
 
   .markdown li {
     line-height: var(--markdown-line-height);
-    position: relative;
   }
 
   .markdown ul li {
