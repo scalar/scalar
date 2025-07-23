@@ -39,10 +39,12 @@ import type { Schemas } from '@/features/Operation/types/schemas'
 import { TestRequestButton } from '@/features/test-request-button'
 import { useConfig } from '@/hooks/useConfig'
 import { RequestExample } from '@/v2/blocks/scalar-request-example-block'
+import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
 const { operation, path, isWebhook } = defineProps<{
   id: string
   path: string
+  clientOptions: ClientOptionGroup[]
   method: HttpMethodType
   operation: Dereference<OperationObject>
   oldOperation: OpenAPIV3_1.OperationObject
@@ -176,6 +178,7 @@ const handleDiscriminatorChange = (type: string) => {
             class="operation-example-card"
             :method="method"
             :selectedServer="server"
+            :clientOptions="clientOptions"
             :selectedClient="store.workspace['x-scalar-default-client']"
             :securitySchemes="securitySchemes"
             :path="path"

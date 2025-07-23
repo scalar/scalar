@@ -36,27 +36,54 @@ The position of this step within a steps container. Used internally for step ord
 
 ### Basic Step
 
+<scalar-tabs>
+<scalar-tab title="Custom HTML">
+
 <scalar-step id="step-1" title="Install Dependencies">
-  First, install the required dependencies by running:
+First, install the required dependencies by running:
   
-  ```bash
-  npm install @scalar/guide-elements
-  ```
+```bash
+npm install @scalar/guide-elements
+```
 </scalar-step>
 
 ````html
-<scalar-step
-  id="step-1"
-  title="Install Dependencies">
-  First, install the required dependencies by running: ```bash npm install
-  @scalar/guide-elements</scalar-step
->
-````
-
-</scalar-step>
+<scalar-step id="step-1" title="Install Dependencies">
+First, install the required dependencies by running:
+  
+```bash
+npm install @scalar/guide-elements
 ```
+</scalar-step>
+````
+</scalar-tab>
+
+<scalar-tab title="Directive">
+
+:::scalar-step{ id="step-1" title="Install Dependencies"}
+First, install the required dependencies by running:
+  
+```bash
+npm install @scalar/guide-elements
+```
+:::
+
+````markdown
+:::scalar-step{ id="step-1" title="Install Dependencies"}
+First, install the required dependencies by running:
+
+```bash
+npm install @scalar/guide-elements
+```
+:::
+````
+</scalar-tab>
+</scalar-tabs>
 
 ### Static Step (Non-collapsible)
+
+<scalar-tabs>
+<scalar-tab title="Custom HTML">
 
 <scalar-step 
   id="step-2" 
@@ -74,90 +101,171 @@ const config = {
 </scalar-step>
 
 ````html
-<scalar-step
-  id="step-2"
-  title="Configuration"
-  interactivity="none">
-  This step cannot be collapsed and is always visible. ```javascript const
-  config = { theme: 'dark', interactive: false };</scalar-step
->
-````
-
-</scalar-step>
-```
-
-### Step with Custom Icon
-
 <scalar-step 
-  id="step-3" 
-  title="Deploy Application"
-  icon="solid/interface-rocket">
-Deploy your application to production:
+  id="step-2" 
+  title="Configuration" 
+  interactivity="none">
+This step cannot be collapsed and is always visible.
 
-```bash
-npm run deploy
+```javascript
+const config = {
+  theme: 'dark',
+  interactive: false,
+}
 ```
 
 </scalar-step>
-
-````html
-<scalar-step
-  id="step-3"
-  title="Deploy Application"
-  icon="solid/interface-rocket">
-  Deploy your application to production: ```bash npm run deploy</scalar-step
->
 ````
 
-</scalar-step>
+</scalar-tab>
+
+<scalar-tab title="Directive">
+
+:::scalar-step{ id="step-2" title="Configuration" interactivity="none" }
+This step cannot be collapsed and is always visible.
+
+```javascript
+const config = {
+  theme: 'dark',
+  interactive: false,
+}
 ```
+:::
+
+````markdown
+::scalar-step{ id="step-2" title="Configuration" interactivity="none" }
+This step cannot be collapsed and is always visible.
+
+```javascript
+const config = {
+  theme: 'dark',
+  interactive: false,
+}
+```
+:::
+````
+</scalar-tab>
+</scalar-tabs>
 
 ### Steps Container
 
+<scalar-tabs>
+<scalar-tab title="Custom HTML">
+
 <scalar-steps>
   <scalar-step id="step-1" title="Setup Project">
-    Initialize a new project:
-    ```bash
-    mkdir my-project
-    cd my-project
-    npm init -y
-    ```
+Initialize a new project:
+
+```bash
+mkdir my-project
+cd my-project
+npm init -y
+```
   </scalar-step>
   
   <scalar-step id="step-2" title="Install Dependencies">
-    Install the required packages:
-    ```bash
-    npm install react react-dom
-    ```
+Install the required packages:
+
+```bash
+npm install react react-dom
+```
   </scalar-step>
-  
+
   <scalar-step id="step-3" title="Start Development">
-    Begin development:
-    ```bash
-    npm start
-    ```
+Begin development:
+
+```bash
+npm start
+```
   </scalar-step>
 </scalar-steps>
 
 ````html
 <scalar-steps>
-  <scalar-step
-    id="step-1"
-    title="Setup Project">
-    Initialize a new project: ```bash mkdir my-project cd my-project npm init -y
-    ```
-  </scalar-step>
+  <scalar-step id="step-1" title="Setup Project">
+Initialize a new project:
 
-  <scalar-step
-    id="step-2"
-    title="Install Dependencies">
-    Install the required packages: ```bash npm install react react-dom ```
+```bash
+mkdir my-project
+cd my-project
+npm init -y
+```
   </scalar-step>
+  
+  <scalar-step id="step-2" title="Install Dependencies">
+Install the required packages:
 
-  <scalar-step
-    id="step-3"
-    title="Start Development">
-    Begin development: ```bash npm start ```
+```bash
+npm install react react-dom
+```
+  </scalar-step>
+  
+  <scalar-step id="step-3" title="Start Development">
+Begin development:
+
+```bash
+npm start
+```
   </scalar-step>
 </scalar-steps>
 ````
+
+</scalar-tab>
+
+<scalar-tab title="Directive">
+
+::::scalar-steps
+:::scalar-step{ id="step-1" title="Setup Project" }
+Initialize a new project:
+```bash
+mkdir my-project
+cd my-project
+npm init -y
+```
+:::  
+
+:::scalar-step{ id="step-2" title="Install Dependencies" }
+Install the required packages:
+```bash
+npm install react react-dom
+```
+:::
+
+:::scalar-step{ id="step-3" title="Start Development" }
+Begin development:
+
+```bash
+npm start
+```
+:::
+::::
+
+````markdown
+::::scalar-steps
+:::scalar-step{ id="step-1" title="Setup Project" }
+Initialize a new project:
+```bash
+mkdir my-project
+cd my-project
+npm init -y
+```
+:::  
+
+:::scalar-step{ id="step-2" title="Install Dependencies" }
+Install the required packages:
+```bash
+npm install react react-dom
+```
+:::
+
+:::scalar-step{ id="step-3" title="Start Development" }
+Begin development:
+
+```bash
+npm start
+```
+:::
+::::
+````
+</scalar-tab>
+</scalar-tabs>

@@ -409,3 +409,22 @@ client.replaceDocument('document-name', {
   servers: [],
 })
 ```
+
+### Create workspace from specification
+
+Create the workspace from a specification object
+
+```ts
+await store.importWorkspaceFromSpecification({
+  workspace: 'v1',
+  info: { title: 'My Workspace' },
+  documents: {
+    api: { $ref: '/examples/api.yaml' },
+    petstore: { $ref: '/examples/petstore.yaml' }
+  },
+  overrides: {
+    api: { config: { features: { showModels: true } } }
+  },
+  "x-scalar-dark-mode": true
+})
+```

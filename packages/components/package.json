@@ -44,7 +44,7 @@
   ],
   "module": "./dist/index.js",
   "dependencies": {
-    "@floating-ui/utils": "^0.2.2",
+    "@floating-ui/utils": "catalog:*",
     "@floating-ui/vue": "catalog:*",
     "@headlessui/vue": "catalog:*",
     "@scalar/code-highlight": "workspace:*",

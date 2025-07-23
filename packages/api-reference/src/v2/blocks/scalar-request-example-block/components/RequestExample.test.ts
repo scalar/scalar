@@ -8,6 +8,7 @@ import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
 
 import RequestExample from './RequestExample.vue'
+import type { ClientOptionGroup } from '../types'
 
 describe('RequestExample', () => {
   const mockOperation: OperationObject = {
@@ -58,12 +59,67 @@ describe('RequestExample', () => {
     description: 'Test server',
   }
 
+  const mockClientOptions: ClientOptionGroup[] = [
+    {
+      label: 'JavaScript',
+      options: [
+        {
+          id: 'js/fetch',
+          label: 'Fetch API',
+          lang: 'js',
+          title: 'JavaScript Fetch API',
+          targetKey: 'js',
+          targetTitle: 'JavaScript',
+          clientKey: 'fetch',
+        },
+        {
+          id: 'js/axios',
+          label: 'Axios',
+          lang: 'js',
+          title: 'JavaScript Axios',
+          targetKey: 'js',
+          targetTitle: 'JavaScript',
+          clientKey: 'axios',
+        },
+      ],
+    },
+    {
+      label: 'Python',
+      options: [
+        {
+          id: 'python/requests',
+          label: 'Requests',
+          lang: 'python',
+          title: 'Python Requests',
+          targetKey: 'python',
+          targetTitle: 'Python',
+          clientKey: 'requests',
+        },
+      ],
+    },
+    {
+      label: 'Shell',
+      options: [
+        {
+          id: 'shell/curl',
+          label: 'cURL',
+          lang: 'curl',
+          title: 'Shell cURL',
+          targetKey: 'shell',
+          targetTitle: 'Shell',
+          clientKey: 'curl',
+        },
+      ],
+    },
+  ]
+
   const defaultProps = {
     method: 'GET' as HttpMethodType,
     path: '/api/test',
     operation: mockOperation,
     securitySchemes: mockSecuritySchemes,
     selectedServer: mockServer,
+    clientOptions: mockClientOptions,
   }
 
   describe('Component Rendering', () => {
@@ -78,11 +134,42 @@ describe('RequestExample', () => {
       expect(wrapper.text()).toContain('/api/test')
     })
 
-    it('renders with custom allowed clients', () => {
+    it('renders with custom client options', () => {
+      const customClientOptions: ClientOptionGroup[] = [
+        {
+          label: 'JavaScript',
+          options: [
+            {
+              id: 'js/fetch',
+              label: 'Fetch API',
+              lang: 'js',
+              title: 'JavaScript Fetch API',
+              targetKey: 'js',
+              targetTitle: 'JavaScript',
+              clientKey: 'fetch',
+            },
+          ],
+        },
+        {
+          label: 'Python',
+          options: [
+            {
+              id: 'python/requests',
+              label: 'Requests',
+              lang: 'python',
+              title: 'Python Requests',
+              targetKey: 'python',
+              targetTitle: 'Python',
+              clientKey: 'requests',
+            },
+          ],
+        },
+      ]
+
       const wrapper = mount(RequestExample, {
         props: {
           ...defaultProps,
-          allowedClients: ['js/fetch', 'python/requests'] as AvailableClients[number][],
+          clientOptions: customClientOptions,
         },
       })
 
@@ -126,7 +213,7 @@ describe('RequestExample', () => {
       const wrapper = mount(RequestExample, {
         props: {
           ...defaultProps,
-          allowedClients: [] as AvailableClients[number][],
+          clientOptions: [],
           fallback: true,
         },
       })
@@ -139,7 +226,7 @@ describe('RequestExample', () => {
       const wrapper = mount(RequestExample, {
         props: {
           ...defaultProps,
-          allowedClients: [] as AvailableClients[number][],
+          clientOptions: [],
           fallback: false,
         },
       })
@@ -373,7 +460,7 @@ describe('RequestExample', () => {
       const wrapper = mount(RequestExample, {
         props: {
           ...defaultProps,
-          hideClientSelector: true,
+          clientOptions: [],
         },
       })
       expect(wrapper.find('[data-testid="client-picker"]').exists()).toBe(false)

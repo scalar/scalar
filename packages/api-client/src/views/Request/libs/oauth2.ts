@@ -248,7 +248,11 @@ export const authorizeServers = async (
     formData.set('scope', scopes)
   }
 
-  if (flow.clientSecret) {
+  // Only add the secret if a credentials location is not specified (backwards compatibility) or is set to body
+  const shouldAddSecretToBody =
+    flow.clientSecret && (!flow['x-scalar-credentials-location'] || flow['x-scalar-credentials-location'] === 'body')
+
+  if (shouldAddSecretToBody) {
     formData.set('client_secret', flow.clientSecret)
   }
   if ('x-scalar-redirect-uri' in flow && flow['x-scalar-redirect-uri']) {
@@ -290,8 +294,13 @@ export const authorizeServers = async (
       'Content-Type': 'application/x-www-form-urlencoded',
     }
 
+    // Only add the secret if a credentials location is not specified (backwards compatibility) or is set to header
+    const shouldAddSecretToHeader =
+      flow.clientSecret &&
+      (!flow['x-scalar-credentials-location'] || flow['x-scalar-credentials-location'] === 'header')
+
     // Add client id + secret to headers
-    if (flow.clientSecret) {
+    if (shouldAddSecretToHeader) {
       headers.Authorization = `Basic ${btoa(`${flow['x-scalar-client-id']}:${flow.clientSecret}`)}`
     }
 

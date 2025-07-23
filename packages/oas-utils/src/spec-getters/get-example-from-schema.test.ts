@@ -763,6 +763,34 @@ describe('getExampleFromSchema', () => {
     ).toBe('')
   })
 
+  it('does not use the first item of oneOf if it is null', () => {
+    expect(
+      getExampleFromSchema({
+        oneOf: [
+          {
+            type: 'null',
+          },
+          {
+            maxLength: 255,
+            type: 'string',
+          },
+        ],
+      }),
+    ).toBe('')
+  })
+
+  it('uses the first item of oneOf if there is only one item', () => {
+    expect(
+      getExampleFromSchema({
+        oneOf: [
+          {
+            type: 'null',
+          },
+        ],
+      }),
+    ).toBe(null)
+  })
+
   it('works with allOf', () => {
     expect(
       getExampleFromSchema({

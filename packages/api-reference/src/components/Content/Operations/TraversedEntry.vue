@@ -3,9 +3,10 @@ import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 import { Tag } from '@/components/Content/Tags'
+import { Lazy } from '@/components/Lazy'
 import { SectionContainer } from '@/components/Section'
 import { Operation } from '@/features/Operation'
 import {
@@ -14,12 +15,15 @@ import {
   type TraversedTag,
 } from '@/features/traverse-schema'
 import type { TraversedWebhook } from '@/features/traverse-schema/types'
+import { useNavState } from '@/hooks/useNavState'
+import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
-const { level = 0 } = defineProps<{
+const { level = 0, entries } = defineProps<{
   level?: number
   entries: TraversedEntry[]
   document: OpenAPIV3_1.Document
   config: ApiReferenceConfiguration
+  clientOptions: ClientOptionGroup[]
   activeCollection: Collection
   activeServer: Server | undefined
   store: WorkspaceStore
@@ -44,12 +48,44 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
   'isWebhooks' in entry && Boolean(entry.isWebhooks)
 
 const isRootLevel = computed(() => level === 0)
+const { hash } = useNavState()
+
+/** The index of the current entry */
+const currentIndex = computed(() => {
+  const targetId = hash.value.startsWith('model') ? 'models' : hash.value
+  return entries.findIndex((entry) => targetId.startsWith(entry.id))
+})
+
+/** Check if the entry should be lazy loaded */
+const isLazy = (index: number) => {
+  if (!hash.value) {
+    return false
+  }
+
+  // Make all previous entries lazy
+  if (index < currentIndex.value) {
+    return true
+  }
+
+  // We make the next two siblings not lazy
+  if (index > currentIndex.value + 2) {
+    return true
+  }
+
+  return false
+}
+
+defineExpose({
+  currentIndex,
+})
 </script>
 
 <template>
-  <template
-    v-for="entry in entries"
-    :key="entry.id">
+  <Lazy
+    v-for="(entry, index) in entries"
+    :key="entry.id"
+    :id="entry.id"
+    :isLazy="isLazy(index)">
     <template v-if="isOperation(entry) || isWebhook(entry)">
       <!-- Operation or Webhook -->
       <SectionContainer :omit="!isRootLevel">
@@ -57,17 +93,18 @@ const isRootLevel = computed(() => level === 0)
           :path="isWebhook(entry) ? entry.name : entry.path"
           :method="entry.method"
           :id="entry.id"
-          :document="document"
+          :document
           :collection="activeCollection"
+          :clientOptions
           :layout="config.layout"
-          :store="store"
+          :store
           :server="activeServer"
           :isWebhook="isWebhook(entry)" />
       </SectionContainer>
     </template>
 
-    <template v-else-if="isWebhookGroup(entry)">
-      <!-- Webhook Heading -->
+    <!-- Webhook Group or Tag -->
+    <template v-else-if="isWebhookGroup(entry) || isTag(entry)">
       <Tag
         :tag="entry"
         :layout="config.layout"
@@ -76,11 +113,12 @@ const isRootLevel = computed(() => level === 0)
           <TraversedEntry
             :level="level + 1"
             :entries="entry.children"
-            :document="document"
-            :config="config"
-            :store="store"
-            :activeCollection="activeCollection"
-            :activeServer="activeServer" />
+            :activeCollection
+            :activeServer
+            :clientOptions
+            :config
+            :document
+            :store />
         </template>
       </Tag>
     </template>
@@ -90,30 +128,12 @@ const isRootLevel = computed(() => level === 0)
       <TraversedEntry
         :level="level + 1"
         :entries="entry.children || []"
-        :document="document"
-        :config="config"
-        :store="store"
-        :activeCollection="activeCollection"
-        :activeServer="activeServer" />
+        :activeCollection
+        :activeServer
+        :clientOptions
+        :config
+        :document
+        :store />
     </template>
-
-    <template v-else-if="isTag(entry)">
-      <!-- Tag -->
-      <Tag
-        :tag="entry"
-        :layout="config.layout"
-        :more-than-one-tag="entries.filter(isTag).length > 1">
-        <template v-if="'children' in entry && entry.children?.length">
-          <TraversedEntry
-            :level="level + 1"
-            :entries="entry.children"
-            :document="document"
-            :config="config"
-            :store="store"
-            :activeCollection="activeCollection"
-            :activeServer="activeServer" />
-        </template>
-      </Tag>
-    </template>
-  </template>
+  </Lazy>
 </template>

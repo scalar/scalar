@@ -9,14 +9,17 @@ public class ClientCredentialsFlowExtensionsTests
         var flow = new ClientCredentialsFlow();
         const string tokenUrl = "https://example.com/token";
         const string clientSecret = "test-client-secret";
+        const CredentialsLocation credentialsLocation = CredentialsLocation.Body;
 
         // Act
         flow
             .WithTokenUrl(tokenUrl)
-            .WithClientSecret(clientSecret);
+            .WithClientSecret(clientSecret)
+            .WithCredentialsLocation(credentialsLocation);
 
         // Assert
         flow.TokenUrl.Should().Be(tokenUrl);
         flow.ClientSecret.Should().Be(clientSecret);
+        flow.CredentialsLocation.Should().Be(credentialsLocation);
     }
 }

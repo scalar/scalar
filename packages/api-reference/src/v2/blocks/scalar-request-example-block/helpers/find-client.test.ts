@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { findClient } from './find-client'
-import type { ClientOptionGroup } from '../types'
+import type { ClientOption, ClientOptionGroup } from '../types'
 import type { AvailableClients } from '@scalar/snippetz'
 
 describe('findClient', () => {
@@ -9,23 +9,79 @@ describe('findClient', () => {
     {
       label: 'JavaScript',
       options: [
-        { id: 'js/fetch', label: 'Fetch API', lang: 'js', title: 'Fetch API' },
-        { id: 'js/axios', label: 'Axios', lang: 'js', title: 'Axios' },
-        { id: 'js/jquery', label: 'jQuery', lang: 'js', title: 'jQuery' },
+        {
+          id: 'js/fetch',
+          label: 'Fetch API',
+          lang: 'js',
+          title: 'Fetch API',
+          targetKey: 'js',
+          targetTitle: 'JavaScript',
+          clientKey: 'fetch',
+        },
+        {
+          id: 'js/axios',
+          label: 'Axios',
+          lang: 'js',
+          title: 'Axios',
+          targetKey: 'js',
+          targetTitle: 'JavaScript',
+          clientKey: 'axios',
+        },
+        {
+          id: 'js/jquery',
+          label: 'jQuery',
+          lang: 'js',
+          title: 'jQuery',
+          targetKey: 'js',
+          targetTitle: 'JavaScript',
+          clientKey: 'jquery',
+        },
       ],
     },
     {
       label: 'Python',
       options: [
-        { id: 'python/requests', label: 'Requests', lang: 'python', title: 'Requests' },
-        { id: 'python/httpx_sync', label: 'HTTPX Sync', lang: 'python', title: 'HTTPX Sync' },
+        {
+          id: 'python/requests',
+          label: 'Requests',
+          lang: 'python',
+          title: 'Requests',
+          targetKey: 'python',
+          targetTitle: 'Python',
+          clientKey: 'requests',
+        },
+        {
+          id: 'python/httpx_sync',
+          label: 'HTTPX Sync',
+          lang: 'python',
+          title: 'HTTPX Sync',
+          targetKey: 'python',
+          targetTitle: 'Python',
+          clientKey: 'httpx_sync',
+        },
       ],
     },
     {
       label: 'Shell',
       options: [
-        { id: 'shell/curl', label: 'cURL', lang: 'shell', title: 'cURL' },
-        { id: 'shell/httpie', label: 'HTTPie', lang: 'shell', title: 'HTTPie' },
+        {
+          id: 'shell/curl',
+          label: 'cURL',
+          lang: 'shell',
+          title: 'cURL',
+          targetKey: 'shell',
+          targetTitle: 'Shell',
+          clientKey: 'curl',
+        },
+        {
+          id: 'shell/httpie',
+          label: 'HTTPie',
+          lang: 'shell',
+          title: 'HTTPie',
+          targetKey: 'shell',
+          targetTitle: 'Shell',
+          clientKey: 'httpie',
+        },
       ],
     },
   ]
@@ -33,50 +89,26 @@ describe('findClient', () => {
   describe('when clientId is provided and found', () => {
     it('returns the exact client when found', () => {
       const result = findClient(mockClientGroups, 'js/fetch')
-
-      expect(result).toEqual({
-        id: 'js/fetch',
-        label: 'Fetch API',
-        lang: 'js',
-        title: 'Fetch API',
-      })
+      expect(result).toEqual(mockClientGroups[0].options[0])
     })
 
     it('returns the exact client when found in different groups', () => {
       const result = findClient(mockClientGroups, 'python/requests')
-
-      expect(result).toEqual({
-        id: 'python/requests',
-        label: 'Requests',
-        lang: 'python',
-        title: 'Requests',
-      })
+      expect(result).toEqual(mockClientGroups[1].options[0])
     })
   })
 
   describe('when clientId is provided but not found', () => {
     it('returns default client when clientId does not exist', () => {
       const result = findClient(mockClientGroups, 'nonexistent/client' as AvailableClients[number])
-
-      expect(result).toEqual({
-        id: 'shell/curl',
-        label: 'cURL',
-        lang: 'shell',
-        title: 'cURL',
-      })
+      expect(result).toEqual(mockClientGroups[2].options[0])
     })
   })
 
   describe('when clientId is not provided', () => {
     it('returns default client when clientId is undefined', () => {
       const result = findClient(mockClientGroups)
-
-      expect(result).toEqual({
-        id: 'shell/curl',
-        label: 'cURL',
-        lang: 'shell',
-        title: 'cURL',
-      })
+      expect(result).toEqual(mockClientGroups[2].options[0])
     })
   })
 
@@ -85,36 +117,46 @@ describe('findClient', () => {
       const singleGroup: ClientOptionGroup[] = [
         {
           label: 'Test',
-          options: [{ id: 'js/fetch', label: 'Test Client', lang: 'js', title: 'Test Client' }],
+          options: [
+            {
+              id: 'js/fetch',
+              label: 'Test Client',
+              lang: 'js',
+              title: 'Test Client',
+              targetKey: 'js',
+              targetTitle: 'JavaScript',
+              clientKey: 'fetch',
+            },
+          ],
         },
       ]
 
       const result = findClient(singleGroup, 'js/fetch')
 
-      expect(result).toEqual({
-        id: 'js/fetch',
-        label: 'Test Client',
-        lang: 'js',
-        title: 'Test Client',
-      })
+      expect(result).toEqual(singleGroup[0].options[0])
     })
 
     it('returns first option when searching in single group without clientId', () => {
       const singleGroup: ClientOptionGroup[] = [
         {
           label: 'Test',
-          options: [{ id: 'js/fetch', label: 'Test Client', lang: 'js', title: 'Test Client' }],
+          options: [
+            {
+              id: 'js/fetch',
+              label: 'Test Client',
+              lang: 'js',
+              title: 'Test Client',
+              targetKey: 'js',
+              targetTitle: 'JavaScript',
+              clientKey: 'fetch',
+            },
+          ],
         },
       ]
 
       const result = findClient(singleGroup)
 
-      expect(result).toEqual({
-        id: 'js/fetch',
-        label: 'Test Client',
-        lang: 'js',
-        title: 'Test Client',
-      })
+      expect(result).toEqual(singleGroup[0].options[0])
     })
 
     it('handles group with empty options array', () => {
@@ -125,18 +167,23 @@ describe('findClient', () => {
         },
         {
           label: 'Valid Group',
-          options: [{ id: 'js/fetch', label: 'Valid Client', lang: 'js', title: 'Valid Client' }],
+          options: [
+            {
+              id: 'js/fetch',
+              label: 'Valid Client',
+              lang: 'js',
+              title: 'Valid Client',
+              targetKey: 'js',
+              targetTitle: 'JavaScript',
+              clientKey: 'fetch',
+            },
+          ],
         },
       ]
 
       const result = findClient(groupsWithEmpty, 'js/fetch')
 
-      expect(result).toEqual({
-        id: 'js/fetch',
-        label: 'Valid Client',
-        lang: 'js',
-        title: 'Valid Client',
-      })
+      expect(result).toEqual(groupsWithEmpty[1].options[0])
     })
 
     it('returns undefined when first group has empty options and no default found', () => {
@@ -147,7 +194,17 @@ describe('findClient', () => {
         },
         {
           label: 'Valid Group',
-          options: [{ id: 'js/fetch', label: 'Valid Client', lang: 'js', title: 'Valid Client' }],
+          options: [
+            {
+              id: 'js/fetch',
+              label: 'Valid Client',
+              lang: 'js',
+              title: 'Valid Client',
+              targetKey: 'js',
+              targetTitle: 'JavaScript',
+              clientKey: 'fetch',
+            },
+          ],
         },
       ]
 
@@ -163,8 +220,21 @@ describe('findClient', () => {
         {
           label: 'Custom',
           options: [
-            { id: 'custom/example', label: 'Custom Client', lang: 'js', title: 'Custom Client' },
-            { id: 'js/fetch', label: 'Fetch API', lang: 'js', title: 'Fetch API' },
+            {
+              id: 'custom/example',
+              label: 'Custom Client',
+              lang: 'js',
+              title: 'Custom Client',
+            } as unknown as ClientOption,
+            {
+              id: 'js/fetch',
+              label: 'Fetch API',
+              lang: 'js',
+              title: 'Fetch API',
+              targetKey: 'js',
+              targetTitle: 'JavaScript',
+              clientKey: 'fetch',
+            },
           ],
         },
       ]
@@ -184,13 +254,39 @@ describe('findClient', () => {
         {
           label: 'JavaScript',
           options: [
-            { id: 'js/fetch', label: 'Fetch API', lang: 'js', title: 'Fetch API' },
-            { id: 'js/axios', label: 'Axios', lang: 'js', title: 'Axios' },
+            {
+              id: 'js/fetch',
+              label: 'Fetch API',
+              lang: 'js',
+              title: 'Fetch API',
+              targetKey: 'js',
+              targetTitle: 'JavaScript',
+              clientKey: 'fetch',
+            },
+            {
+              id: 'js/axios',
+              label: 'Axios',
+              lang: 'js',
+              title: 'Axios',
+              targetKey: 'js',
+              targetTitle: 'JavaScript',
+              clientKey: 'axios',
+            },
           ],
         },
         {
           label: 'Shell',
-          options: [{ id: 'shell/curl', label: 'cURL', lang: 'shell', title: 'cURL' }],
+          options: [
+            {
+              id: 'shell/curl',
+              label: 'cURL',
+              lang: 'shell',
+              title: 'cURL',
+              targetKey: 'shell',
+              targetTitle: 'Shell',
+              clientKey: 'curl',
+            },
+          ],
         },
       ]
 
@@ -201,6 +297,9 @@ describe('findClient', () => {
         label: 'cURL',
         lang: 'shell',
         title: 'cURL',
+        targetKey: 'shell',
+        targetTitle: 'Shell',
+        clientKey: 'curl',
       })
     })
 
@@ -209,8 +308,24 @@ describe('findClient', () => {
         {
           label: 'JavaScript',
           options: [
-            { id: 'js/fetch', label: 'Fetch API', lang: 'js', title: 'Fetch API' },
-            { id: 'js/axios', label: 'Axios', lang: 'js', title: 'Axios' },
+            {
+              id: 'js/fetch',
+              label: 'Fetch API',
+              lang: 'js',
+              title: 'Fetch API',
+              targetKey: 'js',
+              targetTitle: 'JavaScript',
+              clientKey: 'fetch',
+            },
+            {
+              id: 'js/axios',
+              label: 'Axios',
+              lang: 'js',
+              title: 'Axios',
+              targetKey: 'js',
+              targetTitle: 'JavaScript',
+              clientKey: 'axios',
+            },
           ],
         },
       ]
@@ -222,6 +337,9 @@ describe('findClient', () => {
         label: 'Fetch API',
         lang: 'js',
         title: 'Fetch API',
+        targetKey: 'js',
+        targetTitle: 'JavaScript',
+        clientKey: 'fetch',
       })
     })
   })

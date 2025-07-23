@@ -59,9 +59,6 @@ const html = computed(() => {
     transformType: props.transformType,
   })
 })
-
-// SSR hack - waits for the watch to complete
-onServerPrefetch(async () => await new Promise((r) => setTimeout(r, 1)))
 </script>
 <template>
   <div
@@ -167,7 +164,6 @@ onServerPrefetch(async () => await new Promise((r) => setTimeout(r, 1)))
 
   .markdown li {
     line-height: var(--markdown-line-height);
-    position: relative;
   }
 
   .markdown ul li {
