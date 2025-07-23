@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { ScalarButton } from '@scalar/components'
-import { ScalarIconHash } from '@scalar/icons'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { useId } from 'vue'
 
@@ -23,25 +21,60 @@ const handleCopy = () => {
 }
 </script>
 <template>
-  <span class="group/heading word-break-all relative inline-block">
+  <span class="label">
     <span
       :id="labelId"
       class="contents">
       <slot />
     </span>
-    <span class="relative">
+    <span class="anchor">
       <!-- Position anchor to align the copy button to the last line of text  -->
       <span>&ZeroWidthSpace;</span>
-      <ScalarButton
+      <button
         :aria-describedby="labelId"
-        class="absolute left-0 mt-1.75 inline-block h-fit px-2 py-1 opacity-0 group-hover/heading:opacity-100 group-has-focus-visible/heading:opacity-100"
-        variant="ghost"
+        class="anchor-copy"
+        type="button"
         @click.stop="handleCopy">
-        <ScalarIconHash
-          aria-hidden="true"
-          class="size-4" />
+        <span aria-hidden="true">#</span>
         <ScreenReader>Copy link</ScreenReader>
-      </ScalarButton>
+      </button>
     </span>
   </span>
 </template>
+<style scoped>
+.label {
+  position: relative;
+  display: inline-block;
+  word-break: break-all;
+}
+.anchor {
+  position: relative;
+  display: inline-block;
+  opacity: 0;
+}
+
+.anchor-copy {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+
+  cursor: pointer;
+
+  padding: 0 6px;
+
+  color: var(--scalar-color-3);
+  font-weight: var(--scalar-semibold);
+  font-size: 0.8em;
+}
+
+.anchor-copy:hover,
+.anchor-copy:focus-visible {
+  color: var(--scalar-color-2);
+}
+
+.label:hover .anchor,
+.label:has(:focus-visible) .anchor {
+  opacity: 1;
+}
+</style>
