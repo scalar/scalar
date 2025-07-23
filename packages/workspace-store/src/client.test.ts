@@ -1289,5 +1289,21 @@ describe('create-workspace-store', () => {
         'x-original-ref': '#/components/schemas/User',
       })
     })
+
+    it('should log a warning if the document does not exist', () => {
+      const store = createWorkspaceStore()
+
+      // Spy on console.warn
+      store.replaceDocument('non-existing', {
+        openapi: '3.0.0',
+        info: {
+          title: 'My API',
+          version: '1.0.0',
+        },
+      })
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith("Document 'non-existing' does not exist in the workspace.")
+      expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
+    })
   })
 })
