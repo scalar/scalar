@@ -16,12 +16,14 @@ import {
 } from '@/features/traverse-schema'
 import type { TraversedWebhook } from '@/features/traverse-schema/types'
 import { useNavState } from '@/hooks/useNavState'
+import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
 const { level = 0, entries } = defineProps<{
   level?: number
   entries: TraversedEntry[]
   document: OpenAPIV3_1.Document
   config: ApiReferenceConfiguration
+  clientOptions: ClientOptionGroup[]
   activeCollection: Collection
   activeServer: Server | undefined
   store: WorkspaceStore
@@ -60,11 +62,6 @@ const isLazy = (index: number) => {
     return false
   }
 
-  // For models, just make the previous two entries not lazy
-  if (hash.value.startsWith('model')) {
-    return index === currentIndex.value
-  }
-
   // Make all previous entries lazy
   if (index < currentIndex.value) {
     return true
@@ -96,10 +93,11 @@ defineExpose({
           :path="isWebhook(entry) ? entry.name : entry.path"
           :method="entry.method"
           :id="entry.id"
-          :document="document"
+          :document
           :collection="activeCollection"
+          :clientOptions
           :layout="config.layout"
-          :store="store"
+          :store
           :server="activeServer"
           :isWebhook="isWebhook(entry)" />
       </SectionContainer>
@@ -115,11 +113,12 @@ defineExpose({
           <TraversedEntry
             :level="level + 1"
             :entries="entry.children"
-            :document="document"
-            :config="config"
-            :store="store"
-            :activeCollection="activeCollection"
-            :activeServer="activeServer" />
+            :activeCollection
+            :activeServer
+            :clientOptions
+            :config
+            :document
+            :store />
         </template>
       </Tag>
     </template>
@@ -129,11 +128,12 @@ defineExpose({
       <TraversedEntry
         :level="level + 1"
         :entries="entry.children || []"
-        :document="document"
-        :config="config"
-        :store="store"
-        :activeCollection="activeCollection"
-        :activeServer="activeServer" />
+        :activeCollection
+        :activeServer
+        :clientOptions
+        :config
+        :document
+        :store />
     </template>
   </Lazy>
 </template>

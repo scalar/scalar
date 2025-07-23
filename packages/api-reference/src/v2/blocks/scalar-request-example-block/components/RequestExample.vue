@@ -1,14 +1,9 @@
 <script lang="ts">
 export type RequestExampleProps = {
   /**
-   * List of all allowed clients, this will determine which clients are available in the dropdown
-   *
-   * For the complete list:
-   * @see https://github.com/scalar/scalar/blob/main/packages/types/src/snippetz/snippetz.ts#L8
-   *
-   * @defaults to all available clients + any included custom code examples
+   * List of all http clients formatted into option groups for the client selector
    */
-  allowedClients?: AvailableClients[number][]
+  clientOptions: ClientOptionGroup[]
   /**
    * Pre-selected client, this will determine which client is initially selected in the dropdown
    *
@@ -54,11 +49,6 @@ export type RequestExampleProps = {
    * A method to generate the label of the block, should return an html string
    */
   generateLabel?: () => string
-  /**
-   * Whether to hide the client selector
-   * @default false
-   */
-  hideClientSelector?: boolean
 }
 
 /**
@@ -87,7 +77,7 @@ import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import type { XCodeSample } from '@scalar/openapi-types/schemas/extensions'
-import { type AvailableClients } from '@scalar/snippetz'
+import { type AvailableClients, type TargetId } from '@scalar/snippetz'
 import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/example'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
@@ -100,19 +90,19 @@ import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
 import { findClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
-import {
-  generateClientOptions,
-  generateCustomId,
-} from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
+import { generateCustomId } from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
 import { generateCodeSnippet } from '@/v2/blocks/scalar-request-example-block/helpers/generate-code-snippet'
 import { getSecrets } from '@/v2/blocks/scalar-request-example-block/helpers/get-secrets'
-import type { ClientOption } from '@/v2/blocks/scalar-request-example-block/types'
+import type {
+  ClientOption,
+  ClientOptionGroup,
+} from '@/v2/blocks/scalar-request-example-block/types'
 import { emitCustomEvent } from '@/v2/events'
 
 import ExamplePicker from './ExamplePicker.vue'
 
 const {
-  allowedClients,
+  clientOptions,
   selectedClient,
   selectedServer = { url: '/' },
   selectedContentType,
@@ -122,7 +112,6 @@ const {
   path,
   operation,
   generateLabel,
-  hideClientSelector = false,
 } = defineProps<RequestExampleProps>()
 
 defineSlots<{
@@ -164,13 +153,36 @@ const customRequestExamples = computed(() => {
 /**
  * Group plugins by target/language to show in a dropdown
  */
-const clients = computed(() =>
-  generateClientOptions(customRequestExamples.value, allowedClients),
-)
+const clients = computed(() => {
+  // Handle custom code examples
+  if (customRequestExamples.value.length) {
+    const customClients = customRequestExamples.value.map((sample) => {
+      const id = generateCustomId(sample)
+      const label = sample.label || sample.lang || id
+
+      return {
+        id,
+        lang: (sample.lang as TargetId) || 'plaintext',
+        title: label,
+        label,
+      } as ClientOption // We yolo assert this as the other properties are only needed in the top selector
+    })
+
+    return [
+      {
+        label: 'Code Examples',
+        options: customClients,
+      },
+      ...clientOptions,
+    ]
+  }
+
+  return clientOptions
+})
 
 /** The locally selected client which would include code samples from this operation only */
 const localSelectedClient = ref<ClientOption>(
-  findClient(clients.value, selectedClient),
+  findClient(clients.value, selectedClient) ?? null,
 )
 
 /** If the globally selected client changes we can update the local one */
@@ -188,11 +200,11 @@ watch(
 const generatedCode = computed<string>(() => {
   try {
     // Use the selected custom example
-    if (localSelectedClient.value.id.startsWith('custom')) {
+    if (localSelectedClient.value?.id.startsWith('custom')) {
       return (
         customRequestExamples.value.find(
           (example) =>
-            generateCustomId(example) === localSelectedClient.value.id,
+            generateCustomId(example) === localSelectedClient.value?.id,
         )?.source ?? 'Custom example not found'
       )
     }
@@ -203,7 +215,7 @@ const generatedCode = computed<string>(() => {
       (selectedExample as ExampleObject)?.value ?? selectedExample?.summary
 
     return generateCodeSnippet({
-      clientId: localSelectedClient.value.id as AvailableClients[number],
+      clientId: localSelectedClient.value?.id as AvailableClients[number],
       operation,
       method,
       server: selectedServer,
@@ -238,11 +250,7 @@ const selectClient = (option: ClientOption) => {
 
   // Emit the change if it's not a custom example
   if (!option.id.startsWith('custom')) {
-    emitCustomEvent(
-      elem.value?.$el,
-      'scalar-update-selected-client',
-      option.id as AvailableClients[number],
-    )
+    emitCustomEvent(elem.value?.$el, 'scalar-update-selected-client', option.id)
   }
 }
 
@@ -250,7 +258,7 @@ const id = useId()
 </script>
 <template>
   <ScalarCard
-    v-if="clients.length"
+    v-if="generatedCode"
     class="request-card dark-mode"
     ref="elem">
     <!-- Header -->
@@ -269,7 +277,7 @@ const id = useId()
       <!-- Client picker -->
       <template
         #actions
-        v-if="!hideClientSelector">
+        v-if="clients.length">
         <ScalarCombobox
           class="max-h-80"
           :modelValue="localSelectedClient"
@@ -282,7 +290,7 @@ const id = useId()
             class="text-c-2 hover:text-c-1 flex h-full w-fit gap-2 px-1"
             fullWidth
             variant="ghost">
-            <span class="text-base">{{ localSelectedClient.title }}</span>
+            <span class="text-base">{{ localSelectedClient?.title }}</span>
             <ScalarIconCaretDown class="size-3.5" />
           </ScalarButton>
         </ScalarCombobox>
@@ -298,7 +306,7 @@ const id = useId()
           class="bg-b-2 !min-h-full -outline-offset-2"
           :content="generatedCode"
           :hideCredentials="secretCredentials"
-          :lang="localSelectedClient.lang"
+          :lang="localSelectedClient?.lang"
           lineNumbers />
       </div>
     </ScalarCardSection>
