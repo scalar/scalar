@@ -107,13 +107,17 @@ export async function resolve(
 
         // Relative or absolute URL
         if (urlOrPathOrDocument) {
-          return makeUrlAbsolute(urlOrPathOrDocument, forwardedHost || value)
+          return makeUrlAbsolute(urlOrPathOrDocument, {
+            baseUrl: forwardedHost || value,
+          })
         }
 
         // Check for configuration attribute URL
         const configUrl = getConfigurationAttributeUrl(content)
         if (configUrl) {
-          return makeUrlAbsolute(configUrl, forwardedHost || value)
+          return makeUrlAbsolute(configUrl, {
+            baseUrl: forwardedHost || value,
+          })
         }
 
         // Check for embedded OpenAPI document
