@@ -1231,10 +1231,102 @@ describe('create-workspace-store', () => {
         ],
       })
 
+      expect(store.workspace.documents['default']).toEqual({
+        components: {
+          schemas: {
+            User: {
+              properties: {
+                email: {
+                  description: 'The user email',
+                  format: 'email',
+                  type: 'string',
+                },
+                id: {
+                  description: 'The user ID',
+                  type: 'string',
+                },
+                name: {
+                  description: 'The user name',
+                  type: 'string',
+                },
+              },
+              type: 'object',
+            },
+          },
+        },
+        info: {
+          title: 'My API',
+          version: '1.0.0',
+        },
+        openapi: '3.1.1',
+        paths: {
+          '/users': {
+            get: {
+              responses: {
+                '200': {
+                  content: {
+                    'application/json': {
+                      schema: {
+                        items: {
+                          properties: {
+                            email: {
+                              description: 'The user email',
+                              format: 'email',
+                              type: 'string',
+                            },
+                            id: {
+                              description: 'The user ID',
+                              type: 'string',
+                            },
+                            name: {
+                              description: 'The user name',
+                              type: 'string',
+                            },
+                          },
+                          type: 'object',
+                          'x-original-ref': '#/components/schemas/User',
+                        },
+                        type: 'array',
+                      },
+                    },
+                  },
+                  description: 'Successful response',
+                },
+              },
+              summary: 'Get all users',
+            },
+          },
+        },
+        'x-scalar-navigation': [
+          {
+            id: 'Get all users',
+            method: 'get',
+            path: '/users',
+            ref: '#/paths/~1users/get',
+            title: 'Get all users',
+            type: 'operation',
+          },
+          {
+            children: [
+              {
+                id: 'User',
+                name: 'User',
+                ref: '#/content/components/schemas/User',
+                title: 'User',
+                type: 'model',
+              },
+            ],
+            id: '',
+            title: 'Models',
+            type: 'text',
+          },
+        ],
+      })
+
       store.replaceDocument('default', {
         openapi: '3.0.0',
         info: {
-          title: 'My API',
+          title: 'Updated API',
           version: '1.0.0',
         },
         paths: {
@@ -1273,20 +1365,97 @@ describe('create-workspace-store', () => {
         },
       })
 
-      expect((store.workspace.documents['default'] as any)?.paths?.['/users'].get.responses?.['200'].description).toBe(
-        'This is an updated description',
-      )
-      expect(
-        (store.workspace.documents['default'] as any)?.components?.schemas?.User?.properties?.id?.description,
-      ).toBe('Updated user id schema description')
-
-      // Check that the internal references are correctly resolved
-      expect(
-        (store.workspace.documents['default'] as any).paths['/users'].get.responses['200'].content['application/json']
-          .schema.items,
-      ).toEqual({
-        ...(store.workspace.documents['default'] as any).components.schemas.User,
-        'x-original-ref': '#/components/schemas/User',
+      // Should still preserve the generated navigation and upgrade the document to the latest when we try to replace it
+      expect(store.workspace.documents['default']).toEqual({
+        components: {
+          schemas: {
+            User: {
+              properties: {
+                email: {
+                  description: 'The user email',
+                  format: 'email',
+                  type: 'string',
+                },
+                id: {
+                  description: 'Updated user id schema description',
+                  type: 'string',
+                },
+                name: {
+                  description: 'The user name',
+                  type: 'string',
+                },
+              },
+              type: 'object',
+            },
+          },
+        },
+        info: {
+          title: 'Updated API',
+          version: '1.0.0',
+        },
+        openapi: '3.1.1',
+        paths: {
+          '/users': {
+            get: {
+              responses: {
+                '200': {
+                  content: {
+                    'application/json': {
+                      schema: {
+                        items: {
+                          properties: {
+                            email: {
+                              description: 'The user email',
+                              format: 'email',
+                              type: 'string',
+                            },
+                            id: {
+                              description: 'Updated user id schema description',
+                              type: 'string',
+                            },
+                            name: {
+                              description: 'The user name',
+                              type: 'string',
+                            },
+                          },
+                          type: 'object',
+                          'x-original-ref': '#/components/schemas/User',
+                        },
+                        type: 'array',
+                      },
+                    },
+                  },
+                  description: 'This is an updated description',
+                },
+              },
+              summary: 'Get all users',
+            },
+          },
+        },
+        'x-scalar-navigation': [
+          {
+            id: 'Get all users',
+            method: 'get',
+            path: '/users',
+            ref: '#/paths/~1users/get',
+            title: 'Get all users',
+            type: 'operation',
+          },
+          {
+            children: [
+              {
+                id: 'User',
+                name: 'User',
+                ref: '#/content/components/schemas/User',
+                title: 'User',
+                type: 'model',
+              },
+            ],
+            id: '',
+            title: 'Models',
+            type: 'text',
+          },
+        ],
       })
     })
 

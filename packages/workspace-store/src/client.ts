@@ -17,7 +17,6 @@ import { OpenAPIDocumentSchema } from '@/schemas/v3.1/strict/openapi-document'
 import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from '@/schemas/workspace'
 import type { Config } from '@/schemas/workspace-specification/config'
 import type { DeepTransform } from '@/types'
-import { apply, diff } from '@scalar/json-diff'
 
 /**
  * Input type for workspace document metadata and configuration.
@@ -323,10 +322,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         return console.error(`Document '${documentName}' does not exist in the workspace.`)
       }
 
-      // Compute the diff between the current document and the new input
-      const diffs = diff(currentDocument, input)
-      // Apply the changes to the current document in place atomically
-      apply(currentDocument, diffs)
+      // Normalize the input document to ensure it matches the OpenAPI schema and is upgraded to the latest version.
+      const newDocument = coerceValue(OpenAPIDocumentSchema, upgrade(input).specification)
+      // Update the current document in place, applying only the necessary changes and omitting any preprocessing fields.
+      applySelectiveUpdates(currentDocument, newDocument)
     },
     /**
      * Resolves a reference in the active document by following the provided path and resolving any external $ref references.
