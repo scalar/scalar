@@ -63,12 +63,13 @@ We support all standard markdown features:
 
 ### Code Blocks
 
-```markdown
+````markdown
 ```javascript
 function example() {
   return "Hello, World!";
 }
 ```
+````
 
 ### Blockquotes
 
