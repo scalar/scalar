@@ -161,7 +161,7 @@ store.addDocumentSync({
 
 <template>
   <ApiReferenceWorkspace
-    :getWorkspaceStore="() => store"
+    :store
     :configuration="config" />
 </template>
 
