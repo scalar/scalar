@@ -1,4 +1,4 @@
-import type { NuxtConfig } from 'nuxt/schema'
+import { type NuxtConfig, defineNuxtConfig } from 'nuxt/config'
 
 export default defineNuxtConfig({
   modules: ['@scalar/nuxt'],
