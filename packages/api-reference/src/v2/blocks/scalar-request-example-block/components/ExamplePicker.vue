@@ -22,13 +22,8 @@ const getLabel = (key: string | null) => {
     return 'Select an example'
   }
 
-  const example = examples?.[key]
-
-  if (!example) {
-    return key
-  }
-
-  return example?.summary
+  // Use the summary, if available, fallback to the key
+  return examples?.[key]?.summary ?? key
 }
 
 /** Handle example selection */
