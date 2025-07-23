@@ -56,7 +56,7 @@
     "clean:nuxt": "shx rm -rf \"**/.nuxt\"",
     "clean:dist": "shx rm -rf \"**/dist\"",
     "clean:turbo": "shx rm -rf \"**/.turbo\"",
-    "dev": "turbo dev --concurrency=100% --filter './examples/*' --filter './integrations/*' --filter=@scalar/nuxt --filter=@scalar/draggable --filter @scalar/components --filter @scalar/api-client --filter @scalar/nextjs-openapi",
+    "dev": "turbo dev --concurrency=20 --filter './examples/*' --filter './integrations/*' --filter=@scalar/nuxt --filter=@scalar/draggable --filter @scalar/components --filter @scalar/api-client --filter @scalar/nextjs-openapi",
     "dev:client": "turbo dev --filter @scalar/api-client",
     "dev:client:desktop": "turbo dev --filter scalar-app",
     "dev:client:app": "turbo playground:app --filter @scalar/api-client",
