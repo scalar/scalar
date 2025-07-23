@@ -10,6 +10,6 @@ const { level = 1 } = defineProps<{ level?: 1 | 2 | 3 | 4 | 5 | 6 }>()
 </template>
 <style scoped>
 .section-header-label {
-  display: inline-block;
+  display: inline;
 }
 </style>
