@@ -121,6 +121,33 @@ describe('html-api', () => {
       await flushPromises()
       expect(document.getElementById('mount-point')?.innerHTML).toContain('Updated API')
     })
+
+    it('updates the operations when the configuration changes', async () => {
+      const config = { _integration: 'html' }
+      const app = createApiReference('#mount-point', apiReferenceConfigurationSchema.parse(config))
+
+      // Update configuration
+      app.updateConfiguration({
+        content: JSON.stringify({
+          'openapi': '3.1.0',
+          'info': { 'title': 'Updated API', 'version': '1.0.0' },
+          'paths': {
+            '/test': {
+              'get': {
+                'tags': ['Test'],
+                'summary': 'New Operation',
+              },
+            },
+          },
+        }),
+      })
+
+      // Assert the configuration was updated
+      await flushPromises()
+
+      expect(document.getElementById('tag/default/get/test')).not.toBeNull()
+      expect(document.getElementById('tag/default/get/test')?.innerHTML).toContain('New Operation')
+    })
   })
 
   describe('findDataAttributes (legacy)', () => {
