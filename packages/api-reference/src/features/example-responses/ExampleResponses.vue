@@ -195,6 +195,7 @@ const showSchema = ref(false)
 .markdown :deep(*) {
   margin: 0;
 }
+
 .code-copy {
   display: flex;
   align-items: center;
@@ -209,13 +210,16 @@ const showSchema = ref(false)
   padding: 0;
   margin-right: 12px;
 }
+
 .code-copy:hover {
   color: var(--scalar-color-1);
 }
+
 .code-copy svg {
   width: 13px;
   height: 13px;
 }
+
 .response-card-footer {
   display: flex;
   flex-direction: column;
@@ -223,10 +227,12 @@ const showSchema = ref(false)
   padding: 7px 12px;
   gap: 8px;
 }
+
 .response-example-selector {
   align-self: flex-start;
   margin: -4px;
 }
+
 .response-description {
   font-weight: var(--scalar-semibold);
   font-size: var(--scalar-small);
@@ -236,6 +242,7 @@ const showSchema = ref(false)
   align-items: center;
   box-sizing: border-box;
 }
+
 .schema-type {
   font-size: var(--scalar-micro);
   color: var(--scalar-color-2);
@@ -272,13 +279,16 @@ const showSchema = ref(false)
   gap: 6px;
   padding: 7px 6px;
 }
+
 .scalar-card-checkbox:has(.scalar-card-checkbox-input:focus-visible)
   .scalar-card-checkbox-checkmark {
   outline: 1px solid var(--scalar-color-accent);
 }
+
 .scalar-card-checkbox:hover {
   color: var(--scalar-color--1);
 }
+
 .scalar-card-checkbox .scalar-card-checkbox-input {
   position: absolute;
   opacity: 0;
@@ -288,13 +298,14 @@ const showSchema = ref(false)
 }
 
 .scalar-card-checkbox-checkmark {
-  height: 17px;
-  width: 17px;
+  height: 16px;
+  width: 16px;
   border-radius: var(--scalar-radius);
   background-color: transparent;
   background-color: var(--scalar-background-3);
   box-shadow: inset 0 0 0 var(--scalar-border-width) var(--scalar-border-color);
 }
+
 .scalar-card-checkbox:has(.scalar-card-checkbox-input:checked) {
   color: var(--scalar-color-1);
   font-weight: var(--scalar-semibold);
@@ -320,8 +331,8 @@ const showSchema = ref(false)
 }
 
 .scalar-card-checkbox .scalar-card-checkbox-checkmark:after {
-  right: 6px;
-  top: 36.5%;
+  right: 11.5px;
+  top: 12.5px;
   width: 5px;
   height: 9px;
   border: solid 1px var(--scalar-button-1-color);
