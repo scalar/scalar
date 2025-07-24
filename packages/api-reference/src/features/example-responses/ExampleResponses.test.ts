@@ -12,7 +12,9 @@ describe('ExampleResponses', () => {
             description: 'Successful response',
             content: {
               'application/json': {
-                example: { message: 'Success' },
+                examples: {
+                  example1: { value: { message: 'Success' } },
+                },
               },
             },
           },
@@ -28,6 +30,7 @@ describe('ExampleResponses', () => {
     expect(tabs[0].text()).toContain('200')
     expect(codeBlock.length).toBe(1)
     expect(wrapper.text()).toContain('Success')
+    expect(wrapper.text()).not.toContain('value')
     expect(examplePicker.exists()).toBe(false)
   })
 
@@ -68,7 +71,7 @@ describe('ExampleResponses', () => {
     expect(wrapper.text()).toContain('Example 2')
   })
 
-  it.only('handles xml example response', () => {
+  it('handles xml example response', () => {
     const wrapper = mount(ExampleResponses, {
       props: {
         responses: {
@@ -91,7 +94,7 @@ describe('ExampleResponses', () => {
     const examplePicker = wrapper.findComponent({ name: 'ExamplePicker' })
 
     expect(tabs.length).toBe(1)
-    expect(tabs[0].text()).toContain('200')
+    expect(tabs[0].text()).toContain('Status: 200')
     expect(codeBlock.length).toBe(1)
     expect(wrapper.text()).toContain('XML response')
     expect(wrapper.text()).toContain('<user><name>John</name><age>30</age></user>')
@@ -335,7 +338,7 @@ describe('ExampleResponses', () => {
       },
     })
 
-    const copyButton = wrapper.find('.code-copy')
+    const copyButton = wrapper.find('.copy-button')
     expect(copyButton.exists()).toBe(true)
 
     await copyButton.trigger('click')

@@ -87,22 +87,19 @@ const selectedExampleKey = ref<string>(
  * Gets the first example response if there are multiple example responses
  * or the only example if there is only one example response.
  */
-const getFirstExampleResponse = () => {
-  const jsonResponse = toValue(currentResponseContent)
+const getFirstResponseExample = () => {
+  const response = toValue(currentResponseContent)
 
-  if (!jsonResponse) {
+  if (!response) {
     return undefined
   }
 
-  if (!hasMultipleExamples.value) {
-    return jsonResponse.example
-  }
-  if (Array.isArray(jsonResponse.examples)) {
-    return jsonResponse.examples[0]
+  if (Array.isArray(response.examples)) {
+    return response.examples[0]
   }
 
-  const firstProperty = Object.keys(jsonResponse.examples ?? {})[0]
-  const firstExample = jsonResponse.examples?.[firstProperty]
+  const firstExampleKey = Object.keys(response.examples ?? {})[0]
+  const firstExample = response.examples?.[firstExampleKey]
 
   return firstExample
 }
@@ -110,7 +107,7 @@ const getFirstExampleResponse = () => {
 const currentExample = computed(() => {
   return hasMultipleExamples.value && selectedExampleKey.value
     ? currentResponseContent.value?.examples?.[selectedExampleKey.value]
-    : getFirstExampleResponse()
+    : getFirstResponseExample()
 })
 
 const changeTab = (index: number) => {
@@ -159,20 +156,15 @@ const showSchema = ref(false)
       </template>
     </ExampleResponseTabList>
     <ScalarCardSection class="grid flex-1">
-      <template v-if="currentResponseContent?.schema">
-        <ScalarCodeBlock
-          v-if="showSchema && currentResponseContent"
-          :id="id"
-          class="-outline-offset-2"
-          :content="currentResponseContent.schema"
-          lang="json" />
-        <ExampleResponse
-          v-else
-          :id="id"
-          :response="currentResponseContent"
-          :example="currentExample" />
-      </template>
-      <!-- Without Schema: Don't show tabs -->
+      <!-- Schema -->
+      <ScalarCodeBlock
+        v-if="showSchema && currentResponseContent?.schema"
+        :id="id"
+        class="-outline-offset-2"
+        :content="currentResponseContent.schema"
+        lang="json" />
+
+      <!-- Example -->
       <ExampleResponse
         v-else
         :id="id"
