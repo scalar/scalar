@@ -4,7 +4,6 @@
   "prConcurrentLimit": 0,
   "prHourlyLimit": 0,
   "labels": ["dependencies"],
-  "forkProcessing": "enabled",
   "semanticCommits": "enabled",
   "rangeStrategy": "bump",
   "vulnerabilityAlerts": {
