@@ -5,46 +5,44 @@ import {
 } from '@scalar/api-reference'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { computed, reactive, ref, toRaw, watch } from 'vue'
 
 import DevReferencesOptions from '../components/DevReferencesOptions.vue'
 import DevToolbar from '../components/DevToolbar.vue'
 import MonacoEditor from '../components/MonacoEditor.vue'
 import SlotPlaceholder from '../components/SlotPlaceholder.vue'
 
-const content = ref('')
+const DEFAULT_CONTENT = {
+  openapi: '3.1.0',
+  info: {
+    title: 'Hello World',
+    version: '1.0.0',
+  },
+  paths: {
+    '/': {
+      get: {
+        summary: 'Get the root path',
+        description: 'Returns a simple message',
+        responses: {
+          200: {
+            description: 'OK',
+          },
+        },
+      },
+    },
+  },
+}
+
+const content = ref(JSON.stringify(DEFAULT_CONTENT, null, 2))
 
 const configuration = reactive<Partial<ApiReferenceConfiguration>>({
   theme: 'default',
   proxyUrl: import.meta.env.VITE_REQUEST_PROXY_URL,
-  isEditable: false,
+  isEditable: true,
   showSidebar: true,
   layout: 'modern',
-  content,
-  // authentication: {
-  //   // The OpenAPI file has keys for all security schemes:
-  //   // Which one should be used by default?
-  //   preferredSecurityScheme: 'my_custom_security_scheme',
-  //   // The `my_custom_security_scheme` security scheme is of type `apiKey`, so prefill the token:
-  //   apiKey: {
-  //     token: 'super-secret-token',
-  //   },
-  // },
+  content: DEFAULT_CONTENT,
 })
-
-onMounted(() => {
-  content.value = window.localStorage?.getItem('api-reference-content') ?? ''
-})
-
-watch(
-  content,
-  () => {
-    window.localStorage?.setItem('api-reference-content', content.value)
-
-    // TODO: Update the document in the store?
-  },
-  { deep: true },
-)
 
 const configProxy = computed({
   get: () => configuration,
@@ -68,9 +66,16 @@ const store = createWorkspaceStore({
   documents: [
     {
       name: 'default',
-      document: JSON.parse(content.value) as Record<string, unknown>,
+      document: JSON.parse(content.value),
     },
   ],
+})
+
+// Keep the content in sync
+// TODO: YAML support
+watch(content, (v) => {
+  configuration.content = JSON.parse(v)
+  store.replaceDocument('default', JSON.parse(v))
 })
 </script>
 <template>
@@ -80,7 +85,7 @@ const store = createWorkspaceStore({
     @toggleDarkMode="() => toggleColorMode()"
     :configuration="configuration"
     @changeTheme="configuration.theme = $event.id"
-    @updateContent="(v) => (content = v)">
+    @updateContent="(v: string) => (content = v)">
     <template #header>
       <DevToolbar>
         <DevReferencesOptions v-model="configProxy" />
