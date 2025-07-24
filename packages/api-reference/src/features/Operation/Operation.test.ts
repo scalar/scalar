@@ -337,6 +337,7 @@ describe('Operation', () => {
       exportWorkspace: vi.fn(),
       loadWorkspace: vi.fn(),
       importWorkspaceFromSpecification: vi.fn(),
+      replaceDocument: vi.fn(),
     }
 
     const wrapper = mount(Operation, {
