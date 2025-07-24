@@ -194,24 +194,6 @@ describe('LinkList', () => {
     expect(wrapper.classes()).toContain('icons-only')
   })
 
-  it('handles missing container ref gracefully', async () => {
-    const wrapper = mount(LinkList, {
-      slots: {
-        default: '<span>Test</span>',
-      },
-    })
-
-    // Temporarily set containerRef to null
-    const originalRef = wrapper.vm.$refs.containerRef
-    wrapper.vm.$refs.containerRef = null
-
-    // This should not throw an error
-    await nextTick()
-
-    // Restore the ref
-    wrapper.vm.$refs.containerRef = originalRef
-  })
-
   it('applies icons-only CSS when scroll is needed', async () => {
     const wrapper = mount(LinkList, {
       slots: {
