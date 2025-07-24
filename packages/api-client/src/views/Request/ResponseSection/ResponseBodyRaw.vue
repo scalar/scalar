@@ -37,7 +37,7 @@ const getCurrentContent = () => {
       :controls="id"
       class="z-context top-2 mr-2" />
     <div
-      class="body-raw-scroller relative overflow-auto overscroll-contain pr-1"
+      class="body-raw-scroller custom-scroll relative pr-1"
       tabindex="0">
       <!-- CodeMirror container -->
       <div ref="codeMirrorRef" />
@@ -50,6 +50,7 @@ const getCurrentContent = () => {
   font-size: var(--scalar-small);
   outline: none;
 }
+
 :deep(.cm-gutters) {
   background-color: var(--scalar-background-1);
   border-radius: var(--scalar-radius) 0 0 var(--scalar-radius);
