@@ -78,4 +78,5 @@ export const createMockStore = (activeDocument: WorkspaceDocument): WorkspaceSto
   exportWorkspace: vi.fn(),
   loadWorkspace: vi.fn(),
   importWorkspaceFromSpecification: vi.fn(),
+  replaceDocument: vi.fn(),
 })
