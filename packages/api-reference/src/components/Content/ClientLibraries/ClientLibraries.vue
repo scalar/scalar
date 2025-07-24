@@ -5,13 +5,18 @@ import type { AvailableClients } from '@scalar/snippetz'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/schemas/workspace'
 import { computed, useId, useTemplateRef } from 'vue'
 
+import { DEFAULT_CLIENT } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 import { emitCustomEvent } from '@/v2/events/definitions'
 
 import ClientSelector from './ClientSelector.vue'
 import { getFeaturedClients, isFeaturedClient } from './featured-clients'
 
-const { clientOptions, document, selectedClient } = defineProps<{
+const {
+  clientOptions,
+  document,
+  selectedClient = DEFAULT_CLIENT,
+} = defineProps<{
   /** Current document from the store */
   document: WorkspaceDocument
   /** Computed list of all available Http Client options */
