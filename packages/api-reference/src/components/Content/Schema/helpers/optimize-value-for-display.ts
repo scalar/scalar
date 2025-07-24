@@ -42,7 +42,8 @@ export function optimizeValueForDisplay(value: UnknownObject | undefined): Recor
 
   const hasRootProperties = Object.keys(rootProperties).length > 0
   const shouldMergeRootProperties =
-    composition === 'oneOf' && (schemas.some((schema: any) => schema.allOf) || hasRootProperties)
+    (composition === 'oneOf' || composition === 'anyOf') &&
+    (schemas.some((schema: any) => schema.allOf) || hasRootProperties)
 
   // Process schemas to merge allOf and handle nulls
   const processedSchemas = schemas.map((schema: any) => {
