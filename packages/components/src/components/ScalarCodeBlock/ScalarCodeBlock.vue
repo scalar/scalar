@@ -1,8 +1,7 @@
 <script lang="ts" setup>
 import { standardLanguages, syntaxHighlight } from '@scalar/code-highlight'
 import { prettyPrintJson } from '@scalar/oas-utils/helpers'
-import { nanoid } from 'nanoid'
-import { computed } from 'vue'
+import { computed, useId } from 'vue'
 
 import { ScalarCodeBlockCopy } from '../ScalarCodeBlock'
 
@@ -25,7 +24,7 @@ const props = withDefaults(
 )
 
 /** Base id for the code block */
-const id = nanoid()
+const id = useId()
 
 const highlightedCode = computed(() => {
   const html = syntaxHighlight(prettyPrintJson(props.content), {
@@ -49,12 +48,12 @@ const isContentValid = computed(() => {
 </script>
 <template>
   <div
-    class="scalar-code-block custom-scroll min-h-12 focus-visible:outline"
+    class="scalar-code-block group/code-block custom-scroll min-h-12 focus-visible:outline"
     tabindex="0">
     <ScalarCodeBlockCopy
       v-if="copy && isContentValid"
       :content="prettyPrintJson(props.content)"
-      :id="id" />
+      :controls="id" />
     <pre
       :id="id"
       class="scalar-codeblock-pre"

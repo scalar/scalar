@@ -2,8 +2,7 @@
 import { ScalarCodeBlockCopy } from '@scalar/components'
 import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { useCodeMirror, type CodeMirrorLanguage } from '@scalar/use-codemirror'
-import { nanoid } from 'nanoid'
-import { ref, toRef } from 'vue'
+import { ref, toRef, useId } from 'vue'
 
 const props = defineProps<{
   content: any
@@ -12,7 +11,7 @@ const props = defineProps<{
 
 const codeMirrorRef = ref<HTMLDivElement | null>(null)
 /** Base id for the code block */
-const id = nanoid()
+const id = useId()
 
 const { codeMirror } = useCodeMirror({
   codeMirrorRef,
@@ -30,12 +29,12 @@ const getCurrentContent = () => {
 </script>
 <template>
   <div
-    class="scalar-code-block body-raw grid min-h-0 overflow-hidden p-3 pl-1 outline-none has-[:focus-visible]:outline">
+    class="scalar-code-block group/code-block body-raw grid min-h-0 overflow-hidden p-px outline-none has-[:focus-visible]:outline">
     <!-- Copy button -->
     <ScalarCodeBlockCopy
       v-if="getCurrentContent()"
       :content="getCurrentContent()"
-      :id="id" />
+      :controls="id" />
     <div
       class="body-raw-scroller relative overflow-auto overscroll-contain"
       tabindex="0">
