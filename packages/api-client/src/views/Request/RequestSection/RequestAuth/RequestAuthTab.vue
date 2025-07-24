@@ -172,9 +172,12 @@ const dataTableInputProps = {
         'request-example-references-header': layout === 'reference',
       }">
       <DataTableCell
-        class="text-c-2 flex items-center pl-3"
+        class="group/cell text-c-2 flex items-center whitespace-nowrap hover:whitespace-normal"
         :class="layout === 'reference' && 'border-b'">
-        {{ generateLabel(scheme!) }}
+        <span
+          class="bg-b-1 z-context top-0 line-clamp-1 px-3 py-1.5 text-ellipsis group-hover/cell:absolute group-hover/cell:line-clamp-none group-hover/cell:border-b">
+          {{ generateLabel(scheme!) }}
+        </span>
       </DataTableCell>
     </DataTableRow>
 
