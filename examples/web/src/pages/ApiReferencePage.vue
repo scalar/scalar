@@ -5,25 +5,43 @@ import {
 } from '@scalar/api-reference'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, reactive, ref, toRaw, watch } from 'vue'
 
 import DevReferencesOptions from '../components/DevReferencesOptions.vue'
 import DevToolbar from '../components/DevToolbar.vue'
 import MonacoEditor from '../components/MonacoEditor.vue'
 import SlotPlaceholder from '../components/SlotPlaceholder.vue'
 
-// TODO: Editing does not work, make it work again.
-// Requires: https://github.com/scalar/scalar/pull/6319
+const DEFAULT_CONTENT = {
+  openapi: '3.1.0',
+  info: {
+    title: 'Hello World',
+    version: '1.0.0',
+  },
+  paths: {
+    '/': {
+      get: {
+        summary: 'Get the root path',
+        description: 'Returns a simple message',
+        responses: {
+          200: {
+            description: 'OK',
+          },
+        },
+      },
+    },
+  },
+}
 
-const content = ref('')
+const content = ref(JSON.stringify(DEFAULT_CONTENT, null, 2))
 
 const configuration = reactive<Partial<ApiReferenceConfiguration>>({
   theme: 'default',
   proxyUrl: import.meta.env.VITE_REQUEST_PROXY_URL,
-  isEditable: false,
+  isEditable: true,
   showSidebar: true,
   layout: 'modern',
-  url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+  content: DEFAULT_CONTENT,
 })
 
 const configProxy = computed({
@@ -44,11 +62,20 @@ watch(
   },
 )
 
-const store = createWorkspaceStore()
+const store = createWorkspaceStore({
+  documents: [
+    {
+      name: 'default',
+      document: JSON.parse(content.value),
+    },
+  ],
+})
 
-store.addDocument({
-  name: 'default',
-  url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+// Keep the content in sync
+// TODO: YAML support
+watch(content, (v) => {
+  configuration.content = JSON.parse(v)
+  store.replaceDocument('default', JSON.parse(v))
 })
 </script>
 <template>
@@ -58,7 +85,7 @@ store.addDocument({
     @toggleDarkMode="() => toggleColorMode()"
     :configuration="configuration"
     @changeTheme="configuration.theme = $event.id"
-    @updateContent="(v) => (content = v)">
+    @updateContent="(v: string) => (content = v)">
     <template #header>
       <DevToolbar>
         <DevReferencesOptions v-model="configProxy" />
