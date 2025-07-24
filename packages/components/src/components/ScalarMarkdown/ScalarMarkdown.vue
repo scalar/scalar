@@ -155,7 +155,11 @@ const html = computed(() => {
   }
 
   .markdown ul:not(.contains-task-list) {
-    list-style-position: inside;
+    margin-left: 29px;
+  }
+
+  .markdown ul:not(.contains-task-list) li {
+    padding-left: calc(var(--markdown-spacing-md) / 2);
   }
 
   .markdown ul {
