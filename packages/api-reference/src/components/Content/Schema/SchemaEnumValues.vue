@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import { ScalarButton, ScalarIcon } from '@scalar/components'
+import { ScalarButton } from '@scalar/components'
+import { ScalarIconPlus } from '@scalar/icons'
 import { computed, ref } from 'vue'
 
 import SchemaEnumPropertyItem from './SchemaEnumPropertyItem.vue'
@@ -206,14 +207,14 @@ const toggleExpanded = () => {
             " />
           <li>
             <ScalarButton
-              class="enum-toggle-button mt-2 mb-1 flex h-fit gap-1 rounded-full border p-1.5"
+              class="enum-toggle-button my-2 flex h-fit gap-1 rounded-full border py-1.5 pr-2.5 pl-2 leading-none"
               variant="ghost"
               @click="toggleExpanded">
-              <ScalarIcon
-                class="enum-toggle-button-icon"
-                :class="{ 'enum-toggle-button-icon--open': isExpanded }"
-                icon="Add"
-                size="sm" />
+              <ScalarIconPlus
+                weight="bold"
+                :class="{
+                  'rotate-45': isExpanded,
+                }" />
               {{ isExpanded ? 'Hide values' : 'Show all values' }}
             </ScalarButton>
           </li>
@@ -248,9 +249,5 @@ const toggleExpanded = () => {
 
 .enum-toggle-button:hover {
   color: var(--scalar-color-1);
-}
-
-.enum-toggle-button-icon--open {
-  transform: rotate(45deg);
 }
 </style>
