@@ -34,9 +34,10 @@ const getCurrentContent = () => {
     <ScalarCodeBlockCopy
       v-if="getCurrentContent()"
       :content="getCurrentContent()"
-      :controls="id" />
+      :controls="id"
+      class="z-context top-2 mr-2" />
     <div
-      class="body-raw-scroller relative overflow-auto overscroll-contain"
+      class="body-raw-scroller relative overflow-auto overscroll-contain pr-1"
       tabindex="0">
       <!-- CodeMirror container -->
       <div ref="codeMirrorRef" />
