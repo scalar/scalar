@@ -8,13 +8,13 @@ import { ScalarButton } from '../ScalarButton'
 
 const {
   content,
-  id,
+  controls,
   class: className,
 } = defineProps<{
   /** Content to copy to clipboard */
   content: string | object
   /** ID of the parent element this button controls */
-  id?: string
+  controls?: string
   /** Class to apply to the copy button */
   class?: string
 }>()
@@ -58,7 +58,7 @@ const variants = cva({
   <div
     :class="
       cx(
-        'scalar-code-copy opacity-0 group-hover/input:opacity-100 sticky flex inset-0 justify-end items-start bg-inherit',
+        'scalar-code-copy opacity-0 group-hover/code-block:opacity-100 sticky flex inset-0 justify-end items-start bg-inherit',
         className,
       )
     ">
@@ -66,7 +66,7 @@ const variants = cva({
       :class="cx(variants({ showCopied }))"
       type="button"
       variant="ghost"
-      :aria-controls="id"
+      :aria-controls="controls"
       aria-label="Copy"
       @click="handleCopy">
       <ScalarIconCopy
@@ -76,11 +76,9 @@ const variants = cva({
         class="check-icon size-4"
         :class="{ visible: showCopied }" />
     </ScalarButton>
-
     <div
       v-if="showCopied"
       role="alert"
-      aria-live="polite"
       class="sr-only">
       Copied
     </div>
