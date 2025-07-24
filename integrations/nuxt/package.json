@@ -54,7 +54,8 @@
     "@scalar/api-reference": "workspace:*",
     "@scalar/types": "workspace:*",
     "@scalar/use-hooks": "workspace:*",
-    "@scalar/workspace-store": "workspace:*"
+    "@scalar/workspace-store": "workspace:*",
+    "vue": "catalog:*"
   },
   "devDependencies": {
     "@nuxt/devtools": "^2.6.2",
