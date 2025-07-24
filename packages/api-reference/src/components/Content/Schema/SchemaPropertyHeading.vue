@@ -110,11 +110,11 @@ const modelName = computed(() => {
         {{ value.minItems }}&hellip;{{ value.maxItems }}
       </SchemaPropertyDetail>
       <SchemaPropertyDetail v-if="value.minLength">
-        <template #prefix>min: </template>
+        <template #prefix>min length: </template>
         {{ value.minLength }}
       </SchemaPropertyDetail>
       <SchemaPropertyDetail v-if="value.maxLength">
-        <template #prefix>max: </template>
+        <template #prefix>max length: </template>
         {{ value.maxLength }}
       </SchemaPropertyDetail>
       <SchemaPropertyDetail v-if="value.uniqueItems">
