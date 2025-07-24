@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import { ScalarIcon } from '@scalar/components'
-import { computed } from 'vue'
+import { ScalarButton, ScalarIcon } from '@scalar/components'
+import { computed, ref } from 'vue'
 
 import SchemaEnumPropertyItem from './SchemaEnumPropertyItem.vue'
 
@@ -155,6 +154,15 @@ const isObjectFormat = computed(() => {
  * We do not show enum values for discriminator properties.
  */
 const shouldRender = computed(() => hasEnumValues.value && !isDiscriminator)
+
+/**
+ * Controls whether the hidden enum values are visible.
+ */
+const isExpanded = ref(false)
+
+const toggleExpanded = () => {
+  isExpanded.value = !isExpanded.value
+}
 </script>
 
 <template>
@@ -185,30 +193,31 @@ const shouldRender = computed(() => hasEnumValues.value && !isDiscriminator)
           :label="formatEnumValueWithName(enumValue, index)"
           :description="getEnumValueDescription(index)" />
 
-        <Disclosure
-          v-if="shouldUseLongListDisplay"
-          v-slot="{ open }">
-          <DisclosurePanel>
-            <SchemaEnumPropertyItem
-              v-for="(enumValue, index) in hiddenEnumValues"
-              :key="enumValue"
-              :label="
-                formatEnumValueWithName(enumValue, initialVisibleCount + index)
-              "
-              :description="
-                getEnumValueDescription(initialVisibleCount + index)
-              " />
-          </DisclosurePanel>
-
-          <DisclosureButton class="enum-toggle-button">
-            <ScalarIcon
-              class="enum-toggle-button-icon"
-              :class="{ 'enum-toggle-button-icon--open': open }"
-              icon="Add"
-              size="sm" />
-            {{ open ? 'Hide values' : 'Show all values' }}
-          </DisclosureButton>
-        </Disclosure>
+        <template v-if="shouldUseLongListDisplay">
+          <SchemaEnumPropertyItem
+            v-for="(enumValue, index) in hiddenEnumValues"
+            v-if="isExpanded"
+            :key="enumValue"
+            :label="
+              formatEnumValueWithName(enumValue, initialVisibleCount + index)
+            "
+            :description="
+              getEnumValueDescription(initialVisibleCount + index)
+            " />
+          <li>
+            <ScalarButton
+              class="enum-toggle-button mt-2 mb-1 flex h-fit gap-1 rounded-full border p-1.5"
+              variant="ghost"
+              @click="toggleExpanded">
+              <ScalarIcon
+                class="enum-toggle-button-icon"
+                :class="{ 'enum-toggle-button-icon--open': isExpanded }"
+                icon="Add"
+                size="sm" />
+              {{ isExpanded ? 'Hide values' : 'Show all values' }}
+            </ScalarButton>
+          </li>
+        </template>
       </ul>
     </template>
   </div>
@@ -235,22 +244,6 @@ const shouldRender = computed(() => hasEnumValues.value && !isDiscriminator)
   list-style: none;
   margin-top: 8px;
   padding-left: 2px;
-}
-
-.enum-toggle-button {
-  align-items: center;
-  border: var(--scalar-border-width) solid var(--scalar-border-color);
-  border-radius: 13.5px;
-  cursor: pointer;
-  color: var(--scalar-color-2);
-  display: flex;
-  font-weight: var(--scalar-semibold);
-  font-size: var(--scalar-font-size-5);
-  gap: 4px;
-  margin-top: 8px;
-  padding: 6px;
-  user-select: none;
-  white-space: nowrap;
 }
 
 .enum-toggle-button:hover {
