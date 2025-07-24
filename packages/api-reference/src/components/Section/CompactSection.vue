@@ -15,8 +15,6 @@ const { hash } = useNavState()
 
 const open = ref(false)
 
-const panel = useId()
-
 watch(
   hash,
   async (id) => {
@@ -32,8 +30,8 @@ watch(
 <template>
   <div class="collapsible-section">
     <button
-      :id="id"
-      :aria-controls="panel"
+      :id="`${id}-trigger`"
+      :aria-controls="id"
       :aria-expanded="open"
       class="collapsible-section-trigger"
       :class="{ 'collapsible-section-trigger-open': open }"
@@ -44,14 +42,14 @@ watch(
         class="size-3 transition-transform duration-100"
         :class="{ 'rotate-90': open }" />
       <Anchor
-        :id="id"
+        :id="`${id}-heading`"
         class="collapsible-section-header">
         <slot name="heading" />
       </Anchor>
     </button>
     <Section
       v-if="open"
-      :id="panel"
+      :id="id"
       class="collapsible-section-content"
       :label="label">
       <slot />
