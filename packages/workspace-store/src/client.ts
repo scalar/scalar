@@ -125,6 +125,8 @@ export type WorkspaceStore = {
     key: K,
     value: WorkspaceDocumentMeta[K],
   ): void
+  /** Replaces the content of a specific document in the workspace with the provided input */
+  replaceDocument(documentName: string, input: Record<string, unknown>): void
   /** Resolves a reference in the active document by following the provided path and resolving any external $ref references */
   resolve(path: string[]): Promise<unknown>
   /** Adds a new document to the workspace */
@@ -377,6 +379,34 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       }
 
       Object.assign(currentDocument, { [key]: value })
+    },
+    /**
+     * Replaces the content of a specific document in the workspace with the provided input.
+     * This method computes the difference between the current document and the new input,
+     * then applies only the necessary changes in place. The updates are applied atomically,
+     * ensuring the document is updated in a single operation.
+     *
+     * @param documentName - The name of the document to update.
+     * @param input - The new content to apply to the document (as a plain object).
+     * @example
+     * // Replace the content of the 'api' document with new data
+     * store.replaceDocument('api', {
+     *   openapi: '3.1.0',
+     *   info: { title: 'Updated API', version: '1.0.1' },
+     *   paths: {},
+     * })
+     */
+    replaceDocument(documentName: string, input: Record<string, unknown>) {
+      const currentDocument = workspace.documents[documentName]
+
+      if (!currentDocument) {
+        return console.error(`Document '${documentName}' does not exist in the workspace.`)
+      }
+
+      // Normalize the input document to ensure it matches the OpenAPI schema and is upgraded to the latest version.
+      const newDocument = coerceValue(OpenAPIDocumentSchema, upgrade(input).specification)
+      // Update the current document in place, applying only the necessary changes and omitting any preprocessing fields.
+      applySelectiveUpdates(currentDocument, newDocument)
     },
     /**
      * Resolves a reference in the active document by following the provided path and resolving any external $ref references.

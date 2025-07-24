@@ -1390,4 +1390,300 @@ describe('create-workspace-store', () => {
       )
     })
   })
+
+  describe('replaceDocument', () => {
+    it('should replace the document with the new provided document', () => {
+      const store = createWorkspaceStore({
+        documents: [
+          {
+            name: 'default',
+            document: {
+              openapi: '3.0.0',
+              info: {
+                title: 'My API',
+                version: '1.0.0',
+              },
+              paths: {
+                '/users': {
+                  get: {
+                    summary: 'Get all users',
+                    responses: {
+                      '200': {
+                        description: 'Successful response',
+                        content: {
+                          'application/json': {
+                            schema: {
+                              type: 'array',
+                              items: {
+                                $ref: '#/components/schemas/User',
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              components: {
+                schemas: {
+                  User: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'string', description: 'The user ID' },
+                      name: { type: 'string', description: 'The user name' },
+                      email: { type: 'string', format: 'email', description: 'The user email' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      })
+
+      expect(store.workspace.documents['default']).toEqual({
+        components: {
+          schemas: {
+            User: {
+              properties: {
+                email: {
+                  description: 'The user email',
+                  format: 'email',
+                  type: 'string',
+                },
+                id: {
+                  description: 'The user ID',
+                  type: 'string',
+                },
+                name: {
+                  description: 'The user name',
+                  type: 'string',
+                },
+              },
+              type: 'object',
+            },
+          },
+        },
+        info: {
+          title: 'My API',
+          version: '1.0.0',
+        },
+        openapi: '3.1.1',
+        paths: {
+          '/users': {
+            get: {
+              responses: {
+                '200': {
+                  content: {
+                    'application/json': {
+                      schema: {
+                        items: {
+                          properties: {
+                            email: {
+                              description: 'The user email',
+                              format: 'email',
+                              type: 'string',
+                            },
+                            id: {
+                              description: 'The user ID',
+                              type: 'string',
+                            },
+                            name: {
+                              description: 'The user name',
+                              type: 'string',
+                            },
+                          },
+                          type: 'object',
+                          'x-original-ref': '#/components/schemas/User',
+                        },
+                        type: 'array',
+                      },
+                    },
+                  },
+                  description: 'Successful response',
+                },
+              },
+              summary: 'Get all users',
+            },
+          },
+        },
+        'x-scalar-navigation': [
+          {
+            id: 'Get all users',
+            method: 'get',
+            path: '/users',
+            ref: '#/paths/~1users/get',
+            title: 'Get all users',
+            type: 'operation',
+          },
+          {
+            children: [
+              {
+                id: 'User',
+                name: 'User',
+                ref: '#/content/components/schemas/User',
+                title: 'User',
+                type: 'model',
+              },
+            ],
+            id: '',
+            title: 'Models',
+            type: 'text',
+          },
+        ],
+      })
+
+      store.replaceDocument('default', {
+        openapi: '3.0.0',
+        info: {
+          title: 'Updated API',
+          version: '1.0.0',
+        },
+        paths: {
+          '/users': {
+            get: {
+              summary: 'Get all users',
+              responses: {
+                '200': {
+                  description: 'This is an updated description',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'array',
+                        items: {
+                          $ref: '#/components/schemas/User',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              properties: {
+                id: { type: 'string', description: 'Updated user id schema description' },
+                name: { type: 'string', description: 'The user name' },
+                email: { type: 'string', format: 'email', description: 'The user email' },
+              },
+            },
+          },
+        },
+      })
+
+      // Should still preserve the generated navigation and upgrade the document to the latest when we try to replace it
+      expect(store.workspace.documents['default']).toEqual({
+        components: {
+          schemas: {
+            User: {
+              properties: {
+                email: {
+                  description: 'The user email',
+                  format: 'email',
+                  type: 'string',
+                },
+                id: {
+                  description: 'Updated user id schema description',
+                  type: 'string',
+                },
+                name: {
+                  description: 'The user name',
+                  type: 'string',
+                },
+              },
+              type: 'object',
+            },
+          },
+        },
+        info: {
+          title: 'Updated API',
+          version: '1.0.0',
+        },
+        openapi: '3.1.1',
+        paths: {
+          '/users': {
+            get: {
+              responses: {
+                '200': {
+                  content: {
+                    'application/json': {
+                      schema: {
+                        items: {
+                          properties: {
+                            email: {
+                              description: 'The user email',
+                              format: 'email',
+                              type: 'string',
+                            },
+                            id: {
+                              description: 'Updated user id schema description',
+                              type: 'string',
+                            },
+                            name: {
+                              description: 'The user name',
+                              type: 'string',
+                            },
+                          },
+                          type: 'object',
+                          'x-original-ref': '#/components/schemas/User',
+                        },
+                        type: 'array',
+                      },
+                    },
+                  },
+                  description: 'This is an updated description',
+                },
+              },
+              summary: 'Get all users',
+            },
+          },
+        },
+        'x-scalar-navigation': [
+          {
+            id: 'Get all users',
+            method: 'get',
+            path: '/users',
+            ref: '#/paths/~1users/get',
+            title: 'Get all users',
+            type: 'operation',
+          },
+          {
+            children: [
+              {
+                id: 'User',
+                name: 'User',
+                ref: '#/content/components/schemas/User',
+                title: 'User',
+                type: 'model',
+              },
+            ],
+            id: '',
+            title: 'Models',
+            type: 'text',
+          },
+        ],
+      })
+    })
+
+    it('should log a warning if the document does not exist', () => {
+      const store = createWorkspaceStore()
+
+      // Spy on console.warn
+      store.replaceDocument('non-existing', {
+        openapi: '3.0.0',
+        info: {
+          title: 'My API',
+          version: '1.0.0',
+        },
+      })
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith("Document 'non-existing' does not exist in the workspace.")
+      expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
+    })
+  })
 })
