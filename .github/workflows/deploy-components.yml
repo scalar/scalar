@@ -10,7 +10,7 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 jobs:
   release:
     name: Deploy Scalar Components Storybook
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-2vcpu-ubuntu-22044
     timeout-minutes: 15
     strategy:
       matrix:
