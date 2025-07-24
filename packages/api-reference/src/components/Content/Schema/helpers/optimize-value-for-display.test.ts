@@ -111,4 +111,79 @@ describe('optimizeValueForDisplay', () => {
     expect(result?.oneOf[0].title).toBe('Planet')
     expect(result?.oneOf[1].title).toBe('Satellite')
   })
+
+  it('should preserve root properties when processing oneOf schemas', () => {
+    const input = {
+      type: 'object',
+      properties: {
+        id: { type: 'string' },
+        name: { type: 'string' },
+      },
+      oneOf: [{ required: ['id'] }, { required: ['name'] }],
+    }
+
+    const result = optimizeValueForDisplay(input)
+
+    expect(result).toEqual({
+      oneOf: [
+        {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            name: { type: 'string' },
+          },
+          required: ['id'],
+        },
+        {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            name: { type: 'string' },
+          },
+          required: ['name'],
+        },
+      ],
+    })
+  })
+
+  it('should merge root properties into oneOf schemas when they contain allOf', () => {
+    const input = {
+      type: 'object',
+      properties: {
+        id: { type: 'string' },
+        name: { type: 'string' },
+      },
+      oneOf: [
+        {
+          allOf: [{ required: ['id'] }],
+        },
+        {
+          allOf: [{ required: ['name'] }],
+        },
+      ],
+    }
+
+    const result = optimizeValueForDisplay(input)
+
+    expect(result).toEqual({
+      oneOf: [
+        {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            name: { type: 'string' },
+          },
+          required: ['id'],
+        },
+        {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            name: { type: 'string' },
+          },
+          required: ['name'],
+        },
+      ],
+    })
+  })
 })
