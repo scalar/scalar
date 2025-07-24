@@ -24,12 +24,12 @@ const { method, name, schemas, url, path, operationMethod } = defineProps<{
   <details class="group callback-list-item">
     <!-- Title -->
     <summary
-      class="font-code bg-b-1 callback-sticky-offset callback-list-item-title sticky flex cursor-pointer flex-row items-center gap-2 border-t py-3 text-sm group-open:flex-wrap">
+      class="font-code bg-b-1 callback-sticky-offset callback-list-item-title sticky flex cursor-pointer flex-row items-start gap-2 border-t py-3 text-sm group-open:flex-wrap">
       <ScalarIconCaretRight
-        class="callback-list-item-icon text-c-3 group-hover:text-c-1 absolute -left-5 size-4 transition-transform group-open:rotate-90" />
+        class="callback-list-item-icon text-c-3 group-hover:text-c-1 absolute top-3.5 -left-5 size-4 transition-transform duration-100 group-open:rotate-90" />
       <HttpMethod
         as="span"
-        class="request-method"
+        class="request-method py-0.75"
         :method="method" />
       <div
         class="text-c-1 min-w-0 flex-1 truncate leading-3 group-open:whitespace-normal">
