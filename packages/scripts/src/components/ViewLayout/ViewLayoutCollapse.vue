@@ -22,7 +22,7 @@ const id = useId()
   <Disclosure
     v-slot="{ open }"
     as="div"
-    class="group/collapse focus-within:text-c-1 text-c-2 border-b"
+    class="group/collapse focus-within:text-c-1 text-c-2 last:ui-open:border-b-0 border-b"
     :class="{ 'first-of-type:last-of-type:border-b-0': layout === 'reference' }"
     :defaultOpen="defaultOpen"
     :static="layout === 'reference' ? true : undefined">
