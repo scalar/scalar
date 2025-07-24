@@ -42,7 +42,7 @@ watch(
         class="size-3 transition-transform duration-100"
         :class="{ 'rotate-90': open }" />
       <Anchor
-        :id="`${id}-heading`"
+        :id="id"
         class="collapsible-section-header">
         <slot name="heading" />
       </Anchor>
