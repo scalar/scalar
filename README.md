@@ -126,15 +126,18 @@ And there's an ever-growing list of plugins and integrations:
 ### Integrations
 
 - [HTML/JS API](documentation/integrations/html-js.md) (works everywhere)
-- [.NET](documentation/integrations/aspnetcore.md)
+- [.NET ASP.NET Core](documentation/integrations/aspnetcore.md)
+- [.NET Aspire](documentation/integrations/aspire.md)
 - [AdonisJS](documentation/integrations/adonisjs.md)
 - [Django Ninja](documentation/integrations/django-ninja.md)
 - [Django](documentation/integrations/django.md)
+- [Docker](documentation/integrations/docker.md)
 - [Docusaurus](documentation/integrations/docusaurus.md)
 - [Elixir](documentation/integrations/elixir.md)
 - [Express](documentation/integrations/express.md)
 - [FastAPI](documentation/integrations/fastapi.md)
 - [Fastify](documentation/integrations/fastify.md)
+- [Flask](documentation/integrations/flask.md)
 - [Go](documentation/integrations/go.md)
 - [Hono](documentation/integrations/hono.md)
 - [Laravel Scribe](documentation/integrations/laravel-scribe.md)
@@ -147,6 +150,7 @@ And there's an ever-growing list of plugins and integrations:
 - [React](documentation/integrations/react.md)
 - [Ruby on Rails](documentation/integrations/ruby-on-rails.md)
 - [Rust](documentation/integrations/rust.md)
+- [SvelteKit](documentation/integrations/sveltekit.md)
 - [Ts.ED](documentation/integrations/tsed.md)
 - [Vue.js](documentation/integrations/vue.md)
 
