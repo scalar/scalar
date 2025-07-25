@@ -292,15 +292,21 @@
                   "type": "page"
                 },
                 {
-                  "name": "Express",
-                  "slug": "express",
-                  "path": "documentation/integrations/express.md",
+                  "name": "Elixir",
+                  "slug": "elixir",
+                  "path": "documentation/integrations/elixir.md",
                   "type": "page"
                 },
                 {
                   "name": "ElysiaJS",
                   "slug": "elysiajs",
                   "path": "documentation/integrations/elysiajs.md",
+                  "type": "page"
+                },
+                {
+                  "name": "Express",
+                  "slug": "express",
+                  "path": "documentation/integrations/express.md",
                   "type": "page"
                 },
                 {
