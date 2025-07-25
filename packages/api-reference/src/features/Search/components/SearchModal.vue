@@ -15,27 +15,22 @@ import {
   ScalarIconTextAlignLeft,
 } from '@scalar/icons'
 import type { ScalarIconComponent } from '@scalar/icons/types'
-import type { Spec } from '@scalar/types/legacy'
+import { isOperationDeprecated } from '@scalar/oas-utils/helpers'
 import type { FuseResult } from 'fuse.js'
 import { nanoid } from 'nanoid'
-import { ref, toRef, watch } from 'vue'
+import { ref, watch } from 'vue'
 
 import { lazyBus } from '@/components/Lazy'
-import {
-  useSearchIndex,
-  type EntryType,
-  type FuseData,
-} from '@/features/Search/useSearchIndex'
 import { useSidebar } from '@/features/sidebar'
 import SidebarHttpBadge from '@/features/sidebar/components/SidebarHttpBadge.vue'
 
+import { useSearchIndex } from '../hooks/useSearchIndex'
+import type { EntryType, FuseData } from '../types'
+
 const props = defineProps<{
-  parsedSpec: Spec
   modalState: ModalState
   hideModels: boolean
 }>()
-
-const specification = toRef(props, 'parsedSpec')
 
 /** Base id for the search form */
 const id = nanoid()
@@ -46,29 +41,27 @@ const instructionsId = `${id}-search-instructions`
 /** Constructs and unique id for a given option */
 const getOptionId = (href: string) => `${id}${href}`
 
+const { items } = useSidebar()
+
 const {
   resetSearch,
-  fuseSearch,
-  selectedSearchIndex,
+  selectedIndex,
   selectedSearchResult,
   searchResultsWithPlaceholderResults,
-  searchText,
-} = useSearchIndex({
-  specification,
-  hideModels: props.hideModels,
-})
+  query,
+} = useSearchIndex(items)
 
 const ENTRY_ICONS: { [x in EntryType]: ScalarIconComponent } = {
   heading: ScalarIconTextAlignLeft,
   model: ScalarIconBracketsCurly,
-  req: ScalarIconTerminalWindow,
+  operation: ScalarIconTerminalWindow,
   tag: ScalarIconTag,
   webhook: ScalarIconTerminalWindow,
 }
 
 const ENTRY_LABELS: { [x in EntryType]: string } = {
-  heading: 'Document Heading',
-  req: 'Request',
+  heading: 'Heading',
+  operation: 'Operation',
   tag: 'Tag',
   model: 'Model',
   webhook: 'Webhook',
@@ -87,13 +80,14 @@ watch(
 
 const { setCollapsedSidebarItem } = useSidebar()
 
+// TODO: Does this work with custom slugs?
 const tagRegex = /#(tag\/[^/]*)/
 
 // Ensure we open the section
-function onSearchResultClick(entry: FuseResult<FuseData>) {
+function onSearchResultClick(result: FuseResult<FuseData>) {
   // Determine the parent ID for sidebar navigation
   let parentId = 'models'
-  const tagMatch = entry.item.href.match(tagRegex)
+  const tagMatch = result.item.href.match(tagRegex)
 
   if (tagMatch?.length && tagMatch.length > 1) {
     parentId = tagMatch[1]
@@ -102,7 +96,7 @@ function onSearchResultClick(entry: FuseResult<FuseData>) {
   setCollapsedSidebarItem(parentId, true)
 
   // Extract the target ID from the href
-  const targetId = entry.item.href.replace('#', '')
+  const targetId = result.item.href.replace('#', '')
 
   if (!document.getElementById(targetId)) {
     const unsubscribe = lazyBus.on((ev) => {
@@ -119,7 +113,7 @@ function onSearchResultClick(entry: FuseResult<FuseData>) {
 }
 
 // Scroll to the currently selected result
-watch(selectedSearchIndex, (index) => {
+watch(selectedIndex, (index) => {
   if (typeof index !== 'number') {
     return
   }
@@ -138,13 +132,13 @@ const navigateSearchResults = (direction: 'up' | 'down') => {
   const offset = direction === 'up' ? -1 : 1
   const length = searchResultsWithPlaceholderResults.value.length
 
-  if (typeof selectedSearchIndex.value === 'number') {
+  if (typeof selectedIndex.value === 'number') {
     // Ensures we loop around the array by using the remainder
-    const newIndex = (selectedSearchIndex.value + offset + length) % length
-    selectedSearchIndex.value = newIndex
+    const newIndex = (selectedIndex.value + offset + length) % length
+    selectedIndex.value = newIndex
   } else {
     // If no index is selected, we select the first or last item depending on the direction
-    selectedSearchIndex.value = offset === -1 ? length - 1 : 0
+    selectedIndex.value = offset === -1 ? length - 1 : 0
   }
 }
 
@@ -162,7 +156,7 @@ function getFullUrlFromHash(href: string) {
 }
 
 function onSearchResultEnter() {
-  if (!isDefined(selectedSearchIndex.value)) {
+  if (!isDefined(selectedIndex.value)) {
     return
   }
 
@@ -173,7 +167,7 @@ function onSearchResultEnter() {
     return
   }
 
-  onSearchResultClick(results[selectedSearchIndex.value])
+  onSearchResultClick(results[selectedIndex.value])
 }
 </script>
 <template>
@@ -186,7 +180,7 @@ function onSearchResultEnter() {
       class="ref-search-container"
       role="search">
       <ScalarSearchInput
-        v-model="searchText"
+        v-model="query"
         :aria-activedescendant="
           selectedSearchResult
             ? getOptionId(selectedSearchResult.item.href)
@@ -196,8 +190,7 @@ function onSearchResultEnter() {
         :aria-controls="listboxId"
         :aria-describedby="instructionsId"
         role="combobox"
-        @blur="selectedSearchIndex = undefined"
-        @input="fuseSearch"
+        @blur="selectedIndex = undefined"
         @keydown.down.stop.prevent="navigateSearchResults('down')"
         @keydown.enter.stop.prevent="onSearchResultEnter"
         @keydown.up.stop.prevent="navigateSearchResults('up')" />
@@ -208,56 +201,62 @@ function onSearchResultEnter() {
       class="ref-search-results custom-scroll"
       :noResults="!searchResultsWithPlaceholderResults.length">
       <ScalarSearchResultItem
-        v-for="(entry, index) in searchResultsWithPlaceholderResults"
-        :id="getOptionId(entry.item.href)"
-        :key="entry.refIndex"
-        :href="getFullUrlFromHash(entry.item.href)"
-        :icon="ENTRY_ICONS[entry.item.type]"
-        :selected="selectedSearchIndex === index"
-        @click="onSearchResultClick(entry)"
-        @focus="selectedSearchIndex = index">
+        v-for="(result, index) in searchResultsWithPlaceholderResults"
+        :id="getOptionId(result.item.href)"
+        :key="result.refIndex"
+        :href="getFullUrlFromHash(result.item.href)"
+        :icon="ENTRY_ICONS[result.item.type]"
+        :selected="selectedIndex === index"
+        @click="onSearchResultClick(result)"
+        @focus="selectedIndex = index">
         <span
           :class="{
-            deprecated: entry.item.operation?.information?.deprecated,
+            deprecated:
+              'operation' in result.item.entry &&
+              isOperationDeprecated(result.item.entry.operation),
           }">
           <span class="sr-only">
-            {{ ENTRY_LABELS[entry.item.type] }}:&nbsp;
-            <template v-if="entry.item.operation?.information?.deprecated">
+            {{ ENTRY_LABELS[result.item.type] }}:&nbsp;
+            <template
+              v-if="
+                'operation' in result.item.entry &&
+                isOperationDeprecated(result.item.entry.operation)
+              ">
               (Deprecated)&nbsp;
             </template>
           </span>
-          {{ entry.item.title }}
+          {{ result.item.title }}
           <span class="sr-only">,</span>
         </span>
         <template
           v-if="
-            entry.item.type !== 'webhook' &&
-            (entry.item.httpVerb || entry.item.path) &&
-            entry.item.path !== entry.item.title
+            result.item.type !== 'webhook' &&
+            (result.item.method || result.item.path) &&
+            result.item.path !== result.item.title
           "
           #description>
           <span class="inline-flex items-center gap-1">
-            <template v-if="entry.item.type === 'req'">
+            <template v-if="result.item.type === 'operation'">
               <SidebarHttpBadge
                 aria-hidden="true"
-                :method="entry.item.httpVerb ?? 'get'" />
+                :method="result.item.method ?? 'get'" />
               <span class="sr-only">
-                HTTP Method: {{ entry.item.httpVerb ?? 'get' }}
+                HTTP Method: {{ result.item.method ?? 'get' }}
               </span>
             </template>
             <span class="sr-only">Path:&nbsp;</span>
-            {{ entry.item.path }}
+            {{ result.item.path }}
           </span>
         </template>
         <template
-          v-else-if="entry.item.description"
+          v-else-if="result.item.description"
           #description>
           <span class="sr-only">Description:&nbsp;</span>
-          {{ entry.item.description }}
+          {{ result.item.description }}
         </template>
       </ScalarSearchResultItem>
       <template #query>
-        {{ searchText }}
+        {{ query }}
       </template>
     </ScalarSearchResultList>
     <div

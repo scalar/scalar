@@ -45,14 +45,12 @@ The main composable that orchestrates document processing and state management. 
 - Handles OpenAPI version upgrades (to 3.1.0)
 - Dereferences OpenAPI documents
 - Maintains workspace and active entities state
-- Deprecated: provides the old custom data structure (“parsedSpec”)
 
 ```typescript
 const {
   originalDocument,
   originalOpenApiVersion,
   dereferencedDocument,
-  parsedDocument,
   workspaceStore,
   activeEntitiesStore
 } = useDocumentSource({
@@ -86,7 +84,6 @@ import { useDocumentSource } from '@/features/DocumentSource'
 const {
   originalDocument,
   dereferencedDocument,
-  parsedDocument,
   workspaceStore
 } = useDocumentSource({
   configuration: {
