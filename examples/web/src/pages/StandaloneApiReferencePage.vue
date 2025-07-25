@@ -16,6 +16,11 @@ const configuration: AnyApiReferenceConfiguration = {
       layout: 'classic',
     },
     {
+      title: 'Scalar Galaxy (Path Routing)',
+      url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+      pathRouting: { basePath: '/path-routing' },
+    },
+    {
       title: 'Relative URL Example',
       slug: 'relative-url',
       url: 'examples/openapi.json',
