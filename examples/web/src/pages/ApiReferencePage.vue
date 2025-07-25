@@ -5,7 +5,7 @@ import {
 } from '@scalar/api-reference'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { computed, reactive, ref, toRaw, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 
 import DevReferencesOptions from '../components/DevReferencesOptions.vue'
 import DevToolbar from '../components/DevToolbar.vue'
