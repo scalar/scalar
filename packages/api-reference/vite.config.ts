@@ -1,8 +1,8 @@
 import { URL, fileURLToPath } from 'node:url'
-import tailwindcss from '@tailwindcss/vite'
 import { autoCSSInject, createViteBuildOptions } from '@scalar/build-tooling'
+import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
-import { defineConfig } from 'vitest/config'
+import { defineConfig } from 'vite'
 import { version } from './package.json'
 
 export default defineConfig({

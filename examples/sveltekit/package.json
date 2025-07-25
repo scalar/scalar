@@ -28,8 +28,8 @@
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^4.0.0",
-    "@sveltejs/kit": "^2.20.6",
-    "@sveltejs/vite-plugin-svelte": "^4.0.4",
+    "@sveltejs/kit": "^2.25.0",
+    "@sveltejs/vite-plugin-svelte": "^5.0.0",
     "svelte": "^5.0.0",
     "svelte-check": "^4.0.0",
     "typescript": "^5.6.2",
