@@ -114,7 +114,9 @@ const isLargeScreen = useMediaQuery('(min-width: 1150px)')
 const elementHeight = ref('100dvh')
 const documentEl = ref<HTMLElement | null>(null)
 useResizeObserver(documentEl, (entries) => {
-  elementHeight.value = entries[0].contentRect.height + 'px'
+  elementHeight.value = entries[0]
+    ? entries[0].contentRect.height + 'px'
+    : '100dvh'
 })
 
 // Check for Obtrusive Scrollbars

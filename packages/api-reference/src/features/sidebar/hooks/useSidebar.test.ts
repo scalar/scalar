@@ -62,13 +62,13 @@ describe('useSidebar', () => {
       const config = ref(apiReferenceConfigurationSchema.parse({}))
       const options = {
         config,
-        getSectionId: (hashStr?: string) => 'section-1',
+        getSectionId: (_hashStr?: string) => 'section-1',
         getHeadingId: (heading: Heading) => heading.value,
         getOperationId: (
           operation: { path: string; method: OpenAPIV3_1.HttpMethods } & OpenAPIV3_1.OperationObject,
-          parentTag: OpenAPIV3_1.TagObject,
+          _parentTag: OpenAPIV3_1.TagObject,
         ) => operation.summary ?? '',
-        getWebhookId: (webhook?: { name: string; method?: string }, parentTag?: OpenAPIV3_1.TagObject) =>
+        getWebhookId: (webhook?: { name: string; method?: string }, _parentTag?: OpenAPIV3_1.TagObject) =>
           webhook?.name ?? 'webhooks',
         getModelId: (model?: { name: string }) => model?.name ?? '',
         getTagId: (tag: OpenAPIV3_1.TagObject) => tag.name ?? '',
