@@ -63,6 +63,9 @@ useTooltip({
 :where(body) > .scalar-tooltip:before {
   content: '';
   inset: var(--scalar-tooltip-offset);
-  @apply absolute rounded bg-b-tooltip -z-1 backdrop-blur dark:shadow-border;
+  @apply absolute rounded bg-b-tooltip -z-1 backdrop-blur;
+}
+:where(body.dark-mode) > .scalar-tooltip:before {
+  @apply shadow-border;
 }
 </style>
