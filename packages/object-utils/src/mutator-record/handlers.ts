@@ -1,7 +1,7 @@
 import { Mutation } from '../mutator-record/mutations'
 import type { Path, PathValue } from '../nested'
 import { stringify } from 'flatted'
-
+import { safeLocalStorage } from '@scalar/helpers/object/local-storage'
 import { debounce } from './debounce'
 import { LS_CONFIG } from './local-storage'
 
@@ -26,7 +26,7 @@ export function mutationFactory<T extends Record<string, any>>(
 
   /** Triggers on any changes so we can save to localStorage */
   const onChange = localStorageKey
-    ? debounce(() => localStorage.setItem(localStorageKey, stringify(entityMap)), LS_CONFIG.DEBOUNCE_MS, {
+    ? debounce(() => safeLocalStorage().setItem(localStorageKey, stringify(entityMap)), LS_CONFIG.DEBOUNCE_MS, {
         maxWait: LS_CONFIG.MAX_WAIT_MS,
       })
     : () => null

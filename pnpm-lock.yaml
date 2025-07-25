@@ -2069,6 +2069,9 @@ importers:
 
   packages/object-utils:
     dependencies:
+      '@scalar/helpers':
+        specifier: workspace:*
+        version: link:../helpers
       flatted:
         specifier: catalog:*
         version: 3.3.3
@@ -20227,8 +20230,8 @@ packages:
   vue-component-type-helpers@2.2.10:
     resolution: {integrity: sha512-iDUO7uQK+Sab2tYuiP9D1oLujCWlhHELHMgV/cB13cuGbG4qwkLHvtfWb6FzvxrIOPDnU0oHsz2MlQjhYDeaHA==}
 
-  vue-component-type-helpers@3.0.3:
-    resolution: {integrity: sha512-koiBu7lO8e6w/UlbZAAIW11qcFQocYIl7Nh/SVwGZ804ej5KrncU32bRxi2zfU2Kyf6HWuk1CeeVP2rhIL+vyQ==}
+  vue-component-type-helpers@3.0.4:
+    resolution: {integrity: sha512-WtR3kPk8vqKYfCK/HGyT47lK/T3FaVyWxaCNuosaHYE8h9/k0lYRZ/PI/+T/z2wP+uuNKmL6z30rOcBboOu/YA==}
 
   vue-demi@0.14.10:
     resolution: {integrity: sha512-nMZBOwuzabUO0nLgIcc6rycZEebF6eeUfaiQx9+WSk8e29IbLvPU9feI6tqW4kTo3hvoYAJkMh8n8D0fuISphg==}
@@ -28637,7 +28640,7 @@ snapshots:
       ts-dedent: 2.2.0
       type-fest: 2.19.0
       vue: 3.5.17(typescript@5.6.2)
-      vue-component-type-helpers: 3.0.3
+      vue-component-type-helpers: 3.0.4
     transitivePeerDependencies:
       - encoding
       - prettier
@@ -43895,7 +43898,7 @@ snapshots:
 
   vue-component-type-helpers@2.2.10: {}
 
-  vue-component-type-helpers@3.0.3: {}
+  vue-component-type-helpers@3.0.4: {}
 
   vue-demi@0.14.10(vue@3.5.17(typescript@5.6.2)):
     dependencies:
