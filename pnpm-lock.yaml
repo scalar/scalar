@@ -2072,6 +2072,9 @@ importers:
 
   packages/object-utils:
     dependencies:
+      '@scalar/helpers':
+        specifier: workspace:*
+        version: link:../helpers
       flatted:
         specifier: catalog:*
         version: 3.3.3
