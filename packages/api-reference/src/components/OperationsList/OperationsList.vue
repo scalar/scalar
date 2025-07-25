@@ -35,7 +35,7 @@ const operationsAndWebhooks = computed(
         <ScreenReader>{{ tag.title }}</ScreenReader>
         {{ tag.isWebhooks ? 'Webhooks' : 'Operations' }}
       </ScalarCardHeader>
-      <ScalarCardSection class="custom-scroll">
+      <ScalarCardSection class="custom-scroll max-h-[60vh]">
         <ul
           :aria-label="`${tag.title} endpoints`"
           class="endpoints">
@@ -59,5 +59,6 @@ const operationsAndWebhooks = computed(
   overflow: auto;
   background: var(--scalar-background-2);
   padding: 10px 12px;
+  width: 100%;
 }
 </style>
