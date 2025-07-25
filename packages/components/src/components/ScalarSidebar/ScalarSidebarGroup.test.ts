@@ -31,13 +31,13 @@ describe('ScalarSidebarGroup', () => {
     expect(itemComponents).toHaveLength(1)
 
     // The ScalarSidebarItem doesn't receive an explicit indent prop - it uses the level from context
-    expect(itemComponents[0].props('indent')).toBeUndefined()
+    expect(itemComponents[0]?.props('indent')).toBeUndefined()
 
     // After opening, we should have the group button + item button
     const allButtons = wrapper.findAllComponents(ScalarSidebarButton)
     expect(allButtons).toHaveLength(2)
-    expect(allButtons[0].props('indent')).toBe(0) // Group button
-    expect(allButtons[1].props('indent')).toBe(1) // Item button (one level deeper)
+    expect(allButtons[0]?.props('indent')).toBe(0) // Group button
+    expect(allButtons[1]?.props('indent')).toBe(1) // Item button (one level deeper)
   })
 
   it('supports nested groups with correct levels', async () => {
@@ -73,9 +73,9 @@ describe('ScalarSidebarGroup', () => {
     expect(buttonComponents).toHaveLength(3)
 
     // Verify indent levels are correct
-    expect(buttonComponents[0].props('indent')).toBe(0) // Parent group (base level)
-    expect(buttonComponents[1].props('indent')).toBe(1) // Level 1 item (one level deeper)
-    expect(buttonComponents[2].props('indent')).toBe(1) // Level 2 group (same level as level 1 item)
+    expect(buttonComponents[0]?.props('indent')).toBe(0) // Parent group (base level)
+    expect(buttonComponents[1]?.props('indent')).toBe(1) // Level 1 item (one level deeper)
+    expect(buttonComponents[2]?.props('indent')).toBe(1) // Level 2 group (same level as level 1 item)
   })
 
   it('handles deeply nested groups', async () => {

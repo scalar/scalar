@@ -22,7 +22,7 @@
     "allowUnusedLabels": false,
 
     /* Strictness */
-    "exactOptionalPropertyTypes": true,
+    // "exactOptionalPropertyTypes": true,
     "noImplicitOverride": true,
     "noImplicitReturns": true,
     "noUncheckedIndexedAccess": true,

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ScalarIconUsers } from '@scalar/icons'
-
-import { ScalarIcon, useBindCx } from '../..'
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
 
 defineProps<{
   src?: string

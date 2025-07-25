@@ -835,7 +835,7 @@ describe('operationToHar', () => {
 
       const contentTypeHeaders = result.headers.filter((header) => header.name === 'Content-Type')
       expect(contentTypeHeaders).toHaveLength(1)
-      expect(contentTypeHeaders[0].value).toBe('application/json')
+      expect(contentTypeHeaders[0]?.value).toBe('application/json')
     })
 
     it('should not set Content-Type header when no request body is present', () => {

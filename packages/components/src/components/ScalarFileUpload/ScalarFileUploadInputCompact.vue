@@ -13,7 +13,6 @@ export default {}
 import { ScalarIconUploadSimple } from '@scalar/icons'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 
-import { ScalarIcon } from '../ScalarIcon'
 import type {
   FileUploadInputEmits,
   FileUploadInputProps,

@@ -18,7 +18,7 @@ export default {}
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { computed, useTemplateRef } from 'vue'
 
-import { type Icon, ScalarIconLegacyAdapter } from '../ScalarIcon'
+import { ScalarIconLegacyAdapter } from '../ScalarIcon'
 import { useTooltip } from '../ScalarTooltip'
 import type { ScalarIconButtonProps } from './types'
 import { variants } from './variants'

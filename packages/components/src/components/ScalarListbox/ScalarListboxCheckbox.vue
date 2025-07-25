@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ScalarIconCheck } from '@scalar/icons'
 
-import { ScalarIcon } from '../ScalarIcon'
 import type { OptionStyle } from './types'
 
 defineProps<{

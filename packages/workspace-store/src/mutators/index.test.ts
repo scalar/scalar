@@ -56,7 +56,7 @@ describe('generateClientMutators', () => {
       })
 
       expect(success).toBe(true)
-      expect(store.workspace.documents['test-doc']['x-scalar-client-config-cookies']).toEqual({
+      expect(store.workspace.documents['test-doc']?.['x-scalar-client-config-cookies']).toEqual({
         session: {
           name: 'session',
           value: 'session-id',
@@ -64,7 +64,7 @@ describe('generateClientMutators', () => {
         },
       })
 
-      expect(store.workspace.documents['doc-2']['x-scalar-client-config-cookies']).toBeUndefined()
+      expect(store.workspace.documents['doc-2']?.['x-scalar-client-config-cookies']).toBeUndefined()
 
       // Set the active document to 'doc-2'
       store.workspace['x-scalar-active-document'] = 'doc-2'
@@ -78,7 +78,7 @@ describe('generateClientMutators', () => {
         }),
       ).toBe(true)
 
-      expect(store.workspace.documents['doc-2']['x-scalar-client-config-cookies']).toEqual({
+      expect(store.workspace.documents['doc-2']?.['x-scalar-client-config-cookies']).toEqual({
         session: {
           name: 'session',
           value: 'new-session-id',
@@ -178,7 +178,7 @@ describe('generateClientMutators', () => {
         }),
       ).toBe(true)
 
-      expect(store.workspace.documents['test-doc']['x-scalar-client-config-environments']).toEqual({
+      expect(store.workspace.documents['test-doc']?.['x-scalar-client-config-environments']).toEqual({
         staging: {
           variables: {
             API_URL: {
@@ -189,7 +189,7 @@ describe('generateClientMutators', () => {
         },
       })
 
-      expect(store.workspace.documents['doc-2']['x-scalar-client-config-environments']).toBeUndefined()
+      expect(store.workspace.documents['doc-2']?.['x-scalar-client-config-environments']).toBeUndefined()
 
       // Set the active document to 'doc-2'
       store.workspace['x-scalar-active-document'] = 'doc-2'
@@ -206,7 +206,7 @@ describe('generateClientMutators', () => {
         }),
       ).toBe(true)
 
-      expect(store.workspace.documents['doc-2']['x-scalar-client-config-environments']).toEqual({
+      expect(store.workspace.documents['doc-2']?.['x-scalar-client-config-environments']).toEqual({
         staging: {
           variables: {
             API_URL: {
@@ -274,7 +274,7 @@ describe('generateClientMutators', () => {
         }),
       ).toBe(true)
 
-      expect(store.workspace.documents['test-doc'].components?.securitySchemes).toEqual({
+      expect(store.workspace.documents['test-doc']?.components?.securitySchemes).toEqual({
         oauth2: {
           type: 'oauth2',
           flows: {
@@ -287,7 +287,7 @@ describe('generateClientMutators', () => {
         },
       })
 
-      expect(store.workspace.documents['doc-2'].components?.securitySchemes).toBeUndefined()
+      expect(store.workspace.documents['doc-2']?.components?.securitySchemes).toBeUndefined()
 
       // Set the active document to 'doc-2'
       store.workspace['x-scalar-active-document'] = 'doc-2'
@@ -306,7 +306,7 @@ describe('generateClientMutators', () => {
         }),
       ).toBe(true)
 
-      expect(store.workspace.documents['doc-2'].components?.securitySchemes).toEqual({
+      expect(store.workspace.documents['doc-2']?.components?.securitySchemes).toEqual({
         oauth2: {
           type: 'oauth2',
           flows: {
@@ -359,7 +359,7 @@ describe('generateClientMutators', () => {
         }),
       ).toBe(true)
 
-      expect(store.workspace.documents['test-doc'].servers).toEqual([
+      expect(store.workspace.documents['test-doc']?.servers).toEqual([
         {
           url: 'https://api.test-doc.example.com',
           description: 'Test Document server',
@@ -368,9 +368,9 @@ describe('generateClientMutators', () => {
 
       expect(mutators.doc('test-doc').serverMutators.deleteServer(0)).toBe(true)
 
-      expect(store.workspace.documents['test-doc'].servers).toEqual([])
+      expect(store.workspace.documents['test-doc']?.servers).toEqual([])
 
-      expect(store.workspace.documents['doc-2'].servers).toBeUndefined()
+      expect(store.workspace.documents['doc-2']?.servers).toBeUndefined()
 
       // Set the active document to 'doc-2'
       store.workspace['x-scalar-active-document'] = 'doc-2'
@@ -382,7 +382,7 @@ describe('generateClientMutators', () => {
         }),
       ).toBe(true)
 
-      expect(store.workspace.documents['doc-2'].servers).toEqual([
+      expect(store.workspace.documents['doc-2']?.servers).toEqual([
         {
           url: 'https://api.doc-2.example.com',
           description: 'Doc 2 server',
@@ -415,7 +415,7 @@ describe('generateClientMutators', () => {
         },
       })
 
-      expect(store.workspace.documents['test-doc'].paths?.['/old-path'].get).toBeDefined()
+      expect(store.workspace.documents['test-doc']?.paths?.['/old-path']?.get).toBeDefined()
 
       expect(
         mutators.doc('test-doc').requestMutators.moveRequest({
@@ -424,8 +424,8 @@ describe('generateClientMutators', () => {
         }),
       ).toBe(true)
 
-      expect(store.workspace.documents['test-doc'].paths?.['/old-path']).toEqual({})
-      expect(store.workspace.documents['test-doc'].paths?.['/new-path'].post).toBeDefined()
+      expect(store.workspace.documents['test-doc']?.paths?.['/old-path']).toEqual({})
+      expect(store.workspace.documents['test-doc']?.paths?.['/new-path']?.post).toBeDefined()
     })
 
     it('should delete request', () => {
@@ -451,7 +451,7 @@ describe('generateClientMutators', () => {
         },
       })
 
-      expect(store.workspace.documents['test-doc'].paths?.['/test'].get).toBeDefined()
+      expect(store.workspace.documents['test-doc']?.paths?.['/test']?.get).toBeDefined()
 
       expect(
         mutators.doc('test-doc').requestMutators.deleteRequest({
@@ -460,7 +460,7 @@ describe('generateClientMutators', () => {
         }),
       ).toBe(true)
 
-      expect(store.workspace.documents['test-doc'].paths?.['/test']).toEqual({})
+      expect(store.workspace.documents['test-doc']?.paths?.['/test']).toEqual({})
     })
   })
 
@@ -519,8 +519,8 @@ describe('generateClientMutators', () => {
         }),
       ).toBe(false)
 
-      expect(store.workspace.documents['test-doc'].paths?.['/example'].get).toBeDefined()
-      expect(store.workspace.documents['test-doc'].paths?.['/example'].get).toEqual({
+      expect(store.workspace.documents['test-doc']?.paths?.['/example']?.get).toBeDefined()
+      expect(store.workspace.documents['test-doc']?.paths?.['/example']?.get).toEqual({
         operationId: 'getExample',
         responses: {
           200: {
@@ -544,7 +544,7 @@ describe('generateClientMutators', () => {
           .requestExampleMutators.deleteRequestExample({ path: '/example', method: 'get', slug: 'exampleRequest' }),
       ).toBe(true)
 
-      expect(store.workspace.documents['test-doc'].paths?.['/example'].get).toEqual({
+      expect(store.workspace.documents['test-doc']?.paths?.['/example']?.get).toEqual({
         operationId: 'getExample',
         responses: {
           200: {
@@ -582,8 +582,8 @@ describe('generateClientMutators', () => {
         }),
       ).toBe(true)
 
-      expect(store.workspace.documents['test-doc'].paths?.['/example'].get).toBeDefined()
-      expect(store.workspace.documents['test-doc'].paths?.['/example'].get).toEqual({
+      expect(store.workspace.documents['test-doc']?.paths?.['/example']?.get).toBeDefined()
+      expect(store.workspace.documents['test-doc']?.paths?.['/example']?.get).toEqual({
         'x-scalar-client-config-request-example': {
           exampleRequest: {
             parameters: {

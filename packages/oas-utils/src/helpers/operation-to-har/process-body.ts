@@ -98,7 +98,7 @@ const objectToFormParams = (obj: Record<string, unknown>): Param[] => {
  */
 export const processBody = ({ operation, contentType, example }: ProcessBodyProps): PostData => {
   const content = !operation.requestBody || isReference(operation.requestBody) ? {} : operation.requestBody.content
-  const _contentType = contentType || Object.keys(content)[0]
+  const _contentType = contentType || Object.keys(content)[0] || ''
 
   // Check if this is a form data content type
   const isFormData = _contentType === 'multipart/form-data' || _contentType === 'application/x-www-form-urlencoded'

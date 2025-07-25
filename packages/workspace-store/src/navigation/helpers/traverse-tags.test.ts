@@ -110,8 +110,8 @@ describe('traverseTags', () => {
     }
 
     const result = traverseTags(document, tagsMap, titlesMap, options)
-    expect(result[0].title).toBe('alpha')
-    expect(result[1].title).toBe('zebra')
+    expect(result[0]?.title).toBe('alpha')
+    expect(result[1]?.title).toBe('zebra')
   })
 
   it('should handle tag groups', () => {
@@ -135,7 +135,7 @@ describe('traverseTags', () => {
 
     const result = traverseTags(document, tagsMap, titlesMap, options)
     expect(result).toHaveLength(1)
-    expect(result[0].title).toBe('Group A')
+    expect(result[0]?.title).toBe('Group A')
     expect((result[0] as TraversedTag).children).toHaveLength(2)
   })
 
@@ -200,8 +200,8 @@ describe('traverseTags', () => {
     }
 
     const result = traverseTags(document, tagsMap, titlesMap, options)
-    expect(result[0].title).toBe('Alpha')
-    expect(result[1].title).toBe('Zebra')
+    expect(result[0]?.title).toBe('Alpha')
+    expect(result[1]?.title).toBe('Zebra')
   })
 
   it('should handle custom operations sorter', () => {
@@ -225,8 +225,8 @@ describe('traverseTags', () => {
     }
 
     const result = traverseTags(document, tagsMap, titlesMap, options)
-    expect(result[0].title).toBe('Operation A')
-    expect(result[1].title).toBe('Operation B')
+    expect(result[0]?.title).toBe('Operation A')
+    expect(result[1]?.title).toBe('Operation B')
   })
 
   it('should handle internal tags', () => {
@@ -247,7 +247,7 @@ describe('traverseTags', () => {
 
     const result = traverseTags(document, tagsMap, titlesMap, options)
     expect(result).toHaveLength(1)
-    expect(result[0].title).toBe('public')
+    expect(result[0]?.title).toBe('public')
   })
 
   it('should handle scalar-ignore tags', () => {
@@ -271,6 +271,6 @@ describe('traverseTags', () => {
 
     const result = traverseTags(document, tagsMap, titlesMap, options)
     expect(result).toHaveLength(1)
-    expect(result[0].title).toBe('visible')
+    expect(result[0]?.title).toBe('visible')
   })
 })

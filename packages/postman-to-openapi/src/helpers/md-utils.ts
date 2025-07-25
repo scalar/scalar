@@ -7,7 +7,7 @@ const supHeaders = ['object', 'name', 'description', 'example', 'type', 'require
  */
 export function parseMdTable(md: string): TableObject {
   const lines = md.split('\n').filter((line) => line.trim() !== '')
-  if (lines.length < 3) {
+  if (typeof lines[0] === 'undefined' || lines.length < 3) {
     return {}
   }
 

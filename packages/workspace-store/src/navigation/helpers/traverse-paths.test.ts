@@ -112,9 +112,9 @@ describe('traversePaths', () => {
 
     traversePaths(spec, tagsMap, titlesMap, mockGetOperationId)
     expect(tagsMap.get('Foobar')?.entries.length).toBe(1)
-    expect(tagsMap.get('Foobar')?.entries[0].title).toBe('Get Hello World')
+    expect(tagsMap.get('Foobar')?.entries[0]?.title).toBe('Get Hello World')
     expect(tagsMap.get('default')?.entries.length).toBe(1)
-    expect(tagsMap.get('default')?.entries[0].title).toBe('Post Hello World')
+    expect(tagsMap.get('default')?.entries[0]?.title).toBe('Post Hello World')
   })
 
   it('should handle deprecated operations', () => {
@@ -201,7 +201,7 @@ describe('traversePaths', () => {
     const titlesMap = new Map<string, string>()
 
     traversePaths(spec, tagsMap, titlesMap, mockGetOperationId)
-    expect(tagsMap.get('Misc')?.entries[0].title).toBe('/no-summary')
+    expect(tagsMap.get('Misc')?.entries[0]?.title).toBe('/no-summary')
   })
 
   it('should populate titlesMap correctly', () => {
