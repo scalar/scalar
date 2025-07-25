@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/vue3'
 import { ref } from 'vue'
 import type { ComponentExposed } from 'vue-component-type-helpers'
 
-import { ScalarButton, ScalarDropdownButton } from '../..'
+import { ScalarButton, ScalarDropdownButton, ScalarListboxCheckbox } from '../..'
 import ScalarCombobox from './ScalarCombobox.vue'
 import ScalarComboboxMultiselect from './ScalarComboboxMultiselect.vue'
 import type { Option, OptionGroup } from './types'
@@ -43,28 +43,41 @@ const options: Option[] = [
   { id: '7', label: 'Blackberry' },
 ]
 
-const groups: OptionGroup[] = [
+/** An example of an extended option with a timezone */
+type ExtendedOption = Option & {
+  timezone: string
+}
+
+/** An example of an extended option group with a flag */
+type ExtendedOptionGroup = OptionGroup<ExtendedOption> & {
+  flag: string
+}
+
+const groups: ExtendedOptionGroup[] = [
   {
     label: 'Canada',
+    flag: '🇨🇦',
     options: [
-      { id: 'ca-yvr', label: 'Vancouver' },
-      { id: 'ca-yyc', label: 'Calgary' },
-      { id: 'ca-yyz', label: 'Toronto' },
+      { id: 'ca-yvr', label: 'Vancouver', timezone: '-8' },
+      { id: 'ca-yyc', label: 'Calgary', timezone: '-7' },
+      { id: 'ca-yyz', label: 'Toronto', timezone: '-5' },
     ],
   },
   {
     label: 'United States',
+    flag: '🇺🇸',
     options: [
-      { id: 'us-sea', label: 'Seattle' },
-      { id: 'us-lax', label: 'Los Angeles' },
-      { id: 'us-jfk', label: 'New York' },
+      { id: 'us-sea', label: 'Seattle', timezone: '-8' },
+      { id: 'us-lax', label: 'Los Angeles', timezone: '-8' },
+      { id: 'us-jfk', label: 'New York', timezone: '-5' },
     ],
   },
   {
     label: 'Japan',
+    flag: '🇯🇵',
     options: [
-      { id: 'jp-hnd', label: 'Tokyo' },
-      { id: 'jp-itm', label: 'Osaka' },
+      { id: 'jp-hnd', label: 'Tokyo', timezone: '+9' },
+      { id: 'jp-itm', label: 'Osaka', timezone: '+9' },
     ],
   },
 ]
@@ -178,34 +191,49 @@ export const MultiselectGroups: Story = {
 }
 
 export const WithSlots: Story = {
-  args: { options: groups },
+  args: { options: groups, resize: true },
   render: (args) => ({
     components: {
-      ScalarComboboxMultiselect: ScalarComboboxMultiselect as any,
+      ScalarCombobox: ScalarCombobox as ComponentExposed<typeof ScalarCombobox>,
       ScalarButton,
       ScalarDropdownButton,
+      ScalarListboxCheckbox,
     },
     setup() {
-      const selected = ref<Option[]>([])
+      const selected = ref<Option>()
       return { args, selected }
     },
     template: `
 <div class="flex justify-center w-full min-h-96">
-  <ScalarComboboxMultiselect v-model="selected" placeholder="Select cities..." v-bind="args">
+  <ScalarCombobox v-model="selected" placeholder="Select a city..." v-bind="args">
     <ScalarButton class="w-48 px-3" variant="outlined">
       <div class="flex flex-1 items-center min-w-0">
         <span class="inline-block truncate flex-1 min-w-0 text-left">
-        {{ selected.length }} cities selected
+          {{ selected?.label ?? 'Select a city' }}
         </span>
       </div>
     </ScalarButton>
+    <template #option="{ option, selected }">
+      <ScalarListboxCheckbox
+        :selected />
+      <div class="flex-1 min-w-0 truncate">
+        {{ option.label }}
+      </div>
+      <div class="text-c-3">
+        GMT{{ option.timezone }}
+      </div>
+    </template>
+    <template #group="{ group }">
+      {{ group.flag }}
+      {{ group.label }}
+    </template>
     <template #before>
       <div class="placeholder">Before</div>
     </template>
     <template #after>
       <div class="placeholder">After</div>
     </template>
-  </ScalarComboboxMultiselect>
+  </ScalarCombobox>
 </div>
 `,
   }),

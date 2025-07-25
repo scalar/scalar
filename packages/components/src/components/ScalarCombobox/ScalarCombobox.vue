@@ -2,7 +2,7 @@
 <script
   setup
   lang="ts"
-  generic=" O extends Option = Option, G extends OptionGroup<O> = OptionGroup<O> ">
+  generic="O extends Option = Option, G extends OptionGroup<O> = OptionGroup<O>">
 import type { ScalarFloatingOptions } from '../ScalarFloating'
 import ComboboxOptions from './ScalarComboboxOptions.vue'
 import ComboboxPopover from './ScalarComboboxPopover.vue'
@@ -50,17 +50,17 @@ defineSlots<ComboboxSlots<O, G>>()
         </template>
         <template
           v-if="$slots.option"
-          #option="{ option }">
+          #option="props">
           <slot
             name="option"
-            :option />
+            v-bind="props" />
         </template>
         <template
           v-if="$slots.group"
-          #group="{ group }">
+          #group="props">
           <slot
             name="group"
-            :group />
+            v-bind="props" />
         </template>
         <template
           v-if="$slots.after"

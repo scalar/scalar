@@ -1,15 +1,9 @@
 <script setup lang="ts">
 import { cva, cx } from '@scalar/use-hooks/useBindCx'
 
-import {
-  ScalarListboxCheckbox,
-  type ScalarListboxOptionStyle,
-} from '../ScalarListbox'
-
-defineProps<{
+const { active, selected } = defineProps<{
   active?: boolean
   selected?: boolean
-  style?: ScalarListboxOptionStyle
 }>()
 
 const variants = cva({
@@ -35,9 +29,8 @@ const variants = cva({
     :class="cx(variants({ active, selected }))"
     role="option"
     tabindex="-1">
-    <ScalarListboxCheckbox
-      :selected="selected"
-      :style="style" />
-    <span class="inline-block min-w-0 flex-1 truncate text-c-1"><slot /></span>
+    <slot
+      :active
+      :selected />
   </li>
 </template>
