@@ -301,6 +301,7 @@ const showSchema = ref(false)
 }
 .scalar-card-checkbox:has(.scalar-card-checkbox-input:checked) {
   color: var(--scalar-color-1);
+  font-weight: var(--scalar-semibold);
 }
 
 .scalar-card-checkbox
