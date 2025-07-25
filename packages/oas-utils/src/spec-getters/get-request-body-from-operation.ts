@@ -81,7 +81,7 @@ export function getRequestBodyFromOperation(
   if (selectedExample) {
     return {
       mimeType,
-      text: prettyPrintJson(selectedExample?.value),
+      text: prettyPrintJson('value' in selectedExample ? selectedExample.value : selectedExample),
     }
   }
 

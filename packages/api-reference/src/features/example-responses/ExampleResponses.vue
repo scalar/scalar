@@ -7,13 +7,16 @@ import {
   ScalarIcon,
   ScalarMarkdown,
 } from '@scalar/components'
-import type { Operation } from '@scalar/oas-utils/entities/spec'
 import {
   getObjectKeys,
   normalizeMimeTypeObject,
 } from '@scalar/oas-utils/helpers'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
-import { computed, ref, useId } from 'vue'
+import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/media-header-encoding'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
+import type { ResponseObject } from '@scalar/workspace-store/schemas/v3.1/strict/response'
+import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
+import { computed, ref, toValue, useId } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
 import { ExamplePicker } from '@/v2/blocks/scalar-request-example-block'
@@ -26,17 +29,16 @@ import ExampleResponseTabList from './ExampleResponseTabList.vue'
  * TODO: copyToClipboard isn't using the right content if there are multiple examples
  */
 
-const { responses } = defineProps<{ responses: Operation['responses'] }>()
+const { responses } = defineProps<{
+  responses: Dereference<OperationObject>['responses']
+}>()
 
 const id = useId()
-
 const { copyToClipboard } = useClipboard()
 
 // Bring the status codes in the right order.
-const orderedStatusCodes = computed(() => Object.keys(responses ?? {}).sort())
-
-const hasMultipleExamples = computed<boolean>(
-  () => !!currentJsonResponse.value.examples,
+const orderedStatusCodes = computed<string[]>(() =>
+  Object.keys(responses ?? {}).sort(),
 )
 
 // Keep track of the current selected tab
@@ -45,12 +47,12 @@ const selectedResponseIndex = ref<number>(0)
 // Return the whole response object
 const currentResponse = computed(() => {
   const currentStatusCode =
-    orderedStatusCodes.value[selectedResponseIndex.value]
+    toValue(orderedStatusCodes)[toValue(selectedResponseIndex)]
 
-  return responses?.[currentStatusCode]
+  return responses?.[currentStatusCode] as ResponseObject | undefined
 })
 
-const currentJsonResponse = computed(() => {
+const currentResponseContent = computed<MediaTypeObject | undefined>(() => {
   const normalizedContent = normalizeMimeTypeObject(
     currentResponse.value?.content,
   )
@@ -67,42 +69,46 @@ const currentJsonResponse = computed(() => {
     normalizedContent?.['*/*'] ??
     // Take the first key - in the future we may want to use the selected content type
     normalizedContent?.[keys[0]] ??
-    // Swagger 2.0
-    currentResponse.value
+    undefined
   )
 })
 
+const hasMultipleExamples = computed<boolean>(
+  () =>
+    !!currentResponseContent.value?.examples &&
+    Object.keys(currentResponseContent.value?.examples ?? {}).length > 1,
+)
+
 const selectedExampleKey = ref<string>(
-  Object.keys(currentJsonResponse.value.examples ?? {})[0] ?? '',
+  Object.keys(currentResponseContent.value?.examples ?? {})[0] ?? '',
 )
 
 /**
  * Gets the first example response if there are multiple example responses
  * or the only example if there is only one example response.
  */
-const getFirstExampleResponse = () => {
-  if (!hasMultipleExamples.value) {
-    return currentJsonResponse.value.example
-  }
-  if (Array.isArray(currentJsonResponse.value.examples)) {
-    return currentJsonResponse.value.examples[0]
+const getFirstResponseExample = () => {
+  const response = toValue(currentResponseContent)
+
+  if (!response) {
+    return undefined
   }
 
-  const firstProperty = Object.keys(currentJsonResponse.value.examples)[0]
-  const firstExample = currentJsonResponse.value.examples[firstProperty]
+  if (Array.isArray(response.examples)) {
+    return response.examples[0]
+  }
 
-  // Handle the case where the example already has a 'value' property
-  return firstExample?.value ?? firstExample
+  const firstExampleKey = Object.keys(response.examples ?? {})[0]
+  const firstExample = response.examples?.[firstExampleKey]
+
+  return firstExample
 }
 
-const currentResponseWithExample = computed(() => ({
-  ...currentJsonResponse.value,
-  example:
-    hasMultipleExamples.value && selectedExampleKey.value
-      ? (currentJsonResponse.value.examples[selectedExampleKey.value].value ??
-        currentJsonResponse.value.examples[selectedExampleKey.value])
-      : getFirstExampleResponse(),
-}))
+const currentExample = computed(() => {
+  return hasMultipleExamples.value && selectedExampleKey.value
+    ? currentResponseContent.value?.examples?.[selectedExampleKey.value]
+    : getFirstResponseExample()
+})
 
 const changeTab = (index: number) => {
   selectedResponseIndex.value = index
@@ -128,16 +134,16 @@ const showSchema = ref(false)
 
       <template #actions>
         <button
-          v-if="currentJsonResponse?.example"
+          v-if="currentResponseContent?.example"
           class="code-copy"
           type="button"
-          @click="() => copyToClipboard(currentJsonResponse?.example)">
+          @click="() => copyToClipboard(currentResponseContent?.example)">
           <ScalarIcon
             icon="Clipboard"
             width="12px" />
         </button>
         <label
-          v-if="currentJsonResponse?.schema"
+          v-if="currentResponseContent?.schema"
           class="scalar-card-checkbox">
           Show Schema
           <input
@@ -150,39 +156,36 @@ const showSchema = ref(false)
       </template>
     </ExampleResponseTabList>
     <ScalarCardSection class="grid flex-1">
-      <template v-if="currentJsonResponse?.schema">
-        <ScalarCodeBlock
-          v-if="showSchema && currentResponseWithExample"
-          :id="id"
-          class="-outline-offset-2"
-          :content="currentResponseWithExample"
-          lang="json" />
-        <ExampleResponse
-          v-else
-          :id="id"
-          :response="currentResponseWithExample" />
-      </template>
-      <!-- Without Schema: Don't show tabs -->
+      <!-- Schema -->
+      <ScalarCodeBlock
+        v-if="showSchema && currentResponseContent?.schema"
+        :id="id"
+        class="-outline-offset-2"
+        :content="currentResponseContent.schema"
+        lang="json" />
+
+      <!-- Example -->
       <ExampleResponse
         v-else
         :id="id"
-        :response="currentResponseWithExample" />
+        :response="currentResponseContent"
+        :example="currentExample" />
     </ScalarCardSection>
     <ScalarCardFooter
       v-if="currentResponse?.description || hasMultipleExamples"
       class="response-card-footer">
-      <ExamplePicker
-        v-if="hasMultipleExamples"
-        class="response-example-selector"
-        :examples="currentJsonResponse?.examples"
-        v-model="selectedExampleKey" />
       <div
-        v-else-if="currentResponse?.description"
+        v-if="currentResponse?.description"
         class="response-description">
         <ScalarMarkdown
           class="markdown"
           :value="currentResponse.description" />
       </div>
+      <ExamplePicker
+        v-if="hasMultipleExamples"
+        class="response-example-selector"
+        :examples="currentResponseContent?.examples"
+        v-model="selectedExampleKey" />
     </ScalarCardFooter>
   </ScalarCard>
 </template>
@@ -218,7 +221,8 @@ const showSchema = ref(false)
 }
 .response-card-footer {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: space-between;
   flex-shrink: 0;
   padding: 7px 12px;
   gap: 8px;
