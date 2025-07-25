@@ -131,7 +131,7 @@ const addDocument = (config: Partial<ApiReferenceConfigurationWithSources>) => {
   // If the document is already in the store we skip it
   if (store.workspace.documents[name]) {
     if (document) {
-      console.log('should we update')
+      console.trace('should we update')
       store.replaceDocument(name, document)
     }
 
