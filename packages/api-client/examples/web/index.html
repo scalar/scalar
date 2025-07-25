@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Scalar API Client standalone demo</title>
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <!-- Load the Script -->
+    <script
+      id="scalar-script"
+      src="../../dist/browser/standalone.js"
+      type="module"></script>
+
+    <!-- Initialize the Scalar API Reference -->
+    <script>
+      document
+        .getElementById('scalar-script')
+        .addEventListener('load', function () {
+          Scalar.createApiClient('#app', {
+            // The URL of the OpenAPI/Swagger document
+            url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+            // The actual contents of the OpenAPI document
+            //content: document.getElementById('app').innerHTML,
+            // Avoid CORS issues
+            proxyUrl: 'https://proxy.scalar.com',
+          })
+        })
+    </script>
+  </body>
+</html>
