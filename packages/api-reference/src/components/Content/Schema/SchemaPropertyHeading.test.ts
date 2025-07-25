@@ -593,7 +593,7 @@ describe('SchemaPropertyHeading', () => {
       })
 
       const detailsElement = wrapper.find('.property-heading')
-      expect(detailsElement.text()).toContain('min:')
+      expect(detailsElement.text()).toContain('min length:')
       expect(detailsElement.text()).toContain('5')
     })
 
@@ -608,7 +608,7 @@ describe('SchemaPropertyHeading', () => {
       })
 
       const detailsElement = wrapper.find('.property-heading')
-      expect(detailsElement.text()).toContain('max:')
+      expect(detailsElement.text()).toContain('max length:')
       expect(detailsElement.text()).toContain('100')
     })
 
@@ -624,9 +624,9 @@ describe('SchemaPropertyHeading', () => {
       })
 
       const detailsElement = wrapper.find('.property-heading')
-      expect(detailsElement.text()).toContain('min:')
+      expect(detailsElement.text()).toContain('min length:')
       expect(detailsElement.text()).toContain('5')
-      expect(detailsElement.text()).toContain('max:')
+      expect(detailsElement.text()).toContain('max length:')
       expect(detailsElement.text()).toContain('100')
     })
   })
