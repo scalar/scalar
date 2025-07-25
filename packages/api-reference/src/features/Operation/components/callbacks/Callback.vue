@@ -9,7 +9,7 @@ import OperationParameters from '@/features/Operation/components/OperationParame
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
 import type { Schemas } from '@/features/Operation/types/schemas'
 
-const { method, name, schemas, url, path, operationMethod } = defineProps<{
+const { method, name, schemas, url } = defineProps<{
   callback: Dereference<OperationObject>
   method: HttpMethodType
   path: string

@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
-import {
-  combineRenameDiffs,
-  mutateSecuritySchemeDiff,
-} from '@scalar/api-client/views/Request/libs'
+import { mutateSecuritySchemeDiff } from '@scalar/api-client/views/Request/libs'
 import { getServersFromOpenApiDocument } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiClientPlugin } from '@scalar/types/api-client'
@@ -84,7 +81,7 @@ watchDebounced(
   },
 )
 
-// Update the config (non doucment related) on change
+// Update the config (non document related) on change
 watchDebounced(
   () => configuration,
   (newConfig, oldConfig) => {
