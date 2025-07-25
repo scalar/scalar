@@ -4,7 +4,7 @@ import { ScalarIconCaretRight } from '@scalar/icons'
 import { useElementHover } from '@vueuse/core'
 import { ref } from 'vue'
 
-import { useSidebar } from '@/features/sidebar/hooks/useSidebar'
+import { useSidebar } from '@/features/sidebar'
 import { useNavState } from '@/hooks/useNavState'
 
 import IntersectionObserver from '../IntersectionObserver.vue'
