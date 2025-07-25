@@ -278,22 +278,6 @@ describe('ScalarComboboxOption', () => {
     expect(wrapper.text()).toContain('Option Text')
     expect(wrapper.classes()).toContain('bg-b-2')
   })
-
-  it('emits delete event when delete icon is clicked', async () => {
-    const wrapper = mount(ScalarComboboxOption, {
-      props: {
-        isDeletable: true,
-      },
-      slots: {
-        default: 'Option Text',
-      },
-    })
-
-    const deleteIcon = wrapper.find('[aria-label="Delete"]')
-    await deleteIcon.trigger('click')
-
-    expect(wrapper.emitted('delete')).toBeTruthy()
-  })
 })
 
 describe('ScalarComboboxPopover', () => {

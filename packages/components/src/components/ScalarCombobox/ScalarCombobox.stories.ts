@@ -1,11 +1,20 @@
 import { placements } from '@floating-ui/utils'
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { ref } from 'vue'
+import type { ComponentExposed } from 'vue-component-type-helpers'
 
-import { ScalarButton, ScalarDropdownButton, ScalarIcon } from '../..'
+import { ScalarButton, ScalarDropdownButton } from '../..'
 import ScalarCombobox from './ScalarCombobox.vue'
 import ScalarComboboxMultiselect from './ScalarComboboxMultiselect.vue'
 import type { Option, OptionGroup } from './types'
+
+/**
+ * Helper to handle generic Vue components
+ * @see https://github.com/storybookjs/storybook/issues/24238#issuecomment-2609580391
+ */
+type GenericMeta<C> = Omit<Meta<C>, 'component'> & {
+  component: ComponentExposed<C>
+}
 
 const meta = {
   component: ScalarCombobox,
@@ -20,7 +29,7 @@ const meta = {
     },
     class: { control: 'text' },
   },
-} satisfies Meta<typeof ScalarCombobox>
+} satisfies GenericMeta<typeof ScalarCombobox>
 
 export default meta
 type Story = StoryObj<typeof meta>
@@ -64,9 +73,8 @@ export const Base: Story = {
   args: { options },
   render: (args) => ({
     components: {
-      ScalarCombobox,
+      ScalarCombobox: ScalarCombobox as ComponentExposed<typeof ScalarCombobox>,
       ScalarButton,
-      ScalarIcon,
     },
     setup() {
       const selected = ref<Option>()
@@ -92,9 +100,8 @@ export const Groups: Story = {
   args: { options: groups },
   render: (args) => ({
     components: {
-      ScalarCombobox,
+      ScalarCombobox: ScalarCombobox as ComponentExposed<typeof ScalarCombobox>,
       ScalarButton,
-      ScalarIcon,
     },
     setup() {
       const selected = ref<Option>()
@@ -120,9 +127,8 @@ export const Multiselect: Story = {
   args: { options },
   render: (args) => ({
     components: {
-      ScalarComboboxMultiselect,
+      ScalarComboboxMultiselect: ScalarComboboxMultiselect as any,
       ScalarButton,
-      ScalarIcon,
     },
     setup() {
       const selected = ref<Option[]>([])
@@ -148,9 +154,8 @@ export const MultiselectGroups: Story = {
   args: { options: groups },
   render: (args) => ({
     components: {
-      ScalarComboboxMultiselect,
+      ScalarComboboxMultiselect: ScalarComboboxMultiselect as any,
       ScalarButton,
-      ScalarIcon,
     },
     setup() {
       const selected = ref<Option[]>([])
@@ -176,9 +181,8 @@ export const WithSlots: Story = {
   args: { options: groups },
   render: (args) => ({
     components: {
-      ScalarComboboxMultiselect,
+      ScalarComboboxMultiselect: ScalarComboboxMultiselect as any,
       ScalarButton,
-      ScalarIcon,
       ScalarDropdownButton,
     },
     setup() {
@@ -217,9 +221,8 @@ export const CustomClasses: Story = {
   },
   render: (args) => ({
     components: {
-      ScalarCombobox,
+      ScalarCombobox: ScalarCombobox as ComponentExposed<typeof ScalarCombobox>,
       ScalarButton,
-      ScalarIcon,
     },
     setup() {
       const selected = ref<Option>()
