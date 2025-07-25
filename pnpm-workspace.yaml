@@ -38,6 +38,7 @@ catalogs:
     '@vueuse/core': ^11.2.0
     '@vitejs/plugin-vue': ^5.2.4
     '@vueuse/integrations': ^11.2.0
+    '@vue/test-utils': ^2.4.1
     ansis: 4.1.0
     chokidar: 4.0.3
     commander: 13.1.0
