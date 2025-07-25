@@ -1,4 +1,8 @@
-<script setup lang="ts">
+<!-- prettier-ignore-attribute generic -->
+<script
+  setup
+  lang="ts"
+  generic="O extends Option = Option, G extends OptionGroup<O> = OptionGroup<O>">
 import { ScalarIconMagnifyingGlass } from '@scalar/icons'
 import { computed, onMounted, ref, useId, watch } from 'vue'
 
@@ -8,23 +12,19 @@ import {
   type ComboboxSlots,
   type Option,
   type OptionGroup,
+  type OptionsOrGroups,
   isGroups,
 } from './types'
 
 const props = defineProps<{
-  options: Option[] | OptionGroup[]
-  modelValue?: Option[]
+  options: OptionsOrGroups<O, G>
   placeholder?: string
   multiselect?: boolean
-  isDeletable?: boolean
 }>()
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', v: Option[]): void
-  (e: 'delete', option: Option): void
-}>()
+const model = defineModel<O[]>({ default: [] })
 
-defineSlots<Omit<ComboboxSlots, 'default'>>()
+defineSlots<Omit<ComboboxSlots<O, G>, 'default'>>()
 
 defineOptions({ inheritAttrs: false })
 
@@ -37,23 +37,21 @@ function getOptionId(option: Option) {
 }
 
 /** A flat list of all options */
-const options = computed<Option[]>(() =>
+const options = computed<O[]>(() =>
   isGroups(props.options)
     ? props.options.flatMap((group) => group.options)
     : props.options,
 )
 
 /** An list of all groups */
-const groups = computed<OptionGroup[]>(() =>
+const groups = computed<OptionGroup<O>[]>(() =>
   isGroups(props.options)
     ? props.options
     : [{ label: '', options: props.options }],
 )
 
 const query = ref<string>('')
-const active = ref<Option | undefined>(
-  props.modelValue?.[0] ?? options.value[0],
-)
+const active = ref<Option | undefined>(model.value?.[0] ?? options.value[0])
 
 // Clear the query on open and close
 onMounted(async () => {
@@ -61,12 +59,12 @@ onMounted(async () => {
   query.value = ''
 
   // Set the active option to the selected option or the first option
-  active.value = props.modelValue?.[0] ?? options.value[0]
+  active.value = model.value?.[0] ?? options.value[0]
 
   // Scroll to the selected option
-  if (selected.value.length !== 0) {
+  if (model.value.length !== 0) {
     setTimeout(() => {
-      const value = selected.value[0]
+      const value = model.value[0]
       if (!value) {
         return
       }
@@ -84,7 +82,7 @@ watch(
   () => (active.value = filtered.value[0]),
 )
 
-const filtered = computed<Option[]>(() =>
+const filtered = computed<O[]>(() =>
   query.value === ''
     ? options.value
     : options.value.filter((option) => {
@@ -92,24 +90,23 @@ const filtered = computed<Option[]>(() =>
       }),
 )
 
-const selected = computed<Option[]>({
-  get: () => props.modelValue ?? [],
-  set: (o: Option[]) => o && emit('update:modelValue', o),
-})
+function toggleSelected(option: O | undefined) {
+  if (!option) {
+    return
+  }
 
-function toggleSelected(option: Option) {
   if (props.multiselect) {
     // Remove from selection list
-    if (selected.value.some((o) => o.id === option.id)) {
-      selected.value = selected.value.filter((o) => o.id !== option.id)
+    if (model.value.some((o) => o.id === option.id)) {
+      model.value = model.value.filter((o) => o.id !== option.id)
     }
     // Add to selection list
     else {
-      selected.value = [...selected.value, option]
+      model.value = [...model.value, option]
     }
   } else {
     // Set selection for single select mode
-    selected.value = [option]
+    model.value = [option]
   }
 }
 
@@ -151,7 +148,7 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
     <input
       v-model="query"
       ref="input"
-      :aria-activedescendant="active ? getOptionId(active) : undefined"
+      :aria-activedescendant="active && getOptionId(active as O)"
       aria-autocomplete="list"
       :aria-controls="id"
       class="min-w-0 flex-1 rounded border-0 py-2.5 pl-8 pr-3 leading-none text-c-1 -outline-offset-1"
@@ -161,7 +158,7 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
       tabindex="0"
       type="text"
       @keydown.down.prevent="moveActive(1)"
-      @keydown.enter.prevent="active && toggleSelected(active)"
+      @keydown.enter.prevent="active && toggleSelected(active as O)"
       @keydown.up.prevent="moveActive(-1)" />
   </div>
   <ul
@@ -192,11 +189,9 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
           v-if="group.options.some((o) => o.id === option.id)"
           :id="getOptionId(option)"
           :active="active?.id === option.id"
-          :isDeletable="option.isDeletable ?? isDeletable"
-          :selected="selected.some((o) => o.id === option.id)"
+          :selected="model.some((o) => o.id === option.id)"
           :style="multiselect ? 'checkbox' : 'radio'"
           @click="toggleSelected(option)"
-          @delete="$emit('delete', option)"
           @mousedown.prevent
           @mouseenter="active = option">
           {{ option.label }}

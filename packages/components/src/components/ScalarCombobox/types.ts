@@ -1,14 +1,14 @@
 export type Option = {
   id: string
   label: string
-  isDeletable?: boolean
-  [x: string]: any
 }
 
-export type OptionGroup = {
+export type OptionGroup<O extends Option = Option> = {
   label: string
-  options: Option[]
+  options: O[]
 }
+
+export type OptionsOrGroups<O extends Option = Option, G extends OptionGroup<O> = OptionGroup<O>> = O[] | G[]
 
 /** Type guard to check if an option is a group */
 export function isGroup(option: Option | OptionGroup | undefined): option is OptionGroup {
@@ -21,9 +21,13 @@ export function isGroups(options: Option[] | OptionGroup[]): options is OptionGr
 }
 
 /** Available slots for the combobox */
-export type ComboboxSlots = {
+export type ComboboxSlots<O extends Option = Option, G extends OptionGroup<O> = OptionGroup<O>> = {
   /** The reference element / trigger for the combobox */
-  default(): unknown
+  default(props: { open: boolean }): unknown
+  /** A template to override the option label */
+  option?(props: { option: O }): unknown
+  /** A template to override the group label */
+  group?(props: { group: G }): unknown
   /** A slot for contents before the combobox options */
   before?(): unknown
   /** A slot for contents after the combobox options */
