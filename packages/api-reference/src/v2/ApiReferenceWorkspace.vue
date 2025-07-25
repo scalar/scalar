@@ -19,17 +19,19 @@ import {
   safeLocalStorage,
 } from '@scalar/helpers/object/local-storage'
 import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
-import { parseJsonOrYaml, redirectToProxy } from '@scalar/oas-utils/helpers'
-import type { AnyApiReferenceConfiguration } from '@scalar/types'
+import { redirectToProxy } from '@scalar/oas-utils/helpers'
+import type {
+  AnyApiReferenceConfiguration,
+  ApiReferenceConfigurationWithSources,
+} from '@scalar/types'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { type WorkspaceStore } from '@scalar/workspace-store/client'
+import { deepClone } from '@scalar/workspace-store/helpers/general'
 import { useSeoMeta } from '@unhead/vue'
 import { useFavicon } from '@vueuse/core'
 import {
   computed,
   onBeforeMount,
-  onMounted,
-  onServerPrefetch,
   provide,
   ref,
   toRef,
@@ -45,6 +47,8 @@ import {
 import { NAV_STATE_SYMBOL } from '@/hooks/useNavState'
 import { isClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import { onCustomEvent } from '@/v2/events'
+import { getDocumentName } from '@/v2/helpers/get-document-name'
+import { normalizeContent } from '@/v2/helpers/normalize-content'
 
 const props = defineProps<{
   configuration?: AnyApiReferenceConfiguration
@@ -95,76 +99,9 @@ provide(NAV_STATE_SYMBOL, { isIntersectionEnabled, hash, hashPrefix })
 // ---------------------------------------------------------------------------
 
 const root = useTemplateRef<HTMLElement>('root')
-
 const store = props.store
 
-/**
- * When the useMultipleDocuments hook is deprecated we will need to handle normalizing the configs.
- *
- * TODO: Sources should be externalized from the configuration.
- */
-const configs = availableDocuments
-
-/**
- * Adds a document to the workspace store based on the provided configuration.
- * Handles both in-memory documents (via content) and remote documents (via URL).
- *
- * @param config - The document configuration containing either content or URL
- * @returns The result of adding the document to the store, or undefined if skipped
- */
-const addDocument = async (config: (typeof configs.value)[number]) => {
-  // If the document is already in the store we skip it
-  // TODO: Handle cases when the slug is the same but belongs to two different documents?
-  // This can be the case when no slug and no title is provided and we are using index for the slug!
-  if (store.workspace.documents[config.slug ?? 'default'] !== undefined) {
-    return
-  }
-
-  if (config.content) {
-    const obj =
-      typeof config.content === 'string'
-        ? parseJsonOrYaml(config.content)
-        : config.content
-
-    // Add in-memory documents to the store
-    return await store.addDocument({
-      name: config.slug ?? 'default',
-      document: typeof obj === 'function' ? obj() : obj,
-    })
-  }
-
-  if (config.url) {
-    return await store.addDocument({
-      name: config.slug ?? 'default',
-      url: makeUrlAbsolute(config.url, {
-        basePath: selectedConfiguration.value.pathRouting?.basePath,
-      }),
-      fetch: proxy,
-    })
-  }
-
-  return
-}
-
-configs.value.forEach((config) => {
-  if (config.content) {
-    addDocument(config)
-  }
-})
-
-// const staticDocuments = props.configuration
-// props.configuration?.documents?.forEach((document) => {
-
-onServerPrefetch(() => {
-  // For SSR we want to preload the active document into the store
-  configs.value.forEach((config) => {
-    if (config.url) {
-      addDocument(config)
-    }
-  })
-})
-
-// Do this a big quicker than onMounted
+// Do this a bit quicker than onMounted
 onBeforeMount(() => {
   const storedClient = safeLocalStorage().getItem(
     REFERENCE_LS_KEYS.SELECTED_CLIENT,
@@ -174,15 +111,79 @@ onBeforeMount(() => {
   }
 })
 
-onMounted(() => {
-  // During client side rendering we load the active document from the URL
-  // NOTE: The UI MUST handle a case where the document is empty
-  configs.value.forEach((config) => {
-    if (config.url) {
-      addDocument(config)
-    }
+/**
+ * Adds a document to the workspace store based on the provided configuration.
+ * Handles both in-memory documents (via content) and remote documents (via URL).
+ *
+ * @param config - The document configuration containing either content or URL
+ * @returns The result of adding the document to the store, or undefined if skipped
+ */
+const addDocument = (config: Partial<ApiReferenceConfigurationWithSources>) => {
+  const document = normalizeContent(config.content)
+
+  /** Generate a name from the document/config */
+  const name = getDocumentName({
+    name: config.slug || config.title,
+    url: config.url,
+    document,
   })
-})
+
+  // If the document is already in the store, we may want to update it
+  if (store.workspace.documents[name]) {
+    if (document) {
+      // Disable intersection observer to prevent url changing
+      isIntersectionEnabled.value = false
+
+      /**
+       * We need to clone the object as it gets mutated by the upgrader causing a stack overflow
+       * todo: we can remove the deepClone once the upgrader becomes functional
+       */
+      const clonedDocument = deepClone(document)
+      store.replaceDocument(name, clonedDocument)
+
+      // Lets set it to active as well just in case the name changed
+      store.update('x-scalar-active-document', name)
+
+      // Re-enable intersection observer
+      setTimeout(() => {
+        isIntersectionEnabled.value = true
+      }, 300)
+    }
+
+    return
+  }
+
+  if (document) {
+    return store.addDocumentSync({
+      name,
+      document,
+    })
+  }
+
+  if (config.url) {
+    return store.addDocument({
+      name: config.slug ?? 'default',
+      url: makeUrlAbsolute(config.url, {
+        basePath: selectedConfiguration.value.pathRouting?.basePath,
+      }),
+      fetch: proxy,
+    })
+  }
+}
+
+/** Watch for URL changes */
+watch(
+  () => selectedConfiguration.value.url,
+  (newUrl) => newUrl && addDocument(selectedConfiguration.value),
+  { immediate: true },
+)
+
+/** Watch for content changes */
+watch(
+  () => selectedConfiguration.value.content,
+  (newContent) => newContent && addDocument(selectedConfiguration.value),
+  { immediate: true, deep: true },
+)
 
 // onCustomEvent(root, 'scalar-update-sidebar', (event) => {
 //   console.log('scalar-update-sidebar', event)
@@ -250,14 +251,6 @@ watch(
       availableDocuments.value[newValue]?.slug,
     ),
   { immediate: true },
-)
-
-/** Add any missing documents when props change */
-watch(
-  () => availableDocuments.value,
-  (newValue) => {
-    newValue.forEach(addDocument)
-  },
 )
 
 if (selectedConfiguration.value.metaData) {

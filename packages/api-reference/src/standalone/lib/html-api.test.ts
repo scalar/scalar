@@ -145,8 +145,30 @@ describe('html-api', () => {
       // Assert the configuration was updated
       await flushPromises()
 
-      expect(document.getElementById('tag/default/get/test')).not.toBeNull()
-      expect(document.getElementById('tag/default/get/test')?.innerHTML).toContain('New Operation')
+      expect(document.getElementById('tag/test/get/test')).not.toBeNull()
+      expect(document.getElementById('tag/test/get/test')?.innerHTML).toContain('New Operation')
+
+      // Update configuration
+      app.updateConfiguration({
+        content: JSON.stringify({
+          'openapi': '3.1.0',
+          'info': { 'title': 'Updated API', 'version': '1.0.0' },
+          'paths': {
+            '/test': {
+              'post': {
+                'tags': ['Test'],
+                'summary': 'Even newer operation',
+              },
+            },
+          },
+        }),
+      })
+
+      expect(document.getElementById('tag/test/post/test')).not.toBeNull()
+      expect(document.getElementById('tag/test/post/test')?.innerHTML).toContain('Even newer operation')
+
+      // Assert the configuration was updated
+      await flushPromises()
     })
   })
 
