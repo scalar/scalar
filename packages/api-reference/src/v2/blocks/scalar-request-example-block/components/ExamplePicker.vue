@@ -46,7 +46,9 @@ defineExpose({
       fullWidth
       variant="ghost">
       <span>{{ getLabel(selectedExampleKey) }}</span>
-      <ScalarIconCaretDown />
+      <ScalarIconCaretDown
+        weight="bold"
+        class="ui-open:rotate-180 mt-0.25 size-3 transition-transform duration-100" />
     </ScalarButton>
     <template #items>
       <ScalarDropdownItem

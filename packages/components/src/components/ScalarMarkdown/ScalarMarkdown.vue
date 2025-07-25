@@ -341,7 +341,7 @@ const html = computed(() => {
     border-radius: 2.5px;
     display: flex;
     align-items: flex-start;
-    gap: 10px;
+    gap: 8px;
     min-height: 40px;
     padding: 7px 14px;
     position: relative;
@@ -382,6 +382,7 @@ const html = computed(() => {
 
   .markdown details[open] > summary::before {
     transform: rotate(90deg);
+    transition: transform 0.1s ease-in-out;
   }
 
   .markdown details:has(+ details) {

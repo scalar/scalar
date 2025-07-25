@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIconCaretDown } from '@scalar/icons'
 
 import { useSidebar } from '@/features/sidebar'
 import { useConfig } from '@/hooks/useConfig'
@@ -23,9 +23,9 @@ const handleClick = () => {
     type="button"
     @click="handleClick">
     Show More
-    <ScalarIcon
-      class="show-more-icon"
-      icon="ChevronDown" />
+    <ScalarIconCaretDown
+      weight="bold"
+      class="text-c-2 mt-0.25 size-3" />
   </button>
 </template>
 
@@ -44,21 +44,19 @@ const handleClick = () => {
   align-items: center;
   justify-content: center;
   position: relative;
+  gap: 6px;
   top: -48px;
 }
+
 .show-more:hover {
   background: var(--scalar-background-2);
   cursor: pointer;
 }
-.show-more-icon {
-  /* todo remove but its for docusaurus */
-  width: 16px !important;
-  height: 16px !important;
-  margin-left: 3px;
-}
+
 .show-more:active {
   box-shadow: 0 0 0 1px var(--scalar-border-color);
 }
+
 @container narrow-references-container (max-width: 900px) {
   .show-more {
     top: -24px;

@@ -2,7 +2,6 @@
 import {
   ScalarButton,
   ScalarComboboxMultiselect,
-  ScalarIcon,
   useModal,
   type Icon,
   type ScalarButton as ScalarButtonType,
@@ -11,6 +10,7 @@ import {
   CLIENT_LS_KEYS,
   safeLocalStorage,
 } from '@scalar/helpers/object/local-storage'
+import { ScalarIconCaretDown } from '@scalar/icons'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
 import type {
@@ -269,27 +269,24 @@ const openAuthCombobox = (event: Event) => {
           <ScalarButton
             ref="comboboxButtonRef"
             :aria-describedby="titleId"
-            class="hover:bg-b-3 text-c-1 hover:text-c-1 h-fit px-1.5 py-0.25 font-normal"
+            class="group/combobox-button hover:text-c-1 text-c-2 flex h-fit items-center gap-1 px-1.5 py-0.25 text-base font-normal transition-transform"
             fullWidth
             variant="ghost">
-            <div class="text-c-1">
-              <template v-if="selectedSchemeOptions.length === 0">
-                <span class="sr-only">Select</span>
-                Auth Type
-              </template>
-              <template v-else-if="selectedSchemeOptions.length === 1">
-                <span class="sr-only">Selected Auth Type:</span>
-                {{ selectedSchemeOptions[0]?.label }}
-              </template>
-              <template v-else>
-                Multiple
-                <span class="sr-only">Auth Types Selected</span>
-              </template>
-            </div>
-            <ScalarIcon
-              class="ml-1 shrink-0"
-              icon="ChevronDown"
-              size="sm" />
+            <template v-if="selectedSchemeOptions.length === 0">
+              <span class="sr-only">Select</span>
+              Auth Type
+            </template>
+            <template v-else-if="selectedSchemeOptions.length === 1">
+              <span class="sr-only">Selected Auth Type:</span>
+              {{ selectedSchemeOptions[0]?.label }}
+            </template>
+            <template v-else>
+              Multiple
+              <span class="sr-only">Auth Types Selected</span>
+            </template>
+            <ScalarIconCaretDown
+              weight="bold"
+              class="size-3 shrink-0 transition-transform duration-100 group-aria-expanded/combobox-button:rotate-180" />
           </ScalarButton>
         </ScalarComboboxMultiselect>
       </div>
