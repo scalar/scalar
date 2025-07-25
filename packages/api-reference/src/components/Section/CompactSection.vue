@@ -3,8 +3,8 @@ import { scrollToId } from '@scalar/helpers/dom/scroll-to-id'
 import { ScalarIconCaretRight } from '@scalar/icons'
 import { nextTick, ref, watch } from 'vue'
 
-import Anchor from '@/components/Anchor/Anchor.vue'
-import Section from '@/components/Section/Section.vue'
+import { Anchor } from '@/components/Anchor'
+import { Section } from '@/components/Section'
 import { useNavState } from '@/hooks/useNavState'
 
 const props = defineProps<{
