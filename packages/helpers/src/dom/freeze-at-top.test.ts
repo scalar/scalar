@@ -73,7 +73,7 @@ describe('freezeAtTop', () => {
       const cleanup = freezeAtTop('test-id')
 
       // Simulate mutation observer callback
-      const observerCallback = mockMutationObserver.mock.calls[0][0]
+      const observerCallback = mockMutationObserver?.mock.calls?.[0]?.[0]
       observerCallback([])
 
       expect(mockGetElementById).toHaveBeenCalledWith('test-id')
@@ -89,7 +89,7 @@ describe('freezeAtTop', () => {
       const cleanup = freezeAtTop('test-id')
 
       // Simulate mutation observer callback
-      const observerCallback = mockMutationObserver.mock.calls[0][0]
+      const observerCallback = mockMutationObserver?.mock.calls?.[0]?.[0]
       observerCallback([])
 
       expect(mockGetElementById).toHaveBeenCalledWith('test-id')
@@ -104,7 +104,7 @@ describe('freezeAtTop', () => {
       mockGetElementById.mockReturnValue(mockElement)
 
       const cleanup = freezeAtTop('test-id')
-      const observerCallback = mockMutationObserver.mock.calls[0][0]
+      const observerCallback = mockMutationObserver?.mock.calls?.[0]?.[0]
 
       // Simulate multiple mutations
       observerCallback([{ type: 'childList' }])
@@ -124,7 +124,7 @@ describe('freezeAtTop', () => {
       mockGetElementById.mockReturnValue(mockElement)
 
       const cleanup = freezeAtTop('test-id')
-      const observerCallback = mockMutationObserver.mock.calls[0][0]
+      const observerCallback = mockMutationObserver?.mock.calls?.[0]?.[0]
 
       // Simulate rapid mutations
       observerCallback([])
@@ -149,7 +149,7 @@ describe('freezeAtTop', () => {
       })
 
       const cleanup = freezeAtTop('test-id')
-      const observerCallback = mockMutationObserver.mock.calls[0][0]
+      const observerCallback = mockMutationObserver?.mock.calls?.[0]?.[0]
 
       observerCallback([])
       observerCallback([])
@@ -174,7 +174,7 @@ describe('freezeAtTop', () => {
       mockGetElementById.mockReturnValue(mockElement)
 
       const cleanup = freezeAtTop('test-id')
-      const observerCallback = mockMutationObserver.mock.calls[0][0]
+      const observerCallback = mockMutationObserver?.mock.calls?.[0]?.[0]
 
       // Trigger a mutation to schedule an animation frame
       observerCallback([])
@@ -215,7 +215,7 @@ describe('freezeAtTop', () => {
       mockGetElementById.mockReturnValue(mockElement)
 
       const cleanup = freezeAtTop('test-id')
-      const observerCallback = mockMutationObserver.mock.calls[0][0]
+      const observerCallback = mockMutationObserver?.mock.calls?.[0]?.[0]
 
       // Simulate 10 rapid mutations
       for (let i = 0; i < 10; i++) {
@@ -241,8 +241,8 @@ describe('freezeAtTop', () => {
       const cleanup1 = freezeAtTop('id1')
       const cleanup2 = freezeAtTop('id2')
 
-      const observerCallback1 = mockMutationObserver.mock.calls[0][0]
-      const observerCallback2 = mockMutationObserver.mock.calls[1][0]
+      const observerCallback1 = mockMutationObserver?.mock.calls?.[0]?.[0]
+      const observerCallback2 = mockMutationObserver?.mock.calls?.[1]?.[0]
 
       observerCallback1([])
       observerCallback2([])
@@ -259,7 +259,7 @@ describe('freezeAtTop', () => {
       mockGetElementById.mockReturnValue(mockElement)
 
       const cleanup = freezeAtTop('test-id')
-      const observerCallback = mockMutationObserver.mock.calls[0][0]
+      const observerCallback = mockMutationObserver?.mock.calls?.[0]?.[0]
 
       // Start a mutation
       observerCallback([])

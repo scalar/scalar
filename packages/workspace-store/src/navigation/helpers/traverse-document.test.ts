@@ -104,7 +104,7 @@ describe('traverseDocument', () => {
     expect(result.entries).toHaveLength(1) // Webhooks section
     expect(result.titles.get('test-webhook')).toBe('Test Webhook')
     expect((result.entries[0] as TraversedTag).children).toHaveLength(1)
-    expect((result.entries[0] as TraversedTag).children?.[0].title).toBe('Test Webhook')
+    expect((result.entries[0] as TraversedTag).children?.[0]?.title).toBe('Test Webhook')
   })
 
   it('should handle schemas when not hidden', () => {
@@ -282,7 +282,7 @@ describe('traverseDocument', () => {
     }
 
     const result = traverseDocument(doc, mockOptions)
-    expect(result.entries[0].title).toBe('a-tag')
-    expect(result.entries[1].title).toBe('z-tag')
+    expect(result.entries[0]?.title).toBe('a-tag')
+    expect(result.entries[1]?.title).toBe('z-tag')
   })
 })

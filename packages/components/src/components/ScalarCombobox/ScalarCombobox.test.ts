@@ -124,7 +124,7 @@ describe('ScalarCombobox', () => {
       await option.trigger('click')
 
       expect(wrapper.emitted('update:modelValue')).toBeTruthy()
-      expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([groupedOptions[0].options[0]])
+      expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([groupedOptions[0]?.options?.[0]])
     })
   })
 })
@@ -145,8 +145,8 @@ describe('ScalarComboboxMultiselect', () => {
       await nextTick()
 
       const optionElements = wrapper.findAllComponents(ScalarComboboxOption)
-      await optionElements[0].trigger('click')
-      await optionElements[1].trigger('click')
+      await optionElements[0]?.trigger('click')
+      await optionElements[1]?.trigger('click')
 
       const emitted = wrapper.emitted('update:modelValue')
       expect(emitted).toBeTruthy()
@@ -169,8 +169,8 @@ describe('ScalarComboboxMultiselect', () => {
       await nextTick()
 
       const optionElements = wrapper.findAllComponents(ScalarComboboxOption)
-      await optionElements[0].trigger('click')
-      await optionElements[1].trigger('click')
+      await optionElements[0]?.trigger('click')
+      await optionElements[1]?.trigger('click')
 
       const emitted = wrapper.emitted('update:modelValue')
       expect(emitted).toBeTruthy()
@@ -191,7 +191,7 @@ describe('ScalarComboboxOptions', () => {
 
       const filteredOptions = wrapper.findAllComponents(ScalarComboboxOption)
       expect(filteredOptions).toHaveLength(1)
-      expect(filteredOptions[0].text()).toBe('Option 2')
+      expect(filteredOptions[0]?.text()).toBe('Option 2')
     })
 
     it('focuses the input when component is mounted', async () => {
@@ -224,7 +224,7 @@ describe('ScalarComboboxOptions', () => {
 
       const filteredOptions = wrapper.findAllComponents(ScalarComboboxOption)
       expect(filteredOptions).toHaveLength(1)
-      expect(filteredOptions[0].text()).toBe('Option 2')
+      expect(filteredOptions[0]?.text()).toBe('Option 2')
     })
   })
 })

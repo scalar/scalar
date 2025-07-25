@@ -31,6 +31,8 @@ export function ViteWatchWorkspace(packageDir = 'scalar/packages'): Plugin {
         })
         return []
       }
+
+      return undefined
     },
   }
 }

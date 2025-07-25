@@ -175,16 +175,14 @@ function parseParametersFromDescription(description: string): {
   const tableLines: string[] = []
   const descriptionLines: string[] = []
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i]
-
+  for (const line of lines) {
     // Detect the start of the table
     if (line.trim().startsWith('|')) {
       // Remove any preceding headers or empty lines before the table
       while (
         descriptionLines.length > 0 &&
-        (descriptionLines[descriptionLines.length - 1].trim() === '' ||
-          descriptionLines[descriptionLines.length - 1].trim().startsWith('#'))
+        (descriptionLines[descriptionLines.length - 1]?.trim() === '' ||
+          descriptionLines[descriptionLines.length - 1]?.trim().startsWith('#'))
       ) {
         descriptionLines.pop()
       }

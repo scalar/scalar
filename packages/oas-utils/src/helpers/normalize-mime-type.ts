@@ -6,7 +6,9 @@ import type { ContentType } from '@scalar/types/legacy'
  * Input: application/problem+json; charset=utf-8
  * Output: application/json
  */
-export function normalizeMimeType(contentType?: string) {
+export function normalizeMimeType(contentType: undefined): undefined
+export function normalizeMimeType(contentType: string): ContentType
+export function normalizeMimeType(contentType: string | undefined): ContentType | undefined {
   if (typeof contentType !== 'string') {
     return undefined
   }

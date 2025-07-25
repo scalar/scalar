@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { htmlFromMarkdown } from '@scalar/code-highlight'
 import { cx } from '@scalar/use-hooks/useBindCx'
-import { computed, onServerPrefetch } from 'vue'
+import { computed } from 'vue'
 
 const props = withDefaults(
   defineProps<{

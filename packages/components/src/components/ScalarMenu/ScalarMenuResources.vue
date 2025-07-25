@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {
   ScalarIconBookOpenText,
-  ScalarIconEnvelope,
   ScalarIconEnvelopeSimple,
   ScalarIconFileText,
 } from '@scalar/icons'

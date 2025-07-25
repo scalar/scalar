@@ -52,7 +52,7 @@ describe('ScalarToasts', () => {
     expect(mockInitializeToasts).toHaveBeenCalledTimes(1)
 
     // Get the callback function passed to initializeToasts
-    const toastCallback = mockInitializeToasts.mock.calls[0][0]
+    const toastCallback = mockInitializeToasts?.mock.calls?.[0]?.[0]
 
     // Test default parameters
     toastCallback('Test message')

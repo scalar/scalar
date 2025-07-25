@@ -34,7 +34,7 @@
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
     "test:watch": "vitest watch",
-    "types:check": "nuxi typecheck"
+    "types:check": "NUXT_TELEMETRY_DISABLED=true nuxi typecheck"
   },
   "type": "module",
   "main": "./dist/module.mjs",

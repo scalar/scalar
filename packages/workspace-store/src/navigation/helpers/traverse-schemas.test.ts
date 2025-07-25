@@ -138,7 +138,7 @@ describe('traverseSchemas', () => {
     const result = traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
 
     expect(result).toHaveLength(1)
-    expect(result[0].title).toBe('PublicUser')
+    expect(result[0]?.title).toBe('PublicUser')
   })
 
   it('should skip schemas with x-scalar-ignore flag', () => {
@@ -170,7 +170,7 @@ describe('traverseSchemas', () => {
     const result = traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
 
     expect(result).toHaveLength(1)
-    expect(result[0].title).toBe('ValidSchema')
+    expect(result[0]?.title).toBe('ValidSchema')
   })
 
   it('should handle schemas with no properties', () => {
@@ -223,8 +223,8 @@ describe('traverseSchemas', () => {
     const result = traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
 
     expect(result).toHaveLength(1)
-    expect(result[0].title).toBe('User-Profile')
-    expect(result[0].id).toBe('model-User-Profile')
+    expect(result[0]?.title).toBe('User-Profile')
+    expect(result[0]?.id).toBe('model-User-Profile')
   })
 
   it('should handle multiple filtering conditions', () => {
@@ -263,7 +263,7 @@ describe('traverseSchemas', () => {
     const result = traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
 
     expect(result).toHaveLength(1)
-    expect(result[0].title).toBe('ValidSchema')
+    expect(result[0]?.title).toBe('ValidSchema')
   })
 
   it('uses the title attribute of the schema', () => {
@@ -303,7 +303,7 @@ describe('traverseSchemas', () => {
     const result = traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
 
     expect(result).toHaveLength(1)
-    expect(result[0].title).toBe('Foobar')
+    expect(result[0]?.title).toBe('Foobar')
   })
 
   describe('x-tags', () => {
