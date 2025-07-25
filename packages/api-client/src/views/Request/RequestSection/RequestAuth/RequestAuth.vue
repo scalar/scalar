@@ -272,17 +272,17 @@ const openAuthCombobox = (event: Event) => {
             class="group/combobox-button hover:text-c-1 text-c-2 flex h-fit items-center gap-1 px-1.5 py-0.25 text-base font-normal transition-transform"
             fullWidth
             variant="ghost">
-            <template v-if="selectedSchemeOptions.length === 0">
-              <span class="sr-only">Select</span>
-              Auth Type
-            </template>
-            <template v-else-if="selectedSchemeOptions.length === 1">
+            <template v-if="selectedSchemeOptions.length === 1">
               <span class="sr-only">Selected Auth Type:</span>
               {{ selectedSchemeOptions[0]?.label }}
             </template>
-            <template v-else>
+            <template v-else-if="selectedSchemeOptions.length > 1">
               Multiple
               <span class="sr-only">Auth Types Selected</span>
+            </template>
+            <template v-else>
+              <span class="sr-only">Select</span>
+              Auth Type
             </template>
             <ScalarIconCaretDown
               weight="bold"

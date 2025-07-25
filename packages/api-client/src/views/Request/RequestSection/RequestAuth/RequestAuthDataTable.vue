@@ -45,18 +45,28 @@ const activeAuthIndex = ref(0)
 
 /** Return currently selected schemes including complex auth */
 const activeScheme = computed(() => {
+  if (!selectedSchemeOptions || selectedSchemeOptions.length === 0) {
+    return []
+  }
+
   const option = selectedSchemeOptions[activeAuthIndex.value]
   if (!option) {
     return []
   }
-  const keys = option?.id.split(',')
+
+  const keys = option.id.split(',').filter(Boolean)
   return keys.length > 1 ? keys : [option.id]
+})
+
+/** Return true if there are any active schemes */
+const hasActiveSchemes = computed(() => {
+  return activeScheme.value.length > 0
 })
 
 watch(
   () => selectedSchemeOptions,
   (newOptions) => {
-    if (!newOptions[activeAuthIndex.value]) {
+    if (!newOptions || !newOptions[activeAuthIndex.value]) {
       activeAuthIndex.value = Math.max(0, activeAuthIndex.value - 1)
     }
   },
@@ -88,7 +98,7 @@ watch(
     </div>
 
     <DataTable
-      v-if="activeScheme.length"
+      v-if="hasActiveSchemes"
       class="flex-1"
       :class="layout === 'reference' && 'bg-b-1 rounded-b-lg border border-t-0'"
       :columns="['']"
