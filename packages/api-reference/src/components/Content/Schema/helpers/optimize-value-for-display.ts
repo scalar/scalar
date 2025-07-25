@@ -35,11 +35,26 @@ export function optimizeValueForDisplay(value: UnknownObject | undefined): Recor
     return newValue
   }
 
+  // Check if there are any root properties that should be merged into composition schemas
+  const rootProperties = { ...newValue }
+  delete rootProperties[composition]
+  delete rootProperties.nullable
+
+  const hasRootProperties = Object.keys(rootProperties).length > 0
+  const shouldMergeRootProperties =
+    (composition === 'oneOf' || composition === 'anyOf') &&
+    (schemas.some((schema: any) => schema.allOf) || hasRootProperties)
+
   // Process schemas to merge allOf and handle nulls
   const processedSchemas = schemas.map((schema: any) => {
     // If this schema has allOf, merge it
     if (schema.allOf && Array.isArray(schema.allOf)) {
-      const mergedSchema = mergeAllOfSchemas(schema.allOf)
+      let mergedSchema = mergeAllOfSchemas(schema.allOf)
+
+      // If we need to merge root properties, do it here
+      if (shouldMergeRootProperties) {
+        mergedSchema = mergeAllOfSchemas(schema.allOf, rootProperties)
+      }
 
       // Preserve all non-composition properties from the original schema
       Object.keys(schema).forEach((key) => {
@@ -50,6 +65,13 @@ export function optimizeValueForDisplay(value: UnknownObject | undefined): Recor
 
       return mergedSchema
     }
+
+    // If we need to merge root properties and this schema doesn't have allOf,
+    // merge the root properties directly
+    if (shouldMergeRootProperties && !schema.allOf) {
+      return { ...rootProperties, ...schema }
+    }
+
     return schema
   })
 
@@ -68,6 +90,20 @@ export function optimizeValueForDisplay(value: UnknownObject | undefined): Recor
 
     // Delete the original composition keyword
     delete newValue?.[composition]
+
+    return newValue
+  }
+
+  // If we merged root properties, return the new structure
+  if (shouldMergeRootProperties) {
+    newValue = {
+      [composition]: newSchemas,
+    }
+
+    // Preserve nullable if it was set
+    if (newValue.nullable) {
+      newValue.nullable = true
+    }
 
     return newValue
   }
