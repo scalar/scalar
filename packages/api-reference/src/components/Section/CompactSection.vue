@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { scrollToId } from '@scalar/helpers/dom/scroll-to-id'
 import { ScalarIconCaretRight } from '@scalar/icons'
-import { nextTick, ref, useId, watch } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 
 import Anchor from '@/components/Anchor/Anchor.vue'
 import Section from '@/components/Section/Section.vue'
