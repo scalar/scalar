@@ -30,7 +30,7 @@ watch(
 <template>
   <div class="collapsible-section">
     <button
-      :id="`${id}-trigger`"
+      :id="id"
       :aria-controls="id"
       :aria-expanded="open"
       class="collapsible-section-trigger"
