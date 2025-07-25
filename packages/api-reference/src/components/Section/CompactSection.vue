@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { scrollToId } from '@scalar/helpers/dom/scroll-to-id'
 import { ScalarIconCaretRight } from '@scalar/icons'
-import { nextTick, ref, useId, watch } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 
-import Anchor from '@/components/Anchor/Anchor.vue'
-import Section from '@/components/Section/Section.vue'
+import { Anchor } from '@/components/Anchor'
+import { Section } from '@/components/Section'
 import { useNavState } from '@/hooks/useNavState'
 
 const props = defineProps<{
@@ -14,8 +14,6 @@ const props = defineProps<{
 const { hash } = useNavState()
 
 const open = ref(false)
-
-const panel = useId()
 
 watch(
   hash,
@@ -32,8 +30,8 @@ watch(
 <template>
   <div class="collapsible-section">
     <button
-      :id="id"
-      :aria-controls="panel"
+      :id="`${id}-trigger`"
+      :aria-controls="id"
       :aria-expanded="open"
       class="collapsible-section-trigger"
       :class="{ 'collapsible-section-trigger-open': open }"
@@ -51,7 +49,7 @@ watch(
     </button>
     <Section
       v-if="open"
-      :id="panel"
+      :id="id"
       class="collapsible-section-content"
       :label="label">
       <slot />
