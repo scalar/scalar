@@ -56,7 +56,9 @@ defineProps<{
   color: var(--scalar-color-3);
 }
 
-.property-enum-value:last-child::before {
+.property-enum-value:last-of-type::before,
+.property-enum-values:has(.enum-toggle-button)
+  .property-enum-value:nth-last-child(2)::before {
   height: 14px;
 }
 
