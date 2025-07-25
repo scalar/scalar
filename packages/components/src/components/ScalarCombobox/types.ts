@@ -17,7 +17,7 @@ export function isGroup(option: Option | OptionGroup | undefined): option is Opt
 
 /** Type guard to check if an array of options is an array of groups */
 export function isGroups(options: Option[] | OptionGroup[]): options is OptionGroup[] {
-  return isGroup(options[0])
+  return options.length > 0 && isGroup(options[0])
 }
 
 /** Available slots for the combobox */
@@ -25,7 +25,7 @@ export type ComboboxSlots<O extends Option = Option, G extends OptionGroup<O> = 
   /** The reference element / trigger for the combobox */
   default(props: { open: boolean }): unknown
   /** A template to override the option label */
-  option?(props: { option: O }): unknown
+  option?(props: { option: O; active: boolean; selected: boolean }): unknown
   /** A template to override the group label */
   group?(props: { group: G }): unknown
   /** A slot for contents before the combobox options */

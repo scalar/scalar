@@ -59,17 +59,17 @@ defineExpose({ comboboxPopoverRef })
         </template>
         <template
           v-if="$slots.option"
-          #option="{ option }">
+          #option="props">
           <slot
             name="option"
-            :option />
+            v-bind="props" />
         </template>
         <template
           v-if="$slots.group"
-          #group="{ group }">
+          #group="props">
           <slot
             name="group"
-            :group />
+            v-bind="props" />
         </template>
         <template
           v-if="$slots.after"

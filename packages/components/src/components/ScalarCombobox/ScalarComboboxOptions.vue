@@ -6,6 +6,7 @@
 import { ScalarIconMagnifyingGlass } from '@scalar/icons'
 import { computed, onMounted, ref, useId, watch } from 'vue'
 
+import { ScalarListboxCheckbox } from '../ScalarListbox'
 import ComboboxOption from './ScalarComboboxOption.vue'
 import ComboboxOptionGroup from './ScalarComboboxOptionGroup.vue'
 import {
@@ -44,10 +45,11 @@ const options = computed<O[]>(() =>
 )
 
 /** An list of all groups */
-const groups = computed<OptionGroup<O>[]>(() =>
-  isGroups(props.options)
-    ? props.options
-    : [{ label: '', options: props.options }],
+const groups = computed<G[]>(
+  () =>
+    isGroups(props.options)
+      ? props.options // G extends OptionGroup<O>
+      : [{ label: '', options: props.options } as G], // G is OptionGroup<O>
 )
 
 const query = ref<string>('')
@@ -180,7 +182,13 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
         !group.label
       ">
       <template #label>
-        {{ group.label }}
+        <slot
+          v-if="$slots.group"
+          name="group"
+          :group />
+        <template v-else>
+          {{ group.label }}
+        </template>
       </template>
       <template
         v-for="option in filtered"
@@ -190,11 +198,24 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
           :id="getOptionId(option)"
           :active="active?.id === option.id"
           :selected="model.some((o) => o.id === option.id)"
-          :style="multiselect ? 'checkbox' : 'radio'"
           @click="toggleSelected(option)"
           @mousedown.prevent
-          @mouseenter="active = option">
-          {{ option.label }}
+          @mouseenter="active = option"
+          v-slot="{ active, selected }">
+          <slot
+            v-if="$slots.option"
+            name="option"
+            :option
+            :active
+            :selected />
+          <template v-else>
+            <ScalarListboxCheckbox
+              :selected="model.some((o) => o.id === option.id)"
+              :style="multiselect ? 'checkbox' : 'radio'" />
+            <span class="inline-block min-w-0 flex-1 truncate text-c-1">
+              {{ option.label }}
+            </span>
+          </template>
         </ComboboxOption>
       </template>
     </ComboboxOptionGroup>
