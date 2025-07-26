@@ -64,7 +64,8 @@ onMounted(async () => {
   active.value = model.value?.[0] ?? options.value[0]
 
   // Scroll to the selected option
-  if (model.value.length !== 0) {
+  const selected = model.value[0]
+  if (selected) {
     setTimeout(() => {
       const value = model.value[0]
       if (!value) {
@@ -124,7 +125,7 @@ function moveActive(dir: 1 | -1) {
     return
   }
 
-  active.value = list[nextIdx]
+  active.value = list[nextIdx]! // We know it's in bounds from the check above
 
   if (!active.value) {
     return

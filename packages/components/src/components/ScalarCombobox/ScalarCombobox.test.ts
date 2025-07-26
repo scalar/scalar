@@ -8,13 +8,14 @@ import ScalarComboboxOption from './ScalarComboboxOption.vue'
 import ScalarComboboxOptions from './ScalarComboboxOptions.vue'
 import ScalarComboboxOptionGroup from './ScalarComboboxOptionGroup.vue'
 import ScalarComboboxPopover from './ScalarComboboxPopover.vue'
+import type { Option, OptionGroup } from './types'
 
 // Mock data
 const singleOptions = [
   { id: '1', label: 'Option 1' },
   { id: '2', label: 'Option 2' },
   { id: '3', label: 'Option 3' },
-]
+] as const satisfies Option[]
 
 const groupedOptions = [
   {
@@ -31,13 +32,17 @@ const groupedOptions = [
       { id: '4', label: 'Option 4' },
     ],
   },
-]
+] as const satisfies OptionGroup[]
+
+type ExtendedOption = Option & { category: string }
 
 // Extended options for slot testing
 const extendedOptions = [
   { id: '1', label: 'Apple', category: 'fruit' },
   { id: '2', label: 'Banana', category: 'fruit' },
-]
+] as const satisfies ExtendedOption[]
+
+type ExtendedGroup = OptionGroup<ExtendedOption> & { icon: string }
 
 const extendedGroups = [
   {
@@ -56,7 +61,7 @@ const extendedGroups = [
       { id: '4', label: 'Broccoli', category: 'vegetable' },
     ],
   },
-]
+] as const satisfies ExtendedGroup[]
 
 describe('ScalarCombobox', () => {
   describe('with single options', () => {
@@ -375,8 +380,8 @@ describe('ScalarComboboxMultiselect', () => {
       await nextTick()
 
       const selectedOptions = wrapper.findAll('[data-test="option-selected-state"]')
-      expect(selectedOptions[0].text()).toBe('true') // First option should be selected
-      expect(selectedOptions[1].text()).toBe('false') // Second option should not be selected
+      expect(selectedOptions[0]?.text()).toBe('true') // First option should be selected
+      expect(selectedOptions[1]?.text()).toBe('false') // Second option should not be selected
     })
   })
 })
@@ -472,16 +477,16 @@ describe('ScalarComboboxOptions', () => {
 
       // Check first option (should be selected)
       const firstOption = slotOptions[0]
-      expect(firstOption.find('[data-test="option-id"]').text()).toBe('1')
-      expect(firstOption.find('[data-test="option-label"]').text()).toBe('Apple')
-      expect(firstOption.find('[data-test="option-category"]').text()).toBe('fruit')
-      expect(firstOption.find('[data-test="option-selected"]').text()).toBe('true')
+      expect(firstOption?.find('[data-test="option-id"]').text()).toBe('1')
+      expect(firstOption?.find('[data-test="option-label"]').text()).toBe('Apple')
+      expect(firstOption?.find('[data-test="option-category"]').text()).toBe('fruit')
+      expect(firstOption?.find('[data-test="option-selected"]').text()).toBe('true')
 
       // Check second option (should not be selected)
       const secondOption = slotOptions[1]
-      expect(secondOption.find('[data-test="option-id"]').text()).toBe('2')
-      expect(secondOption.find('[data-test="option-label"]').text()).toBe('Banana')
-      expect(secondOption.find('[data-test="option-selected"]').text()).toBe('false')
+      expect(secondOption?.find('[data-test="option-id"]').text()).toBe('2')
+      expect(secondOption?.find('[data-test="option-label"]').text()).toBe('Banana')
+      expect(secondOption?.find('[data-test="option-selected"]').text()).toBe('false')
     })
 
     it('passes correct props to group slot', async () => {
@@ -505,15 +510,15 @@ describe('ScalarComboboxOptions', () => {
 
       // Check first group
       const firstGroup = slotGroups[0]
-      expect(firstGroup.find('[data-test="group-label"]').text()).toBe('Fruits')
-      expect(firstGroup.find('[data-test="group-icon"]').text()).toBe('🍎')
-      expect(firstGroup.find('[data-test="group-options-count"]').text()).toBe('2')
+      expect(firstGroup?.find('[data-test="group-label"]').text()).toBe('Fruits')
+      expect(firstGroup?.find('[data-test="group-icon"]').text()).toBe('🍎')
+      expect(firstGroup?.find('[data-test="group-options-count"]').text()).toBe('2')
 
       // Check second group
       const secondGroup = slotGroups[1]
-      expect(secondGroup.find('[data-test="group-label"]').text()).toBe('Vegetables')
-      expect(secondGroup.find('[data-test="group-icon"]').text()).toBe('🥕')
-      expect(secondGroup.find('[data-test="group-options-count"]').text()).toBe('2')
+      expect(secondGroup?.find('[data-test="group-label"]').text()).toBe('Vegetables')
+      expect(secondGroup?.find('[data-test="group-icon"]').text()).toBe('🥕')
+      expect(secondGroup?.find('[data-test="group-options-count"]').text()).toBe('2')
     })
 
     it('maintains slot functionality while filtering', async () => {
@@ -547,7 +552,7 @@ describe('ScalarComboboxOptions', () => {
       // After filtering - should only show matching options
       const filteredOptions = wrapper.findAll('[data-test="filtered-option"]')
       expect(filteredOptions).toHaveLength(1)
-      expect(filteredOptions[0].text()).toBe('Apple')
+      expect(filteredOptions[0]?.text()).toBe('Apple')
 
       // Before/after slots should still be visible
       expect(wrapper.find('[data-test="before-filter"]').exists()).toBe(true)
@@ -556,7 +561,7 @@ describe('ScalarComboboxOptions', () => {
       // Only groups with matching options should show their labels
       const visibleGroups = wrapper.findAll('[data-test="filtered-group"]')
       expect(visibleGroups).toHaveLength(1)
-      expect(visibleGroups[0].text()).toBe('Fruits')
+      expect(visibleGroups[0]?.text()).toBe('Fruits')
     })
 
     it('handles multiselect mode with custom slots', async () => {
@@ -583,8 +588,8 @@ describe('ScalarComboboxOptions', () => {
 
       // Both options should be selected
       const selectionIndicators = wrapper.findAll('[data-test="selection-indicator"]')
-      expect(selectionIndicators[0].text()).toBe('✓')
-      expect(selectionIndicators[1].text()).toBe('✓')
+      expect(selectionIndicators[0]?.text()).toBe('✓')
+      expect(selectionIndicators[1]?.text()).toBe('✓')
     })
 
     it('shows/hides slots based on content availability', async () => {
@@ -627,6 +632,53 @@ describe('ScalarComboboxOptions', () => {
       // Should emit model value update
       expect(wrapper.emitted('update:modelValue')).toBeTruthy()
       expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([[extendedOptions[0]]])
+    })
+  })
+
+  describe('edge cases', () => {
+    it('handles empty options array gracefully', async () => {
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: { options: [] },
+      })
+
+      // Should render the search input
+      const input = wrapper.find('input[type="text"]')
+      expect(input.exists()).toBe(true)
+
+      // Should not render any options
+      const options = wrapper.findAllComponents(ScalarComboboxOption)
+      expect(options).toHaveLength(0)
+
+      // Should render one hidden group (default group for non-grouped options)
+      const groups = wrapper.findAllComponents(ScalarComboboxOptionGroup)
+      expect(groups).toHaveLength(1)
+      // The group should be hidden since there are no options to display
+      expect(groups[0]?.props('hidden')).toBe(true)
+
+      // Search should still work (but return no results)
+      await input.setValue('test search')
+      const filteredOptions = wrapper.findAllComponents(ScalarComboboxOption)
+      expect(filteredOptions).toHaveLength(0)
+    })
+
+    it('handles empty grouped options array gracefully', async () => {
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: { options: [] as OptionGroup[] },
+      })
+
+      // Should render the search input
+      const input = wrapper.find('input[type="text"]')
+      expect(input.exists()).toBe(true)
+
+      // Should not render any options
+      const options = wrapper.findAllComponents(ScalarComboboxOption)
+      expect(options).toHaveLength(0)
+
+      // Even when typed as OptionGroup[], empty arrays are treated as simple options
+      // due to isGroups() returning false for empty arrays, so we get one hidden default group
+      const groups = wrapper.findAllComponents(ScalarComboboxOptionGroup)
+      expect(groups).toHaveLength(1)
+      expect(groups[0]?.props('hidden')).toBe(true)
     })
   })
 })
@@ -847,7 +899,7 @@ describe('Edge Cases and Error Handling', () => {
       // Should render all options including ones with empty labels
       const renderedOptions = wrapper.findAll('[data-test="malformed-option"]')
       expect(renderedOptions).toHaveLength(3)
-      expect(renderedOptions[1].text()).toBe('No Label') // Empty label should show "No Label"
+      expect(renderedOptions[1]?.text()).toBe('No Label') // Empty label should show "No Label"
     })
 
     it('handles empty group arrays', async () => {
@@ -875,7 +927,7 @@ describe('Edge Cases and Error Handling', () => {
 
       const groupElements = wrapper.findAll('[data-test="group-with-count"]')
       expect(groupElements).toHaveLength(1) // Only valid group should show
-      expect(groupElements[0].text()).toContain('Valid Group (3)')
+      expect(groupElements[0]?.text()).toContain('Valid Group (3)')
     })
   })
 
@@ -929,16 +981,16 @@ describe('Edge Cases and Error Handling', () => {
       await nextTick()
 
       const options = wrapper.findAll('[data-test="state-option"]')
-      expect(options[0].text()).toContain('Apple - Selected')
-      expect(options[1].text()).toContain('Banana - Not Selected')
+      expect(options[0]?.text()).toContain('Apple - Selected')
+      expect(options[1]?.text()).toContain('Banana - Not Selected')
 
       // Change model value
       await wrapper.setProps({ modelValue: extendedOptions[1] })
       await nextTick()
 
       const updatedOptions = wrapper.findAll('[data-test="state-option"]')
-      expect(updatedOptions[0].text()).toContain('Apple - Not Selected')
-      expect(updatedOptions[1].text()).toContain('Banana - Selected')
+      expect(updatedOptions[0]?.text()).toContain('Apple - Not Selected')
+      expect(updatedOptions[1]?.text()).toContain('Banana - Selected')
     })
   })
 
@@ -974,8 +1026,8 @@ describe('Edge Cases and Error Handling', () => {
 
       const nestedComponents = wrapper.findAll('[data-test="nested-component"]')
       expect(nestedComponents).toHaveLength(2)
-      expect(nestedComponents[0].find('strong').text()).toBe('Apple')
-      expect(nestedComponents[0].find('small').text()).toBe('fruit')
+      expect(nestedComponents[0]?.find('strong').text()).toBe('Apple')
+      expect(nestedComponents[0]?.find('small').text()).toBe('fruit')
     })
 
     it('handles conditional slot rendering based on option properties', async () => {
@@ -1006,8 +1058,8 @@ describe('Edge Cases and Error Handling', () => {
       expect(premiumBadges).toHaveLength(1)
 
       const optionElements = wrapper.findAll('[data-test="conditional-option"]')
-      expect(optionElements[0].text()).toContain('⭐')
-      expect(optionElements[1].text()).not.toContain('⭐')
+      expect(optionElements[0]?.text()).toContain('⭐')
+      expect(optionElements[1]?.text()).not.toContain('⭐')
     })
   })
 

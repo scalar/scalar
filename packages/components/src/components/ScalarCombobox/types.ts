@@ -17,7 +17,10 @@ export function isGroup(option: Option | OptionGroup | undefined): option is Opt
 
 /** Type guard to check if an array of options is an array of groups */
 export function isGroups(options: Option[] | OptionGroup[]): options is OptionGroup[] {
-  return options.length > 0 && isGroup(options[0])
+  if (!options[0]) {
+    return false // No options to test, so we assume it's not a group
+  }
+  return isGroup(options[0])
 }
 
 /** Available slots for the combobox */
