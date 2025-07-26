@@ -1,17 +1,15 @@
 import type { SecurityScheme, SecuritySchemePayload } from '@scalar/oas-utils/entities/spec'
 import type { Entries } from 'type-fest'
+import type { ScalarComboboxOptionGroup } from '@scalar/components'
 
 export type SecuritySchemeOption = {
-  id: string
+  id: SecurityScheme['uid']
   label: string
   isDeletable?: boolean
   payload?: SecuritySchemePayload
 }
 
-export type SecuritySchemeGroup = {
-  label: string
-  options: SecuritySchemeOption[]
-}
+export type SecuritySchemeGroup = ScalarComboboxOptionGroup<SecuritySchemeOption>
 
 /**
  * Add auth options for Request Auth
