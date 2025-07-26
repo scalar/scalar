@@ -40,7 +40,7 @@ defineExpose({ popoverButtonRef })
         ref="popoverButtonRef"
         as="template"
         @keydown="handleKeydown">
-        <slot :open="open" />
+        <slot :open />
       </PopoverButton>
       <template
         v-if="open"
@@ -52,9 +52,9 @@ defineExpose({ popoverButtonRef })
             cx('relative flex flex-col max-h-[inherit] w-40 rounded text-sm')
           ">
           <slot
-            :close="close"
+            :close
             name="popover"
-            :open="open" />
+            :open />
           <ScalarFloatingBackdrop />
         </PopoverPanel>
       </template>

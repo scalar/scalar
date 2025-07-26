@@ -1,12 +1,9 @@
 <script setup lang="ts">
 import { ScalarIconCheck } from '@scalar/icons'
 
-import { ScalarIcon } from '../ScalarIcon'
-import type { OptionStyle } from './types'
-
 defineProps<{
   selected?: boolean
-  style?: OptionStyle
+  multiselect?: boolean
 }>()
 </script>
 <template>
@@ -14,7 +11,7 @@ defineProps<{
     class="flex size-4 items-center justify-center p-0.75"
     :class="[
       selected ? 'bg-c-accent text-b-1' : 'text-transparent shadow-border',
-      style === 'checkbox' ? 'rounded' : 'rounded-full',
+      multiselect ? 'rounded' : 'rounded-full',
     ]">
     <ScalarIconCheck
       v-if="selected"

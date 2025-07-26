@@ -58,7 +58,8 @@
     "nanoid": "catalog:*",
     "pretty-bytes": "^6.1.1",
     "radix-vue": "^1.9.3",
-    "vue": "catalog:*"
+    "vue": "catalog:*",
+    "vue-component-type-helpers": "^3.0.4"
   },
   "devDependencies": {
     "@headlessui/tailwindcss": "catalog:*",
