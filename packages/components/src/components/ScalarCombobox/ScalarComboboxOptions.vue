@@ -64,10 +64,11 @@ onMounted(async () => {
   active.value = model.value?.[0] ?? options.value[0]
 
   // Scroll to the selected option
-  if (model.value.length !== 0) {
+  const selected = model.value[0]
+  if (selected) {
     setTimeout(() => {
       document
-        ?.getElementById(getOptionId(model.value[0]))
+        ?.getElementById(getOptionId(selected))
         ?.scrollIntoView({ block: 'nearest' })
     }, 10)
   }
@@ -119,7 +120,7 @@ function moveActive(dir: 1 | -1) {
     return
   }
 
-  active.value = list[nextIdx]
+  active.value = list[nextIdx]! // We know it's in bounds from the check above
 
   // Scroll to the active option
   document?.getElementById(getOptionId(active.value))?.scrollIntoView({
