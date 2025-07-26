@@ -5,13 +5,11 @@ withDefaults(defineProps<{ lines?: number }>(), {
 </script>
 
 <template>
-  <template
-    v-for="index in [...Array(lines).keys()]"
-    :key="index">
-    <div
-      class="loading"
-      :class="{ 'single-line': lines === 1 }" />
-  </template>
+  <div
+    v-for="idx in [...Array(lines).keys()]"
+    :key="idx"
+    class="loading"
+    :class="{ 'single-line': lines === 1 }" />
 </template>
 
 <style scoped>

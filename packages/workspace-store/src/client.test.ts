@@ -104,14 +104,14 @@ describe('create-workspace-store', () => {
     // Should update the active document
     store.updateDocument('active', 'x-scalar-active-server', 'server-2')
     store.updateDocument('active', 'x-scalar-active-auth', undefined)
-    expect(store.workspace.documents['default']['x-scalar-active-auth']).toBe(undefined)
-    expect(store.workspace.documents['default']['x-scalar-active-server']).toBe('server-2')
+    expect(store.workspace.documents['default']?.['x-scalar-active-auth']).toBe(undefined)
+    expect(store.workspace.documents['default']?.['x-scalar-active-server']).toBe('server-2')
 
     // Should update a specific document
     store.updateDocument('default', 'x-scalar-active-server', 'server-3')
     store.updateDocument('default', 'x-scalar-active-auth', 'Bearer')
-    expect(store.workspace.documents['default']['x-scalar-active-auth']).toBe('Bearer')
-    expect(store.workspace.documents['default']['x-scalar-active-server']).toBe('server-3')
+    expect(store.workspace.documents['default']?.['x-scalar-active-auth']).toBe('Bearer')
+    expect(store.workspace.documents['default']?.['x-scalar-active-server']).toBe('server-3')
   })
 
   it('correctly get the correct document', async () => {
@@ -246,7 +246,7 @@ describe('create-workspace-store', () => {
     })
 
     expect(
-      (store.workspace.activeDocument?.paths?.['/users'].get as any)?.responses?.[200].content['application/json']
+      (store?.workspace?.activeDocument?.paths?.['/users']?.get as any)?.responses?.[200]?.content['application/json']
         .schema.items.properties.name,
     ).toEqual({
       type: 'string',
@@ -279,7 +279,7 @@ describe('create-workspace-store', () => {
       documents: [
         {
           name: 'default',
-          document: serverStore.getWorkspace().documents['default'],
+          document: serverStore.getWorkspace().documents['default'] ?? {},
         },
       ],
     })
@@ -294,13 +294,13 @@ describe('create-workspace-store', () => {
     await store.resolve(['paths', '/users', 'get'])
 
     // We expect the ref to have been resolved with the correct contents
-    expect(store.workspace.activeDocument?.paths?.['/users'].get?.summary).toEqual(
+    expect(store.workspace.activeDocument?.paths?.['/users']?.get?.summary).toEqual(
       getDocument().paths['/users'].get.summary,
     )
 
     expect(
-      (store.workspace.activeDocument?.paths?.['/users'].get as any).responses[200].content['application/json'].schema
-        .items,
+      (store.workspace.activeDocument?.paths?.['/users']?.get as any)?.responses?.[200]?.content['application/json']
+        ?.schema?.items,
     ).toEqual({
       ...getDocument().components.schemas.User,
       'x-original-ref': '#/components/schemas/User',
@@ -325,13 +325,13 @@ describe('create-workspace-store', () => {
     })
 
     expect(Object.keys(store.workspace.documents)).toEqual(['default'])
-    expect(store.workspace.documents['default'].info?.title).toEqual(getDocument().info.title)
+    expect(store.workspace.documents['default']?.info?.title).toEqual(getDocument().info.title)
 
     // Add a new remote file
     await store.addDocument({ name: 'new', url: url })
 
     expect(Object.keys(store.workspace.documents)).toEqual(['default', 'new'])
-    expect(store.workspace.documents['new'].info?.title).toEqual(getDocument().info.title)
+    expect(store.workspace.documents['new']?.info?.title).toEqual(getDocument().info.title)
   })
 
   it('handle circular references when we try to resolve all remote chunks recursively', async () => {
@@ -410,7 +410,7 @@ describe('create-workspace-store', () => {
       documents: [
         {
           name: 'default',
-          document: serverStore.getWorkspace().documents['default'],
+          document: serverStore.getWorkspace().documents['default'] ?? {},
         },
       ],
     })
@@ -1090,9 +1090,9 @@ describe('create-workspace-store', () => {
         ],
       })
 
-      expect(store.workspace.documents['default'].info.title).toBe('My Updated API')
-      expect(store.workspace.documents['default'].info.version).toBe('2.0.0')
-      expect(store.workspace.documents['default'].openapi).toBe('3.1.1')
+      expect(store.workspace.documents['default']?.info?.title).toBe('My Updated API')
+      expect(store.workspace.documents['default']?.info?.version).toBe('2.0.0')
+      expect(store.workspace.documents['default']?.openapi).toBe('3.1.1')
     })
 
     it('edit the override values', async () => {
@@ -1111,12 +1111,17 @@ describe('create-workspace-store', () => {
           },
         ],
       })
+      const defaultDocument = store.workspace.documents['default']
 
-      store.workspace.documents['default'].info.title = 'Edited title'
+      if (!defaultDocument) {
+        throw new Error('Default document not found')
+      }
 
-      expect(store.workspace.documents['default'].info.title).toBe('Edited title')
-      expect(store.workspace.documents['default'].info.version).toBe('2.0.0')
-      expect(store.workspace.documents['default'].openapi).toBe('3.1.1')
+      defaultDocument.info.title = 'Edited title'
+
+      expect(defaultDocument.info.title).toBe('Edited title')
+      expect(defaultDocument.info.version).toBe('2.0.0')
+      expect(defaultDocument.openapi).toBe('3.1.1')
     })
 
     it('writes back the overrides to the intermediate object', async () => {
@@ -1136,11 +1141,17 @@ describe('create-workspace-store', () => {
         ],
       })
 
-      store.workspace.documents['default'].info.title = 'Edited title'
+      const defaultDocument = store.workspace.documents['default']
 
-      expect(store.workspace.documents['default'].info.title).toBe('Edited title')
-      expect(store.workspace.documents['default'].info.version).toBe('2.0.0')
-      expect(store.workspace.documents['default'].openapi).toBe('3.1.1')
+      if (!defaultDocument) {
+        throw new Error('Default document not found')
+      }
+
+      defaultDocument.info.title = 'Edited title'
+
+      expect(defaultDocument.info.title).toBe('Edited title')
+      expect(defaultDocument.info.version).toBe('2.0.0')
+      expect(defaultDocument.openapi).toBe('3.1.1')
 
       store.saveDocument('default')
       expect(store.exportDocument('default', 'json')).toBe(
@@ -1165,11 +1176,17 @@ describe('create-workspace-store', () => {
         ],
       })
 
-      store.workspace.documents['default'].info.title = 'Edited title'
+      const defaultDocument = store.workspace.documents['default']
 
-      expect(store.workspace.documents['default'].info.title).toBe('Edited title')
-      expect(store.workspace.documents['default'].info.version).toBe('2.0.0')
-      expect(store.workspace.documents['default'].openapi).toBe('3.1.1')
+      if (!defaultDocument) {
+        throw new Error('Default document not found')
+      }
+
+      defaultDocument.info.title = 'Edited title'
+
+      expect(defaultDocument.info.title).toBe('Edited title')
+      expect(defaultDocument.info.version).toBe('2.0.0')
+      expect(defaultDocument.openapi).toBe('3.1.1')
 
       store.saveDocument('default')
       const exported = store.exportWorkspace()
@@ -1178,9 +1195,9 @@ describe('create-workspace-store', () => {
       const newStore = createWorkspaceStore()
       newStore.loadWorkspace(exported)
 
-      expect(newStore.workspace.documents['default'].info.title).toBe('Edited title')
-      expect(newStore.workspace.documents['default'].info.version).toBe('2.0.0')
-      expect(newStore.workspace.documents['default'].openapi).toBe('3.1.1')
+      expect(newStore.workspace.documents['default']?.info.title).toBe('Edited title')
+      expect(newStore.workspace.documents['default']?.info.version).toBe('2.0.0')
+      expect(newStore.workspace.documents['default']?.openapi).toBe('3.1.1')
     })
 
     it('should revert the changes made to the overrides', async () => {
@@ -1200,18 +1217,24 @@ describe('create-workspace-store', () => {
         ],
       })
 
-      store.workspace.documents['default'].info.title = 'Edited title'
+      const defaultDocument = store.workspace.documents['default']
 
-      expect(store.workspace.documents['default'].info.title).toBe('Edited title')
-      expect(store.workspace.documents['default'].info.version).toBe('2.0.0')
-      expect(store.workspace.documents['default'].openapi).toBe('3.1.1')
+      if (!defaultDocument) {
+        throw new Error('Default document not found')
+      }
+
+      defaultDocument.info.title = 'Edited title'
+
+      expect(defaultDocument.info.title).toBe('Edited title')
+      expect(defaultDocument.info.version).toBe('2.0.0')
+      expect(defaultDocument.openapi).toBe('3.1.1')
 
       // Revert the changes
       store.revertDocumentChanges('default')
 
-      expect(store.workspace.documents['default'].info.title).toBe('My Updated API')
-      expect(store.workspace.documents['default'].info.version).toBe('2.0.0')
-      expect(store.workspace.documents['default'].openapi).toBe('3.1.1')
+      expect(defaultDocument.info.title).toBe('My Updated API')
+      expect(defaultDocument.info.version).toBe('2.0.0')
+      expect(defaultDocument.openapi).toBe('3.1.1')
     })
   })
 
@@ -1279,7 +1302,7 @@ describe('create-workspace-store', () => {
         },
       })
 
-      expect(store.workspace.documents['default'].info.title).toBe('My Updated API')
+      expect(store.workspace.documents['default']?.info.title).toBe('My Updated API')
     })
   })
 

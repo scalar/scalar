@@ -19,10 +19,8 @@ import {
   safeLocalStorage,
 } from '@scalar/helpers/object/local-storage'
 import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
-import { combineUrlAndPath } from '@scalar/helpers/url/merge-urls'
 import { parseJsonOrYaml, redirectToProxy } from '@scalar/oas-utils/helpers'
 import type { AnyApiReferenceConfiguration } from '@scalar/types'
-import type { ClientId, TargetId } from '@scalar/types/snippetz'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { type WorkspaceStore } from '@scalar/workspace-store/client'
 import { useSeoMeta } from '@unhead/vue'

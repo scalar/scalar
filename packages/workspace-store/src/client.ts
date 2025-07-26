@@ -239,9 +239,15 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   // which may include edits not yet synced to the remote registry.
   function saveDocument(documentName: string) {
     const intermediateDocument = intermediateDocuments[documentName]
+    const workspaceDocument = workspace.documents[documentName]
+
+    if (!workspaceDocument) {
+      return
+    }
+
     // Obtain the raw state of the current document to ensure accurate diffing
     // Remove the magic proxy while preserving the overrides proxy to ensure accurate updates
-    const updatedDocument = createOverridesProxy(getRaw(workspace.documents[documentName]), overrides[documentName])
+    const updatedDocument = createOverridesProxy(getRaw(workspaceDocument), overrides[documentName])
 
     // If either the intermediate or updated document is missing, do nothing
     if (!intermediateDocument || !updatedDocument) {
@@ -574,11 +580,17 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
      * store.revertDocumentChanges('api')
      */
     revertDocumentChanges(documentName: string) {
+      const workspaceDocument = workspace.documents[documentName]
+
+      if (!workspaceDocument) {
+        return
+      }
+
       const intermediateDocument = intermediateDocuments[documentName]
       // Get the raw state of the current document to avoid diffing resolved references.
       // This ensures we update the actual data, not the references.
       // Note: We keep the Vue proxy for reactivity by updating the object in place.
-      const updatedDocument = createOverridesProxy(getRaw(workspace.documents[documentName]), overrides[documentName])
+      const updatedDocument = createOverridesProxy(getRaw(workspaceDocument), overrides[documentName])
 
       if (!intermediateDocument || !updatedDocument) {
         return

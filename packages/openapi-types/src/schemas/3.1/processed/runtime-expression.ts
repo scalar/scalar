@@ -40,13 +40,13 @@ const validatePureExpression = (value: string): boolean => {
   const [mainPart, jsonPointer] = expression.split('#')
 
   // Request and response references
-  const [source, type, ...rest] = mainPart.split('.')
+  const [source, type, ...rest] = mainPart?.split('.') ?? []
 
-  if (!['request', 'response'].includes(source)) {
+  if (!['request', 'response'].includes(source ?? '')) {
     return false
   }
 
-  if (!['header', 'query', 'path', 'body'].includes(type)) {
+  if (!['header', 'query', 'path', 'body'].includes(type ?? '')) {
     return false
   }
 

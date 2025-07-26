@@ -39,6 +39,12 @@ export class InvalidChangesDetectedError extends Error {
 export const apply = (document: Record<string, unknown>, diff: Difference[]): Record<string, unknown> => {
   // Traverse the object and apply the change
   const applyChange = (current: any, path: string[], d: Difference, depth = 0) => {
+    if (path[depth] === undefined) {
+      throw new InvalidChangesDetectedError(
+        `Process aborted. Path ${path.join('.')} at depth ${depth} is undefined, check diff object`,
+      )
+    }
+
     // We reach where we want to be, now we can apply changes
     if (depth >= path.length - 1) {
       if (d.type === 'add' || d.type === 'update') {

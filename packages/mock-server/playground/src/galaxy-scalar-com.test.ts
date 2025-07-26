@@ -93,7 +93,7 @@ describe('galaxy-scalar-com', () => {
 
       // Get the onRequest callback that was passed to createMockServer
       const createMockServerCall = vi.mocked(createMockServer).mock.calls[0]
-      const onRequestCallback = createMockServerCall[0].onRequest
+      const onRequestCallback = createMockServerCall?.[0]?.onRequest
 
       // Mock context
       const mockContext = {
@@ -216,7 +216,7 @@ describe('galaxy-scalar-com', () => {
 
       // Get the callback passed to serve
       const serveCall = vi.mocked(serve).mock.calls[0]
-      const callback = serveCall[1] as any
+      const callback = serveCall?.[1] as any
 
       // Call the callback with mock info
       callback({ port: 5052, address: '0.0.0.0', family: 'IPv4' })

@@ -70,6 +70,9 @@ export async function workThroughQueue<T extends Task[]>(queue: Queue<T>): Promi
     // Make TS complain when we forgot to handle a command.
     else {
       const _: never = name
+
+      // @ts-expect-error Needed to allow the unused type to still be checked
+      const nada = _
     }
   }
 

@@ -62,7 +62,7 @@ export function rehypeAlert() {
         } else {
           const skipped = headIndex + 1 < node.children.length && isWhitespace(node.children[headIndex + 1])
           const nextIndex = skipped ? headIndex + 2 : headIndex + 1
-          if (nextIndex >= node.children.length || node.children[nextIndex].type !== 'element') {
+          if (nextIndex >= node.children.length || node.children[nextIndex]?.type !== 'element') {
             return
           }
 
@@ -83,7 +83,7 @@ export function rehypeAlert() {
       const contentChildren = []
       for (let i = headIndex; i < node.children.length; i++) {
         const child = node.children[i]
-        if (child.type === 'element' && child.tagName === 'p' && child.children) {
+        if (child?.type === 'element' && child.tagName === 'p' && child.children) {
           contentChildren.push(...child.children)
         } else {
           contentChildren.push(child)

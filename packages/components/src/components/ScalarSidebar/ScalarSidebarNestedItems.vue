@@ -23,7 +23,7 @@ import {
   ScalarIconCaretLeft,
   ScalarIconListDashes,
 } from '@scalar/icons'
-import { Transition, nextTick, ref, useTemplateRef, watch } from 'vue'
+import { nextTick, ref, useTemplateRef } from 'vue'
 
 import { ScalarIconLegacyAdapter } from '../ScalarIcon'
 import ScalarSidebarButton from './ScalarSidebarButton.vue'

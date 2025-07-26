@@ -163,8 +163,8 @@ export const traverseTags = (
   const tags = getSortedTagEntries(keys, tagsMap, titlesMap, { getTagId, tagsSorter, operationsSorter })
 
   // Flatten if we only have default tag
-  if (tags.length === 1 && tags[0].title === 'default') {
-    return tags[0].children ?? []
+  if (tags.length === 1 && tags[0]?.title === 'default') {
+    return tags[0]?.children ?? []
   }
 
   return tags

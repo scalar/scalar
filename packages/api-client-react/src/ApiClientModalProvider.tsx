@@ -85,7 +85,7 @@ export const ApiClientModalProvider = ({ children, initialRequest, configuration
   }, [el.current, state.createClient])
 
   return (
-    <ApiClientModalContext.Provider value={state.clientDict[key]}>
+    <ApiClientModalContext.Provider value={state.clientDict[key] ?? null}>
       <div
         className="scalar-app"
         ref={el}

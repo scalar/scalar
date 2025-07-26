@@ -11,8 +11,8 @@ export type OptionGroup = {
 }
 
 /** Type guard to check if an option is a group */
-export function isGroup(option: Option | OptionGroup): option is OptionGroup {
-  return (option as OptionGroup).options !== undefined
+export function isGroup(option: Option | OptionGroup | undefined): option is OptionGroup {
+  return (option as OptionGroup | undefined)?.options !== undefined
 }
 
 /** Type guard to check if an array of options is an array of groups */

@@ -69,7 +69,7 @@ const observeSidebarElement = (id: string) => {
     return
   }
 
-  const observer = new MutationObserver((mutations, obs) => {
+  const observer = new MutationObserver((_mutations, obs) => {
     const el = document.getElementById(`sidebar-${id}`)
     if (el) {
       scrollSidebar(id)

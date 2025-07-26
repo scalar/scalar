@@ -2,7 +2,6 @@
 import { ScalarIconTrash } from '@scalar/icons'
 import { cva, cx } from '@scalar/use-hooks/useBindCx'
 
-import { ScalarIcon } from '../ScalarIcon'
 import {
   ScalarListboxCheckbox,
   type ScalarListboxOptionStyle,
