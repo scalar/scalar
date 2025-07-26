@@ -2097,6 +2097,9 @@ importers:
 
   packages/openapi-parser:
     dependencies:
+      '@scalar/openapi-types':
+        specifier: workspace:*
+        version: link:../openapi-types
       ajv:
         specifier: ^8.17.1
         version: 8.17.1
@@ -2122,9 +2125,6 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
-      '@scalar/openapi-types':
-        specifier: workspace:*
-        version: link:../openapi-types
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
