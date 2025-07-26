@@ -211,7 +211,7 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
           <template v-else>
             <ScalarListboxCheckbox
               :selected="model.some((o) => o.id === option.id)"
-              :style="multiselect ? 'checkbox' : 'radio'" />
+              :multiselect />
             <span class="inline-block min-w-0 flex-1 truncate text-c-1">
               {{ option.label }}
             </span>

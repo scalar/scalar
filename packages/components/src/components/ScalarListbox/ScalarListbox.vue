@@ -83,7 +83,7 @@ const { cx } = useBindCx()
                 v-for="option in options"
                 :key="option.id"
                 :option="option"
-                :style="multiple ? 'checkbox' : 'radio'" />
+                :multiselect="multiple" />
             </ListboxOptions>
           </div>
           <ScalarFloatingBackdrop />
