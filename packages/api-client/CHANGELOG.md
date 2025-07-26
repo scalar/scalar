@@ -1,5 +1,35 @@
 # @scalar/api-client
 
+## 2.5.20
+
+### Patch Changes
+
+- ccf875a: feat: support x-scalar-credentials-location extension
+- 94d6d0c: fix: remove old ssr state and update nuxt for workspace store
+- c0d6793: feat: ensure we use the path routing base path for relative document url resolution
+- 77e700b: fix: adds request auth tab label clamp display
+- af22451: feat: increases caret icon usage and style concistency amongst reference and client
+- Updated dependencies [ccf875a]
+- Updated dependencies [94d6d0c]
+- Updated dependencies [952f471]
+- Updated dependencies [c0d6793]
+- Updated dependencies [b957a2c]
+- Updated dependencies [3c1e3e3]
+- Updated dependencies [f3d0216]
+- Updated dependencies [af22451]
+  - @scalar/openapi-types@0.3.7
+  - @scalar/types@0.2.11
+  - @scalar/oas-utils@0.4.16
+  - @scalar/themes@0.13.12
+  - @scalar/helpers@0.0.7
+  - @scalar/components@0.14.21
+  - @scalar/openapi-parser@0.18.2
+  - @scalar/postman-to-openapi@0.3.19
+  - @scalar/snippetz@0.4.4
+  - @scalar/use-codemirror@0.12.22
+  - @scalar/import@0.4.15
+  - @scalar/object-utils@1.2.3
+
 ## 2.5.19
 
 ### Patch Changes

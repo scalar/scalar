@@ -1,5 +1,13 @@
 # @scalar/core
 
+## 0.3.11
+
+### Patch Changes
+
+- Updated dependencies [ccf875a]
+- Updated dependencies [94d6d0c]
+  - @scalar/types@0.2.11
+
 ## 0.3.10
 
 ### Patch Changes
