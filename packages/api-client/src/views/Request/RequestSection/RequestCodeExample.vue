@@ -248,14 +248,12 @@ const customCodeContent = computed(() => {
             <!-- Use the given code example -->
             <template v-if="customCodeContent">
               <ScalarCodeBlock
-                class="px-3 py-1.5"
                 :content="customCodeContent"
                 :lang="selectedPlugin.id.split(',')[1] ?? 'plaintext'" />
             </template>
             <!-- Generate a code snippet -->
             <template v-else>
               <CodeSnippet
-                class="px-3 py-1.5"
                 :client="selectedClient"
                 :example="example"
                 :operation="operation"

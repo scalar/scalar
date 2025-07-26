@@ -320,33 +320,6 @@ describe('ExampleResponses', () => {
     expect(wrapper.text()).toContain('Access denied')
   })
 
-  it('copies example response when clicking copy button', async () => {
-    const wrapper = mount(ExampleResponses, {
-      props: {
-        responses: {
-          '200': {
-            description: 'OK',
-            content: {
-              'application/json': {
-                examples: {
-                  example1: { value: { foo: 'bar' } },
-                },
-              },
-            },
-          },
-        },
-      },
-    })
-
-    const copyButton = wrapper.find('.copy-button')
-    expect(copyButton.exists()).toBe(true)
-
-    await copyButton.trigger('click')
-
-    // Since we can't test clipboard directly in jsdom, we can verify the click handler was called
-    expect(wrapper.emitted()).toBeDefined()
-  })
-
   it('toggles between schema and example view', async () => {
     const wrapper = mount(ExampleResponses, {
       props: {

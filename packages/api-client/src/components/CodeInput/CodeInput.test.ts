@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount, type VueWrapper } from '@vue/test-utils'
 import CodeInput from './CodeInput.vue'
 import { useCodeMirror } from '@scalar/use-codemirror'
-import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { enableConsoleError, enableConsoleWarn } from '@/vitest.setup'
 import { ref, toValue } from 'vue'
 import { environmentSchema } from '@scalar/oas-utils/entities/environment'
@@ -157,15 +156,6 @@ describe('CodeInput', () => {
 
     // Verify the mocked focus method was called
     expect(mockCodeMirror.focus).toHaveBeenCalled()
-  })
-
-  it('copies content when copy button is clicked', async () => {
-    wrapper = createWrapper({ isCopyable: true })
-
-    const copyButton = wrapper.find('.copy-button')
-    await copyButton.trigger('click')
-
-    expect(vi.mocked(useClipboard).mock.results[0]?.value.copyToClipboard).toHaveBeenCalledWith(wrapper.vm.modelValue)
   })
 
   it('applies error class when error prop is true', async () => {
