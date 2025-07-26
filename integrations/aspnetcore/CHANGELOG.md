@@ -1,5 +1,34 @@
 # @scalar/aspnetcore
 
+## 2.6.5
+
+### Patch Changes
+
+- ccf875a: feat: support x-scalar-credentials-location extension
+- Updated dependencies [628d44c]
+- Updated dependencies [092626d]
+- Updated dependencies [ce9b7ff]
+- Updated dependencies [4ea9dab]
+- Updated dependencies [8d24b91]
+- Updated dependencies [2e2f50a]
+- Updated dependencies [7ee81f4]
+- Updated dependencies [94d6d0c]
+- Updated dependencies [d29c455]
+- Updated dependencies [319fb56]
+- Updated dependencies [24c9d4c]
+- Updated dependencies [c0d6793]
+- Updated dependencies [6953c9f]
+- Updated dependencies [72924f6]
+- Updated dependencies [6f12d2e]
+- Updated dependencies [8795629]
+- Updated dependencies [515162c]
+- Updated dependencies [f3d0216]
+- Updated dependencies [7555e44]
+- Updated dependencies [af22451]
+- Updated dependencies [a5534e6]
+- Updated dependencies [6b6c72c]
+  - @scalar/api-reference@1.33.0
+
 ## 2.6.4
 
 ### Patch Changes

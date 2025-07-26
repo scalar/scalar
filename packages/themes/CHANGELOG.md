@@ -1,5 +1,15 @@
 # @scalar/themes
 
+## 0.13.12
+
+### Patch Changes
+
+- 952f471: fix(themes): don't style <a> in reset only in markdown
+- 3c1e3e3: fix: removes a level line height from reset
+- Updated dependencies [ccf875a]
+- Updated dependencies [94d6d0c]
+  - @scalar/types@0.2.11
+
 ## 0.13.11
 
 ### Patch Changes
