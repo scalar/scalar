@@ -93,7 +93,7 @@ const filtered = computed<O[]>(() =>
       }),
 )
 
-function toggleSelected(option: O | undefined) {
+function toggleSelected(option: Option | undefined) {
   if (!option) {
     return
   }
@@ -105,11 +105,14 @@ function toggleSelected(option: O | undefined) {
     }
     // Add to selection list
     else {
-      model.value = [...model.value, option]
+      model.value = [
+        ...model.value,
+        options.value.find((o) => o.id === option.id)!,
+      ]
     }
   } else {
     // Set selection for single select mode
-    model.value = [option]
+    model.value = [options.value.find((o) => o.id === option.id)!]
   }
 }
 
@@ -151,7 +154,7 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
     <input
       v-model="query"
       ref="input"
-      :aria-activedescendant="active && getOptionId(active as O)"
+      :aria-activedescendant="active ? getOptionId(active) : undefined"
       aria-autocomplete="list"
       :aria-controls="id"
       class="min-w-0 flex-1 rounded border-0 py-2.5 pl-8 pr-3 leading-none text-c-1 -outline-offset-1"
@@ -161,7 +164,7 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
       tabindex="0"
       type="text"
       @keydown.down.prevent="moveActive(1)"
-      @keydown.enter.prevent="active && toggleSelected(active as O)"
+      @keydown.enter.prevent="active && toggleSelected(active)"
       @keydown.up.prevent="moveActive(-1)" />
   </div>
   <ul
