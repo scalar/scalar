@@ -86,6 +86,7 @@ const { getModelId } = useNavState()
   color: var(--scalar-color-1);
 }
 .reference-models-label {
+  display: block;
   font-size: var(--scalar-mini);
 }
 
