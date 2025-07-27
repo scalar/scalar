@@ -1,5 +1,5 @@
 import { createApiClient } from '@/libs'
-import { createWebHistoryRouter, saveActiveWorkspace } from '@/router'
+import { createWebHashRouter, createWebHistoryRouter, createModalRouter, saveActiveWorkspace } from '@/router'
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 
 import ApiClientWeb from './ApiClientWeb.vue'
@@ -17,8 +17,14 @@ export const createApiClientWeb = async (
    * For SSR this may need to be blocked and done client side
    */
   mountOnInitialize = true,
+  /**
+   * Defaults to path-based routing
+   * Options are 'path', 'hash', 'memory'
+   */
+  routing = 'path',
 ) => {
-  const router = createWebHistoryRouter()
+  const router =
+    routing === 'hash' ? createWebHashRouter() : routing === 'memory' ? createModalRouter() : createWebHistoryRouter()
   const client = createApiClient({
     el,
     appComponent: ApiClientWeb,
