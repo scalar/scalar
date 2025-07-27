@@ -1548,7 +1548,7 @@
           {
             "name": "excludeTotalDataChart",
             "in": "query",
-            "required": false,
+            "required": true,
             "description": "true to exclude aggregated chart from response",
             "schema": {
               "type": "boolean",
@@ -1558,7 +1558,7 @@
           {
             "name": "excludeTotalDataChartBreakdown",
             "in": "query",
-            "required": false,
+            "required": true,
             "description": "true to exclude broken down chart from response",
             "schema": {
               "type": "boolean",
@@ -1668,7 +1668,7 @@
           {
             "name": "excludeTotalDataChart",
             "in": "query",
-            "required": false,
+            "required": true,
             "description": "true to exclude aggregated chart from response",
             "schema": {
               "type": "boolean",
@@ -1678,7 +1678,7 @@
           {
             "name": "excludeTotalDataChartBreakdown",
             "in": "query",
-            "required": false,
+            "required": true,
             "description": "true to exclude broken down chart from response",
             "schema": {
               "type": "boolean",
@@ -1752,7 +1752,7 @@
           {
             "name": "excludeTotalDataChart",
             "in": "query",
-            "required": false,
+            "required": true,
             "description": "true to exclude aggregated chart from response",
             "schema": {
               "type": "boolean",
@@ -1762,7 +1762,7 @@
           {
             "name": "excludeTotalDataChartBreakdown",
             "in": "query",
-            "required": false,
+            "required": true,
             "description": "true to exclude broken down chart from response",
             "schema": {
               "type": "boolean",
@@ -1838,7 +1838,7 @@
           {
             "name": "excludeTotalDataChart",
             "in": "query",
-            "required": false,
+            "required": true,
             "description": "true to exclude aggregated chart from response",
             "schema": {
               "type": "boolean",
@@ -1848,7 +1848,7 @@
           {
             "name": "excludeTotalDataChartBreakdown",
             "in": "query",
-            "required": false,
+            "required": true,
             "description": "true to exclude broken down chart from response",
             "schema": {
               "type": "boolean",
@@ -1933,7 +1933,7 @@
           {
             "name": "excludeTotalDataChart",
             "in": "query",
-            "required": false,
+            "required": true,
             "description": "true to exclude aggregated chart from response",
             "schema": {
               "type": "boolean",
@@ -1943,7 +1943,7 @@
           {
             "name": "excludeTotalDataChartBreakdown",
             "in": "query",
-            "required": false,
+            "required": true,
             "description": "true to exclude broken down chart from response",
             "schema": {
               "type": "boolean",
@@ -2021,7 +2021,7 @@
           {
             "name": "excludeTotalDataChart",
             "in": "query",
-            "required": false,
+            "required": true,
             "description": "true to exclude aggregated chart from response",
             "schema": {
               "type": "boolean",
@@ -2031,7 +2031,7 @@
           {
             "name": "excludeTotalDataChartBreakdown",
             "in": "query",
-            "required": false,
+            "required": true,
             "description": "true to exclude broken down chart from response",
             "schema": {
               "type": "boolean",
@@ -2140,7 +2140,7 @@
           {
             "name": "excludeTotalDataChart",
             "in": "query",
-            "required": false,
+            "required": true,
             "description": "true to exclude aggregated chart from response",
             "schema": {
               "type": "boolean",
@@ -2150,7 +2150,7 @@
           {
             "name": "excludeTotalDataChartBreakdown",
             "in": "query",
-            "required": false,
+            "required": true,
             "description": "true to exclude broken down chart from response",
             "schema": {
               "type": "boolean",
