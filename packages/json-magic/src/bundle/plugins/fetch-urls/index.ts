@@ -1,4 +1,4 @@
-import { normalize } from '@/bundle/utils/normalize'
+import { normalize } from '@/utils/normalize'
 import { createLimiter } from '@/bundle/create-limiter'
 import type { Plugin, ResolveResult } from '@/bundle'
 import { isRemoteUrl } from '@/bundle/bundle'

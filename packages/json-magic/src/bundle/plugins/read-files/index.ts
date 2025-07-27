@@ -1,4 +1,4 @@
-import { normalize } from '@/bundle/utils/normalize'
+import { normalize } from '@/utils/normalize'
 import { isFilePath, type Plugin, type ResolveResult } from '@/bundle/bundle'
 
 /**

@@ -1,4 +1,4 @@
-import { normalize } from '@/bundle/utils/normalize'
+import { normalize } from '@/utils/normalize'
 import { describe, expect, it } from 'vitest'
 
 describe('normalize', () => {

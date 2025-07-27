@@ -22,7 +22,8 @@
   },
   "type": "module",
   "dependencies": {
-    "yaml": "catalog:*"
+    "yaml": "catalog:*",
+    "vue": "catalog:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",

@@ -1,4 +1,4 @@
-import { isJson } from '@/bundle/utils/isJson'
+import { isJson } from '@/utils/isJson'
 import type { Plugin, ResolveResult } from '@/bundle'
 
 /**

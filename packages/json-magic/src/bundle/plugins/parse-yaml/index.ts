@@ -1,5 +1,5 @@
 import type { Plugin, ResolveResult } from '@/bundle/bundle'
-import { isYaml } from '@/bundle/utils/isYaml'
+import { isYaml } from '@/utils/isYaml'
 import YAML from 'yaml'
 
 /**
