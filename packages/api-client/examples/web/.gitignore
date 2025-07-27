@@ -1,0 +1,2 @@
+# Including the symlink in a commit causes pre-commit check failures
+standalone.js
