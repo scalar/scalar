@@ -46,6 +46,11 @@
       "types": "./dist/bundle/plugins/node.d.ts",
       "default": "./dist/bundle/plugins/node.js"
     },
+    "./dereference": {
+      "import": "./dist/dereference.js",
+      "types": "./dist/dereference.d.ts",
+      "default": "./dist/dereference.js"
+    },
     "./magic-proxy": {
       "import": "./dist/magic-proxy.js",
       "types": "./dist/magic-proxy.d.ts",
