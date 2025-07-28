@@ -6,7 +6,6 @@ import type { HtmlRenderingConfiguration } from '@scalar/types/api-reference'
 import { Hono } from 'hono'
 
 const DEFAULT_PORT = process.env.PORT || 0
-const DEFAULT_CDN_URL = '/scalar.js'
 
 /**
  * URL creation helper to pass a configuration and a local scalar.js URL
@@ -21,6 +20,7 @@ const DEFAULT_CDN_URL = '/scalar.js'
 export async function serveExample(givenConfiguration?: Partial<HtmlRenderingConfiguration>): Promise<string> {
   return new Promise((resolve) => {
     const DEFAULT_CONFIGURATION: Partial<HtmlRenderingConfiguration> = {
+      cdn: '/scalar.js',
       url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
       proxyUrl: 'https://proxy.scalar.com',
     }
@@ -36,15 +36,10 @@ export async function serveExample(givenConfiguration?: Partial<HtmlRenderingCon
       // Configuration from query parameter or default configuration
       const configuration: Partial<HtmlRenderingConfiguration> =
         givenConfiguration && Object.keys(givenConfiguration ?? {}).length > 0
-          ? givenConfiguration
+          ? { ...DEFAULT_CONFIGURATION, ...givenConfiguration }
           : DEFAULT_CONFIGURATION
 
-      return c.html(
-        getHtmlDocument({
-          cdn: DEFAULT_CDN_URL,
-          ...configuration,
-        }),
-      )
+      return c.html(getHtmlDocument(configuration))
     })
 
     app.get('/scalar.js', (c) =>
