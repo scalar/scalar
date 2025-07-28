@@ -22,7 +22,7 @@
     }
   },
   "hostRequirements": {
-    "memory": "4gb",
+    "memory": "6gb",
     "cpus": 4
   }
 }
