@@ -13,6 +13,10 @@ type DereferenceResult =
       errors: string[]
     }
 
+type ReturnDereferenceResult<Opt extends { sync?: boolean }> = Opt['sync'] extends true
+  ? DereferenceResult
+  : Promise<DereferenceResult>
+
 /**
  * Dereferences a JSON object, resolving all $ref pointers.
  *
@@ -42,17 +46,15 @@ type DereferenceResult =
  *     }
  *   });
  */
-export const dereference = (
+export const dereference = <Opts extends { sync?: boolean }>(
   input: UnknownObject,
-  options: {
-    sync?: boolean
-  } = { sync: false },
-): DereferenceResult | Promise<DereferenceResult> => {
+  options: Opts,
+): ReturnDereferenceResult<Opts> => {
   if (options.sync) {
     return {
       success: true,
       data: createMagicProxy(input),
-    }
+    } as ReturnDereferenceResult<Opts>
   }
 
   const errors: string[] = []
@@ -78,5 +80,5 @@ export const dereference = (
       success: true,
       data: createMagicProxy(result as UnknownObject),
     }
-  })
+  }) as ReturnDereferenceResult<Opts>
 }

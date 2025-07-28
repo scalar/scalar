@@ -23,7 +23,7 @@ describe('dereference', () => {
         },
       }
 
-      const result = await dereference(data, { sync: true })
+      const result = dereference(data, { sync: true })
 
       expect(result).toEqual({
         success: true,
