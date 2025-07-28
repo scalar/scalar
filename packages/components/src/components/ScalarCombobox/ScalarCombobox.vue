@@ -31,8 +31,6 @@ defineSlots<{
 }>()
 
 function handleUpdateModelValue(value: Option | undefined) {
-  close()
-
   if (value) {
     emit('update:modelValue', value)
   }
@@ -49,13 +47,13 @@ function handleUpdateModelValue(value: Option | undefined) {
     <template #default="{ open }">
       <slot :open="open" />
     </template>
-    <template #popover="{ open }">
+    <template #popover="{ open, close }">
       <ComboboxOptions
         :modelValue="modelValue ? [modelValue] : []"
         :open="open"
         :options="options"
         :placeholder="placeholder"
-        @update:modelValue="(v) => handleUpdateModelValue(v[0])">
+        @update:modelValue="(v) => [handleUpdateModelValue(v[0]), close()]">
         <template
           v-if="$slots.before"
           #before>
