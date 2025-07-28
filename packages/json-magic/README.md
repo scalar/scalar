@@ -1,5 +1,11 @@
 # json-magic
 
+[![Version](https://img.shields.io/npm/v/%40scalar/json-magic)](https://www.npmjs.com/package/@scalar/json-magic)
+[![Downloads](https://img.shields.io/npm/dm/%40scalar/json-magic)](https://www.npmjs.com/package/@scalar/json-magic)
+[![License](https://img.shields.io/npm/l/%40scalar%2Fjson-magic)](https://www.npmjs.com/package/@scalar/json-magic)
+[![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
+
+
 A collection of utilities for working with JSON objects, including diffing, conflict resolution, bundling and more.
 
 ## bundle
@@ -223,6 +229,108 @@ console.log(result)
 
 ## dereference
 
+Dereference all `$ref` pointers in a JSON object, resolving both internal and external references.
+
+The `dereference` function can operate in two modes:
+
+- **Synchronous (`sync: true`)**: Only internal references (within the same object) are resolved. The result is wrapped in a magic proxy for reactive access. No network requests are made.
+- **Asynchronous (`sync: false` or omitted)**: Both internal and external references (e.g., URLs) are resolved. The function returns a Promise that resolves to the fully dereferenced object, also wrapped in a magic proxy.
+
+### Options
+
+- `sync` (`boolean`):  
+  - If `true`, resolves only internal references synchronously.
+  - If `false` (default), resolves both internal and external references asynchronously and returns a Promise.
+
+The result is an object with a `success` property. If dereferencing fails (e.g., due to unresolved external references), the result will include an `errors` array describing the issues encountered.
+
+```ts
+import { dereference } from '@scalar/json-magic/dereference'
+
+const result = dereference({ a: 'hello', b: { $ref: '#/a' } }, { sync: true })
+
+// Resolve internal references synchronously
+console.log(result)
+```
+
+To resolve also external references you need to set `sync: false`
+
+```ts
+import { dereference } from '@scalar/json-magic/dereference'
+
+const result = await dereference({ a: 'hello', b: { $ref: 'http://example.com/document.json#/somepath' } }, { sync: false })
+
+// Result with all internal and external references resolved
+console.log(result)
+```
+
 ## diff
 
+This package provides a way to compare two json objects and get the differences, resolve conflicts and return conflicts that need to be resolved manually.
+
+### Quickstart
+
+
+```ts
+import { apply, diff, merge } from '@scalar/json-magic/diff'
+
+const baseObject = {
+  openapi: '3.0.0',
+  info: {
+    title: 'Simple API',
+    description: 'A small OpenAPI specification example',
+    version: '1.0.0',
+  },
+}
+
+const objectV1 = {
+  openapi: '3.0.0',
+  info: {
+    title: 'Simple API',
+    description: 'A small OpenAPI specification example',
+    version: '1.0.0',
+  },
+  change: 'This is a new property',
+}
+
+const objectV2 = {
+  openapi: '3.0.0',
+  info: {
+    title: 'Simple API',
+    description: 'A small OpenAPI specification example',
+    version: '1.0.1',
+  },
+}
+
+// Merge the changes of both versions with the same parent object
+const { diffs, conflicts } = merge(
+  diff(baseObject, objectV1),
+  diff(baseObject, objectV2),
+)
+
+// Apply changes from v1 and v2 to the parent object to get the final object
+const finalDocument = apply(baseObject, diffs)
+```
+
+
 ## magic-proxy
+
+A javascript proxy which resolves internal references when accessing a property
+
+### Quick start
+
+```ts
+import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
+
+const result = createMagicProxy({
+  a: 'hello',
+  b: '#/a'
+})
+
+// Resolved internal references for the input object
+console.log(result)
+
+const rawObject = getRaw(result)
+// Get the raw version of the object (unwrap it from the magic proxy)
+console.log(rawObject)
+```

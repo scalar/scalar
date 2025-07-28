@@ -48,9 +48,9 @@ type ReturnDereferenceResult<Opt extends { sync?: boolean }> = Opt['sync'] exten
  */
 export const dereference = <Opts extends { sync?: boolean }>(
   input: UnknownObject,
-  options: Opts,
+  options?: Opts,
 ): ReturnDereferenceResult<Opts> => {
-  if (options.sync) {
+  if (options?.sync) {
     return {
       success: true,
       data: createMagicProxy(input),
