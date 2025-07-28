@@ -63,7 +63,6 @@ public static class DistributedApplicationBuilderExtensions
                 x.DisplayText = "Scalar API Reference";
                 x.Url = ApiReferenceEndpoint;
             })
-            .WithHttpHealthCheck(HealthCheckEndpoint)
-            .ExcludeFromManifest();
+            .WithHttpHealthCheck(HealthCheckEndpoint);
     }
 }

@@ -63,8 +63,7 @@ function readFiles(): Record<string, Record<string, string>> {
       if (fs.lstatSync(iconPath).isDirectory()) {
         return
       }
-
-      mappings[key][variant] = readFile(iconPath)
+      ;(mappings[key] as NonNullable<(typeof mappings)[string]>)[variant] = readFile(iconPath)
     })
   })
 
@@ -95,7 +94,7 @@ function generateComponents(mappings: Record<string, Record<string, string>>) {
 
       const name = pascalize(icon)
 
-      const content = Object.entries(variants)
+      const content = Object.entries(variants ?? {})
         .map(([variant, content], index) => {
           return `\n<g v-${index > 0 ? 'else-' : ''}if="weight === '${variant}'">${content}</g>`
         })

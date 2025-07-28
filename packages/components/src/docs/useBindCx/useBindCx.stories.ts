@@ -46,7 +46,7 @@ const meta = {
 
       const rendered = ref('')
       const observer = new MutationObserver((mutations) => {
-        rendered.value = (mutations[0].target as HTMLElement).outerHTML
+        rendered.value = (mutations[0]?.target as HTMLElement)?.outerHTML ?? ''
       })
       watch(
         mock,

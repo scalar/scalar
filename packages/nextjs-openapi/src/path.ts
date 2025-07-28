@@ -15,7 +15,7 @@ import {
 } from 'typescript'
 
 /** Check if identifier is a supported http method */
-const checkForMethod = (identifier: Identifier) => {
+const checkForMethod = (identifier: Pick<Identifier, 'escapedText'> | undefined) => {
   const method = identifier?.escapedText?.toLowerCase()
 
   return method?.match(/^(get|post|put|patch|delete|head|options)$/) ? (method as OpenAPIV3_1.HttpMethods) : null
@@ -34,7 +34,7 @@ const fileNameResolver = (source: string, target: string) => {
 /**
  * Takes a parameter node and returns a path parameter schema
  */
-const extractPathParams = (node: ParameterDeclaration, program: Program): OpenAPIV3_1.ParameterObject[] => {
+const extractPathParams = (node: ParameterDeclaration | undefined, program: Program): OpenAPIV3_1.ParameterObject[] => {
   // Traverse to the params with type guards
   if (
     node &&
@@ -91,7 +91,8 @@ export const getPathSchema = (sourceFile: SourceFile, program: Program) => {
 
     // TODO: variables
     else if (isVariableStatement(statement)) {
-      const method = checkForMethod(statement.declarationList.declarations[0].name as Identifier)
+      // TODO: Remove this typecast. It looks totally incompatible
+      const method = checkForMethod(statement.declarationList.declarations[0]?.name as Identifier)
       if (method) {
         const { title, description } = getJSDocFromNode(statement)
         const responses = generateResponses(statement, typeChecker)

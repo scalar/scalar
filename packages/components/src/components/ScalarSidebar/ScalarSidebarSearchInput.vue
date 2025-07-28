@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarIconMagnifyingGlass, ScalarIconX } from '@scalar/icons'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
-import { nextTick, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 import { ScalarIconButton } from '../ScalarIconButton'
 import { type LoadingState, ScalarLoading } from '../ScalarLoading'

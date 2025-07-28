@@ -391,9 +391,10 @@ describe('TraversedEntryContainer', () => {
     afterEach(() => {
       vi.useRealTimers()
       vi.restoreAllMocks()
+      hasLazyLoaded.value = false
     })
 
-    it('sets hasLazyLoaded to true when no hash is present', () => {
+    it('sets hasLazyLoaded to true when no hash is present', async () => {
       const document = {
         openapi: '3.1.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -411,13 +412,20 @@ describe('TraversedEntryContainer', () => {
       vi.mocked(useNavState).mockReturnValue(createMockNavState(''))
 
       vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
-      mount(TraversedEntryContainer, getProps(document))
+      const wrapper = mount(TraversedEntryContainer, getProps(document))
+
+      await vi.waitFor(() => {
+        expect(wrapper.emitted('allEntriesLoaded')).toBeTruthy()
+      })
+      vi.advanceTimersByTime(300)
 
       // hasLazyLoaded should be true when no hash is present
       expect(hasLazyLoaded.value).toBe(true)
+      // isIntersectionEnabled should be true when no hash is present
+      expect(vi.mocked(useNavState).mock.results[0].value.isIntersectionEnabled.value).toBe(true)
     })
 
-    it('sets hasLazyLoaded to true when hash starts with description', () => {
+    it('sets hasLazyLoaded to true when hash starts with description', async () => {
       const document = {
         openapi: '3.1.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -435,7 +443,12 @@ describe('TraversedEntryContainer', () => {
       vi.mocked(useNavState).mockReturnValue(createMockNavState('description/introduction'))
 
       vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
-      mount(TraversedEntryContainer, getProps(document))
+      const wrapper = mount(TraversedEntryContainer, getProps(document))
+
+      await vi.waitFor(() => {
+        expect(wrapper.emitted('allEntriesLoaded')).toBeTruthy()
+      })
+      vi.advanceTimersByTime(300)
 
       // hasLazyLoaded should be true when hash starts with description
       expect(hasLazyLoaded.value).toBe(true)
@@ -473,7 +486,7 @@ describe('TraversedEntryContainer', () => {
       expect(wrapper.exists()).toBe(true)
     })
 
-    it('resumes scrolling when all lazy elements are loaded', () => {
+    it('resumes scrolling when all lazy elements are loaded', async () => {
       const document = {
         openapi: '3.1.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -491,13 +504,18 @@ describe('TraversedEntryContainer', () => {
       vi.mocked(useNavState).mockReturnValue(createMockNavState('tag/users/get/users'))
 
       vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
-      mount(TraversedEntryContainer, getProps(document))
+      const wrapper = mount(TraversedEntryContainer, getProps(document))
 
       // Simulate loading and then loading all elements
       lazyBus.emit({ loading: 'operation-1' })
       lazyBus.emit({ loading: 'operation-2' })
       lazyBus.emit({ loaded: 'operation-1' })
       lazyBus.emit({ loaded: 'operation-2' })
+
+      // Wait for the allEntriesLoaded event to be emitted
+      await vi.waitFor(() => {
+        expect(wrapper.emitted('allEntriesLoaded')).toBeTruthy()
+      })
 
       // Advance timers to trigger the setTimeout in the lazyBus.on callback
       vi.advanceTimersByTime(300)
@@ -656,7 +674,7 @@ describe('TraversedEntryContainer', () => {
       expect(true).toBe(true) // Just checking it doesn't crash
     })
 
-    it('handles lazy loading with multiple operations', () => {
+    it('handles lazy loading with multiple operations', async () => {
       const document = {
         openapi: '3.1.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -684,7 +702,7 @@ describe('TraversedEntryContainer', () => {
       vi.mocked(useNavState).mockReturnValue(createMockNavState('tag/users/get/users'))
 
       vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
-      mount(TraversedEntryContainer, getProps(document))
+      const wrapper = mount(TraversedEntryContainer, getProps(document))
 
       // Simulate loading multiple operations
       lazyBus.emit({ loading: 'operation-1' })
@@ -697,6 +715,9 @@ describe('TraversedEntryContainer', () => {
       lazyBus.emit({ loaded: 'operation-3' })
 
       // Advance timers to trigger the setTimeout
+      await vi.waitFor(() => {
+        expect(wrapper.emitted('allEntriesLoaded')).toBeTruthy()
+      })
       vi.advanceTimersByTime(300)
 
       // All operations should be loaded and scrolling should resume
@@ -704,7 +725,7 @@ describe('TraversedEntryContainer', () => {
       expect(vi.mocked(useNavState).mock.results[0].value.isIntersectionEnabled.value).toBe(true)
     })
 
-    it('handles lazy loading with webhooks', () => {
+    it('handles lazy loading with webhooks', async () => {
       const document = {
         openapi: '3.1.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -728,7 +749,7 @@ describe('TraversedEntryContainer', () => {
       vi.mocked(useNavState).mockReturnValue(createMockNavState('webhook/POST/user.created'))
 
       vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
-      mount(TraversedEntryContainer, getProps(document))
+      const wrapper = mount(TraversedEntryContainer, getProps(document))
 
       // Simulate loading webhooks
       lazyBus.emit({ loading: 'webhook-1' })
@@ -737,6 +758,9 @@ describe('TraversedEntryContainer', () => {
       lazyBus.emit({ loaded: 'webhook-2' })
 
       // Advance timers to trigger the setTimeout
+      await vi.waitFor(() => {
+        expect(wrapper.emitted('allEntriesLoaded')).toBeTruthy()
+      })
       vi.advanceTimersByTime(300)
 
       // All webhooks should be loaded and scrolling should resume
@@ -744,7 +768,7 @@ describe('TraversedEntryContainer', () => {
       expect(vi.mocked(useNavState).mock.results[0].value.isIntersectionEnabled.value).toBe(true)
     })
 
-    it('handles lazy loading with mixed content (operations and webhooks)', () => {
+    it('handles lazy loading with mixed content (operations and webhooks)', async () => {
       const document = {
         openapi: '3.1.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -773,7 +797,7 @@ describe('TraversedEntryContainer', () => {
       vi.mocked(useNavState).mockReturnValue(createMockNavState('tag/events/get/events'))
 
       vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
-      mount(TraversedEntryContainer, getProps(document))
+      const wrapper = mount(TraversedEntryContainer, getProps(document))
 
       // Simulate loading mixed content
       lazyBus.emit({ loading: 'operation-1' })
@@ -781,7 +805,9 @@ describe('TraversedEntryContainer', () => {
       lazyBus.emit({ loaded: 'operation-1' })
       lazyBus.emit({ loaded: 'webhook-1' })
 
-      // Advance timers to trigger the setTimeout
+      await vi.waitFor(() => {
+        expect(wrapper.emitted('allEntriesLoaded')).toBeTruthy()
+      })
       vi.advanceTimersByTime(300)
 
       // All content should be loaded and scrolling should resume

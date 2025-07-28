@@ -32,9 +32,9 @@
   },
   "exports": {
     "./bundle": {
-      "import": "./dist/bundle.js",
-      "types": "./dist/bundle.d.ts",
-      "default": "./dist/bundle.js"
+      "import": "./dist/bundle/index.js",
+      "types": "./dist/bundle/index.d.ts",
+      "default": "./dist/bundle/index.js"
     },
     "./bundle/plugins/bundle/plugins/browser": {
       "import": "./dist/bundle/plugins/browser.js",
@@ -47,19 +47,19 @@
       "default": "./dist/bundle/plugins/node.js"
     },
     "./dereference": {
-      "import": "./dist/dereference.js",
-      "types": "./dist/dereference.d.ts",
-      "default": "./dist/dereference.js"
+      "import": "./dist/dereference/index.js",
+      "types": "./dist/dereference/index.d.ts",
+      "default": "./dist/dereference/index.js"
     },
     "./diff": {
-      "import": "./dist/diff.js",
-      "types": "./dist/diff.d.ts",
-      "default": "./dist/diff.js"
+      "import": "./dist/diff/index.js",
+      "types": "./dist/diff/index.d.ts",
+      "default": "./dist/diff/index.js"
     },
     "./magic-proxy": {
-      "import": "./dist/magic-proxy.js",
-      "types": "./dist/magic-proxy.d.ts",
-      "default": "./dist/magic-proxy.js"
+      "import": "./dist/magic-proxy/index.js",
+      "types": "./dist/magic-proxy/index.d.ts",
+      "default": "./dist/magic-proxy/index.js"
     }
   }
 }

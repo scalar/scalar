@@ -12,8 +12,9 @@ import {
   useSeoMeta,
   useState,
 } from '#imports'
-import type { Configuration } from '~/src/types'
 import { onMounted, ref, toRaw, watch } from 'vue'
+
+import type { Configuration } from '../../types'
 
 const props = defineProps<{
   configuration: Configuration
@@ -138,9 +139,9 @@ const store = createWorkspaceStore()
 
 // Parse the document if it's a string
 let parsedDocument: Record<string, unknown>
-if (typeof document === 'string') {
+if (typeof document.value === 'string') {
   try {
-    parsedDocument = JSON.parse(document)
+    parsedDocument = JSON.parse(document.value)
   } catch (error) {
     console.error('Failed to parse OpenAPI document:', error)
     throw new Error('Invalid OpenAPI document format')
@@ -161,7 +162,7 @@ store.addDocumentSync({
 
 <template>
   <ApiReferenceWorkspace
-    :getWorkspaceStore="() => store"
+    :store
     :configuration="config" />
 </template>
 

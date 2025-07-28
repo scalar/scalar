@@ -18,6 +18,7 @@ import {
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
@@ -48,6 +49,8 @@ const { operation, path, isWebhook } = defineProps<{
   method: HttpMethodType
   operation: Dereference<OperationObject>
   oldOperation: OpenAPIV3_1.OperationObject
+  parameters: ParameterObject[]
+  // pathServers: ServerObject[] | undefined
   isWebhook: boolean
   server: ServerObject | undefined
   securitySchemes: SecuritySchemeObject[]
@@ -138,9 +141,9 @@ const handleDiscriminatorChange = (type: string) => {
       <div class="operation-details-card">
         <div class="operation-details-card-item">
           <OperationParameters
-            :parameters="oldOperation.parameters"
             :requestBody="oldOperation.requestBody"
-            :schemas="schemas"
+            :parameters
+            :schemas
             @update:modelValue="handleDiscriminatorChange" />
         </div>
         <div class="operation-details-card-item">
@@ -206,6 +209,13 @@ const handleDiscriminatorChange = (type: string) => {
 
   min-width: 0;
   flex-shrink: 1;
+}
+.operation-details :deep(.endpoint-anchor .scalar-button) {
+  top: 0;
+}
+.operation-details :deep(.endpoint-anchor .scalar-button svg) {
+  width: 16px;
+  height: 16px;
 }
 .endpoint-type {
   display: flex;

@@ -1,4 +1,4 @@
-import { createSynchronousResponse } from '@/helpers/create-synchronous-response.ts'
+import { createSynchronousResponse } from '@/helpers/create-synchronous-response'
 import type { SynchronousResponse } from '@/types.ts'
 
 export const mockSynchronousResponse = async (body?: string): Promise<SynchronousResponse> => {

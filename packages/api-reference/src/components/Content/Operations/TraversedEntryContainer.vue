@@ -21,6 +21,10 @@ const { document, config } = defineProps<{
   store: WorkspaceStore
 }>()
 
+const emit = defineEmits<{
+  allEntriesLoaded: [loaded: true]
+}>()
+
 const { collections, servers } = useWorkspace()
 const { activeCollection: _activeCollection } = useActiveEntities()
 
@@ -77,11 +81,6 @@ const resume = () => {
 /** So we know when we have loaded all lazy elements */
 const lazyIds = ref<Set<string>>(new Set())
 
-// No need to freeze if we don't have a hash
-if (!hash.value || hash.value.startsWith('description')) {
-  hasLazyLoaded.value = true
-}
-
 // Use the lazybus to handle [un]freezing elements
 lazyBus.on(({ loading, loaded }) => {
   if (hasLazyLoaded.value) {
@@ -100,6 +99,7 @@ lazyBus.on(({ loading, loaded }) => {
 
   // We are empty! Unfreeze the page
   if (lazyIds.value.size === 0) {
+    emit('allEntriesLoaded', true)
     setTimeout(() => resume(), 300)
   }
 })

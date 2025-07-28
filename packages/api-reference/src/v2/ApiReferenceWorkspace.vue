@@ -18,9 +18,9 @@ import {
   REFERENCE_LS_KEYS,
   safeLocalStorage,
 } from '@scalar/helpers/object/local-storage'
+import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { parseJsonOrYaml, redirectToProxy } from '@scalar/oas-utils/helpers'
 import type { AnyApiReferenceConfiguration } from '@scalar/types'
-import type { ClientId, TargetId } from '@scalar/types/snippetz'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { type WorkspaceStore } from '@scalar/workspace-store/client'
 import { useSeoMeta } from '@unhead/vue'
@@ -136,7 +136,9 @@ const addDocument = (config: (typeof configs.value)[number]) => {
   if (config.url) {
     return store.addDocument({
       name: config.slug ?? 'default',
-      url: config.url,
+      url: makeUrlAbsolute(config.url, {
+        basePath: selectedConfiguration.value.pathRouting?.basePath,
+      }),
       fetch: proxy,
     })
   }

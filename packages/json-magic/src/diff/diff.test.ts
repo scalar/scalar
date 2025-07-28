@@ -251,12 +251,12 @@ describe('diff', () => {
       expect(diff(doc1, doc2)).toEqual([
         {
           path: ['hobbies', '1', 'name'],
-          changes: doc2.hobbies[1].name,
+          changes: doc2.hobbies[1]?.name,
           type: 'update',
         },
         {
           path: ['hobbies', '1', 'duration'],
-          changes: doc2.hobbies[1].duration,
+          changes: doc2.hobbies[1]?.duration,
           type: 'update',
         },
       ])
@@ -313,12 +313,12 @@ describe('diff', () => {
       { path: ['address', 'city'], changes: doc2.address.city, type: 'update' },
       {
         path: ['hobbies', '1', 'name'],
-        changes: doc2.hobbies[1].name,
+        changes: doc2.hobbies[1]?.name,
         type: 'update',
       },
       {
         path: ['hobbies', '1', 'duration'],
-        changes: doc2.hobbies[1].duration,
+        changes: doc2.hobbies[1]?.duration,
         type: 'update',
       },
       { path: ['hobbies', '2'], changes: doc2.hobbies[2], type: 'add' },

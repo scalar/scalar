@@ -104,14 +104,14 @@ describe('create-workspace-store', () => {
     // Should update the active document
     store.updateDocument('active', 'x-scalar-active-server', 'server-2')
     store.updateDocument('active', 'x-scalar-active-auth', undefined)
-    expect(store.workspace.documents['default']['x-scalar-active-auth']).toBe(undefined)
-    expect(store.workspace.documents['default']['x-scalar-active-server']).toBe('server-2')
+    expect(store.workspace.documents['default']?.['x-scalar-active-auth']).toBe(undefined)
+    expect(store.workspace.documents['default']?.['x-scalar-active-server']).toBe('server-2')
 
     // Should update a specific document
     store.updateDocument('default', 'x-scalar-active-server', 'server-3')
     store.updateDocument('default', 'x-scalar-active-auth', 'Bearer')
-    expect(store.workspace.documents['default']['x-scalar-active-auth']).toBe('Bearer')
-    expect(store.workspace.documents['default']['x-scalar-active-server']).toBe('server-3')
+    expect(store.workspace.documents['default']?.['x-scalar-active-auth']).toBe('Bearer')
+    expect(store.workspace.documents['default']?.['x-scalar-active-server']).toBe('server-3')
   })
 
   it('correctly get the correct document', async () => {
@@ -246,7 +246,7 @@ describe('create-workspace-store', () => {
     })
 
     expect(
-      (store.workspace.activeDocument?.paths?.['/users'].get as any)?.responses?.[200].content['application/json']
+      (store?.workspace?.activeDocument?.paths?.['/users']?.get as any)?.responses?.[200]?.content['application/json']
         .schema.items.properties.name,
     ).toEqual({
       type: 'string',
@@ -279,7 +279,7 @@ describe('create-workspace-store', () => {
       documents: [
         {
           name: 'default',
-          document: serverStore.getWorkspace().documents['default'],
+          document: serverStore.getWorkspace().documents['default'] ?? {},
         },
       ],
     })
@@ -294,13 +294,13 @@ describe('create-workspace-store', () => {
     await store.resolve(['paths', '/users', 'get'])
 
     // We expect the ref to have been resolved with the correct contents
-    expect(store.workspace.activeDocument?.paths?.['/users'].get?.summary).toEqual(
+    expect(store.workspace.activeDocument?.paths?.['/users']?.get?.summary).toEqual(
       getDocument().paths['/users'].get.summary,
     )
 
     expect(
-      (store.workspace.activeDocument?.paths?.['/users'].get as any).responses[200].content['application/json'].schema
-        .items,
+      (store.workspace.activeDocument?.paths?.['/users']?.get as any)?.responses?.[200]?.content['application/json']
+        ?.schema?.items,
     ).toEqual({
       ...getDocument().components.schemas.User,
       'x-original-ref': '#/components/schemas/User',
@@ -325,13 +325,13 @@ describe('create-workspace-store', () => {
     })
 
     expect(Object.keys(store.workspace.documents)).toEqual(['default'])
-    expect(store.workspace.documents['default'].info?.title).toEqual(getDocument().info.title)
+    expect(store.workspace.documents['default']?.info?.title).toEqual(getDocument().info.title)
 
     // Add a new remote file
     await store.addDocument({ name: 'new', url: url })
 
     expect(Object.keys(store.workspace.documents)).toEqual(['default', 'new'])
-    expect(store.workspace.documents['new'].info?.title).toEqual(getDocument().info.title)
+    expect(store.workspace.documents['new']?.info?.title).toEqual(getDocument().info.title)
   })
 
   it('handle circular references when we try to resolve all remote chunks recursively', async () => {
@@ -410,7 +410,7 @@ describe('create-workspace-store', () => {
       documents: [
         {
           name: 'default',
-          document: serverStore.getWorkspace().documents['default'],
+          document: serverStore.getWorkspace().documents['default'] ?? {},
         },
       ],
     })
@@ -1090,9 +1090,9 @@ describe('create-workspace-store', () => {
         ],
       })
 
-      expect(store.workspace.documents['default'].info.title).toBe('My Updated API')
-      expect(store.workspace.documents['default'].info.version).toBe('2.0.0')
-      expect(store.workspace.documents['default'].openapi).toBe('3.1.1')
+      expect(store.workspace.documents['default']?.info?.title).toBe('My Updated API')
+      expect(store.workspace.documents['default']?.info?.version).toBe('2.0.0')
+      expect(store.workspace.documents['default']?.openapi).toBe('3.1.1')
     })
 
     it('edit the override values', async () => {
@@ -1111,12 +1111,17 @@ describe('create-workspace-store', () => {
           },
         ],
       })
+      const defaultDocument = store.workspace.documents['default']
 
-      store.workspace.documents['default'].info.title = 'Edited title'
+      if (!defaultDocument) {
+        throw new Error('Default document not found')
+      }
 
-      expect(store.workspace.documents['default'].info.title).toBe('Edited title')
-      expect(store.workspace.documents['default'].info.version).toBe('2.0.0')
-      expect(store.workspace.documents['default'].openapi).toBe('3.1.1')
+      defaultDocument.info.title = 'Edited title'
+
+      expect(defaultDocument.info.title).toBe('Edited title')
+      expect(defaultDocument.info.version).toBe('2.0.0')
+      expect(defaultDocument.openapi).toBe('3.1.1')
     })
 
     it('writes back the overrides to the intermediate object', async () => {
@@ -1136,11 +1141,17 @@ describe('create-workspace-store', () => {
         ],
       })
 
-      store.workspace.documents['default'].info.title = 'Edited title'
+      const defaultDocument = store.workspace.documents['default']
 
-      expect(store.workspace.documents['default'].info.title).toBe('Edited title')
-      expect(store.workspace.documents['default'].info.version).toBe('2.0.0')
-      expect(store.workspace.documents['default'].openapi).toBe('3.1.1')
+      if (!defaultDocument) {
+        throw new Error('Default document not found')
+      }
+
+      defaultDocument.info.title = 'Edited title'
+
+      expect(defaultDocument.info.title).toBe('Edited title')
+      expect(defaultDocument.info.version).toBe('2.0.0')
+      expect(defaultDocument.openapi).toBe('3.1.1')
 
       store.saveDocument('default')
       expect(store.exportDocument('default', 'json')).toBe(
@@ -1165,11 +1176,17 @@ describe('create-workspace-store', () => {
         ],
       })
 
-      store.workspace.documents['default'].info.title = 'Edited title'
+      const defaultDocument = store.workspace.documents['default']
 
-      expect(store.workspace.documents['default'].info.title).toBe('Edited title')
-      expect(store.workspace.documents['default'].info.version).toBe('2.0.0')
-      expect(store.workspace.documents['default'].openapi).toBe('3.1.1')
+      if (!defaultDocument) {
+        throw new Error('Default document not found')
+      }
+
+      defaultDocument.info.title = 'Edited title'
+
+      expect(defaultDocument.info.title).toBe('Edited title')
+      expect(defaultDocument.info.version).toBe('2.0.0')
+      expect(defaultDocument.openapi).toBe('3.1.1')
 
       store.saveDocument('default')
       const exported = store.exportWorkspace()
@@ -1178,9 +1195,9 @@ describe('create-workspace-store', () => {
       const newStore = createWorkspaceStore()
       newStore.loadWorkspace(exported)
 
-      expect(newStore.workspace.documents['default'].info.title).toBe('Edited title')
-      expect(newStore.workspace.documents['default'].info.version).toBe('2.0.0')
-      expect(newStore.workspace.documents['default'].openapi).toBe('3.1.1')
+      expect(newStore.workspace.documents['default']?.info.title).toBe('Edited title')
+      expect(newStore.workspace.documents['default']?.info.version).toBe('2.0.0')
+      expect(newStore.workspace.documents['default']?.openapi).toBe('3.1.1')
     })
 
     it('should revert the changes made to the overrides', async () => {
@@ -1200,18 +1217,24 @@ describe('create-workspace-store', () => {
         ],
       })
 
-      store.workspace.documents['default'].info.title = 'Edited title'
+      const defaultDocument = store.workspace.documents['default']
 
-      expect(store.workspace.documents['default'].info.title).toBe('Edited title')
-      expect(store.workspace.documents['default'].info.version).toBe('2.0.0')
-      expect(store.workspace.documents['default'].openapi).toBe('3.1.1')
+      if (!defaultDocument) {
+        throw new Error('Default document not found')
+      }
+
+      defaultDocument.info.title = 'Edited title'
+
+      expect(defaultDocument.info.title).toBe('Edited title')
+      expect(defaultDocument.info.version).toBe('2.0.0')
+      expect(defaultDocument.openapi).toBe('3.1.1')
 
       // Revert the changes
       store.revertDocumentChanges('default')
 
-      expect(store.workspace.documents['default'].info.title).toBe('My Updated API')
-      expect(store.workspace.documents['default'].info.version).toBe('2.0.0')
-      expect(store.workspace.documents['default'].openapi).toBe('3.1.1')
+      expect(defaultDocument.info.title).toBe('My Updated API')
+      expect(defaultDocument.info.version).toBe('2.0.0')
+      expect(defaultDocument.openapi).toBe('3.1.1')
     })
   })
 
@@ -1279,7 +1302,7 @@ describe('create-workspace-store', () => {
         },
       })
 
-      expect(store.workspace.documents['default'].info.title).toBe('My Updated API')
+      expect(store.workspace.documents['default']?.info.title).toBe('My Updated API')
     })
   })
 
@@ -1388,6 +1411,302 @@ describe('create-workspace-store', () => {
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         "Failed to load document 'null-data-doc': response data is not a valid object",
       )
+    })
+  })
+
+  describe('replaceDocument', () => {
+    it('should replace the document with the new provided document', () => {
+      const store = createWorkspaceStore({
+        documents: [
+          {
+            name: 'default',
+            document: {
+              openapi: '3.0.0',
+              info: {
+                title: 'My API',
+                version: '1.0.0',
+              },
+              paths: {
+                '/users': {
+                  get: {
+                    summary: 'Get all users',
+                    responses: {
+                      '200': {
+                        description: 'Successful response',
+                        content: {
+                          'application/json': {
+                            schema: {
+                              type: 'array',
+                              items: {
+                                $ref: '#/components/schemas/User',
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              components: {
+                schemas: {
+                  User: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'string', description: 'The user ID' },
+                      name: { type: 'string', description: 'The user name' },
+                      email: { type: 'string', format: 'email', description: 'The user email' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      })
+
+      expect(store.workspace.documents['default']).toEqual({
+        components: {
+          schemas: {
+            User: {
+              properties: {
+                email: {
+                  description: 'The user email',
+                  format: 'email',
+                  type: 'string',
+                },
+                id: {
+                  description: 'The user ID',
+                  type: 'string',
+                },
+                name: {
+                  description: 'The user name',
+                  type: 'string',
+                },
+              },
+              type: 'object',
+            },
+          },
+        },
+        info: {
+          title: 'My API',
+          version: '1.0.0',
+        },
+        openapi: '3.1.1',
+        paths: {
+          '/users': {
+            get: {
+              responses: {
+                '200': {
+                  content: {
+                    'application/json': {
+                      schema: {
+                        items: {
+                          properties: {
+                            email: {
+                              description: 'The user email',
+                              format: 'email',
+                              type: 'string',
+                            },
+                            id: {
+                              description: 'The user ID',
+                              type: 'string',
+                            },
+                            name: {
+                              description: 'The user name',
+                              type: 'string',
+                            },
+                          },
+                          type: 'object',
+                          'x-original-ref': '#/components/schemas/User',
+                        },
+                        type: 'array',
+                      },
+                    },
+                  },
+                  description: 'Successful response',
+                },
+              },
+              summary: 'Get all users',
+            },
+          },
+        },
+        'x-scalar-navigation': [
+          {
+            id: 'Get all users',
+            method: 'get',
+            path: '/users',
+            ref: '#/paths/~1users/get',
+            title: 'Get all users',
+            type: 'operation',
+          },
+          {
+            children: [
+              {
+                id: 'User',
+                name: 'User',
+                ref: '#/content/components/schemas/User',
+                title: 'User',
+                type: 'model',
+              },
+            ],
+            id: '',
+            title: 'Models',
+            type: 'text',
+          },
+        ],
+      })
+
+      store.replaceDocument('default', {
+        openapi: '3.0.0',
+        info: {
+          title: 'Updated API',
+          version: '1.0.0',
+        },
+        paths: {
+          '/users': {
+            get: {
+              summary: 'Get all users',
+              responses: {
+                '200': {
+                  description: 'This is an updated description',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'array',
+                        items: {
+                          $ref: '#/components/schemas/User',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              properties: {
+                id: { type: 'string', description: 'Updated user id schema description' },
+                name: { type: 'string', description: 'The user name' },
+                email: { type: 'string', format: 'email', description: 'The user email' },
+              },
+            },
+          },
+        },
+      })
+
+      // Should still preserve the generated navigation and upgrade the document to the latest when we try to replace it
+      expect(store.workspace.documents['default']).toEqual({
+        components: {
+          schemas: {
+            User: {
+              properties: {
+                email: {
+                  description: 'The user email',
+                  format: 'email',
+                  type: 'string',
+                },
+                id: {
+                  description: 'Updated user id schema description',
+                  type: 'string',
+                },
+                name: {
+                  description: 'The user name',
+                  type: 'string',
+                },
+              },
+              type: 'object',
+            },
+          },
+        },
+        info: {
+          title: 'Updated API',
+          version: '1.0.0',
+        },
+        openapi: '3.1.1',
+        paths: {
+          '/users': {
+            get: {
+              responses: {
+                '200': {
+                  content: {
+                    'application/json': {
+                      schema: {
+                        items: {
+                          properties: {
+                            email: {
+                              description: 'The user email',
+                              format: 'email',
+                              type: 'string',
+                            },
+                            id: {
+                              description: 'Updated user id schema description',
+                              type: 'string',
+                            },
+                            name: {
+                              description: 'The user name',
+                              type: 'string',
+                            },
+                          },
+                          type: 'object',
+                          'x-original-ref': '#/components/schemas/User',
+                        },
+                        type: 'array',
+                      },
+                    },
+                  },
+                  description: 'This is an updated description',
+                },
+              },
+              summary: 'Get all users',
+            },
+          },
+        },
+        'x-scalar-navigation': [
+          {
+            id: 'Get all users',
+            method: 'get',
+            path: '/users',
+            ref: '#/paths/~1users/get',
+            title: 'Get all users',
+            type: 'operation',
+          },
+          {
+            children: [
+              {
+                id: 'User',
+                name: 'User',
+                ref: '#/content/components/schemas/User',
+                title: 'User',
+                type: 'model',
+              },
+            ],
+            id: '',
+            title: 'Models',
+            type: 'text',
+          },
+        ],
+      })
+    })
+
+    it('should log a warning if the document does not exist', () => {
+      const store = createWorkspaceStore()
+
+      // Spy on console.warn
+      store.replaceDocument('non-existing', {
+        openapi: '3.0.0',
+        info: {
+          title: 'My API',
+          version: '1.0.0',
+        },
+      })
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith("Document 'non-existing' does not exist in the workspace.")
+      expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
     })
   })
 })

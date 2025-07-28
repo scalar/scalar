@@ -272,7 +272,7 @@ export function prefixInternalRefRecursive(input: unknown, prefix: string[]) {
       return
     }
 
-    return (input['$ref'] = prefixInternalRef(ref, prefix))
+    input['$ref'] = prefixInternalRef(ref, prefix)
   }
 }
 

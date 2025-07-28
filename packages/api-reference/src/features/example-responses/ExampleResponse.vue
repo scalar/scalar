@@ -1,18 +1,20 @@
 <script lang="ts" setup>
 import { ScalarCodeBlock } from '@scalar/components'
 import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
-import type { OpenAPI } from '@scalar/openapi-types'
+import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/example'
+import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/media-header-encoding'
 
 defineProps<{
-  response: OpenAPI.ResponseObject
+  response: MediaTypeObject | undefined
+  example: ExampleObject
 }>()
 </script>
 <template>
   <!-- Example -->
   <ScalarCodeBlock
-    v-if="response?.example !== undefined"
+    v-if="example !== undefined"
     class="bg-b-2 -outline-offset-2"
-    :content="response?.example"
+    :content="example?.value"
     lang="json" />
 
   <!-- Schema -->

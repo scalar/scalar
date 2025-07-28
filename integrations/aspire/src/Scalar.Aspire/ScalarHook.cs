@@ -16,7 +16,7 @@ internal sealed class ScalarHook(IServiceProvider provider) : IDistributedApplic
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    public Task AfterEndpointsAllocatedAsync(DistributedApplicationModel appModel, CancellationToken cancellationToken = default)
+    public Task BeforeStartAsync(DistributedApplicationModel appModel, CancellationToken cancellationToken = default)
     {
         var scalarResource = appModel.Resources.OfType<ScalarResource>().FirstOrDefault();
 

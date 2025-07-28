@@ -6,13 +6,15 @@ import {
   ScalarIcon,
 } from '@scalar/components'
 import { ScalarIconCaretDown } from '@scalar/icons'
-import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/example'
+import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/media-header-encoding'
 
-const props = defineProps<{
-  examples: Record<string, ExampleObject>
+const { examples } = defineProps<{
+  examples: MediaTypeObject['examples']
 }>()
 
-const selectedExampleKey = defineModel<string>({ required: true })
+const selectedExampleKey = defineModel<string>({
+  required: true,
+})
 
 /** Generate label for an example */
 const getLabel = (key: string | null) => {
@@ -20,8 +22,8 @@ const getLabel = (key: string | null) => {
     return 'Select an example'
   }
 
-  const example = props.examples[key]
-  return example?.summary ?? key
+  // Use the summary, if available, fallback to the key
+  return examples?.[key]?.summary ?? key
 }
 
 /** Handle example selection */
@@ -44,7 +46,9 @@ defineExpose({
       fullWidth
       variant="ghost">
       <span>{{ getLabel(selectedExampleKey) }}</span>
-      <ScalarIconCaretDown />
+      <ScalarIconCaretDown
+        weight="bold"
+        class="ui-open:rotate-180 mt-0.25 size-3 transition-transform duration-100" />
     </ScalarButton>
     <template #items>
       <ScalarDropdownItem

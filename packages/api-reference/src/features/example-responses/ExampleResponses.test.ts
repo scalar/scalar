@@ -12,7 +12,9 @@ describe('ExampleResponses', () => {
             description: 'Successful response',
             content: {
               'application/json': {
-                example: { message: 'Success' },
+                examples: {
+                  example1: { value: { message: 'Success' } },
+                },
               },
             },
           },
@@ -28,6 +30,7 @@ describe('ExampleResponses', () => {
     expect(tabs[0].text()).toContain('200')
     expect(codeBlock.length).toBe(1)
     expect(wrapper.text()).toContain('Success')
+    expect(wrapper.text()).not.toContain('value')
     expect(examplePicker.exists()).toBe(false)
   })
 
@@ -76,7 +79,9 @@ describe('ExampleResponses', () => {
             description: 'XML response',
             content: {
               'application/xml': {
-                example: '<user><name>John</name><age>30</age></user>',
+                examples: {
+                  example1: { value: '<user><name>John</name><age>30</age></user>' },
+                },
               },
             },
           },
@@ -89,7 +94,7 @@ describe('ExampleResponses', () => {
     const examplePicker = wrapper.findComponent({ name: 'ExamplePicker' })
 
     expect(tabs.length).toBe(1)
-    expect(tabs[0].text()).toContain('200')
+    expect(tabs[0].text()).toContain('Status: 200')
     expect(codeBlock.length).toBe(1)
     expect(wrapper.text()).toContain('XML response')
     expect(wrapper.text()).toContain('<user><name>John</name><age>30</age></user>')
@@ -104,7 +109,9 @@ describe('ExampleResponses', () => {
             description: 'Plain text response',
             content: {
               'text/plain': {
-                example: 'Hello world',
+                examples: {
+                  example1: { value: 'Hello world' },
+                },
               },
             },
           },
@@ -132,7 +139,9 @@ describe('ExampleResponses', () => {
             description: 'HTML response',
             content: {
               'text/html': {
-                example: '<div>Hello <strong>world</strong></div>',
+                examples: {
+                  example1: { value: '<div>Hello <strong>world</strong></div>' },
+                },
               },
             },
           },
@@ -160,7 +169,9 @@ describe('ExampleResponses', () => {
             description: 'Success response',
             content: {
               'application/json': {
-                example: { status: 'success' },
+                examples: {
+                  example1: { value: { status: 'success' } },
+                },
               },
             },
           },
@@ -168,7 +179,9 @@ describe('ExampleResponses', () => {
             description: 'Error response',
             content: {
               'application/json': {
-                example: { error: 'Bad request' },
+                examples: {
+                  example1: { value: { error: 'Bad request' } },
+                },
               },
             },
           },
@@ -176,7 +189,9 @@ describe('ExampleResponses', () => {
             description: 'Server error',
             content: {
               'application/json': {
-                example: { error: 'Internal server error' },
+                examples: {
+                  example1: { value: { error: 'Internal server error' } },
+                },
               },
             },
           },
@@ -207,7 +222,9 @@ describe('ExampleResponses', () => {
             description: 'Success response',
             content: {
               'application/json': {
-                example: { status: 'success' },
+                examples: {
+                  example1: { value: { status: 'success' } },
+                },
               },
             },
           },
@@ -215,7 +232,9 @@ describe('ExampleResponses', () => {
             description: 'Default error response',
             content: {
               'application/json': {
-                example: { error: 'Unexpected error' },
+                examples: {
+                  example1: { value: { error: 'Unexpected error' } },
+                },
               },
             },
           },
@@ -223,7 +242,9 @@ describe('ExampleResponses', () => {
             description: 'Not found error',
             content: {
               'application/json': {
-                example: { error: 'Resource not found' },
+                examples: {
+                  example1: { value: { error: 'Resource not found' } },
+                },
               },
             },
           },
@@ -254,7 +275,9 @@ describe('ExampleResponses', () => {
             description: 'Not found error',
             content: {
               'application/json': {
-                example: { error: 'Resource not found' },
+                examples: {
+                  example1: { value: { error: 'Resource not found' } },
+                },
               },
             },
           },
@@ -262,7 +285,9 @@ describe('ExampleResponses', () => {
             description: 'Server error',
             content: {
               'application/json': {
-                example: { error: 'Internal server error' },
+                examples: {
+                  example1: { value: { error: 'Internal server error' } },
+                },
               },
             },
           },
@@ -270,7 +295,9 @@ describe('ExampleResponses', () => {
             description: 'Forbidden error',
             content: {
               'application/json': {
-                example: { error: 'Access denied' },
+                examples: {
+                  example1: { value: { error: 'Access denied' } },
+                },
               },
             },
           },
@@ -301,7 +328,9 @@ describe('ExampleResponses', () => {
             description: 'OK',
             content: {
               'application/json': {
-                example: { foo: 'bar' },
+                examples: {
+                  example1: { value: { foo: 'bar' } },
+                },
               },
             },
           },
@@ -309,7 +338,7 @@ describe('ExampleResponses', () => {
       },
     })
 
-    const copyButton = wrapper.find('.code-copy')
+    const copyButton = wrapper.find('.copy-button')
     expect(copyButton.exists()).toBe(true)
 
     await copyButton.trigger('click')
@@ -377,7 +406,9 @@ describe('ExampleResponses', () => {
             description: 'OK',
             content: {
               '*/*': {
-                example: { message: 'Wildcard mimetype' },
+                examples: {
+                  example1: { value: { message: 'Wildcard mimetype' } },
+                },
               },
             },
           },

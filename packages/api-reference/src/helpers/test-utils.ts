@@ -1,6 +1,8 @@
 import { traverseDocument, type TraversedEntry } from '@/features/traverse-schema'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { apiReferenceConfigurationSchema } from '@scalar/types'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/schemas/workspace'
 import { vi } from 'vitest'
 import { computed, ref } from 'vue'
 
@@ -54,4 +56,27 @@ export const createMockNavState = (hash = '') => ({
   getSectionId: vi.fn(),
   getTagId: vi.fn(),
   updateHash: vi.fn(),
+})
+
+export const createMockStore = (activeDocument: WorkspaceDocument): WorkspaceStore => ({
+  workspace: {
+    documents: {},
+    activeDocument,
+  },
+  update: vi.fn(),
+  updateDocument: vi.fn(),
+  resolve: vi.fn(),
+  addDocument: vi.fn(),
+  addDocumentSync: vi.fn(),
+  config: {
+    'x-scalar-reference-config': {} as any,
+  },
+  exportDocument: vi.fn(),
+  saveDocument: vi.fn(),
+  revertDocumentChanges: vi.fn(),
+  commitDocument: vi.fn(),
+  exportWorkspace: vi.fn(),
+  loadWorkspace: vi.fn(),
+  importWorkspaceFromSpecification: vi.fn(),
+  replaceDocument: vi.fn(),
 })

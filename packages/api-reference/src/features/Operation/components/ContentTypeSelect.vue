@@ -1,10 +1,6 @@
 <script setup lang="ts">
-import {
-  cva,
-  ScalarButton,
-  ScalarIcon,
-  ScalarListbox,
-} from '@scalar/components'
+import { cva, ScalarButton, ScalarListbox } from '@scalar/components'
+import { ScalarIconCaretDown } from '@scalar/icons'
 import type { ContentType, RequestBody } from '@scalar/types/legacy'
 import { computed, ref } from 'vue'
 
@@ -55,7 +51,7 @@ const options = computed(() => {
 
 // Content type select style variant based on dropdown availability
 const contentTypeSelect = cva({
-  base: 'font-normal text-c-2 bg-b-2 py-0.75 flex cursor-pointer items-center gap-1 rounded-full text-xs',
+  base: 'font-normal text-c-2 bg-b-2 py-0.75 flex cursor-pointer items-center gap-1 rounded-full text-sm',
   variants: {
     dropdown: {
       true: 'border hover:text-c-1 pl-2 pr-1.5',
@@ -68,7 +64,6 @@ const contentTypeSelect = cva({
   <ScalarListbox
     v-if="prop?.requestBody && contentTypes.length > 1"
     v-model="selectedOption"
-    class="font-normal"
     :options="options"
     placement="bottom-end"
     @update:modelValue="handleSelectContentType">
@@ -78,11 +73,9 @@ const contentTypeSelect = cva({
       variant="ghost">
       <ScreenReader>Selected Content Type:</ScreenReader>
       <span>{{ selectedContentType }}</span>
-      <ScalarIcon
-        class="ui-open:rotate-180 ml-auto"
-        icon="ChevronDown"
-        size="sm"
-        thickness="2" />
+      <ScalarIconCaretDown
+        weight="bold"
+        class="ui-open:rotate-180 size-2.75 transition-transform duration-100" />
     </ScalarButton>
   </ScalarListbox>
   <div

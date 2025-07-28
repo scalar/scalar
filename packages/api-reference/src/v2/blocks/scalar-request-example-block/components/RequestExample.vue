@@ -7,7 +7,7 @@ export type RequestExampleProps = {
   /**
    * Pre-selected client, this will determine which client is initially selected in the dropdown
    *
-   * @defaults to js/fetch or a custom sample if one is available
+   * @defaults to shell/curl or a custom sample if one is available
    */
   selectedClient?: AvailableClients[number]
   /**
@@ -262,7 +262,7 @@ const id = useId()
     class="request-card dark-mode"
     ref="elem">
     <!-- Header -->
-    <ScalarCardHeader class="pr-0.5">
+    <ScalarCardHeader class="pr-2.5">
       <span class="sr-only">Request Example for</span>
       <HttpMethod
         as="span"
@@ -287,11 +287,15 @@ const id = useId()
           @update:modelValue="selectClient($event as ClientOption)">
           <ScalarButton
             data-testid="client-picker"
-            class="text-c-2 hover:text-c-1 flex h-full w-fit gap-2 px-1"
+            class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-0"
             fullWidth
             variant="ghost">
-            <span class="text-base">{{ localSelectedClient?.title }}</span>
-            <ScalarIconCaretDown class="size-3.5" />
+            <span class="text-base font-normal">{{
+              localSelectedClient.title
+            }}</span>
+            <ScalarIconCaretDown
+              weight="bold"
+              class="ui-open:rotate-180 mt-0.25 size-3 transition-transform duration-100" />
           </ScalarButton>
         </ScalarCombobox>
       </template>

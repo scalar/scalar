@@ -7,8 +7,8 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
-import { glob } from 'glob'
 import { fileURLToPath } from 'node:url'
+import { glob } from 'glob'
 
 const cssExports = {
   /** Adds provisions for a css folder in the built output */
@@ -111,6 +111,11 @@ export async function addPackageFileExports({
     }
   })
 
+  // don't touch the package.json in ./dist
+  if (import.meta.dirname.endsWith('dist')) {
+    return
+  }
+
   // Update the package file with the new exports
   const packageFile = JSON.parse(await fs.readFile('./package.json', 'utf-8'))
   packageFile.exports = allowCss ? { ...packageExports, ...cssExports } : { ...packageExports }
@@ -120,8 +125,17 @@ export async function addPackageFileExports({
     Object.entries(packageFile.exports).sort(([keyA], [keyB]) => keyA.localeCompare(keyB)),
   )
 
-  // Green text
-  console.log('\x1b[32m%s\x1b[0m', 'Updating package.json exports field…')
+  // Output the package name and exports to the console
+  const packageName = packageFile.name
+
+  console.log('\x1b[32m%s\x1b[0m', packageName)
+  console.log('  package.json exports:')
+  console.log(
+    Object.entries(packageFile.exports)
+      .map(([key]) => `    ${key}`)
+      .join('\n'),
+  )
+  console.log()
 
   await fs.writeFile('./package.json', `${JSON.stringify(packageFile, null, 2)}\n`)
 }

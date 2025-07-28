@@ -9,7 +9,7 @@ import OperationParameters from '@/features/Operation/components/OperationParame
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
 import type { Schemas } from '@/features/Operation/types/schemas'
 
-const { method, name, schemas, url, path, operationMethod } = defineProps<{
+const { method, name, schemas, url } = defineProps<{
   callback: Dereference<OperationObject>
   method: HttpMethodType
   path: string
@@ -24,12 +24,12 @@ const { method, name, schemas, url, path, operationMethod } = defineProps<{
   <details class="group callback-list-item">
     <!-- Title -->
     <summary
-      class="font-code bg-b-1 callback-sticky-offset callback-list-item-title sticky flex cursor-pointer flex-row items-center gap-2 border-t py-3 text-sm group-open:flex-wrap">
+      class="font-code bg-b-1 callback-sticky-offset callback-list-item-title sticky flex cursor-pointer flex-row items-start gap-2 border-t py-3 text-sm group-open:flex-wrap">
       <ScalarIconCaretRight
-        class="callback-list-item-icon text-c-3 group-hover:text-c-1 absolute -left-5 size-4 transition-transform group-open:rotate-90" />
+        class="callback-list-item-icon text-c-3 group-hover:text-c-1 absolute top-3.5 -left-5 size-4 transition-transform duration-100 group-open:rotate-90" />
       <HttpMethod
         as="span"
-        class="request-method"
+        class="request-method py-0.75"
         :method="method" />
       <div
         class="text-c-1 min-w-0 flex-1 truncate leading-3 group-open:whitespace-normal">
@@ -60,17 +60,18 @@ const { method, name, schemas, url, path, operationMethod } = defineProps<{
   top: var(--refs-header-height, 0px);
   z-index: 100;
 }
+.callback-operation-container :deep(.request-body),
+.callback-operation-container :deep(.request-body-description),
+.callback-operation-container :deep(.request-body-header) {
+  margin-top: 0;
+}
 .callback-operation-container :deep(.request-body-header) {
   --scalar-font-size-2: var(--scalar-font-size-4);
-  margin-top: 0;
   padding: 8px;
   border-bottom: none;
   border: 0.5px solid var(--scalar-border-color);
   border-radius: var(--scalar-radius-lg) var(--scalar-radius-lg) 0 0;
   background: color-mix(in srgb, var(--scalar-background-2) 50%, transparent);
-}
-.callback-operation-container :deep(.request-body-description) {
-  margin-top: 0;
 }
 .callback-operation-container :deep(ul li.property.property--level-1) {
   padding: 8px;

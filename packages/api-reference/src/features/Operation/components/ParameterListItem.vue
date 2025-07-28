@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
+import { ScalarMarkdown } from '@scalar/components'
+import { ScalarIconCaretRight } from '@scalar/icons'
 import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
@@ -71,12 +72,12 @@ const shouldShowParameter = computed(() => {
     <Disclosure v-slot="{ open }">
       <DisclosureButton
         v-if="shouldCollapse"
-        class="parameter-item-trigger flex"
+        class="parameter-item-trigger"
         :class="{ 'parameter-item-trigger-open': open }">
-        <ScalarIcon
-          class="parameter-item-icon size-4.5"
-          :icon="open ? 'ChevronDown' : 'ChevronRight'"
-          thickness="1.5" />
+        <ScalarIconCaretRight
+          weight="bold"
+          class="parameter-item-icon size-3 transition-transform duration-100"
+          :class="{ 'rotate-90': open }" />
         <span class="parameter-item-name">
           {{ parameter.name }}
         </span>
@@ -137,9 +138,11 @@ const shouldShowParameter = computed(() => {
   flex-direction: column;
   border-top: var(--scalar-border-width) solid var(--scalar-border-color);
 }
+
 .parameter-item:last-of-type .parameter-schema {
   padding-bottom: 0;
 }
+
 .parameter-item-container {
   padding: 0;
 }
@@ -155,6 +158,7 @@ const shouldShowParameter = computed(() => {
   font-family: var(--scalar-font-code);
   color: var(--scalar-color-1);
 }
+
 .parameter-item-type {
   font-size: var(--scalar-mini);
   color: var(--scalar-color-2);
@@ -165,15 +169,18 @@ const shouldShowParameter = computed(() => {
   width: 100%;
   overflow: hidden;
 }
+
 .parameter-item-trigger-open .parameter-item-type {
   white-space: normal;
 }
+
 /* Match font size of markdown for property-detail-value since first child within accordian is displayed as if it were in the markdown section */
 .parameter-item-trigger
   + .parameter-item-container
   :deep(.property--level-0 > .property-heading .property-detail-value) {
   font-size: var(--scalar-micro);
 }
+
 .parameter-item-required-optional {
   color: var(--scalar-color-2);
   font-weight: var(--scalar-semibold);
@@ -206,18 +213,21 @@ const shouldShowParameter = computed(() => {
   padding-bottom: 9px;
   margin-top: 3px;
 }
+
 .parameter-item-trigger {
+  display: flex;
+  align-items: center;
   padding: 12px 0;
   cursor: pointer;
   outline: none;
   text-align: left;
   position: relative;
-  align-items: baseline;
 }
 
 .parameter-item-trigger-open {
   padding-bottom: 0;
 }
+
 .parameter-item-trigger:after {
   content: '';
   position: absolute;
@@ -225,16 +235,18 @@ const shouldShowParameter = computed(() => {
   width: 100%;
   bottom: 0;
 }
+
 .parameter-item-icon {
   color: var(--scalar-color-3);
   left: -19px;
   position: absolute;
-  top: 11px;
 }
+
 .parameter-item-trigger:hover .parameter-item-icon,
 .parameter-item-trigger:focus-visible .parameter-item-icon {
   color: var(--scalar-color-1);
 }
+
 .parameter-item-trigger:focus-visible .parameter-item-icon {
   outline: 1px solid var(--scalar-color-accent);
   outline-offset: 2px;

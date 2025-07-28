@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { htmlFromMarkdown } from '@scalar/code-highlight'
 import { cx } from '@scalar/use-hooks/useBindCx'
-import { computed, onServerPrefetch } from 'vue'
+import { computed } from 'vue'
 
 const props = withDefaults(
   defineProps<{
@@ -155,7 +155,11 @@ const html = computed(() => {
   }
 
   .markdown ul:not(.contains-task-list) {
-    list-style-position: inside;
+    margin-left: 29px;
+  }
+
+  .markdown ul:not(.contains-task-list) li {
+    padding-left: calc(var(--markdown-spacing-md) / 2);
   }
 
   .markdown ul {
@@ -341,7 +345,7 @@ const html = computed(() => {
     border-radius: 2.5px;
     display: flex;
     align-items: flex-start;
-    gap: 10px;
+    gap: 8px;
     min-height: 40px;
     padding: 7px 14px;
     position: relative;
@@ -382,6 +386,7 @@ const html = computed(() => {
 
   .markdown details[open] > summary::before {
     transform: rotate(90deg);
+    transition: transform 0.1s ease-in-out;
   }
 
   .markdown details:has(+ details) {

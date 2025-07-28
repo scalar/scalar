@@ -92,7 +92,8 @@
     "test:e2e:themes": "pnpm --filter playwright test:e2e themes",
     "test:e2e:nuxt": "pnpm --filter playwright test:e2e nuxt",
     "test:e2e:electron": "pnpm --filter playwright test:e2e electron",
-    "types:check": "pnpm run -r --parallel types:check",
+    "types:check": "turbo types:check",
+    "types:build": "turbo types:build",
     "markdown:check": "remark --frail .",
     "script": "pnpm --filter @scalar-internal/build-scripts start"
   },
