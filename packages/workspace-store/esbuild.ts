@@ -1,6 +1,7 @@
 import { build } from '@scalar/build-tooling/esbuild'
 
 const entries = [
+  './src/helpers/*.ts',
   './src/schemas.ts',
   './src/client.ts',
   './src/server.ts',
