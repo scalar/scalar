@@ -1,20 +1,13 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the
-// README at: https://github.com/devcontainers/templates/tree/main/src/typescript-node
+// For details, see https://aka.ms/devcontainer.json.
 {
   "name": "Scalar Node",
-  // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
   "image": "mcr.microsoft.com/devcontainers/base:debian",
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
       "version": "22",
       "pnpmVersion": "10.5.2"
-    },
-    "ghcr.io/devcontainers/features/go:1": {
-      "version": "1.24.5"
     }
   },
-
-  // Configure tool-specific properties.
   "customizations": {
     "vscode": {
       "extensions": [
@@ -32,7 +25,4 @@
     "memory": "4gb",
     "cpus": 4
   }
-
-  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-  // "remoteUser": "root"
 }
