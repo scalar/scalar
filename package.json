@@ -84,6 +84,7 @@
     "test:ci": "pnpm test:integrations:ci && pnpm test:packages:ci",
     "test:integrations:ci": "CI=1 vitest integrations/* --silent",
     "test:packages:ci": "CI=1 vitest packages/* --silent",
+    "test:e2e:bundle": "pnpm --filter @scalar-examples/bundle test",
     "test:e2e": "pnpm --filter playwright test:e2e",
     "test:e2e:ui": "pnpm --filter playwright test:e2e:ui",
     "test:e2e:jsdelivr": "pnpm --filter playwright test:e2e jsdelivr",

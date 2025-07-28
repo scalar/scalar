@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { type HtmlRenderingConfiguration, getHtmlDocument } from '@scalar/core/libs/html-rendering'
 import { Hono } from 'hono'
 import { logger } from 'hono/logger'
@@ -34,6 +36,10 @@ app.get('/', (c) => {
       ...configuration,
     }),
   )
+})
+
+app.get('/scalar.js', (c) => {
+  return c.text(readFileSync(join(__dirname, 'scalar.js'), 'utf8'))
 })
 
 /**
