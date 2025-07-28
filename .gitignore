@@ -24,3 +24,5 @@ rollup.config-*.mjs
 
 # Svelte
 .svelte-kit
+
+.pnpm-store/
