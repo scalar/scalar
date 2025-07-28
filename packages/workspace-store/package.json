@@ -72,7 +72,7 @@
   "dependencies": {
     "@scalar/code-highlight": "workspace:*",
     "@scalar/helpers": "workspace:*",
-    "@scalar/json-diff": "workspace:*",
+    "@scalar/json-magic": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/types": "workspace:*",

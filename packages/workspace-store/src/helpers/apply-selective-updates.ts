@@ -1,5 +1,5 @@
 import { split, type UnknownObject } from '@/helpers/general'
-import { apply, diff, type Difference } from '@scalar/json-diff'
+import { apply, diff, type Difference } from '@scalar/json-magic/diff'
 
 // Keys to exclude from the diff - these are metadata fields that should not be persisted
 // when applying updates to the original document

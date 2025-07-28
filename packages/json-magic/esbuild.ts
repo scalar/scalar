@@ -5,6 +5,7 @@ await build({
   entries: [
     'src/bundle',
     'src/magic-proxy',
+    'src/diff',
     'src/dereference',
     'src/bundle/plugins/node',
     'src/bundle/plugins/browser',

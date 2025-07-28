@@ -51,6 +51,11 @@
       "types": "./dist/dereference.d.ts",
       "default": "./dist/dereference.js"
     },
+    "./diff": {
+      "import": "./dist/diff.js",
+      "types": "./dist/diff.d.ts",
+      "default": "./dist/diff.js"
+    },
     "./magic-proxy": {
       "import": "./dist/magic-proxy.js",
       "types": "./dist/magic-proxy.d.ts",

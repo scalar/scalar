@@ -1896,15 +1896,6 @@ importers:
         specifier: catalog:*
         version: 5.4.19(@types/node@22.15.3)(lightningcss@1.30.1)(terser@5.31.2)
 
-  packages/json-diff:
-    devDependencies:
-      '@scalar/build-tooling':
-        specifier: workspace:*
-        version: link:../build-tooling
-      vite:
-        specifier: catalog:*
-        version: 5.4.19(@types/node@22.15.3)(lightningcss@1.30.1)(terser@5.31.2)
-
   packages/json-magic:
     dependencies:
       vue:
@@ -2596,9 +2587,9 @@ importers:
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../helpers
-      '@scalar/json-diff':
+      '@scalar/json-magic':
         specifier: workspace:*
-        version: link:../json-diff
+        version: link:../json-magic
       '@scalar/openapi-parser':
         specifier: workspace:*
         version: link:../openapi-parser
