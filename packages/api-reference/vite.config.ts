@@ -11,6 +11,9 @@ export default defineConfig({
     'process.env.NODE_ENV': '"production"',
     'process.env.SCALAR_API_REFERENCE_VERSION': `"${version}"`,
   },
+  server: {
+    host: true,
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
