@@ -1,9 +1,11 @@
 import { expect, test } from '@playwright/test'
-import { createExample } from './utils/create-example'
+import { serveExample } from './utils/serve-example'
 
 test.describe('hiddenClients', () => {
   test('default value shows all clients', async ({ page }) => {
-    await page.goto(createExample())
+    const example = await serveExample()
+
+    await page.goto(example)
 
     await expect(page.getByText('Client Libraries')).toBeVisible()
 
@@ -27,7 +29,9 @@ test.describe('hiddenClients', () => {
   })
 
   test('empty array shows all clients', async ({ page }) => {
-    await page.goto(createExample({ hiddenClients: [] }))
+    const example = await serveExample({ hiddenClients: [] })
+
+    await page.goto(example)
 
     await expect(page.getByText('Client Libraries')).toBeVisible()
 
@@ -40,7 +44,9 @@ test.describe('hiddenClients', () => {
   })
 
   test('hides specific clients across all categories', async ({ page }) => {
-    await page.goto(createExample({ hiddenClients: ['fetch', 'axios'] }))
+    const example = await serveExample({ hiddenClients: ['fetch', 'axios'] })
+
+    await page.goto(example)
 
     await expect(page.getByText('Client Libraries')).toBeVisible()
 
@@ -66,13 +72,13 @@ test.describe('hiddenClients', () => {
   })
 
   test('hides entire categories when set to true', async ({ page }) => {
-    await page.goto(
-      createExample({
-        hiddenClients: {
-          python: true,
-        },
-      }),
-    )
+    const example = await serveExample({
+      hiddenClients: {
+        python: true,
+      },
+    })
+
+    await page.goto(example)
 
     await expect(page.getByText('Client Libraries')).toBeVisible()
 
@@ -87,14 +93,14 @@ test.describe('hiddenClients', () => {
   })
 
   test('hides specific clients within categories', async ({ page }) => {
-    await page.goto(
-      createExample({
-        hiddenClients: {
-          node: ['fetch', 'axios'],
-          js: ['jquery'],
-        },
-      }),
-    )
+    const example = await serveExample({
+      hiddenClients: {
+        node: ['fetch', 'axios'],
+        js: ['jquery'],
+      },
+    })
+
+    await page.goto(example)
 
     await expect(page.getByText('Client Libraries')).toBeVisible()
 
@@ -111,14 +117,14 @@ test.describe('hiddenClients', () => {
   })
 
   test('handles mixed boolean and array values', async ({ page }) => {
-    await page.goto(
-      createExample({
-        hiddenClients: {
-          python: true, // Hide entire python category
-          csharp: ['restsharp'], // Hide only native from ruby
-        },
-      }),
-    )
+    const example = await serveExample({
+      hiddenClients: {
+        python: true,
+        csharp: ['restsharp'],
+      },
+    })
+
+    await page.goto(example)
 
     await expect(page.getByText('Client Libraries')).toBeVisible()
 
@@ -141,22 +147,24 @@ test.describe('hiddenClients', () => {
   })
 
   test('hides all clients when set to true', async ({ page }) => {
-    await page.goto(createExample({ hiddenClients: true }))
+    const example = await serveExample({ hiddenClients: true })
+
+    await page.goto(example)
 
     // Client Libraries section should not be visible at all
     await expect(page.getByText('Client Libraries')).not.toBeVisible()
   })
 
   test('handles non-existent names gracefully', async ({ page }) => {
-    await page.goto(
-      createExample({
-        hiddenClients: {
-          nonexistent: true,
-          alsoNonexistent: ['fetch'],
-          js: ['does-not-exist'],
-        },
-      }),
-    )
+    const example = await serveExample({
+      hiddenClients: {
+        nonexistent: true,
+        alsoNonexistent: ['fetch'],
+        js: ['does-not-exist'],
+      },
+    })
+
+    await page.goto(example)
 
     await expect(page.getByText('Client Libraries')).toBeVisible()
 

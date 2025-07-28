@@ -1,9 +1,11 @@
 import { expect, test } from '@playwright/test'
-import { createExample } from './utils/create-example'
+import { serveExample } from './utils/serve-example'
 
 test.describe('defaultHttpClient', () => {
   test('default value is shell/curl', async ({ page }) => {
-    await page.goto(createExample())
+    const example = await serveExample()
+
+    await page.goto(example)
 
     await expect(page.getByText('Client Libraries')).toBeVisible()
 
@@ -16,14 +18,14 @@ test.describe('defaultHttpClient', () => {
   })
 
   test('can be set to node/undici', async ({ page }) => {
-    await page.goto(
-      createExample({
-        defaultHttpClient: {
-          targetKey: 'node',
-          clientKey: 'undici',
-        },
-      }),
-    )
+    const example = await serveExample({
+      defaultHttpClient: {
+        targetKey: 'node',
+        clientKey: 'undici',
+      },
+    })
+
+    await page.goto(example)
 
     await expect(page.getByText('Client Libraries')).toBeVisible()
 

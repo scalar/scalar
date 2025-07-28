@@ -1,15 +1,19 @@
 import { expect, test } from '@playwright/test'
-import { createExample } from './utils/create-example'
+import { serveExample } from './utils/serve-example'
 
 test.describe('hideTestRequestButton', () => {
   test('shows test request button by default', async ({ page }) => {
-    await page.goto(createExample())
+    const example = await serveExample()
+
+    await page.goto(example)
 
     await expect(page.getByRole('button', { name: 'Test Request (post /user/signup)', exact: true })).toBeVisible()
   })
 
   test('hides test request button when set to true', async ({ page }) => {
-    await page.goto(createExample({ hideTestRequestButton: true }))
+    const example = await serveExample({ hideTestRequestButton: true })
+
+    await page.goto(example)
 
     await expect(page.getByRole('button', { name: 'Test Request (post /user/signup)', exact: true })).not.toBeVisible()
   })

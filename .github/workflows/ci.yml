@@ -301,8 +301,8 @@ jobs:
         run: npx playwright install
       - name: Install Playwright dependencies
         run: npx playwright install-deps
-      - name: Start HTML server
-        run: pnpm --filter @scalar-examples/bundle dev &
+      - name: Copy JS bundle
+        run: pnpm --filter @scalar-examples/bundle copy:standalone
       - name: Run e2e tests (bundle)
         run: CI=1 pnpm test:e2e:bundle
 
