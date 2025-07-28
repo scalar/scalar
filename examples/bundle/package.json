@@ -17,7 +17,6 @@
   "scripts": {
     "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ./",
     "copy:standalone": "shx cp ../../packages/api-reference/dist/browser/standalone.js ./src/scalar.js",
-    "build": "vite build",
     "types:check": "tsc --noEmit --skipLibCheck",
     "test": "playwright test",
     "test:ui": "playwright test --ui"
