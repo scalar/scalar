@@ -1,7 +1,6 @@
 import YAML from 'yaml'
 import { reactive } from 'vue'
-import { bundle, upgrade } from '@scalar/openapi-parser'
-import { fetchUrls } from '@scalar/openapi-parser/plugins-browser'
+import { upgrade } from '@scalar/openapi-parser'
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 
 import type { DeepPartial, DeepRequired } from '@/types'
@@ -19,6 +18,8 @@ import { InMemoryWorkspaceSchema, type InMemoryWorkspace } from '@/schemas/inmem
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
 import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from '@/schemas/workspace'
+import { bundle } from '@scalar/json-magic/bundle'
+import { fetchUrls } from '@scalar/json-magic/bundle/plugins/node'
 
 /**
  * Input type for workspace document metadata and configuration.

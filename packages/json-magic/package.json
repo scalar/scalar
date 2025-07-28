@@ -36,12 +36,12 @@
       "types": "./dist/bundle/index.d.ts",
       "default": "./dist/bundle/index.js"
     },
-    "./bundle/plugins/bundle/plugins/browser": {
+    "./bundle/plugins/browser": {
       "import": "./dist/bundle/plugins/browser.js",
       "types": "./dist/bundle/plugins/browser.d.ts",
       "default": "./dist/bundle/plugins/browser.js"
     },
-    "./bundle/plugins/bundle/plugins/node": {
+    "./bundle/plugins/node": {
       "import": "./dist/bundle/plugins/node.js",
       "types": "./dist/bundle/plugins/node.d.ts",
       "default": "./dist/bundle/plugins/node.js"
