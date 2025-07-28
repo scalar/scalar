@@ -221,14 +221,14 @@ const customCodeContent = computed(() => {
       :defaultOpen="false">
       <template #title>Code Snippet</template>
       <template #actions>
-        <div class="-mx-1 flex flex-1">
+        <div class="flex flex-1">
           <ScalarCombobox
             :modelValue="selectedPlugin"
             :options="snippets.options"
             placement="bottom-end"
             @update:modelValue="selectClient">
             <ScalarButton
-              class="text-c-1 hover:bg-b-3 flex h-full w-fit gap-1.5 px-1.5 py-0.75 font-normal"
+              class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-1.25 py-0.75 font-normal"
               fullWidth
               variant="ghost">
               <span>{{ selectedPlugin?.label }}</span>
