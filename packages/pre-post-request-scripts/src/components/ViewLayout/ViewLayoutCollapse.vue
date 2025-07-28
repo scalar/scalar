@@ -67,7 +67,7 @@ const id = useId()
         </DisclosureButton>
         <div
           v-if="$slots.actions"
-          class="ui-not-open:invisible flex items-center gap-2 pr-0.75">
+          class="ui-not-open:hidden flex items-center gap-2 pr-0.75">
           <slot
             name="actions"
             :open="open" />
