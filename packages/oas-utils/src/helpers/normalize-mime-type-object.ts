@@ -11,11 +11,15 @@ export function normalizeMimeTypeObject(content?: ResponseObject['content']): Re
     return content
   }
 
-  // Clone the object
-  const newContent: ResponseObject['content'] = {}
+  const newContent: ResponseObject['content'] = {
+    ...content,
+  }
 
   Object.entries(newContent).forEach(([key, value]) => {
-    newContent[normalizeMimeType(key)] = value
+    const normalizedKey = normalizeMimeType(key)
+    if (normalizedKey) {
+      newContent[normalizedKey] = value
+    }
   })
 
   return newContent
