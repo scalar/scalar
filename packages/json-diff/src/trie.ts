@@ -95,14 +95,14 @@ export class Trie<Value> {
       current = next
     }
 
-    const dfs = (current: TrieNode<Value>) => {
-      for (const child of Object.keys(current.children)) {
-        if (Object.hasOwn(current.children, child)) {
-          dfs(current.children[child])
+    const dfs = (current: TrieNode<Value> | undefined) => {
+      for (const child of Object.keys(current?.children ?? {})) {
+        if (current && Object.hasOwn(current.children, child)) {
+          dfs(current?.children[child])
         }
       }
 
-      if (current.value) {
+      if (current?.value) {
         callback(current.value)
       }
     }

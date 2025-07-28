@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarIconMagnifyingGlass } from '@scalar/icons'
-import { computed, nextTick, onMounted, ref, useId, watch } from 'vue'
+import { computed, onMounted, ref, useId, watch } from 'vue'
 
 import ComboboxOption from './ScalarComboboxOption.vue'
 import ComboboxOptionGroup from './ScalarComboboxOptionGroup.vue'
@@ -66,8 +66,13 @@ onMounted(async () => {
   // Scroll to the selected option
   if (selected.value.length !== 0) {
     setTimeout(() => {
+      const value = selected.value[0]
+      if (!value) {
+        return
+      }
+
       document
-        ?.getElementById(getOptionId(selected.value[0]))
+        ?.getElementById(getOptionId(value))
         ?.scrollIntoView({ block: 'nearest' })
     }, 10)
   }
@@ -121,6 +126,10 @@ function moveActive(dir: 1 | -1) {
   }
 
   active.value = list[nextIdx]
+
+  if (!active.value) {
+    return
+  }
 
   // Scroll to the active option
   document?.getElementById(getOptionId(active.value))?.scrollIntoView({

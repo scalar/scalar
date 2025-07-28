@@ -12,8 +12,9 @@ import {
   useSeoMeta,
   useState,
 } from '#imports'
-import type { Configuration } from '~/src/types'
 import { onMounted, ref, toRaw, watch } from 'vue'
+
+import type { Configuration } from '../../types'
 
 const props = defineProps<{
   configuration: Configuration

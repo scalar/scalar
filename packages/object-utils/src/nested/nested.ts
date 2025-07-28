@@ -6,8 +6,6 @@
  */
 import type { ArrayKey, BrowserNativeObject, IsAny, IsEqual, IsTuple, Primitive, TupleKeys } from './common'
 
-type FieldValues = Record<string, any>
-
 /**
  * Helper function to break apart T1 and check if any are equal to T2
  *
@@ -58,11 +56,6 @@ type PathInternal<T, TraversedTypes = T> = T extends ReadonlyArray<infer V>
 // We want to explode the union type and process each individually
 // so assignable types don't leak onto the stack from the base.
 type Path<T> = T extends any ? PathInternal<T> : never
-
-/**
- * See {@link Path}
- */
-type FieldPath<TFieldValues extends FieldValues> = Path<TFieldValues>
 
 /**
  * Helper type for recursively constructing paths through a type.
@@ -120,11 +113,6 @@ type ArrayPathInternal<T, TraversedTypes = T> = T extends ReadonlyArray<infer V>
 type ArrayPath<T> = T extends any ? ArrayPathInternal<T> : never
 
 /**
- * See {@link ArrayPath}
- */
-type FieldArrayPath<TFieldValues extends FieldValues> = ArrayPath<TFieldValues>
-
-/**
  * Type to evaluate the type which the given path points to.
  * @typeParam T - deeply nested type which is indexed by the path
  * @typeParam P - path into the deeply nested type
@@ -153,56 +141,6 @@ type PathValue<T, P extends Path<T> | ArrayPath<T>> = T extends any
           : never
         : never
   : never
-
-/**
- * See {@link PathValue}
- */
-type FieldPathValue<TFieldValues extends FieldValues, TFieldPath extends FieldPath<TFieldValues>> = PathValue<
-  TFieldValues,
-  TFieldPath
->
-
-/**
- * See {@link PathValue}
- */
-// type FieldArrayPathValue<
-//   TFieldValues extends FieldValues,
-//   TFieldArrayPath extends FieldArrayPath<TFieldValues>,
-// > = PathValue<TFieldValues, TFieldArrayPath>
-
-/**
- * Type to evaluate the type which the given paths point to.
- * @typeParam TFieldValues - field values which are indexed by the paths
- * @typeParam TPath        - paths into the deeply nested field values
- * @example
- * ```
- * FieldPathValues<{foo: {bar: string}}, ['foo', 'foo.bar']>
- *   = [{bar: string}, string]
- * ```
- */
-// type FieldPathValues<
-//   TFieldValues extends FieldValues,
-//   TPath extends FieldPath<TFieldValues>[] | readonly FieldPath<TFieldValues>[],
-// > = {} & {
-//   [K in keyof TPath]: FieldPathValue<
-//     TFieldValues,
-//     TPath[K] & FieldPath<TFieldValues>
-//   >
-// }
-
-/**
- * Type which eagerly collects all paths through a fieldType that matches a give type
- * @typeParam TFieldValues - field values which are indexed by the paths
- * @typeParam TValue       - the value you want to match into each type
- * @example
- * ```typescript
- * FieldPathByValue<{foo: {bar: number}, baz: number, bar: string}, number>
- *   = 'foo.bar' | 'baz'
- * ```
- */
-type FieldPathByValue<TFieldValues extends FieldValues, TValue> = {
-  [Key in FieldPath<TFieldValues>]: FieldPathValue<TFieldValues, Key> extends TValue ? Key : never
-}[FieldPath<TFieldValues>]
 
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------

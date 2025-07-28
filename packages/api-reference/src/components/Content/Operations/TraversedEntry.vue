@@ -3,7 +3,7 @@ import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
 import { Tag } from '@/components/Content/Tags'
 import { Lazy } from '@/components/Lazy'

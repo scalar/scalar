@@ -12,7 +12,6 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
-import { ExternalDocs } from '@/features/external-docs'
 import { SpecificationExtension } from '@/features/specification-extension'
 import type { TraversedTag } from '@/features/traverse-schema'
 import { useConfig } from '@/hooks/useConfig'

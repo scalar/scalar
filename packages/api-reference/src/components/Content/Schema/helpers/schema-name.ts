@@ -158,7 +158,7 @@ export function hasName(name: string | null): boolean {
 export function getCompositionDisplay(
   baseSchemas: OpenAPIV3_1.SchemaObject[],
   compositionSchemas: OpenAPIV3_1.SchemaObject[],
-  schemas?: Schemas,
+  _schemas?: Schemas,
 ): OpenAPIV3_1.SchemaObject[] {
   // If base schemas have $ref, always use them to preserve $ref information
   if (baseSchemas.some((schema) => '$ref' in schema)) {

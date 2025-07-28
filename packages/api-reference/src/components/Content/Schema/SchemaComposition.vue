@@ -1,9 +1,5 @@
 <script lang="ts" setup>
-import {
-  ScalarListbox,
-  ScalarMarkdown,
-  type ScalarListboxOption,
-} from '@scalar/components'
+import { ScalarListbox, type ScalarListboxOption } from '@scalar/components'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed, ref } from 'vue'

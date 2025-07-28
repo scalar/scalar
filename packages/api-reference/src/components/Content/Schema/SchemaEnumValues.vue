@@ -124,20 +124,6 @@ const hiddenEnumValues = computed(() =>
 )
 
 /**
- * Determines if we should show enum descriptions as key-value pairs.
- * This only applies to object format of x-enumDescriptions.
- */
-const shouldShowDescriptionsAsKeyValue = computed(() => {
-  const descriptions =
-    value?.['x-enumDescriptions'] ?? value?.['x-enum-descriptions']
-  return (
-    descriptions &&
-    typeof descriptions === 'object' &&
-    !Array.isArray(descriptions)
-  )
-})
-
-/**
  * Determines if x-enumDescriptions is in object format (not array).
  */
 const isObjectFormat = computed(() => {
