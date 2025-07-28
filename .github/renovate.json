@@ -7,7 +7,8 @@
   "semanticCommits": "enabled",
   "rangeStrategy": "bump",
   "vulnerabilityAlerts": {
-    "rangeStrategy": "bump"
+    "rangeStrategy": "bump",
+    "assignees": ["@hanspagel"]
   },
   "packageRules": [
     // Group major dependencies
