@@ -1,27 +1,18 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/typescript-node
 {
-  "name": "Node.js & TypeScript",
+  "name": "Scalar Node",
   // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
+  "image": "mcr.microsoft.com/devcontainers/base:debian",
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
       "version": "22",
       "pnpmVersion": "10.5.2"
     },
-    "ghcr.io/devcontainers/features/dotnet:2": {
-      "version": "9.0"
-    },
     "ghcr.io/devcontainers/features/go:1": {
       "version": "1.24.5"
     }
   },
-
-  // Use 'forwardPorts' to make a list of ports inside the container available locally.
-  "forwardPorts": [5173],
-
-  // Use 'postCreateCommand' to run commands after the container is created.
-  // "postCreateCommand": "pnpm install",
 
   // Configure tool-specific properties.
   "customizations": {
@@ -36,6 +27,10 @@
         "vitest.explorer"
       ]
     }
+  },
+  "hostRequirements": {
+    "memory": "4gb",
+    "cpus": 4
   }
 
   // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
