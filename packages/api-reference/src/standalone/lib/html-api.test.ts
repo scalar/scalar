@@ -164,6 +164,8 @@ describe('html-api', () => {
         }),
       })
 
+      await flushPromises()
+
       expect(document.getElementById('tag/test/post/test')).not.toBeNull()
       expect(document.getElementById('tag/test/post/test')?.innerHTML).toContain('Even newer operation')
 
