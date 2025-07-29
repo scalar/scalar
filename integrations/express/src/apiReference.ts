@@ -5,8 +5,10 @@ import type { ApiReferenceConfiguration } from './types'
 
 /**
  * The custom theme CSS for the Express theme
+ *
+ * @deprecated we have removed this custom theme, the variable is just here because it is exported
  */
-export const customTheme = ``
+export const customTheme = ''
 
 /**
  * The default configuration for the API Reference.
