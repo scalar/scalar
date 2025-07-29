@@ -492,7 +492,7 @@ const html = computed(() => {
     margin: 0;
     display: block;
     font-weight: var(--scalar-bold);
-    font-size: var(--scalar-heading-2);
+    font-size: var(--scalar-font-size-2);
   }
 
   /* Markdown Checklist */
