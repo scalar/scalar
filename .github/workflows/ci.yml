@@ -275,6 +275,8 @@ jobs:
   test-e2e-api-reference:
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
+    permissions:
+      contents: read
     timeout-minutes: 15
     strategy:
       matrix:
