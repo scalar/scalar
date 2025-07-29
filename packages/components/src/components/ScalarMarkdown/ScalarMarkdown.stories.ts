@@ -8,6 +8,9 @@ import markdownContent from './test.md?raw'
  */
 const meta = {
   component: ScalarMarkdown,
+  argTypes: {
+    class: { control: 'text' },
+  },
   tags: ['autodocs'],
   render: (args) => ({
     components: { ScalarMarkdown },
