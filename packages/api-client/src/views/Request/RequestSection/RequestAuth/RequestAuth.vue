@@ -255,7 +255,7 @@ const openAuthCombobox = (event: Event) => {
       </div>
     </template>
     <template #actions>
-      <div class="absolute right-1 flex flex-1">
+      <div class="flex flex-1">
         <ScalarComboboxMultiselect
           class="w-72 text-xs"
           :isDeletable="clientLayout !== 'modal' && layout !== 'reference'"
@@ -269,7 +269,7 @@ const openAuthCombobox = (event: Event) => {
           <ScalarButton
             ref="comboboxButtonRef"
             :aria-describedby="titleId"
-            class="group/combobox-button hover:text-c-1 text-c-2 flex h-fit items-center gap-1 px-1.5 py-0.25 text-base font-normal transition-transform"
+            class="group/combobox-button hover:text-c-1 text-c-2 flex h-fit items-center gap-1 px-0.75 py-0.25 text-base font-normal transition-transform"
             fullWidth
             variant="ghost">
             <template v-if="selectedSchemeOptions.length === 1">
