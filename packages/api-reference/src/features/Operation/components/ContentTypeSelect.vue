@@ -51,7 +51,7 @@ const options = computed(() => {
 
 // Content type select style variant based on dropdown availability
 const contentTypeSelect = cva({
-  base: 'font-normal text-c-2 bg-b-2 py-0.75 flex cursor-pointer items-center gap-1 rounded-full text-sm',
+  base: 'font-normal text-c-2 bg-b-2 py-0.75 flex cursor-pointer items-center gap-1 rounded-full text-xs',
   variants: {
     dropdown: {
       true: 'border hover:text-c-1 pl-2 pr-1.5',
