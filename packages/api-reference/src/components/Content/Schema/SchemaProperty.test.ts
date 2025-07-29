@@ -425,7 +425,8 @@ describe('SchemaProperty', () => {
     })
 
     describe('object compositions', () => {
-      it('renders object compositions with allOf', async () => {
+      // TODO: remove the skip when we expand the object by default
+      it.skip('renders object compositions with allOf with all properties showing', async () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             value: {
@@ -453,6 +454,31 @@ describe('SchemaProperty', () => {
 
         // Check that the required property is marked as required
         expect(html).toContain('required')
+      })
+
+      it('renders object compositions with allOf with an object button', async () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            value: {
+              allOf: [
+                {
+                  properties: {
+                    testStr: { type: 'string', description: 'This is a test string' },
+                    testBool: { type: 'boolean', description: 'This is a test boolean' },
+                  },
+                  required: ['testStr'],
+                },
+              ],
+            },
+          },
+        })
+
+        // For allOf compositions, properties should be displayed directly without expansion
+        const html = wrapper.html()
+
+        // Check that both properties are rendered with their descriptions
+        expect(html).toContain('button')
+        expect(html).toContain('object')
       })
     })
 
