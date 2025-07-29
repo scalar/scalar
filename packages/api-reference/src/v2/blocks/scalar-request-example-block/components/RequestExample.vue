@@ -287,7 +287,7 @@ const id = useId()
           @update:modelValue="selectClient($event as ClientOption)">
           <ScalarButton
             data-testid="client-picker"
-            class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-0"
+            class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-0.5"
             fullWidth
             variant="ghost">
             <span class="text-base font-normal">{{
