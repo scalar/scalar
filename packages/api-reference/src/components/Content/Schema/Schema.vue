@@ -123,8 +123,12 @@ const schemaDescription = computed(() => {
 
 /** Determines whether to show the schema description */
 const shouldShowDescription = computed(() => {
-  // For allOf compositions, find the first schema with a description
-  if (schema.value?.allOf && Array.isArray(schema.value.allOf)) {
+  // For allOf compositions, find the first schema with a description, only for the request body (for now)
+  if (
+    schema.value?.allOf &&
+    Array.isArray(schema.value.allOf) &&
+    props.name === 'Request Body'
+  ) {
     const firstSchemaWithDescription = schema.value.allOf.find(
       (item) => item.description && typeof item.description === 'string',
     )
