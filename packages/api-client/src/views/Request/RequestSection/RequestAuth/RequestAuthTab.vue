@@ -209,9 +209,6 @@ const dataTableInputProps = {
           <RequestAuthDataTableInput
             v-bind="dataTableInputProps"
             class="text-c-2"
-            :containerClass="
-              layout === 'reference' && 'auth-blend-required border-t'
-            "
             :modelValue="scheme.username"
             placeholder="janedoe"
             required
@@ -307,12 +304,3 @@ const dataTableInputProps = {
     </template>
   </template>
 </template>
-
-<style scoped>
-.auth-blend-required :deep(.scalar-input-required),
-.auth-blend-required :deep(.required) {
-  background: var(--scalar-background-2);
-  --tw-bg-base: var(--scalar-background-2);
-  --tw-shadow: -8px 0 4px var(--scalar-background-2);
-}
-</style>
