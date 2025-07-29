@@ -1,6 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalEnv": ["GOCACHE", "LOCALAPPDATA"],
+  "globalEnv": ["GOCACHE", "LOCALAPPDATA", "REMOTE_CONTAINERS"],
   "ui": "tui",
   "tasks": {
     "lint:fix": {},

@@ -12,7 +12,9 @@ export default defineConfig({
     'process.env.SCALAR_API_REFERENCE_VERSION': `"${version}"`,
   },
   server: {
-    host: true,
+    // Enable host binding in dev containers for proper port forwarding
+    // See: https://vite.dev/guide/troubleshooting.html#dev-containers-vs-code-port-forwarding
+    ...(process.env.REMOTE_CONTAINERS && { host: '127.0.0.1' }),
   },
   resolve: {
     alias: {
