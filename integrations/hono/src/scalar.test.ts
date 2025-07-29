@@ -24,7 +24,7 @@ describe('apiReference', () => {
     expect(text).toContain('<title>Scalar API Reference</title>')
     expect(text).toContain('https://cdn.example.com')
     expect(text).toContain('Test API')
-    expect(text).toContain('--scalar-color-1: #2a2f45;')
+    expect(text).toContain('--scalar-color-1: rgba(255, 255, 245, .86);')
   })
 
   it('excludes default theme CSS when theme is provided', async () => {
@@ -119,8 +119,8 @@ describe('apiReference', () => {
 
     const response = await app.request('/')
     const text = await response.text()
-    expect(text).toContain('--scalar-color-1: #2a2f45;')
-    expect(text).toContain('--scalar-color-accent: #0099ff')
+    expect(text).toContain('--scalar-color-1: rgba(255, 255, 245, .86);')
+    expect(text).toContain('--scalar-color-accent: #e36002')
   })
 
   it('excludes custom theme CSS when theme is specified', async () => {
@@ -129,7 +129,7 @@ describe('apiReference', () => {
 
     const response = await app.request('/')
     const text = await response.text()
-    expect(text).not.toContain('--scalar-color-1: #2a2f45;')
+    expect(text).not.toContain('--scalar-color-1: rgba(255, 255, 245, .86);')
   })
 
   it('includes hono integration in configuration', async () => {
@@ -192,7 +192,7 @@ describe('apiReference', () => {
     expect(text).toContain('<title>Scalar API Reference</title>')
     expect(text).toContain('https://cdn.example.com')
     expect(text).toContain('Test API')
-    expect(text).toContain('--scalar-color-1: #2a2f45;')
+    expect(text).toContain('--scalar-color-1: rgba(255, 255, 245, .86);')
   })
 
   it('works with config resolver', async () => {
