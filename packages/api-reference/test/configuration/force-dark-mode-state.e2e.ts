@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 import { serveExample } from '@test/utils/serve-example'
 
-test.describe('darkMode', () => {
+test.describe('forceDarkModeState', () => {
   test('uses system preference by default (light mode)', async ({ page }) => {
     const example = await serveExample()
 
@@ -12,7 +12,7 @@ test.describe('darkMode', () => {
   })
 
   test('uses dark mode when set to true', async ({ page }) => {
-    const example = await serveExample({ darkMode: true })
+    const example = await serveExample({ forceDarkModeState: 'dark' })
 
     await page.goto(example)
 
@@ -21,7 +21,7 @@ test.describe('darkMode', () => {
   })
 
   test('uses light mode when set to false', async ({ page }) => {
-    const example = await serveExample({ darkMode: false })
+    const example = await serveExample({ forceDarkModeState: 'light' })
 
     await page.goto(example)
 
