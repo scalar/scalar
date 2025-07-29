@@ -4,6 +4,58 @@ import { describe, expect, it } from 'vitest'
 import Schema from './Schema.vue'
 
 describe('Schema', () => {
+  describe('shouldShowDescription computed property', () => {
+    it('shows the first description with allOf composition', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          value: {
+            type: 'object',
+            allOf: [
+              {
+                type: 'object',
+                description: 'This description should be shown',
+                properties: { name: { type: 'string' } },
+              },
+              {
+                type: 'object',
+                description: 'This description should not be shown',
+                properties: { email: { type: 'string' } },
+              },
+            ],
+          },
+        },
+      })
+
+      const text = wrapper.text()
+      expect(text).toContain('This description should be shown')
+      expect(text).not.toContain('This description should not be shown')
+    })
+
+    it('shows the first description with allOf composition if there is only one', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          value: {
+            type: 'object',
+            allOf: [
+              {
+                type: 'object',
+                properties: { name: { type: 'string' } },
+              },
+              {
+                type: 'object',
+                description: 'This description should be shown',
+                properties: { email: { type: 'string' } },
+              },
+            ],
+          },
+        },
+      })
+
+      const text = wrapper.text()
+      expect(text).toContain('This description should be shown')
+    })
+  })
+
   describe('additionalProperties Vue prop', () => {
     it('shows special toggle button when additionalProperties is true', () => {
       const wrapper = mount(Schema, {
