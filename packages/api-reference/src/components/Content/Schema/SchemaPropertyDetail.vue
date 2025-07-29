@@ -41,6 +41,7 @@ defineProps<{
 .property-detail-truncate > .property-detail-value {
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .property-detail-prefix {
