@@ -340,7 +340,6 @@ button.schema-card-title:hover {
 }
 .schema-card-description {
   color: var(--scalar-color-2);
-  margin-top: 8px;
 }
 .schema-card-description + .schema-properties {
   width: fit-content;
