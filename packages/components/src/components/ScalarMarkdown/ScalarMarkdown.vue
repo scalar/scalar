@@ -135,8 +135,8 @@ const html = computed(() => {
 
   .markdown p {
     color: inherit;
-    line-height: 22px;
     display: block;
+    line-height: var(--markdown-line-height);
   }
 
   /* Images */
