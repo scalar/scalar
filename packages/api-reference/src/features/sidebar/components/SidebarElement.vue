@@ -283,7 +283,7 @@ const onAnchorClick = async (ev: Event) => {
 /* Folder/page collapse icon */
 /* awkward pixel value to deal with hairspace alignment across browser*/
 .sidebar-heading-chevron {
-  margin: 5px 0;
+  margin: 6px 0;
   width: 16px;
 }
 .sidebar-heading-chevron .toggle-nested-icon:focus-visible {
