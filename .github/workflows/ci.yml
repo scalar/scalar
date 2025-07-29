@@ -301,10 +301,8 @@ jobs:
         run: npx playwright install
       - name: Install Playwright dependencies
         run: npx playwright install-deps
-      - name: Copy JS bundle
-        run: pnpm --filter @scalar-examples/bundle copy:standalone
-      - name: Run e2e tests (bundle)
-        run: CI=1 pnpm test:e2e:bundle
+      - name: Run e2e tests (@scalar/api-reference)
+        run: CI=1 pnpm test:e2e:api-reference
 
   npm-publish:
     if: github.ref == 'refs/heads/main'
