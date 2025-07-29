@@ -26,7 +26,7 @@ const { cx } = useBindCx()
     <!-- Icon -->
     <div
       v-if="icon"
-      class="flex h-fit items-center text-sm font-medium text-c-3 group-hover:text-c-1">
+      class="flex h-fit items-center text-base font-medium text-c-3 group-hover:text-c-1">
       <slot name="icon">
         <ScalarIconLegacyAdapter
           v-if="icon"

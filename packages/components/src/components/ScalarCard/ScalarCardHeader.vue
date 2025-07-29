@@ -33,11 +33,7 @@ useCardHeading(id)
 </script>
 <template>
   <ScalarCardSection
-    v-bind="
-      cx(
-        'scalar-card-header leading-[22px] font-medium py-[6.75px] px-3 shrink-0',
-      )
-    ">
+    v-bind="cx('scalar-card-header font-medium py-[6.75px] px-3 shrink-0')">
     <div
       :id="id"
       class="scalar-card-header-title min-w-0 flex-1 truncate">

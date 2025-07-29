@@ -72,6 +72,7 @@ const html = computed(() => {
 </template>
 <style>
 @import '@scalar/code-highlight/css/code.css';
+@reference "tailwindcss";
 
 .scalar-app {
   /* Base container and variables */
@@ -110,7 +111,7 @@ const html = computed(() => {
   .markdown h4,
   .markdown h5,
   .markdown h6 {
-    --font-size: 1rem;
+    @apply text-lg;
   }
 
   .markdown h1,
