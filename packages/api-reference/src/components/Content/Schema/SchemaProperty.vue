@@ -382,8 +382,13 @@ const shouldRenderObjectProperties = computed(() => {
   position: relative;
 }
 
+/** Remove top padding for top level schema card */
 .property.property--level-0:has(
-    .property-rule .schema-properties.schema-properties-open > ul li.property
+    > .property-rule
+      > .schema-card
+      > .schema-properties.schema-properties-open
+      > ul
+      > li.property
   ) {
   padding-top: 0;
 }
