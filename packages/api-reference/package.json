@@ -38,8 +38,8 @@
     "playground:vue": "vite ./playground/vue -c ./playground/vue/vite.config.ts",
     "preview": "vite preview",
     "test": "vitest",
-    "test:e2e": "playwright test .spec.ts",
-    "test:e2e:ui": "playwright test --ui .spec.ts",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "types:build": "scalar-types-build-vue",
     "types:check": "scalar-types-check-vue"
   },
