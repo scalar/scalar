@@ -1,5 +1,12 @@
 # @scalar/helpers
 
+## 0.0.7
+
+### Patch Changes
+
+- c0d6793: feat: ensure we use the path routing base path for relative document url resolution
+- f3d0216: feat: lazy loading v1.5
+
 ## 0.0.6
 
 ### Patch Changes

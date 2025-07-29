@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.1.9
+
+### Patch Changes
+
+- d4cb86b: fix: removes inline block display to keep caret in empty code input usage
+
 ## 0.1.8
 
 ### Patch Changes
