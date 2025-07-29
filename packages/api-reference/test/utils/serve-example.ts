@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { serve } from '@hono/node-server'
 import { getHtmlDocument } from '@scalar/core/libs/html-rendering'
@@ -18,6 +18,15 @@ const DEFAULT_PORT = process.env.PORT || 0
  * ```
  */
 export async function serveExample(givenConfiguration?: Partial<HtmlRenderingConfiguration>): Promise<string> {
+  // Check if JS bundle exists
+  const pathToJavaScriptBundle = getPathToJavaScriptBundle()
+
+  if (!existsSync(pathToJavaScriptBundle)) {
+    throw new Error(
+      `JavaScript bundle not found at ${pathToJavaScriptBundle}. Please build @scalar/api-reference first.`,
+    )
+  }
+
   return new Promise((resolve) => {
     const DEFAULT_CONFIGURATION: Partial<HtmlRenderingConfiguration> = {
       cdn: '/scalar.js',
@@ -42,9 +51,7 @@ export async function serveExample(givenConfiguration?: Partial<HtmlRenderingCon
       return c.html(getHtmlDocument(configuration))
     })
 
-    app.get('/scalar.js', (c) =>
-      c.text(readFileSync(join(new URL('.', import.meta.url).pathname, '../../src/scalar.js'), 'utf8')),
-    )
+    app.get('/scalar.js', (c) => c.text(readFileSync(pathToJavaScriptBundle, 'utf8')))
 
     /**
      * Start the server on the specified port.
@@ -62,4 +69,15 @@ export async function serveExample(givenConfiguration?: Partial<HtmlRenderingCon
       },
     )
   })
+}
+
+/**
+ * Looks into the package.json and returns the path to the browser bundle.
+ */
+function getPathToJavaScriptBundle() {
+  const pathToPackageJson = join(new URL('.', import.meta.url).pathname, '../../package.json')
+  const packageJson = readFileSync(pathToPackageJson, 'utf8')
+  const { browser: bundlePath } = JSON.parse(packageJson)
+
+  return join(new URL('.', import.meta.url).pathname, '../../', bundlePath)
 }
