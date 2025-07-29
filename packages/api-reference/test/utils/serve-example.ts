@@ -5,7 +5,18 @@ import { getHtmlDocument } from '@scalar/core/libs/html-rendering'
 import type { HtmlRenderingConfiguration } from '@scalar/types/api-reference'
 import { Hono } from 'hono'
 
+/**
+ * Default port to use for the server.
+ *
+ * @default 0 (random free port)
+ */
 const DEFAULT_PORT = process.env.PORT || 0
+
+const DEFAULT_CONFIGURATION: Partial<HtmlRenderingConfiguration> = {
+  cdn: '/scalar.js',
+  url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+  proxyUrl: 'https://proxy.scalar.com',
+}
 
 /**
  * URL creation helper to pass a configuration and a local scalar.js URL
@@ -28,12 +39,6 @@ export async function serveExample(givenConfiguration?: Partial<HtmlRenderingCon
   }
 
   return new Promise((resolve) => {
-    const DEFAULT_CONFIGURATION: Partial<HtmlRenderingConfiguration> = {
-      cdn: '/scalar.js',
-      url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-      proxyUrl: 'https://proxy.scalar.com',
-    }
-
     /**
      * Simple Hono server that serves an index.html file.
      * This server is designed to be lightweight and serve static content.
@@ -45,7 +50,16 @@ export async function serveExample(givenConfiguration?: Partial<HtmlRenderingCon
       // Configuration from query parameter or default configuration
       const configuration: Partial<HtmlRenderingConfiguration> =
         givenConfiguration && Object.keys(givenConfiguration ?? {}).length > 0
-          ? { ...DEFAULT_CONFIGURATION, ...givenConfiguration }
+          ? {
+              // Default configuration
+              ...DEFAULT_CONFIGURATION,
+              // If content is provided, we don't need to use the default URL
+              ...{
+                url: givenConfiguration.content || givenConfiguration.sources ? undefined : DEFAULT_CONFIGURATION.url,
+              },
+              // User configuration
+              ...givenConfiguration,
+            }
           : DEFAULT_CONFIGURATION
 
       return c.html(getHtmlDocument(configuration))
