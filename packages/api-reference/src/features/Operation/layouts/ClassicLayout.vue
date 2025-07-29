@@ -210,9 +210,6 @@ const handleDiscriminatorChange = (type: string) => {
   min-width: 0;
   flex-shrink: 1;
 }
-.operation-details :deep(.endpoint-anchor .scalar-button) {
-  top: 0;
-}
 .operation-details :deep(.endpoint-anchor .scalar-button svg) {
   width: 16px;
   height: 16px;
@@ -253,8 +250,6 @@ const handleDiscriminatorChange = (type: string) => {
   align-items: center;
   min-width: 0;
   flex-shrink: 1;
-
-  font-size: 20px;
 }
 .endpoint-anchor.label {
   display: flex;
