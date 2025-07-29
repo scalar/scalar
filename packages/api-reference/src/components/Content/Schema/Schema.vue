@@ -105,8 +105,34 @@ const shouldShowToggle = computed(() => {
   return true
 })
 
+/** Gets the description to show for the schema */
+const schemaDescription = computed(() => {
+  // For allOf compositions, find the first schema with a description
+  if (schema.value?.allOf && Array.isArray(schema.value.allOf)) {
+    const firstSchemaWithDescription = schema.value.allOf.find(
+      (item) => item.description && typeof item.description === 'string',
+    )
+    if (firstSchemaWithDescription?.description) {
+      return firstSchemaWithDescription.description
+    }
+  }
+
+  // Return the schema's own description
+  return schema.value?.description
+})
+
 /** Determines whether to show the schema description */
 const shouldShowDescription = computed(() => {
+  // For allOf compositions, find the first schema with a description
+  if (schema.value?.allOf && Array.isArray(schema.value.allOf)) {
+    const firstSchemaWithDescription = schema.value.allOf.find(
+      (item) => item.description && typeof item.description === 'string',
+    )
+    if (firstSchemaWithDescription?.description) {
+      return true
+    }
+  }
+
   // Don't show description if there's no description or it's not a string
   if (
     !schema.value?.description ||
@@ -115,9 +141,9 @@ const shouldShowDescription = computed(() => {
     return false
   }
 
-  // Don't show description if the schema has composition keywords
+  // Don't show description if the schema has other composition keywords
   // This prevents duplicate descriptions when individual schemas are part of compositions
-  if (schema.value.allOf || schema.value.oneOf || schema.value.anyOf) {
+  if (schema.value.oneOf || schema.value.anyOf) {
     return false
   }
 
@@ -169,7 +195,7 @@ const handleDiscriminatorChange = (type: string) => {
         v-if="shouldShowDescription"
         class="schema-card-description">
         <template v-if="!schema?.enum">
-          <ScalarMarkdown :value="schema?.description" />
+          <ScalarMarkdown :value="schemaDescription" />
         </template>
       </div>
       <div
@@ -314,6 +340,7 @@ button.schema-card-title:hover {
 }
 .schema-card-description {
   color: var(--scalar-color-2);
+  margin-top: 8px;
 }
 .schema-card-description + .schema-properties {
   width: fit-content;
