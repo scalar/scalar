@@ -424,6 +424,38 @@ describe('SchemaProperty', () => {
       })
     })
 
+    describe('object compositions', () => {
+      it('renders object compositions with allOf', async () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            value: {
+              allOf: [
+                {
+                  properties: {
+                    testStr: { type: 'string', description: 'This is a test string' },
+                    testBool: { type: 'boolean', description: 'This is a test boolean' },
+                  },
+                  required: ['testStr'],
+                },
+              ],
+            },
+          },
+        })
+
+        // For allOf compositions, properties should be displayed directly without expansion
+        const html = wrapper.html()
+
+        // Check that both properties are rendered with their descriptions
+        expect(html).toContain('testStr')
+        expect(html).toContain('This is a test string')
+        expect(html).toContain('testBool')
+        expect(html).toContain('This is a test boolean')
+
+        // Check that the required property is marked as required
+        expect(html).toContain('required')
+      })
+    })
+
     describe('nested compositions', () => {
       it('renders nested composition selectors with correct titles', async () => {
         const wrapper = mount(SchemaProperty, {

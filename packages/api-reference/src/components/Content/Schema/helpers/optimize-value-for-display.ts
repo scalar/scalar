@@ -85,7 +85,8 @@ export function optimizeValueForDisplay(value: UnknownObject | undefined): Recor
 
   // If there's only one schema, overwrite the original value with the schema
   // Skip it for arrays for now, need to handle that specifically.
-  if (newSchemas.length === 1 && newValue?.[composition]) {
+  // For allOf, we want to preserve the composition structure so it can be rendered properly
+  if (newSchemas.length === 1 && newValue?.[composition] && composition !== 'allOf') {
     newValue = { ...newValue, ...newSchemas[0] }
 
     // Delete the original composition keyword

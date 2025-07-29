@@ -1,14 +1,37 @@
 <script lang="ts" setup>
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { computed } from 'vue'
 
-defineProps<{
+const { value } = defineProps<{
   value:
     | OpenAPIV3_1.SchemaObject
     | OpenAPIV3_1.ArraySchemaObject
     | OpenAPIV3_1.NonArraySchemaObject
   name?: string
 }>()
+
+/** Generate a failsafe type from the properties when we don't have one */
+const failsafeType = computed(() => {
+  if (value.type) {
+    return value.type
+  }
+
+  if ('items' in value && value.items === 'object') {
+    return 'array'
+  }
+
+  if (value.properties || value.additionalProperties) {
+    return 'object'
+  }
+
+  if (value.enum) {
+    return 'enum'
+  }
+
+  return 'unknown'
+})
 </script>
+
 <template>
   <span
     v-if="typeof value === 'object'"
@@ -30,7 +53,7 @@ defineProps<{
       {{ name }}
     </template>
     <template v-else>
-      {{ value.type }}
+      {{ failsafeType }}
     </template>
   </span>
 </template>
