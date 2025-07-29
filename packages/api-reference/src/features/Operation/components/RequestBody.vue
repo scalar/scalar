@@ -158,8 +158,10 @@ const handleDiscriminatorChange = (type: string) => {
 }
 
 .request-body-header
-  + .request-body-schema:has(> .schema-card > .schema-card-description) {
-  /** Add a bit of space between the heading border and the schema description */
+  + .request-body-schema:has(> .schema-card > .schema-card-description),
+.request-body-header
+  + .request-body-schema:has(> .schema-card > .schema-properties) {
+  /** Add a bit of space between the heading border and the schema description or properties */
   padding-top: 8px;
 }
 .request-body-description :deep(.markdown) * {
