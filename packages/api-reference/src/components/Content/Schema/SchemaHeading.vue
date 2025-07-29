@@ -16,16 +16,16 @@ const failsafeType = computed(() => {
     return value.type
   }
 
+  if (value.enum) {
+    return 'enum'
+  }
+
   if ('items' in value && value.items === 'object') {
     return 'array'
   }
 
   if (value.properties || value.additionalProperties) {
     return 'object'
-  }
-
-  if (value.enum) {
-    return 'enum'
   }
 
   return 'unknown'
