@@ -127,6 +127,8 @@ const handleDiscriminatorChange = (type: string) => {
 </template>
 
 <style scoped>
+@reference "tailwindcss";
+
 .request-body {
   margin-top: 24px;
 }
@@ -152,8 +154,9 @@ const handleDiscriminatorChange = (type: string) => {
   font-weight: normal;
 }
 .request-body-description {
+  @apply text-sm;
+
   margin-top: 6px;
-  font-size: var(--scalar-small);
   width: 100%;
 }
 .request-body-description :deep(.markdown) * {

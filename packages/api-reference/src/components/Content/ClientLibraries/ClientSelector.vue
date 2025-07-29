@@ -132,6 +132,8 @@ const selectedTargetKey = computed(
   </div>
 </template>
 <style scoped>
+@reference "tailwindcss";
+
 .client-libraries-content {
   container: client-libraries-content / inline-size;
   display: flex;
@@ -228,7 +230,8 @@ const selectedTargetKey = computed(
   }
 }
 .client-libraries .client-libraries-text {
-  font-size: var(--scalar-small);
+  @apply text-sm leading-none;
+
   position: relative;
   display: flex;
   align-items: center;

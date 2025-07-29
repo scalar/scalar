@@ -160,9 +160,12 @@ const installationInstructions = computed(() => {
   </div>
 </template>
 <style scoped>
+@reference "tailwindcss";
+
 .selected-client {
+  @apply text-sm leading-none;
+
   color: var(--scalar-color-1);
-  font-size: var(--scalar-small);
   font-family: var(--scalar-font-code);
   padding: 9px 12px;
   border-top: none;

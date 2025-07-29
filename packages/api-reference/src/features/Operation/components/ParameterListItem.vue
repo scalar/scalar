@@ -133,6 +133,8 @@ const shouldShowParameter = computed(() => {
 </template>
 
 <style scoped>
+@reference "tailwindcss";
+
 .parameter-item {
   display: flex;
   flex-direction: column;
@@ -152,9 +154,10 @@ const shouldShowParameter = computed(() => {
 }
 
 .parameter-item-name {
+  @apply text-sm;
+
   margin-right: 6px;
   font-weight: var(--scalar-semibold);
-  font-size: var(--scalar-font-size-3);
   font-family: var(--scalar-font-code);
   color: var(--scalar-color-1);
 }

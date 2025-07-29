@@ -45,6 +45,7 @@ const handleClick = () => {
 </template>
 <style scoped>
 .show-api-client-button {
+  align-self: center;
   appearance: none;
   border: none;
   padding: 1px 6px;
@@ -53,6 +54,7 @@ const handleClick = () => {
   display: flex;
   justify-content: center;
   align-items: center;
+  height: fit-content;
   font-weight: var(--scalar-semibold);
   font-size: var(--scalar-small);
   line-height: 22px;

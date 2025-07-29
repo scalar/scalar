@@ -103,11 +103,15 @@ const transformHeading = (node: Record<string, any>) => {
 </template>
 
 <style scoped>
+@reference "tailwindcss";
+
 .introduction-description-heading {
   scroll-margin-top: 64px;
 }
 
 .introduction-description {
+  @apply text-lg;
+
   display: flex;
   flex-direction: column;
   margin-top: 24px;

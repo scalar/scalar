@@ -191,8 +191,10 @@ const showSchema = ref(false)
 </template>
 
 <style scoped>
+@reference "tailwindcss";
+
 .response-card {
-  font-size: var(--scalar-font-size-3);
+  @apply text-sm;
 }
 
 .markdown :deep(*) {

@@ -374,12 +374,15 @@ const shouldRenderObjectProperties = computed(() => {
 </template>
 
 <style scoped>
+@reference "tailwindcss";
+
 .property {
+  @apply text-base;
+
   color: var(--scalar-color-1);
   display: flex;
   flex-direction: column;
   padding: 8px;
-  font-size: var(--scalar-small);
   position: relative;
 }
 
@@ -431,9 +434,9 @@ const shouldRenderObjectProperties = computed(() => {
 }
 
 .property-description {
+  @apply text-sm;
+
   margin-top: 6px;
-  line-height: 1.4;
-  font-size: var(--scalar-small);
 }
 
 .property-description:has(+ .property-rule) {

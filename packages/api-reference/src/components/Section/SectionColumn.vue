@@ -3,7 +3,11 @@
 </template>
 
 <style scoped>
+@reference "tailwindcss";
+
 .section-column {
+  @apply text-lg;
+
   flex: 1;
   min-width: 0;
 }

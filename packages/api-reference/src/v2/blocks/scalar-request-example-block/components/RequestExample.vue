@@ -353,10 +353,13 @@ const id = useId()
   </ScalarCard>
 </template>
 <style scoped>
+@reference "tailwindcss";
+
 .request-card {
-  font-size: var(--scalar-font-size-3);
+  @apply text-sm;
 }
 .request-method {
+  display: inline-block;
   font-family: var(--scalar-font-code);
   text-transform: uppercase;
   margin-right: 6px;
@@ -364,7 +367,7 @@ const id = useId()
 .request-card-footer {
   display: flex;
   justify-content: flex-end;
-  padding: 6px;
+  padding: 4px 6px;
   flex-shrink: 0;
 }
 .request-card-footer-addon {
