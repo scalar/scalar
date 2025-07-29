@@ -1,5 +1,23 @@
 # @scalar/components
 
+## 0.14.21
+
+### Patch Changes
+
+- f913898: fix(components): apply tooltip shadow without tailwind variant
+- cf5d6a2: fix(components): make paragraph line height variable
+- 1af32c0: fix: sets scalar markdown contents and p display for in li usage
+- f3d0216: feat: lazy loading v1.5
+- af22451: feat: increases caret icon usage and style concistency amongst reference and client
+- Updated dependencies [d4cb86b]
+- Updated dependencies [94d6d0c]
+- Updated dependencies [952f471]
+- Updated dependencies [b957a2c]
+- Updated dependencies [3c1e3e3]
+  - @scalar/code-highlight@0.1.9
+  - @scalar/oas-utils@0.4.16
+  - @scalar/themes@0.13.12
+
 ## 0.14.20
 
 ### Patch Changes

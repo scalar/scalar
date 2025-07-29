@@ -1,5 +1,28 @@
 # @scalar/oas-utils
 
+## 0.4.16
+
+### Patch Changes
+
+- 94d6d0c: fix: remove old ssr state and update nuxt for workspace store
+- b957a2c: feat: do not use first item of oneOf if it is `type: null`
+- Updated dependencies [ccf875a]
+- Updated dependencies [9924c47]
+- Updated dependencies [94d6d0c]
+- Updated dependencies [952f471]
+- Updated dependencies [a0c92d9]
+- Updated dependencies [c0d6793]
+- Updated dependencies [3c1e3e3]
+- Updated dependencies [f3d0216]
+- Updated dependencies [a5534e6]
+- Updated dependencies [6b6c72c]
+  - @scalar/openapi-types@0.3.7
+  - @scalar/types@0.2.11
+  - @scalar/workspace-store@0.11.0
+  - @scalar/themes@0.13.12
+  - @scalar/helpers@0.0.7
+  - @scalar/object-utils@1.2.3
+
 ## 0.4.15
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/openapi-types
 
+## 0.3.7
+
+### Patch Changes
+
+- ccf875a: feat: support x-scalar-credentials-location extension
+
 ## 0.3.6
 
 ### Patch Changes
