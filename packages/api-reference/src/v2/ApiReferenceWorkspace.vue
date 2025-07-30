@@ -112,7 +112,7 @@ const configs = availableDocuments
  * @param config - The document configuration containing either content or URL
  * @returns The result of adding the document to the store, or undefined if skipped
  */
-const addDocument = (config: (typeof configs.value)[number]) => {
+const addDocument = async (config: (typeof configs.value)[number]) => {
   // If the document is already in the store we skip it
   // TODO: Handle cases when the slug is the same but belongs to two different documents?
   // This can be the case when no slug and no title is provided and we are using index for the slug!
@@ -127,14 +127,14 @@ const addDocument = (config: (typeof configs.value)[number]) => {
         : config.content
 
     // Add in-memory documents to the store
-    return store.addDocument({
+    return await store.addDocument({
       name: config.slug ?? 'default',
       document: typeof obj === 'function' ? obj() : obj,
     })
   }
 
   if (config.url) {
-    return store.addDocument({
+    return await store.addDocument({
       name: config.slug ?? 'default',
       url: makeUrlAbsolute(config.url, {
         basePath: selectedConfiguration.value.pathRouting?.basePath,
@@ -142,6 +142,8 @@ const addDocument = (config: (typeof configs.value)[number]) => {
       fetch: proxy,
     })
   }
+
+  return
 }
 
 configs.value.forEach((config) => {
