@@ -315,7 +315,7 @@ describe('operationToHar', () => {
       })
 
       expect(result.postData).toBeDefined()
-      expect(result.postData?.text).toBe(JSON.stringify({ name: '', age: 0, isActive: false }))
+      expect(result.postData?.text).toBe(JSON.stringify({ name: '', age: 1, isActive: true }))
       expect(result.postData?.mimeType).toBe('application/json')
     })
   })
