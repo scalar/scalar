@@ -60,18 +60,18 @@ export default defineNuxtModule<ModuleOptions>({
      * doesn't provide an export named: 'default'
      */
     _nuxt.options.vite ||= {}
-    // _nuxt.options.vite.optimizeDeps ||= {}
-    // _nuxt.options.vite.optimizeDeps.include ||= []
-    // _nuxt.options.vite.optimizeDeps.include.push(
-    //   '@scalar/nuxt > @scalar/api-reference',
-    //   '@scalar/nuxt > jsonpointer',
-    //   '@scalar/nuxt > ajv-draft-04',
-    //   '@scalar/nuxt > ajv-formats',
-    //   '@scalar/nuxt > ajv',
-    //   '@scalar/nuxt > ajv-draft-04 > ajv',
-    //   '@scalar/nuxt > ajv-formats > ajv',
-    //   '@scalar/nuxt > whatwg-mimetype',
-    // )
+    _nuxt.options.vite.optimizeDeps ||= {}
+    _nuxt.options.vite.optimizeDeps.include ||= []
+    _nuxt.options.vite.optimizeDeps.include.push(
+      '@scalar/nuxt > @scalar/api-reference',
+      '@scalar/nuxt > jsonpointer',
+      '@scalar/nuxt > ajv-draft-04',
+      '@scalar/nuxt > ajv-formats',
+      '@scalar/nuxt > ajv',
+      '@scalar/nuxt > ajv-draft-04 > ajv',
+      '@scalar/nuxt > ajv-formats > ajv',
+      '@scalar/nuxt > whatwg-mimetype',
+    )
 
     // Ensure proper handling of CommonJS modules
     _nuxt.options.vite.ssr ||= {}
