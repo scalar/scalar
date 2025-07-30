@@ -58,14 +58,11 @@ useTooltip({
 
   padding: calc(var(--scalar-tooltip-padding) + var(--scalar-tooltip-offset));
 
-  @apply z-tooltip text-c-tooltip text-xs font-medium break-words max-w-xs leading-5;
+  @apply z-tooltip text-c-tooltip text-xs break-words max-w-xs leading-5;
 }
-:where(body) > .scalar-tooltip:before {
+:where(body) > .scalar-tooltip::before {
   content: '';
   inset: var(--scalar-tooltip-offset);
-  @apply absolute rounded bg-b-tooltip -z-1 backdrop-blur;
-}
-:where(body.dark-mode) > .scalar-tooltip:before {
-  @apply shadow-border;
+  @apply absolute rounded shadow-lg bg-b-tooltip brightness-lifted -z-1;
 }
 </style>
