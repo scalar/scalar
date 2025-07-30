@@ -127,7 +127,7 @@ const addDocument = (config: (typeof configs.value)[number]) => {
         : config.content
 
     // Add in-memory documents to the store
-    return store.addDocumentSync({
+    return store.addDocument({
       name: config.slug ?? 'default',
       document: typeof obj === 'function' ? obj() : obj,
     })
