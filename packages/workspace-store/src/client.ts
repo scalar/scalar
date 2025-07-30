@@ -19,7 +19,7 @@ import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
 import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from '@/schemas/workspace'
 import { bundle } from '@scalar/json-magic/bundle'
-import { fetchUrls } from '@scalar/json-magic/bundle/plugins/node'
+import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
 
 /**
  * Input type for workspace document metadata and configuration.
