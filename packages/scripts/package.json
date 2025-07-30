@@ -1,5 +1,5 @@
 {
-  "name": "@scalar/scripts",
+  "name": "@scalar/pre-post-request-scripts",
   "description": "Execute pre-request and post-response scripts in the Scalar API Client",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
