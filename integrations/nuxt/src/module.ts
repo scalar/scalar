@@ -54,8 +54,6 @@ export default defineNuxtModule<ModuleOptions>({
      * Last time this was fixed on the nuxt side so we removed this and it started working
      * however its back so we add this back in
      *
-     * TODO: commented out, if this works then just
-     *
      * error:
      * doesn't provide an export named: 'default'
      */
