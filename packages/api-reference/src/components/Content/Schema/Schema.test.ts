@@ -8,6 +8,7 @@ describe('Schema', () => {
     it('shows the first description with allOf composition', () => {
       const wrapper = mount(Schema, {
         props: {
+          name: 'Request Body',
           value: {
             type: 'object',
             allOf: [
@@ -34,6 +35,7 @@ describe('Schema', () => {
     it('shows the first description with allOf composition if there is only one', () => {
       const wrapper = mount(Schema, {
         props: {
+          name: 'Request Body',
           value: {
             type: 'object',
             allOf: [
@@ -53,6 +55,30 @@ describe('Schema', () => {
 
       const text = wrapper.text()
       expect(text).toContain('This description should be shown')
+    })
+
+    it('does not show the allOf description if we are not in the Request Body', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          value: {
+            type: 'object',
+            allOf: [
+              {
+                type: 'object',
+                properties: { name: { type: 'string' } },
+              },
+              {
+                type: 'object',
+                description: 'This description should not be shown',
+                properties: { email: { type: 'string' } },
+              },
+            ],
+          },
+        },
+      })
+
+      const text = wrapper.text()
+      expect(text).not.toContain('This description should not be shown')
     })
   })
 
