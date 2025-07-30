@@ -1,7 +1,7 @@
 import { isReactive, toRaw } from 'vue'
 import { isLocalRef } from '@/bundle/bundle'
 import type { UnknownObject } from '@/types'
-import { isObject } from '@/utils/isObject'
+import { isObject } from '@/utils/is-object'
 import { getValueByPath, parseJsonPointer } from '@/utils/json-path-utils'
 
 const isMagicProxy = Symbol('isMagicProxy')

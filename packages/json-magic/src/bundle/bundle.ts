@@ -3,9 +3,9 @@ import type { UnknownObject } from '@/types'
 import { escapeJsonPointer } from '../utils/escape-json-pointer'
 import path from '@/polyfills/path'
 import { getSegmentsFromPath } from '../utils/get-segments-from-path'
-import { isObject } from '../utils/isObject'
-import { isYaml } from '../utils/isYaml'
-import { isJson } from '../utils/isJson'
+import { isObject } from '../utils/is-object'
+import { isYaml } from '../utils/is-yaml'
+import { isJson } from '../utils/is-json'
 import { getHash, uniqueValueGeneratorFactory } from './value-generator'
 
 /**
