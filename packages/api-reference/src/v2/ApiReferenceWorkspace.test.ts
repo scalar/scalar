@@ -254,7 +254,6 @@ describe('ApiReferenceWorkspace', () => {
           store: mockStore,
         },
       })
-
       await nextTick()
 
       // Simulate the event handler being called
@@ -279,7 +278,6 @@ describe('ApiReferenceWorkspace', () => {
           store: mockStore,
         },
       })
-
       await nextTick()
 
       // Simulate the event handler being called
@@ -294,7 +292,6 @@ describe('ApiReferenceWorkspace', () => {
 
   describe('default HTTP client configuration', () => {
     it('updates default client when configuration changes', async () => {
-      const { isClient } = await import('@/v2/blocks/scalar-request-example-block/helpers/find-client')
       const configWithDefaultClient = {
         ...mockConfiguration,
         defaultHttpClient: {
@@ -303,31 +300,25 @@ describe('ApiReferenceWorkspace', () => {
         },
       }
 
-      vi.mocked(isClient).mockReturnValue(true)
-
       wrapper = mount(ApiReferenceWorkspace, {
         props: {
           configuration: configWithDefaultClient,
           store: mockStore,
         },
       })
-
       await nextTick()
 
       expect(mockStore.update).toHaveBeenCalledWith('x-scalar-default-client', 'js/fetch')
     })
 
     it('does not update default client when isClient returns false', async () => {
-      const { isClient } = await import('@/v2/blocks/scalar-request-example-block/helpers/find-client')
       const configWithDefaultClient = {
         ...mockConfiguration,
         defaultHttpClient: {
-          targetKey: 'js',
-          clientKey: 'fetch',
+          targetKey: 'fake',
+          clientKey: 'records',
         },
       }
-
-      vi.mocked(isClient).mockReturnValue(false)
 
       wrapper = mount(ApiReferenceWorkspace, {
         props: {
@@ -335,7 +326,6 @@ describe('ApiReferenceWorkspace', () => {
           store: mockStore,
         },
       })
-
       await nextTick()
 
       expect(mockStore.update).not.toHaveBeenCalledWith('x-scalar-default-client', expect.any(String))
@@ -387,10 +377,14 @@ describe('ApiReferenceWorkspace', () => {
 
   describe('proxy functionality', () => {
     it('creates proxy function for external requests', async () => {
-      const { redirectToProxy } = await import('@scalar/oas-utils/helpers')
+      const mockFetch = vi.fn()
+      global.fetch = mockFetch
+
       const configWithProxy = {
         ...mockConfiguration,
         proxyUrl: 'https://proxy.example.com',
+        url: 'https://example.com/api/spec.json',
+        content: undefined,
       }
 
       wrapper = mount(ApiReferenceWorkspace, {
@@ -402,8 +396,28 @@ describe('ApiReferenceWorkspace', () => {
 
       await nextTick()
 
-      // The proxy function should be created and used in addDocument
-      expect(redirectToProxy).toHaveBeenCalled()
+      // Check that addDocument was called with the proxy configuration
+      expect(mockStore.addDocument).toHaveBeenCalledWith({
+        name: 'test-api',
+        url: 'https://example.com/api/spec.json',
+        fetch: expect.any(Function),
+      })
+
+      // Get the fetch function that was passed to addDocument
+      const addDocumentCall = vi.mocked(mockStore.addDocument).mock.calls[0]
+      const input = addDocumentCall[0] as { url: string; fetch?: Function }
+      const fetchFunction = input.fetch
+
+      // Call the fetch function to see what it does
+      expect(fetchFunction).toBeDefined()
+      if (fetchFunction) {
+        await fetchFunction('https://example.com/api/spec.json')
+      }
+
+      // Check that fetch was called with the proxy URL
+      expect(mockFetch).toHaveBeenCalledWith(
+        'https://proxy.example.com/?scalar_url=https%3A%2F%2Fexample.com%2Fapi%2Fspec.json',
+      )
     })
   })
 
