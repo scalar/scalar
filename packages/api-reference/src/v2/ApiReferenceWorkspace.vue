@@ -131,6 +131,9 @@ const addDocument = (config: Partial<ApiReferenceConfigurationWithSources>) => {
   // If the document is already in the store, we may want to update it
   if (store.workspace.documents[name]) {
     if (document) {
+      // Disable intersection observer to prevent url changing
+      isIntersectionEnabled.value = false
+
       /**
        * We need to clone the object as it gets mutated by the upgrader causing a stack overflow
        * todo: we can remove the deepClone once the upgrader becomes functional
@@ -140,6 +143,11 @@ const addDocument = (config: Partial<ApiReferenceConfigurationWithSources>) => {
 
       // Lets set it to active as well just in case the name changed
       store.update('x-scalar-active-document', name)
+
+      // Re-enable intersection observer
+      setTimeout(() => {
+        isIntersectionEnabled.value = true
+      }, 300)
     }
 
     return
