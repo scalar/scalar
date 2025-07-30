@@ -284,6 +284,40 @@ describe('operationToHar', () => {
       expect(result.postData?.text).toBe(JSON.stringify(example))
       expect(result.postData?.mimeType).toBe('application/json')
     })
+
+    it('should handle request body without an example', () => {
+      const operation: OperationObject = {
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                  age: { type: 'integer' },
+                  isActive: { type: 'boolean' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'OK',
+          },
+        },
+      }
+
+      const result = operationToHar({
+        operation,
+        method: 'post',
+        path: '/api/users',
+      })
+
+      expect(result.postData).toBeDefined()
+      expect(result.postData?.text).toBe(JSON.stringify({ name: '', age: 0, isActive: false }))
+      expect(result.postData?.mimeType).toBe('application/json')
+    })
   })
 
   describe('security handling', () => {
@@ -689,7 +723,7 @@ describe('operationToHar', () => {
         path: '/api/users',
       })
 
-      expect(result.postData?.mimeType).toBeUndefined()
+      expect(result.postData?.mimeType).toBe('')
       expect(result.postData?.text).toBe('null')
     })
 
