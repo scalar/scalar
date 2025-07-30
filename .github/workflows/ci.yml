@@ -460,7 +460,7 @@ jobs:
             **Cloudflare Preview for the API Client**
 
             ${{ steps.deploy-client-staging.outputs.deployment-url }}
-          comment_tag: 'cloudflare-preview'
+          comment-tag: 'cloudflare-preview'
       - if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
         name: Check for new @scalar/api-client version
         id: client-version
