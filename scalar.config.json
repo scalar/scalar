@@ -74,6 +74,22 @@
                 {
                   "path": "documentation/guides/docs/components/steps.md",
                   "type": "page"
+                },
+                {
+                  "path": "documentation/guides/docs/components/cards.md",
+                  "type": "page"
+                },
+                {
+                  "path": "documentation/guides/docs/components/details.md",
+                  "type": "page"
+                },
+                {
+                  "path": "documentation/guides/docs/components/page-link.md",
+                  "type": "page"
+                },
+                {
+                  "path": "documentation/guides/docs/components/row.md",
+                  "type": "page"
                 }
               ]
             }
@@ -276,15 +292,21 @@
                   "type": "page"
                 },
                 {
-                  "name": "Express",
-                  "slug": "express",
-                  "path": "documentation/integrations/express.md",
+                  "name": "Elixir",
+                  "slug": "elixir",
+                  "path": "documentation/integrations/elixir.md",
                   "type": "page"
                 },
                 {
                   "name": "ElysiaJS",
                   "slug": "elysiajs",
                   "path": "documentation/integrations/elysiajs.md",
+                  "type": "page"
+                },
+                {
+                  "name": "Express",
+                  "slug": "express",
+                  "path": "documentation/integrations/express.md",
                   "type": "page"
                 },
                 {
@@ -297,6 +319,12 @@
                   "name": "Fastify",
                   "slug": "fastify",
                   "path": "documentation/integrations/fastify.md",
+                  "type": "page"
+                },
+                {
+                  "name": "Flask",
+                  "slug": "flask",
+                  "path": "documentation/integrations/flask.md",
                   "type": "page"
                 },
                 {

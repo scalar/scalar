@@ -1,5 +1,5 @@
 import type { ScalarComboboxOption, ScalarComboboxOptionGroup } from '@scalar/components'
-import type { TargetId } from '@scalar/snippetz'
+import type { AvailableClients, ClientId, TargetId } from '@scalar/snippetz'
 
 /**
  * Represents a client option in the request example block.
@@ -7,10 +7,18 @@ import type { TargetId } from '@scalar/snippetz'
  * for generating code examples in different programming languages.
  */
 export type ClientOption = ScalarComboboxOption & {
-  /** The programming language or tool for code generation (e.g., 'javascript', 'python', 'curl') */
+  /** A more specific ID */
+  id: AvailableClients[number]
+  /** Programming language or tool for code generation (e.g., 'javascript', 'python', 'curl') */
   lang: TargetId | 'curl' | 'plaintext'
-  /** The title shows when the client is selected in the dropdown */
+  /** Title shows when the client is selected in the dropdown */
   title: string
+  /** Target key for the client, differs from the lang due to the curl thing */
+  targetKey: TargetId
+  /** Title of the target */
+  targetTitle: string
+  /** Client key for the client */
+  clientKey: ClientId<TargetId>
 }
 
 /**

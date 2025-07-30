@@ -41,7 +41,9 @@ const {
 const { modalState, requestHistory } = workspaceContext
 
 const activeHistoryEntry = computed(() =>
-  requestHistory.findLast((r) => r.request.uid === activeExample.value?.uid),
+  [...requestHistory]
+    .reverse()
+    .find((r) => r.request.uid === activeExample.value?.uid),
 )
 
 function handleCurlImport(curl: string) {

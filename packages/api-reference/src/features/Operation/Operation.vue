@@ -5,11 +5,16 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { isReference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
+import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
+import {
+  isReference,
+  isResolvedRef,
+} from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import { computed } from 'vue'
 
 import { convertSecurityScheme } from '@/helpers/convert-security-scheme'
 import { useOperationDiscriminator } from '@/hooks/useOperationDiscriminator'
+import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
 import ClassicLayout from './layouts/ClassicLayout.vue'
 import ModernLayout from './layouts/ModernLayout.vue'
@@ -26,6 +31,7 @@ const {
 } = defineProps<{
   path: string
   method: HttpMethod
+  clientOptions: ClientOptionGroup[]
   isWebhook: boolean
   layout?: 'modern' | 'classic'
   id: string
@@ -37,13 +43,18 @@ const {
   document?: OpenAPIV3_1.Document
 }>()
 
+/** Grab the pathItem from either webhooks or paths */
+const pathItem = computed(() => {
+  const initialKey = isWebhook ? 'webhooks' : 'paths'
+  return store.workspace.activeDocument?.[initialKey]?.[path]
+})
+
 /**
  * Operation from the new workspace store, ensure we are de-referenced
  * TODO: loading/error states
  */
 const operation = computed(() => {
-  const initialKey = isWebhook ? 'webhooks' : 'paths'
-  const entity = store.workspace.activeDocument?.[initialKey]?.[path]?.[method]
+  const entity = pathItem.value?.[method]
 
   if (isReference(entity)) {
     return null
@@ -80,18 +91,30 @@ const selectedSecuritySchemes = computed(() =>
     securitySchemes,
   ).map(convertSecurityScheme),
 )
+
+/** Dereference path parameters and combine with operation parameters */
+const parameters = computed(() => {
+  const pathParams = pathItem.value?.parameters ?? []
+  const operationParams = operation.value?.parameters ?? []
+
+  return [...pathParams, ...operationParams].filter(
+    isResolvedRef<ParameterObject>,
+  )
+})
 </script>
 
 <template>
-  <template v-if="operation">
+  <template v-if="operation && oldOperation">
     <template v-if="layout === 'classic'">
       <ClassicLayout
         :id="id"
-        :isWebhook="isWebhook"
+        :isWebhook
         :method="method"
         :operation="operation"
         :oldOperation="oldOperation"
+        :clientOptions="clientOptions"
         :securitySchemes="selectedSecuritySchemes"
+        :parameters="parameters"
         :store="store"
         :path="path"
         :schemas="document?.components?.schemas"
@@ -103,8 +126,10 @@ const selectedSecuritySchemes = computed(() =>
         :id="id"
         :isWebhook="isWebhook"
         :method="method"
+        :clientOptions="clientOptions"
         :oldOperation="oldOperation"
         :securitySchemes="selectedSecuritySchemes"
+        :parameters="parameters"
         :path="path"
         :store="store"
         :operation="operation"

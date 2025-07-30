@@ -15,7 +15,7 @@
     "css-variables",
     "scalar"
   ],
-  "version": "0.13.11",
+  "version": "0.13.12",
   "engines": {
     "node": ">=20"
   },
@@ -55,7 +55,7 @@
     "@vitejs/plugin-vue": "catalog:*",
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",
-    "vite-plugin-static-copy": "^1.0.2",
+    "vite-plugin-static-copy": "^2.2.0",
     "vitest": "catalog:*"
   }
 }

@@ -103,8 +103,11 @@ export function filterHttpMethodsOnly(paths: PathsObject) {
  */
 export function escapePaths(paths: Record<string, Record<string, OperationObject>>) {
   const result: Record<string, Record<string, OperationObject>> = {}
+
   Object.keys(paths).forEach((path) => {
-    result[escapeJsonPointer(path)] = paths[path]
+    if (paths[path]) {
+      result[escapeJsonPointer(path)] = paths[path]
+    }
   })
 
   return result
@@ -125,7 +128,7 @@ export function externalizeComponentReferences(
 
   Object.entries(document.components).forEach(([type, component]) => {
     if (!component || typeof component !== 'object') {
-      return result
+      return
     }
 
     result[type] = {}
@@ -157,7 +160,7 @@ export function externalizePathReferences(
 
   Object.entries(document.paths).forEach(([path, pathItem]) => {
     if (!pathItem || typeof pathItem !== 'object') {
-      return result
+      return
     }
 
     const pathItemRecord = pathItem as Record<string, unknown>

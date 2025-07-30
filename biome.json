@@ -31,7 +31,8 @@
       "**/.next/**",
       "**/obj/**",
       "**/bin/**",
-      "packages/openapi-parser/src/schemas/**/*.ts"
+      "packages/openapi-parser/src/schemas/**/*.ts",
+      ".github/renovate.json"
     ]
   },
   "organizeImports": {

@@ -1,5 +1,28 @@
 # @scalar/workspace-store
 
+## 0.11.0
+
+### Minor Changes
+
+- 9924c47: feat(workspace-store): support replacing the whole document
+- a0c92d9: feat(workspace-store): create store from workspace specification object
+
+### Patch Changes
+
+- a5534e6: fix: show path parameters on operation
+- 6b6c72c: fix: hiddenClients: true and move clients to workspace store
+- Updated dependencies [ccf875a]
+- Updated dependencies [d4cb86b]
+- Updated dependencies [94d6d0c]
+- Updated dependencies [c345d2c]
+- Updated dependencies [c0d6793]
+- Updated dependencies [f3d0216]
+  - @scalar/openapi-types@0.3.7
+  - @scalar/types@0.2.11
+  - @scalar/code-highlight@0.1.9
+  - @scalar/openapi-parser@0.18.3
+  - @scalar/helpers@0.0.7
+
 ## 0.10.2
 
 ### Patch Changes

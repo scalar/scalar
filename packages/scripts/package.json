@@ -19,7 +19,7 @@
     "post-response scripts",
     "api client"
   ],
-  "version": "0.0.21",
+  "version": "0.0.22",
   "private": true,
   "engines": {
     "node": ">=18"
@@ -100,7 +100,7 @@
     "@scalar/types": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
     "@vitejs/plugin-vue": "catalog:*",
-    "@vue/test-utils": "^2.4.1",
-    "vite": "^5.1.1"
+    "@vue/test-utils": "catalog:*",
+    "vite": "catalog:*"
   }
 }

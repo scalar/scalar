@@ -638,7 +638,9 @@ To make authentication easier you can prefill the credentials for your users:
               audience: 'scalar'
             },
             // Custom token name for non-standard OAuth2 responses (default: 'access_token')
-            'x-tokenName': 'custom_access_token'
+            'x-tokenName': 'custom_access_token',
+            // Specify where OAuth2 credentials should be sent: 'header' or 'body'
+            'x-scalar-credentials-location': 'header'
           },
           clientCredentials: {
             token: 'client credentials token',
@@ -648,7 +650,9 @@ To make authentication easier you can prefill the credentials for your users:
             // Preselected scopes
             selectedScopes: ['profile', 'api:read'],
             // Custom token name for non-standard OAuth2 responses (default: 'access_token')
-            'x-tokenName': 'custom_access_token'
+            'x-tokenName': 'custom_access_token',
+            // Specify where OAuth2 credentials should be sent: 'header' or 'body'
+            'x-scalar-credentials-location': 'body'
           },
           implicit: {
             token: 'implicit flow token',
@@ -669,7 +673,9 @@ To make authentication easier you can prefill the credentials for your users:
             password: 'default-password',
             selectedScopes: ['profile', 'email'],
             // Custom token name for non-standard OAuth2 responses (default: 'access_token')
-            'x-tokenName': 'custom_access_token'
+            'x-tokenName': 'custom_access_token',
+            // Specify where OAuth2 credentials should be sent: 'header' or 'body'
+            'x-scalar-credentials-location': 'header'
           },
         },
         // Set default scopes for all flows

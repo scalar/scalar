@@ -11,7 +11,12 @@
     font-size: unset;
     margin: unset;
   }
+
+  /** Docusaurus overrides */
+  --ifm-heading-margin-bottom: 0;
+  --ifm-list-left-padding: 0;
 }
+
 .scalar-api-reference.references-sidebar {
   --refs-sidebar-width: 300px;
 }
@@ -61,6 +66,10 @@ html[data-theme="dark"] body,
   --scalar-color-blue: #3578e5;
   --scalar-color-orange: #ff8d4d;
   --scalar-color-purple: #b191f9;
+
+  --scalar-button-1: rgba(255, 255, 255, 1);
+  --scalar-button-1-hover: rgba(255, 255, 255, 0.9);
+  --scalar-button-1-color: black;
 }
 .sidebar-group-item:has(.active_page) .sidebar-group-item__folder {
   color: var(--scalar-color-accent);
@@ -104,49 +113,6 @@ html[data-theme="light"] body .api-client-drawer {
   position: relative !important;
 }
 
-.sidebar-heading.sidebar-group-item__folder {
-  flex-direction: row-reverse;
-}
-.sidebar-heading-chevron {
-  transition: all 0.3s ease-in-out;
-  border-radius: var(--scalar-radius);
-}
-.sidebar-heading-chevron:before {
-  background: var(--ifm-menu-link-sublist-icon) 50% / 2rem 2rem;
-  height: 1.25rem;
-  transform: rotate(90deg);
-  transition: transform var(--ifm-transition-fast) linear;
-  width: 1.25rem;
-  content: "";
-  filter: var(--ifm-menu-link-sublist-icon-filter);
-}
-.sidebar-heading-chevron:hover {
-  background-color: var(--ifm-menu-color-background-hover);
-}
-.sidebar-heading-chevron .scalar-icon-button {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-.sidebar-group-item:has(ul) .sidebar-heading-chevron:before {
-  transform: rotate(180deg);
-}
-.sidebar-heading-chevron svg {
-  color: transparent;
-}
-.sidebar-heading {
-  margin-top: 2px;
-  --scalar-mini: auto !important;
-}
-.sidebar-heading-link p {
-  font-family: var(--ifm-font-family-base);
-  font-weight: 500;
-}
-.sidebar-indent-nested .sidebar-heading {
-  --scalar-sidebar-indent-base: 6px;
-}
 .sidebar .darklight {
   display: none !important;
 }
@@ -192,11 +158,6 @@ html[data-theme="light"] body .api-client-drawer {
 }
 .scalar-card .scalar-codeblock-pre {
   padding: 0;
-}
-.sidebar-heading-chevron {
-  padding: var(--ifm-menu-link-padding-vertical) var(--ifm-menu-link-padding-horizontal);
-  margin: 0 !important;
-  margin-right: -9px !important;
 }
 .schema-properties-open > .schema-card-title {
   backdrop-filter: blur(50px);
@@ -463,61 +424,8 @@ html[data-theme="light"] body .api-client-drawer {
     word-break: break-word;
   }
 
-  /* Apply base padding for all block elements */
-  .markdown h1,
-  .markdown h2,
-  .markdown h3,
-  .markdown h4,
-  .markdown h5,
-  .markdown h6,
-  .markdown p,
-  .markdown div,
-  .markdown img,
-  .markdown details,
-  .markdown summary,
-  .markdown ul,
-  .markdown ol,
-  .markdown table,
-  .markdown blockquote,
-  .markdown code {
-    margin: 12px 0;
-  }
-
   .markdown details {
-    margin: 12px 0;
     color: var(--scalar-color-1);
-  }
-  .markdown summary {
-    display: block;
-    margin: 12px 0;
-    padding-left: 20px;
-    position: relative;
-    font-weight: var(--scalar-semibold);
-    cursor: pointer;
-    user-select: none;
-  }
-
-  .markdown summary::after {
-    display: block;
-    content: "";
-
-    position: absolute;
-    top: 1px;
-    left: 1px;
-
-    width: 14px;
-    height: 14px;
-
-    background-color: var(--scalar-color-3);
-    mask-image: url('data:image/svg+xml,<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.25 19.5L15.75 12L8.25 4.5" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>');
-  }
-
-  .markdown summary:hover::after {
-    background-color: var(--scalar-color-1);
-  }
-
-  .markdown details[open] summary::after {
-    transform: rotate(90deg);
   }
 
   .markdown img {
@@ -526,10 +434,6 @@ html[data-theme="light"] body .api-client-drawer {
     max-width: 100%;
   }
   /* Don't add margin to the first block */
-  .markdown > :first-child {
-    margin-top: 0;
-    margin-bottom: 0;
-  }
 
   .markdown h1 {
     --font-size: 1.4em;
@@ -557,7 +461,6 @@ html[data-theme="light"] body .api-client-drawer {
   .markdown h5,
   .markdown h6 {
     font-size: var(--font-size);
-    margin: 18px 0 6px;
     font-weight: var(--scalar-bold);
     display: block;
     line-height: 1.45;
@@ -570,13 +473,12 @@ html[data-theme="light"] body .api-client-drawer {
     color: var(--scalar-color-1);
     font-weight: var(--font-weight, var(--scalar-regular));
     line-height: 1.5;
-    margin-bottom: 0;
     display: block;
   }
 
   .markdown ul,
   .markdown ol {
-    padding-left: 24px;
+    padding-left: 0;
     line-height: 1.5;
     margin: 12px 0;
     display: block;

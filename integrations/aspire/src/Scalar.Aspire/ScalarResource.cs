@@ -1,4 +1,5 @@
-﻿using Aspire.Hosting.ApplicationModel;
+﻿using Aspire.Hosting;
+using Aspire.Hosting.ApplicationModel;
 
 namespace Scalar.Aspire;
 
@@ -6,4 +7,4 @@ namespace Scalar.Aspire;
 /// Represents a Scalar container resource.
 /// </summary>
 /// <param name="name">The unique name identifier for the Scalar resource.</param>
-public sealed class ScalarResource(string name) : ContainerResource(name);
+public sealed class ScalarResource(string name) : ContainerResource(name), IResourceWithServiceDiscovery;

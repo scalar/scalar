@@ -17,7 +17,7 @@ type SlotProps = {
 
 defineProps<Props>()
 
-defineEmits<{
+const emit = defineEmits<{
   (e: 'update:modelValue', v: Option): void
 }>()
 
@@ -29,6 +29,12 @@ defineSlots<{
   /** A slot for contents after the combobox options */
   after?(props: SlotProps): unknown
 }>()
+
+function handleUpdateModelValue(value: Option | undefined) {
+  if (value) {
+    emit('update:modelValue', value)
+  }
+}
 </script>
 <template>
   <ComboboxPopover
@@ -47,7 +53,7 @@ defineSlots<{
         :open="open"
         :options="options"
         :placeholder="placeholder"
-        @update:modelValue="(v) => (close(), $emit('update:modelValue', v[0]))">
+        @update:modelValue="(v) => [handleUpdateModelValue(v[0]), close()]">
         <template
           v-if="$slots.before"
           #before>

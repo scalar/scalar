@@ -166,15 +166,14 @@ const dataTableInputProps = {
     v-for="{ scheme } in security"
     :key="scheme?.uid">
     <!-- Header -->
-    <DataTableRow
-      v-if="security.length > 1"
-      :class="{
-        'request-example-references-header': layout === 'reference',
-      }">
+    <DataTableRow v-if="security.length > 1 && scheme">
       <DataTableCell
-        class="text-c-2 flex items-center pl-3"
-        :class="layout === 'reference' && 'border-b'">
-        {{ generateLabel(scheme!) }}
+        :aria-label="generateLabel(scheme)"
+        class="text-c-2 group/auth flex items-center leading-[22px] whitespace-nowrap outline-none hover:whitespace-normal">
+        <p
+          class="bg-b-1 text-c-2 outline-b-3 top-0 z-1 h-full w-full overflow-hidden px-3 py-1.25 text-ellipsis group-hover/auth:absolute group-hover/auth:h-auto group-hover/auth:border-b *:first:line-clamp-1 *:first:text-ellipsis group-hover/auth:*:first:line-clamp-none">
+          {{ generateLabel(scheme) }}
+        </p>
       </DataTableCell>
     </DataTableRow>
 
@@ -182,9 +181,9 @@ const dataTableInputProps = {
     <DataTableRow v-if="scheme?.description && security.length <= 1">
       <DataTableCell
         :aria-label="scheme.description"
-        class="text-c-2 auth-description-container group/auth flex items-center whitespace-nowrap outline-none hover:whitespace-normal">
+        class="text-c-2 group/auth auth-description-container flex items-center whitespace-nowrap outline-none hover:whitespace-normal">
         <ScalarMarkdown
-          class="auth-description bg-b-1 text-c-2 outline-b-3 top-0 z-1 h-full w-full px-3 py-1.25 *:first:line-clamp-1 *:first:text-ellipsis group-hover/auth:*:first:line-clamp-none"
+          class="auth-description bg-b-1 text-c-2 outline-b-3 top-0 z-1 h-full w-full px-3 py-1.25 group-hover/auth:absolute group-hover/auth:h-auto group-hover/auth:border-b *:first:line-clamp-1 *:first:text-ellipsis group-hover/auth:*:first:line-clamp-none"
           :value="scheme.description" />
       </DataTableCell>
     </DataTableRow>
@@ -210,9 +209,6 @@ const dataTableInputProps = {
           <RequestAuthDataTableInput
             v-bind="dataTableInputProps"
             class="text-c-2"
-            :containerClass="
-              layout === 'reference' && 'auth-blend-required border-t'
-            "
             :modelValue="scheme.username"
             placeholder="janedoe"
             required
@@ -308,27 +304,3 @@ const dataTableInputProps = {
     </template>
   </template>
 </template>
-
-<style scoped>
-.auth-blend-required :deep(.scalar-input-required),
-.auth-blend-required :deep(.required) {
-  background: var(--scalar-background-2);
-  --tw-bg-base: var(--scalar-background-2);
-  --tw-shadow: -8px 0 4px var(--scalar-background-2);
-}
-
-.request-example-references-header :deep(+ tr > td) {
-  border-top: 0;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-}
-
-.scalar-data-table .auth-description-container .auth-description {
-  outline: 0.5px solid var(--scalar-border-color);
-}
-
-.scalar-data-table .auth-description-container:hover .auth-description {
-  position: absolute;
-  height: auto;
-}
-</style>

@@ -13,7 +13,7 @@
   "keywords": [
     "typescript object transforms"
   ],
-  "version": "1.2.2",
+  "version": "1.2.3",
   "engines": {
     "node": ">=20"
   },
@@ -75,6 +75,7 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
+    "@scalar/helpers": "workspace:*",
     "flatted": "catalog:*",
     "just-clone": "^6.2.0",
     "ts-deepmerge": "^7.0.1",

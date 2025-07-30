@@ -1,10 +1,6 @@
 <script setup lang="ts">
-import {
-  cva,
-  ScalarButton,
-  ScalarIcon,
-  ScalarListbox,
-} from '@scalar/components'
+import { cva, ScalarButton, ScalarListbox } from '@scalar/components'
+import { ScalarIconCaretDown } from '@scalar/icons'
 import type { ContentType, RequestBody } from '@scalar/types/legacy'
 import { computed, ref } from 'vue'
 
@@ -68,7 +64,6 @@ const contentTypeSelect = cva({
   <ScalarListbox
     v-if="prop?.requestBody && contentTypes.length > 1"
     v-model="selectedOption"
-    class="font-normal"
     :options="options"
     placement="bottom-end"
     @update:modelValue="handleSelectContentType">
@@ -78,11 +73,9 @@ const contentTypeSelect = cva({
       variant="ghost">
       <ScreenReader>Selected Content Type:</ScreenReader>
       <span>{{ selectedContentType }}</span>
-      <ScalarIcon
-        class="ui-open:rotate-180 ml-auto"
-        icon="ChevronDown"
-        size="sm"
-        thickness="2" />
+      <ScalarIconCaretDown
+        weight="bold"
+        class="ui-open:rotate-180 size-2.75 transition-transform duration-100" />
     </ScalarButton>
   </ScalarListbox>
   <div

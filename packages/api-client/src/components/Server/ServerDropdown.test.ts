@@ -1,11 +1,11 @@
 import { useWorkspace } from '@/store/store'
+import { mockUseLayout } from '@/vitest.setup'
 import { PopoverPanel } from '@headlessui/vue'
 import { collectionSchema, requestSchema, serverSchema } from '@scalar/oas-utils/entities/spec'
 import { mount } from '@vue/test-utils'
 import { type Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import ServerDropdown from './ServerDropdown.vue'
 import ServerDropdownItem from './ServerDropdownItem.vue'
-import { mockUseLayout } from '@/vitest.setup'
 // Mock the useWorkspace composable
 vi.mock('@/store/store', () => ({
   useWorkspace: vi.fn(),
@@ -58,7 +58,7 @@ describe('ServerDropdown', () => {
     })
 
     // Mock the useLayout hook
-    mockUseLayout.mockReturnValue({
+    vi.mocked(mockUseLayout).mockReturnValue({
       layout: 'web',
     })
   })
@@ -132,7 +132,7 @@ describe('ServerDropdown', () => {
   })
 
   it('shows "Add Server" button when not in modal client layout', async () => {
-    mockUseLayout.mockReturnValue({
+    vi.mocked(mockUseLayout).mockReturnValue({
       layout: 'web',
     })
     const wrapper = mount(ServerDropdown, {
@@ -150,7 +150,7 @@ describe('ServerDropdown', () => {
   })
 
   it('does not show "Add Server" button in the modal client layout', async () => {
-    mockUseLayout.mockReturnValue({
+    vi.mocked(mockUseLayout).mockReturnValue({
       layout: 'modal',
     })
 

@@ -42,7 +42,7 @@ export const createSidebar = (dereferencedDocument: Ref<OpenAPIV3_1.Document>, o
       // We use the lazyBus to check when the target has loaded then scroll to it
       if (!collapsedSidebarItems[sectionId]) {
         const unsubscribe = lazyBus.on((ev) => {
-          if (ev.id === operationId) {
+          if (ev.loaded === operationId) {
             scrollToId(operationId, focus)
             unsubscribe()
           }

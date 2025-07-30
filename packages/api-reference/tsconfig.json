@@ -2,6 +2,10 @@
   "extends": "../../tsconfig.json",
   "include": ["./src", "./test"],
   "compilerOptions": {
+    // TODO: Reenable when we can fix all the issues
+    "noUncheckedIndexedAccess": false,
+    // TODO: Reenable when we can fix all the issues
+    "exactOptionalPropertyTypes": false,
     "paths": {
       "@/*": ["./src/*"],
       "@v2/*": ["./src/v2/*"],

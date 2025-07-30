@@ -18,15 +18,16 @@ import {
   REFERENCE_LS_KEYS,
   safeLocalStorage,
 } from '@scalar/helpers/object/local-storage'
+import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { parseJsonOrYaml, redirectToProxy } from '@scalar/oas-utils/helpers'
 import type { AnyApiReferenceConfiguration } from '@scalar/types'
-import type { ClientId, TargetId } from '@scalar/types/snippetz'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { type WorkspaceStore } from '@scalar/workspace-store/client'
 import { useSeoMeta } from '@unhead/vue'
 import { useFavicon } from '@vueuse/core'
 import {
   computed,
+  onBeforeMount,
   onMounted,
   onServerPrefetch,
   provide,
@@ -42,7 +43,6 @@ import {
   useMultipleDocuments,
 } from '@/features/multiple-documents'
 import { NAV_STATE_SYMBOL } from '@/hooks/useNavState'
-import { useHttpClientStore } from '@/stores/useHttpClientStore'
 import { isClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import { onCustomEvent } from '@/v2/events'
 
@@ -70,9 +70,6 @@ const {
   hash: ref(''),
   hashPrefix: ref(''),
 })
-
-const { httpClient, setExcludedClients, setDefaultHttpClient } =
-  useHttpClientStore()
 
 /**
  * Creates a proxy function that redirects requests through a proxy URL.
@@ -139,7 +136,9 @@ const addDocument = (config: (typeof configs.value)[number]) => {
   if (config.url) {
     return store.addDocument({
       name: config.slug ?? 'default',
-      url: config.url,
+      url: makeUrlAbsolute(config.url, {
+        basePath: selectedConfiguration.value.pathRouting?.basePath,
+      }),
       fetch: proxy,
     })
   }
@@ -163,6 +162,16 @@ onServerPrefetch(() => {
   })
 })
 
+// Do this a big quicker than onMounted
+onBeforeMount(() => {
+  const storedClient = safeLocalStorage().getItem(
+    REFERENCE_LS_KEYS.SELECTED_CLIENT,
+  )
+  if (isClient(storedClient) && !store.workspace['x-scalar-default-client']) {
+    store.update('x-scalar-default-client', storedClient)
+  }
+})
+
 onMounted(() => {
   // During client side rendering we load the active document from the URL
   // NOTE: The UI MUST handle a case where the document is empty
@@ -171,13 +180,6 @@ onMounted(() => {
       addDocument(config)
     }
   })
-
-  const storedClient = safeLocalStorage().getItem(
-    REFERENCE_LS_KEYS.SELECTED_CLIENT,
-  )
-  if (isClient(storedClient) && !store.workspace['x-scalar-default-client']) {
-    store.update('x-scalar-default-client', storedClient)
-  }
 })
 
 // onCustomEvent(root, 'scalar-update-sidebar', (event) => {
@@ -195,32 +197,6 @@ onCustomEvent(root, 'scalar-update-active-document', (event) => {
 onCustomEvent(root, 'scalar-update-selected-client', (event) => {
   store.update('x-scalar-default-client', event.detail)
   safeLocalStorage().setItem(REFERENCE_LS_KEYS.SELECTED_CLIENT, event.detail)
-
-  // Temp to keep the old stuff working, remove when moved over to new store
-  const [targetKey, clientKey] = event.detail.split('/') as [
-    TargetId,
-    ClientId<TargetId>,
-  ]
-  setDefaultHttpClient({
-    targetKey,
-    clientKey,
-  })
-})
-
-// Temp to keep the old stuff working, remove when moved over to new store.
-watch(
-  () => selectedConfiguration.value.hiddenClients,
-  (newValue) => newValue && setExcludedClients(newValue),
-)
-watch(httpClient, (newClient) => {
-  const clientId = `${newClient.targetKey}/${newClient.clientKey}`
-  if (
-    newClient &&
-    store.workspace.activeDocument?.['x-scalar-default-client'] !== clientId &&
-    isClient(clientId)
-  ) {
-    store.update('x-scalar-default-client', clientId)
-  }
 })
 
 // Update the workspace store if default client changes
@@ -234,9 +210,6 @@ watch(
       if (isClient(clientId)) {
         store.update('x-scalar-default-client', clientId)
       }
-
-      // Temp to keep the old stuff working, remove when moved over to new store
-      setDefaultHttpClient(newValue)
     }
   },
   { immediate: true },

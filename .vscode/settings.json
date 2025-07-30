@@ -90,5 +90,6 @@
   },
   "typescript.tsdk": "node_modules/typescript/lib",
   "vitest.commandLine": "pnpm vitest",
-  "vitest.enable": true
+  "vitest.enable": true,
+  "cSpell.words": ["microdiff"]
 }

@@ -1,5 +1,6 @@
 export { default as ApiReference } from '@/components/ApiReference.vue'
 export { default as ApiReferenceLayout } from '@/components/ApiReferenceLayout.vue'
+export { default as ApiReferenceWorkspace } from '@/v2/ApiReferenceWorkspace.vue'
 export { SearchButton, SearchModal } from '@/features/Search'
 // TODO: This component shouldn't live in @scalar/api-reference. If it needs to live in scalar/scalar, it should be in @scalar/api-reference-editor
 export { default as GettingStarted } from '@/components/GettingStarted.vue'

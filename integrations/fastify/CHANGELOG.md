@@ -1,5 +1,16 @@
 # @scalar/fastify-api-reference
 
+## 1.33.0
+
+### Patch Changes
+
+- 7031d9c: fix(api-reference): reference theme and style fixes
+- Updated dependencies [ccf875a]
+- Updated dependencies [c345d2c]
+  - @scalar/openapi-types@0.3.7
+  - @scalar/openapi-parser@0.18.3
+  - @scalar/core@0.3.11
+
 ## 1.32.10
 
 ### Patch Changes

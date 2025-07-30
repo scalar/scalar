@@ -34,4 +34,11 @@ public sealed class AuthorizationCodeFlow : OAuthFlow
     /// </summary>
     [JsonPropertyName("x-scalar-redirect-uri")]
     public string? RedirectUri { get; set; }
+
+    /// <summary>
+    /// Gets or sets the location where authentication credentials should be placed in HTTP requests.
+    /// </summary>
+    [JsonPropertyName("x-scalar-credentials-location")]
+    [JsonConverter(typeof(CredentialsLocationConverter))]
+    public CredentialsLocation? CredentialsLocation { get; set; }
 }

@@ -1,5 +1,12 @@
 # @scalar/express-api-reference
 
+## 0.8.13
+
+### Patch Changes
+
+- 7031d9c: fix(api-reference): reference theme and style fixes
+  - @scalar/core@0.3.11
+
 ## 0.8.12
 
 ### Patch Changes

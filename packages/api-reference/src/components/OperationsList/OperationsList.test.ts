@@ -206,7 +206,7 @@ describe('OperationsList', () => {
     // The custom-scroll class is applied to the ScalarCardSection component
     const scalarCardSection = wrapper.findComponent({ name: 'ScalarCardSection' })
     expect(scalarCardSection.exists()).toBe(true)
-    expect(scalarCardSection.props('class')).toBe('custom-scroll')
+    expect(scalarCardSection.props('class')).toBe('custom-scroll max-h-[60vh]')
 
     expect(wrapper.find('.endpoints').exists()).toBe(true)
   })

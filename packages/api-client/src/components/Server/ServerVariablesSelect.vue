@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import {
   ScalarButton,
-  ScalarIcon,
   ScalarListbox,
   type ScalarListboxOption,
 } from '@scalar/components'
+import { ScalarIconCaretDown } from '@scalar/icons'
 import { computed } from 'vue'
 
 const props = defineProps<{
@@ -32,7 +32,7 @@ const selected = computed<ScalarListboxOption | undefined>({
     :options="options">
     <ScalarButton
       :aria-controls="controls"
-      class="h-8 p-1.5 font-normal"
+      class="h-8 gap-1.5 p-1.5 text-base font-normal"
       variant="ghost">
       <span :class="{ 'text-c-1': value }">
         <span
@@ -42,10 +42,9 @@ const selected = computed<ScalarListboxOption | undefined>({
         </span>
         {{ value || 'Select value' }}
       </span>
-      <ScalarIcon
-        class="ml-1"
-        icon="ChevronDown"
-        size="sm" />
+      <ScalarIconCaretDown
+        weight="bold"
+        class="ui-open:rotate-180 mt-0.25 size-3 transition-transform duration-100" />
     </ScalarButton>
   </ScalarListbox>
 </template>

@@ -205,7 +205,7 @@ describe('Lazy', () => {
   })
 
   describe('event bus', () => {
-    it('emits event when id is provided and isLazy is true', async () => {
+    it('emits loading event immediately and loaded event after rendering when id is provided and isLazy is true', async () => {
       const mockRequestIdleCallback = vi.fn((callback) => {
         callback()
       })
@@ -222,15 +222,15 @@ describe('Lazy', () => {
 
       await nextTick()
 
-      // Event should not be emitted yet
-      expect(emitSpy).not.toHaveBeenCalled()
+      // Loading event should be emitted immediately
+      expect(emitSpy).toHaveBeenCalledWith({ loading: 'test-id' })
 
       // Trigger rendering
       vi.advanceTimersByTime(0)
       await nextTick()
 
-      // Event should be emitted after rendering
-      expect(emitSpy).toHaveBeenCalledWith({ id: 'test-id' })
+      // Loaded event should be emitted after rendering
+      expect(emitSpy).toHaveBeenCalledWith({ loaded: 'test-id' })
     })
 
     it('emits event immediately when id is provided and isLazy is false', async () => {
@@ -246,10 +246,10 @@ describe('Lazy', () => {
       await nextTick()
 
       // Event should be emitted immediately for non-lazy components
-      expect(emitSpy).toHaveBeenCalledWith({ id: 'test-id' })
+      expect(emitSpy).toHaveBeenCalledWith({ loaded: 'test-id' })
     })
 
-    it('does not emit event when id is not provided', async () => {
+    it('emits loading event with undefined id when id is not provided', async () => {
       const mockRequestIdleCallback = vi.fn((callback) => {
         callback()
       })
@@ -266,15 +266,18 @@ describe('Lazy', () => {
 
       await nextTick()
 
+      // Loading event should be emitted with undefined id
+      expect(emitSpy).toHaveBeenCalledWith({ loading: undefined })
+
       // Trigger rendering
       vi.advanceTimersByTime(0)
       await nextTick()
 
-      // No event should be emitted when no id is provided
-      expect(emitSpy).not.toHaveBeenCalled()
+      // No loaded event should be emitted when no id is provided
+      expect(emitSpy).toHaveBeenCalledTimes(1)
     })
 
-    it('emits event with correct id value', async () => {
+    it('emits events with correct id value', async () => {
       const mockRequestIdleCallback = vi.fn((callback) => {
         callback()
       })
@@ -292,11 +295,15 @@ describe('Lazy', () => {
 
       await nextTick()
 
+      // Loading event should be emitted with correct id
+      expect(emitSpy).toHaveBeenCalledWith({ loading: testId })
+
       // Trigger rendering
       vi.advanceTimersByTime(0)
       await nextTick()
 
-      expect(emitSpy).toHaveBeenCalledWith({ id: testId })
+      // Loaded event should be emitted with correct id
+      expect(emitSpy).toHaveBeenCalledWith({ loaded: testId })
     })
   })
 

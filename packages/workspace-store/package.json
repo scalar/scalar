@@ -16,7 +16,7 @@
     "openapi",
     "scalar"
   ],
-  "version": "0.10.2",
+  "version": "0.11.0",
   "engines": {
     "node": ">=18"
   },
@@ -43,6 +43,11 @@
       "import": "./dist/schemas.js",
       "types": "./dist/schemas.d.ts",
       "default": "./dist/schemas.js"
+    },
+    "./schemas/schemas/workspace": {
+      "import": "./dist/schemas/workspace.js",
+      "types": "./dist/schemas/workspace.d.ts",
+      "default": "./dist/schemas/workspace.js"
     },
     "./schemas/v3.1/*": {
       "import": "./dist/schemas/v3.1/*.js",

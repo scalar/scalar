@@ -8,7 +8,7 @@ describe('getExampleFromSchema', () => {
       getExampleFromSchema({
         example: 10,
       }),
-    ).toMatchObject(10)
+    ).toBe(10)
   })
 
   it('uses first example, if multiple are configured', () => {
@@ -16,7 +16,7 @@ describe('getExampleFromSchema', () => {
       getExampleFromSchema({
         examples: [10],
       }),
-    ).toMatchObject(10)
+    ).toBe(10)
   })
 
   it('takes the first enum as example', () => {
@@ -135,7 +135,7 @@ describe('getExampleFromSchema', () => {
       getExampleFromSchema({
         example: 10,
       }),
-    ).toMatchObject(10)
+    ).toBe(10)
   })
 
   it('goes through properties recursively with objects', () => {
@@ -269,7 +269,7 @@ describe('getExampleFromSchema', () => {
       getExampleFromSchema({
         type: 'boolean',
       }),
-    ).toMatchObject(true)
+    ).toBe(true)
   })
 
   it('uses 1 as a fallback for integers', () => {
@@ -277,7 +277,7 @@ describe('getExampleFromSchema', () => {
       getExampleFromSchema({
         type: 'integer',
       }),
-    ).toMatchObject(1)
+    ).toBe(1)
   })
 
   it('returns an array if the schema type is array', () => {
@@ -559,7 +559,7 @@ describe('getExampleFromSchema', () => {
       getExampleFromSchema({
         type: 'number',
       }),
-    ).toMatchObject(1)
+    ).toBe(1)
   })
 
   it('uses min as the default for a number', () => {
@@ -568,7 +568,7 @@ describe('getExampleFromSchema', () => {
         type: 'number',
         min: 200,
       }),
-    ).toMatchObject(200)
+    ).toBe(200)
   })
 
   it('returns plaintext', () => {
@@ -761,6 +761,34 @@ describe('getExampleFromSchema', () => {
         ],
       }),
     ).toBe('')
+  })
+
+  it('does not use the first item of oneOf if it is null', () => {
+    expect(
+      getExampleFromSchema({
+        oneOf: [
+          {
+            type: 'null',
+          },
+          {
+            maxLength: 255,
+            type: 'string',
+          },
+        ],
+      }),
+    ).toBe('')
+  })
+
+  it('uses the first item of oneOf if there is only one item', () => {
+    expect(
+      getExampleFromSchema({
+        oneOf: [
+          {
+            type: 'null',
+          },
+        ],
+      }),
+    ).toBe(null)
   })
 
   it('works with allOf', () => {

@@ -19,14 +19,17 @@
     "verbatimModuleSyntax": true,
 
     "allowUnreachableCode": false,
-    "allowUnusedLabels": false
+    "allowUnusedLabels": false,
+
+    /* Strictness */
     // "exactOptionalPropertyTypes": true,
-    // "noImplicitOverride": true,
-    // "noImplicitReturns": true,
-    // "noUncheckedIndexedAccess": true,
-    // "noUnusedLocals": true,
-    // "noUnusedParameters": true,
-    // "noFallthroughCasesInSwitch": true
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
+    // "noPropertyAccessFromIndexSignature": true,
   },
   "types": ["vite/client"],
   "exclude": ["dist", "node_modules", "**/dist", "**/node_modules"],

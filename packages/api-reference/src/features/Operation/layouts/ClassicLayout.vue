@@ -18,6 +18,7 @@ import {
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
@@ -39,13 +40,17 @@ import type { Schemas } from '@/features/Operation/types/schemas'
 import { TestRequestButton } from '@/features/test-request-button'
 import { useConfig } from '@/hooks/useConfig'
 import { RequestExample } from '@/v2/blocks/scalar-request-example-block'
+import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
 const { operation, path, isWebhook } = defineProps<{
   id: string
   path: string
+  clientOptions: ClientOptionGroup[]
   method: HttpMethodType
   operation: Dereference<OperationObject>
   oldOperation: OpenAPIV3_1.OperationObject
+  parameters: ParameterObject[]
+  // pathServers: ServerObject[] | undefined
   isWebhook: boolean
   server: ServerObject | undefined
   securitySchemes: SecuritySchemeObject[]
@@ -136,9 +141,9 @@ const handleDiscriminatorChange = (type: string) => {
       <div class="operation-details-card">
         <div class="operation-details-card-item">
           <OperationParameters
-            :parameters="oldOperation.parameters"
             :requestBody="oldOperation.requestBody"
-            :schemas="schemas"
+            :parameters
+            :schemas
             @update:modelValue="handleDiscriminatorChange" />
         </div>
         <div class="operation-details-card-item">
@@ -176,6 +181,7 @@ const handleDiscriminatorChange = (type: string) => {
             class="operation-example-card"
             :method="method"
             :selectedServer="server"
+            :clientOptions="clientOptions"
             :selectedClient="store.workspace['x-scalar-default-client']"
             :securitySchemes="securitySchemes"
             :path="path"
@@ -203,6 +209,10 @@ const handleDiscriminatorChange = (type: string) => {
 
   min-width: 0;
   flex-shrink: 1;
+}
+.operation-details :deep(.endpoint-anchor .scalar-button svg) {
+  width: 16px;
+  height: 16px;
 }
 .endpoint-type {
   display: flex;
@@ -240,8 +250,6 @@ const handleDiscriminatorChange = (type: string) => {
   align-items: center;
   min-width: 0;
   flex-shrink: 1;
-
-  font-size: 20px;
 }
 .endpoint-anchor.label {
   display: flex;

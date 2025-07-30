@@ -41,6 +41,7 @@
     font-size: inherit;
     font-weight: inherit;
     font-style: inherit;
+    text-decoration: inherit;
     line-height: inherit;
     color: inherit;
     margin: unset;
@@ -120,26 +121,6 @@
   button,
   [role="button"] {
     cursor: pointer;
-  }
-
-  a {
-    --font-color: var(--scalar-link-color, var(--scalar-color-accent));
-    --font-visited: var(--scalar-link-color-visited, var(--scalar-color-2));
-
-    line-height: 1.625;
-    text-decoration: var(--scalar-text-decoration);
-    color: var(--font-color);
-    font-weight: var(--scalar-link-font-weight, var(--scalar-semibold));
-    text-underline-offset: 0.25rem;
-    text-decoration-thickness: 1px;
-    text-decoration-color: color-mix(in srgb, var(--font-color) 30%, transparent);
-  }
-
-  a:hover {
-    text-decoration-color: var(currentColor, var(--scalar-color-1));
-    color: var(--scalar-link-color-hover, var(--scalar-color-accent));
-    -webkit-text-decoration: var(--scalar-text-decoration-hover);
-    text-decoration: var(--scalar-text-decoration-hover);
   }
 
   /** Make sure disabled buttons don't get the pointer cursor. */

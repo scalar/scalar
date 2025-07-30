@@ -46,6 +46,7 @@ const onIdle = (cb: () => void) => {
 }
 
 const readyToRender = ref(!isLazy)
+lazyBus.emit({ loading: id })
 
 // Fire the event for non-lazy components as well to keep track of loading
 if (isLazy) {
@@ -53,11 +54,11 @@ if (isLazy) {
     readyToRender.value = true
 
     if (id) {
-      nextTick(() => lazyBus.emit({ id }))
+      nextTick(() => lazyBus.emit({ loaded: id }))
     }
   })
 } else if (id) {
-  nextTick(() => lazyBus.emit({ id }))
+  nextTick(() => lazyBus.emit({ loaded: id }))
 }
 </script>
 <template>

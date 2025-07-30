@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "projects/scalar-app"
   },
-  "version": "0.1.217",
+  "version": "0.1.218",
   "private": true,
   "engines": {
     "node": ">=20"
@@ -56,7 +56,7 @@
     "@vue/eslint-config-prettier": "^9.0.0",
     "@vue/eslint-config-typescript": "^14.1.3",
     "electron": "^37.1.0",
-    "electron-vite": "^2.3.0",
+    "electron-vite": "^3.1.0",
     "vite": "catalog:*",
     "vue": "catalog:*"
   }

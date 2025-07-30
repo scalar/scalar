@@ -85,7 +85,7 @@ export function generateClientMutators(store: WorkspaceStore) {
      * Falls back to the first document if no active document is set.
      */
     active: () =>
-      documentMutators(store.workspace['x-scalar-active-document'] ?? Object.keys(store.workspace.documents)[0]),
+      documentMutators(store.workspace['x-scalar-active-document'] ?? Object.keys(store.workspace.documents)[0] ?? ''),
     /**
      * Returns mutators for a specific document by name.
      *

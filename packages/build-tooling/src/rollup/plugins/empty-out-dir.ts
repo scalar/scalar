@@ -26,6 +26,8 @@ export function emptyOutDir({ dir }: { dir: string }): Plugin {
 
           return removePromise
         }
+
+        return undefined
       },
     },
   }

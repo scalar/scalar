@@ -2,11 +2,13 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { computed } from 'vue'
 
 import { Introduction } from '@/components/Content/Introduction'
 import { Models } from '@/components/Content/Models'
 import { SectionFlare } from '@/components/SectionFlare'
 import { useConfig } from '@/hooks/useConfig'
+import { generateClientOptions } from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
 
 import { TraversedEntryContainer } from './Operations'
 
@@ -17,6 +19,13 @@ defineProps<{
 }>()
 
 const config = useConfig()
+
+/**
+ * Generate all client options so that it can be shared between the top client picker and the operations
+ */
+const clientOptions = computed(() =>
+  generateClientOptions(config.value.hiddenClients),
+)
 </script>
 <template>
   <SectionFlare />
@@ -28,6 +37,8 @@ const config = useConfig()
     <Introduction
       v-if="document?.info?.title || document?.info?.description"
       :document
+      :store
+      :clientOptions
       :config />
 
     <!-- Empty State -->
@@ -39,6 +50,7 @@ const config = useConfig()
     <TraversedEntryContainer
       :document
       :config
+      :clientOptions
       :store />
 
     <!-- Models -->

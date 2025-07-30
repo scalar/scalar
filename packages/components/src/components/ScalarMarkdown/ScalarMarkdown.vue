@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { htmlFromMarkdown } from '@scalar/code-highlight'
 import { cx } from '@scalar/use-hooks/useBindCx'
-import { computed, onServerPrefetch } from 'vue'
+import { computed } from 'vue'
 
 const props = withDefaults(
   defineProps<{
@@ -59,9 +59,6 @@ const html = computed(() => {
     transformType: props.transformType,
   })
 })
-
-// SSR hack - waits for the watch to complete
-onServerPrefetch(async () => await new Promise((r) => setTimeout(r, 1)))
 </script>
 <template>
   <div
@@ -138,8 +135,8 @@ onServerPrefetch(async () => await new Promise((r) => setTimeout(r, 1)))
 
   .markdown p {
     color: inherit;
-    line-height: 22px;
     display: block;
+    line-height: var(--markdown-line-height);
   }
 
   /* Images */
@@ -158,7 +155,11 @@ onServerPrefetch(async () => await new Promise((r) => setTimeout(r, 1)))
   }
 
   .markdown ul:not(.contains-task-list) {
-    list-style-position: inside;
+    margin-left: 29px;
+  }
+
+  .markdown ul:not(.contains-task-list) li {
+    padding-left: calc(var(--markdown-spacing-md) / 2);
   }
 
   .markdown ul {
@@ -167,7 +168,6 @@ onServerPrefetch(async () => await new Promise((r) => setTimeout(r, 1)))
 
   .markdown li {
     line-height: var(--markdown-line-height);
-    position: relative;
   }
 
   .markdown ul li {
@@ -345,7 +345,7 @@ onServerPrefetch(async () => await new Promise((r) => setTimeout(r, 1)))
     border-radius: 2.5px;
     display: flex;
     align-items: flex-start;
-    gap: 10px;
+    gap: 8px;
     min-height: 40px;
     padding: 7px 14px;
     position: relative;
@@ -386,6 +386,7 @@ onServerPrefetch(async () => await new Promise((r) => setTimeout(r, 1)))
 
   .markdown details[open] > summary::before {
     transform: rotate(90deg);
+    transition: transform 0.1s ease-in-out;
   }
 
   .markdown details:has(+ details) {
@@ -491,7 +492,7 @@ onServerPrefetch(async () => await new Promise((r) => setTimeout(r, 1)))
     margin: 0;
     display: block;
     font-weight: var(--scalar-bold);
-    font-size: var(--scalar-heading-2);
+    font-size: var(--scalar-font-size-2);
   }
 
   /* Markdown Checklist */

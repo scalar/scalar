@@ -1,5 +1,14 @@
 # @scalar/types
 
+## 0.2.11
+
+### Patch Changes
+
+- ccf875a: feat: support x-scalar-credentials-location extension
+- 94d6d0c: fix: remove old ssr state and update nuxt for workspace store
+- Updated dependencies [ccf875a]
+  - @scalar/openapi-types@0.3.7
+
 ## 0.2.10
 
 ### Patch Changes

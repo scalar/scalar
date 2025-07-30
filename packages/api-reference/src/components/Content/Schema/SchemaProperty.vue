@@ -2,6 +2,7 @@
 import { ScalarMarkdown } from '@scalar/components'
 import { computed, inject, type Component } from 'vue'
 
+import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
 import type { Schemas } from '@/features/Operation/types/schemas'
 import { SpecificationExtension } from '@/features/specification-extension'
 import { DISCRIMINATOR_CONTEXT } from '@/hooks/useDiscriminator'
@@ -213,9 +214,7 @@ const shouldRenderObjectProperties = computed(() => {
   }
 
   const value = optimizedValue.value
-  const isObjectType =
-    value.type === 'object' ||
-    (Array.isArray(value.type) && value.type.includes('object'))
+  const isObjectType = isTypeObject(value)
 
   const hasPropertiesToRender = value.properties || value.additionalProperties
 

@@ -9,9 +9,12 @@ permissions:
 
 jobs:
   dependency-review:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     steps:
       - name: Checkout code
         uses: actions/checkout@09d2acae674a48949e3602304ab46fd20ae0c42f
       - name: Dependency Review
         uses: actions/dependency-review-action@da24556b548a50705dd671f47852072ea4c105d9
+        with:
+          # Defines the threshold for the level of severity.
+          fail-on-severity: high

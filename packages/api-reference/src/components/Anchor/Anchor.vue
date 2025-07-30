@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ScalarButton, useBindCx } from '@scalar/components'
+import { ScalarIconHash } from '@scalar/icons'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { useId } from 'vue'
 
@@ -12,6 +14,8 @@ const { id } = defineProps<{
 
 const labelId = useId()
 
+const { cx } = useBindCx()
+
 const { copyToClipboard } = useClipboard()
 const { getHashedUrl } = useNavState()
 
@@ -21,60 +25,25 @@ const handleCopy = () => {
 }
 </script>
 <template>
-  <span class="label">
+  <span v-bind="cx('group/heading word-break-all relative')">
     <span
       :id="labelId"
       class="contents">
       <slot />
     </span>
-    <span class="anchor">
+    <span class="relative">
       <!-- Position anchor to align the copy button to the last line of text  -->
       <span>&ZeroWidthSpace;</span>
-      <button
+      <ScalarButton
         :aria-describedby="labelId"
-        class="anchor-copy"
-        type="button"
+        class="absolute top-1/2 left-0 inline-block h-fit -translate-y-1/2 px-1.5 py-1 opacity-0 group-hover/heading:opacity-100 group-has-focus-visible/heading:opacity-100"
+        variant="ghost"
         @click.stop="handleCopy">
-        <span aria-hidden="true">#</span>
+        <ScalarIconHash
+          aria-hidden="true"
+          class="size-4.5" />
         <ScreenReader>Copy link</ScreenReader>
-      </button>
+      </ScalarButton>
     </span>
   </span>
 </template>
-<style scoped>
-.label {
-  position: relative;
-  display: inline-block;
-  word-break: break-all;
-}
-.anchor {
-  position: relative;
-  display: inline-block;
-  opacity: 0;
-}
-
-.anchor-copy {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-
-  cursor: pointer;
-
-  padding: 0 6px;
-
-  color: var(--scalar-color-3);
-  font-weight: var(--scalar-semibold);
-  font-size: 0.8em;
-}
-
-.anchor-copy:hover,
-.anchor-copy:focus-visible {
-  color: var(--scalar-color-2);
-}
-
-.label:hover .anchor,
-.label:has(:focus-visible) .anchor {
-  opacity: 1;
-}
-</style>

@@ -24,6 +24,9 @@ defineProps<{
       }}</span>
     </a>
     <template v-else>
+      <ScalarIconGavel
+        weight="bold"
+        class="size-3 text-current" />
       <span class="ml-1 empty:hidden">{{ value?.name }}</span>
     </template>
   </div>
