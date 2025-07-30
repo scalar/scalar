@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.AppHost" Version="9.4.0" />
     <PackageReference Include="Aspire.Hosting.Keycloak" Version="9.4.0-preview.1.25378.8" />
+    <PackageReference Include="Aspire.Hosting.Docker" Version="9.4.0-preview.1.25378.8" />
     <PackageReference Include="CommunityToolkit.Aspire.Hosting.NodeJS.Extensions" Version="9.6.0" />
   </ItemGroup>
 

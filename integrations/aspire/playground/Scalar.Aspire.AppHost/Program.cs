@@ -3,9 +3,9 @@ using Scalar.Aspire;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-var userService = builder
-    .AddPnpmApp("user-service", "../Scalar.Aspire.UserService")
-    .WithHttpEndpoint(env: "PORT");
+// var userService = builder
+//     .AddPnpmApp("user-service", "../Scalar.Aspire.UserService")
+//     .WithHttpEndpoint(env: "PORT");
 
 var bookService = builder.AddProject<Scalar_Aspire_BookService>("book-service");
 
@@ -22,12 +22,12 @@ var scalar = builder
 
 
 scalar
-    .WithApiReference(userService, options =>
-    {
-        options.WithTheme(ScalarTheme.Mars);
-        options.WithDefaultHttpClient(ScalarTarget.JavaScript, ScalarClient.Fetch);
-        options.AddDocument("external");
-    })
+    // .WithApiReference(userService, options =>
+    // {
+    //     options.WithTheme(ScalarTheme.Mars);
+    //     options.WithDefaultHttpClient(ScalarTarget.JavaScript, ScalarClient.Fetch);
+    //     options.AddDocument("external");
+    // })
     .WithApiReference(bookService, options =>
     {
         options
@@ -43,5 +43,7 @@ scalar
 
 
 bookService.WithEnvironment("Keycloak", keycloak.GetEndpoint("http"));
+
+builder.AddDockerComposeEnvironment("env");
 
 builder.Build().Run();
