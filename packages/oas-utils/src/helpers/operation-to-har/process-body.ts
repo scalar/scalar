@@ -1,5 +1,5 @@
 import type { OperationToHarProps } from './operation-to-har'
-import { schemaToExample } from './schema-to-example'
+import { getExampleFromSchema } from '@/spec-getters/get-example-from-schema'
 import { isReference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import type { Param, PostData } from 'har-format'
 
@@ -67,7 +67,7 @@ export const processBody = ({ operation, contentType, example }: ProcessBodyProp
   // Try to extract examples from the schema
   const contentSchema = content[_contentType]?.schema
   if (contentSchema) {
-    const extractedExample = schemaToExample(contentSchema)
+    const extractedExample = getExampleFromSchema(contentSchema)
 
     if (extractedExample !== undefined) {
       if (isFormData && typeof extractedExample === 'object' && extractedExample !== null) {

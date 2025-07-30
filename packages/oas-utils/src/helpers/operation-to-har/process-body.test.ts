@@ -307,7 +307,9 @@ describe('processBody', () => {
       mimeType: 'application/json',
       text: JSON.stringify({
         name: 'Alice',
+        age: 1,
         email: 'alice@example.com',
+        address: '',
       }),
     })
   })
@@ -342,7 +344,7 @@ describe('processBody', () => {
     const result = processBody({ operation })
 
     expect(result).toEqual({
-      mimeType: undefined,
+      mimeType: '',
       text: 'null',
     })
   })
@@ -356,7 +358,7 @@ describe('processBody', () => {
     const result = processBody({ operation })
 
     expect(result).toEqual({
-      mimeType: undefined,
+      mimeType: '',
       text: 'null',
     })
   })
@@ -382,7 +384,10 @@ describe('processBody', () => {
 
     expect(result).toEqual({
       mimeType: 'application/json',
-      text: 'null',
+      text: JSON.stringify({
+        name: '',
+        age: 1,
+      }),
     })
   })
 
@@ -626,7 +631,12 @@ describe('processBody', () => {
 
       expect(result).toEqual({
         mimeType: 'multipart/form-data',
-        text: 'null',
+        params: [
+          {
+            name: 'name',
+            value: '',
+          },
+        ],
       })
     })
 
@@ -698,7 +708,7 @@ describe('processBody', () => {
 
       expect(result).toEqual({
         mimeType: 'multipart/form-data',
-        text: 'null',
+        params: [],
       })
     })
 
@@ -1053,7 +1063,7 @@ describe('processBody', () => {
 
       expect(result).toEqual({
         mimeType: 'application/x-www-form-urlencoded',
-        text: 'null',
+        params: [],
       })
     })
 
@@ -1085,7 +1095,9 @@ describe('processBody', () => {
         mimeType: 'application/x-www-form-urlencoded',
         params: [
           { name: 'name', value: 'John' },
+          { name: 'age', value: '1' },
           { name: 'email', value: 'john@example.com' },
+          { name: 'address', value: '' },
         ],
       })
     })
