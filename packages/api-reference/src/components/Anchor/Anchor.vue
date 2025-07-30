@@ -36,7 +36,7 @@ const handleCopy = () => {
       <span>&ZeroWidthSpace;</span>
       <ScalarButton
         :aria-describedby="labelId"
-        class="absolute top-1 left-0 inline-block h-fit px-1.5 py-1 opacity-0 group-hover/heading:opacity-100 group-has-focus-visible/heading:opacity-100"
+        class="absolute top-1/2 left-0 inline-block h-fit -translate-y-1/2 px-1.5 py-1 opacity-0 group-hover/heading:opacity-100 group-has-focus-visible/heading:opacity-100"
         variant="ghost"
         @click.stop="handleCopy">
         <ScalarIconHash

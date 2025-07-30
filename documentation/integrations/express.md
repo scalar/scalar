@@ -60,6 +60,38 @@ app.use(
 )
 ```
 
+## Usage with Express Zod API
+
+The wonderful `express-zod-api` package makes it easy to generate an OpenAPI document for your Express API.
+
+To render a beautiful UI using [Scalar](https://github.com/scalar/scalar), you just need to install our integration:
+
+```bash
+npm install @scalar/express-api-reference
+```
+
+And then hook into Express and pass the `apiReference` middleware with the OpenAPI document:
+
+```typescript
+import { createConfig } from 'express-zod-api'
+import { apiReference } from '@scalar/express-api-reference'
+
+const config = createConfig({
+  beforeRouting: ({ app, getLogger }) => {
+    const logger = getLogger()
+    logger.info('Serving the API reference at https://example.com/docs')
+
+    app.use(
+      '/docs',
+      apiReference({
+        // Pass your generated OpenAPI document
+        content: documentation.getSpecAsJson(),
+      }),
+    )
+  },
+})
+```
+
 ## Community
 
 We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>

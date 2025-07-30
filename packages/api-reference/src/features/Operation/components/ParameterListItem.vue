@@ -74,12 +74,12 @@ const shouldShowParameter = computed(() => {
         v-if="shouldCollapse"
         class="parameter-item-trigger"
         :class="{ 'parameter-item-trigger-open': open }">
-        <ScalarIconCaretRight
-          weight="bold"
-          class="parameter-item-icon size-3 transition-transform duration-100"
-          :class="{ 'rotate-90': open }" />
         <span class="parameter-item-name">
-          {{ parameter.name }}
+          <ScalarIconCaretRight
+            weight="bold"
+            class="parameter-item-icon size-3 transition-transform duration-100"
+            :class="{ 'rotate-90': open }" />
+          <span>{{ parameter.name }}</span>
         </span>
         <span class="parameter-item-type">
           <ScalarMarkdown
@@ -119,7 +119,7 @@ const shouldShowParameter = computed(() => {
       </DisclosurePanel>
     </Disclosure>
     <div
-      class="absolute top-2.5 right-0 opacity-0 group-focus-within/parameter-item:opacity-100 group-hover/parameter-item:opacity-100">
+      class="absolute top-3 right-0 opacity-0 group-focus-within/parameter-item:opacity-100 group-hover/parameter-item:opacity-100">
       <ContentTypeSelect
         v-if="shouldCollapse && props.parameter.content"
         class="parameter-item-content-type"
@@ -157,6 +157,8 @@ const shouldShowParameter = computed(() => {
   font-size: var(--scalar-font-size-3);
   font-family: var(--scalar-font-code);
   color: var(--scalar-color-1);
+
+  position: relative;
 }
 
 .parameter-item-type {
@@ -216,12 +218,11 @@ const shouldShowParameter = computed(() => {
 
 .parameter-item-trigger {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   padding: 12px 0;
   cursor: pointer;
   outline: none;
   text-align: left;
-  position: relative;
 }
 
 .parameter-item-trigger-open {
@@ -239,6 +240,8 @@ const shouldShowParameter = computed(() => {
 .parameter-item-icon {
   color: var(--scalar-color-3);
   left: -19px;
+  top: 50%;
+  translate: 0 -50%;
   position: absolute;
 }
 

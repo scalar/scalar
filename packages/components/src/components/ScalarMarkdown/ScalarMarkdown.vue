@@ -135,8 +135,8 @@ const html = computed(() => {
 
   .markdown p {
     color: inherit;
-    line-height: 22px;
     display: block;
+    line-height: var(--markdown-line-height);
   }
 
   /* Images */
@@ -492,7 +492,7 @@ const html = computed(() => {
     margin: 0;
     display: block;
     font-weight: var(--scalar-bold);
-    font-size: var(--scalar-heading-2);
+    font-size: var(--scalar-font-size-2);
   }
 
   /* Markdown Checklist */

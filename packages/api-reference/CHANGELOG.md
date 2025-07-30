@@ -1,5 +1,75 @@
 # @scalar/api-reference
 
+## 1.33.0
+
+### Minor Changes
+
+- 2e2f50a: refactor: new main content rendering
+
+### Patch Changes
+
+- 14a737c: feat: add a max height to the operation list
+- 628d44c: fix: ensure intersection observer is enabled when no hash.value
+- 092626d: fix: the order of the client libraries
+- 9c157f1: fix: misalignments in sidebar element icon and title
+- ce9b7ff: fix: increases download link stackking to preserve clickability
+- f65f1fc: feat: updates content type select style and position
+- 4ea9dab: feat: Make the min & max descriptions more descriptive for strings
+- 8d24b91: fix: updates schema enum property style handling
+- 7031d9c: fix(api-reference): reference theme and style fixes
+- 1913f97: feat: merge schema root properties into composition schemas
+- 0f41af6: fix: show anyOf schema when only one item with no type
+- 956a2d1: feat: updates heading anchor style to use latest icons
+- 7ee81f4: fix: can not render operation without responses
+- 94d6d0c: fix: remove old ssr state and update nuxt for workspace store
+- d29c455: fix: select shell/curl as default client lib
+- 319fb56: fix(api-reference): center show schema checkmark
+- 24c9d4c: feat: convert links list to icons only if it needs to scroll
+- c0d6793: feat: ensure we use the path routing base path for relative document url resolution
+- 6953c9f: fix: updates example response schema checkbox style
+- 72924f6: fix: linking to models from search
+- 6f12d2e: fix: hiddenClients config option
+- 8795629: fix: classic layout intersection observer
+- 515162c: fix: adds replaceDocument to createMockStore
+- f3d0216: feat: lazy loading v1.5
+- 7555e44: feat(api-reference): add combobox to client libraries card
+- af22451: feat: increases caret icon usage and style concistency amongst reference and client
+- a5534e6: fix: show path parameters on operation
+- 6b6c72c: fix: hiddenClients: true and move clients to workspace store
+- Updated dependencies [ccf875a]
+- Updated dependencies [fbef7e1]
+- Updated dependencies [f913898]
+- Updated dependencies [9924c47]
+- Updated dependencies [cf5d6a2]
+- Updated dependencies [d4cb86b]
+- Updated dependencies [94d6d0c]
+- Updated dependencies [c345d2c]
+- Updated dependencies [8c731b9]
+- Updated dependencies [952f471]
+- Updated dependencies [a0c92d9]
+- Updated dependencies [1af32c0]
+- Updated dependencies [8c731b9]
+- Updated dependencies [c0d6793]
+- Updated dependencies [77e700b]
+- Updated dependencies [b957a2c]
+- Updated dependencies [3c1e3e3]
+- Updated dependencies [f3d0216]
+- Updated dependencies [af22451]
+- Updated dependencies [a5534e6]
+- Updated dependencies [6b6c72c]
+  - @scalar/openapi-types@0.3.7
+  - @scalar/api-client@2.5.20
+  - @scalar/types@0.2.11
+  - @scalar/components@0.14.21
+  - @scalar/workspace-store@0.11.0
+  - @scalar/code-highlight@0.1.9
+  - @scalar/oas-utils@0.4.16
+  - @scalar/openapi-parser@0.18.3
+  - @scalar/themes@0.13.12
+  - @scalar/helpers@0.0.7
+  - @scalar/snippetz@0.4.4
+  - @scalar/object-utils@1.2.3
+
 ## 1.32.10
 
 ### Patch Changes

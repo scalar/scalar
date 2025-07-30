@@ -99,7 +99,9 @@ const modelName = computed(() => {
       Discriminator
     </div>
     <template v-if="value">
-      <SchemaPropertyDetail v-if="value?.type">
+      <SchemaPropertyDetail
+        v-if="value?.type"
+        truncate>
         <ScreenReader>Type: </ScreenReader>
         <template v-if="modelName">{{ modelName }}</template>
         <template v-else>

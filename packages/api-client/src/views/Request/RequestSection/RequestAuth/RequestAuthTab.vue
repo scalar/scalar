@@ -165,17 +165,26 @@ const dataTableInputProps = {
   <template
     v-for="{ scheme } in security"
     :key="scheme?.uid">
-    <!-- Header/Description -->
-    <DataTableRow
-      v-if="
-        security.length > 1 || (scheme?.description && security.length <= 1)
-      ">
+    <!-- Header -->
+    <DataTableRow v-if="security.length > 1 && scheme">
       <DataTableCell
-        :aria-label="generateLabel(scheme!) || scheme?.description"
+        :aria-label="generateLabel(scheme)"
+        class="text-c-2 group/auth flex items-center leading-[22px] whitespace-nowrap outline-none hover:whitespace-normal">
+        <p
+          class="bg-b-1 text-c-2 outline-b-3 top-0 z-1 h-full w-full overflow-hidden px-3 py-1.25 text-ellipsis group-hover/auth:absolute group-hover/auth:h-auto group-hover/auth:border-b *:first:line-clamp-1 *:first:text-ellipsis group-hover/auth:*:first:line-clamp-none">
+          {{ generateLabel(scheme) }}
+        </p>
+      </DataTableCell>
+    </DataTableRow>
+
+    <!-- Description -->
+    <DataTableRow v-if="scheme?.description && security.length <= 1">
+      <DataTableCell
+        :aria-label="scheme.description"
         class="text-c-2 group/auth auth-description-container flex items-center whitespace-nowrap outline-none hover:whitespace-normal">
         <ScalarMarkdown
           class="auth-description bg-b-1 text-c-2 outline-b-3 top-0 z-1 h-full w-full px-3 py-1.25 group-hover/auth:absolute group-hover/auth:h-auto group-hover/auth:border-b *:first:line-clamp-1 *:first:text-ellipsis group-hover/auth:*:first:line-clamp-none"
-          :value="generateLabel(scheme!) || scheme?.description || ''" />
+          :value="scheme.description" />
       </DataTableCell>
     </DataTableRow>
 
@@ -200,9 +209,6 @@ const dataTableInputProps = {
           <RequestAuthDataTableInput
             v-bind="dataTableInputProps"
             class="text-c-2"
-            :containerClass="
-              layout === 'reference' && 'auth-blend-required border-t'
-            "
             :modelValue="scheme.username"
             placeholder="janedoe"
             required
@@ -298,12 +304,3 @@ const dataTableInputProps = {
     </template>
   </template>
 </template>
-
-<style scoped>
-.auth-blend-required :deep(.scalar-input-required),
-.auth-blend-required :deep(.required) {
-  background: var(--scalar-background-2);
-  --tw-bg-base: var(--scalar-background-2);
-  --tw-shadow: -8px 0 4px var(--scalar-background-2);
-}
-</style>

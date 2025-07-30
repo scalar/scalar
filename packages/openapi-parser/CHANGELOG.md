@@ -1,5 +1,13 @@
 # @scalar/openapi-parser
 
+## 0.18.3
+
+### Patch Changes
+
+- c345d2c: fix: added dependency on @scalar/openapi-types
+- Updated dependencies [ccf875a]
+  - @scalar/openapi-types@0.3.7
+
 ## 0.18.2
 
 ### Patch Changes
