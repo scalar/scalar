@@ -1,6 +1,4 @@
-import type { Schemas } from '@/features/Operation/types/schemas'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { stringify } from 'flatted'
 
 /**
  * Extract schema name from various schema formats
@@ -34,35 +32,6 @@ export function getModelNameFromSchema(schema: OpenAPIV3_1.SchemaObject): string
 }
 
 /**
- * Find schema name by matching against component schemas
- */
-export function getSchemaNameFromSchemas(schema: OpenAPIV3_1.SchemaObject, schemas?: Schemas): string | null {
-  // We only want to use this strategy for arrays or objects
-  if (!schema || !schemas || typeof schemas !== 'object' || (schema.type !== 'array' && schema.type !== 'object')) {
-    return null
-  }
-
-  for (const [schemaName, schemaValue] of Object.entries(schemas)) {
-    if (schemaValue.type === schema.type) {
-      if (schema.type === 'array' && schemaValue.items?.type === schema.items?.type) {
-        return schemaName
-      }
-
-      if (
-        schema.type === 'object' &&
-        schemaValue.properties &&
-        schema.properties &&
-        stringify(schemaValue.properties) === stringify(schema.properties)
-      ) {
-        return schemaName
-      }
-    }
-  }
-
-  return null
-}
-
-/**
  * Format the type and model name for display
  */
 export function formatTypeWithModel(type: string, modelName: string): string {
@@ -73,12 +42,7 @@ export function formatTypeWithModel(type: string, modelName: string): string {
  * Get the model name for a schema property
  * e.g. User | Admin | array of User | array of Admin
  */
-export function getModelName(
-  value: Record<string, any>,
-  schemas?: Schemas,
-  hideModelNames = false,
-  getDiscriminatorSchemaName?: (schema: any, schemas?: Schemas) => string | null,
-): string | null {
+export function getModelName(value: Record<string, any>, hideModelNames = false): string | null {
   if (!value?.type) {
     return null
   }
@@ -95,14 +59,6 @@ export function getModelName(
 
   // Handle array types with item references only if no full schema match was found
   if (value.type === 'array' && value.items) {
-    // Check if items reference a discriminator schema
-    if (getDiscriminatorSchemaName) {
-      const baseSchemaName = getDiscriminatorSchemaName(value.items, schemas)
-      if (baseSchemaName) {
-        return formatTypeWithModel(value.type, baseSchemaName)
-      }
-    }
-
     // Handle title/name
     if (value.items.title || value.items.name) {
       return formatTypeWithModel(value.type, value.items.title || value.items.name)
@@ -129,60 +85,4 @@ export function getModelName(
   }
 
   return null
-}
-
-/**
- * Check if a schema has a name (title, name, or custom identifier)
- */
-export function hasName(name: string | null): boolean {
-  if (!name) {
-    return false
-  }
-
-  // Exclude composition keywords
-  const compositionKeywords = ['anyOf', 'oneOf', 'allOf']
-  if (compositionKeywords.includes(name)) {
-    return false
-  }
-
-  // Consider has having a name if it:
-  // - Has capital letters (PascalCase, camelCase)
-  // - Contains spaces (like "User Profile")
-  // - Has numbers with letters (like "foo (1)")
-  return /[A-Z]/.test(name) || /\s/.test(name) || /\(\d+\)/.test(name)
-}
-
-/**
- * Choose the schemas to display in composition panel
- */
-export function getCompositionDisplay(
-  baseSchemas: OpenAPIV3_1.SchemaObject[],
-  compositionSchemas: OpenAPIV3_1.SchemaObject[],
-  _schemas?: Schemas,
-): OpenAPIV3_1.SchemaObject[] {
-  // If base schemas have $ref, always use them to preserve $ref information
-  if (baseSchemas.some((schema) => '$ref' in schema)) {
-    return baseSchemas
-  }
-
-  // Check if base schemas have names
-  const baseNames = baseSchemas.map((schema) => getModelNameFromSchema(schema))
-  const baseHasName = baseNames.some((name) => hasName(name))
-
-  // If base schemas have names, use them
-  if (baseHasName) {
-    return baseSchemas
-  }
-
-  // Check if composition schemas have names
-  const compositionNames = compositionSchemas.map((schema) => getModelNameFromSchema(schema))
-  const compositionHasName = compositionNames.some((name) => hasName(name))
-
-  // If composition schemas have names but original don't, use composition
-  if (compositionHasName) {
-    return compositionSchemas
-  }
-
-  // Default to base schemas
-  return baseSchemas
 }
