@@ -57,7 +57,7 @@ vi.mock('@scalar/api-client/store', () => ({
   }),
 }))
 
-describe('TraversedEntry', () => {
+describe('TraversedEntry', async () => {
   const mockDocument: OpenAPIV3_1.Document = {
     openapi: '3.1.0',
     info: {
@@ -142,15 +142,14 @@ describe('TraversedEntry', () => {
 
   // Mock WorkspaceStore with documents
   const mockStore = createWorkspaceStore({
-    documents: [
-      {
-        name: 'default',
-        document: mockDocument,
-      },
-    ],
     meta: {
       'x-scalar-active-document': 'default',
     },
+  })
+
+  await mockStore.addDocument({
+    name: 'default',
+    document: mockDocument,
   })
 
   const createMockOperation = (overrides: Partial<TraversedOperation> = {}): TraversedOperation => ({
