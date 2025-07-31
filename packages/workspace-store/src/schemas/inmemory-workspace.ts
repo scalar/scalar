@@ -1,3 +1,4 @@
+import { PartialDeep } from '@/schemas/typebox-types'
 import { WorkspaceDocumentSchema, WorkspaceMetaSchema } from '@/schemas/workspace'
 import { ConfigSchema } from '@/schemas/workspace-specification/config'
 import { Type, type Static } from '@sinclair/typebox'
@@ -8,6 +9,7 @@ export const InMemoryWorkspaceSchema = Type.Object({
   documents: Type.Record(Type.String(), WorkspaceDocumentSchema),
   originalDocuments: Type.Record(Type.String(), WorkspaceDocumentSchema),
   intermediateDocuments: Type.Record(Type.String(), WorkspaceDocumentSchema),
+  overrides: Type.Record(Type.String(), PartialDeep(WorkspaceDocumentSchema)),
 })
 
 export type InMemoryWorkspace = Static<typeof InMemoryWorkspaceSchema>

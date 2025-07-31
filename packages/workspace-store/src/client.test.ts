@@ -958,6 +958,7 @@ describe('create-workspace-store', () => {
               'paths': { '/users': { 'get': { 'description': 'Get all users' } } },
             },
           },
+          overrides: { default: {}, 'pet-store': {} },
         }),
       )
     })
@@ -1124,7 +1125,7 @@ describe('create-workspace-store', () => {
       expect(defaultDocument.openapi).toBe('3.1.1')
     })
 
-    it('writes back the overrides to the intermediate object', async () => {
+    it('does not write back the overrides to the intermediate object', async () => {
       const store = createWorkspaceStore({
         documents: [
           {
@@ -1155,7 +1156,7 @@ describe('create-workspace-store', () => {
 
       store.saveDocument('default')
       expect(store.exportDocument('default', 'json')).toBe(
-        '{"openapi":"3.1.1","info":{"title":"Edited title","version":"2.0.0"}}',
+        '{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"}}',
       )
     })
 
@@ -1200,6 +1201,7 @@ describe('create-workspace-store', () => {
       expect(newStore.workspace.documents['default']?.openapi).toBe('3.1.1')
     })
 
+    // TODO: check how we can revert changes made to the overrides
     it('should revert the changes made to the overrides', async () => {
       const store = createWorkspaceStore({
         documents: [
@@ -1273,7 +1275,7 @@ describe('create-workspace-store', () => {
       })
 
       expect(store.exportWorkspace()).toBe(
-        '{"documents":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}},"x-scalar-navigation":[{"id":"Get all users","title":"Get all users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation"},{"id":"","title":"Models","children":[{"id":"User","title":"User","name":"User","ref":"#/content/components/schemas/User","type":"model"}],"type":"text"}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}}}',
+        '{"documents":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}},"x-scalar-navigation":[{"id":"Get all users","title":"Get all users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation"},{"id":"","title":"Models","children":[{"id":"User","title":"User","name":"User","ref":"#/content/components/schemas/User","type":"model"}],"type":"text"}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}},"overrides":{"default":{}}}',
       )
     })
 
