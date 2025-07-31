@@ -793,7 +793,7 @@ Configuration for path-based routing instead of hash-based routing. Your server 
 ```js
 {
   pathRouting: {
-    basePath: '/standalone-api-reference/:custom(.*)?'
+    basePath: '/standalone-api-reference'
   }
 }
 ```
