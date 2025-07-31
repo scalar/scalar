@@ -45,8 +45,11 @@ export async function serveExample(givenConfiguration?: Partial<HtmlRenderingCon
      */
     const app = new Hono()
 
+    // Serve the JS bundle
+    app.get('/scalar.js', (c) => c.text(readFileSync(pathToJavaScriptBundle, 'utf8')))
+
     // Serve static files from the current directory
-    app.get('/', (c) => {
+    app.get('*', (c) => {
       // Configuration from query parameter or default configuration
       const configuration: Partial<HtmlRenderingConfiguration> =
         givenConfiguration && Object.keys(givenConfiguration ?? {}).length > 0
@@ -64,8 +67,6 @@ export async function serveExample(givenConfiguration?: Partial<HtmlRenderingCon
 
       return c.html(getHtmlDocument(configuration))
     })
-
-    app.get('/scalar.js', (c) => c.text(readFileSync(pathToJavaScriptBundle, 'utf8')))
 
     /**
      * Start the server on the specified port.
