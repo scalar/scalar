@@ -98,6 +98,10 @@ const selectedSecuritySchemes = computed(() =>
 </script>
 
 <template>
+  {{
+    operation?.requestBody?.content?.['application/json']?.schema.oneOf[0]
+      .properties.satellites.items['x-original-ref']
+  }}
   <template v-if="operation && oldOperation">
     <template v-if="layout === 'classic'">
       <ClassicLayout

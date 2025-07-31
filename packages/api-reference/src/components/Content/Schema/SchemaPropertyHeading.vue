@@ -1,11 +1,10 @@
 <script lang="ts" setup>
 import { isDefined } from '@scalar/helpers/array/is-defined'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 import { computed } from 'vue'
 
 import { Badge } from '@/components/Badge'
 import ScreenReader from '@/components/ScreenReader.vue'
-import type { Schemas } from '@/features/Operation/types/schemas'
-import { getDiscriminatorSchemaName } from '@/hooks/useDiscriminator'
 
 import { getSchemaType } from './helpers/get-schema-type'
 import { getModelName } from './helpers/schema-name'
@@ -15,21 +14,19 @@ import SchemaPropertyExamples from './SchemaPropertyExamples.vue'
 
 const {
   value,
-  schemas,
   required = false,
   withExamples = true,
   hideModelNames = false,
 } = defineProps<{
-  value?: Record<string, any>
+  value?: SchemaObject
   enum?: boolean
   required?: boolean
   additional?: boolean
   withExamples?: boolean
   hideModelNames?: boolean
-  schemas?: Schemas
 }>()
 
-const flattenDefaultValue = (value: Record<string, any>) => {
+const flattenDefaultValue = (value: SchemaObject) => {
   if (value?.default === null) {
     return 'null'
   }
@@ -77,12 +74,7 @@ const modelName = computed(() => {
     return null
   }
 
-  return getModelName(
-    value,
-    schemas,
-    hideModelNames,
-    getDiscriminatorSchemaName,
-  )
+  return getModelName(value, hideModelNames)
 })
 </script>
 <template>
