@@ -196,7 +196,7 @@ const store = createWorkspaceStore({
 })
 
 // Add another OpenAPI document to the workspace
-store.addDocumentSync({
+await store.addDocument({
   document: {
     info: {
       title: 'OpenApi document',
@@ -261,7 +261,7 @@ const store = createWorkspaceStore({
 You can override specific document configuration when you add the document to the store
 
 ```ts
-store.addDocumentSync({
+await store.addDocument({
   name: 'example',
   document: {
     openapi: '3.0.0',

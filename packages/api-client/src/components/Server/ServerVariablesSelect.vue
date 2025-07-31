@@ -32,7 +32,7 @@ const selected = computed<ScalarListboxOption | undefined>({
     :options="options">
     <ScalarButton
       :aria-controls="controls"
-      class="h-8 gap-1.5 p-1.5 text-base font-normal"
+      class="group/button h-8 gap-1.5 p-1.5 text-base font-normal"
       variant="ghost">
       <span :class="{ 'text-c-1': value }">
         <span
@@ -44,7 +44,7 @@ const selected = computed<ScalarListboxOption | undefined>({
       </span>
       <ScalarIconCaretDown
         weight="bold"
-        class="ui-open:rotate-180 mt-0.25 size-3 transition-transform duration-100" />
+        class="mt-0.25 size-3 transition-transform duration-100 group-aria-expanded/button:rotate-180" />
     </ScalarButton>
   </ScalarListbox>
 </template>
