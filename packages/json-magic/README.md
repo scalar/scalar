@@ -227,6 +227,26 @@ const result = await bundle(
 console.log(result)
 ```
 
+#### Bundler Options
+
+##### depth
+
+The `depth` option controls how deeply the bundler will resolve `$ref` references. When you set `depth` to a number, the bundler will only follow references up to that level of nesting. This is useful for creating partial bundles or limiting resource usage.
+
+**Note:** When using `depth`, the resulting bundle may not be fully self-contained—some nested references deeper than the specified depth may remain unresolved. If you use `depth` together with the `visitedNodes` option, be aware that parent nodes may be marked as visited even if their child references have not been fully resolved yet. Use this option with care if you require a complete bundle.
+
+```ts
+import { bundle } from '@scalar/openapi-parser'
+import { fetchUrls } from '@scalar/openapi-parser/plugins-browser'
+
+await bundle(input, {
+  plugins: [fetchUrls()],
+  treeShake: false,
+  depth: 2,
+})
+```
+
+
 ## dereference
 
 Dereference all `$ref` pointers in a JSON object, resolving both internal and external references.
