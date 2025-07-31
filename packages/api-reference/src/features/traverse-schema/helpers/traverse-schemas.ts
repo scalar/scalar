@@ -1,7 +1,7 @@
 import { getTag } from '@/features/traverse-schema/helpers/get-tag'
 import type { TagsMap, TraversedSchema } from '@/features/traverse-schema/types'
 import type { UseNavState } from '@/hooks/useNavState'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 import type { TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/tag'
 import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
@@ -32,7 +32,7 @@ const createSchemaEntry = (
 
 /** Traverse components.schemas to create entries for models */
 export const traverseSchemas = (
-  content: OpenAPIV3_1.Document,
+  content: OpenApiDocument,
   tagsMap: TagsMap,
   /** Map of titles for the mobile header */
   titlesMap: Map<string, string>,
@@ -51,20 +51,12 @@ export const traverseSchemas = (
       schemas[name]['x-tags'].forEach((tagName: string) => {
         const { tag } = getTag(tagsMap, tagName)
 
-        if (typeof schemas[name] === 'object' && schemas[name] !== null) {
-          return
-        }
-
         tagsMap.get(tagName)?.entries.push(createSchemaEntry(schemas[name], name, titlesMap, getModelId, tag))
       })
     }
     // Add to untagged
     else {
-      if (typeof schemas[name] === 'object' && schemas[name] !== null) {
-        //
-      } else {
-        untagged.push(createSchemaEntry(schemas[name], name, titlesMap, getModelId))
-      }
+      untagged.push(createSchemaEntry(schemas[name], name, titlesMap, getModelId))
     }
   }
 

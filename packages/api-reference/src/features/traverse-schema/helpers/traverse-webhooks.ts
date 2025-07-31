@@ -42,7 +42,10 @@ export const traverseWebhooks = (
 
   // Traverse webhooks
   Object.entries(content.webhooks ?? {}).forEach(([name, pathItemObject]) => {
-    const pathEntries = Object.entries(pathItemObject ?? {}) as [OpenAPIV3_1.HttpMethods, OpenAPIV3_1.OperationObject][]
+    const pathEntries = Object.entries(pathItemObject ?? {}) as [
+      OpenAPIV3_1.HttpMethods,
+      Dereference<OperationObject>,
+    ][]
 
     pathEntries.forEach(([method, operation]) => {
       // Skip if the operation is internal or scalar-ignore
@@ -54,19 +57,11 @@ export const traverseWebhooks = (
         operation.tags.forEach((tagName: string) => {
           const { tag } = getTag(tagsMap, tagName)
 
-          if (typeof operation === 'object' && operation !== null) {
-            return
-          }
-
           tagsMap.get(tagName)?.entries.push(createWebhookEntry(operation, method, name, titlesMap, getWebhookId, tag))
         })
       }
       // Add to untagged
       else {
-        if (typeof operation === 'object' && operation !== null) {
-          return
-        }
-
         untagged.push(createWebhookEntry(operation, method, name, titlesMap, getWebhookId))
       }
     })
