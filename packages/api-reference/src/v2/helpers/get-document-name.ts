@@ -37,7 +37,7 @@ export const getDocumentName = (
   // If we cannot resolve a name, we iterate over the documens in case of a conflict
   if (documents) {
     const names = Object.keys(documents)
-    return iterateTitle('OpenAPI Document #1', (t) => names.some((name) => name === t))
+    return iterateTitle('API #1', (t) => names.some((name) => name === t))
   }
 
   // Otherwise we just default
