@@ -718,11 +718,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       const originalDocument = originalDocuments[documentName]
       const intermediateDocument = intermediateDocuments[documentName]
-      const activeDocument = getRaw(workspace.documents[documentName]!) // raw version without any overrides
+      const activeDocument = workspace.documents[documentName] ? getRaw(workspace.documents[documentName]) : undefined // raw version without any overrides
 
       if (!originalDocument || !intermediateDocument || !activeDocument) {
         // If any required document state is missing, do nothing
-        return
+        return console.error('[ERROR]: Specified document is missing or internal corrupted workspace state')
       }
 
       // ---- Get the new intermediate document
@@ -755,13 +755,13 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // TODO: In the future, implement smarter conflict resolution if needed
       const changesetB = changesB.diffs.concat(changesB.conflicts.flatMap((it) => it[0]))
 
-      const newActiveDocument = apply(deepClone(newIntermediateDocument), changesetB)
+      const newActiveDocument = apply(deepClone(newIntermediateDocument), changesetB) as typeof newIntermediateDocument
 
       // Update the active document to the new value
       workspace.documents[documentName] = createOverridesProxy(
         createMagicProxy({ ...newActiveDocument }),
         overrides[documentName],
-      ) as (typeof workspace.documents)[number]
+      )
       return
     },
   }

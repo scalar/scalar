@@ -1787,5 +1787,20 @@ describe('create-workspace-store', () => {
       // should override conflicts to the active document on rebase to the one from original
       expect(store.workspace.activeDocument?.info.version).toBe('1.0.1')
     })
+
+    it('should log the error if the document we try to rebase does not exists', async () => {
+      consoleErrorSpy.mockReset()
+
+      const store = createWorkspaceStore()
+      store.rebaseDocument('some-document', {
+        openapi: '3.1.1',
+        info: { title: 'API', description: 'My beautiful API' },
+      })
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        '[ERROR]: Specified document is missing or internal corrupted workspace state',
+      )
+      expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
+    })
   })
 })
