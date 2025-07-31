@@ -32,6 +32,12 @@ public abstract class ScalarOptions
     public bool ShowSidebar { get; set; } = true;
 
     /// <summary>
+    /// Gets or sets whether the sidebar links display text should use the method summary (<c>false</c>) or the method path (<c>true</c>).
+    /// </summary>
+    /// <value>The default value is <c>false</c>.</value>
+    public bool SidebarUsePath { get; set; }
+
+    /// <summary>
     /// Gets or sets whether models (components.schemas or definitions) should be hidden from the sidebar, search, and content.
     /// </summary>
     /// <value>The default value is <c>false</c>.</value>

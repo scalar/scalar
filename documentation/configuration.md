@@ -302,6 +302,16 @@ Whether the sidebar should be shown.
 }
 ```
 
+### sidebarUsePath?: boolean
+
+Whether the sidebar display text should use the method path instead of the method summary.
+
+```js
+{
+  sidebarUsePath: true
+}
+```
+
 ### hideModels?: boolean
 
 Whether models (`components.schemas` or `definitions`) should be shown in the sidebar, search and content.

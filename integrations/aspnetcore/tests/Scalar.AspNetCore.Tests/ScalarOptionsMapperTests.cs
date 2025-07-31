@@ -14,6 +14,7 @@ public class ScalarOptionsMapperTests
         // Assert
         configuration.ProxyUrl.Should().BeNull();
         configuration.ShowSidebar.Should().BeTrue();
+        configuration.SidebarUsePath.Should().BeFalse();
         configuration.HideModels.Should().BeFalse();
         configuration.DocumentDownloadType.Should().BeNull();
         configuration.HideTestRequestButton.Should().BeFalse();

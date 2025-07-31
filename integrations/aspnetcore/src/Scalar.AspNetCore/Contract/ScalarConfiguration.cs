@@ -12,6 +12,8 @@ internal sealed class ScalarConfiguration
 
     public required bool? ShowSidebar { get; init; }
 
+    public required bool? SidebarUsePath { get; init; }
+
     public required bool? HideModels { get; init; }
 
     public required bool? HideTestRequestButton { get; init; }

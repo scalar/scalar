@@ -207,6 +207,11 @@ export const apiClientConfigurationSchema = z.object({
    * @default true
    */
   showSidebar: z.boolean().optional().default(true).catch(true),
+  /**
+   * Whether to show the path instead of summary for the sidebar links display text
+   * @default false
+   */
+  sidebarUsePath: z.boolean().optional().default(false).catch(false),
   /** A string to use one of the color presets */
   theme: themeIdEnum.optional().default('default').catch('default'),
   /** Integration type identifier */
