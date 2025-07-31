@@ -154,7 +154,7 @@ if (typeof document.value === 'string') {
   }
 }
 
-store.addDocumentSync({
+store.addDocument({
   name: route.name as string,
   document: parsedDocument,
 })
