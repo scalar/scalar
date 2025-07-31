@@ -8,7 +8,7 @@ test.describe('withDefaultFonts', () => {
     // Track all requests to fonts.scalar.com
     const fontRequests: string[] = []
     page.on('request', (request) => {
-      if (request.url().includes('fonts.scalar.com')) {
+      if (new URL(request.url()).host === 'fonts.scalar.com') {
         fontRequests.push(request.url())
       }
     })
@@ -27,7 +27,7 @@ test.describe('withDefaultFonts', () => {
     // Track all requests to fonts.scalar.com
     const fontRequests: string[] = []
     page.on('request', (request) => {
-      if (request.url().includes('fonts.scalar.com')) {
+      if (new URL(request.url()).host === 'fonts.scalar.com') {
         fontRequests.push(request.url())
       }
     })
