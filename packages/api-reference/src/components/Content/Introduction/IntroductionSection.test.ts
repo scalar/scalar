@@ -1,11 +1,9 @@
 import { DownloadLink } from '@/features/download-link'
 import { useSidebar } from '@/features/sidebar/hooks/useSidebar'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { Spec } from '@scalar/types/legacy'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, reactive, ref } from 'vue'
-
 import IntroductionSection from './IntroductionSection.vue'
 
 // Mock the useSidebar hook and SIDEBAR_SYMBOL
@@ -71,14 +69,14 @@ describe('IntroductionSection', () => {
   })
 
   it('renders loading state when info is empty', () => {
-    const example = {
+    const example: OpenAPIV3_1.Document = {
       openapi: '3.1.1',
       info: {
         title: '',
         description: '',
         version: '',
       },
-    } satisfies Spec
+    }
 
     const wrapper = mount(IntroductionSection, {
       props: {
@@ -94,14 +92,14 @@ describe('IntroductionSection', () => {
    * so we need to make sure it's there
    */
   it('exposes the .introduction-section class for theming', () => {
-    const example = {
+    const example: OpenAPIV3_1.Document = {
       openapi: '3.1.1',
       info: {
         title: 'Hello World',
         description: 'Example description',
         version: '1.0.0',
       },
-    } satisfies Spec
+    }
 
     const wrapper = mount(IntroductionSection, {
       props: {
@@ -115,14 +113,14 @@ describe('IntroductionSection', () => {
   })
 
   it('generates filename from title', () => {
-    const example = {
+    const example: OpenAPIV3_1.Document = {
       openapi: '3.1.1',
       info: {
         title: 'Hello World API!',
         description: '',
         version: '1.0.0',
       },
-    } satisfies Spec
+    }
 
     const wrapper = mount(IntroductionSection, {
       props: {
@@ -135,14 +133,14 @@ describe('IntroductionSection', () => {
   })
 
   it('shows version badge when version exists', () => {
-    const example = {
+    const example: OpenAPIV3_1.Document = {
       openapi: '3.1.1',
       info: {
         title: 'Test API',
         description: '',
         version: '2.0.0',
       },
-    } satisfies Spec
+    }
 
     const wrapper = mount(IntroductionSection, {
       props: {
@@ -154,14 +152,14 @@ describe('IntroductionSection', () => {
   })
 
   it(`doesn't prefix version with v when version is not a number`, () => {
-    const example = {
+    const example: OpenAPIV3_1.Document = {
       openapi: '3.1.1',
       info: {
         title: 'Test API',
         description: '',
         version: 'beta',
       },
-    } satisfies Spec
+    }
 
     const wrapper = mount(IntroductionSection, {
       props: {
@@ -174,14 +172,14 @@ describe('IntroductionSection', () => {
   })
 
   it(`doesn't prefix version with v when version is already prefixed`, () => {
-    const example = {
+    const example: OpenAPIV3_1.Document = {
       openapi: '3.1.1',
       info: {
         title: 'Test API',
         description: '',
         version: 'v1.0.0',
       },
-    } satisfies Spec
+    }
 
     const wrapper = mount(IntroductionSection, {
       props: {
@@ -193,7 +191,7 @@ describe('IntroductionSection', () => {
   })
 
   it('prefixes version with v when version is a number', () => {
-    const example = {
+    const example: OpenAPIV3_1.Document = {
       openapi: '3.1.1',
       info: {
         title: 'Test API',
@@ -201,11 +199,10 @@ describe('IntroductionSection', () => {
         // @ts-expect-error testing invalid type
         version: 1,
       },
-    } satisfies Spec
+    }
 
     const wrapper = mount(IntroductionSection, {
       props: {
-        // @ts-expect-error testing invalid type
         document: example,
       },
     })
@@ -214,7 +211,7 @@ describe('IntroductionSection', () => {
   })
 
   it(`doesn't output the version if something is wrong with the version`, () => {
-    const example = {
+    const example: OpenAPIV3_1.Document = {
       openapi: '3.1.1',
       info: {
         title: 'Test API',
@@ -222,11 +219,10 @@ describe('IntroductionSection', () => {
         // @ts-expect-error testing invalid type
         version: ['foobar'],
       },
-    } satisfies Spec
+    }
 
     const wrapper = mount(IntroductionSection, {
       props: {
-        // @ts-expect-error testing invalid type
         document: example,
       },
     })

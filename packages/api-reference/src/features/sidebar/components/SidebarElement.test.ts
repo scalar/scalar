@@ -1,10 +1,10 @@
 import type { TraversedEntry, TraversedOperation } from '@/features/traverse-schema'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { XScalarStability } from '@scalar/types/legacy'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import SidebarElement from './SidebarElement.vue'
 
 // Mock the dependencies
@@ -44,7 +44,7 @@ describe('SidebarElement', () => {
     vi.clearAllMocks()
   })
 
-  const createMockOperation = (overrides: Partial<OpenAPIV3_1.OperationObject> = {}): OpenAPIV3_1.OperationObject => ({
+  const createMockOperation = (overrides: Partial<OperationObject> = {}): OperationObject => ({
     summary: 'Test Operation',
     responses: {
       200: {
@@ -55,7 +55,7 @@ describe('SidebarElement', () => {
   })
 
   const createMockTraversedOperation = (
-    operation: OpenAPIV3_1.OperationObject,
+    operation: OperationObject,
     overrides: Partial<TraversedOperation> = {},
   ): TraversedOperation => ({
     id: 'test-operation',

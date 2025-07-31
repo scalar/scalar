@@ -1,8 +1,8 @@
 import type { TraversedTag } from '@/features/traverse-schema'
+import { createMockSidebar } from '@/helpers/test-utils'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import TagSection from './TagSection.vue'
-import { createMockSidebar } from '@/helpers/test-utils'
 
 // Mock the useConfig hook
 vi.mock('@/hooks/useConfig', () => ({
@@ -21,6 +21,7 @@ describe('TagSection', () => {
     id: 'test-tag',
     title: 'Test Tag',
     tag: {
+      name: 'test-tag',
       description: 'This is a test tag description',
     },
     children: [],
@@ -176,6 +177,7 @@ describe('TagSection', () => {
     it('handles tag with empty description', () => {
       const mockTag = createMockTag({
         tag: {
+          name: 'test-tag',
           description: '',
         },
       })

@@ -1,9 +1,11 @@
-import { describe, it, expect } from 'vitest'
+import type { TraversedEntry, TraversedOperation, TraversedTag } from '@/features/traverse-schema/types'
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { TagGroup } from '@scalar/types/legacy'
-import type { TraversedEntry, TraversedOperation, TraversedTag } from '@/features/traverse-schema/types'
+import type { TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/tag'
+import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
+import { describe, expect, it } from 'vitest'
 import { traverseTags } from './traverse-tags'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
 describe('traverseTags', () => {
   // Helper function to create a mock OpenAPI document
@@ -15,7 +17,7 @@ describe('traverseTags', () => {
   })
 
   // Helper function to create a mock tag
-  const createMockTag = (name: string, displayName?: string): OpenAPIV3_1.TagObject => ({
+  const createMockTag = (name: string, displayName?: string): Dereference<TagObject> => ({
     name,
     ...(displayName && { 'x-displayName': displayName }),
   })
@@ -29,7 +31,7 @@ describe('traverseTags', () => {
 
   it('should handle empty tags map', () => {
     const document = createMockDocument()
-    const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
+    const tagsMap = new Map<string, { tag: Dereference<TagObject>; entries: TraversedEntry[] }>()
     const titlesMap = new Map<string, string>()
     const options = {
       getTagId: (tag: OpenAPIV3_1.TagObject) => tag.name ?? '',

@@ -68,12 +68,15 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[]): void {
 
   // Model
   if ('schema' in entry) {
+    const description =
+      'description' in entry.schema && typeof entry.schema.description === 'string' ? entry.schema.description : ''
+
     index.push({
       type: 'model',
       title: entry.title,
       href: `#${entry.id}`,
       description: 'Model',
-      body: entry.schema.description || '',
+      body: description,
       entry,
     })
 
