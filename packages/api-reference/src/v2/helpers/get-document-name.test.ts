@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { getDocumentName } from './get-document-name'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 describe('getDocumentName', () => {
   describe('URL-based documents', () => {
@@ -27,10 +28,10 @@ describe('getDocumentName', () => {
       const result = getDocumentName(
         {},
         {
-          'API #1': {},
-          'API #2': {},
-          'API #3': {},
-          'API #5': {},
+          'API #1': {} as OpenApiDocument,
+          'API #2': {} as OpenApiDocument,
+          'API #3': {} as OpenApiDocument,
+          'API #5': {} as OpenApiDocument,
         },
       )
       expect(result).toBe('API #4')
