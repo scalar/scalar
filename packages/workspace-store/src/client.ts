@@ -249,8 +249,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     }
 
     // Obtain the raw state of the current document to ensure accurate diffing
-    // Remove the magic proxy while preserving the overrides proxy to ensure accurate updates
-    const updatedDocument = createOverridesProxy(getRaw(workspaceDocument), overrides[documentName])
+    const updatedDocument = getRaw(workspaceDocument)
 
     // If either the intermediate or updated document is missing, do nothing
     if (!intermediateDocument || !updatedDocument) {
@@ -297,9 +296,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map
     workspace.documents[name] = createOverridesProxy(createMagicProxy({ ...document, ...meta }), input.overrides)
-
-    // Write overrides to the intermediate document
-    saveDocument(name)
   }
 
   // Asynchronously adds a new document to the workspace by loading and validating the input.
@@ -576,9 +572,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       const intermediateDocument = intermediateDocuments[documentName]
       // Get the raw state of the current document to avoid diffing resolved references.
-      // This ensures we update the actual data, not the references.
-      // Note: We keep the Vue proxy for reactivity by updating the object in place.
-      const updatedDocument = createOverridesProxy(getRaw(workspaceDocument), overrides[documentName])
+      const updatedDocument = getRaw(workspaceDocument)
 
       if (!intermediateDocument || !updatedDocument) {
         return
@@ -627,6 +621,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         documentConfigs,
         originalDocuments,
         intermediateDocuments,
+        overrides,
       } as InMemoryWorkspace)
     },
     /**
@@ -650,6 +645,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       safeAssign(originalDocuments, result.originalDocuments)
       safeAssign(intermediateDocuments, result.intermediateDocuments)
       safeAssign(documentConfigs, result.documentConfigs)
+      safeAssign(overrides, result.overrides)
       safeAssign(workspace, result.meta)
     },
     /**
