@@ -276,7 +276,7 @@ store.addDocumentSync({
 })
 ```
 
-To get the active document configuration you can use config getter\
+To get the active document configuration you can use config getter
 
 ```ts
 // Get the configuration for the active document
@@ -416,15 +416,55 @@ Create the workspace from a specification object
 
 ```ts
 await store.importWorkspaceFromSpecification({
-  workspace: 'v1',
+  workspace: 'draft',
   info: { title: 'My Workspace' },
   documents: {
     api: { $ref: '/examples/api.yaml' },
-    petstore: { $ref: '/examples/petstore.yaml' }
+    petstore: { $ref: '/examples/petstore.yaml' },
   },
   overrides: {
-    api: { config: { features: { showModels: true } } }
+    api: {
+      servers: [
+        {
+          url: 'http://localhost:9090',
+        },
+      ],
+    },
   },
-  "x-scalar-dark-mode": true
+  'x-scalar-dark-mode': true,
 })
 ```
+
+### Override specific fields from the document and it's metadata
+
+This feature is helpful when you want to override specific fields in a document without altering the original source. Overrides allow you to customize certain values in-memory, ensuring the original document remains unchanged.
+
+```ts
+const store = createWorkspaceStore()
+await store.addDocument({
+  name: 'default',
+  document: {
+    openapi: '3.1.0',
+    info: {
+      title: 'Document Title',
+      version: '1.0.0',
+    },
+    paths: {},
+    components: {
+      schemas: {},
+    },
+    servers: [],
+  },
+  // Override the servers field
+  overrides: {
+    servers: [
+      {
+        url: 'http://localhost:8080',
+        description: 'Default dev server'
+      }
+    ]
+  }
+})
+```
+
+When you override specific fields, those changes are applied only in-memory and will never be written back to the original document. The original source remains unchanged, and any modifications made through overrides are isolated to the current session.
