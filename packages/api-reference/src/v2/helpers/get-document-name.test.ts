@@ -24,13 +24,16 @@ describe('getDocumentName', () => {
     })
 
     it('should base the unknown name on the number of documents', () => {
-      const result = getDocumentName({}, {
-        'API #1': {},
-        'API #2': {},
-        'API #3': {},
-        'API #5': {},
-      } as any)
-      expect(result).toBe('OpenAPI Document #4')
+      const result = getDocumentName(
+        {},
+        {
+          'API #1': {},
+          'API #2': {},
+          'API #3': {},
+          'API #5': {},
+        },
+      )
+      expect(result).toBe('API #4')
     })
   })
 })
