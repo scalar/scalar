@@ -102,8 +102,6 @@ async function loadDocument(workspaceDocument: WorkspaceDocumentInput) {
 type WorkspaceProps = {
   /** Optional metadata for the workspace including theme, active document, etc */
   meta?: WorkspaceMeta
-  /** In-mem open api documents. Async source documents (like URLs) can be loaded after initialization */
-  documents?: ObjectDoc[]
   /** Workspace configuration */
   config?: Config
 }
@@ -131,8 +129,6 @@ export type WorkspaceStore = {
   resolve(path: string[]): Promise<unknown>
   /** Adds a new document to the workspace */
   addDocument(input: WorkspaceDocumentInput): Promise<void>
-  /** Similar to addDocument but requires and in-mem object to be provided and loads the document synchronously */
-  addDocumentSync(input: ObjectDoc): void
   /** Returns the merged configuration for the active document */
   readonly config: typeof defaultConfig
   /** Downloads the specified document in the requested format */
@@ -260,7 +256,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   }
 
   // Add a document to the store synchronously from an in-memory OpenAPI document
-  function addDocumentSync(input: ObjectDoc) {
+  async function addInMemoryDocument(input: ObjectDoc) {
     const { name, meta } = input
 
     const document = coerceValue(OpenAPIDocumentSchema, upgrade(input.document).specification)
@@ -268,6 +264,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // Store the original document in the originalDocuments map
     // This is used to track the original state of the document as it was loaded into the workspace
     originalDocuments[name] = deepClone({ ...document, ...meta })
+
     // Store the intermediate document state for local edits
     // This is used to track the last saved state of the document
     // It allows us to differentiate between the original document and the latest saved version
@@ -283,6 +280,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (document[extensions.document.navigation] === undefined) {
       document[extensions.document.navigation] = createNavigation(document, input.config ?? {}).entries
+    }
+
+    // If the document navigation is not already present, bundle the entire document to resolve all references.
+    // This typically applies when the document is not preprocessed by the server and needs local reference resolution.
+    if (document[extensions.document.navigation] === undefined) {
+      await bundle(input.document, { treeShake: false, plugins: [fetchUrls()] })
     }
 
     // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map
@@ -329,11 +332,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return
     }
 
-    addDocumentSync({ ...input, document: resolve.data })
+    await addInMemoryDocument({ ...input, document: resolve.data })
   }
-
-  // Add any initial documents to the store
-  workspaceProps?.documents?.forEach(addDocumentSync)
 
   // Cache to track visited nodes during reference resolution to prevent bundling the same subtree multiple times
   // This is needed because we are doing partial bundle operations
@@ -474,25 +474,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
      * })
      */
     addDocument,
-    /**
-     * Similar to addDocument but requires and in-mem object to be provided and loads the document synchronously
-     * @param document - The document content to add. This should be a valid OpenAPI/Swagger document or other supported format
-     * @param meta - Metadata for the document, including its name and other properties defined in WorkspaceDocumentMeta
-     * @example
-     * // Add a new OpenAPI document to the workspace
-     * store.addDocument({
-     *   name: 'name',
-     *   document: {
-     *     openapi: '3.0.0',
-     *     info: { title: 'title' },
-     *   },
-     *   meta: {
-     *     'x-scalar-active-auth': 'Bearer',
-     *     'x-scalar-active-server': 'production'
-     *   }
-     * })
-     */
-    addDocumentSync,
     /**
      * Returns the merged configuration for the active document.
      *

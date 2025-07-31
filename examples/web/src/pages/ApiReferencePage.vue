@@ -62,13 +62,10 @@ watch(
   },
 )
 
-const store = createWorkspaceStore({
-  documents: [
-    {
-      name: 'default',
-      document: JSON.parse(content.value),
-    },
-  ],
+const store = createWorkspaceStore()
+await store.addDocument({
+  name: 'default',
+  document: JSON.parse(content.value),
 })
 
 // Keep the content in sync

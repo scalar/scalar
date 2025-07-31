@@ -40,13 +40,13 @@ describe('generateClientMutators', () => {
       expect(store.workspace['x-scalar-client-config-cookies']).toEqual({})
     })
 
-    it('should handle cookies on the document level', () => {
+    it('should handle cookies on the document level', async () => {
       const store = createWorkspaceStore()
       const mutators = generateClientMutators(store)
 
       // Create an empty document
-      store.addDocumentSync({ name: 'test-doc', document: {} })
-      store.addDocumentSync({ name: 'doc-2', document: {} })
+      await store.addDocument({ name: 'test-doc', document: {} })
+      await store.addDocument({ name: 'doc-2', document: {} })
 
       // Adds a cookie to the document
       const success = mutators.doc('test-doc').cookieMutators.addCookie({
@@ -159,13 +159,13 @@ describe('generateClientMutators', () => {
       })
     })
 
-    it('should handle environments on the document level', () => {
+    it('should handle environments on the document level', async () => {
       const store = createWorkspaceStore()
       const mutators = generateClientMutators(store)
 
       // Create an empty document
-      store.addDocumentSync({ name: 'test-doc', document: {} })
-      store.addDocumentSync({ name: 'doc-2', document: {} })
+      await store.addDocument({ name: 'test-doc', document: {} })
+      await store.addDocument({ name: 'doc-2', document: {} })
 
       expect(
         mutators.doc('test-doc').environmentMutators.addEnvironment('staging', {
@@ -253,13 +253,13 @@ describe('generateClientMutators', () => {
       expect(store.workspace['x-scalar-client-config-security-schemes']).toEqual({})
     })
 
-    it('should handle security schemes on the document level', () => {
+    it('should handle security schemes on the document level', async () => {
       const store = createWorkspaceStore()
       const mutators = generateClientMutators(store)
 
       // Create an empty document
-      store.addDocumentSync({ name: 'test-doc', document: {} })
-      store.addDocumentSync({ name: 'doc-2', document: {} })
+      await store.addDocument({ name: 'test-doc', document: {} })
+      await store.addDocument({ name: 'doc-2', document: {} })
 
       expect(
         mutators.doc('test-doc').securitySchemeMutators.addSecurityScheme('oauth2', {
@@ -344,13 +344,13 @@ describe('generateClientMutators', () => {
       expect(store.workspace['x-scalar-client-config-servers']).toEqual([])
     })
 
-    it('should handle servers on the document level', () => {
+    it('should handle servers on the document level', async () => {
       const store = createWorkspaceStore()
       const mutators = generateClientMutators(store)
 
       // Create an empty document
-      store.addDocumentSync({ name: 'test-doc', document: {} })
-      store.addDocumentSync({ name: 'doc-2', document: {} })
+      await store.addDocument({ name: 'test-doc', document: {} })
+      await store.addDocument({ name: 'doc-2', document: {} })
 
       expect(
         mutators.doc('test-doc').serverMutators.addServer({
@@ -392,12 +392,12 @@ describe('generateClientMutators', () => {
   })
 
   describe('requestMutators', () => {
-    it('should move request to a new path and method', () => {
+    it('should move request to a new path and method', async () => {
       const store = createWorkspaceStore()
       const mutators = generateClientMutators(store)
 
       // Create an empty document
-      store.addDocumentSync({
+      await store.addDocument({
         name: 'test-doc',
         document: {
           paths: {
@@ -428,12 +428,12 @@ describe('generateClientMutators', () => {
       expect(store.workspace.documents['test-doc']?.paths?.['/new-path']?.post).toBeDefined()
     })
 
-    it('should delete request', () => {
+    it('should delete request', async () => {
       const store = createWorkspaceStore()
       const mutators = generateClientMutators(store)
 
       // Create an empty document
-      store.addDocumentSync({
+      await store.addDocument({
         name: 'test-doc',
         document: {
           paths: {
@@ -465,12 +465,12 @@ describe('generateClientMutators', () => {
   })
 
   describe('requestExampleMutators', () => {
-    it('should add and delete request examples', () => {
+    it('should add and delete request examples', async () => {
       const store = createWorkspaceStore()
       const mutators = generateClientMutators(store)
 
       // Create an empty document
-      store.addDocumentSync({
+      await store.addDocument({
         name: 'test-doc',
         document: {
           paths: {
@@ -555,12 +555,12 @@ describe('generateClientMutators', () => {
       })
     })
 
-    it('should create request if it does not exist', () => {
+    it('should create request if it does not exist', async () => {
       const store = createWorkspaceStore()
       const mutators = generateClientMutators(store)
 
       // Create an empty document
-      store.addDocumentSync({
+      await store.addDocument({
         name: 'test-doc',
         document: {
           paths: {},
