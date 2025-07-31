@@ -428,3 +428,16 @@ await store.importWorkspaceFromSpecification({
   "x-scalar-dark-mode": true
 })
 ```
+
+### Rebase document origin with the updated remote origin
+
+Rebases a document in the workspace with a new origin, resolving conflicts if provided.
+
+```ts
+// Example: Rebase a document with a new origin and resolve conflicts
+const conflicts = store.rebaseDocument('api', newOriginDoc)
+if (conflicts && conflicts.length > 0) {
+  // User resolves conflicts here...
+  store.rebaseDocument('api', newOriginDoc, userResolvedConflicts)
+}
+```
