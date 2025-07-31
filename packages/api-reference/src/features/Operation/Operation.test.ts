@@ -328,7 +328,6 @@ describe('Operation', () => {
       updateDocument: vi.fn(),
       resolve: vi.fn(),
       addDocument: vi.fn(),
-      addDocumentSync: vi.fn(),
       config: {} as any,
       exportDocument: vi.fn(),
       saveDocument: vi.fn(),
