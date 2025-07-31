@@ -1526,7 +1526,7 @@ describe('bundle', () => {
       })
     })
 
-    it.only('should correctly load the document from an url even when yaml plugin is provided and it has high priority on the list', async () => {
+    it('should correctly load the document from an url even when yaml plugin is provided and it has high priority on the list', async () => {
       server.get('/', () => ({
         openapi: '3.1.1',
         info: {

@@ -1,4 +1,4 @@
-import { isJson } from '@/utils/is-json'
+import { isJsonObject } from '@/utils/is-json-object'
 import type { Plugin, ResolveResult } from '@/bundle'
 
 /**
@@ -13,7 +13,7 @@ import type { Plugin, ResolveResult } from '@/bundle'
  */
 export function parseJson(): Plugin {
   return {
-    validate: isJson,
+    validate: isJsonObject,
     exec: async (value): Promise<ResolveResult> => {
       try {
         return {

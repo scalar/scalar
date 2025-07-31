@@ -5,7 +5,7 @@ import path from '@/polyfills/path'
 import { getSegmentsFromPath } from '../utils/get-segments-from-path'
 import { isObject } from '../utils/is-object'
 import { isYaml } from '../utils/is-yaml'
-import { isJson } from '../utils/is-json'
+import { isJsonObject } from '../utils/is-json-object'
 import { getHash, uniqueValueGeneratorFactory } from './value-generator'
 
 /**
@@ -44,7 +44,7 @@ export function isRemoteUrl(value: string) {
  * ```
  */
 export function isFilePath(value: string) {
-  return !isRemoteUrl(value) && !isYaml(value) && !isJson(value)
+  return !isRemoteUrl(value) && !isYaml(value) && !isJsonObject(value)
 }
 
 /**
