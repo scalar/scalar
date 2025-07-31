@@ -5,6 +5,7 @@ import { createServerWorkspaceStore } from '@/server'
 import { consoleErrorSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
 import fastify, { type FastifyInstance } from 'fastify'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import assert from 'node:assert'
 
 // Test document
 const getDocument = (version?: string) => ({
@@ -1707,6 +1708,134 @@ describe('create-workspace-store', () => {
 
       expect(consoleErrorSpy).toHaveBeenCalledWith("Document 'non-existing' does not exist in the workspace.")
       expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('rebaseDocument', () => {
+    it('should correctly return all conflicts when we try to rebase with a new origin', async () => {
+      const documentName = 'default'
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: documentName,
+        document: getDocument(),
+      })
+
+      store.workspace.activeDocument!.info.title = 'new title'
+      store.saveDocument(documentName)
+
+      const result = store.rebaseDocument(documentName, {
+        ...getDocument(),
+        info: { title: 'A new title which should conflict', version: '1.0.0' },
+      })
+
+      expect(result).toEqual([
+        [
+          [
+            {
+              changes: 'A new title which should conflict',
+              path: ['info', 'title'],
+              type: 'update',
+            },
+          ],
+          [
+            {
+              changes: 'new title',
+              path: ['info', 'title'],
+              type: 'update',
+            },
+          ],
+        ],
+      ])
+    })
+
+    it('should apply the changes when there are conflicts but we have a resolved conflicts array provided', async () => {
+      const documentName = 'default'
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: documentName,
+        document: getDocument(),
+      })
+
+      store.workspace.activeDocument!.info.title = 'new title'
+      store.saveDocument(documentName)
+
+      const newDocument = {
+        ...getDocument(),
+        info: { title: 'A new title which should conflict', version: '1.0.0' },
+      }
+
+      const result = store.rebaseDocument(documentName, newDocument)
+
+      assert(typeof result === 'object')
+
+      expect(result).toEqual([
+        [
+          [
+            {
+              changes: 'A new title which should conflict',
+              path: ['info', 'title'],
+              type: 'update',
+            },
+          ],
+          [
+            {
+              changes: 'new title',
+              path: ['info', 'title'],
+              type: 'update',
+            },
+          ],
+        ],
+      ])
+
+      // Expect the original
+      expect(store.exportDocument(documentName, 'json')).toEqual(
+        '{"openapi":"3.1.1","info":{"title":"new title","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}',
+      )
+
+      store.rebaseDocument(
+        documentName,
+        newDocument,
+        result.flatMap((it) => it[0]),
+      )
+
+      // Check if the new intermediate document is correct
+      expect(store.exportDocument(documentName, 'json')).toEqual(
+        '{"openapi":"3.1.1","info":{"title":"A new title which should conflict","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}',
+      )
+
+      expect(store.workspace.activeDocument?.info.title).toEqual('A new title which should conflict')
+    })
+
+    it('should override conflicting changes made to the active document while we are rebasing with a new origin', async () => {
+      const documentName = 'default'
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: documentName,
+        document: getDocument(),
+      })
+
+      store.workspace.activeDocument!.info.title = 'new title'
+      store.saveDocument(documentName)
+
+      store.workspace.activeDocument!.info.version = '2.0'
+
+      const newDocument = {
+        ...getDocument(),
+        info: { title: 'A new title which should conflict', version: '1.0.1' },
+      }
+
+      const result = store.rebaseDocument(documentName, newDocument)
+
+      assert(typeof result === 'object')
+
+      store.rebaseDocument(
+        documentName,
+        newDocument,
+        result.flatMap((it) => it[0]),
+      )
+
+      // should override conflicts to the active document on rebase to the one from original
+      expect(store.workspace.activeDocument?.info.version).toBe('1.0.1')
     })
   })
 })

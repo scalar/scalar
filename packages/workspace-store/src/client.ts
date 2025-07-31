@@ -154,7 +154,7 @@ export type WorkspaceStore = {
   rebaseDocument: (
     documentName: string,
     newDocumentOrigin: Record<string, unknown>,
-    resolvedConflicts: Difference[],
+    resolvedConflicts?: Difference[],
   ) => void | ReturnType<typeof merge>['conflicts']
 }
 
@@ -760,6 +760,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // Apply the changes to the original document to get the new intermediate
       const newIntermediateDocument = apply(deepClone(originalDocument), changesetA) as typeof originalDocument
       intermediateDocuments[documentName] = newIntermediateDocument
+
+      // Update the original document
+      originalDocuments[documentName] = newOrigin
 
       // ---- Get the new active document
       const changelogBA = diff(intermediateDocument, newIntermediateDocument)
