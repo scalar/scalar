@@ -25,7 +25,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
+    "build": "scalar-build-vite",
     "dev": "vite",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
