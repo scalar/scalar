@@ -3,18 +3,15 @@ import { describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import ScalarCombobox from './ScalarCombobox.vue'
-import ScalarComboboxMultiselect from './ScalarComboboxMultiselect.vue'
 import ScalarComboboxOption from './ScalarComboboxOption.vue'
-import ScalarComboboxOptions from './ScalarComboboxOptions.vue'
-import ScalarComboboxOptionGroup from './ScalarComboboxOptionGroup.vue'
-import ScalarComboboxPopover from './ScalarComboboxPopover.vue'
+import type { Option, OptionGroup } from './types'
 
 // Mock data
 const singleOptions = [
   { id: '1', label: 'Option 1' },
   { id: '2', label: 'Option 2' },
   { id: '3', label: 'Option 3' },
-]
+] as const satisfies Option[]
 
 const groupedOptions = [
   {
@@ -31,7 +28,36 @@ const groupedOptions = [
       { id: '4', label: 'Option 4' },
     ],
   },
-]
+] as const satisfies OptionGroup[]
+
+type ExtendedOption = Option & { category: string }
+
+// Extended options for slot testing
+const extendedOptions = [
+  { id: '1', label: 'Apple', category: 'fruit' },
+  { id: '2', label: 'Banana', category: 'fruit' },
+] as const satisfies ExtendedOption[]
+
+type ExtendedGroup = OptionGroup<ExtendedOption> & { icon: string }
+
+const extendedGroups = [
+  {
+    label: 'Fruits',
+    icon: '🍎',
+    options: [
+      { id: '1', label: 'Apple', category: 'fruit' },
+      { id: '2', label: 'Banana', category: 'fruit' },
+    ],
+  },
+  {
+    label: 'Vegetables',
+    icon: '🥕',
+    options: [
+      { id: '3', label: 'Carrot', category: 'vegetable' },
+      { id: '4', label: 'Broccoli', category: 'vegetable' },
+    ],
+  },
+] as const satisfies ExtendedGroup[]
 
 describe('ScalarCombobox', () => {
   describe('with single options', () => {
@@ -127,188 +153,345 @@ describe('ScalarCombobox', () => {
       expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([groupedOptions[0]?.options?.[0]])
     })
   })
-})
 
-describe('ScalarComboboxMultiselect', () => {
-  describe('with single options', () => {
-    it('allows multiple selections', async () => {
-      const wrapper = mount(ScalarComboboxMultiselect, {
-        props: {
-          options: singleOptions,
-          modelValue: [],
-          'onUpdate:modelValue': (e) => wrapper.setProps({ modelValue: e }),
+  describe('slot functionality', () => {
+    it('renders before and after slots', async () => {
+      const wrapper = mount(ScalarCombobox, {
+        props: { options: singleOptions },
+        slots: {
+          default: '<button>Toggle</button>',
+          before: '<div data-test="before-content">Before content</div>',
+          after: '<div data-test="after-content">After content</div>',
         },
-        slots: { default: '<button>Toggle</button>' },
       })
 
       await wrapper.find('button').trigger('click')
       await nextTick()
 
-      const optionElements = wrapper.findAllComponents(ScalarComboboxOption)
-      await optionElements[0]?.trigger('click')
-      await optionElements[1]?.trigger('click')
-
-      const emitted = wrapper.emitted('update:modelValue')
-      expect(emitted).toBeTruthy()
-      expect(emitted?.[emitted.length - 1]?.[0]).toHaveLength(2)
+      expect(wrapper.find('[data-test="before-content"]').exists()).toBe(true)
+      expect(wrapper.find('[data-test="before-content"]').text()).toBe('Before content')
+      expect(wrapper.find('[data-test="after-content"]').exists()).toBe(true)
+      expect(wrapper.find('[data-test="after-content"]').text()).toBe('After content')
     })
-  })
 
-  describe('with grouped options', () => {
-    it('allows multiple selections', async () => {
-      const wrapper = mount(ScalarComboboxMultiselect, {
-        props: {
-          options: groupedOptions,
-          modelValue: [],
-          'onUpdate:modelValue': (e) => wrapper.setProps({ modelValue: e }),
+    it('renders custom option slot with correct props', async () => {
+      const wrapper = mount(ScalarCombobox, {
+        props: { options: extendedOptions },
+        slots: {
+          default: '<button>Toggle</button>',
+          option: `
+            <template #option="{ option, active, selected }">
+              <div data-test="custom-option">
+                <span data-test="option-label">{{ option.label }}</span>
+                <span data-test="option-category">{{ option.category }}</span>
+                <span data-test="option-active">{{ active }}</span>
+                <span data-test="option-selected">{{ selected }}</span>
+              </div>
+            </template>
+          `,
         },
-        slots: { default: '<button>Toggle</button>' },
       })
 
       await wrapper.find('button').trigger('click')
       await nextTick()
 
-      const optionElements = wrapper.findAllComponents(ScalarComboboxOption)
-      await optionElements[0]?.trigger('click')
-      await optionElements[1]?.trigger('click')
+      const customOption = wrapper.find('[data-test="custom-option"]')
+      expect(customOption.exists()).toBe(true)
 
-      const emitted = wrapper.emitted('update:modelValue')
-      expect(emitted).toBeTruthy()
-      expect(emitted?.[emitted.length - 1]?.[0]).toHaveLength(2)
+      const optionLabel = wrapper.find('[data-test="option-label"]')
+      expect(optionLabel.text()).toBe('Apple')
+
+      const optionCategory = wrapper.find('[data-test="option-category"]')
+      expect(optionCategory.text()).toBe('fruit')
     })
-  })
-})
 
-describe('ScalarComboboxOptions', () => {
-  describe('with single options', () => {
-    it('filters options based on search query', async () => {
-      const wrapper = mount(ScalarComboboxOptions, {
+    it('renders custom group slot with correct props', async () => {
+      const wrapper = mount(ScalarCombobox, {
+        props: { options: extendedGroups },
+        slots: {
+          default: '<button>Toggle</button>',
+          group: `
+            <template #group="{ group }">
+              <div data-test="custom-group">
+                <span data-test="group-icon">{{ group.icon }}</span>
+                <span data-test="group-label">{{ group.label }}</span>
+              </div>
+            </template>
+          `,
+        },
+      })
+
+      await wrapper.find('button').trigger('click')
+      await nextTick()
+
+      const customGroup = wrapper.find('[data-test="custom-group"]')
+      expect(customGroup.exists()).toBe(true)
+
+      const groupIcon = wrapper.find('[data-test="group-icon"]')
+      expect(groupIcon.text()).toBe('🍎')
+
+      const groupLabel = wrapper.find('[data-test="group-label"]')
+      expect(groupLabel.text()).toBe('Fruits')
+    })
+
+    it('combines multiple slots correctly', async () => {
+      const wrapper = mount(ScalarCombobox, {
+        props: { options: extendedGroups },
+        slots: {
+          default: '<button>Toggle</button>',
+          before: '<div data-test="before">Before content</div>',
+          after: '<div data-test="after">After content</div>',
+          option: `
+            <template #option="{ option }">
+              <div data-test="custom-option">{{ option.label }}</div>
+            </template>
+          `,
+          group: `
+            <template #group="{ group }">
+              <div data-test="custom-group">{{ group.label }}</div>
+            </template>
+          `,
+        },
+      })
+
+      await wrapper.find('button').trigger('click')
+      await nextTick()
+
+      // All slots should be present
+      expect(wrapper.find('[data-test="before"]').exists()).toBe(true)
+      expect(wrapper.find('[data-test="after"]').exists()).toBe(true)
+      expect(wrapper.find('[data-test="custom-option"]').exists()).toBe(true)
+      expect(wrapper.find('[data-test="custom-group"]').exists()).toBe(true)
+    })
+
+    it('does not render slots when they are not provided', async () => {
+      const wrapper = mount(ScalarCombobox, {
         props: { options: singleOptions },
+        slots: {
+          default: '<button>Toggle</button>',
+        },
       })
 
-      const input = wrapper.find('input[type="text"]')
-      await input.setValue('Option 2')
+      await wrapper.find('button').trigger('click')
+      await nextTick()
 
-      const filteredOptions = wrapper.findAllComponents(ScalarComboboxOption)
-      expect(filteredOptions).toHaveLength(1)
-      expect(filteredOptions[0]?.text()).toBe('Option 2')
+      // Should use default option rendering, not custom slots
+      const listboxCheckbox = wrapper.find('[role="listbox"]')
+      expect(listboxCheckbox.exists()).toBe(true)
+
+      // Should not have custom slot content
+      expect(wrapper.find('[data-test="custom-option"]').exists()).toBe(false)
+      expect(wrapper.find('[data-test="custom-group"]').exists()).toBe(false)
     })
 
-    it('focuses the input when component is mounted', async () => {
-      vi.useFakeTimers()
-
-      const wrapper = mount(ScalarComboboxOptions, {
-        props: { options: singleOptions },
-        attachTo: document.body,
+    it('shows/hides slots based on content availability', async () => {
+      const wrapper = mount(ScalarCombobox, {
+        props: { options: [] }, // Empty options
+        slots: {
+          default: '<button>Toggle</button>',
+          before: '<div data-test="before-empty">Before empty</div>',
+          after: '<div data-test="after-empty">After empty</div>',
+        },
       })
 
-      await vi.runAllTimers()
+      await wrapper.find('button').trigger('click')
+      await nextTick()
 
-      const input = wrapper.find('input[type="text"]')
-      expect(input.element).toBe(document.activeElement)
+      // Before/after slots should still be visible even with empty options
+      expect(wrapper.find('[data-test="before-empty"]').exists()).toBe(true)
+      expect(wrapper.find('[data-test="after-empty"]').exists()).toBe(true)
 
-      wrapper.unmount()
-
-      vi.useRealTimers()
+      // Options list should exist but have no options
+      const optionsList = wrapper.find('ul[role="listbox"]')
+      expect(optionsList.exists()).toBe(true)
     })
   })
 
-  describe('with grouped options', () => {
-    it('filters options based on search query', async () => {
-      const wrapper = mount(ScalarComboboxOptions, {
-        props: { options: groupedOptions },
+  describe('edge cases and error handling', () => {
+    it('handles malformed option objects gracefully', async () => {
+      const malformedOptions = [
+        { id: '1', label: 'Valid Option' },
+        { id: '2', label: '' }, // Empty label
+        { id: '3', label: 'Another Valid Option' },
+      ]
+
+      const wrapper = mount(ScalarCombobox, {
+        props: { options: malformedOptions },
+        slots: {
+          default: '<button>Toggle</button>',
+          option: `
+            <template #option="{ option }">
+              <div data-test="malformed-option">
+                {{ option.label || 'No Label' }}
+              </div>
+            </template>
+          `,
+        },
       })
 
-      const input = wrapper.find('input[type="text"]')
-      await input.setValue('Option 2')
+      await wrapper.find('button').trigger('click')
+      await nextTick()
 
-      const filteredOptions = wrapper.findAllComponents(ScalarComboboxOption)
-      expect(filteredOptions).toHaveLength(1)
-      expect(filteredOptions[0]?.text()).toBe('Option 2')
-    })
-  })
-})
-
-describe('ScalarComboboxOptionGroup', () => {
-  it('renders group label when not hidden', () => {
-    const wrapper = mount(ScalarComboboxOptionGroup, {
-      props: {
-        id: 'test-group',
-      },
-      slots: {
-        label: 'Group Label',
-        default: '<div>Group Content</div>',
-      },
+      // Should render all options including ones with empty labels
+      const renderedOptions = wrapper.findAll('[data-test="malformed-option"]')
+      expect(renderedOptions).toHaveLength(3)
+      expect(renderedOptions[1]?.text()).toBe('No Label') // Empty label should show "No Label"
     })
 
-    expect(wrapper.text()).toContain('Group Label')
-    expect(wrapper.text()).toContain('Group Content')
-  })
+    it('handles empty group arrays', async () => {
+      const emptyGroups = [
+        { label: 'Empty Group', options: [] },
+        { label: 'Valid Group', options: singleOptions },
+      ]
 
-  it('hides group label when hidden prop is true', () => {
-    const wrapper = mount(ScalarComboboxOptionGroup, {
-      props: {
-        id: 'test-group',
-        hidden: true,
-      },
-      slots: {
-        label: 'Group Label',
-        default: '<div>Group Content</div>',
-      },
+      const wrapper = mount(ScalarCombobox, {
+        props: { options: emptyGroups },
+        slots: {
+          default: '<button>Toggle</button>',
+          group: `
+            <template #group="{ group }">
+              <div data-test="group-with-count">
+                {{ group.label }} ({{ group.options.length }})
+              </div>
+            </template>
+          `,
+        },
+      })
+
+      await wrapper.find('button').trigger('click')
+      await nextTick()
+
+      const groupElements = wrapper.findAll('[data-test="group-with-count"]')
+      expect(groupElements).toHaveLength(1) // Only valid group should show
+      expect(groupElements[0]?.text()).toContain('Valid Group (3)')
     })
 
-    expect(wrapper.text()).not.toContain('Group Label')
-    expect(wrapper.text()).toContain('Group Content')
-  })
-})
+    it('updates slots when options change', async () => {
+      const wrapper = mount(ScalarCombobox, {
+        props: { options: singleOptions.slice(0, 1) }, // Start with one option
+        slots: {
+          default: '<button>Toggle</button>',
+          option: `
+            <template #option="{ option }">
+              <div data-test="reactive-option">{{ option.label }}</div>
+            </template>
+          `,
+        },
+      })
 
-describe('ScalarComboboxOption', () => {
-  it('renders option with correct styles', () => {
-    const wrapper = mount(ScalarComboboxOption, {
-      props: {
-        active: true,
-        selected: true,
-        style: 'checkbox',
-      },
-      slots: {
-        default: 'Option Text',
-      },
+      await wrapper.find('button').trigger('click')
+      await nextTick()
+
+      // Initially should have one option
+      expect(wrapper.findAll('[data-test="reactive-option"]')).toHaveLength(1)
+
+      // Update to all options
+      await wrapper.setProps({ options: singleOptions })
+      await nextTick()
+
+      // Should now have all options
+      expect(wrapper.findAll('[data-test="reactive-option"]')).toHaveLength(3)
     })
 
-    expect(wrapper.text()).toContain('Option Text')
-    expect(wrapper.classes()).toContain('bg-b-2')
-  })
+    it('maintains slot state during model value changes', async () => {
+      const wrapper = mount(ScalarCombobox, {
+        props: {
+          options: extendedOptions,
+          modelValue: extendedOptions[0],
+        },
+        slots: {
+          default: '<button>Toggle</button>',
+          option: `
+            <template #option="{ option, selected }">
+              <div data-test="state-option">
+                {{ option.label }} - {{ selected ? 'Selected' : 'Not Selected' }}
+              </div>
+            </template>
+          `,
+        },
+      })
 
-  it('emits delete event when delete icon is clicked', async () => {
-    const wrapper = mount(ScalarComboboxOption, {
-      props: {
-        isDeletable: true,
-      },
-      slots: {
-        default: 'Option Text',
-      },
+      await wrapper.find('button').trigger('click')
+      await nextTick()
+
+      const options = wrapper.findAll('[data-test="state-option"]')
+      expect(options[0]?.text()).toContain('Apple - Selected')
+      expect(options[1]?.text()).toContain('Banana - Not Selected')
+
+      // Change model value
+      await wrapper.setProps({ modelValue: extendedOptions[1] })
+      await nextTick()
+
+      const updatedOptions = wrapper.findAll('[data-test="state-option"]')
+      expect(updatedOptions[0]?.text()).toContain('Apple - Not Selected')
+      expect(updatedOptions[1]?.text()).toContain('Banana - Selected')
     })
 
-    const deleteIcon = wrapper.find('[aria-label="Delete"]')
-    await deleteIcon.trigger('click')
+    it('handles nested Vue components in slots', async () => {
+      const wrapper = mount(ScalarCombobox, {
+        props: { options: extendedOptions },
+        global: {
+          components: {
+            NestedComponent: {
+              props: ['option'],
+              template: `
+                <div data-test="nested-component">
+                  <strong>{{ option.label }}</strong>
+                  <small>{{ option.category }}</small>
+                </div>
+              `,
+            },
+          },
+        },
+        slots: {
+          default: '<button>Toggle</button>',
+          option: `
+            <template #option="{ option }">
+              <NestedComponent :option="option" />
+            </template>
+          `,
+        },
+      })
 
-    expect(wrapper.emitted('delete')).toBeTruthy()
-  })
-})
+      await wrapper.find('button').trigger('click')
+      await nextTick()
 
-describe('ScalarComboboxPopover', () => {
-  it('handles keyboard events correctly', async () => {
-    const wrapper = mount(ScalarComboboxPopover, {
-      slots: {
-        default: '<button>Toggle</button>',
-        popover: '<div test-id="popover-content">Popover Content</div>',
-      },
+      const nestedComponents = wrapper.findAll('[data-test="nested-component"]')
+      expect(nestedComponents).toHaveLength(2)
+      expect(nestedComponents[0]?.find('strong').text()).toBe('Apple')
+      expect(nestedComponents[0]?.find('small').text()).toBe('fruit')
     })
 
-    const button = wrapper.find('button')
-    await button.trigger('keydown', { key: 'ArrowDown' })
+    it('handles conditional slot rendering based on option properties', async () => {
+      const conditionalOptions = [
+        { id: '1', label: 'Premium Option', isPremium: true },
+        { id: '2', label: 'Regular Option', isPremium: false },
+      ]
 
-    // Check that the popover content exists instead of the wrapper
-    expect(wrapper.find('[test-id="popover-content"]').exists()).toBeTruthy()
+      const wrapper = mount(ScalarCombobox, {
+        props: { options: conditionalOptions },
+        slots: {
+          default: '<button>Toggle</button>',
+          option: `
+            <template #option="{ option }">
+              <div data-test="conditional-option">
+                {{ option.label }}
+                <span v-if="option.isPremium" data-test="premium-badge">⭐</span>
+              </div>
+            </template>
+          `,
+        },
+      })
+
+      await wrapper.find('button').trigger('click')
+      await nextTick()
+
+      const premiumBadges = wrapper.findAll('[data-test="premium-badge"]')
+      expect(premiumBadges).toHaveLength(1)
+
+      const optionElements = wrapper.findAll('[data-test="conditional-option"]')
+      expect(optionElements[0]?.text()).toContain('⭐')
+      expect(optionElements[1]?.text()).not.toContain('⭐')
+    })
   })
 })

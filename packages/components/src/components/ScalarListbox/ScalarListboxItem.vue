@@ -3,11 +3,11 @@ import { ListboxOption } from '@headlessui/vue'
 import { cva, cx } from '@scalar/use-hooks/useBindCx'
 
 import ScalarListboxCheckbox from './ScalarListboxCheckbox.vue'
-import type { Option, OptionStyle } from './types'
+import type { Option } from './types'
 
 defineProps<{
   option: Option
-  style?: OptionStyle
+  multiselect?: boolean
 }>()
 
 const variants = cva({
@@ -35,8 +35,8 @@ const variants = cva({
     :value="option">
     <li :class="cx(variants({ active, selected, disabled: option.disabled }))">
       <ScalarListboxCheckbox
-        :selected="selected"
-        :style="style" />
+        :selected
+        :multiselect />
       <span
         class="inline-block min-w-0 flex-1 truncate"
         :class="option.color ? option.color : 'text-c-1'">

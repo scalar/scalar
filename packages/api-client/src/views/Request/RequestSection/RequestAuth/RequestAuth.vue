@@ -2,6 +2,8 @@
 import {
   ScalarButton,
   ScalarComboboxMultiselect,
+  ScalarIconButton,
+  ScalarListboxCheckbox,
   useModal,
   type Icon,
   type ScalarButton as ScalarButtonType,
@@ -10,7 +12,7 @@ import {
   CLIENT_LS_KEYS,
   safeLocalStorage,
 } from '@scalar/helpers/object/local-storage'
-import { ScalarIconCaretDown } from '@scalar/icons'
+import { ScalarIconCaretDown, ScalarIconTrash } from '@scalar/icons'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
 import type {
@@ -118,7 +120,7 @@ const authIndicator = computed(() => {
  * Currently selected auth schemes on the collection, we store complex auth joined by a comma to represent the array
  * in the string
  */
-const selectedSchemeOptions = computed(() =>
+const selectedSchemeOptions = computed<SecuritySchemeOption[]>(() =>
   selectedSecuritySchemeUids
     .map((s) => {
       if (Array.isArray(s)) {
@@ -258,7 +260,6 @@ const openAuthCombobox = (event: Event) => {
       <div class="flex flex-1">
         <ScalarComboboxMultiselect
           class="w-72 text-xs"
-          :isDeletable="clientLayout !== 'modal' && layout !== 'reference'"
           :modelValue="selectedSchemeOptions"
           teleport
           multiple
@@ -288,6 +289,24 @@ const openAuthCombobox = (event: Event) => {
               weight="bold"
               class="size-3 shrink-0 transition-transform duration-100 group-aria-expanded/combobox-button:rotate-180" />
           </ScalarButton>
+          <template #option="{ option, selected }">
+            <ScalarListboxCheckbox
+              :selected="selected"
+              multiselect />
+            <div class="min-w-0 flex-1 truncate">
+              {{ option.label }}
+            </div>
+            <ScalarIconButton
+              v-if="
+                option.isDeletable ??
+                (clientLayout !== 'modal' && layout !== 'reference')
+              "
+              size="xs"
+              :label="`Delete ${option.label}`"
+              :icon="ScalarIconTrash"
+              @click.stop="handleDeleteScheme(option)"
+              class="-m-0.5 shrink-0 p-0.5 opacity-0 group-hover/item:opacity-100" />
+          </template>
         </ScalarComboboxMultiselect>
       </div>
     </template>

@@ -1,72 +1,71 @@
-<script setup lang="ts">
+<!-- prettier-ignore-attribute generic -->
+<script
+  setup
+  lang="ts"
+  generic="O extends Option = Option, G extends OptionGroup<O> = OptionGroup<O>">
 import type { ScalarFloatingOptions } from '../ScalarFloating'
 import ComboboxOptions from './ScalarComboboxOptions.vue'
 import ComboboxPopover from './ScalarComboboxPopover.vue'
-import type { Option, OptionGroup } from './types'
+import type {
+  ComboboxSlots,
+  Option,
+  OptionGroup,
+  OptionsOrGroups,
+} from './types'
 
-type Props = {
-  options: Option[] | OptionGroup[]
-  modelValue?: Option
-  placeholder?: string
-} & ScalarFloatingOptions
+defineProps<
+  {
+    options: OptionsOrGroups<O, G>
+    placeholder?: string
+  } & ScalarFloatingOptions
+>()
 
-type SlotProps = {
-  /** Whether or not the combobox is open */
-  open: boolean
-}
+const model = defineModel<O>()
 
-defineProps<Props>()
-
-const emit = defineEmits<{
-  (e: 'update:modelValue', v: Option): void
-}>()
-
-defineSlots<{
-  /** The reference element for the combobox */
-  default(props: SlotProps): unknown
-  /** A slot for contents before the combobox options */
-  before?(props: SlotProps): unknown
-  /** A slot for contents after the combobox options */
-  after?(props: SlotProps): unknown
-}>()
-
-function handleUpdateModelValue(value: Option | undefined) {
-  if (value) {
-    emit('update:modelValue', value)
-  }
-}
+defineSlots<ComboboxSlots<O, G>>()
 </script>
 <template>
   <ComboboxPopover
-    :middleware="middleware"
-    :offset="offset"
+    :middleware
+    :offset
     :placement="placement ?? 'bottom-start'"
-    :resize="resize"
-    :target="target"
-    :teleport="teleport">
+    :resize
+    :target
+    :teleport>
     <template #default="{ open }">
-      <slot :open="open" />
+      <slot :open />
     </template>
     <template #popover="{ open, close }">
       <ComboboxOptions
-        :modelValue="modelValue ? [modelValue] : []"
-        :open="open"
-        :options="options"
-        :placeholder="placeholder"
-        @update:modelValue="(v) => [handleUpdateModelValue(v[0]), close()]">
+        :modelValue="model ? [model] : []"
+        :open
+        :options
+        :placeholder
+        @update:modelValue="(v) => (close(), (model = v[0]))">
+        <!-- Pass through the combobox slots -->
         <template
           v-if="$slots.before"
           #before>
+          <slot name="before" />
+        </template>
+        <template
+          v-if="$slots.option"
+          #option="props">
           <slot
-            name="before"
-            :open="open" />
+            name="option"
+            v-bind="props" />
+        </template>
+        <template
+          v-if="$slots.group"
+          #group="props">
+          <slot
+            name="group"
+            v-bind="props" />
         </template>
         <template
           v-if="$slots.after"
           #after>
-          <slot
-            name="after"
-            :open="open" />
+          <slot name="after" />
         </template>
       </ComboboxOptions>
     </template>

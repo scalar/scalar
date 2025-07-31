@@ -1,26 +1,30 @@
-<script setup lang="ts">
+<!-- prettier-ignore-attribute generic -->
+<script
+  setup
+  lang="ts"
+  generic=" O extends Option = Option, G extends OptionGroup<O> = OptionGroup<O> ">
 import { ref } from 'vue'
 
 import type { ScalarFloatingOptions } from '../ScalarFloating'
 import ComboboxOptions from './ScalarComboboxOptions.vue'
 import ComboboxPopover from './ScalarComboboxPopover.vue'
-import type { ComboboxSlots, Option, OptionGroup } from './types'
+import type {
+  ComboboxSlots,
+  Option,
+  OptionGroup,
+  OptionsOrGroups,
+} from './types'
 
 defineProps<
   {
-    options: Option[] | OptionGroup[]
-    modelValue?: Option[]
+    options: OptionsOrGroups<O, G>
     placeholder?: string
-    isDeletable?: boolean
   } & ScalarFloatingOptions
 >()
 
-defineEmits<{
-  (e: 'update:modelValue', v: Option[]): void
-  (e: 'delete', option: Option): void
-}>()
+const model = defineModel<O[]>({ default: [] })
 
-defineSlots<ComboboxSlots>()
+defineSlots<ComboboxSlots<O, G>>()
 
 /** Propagate up the popover ref */
 const comboboxPopoverRef = ref<typeof ComboboxPopover | null>(null)
@@ -36,31 +40,41 @@ defineExpose({ comboboxPopoverRef })
     :resize="resize"
     :target="target"
     :teleport="teleport">
-    <slot />
+    <template #default="{ open }">
+      <slot :open />
+    </template>
     <template #popover="{ open }">
       <ComboboxOptions
         v-if="options?.length"
-        :isDeletable="isDeletable"
-        :modelValue="modelValue"
+        v-model="model"
         multiselect
-        :open="open"
-        :options="options"
-        :placeholder="placeholder"
-        @delete="(option: Option) => $emit('delete', option)"
-        @update:modelValue="(v) => $emit('update:modelValue', v)">
+        :open
+        :options
+        :placeholder>
+        <!-- Pass through the combobox slots -->
         <template
           v-if="$slots.before"
           #before>
+          <slot name="before" />
+        </template>
+        <template
+          v-if="$slots.option"
+          #option="props">
           <slot
-            name="before"
-            :open="open" />
+            name="option"
+            v-bind="props" />
+        </template>
+        <template
+          v-if="$slots.group"
+          #group="props">
+          <slot
+            name="group"
+            v-bind="props" />
         </template>
         <template
           v-if="$slots.after"
           #after>
-          <slot
-            name="after"
-            :open="open" />
+          <slot name="after" />
         </template>
       </ComboboxOptions>
     </template>

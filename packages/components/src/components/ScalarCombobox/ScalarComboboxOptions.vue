@@ -1,30 +1,31 @@
-<script setup lang="ts">
+<!-- prettier-ignore-attribute generic -->
+<script
+  setup
+  lang="ts"
+  generic="O extends Option = Option, G extends OptionGroup<O> = OptionGroup<O>">
 import { ScalarIconMagnifyingGlass } from '@scalar/icons'
 import { computed, onMounted, ref, useId, watch } from 'vue'
 
+import { ScalarListboxCheckbox } from '../ScalarListbox'
 import ComboboxOption from './ScalarComboboxOption.vue'
 import ComboboxOptionGroup from './ScalarComboboxOptionGroup.vue'
 import {
   type ComboboxSlots,
   type Option,
   type OptionGroup,
+  type OptionsOrGroups,
   isGroups,
 } from './types'
 
 const props = defineProps<{
-  options: Option[] | OptionGroup[]
-  modelValue?: Option[]
+  options: OptionsOrGroups<O, G>
   placeholder?: string
   multiselect?: boolean
-  isDeletable?: boolean
 }>()
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', v: Option[]): void
-  (e: 'delete', option: Option): void
-}>()
+const model = defineModel<O[]>({ default: [] })
 
-defineSlots<Omit<ComboboxSlots, 'default'>>()
+defineSlots<Omit<ComboboxSlots<O, G>, 'default'>>()
 
 defineOptions({ inheritAttrs: false })
 
@@ -37,23 +38,26 @@ function getOptionId(option: Option) {
 }
 
 /** A flat list of all options */
-const options = computed<Option[]>(() =>
+const options = computed<O[]>(() =>
   isGroups(props.options)
     ? props.options.flatMap((group) => group.options)
     : props.options,
 )
 
 /** An list of all groups */
-const groups = computed<OptionGroup[]>(() =>
-  isGroups(props.options)
-    ? props.options
-    : [{ label: '', options: props.options }],
+const groups = computed<G[]>(
+  () =>
+    isGroups(props.options)
+      ? props.options // G extends OptionGroup<O>
+      : /*
+          We know G is an unextended OptionGroup<O> here because of the
+          structure of the component props so we can cast it to G
+        */
+        [{ label: '', options: props.options } as G], // G is OptionGroup<O>
 )
 
 const query = ref<string>('')
-const active = ref<Option | undefined>(
-  props.modelValue?.[0] ?? options.value[0],
-)
+const active = ref<Option | undefined>(model.value?.[0] ?? options.value[0])
 
 // Clear the query on open and close
 onMounted(async () => {
@@ -61,12 +65,13 @@ onMounted(async () => {
   query.value = ''
 
   // Set the active option to the selected option or the first option
-  active.value = props.modelValue?.[0] ?? options.value[0]
+  active.value = model.value?.[0] ?? options.value[0]
 
   // Scroll to the selected option
-  if (selected.value.length !== 0) {
+  const selected = model.value[0]
+  if (selected) {
     setTimeout(() => {
-      const value = selected.value[0]
+      const value = model.value[0]
       if (!value) {
         return
       }
@@ -84,7 +89,7 @@ watch(
   () => (active.value = filtered.value[0]),
 )
 
-const filtered = computed<Option[]>(() =>
+const filtered = computed<O[]>(() =>
   query.value === ''
     ? options.value
     : options.value.filter((option) => {
@@ -92,24 +97,26 @@ const filtered = computed<Option[]>(() =>
       }),
 )
 
-const selected = computed<Option[]>({
-  get: () => props.modelValue ?? [],
-  set: (o: Option[]) => o && emit('update:modelValue', o),
-})
+function toggleSelected(option: Option | undefined) {
+  if (!option) {
+    return
+  }
 
-function toggleSelected(option: Option) {
   if (props.multiselect) {
     // Remove from selection list
-    if (selected.value.some((o) => o.id === option.id)) {
-      selected.value = selected.value.filter((o) => o.id !== option.id)
+    if (model.value.some((o) => o.id === option.id)) {
+      model.value = model.value.filter((o) => o.id !== option.id)
     }
     // Add to selection list
     else {
-      selected.value = [...selected.value, option]
+      model.value = [
+        ...model.value,
+        options.value.find((o) => o.id === option.id)!,
+      ]
     }
   } else {
     // Set selection for single select mode
-    selected.value = [option]
+    model.value = [options.value.find((o) => o.id === option.id)!]
   }
 }
 
@@ -125,7 +132,7 @@ function moveActive(dir: 1 | -1) {
     return
   }
 
-  active.value = list[nextIdx]
+  active.value = list[nextIdx]! // We know it's in bounds from the check above
 
   if (!active.value) {
     return
@@ -183,7 +190,13 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
         !group.label
       ">
       <template #label>
-        {{ group.label }}
+        <slot
+          v-if="$slots.group"
+          name="group"
+          :group />
+        <template v-else>
+          {{ group.label }}
+        </template>
       </template>
       <template
         v-for="option in filtered"
@@ -192,14 +205,25 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
           v-if="group.options.some((o) => o.id === option.id)"
           :id="getOptionId(option)"
           :active="active?.id === option.id"
-          :isDeletable="option.isDeletable ?? isDeletable"
-          :selected="selected.some((o) => o.id === option.id)"
-          :style="multiselect ? 'checkbox' : 'radio'"
+          :selected="model.some((o) => o.id === option.id)"
           @click="toggleSelected(option)"
-          @delete="$emit('delete', option)"
           @mousedown.prevent
-          @mouseenter="active = option">
-          {{ option.label }}
+          @mouseenter="active = option"
+          v-slot="{ active, selected }">
+          <slot
+            v-if="$slots.option"
+            name="option"
+            :option
+            :active
+            :selected />
+          <template v-else>
+            <ScalarListboxCheckbox
+              :selected="model.some((o) => o.id === option.id)"
+              :multiselect />
+            <span class="inline-block min-w-0 flex-1 truncate text-c-1">
+              {{ option.label }}
+            </span>
+          </template>
         </ComboboxOption>
       </template>
     </ComboboxOptionGroup>

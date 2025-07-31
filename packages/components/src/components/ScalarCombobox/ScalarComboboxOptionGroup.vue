@@ -15,7 +15,7 @@ const { id = useId(), hidden = false } = defineProps<{
     <div
       v-if="!hidden"
       :id="`${id}-label`"
-      class="min-w-0 truncate px-2.5 py-1.5 text-left text-c-2">
+      class="min-w-0 truncate px-2.5 py-1.5 text-c-2">
       <slot name="label" />
     </div>
     <slot />
