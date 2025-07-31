@@ -49,7 +49,11 @@ const groups = computed<G[]>(
   () =>
     isGroups(props.options)
       ? props.options // G extends OptionGroup<O>
-      : [{ label: '', options: props.options } as G], // G is OptionGroup<O>
+      : /*
+          We know G is an unextended OptionGroup<O> here because of the
+          structure of the component props so we can cast it to G
+        */
+        [{ label: '', options: props.options } as G], // G is OptionGroup<O>
 )
 
 const query = ref<string>('')
