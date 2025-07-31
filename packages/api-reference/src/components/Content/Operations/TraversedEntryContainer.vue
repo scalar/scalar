@@ -81,6 +81,12 @@ const resume = () => {
 /** So we know when we have loaded all lazy elements */
 const lazyIds = ref<Set<string>>(new Set())
 
+/** The index of the root entry */
+const rootIndex = computed(() => {
+  const targetId = hash.value.startsWith('model') ? 'models' : hash.value
+  return items.value.entries.findIndex((entry) => targetId.startsWith(entry.id))
+})
+
 // Use the lazybus to handle [un]freezing elements
 lazyBus.on(({ loading, loaded }) => {
   if (hasLazyLoaded.value) {
@@ -118,6 +124,7 @@ setTimeout(() => resume(), 5000)
       :clientOptions
       :config
       :document
+      :rootIndex
       :store />
   </div>
 </template>

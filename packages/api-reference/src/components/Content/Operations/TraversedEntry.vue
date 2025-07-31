@@ -18,8 +18,13 @@ import type { TraversedWebhook } from '@/features/traverse-schema/types'
 import { useNavState } from '@/hooks/useNavState'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
-const { level = 0, entries } = defineProps<{
+const {
+  level = 0,
+  entries,
+  rootIndex,
+} = defineProps<{
   level?: number
+  rootIndex: number
   entries: TraversedEntry[]
   document: OpenAPIV3_1.Document
   config: ApiReferenceConfiguration
@@ -52,16 +57,16 @@ const { hash } = useNavState()
 
 /** The index of the current entry */
 const currentIndex = computed(() => {
+  if (isRootLevel.value) {
+    return rootIndex
+  }
+
   const targetId = hash.value.startsWith('model') ? 'models' : hash.value
   return entries.findIndex((entry) => targetId.startsWith(entry.id))
 })
 
 /** Check if the entry should be lazy loaded */
 const isLazy = (index: number) => {
-  if (!hash.value) {
-    return false
-  }
-
   // Make all previous entries lazy
   if (index < currentIndex.value) {
     return true
@@ -116,6 +121,7 @@ defineExpose({
             :activeCollection
             :activeServer
             :clientOptions
+            :rootIndex
             :config
             :document
             :store />
@@ -127,6 +133,7 @@ defineExpose({
       <!-- Tag Group -->
       <TraversedEntry
         :level="level + 1"
+        :rootIndex
         :entries="entry.children || []"
         :activeCollection
         :activeServer
