@@ -18,6 +18,7 @@ import { InMemoryWorkspaceSchema, type InMemoryWorkspace } from '@/schemas/inmem
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
 import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from '@/schemas/workspace'
+import { apply, diff, merge, type Difference } from '@scalar/json-diff'
 
 /**
  * Input type for workspace document metadata and configuration.
@@ -145,6 +146,12 @@ export type WorkspaceStore = {
   loadWorkspace(input: string): void
   /** Imports a workspace from a specification object */
   importWorkspaceFromSpecification(specification: WorkspaceSpecification): Promise<void[]>
+  /** Rebase document with a remote origin */
+  rebaseDocument: (
+    documentName: string,
+    newDocumentOrigin: Record<string, unknown>,
+    resolvedConflicts?: Difference[],
+  ) => void | ReturnType<typeof merge>['conflicts']
 }
 
 /**
@@ -677,6 +684,81 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           addDocument({ url: doc.$ref, name, overrides: overrides?.[name] }),
         ),
       )
+    },
+    /**
+     * Rebases a document in the workspace with a new origin, resolving conflicts if provided.
+     *
+     * This method is used to rebase a document (e.g., after pulling remote changes) by applying the changes
+     * from the new origin and merging them with local edits. If there are conflicts, they can be resolved
+     * by providing a list of resolved conflicts.
+     *
+     * @param documentName - The name of the document to rebase.
+     * @param newDocumentOrigin - The new origin document (as an object) to rebase onto.
+     * @param resolvedConflicts - (Optional) An array of resolved conflicts to apply.
+     * @returns If there are unresolved conflicts and no resolution is provided, returns the list of conflicts.
+     *
+     * @example
+     * // Example: Rebase a document with a new origin and resolve conflicts
+     * const conflicts = store.rebaseDocument('api', newOriginDoc)
+     * if (conflicts && conflicts.length > 0) {
+     *   // User resolves conflicts here...
+     *   store.rebaseDocument('api', newOriginDoc, userResolvedConflicts)
+     * }
+     */
+    rebaseDocument: (
+      documentName: string,
+      newDocumentOrigin: Record<string, unknown>,
+      resolvedConflicts?: Difference[],
+    ) => {
+      const newOrigin = coerceValue(OpenAPIDocumentSchema, upgrade(newDocumentOrigin).specification)
+
+      const originalDocument = originalDocuments[documentName]
+      const intermediateDocument = intermediateDocuments[documentName]
+      const activeDocument = workspace.documents[documentName] ? getRaw(workspace.documents[documentName]) : undefined // raw version without any overrides
+
+      if (!originalDocument || !intermediateDocument || !activeDocument) {
+        // If any required document state is missing, do nothing
+        return console.error('[ERROR]: Specified document is missing or internal corrupted workspace state')
+      }
+
+      // ---- Get the new intermediate document
+      const changelogAA = diff(originalDocument, newOrigin)
+      const changelogAB = diff(originalDocument, intermediateDocument)
+
+      const changesA = merge(changelogAA, changelogAB)
+
+      if (resolvedConflicts === undefined) {
+        // If there are conflicts, return the list of conflicts for user resolution
+        return changesA.conflicts
+      }
+
+      const changesetA = changesA.diffs.concat(resolvedConflicts)
+
+      // Apply the changes to the original document to get the new intermediate
+      const newIntermediateDocument = apply(deepClone(originalDocument), changesetA) as typeof originalDocument
+      intermediateDocuments[documentName] = newIntermediateDocument
+
+      // Update the original document
+      originalDocuments[documentName] = newOrigin
+
+      // ---- Get the new active document
+      const changelogBA = diff(intermediateDocument, newIntermediateDocument)
+      const changelogBB = diff(intermediateDocument, activeDocument)
+
+      const changesB = merge(changelogBA, changelogBB)
+
+      // Auto-conflict resolution: pick only the changes from the first changeset
+      // TODO: In the future, implement smarter conflict resolution if needed
+      const changesetB = changesB.diffs.concat(changesB.conflicts.flatMap((it) => it[0]))
+
+      const newActiveDocument = apply(deepClone(newIntermediateDocument), changesetB) as typeof newIntermediateDocument
+
+      // Update the active document to the new value
+      workspace.documents[documentName] = createOverridesProxy(
+        createMagicProxy({ ...newActiveDocument }),
+        overrides[documentName],
+      )
+      return
     },
   }
 }
