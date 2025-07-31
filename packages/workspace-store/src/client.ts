@@ -286,9 +286,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map
     workspace.documents[name] = createOverridesProxy(createMagicProxy({ ...document, ...meta }), input.overrides)
-
-    // Write overrides to the intermediate document
-    saveDocument(name)
   }
 
   // Asynchronously adds a new document to the workspace by loading and validating the input.
