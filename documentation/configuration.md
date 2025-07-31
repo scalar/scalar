@@ -16,12 +16,12 @@ Scalar.createApiReference('#app', {
 })
 ```
 
-Or — just as an example — in the Hono server framework you would pass the same configuration like this:
+Or — just as an example — in the Hono server framework, you would pass the same configuration like this:
 
 ```ts
 app.get(
   '/doc',
-  apiReference({
+  Scalar({
     // Your configuration goes here…
     url: '…'
   }),
