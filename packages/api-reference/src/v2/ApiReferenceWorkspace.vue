@@ -114,11 +114,14 @@ onBeforeMount(() => {
 /**
  * Adds a document to the workspace store based on the provided configuration.
  * Handles both in-memory documents (via content) and remote documents (via URL).
+ * If the document is already in the store, it will be updated, otherwise it will be added.
  *
  * @param config - The document configuration containing either content or URL
  * @returns The result of adding the document to the store, or undefined if skipped
  */
-const addDocument = (config: Partial<ApiReferenceConfigurationWithSources>) => {
+const addOrUpdateDocument = async (
+  config: Partial<ApiReferenceConfigurationWithSources>,
+) => {
   const document = normalizeContent(config.content)
 
   /** Generate a name from the document/config */
@@ -154,14 +157,14 @@ const addDocument = (config: Partial<ApiReferenceConfigurationWithSources>) => {
   }
 
   if (document) {
-    return store.addDocumentSync({
+    return await store.addDocument({
       name,
       document,
     })
   }
 
   if (config.url) {
-    return store.addDocument({
+    return await store.addDocument({
       name: config.slug ?? 'default',
       url: makeUrlAbsolute(config.url, {
         basePath: selectedConfiguration.value.pathRouting?.basePath,
@@ -169,19 +172,22 @@ const addDocument = (config: Partial<ApiReferenceConfigurationWithSources>) => {
       fetch: proxy,
     })
   }
+
+  return
 }
 
 /** Watch for URL changes */
 watch(
   () => selectedConfiguration.value.url,
-  (newUrl) => newUrl && addDocument(selectedConfiguration.value),
+  (newUrl) => newUrl && addOrUpdateDocument(selectedConfiguration.value),
   { immediate: true },
 )
 
 /** Watch for content changes */
 watch(
   () => selectedConfiguration.value.content,
-  (newContent) => newContent && addDocument(selectedConfiguration.value),
+  (newContent) =>
+    newContent && addOrUpdateDocument(selectedConfiguration.value),
   { immediate: true, deep: true },
 )
 
