@@ -10,8 +10,8 @@ test.describe('redirect', () => {
     // Make the viewport smaller to test scrolling
     await page.setViewportSize({ width: 1024, height: 200 })
 
-    await page.goto(`${example}#foobar`)
+    await page.goto(`${example}/#foobar`)
 
-    await expect(page.getByRole('heading', { name: 'Get a token', level: 2 })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Get a token', level: 3 })).toBeInViewport()
   })
 })
