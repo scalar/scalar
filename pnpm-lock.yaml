@@ -2551,13 +2551,13 @@ importers:
       tippy.js:
         specifier: ^6.3.7
         version: 6.3.7
-      vue:
-        specifier: catalog:*
-        version: 3.5.17(typescript@5.8.3)
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
+      vue:
+        specifier: catalog:*
+        version: 3.5.17(typescript@5.8.3)
 
   packages/void-server:
     dependencies:
