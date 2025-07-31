@@ -272,7 +272,7 @@ describe('pythonHttpxAsync', () => {
     )`)
   })
 
-  it('handles special characters in URL', () => {
+  it('handles special characters in URL, square brackets', () => {
     const result = pythonHttpxAsync.generate({
       url: 'https://example.com/path with spaces/[brackets]',
     })
@@ -280,6 +280,17 @@ describe('pythonHttpxAsync', () => {
     expect(result).toBe(`with httpx.AsyncClient() as client:
     await client.get(
         "https://example.com/path with spaces/[brackets]"
+    )`)
+  })
+
+  it('handles special characters in URL, curly brackets', () => {
+    const result = pythonHttpxAsync.generate({
+      url: 'https://example.com/path with spaces/{brackets}',
+    })
+
+    expect(result).toBe(`with httpx.AsyncClient() as client:
+    await client.get(
+        "https://example.com/path with spaces/{brackets}"
     )`)
   })
 

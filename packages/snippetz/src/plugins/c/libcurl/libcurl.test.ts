@@ -152,7 +152,7 @@ CURLcode ret = curl_easy_perform(hnd);`,
     )
   })
 
-  it('handles special characters in URL', () => {
+  it('handles special characters in URL, square brackets', () => {
     const result = cLibcurl.generate({
       url: 'https://example.com/path with spaces/[brackets]',
     })
@@ -162,6 +162,21 @@ CURLcode ret = curl_easy_perform(hnd);`,
 
 curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "GET");
 curl_easy_setopt(hnd, CURLOPT_URL, "https://example.com/path%20with%20spaces/[brackets]");
+
+CURLcode ret = curl_easy_perform(hnd);`,
+    )
+  })
+
+  it('handles special characters in URL, curly brackets', () => {
+    const result = cLibcurl.generate({
+      url: 'https://example.com/path with spaces/{brackets}',
+    })
+
+    expect(result).toBe(
+      `CURL *hnd = curl_easy_init();
+
+curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "GET");
+curl_easy_setopt(hnd, CURLOPT_URL, "https://example.com/path%20with%20spaces/{brackets}");
 
 CURLcode ret = curl_easy_perform(hnd);`,
     )

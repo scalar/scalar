@@ -136,12 +136,20 @@ describe('httpHttp11', () => {
     )
   })
 
-  it('handles special characters in URL', () => {
+  it('handles special characters in URL, square brackets', () => {
     const result = httpHttp11.generate({
       url: 'https://example.com/path with spaces/[brackets]',
     })
 
     expect(result).toBe('GET /path%20with%20spaces/[brackets] HTTP/1.1\r\n' + 'Host: example.com\r\n' + '\r\n')
+  })
+
+  it('handles special characters in URL, curly brackets', () => {
+    const result = httpHttp11.generate({
+      url: 'https://example.com/path with spaces/{brackets}',
+    })
+
+    expect(result).toBe('GET /path%20with%20spaces/{brackets} HTTP/1.1\r\n' + 'Host: example.com\r\n' + '\r\n')
   })
 
   it('handles multiple headers with same name', () => {

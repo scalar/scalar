@@ -166,7 +166,7 @@ puts response.read_body`,
     )
   })
 
-  it('handles special characters in URL', () => {
+  it('handles special characters in URL, square brackets', () => {
     const result = rubyNative.generate({
       url: 'https://example.com/path with spaces/[brackets]',
     })
@@ -176,6 +176,27 @@ puts response.read_body`,
 require 'net/http'
 
 url = URI("https://example.com/path%20with%20spaces/[brackets]")
+
+http = Net::HTTP.new(url.host, url.port)
+http.use_ssl = true
+
+request = Net::HTTP::Get.new(url)
+
+response = http.request(request)
+puts response.read_body`,
+    )
+  })
+
+  it('handles special characters in URL, curly brackets', () => {
+    const result = rubyNative.generate({
+      url: 'https://example.com/path with spaces/{brackets}',
+    })
+
+    expect(result).toBe(
+      `require 'uri'
+require 'net/http'
+
+url = URI("https://example.com/path%20with%20spaces/{brackets}")
 
 http = Net::HTTP.new(url.host, url.port)
 http.use_ssl = true

@@ -395,12 +395,24 @@ curl_exec($ch);
 curl_close($ch);`)
   })
 
-  it('handles special characters in URL', () => {
+  it('handles special characters in URL, square brackets', () => {
     const result = phpCurl.generate({
       url: 'https://example.com/path with spaces/[brackets]',
     })
 
     expect(result).toBe(`$ch = curl_init("https://example.com/path with spaces/[brackets]");
+
+curl_exec($ch);
+
+curl_close($ch);`)
+  })
+
+  it('handles special characters in URL, curly brackets', () => {
+    const result = phpCurl.generate({
+      url: 'https://example.com/path with spaces/{brackets}',
+    })
+
+    expect(result).toBe(`$ch = curl_init("https://example.com/path with spaces/{brackets}");
 
 curl_exec($ch);
 

@@ -1,5 +1,19 @@
 import type { Request } from '@/httpsnippet-lite/types/httpsnippet'
 import type { HarRequest } from '@scalar/types/snippetz'
+import { getUrlPathnameWithRestoredBrackets } from './getPathnameWithRestoredBrackets.js'
+
+/**
+ * Helper function to extract URL as string from URL object
+ */
+function getUrlObjectAsString(urlObject: URL): string {
+  // If it's just the domain, omit the trailing slash
+  if (urlObject.pathname === '/' || urlObject.pathname === '') {
+    return urlObject.origin
+  }
+  // Otherwise, encode the pathname while preserving brackets
+  const encodedPathname = getUrlPathnameWithRestoredBrackets(urlObject)
+  return urlObject.origin + encodedPathname + urlObject.search
+}
 
 /**
  * Takes a httpsnippet-lite client and converts the given request to a code example with it.
@@ -12,9 +26,7 @@ export function convertWithHttpSnippetLite(
   request?: Partial<HarRequest>,
 ): string {
   const urlObject = new URL(request?.url ?? '')
-
-  // If it's just the domain, omit the trailing slash
-  const url = urlObject.pathname === '/' ? urlObject.origin : urlObject.toString()
+  const url = getUrlObjectAsString(urlObject)
 
   const harRequest: HarRequest = {
     method: request?.method ?? 'GET',

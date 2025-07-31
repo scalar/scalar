@@ -250,7 +250,7 @@ func main() {
     )
   })
 
-  it('handles special characters in URL', () => {
+  it('handles special characters in URL, square brackets', () => {
     const result = goNative.generate({
       url: 'https://example.com/path with spaces/[brackets]',
     })
@@ -266,6 +266,37 @@ import (
 
 func main() {
 	url := "https://example.com/path%20with%20spaces/[brackets]"
+
+	req, _ := http.NewRequest("GET", url, nil)
+
+	res, _ := http.DefaultClient.Do(req)
+
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+
+	fmt.Println(res)
+	fmt.Println(string(body))
+
+}`,
+    )
+  })
+
+  it('handles special characters in URL, curly brackets', () => {
+    const result = goNative.generate({
+      url: 'https://example.com/path with spaces/{brackets}',
+    })
+
+    expect(result).toBe(
+      `package main
+
+import (
+	"fmt"
+	"io"
+	"net/http"
+)
+
+func main() {
+	url := "https://example.com/path%20with%20spaces/{brackets}"
 
 	req, _ := http.NewRequest("GET", url, nil)
 

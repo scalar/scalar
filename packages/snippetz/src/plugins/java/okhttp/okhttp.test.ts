@@ -112,7 +112,7 @@ Request request = new Request.Builder()
 Response response = client.newCall(request).execute();`)
   })
 
-  it('handles special characters in URL', () => {
+  it('handles special characters in URL, square brackets', () => {
     const result = javaOkhttp.generate({
       url: 'https://example.com/path with spaces/[brackets]',
     })
@@ -121,6 +121,21 @@ Response response = client.newCall(request).execute();`)
 
 Request request = new Request.Builder()
   .url("https://example.com/path%20with%20spaces/[brackets]")
+  .get()
+  .build();
+
+Response response = client.newCall(request).execute();`)
+  })
+
+  it('handles special characters in URL, curly brackets', () => {
+    const result = javaOkhttp.generate({
+      url: 'https://example.com/path with spaces/{brackets}',
+    })
+
+    expect(result).toBe(`OkHttpClient client = new OkHttpClient();
+
+Request request = new Request.Builder()
+  .url("https://example.com/path%20with%20spaces/{brackets}")
   .get()
   .build();
 

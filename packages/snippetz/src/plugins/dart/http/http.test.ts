@@ -386,7 +386,7 @@ void main() async {
 }`)
   })
 
-  it('handles special characters in URL', () => {
+  it('handles special characters in URL, square brackets', () => {
     const result = dartHttp.generate({
       url: 'https://example.com/path with spaces/[brackets]',
     })
@@ -395,6 +395,19 @@ void main() async {
 
 void main() async {
   final response = await http.get(Uri.parse('https://example.com/path with spaces/[brackets]'));
+  print(response.body);
+}`)
+  })
+
+  it('handles special characters in URL, curly brackets', () => {
+    const result = dartHttp.generate({
+      url: 'https://example.com/path with spaces/{brackets}',
+    })
+
+    expect(result).toBe(`import 'package:http/http.dart' as http;
+
+void main() async {
+  final response = await http.get(Uri.parse('https://example.com/path with spaces/{brackets}'));
   print(response.body);
 }`)
   })

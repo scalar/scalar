@@ -306,12 +306,20 @@ describe('shellCurl', () => {
   --compressed`)
   })
 
-  it('handles special characters in URL', () => {
+  it('handles special characters in URL, square brackets', () => {
     const result = shellCurl.generate({
       url: 'https://example.com/path with spaces/[brackets]',
     })
 
     expect(result).toBe(`curl 'https://example.com/path with spaces/[brackets]'`)
+  })
+
+  it('handles special characters in URL, curly brackets', () => {
+    const result = shellCurl.generate({
+      url: 'https://example.com/path with spaces/{brackets}',
+    })
+
+    expect(result).toBe(`curl 'https://example.com/path with spaces/{brackets}'`)
   })
 
   it('handles special characters in query parameters', () => {
