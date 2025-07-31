@@ -1470,6 +1470,19 @@ describe('bundle', () => {
   })
 
   describe('yaml inputs', () => {
+    let server: FastifyInstance
+    const port = 7229
+    const url = `http://localhost:${port}`
+
+    beforeEach(() => {
+      server = fastify({ logger: false })
+    })
+
+    afterEach(async () => {
+      await server.close()
+      await setTimeout(100)
+    })
+
     it('should process yaml inputs', async () => {
       const result = await bundle('openapi: "3.1"\ninfo:\n  title: Simple API\n  version: "1.0"\n', {
         treeShake: false,
@@ -1510,6 +1523,27 @@ describe('bundle', () => {
         a: {
           $ref: `#/x-ext/${await getHash(chunk1Path)}/a`,
         },
+      })
+    })
+
+    it.only('should correctly load the document from an url even when yaml plugin is provided and it has high priority on the list', async () => {
+      server.get('/', () => ({
+        openapi: '3.1.1',
+        info: {
+          title: 'My API',
+        },
+      }))
+      await server.listen({ port })
+      const result = await bundle(url, {
+        treeShake: false,
+        plugins: [parseYaml(), fetchUrls()],
+      })
+
+      expect(result).toEqual({
+        'info': {
+          'title': 'My API',
+        },
+        'openapi': '3.1.1',
       })
     })
   })
