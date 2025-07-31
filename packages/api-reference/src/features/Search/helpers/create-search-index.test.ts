@@ -63,10 +63,18 @@ describe('createSearchIndex', () => {
 
       expect(index).toMatchObject([
         {
+          type: 'heading',
+          title: 'Models',
+          description: 'Heading',
+        },
+        {
           title: 'User Model',
+          description: 'Model',
+          body: 'A user object',
         },
       ])
-      expect(index.length).toEqual(1)
+
+      expect(index.length).toEqual(2)
     })
   })
 
@@ -86,10 +94,19 @@ describe('createSearchIndex', () => {
 
       expect(index).toMatchObject([
         {
+          type: 'heading',
+          title: 'Webhooks',
+          description: 'Heading',
+        },
+        {
+          type: 'webhook',
+          method: 'post',
           title: 'User Created Webhook',
+          description: 'Webhook',
         },
       ])
-      expect(index.length).toEqual(1)
+
+      expect(index.length).toEqual(2)
     })
   })
 
@@ -105,10 +122,12 @@ describe('createSearchIndex', () => {
 
       expect(index).toMatchObject([
         {
-          title: 'Introduction',
-          description: 'API Documentation',
+          type: 'heading',
+          title: 'API Documentation',
+          description: 'Description',
         },
       ])
+
       expect(index.length).toEqual(1)
     })
   })

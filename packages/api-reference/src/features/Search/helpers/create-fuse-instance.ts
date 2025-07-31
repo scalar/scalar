@@ -1,6 +1,11 @@
 import type { FuseData } from '@/features/Search/types'
 import Fuse from 'fuse.js'
 
+/**
+ * Create a Fuse instance for searching the API reference.
+ *
+ * Doesn't have any data yet, so it's empty.
+ */
 export function createFuseInstance(): Fuse<FuseData> {
   return new Fuse([], {
     // Define searchable fields with weights to prioritize more important matches
@@ -12,7 +17,7 @@ export function createFuseInstance(): Fuse<FuseData> {
       // Lowest weight - can be very long and noisy
       { name: 'body', weight: 0.2 },
       // High weight - unique identifiers for operations
-      { name: 'operationId', weight: 0.6 },
+      { name: 'id', weight: 0.6 },
       // Good weight - endpoint paths are searchable
       { name: 'path', weight: 0.5 },
       // Medium-high weight - helps with categorization

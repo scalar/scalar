@@ -2,6 +2,9 @@ import type { FuseData } from '@/features/Search/types'
 import type { TraversedEntry } from '@/features/traverse-schema'
 import { createParameterMap, extractRequestBody } from '@/libs/openapi'
 
+/**
+ * Create a search index from a list of entries.
+ */
 export function createSearchIndex(entries: TraversedEntry[]): FuseData[] {
   const index: FuseData[] = []
 
@@ -37,8 +40,8 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[]): void {
       type: 'operation',
       title: entry.title,
       href: `#${entry.id}`,
-      // operationId: entry.operation.operationId,
-      description: entry.operation.description ?? '',
+      id: entry.operation.operationId,
+      description: entry.operation.description || '',
       method: entry.method,
       path: entry.path,
       body: body || '',
@@ -56,7 +59,7 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[]): void {
       href: `#${entry.id}`,
       description: 'Webhook',
       method: entry.method,
-      body: '',
+      body: entry.webhook.description || '',
       entry,
     })
 
@@ -70,7 +73,7 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[]): void {
       title: entry.title,
       href: `#${entry.id}`,
       description: 'Model',
-      body: '',
+      body: entry.schema.description || '',
       entry,
     })
 
@@ -133,7 +136,7 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[]): void {
     return
   }
 
-  // Introduction heading
+  // Headings from info.description
   index.push({
     type: 'heading',
     title: entry.title ?? '',
