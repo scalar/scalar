@@ -119,7 +119,7 @@ describe('ApiReferenceWorkspace', () => {
 
       await nextTick()
 
-      expect(mockStore.addDocumentSync).toHaveBeenCalledWith({
+      expect(mockStore.addDocument).toHaveBeenCalledWith({
         name: 'test-api',
         document: mockConfiguration.content,
       })
@@ -493,7 +493,6 @@ describe('ApiReferenceWorkspace', () => {
       })
 
       expect(wrapper.exists()).toBe(true)
-      expect(mockStore.addDocumentSync).not.toHaveBeenCalled()
       expect(mockStore.addDocument).not.toHaveBeenCalled()
     })
 
