@@ -80,3 +80,12 @@ export const createMockStore = (activeDocument: WorkspaceDocument): WorkspaceSto
   replaceDocument: vi.fn(),
   rebaseDocument: vi.fn(),
 })
+
+export const createMockLocalStorage = () => ({
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
+  key: vi.fn(),
+  length: 0,
+})

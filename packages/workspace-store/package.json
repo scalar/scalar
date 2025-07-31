@@ -49,6 +49,11 @@
       "types": "./dist/schemas/workspace.d.ts",
       "default": "./dist/schemas/workspace.js"
     },
+    "./helpers/*": {
+      "import": "./dist/helpers/*.js",
+      "types": "./dist/helpers/*.d.ts",
+      "default": "./dist/helpers/*.js"
+    },
     "./schemas/v3.1/*": {
       "import": "./dist/schemas/v3.1/*.js",
       "types": "./dist/schemas/v3.1/*.d.ts",
