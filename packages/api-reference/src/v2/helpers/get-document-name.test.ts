@@ -25,10 +25,10 @@ describe('getDocumentName', () => {
 
     it('should base the unknown name on the number of documents', () => {
       const result = getDocumentName({}, {
-        'OpenAPI Document #1': {},
-        'OpenAPI Document #2': {},
-        'OpenAPI Document #3': {},
-        'OpenAPI Document #5': {},
+        'API #1': {},
+        'API #2': {},
+        'API #3': {},
+        'API #5': {},
       } as any)
       expect(result).toBe('OpenAPI Document #4')
     })
