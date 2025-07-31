@@ -67,7 +67,7 @@ This is a Vue 3 + TypeScript monorepo for Scalar - an API documentation and test
 
 ### Import & Processing
 - `@scalar/import` - Import various file formats into OpenAPI documents
-- `@scalar/scripts` - Script execution engine for API client automation
+- `@scalar/pre-post-request-scripts` - Script execution engine for API client automation
 
 ## Integrations
 

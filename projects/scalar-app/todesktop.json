@@ -19,7 +19,7 @@
       "@scalar/themes": null,
       "@scalar/components": null,
       "@scalar/import": null,
-      "@scalar/scripts": null
+      "@scalar/pre-post-request-scripts": null
     },
     "devDependencies": {
       "@types/node": null,

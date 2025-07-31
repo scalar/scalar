@@ -328,7 +328,6 @@ describe('Operation', () => {
       updateDocument: vi.fn(),
       resolve: vi.fn(),
       addDocument: vi.fn(),
-      addDocumentSync: vi.fn(),
       config: {} as any,
       exportDocument: vi.fn(),
       saveDocument: vi.fn(),
@@ -338,6 +337,7 @@ describe('Operation', () => {
       loadWorkspace: vi.fn(),
       importWorkspaceFromSpecification: vi.fn(),
       replaceDocument: vi.fn(),
+      rebaseDocument: vi.fn(),
     }
 
     const wrapper = mount(Operation, {

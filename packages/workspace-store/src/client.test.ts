@@ -5,6 +5,7 @@ import { createServerWorkspaceStore } from '@/server'
 import { consoleErrorSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
 import fastify, { type FastifyInstance } from 'fastify'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import assert from 'node:assert'
 
 // Test document
 const getDocument = (version?: string) => ({
@@ -85,20 +86,18 @@ describe('create-workspace-store', () => {
   })
 
   it('correctly update document metadata', async () => {
-    const store = await createWorkspaceStore({
-      documents: [
-        {
-          name: 'default',
-          document: {
-            openapi: '3.0.0',
-            info: { title: 'My API' },
-          },
-          meta: {
-            'x-scalar-active-auth': 'Bearer',
-            'x-scalar-active-server': 'server-1',
-          },
-        },
-      ],
+    const store = createWorkspaceStore()
+
+    await store.addDocument({
+      name: 'default',
+      document: {
+        openapi: '3.0.0',
+        info: { title: 'My API' },
+      },
+      meta: {
+        'x-scalar-active-auth': 'Bearer',
+        'x-scalar-active-server': 'server-1',
+      },
     })
 
     // Should update the active document
@@ -115,33 +114,33 @@ describe('create-workspace-store', () => {
   })
 
   it('correctly get the correct document', async () => {
-    const store = await createWorkspaceStore({
-      documents: [
-        {
-          name: 'default',
-          document: {
-            openapi: '3.0.0',
-            info: { title: 'My API' },
-          },
-          meta: {
-            'x-scalar-active-auth': 'Bearer',
-            'x-scalar-active-server': 'server-1',
-          },
-        },
-        {
-          name: 'document2',
-          document: {
-            openapi: '3.0.0',
-            info: { title: 'Second API' },
-          },
-          meta: {
-            'x-scalar-active-auth': 'Bearer',
-            'x-scalar-active-server': 'server-1',
-          },
-        },
-      ],
+    const store = createWorkspaceStore({
       meta: {
         'x-scalar-active-document': 'default',
+      },
+    })
+
+    await store.addDocument({
+      name: 'default',
+      document: {
+        openapi: '3.0.0',
+        info: { title: 'My API' },
+      },
+      meta: {
+        'x-scalar-active-auth': 'Bearer',
+        'x-scalar-active-server': 'server-1',
+      },
+    })
+
+    await store.addDocument({
+      name: 'document2',
+      document: {
+        openapi: '3.0.0',
+        info: { title: 'Second API' },
+      },
+      meta: {
+        'x-scalar-active-auth': 'Bearer',
+        'x-scalar-active-server': 'server-1',
       },
     })
 
@@ -165,9 +164,7 @@ describe('create-workspace-store', () => {
   })
 
   it('correctly add new documents', async () => {
-    const store = await createWorkspaceStore({
-      documents: [],
-    })
+    const store = createWorkspaceStore()
 
     await store.addDocument({
       document: {
@@ -189,50 +186,48 @@ describe('create-workspace-store', () => {
   })
 
   it('correctly resolve refs on the fly', async () => {
-    const store = await createWorkspaceStore({
-      documents: [
-        {
-          name: 'default',
-          document: {
-            openapi: '3.0.0',
-            info: { title: 'My API' },
-            components: {
-              schemas: {
-                User: {
-                  type: 'object',
-                  properties: {
-                    id: {
-                      type: 'string',
-                      description: 'The user ID',
-                    },
-                    name: {
-                      type: 'string',
-                      description: 'The user name',
-                    },
-                    email: {
-                      type: 'string',
-                      format: 'email',
-                      description: 'The user email',
-                    },
-                  },
+    const store = createWorkspaceStore()
+
+    await store.addDocument({
+      name: 'default',
+      document: {
+        openapi: '3.0.0',
+        info: { title: 'My API' },
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              properties: {
+                id: {
+                  type: 'string',
+                  description: 'The user ID',
+                },
+                name: {
+                  type: 'string',
+                  description: 'The user name',
+                },
+                email: {
+                  type: 'string',
+                  format: 'email',
+                  description: 'The user email',
                 },
               },
             },
-            paths: {
-              '/users': {
-                get: {
-                  summary: 'Get all users',
-                  responses: {
-                    '200': {
-                      description: 'Successful response',
-                      content: {
-                        'application/json': {
-                          schema: {
-                            type: 'array',
-                            items: {
-                              $ref: '#/components/schemas/User',
-                            },
-                          },
+          },
+        },
+        paths: {
+          '/users': {
+            get: {
+              summary: 'Get all users',
+              responses: {
+                '200': {
+                  description: 'Successful response',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'array',
+                        items: {
+                          $ref: '#/components/schemas/User',
                         },
                       },
                     },
@@ -242,7 +237,7 @@ describe('create-workspace-store', () => {
             },
           },
         },
-      ],
+      },
     })
 
     expect(
@@ -275,13 +270,10 @@ describe('create-workspace-store', () => {
       ],
     })
 
-    const store = createWorkspaceStore({
-      documents: [
-        {
-          name: 'default',
-          document: serverStore.getWorkspace().documents['default'] ?? {},
-        },
-      ],
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'default',
+      document: serverStore.getWorkspace().documents['default'] ?? {},
     })
 
     // The operation should not be resolved on the fly
@@ -406,13 +398,10 @@ describe('create-workspace-store', () => {
       ],
     })
 
-    const store = createWorkspaceStore({
-      documents: [
-        {
-          name: 'default',
-          document: serverStore.getWorkspace().documents['default'] ?? {},
-        },
-      ],
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'default',
+      document: serverStore.getWorkspace().documents['default'] ?? {},
     })
 
     // The operation should not be resolved on the fly
@@ -428,9 +417,7 @@ describe('create-workspace-store', () => {
   })
 
   it('build the sidebar client side', async () => {
-    const store = await createWorkspaceStore({
-      documents: [],
-    })
+    const store = createWorkspaceStore()
 
     await store.addDocument({
       document: {
@@ -590,7 +577,7 @@ describe('create-workspace-store', () => {
     })
   })
 
-  it('correctly get the config #2', () => {
+  it('correctly get the config #2', async () => {
     const store = createWorkspaceStore({
       config: {
         'x-scalar-reference-config': {
@@ -601,7 +588,7 @@ describe('create-workspace-store', () => {
       },
     })
 
-    store.addDocumentSync({
+    await store.addDocument({
       name: 'default',
       document: {
         openapi: '3.0.0',
@@ -635,27 +622,24 @@ describe('create-workspace-store', () => {
 
   describe('download original document', () => {
     it('gets the original document from the store json', async () => {
-      const store = createWorkspaceStore({
-        documents: [
-          {
-            name: 'api-1',
-            document: {
-              info: { title: 'My API', version: '1.0.0' },
-              openapi: '3.1.1',
-            },
-          },
-          {
-            name: 'api-2',
-            document: {
-              info: { title: 'My API 2', version: '1.2.0' },
-              openapi: '3.1.1',
-            },
-          },
-          {
-            name: 'api-3',
-            document: getDocument(),
-          },
-        ],
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'api-1',
+        document: {
+          info: { title: 'My API', version: '1.0.0' },
+          openapi: '3.1.1',
+        },
+      })
+      await store.addDocument({
+        name: 'api-2',
+        document: {
+          info: { title: 'My API 2', version: '1.2.0' },
+          openapi: '3.1.1',
+        },
+      })
+      await store.addDocument({
+        name: 'api-3',
+        document: getDocument(),
       })
 
       expect(store.exportDocument('api-1', 'json')).toBe(
@@ -672,27 +656,24 @@ describe('create-workspace-store', () => {
     })
 
     it('gets the original document from the store yaml', async () => {
-      const store = createWorkspaceStore({
-        documents: [
-          {
-            name: 'api-1',
-            document: {
-              info: { title: 'My API', version: '1.0.0' },
-              openapi: '3.1.1',
-            },
-          },
-          {
-            name: 'api-2',
-            document: {
-              info: { title: 'My API 2', version: '1.2.0' },
-              openapi: '3.1.1',
-            },
-          },
-          {
-            name: 'api-3',
-            document: getDocument(),
-          },
-        ],
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'api-1',
+        document: {
+          info: { title: 'My API', version: '1.0.0' },
+          openapi: '3.1.1',
+        },
+      })
+      await store.addDocument({
+        name: 'api-2',
+        document: {
+          info: { title: 'My API 2', version: '1.2.0' },
+          openapi: '3.1.1',
+        },
+      })
+      await store.addDocument({
+        name: 'api-3',
+        document: getDocument(),
       })
 
       expect(store.exportDocument('api-1', 'yaml')).toBe('info:\n  title: My API\n  version: 1.0.0\nopenapi: 3.1.1\n')
@@ -707,27 +688,24 @@ describe('create-workspace-store', () => {
 
   describe('save document', () => {
     it('writes back to the original document', async () => {
-      const store = createWorkspaceStore({
-        documents: [
-          {
-            name: 'api-1',
-            document: {
-              info: { title: 'My API', version: '1.0.0' },
-              openapi: '3.1.1',
-            },
-          },
-          {
-            name: 'api-2',
-            document: {
-              info: { title: 'My API 2', version: '1.2.0' },
-              openapi: '3.1.1',
-            },
-          },
-          {
-            name: 'api-3',
-            document: getDocument(),
-          },
-        ],
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'api-1',
+        document: {
+          info: { title: 'My API', version: '1.0.0' },
+          openapi: '3.1.1',
+        },
+      })
+      await store.addDocument({
+        name: 'api-2',
+        document: {
+          info: { title: 'My API 2', version: '1.2.0' },
+          openapi: '3.1.1',
+        },
+      })
+      await store.addDocument({
+        name: 'api-3',
+        document: getDocument(),
       })
 
       if (store.workspace.documents['api-3']?.info?.title) {
@@ -761,31 +739,25 @@ describe('create-workspace-store', () => {
 
       await server.listen({ port })
 
-      const store = createWorkspaceStore({
-        documents: [
-          {
-            name: 'default',
-            document: {
-              ...document,
-              paths: {
-                ...document.paths,
-                '/external': {
-                  get: {
-                    $ref: `http://localhost:${port}`,
-                  },
-                },
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'default',
+        document: {
+          ...document,
+          paths: {
+            ...document.paths,
+            '/external': {
+              get: {
+                $ref: `http://localhost:${port}`,
               },
             },
           },
-        ],
+        },
       })
 
       if (store.workspace.activeDocument?.info?.title) {
         store.workspace.activeDocument.info.title = 'Updated API'
       }
-
-      // Bundle external documents
-      await store.resolve(['paths'])
 
       // Write the changes back to the original document
       store.saveDocument('default')
@@ -799,27 +771,24 @@ describe('create-workspace-store', () => {
 
   describe('revert', () => {
     it('should revert the changes made to the document', async () => {
-      const store = createWorkspaceStore({
-        documents: [
-          {
-            name: 'api-1',
-            document: {
-              info: { title: 'My API', version: '1.0.0' },
-              openapi: '3.1.1',
-            },
-          },
-          {
-            name: 'api-2',
-            document: {
-              info: { title: 'My API 2', version: '1.2.0' },
-              openapi: '3.1.1',
-            },
-          },
-          {
-            name: 'api-3',
-            document: getDocument(),
-          },
-        ],
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'api-1',
+        document: {
+          info: { title: 'My API', version: '1.0.0' },
+          openapi: '3.1.1',
+        },
+      })
+      await store.addDocument({
+        name: 'api-2',
+        document: {
+          info: { title: 'My API 2', version: '1.2.0' },
+          openapi: '3.1.1',
+        },
+      })
+      await store.addDocument({
+        name: 'api-3',
+        document: getDocument(),
       })
 
       if (store.workspace.documents['api-3']?.info?.title) {
@@ -848,31 +817,8 @@ describe('create-workspace-store', () => {
   })
 
   describe('export', () => {
-    it('should export the workspace internal state as a json document', () => {
+    it('should export the workspace internal state as a json document', async () => {
       const store = createWorkspaceStore({
-        documents: [
-          {
-            name: 'default',
-            document: {
-              openapi: '3.0.0',
-              info: {
-                title: 'My API',
-                version: '1.0.0',
-              },
-            },
-            config: {
-              'x-scalar-reference-config': {
-                features: {
-                  showModels: false,
-                  showDownload: false,
-                },
-              },
-            },
-            meta: {
-              'x-scalar-active-server': 'server-1',
-            },
-          },
-        ],
         meta: {
           'x-scalar-active-document': 'default',
           'x-scalar-dark-mode': true,
@@ -880,8 +826,29 @@ describe('create-workspace-store', () => {
           'x-scalar-theme': 'saturn',
         },
       })
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.0.0',
+          info: {
+            title: 'My API',
+            version: '1.0.0',
+          },
+        },
+        config: {
+          'x-scalar-reference-config': {
+            features: {
+              showModels: false,
+              showDownload: false,
+            },
+          },
+        },
+        meta: {
+          'x-scalar-active-server': 'server-1',
+        },
+      })
 
-      store.addDocumentSync({
+      await store.addDocument({
         name: 'pet-store',
         document: {
           openapi: '3.0.0',
@@ -958,6 +925,7 @@ describe('create-workspace-store', () => {
               'paths': { '/users': { 'get': { 'description': 'Get all users' } } },
             },
           },
+          overrides: { default: {}, 'pet-store': {} },
         }),
       )
     })
@@ -1074,20 +1042,17 @@ describe('create-workspace-store', () => {
 
   describe('override documents', () => {
     it('override documents with new content', async () => {
-      const store = createWorkspaceStore({
-        documents: [
-          {
-            name: 'default',
-            document: {
-              openapi: '3.0.0',
-              info: { title: 'My API', version: '1.0.0' },
-            },
-            overrides: {
-              openapi: '3.1.1',
-              info: { title: 'My Updated API', version: '2.0.0' },
-            },
-          },
-        ],
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.0.0',
+          info: { title: 'My API', version: '1.0.0' },
+        },
+        overrides: {
+          openapi: '3.1.1',
+          info: { title: 'My Updated API', version: '2.0.0' },
+        },
       })
 
       expect(store.workspace.documents['default']?.info?.title).toBe('My Updated API')
@@ -1096,21 +1061,19 @@ describe('create-workspace-store', () => {
     })
 
     it('edit the override values', async () => {
-      const store = createWorkspaceStore({
-        documents: [
-          {
-            name: 'default',
-            document: {
-              openapi: '3.0.0',
-              info: { title: 'My API', version: '1.0.0' },
-            },
-            overrides: {
-              openapi: '3.1.1',
-              info: { title: 'My Updated API', version: '2.0.0' },
-            },
-          },
-        ],
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.0.0',
+          info: { title: 'My API', version: '1.0.0' },
+        },
+        overrides: {
+          openapi: '3.1.1',
+          info: { title: 'My Updated API', version: '2.0.0' },
+        },
       })
+
       const defaultDocument = store.workspace.documents['default']
 
       if (!defaultDocument) {
@@ -1124,21 +1087,18 @@ describe('create-workspace-store', () => {
       expect(defaultDocument.openapi).toBe('3.1.1')
     })
 
-    it('writes back the overrides to the intermediate object', async () => {
-      const store = createWorkspaceStore({
-        documents: [
-          {
-            name: 'default',
-            document: {
-              openapi: '3.0.0',
-              info: { title: 'My API', version: '1.0.0' },
-            },
-            overrides: {
-              openapi: '3.1.1',
-              info: { title: 'My Updated API', version: '2.0.0' },
-            },
-          },
-        ],
+    it('does not write back the overrides to the intermediate object', async () => {
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.0.0',
+          info: { title: 'My API', version: '1.0.0' },
+        },
+        overrides: {
+          openapi: '3.1.1',
+          info: { title: 'My Updated API', version: '2.0.0' },
+        },
       })
 
       const defaultDocument = store.workspace.documents['default']
@@ -1155,25 +1115,22 @@ describe('create-workspace-store', () => {
 
       store.saveDocument('default')
       expect(store.exportDocument('default', 'json')).toBe(
-        '{"openapi":"3.1.1","info":{"title":"Edited title","version":"2.0.0"}}',
+        '{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"}}',
       )
     })
 
     it('should preserve overrides when exporting and reloading the workspace', async () => {
-      const store = createWorkspaceStore({
-        documents: [
-          {
-            name: 'default',
-            document: {
-              openapi: '3.0.0',
-              info: { title: 'My API', version: '1.0.0' },
-            },
-            overrides: {
-              openapi: '3.1.1',
-              info: { title: 'My Updated API', version: '2.0.0' },
-            },
-          },
-        ],
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.0.0',
+          info: { title: 'My API', version: '1.0.0' },
+        },
+        overrides: {
+          openapi: '3.1.1',
+          info: { title: 'My Updated API', version: '2.0.0' },
+        },
       })
 
       const defaultDocument = store.workspace.documents['default']
@@ -1200,21 +1157,18 @@ describe('create-workspace-store', () => {
       expect(newStore.workspace.documents['default']?.openapi).toBe('3.1.1')
     })
 
-    it('should revert the changes made to the overrides', async () => {
-      const store = createWorkspaceStore({
-        documents: [
-          {
-            name: 'default',
-            document: {
-              openapi: '3.0.0',
-              info: { title: 'My API', version: '1.0.0' },
-            },
-            overrides: {
-              openapi: '3.1.1',
-              info: { title: 'My Updated API', version: '2.0.0' },
-            },
-          },
-        ],
+    it('revert should never change the overrides fields', async () => {
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.0.0',
+          info: { title: 'My API', version: '1.0.0' },
+        },
+        overrides: {
+          openapi: '3.1.1',
+          info: { title: 'My Updated API', version: '2.0.0' },
+        },
       })
 
       const defaultDocument = store.workspace.documents['default']
@@ -1232,7 +1186,7 @@ describe('create-workspace-store', () => {
       // Revert the changes
       store.revertDocumentChanges('default')
 
-      expect(defaultDocument.info.title).toBe('My Updated API')
+      expect(defaultDocument.info.title).toBe('Edited title')
       expect(defaultDocument.info.version).toBe('2.0.0')
       expect(defaultDocument.openapi).toBe('3.1.1')
     })
@@ -1273,7 +1227,7 @@ describe('create-workspace-store', () => {
       })
 
       expect(store.exportWorkspace()).toBe(
-        '{"documents":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}},"x-scalar-navigation":[{"id":"Get all users","title":"Get all users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation"},{"id":"","title":"Models","children":[{"id":"User","title":"User","name":"User","ref":"#/content/components/schemas/User","type":"model"}],"type":"text"}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}}}',
+        '{"documents":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}},"x-scalar-navigation":[{"id":"Get all users","title":"Get all users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation"},{"id":"","title":"Models","children":[{"id":"User","title":"User","name":"User","ref":"#/content/components/schemas/User","type":"model"}],"type":"text"}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}},"overrides":{"default":{}}}',
       )
     })
 
@@ -1359,7 +1313,7 @@ describe('create-workspace-store', () => {
     it('allows relative urls', async () => {
       const store = createWorkspaceStore()
 
-      // We dont' care about the response, we just want to make sure the fetch is called
+      // We don not care about the response, we just want to make sure the fetch is called
       const mockFetch = vi.fn().mockResolvedValue({
         ok: true,
       })
@@ -1415,32 +1369,30 @@ describe('create-workspace-store', () => {
   })
 
   describe('replaceDocument', () => {
-    it('should replace the document with the new provided document', () => {
-      const store = createWorkspaceStore({
-        documents: [
-          {
-            name: 'default',
-            document: {
-              openapi: '3.0.0',
-              info: {
-                title: 'My API',
-                version: '1.0.0',
-              },
-              paths: {
-                '/users': {
-                  get: {
-                    summary: 'Get all users',
-                    responses: {
-                      '200': {
-                        description: 'Successful response',
-                        content: {
-                          'application/json': {
-                            schema: {
-                              type: 'array',
-                              items: {
-                                $ref: '#/components/schemas/User',
-                              },
-                            },
+    it('should replace the document with the new provided document', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.0.0',
+          info: {
+            title: 'My API',
+            version: '1.0.0',
+          },
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get all users',
+                responses: {
+                  '200': {
+                    description: 'Successful response',
+                    content: {
+                      'application/json': {
+                        schema: {
+                          type: 'array',
+                          items: {
+                            $ref: '#/components/schemas/User',
                           },
                         },
                       },
@@ -1448,21 +1400,21 @@ describe('create-workspace-store', () => {
                   },
                 },
               },
-              components: {
-                schemas: {
-                  User: {
-                    type: 'object',
-                    properties: {
-                      id: { type: 'string', description: 'The user ID' },
-                      name: { type: 'string', description: 'The user name' },
-                      email: { type: 'string', format: 'email', description: 'The user email' },
-                    },
-                  },
+            },
+          },
+          components: {
+            schemas: {
+              User: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string', description: 'The user ID' },
+                  name: { type: 'string', description: 'The user name' },
+                  email: { type: 'string', format: 'email', description: 'The user email' },
                 },
               },
             },
           },
-        ],
+        },
       })
 
       expect(store.workspace.documents['default']).toEqual({
@@ -1706,6 +1658,149 @@ describe('create-workspace-store', () => {
       })
 
       expect(consoleErrorSpy).toHaveBeenCalledWith("Document 'non-existing' does not exist in the workspace.")
+      expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('rebaseDocument', () => {
+    it('should correctly return all conflicts when we try to rebase with a new origin', async () => {
+      const documentName = 'default'
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: documentName,
+        document: getDocument(),
+      })
+
+      store.workspace.activeDocument!.info.title = 'new title'
+      store.saveDocument(documentName)
+
+      const result = store.rebaseDocument(documentName, {
+        ...getDocument(),
+        info: { title: 'A new title which should conflict', version: '1.0.0' },
+      })
+
+      expect(result).toEqual([
+        [
+          [
+            {
+              changes: 'A new title which should conflict',
+              path: ['info', 'title'],
+              type: 'update',
+            },
+          ],
+          [
+            {
+              changes: 'new title',
+              path: ['info', 'title'],
+              type: 'update',
+            },
+          ],
+        ],
+      ])
+    })
+
+    it('should apply the changes when there are conflicts but we have a resolved conflicts array provided', async () => {
+      const documentName = 'default'
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: documentName,
+        document: getDocument(),
+      })
+
+      store.workspace.activeDocument!.info.title = 'new title'
+      store.saveDocument(documentName)
+
+      const newDocument = {
+        ...getDocument(),
+        info: { title: 'A new title which should conflict', version: '1.0.0' },
+      }
+
+      const result = store.rebaseDocument(documentName, newDocument)
+
+      assert(typeof result === 'object')
+
+      expect(result).toEqual([
+        [
+          [
+            {
+              changes: 'A new title which should conflict',
+              path: ['info', 'title'],
+              type: 'update',
+            },
+          ],
+          [
+            {
+              changes: 'new title',
+              path: ['info', 'title'],
+              type: 'update',
+            },
+          ],
+        ],
+      ])
+
+      // Expect the original
+      expect(store.exportDocument(documentName, 'json')).toEqual(
+        '{"openapi":"3.1.1","info":{"title":"new title","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}',
+      )
+
+      store.rebaseDocument(
+        documentName,
+        newDocument,
+        result.flatMap((it) => it[0]),
+      )
+
+      // Check if the new intermediate document is correct
+      expect(store.exportDocument(documentName, 'json')).toEqual(
+        '{"openapi":"3.1.1","info":{"title":"A new title which should conflict","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}',
+      )
+
+      expect(store.workspace.activeDocument?.info.title).toEqual('A new title which should conflict')
+    })
+
+    it('should override conflicting changes made to the active document while we are rebasing with a new origin', async () => {
+      const documentName = 'default'
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: documentName,
+        document: getDocument(),
+      })
+
+      store.workspace.activeDocument!.info.title = 'new title'
+      store.saveDocument(documentName)
+
+      store.workspace.activeDocument!.info.version = '2.0'
+
+      const newDocument = {
+        ...getDocument(),
+        info: { title: 'A new title which should conflict', version: '1.0.1' },
+      }
+
+      const result = store.rebaseDocument(documentName, newDocument)
+
+      assert(typeof result === 'object')
+
+      store.rebaseDocument(
+        documentName,
+        newDocument,
+        result.flatMap((it) => it[0]),
+      )
+
+      // should override conflicts to the active document on rebase to the one from original
+      expect(store.workspace.activeDocument?.info.version).toBe('1.0.1')
+    })
+
+    it('should log the error if the document we try to rebase does not exists', async () => {
+      consoleErrorSpy.mockReset()
+
+      const store = createWorkspaceStore()
+      store.rebaseDocument('some-document', {
+        openapi: '3.1.1',
+        info: { title: 'API', description: 'My beautiful API' },
+      })
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        '[ERROR]: Specified document is missing or internal corrupted workspace state',
+      )
       expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
     })
   })

@@ -396,6 +396,13 @@ type Config = {
   root?: UnknownObject
 
   /**
+   * Optional maximum depth for reference resolution.
+   * Limits how deeply the bundler will follow and resolve nested $ref pointers.
+   * Useful for preventing infinite recursion or excessive resource usage.
+   */
+  depth?: number
+
+  /**
    * Optional cache to store promises of resolved references.
    * Helps avoid duplicate fetches/reads of the same resource by storing
    * the resolution promises for reuse.
@@ -561,9 +568,13 @@ export async function bundle(input: UnknownObject | string, config: Config) {
   // We need this when we want to do a partial bundle of a document
   const documentRoot = config.root ?? rawSpecification
 
-  // Indicates whether we're performing a partial bundle operation, which occurs when
-  // a root document is provided that differs from the raw specification being bundled
-  const isPartialBundling = config.root !== undefined && config.root !== rawSpecification
+  // Determines if the bundling operation is partial.
+  // Partial bundling occurs when:
+  // - A root document is provided that is different from the raw specification being bundled, or
+  // - A maximum depth is specified in the config.
+  // In these cases, only a subset of the document may be bundled.
+  const isPartialBundling =
+    (config.root !== undefined && config.root !== rawSpecification) || config.depth !== undefined
 
   // Set of nodes that have already been processed during bundling to prevent duplicate processing
   const processedNodes = config.visitedNodes ?? new Set()
@@ -592,7 +603,12 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     documentRoot[extensions.externalDocumentsMappings],
   )
 
-  const bundler = async (root: unknown, origin: string = defaultOrigin(), isChunkParent = false) => {
+  const bundler = async (root: unknown, origin: string = defaultOrigin(), isChunkParent = false, depth = 0) => {
+    // If a maximum depth is set in the config, stop bundling when the current depth reaches or exceeds it
+    if (config.depth !== undefined && depth > config.depth) {
+      return
+    }
+
     if (!isObject(root) && !Array.isArray(root)) {
       return
     }
@@ -615,7 +631,12 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // referenced by this local reference to ensure the partial bundle is complete.
           // This includes not just the direct reference but also all its dependencies,
           // creating a complete and self-contained partial bundle.
-          await bundler(getNestedValue(documentRoot, getSegmentsFromPath(ref.substring(1))), origin, isChunkParent)
+          await bundler(
+            getNestedValue(documentRoot, getSegmentsFromPath(ref.substring(1))),
+            origin,
+            isChunkParent,
+            depth + 1,
+          )
         }
         return
       }
@@ -665,7 +686,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // to handle any nested references it may contain. We pass the resolvedPath as the new origin
           // to ensure any relative references within this content are resolved correctly relative to
           // their new location in the bundled document.
-          await bundler(result.data, isChunk ? origin : resolvedPath, isChunk)
+          await bundler(result.data, isChunk ? origin : resolvedPath, isChunk, depth + 1)
 
           // Store the mapping between hashed keys and original URLs in x-ext-urls
           // This allows tracking which external URLs were bundled and their corresponding locations
@@ -719,7 +740,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           return
         }
 
-        await bundler(value, origin, isChunkParent)
+        await bundler(value, origin, isChunkParent, depth + 1)
       }),
     )
   }

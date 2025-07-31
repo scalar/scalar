@@ -20,6 +20,7 @@ import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from '@/schemas/workspace'
 import { bundle } from '@scalar/json-magic/bundle'
 import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
+import { apply, diff, merge, type Difference } from '@scalar/json-magic/diff'
 
 /**
  * Input type for workspace document metadata and configuration.
@@ -104,8 +105,6 @@ async function loadDocument(workspaceDocument: WorkspaceDocumentInput) {
 type WorkspaceProps = {
   /** Optional metadata for the workspace including theme, active document, etc */
   meta?: WorkspaceMeta
-  /** In-mem open api documents. Async source documents (like URLs) can be loaded after initialization */
-  documents?: ObjectDoc[]
   /** Workspace configuration */
   config?: Config
 }
@@ -133,8 +132,6 @@ export type WorkspaceStore = {
   resolve(path: string[]): Promise<unknown>
   /** Adds a new document to the workspace */
   addDocument(input: WorkspaceDocumentInput): Promise<void>
-  /** Similar to addDocument but requires and in-mem object to be provided and loads the document synchronously */
-  addDocumentSync(input: ObjectDoc): void
   /** Returns the merged configuration for the active document */
   readonly config: typeof defaultConfig
   /** Downloads the specified document in the requested format */
@@ -151,6 +148,12 @@ export type WorkspaceStore = {
   loadWorkspace(input: string): void
   /** Imports a workspace from a specification object */
   importWorkspaceFromSpecification(specification: WorkspaceSpecification): Promise<void[]>
+  /** Rebase document with a remote origin */
+  rebaseDocument: (
+    documentName: string,
+    newDocumentOrigin: Record<string, unknown>,
+    resolvedConflicts?: Difference[],
+  ) => void | ReturnType<typeof merge>['conflicts']
 }
 
 /**
@@ -248,8 +251,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     }
 
     // Obtain the raw state of the current document to ensure accurate diffing
-    // Remove the magic proxy while preserving the overrides proxy to ensure accurate updates
-    const updatedDocument = createOverridesProxy(getRaw(workspaceDocument), overrides[documentName])
+    const updatedDocument = getRaw(workspaceDocument)
 
     // If either the intermediate or updated document is missing, do nothing
     if (!intermediateDocument || !updatedDocument) {
@@ -262,7 +264,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   }
 
   // Add a document to the store synchronously from an in-memory OpenAPI document
-  function addDocumentSync(input: ObjectDoc) {
+  async function addInMemoryDocument(input: ObjectDoc) {
     const { name, meta } = input
 
     const document = coerceValue(OpenAPIDocumentSchema, upgrade(input.document).specification)
@@ -270,6 +272,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // Store the original document in the originalDocuments map
     // This is used to track the original state of the document as it was loaded into the workspace
     originalDocuments[name] = deepClone({ ...document, ...meta })
+
     // Store the intermediate document state for local edits
     // This is used to track the last saved state of the document
     // It allows us to differentiate between the original document and the latest saved version
@@ -287,11 +290,14 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       document[extensions.document.navigation] = createNavigation(document, input.config ?? {}).entries
     }
 
+    // If the document navigation is not already present, bundle the entire document to resolve all references.
+    // This typically applies when the document is not preprocessed by the server and needs local reference resolution.
+    if (document[extensions.document.navigation] === undefined) {
+      await bundle(input.document, { treeShake: false, plugins: [fetchUrls()] })
+    }
+
     // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map
     workspace.documents[name] = createOverridesProxy(createMagicProxy({ ...document, ...meta }), input.overrides)
-
-    // Write overrides to the intermediate document
-    saveDocument(name)
   }
 
   // Asynchronously adds a new document to the workspace by loading and validating the input.
@@ -331,11 +337,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return
     }
 
-    addDocumentSync({ ...input, document: resolve.data })
+    await addInMemoryDocument({ ...input, document: resolve.data })
   }
-
-  // Add any initial documents to the store
-  workspaceProps?.documents?.forEach(addDocumentSync)
 
   // Cache to track visited nodes during reference resolution to prevent bundling the same subtree multiple times
   // This is needed because we are doing partial bundle operations
@@ -477,25 +480,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
      */
     addDocument,
     /**
-     * Similar to addDocument but requires and in-mem object to be provided and loads the document synchronously
-     * @param document - The document content to add. This should be a valid OpenAPI/Swagger document or other supported format
-     * @param meta - Metadata for the document, including its name and other properties defined in WorkspaceDocumentMeta
-     * @example
-     * // Add a new OpenAPI document to the workspace
-     * store.addDocument({
-     *   name: 'name',
-     *   document: {
-     *     openapi: '3.0.0',
-     *     info: { title: 'title' },
-     *   },
-     *   meta: {
-     *     'x-scalar-active-auth': 'Bearer',
-     *     'x-scalar-active-server': 'production'
-     *   }
-     * })
-     */
-    addDocumentSync,
-    /**
      * Returns the merged configuration for the active document.
      *
      * This getter merges configurations in the following order of precedence:
@@ -590,9 +574,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       const intermediateDocument = intermediateDocuments[documentName]
       // Get the raw state of the current document to avoid diffing resolved references.
-      // This ensures we update the actual data, not the references.
-      // Note: We keep the Vue proxy for reactivity by updating the object in place.
-      const updatedDocument = createOverridesProxy(getRaw(workspaceDocument), overrides[documentName])
+      const updatedDocument = getRaw(workspaceDocument)
 
       if (!intermediateDocument || !updatedDocument) {
         return
@@ -641,6 +623,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         documentConfigs,
         originalDocuments,
         intermediateDocuments,
+        overrides,
       } as InMemoryWorkspace)
     },
     /**
@@ -664,6 +647,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       safeAssign(originalDocuments, result.originalDocuments)
       safeAssign(intermediateDocuments, result.intermediateDocuments)
       safeAssign(documentConfigs, result.documentConfigs)
+      safeAssign(overrides, result.overrides)
       safeAssign(workspace, result.meta)
     },
     /**
@@ -702,6 +686,81 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           addDocument({ url: doc.$ref, name, overrides: overrides?.[name] }),
         ),
       )
+    },
+    /**
+     * Rebases a document in the workspace with a new origin, resolving conflicts if provided.
+     *
+     * This method is used to rebase a document (e.g., after pulling remote changes) by applying the changes
+     * from the new origin and merging them with local edits. If there are conflicts, they can be resolved
+     * by providing a list of resolved conflicts.
+     *
+     * @param documentName - The name of the document to rebase.
+     * @param newDocumentOrigin - The new origin document (as an object) to rebase onto.
+     * @param resolvedConflicts - (Optional) An array of resolved conflicts to apply.
+     * @returns If there are unresolved conflicts and no resolution is provided, returns the list of conflicts.
+     *
+     * @example
+     * // Example: Rebase a document with a new origin and resolve conflicts
+     * const conflicts = store.rebaseDocument('api', newOriginDoc)
+     * if (conflicts && conflicts.length > 0) {
+     *   // User resolves conflicts here...
+     *   store.rebaseDocument('api', newOriginDoc, userResolvedConflicts)
+     * }
+     */
+    rebaseDocument: (
+      documentName: string,
+      newDocumentOrigin: Record<string, unknown>,
+      resolvedConflicts?: Difference[],
+    ) => {
+      const newOrigin = coerceValue(OpenAPIDocumentSchema, upgrade(newDocumentOrigin).specification)
+
+      const originalDocument = originalDocuments[documentName]
+      const intermediateDocument = intermediateDocuments[documentName]
+      const activeDocument = workspace.documents[documentName] ? getRaw(workspace.documents[documentName]) : undefined // raw version without any overrides
+
+      if (!originalDocument || !intermediateDocument || !activeDocument) {
+        // If any required document state is missing, do nothing
+        return console.error('[ERROR]: Specified document is missing or internal corrupted workspace state')
+      }
+
+      // ---- Get the new intermediate document
+      const changelogAA = diff(originalDocument, newOrigin)
+      const changelogAB = diff(originalDocument, intermediateDocument)
+
+      const changesA = merge(changelogAA, changelogAB)
+
+      if (resolvedConflicts === undefined) {
+        // If there are conflicts, return the list of conflicts for user resolution
+        return changesA.conflicts
+      }
+
+      const changesetA = changesA.diffs.concat(resolvedConflicts)
+
+      // Apply the changes to the original document to get the new intermediate
+      const newIntermediateDocument = apply(deepClone(originalDocument), changesetA) as typeof originalDocument
+      intermediateDocuments[documentName] = newIntermediateDocument
+
+      // Update the original document
+      originalDocuments[documentName] = newOrigin
+
+      // ---- Get the new active document
+      const changelogBA = diff(intermediateDocument, newIntermediateDocument)
+      const changelogBB = diff(intermediateDocument, activeDocument)
+
+      const changesB = merge(changelogBA, changelogBB)
+
+      // Auto-conflict resolution: pick only the changes from the first changeset
+      // TODO: In the future, implement smarter conflict resolution if needed
+      const changesetB = changesB.diffs.concat(changesB.conflicts.flatMap((it) => it[0]))
+
+      const newActiveDocument = apply(deepClone(newIntermediateDocument), changesetB) as typeof newIntermediateDocument
+
+      // Update the active document to the new value
+      workspace.documents[documentName] = createOverridesProxy(
+        createMagicProxy({ ...newActiveDocument }),
+        overrides[documentName],
+      )
+      return
     },
   }
 }

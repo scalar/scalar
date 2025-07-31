@@ -67,7 +67,6 @@ export const createMockStore = (activeDocument: WorkspaceDocument): WorkspaceSto
   updateDocument: vi.fn(),
   resolve: vi.fn(),
   addDocument: vi.fn(),
-  addDocumentSync: vi.fn(),
   config: {
     'x-scalar-reference-config': {} as any,
   },
@@ -79,4 +78,5 @@ export const createMockStore = (activeDocument: WorkspaceDocument): WorkspaceSto
   loadWorkspace: vi.fn(),
   importWorkspaceFromSpecification: vi.fn(),
   replaceDocument: vi.fn(),
+  rebaseDocument: vi.fn(),
 })

@@ -16,12 +16,12 @@ Scalar.createApiReference('#app', {
 })
 ```
 
-Or — just as an example — in the Hono server framework you would pass the same configuration like this:
+Or — just as an example — in the Hono server framework, you would pass the same configuration like this:
 
 ```ts
 app.get(
   '/doc',
-  apiReference({
+  Scalar({
     // Your configuration goes here…
     url: '…'
   }),
@@ -793,7 +793,7 @@ Configuration for path-based routing instead of hash-based routing. Your server 
 ```js
 {
   pathRouting: {
-    basePath: '/standalone-api-reference/:custom(.*)?'
+    basePath: '/standalone-api-reference'
   }
 }
 ```
