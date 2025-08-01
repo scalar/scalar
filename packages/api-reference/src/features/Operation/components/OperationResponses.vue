@@ -20,7 +20,6 @@ const { responses } = useResponses(props.responses)
 </script>
 <template>
   <ParameterList
-    :breadcrumb="breadcrumb ? [...breadcrumb, 'responses'] : undefined"
     :collapsableItems="collapsableItems"
     :parameters="responses"
     :schemas="schemas"

@@ -290,6 +290,7 @@ const shouldRenderObjectProperties = computed(() => {
       class="children">
       <Schema
         :compact="compact"
+        :breadcrumb="breadcrumb"
         :level="level + 1"
         :name="name"
         :noncollapsible="noncollapsible"

@@ -94,6 +94,7 @@ const shouldShowParameter = computed(() => {
         :static="!shouldCollapse">
         <ParameterHeaders
           v-if="parameter.headers"
+          :breadcrumb="breadcrumb"
           :headers="parameter.headers" />
         <SchemaProperty
           is="div"
