@@ -5,6 +5,34 @@ import Schema from './Schema.vue'
 
 describe('Schema', () => {
   describe('shouldShowDescription computed property', () => {
+    it('shows the base description with allOf composition', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          name: 'Request Body',
+          value: {
+            type: 'object',
+            description: 'This description should be shown',
+            allOf: [
+              {
+                type: 'object',
+                description: 'This description should not be shown',
+                properties: { name: { type: 'string' } },
+              },
+              {
+                type: 'object',
+                description: 'This description should not be shown',
+                properties: { email: { type: 'string' } },
+              },
+            ],
+          },
+        },
+      })
+
+      const text = wrapper.text()
+      expect(text).toContain('This description should be shown')
+      expect(text).not.toContain('This description should not be shown')
+    })
+
     it('shows the first description with allOf composition', () => {
       const wrapper = mount(Schema, {
         props: {

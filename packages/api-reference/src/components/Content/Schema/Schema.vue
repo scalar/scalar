@@ -107,8 +107,19 @@ const shouldShowToggle = computed(() => {
 
 /** Gets the description to show for the schema */
 const schemaDescription = computed(() => {
-  // For allOf compositions, find the first schema with a description
-  if (schema.value?.allOf && Array.isArray(schema.value.allOf)) {
+  // Special handling for allOf compositions
+  if (
+    schema.value?.allOf &&
+    Array.isArray(schema.value.allOf) &&
+    // Because we don't want it to show in models
+    props.name === 'Request Body'
+  ) {
+    // Lets show the base description if it exists
+    if (schema.value.description) {
+      return schema.value.description
+    }
+
+    // Otherwise grab the first description
     const firstSchemaWithDescription = schema.value.allOf.find(
       (item) => item.description && typeof item.description === 'string',
     )
@@ -117,43 +128,23 @@ const schemaDescription = computed(() => {
     }
   }
 
-  // Return the schema's own description
-  return schema.value?.description
-})
-
-/** Determines whether to show the schema description */
-const shouldShowDescription = computed(() => {
-  // For allOf compositions, find the first schema with a description, only for the request body (for now)
-  if (
-    schema.value?.allOf &&
-    Array.isArray(schema.value.allOf) &&
-    props.name === 'Request Body'
-  ) {
-    const firstSchemaWithDescription = schema.value.allOf.find(
-      (item) => item.description && typeof item.description === 'string',
-    )
-    if (firstSchemaWithDescription?.description) {
-      return true
-    }
-  }
-
   // Don't show description if there's no description or it's not a string
   if (
     !schema.value?.description ||
     typeof schema.value.description !== 'string'
   ) {
-    return false
+    return null
   }
 
   // Don't show description if the schema has other composition keywords
   // This prevents duplicate descriptions when individual schemas are part of compositions
   if (schema.value.oneOf || schema.value.anyOf) {
-    return false
+    return null
   }
 
   // Don't show description for enum schemas (they have special handling)
   if (schema.value.enum) {
-    return false
+    return null
   }
 
   // Will be shown in the properties anyway
@@ -162,16 +153,17 @@ const shouldShowDescription = computed(() => {
     !schema.value.patternProperties &&
     !schema.value.additionalProperties
   ) {
-    return false
+    return null
   }
 
   // Merged allOf schemas at level 0 should not show individual descriptions
   // to prevent duplicates with the request body description
   if (props.level === 0) {
-    return false
+    return null
   }
 
-  return true
+  // Return the schema's own description
+  return schema.value.description
 })
 
 // Prevent click action if noncollapsible
@@ -196,11 +188,9 @@ const handleDiscriminatorChange = (type: string) => {
       ]">
       <!-- Schema description -->
       <div
-        v-if="shouldShowDescription"
+        v-if="schemaDescription"
         class="schema-card-description">
-        <template v-if="!schema?.enum">
-          <ScalarMarkdown :value="schemaDescription" />
-        </template>
+        <ScalarMarkdown :value="schemaDescription" />
       </div>
       <div
         class="schema-properties"
