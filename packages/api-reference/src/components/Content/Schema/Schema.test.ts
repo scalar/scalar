@@ -258,4 +258,47 @@ describe('Schema', () => {
       })
     })
   })
+
+  describe('object property order', () => {
+    it('should render properties by required alphabetical order', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          value: {
+            type: 'object',
+            properties: {
+              gOptional: { type: 'string' },
+              bOptional: { type: 'string' },
+              dRequired: { type: 'string' },
+              aOptional: { type: 'string' },
+              bRequired: { type: 'string' },
+              aRequired: { type: 'string' },
+              cRequired: { type: 'string' },
+            },
+            required: ['aRequired', 'bRequired', 'cRequired', 'dRequired'],
+          },
+        },
+      })
+
+      // Get all SchemaProperty components
+      const schemaProperties = wrapper.findAllComponents({ name: 'SchemaProperty' })
+
+      // Extract property names in the order they appear
+      const propertyNames = schemaProperties.map((prop) => prop.props('name'))
+
+      // Expected order: required properties first (alphabetical), then optional properties (alphabetical)
+      const expectedOrder = [
+        // Required properties
+        'aRequired',
+        'bRequired',
+        'cRequired',
+        'dRequired',
+        // Optional properties
+        'aOptional',
+        'bOptional',
+        'gOptional',
+      ]
+
+      expect(propertyNames).toEqual(expectedOrder)
+    })
+  })
 })
