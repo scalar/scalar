@@ -223,7 +223,7 @@ const shouldRenderObjectProperties = computed(() => {
   return isObjectType && hasPropertiesToRender
 })
 
-const shouldHaveLink = computed(() => props.breadcrumb && props.level <= 1)
+const shouldHaveLink = computed(() => props.level <= 1)
 </script>
 <template>
   <component
@@ -248,7 +248,9 @@ const shouldHaveLink = computed(() => props.breadcrumb && props.level <= 1)
         v-if="name"
         #name>
         <WithBreadcrumb
-          :breadcrumb="shouldHaveLink ? [...breadcrumb, name] : undefined">
+          :breadcrumb="
+            shouldHaveLink && breadcrumb ? [...breadcrumb, name] : undefined
+          ">
           <template v-if="variant === 'patternProperties'">
             <span class="property-name-pattern-properties">
               {{ name }}
