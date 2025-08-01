@@ -122,7 +122,9 @@ const modelName = computed(() => {
       <SchemaPropertyDetail v-if="value.uniqueItems">
         unique!
       </SchemaPropertyDetail>
-      <SchemaPropertyDetail v-if="value.format">
+      <SchemaPropertyDetail
+        v-if="value.format"
+        truncate>
         <ScreenReader>Format:</ScreenReader>
         {{ value.format }}
       </SchemaPropertyDetail>
