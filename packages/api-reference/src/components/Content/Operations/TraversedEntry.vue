@@ -65,19 +65,22 @@ const currentIndex = computed(() => {
   return entries.findIndex((entry) => targetId.startsWith(entry.id))
 })
 
-/** Check if the entry should be lazy loaded */
+/**
+ * Check if the entry should be lazy loaded
+ * We care more about the previous entries so we track those
+ */
 const isLazy = (index: number) => {
   // Make all previous entries lazy
   if (index < currentIndex.value) {
-    return true
+    return 'prev'
   }
 
   // We make the next two siblings not lazy
   if (index > currentIndex.value + 2) {
-    return true
+    return 'after'
   }
 
-  return false
+  return null
 }
 
 defineExpose({
@@ -90,7 +93,8 @@ defineExpose({
     v-for="(entry, index) in entries"
     :key="entry.id"
     :id="entry.id"
-    :isLazy="isLazy(index)">
+    :prev="isLazy(index) === 'prev'"
+    :isLazy="Boolean(isLazy(index))">
     <template v-if="isOperation(entry) || isWebhook(entry)">
       <!-- Operation or Webhook -->
       <SectionContainer :omit="!isRootLevel">

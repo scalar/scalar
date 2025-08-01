@@ -78,28 +78,36 @@ const resume = () => {
   isIntersectionEnabled.value = true
 }
 
-/** So we know when we have loaded all lazy elements */
+/** IDs for all lazy elements above the current entry */
 const lazyIds = ref<Set<string>>(new Set())
 
 /** The index of the root entry */
 const rootIndex = computed(() => {
   const targetId = hash.value.startsWith('model') ? 'models' : hash.value
-  return items.value.entries.findIndex((entry) => targetId.startsWith(entry.id))
+  return items.value.entries.findIndex((entry) => {
+    // For tag just check starts with as the ID should start with the tag ID
+    if ('tag' in entry) {
+      return targetId.startsWith(entry.id)
+    }
+
+    // Otherwise check for a complete match
+    return targetId === entry.id
+  })
 })
 
 // Use the lazybus to handle [un]freezing elements
-lazyBus.on(({ loading, loaded }) => {
+lazyBus.on(({ loading, loaded, save }) => {
   if (hasLazyLoaded.value) {
     return
   }
 
-  // Track which elements are loading
-  if (loading) {
+  // Track the previous elements that are loading
+  if (loading && save) {
     lazyIds.value.add(loading)
   }
 
   // Track which elements have loaded
-  if (loaded) {
+  if (loaded && save) {
     lazyIds.value.delete(loaded)
   }
 
