@@ -1,5 +1,13 @@
 # @scalar/components
 
+## 0.14.22
+
+### Patch Changes
+
+- dd00357: feat(components): add support for custom combobox items
+- Updated dependencies [46ebe6e]
+  - @scalar/oas-utils@0.4.17
+
 ## 0.14.21
 
 ### Patch Changes

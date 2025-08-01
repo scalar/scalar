@@ -1,5 +1,22 @@
 # @scalar/workspace-store
 
+## 0.12.0
+
+### Minor Changes
+
+- 952bde2: feat(json-magic): move json tooling to the new package
+- ae8d1b9: feat(workspace-store): rebase document origin with a remote origin
+- 2888e18: feat(openapi-parser): partial bundle to a depth
+
+### Patch Changes
+
+- 5301a80: feat: make content reactive and update workspace store
+- 8199955: fix(workspace-store): never write overrides back to the intermediate state
+- Updated dependencies [952bde2]
+- Updated dependencies [2888e18]
+  - @scalar/openapi-parser@0.19.0
+  - @scalar/json-magic@0.1.0
+
 ## 0.11.0
 
 ### Minor Changes

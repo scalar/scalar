@@ -1,5 +1,12 @@
 # @scalar/openapi-parser
 
+## 0.19.0
+
+### Minor Changes
+
+- 952bde2: feat(json-magic): move json tooling to the new package
+- 2888e18: feat(openapi-parser): partial bundle to a depth
+
 ## 0.18.3
 
 ### Patch Changes

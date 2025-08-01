@@ -1,5 +1,23 @@
 # @scalar/api-client
 
+## 2.5.21
+
+### Patch Changes
+
+- c02c1c8: fix: server variables dropdown caret alway open
+- b551707: fix: request auth tab not displayed when overflowing
+- dd00357: feat(components): add support for custom combobox items
+- Updated dependencies [952bde2]
+- Updated dependencies [46ebe6e]
+- Updated dependencies [dd00357]
+- Updated dependencies [2888e18]
+  - @scalar/openapi-parser@0.19.0
+  - @scalar/oas-utils@0.4.17
+  - @scalar/components@0.14.22
+  - @scalar/import@0.4.16
+  - @scalar/postman-to-openapi@0.3.20
+  - @scalar/use-codemirror@0.12.23
+
 ## 2.5.20
 
 ### Patch Changes
