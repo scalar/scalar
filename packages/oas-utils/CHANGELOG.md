@@ -1,5 +1,17 @@
 # @scalar/oas-utils
 
+## 0.4.17
+
+### Patch Changes
+
+- 46ebe6e: fix: use schema to example generator for request example request body
+- Updated dependencies [952bde2]
+- Updated dependencies [5301a80]
+- Updated dependencies [ae8d1b9]
+- Updated dependencies [8199955]
+- Updated dependencies [2888e18]
+  - @scalar/workspace-store@0.12.0
+
 ## 0.4.16
 
 ### Patch Changes

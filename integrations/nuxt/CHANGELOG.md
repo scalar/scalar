@@ -1,5 +1,31 @@
 # @scalar/nuxt
 
+## 0.5.0
+
+### Minor Changes
+
+- 2888e18: feat(openapi-parser): partial bundle to a depth
+
+### Patch Changes
+
+- 7661d4c: fix: nuxt commonjs issues
+- Updated dependencies [f838a47]
+- Updated dependencies [94b5d0a]
+- Updated dependencies [952bde2]
+- Updated dependencies [0f4a784]
+- Updated dependencies [5301a80]
+- Updated dependencies [c02c1c8]
+- Updated dependencies [ae8d1b9]
+- Updated dependencies [b551707]
+- Updated dependencies [8199955]
+- Updated dependencies [dd00357]
+- Updated dependencies [8113963]
+- Updated dependencies [2888e18]
+- Updated dependencies [fb0c254]
+  - @scalar/api-reference@1.34.0
+  - @scalar/workspace-store@0.12.0
+  - @scalar/api-client@2.5.21
+
 ## 0.4.35
 
 ### Patch Changes
