@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { computed } from 'vue'
 
 import type { Schemas } from '@/features/Operation/types/schemas'
 
 import SchemaProperty from './SchemaProperty.vue'
 
-const { level = 0, hideModelNames = false } = defineProps<{
+const { schema } = defineProps<{
   schema: OpenAPIV3_1.SchemaObject
   compact?: boolean
   hideHeading?: boolean
@@ -21,6 +22,35 @@ const { level = 0, hideModelNames = false } = defineProps<{
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
 }>()
+
+/**
+ * Sorts properties by required status first, then alphabetically.
+ * Required properties appear first, followed by optional properties.
+ */
+const sortedProperties = computed(() => {
+  if (!schema.properties) {
+    return []
+  }
+
+  const propertyNames = Object.keys(schema.properties)
+  const requiredPropertiesSet = new Set(schema.required || [])
+
+  return propertyNames.sort((a, b) => {
+    const aRequired = requiredPropertiesSet.has(a)
+    const bRequired = requiredPropertiesSet.has(b)
+
+    // If one is required and the other isn't, required comes first
+    if (aRequired && !bRequired) {
+      return -1
+    }
+    if (!aRequired && bRequired) {
+      return 1
+    }
+
+    // If both have the same required status, sort alphabetically
+    return a.localeCompare(b)
+  })
+})
 
 /**
  * Handles discriminator type changes from child SchemaProperty components.
@@ -79,7 +109,7 @@ const getAdditionalPropertiesValue = (
   <!-- Properties -->
   <template v-if="schema.properties">
     <SchemaProperty
-      v-for="property in Object.keys(schema.properties)"
+      v-for="property in sortedProperties"
       :key="property"
       :compact="compact"
       :hideHeading="hideHeading"

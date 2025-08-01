@@ -156,4 +156,51 @@ describe('SchemaObjectProperties', () => {
 
     expect(wrapper.findAll('.schema-property')).toHaveLength(0)
   })
+
+  it('sorts properties alphabetically when all have same required status', () => {
+    const schema: OpenAPIV3_1.SchemaObject = {
+      type: 'object',
+      properties: {
+        zebra: { type: 'string' },
+        alpha: { type: 'number' },
+        beta: { type: 'boolean' },
+      },
+    }
+
+    const wrapper = mount(SchemaObjectProperties, {
+      props: { schema },
+    })
+
+    const props = wrapper.findAll('.schema-property')
+    expect(props).toHaveLength(3)
+    expect(props[0].attributes('data-name')).toBe('alpha')
+    expect(props[1].attributes('data-name')).toBe('beta')
+    expect(props[2].attributes('data-name')).toBe('zebra')
+  })
+
+  it('sorts required properties first, then alphabetically', () => {
+    const schema: OpenAPIV3_1.SchemaObject = {
+      type: 'object',
+      properties: {
+        zebra: { type: 'string' },
+        alpha: { type: 'number' },
+        beta: { type: 'boolean' },
+        gamma: { type: 'object' },
+      },
+      required: ['zebra', 'gamma'],
+    }
+
+    const wrapper = mount(SchemaObjectProperties, {
+      props: { schema },
+    })
+
+    const props = wrapper.findAll('.schema-property')
+    expect(props).toHaveLength(4)
+    // Required properties should come first, sorted alphabetically
+    expect(props[0].attributes('data-name')).toBe('gamma')
+    expect(props[1].attributes('data-name')).toBe('zebra')
+    // Optional properties should come after, sorted alphabetically
+    expect(props[2].attributes('data-name')).toBe('alpha')
+    expect(props[3].attributes('data-name')).toBe('beta')
+  })
 })
