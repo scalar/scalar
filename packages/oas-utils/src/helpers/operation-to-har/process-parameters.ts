@@ -1,4 +1,5 @@
 import { getExampleFromSchema } from '@/spec-getters/get-example-from-schema'
+import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/example'
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { ReferenceObject } from '@scalar/workspace-store/schemas/v3.1/strict/reference'
@@ -66,9 +67,21 @@ const getParameterValue = (param: ParameterObject, example?: unknown): unknown =
     }
   }
 
+  // Check if the parameter itself has an example
+  if ('example' in param && param.example) {
+    return param.example
+  }
+
+  // Or multiple examples
+  if ('examples' in param && param.examples) {
+    const examples = param.examples as Record<string, unknown>
+    return examples[param.name] || (Object.values(examples)[0] as ExampleObject | undefined)?.value
+  }
+
   // Fall back to schema example if available
   if ('schema' in param && param.schema) {
-    return getExampleFromSchema(param.schema)
+    const options = param.in === 'path' ? { emptyString: `{${param.name}}` } : {}
+    return getExampleFromSchema(param.schema, options)
   }
 
   return undefined
