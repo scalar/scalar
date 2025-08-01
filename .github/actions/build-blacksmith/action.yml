@@ -16,14 +16,14 @@ runs:
       shell: bash
       run: echo $TURBO_CACHE_DIR
     - name: Install pnpm
-      uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2
+      uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4
     - name: Use Blacksmith Node.js ${{ inputs.node-version }}
-      uses: useblacksmith/setup-node@65c6ca86fdeb0ab3d85e78f57e4f6a7e4780b391
+      uses: useblacksmith/setup-node@65c6ca86fdeb0ab3d85e78f57e4f6a7e4780b391 # v5
       with:
         node-version: ${{ inputs.node-version }}
         cache: 'pnpm'
     - name: Persist turbo cache
-      uses: useblacksmith/stickydisk@1a5dbf4b4af58d15a0bcadf7a3928a287d5a600f
+      uses: useblacksmith/stickydisk@bc0c024fcc3b738a9ad43776e261cbc53fab37af # v1
       with:
         key: ${{ github.repository }}-${{ inputs.node-version }}-turbo-cache
         path: ${{ env.TURBO_CACHE_DIR }}
