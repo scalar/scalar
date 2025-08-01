@@ -75,7 +75,6 @@ const models = computed(() => {
           <ScalarErrorBoundary>
             <Schema
               noncollapsible
-              :breadcrumb="[id]"
               :hideHeading="true"
               :hideModelNames="true"
               :schemas="schemas"

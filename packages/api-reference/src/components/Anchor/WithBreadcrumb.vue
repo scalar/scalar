@@ -42,20 +42,22 @@ const handleButtonClick = async () => {
 
 <template>
   <template v-if="breadcrumb">
-    <!-- Invisble container for the anchor -->
+    <!-- Invisble container for the anchor, adds an offset to the top of the page -->
     <span
       :id="id"
       class="pointer-events-none invisible absolute top-[-25px]">
     </span>
     <div class="group">
-      <div class="flex">
+      <div
+        class="flex"
+        role="button"
+        @click="handleButtonClick">
         <!-- Content -->
         <slot></slot>
         <!-- Copy button -->
         <ScalarIconLink
           class="text-c-3 hover:text-c-1 left-0 ml-1 size-4 cursor-pointer"
-          weight="bold"
-          @click="handleButtonClick" />
+          weight="bold" />
       </div>
     </div>
   </template>

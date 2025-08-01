@@ -5,7 +5,6 @@ import { ScalarIconCaretRight } from '@scalar/icons'
 import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { ContentType } from '@scalar/types/legacy'
 import { computed, ref } from 'vue'
 
 import { SchemaProperty } from '@/components/Content/Schema'
@@ -37,9 +36,7 @@ const contentTypes = computed(() => {
   }
   return []
 })
-const selectedContentType = ref<ContentType>(
-  contentTypes.value[0] as ContentType,
-)
+const selectedContentType = ref<string>(contentTypes.value[0])
 if (props.parameter.content) {
   if ('application/json' in props.parameter.content) {
     selectedContentType.value = 'application/json'
