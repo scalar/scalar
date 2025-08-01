@@ -1,8 +1,9 @@
-import { describe, it, expect } from 'vitest'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { traversePaths } from './traverse-paths'
-import type { UseNavState } from '@/hooks/useNavState'
 import type { TraversedEntry, TraversedOperation } from '@/features/traverse-schema/types'
+import type { UseNavState } from '@/hooks/useNavState'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/tag'
+import { describe, expect, it } from 'vitest'
+import { traversePaths } from './traverse-paths'
 
 describe('traversePaths', () => {
   // Mock getOperationId function
@@ -20,7 +21,7 @@ describe('traversePaths', () => {
 
   it('should handle empty paths', () => {
     const spec = createBasicSpec()
-    const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
+    const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>()
     const titlesMap = new Map<string, string>()
 
     traversePaths(spec, tagsMap, titlesMap, mockGetOperationId)
@@ -44,7 +45,7 @@ describe('traversePaths', () => {
       },
     }
 
-    const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>([
+    const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>([
       ['Users', { tag: { name: 'Users', description: 'User operations' }, entries: [] }],
     ])
     const titlesMap = new Map<string, string>()
@@ -72,7 +73,7 @@ describe('traversePaths', () => {
       },
     }
 
-    const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
+    const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>()
     const titlesMap = new Map<string, string>()
 
     traversePaths(spec, tagsMap, titlesMap, mockGetOperationId)
@@ -106,7 +107,7 @@ describe('traversePaths', () => {
       },
     }
 
-    const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>([
+    const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>([
       ['Foobar', { tag: { name: 'Foobar' }, entries: [] }],
     ])
     const titlesMap = new Map<string, string>()
@@ -130,7 +131,7 @@ describe('traversePaths', () => {
       },
     }
 
-    const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>([
+    const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>([
       ['Legacy', { tag: { name: 'Legacy' }, entries: [] }],
     ])
     const titlesMap = new Map<string, string>()
@@ -153,7 +154,7 @@ describe('traversePaths', () => {
       },
     }
 
-    const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>([
+    const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>([
       ['Internal', { tag: { name: 'Internal' }, entries: [] }],
     ])
     const titlesMap = new Map<string, string>()
@@ -175,7 +176,7 @@ describe('traversePaths', () => {
       },
     }
 
-    const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>([
+    const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>([
       ['Ignored', { tag: { name: 'Ignored' }, entries: [] }],
     ])
     const titlesMap = new Map<string, string>()
@@ -195,7 +196,7 @@ describe('traversePaths', () => {
       },
     }
 
-    const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>([
+    const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>([
       ['Misc', { tag: { name: 'Misc' }, entries: [] }],
     ])
     const titlesMap = new Map<string, string>()
@@ -216,7 +217,7 @@ describe('traversePaths', () => {
       },
     }
 
-    const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>([
+    const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>([
       ['Test', { tag: { name: 'Test' }, entries: [] }],
     ])
     const titlesMap = new Map<string, string>()

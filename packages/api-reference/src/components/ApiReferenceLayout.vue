@@ -20,7 +20,6 @@ import {
   type ThemeId,
 } from '@scalar/themes'
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
-import type { Spec } from '@scalar/types/legacy'
 import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 import { ScalarToasts, useToasts } from '@scalar/use-toasts'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
@@ -46,11 +45,9 @@ import { useDocumentSource } from '@/features/document-source'
 import { OPENAPI_VERSION_SYMBOL } from '@/features/download-link'
 import { SearchButton } from '@/features/Search'
 import { Sidebar, useSidebar } from '@/features/sidebar'
-import { parse } from '@/helpers/parse'
 import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
 import { downloadDocument, downloadEventBus } from '@/libs/download'
-import { createEmptySpecification } from '@/libs/openapi'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import type {
   ReferenceLayoutProps,
@@ -235,27 +232,8 @@ watch(dereferencedDocument, (newDoc) => {
   sidebarOpened.value = true
 })
 
-/**
- * Temporarily moved this here so we can use the sidebar items
- * Parsed document (legacy data structure)
- */
-const parsedDocument = ref<Spec>(createEmptySpecification() as Spec)
-watch(
-  dereferencedDocument,
-  async (newDocument) => {
-    if (!newDocument) {
-      return
-    }
-
-    const result = await parse(newDocument, items.value.entries)
-    parsedDocument.value = result
-  },
-  { immediate: true },
-)
-
 /** This is passed into all of the slots so they have access to the references data */
 const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
-  spec: parsedDocument.value,
   breadcrumb: items.value?.titles.get(hash.value) ?? '',
 }))
 
@@ -378,8 +356,7 @@ watch(hash, (newHash, oldHash) => {
                 class="scalar-api-references-standalone-search">
                 <SearchButton
                   :searchHotKey="configuration?.searchHotKey"
-                  :hideModels="configuration?.hideModels"
-                  :spec="parsedDocument" />
+                  :hideModels="configuration?.hideModels" />
               </div>
               <!-- Sidebar Start -->
               <slot
@@ -445,8 +422,7 @@ watch(hash, (newHash, oldHash) => {
                   v-if="!configuration.hideSearch"
                   class="t-doc__sidebar max-w-64"
                   :searchHotKey="configuration.searchHotKey"
-                  :hideModels="configuration?.hideModels"
-                  :spec="parsedDocument" />
+                  :hideModels="configuration?.hideModels" />
                 <template #dark-mode-toggle>
                   <ScalarColorModeToggleIcon
                     v-if="!configuration.hideDarkModeToggle"

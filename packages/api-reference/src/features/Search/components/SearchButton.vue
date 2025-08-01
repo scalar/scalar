@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { ScalarSidebarSearchButton, useModal } from '@scalar/components'
 import { isMacOS } from '@scalar/helpers/general/is-mac-os'
-import type { Spec } from '@scalar/types/legacy'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { useApiClient } from '@/features/api-client-modal'
-import SearchModal from '@/features/Search/SearchModal.vue'
+
+import SearchModal from './SearchModal.vue'
 
 const { searchHotKey = 'k', hideModels = false } = defineProps<{
-  spec: Spec
   searchHotKey?: string
   hideModels?: boolean
 }>()
@@ -64,7 +63,10 @@ function handleClick() {
       Search
     </span>
     <template #shortcut>
-      <template v-if="isMacOS()">⌘</template>
+      <template v-if="isMacOS()">
+        <span class="sr-only">Command</span>
+        <span aria-hidden="true">⌘</span>
+      </template>
       <template v-else>
         <span class="sr-only">CTRL</span>
         <span aria-hidden="true">⌃</span>
@@ -74,6 +76,5 @@ function handleClick() {
   </ScalarSidebarSearchButton>
   <SearchModal
     :modalState="modalState"
-    :hideModels="hideModels"
-    :parsedSpec="spec" />
+    :hideModels="hideModels" />
 </template>

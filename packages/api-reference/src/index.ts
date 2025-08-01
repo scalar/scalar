@@ -10,7 +10,6 @@ export { createApiReference } from '@/standalone/lib/html-api'
 export { useSidebar, Sidebar } from '@/features/sidebar'
 
 // TODO: Ideally, we'd remove those exports or at least not export them through the root index.
-export { parse } from '@/helpers/parse'
 export { createEmptySpecification } from '@/libs/openapi'
 export { useNavState } from '@/hooks/useNavState'
 export type {

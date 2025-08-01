@@ -2,11 +2,7 @@
 import { getHttpMethodInfo } from '@scalar/helpers/http/http-info'
 import { ScalarIconWebhooksLogo } from '@scalar/icons'
 import { isOperationDeprecated } from '@scalar/oas-utils/helpers'
-import type {
-  OpenAPIV3_1,
-  TransformedOperation,
-  XScalarStability,
-} from '@scalar/types/legacy'
+import type { OpenAPIV3_1, XScalarStability } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
@@ -26,9 +22,9 @@ const { operation } = defineProps<{
 const { scrollToOperation } = useSidebar()
 
 const scrollHandler = async (
-  givenOperation: Pick<TransformedOperation, 'id'>,
+  targetOperation: Pick<TraversedOperation, 'id'>,
 ) => {
-  scrollToOperation(givenOperation.id, true)
+  scrollToOperation(targetOperation.id, true)
 }
 
 const pathOrTitle = computed(() => {

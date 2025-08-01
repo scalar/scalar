@@ -1,5 +1,5 @@
 import type { AnyApiReferenceConfiguration, ApiReferenceConfiguration } from '@scalar/types/api-reference'
-import type { OpenAPIV3_1, Spec } from '@scalar/types/legacy'
+import type { OpenAPIV3_1 } from '@scalar/types/legacy'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
 export type { ApiReferenceConfiguration }
@@ -32,10 +32,6 @@ export type ReferenceLayoutProps = {
    */
   originalDocument?: string
   isDark: boolean
-  /**
-   * @deprecated We can't use this anymore. Use `dereferencedDocument` instead.
-   */
-  parsedSpec?: Spec
   /**
    * @deprecated Use `originalDocument` instead.
    */
@@ -86,6 +82,5 @@ export type DocumentSelectorSlot = {
 }
 
 export type ReferenceSlotProps = {
-  spec: Spec
   breadcrumb: string
 }
