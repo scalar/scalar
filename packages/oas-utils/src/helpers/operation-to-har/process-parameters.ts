@@ -1,3 +1,4 @@
+import { getExampleFromSchema } from '@/spec-getters/get-example-from-schema'
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { ReferenceObject } from '@scalar/workspace-store/schemas/v3.1/strict/reference'
@@ -53,6 +54,27 @@ const getParameterStyleAndExplode = (param: ParameterObject): { style: string; e
 }
 
 /**
+ * Extract the value for a parameter from example data or schema.
+ * Prioritizes example data over schema examples.
+ */
+const getParameterValue = (param: ParameterObject, example?: unknown): unknown => {
+  // First try to get value from example data
+  if (example && typeof example === 'object' && param.name) {
+    const exampleValue = (example as Record<string, unknown>)[param.name]
+    if (exampleValue !== undefined) {
+      return exampleValue
+    }
+  }
+
+  // Fall back to schema example if available
+  if ('schema' in param && param.schema) {
+    return getExampleFromSchema(param.schema)
+  }
+
+  return undefined
+}
+
+/**
  * Process OpenAPI parameters and return the updated properties.
  * Handles path, query, and header parameters with various styles and explode options.
  *
@@ -76,8 +98,7 @@ export const processParameters = (
       continue
     }
 
-    const paramValue =
-      example && typeof example === 'object' ? (example as Record<string, unknown>)[param.name] : undefined
+    const paramValue = getParameterValue(param, example)
 
     if (paramValue === undefined) {
       continue
