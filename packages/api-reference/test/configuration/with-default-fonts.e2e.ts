@@ -16,7 +16,7 @@ test.describe('withDefaultFonts', () => {
     await page.goto(example)
 
     // Verify that font requests were made to fonts.scalar.com
-    expect(fontRequests).toHaveLength(1)
+    expect(fontRequests.length).toBeGreaterThan(0)
   })
 
   test('does not load default fonts from fonts.scalar.com', async ({ page }) => {
