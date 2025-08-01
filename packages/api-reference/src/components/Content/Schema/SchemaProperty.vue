@@ -243,7 +243,8 @@ const shouldHaveLink = computed(() => props.level <= 1)
       :required="required"
       :value="optimizedValue"
       :schemas="schemas"
-      :hideModelNames="hideModelNames">
+      :hideModelNames="hideModelNames"
+      class="group">
       <template
         v-if="name"
         #name>
