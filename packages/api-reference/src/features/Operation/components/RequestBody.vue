@@ -168,6 +168,16 @@ const handleDiscriminatorChange = (type: string) => {
   font-size: var(--scalar-small);
   width: 100%;
 }
+
+.request-body-header
+  + .request-body-schema:has(> .schema-card > .schema-card-description),
+.request-body-header
+  + .request-body-schema:has(
+    > .schema-card > .schema-properties > * > .property--level-0
+  ) {
+  /** Add a bit of space between the heading border and the schema description or properties */
+  padding-top: 8px;
+}
 .request-body-description :deep(.markdown) * {
   color: var(--scalar-color-2) !important;
 }
