@@ -5,7 +5,6 @@ import { ScalarIconCaretRight } from '@scalar/icons'
 import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { ContentType } from '@scalar/types/legacy'
 import { computed, ref } from 'vue'
 
 import { SchemaProperty } from '@/components/Content/Schema'
@@ -22,6 +21,7 @@ const props = withDefaults(
     collapsableItems?: boolean
     withExamples?: boolean
     schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
+    breadcrumb?: string[]
   }>(),
   {
     showChildren: false,
@@ -36,9 +36,7 @@ const contentTypes = computed(() => {
   }
   return []
 })
-const selectedContentType = ref<ContentType>(
-  contentTypes.value[0] as ContentType,
-)
+const selectedContentType = ref<string>(contentTypes.value[0])
 if (props.parameter.content) {
   if ('application/json' in props.parameter.content) {
     selectedContentType.value = 'application/json'
@@ -93,10 +91,12 @@ const shouldShowParameter = computed(() => {
         :static="!shouldCollapse">
         <ParameterHeaders
           v-if="parameter.headers"
+          :breadcrumb="breadcrumb"
           :headers="parameter.headers" />
         <SchemaProperty
           is="div"
           compact
+          :breadcrumb="breadcrumb"
           :description="shouldCollapse ? '' : parameter.description"
           :name="shouldCollapse ? '' : parameter.name"
           :noncollapsible="true"

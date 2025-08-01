@@ -122,7 +122,9 @@ const modelName = computed(() => {
       <SchemaPropertyDetail v-if="value.uniqueItems">
         unique!
       </SchemaPropertyDetail>
-      <SchemaPropertyDetail v-if="value.format">
+      <SchemaPropertyDetail
+        v-if="value.format"
+        truncate>
         <ScreenReader>Format:</ScreenReader>
         {{ value.format }}
       </SchemaPropertyDetail>
@@ -241,7 +243,6 @@ const modelName = computed(() => {
   font-family: var(--scalar-font-code);
   font-weight: var(--scalar-semibold);
   font-size: var(--scalar-font-size-3);
-  overflow: hidden;
   white-space: normal;
   overflow-wrap: break-word;
 }

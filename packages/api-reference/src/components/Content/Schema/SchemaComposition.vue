@@ -22,6 +22,7 @@ const { schemas, value, composition } = defineProps<{
   level: number
   compact?: boolean
   hideHeading?: boolean
+  breadcrumb?: string[]
 }>()
 
 const selectedIndex = ref(0)
@@ -177,6 +178,7 @@ const shouldRenderSchema = computed(() => {
           (s: any) => !s.oneOf && !s.anyOf,
         )"
         :key="index"
+        :breadcrumb="breadcrumb"
         :compact="compact"
         :level="level"
         :name="name"
@@ -204,6 +206,7 @@ const shouldRenderSchema = computed(() => {
       <div class="composition-panel">
         <Schema
           v-if="shouldRenderSchema"
+          :breadcrumb="breadcrumb"
           :compact="compact"
           :level="level + 1"
           :hideHeading="hideHeading"
@@ -222,6 +225,7 @@ const shouldRenderSchema = computed(() => {
         <!-- Nested tabs -->
         <template v-if="compositionSchema?.oneOf || compositionSchema?.anyOf">
           <SchemaComposition
+            :breadcrumb="breadcrumb"
             :compact="compact"
             :composition="compositionType"
             :hideHeading="hideHeading"
@@ -237,6 +241,7 @@ const shouldRenderSchema = computed(() => {
     </template>
     <template v-else>
       <Schema
+        :breadcrumb="breadcrumb"
         :compact="compact"
         :level="level"
         :name="name"

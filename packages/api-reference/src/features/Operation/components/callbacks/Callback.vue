@@ -17,6 +17,7 @@ const { method, name, schemas, url } = defineProps<{
   name: string
   schemas?: Schemas
   url: string
+  breadcrumb?: string[]
 }>()
 </script>
 

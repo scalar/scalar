@@ -7,6 +7,7 @@ import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
 
 defineProps<{
   headers: { [key: string]: OpenAPIV3_1.HeaderObject }
+  breadcrumb?: string[]
 }>()
 
 function hasSchema(
@@ -38,6 +39,7 @@ function hasSchema(
         </DisclosureButton>
         <DisclosurePanel>
           <SchemaProperty
+            :breadcrumb="breadcrumb ? [...breadcrumb, 'headers'] : undefined"
             v-for="(header, key) in headers"
             :key="key"
             :description="header.description"

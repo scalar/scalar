@@ -1,15 +1,20 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { ContentType, RequestBody } from '@scalar/types/legacy'
 import { computed, ref } from 'vue'
 
 import { Schema } from '@/components/Content/Schema'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 
+/**
+ * The maximum number of properties to show in the request body schema.
+ */
+const MAX_VISIBLE_PROPERTIES = 12
+
 const { requestBody, schemas } = defineProps<{
-  requestBody?: RequestBody
+  breadcrumb?: string[]
+  requestBody?: OpenAPIV3_1.OperationObject['requestBody']
   schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
 }>()
 
@@ -21,11 +26,11 @@ const availableContentTypes = computed(() =>
   Object.keys(requestBody?.content ?? {}),
 )
 
-const selectedContentType = ref<ContentType>('application/json')
+const selectedContentType = ref<string>('application/json')
 
 if (requestBody?.content) {
   if (availableContentTypes.value.length > 0) {
-    selectedContentType.value = availableContentTypes.value[0] as ContentType
+    selectedContentType.value = availableContentTypes.value[0]
   }
 }
 
@@ -42,7 +47,7 @@ const partitionedSchema = computed(() => {
   }
 
   const propertyEntries = Object.entries(schema.properties)
-  if (propertyEntries.length < 13) {
+  if (propertyEntries.length <= MAX_VISIBLE_PROPERTIES) {
     return null
   }
 
@@ -52,11 +57,15 @@ const partitionedSchema = computed(() => {
   return {
     visibleProperties: {
       ...schemaMetadata,
-      properties: Object.fromEntries(propertyEntries.slice(0, 12)),
+      properties: Object.fromEntries(
+        propertyEntries.slice(0, MAX_VISIBLE_PROPERTIES),
+      ),
     },
     collapsedProperties: {
       ...schemaMetadata,
-      properties: Object.fromEntries(propertyEntries.slice(12)),
+      properties: Object.fromEntries(
+        propertyEntries.slice(MAX_VISIBLE_PROPERTIES),
+      ),
     },
   }
 })
@@ -91,7 +100,7 @@ const handleDiscriminatorChange = (type: string) => {
       </div>
     </div>
 
-    <!-- For over 10 properties we want to show 10 and collapse the rest -->
+    <!-- For over 12 properties we want to show 12 and collapse the rest -->
     <div
       v-if="partitionedSchema"
       class="request-body-schema">
@@ -99,6 +108,7 @@ const handleDiscriminatorChange = (type: string) => {
         compact
         name="Request Body"
         noncollapsible
+        :breadcrumb
         :schemas="schemas"
         :value="partitionedSchema.visibleProperties"
         @update:modelValue="handleDiscriminatorChange" />
@@ -107,6 +117,7 @@ const handleDiscriminatorChange = (type: string) => {
         additionalProperties
         compact
         name="Request Body"
+        :breadcrumb
         :schemas="schemas"
         :value="partitionedSchema.collapsedProperties" />
     </div>
@@ -116,6 +127,7 @@ const handleDiscriminatorChange = (type: string) => {
       v-else-if="requestBody.content?.[selectedContentType]"
       class="request-body-schema">
       <Schema
+        :breadcrumb
         compact
         name="Request Body"
         noncollapsible

@@ -1,23 +1,23 @@
 <script setup lang="ts">
 import { cva, ScalarButton, ScalarListbox } from '@scalar/components'
 import { ScalarIconCaretDown } from '@scalar/icons'
-import type { ContentType, RequestBody } from '@scalar/types/legacy'
+import type { RequestBody } from '@scalar/types/legacy'
 import { computed, ref } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
 
 const prop = defineProps<{
   requestBody?: RequestBody
-  defaultValue?: ContentType
+  defaultValue?: string
 }>()
 
 const emit = defineEmits<{
-  (e: 'selectContentType', payload: { contentType: ContentType }): void
+  (e: 'selectContentType', payload: { contentType: string }): void
 }>()
 
 const handleSelectContentType = (option: any) => {
   if (option?.id) {
-    emit('selectContentType', { contentType: option.id as ContentType })
+    emit('selectContentType', { contentType: option.id })
   }
 }
 
@@ -28,8 +28,8 @@ const contentTypes = computed(() => {
   return []
 })
 
-const selectedContentType = ref<ContentType>(
-  prop.defaultValue || (contentTypes.value[0] as ContentType),
+const selectedContentType = ref<string>(
+  prop.defaultValue || contentTypes.value[0],
 )
 
 const selectedOption = computed({
@@ -37,7 +37,7 @@ const selectedOption = computed({
     options.value.find((option) => option.id === selectedContentType.value),
   set: (option) => {
     if (option) {
-      selectedContentType.value = option.id as ContentType
+      selectedContentType.value = option.id
     }
   },
 })

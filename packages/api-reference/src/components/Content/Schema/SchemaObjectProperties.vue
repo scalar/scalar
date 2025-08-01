@@ -16,6 +16,7 @@ const { level = 0, hideModelNames = false } = defineProps<{
   discriminatorMapping?: Record<string, string>
   discriminatorPropertyName?: string
   hasDiscriminator?: boolean
+  breadcrumb?: string[]
 }>()
 
 const emit = defineEmits<{
@@ -75,12 +76,12 @@ const getAdditionalPropertiesValue = (
 </script>
 
 <template>
-  <!-- <pre><code>{{ schema }}</code></pre> -->
   <!-- Properties -->
   <template v-if="schema.properties">
     <SchemaProperty
       v-for="property in Object.keys(schema.properties)"
       :key="property"
+      :breadcrumb="breadcrumb"
       :compact="compact"
       :hideHeading="hideHeading"
       :level="level"
@@ -116,6 +117,7 @@ const getAdditionalPropertiesValue = (
   <!-- patternProperties -->
   <template v-if="schema.patternProperties">
     <SchemaProperty
+      :breadcrumb="breadcrumb"
       v-for="property in Object.keys(schema.patternProperties)"
       :key="property"
       variant="patternProperties"
@@ -139,6 +141,7 @@ const getAdditionalPropertiesValue = (
   <!-- additionalProperties -->
   <template v-if="schema.additionalProperties">
     <SchemaProperty
+      :breadcrumb="breadcrumb"
       variant="additionalProperties"
       :compact="compact"
       :hideHeading="hideHeading"
