@@ -7,6 +7,7 @@ import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { computed, ref } from 'vue'
 
+import { getCurrentIndex } from '@/components/Content/Operations/get-current-index'
 import { hasLazyLoaded, lazyBus } from '@/components/Lazy/lazyBus'
 import { useSidebar } from '@/features/sidebar'
 import { useNavState } from '@/hooks/useNavState'
@@ -78,22 +79,27 @@ const resume = () => {
   isIntersectionEnabled.value = true
 }
 
-/** So we know when we have loaded all lazy elements */
+/** IDs for all lazy elements above the current entry */
 const lazyIds = ref<Set<string>>(new Set())
 
+/** The index of the root entry */
+const rootIndex = computed(() =>
+  getCurrentIndex(hash.value, items.value.entries),
+)
+
 // Use the lazybus to handle [un]freezing elements
-lazyBus.on(({ loading, loaded }) => {
+lazyBus.on(({ loading, loaded, save }) => {
   if (hasLazyLoaded.value) {
     return
   }
 
-  // Track which elements are loading
-  if (loading) {
+  // Track the previous elements that are loading
+  if (loading && save) {
     lazyIds.value.add(loading)
   }
 
   // Track which elements have loaded
-  if (loaded) {
+  if (loaded && save) {
     lazyIds.value.delete(loaded)
   }
 
@@ -118,6 +124,7 @@ setTimeout(() => resume(), 5000)
       :clientOptions
       :config
       :document
+      :rootIndex
       :store />
   </div>
 </template>

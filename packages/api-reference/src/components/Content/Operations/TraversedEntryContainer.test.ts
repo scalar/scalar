@@ -55,6 +55,7 @@ describe('TraversedEntryContainer', () => {
   })
   afterEach(() => {
     vi.resetAllMocks()
+    hasLazyLoaded.value = false
   })
 
   describe('basic operation rendering', () => {
@@ -82,7 +83,7 @@ describe('TraversedEntryContainer', () => {
       expect(wrapper.text()).toContain('Say Hello')
     })
 
-    it('renders multiple operations with different methods', () => {
+    it('renders multiple operations with different methods', async () => {
       const document = {
         openapi: '3.1.0',
         info: {
@@ -114,6 +115,11 @@ describe('TraversedEntryContainer', () => {
       // Mock the sidebar with the correct entries for this document
       vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
       const wrapper = mount(TraversedEntryContainer, getProps(document))
+
+      // Wait for hasLazyLoaded to become true
+      await vi.waitFor(() => {
+        expect(hasLazyLoaded.value).toBe(true)
+      })
 
       expect(wrapper.text()).toContain('Get Users')
       expect(wrapper.text()).toContain('Create User')
@@ -475,12 +481,12 @@ describe('TraversedEntryContainer', () => {
       const wrapper = mount(TraversedEntryContainer, getProps(document))
 
       // Simulate lazy loading events
-      lazyBus.emit({ loading: 'operation-1' })
-      lazyBus.emit({ loading: 'operation-2' })
+      lazyBus.emit({ loading: 'operation-1', save: false })
+      lazyBus.emit({ loading: 'operation-2', save: false })
 
       // Simulate lazy loaded events
-      lazyBus.emit({ loaded: 'operation-1' })
-      lazyBus.emit({ loaded: 'operation-2' })
+      lazyBus.emit({ loaded: 'operation-1', save: false })
+      lazyBus.emit({ loaded: 'operation-2', save: false })
 
       // The component should handle these events without crashing
       expect(wrapper.exists()).toBe(true)
@@ -507,10 +513,10 @@ describe('TraversedEntryContainer', () => {
       const wrapper = mount(TraversedEntryContainer, getProps(document))
 
       // Simulate loading and then loading all elements
-      lazyBus.emit({ loading: 'operation-1' })
-      lazyBus.emit({ loading: 'operation-2' })
-      lazyBus.emit({ loaded: 'operation-1' })
-      lazyBus.emit({ loaded: 'operation-2' })
+      lazyBus.emit({ loading: 'operation-1', save: true })
+      lazyBus.emit({ loading: 'operation-2', save: true })
+      lazyBus.emit({ loaded: 'operation-1', save: true })
+      lazyBus.emit({ loaded: 'operation-2', save: true })
 
       // Wait for the allEntriesLoaded event to be emitted
       await vi.waitFor(() => {
@@ -577,8 +583,8 @@ describe('TraversedEntryContainer', () => {
       mount(TraversedEntryContainer, getProps(document))
 
       // Simulate lazy loading events
-      lazyBus.emit({ loading: 'operation-1' })
-      lazyBus.emit({ loaded: 'operation-1' })
+      lazyBus.emit({ loading: 'operation-1', save: true })
+      lazyBus.emit({ loaded: 'operation-1', save: true })
 
       // Should not change the state since hasLazyLoaded is already true
       expect(hasLazyLoaded.value).toBe(true)
@@ -705,14 +711,14 @@ describe('TraversedEntryContainer', () => {
       const wrapper = mount(TraversedEntryContainer, getProps(document))
 
       // Simulate loading multiple operations
-      lazyBus.emit({ loading: 'operation-1' })
-      lazyBus.emit({ loading: 'operation-2' })
-      lazyBus.emit({ loading: 'operation-3' })
+      lazyBus.emit({ loading: 'operation-1', save: true })
+      lazyBus.emit({ loading: 'operation-2', save: true })
+      lazyBus.emit({ loading: 'operation-3', save: true })
 
       // Simulate loading them in different order
-      lazyBus.emit({ loaded: 'operation-2' })
-      lazyBus.emit({ loaded: 'operation-1' })
-      lazyBus.emit({ loaded: 'operation-3' })
+      lazyBus.emit({ loaded: 'operation-2', save: true })
+      lazyBus.emit({ loaded: 'operation-1', save: true })
+      lazyBus.emit({ loaded: 'operation-3', save: true })
 
       // Advance timers to trigger the setTimeout
       await vi.waitFor(() => {
@@ -752,10 +758,10 @@ describe('TraversedEntryContainer', () => {
       const wrapper = mount(TraversedEntryContainer, getProps(document))
 
       // Simulate loading webhooks
-      lazyBus.emit({ loading: 'webhook-1' })
-      lazyBus.emit({ loading: 'webhook-2' })
-      lazyBus.emit({ loaded: 'webhook-1' })
-      lazyBus.emit({ loaded: 'webhook-2' })
+      lazyBus.emit({ loading: 'webhook-1', save: true })
+      lazyBus.emit({ loading: 'webhook-2', save: true })
+      lazyBus.emit({ loaded: 'webhook-1', save: true })
+      lazyBus.emit({ loaded: 'webhook-2', save: true })
 
       // Advance timers to trigger the setTimeout
       await vi.waitFor(() => {
@@ -800,10 +806,10 @@ describe('TraversedEntryContainer', () => {
       const wrapper = mount(TraversedEntryContainer, getProps(document))
 
       // Simulate loading mixed content
-      lazyBus.emit({ loading: 'operation-1' })
-      lazyBus.emit({ loading: 'webhook-1' })
-      lazyBus.emit({ loaded: 'operation-1' })
-      lazyBus.emit({ loaded: 'webhook-1' })
+      lazyBus.emit({ loading: 'operation-1', save: true })
+      lazyBus.emit({ loading: 'webhook-1', save: true })
+      lazyBus.emit({ loaded: 'operation-1', save: true })
+      lazyBus.emit({ loaded: 'webhook-1', save: true })
 
       await vi.waitFor(() => {
         expect(wrapper.emitted('allEntriesLoaded')).toBeTruthy()

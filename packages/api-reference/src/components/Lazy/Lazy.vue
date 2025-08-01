@@ -21,6 +21,7 @@ const {
   id,
   isLazy = true,
   lazyTimeout = 0,
+  prev = false,
 } = defineProps<{
   // Identifier for loaded event, if no ID is passed then no event is dispatched
   id?: string
@@ -28,7 +29,12 @@ const {
   isLazy?: boolean
   // Amount of time in ms to wait before triggering requestIdleCallback
   lazyTimeout?: number
+  // Whether the element is a previous sibling of the current entry
+  prev?: boolean
 }>()
+
+/** We save to our lazyId list if it's a previous sibling or if it's not lazy */
+const save = prev || !isLazy
 
 const onIdle = (cb: () => void) => {
   if (typeof window === 'undefined') {
@@ -46,7 +52,7 @@ const onIdle = (cb: () => void) => {
 }
 
 const readyToRender = ref(!isLazy)
-lazyBus.emit({ loading: id })
+lazyBus.emit({ loading: id, save })
 
 // Fire the event for non-lazy components as well to keep track of loading
 if (isLazy) {
@@ -54,11 +60,11 @@ if (isLazy) {
     readyToRender.value = true
 
     if (id) {
-      nextTick(() => lazyBus.emit({ loaded: id }))
+      nextTick(() => lazyBus.emit({ loaded: id, save }))
     }
   })
 } else if (id) {
-  nextTick(() => lazyBus.emit({ loaded: id }))
+  nextTick(() => lazyBus.emit({ loaded: id, save }))
 }
 </script>
 <template>
