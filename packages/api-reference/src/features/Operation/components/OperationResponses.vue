@@ -9,6 +9,7 @@ const props = withDefaults(
     responses: OpenAPIV3_1.ResponseObject | undefined
     collapsableItems?: boolean
     schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
+    breadcrumb?: string[]
   }>(),
   {
     collapsableItems: true,
@@ -19,6 +20,7 @@ const { responses } = useResponses(props.responses)
 </script>
 <template>
   <ParameterList
+    :breadcrumb="breadcrumb ? [...breadcrumb, 'responses'] : undefined"
     :collapsableItems="collapsableItems"
     :parameters="responses"
     :schemas="schemas"

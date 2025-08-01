@@ -11,6 +11,7 @@ withDefaults(
     collapsableItems?: boolean
     withExamples?: boolean
     schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
+    breadcrumb?: string[]
   }>(),
   {
     showChildren: false,
@@ -30,6 +31,7 @@ withDefaults(
       <ParameterListItem
         v-for="item in parameters"
         :key="item.name"
+        :breadcrumb="breadcrumb"
         :collapsableItems="collapsableItems"
         :parameter="item"
         :schemas="schemas"

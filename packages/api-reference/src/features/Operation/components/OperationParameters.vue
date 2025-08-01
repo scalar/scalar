@@ -11,6 +11,7 @@ const {
   requestBody,
   schemas,
 } = defineProps<{
+  breadcrumb?: string[]
   parameters?: OpenAPIV3_1.ParameterObject[]
   requestBody?: OpenAPIV3_1.RequestBodyObject | undefined
   schemas?: Schemas
@@ -30,6 +31,7 @@ const filterParameters = (where: 'path' | 'query' | 'header' | 'cookie') =>
 <template>
   <!-- Path parameters-->
   <ParameterList
+    :breadcrumb="breadcrumb ? [...breadcrumb, 'path'] : undefined"
     :parameters="filterParameters('path')"
     :schemas="schemas">
     <template #title>Path Parameters</template>
@@ -37,6 +39,7 @@ const filterParameters = (where: 'path' | 'query' | 'header' | 'cookie') =>
 
   <!-- Query parameters -->
   <ParameterList
+    :breadcrumb="breadcrumb ? [...breadcrumb, 'query'] : undefined"
     :parameters="filterParameters('query')"
     :schemas="schemas">
     <template #title>Query Parameters</template>
@@ -44,6 +47,7 @@ const filterParameters = (where: 'path' | 'query' | 'header' | 'cookie') =>
 
   <!-- Headers -->
   <ParameterList
+    :breadcrumb="breadcrumb ? [...breadcrumb, 'headers'] : undefined"
     :parameters="filterParameters('header')"
     :schemas="schemas">
     <template #title>Headers</template>
@@ -51,6 +55,7 @@ const filterParameters = (where: 'path' | 'query' | 'header' | 'cookie') =>
 
   <!-- Cookies -->
   <ParameterList
+    :breadcrumb="breadcrumb ? [...breadcrumb, 'cookies'] : undefined"
     :parameters="filterParameters('cookie')"
     :schemas="schemas">
     <template #title>Cookies</template>
@@ -59,6 +64,7 @@ const filterParameters = (where: 'path' | 'query' | 'header' | 'cookie') =>
   <!-- Request body -->
   <RequestBody
     v-if="requestBody"
+    :breadcrumb="breadcrumb ? [...breadcrumb, 'body'] : undefined"
     :requestBody="requestBody"
     :schemas="schemas"
     @update:modelValue="handleDiscriminatorChange">

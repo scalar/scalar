@@ -22,6 +22,7 @@ const props = withDefaults(
     collapsableItems?: boolean
     withExamples?: boolean
     schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
+    breadcrumb?: string[]
   }>(),
   {
     showChildren: false,
@@ -97,6 +98,7 @@ const shouldShowParameter = computed(() => {
         <SchemaProperty
           is="div"
           compact
+          :breadcrumb="breadcrumb"
           :description="shouldCollapse ? '' : parameter.description"
           :name="shouldCollapse ? '' : parameter.name"
           :noncollapsible="true"

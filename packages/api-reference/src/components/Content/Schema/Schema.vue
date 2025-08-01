@@ -46,6 +46,8 @@ const props = withDefaults(
     discriminatorPropertyName?: string
     /** Whether the schema has a discriminator */
     hasDiscriminator?: boolean
+    /** Breadcrumb for the schema */
+    breadcrumb?: string[]
   }>(),
   { level: 0, noncollapsible: false, hideModelNames: false },
 )
@@ -237,6 +239,7 @@ const handleDiscriminatorChange = (type: string) => {
           <!-- Object properties -->
           <SchemaObjectProperties
             v-if="isTypeObject(schema)"
+            :breadcrumb="breadcrumb"
             :schema="schema"
             :compact="compact"
             :hideHeading="hideHeading"
@@ -253,6 +256,7 @@ const handleDiscriminatorChange = (type: string) => {
           <template v-else>
             <SchemaProperty
               v-if="schema"
+              :breadcrumb="breadcrumb"
               :compact="compact"
               :hideHeading="hideHeading"
               :hideModelNames="hideModelNames"
