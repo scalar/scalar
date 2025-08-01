@@ -38,6 +38,8 @@
     "playground:vue": "vite ./playground/vue -c ./playground/vue/vite.config.ts",
     "preview": "vite preview",
     "test": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "types:build": "scalar-types-build-vue",
     "types:check": "scalar-types-check-vue"
   },
@@ -104,6 +106,10 @@
     "vite": "catalog:*",
     "vite-plugin-banner": "^0.7.1",
     "vite-plugin-css-injected-by-js": "^3.4.0",
-    "vitest": "catalog:*"
+    "vitest": "catalog:*",
+    "@hono/node-server": "^1.11.0",
+    "@playwright/test": "^1.49.1",
+    "hono": "^4.6.5",
+    "@scalar/core": "workspace:*"
   }
 }
