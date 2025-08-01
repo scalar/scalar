@@ -292,7 +292,7 @@ const shouldHaveLink = computed(() => props.breadcrumb && props.level <= 1)
       class="children">
       <Schema
         :compact="compact"
-        :breadcrumb="breadcrumb"
+        :breadcrumb="breadcrumb && name ? [...breadcrumb, name] : undefined"
         :level="level + 1"
         :name="name"
         :noncollapsible="noncollapsible"
