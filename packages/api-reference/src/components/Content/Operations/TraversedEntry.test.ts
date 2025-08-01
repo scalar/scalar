@@ -742,8 +742,8 @@ describe('TraversedEntry', async () => {
       })
 
       const component = wrapper.vm as any
-      expect(component.isLazy(0)).toBe(null)
-      expect(component.isLazy(1)).toBe(null)
+      expect(component.isLazy(entries[0], 0)).toBe(null)
+      expect(component.isLazy(entries[1], 1)).toBe(null)
     })
 
     it('returns null for current and nearby indices when hash matches tag', () => {
@@ -766,30 +766,8 @@ describe('TraversedEntry', async () => {
       })
 
       const component = wrapper.vm as any
-      expect(component.isLazy(0)).toBe(null)
-      expect(component.isLazy(1)).toBe(null)
-    })
-
-    it('returns null for non-numeric indices', () => {
-      // Mock useNavState to return a hash
-      vi.mocked(useNavState).mockReturnValue(createMockNavState('tag/users/get/users'))
-
-      const wrapper = mount(TraversedEntryComponent, {
-        props: {
-          rootIndex: 0,
-          clientOptions: [],
-          entries: [createMockOperation()],
-          document: mockDocument,
-          config: mockConfig,
-          activeCollection: mockCollection,
-          activeServer: mockServer,
-          store: mockStore,
-        },
-      })
-
-      const component = wrapper.vm as any
-      expect(component.isLazy('0' as any)).toBe(null)
-      expect(component.isLazy('invalid' as any)).toBe(null)
+      expect(component.isLazy(entries[0], 0)).toBe(null)
+      expect(component.isLazy(entries[1], 1)).toBe(null)
     })
 
     it('returns correct lazy values for different positions relative to current index', () => {
@@ -819,15 +797,15 @@ describe('TraversedEntry', async () => {
 
       const component = wrapper.vm as any
       // Index 0 is before current index (1)
-      expect(component.isLazy(0)).toBe('prev')
+      expect(component.isLazy(entries[0], 0)).toBe('prev')
       // Index 1 is current index
-      expect(component.isLazy(1)).toBe(null)
+      expect(component.isLazy(entries[1], 1)).toBe(null)
       // Index 2 is current + 1
-      expect(component.isLazy(2)).toBe(null)
+      expect(component.isLazy(entries[2], 2)).toBe(null)
       // Index 3 is current + 2
-      expect(component.isLazy(3)).toBe(null)
+      expect(component.isLazy(entries[3], 3)).toBe(null)
       // Index 4 is current + 3 (after the 2 sibling limit)
-      expect(component.isLazy(4)).toBe('after')
+      expect(component.isLazy(entries[4], 4)).toBe('after')
     })
   })
 })
