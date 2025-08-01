@@ -43,7 +43,7 @@ const handleButtonClick = async () => {
 <template>
   <template v-if="breadcrumb">
     <div
-      class="relative scroll-mt-10"
+      class="relative scroll-mt-24"
       :id="id">
       <!-- Content -->
       <slot />

@@ -5,6 +5,7 @@ import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { computed } from 'vue'
 
+import { getCurrentIndex } from '@/components/Content/Operations/get-current-index'
 import { Tag } from '@/components/Content/Tags'
 import { Lazy } from '@/components/Lazy'
 import { SectionContainer } from '@/components/Section'
@@ -61,15 +62,19 @@ const currentIndex = computed(() => {
     return rootIndex
   }
 
-  const targetId = hash.value.startsWith('model') ? 'models' : hash.value
-  return entries.findIndex((entry) => targetId.startsWith(entry.id))
+  return getCurrentIndex(hash.value, entries)
 })
 
 /**
  * Check if the entry should be lazy loaded
  * We care more about the previous entries so we track those
  */
-const isLazy = (index: number) => {
+const isLazy = (entry: TraversedEntry, index: number) => {
+  // Don't be lazy if we are a tag group
+  if (isTagGroup(entry)) {
+    return null
+  }
+
   // Make all previous entries lazy
   if (index < currentIndex.value) {
     return 'prev'
@@ -93,8 +98,8 @@ defineExpose({
     v-for="(entry, index) in entries"
     :key="entry.id"
     :id="entry.id"
-    :prev="isLazy(index) === 'prev'"
-    :isLazy="Boolean(isLazy(index))">
+    :prev="isLazy(entry, index) === 'prev'"
+    :isLazy="Boolean(isLazy(entry, index))">
     <template v-if="isOperation(entry) || isWebhook(entry)">
       <!-- Operation or Webhook -->
       <SectionContainer :omit="!isRootLevel">

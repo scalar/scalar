@@ -7,6 +7,7 @@ import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { computed, ref } from 'vue'
 
+import { getCurrentIndex } from '@/components/Content/Operations/get-current-index'
 import { hasLazyLoaded, lazyBus } from '@/components/Lazy/lazyBus'
 import { useSidebar } from '@/features/sidebar'
 import { useNavState } from '@/hooks/useNavState'
@@ -82,18 +83,9 @@ const resume = () => {
 const lazyIds = ref<Set<string>>(new Set())
 
 /** The index of the root entry */
-const rootIndex = computed(() => {
-  const targetId = hash.value.startsWith('model') ? 'models' : hash.value
-  return items.value.entries.findIndex((entry) => {
-    // For tag just check starts with as the ID should start with the tag ID
-    if ('tag' in entry) {
-      return targetId.startsWith(entry.id)
-    }
-
-    // Otherwise check for a complete match
-    return targetId === entry.id
-  })
-})
+const rootIndex = computed(() =>
+  getCurrentIndex(hash.value, items.value.entries),
+)
 
 // Use the lazybus to handle [un]freezing elements
 lazyBus.on(({ loading, loaded, save }) => {
