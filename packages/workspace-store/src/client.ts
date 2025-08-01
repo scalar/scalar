@@ -1,13 +1,13 @@
 import YAML from 'yaml'
 import { reactive } from 'vue'
-import { bundle, upgrade } from '@scalar/openapi-parser'
-import { fetchUrls } from '@scalar/openapi-parser/plugins-browser'
+import { upgrade } from '@scalar/openapi-parser'
+import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
+
 import type { DeepPartial, DeepRequired } from '@/types'
 import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
 import { deepClone, isObject, safeAssign } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
-import { createMagicProxy, getRaw } from '@/helpers/proxy'
 import { createNavigation, type createNavigationOptions } from '@/navigation'
 import { extensions } from '@/schemas/extensions'
 import { coerceValue } from '@/schemas/typebox-coerce'
@@ -18,7 +18,9 @@ import { InMemoryWorkspaceSchema, type InMemoryWorkspace } from '@/schemas/inmem
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
 import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from '@/schemas/workspace'
-import { apply, diff, merge, type Difference } from '@scalar/json-diff'
+import { bundle } from '@scalar/json-magic/bundle'
+import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
+import { apply, diff, merge, type Difference } from '@scalar/json-magic/diff'
 
 /**
  * Input type for workspace document metadata and configuration.

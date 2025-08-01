@@ -9,7 +9,7 @@ import { OpenAPIDocumentSchema, type OpenApiDocument } from '@/schemas/v3.1/stri
 import type { PathsObject } from '@/schemas/v3.1/strict/paths'
 import { keyOf } from '@/helpers/general'
 import type { OperationObject } from '@/schemas/v3.1/strict/path-operations'
-import { fetchUrls, readFiles } from '@scalar/openapi-parser/plugins'
+import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import type { ComponentsObject } from '@/schemas/v3.1/strict/components'
 import type { TraversedEntry } from '@/schemas/navigation'
