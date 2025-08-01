@@ -1,11 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { serveExample } from '@test/utils/serve-example'
 
-// TODO:
-// - pathRouting
-// - all parameters
-// - requestBody
-
 test.describe('parameter linking', () => {
   test.use({
     permissions: ['clipboard-write', 'clipboard-read'],
