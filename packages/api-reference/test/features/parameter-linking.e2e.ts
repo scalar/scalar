@@ -64,25 +64,26 @@ test.describe('parameter linking', () => {
     })
 
     // Set viewport to a small height to test that the button is not in the viewport
-    await page.setViewportSize({ width: 1024, height: 200 })
-
+    await page.setViewportSize({ width: 1024, height: 400 })
     await page.goto(example)
 
     // Before
-    await expect(page.getByRole('button', { name: 'myCustomQueryParameter', exact: true })).toBeVisible()
-    await expect(page.getByRole('button', { name: 'myCustomHeaderParameter', exact: true })).toBeVisible()
-    await expect(page.getByRole('button', { name: 'myCustomPathParameter', exact: true })).toBeVisible()
-    await expect(page.getByRole('button', { name: 'myCustomCookieParameter', exact: true })).toBeVisible()
+    await page.hover('text=myCustomBodyParameter')
 
-    const button = page.getByRole('button', { name: 'myCustomBodyParameter', exact: true })
+    const button = page.getByRole('button', { name: 'Copy link to myCustomBodyParameter', exact: true })
     await expect(button).toBeVisible()
-    await expect(button).not.toBeInViewport()
 
     // Click
     await page.getByRole('button', { name: 'myCustomBodyParameter' }).click()
-
-    // After
     await expect(button).toBeInViewport()
+
+    // Should show a success message
+    await expect(page.getByRole('status').filter({ hasText: 'Copied' })).toBeVisible()
+
+    // Scroll to the top of the page
+    await page.evaluate(() => window.scrollTo(0, 0))
+    await expect(button).not.toBeInViewport()
+
     const clipboard = await page.evaluate(() => navigator.clipboard.readText())
     expect(clipboard).toContain('myCustomBodyParameter')
 

@@ -46,16 +46,18 @@ const handleButtonClick = async () => {
       class="relative scroll-mt-10"
       :id="id">
       <!-- Content -->
-      <slot></slot>
+      <slot />
       <button
-        class="text-c-3 hover:text-c-1 absolute -top-2 -left-4.5 flex h-[calc(100%+16px)] w-4.5 cursor-pointer items-center justify-center pr-1.5 opacity-0 group-hover:opacity-100"
-        role="button"
+        class="text-c-3 hover:text-c-1 absolute -top-2 -left-4.5 flex h-[calc(100%+16px)] w-4.5 cursor-pointer items-center justify-center pr-1.5 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
         type="button"
         @click="handleButtonClick">
         <!-- Copy button -->
         <ScalarIconLink
           class="size-3"
           weight="bold" />
+        <span class="sr-only">
+          <slot name="sr-label">Copy link to <slot /></slot>
+        </span>
       </button>
     </div>
   </template>
