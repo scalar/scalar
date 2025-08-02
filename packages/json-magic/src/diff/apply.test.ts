@@ -1,5 +1,4 @@
 import { apply, InvalidChangesDetectedError } from '@/diff/apply'
-import { DifferenceResult } from '@/diff/diff'
 import { describe, expect, test } from 'vitest'
 
 const deepClone = <T extends object>(obj: T) => JSON.parse(JSON.stringify(obj)) as T
@@ -15,7 +14,7 @@ describe('apply', () => {
       const docCopy = deepClone(doc)
       const location = { city: 'New York', street: '5th Avenue' }
 
-      expect(apply(doc, new DifferenceResult([{ path: ['location'], changes: location, type: 'add' }]))).toEqual({
+      expect(apply(doc, [{ path: ['location'], changes: location, type: 'add' }])).toEqual({
         ...docCopy,
         location,
       })
@@ -35,16 +34,13 @@ describe('apply', () => {
       const coordinates = { lat: 40.7128, long: 74.006 }
 
       expect(
-        apply(
-          doc,
-          new DifferenceResult([
-            {
-              path: ['location', 'coordinates'],
-              changes: coordinates,
-              type: 'add',
-            },
-          ]),
-        ),
+        apply(doc, [
+          {
+            path: ['location', 'coordinates'],
+            changes: coordinates,
+            type: 'add',
+          },
+        ]),
       ).toEqual({
         ...docCopy,
         location: {
@@ -68,7 +64,7 @@ describe('apply', () => {
       const docCopy = deepClone(doc)
       const updatedAge = 26
 
-      expect(apply(doc, new DifferenceResult([{ path: ['age'], changes: updatedAge, type: 'update' }]))).toEqual({
+      expect(apply(doc, [{ path: ['age'], changes: updatedAge, type: 'update' }])).toEqual({
         ...docCopy,
         age: updatedAge,
       })
@@ -87,9 +83,7 @@ describe('apply', () => {
       const docCopy = deepClone(doc)
       const updatedCity = 'Boston'
 
-      expect(
-        apply(doc, new DifferenceResult([{ path: ['location', 'city'], changes: updatedCity, type: 'update' }])),
-      ).toEqual({
+      expect(apply(doc, [{ path: ['location', 'city'], changes: updatedCity, type: 'update' }])).toEqual({
         ...docCopy,
         location: { ...docCopy.location, city: updatedCity },
       })
@@ -111,9 +105,7 @@ describe('apply', () => {
         },
       }
 
-      expect(
-        apply(doc1, new DifferenceResult([{ path: ['location'], changes: doc1.location, type: 'delete' }])),
-      ).toEqual(doc2)
+      expect(apply(doc1, [{ path: ['location'], changes: doc1.location, type: 'delete' }])).toEqual(doc2)
     })
 
     test('should apply `delete` operation correctly on nested objects', () => {
@@ -134,16 +126,13 @@ describe('apply', () => {
       }
 
       expect(
-        apply(
-          doc1,
-          new DifferenceResult([
-            {
-              path: ['location', 'street'],
-              changes: doc1.location.street,
-              type: 'delete',
-            },
-          ]),
-        ),
+        apply(doc1, [
+          {
+            path: ['location', 'street'],
+            changes: doc1.location.street,
+            type: 'delete',
+          },
+        ]),
       ).toEqual(doc2)
     })
   })
@@ -160,16 +149,13 @@ describe('apply', () => {
       }
 
       expect(() =>
-        apply(
-          doc,
-          new DifferenceResult([
-            {
-              path: ['location', 'city', 'something'],
-              changes: { test: 1 },
-              type: 'add',
-            },
-          ]),
-        ),
+        apply(doc, [
+          {
+            path: ['location', 'city', 'something'],
+            changes: { test: 1 },
+            type: 'add',
+          },
+        ]),
       ).toThrow(InvalidChangesDetectedError)
     })
 
@@ -184,16 +170,13 @@ describe('apply', () => {
       }
 
       expect(() =>
-        apply(
-          doc,
-          new DifferenceResult([
-            {
-              path: ['location', 'coordinates', 'lang'],
-              changes: 41.25,
-              type: 'add',
-            },
-          ]),
-        ),
+        apply(doc, [
+          {
+            path: ['location', 'coordinates', 'lang'],
+            changes: 41.25,
+            type: 'add',
+          },
+        ]),
       ).toThrow(InvalidChangesDetectedError)
     })
   })
@@ -214,16 +197,13 @@ describe('apply', () => {
       const newHobby = 'coding'
 
       expect(
-        apply(
-          doc,
-          new DifferenceResult([
-            {
-              path: ['hobbies', '1'],
-              changes: newHobby,
-              type: 'add',
-            },
-          ]),
-        ),
+        apply(doc, [
+          {
+            path: ['hobbies', '1'],
+            changes: newHobby,
+            type: 'add',
+          },
+        ]),
       ).toEqual({ ...docCopy, hobbies: [...docCopy.hobbies, newHobby] })
     })
   })
@@ -244,16 +224,13 @@ describe('apply', () => {
     docCopy.hobbies[1] = updatedHobby
 
     expect(
-      apply(
-        doc,
-        new DifferenceResult([
-          {
-            path: ['hobbies', '1'],
-            changes: updatedHobby,
-            type: 'update',
-          },
-        ]),
-      ),
+      apply(doc, [
+        {
+          path: ['hobbies', '1'],
+          changes: updatedHobby,
+          type: 'update',
+        },
+      ]),
     ).toEqual(docCopy)
   })
 
@@ -273,16 +250,13 @@ describe('apply', () => {
     docCopy.hobbies.splice(1, 1)
 
     expect(
-      apply(
-        doc,
-        new DifferenceResult([
-          {
-            path: ['hobbies', '1'],
-            changes: doc.hobbies[1],
-            type: 'delete',
-          },
-        ]),
-      ),
+      apply(doc, [
+        {
+          path: ['hobbies', '1'],
+          changes: doc.hobbies[1],
+          type: 'delete',
+        },
+      ]),
     ).toEqual(docCopy)
   })
 })

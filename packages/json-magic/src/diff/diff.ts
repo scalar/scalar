@@ -12,37 +12,24 @@ type ChangeType = 'add' | 'update' | 'delete'
  * @property changes - The new value for the property (for add/update) or the old value (for delete)
  * @property type - The type of change that occurred
  */
-export type Difference = { path: string[]; changes: any; type: ChangeType }
-
-/**
- * Represents the result of a diff operation.
- * @template _T - The type of the target object being diffed (for type inference/documentation only).
- * @property changeset - The list of differences (add/update/delete) found between two objects.
- *   The changeset is a list of operations that, when applied to the source object, will transform it into the target object.
- */
-export class DifferenceResult<_T> {
-  /**
-   * @param changeset - List of differences that, when applied to the source, will produce the target.
-   */
-  constructor(public changeset: Difference[]) {}
-}
+export type Difference<_T> = { path: string[]; changes: any; type: ChangeType }
 
 /**
  * Get the difference between two objects.
  *
  * This function performs a breadth-first comparison between two objects and returns
- * a DifferenceResult containing a list of operations needed to transform the first object into the second.
+ * a list of operations needed to transform the first object into the second.
  *
  * @param doc1 - The source object to compare from
  * @param doc2 - The target object to compare to
- * @returns A DifferenceResult instance containing a list of operations (add/update/delete) with their paths and changes
+ * @returns A list of operations (add/update/delete) with their paths and changes
  *
  * @example
  * // Compare two simple objects
  * const original = { name: 'John', age: 30 }
  * const updated = { name: 'John', age: 31, city: 'New York' }
- * const result = diff(original, updated)
- * // result.changeset:
+ * const differences = diff(original, updated)
+ * // Returns:
  * // [
  * //   { path: ['age'], changes: 31, type: 'update' },
  * //   { path: ['city'], changes: 'New York', type: 'add' }
@@ -56,17 +43,14 @@ export class DifferenceResult<_T> {
  * const updated = {
  *   user: { name: 'John', settings: { theme: 'dark' } }
  * }
- * const result = diff(original, updated)
- * // result.changeset:
+ * const differences = diff(original, updated)
+ * // Returns:
  * // [
  * //   { path: ['user', 'settings', 'theme'], changes: 'dark', type: 'update' }
  * // ]
  */
-export const diff = <T extends Record<string, unknown>>(
-  doc1: Record<string, unknown>,
-  doc2: T,
-): DifferenceResult<T> => {
-  const diff: Difference[] = []
+export const diff = <T extends Record<string, unknown>>(doc1: Record<string, unknown>, doc2: T) => {
+  const diff: Difference<T>[] = []
 
   const bfs = (el1: unknown, el2: unknown, prefix = []) => {
     // If the types are different, we know that the property has been added, deleted or updated
@@ -106,5 +90,5 @@ export const diff = <T extends Record<string, unknown>>(
 
   // Run breadth-first search
   bfs(doc1, doc2)
-  return new DifferenceResult(diff)
+  return diff
 }

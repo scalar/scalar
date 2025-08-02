@@ -1,5 +1,5 @@
 import { merge } from '@/diff/merge'
-import { diff, DifferenceResult } from '@/diff/diff'
+import { diff } from '@/diff/diff'
 import { describe, expect, test } from 'vitest'
 
 const deepClone = <T extends object>(obj: T) => JSON.parse(JSON.stringify(obj)) as T
@@ -38,7 +38,7 @@ describe('mergeDiff', () => {
     }
 
     expect(merge(diff(baseDoc, doc1), diff(baseDoc, doc2))).toEqual({
-      diffs: new DifferenceResult([]),
+      diffs: [],
       conflicts: [
         [
           [
@@ -54,7 +54,7 @@ describe('mergeDiff', () => {
     })
 
     expect(merge(diff(baseDoc, doc2), diff(baseDoc, doc1))).toEqual({
-      diffs: new DifferenceResult([]),
+      diffs: [],
       conflicts: [
         [
           [{ path: ['info'], changes: deletedInformation, type: 'delete' }],
@@ -183,7 +183,7 @@ describe('mergeDiff', () => {
     }
 
     expect(merge(diff(baseDoc, doc1), diff(baseDoc, doc2))).toEqual({
-      diffs: new DifferenceResult([
+      diffs: [
         {
           path: ['paths', '/users/{id}'],
           changes: doc1.paths['/users/{id}'],
@@ -194,7 +194,7 @@ describe('mergeDiff', () => {
           changes: deletedDescription,
           type: 'delete',
         },
-      ]),
+      ],
       conflicts: [
         [
           [
@@ -216,7 +216,7 @@ describe('mergeDiff', () => {
     })
 
     expect(merge(diff(baseDoc, doc2), diff(baseDoc, doc1))).toEqual({
-      diffs: new DifferenceResult([
+      diffs: [
         {
           path: ['info', 'description'],
           changes: deletedDescription,
@@ -227,7 +227,7 @@ describe('mergeDiff', () => {
           changes: doc1.paths['/users/{id}'],
           type: 'add',
         },
-      ]),
+      ],
       conflicts: [
         [
           [
@@ -305,7 +305,7 @@ describe('mergeDiff', () => {
     }
 
     expect(merge(diff(base, doc1), diff(base, doc2))).toEqual({
-      diffs: new DifferenceResult([
+      diffs: [
         {
           path: ['paths', '/products'],
           changes: doc1.paths['/products'],
@@ -316,12 +316,12 @@ describe('mergeDiff', () => {
           changes: doc2.paths['/orders'],
           type: 'add',
         },
-      ]),
+      ],
       conflicts: [],
     })
 
     expect(merge(diff(base, doc2), diff(base, doc1))).toEqual({
-      diffs: new DifferenceResult([
+      diffs: [
         {
           path: ['paths', '/orders'],
           changes: doc2.paths['/orders'],
@@ -332,7 +332,7 @@ describe('mergeDiff', () => {
           changes: doc1.paths['/products'],
           type: 'add',
         },
-      ]),
+      ],
       conflicts: [],
     })
   })
@@ -393,7 +393,7 @@ describe('mergeDiff', () => {
     }
 
     expect(merge(diff(base, doc1), diff(base, doc2))).toEqual({
-      diffs: new DifferenceResult([]),
+      diffs: [],
       conflicts: [
         [
           [
@@ -415,7 +415,7 @@ describe('mergeDiff', () => {
     })
 
     expect(merge(diff(base, doc2), diff(base, doc1))).toEqual({
-      diffs: new DifferenceResult([]),
+      diffs: [],
       conflicts: [
         [
           [
@@ -481,7 +481,7 @@ describe('mergeDiff', () => {
     }
 
     expect(merge(diff(base, doc1), diff(base, doc2))).toEqual({
-      diffs: new DifferenceResult([]),
+      diffs: [],
       conflicts: [
         [
           [
@@ -503,7 +503,7 @@ describe('mergeDiff', () => {
     })
 
     expect(merge(diff(base, doc2), diff(base, doc1))).toEqual({
-      diffs: new DifferenceResult([]),
+      diffs: [],
       conflicts: [
         [
           [
@@ -554,24 +554,24 @@ describe('mergeDiff', () => {
     delete doc2.paths?.['/users']
 
     expect(merge(diff(base, doc1), diff(base, doc2))).toEqual({
-      diffs: new DifferenceResult([
+      diffs: [
         {
           path: ['paths', '/users'],
           changes: removePaths2,
           type: 'delete',
         },
-      ]),
+      ],
       conflicts: [],
     })
 
     expect(merge(diff(base, doc2), diff(base, doc1))).toEqual({
-      diffs: new DifferenceResult([
+      diffs: [
         {
           path: ['paths', '/users'],
           changes: removePaths2,
           type: 'delete',
         },
-      ]),
+      ],
       conflicts: [],
     })
   })
@@ -604,24 +604,24 @@ describe('mergeDiff', () => {
     delete doc2.paths?.['/users']?.get
 
     expect(merge(diff(base, doc1), diff(base, doc2))).toEqual({
-      diffs: new DifferenceResult([
+      diffs: [
         {
           type: 'delete',
           changes: base.paths['/users'].get,
           path: ['paths', '/users', 'get'],
         },
-      ]),
+      ],
       conflicts: [],
     })
 
     expect(merge(diff(base, doc2), diff(base, doc1))).toEqual({
-      diffs: new DifferenceResult([
+      diffs: [
         {
           type: 'delete',
           changes: base.paths['/users'].get,
           path: ['paths', '/users', 'get'],
         },
-      ]),
+      ],
       conflicts: [],
     })
   })
@@ -652,24 +652,24 @@ describe('mergeDiff', () => {
     }
 
     expect(merge(diff(base, doc1), diff(base, doc2))).toEqual({
-      diffs: new DifferenceResult([
+      diffs: [
         {
           type: 'add',
           changes: doc1.info.description,
           path: ['info', 'description'],
         },
-      ]),
+      ],
       conflicts: [],
     })
 
     expect(merge(diff(base, doc2), diff(base, doc1))).toEqual({
-      diffs: new DifferenceResult([
+      diffs: [
         {
           type: 'add',
           changes: doc1.info.description,
           path: ['info', 'description'],
         },
-      ]),
+      ],
       conflicts: [],
     })
   })
@@ -696,24 +696,24 @@ describe('mergeDiff', () => {
     }
 
     expect(merge(diff(base, doc1), diff(base, doc2))).toEqual({
-      diffs: new DifferenceResult([
+      diffs: [
         {
           type: 'add',
           changes: doc1.info,
           path: ['info'],
         },
-      ]),
+      ],
       conflicts: [],
     })
 
     expect(merge(diff(base, doc2), diff(base, doc1))).toEqual({
-      diffs: new DifferenceResult([
+      diffs: [
         {
           type: 'add',
           changes: doc1.info,
           path: ['info'],
         },
-      ]),
+      ],
       conflicts: [],
     })
   })
@@ -740,7 +740,7 @@ describe('mergeDiff', () => {
     }
 
     expect(merge(diff(base, doc1), diff(base, doc2))).toEqual({
-      diffs: new DifferenceResult([]),
+      diffs: [],
       conflicts: [
         [
           [
@@ -762,7 +762,7 @@ describe('mergeDiff', () => {
     })
 
     expect(merge(diff(base, doc2), diff(base, doc1))).toEqual({
-      diffs: new DifferenceResult([]),
+      diffs: [],
       conflicts: [
         [
           [
@@ -809,24 +809,24 @@ describe('mergeDiff', () => {
     }
 
     expect(merge(diff(base, doc1), diff(base, doc2))).toEqual({
-      diffs: new DifferenceResult([
+      diffs: [
         {
           type: 'add',
           changes: doc1.info.version,
           path: ['info', 'version'],
         },
-      ]),
+      ],
       conflicts: [],
     })
 
     expect(merge(diff(base, doc2), diff(base, doc1))).toEqual({
-      diffs: new DifferenceResult([
+      diffs: [
         {
           type: 'add',
           changes: doc1.info.version,
           path: ['info', 'version'],
         },
-      ]),
+      ],
       conflicts: [],
     })
   })
@@ -913,7 +913,7 @@ describe('mergeDiff', () => {
     }
 
     expect(merge(diff(base, doc1), diff(base, doc2))).toEqual({
-      diffs: new DifferenceResult([]),
+      diffs: [],
       conflicts: [
         [
           [
@@ -971,7 +971,7 @@ describe('mergeDiff', () => {
     })
 
     expect(merge(diff(base, doc2), diff(base, doc1))).toEqual({
-      diffs: new DifferenceResult([]),
+      diffs: [],
       conflicts: [
         [
           [
@@ -1086,7 +1086,7 @@ describe('mergeDiff', () => {
     }
 
     expect(merge(diff(base, doc1), diff(base, doc2))).toEqual({
-      diffs: new DifferenceResult([
+      diffs: [
         {
           type: 'delete',
           changes: deletedUsersChanges,
@@ -1102,7 +1102,7 @@ describe('mergeDiff', () => {
           changes: doc2.paths['/users'].post,
           path: ['paths', '/users', 'post'],
         },
-      ]),
+      ],
       conflicts: [],
     })
   })

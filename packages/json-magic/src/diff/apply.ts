@@ -1,4 +1,4 @@
-import type { Difference, DifferenceResult } from '@/diff/diff'
+import type { Difference } from '@/diff/diff'
 
 export class InvalidChangesDetectedError extends Error {
   constructor(message: string) {
@@ -13,8 +13,8 @@ export class InvalidChangesDetectedError extends Error {
  * and applies the corresponding changes (add, update, or delete) at each location.
  *
  * @param document - The original document to apply changes to
- * @param diff - The DifferenceResult object returned by the diff function, containing a changeset array
- * @returns The modified document with all changes applied, cast to the target type as determined by the diff function's generic parameter
+ * @param diff - Array of differences to apply, each containing a path and change type
+ * @returns The modified document with all changes applied
  *
  * @example
  * const original = {
@@ -25,22 +25,23 @@ export class InvalidChangesDetectedError extends Error {
  *   }
  * }
  *
- * const changes = {
- *   changeset: [
- *     {
- *       path: ['paths', '/users', 'get', 'responses', '200', 'content'],
- *       type: 'add',
- *       changes: { 'application/json': { schema: { type: 'object' } } }
- *     }
- *   ]
- * }
+ * const changes = [
+ *   {
+ *     path: ['paths', '/users', 'get', 'responses', '200', 'content'],
+ *     type: 'add',
+ *     changes: { 'application/json': { schema: { type: 'object' } } }
+ *   }
+ * ]
  *
  * const updated = apply(original, changes)
  * // Result: original document with content added to the 200 response
  */
-export const apply = <T>(document: Record<string, unknown>, diff: DifferenceResult<T>): T => {
+export const apply = <T extends Record<string, unknown>>(
+  document: Record<string, unknown>,
+  diff: Difference<T>[],
+): T => {
   // Traverse the object and apply the change
-  const applyChange = (current: any, path: string[], d: Difference, depth = 0) => {
+  const applyChange = (current: any, path: string[], d: Difference<T>, depth = 0) => {
     if (path[depth] === undefined) {
       throw new InvalidChangesDetectedError(
         `Process aborted. Path ${path.join('.')} at depth ${depth} is undefined, check diff object`,
@@ -72,7 +73,7 @@ export const apply = <T>(document: Record<string, unknown>, diff: DifferenceResu
     applyChange(current[path[depth]], path, d, depth + 1)
   }
 
-  for (const d of diff.changeset) {
+  for (const d of diff) {
     applyChange(document, d.path, d)
   }
 

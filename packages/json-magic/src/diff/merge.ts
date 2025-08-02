@@ -1,4 +1,4 @@
-import { DifferenceResult, type Difference } from '@/diff/diff'
+import type { Difference } from '@/diff/diff'
 import { Trie } from '@/diff/trie'
 import { isArrayEqual, isKeyCollisions, mergeObjects } from '@/diff/utils'
 
@@ -14,17 +14,35 @@ import { isArrayEqual, isKeyCollisions, mergeObjects } from '@/diff/utils'
  *   - diffs: DifferenceResult<T> with the combined list of non-conflicting differences
  *   - conflicts: Array of conflicting difference pairs (each as [Difference[], Difference[]]) that need manual resolution
  *
+ /**
+ * Merges two sets of differences from the same document and resolves conflicts.
+ * This function combines changes from two diff lists while handling potential conflicts
+ * that arise when both diffs modify the same paths. It uses a trie data structure for
+ * efficient path matching and conflict detection.
+ *
+ * @param diff1 - First list of differences
+ * @param diff2 - Second list of differences
+ * @returns Object containing:
+ *   - diffs: Combined list of non-conflicting differences
+ *   - conflicts: Array of conflicting difference pairs that need manual resolution
+ *
  * @example
  * // Merge two sets of changes to a user profile
- * const diff1 = diff(base, userA); // DifferenceResult
- * const diff2 = diff(base, userB); // DifferenceResult
+ * const diff1 = [
+ *   { path: ['name'], changes: 'John', type: 'update' },
+ *   { path: ['age'], changes: 30, type: 'add' }
+ * ]
+ * const diff2 = [
+ *   { path: ['name'], changes: 'Johnny', type: 'update' },
+ *   { path: ['address'], changes: { city: 'NY' }, type: 'add' }
+ * ]
  * const { diffs, conflicts } = merge(diff1, diff2)
  * // Returns:
  * // {
- * //   diffs: new DifferenceResult([
+ * //   diffs: [
  * //     { path: ['age'], changes: 30, type: 'add' },
  * //     { path: ['address'], changes: { city: 'NY' }, type: 'add' }
- * //   ]),
+ * //   ],
  * //   conflicts: [
  * //     [
  * //       [{ path: ['name'], changes: 'John', type: 'update' }],
@@ -33,7 +51,7 @@ import { isArrayEqual, isKeyCollisions, mergeObjects } from '@/diff/utils'
  * //   ]
  * // }
  */
-export const merge = <T>(diff1: DifferenceResult<T>, diff2: DifferenceResult<T>) => {
+export const merge = <T>(diff1: Difference<T>[], diff2: Difference<T>[]) => {
   // Here we need to use a trie to optimize searching for a prefix
   // With the naive approach time complexity of the algorithm would be
   //                         O(n * m)
@@ -43,10 +61,10 @@ export const merge = <T>(diff1: DifferenceResult<T>, diff2: DifferenceResult<T>)
   // Assuming that the maximum depth of the nested objects would be constant lets say 0 <= D <= 100
   // we try to optimize for that using the tire data structure.
   // So the new time complexity would be O(n * D) where D is the maximum depth of the nested object
-  const trie = new Trie<{ index: number; changes: Difference }>()
+  const trie = new Trie<{ index: number; changes: Difference<T> }>()
 
   // Create the trie
-  for (const [index, diff] of diff1.changeset.entries()) {
+  for (const [index, diff] of diff1.entries()) {
     trie.addPath(diff.path, { index, changes: diff })
   }
 
@@ -56,12 +74,12 @@ export const merge = <T>(diff1: DifferenceResult<T>, diff2: DifferenceResult<T>)
   // Keep related conflicts together for easy A, B pick conflict resolution
   // map key is going to be conflicting index of first diff list where the diff will be
   // a delete operation or an add/update operation with a one to many conflicts
-  const conflictsMap1 = new Map<number, [Difference[], Difference[]]>()
+  const conflictsMap1 = new Map<number, [Difference<T>[], Difference<T>[]]>()
   // map key will be the index from the second diff list where the diff will be
   // a delete operation with one to many conflicts
-  const conflictsMap2 = new Map<number, [Difference[], Difference[]]>()
+  const conflictsMap2 = new Map<number, [Difference<T>[], Difference<T>[]]>()
 
-  for (const [index, diff] of diff2.changeset.entries()) {
+  for (const [index, diff] of diff2.entries()) {
     trie.findMatch(diff.path, (value) => {
       if (diff.type === 'delete') {
         if (value.changes.type === 'delete') {
@@ -117,14 +135,14 @@ export const merge = <T>(diff1: DifferenceResult<T>, diff2: DifferenceResult<T>)
     })
   }
 
-  const conflicts: [Difference[], Difference[]][] = [...conflictsMap1.values(), ...conflictsMap2.values()]
+  const conflicts: [Difference<T>[], Difference<T>[]][] = [...conflictsMap1.values(), ...conflictsMap2.values()]
 
   // Filter all changes that should be skipped because of conflicts
   // or auto conflict resolution
-  const diffs: DifferenceResult<T> = new DifferenceResult([
-    ...diff1.changeset.filter((_, index) => !skipDiff1.has(index)),
-    ...diff2.changeset.filter((_, index) => !skipDiff2.has(index)),
-  ])
+  const diffs: Difference<T>[] = [
+    ...diff1.filter((_, index) => !skipDiff1.has(index)),
+    ...diff2.filter((_, index) => !skipDiff2.has(index)),
+  ]
 
   return { diffs, conflicts }
 }
