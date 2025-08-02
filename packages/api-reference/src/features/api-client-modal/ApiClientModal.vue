@@ -79,6 +79,7 @@ watchDebounced(
       ...configuration,
     })
   },
+  { debounce: 300 },
 )
 
 // Update the config (non document related) on change
