@@ -60,6 +60,7 @@ const getDocument = (version?: string) => ({
 describe('create-workspace-store', () => {
   let server: FastifyInstance
   const port = 9988
+  const url = `http://localhost:${port}`
 
   beforeEach(() => {
     server = fastify({ logger: false })
@@ -261,7 +262,7 @@ describe('create-workspace-store', () => {
 
     const serverStore = await createServerWorkspaceStore({
       mode: 'ssr',
-      baseUrl: `http://localhost:${port}`,
+      baseUrl: url,
       documents: [
         {
           name: 'default',
@@ -300,8 +301,6 @@ describe('create-workspace-store', () => {
   })
 
   it('load files form the remote url', async () => {
-    const url = `http://localhost:${port}`
-
     // Send the default document
     server.get('/', (_, reply) => {
       reply.send(getDocument())
@@ -389,7 +388,7 @@ describe('create-workspace-store', () => {
 
     const serverStore = await createServerWorkspaceStore({
       mode: 'ssr',
-      baseUrl: `http://localhost:${port}`,
+      baseUrl: url,
       documents: [
         {
           name: 'default',
@@ -406,7 +405,7 @@ describe('create-workspace-store', () => {
 
     // The operation should not be resolved on the fly
     expect(store.workspace.activeDocument?.paths?.['/users']?.get).toEqual({
-      '$ref': `http://localhost:${port}/default/operations/~1users/get#`,
+      '$ref': `${url}/default/operations/~1users/get#`,
       $global: true,
     })
 
@@ -620,6 +619,89 @@ describe('create-workspace-store', () => {
     })
   })
 
+  it('bundles the document if the document is not preprocessed by the server-side-store', async () => {
+    server.get('/', () => {
+      return {
+        get: {
+          summary: 'Ping the remote server',
+          responses: {
+            '200': {
+              description: 'Successful response',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'string',
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+    })
+    await server.listen({ port })
+
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'default',
+      document: {
+        paths: {
+          '/ping': {
+            $ref: url,
+          },
+        },
+      },
+    })
+
+    expect(store.workspace.documents['default']).toEqual({
+      info: {
+        title: '',
+        version: '',
+      },
+      openapi: '',
+      paths: {
+        '/ping': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'string',
+                    },
+                  },
+                },
+                description: 'Successful response',
+              },
+            },
+            summary: 'Ping the remote server',
+          },
+          'x-original-ref': '#/x-ext/c766ed8',
+        },
+      },
+      'x-ext': {
+        'c766ed8': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'string',
+                    },
+                  },
+                },
+                description: 'Successful response',
+              },
+            },
+            summary: 'Ping the remote server',
+          },
+        },
+      },
+      'x-scalar-navigation': [],
+    })
+  })
+
   describe('download original document', () => {
     it('gets the original document from the store json', async () => {
       const store = createWorkspaceStore()
@@ -748,7 +830,7 @@ describe('create-workspace-store', () => {
             ...document.paths,
             '/external': {
               get: {
-                $ref: `http://localhost:${port}`,
+                $ref: url,
               },
             },
           },
@@ -1245,7 +1327,7 @@ describe('create-workspace-store', () => {
         workspace: 'draft',
         documents: {
           'default': {
-            $ref: `http://localhost:${port}/default`,
+            $ref: `${url}/default`,
           },
         },
         overrides: {
