@@ -1,5 +1,44 @@
 # @scalar/api-reference
 
+## 1.34.1
+
+### Patch Changes
+
+- 4d05839: fix: empty test request modal
+- Updated dependencies [46bfd2f]
+  - @scalar/oas-utils@0.4.18
+  - @scalar/api-client@2.5.22
+  - @scalar/components@0.14.23
+
+## 1.34.0
+
+### Minor Changes
+
+- 2888e18: feat(openapi-parser): partial bundle to a depth
+
+### Patch Changes
+
+- f838a47: feat: link to parameters
+- 94b5d0a: fix: show description when merging allOf properties
+- 0f4a784: fix(api-references): constrain specificity for top level schema properties
+- 5301a80: feat: make content reactive and update workspace store
+- 8113963: refactor: use new data structure for the search
+- fb0c254: fix: lazy loading for maximum loading performance
+- Updated dependencies [952bde2]
+- Updated dependencies [46ebe6e]
+- Updated dependencies [5301a80]
+- Updated dependencies [c02c1c8]
+- Updated dependencies [ae8d1b9]
+- Updated dependencies [b551707]
+- Updated dependencies [8199955]
+- Updated dependencies [dd00357]
+- Updated dependencies [2888e18]
+  - @scalar/workspace-store@0.12.0
+  - @scalar/openapi-parser@0.19.0
+  - @scalar/oas-utils@0.4.17
+  - @scalar/api-client@2.5.21
+  - @scalar/components@0.14.22
+
 ## 1.33.0
 
 ### Minor Changes

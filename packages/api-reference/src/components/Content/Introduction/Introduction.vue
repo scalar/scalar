@@ -67,6 +67,7 @@ const { hash } = useNavState()
 <template>
   <Lazy
     id="introduction-card"
+    prev
     :isLazy="Boolean(hash) && !hash.startsWith('description')">
     <IntroductionSection
       :document="document"

@@ -223,14 +223,14 @@ describe('Lazy', () => {
       await nextTick()
 
       // Loading event should be emitted immediately
-      expect(emitSpy).toHaveBeenCalledWith({ loading: 'test-id' })
+      expect(emitSpy).toHaveBeenCalledWith({ loading: 'test-id', save: false })
 
       // Trigger rendering
       vi.advanceTimersByTime(0)
       await nextTick()
 
       // Loaded event should be emitted after rendering
-      expect(emitSpy).toHaveBeenCalledWith({ loaded: 'test-id' })
+      expect(emitSpy).toHaveBeenCalledWith({ loaded: 'test-id', save: false })
     })
 
     it('emits event immediately when id is provided and isLazy is false', async () => {
@@ -246,7 +246,7 @@ describe('Lazy', () => {
       await nextTick()
 
       // Event should be emitted immediately for non-lazy components
-      expect(emitSpy).toHaveBeenCalledWith({ loaded: 'test-id' })
+      expect(emitSpy).toHaveBeenCalledWith({ loaded: 'test-id', save: true })
     })
 
     it('emits loading event with undefined id when id is not provided', async () => {
@@ -267,7 +267,7 @@ describe('Lazy', () => {
       await nextTick()
 
       // Loading event should be emitted with undefined id
-      expect(emitSpy).toHaveBeenCalledWith({ loading: undefined })
+      expect(emitSpy).toHaveBeenCalledWith({ loading: undefined, save: false })
 
       // Trigger rendering
       vi.advanceTimersByTime(0)
@@ -296,14 +296,104 @@ describe('Lazy', () => {
       await nextTick()
 
       // Loading event should be emitted with correct id
-      expect(emitSpy).toHaveBeenCalledWith({ loading: testId })
+      expect(emitSpy).toHaveBeenCalledWith({ loading: testId, save: false })
 
       // Trigger rendering
       vi.advanceTimersByTime(0)
       await nextTick()
 
       // Loaded event should be emitted with correct id
-      expect(emitSpy).toHaveBeenCalledWith({ loaded: testId })
+      expect(emitSpy).toHaveBeenCalledWith({ loaded: testId, save: false })
+    })
+  })
+
+  describe('prev prop', () => {
+    it('sets save to true when prev is true and isLazy is true', async () => {
+      const mockRequestIdleCallback = vi.fn((callback) => {
+        callback()
+      })
+      ;(window as any).requestIdleCallback = mockRequestIdleCallback
+
+      const emitSpy = vi.spyOn(lazyBus, 'emit')
+
+      mount(Lazy, {
+        props: { isLazy: true, id: 'test-id', prev: true },
+        slots: {
+          default: '<div>Test Content</div>',
+        },
+      })
+
+      await nextTick()
+
+      // Loading event should be emitted with save: true
+      expect(emitSpy).toHaveBeenCalledWith({ loading: 'test-id', save: true })
+
+      // Trigger rendering
+      vi.advanceTimersByTime(0)
+      await nextTick()
+
+      // Loaded event should be emitted with save: true
+      expect(emitSpy).toHaveBeenCalledWith({ loaded: 'test-id', save: true })
+    })
+
+    it('sets save to true when prev is true and isLazy is false', async () => {
+      const emitSpy = vi.spyOn(lazyBus, 'emit')
+
+      mount(Lazy, {
+        props: { isLazy: false, id: 'test-id', prev: true },
+        slots: {
+          default: '<div>Test Content</div>',
+        },
+      })
+
+      await nextTick()
+
+      // Event should be emitted with save: true
+      expect(emitSpy).toHaveBeenCalledWith({ loaded: 'test-id', save: true })
+    })
+
+    it('defaults prev to false when not provided', async () => {
+      const mockRequestIdleCallback = vi.fn((callback) => {
+        callback()
+      })
+      ;(window as any).requestIdleCallback = mockRequestIdleCallback
+
+      const emitSpy = vi.spyOn(lazyBus, 'emit')
+
+      mount(Lazy, {
+        props: { isLazy: true, id: 'test-id' },
+        slots: {
+          default: '<div>Test Content</div>',
+        },
+      })
+
+      await nextTick()
+
+      // Loading event should be emitted with save: false (default)
+      expect(emitSpy).toHaveBeenCalledWith({ loading: 'test-id', save: false })
+
+      // Trigger rendering
+      vi.advanceTimersByTime(0)
+      await nextTick()
+
+      // Loaded event should be emitted with save: false (default)
+      expect(emitSpy).toHaveBeenCalledWith({ loaded: 'test-id', save: false })
+    })
+
+    it('sets save to true when isLazy is false regardless of prev value', async () => {
+      const emitSpy = vi.spyOn(lazyBus, 'emit')
+
+      mount(Lazy, {
+        props: { isLazy: false, id: 'test-id', prev: false },
+        slots: {
+          default: '<div>Test Content</div>',
+        },
+      })
+
+      await nextTick()
+
+      // Event should be emitted with save: true (because isLazy is false)
+      expect(emitSpy).toHaveBeenCalledWith({ loaded: 'test-id', save: true })
     })
   })
 

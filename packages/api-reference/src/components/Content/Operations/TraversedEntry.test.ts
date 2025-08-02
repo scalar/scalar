@@ -9,28 +9,8 @@ import type { TraversedEntry, TraversedOperation, TraversedTag } from '@/feature
 import type { TraversedWebhook } from '@/features/traverse-schema/types'
 
 import TraversedEntryComponent from './TraversedEntry.vue'
-import { createMockPluginManager, createMockSidebar } from '@/helpers/test-utils'
+import { createMockNavState, createMockPluginManager, createMockSidebar } from '@/helpers/test-utils'
 import { useNavState } from '@/hooks/useNavState'
-import { ref } from 'vue'
-
-// Helper function to create mock useNavState return value
-const createMockNavState = (hashValue: string | undefined | null) => ({
-  hash: ref(hashValue as string),
-  isIntersectionEnabled: ref(true),
-  setHashPrefix: vi.fn(),
-  getFullHash: vi.fn(),
-  getHashedUrl: vi.fn(),
-  replaceUrlState: vi.fn(),
-  getReferenceId: vi.fn(),
-  getWebhookId: vi.fn(),
-  getModelId: vi.fn(),
-  getHeadingId: vi.fn(),
-  getOperationId: vi.fn(),
-  getPathRoutingId: vi.fn(),
-  getSectionId: vi.fn(),
-  getTagId: vi.fn(),
-  updateHash: vi.fn(),
-})
 
 vi.mock('@/features/sidebar', () => ({ useSidebar: vi.fn(() => createMockSidebar()) }))
 vi.mock('@/hooks/useNavState', () => ({ useNavState: vi.fn(() => createMockNavState('')) }))
@@ -220,6 +200,7 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          rootIndex: 0,
           clientOptions: [],
           entries,
           document: mockDocument,
@@ -243,6 +224,7 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          rootIndex: 0,
           clientOptions: [],
           entries: operations,
           document: mockDocument,
@@ -267,6 +249,7 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          rootIndex: 0,
           clientOptions: [],
           entries,
           document: mockDocument,
@@ -290,6 +273,7 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          rootIndex: 0,
           clientOptions: [],
           entries: webhooks,
           document: mockDocument,
@@ -314,6 +298,7 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          rootIndex: 0,
           clientOptions: [],
           entries,
           document: mockDocument,
@@ -337,6 +322,7 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          rootIndex: 0,
           clientOptions: [],
           entries,
           document: mockDocument,
@@ -358,6 +344,7 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          rootIndex: 0,
           clientOptions: [],
           entries,
           document: mockDocument,
@@ -382,6 +369,7 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          rootIndex: 0,
           clientOptions: [],
           entries,
           document: mockDocument,
@@ -403,6 +391,7 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          rootIndex: 0,
           clientOptions: [],
           entries,
           document: mockDocument,
@@ -427,6 +416,7 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          rootIndex: 0,
           clientOptions: [],
           entries,
           document: mockDocument,
@@ -448,6 +438,7 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          rootIndex: 0,
           clientOptions: [],
           entries,
           document: mockDocument,
@@ -477,6 +468,7 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          rootIndex: 0,
           clientOptions: [],
           entries,
           document: mockDocument,
@@ -507,6 +499,7 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          rootIndex: 0,
           clientOptions: [],
           entries,
           document: mockDocument,
@@ -531,6 +524,7 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          rootIndex: 0,
           clientOptions: [],
           entries,
           document: mockDocument,
@@ -553,6 +547,7 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          rootIndex: 0,
           clientOptions: [],
           entries,
           document: mockDocument,
@@ -573,6 +568,7 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          rootIndex: 0,
           clientOptions: [],
           entries,
           document: mockDocument,
@@ -593,6 +589,7 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          rootIndex: 0,
           clientOptions: [],
           entries,
           document: mockDocument,
@@ -614,6 +611,7 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          rootIndex: 0,
           clientOptions: [],
           entries,
           document: mockDocument,
@@ -639,6 +637,7 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          rootIndex: 0,
           clientOptions: [],
           entries,
           document: mockDocument,
@@ -657,29 +656,7 @@ describe('TraversedEntry', async () => {
   })
 
   describe('isLazy method', () => {
-    it('returns false for all indices when no hash is present', () => {
-      // Mock useNavState to return empty hash
-      vi.mocked(useNavState).mockReturnValue(createMockNavState(''))
-
-      const wrapper = mount(TraversedEntryComponent, {
-        props: {
-          clientOptions: [],
-          entries: [createMockOperation()],
-          document: mockDocument,
-          config: mockConfig,
-          activeCollection: mockCollection,
-          activeServer: mockServer,
-          store: mockStore,
-        },
-      })
-
-      const component = wrapper.vm as any
-      expect(component.isLazy(0)).toBe(false)
-      expect(component.isLazy(1)).toBe(false)
-      expect(component.isLazy(10)).toBe(false)
-    })
-
-    it('returns false for all tags after the first tag', () => {
+    it('returns correct lazy values for different indices', () => {
       // Mock useNavState to return hash matching the first operation
       vi.mocked(useNavState).mockReturnValue(createMockNavState('tag/users/get/users'))
 
@@ -726,6 +703,7 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          rootIndex: 0,
           clientOptions: [],
           entries,
           document: mockDocument,
@@ -741,7 +719,7 @@ describe('TraversedEntry', async () => {
       expect(tag2.vm.isLazy).toBe(true)
     })
 
-    it('returns false for all indices when hash matches webhook', async () => {
+    it('returns null for current and nearby indices when hash matches webhook', async () => {
       // Mock useNavState to return hash matching a webhook
       vi.mocked(useNavState).mockReturnValue(createMockNavState('webhook/POST/user.created'))
 
@@ -752,6 +730,7 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          rootIndex: 0,
           clientOptions: [],
           entries,
           document: mockDocument,
@@ -763,11 +742,11 @@ describe('TraversedEntry', async () => {
       })
 
       const component = wrapper.vm as any
-      expect(component.isLazy(0)).toBe(false)
-      expect(component.isLazy(1)).toBe(false)
+      expect(component.isLazy(entries[0], 0)).toBe(null)
+      expect(component.isLazy(entries[1], 1)).toBe(null)
     })
 
-    it('returns false for all indices when hash matches tag', () => {
+    it('returns null for current and nearby indices when hash matches tag', () => {
       // Mock useNavState to return hash matching a tag
       vi.mocked(useNavState).mockReturnValue(createMockNavState('tag/users'))
 
@@ -775,6 +754,7 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          rootIndex: 0,
           clientOptions: [],
           entries,
           document: mockDocument,
@@ -786,18 +766,27 @@ describe('TraversedEntry', async () => {
       })
 
       const component = wrapper.vm as any
-      expect(component.isLazy(0)).toBe(false)
-      expect(component.isLazy(1)).toBe(false)
+      expect(component.isLazy(entries[0], 0)).toBe(null)
+      expect(component.isLazy(entries[1], 1)).toBe(null)
     })
 
-    it('returns false for non-numeric indices', () => {
-      // Mock useNavState to return a hash
-      vi.mocked(useNavState).mockReturnValue(createMockNavState('tag/users/get/users'))
+    it('returns correct lazy values for different positions relative to current index', () => {
+      // Mock useNavState to return hash matching the second entry
+      vi.mocked(useNavState).mockReturnValue(createMockNavState('operation-2'))
+
+      const entries = [
+        createMockOperation({ id: 'operation-1', title: 'Get Users' }),
+        createMockOperation({ id: 'operation-2', title: 'Create User' }),
+        createMockOperation({ id: 'operation-3', title: 'Update User' }),
+        createMockOperation({ id: 'operation-4', title: 'Delete User' }),
+        createMockOperation({ id: 'operation-5', title: 'List Users' }),
+      ]
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          rootIndex: 1, // Current index is 1 (operation-2)
           clientOptions: [],
-          entries: [createMockOperation()],
+          entries,
           document: mockDocument,
           config: mockConfig,
           activeCollection: mockCollection,
@@ -807,8 +796,16 @@ describe('TraversedEntry', async () => {
       })
 
       const component = wrapper.vm as any
-      expect(component.isLazy('0' as any)).toBe(false)
-      expect(component.isLazy('invalid' as any)).toBe(false)
+      // Index 0 is before current index (1)
+      expect(component.isLazy(entries[0], 0)).toBe('prev')
+      // Index 1 is current index
+      expect(component.isLazy(entries[1], 1)).toBe(null)
+      // Index 2 is current + 1
+      expect(component.isLazy(entries[2], 2)).toBe(null)
+      // Index 3 is current + 2
+      expect(component.isLazy(entries[3], 3)).toBe(null)
+      // Index 4 is current + 3 (after the 2 sibling limit)
+      expect(component.isLazy(entries[4], 4)).toBe('after')
     })
   })
 })

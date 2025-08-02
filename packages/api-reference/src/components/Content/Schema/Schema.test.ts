@@ -4,6 +4,112 @@ import { describe, expect, it } from 'vitest'
 import Schema from './Schema.vue'
 
 describe('Schema', () => {
+  describe('shouldShowDescription computed property', () => {
+    it('shows the base description with allOf composition', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          name: 'Request Body',
+          value: {
+            type: 'object',
+            description: 'This description should be shown',
+            allOf: [
+              {
+                type: 'object',
+                description: 'This description should not be shown',
+                properties: { name: { type: 'string' } },
+              },
+              {
+                type: 'object',
+                description: 'This description should not be shown',
+                properties: { email: { type: 'string' } },
+              },
+            ],
+          },
+        },
+      })
+
+      const text = wrapper.text()
+      expect(text).toContain('This description should be shown')
+      expect(text).not.toContain('This description should not be shown')
+    })
+
+    it('shows the first description with allOf composition', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          name: 'Request Body',
+          value: {
+            type: 'object',
+            allOf: [
+              {
+                type: 'object',
+                description: 'This description should be shown',
+                properties: { name: { type: 'string' } },
+              },
+              {
+                type: 'object',
+                description: 'This description should not be shown',
+                properties: { email: { type: 'string' } },
+              },
+            ],
+          },
+        },
+      })
+
+      const text = wrapper.text()
+      expect(text).toContain('This description should be shown')
+      expect(text).not.toContain('This description should not be shown')
+    })
+
+    it('shows the first description with allOf composition if there is only one', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          name: 'Request Body',
+          value: {
+            type: 'object',
+            allOf: [
+              {
+                type: 'object',
+                properties: { name: { type: 'string' } },
+              },
+              {
+                type: 'object',
+                description: 'This description should be shown',
+                properties: { email: { type: 'string' } },
+              },
+            ],
+          },
+        },
+      })
+
+      const text = wrapper.text()
+      expect(text).toContain('This description should be shown')
+    })
+
+    it('does not show the allOf description if we are not in the Request Body', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          value: {
+            type: 'object',
+            allOf: [
+              {
+                type: 'object',
+                properties: { name: { type: 'string' } },
+              },
+              {
+                type: 'object',
+                description: 'This description should not be shown',
+                properties: { email: { type: 'string' } },
+              },
+            ],
+          },
+        },
+      })
+
+      const text = wrapper.text()
+      expect(text).not.toContain('This description should not be shown')
+    })
+  })
+
   describe('additionalProperties Vue prop', () => {
     it('shows special toggle button when additionalProperties is true', () => {
       const wrapper = mount(Schema, {
@@ -256,6 +362,49 @@ describe('Schema', () => {
       expect(additionalProperty?.props('value')).toEqual({
         type: 'anything',
       })
+    })
+  })
+
+  describe('object property order', () => {
+    it('should render properties by required alphabetical order', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          value: {
+            type: 'object',
+            properties: {
+              gOptional: { type: 'string' },
+              bOptional: { type: 'string' },
+              dRequired: { type: 'string' },
+              aOptional: { type: 'string' },
+              bRequired: { type: 'string' },
+              aRequired: { type: 'string' },
+              cRequired: { type: 'string' },
+            },
+            required: ['aRequired', 'bRequired', 'cRequired', 'dRequired'],
+          },
+        },
+      })
+
+      // Get all SchemaProperty components
+      const schemaProperties = wrapper.findAllComponents({ name: 'SchemaProperty' })
+
+      // Extract property names in the order they appear
+      const propertyNames = schemaProperties.map((prop) => prop.props('name'))
+
+      // Expected order: required properties first (alphabetical), then optional properties (alphabetical)
+      const expectedOrder = [
+        // Required properties
+        'aRequired',
+        'bRequired',
+        'cRequired',
+        'dRequired',
+        // Optional properties
+        'aOptional',
+        'bOptional',
+        'gOptional',
+      ]
+
+      expect(propertyNames).toEqual(expectedOrder)
     })
   })
 })
