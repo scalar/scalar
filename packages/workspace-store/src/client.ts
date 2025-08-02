@@ -36,6 +36,10 @@ type DocumentConfiguration = Config &
     }
   }>
 
+const defaultConfig: DeepRequired<Config> = {
+  'x-scalar-reference-config': defaultReferenceConfig,
+}
+
 /**
  * Input type for workspace document metadata and configuration.
  * This type defines the required and optional fields for initializing a document in the workspace.
@@ -74,10 +78,6 @@ export type ObjectDoc = {
  * - ObjectDoc: Direct document object with metadata
  */
 export type WorkspaceDocumentInput = UrlDoc | ObjectDoc
-
-const defaultConfig: DeepRequired<Config> = {
-  'x-scalar-reference-config': defaultReferenceConfig,
-}
 
 /**
  * Resolves a workspace document from various input sources (URL, local file, or direct document object).
@@ -497,12 +497,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         ...(input.config ?? {}),
         hideModels: showModels === undefined ? undefined : !showModels,
       }).entries
-    }
 
-    // If the document navigation is not already present, bundle the entire document to resolve all references.
-    // This typically applies when the document is not preprocessed by the server and needs local reference resolution.
-    if (document[extensions.document.navigation] === undefined) {
-      await bundle(input.document, { treeShake: false, plugins: [fetchUrls()] })
+      // If the document navigation is not already present, bundle the entire document to resolve all references.
+      // This typically applies when the document is not preprocessed by the server and needs local reference resolution.
+      await bundle(document, { treeShake: false, plugins: [fetchUrls()] })
     }
 
     // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map
