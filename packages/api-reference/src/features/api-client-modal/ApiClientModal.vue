@@ -59,13 +59,17 @@ onMounted(() => {
 // Ensure we have a document when doing the initial import
 watchDebounced(
   () => dereferencedDocument,
-  (newDocument) => {
+  (newDocument, oldDocument) => {
     if (!newDocument) {
       return
     }
 
+    // Ensure the document is different
+    if (JSON.stringify(newDocument) === JSON.stringify(oldDocument || {})) {
+      return
+    }
+
     // If we already have a collection, remove the store
-    // TODO: add @redis diffing here... or just upgrade to the new store
     if (activeEntities.activeCollection.value) {
       client.value?.resetStore()
     }
