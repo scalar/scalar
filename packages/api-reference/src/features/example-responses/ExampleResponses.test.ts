@@ -1,7 +1,15 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import ExampleResponses from './ExampleResponses.vue'
+
+const mockCopyToClipboard = vi.fn()
+
+vi.mock('@scalar/use-hooks/useClipboard', () => ({
+  useClipboard: vi.fn(() => ({
+    copyToClipboard: mockCopyToClipboard,
+  })),
+}))
 
 describe('ExampleResponses', () => {
   it('renders a single example correctly', () => {
@@ -328,9 +336,7 @@ describe('ExampleResponses', () => {
             description: 'OK',
             content: {
               'application/json': {
-                examples: {
-                  example1: { value: { foo: 'bar' } },
-                },
+                example: { foo: 'bar' },
               },
             },
           },
@@ -338,13 +344,12 @@ describe('ExampleResponses', () => {
       },
     })
 
-    const copyButton = wrapper.find('.copy-button')
+    const copyButton = wrapper.find('.code-copy')
     expect(copyButton.exists()).toBe(true)
 
     await copyButton.trigger('click')
 
-    // Since we can't test clipboard directly in jsdom, we can verify the click handler was called
-    expect(wrapper.emitted()).toBeDefined()
+    expect(mockCopyToClipboard).toHaveBeenCalledWith({ foo: 'bar' })
   })
 
   it('toggles between schema and example view', async () => {

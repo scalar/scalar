@@ -22,7 +22,7 @@ const id = useId()
   <Disclosure
     v-slot="{ open }"
     as="div"
-    class="group/collapse focus-within:text-c-1 text-c-2 border-b"
+    class="group/collapse focus-within:text-c-1 text-c-2 last:ui-open:border-b-0 border-b"
     :class="{ 'first-of-type:last-of-type:border-b-0': layout === 'reference' }"
     :defaultOpen="defaultOpen"
     :static="layout === 'reference' ? true : undefined">
@@ -67,7 +67,7 @@ const id = useId()
         </DisclosureButton>
         <div
           v-if="$slots.actions"
-          class="ui-not-open:invisible flex items-center gap-2 pr-2">
+          class="ui-not-open:hidden flex items-center gap-2 pr-0.75">
           <slot
             name="actions"
             :open="open" />
