@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.4.18
+
+### Patch Changes
+
+- 46bfd2f: fix: show path parameter values in request examples
+
 ## 0.4.17
 
 ### Patch Changes
