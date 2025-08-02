@@ -734,10 +734,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         return changesA.conflicts
       }
 
-      const changesetA = changesA.diffs.concat(resolvedConflicts)
+      // Push the list of resolved conflicts to the original changeset
+      changesA.diffs.changeset.push(...resolvedConflicts)
 
       // Apply the changes to the original document to get the new intermediate
-      const newIntermediateDocument = apply(deepClone(originalDocument), changesetA) as typeof originalDocument
+      const newIntermediateDocument = apply(deepClone(originalDocument), changesA.diffs)
       intermediateDocuments[documentName] = newIntermediateDocument
 
       // Update the original document
@@ -751,9 +752,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       // Auto-conflict resolution: pick only the changes from the first changeset
       // TODO: In the future, implement smarter conflict resolution if needed
-      const changesetB = changesB.diffs.concat(changesB.conflicts.flatMap((it) => it[0]))
+      changesB.diffs.changeset.push(...changesB.conflicts.flatMap((it) => it[0]))
 
-      const newActiveDocument = apply(deepClone(newIntermediateDocument), changesetB) as typeof newIntermediateDocument
+      const newActiveDocument = apply(deepClone(newIntermediateDocument), changesB.diffs)
 
       // Update the active document to the new value
       workspace.documents[documentName] = createOverridesProxy(
