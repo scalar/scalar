@@ -12,7 +12,7 @@ type ChangeType = 'add' | 'update' | 'delete'
  * @property changes - The new value for the property (for add/update) or the old value (for delete)
  * @property type - The type of change that occurred
  */
-export type Difference = { path: string[]; changes: any; type: ChangeType }
+export type Difference<_T> = { path: string[]; changes: any; type: ChangeType }
 
 /**
  * Get the difference between two objects.
@@ -49,8 +49,8 @@ export type Difference = { path: string[]; changes: any; type: ChangeType }
  * //   { path: ['user', 'settings', 'theme'], changes: 'dark', type: 'update' }
  * // ]
  */
-export const diff = (doc1: Record<string, unknown>, doc2: Record<string, unknown>): Difference[] => {
-  const diff: Difference[] = []
+export const diff = <T extends Record<string, unknown>>(doc1: Record<string, unknown>, doc2: T) => {
+  const diff: Difference<T>[] = []
 
   const bfs = (el1: unknown, el2: unknown, prefix = []) => {
     // If the types are different, we know that the property has been added, deleted or updated

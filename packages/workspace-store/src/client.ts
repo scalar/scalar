@@ -152,7 +152,7 @@ export type WorkspaceStore = {
   rebaseDocument: (
     documentName: string,
     newDocumentOrigin: Record<string, unknown>,
-    resolvedConflicts?: Difference[],
+    resolvedConflicts?: Difference<unknown>[],
   ) => void | ReturnType<typeof merge>['conflicts']
 }
 
@@ -707,11 +707,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
      *   store.rebaseDocument('api', newOriginDoc, userResolvedConflicts)
      * }
      */
-    rebaseDocument: (
-      documentName: string,
-      newDocumentOrigin: Record<string, unknown>,
-      resolvedConflicts?: Difference[],
-    ) => {
+    rebaseDocument: (documentName, newDocumentOrigin, resolvedConflicts?) => {
       const newOrigin = coerceValue(OpenAPIDocumentSchema, upgrade(newDocumentOrigin).specification)
 
       const originalDocument = originalDocuments[documentName]
