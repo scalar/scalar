@@ -5,7 +5,8 @@ import { defaultFeatures, FeaturesSchema } from '@/schemas/reference-config/feat
 import { AppearanceSchema, defaultAppearance } from '@/schemas/reference-config/appearance'
 import { defaultRouting, RoutingSchema } from '@/schemas/reference-config/routing'
 import { defaultSettings, SettingsSchema } from '@/schemas/reference-config/settings'
-import type { DeepRequired, MutableArray } from '@/types'
+import type { MutableArray } from '@/types'
+import type { RequiredDeep } from 'type-fest'
 
 /**
  * ReferenceConfigSchema defines the shape of the configuration object
@@ -35,7 +36,7 @@ export const ReferenceConfigSchema = Type.Partial(
 
 export type ReferenceConfig = Static<typeof ReferenceConfigSchema>
 
-export const defaultReferenceConfig: DeepRequired<ReferenceConfig> = {
+export const defaultReferenceConfig: RequiredDeep<ReferenceConfig> = {
   title: 'Scalar API Reference',
   slug: 'scalar-api-reference',
 

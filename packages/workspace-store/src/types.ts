@@ -1,40 +1,4 @@
 /**
- * Recursively makes all properties of a type required.
- *
- * - If T is a function, it is returned as-is.
- * - If T is an array, recursively applies DeepRequired to its element type.
- * - If T is an object, recursively makes all properties required and applies DeepRequired to each property.
- * - Otherwise, T is returned as-is.
- *
- * @template T - The type to make deeply required.
- * @example
- * type Example = { a?: { b?: number[] } }
- * type RequiredExample = DeepRequired<Example>
- * // Result: { a: { b: number[] } }
- */
-export type DeepRequired<T> = T extends Function
-  ? T
-  : T extends Array<infer U>
-    ? Array<DeepRequired<U>>
-    : T extends object
-      ? { [K in keyof T]-?: DeepRequired<T[K]> }
-      : T
-
-/**
- * Recursively makes all properties of a type optional.
- *
- * - If T is an object, recursively applies DeepPartial to each property, making them optional.
- * - Otherwise, T is returned as-is.
- *
- * @template T - The type to make deeply partial (optional).
- * @example
- * type Example = { a: { b: number } }
- * type PartialExample = DeepPartial<Example>
- * // Result: { a?: { b?: number } }
- */
-export type DeepPartial<T> = T extends object ? { [K in keyof T]?: DeepPartial<T[K]> } : T
-
-/**
  * Converts a readonly array type to a mutable array type.
  *
  * This utility type removes the readonly modifier from all elements in an array type,

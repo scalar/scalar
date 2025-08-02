@@ -3,7 +3,6 @@ import { reactive } from 'vue'
 import { upgrade } from '@scalar/openapi-parser'
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 
-import type { DeepPartial, DeepRequired } from '@/types'
 import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
 import { deepClone, isObject, safeAssign } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
@@ -22,9 +21,10 @@ import { bundle } from '@scalar/json-magic/bundle'
 import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
 import { apply, diff, merge, type Difference } from '@scalar/json-magic/diff'
 import type { TraverseSpecOptions } from '@/navigation/types'
+import type { PartialDeep, RequiredDeep } from 'type-fest'
 
 type DocumentConfiguration = Config &
-  DeepPartial<{
+  PartialDeep<{
     'x-scalar-reference-config': {
       tagSort: TraverseSpecOptions['tagsSorter']
       operationsSorter: TraverseSpecOptions['operationsSorter']
@@ -36,7 +36,7 @@ type DocumentConfiguration = Config &
     }
   }>
 
-const defaultConfig: DeepRequired<Config> = {
+const defaultConfig: RequiredDeep<Config> = {
   'x-scalar-reference-config': defaultReferenceConfig,
 }
 
@@ -52,7 +52,7 @@ type WorkspaceDocumentMetaInput = {
   /** Optional configuration options */
   config?: DocumentConfiguration
   /** Overrides for the document */
-  overrides?: DeepPartial<OpenApiDocument>
+  overrides?: PartialDeep<OpenApiDocument>
 }
 
 /**
@@ -409,7 +409,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * The key is the document name, and the value is a deep partial
    * OpenAPI document representing the overridden fields.
    */
-  const overrides: Record<string, DeepPartial<OpenApiDocument>> = {}
+  const overrides: Record<string, PartialDeep<OpenApiDocument>> = {}
 
   // Create a reactive workspace object with proxied documents
   // Each document is wrapped in a proxy to enable reactive updates and reference resolution
