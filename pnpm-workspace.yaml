@@ -52,6 +52,7 @@ catalogs:
     nanoid: 5.1.5
     next: ^15.3.3
     picomatch: 4.0.2
+    playwright: 1.49.1
     postcss: ^8.4.38
     prettier: 3.5.3
     react-dom: ^19.1.0

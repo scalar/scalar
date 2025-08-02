@@ -108,7 +108,7 @@
     "vite-plugin-css-injected-by-js": "^3.4.0",
     "vitest": "catalog:*",
     "@hono/node-server": "^1.11.0",
-    "@playwright/test": "^1.49.1",
+    "@playwright/test": "catalog:*",
     "hono": "^4.6.5",
     "@scalar/core": "workspace:*"
   }
