@@ -76,7 +76,7 @@ export const apply = <T>(document: Record<string, unknown>, diff: DifferenceResu
     applyChange(document, d.path, d)
   }
 
-  // Safe to typecast since this function which apply changes to A to turn it into B
-  // where B is the type of the changelog target
+  // It is safe to cast here because this function mutates the input document
+  // to match the target type T as described by the diff changeset.
   return document as T
 }
