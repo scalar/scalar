@@ -1476,7 +1476,12 @@ describe('parameter styles', () => {
       })
 
       expect(result.url).toBe('/api/users')
-      expect(result.cookies).toEqual([])
+      expect(result.cookies).toEqual([
+        {
+          name: 'sessionId',
+          value: '',
+        },
+      ])
     })
 
     it('should handle cookie parameter with empty string value', () => {
@@ -1770,6 +1775,122 @@ describe('parameter styles', () => {
         { name: 'existingCookie', value: 'existingValue' },
         { name: 'newCookie', value: 'newValue' },
       ])
+    })
+  })
+
+  describe('query parameters', () => {
+    it('should add empty query string if no parameters are present', () => {
+      const operation: Dereference<OperationObject> = {
+        parameters: [
+          {
+            name: 'email',
+            in: 'query',
+            schema: {
+              type: 'string',
+            },
+          },
+        ],
+        responses: {
+          '200': { description: 'OK' },
+        },
+      }
+      const harRequest = createHarRequest('/api/users')
+      const result = processParameters(harRequest, deReferenceParams(operation.parameters))
+
+      expect(result.queryString).toEqual([{ name: 'email', value: '' }])
+    })
+  })
+
+  describe('path parameters', () => {
+    it('should add variable name if no value or example is provided', () => {
+      const operation: Dereference<OperationObject> = {
+        parameters: [
+          {
+            name: 'username',
+            in: 'path',
+            schema: {
+              type: 'string',
+            },
+          },
+        ],
+        responses: {
+          '200': { description: 'OK' },
+        },
+      }
+      const harRequest = createHarRequest('/api/users/{username}')
+      const result = processParameters(harRequest, deReferenceParams(operation.parameters))
+
+      expect(result.url).toEqual('/api/users/{username}')
+    })
+
+    it('should replace the variable with the example value', () => {
+      const operation: Dereference<OperationObject> = {
+        parameters: [
+          {
+            name: 'username',
+            in: 'path',
+            schema: {
+              type: 'string',
+              example: 'scalarUser',
+            },
+          },
+        ],
+        responses: {
+          '200': { description: 'OK' },
+        },
+      }
+      const harRequest = createHarRequest('/api/users/{username}')
+      const result = processParameters(harRequest, deReferenceParams(operation.parameters))
+
+      expect(result.url).toEqual('/api/users/scalarUser')
+    })
+
+    it('should replace the variable with the upper example value', () => {
+      const operation: Dereference<OperationObject> = {
+        parameters: [
+          {
+            name: 'username',
+            in: 'path',
+            example: 'scalarUser',
+            schema: {
+              type: 'string',
+            },
+          },
+        ],
+        responses: {
+          '200': { description: 'OK' },
+        },
+      }
+      const harRequest = createHarRequest('/api/users/{username}')
+      const result = processParameters(harRequest, deReferenceParams(operation.parameters))
+
+      expect(result.url).toEqual('/api/users/scalarUser')
+    })
+
+    it('should replace the variable with the example value from examples', () => {
+      const operation: Dereference<OperationObject> = {
+        parameters: [
+          {
+            name: 'username',
+            in: 'path',
+            schema: {
+              type: 'string',
+            },
+            examples: {
+              'example1': {
+                value: 'scalarUser',
+              },
+            },
+          },
+        ],
+        responses: {
+          '200': { description: 'OK' },
+        },
+      }
+      const harRequest = createHarRequest('/api/users/{username}')
+      const result = processParameters(harRequest, deReferenceParams(operation.parameters))
+
+      expect(result.url).toEqual('/api/users/scalarUser')
     })
   })
 })
