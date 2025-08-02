@@ -20,10 +20,6 @@ export const ReferenceConfigSchema = Type.Partial(
     slug: Type.String(),
     /** Settings for the API reference (controls behavior and options) */
     settings: SettingsSchema,
-    /** Tag sorting method: currently only 'alpha' (alphabetical) is supported */
-    tagSort: Type.Union([Type.Literal('alpha')]),
-    /** Operation sorting method: by HTTP method or alphabetically */
-    operationSort: Type.Union([Type.Literal('method'), Type.Literal('alpha')]),
     /** Routing configuration (controls navigation) */
     routing: RoutingSchema,
     /** Appearance configuration (controls theming and UI options) */
@@ -42,8 +38,6 @@ export type ReferenceConfig = Static<typeof ReferenceConfigSchema>
 export const defaultReferenceConfig: DeepRequired<ReferenceConfig> = {
   title: 'Scalar API Reference',
   slug: 'scalar-api-reference',
-  tagSort: 'alpha',
-  operationSort: 'method',
 
   /**
    * Default settings for the API reference.
