@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 1.34.1
+
+### Patch Changes
+
+- 4d05839: fix: empty test request modal
+- Updated dependencies [46bfd2f]
+  - @scalar/oas-utils@0.4.18
+  - @scalar/api-client@2.5.22
+  - @scalar/components@0.14.23
+
 ## 1.34.0
 
 ### Minor Changes
