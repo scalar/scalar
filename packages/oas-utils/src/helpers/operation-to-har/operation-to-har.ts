@@ -97,12 +97,22 @@ export const operationToHar = ({
     harRequest.postData = postData
     harRequest.bodySize = postData.text?.length ?? -1
 
-    // Add Content-Type header if not already present
-    if (postData.mimeType && !harRequest.headers.some((header) => header.name.toLowerCase() === 'content-type')) {
-      harRequest.headers.push({
-        name: 'Content-Type',
-        value: postData.mimeType,
-      })
+    // Add or update Content-Type header
+    if (postData.mimeType) {
+      const existingContentTypeHeader = harRequest.headers.find(
+        (header) => header.name.toLowerCase() === 'content-type',
+      )
+      // Update existing header if it has an empty value
+      if (existingContentTypeHeader && !existingContentTypeHeader.value) {
+        existingContentTypeHeader.value = postData.mimeType
+      }
+      // Add new header if none exists
+      else {
+        harRequest.headers.push({
+          name: 'Content-Type',
+          value: postData.mimeType,
+        })
+      }
     }
   }
 
