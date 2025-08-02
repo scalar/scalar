@@ -152,7 +152,7 @@ export type WorkspaceStore = {
   rebaseDocument: (
     documentName: string,
     newDocumentOrigin: Record<string, unknown>,
-    resolvedConflicts?: Difference[],
+    resolvedConflicts?: Difference<unknown>[],
   ) => void | ReturnType<typeof merge>['conflicts']
 }
 
@@ -707,11 +707,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
      *   store.rebaseDocument('api', newOriginDoc, userResolvedConflicts)
      * }
      */
-    rebaseDocument: (
-      documentName: string,
-      newDocumentOrigin: Record<string, unknown>,
-      resolvedConflicts?: Difference[],
-    ) => {
+    rebaseDocument: (documentName, newDocumentOrigin, resolvedConflicts?) => {
       const newOrigin = coerceValue(OpenAPIDocumentSchema, upgrade(newDocumentOrigin).specification)
 
       const originalDocument = originalDocuments[documentName]
@@ -734,11 +730,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         return changesA.conflicts
       }
 
-      // Push the list of resolved conflicts to the original changeset
-      changesA.diffs.changeset.push(...resolvedConflicts)
+      const changesetA = changesA.diffs.concat(resolvedConflicts)
 
       // Apply the changes to the original document to get the new intermediate
-      const newIntermediateDocument = apply(deepClone(originalDocument), changesA.diffs)
+      const newIntermediateDocument = apply(deepClone(originalDocument), changesetA) as typeof originalDocument
       intermediateDocuments[documentName] = newIntermediateDocument
 
       // Update the original document
@@ -752,9 +747,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       // Auto-conflict resolution: pick only the changes from the first changeset
       // TODO: In the future, implement smarter conflict resolution if needed
-      changesB.diffs.changeset.push(...changesB.conflicts.flatMap((it) => it[0]))
+      const changesetB = changesB.diffs.concat(changesB.conflicts.flatMap((it) => it[0]))
 
-      const newActiveDocument = apply(deepClone(newIntermediateDocument), changesB.diffs)
+      const newActiveDocument = apply(deepClone(newIntermediateDocument), changesetB) as typeof newIntermediateDocument
 
       // Update the active document to the new value
       workspace.documents[documentName] = createOverridesProxy(

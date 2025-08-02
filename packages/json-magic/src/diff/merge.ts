@@ -3,18 +3,6 @@ import { Trie } from '@/diff/trie'
 import { isArrayEqual, isKeyCollisions, mergeObjects } from '@/diff/utils'
 
 /**
- * Merges two DifferenceResult objects (as returned by the diff function) and resolves conflicts.
- * This function combines changes from two DifferenceResult.changeset arrays while handling potential conflicts
- * that arise when both diffs modify the same paths. It uses a trie data structure for
- * efficient path matching and conflict detection.
- *
- * @param diff1 - First DifferenceResult (as returned by diff)
- * @param diff2 - Second DifferenceResult (as returned by diff)
- * @returns Object containing:
- *   - diffs: DifferenceResult<T> with the combined list of non-conflicting differences
- *   - conflicts: Array of conflicting difference pairs (each as [Difference[], Difference[]]) that need manual resolution
- *
- /**
  * Merges two sets of differences from the same document and resolves conflicts.
  * This function combines changes from two diff lists while handling potential conflicts
  * that arise when both diffs modify the same paths. It uses a trie data structure for
