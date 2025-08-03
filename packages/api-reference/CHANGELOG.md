@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.34.2
+
+### Patch Changes
+
+- 83625c6: fix: cyclic error in client store watcher
+
 ## 1.34.1
 
 ### Patch Changes
