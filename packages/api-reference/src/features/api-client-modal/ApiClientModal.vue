@@ -65,7 +65,8 @@ watchDebounced(
     }
 
     // Ensure the document is different
-    if (JSON.stringify(newDocument) === JSON.stringify(oldDocument || {})) {
+    const diff = microdiff(newDocument, oldDocument || {})
+    if (!diff?.length) {
       return
     }
 
