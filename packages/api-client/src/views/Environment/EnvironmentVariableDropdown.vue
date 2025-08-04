@@ -8,6 +8,8 @@ import { useRouter } from 'vue-router'
 
 import { parseEnvVariables } from '@/libs'
 import { getEnvColor, type EnvVariables } from '@/libs/env-helpers'
+import { PathId } from '@/routes'
+import { useActiveEntities } from '@/store'
 
 const props = defineProps<{
   query: string
@@ -25,20 +27,35 @@ const isOpen = ref(true)
 const dropdownRef = ref<HTMLElement | null>(null)
 const selectedVariableIndex = ref(0)
 const router = useRouter()
+const { activeCollection } = useActiveEntities()
 
 const redirectToEnvironment = () => {
   if (!router) {
     return
   }
   const { currentRoute, push } = router
-
   const workspaceId = currentRoute.value.params.workspace
-  push({
-    name: 'environment.default',
-    params: {
-      workspace: workspaceId,
-    },
-  })
+
+  // Global environment page for draft collection
+  if (
+    !activeCollection.value ||
+    activeCollection.value.info?.title === 'Drafts'
+  ) {
+    push({
+      name: 'environment.default',
+      params: {
+        [PathId.Workspace]: workspaceId,
+      },
+    })
+  } else {
+    // Collection environment page for collections
+    push({
+      name: 'collection.environment',
+      params: {
+        [PathId.Collection]: activeCollection.value.uid,
+      },
+    })
+  }
   isOpen.value = false
 }
 
@@ -159,7 +176,7 @@ onClickOutside(
       </ul>
       <ScalarButton
         v-else-if="router"
-        class="font-code text-xxs hover:bg-b-2 flex h-8 w-full justify-start gap-2 px-1.5 transition-colors duration-150"
+        class="font-code text-xxs bg-b-inherit hover:bg-b-2 flex h-8 w-full justify-start gap-2 px-1.5 transition-colors duration-150"
         variant="outlined"
         @click="redirectToEnvironment">
         <ScalarIcon

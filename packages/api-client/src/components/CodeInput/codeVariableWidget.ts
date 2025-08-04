@@ -73,25 +73,11 @@ class PillWidget extends WidgetType {
         const tooltipContent = val?.value || 'No value'
 
         // Tooltip trigger element
-        const tooltipTrigger = h(
-          'div',
-          {
-            class: 'flex items-center gap-1 whitespace-nowrap',
-            onClick:
-              !val?.value && !this.isReadOnly
-                ? () => {
-                    // TODO: Use named route instead
-                    window.location.href = `/workspace/${this.workspace?.uid}/environment`
-                  }
-                : undefined,
-            style: !val?.value && !this.isReadOnly ? 'cursor: pointer;' : undefined,
-          },
-          [
-            (isGlobal || (this.environment?.name === 'No Environment' && val?.value)) &&
-              h(ScalarIconGlobe, { class: 'size-3 -ml-1', icon: 'Globe' }),
-            h('span', this.variableName),
-          ],
-        )
+        const tooltipTrigger = h('div', { class: 'flex items-center gap-1 whitespace-nowrap' }, [
+          (isGlobal || (this.environment?.name === 'No Environment' && val?.value)) &&
+            h(ScalarIconGlobe, { class: 'size-3 -ml-1', icon: 'Globe' }),
+          h('span', this.variableName),
+        ])
 
         return h(
           ScalarTooltip,
