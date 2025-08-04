@@ -31,16 +31,16 @@ const SOURCES: ApiReferenceConfigurationWithSources['sources'] = [
     // @ts-expect-error The types are wrong.
     layout: 'classic',
   },
-  // {
-  //   title: 'Swagger Petstore 2.0',
-  //   slug: 'swagger-petstore-2.0',
-  //   url: 'https://petstore.swagger.io/v2/swagger.json',
-  // },
-  // {
-  //   title: 'Swagger Petstore 3.0',
-  //   slug: 'swagger-petstore-3.0',
-  //   url: 'https://petstore3.swagger.io/api/v3/openapi.json',
-  // },
+  {
+    title: 'Swagger Petstore',
+    slug: 'swagger-petstore-2.0',
+    url: 'https://petstore.swagger.io/v2/swagger.json',
+  },
+  {
+    title: 'Swagger Petstore - OpenAPI 3.0',
+    slug: 'swagger-petstore-3.0',
+    url: 'https://petstore3.swagger.io/api/v3/openapi.json',
+  },
   {
     title: 'Swagger Petstore - OpenAPI 3.1',
     slug: 'swagger-petstore-3.1',
@@ -51,36 +51,36 @@ const SOURCES: ApiReferenceConfigurationWithSources['sources'] = [
     slug: 'valtown',
     url: 'https://docs.val.town/openapi.documented.json',
   },
-  // {
-  //   title: 'Zoom',
-  //   slug: 'zoom',
-  //   url: 'https://developers.zoom.us/api-hub/meetings/methods/endpoints.json',
-  // },
-  // {
-  //   title: 'Cloudinary',
-  //   slug: 'cloudinary',
-  //   url: 'https://cloudinary.com/documentation/schemas/analysis-api/public-schema.yml',
-  // },
-  // {
-  //   title: 'Tailscale',
-  //   slug: 'tailscale',
-  //   url: 'https://api.tailscale.com/api/v2?outputOpenapiSchema=true',
-  // },
-  // {
-  //   title: 'Maersk',
-  //   slug: 'maersk',
-  //   url: 'https://edpmediastorage.blob.core.windows.net/media/air_booking_v1-0_26092023_scalar_spec.yaml',
-  // },
-  // {
-  //   title: 'Bolt',
-  //   slug: 'bolt',
-  //   url: 'https://assets.bolt.com/external-api-references/bolt.yml',
-  // },
-  // {
-  //   title: 'OpenStatus',
-  //   slug: 'openstatus',
-  //   url: 'https://api.openstatus.dev/v1/openapi',
-  // },
+  {
+    title: 'Meetings',
+    slug: 'zoom',
+    url: 'https://developers.zoom.us/api-hub/meetings/methods/endpoints.json',
+  },
+  {
+    title: 'Analyze API (Beta)',
+    slug: 'cloudinary',
+    url: 'https://cloudinary.com/documentation/schemas/analysis-api/public-schema.yml',
+  },
+  {
+    title: 'Tailscale API',
+    slug: 'tailscale',
+    url: 'https://api.tailscale.com/api/v2?outputOpenapiSchema=true',
+  },
+  {
+    title: 'Air Booking API',
+    slug: 'maersk',
+    url: 'https://edpmediastorage.blob.core.windows.net/media/air_booking_v1-0_26092023_scalar_spec.yaml',
+  },
+  {
+    title: 'Bolt API Reference',
+    slug: 'bolt',
+    url: 'https://assets.bolt.com/external-api-references/bolt.yml',
+  },
+  {
+    title: 'OpenStatus',
+    slug: 'openstatus',
+    url: 'https://api.openstatus.dev/v1/openapi',
+  },
 ]
 
 test.describe('snapshots', () => {
@@ -94,7 +94,7 @@ test.describe('snapshots', () => {
   })
 
   for (const source of SOURCES) {
-    test(`matches snapshot for "${source.title}"`, async ({ page }) => {
+    test(`matches snapshot for "${source.slug}"`, async ({ page }) => {
       await page.goto(`${example}?api=${source.slug}`)
 
       // Wait for the page to load
