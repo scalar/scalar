@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ScalarButton, ScalarIcon, ScalarTeleport } from '@scalar/components'
+import { ScalarButton, ScalarTeleport } from '@scalar/components'
+import { ScalarIconGlobe, ScalarIconPlus } from '@scalar/icons'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import { onClickOutside } from '@vueuse/core'
 import Fuse from 'fuse.js'
@@ -156,14 +157,17 @@ onClickOutside(
             @click="selectVariable(item.key)">
             <div class="flex items-center gap-2 whitespace-nowrap">
               <span
-                v-if="item.source === 'collection'"
+                v-if="
+                  item.source === 'collection' &&
+                  environment.name !== 'No Environment'
+                "
                 class="h-2.25 w-2.25 min-w-2.25 rounded-full"
                 :style="{
                   backgroundColor: getEnvColor(environment),
                 }"></span>
-              <ScalarIcon
+              <ScalarIconGlobe
                 v-else
-                class="-ml-1/2 h-2.5 w-2.5"
+                class="-ml-0.25 size-2.5"
                 icon="Globe" />
               {{ item.key }}
             </div>
@@ -179,9 +183,7 @@ onClickOutside(
         class="font-code text-xxs bg-b-inherit hover:bg-b-2 flex h-8 w-full justify-start gap-2 px-1.5 transition-colors duration-150"
         variant="outlined"
         @click="redirectToEnvironment">
-        <ScalarIcon
-          icon="Add"
-          size="sm" />
+        <ScalarIconPlus class="size-3" />
         Add Variable
       </ScalarButton>
       <!-- Backdrop for the dropdown -->
