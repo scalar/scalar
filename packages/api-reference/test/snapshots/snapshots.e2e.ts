@@ -2,9 +2,11 @@ import { expect, test } from '@playwright/test'
 import type { ApiReferenceConfigurationWithSources } from '@scalar/types'
 import { serveExample } from '@test/utils/serve-example'
 
+// TODO: We want to pull those documents from the CDN, so the tests don’t fail when they change their API.
+// TODO: This should actually use @scalar/galaxy, ideally directly from the file system (so it’ll already fail before we publish an updated version.)
+
 const SOURCES: ApiReferenceConfigurationWithSources['sources'] = [
   {
-    // TODO: This should actually use @scalar/galaxy, ideally directly from the file system (so it’ll already fail before we publish an updated version.)
     slug: 'test-api',
     content: {
       openapi: '3.1.1',
@@ -23,7 +25,7 @@ const SOURCES: ApiReferenceConfigurationWithSources['sources'] = [
     },
   },
   {
-    title: 'Scalar Galaxy (Classic Layout)',
+    title: 'Scalar Galaxy',
     slug: 'scalar-galaxy-classic-layout',
     url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
     // @ts-expect-error The types are wrong.
@@ -40,12 +42,12 @@ const SOURCES: ApiReferenceConfigurationWithSources['sources'] = [
   //   url: 'https://petstore3.swagger.io/api/v3/openapi.json',
   // },
   {
-    title: 'Swagger Petstore 3.1',
+    title: 'Swagger Petstore - OpenAPI 3.1',
     slug: 'swagger-petstore-3.1',
     url: 'https://petstore31.swagger.io/api/v31/openapi.json',
   },
   {
-    title: 'Valtown',
+    title: 'Val Town API',
     slug: 'valtown',
     url: 'https://docs.val.town/openapi.documented.json',
   },
@@ -84,37 +86,22 @@ const SOURCES: ApiReferenceConfigurationWithSources['sources'] = [
 test.describe('snapshots', () => {
   test('matches all existing snapshots', async ({ page }) => {
     const example = await serveExample({
-      // TODO: We want to pull those documents from the CDN, so the tests don’t fail when they change their API.
       sources: SOURCES,
     })
 
-    SOURCES.forEach(async (source) => {
+    for (const source of SOURCES) {
       await page.goto(`${example}?api=${source.slug}`)
+
+      // Wait for the page to load
+      await expect(page.getByRole('heading', { name: source.title, level: 1 })).toBeVisible()
+
+      // Wait for everything to render
+      await page.waitForTimeout(250)
+
       await expect(page).toHaveScreenshot(`${source.slug}-snapshot.png`, {
         fullPage: true,
         maxDiffPixelRatio: 0.02,
       })
-    })
-    await page.goto(example)
-    await expect(page).toHaveScreenshot('scalar-galaxy-snapshot.png', {
-      fullPage: true,
-      maxDiffPixelRatio: 0.02,
-    })
-
-    await page.goto(`${example}?api=scalar-galaxy-classic-layout`)
-    await expect(page).toHaveScreenshot('scalar-galaxy-classic-layout-snapshot.png', {
-      fullPage: true,
-      maxDiffPixelRatio: 0.02,
-    })
-
-    await page.goto(`${example}?api=valtown`)
-
-    // TODO: use loaded event
-    await page.waitForTimeout(500)
-
-    await expect(page).toHaveScreenshot('valtown-snapshot.png', {
-      fullPage: true,
-      maxDiffPixelRatio: 0.02,
-    })
+    }
   })
 })
