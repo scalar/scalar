@@ -4,9 +4,9 @@ import { serveExample } from '@test/utils/serve-example'
 
 // TODO: We want to pull those documents from the CDN, so the tests don’t fail when they change their API.
 // TODO: This should actually use @scalar/galaxy, ideally directly from the file system (so it’ll already fail before we publish an updated version.)
-
 const SOURCES: ApiReferenceConfigurationWithSources['sources'] = [
   {
+    title: 'Test API',
     slug: 'test-api',
     content: {
       openapi: '3.1.1',
@@ -84,24 +84,30 @@ const SOURCES: ApiReferenceConfigurationWithSources['sources'] = [
 ]
 
 test.describe('snapshots', () => {
-  test('matches all existing snapshots', async ({ page }) => {
-    const example = await serveExample({
+  let example: string
+
+  test.beforeAll(async () => {
+    // Start the example server once for all tests
+    example = await serveExample({
       sources: SOURCES,
     })
+  })
 
-    for (const source of SOURCES) {
+  for (const source of SOURCES) {
+    test(`matches snapshot for "${source.title}"`, async ({ page }) => {
       await page.goto(`${example}?api=${source.slug}`)
 
       // Wait for the page to load
       await expect(page.getByRole('heading', { name: source.title, level: 1 })).toBeVisible()
 
       // Wait for everything to render
+      // TODO: Can we use a hook/event here?
       await page.waitForTimeout(250)
 
       await expect(page).toHaveScreenshot(`${source.slug}-snapshot.png`, {
         fullPage: true,
         maxDiffPixelRatio: 0.02,
       })
-    }
-  })
+    })
+  }
 })
