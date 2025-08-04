@@ -38,6 +38,7 @@
     "playground:vue": "vite ./playground/vue -c ./playground/vue/vite.config.ts",
     "preview": "vite preview",
     "test": "vitest",
+    "build:playwright": "./scripts/playwright.sh build",
     "test:e2e": "./scripts/playwright.sh test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:update-snapshots": "./scripts/playwright.sh test snapshots --update-snapshots",

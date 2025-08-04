@@ -42,6 +42,11 @@ is_linux() {
     [[ "$OSTYPE" == "linux-gnu"* ]]
 }
 
+# Function to check if Docker image exists
+docker_image_exists() {
+    docker image inspect "$DOCKER_IMAGE_NAME" >/dev/null 2>&1
+}
+
 # Function to run playwright directly on Linux
 run_playwright_directly() {
     print_status "$GREEN" "🚀 Running Playwright directly on Linux..."
@@ -57,9 +62,23 @@ run_playwright_directly() {
 run_playwright_in_docker() {
     print_status "$GREEN" "🚀 Running Playwright in Docker..."
 
-    # Build Docker image
-    run_command "Building Docker image" \
-        "docker build -f $DOCKERFILE_PATH $PROJECT_ROOT -t $DOCKER_IMAGE_NAME"
+    # Check if build argument is provided
+    if [[ " $PLAYWRIGHT_ARGS " =~ " build " ]]; then
+        # Build Docker image and exit
+        run_command "Building Docker image" \
+            "docker build -f $DOCKERFILE_PATH $PROJECT_ROOT -t $DOCKER_IMAGE_NAME"
+        print_status "$GREEN" "✅ Docker image built successfully!"
+        return 0
+    fi
+
+    # Check if Docker image doesn't exist
+    if ! docker_image_exists; then
+        # Build Docker image
+        run_command "Building Docker image" \
+            "docker build -f $DOCKERFILE_PATH $PROJECT_ROOT -t $DOCKER_IMAGE_NAME"
+    else
+        print_status "$GREEN" "✅ Using existing Docker image"
+    fi
 
     # Run Docker container with Playwright
     print_status "$YELLOW" " Running Playwright with args: $PLAYWRIGHT_ARGS"
