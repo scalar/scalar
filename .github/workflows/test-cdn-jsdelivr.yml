@@ -6,7 +6,7 @@ on:
     - cron: '0 * * * *'
   pull_request:
     paths:
-      - 'playwright/tests/**'
+      - 'playwright/test/**'
       - 'examples/cdn-api-reference/**'
       - '.github/workflows/test-cdn-jsdelivr.yml'
 
