@@ -40,7 +40,7 @@
     "test": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:update-snapshots": "docker build -f test/Dockerfile ../../ -t scalar-playwright-api-reference && docker run -v $(pwd)/dist:/app/packages/api-reference/dist -v $(pwd)/test:/app/packages/api-reference/test scalar-playwright-api-reference bash -c \"pnpm playwright test snapshots --update-snapshots\"",
+    "test:e2e:update-snapshots": "docker build -f test/Dockerfile ../../ -t scalar-playwright-api-reference && docker run -v $(pwd)/dist:/app/packages/api-reference/dist -v $(pwd)/test/snapshots:/app/packages/api-reference/test/snapshots scalar-playwright-api-reference bash -c \"pnpm playwright test snapshots --update-snapshots\"",
     "types:build": "scalar-types-build-vue",
     "types:check": "scalar-types-check-vue"
   },
