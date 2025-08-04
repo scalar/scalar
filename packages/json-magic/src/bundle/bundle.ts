@@ -441,12 +441,31 @@ type Config = {
    * Allows tracking the progress and status of reference resolution.
    */
   hooks?: Partial<{
-    /** Called when starting to resolve a reference */
-    onResolveStart: (node: Record<string, unknown> & Record<'$ref', unknown>) => void
-    /** Called when a reference resolution fails */
-    onResolveError: (node: Record<string, unknown> & Record<'$ref', unknown>) => void
-    /** Called when a reference is successfully resolved */
-    onResolveSuccess: (node: Record<string, unknown> & Record<'$ref', unknown>) => void
+    /**
+     * Optional hook called when the bundler starts resolving a $ref.
+     * Useful for tracking or logging the beginning of a reference resolution.
+     */
+    onResolveStart: (node: UnknownObject & Record<'$ref', unknown>) => void
+    /**
+     * Optional hook called when the bundler fails to resolve a $ref.
+     * Can be used for error handling, logging, or custom error reporting.
+     */
+    onResolveError: (node: UnknownObject & Record<'$ref', unknown>) => void
+    /**
+     * Optional hook called when the bundler successfully resolves a $ref.
+     * Useful for tracking successful resolutions or custom post-processing.
+     */
+    onResolveSuccess: (node: UnknownObject & Record<'$ref', unknown>) => void
+    /**
+     * Optional hook invoked before processing a node.
+     * Can be used for preprocessing, mutation, or custom logic before the node is handled by the bundler.
+     */
+    onBeforeNodeProcess: (node: UnknownObject) => void | Promise<void>
+    /**
+     * Optional hook invoked after processing a node.
+     * Useful for postprocessing, cleanup, or custom logic after the node has been handled by the bundler.
+     */
+    onAfterNodeProcess: (node: UnknownObject) => void | Promise<void>
   }>
 }
 
@@ -621,6 +640,9 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     // Mark this node as processed before continuing
     processedNodes.add(root)
 
+    // Call the preprocessing hook on the node before we do any other operation on the node
+    await config.hooks?.onBeforeNodeProcess?.(root as UnknownObject)
+
     if (typeof root === 'object' && '$ref' in root && typeof root['$ref'] === 'string') {
       const ref = root['$ref']
       const isChunk = '$global' in root && typeof root['$global'] === 'boolean' && root['$global']
@@ -736,13 +758,15 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     // We skip EXTERNAL_KEY to avoid processing already bundled content
     await Promise.all(
       Object.entries(root).map(async ([key, value]) => {
-        if (key === extensions.externalDocuments) {
+        if (key === extensions.externalDocuments || key === extensions.externalDocumentsMappings) {
           return
         }
 
         await bundler(value, origin, isChunkParent, depth + 1)
       }),
     )
+
+    await config.hooks?.onAfterNodeProcess?.(root as UnknownObject)
   }
 
   await bundler(rawSpecification)

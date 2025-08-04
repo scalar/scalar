@@ -1225,7 +1225,7 @@ describe('bundle', () => {
       expect(resolveError).not.toHaveBeenCalledOnce()
     })
 
-    it('run success hook', async () => {
+    it('run error hook', async () => {
       const url = `http://localhost:${PORT}`
 
       server.get('/chunk1', (_, reply) => {
@@ -1761,6 +1761,101 @@ describe('bundle', () => {
             $ref: `#/x-ext/${await getHash(url)}/prop`,
           },
         },
+      })
+    })
+  })
+
+  describe('hooks', () => {
+    describe('onBeforeNodeProcess', () => {
+      it('should correctly call the `onBeforeNodeProcess` correctly on all the nodes', async () => {
+        const fn = vi.fn()
+
+        const input = {
+          someKey: 'someValue',
+          anotherKey: {
+            innerKey: 'nestedValue',
+          },
+        }
+
+        await bundle(input, {
+          plugins: [],
+          treeShake: false,
+          hooks: {
+            onBeforeNodeProcess(node) {
+              fn(node)
+            },
+          },
+        })
+
+        expect(fn).toHaveBeenCalled()
+        expect(fn).toBeCalledTimes(2)
+
+        expect(fn.mock.calls[0][0]).toEqual(input)
+        expect(fn.mock.calls[1][0]).toEqual(input.anotherKey)
+      })
+
+      it('should run bundle on the mutated object properties', async () => {
+        const fn = vi.fn()
+
+        const input = {
+          a: {
+            b: {
+              c: 'c',
+              d: 'd',
+            },
+            e: 'e',
+          },
+        }
+
+        await bundle(input, {
+          plugins: [],
+          treeShake: false,
+          hooks: {
+            onBeforeNodeProcess(node) {
+              if ('e' in node) {
+                node['processedKey'] = { 'message': 'Processed node' }
+              }
+              fn(node)
+            },
+          },
+        })
+
+        expect(fn).toHaveBeenCalled()
+        expect(fn).toBeCalledTimes(4)
+
+        expect(fn.mock.calls[3][0]).toEqual({ 'message': 'Processed node' })
+      })
+    })
+
+    describe('onAfterNodeProcess', () => {
+      it('should call `onAfterNodeProcess` hook on the nodes', async () => {
+        const fn = vi.fn()
+
+        const input = {
+          a: {
+            b: {
+              c: 'c',
+              d: 'd',
+            },
+            e: 'e',
+          },
+        }
+
+        await bundle(input, {
+          plugins: [],
+          treeShake: false,
+          hooks: {
+            onAfterNodeProcess(node) {
+              if ('e' in node) {
+                node['processedKey'] = { 'message': 'Processed node' }
+              }
+              fn(node)
+            },
+          },
+        })
+
+        expect(fn).toHaveBeenCalled()
+        expect(fn).toHaveBeenCalledTimes(3)
       })
     })
   })
