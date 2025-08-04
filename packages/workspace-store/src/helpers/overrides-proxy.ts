@@ -18,7 +18,7 @@ export type DeepPartial<T> = T extends object ? { [K in keyof T]?: DeepPartial<T
 
 /**
  * Creates a proxy object that overlays "overrides" on top of a target object.
- * 
+ *
  * - When reading a property, if an override exists, it is returned; otherwise, the original value is returned.
  * - When writing to a property, if an override exists, it is updated; otherwise, the original object is updated.
  * - This works recursively for nested objects, so overrides can be deeply partial.
@@ -33,13 +33,13 @@ export type DeepPartial<T> = T extends object ? { [K in keyof T]?: DeepPartial<T
  * const original = { a: 1, b: { c: 2 } }
  * const overrides = { b: { c: 42 } }
  * const proxy = createOverridesProxy(original, overrides)
- * 
+ *
  * console.log(proxy.a) // 1 (from original)
  * console.log(proxy.b.c) // 42 (from overrides)
- * 
+ *
  * proxy.a = 100
  * console.log(original.a) // 100
- * 
+ *
  * proxy.b.c = 99
  * console.log(overrides.b.c) // 99
  */
