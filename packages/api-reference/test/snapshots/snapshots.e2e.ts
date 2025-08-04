@@ -76,11 +76,6 @@ const SOURCES: ApiReferenceConfigurationWithSources['sources'] = [
     slug: 'bolt',
     url: 'https://assets.bolt.com/external-api-references/bolt.yml',
   },
-  {
-    title: 'OpenStatus API',
-    slug: 'openstatus',
-    url: 'https://api.openstatus.dev/v1/openapi',
-  },
 ]
 
 test.describe('snapshots', () => {
