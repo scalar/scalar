@@ -137,6 +137,38 @@ describe('Models', () => {
     })
   })
 
+  it('excludes schemas with x-scalar-ignore', () => {
+    const documentWithIgnoredSchema: OpenAPIV3_1.Document = {
+      ...mockDocument,
+      components: {
+        schemas: {
+          User: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              name: { type: 'string' },
+            },
+          },
+          ImageUploadedMessage: {
+            'x-scalar-ignore': true,
+            description: 'Message about an image upload',
+            type: 'object',
+          },
+        },
+      },
+    }
+
+    const wrapper = mount(Models, {
+      props: {
+        document: documentWithIgnoredSchema,
+        config: mockConfigModern,
+      },
+    })
+
+    expect(wrapper.text()).toContain('User')
+    expect(wrapper.text()).not.toContain('ImageUploadedMessage')
+  })
+
   describe('edge cases', () => {
     it('renders nothing if document.components.schemas is undefined', () => {
       const wrapper = mount(Models, {
