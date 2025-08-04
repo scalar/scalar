@@ -549,6 +549,46 @@ jobs:
           # 2) Create a token with the following permissions:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
+  push-to-scalar-registry:
+    # TODO: Uncomment this when we tested the workflow
+    # if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 10
+    needs: [build]
+    # TODO: Uncomment this when we tested the workflow
+    # needs: [build, test-packages]
+    strategy:
+      matrix:
+        node-version: [22]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@09d2acae674a48949e3602304ab46fd20ae0c42f
+      - name: Build @scalar/galaxy
+        uses: ./.github/actions/build-blacksmith
+        with:
+          node-version: ${{ matrix.node-version }}
+          packages: '@scalar/galaxy...'
+      - name: Check whether there's a new version of @scalar/galaxy
+        id: changed-files
+        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94
+        with:
+          files_yaml: |
+            galaxy:
+              - packages/galaxy/**
+      - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
+        name: Extract version from package.json
+        working-directory: packages/galaxy
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+      - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
+        name: Login to Scalar Registry
+        run: npx @scalar/cli auth login --token ${{ secrets.SCALAR_API_KEY }}
+      - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
+        name: Push to Scalar Registry
+        run: npx @scalar/cli registry publish --force true --namespace scalar --slug galaxy --version ${{ env.VERSION }} dist/latest.yaml
+
   deploy-examples:
     # Main Branch or PR from the same repository
     if: |
