@@ -576,17 +576,17 @@ jobs:
           files_yaml: |
             galaxy:
               - packages/galaxy/**
-      - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
-        name: Extract version from package.json
+      #- if: steps.changed-files.outputs.galaxy_any_changed == 'true'
+      - name: Extract version from package.json
         working-directory: packages/galaxy
         run: |
           VERSION=$(node -p "require('./package.json').version")
           echo "VERSION=$VERSION" >> $GITHUB_ENV
-      - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
-        name: Login to Scalar Registry
+      #- if: steps.changed-files.outputs.galaxy_any_changed == 'true'
+      - name: Login to Scalar Registry
         run: npx @scalar/cli auth login --token ${{ secrets.SCALAR_API_KEY }}
-      - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
-        name: Push to Scalar Registry
+      # - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
+      - name: Push to Scalar Registry
         run: npx @scalar/cli registry publish --force true --namespace scalar --slug galaxy --version ${{ env.VERSION }} dist/latest.yaml
 
   deploy-examples:
