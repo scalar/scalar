@@ -37,9 +37,29 @@ run_command() {
     print_status "$GREEN" "✅ $description completed"
 }
 
-# Main execution
-main() {
-    print_status "$GREEN" "🚀 Starting Playwright in Docker..."
+# Function to detect if we're on Linux
+is_linux() {
+    [[ "$OSTYPE" == "linux-gnu"* ]]
+}
+
+# Function to run playwright directly on Linux
+run_playwright_directly() {
+    print_status "$GREEN" "🚀 Running Playwright directly on Linux..."
+
+    # Build the project using turbo
+    run_command "Building project with turbo" \
+        "pnpm turbo --filter @scalar/api-reference... build"
+
+    # Run playwright directly
+    print_status "$YELLOW" " Running Playwright with args: $PLAYWRIGHT_ARGS"
+    pnpm playwright $PLAYWRIGHT_ARGS
+
+    print_status "$GREEN" "✅ Playwright execution completed successfully!"
+}
+
+# Function to run playwright in Docker
+run_playwright_in_docker() {
+    print_status "$GREEN" "🚀 Running Playwright in Docker..."
 
     # Build the project using turbo
     run_command "Building project with turbo" \
@@ -63,6 +83,15 @@ main() {
         bash -c "pnpm playwright $PLAYWRIGHT_ARGS"
 
     print_status "$GREEN" "✅ Playwright execution completed successfully!"
+}
+
+# Main execution
+main() {
+    if is_linux; then
+        run_playwright_directly
+    else
+        run_playwright_in_docker
+    fi
 }
 
 # Run the main function
