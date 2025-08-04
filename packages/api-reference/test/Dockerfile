@@ -19,7 +19,7 @@ COPY integrations/nextjs /app/integrations/nextjs
 WORKDIR /app/packages/api-reference
 
 # Install the dependencies
-RUN pnpm install
+RUN pnpm install --frozen-lockfile
 
 RUN cd /app/packages/build-tooling && pnpm build
 RUN cd /app/packages/openapi-types && pnpm build
