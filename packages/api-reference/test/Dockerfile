@@ -1,8 +1,6 @@
 FROM mcr.microsoft.com/playwright:v1.49.1-noble
 
-# Install and enable pnpm
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
+# Install pnpm
 RUN npm install -g pnpm
 
 # Copy the necessary files for the build
