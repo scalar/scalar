@@ -1,5 +1,5 @@
-import { build } from '@scalar/build-tooling/esbuild'
 import fs from 'node:fs/promises'
+import { build } from '@scalar/build-tooling/esbuild'
 
 async function convertSchema(version: string) {
   const js = await fs.readFile(`src/schemas/v${version}/schema.json`, 'utf-8')
@@ -11,7 +11,7 @@ await convertSchema('2.0')
 await convertSchema('3.0')
 await convertSchema('3.1')
 
-const entries = ['./src/index.ts']
+const entries = ['./src/index.ts', './src/plugins/fetch-urls/index.ts', './src/plugins/read-files/index.ts']
 
 build({
   entries,
