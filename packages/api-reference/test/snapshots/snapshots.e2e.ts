@@ -102,7 +102,7 @@ test.describe('snapshots', () => {
 
       // Wait for everything to render
       // TODO: Can we use a hook/event here?
-      await page.waitForTimeout(250)
+      await page.waitForTimeout(1000)
 
       await expect(page).toHaveScreenshot(`${source.slug}-snapshot.png`, {
         fullPage: true,

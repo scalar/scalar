@@ -46,10 +46,6 @@ is_linux() {
 run_playwright_directly() {
     print_status "$GREEN" "🚀 Running Playwright directly on Linux..."
 
-    # Build the project using turbo
-    run_command "Building project with turbo" \
-        "pnpm turbo --filter @scalar/api-reference... build"
-
     # Run playwright directly
     print_status "$YELLOW" " Running Playwright with args: $PLAYWRIGHT_ARGS"
     pnpm playwright $PLAYWRIGHT_ARGS
@@ -60,10 +56,6 @@ run_playwright_directly() {
 # Function to run playwright in Docker
 run_playwright_in_docker() {
     print_status "$GREEN" "🚀 Running Playwright in Docker..."
-
-    # Build the project using turbo
-    run_command "Building project with turbo" \
-        "pnpm turbo --filter @scalar/api-reference... build"
 
     # Build Docker image
     run_command "Building Docker image" \
