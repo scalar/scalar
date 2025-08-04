@@ -5,9 +5,6 @@ ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN npm install -g pnpm
 
-# Install the necessary libraries for Playwright
-#RUN apt-get update && apt-get -y install libnss3 libatk-bridge2.0-0 libdrm-dev libxkbcommon-dev libgbm-dev libasound-dev libatspi2.0-0 libxshmfence-dev
-
 # Copy the necessary files for the build
 COPY turbo.json /app/turbo.json
 COPY tsconfig.json /app/tsconfig.json
