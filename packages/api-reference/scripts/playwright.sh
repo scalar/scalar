@@ -73,11 +73,8 @@ run_playwright_in_docker() {
     print_status "$YELLOW" " Running Playwright with args: $PLAYWRIGHT_ARGS"
 
     docker run \
-        # JS build
         -v "$CURRENT_DIR/dist:/app/packages/api-reference/dist" \
-        # Snapshots
         -v "$CURRENT_DIR/test/snapshots:/app/packages/api-reference/test/snapshots" \
-        # Test results
         -v "$CURRENT_DIR/test-results:/app/packages/api-reference/test-results" \
         "$DOCKER_IMAGE_NAME" \
         bash -c "pnpm playwright $PLAYWRIGHT_ARGS"
