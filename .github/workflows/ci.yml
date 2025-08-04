@@ -324,6 +324,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           packages: './packages/**'
+      - name: Build scalar-app
+        uses: ./.github/actions/build-blacksmith
+        with:
+          node-version: ${{ matrix.node-version }}
+          packages: './projects/scalar-app'
       - name: Get Playwright version
         id: playwright-version
         run: echo "PLAYWRIGHT_VERSION=$(npx playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
