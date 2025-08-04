@@ -494,7 +494,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       const showModels = input.config?.['x-scalar-reference-config']?.features?.showModels
 
       document[extensions.document.navigation] = createNavigation(document, {
-        ...(input.config ?? {}),
+        ...(input.config?.['x-scalar-reference-config'] ?? {}),
         hideModels: showModels === undefined ? undefined : !showModels,
       }).entries
 
