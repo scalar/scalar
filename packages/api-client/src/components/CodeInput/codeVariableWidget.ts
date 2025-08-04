@@ -1,6 +1,7 @@
 import { parseEnvVariables } from '@/libs'
 import { type EnvVariables, getEnvColor } from '@/libs/env-helpers'
-import { ScalarIcon, ScalarTooltip } from '@scalar/components'
+import { ScalarTooltip } from '@scalar/components'
+import { ScalarIconGlobe } from '@scalar/icons'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { REGEX } from '@scalar/oas-utils/helpers'
@@ -87,7 +88,7 @@ class PillWidget extends WidgetType {
           },
           [
             (isGlobal || (this.environment?.name === 'No Environment' && val?.value)) &&
-              h(ScalarIcon, { class: 'size-2.5 -ml-1', icon: 'Globe' }),
+              h(ScalarIconGlobe, { class: 'size-3 -ml-1', icon: 'Globe' }),
             h('span', this.variableName),
           ],
         )
