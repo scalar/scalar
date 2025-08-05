@@ -1,4 +1,4 @@
-package com.scalar.webjar;
+package com.scalar.maven.webjar;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

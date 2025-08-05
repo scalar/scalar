@@ -4,7 +4,7 @@
                              http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.scalar</groupId>
+  <groupId>com.scalar.maven</groupId>
   <artifactId>scalar-webjar-test</artifactId>
   <version>0.1.0</version>
   <packaging>jar</packaging>
@@ -34,7 +34,7 @@
   <dependencies>
     <!-- Local WebJar -->
     <dependency>
-      <groupId>com.scalar</groupId>
+      <groupId>com.scalar.maven</groupId>
       <artifactId>scalar</artifactId>
       <version>0.1.0</version>
     </dependency>
@@ -62,7 +62,7 @@
         <artifactId>spring-boot-maven-plugin</artifactId>
         <version>${spring-boot.version}</version>
         <configuration>
-          <mainClass>com.scalar.webjar.ScalarWebjarTestApplication</mainClass>
+          <mainClass>com.scalar.maven.webjar.ScalarWebjarTestApplication</mainClass>
         </configuration>
       </plugin>
     </plugins>

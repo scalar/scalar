@@ -12,7 +12,7 @@ The Scalar WebJar provides automatic integration with Spring Boot applications. 
 
 ```xml
 <dependency>
-    <groupId>com.scalar</groupId>
+    <groupId>com.scalar.maven</groupId>
     <artifactId>scalar</artifactId>
     <version>0.1.0</version>
 </dependency>

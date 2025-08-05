@@ -1,4 +1,4 @@
-package com.scalar.webjar;
+package com.scalar.maven.webjar;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

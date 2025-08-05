@@ -4,7 +4,7 @@
          http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.scalar</groupId>
+  <groupId>com.scalar.maven</groupId>
   <artifactId>scalar</artifactId>
   <version>0.1.0</version>
   <packaging>jar</packaging>
