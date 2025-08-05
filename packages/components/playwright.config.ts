@@ -6,6 +6,13 @@ export default defineConfig({
 
   snapshotPathTemplate: '{testFileDir}/snapshots/{arg}{ext}',
 
+  expect: {
+    toHaveScreenshot: {
+      stylePath: './.storybook/snapshot.css',
+      maxDiffPixelRatio: 0.03,
+    },
+  },
+
   webServer: {
     command: 'pnpm preview',
     url: 'http://localhost:5101',

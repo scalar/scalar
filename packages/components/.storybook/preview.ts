@@ -5,8 +5,8 @@ import type { Preview } from '@storybook/vue3'
 import '../src/style.css'
 import './preview.css'
 
-document.documentElement.classList.add('scalar-app')
-document.documentElement.classList.add('light-mode')
+document.body.classList.add('scalar-app')
+document.body.classList.add('light-mode')
 
 const preview: Preview = {
   parameters: {
@@ -21,7 +21,7 @@ const preview: Preview = {
       },
     },
     darkMode: {
-      classTarget: 'html',
+      classTarget: 'body',
       stylePreview: true,
       darkClass: 'dark-mode',
       lightClass: 'light-mode',
