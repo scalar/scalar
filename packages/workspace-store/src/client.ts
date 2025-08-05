@@ -4,7 +4,7 @@ import { upgrade } from '@scalar/openapi-parser'
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 
 import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
-import { deepClone, isObject, safeAssign } from '@/helpers/general'
+import { deepClone, isObject, safeAssign, type UnknownObject } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
 import { createNavigation } from '@/navigation'
@@ -467,6 +467,26 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     return excludedDiffs
   }
 
+  /**
+   * Hook function to be called after processing a node during document bundling.
+   * If the node contains an 'externalValue' property (as a string), this function
+   * fetches the external value (e.g., from a URL or file) and assigns the result to the node's 'value' property.
+   * This is used to resolve and embed external content referenced in the OpenAPI document.
+   *
+   * @param node - The node being processed, potentially containing an 'externalValue' property.
+   */
+  async function onAfterNodeProcess(node: UnknownObject) {
+    if (typeof node['externalValue'] !== 'string') {
+      return
+    }
+
+    const result = await fetchUrls().exec(node['externalValue'])
+
+    if (result.ok) {
+      node['value'] = result.data
+    }
+  }
+
   // Add a document to the store synchronously from an in-memory OpenAPI document
   async function addInMemoryDocument(input: ObjectDoc) {
     const { name, meta } = input
@@ -500,7 +520,13 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       // If the document navigation is not already present, bundle the entire document to resolve all references.
       // This typically applies when the document is not preprocessed by the server and needs local reference resolution.
-      await bundle(document, { treeShake: false, plugins: [fetchUrls()] })
+      await bundle(document, {
+        treeShake: false,
+        plugins: [fetchUrls()],
+        hooks: {
+          onAfterNodeProcess,
+        },
+      })
     }
 
     // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map
@@ -613,6 +639,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           onResolveError: (node) => {
             node['$status'] = 'error'
           },
+          onAfterNodeProcess,
         },
         visitedNodes: visitedNodesCache,
       })

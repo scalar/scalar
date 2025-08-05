@@ -702,6 +702,145 @@ describe('create-workspace-store', () => {
     })
   })
 
+  it('correctly resolves any `externalValue` on the example object', async () => {
+    server.get('/', () => ({ someExample: { someKey: 'someValue' } }))
+    await server.listen({ port })
+
+    const store = createWorkspaceStore()
+
+    await store.addDocument({
+      name: 'default',
+      document: {
+        ...getDocument(),
+        paths: {
+          '/users': {
+            get: {
+              summary: 'Get all users',
+              responses: {
+                '200': {
+                  description: 'Successful response',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'array',
+                        items: {
+                          $ref: '#/components/schemas/User',
+                        },
+                      },
+                      examples: {
+                        externalValue: `http://localhost:${port}`,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(store.workspace.documents['default']).toEqual({
+      components: {
+        schemas: {
+          User: {
+            properties: {
+              email: {
+                description: 'The user email',
+                'format': 'email',
+                'type': 'string',
+              },
+              id: {
+                description: 'The user ID',
+                type: 'string',
+              },
+              name: {
+                description: 'The user name',
+                type: 'string',
+              },
+            },
+            type: 'object',
+          },
+        },
+      },
+      info: {
+        title: 'My API',
+        version: '1.0.0',
+      },
+      openapi: '3.1.1',
+      paths: {
+        '/users': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/json': {
+                    examples: {
+                      externalValue: 'http://localhost:9988',
+                      value: {
+                        someExample: {
+                          someKey: 'someValue',
+                        },
+                      },
+                    },
+                    schema: {
+                      items: {
+                        properties: {
+                          email: {
+                            description: 'The user email',
+                            format: 'email',
+                            type: 'string',
+                          },
+                          id: {
+                            description: 'The user ID',
+                            type: 'string',
+                          },
+                          name: {
+                            description: 'The user name',
+                            type: 'string',
+                          },
+                        },
+                        type: 'object',
+                        'x-original-ref': '#/components/schemas/User',
+                      },
+                      type: 'array',
+                    },
+                  },
+                },
+                description: 'Successful response',
+              },
+            },
+            summary: 'Get all users',
+          },
+        },
+      },
+      'x-scalar-navigation': [
+        {
+          id: 'Get all users',
+          method: 'get',
+          path: '/users',
+          ref: '#/paths/~1users/get',
+          title: 'Get all users',
+          type: 'operation',
+        },
+        {
+          children: [
+            {
+              id: 'User',
+              name: 'User',
+              ref: '#/content/components/schemas/User',
+              title: 'User',
+              type: 'model',
+            },
+          ],
+          id: '',
+          title: 'Models',
+          type: 'text',
+        },
+      ],
+    })
+  })
+
   describe('download original document', () => {
     it('gets the original document from the store json', async () => {
       const store = createWorkspaceStore()

@@ -753,9 +753,9 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       )
     }
 
-    // Recursively process all child objects to handle nested references
-    // This ensures we catch and resolve any $refs that exist deeper in the object tree
-    // We skip EXTERNAL_KEY to avoid processing already bundled content
+    // Recursively traverse all child properties of the current object to resolve nested $ref references.
+    // This step ensures that any $refs located deeper within the object hierarchy are discovered and processed.
+    // We explicitly skip the extension keys (x-ext and x-ext-urls) to avoid reprocessing already bundled or mapped content.
     await Promise.all(
       Object.entries(root).map(async ([key, value]) => {
         if (key === extensions.externalDocuments || key === extensions.externalDocumentsMappings) {
