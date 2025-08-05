@@ -489,7 +489,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // Store the overrides for this document, or an empty object if none are provided
     overrides[name] = input.overrides ?? {}
 
-    // Skip navigation generation if the document already has a server-side generated navigation structure
+    // Do some more processing on the document if the document is not preprocessed
     if (document[extensions.document.navigation] === undefined) {
       const showModels = input.config?.['x-scalar-reference-config']?.features?.showModels
 
@@ -504,7 +504,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     }
 
     // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map
-    workspace.documents[name] = createOverridesProxy(createMagicProxy({ ...document, ...meta }), input.overrides)
+    // Make sure that the document still comply with the schema even if the document is bundled
+    workspace.documents[name] = createOverridesProxy(
+      createMagicProxy({ ...coerceValue(OpenAPIDocumentSchema, document), ...meta }),
+      input.overrides,
+    )
   }
 
   // Asynchronously adds a new document to the workspace by loading and validating the input.
@@ -616,6 +620,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         },
         visitedNodes: visitedNodesCache,
       })
+
+      // Validate that the new bundled output still comply with the openapi schema
     },
     addDocument,
     get config() {
