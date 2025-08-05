@@ -48,4 +48,4 @@ get the container id
 
 copy the snapshots to your local filesystem, ensure you are in the packages/playwright folder
 
-`docker cp <CONTAINER_ID>:/app/playwright/tests/ ./`
+`docker cp <CONTAINER_ID>:/app/playwright/test/ ./`

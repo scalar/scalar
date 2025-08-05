@@ -462,7 +462,7 @@ You write tests that are clear, maintainable, and thorough. You optimize for rea
 ## Playwright Tests
 
 * Use Playwright for limited end-to-end testing.
-* Playwright tests live in /playwright/tests/.
+* Playwright tests live in /playwright/test/.
 * Files end with .spec.ts.
 * Example file: @local.spec.ts.
 * Be selective. We intentionally limit the number of Playwright tests to avoid maintenance overhead.

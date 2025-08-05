@@ -6,7 +6,7 @@ on:
     - cron: '0 * * * *'
   pull_request:
     paths:
-      - 'playwright/tests/**'
+      - 'playwright/test/**'
       - 'examples/cdn-api-reference/**'
       - '.github/workflows/test-cdn-jsdelivr.yml'
 
@@ -23,8 +23,8 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@09d2acae674a48949e3602304ab46fd20ae0c42f
-      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4
       - name: Build packages
         uses: ./.github/actions/build
         with:
@@ -40,7 +40,7 @@ jobs:
       - name: Run E2E tests (jsdelivr)
         run: |
           CI=1 pnpm test:e2e:jsdelivr
-      - uses: actions/upload-artifact@de65e23aa2b7e23d713bb51fbfcb6d502f8667d8
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         id: artifact-upload
         if: ${{ failure() }}
         with:
@@ -52,7 +52,7 @@ jobs:
         run: pnpm vite-node scripts/update-snapshots.ts
       - name: Create Pull Request
         if: ${{ failure() && github.event_name != 'pull_request' }}
-        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7
         with:
           commit-message: 'test: update CDN API Reference snapshots'
           body: |
@@ -65,7 +65,7 @@ jobs:
           delete-branch: true
           reviewers: amritk, antlio, cameronrohani, geoffgscott, hanspagel, marclave
       - name: Comment on PR with report link
-        uses: thollander/actions-comment-pull-request@fabd468d3a1a0b97feee5f6b9e499eab0dd903f6
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
         if: ${{ failure() && github.event_name == 'pull_request'}}
         with:
           message: |
