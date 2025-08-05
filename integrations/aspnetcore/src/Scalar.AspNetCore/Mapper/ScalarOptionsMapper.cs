@@ -44,7 +44,7 @@ internal static class ScalarOptionsMapper
             DefaultOpenAllTags = options.DefaultOpenAllTags,
             ForceDarkModeState = options.ForceThemeMode,
             ShowSidebar = options.ShowSidebar,
-            SidebarUsePath = options.SidebarUsePath,
+            OperationTitleSource = options.OperationTitleSource,
             WithDefaultFonts = options.DefaultFonts,
             CustomCss = options.CustomCss,
             SearchHotKey = options.SearchHotKey,

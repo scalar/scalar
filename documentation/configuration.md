@@ -302,13 +302,13 @@ Whether the sidebar should be shown.
 }
 ```
 
-### sidebarUsePath?: boolean
+### operationTitleSource?: 'summary' | 'path'
 
-Whether the sidebar display text should use the method path instead of the method summary.
+Whether the sidebar display text and search should use the operation summary or the operation path.
 
 ```js
 {
-  sidebarUsePath: true
+  operationTitleSource: 'path'
 }
 ```
 

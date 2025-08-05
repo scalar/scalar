@@ -23,6 +23,9 @@ const themeIdEnum = z.enum([
   'none',
 ])
 
+/** Whether to use the operation summary or the operation path for the sidebar and search */
+const operationTitleEnum = z.enum(['summary', 'path'])
+
 /** Valid keys that can be used with CTRL/CMD to open the search modal */
 const searchHotKeyEnum = z.enum([
   'a',
@@ -208,10 +211,10 @@ export const apiClientConfigurationSchema = z.object({
    */
   showSidebar: z.boolean().optional().default(true).catch(true),
   /**
-   * Whether to show the path instead of summary for the sidebar links display text
-   * @default false
+   * Whether to use the operation summary or the operation path for the sidebar and search
+   * @default 'summary'
    */
-  sidebarUsePath: z.boolean().optional().default(false).catch(false),
+  operationTitleSource: operationTitleEnum.optional().default('summary').catch('summary'),
   /** A string to use one of the color presets */
   theme: themeIdEnum.optional().default('default').catch('default'),
   /** Integration type identifier */

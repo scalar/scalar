@@ -136,7 +136,7 @@ const onAnchorClick = async (ev: Event) => {
         @click="onAnchorClick">
         <p class="sidebar-heading-link-title">
           <span
-            v-if="config.sidebarUsePath"
+            v-if="config.operationTitleSource === 'path'"
             class="hanging-indent">
             {{ getPathOrTitle(item) }}
           </span>
