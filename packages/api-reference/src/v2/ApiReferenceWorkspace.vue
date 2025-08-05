@@ -179,7 +179,8 @@ const addOrUpdateDocument = async (
 /** Watch for URL changes */
 watch(
   () => selectedConfiguration.value.url,
-  (newUrl) => newUrl && addOrUpdateDocument(selectedConfiguration.value),
+  (newUrl) =>
+    newUrl && addOrUpdateDocument(deepClone(selectedConfiguration.value)),
   { immediate: true },
 )
 
@@ -187,7 +188,7 @@ watch(
 watch(
   () => selectedConfiguration.value.content,
   (newContent) =>
-    newContent && addOrUpdateDocument(selectedConfiguration.value),
+    newContent && addOrUpdateDocument(deepClone(selectedConfiguration.value)),
   { immediate: true, deep: true },
 )
 
