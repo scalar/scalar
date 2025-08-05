@@ -1,6 +1,7 @@
 import { parseEnvVariables } from '@/libs'
 import { type EnvVariables, getEnvColor } from '@/libs/env-helpers'
-import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
+import { ScalarTooltip } from '@scalar/components'
+import { ScalarIconGlobe } from '@scalar/icons'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { REGEX } from '@scalar/oas-utils/helpers'
@@ -57,70 +58,37 @@ class PillWidget extends WidgetType {
 
         // Set the pill color based on the environment source or fallback to default color
         const isGlobal = val?.source === 'global'
-        const pillColor = isGlobal ? '#FFFFFF' : val && this.environment ? getEnvColor(this.environment) : '#FFFFFF'
+        const pillColor = isGlobal
+          ? 'var(--scalar-color-1)'
+          : val && this.environment && this.environment.name !== 'No Environment'
+            ? getEnvColor(this.environment)
+            : 'var(--scalar-color-1)'
 
         span.style.setProperty('--tw-bg-base', pillColor)
 
         // Set opacity based on the existence of a value
         span.style.opacity = val?.value ? '1' : '0.5'
 
+        // Tooltip content as string
+        const tooltipContent = val?.value || 'No value'
+
         // Tooltip trigger element
         const tooltipTrigger = h('div', { class: 'flex items-center gap-1 whitespace-nowrap' }, [
           (isGlobal || (this.environment?.name === 'No Environment' && val?.value)) &&
-            h(ScalarIcon, { class: 'size-2.5 -ml-1', icon: 'Globe' }),
+            h(ScalarIconGlobe, { class: 'size-3 -ml-1', icon: 'Globe' }),
           h('span', this.variableName),
         ])
-
-        const tooltipContent = val?.value
-          ? h('div', { class: 'p-2' }, val.value)
-          : h('div', { class: 'divide-y divide-1/2 grid' }, [
-              h('span', { class: 'p-2 opacity-25' }, 'No value'),
-              !this.isReadOnly &&
-                h('div', { class: 'p-1' }, [
-                  h(
-                    ScalarButton,
-                    {
-                      class:
-                        'gap-1.5 justify-start font-normal px-1 py-1.5 h-auto transition-colors rounded no-underline text-xxs w-full hover:bg-b-2',
-                      variant: 'ghost',
-                      onClick: () => {
-                        // TODO: Use named route instead
-                        window.location.href = `/workspace/${this.workspace?.uid}/environment`
-                      },
-                    },
-                    {
-                      default: () => [
-                        h(ScalarIcon, {
-                          class: 'w-2',
-                          icon: 'Add',
-                          size: 'xs',
-                        }),
-                        'Add variable',
-                      ],
-                    },
-                  ),
-                ]),
-            ])
 
         return h(
           ScalarTooltip,
           {
-            align: 'center',
-            class: 'w-full',
+            content: tooltipContent,
             delay: 0,
-            side: 'bottom',
-            sideOffset: 6,
+            placement: 'bottom',
+            offset: 6,
           },
           {
-            trigger: () => tooltipTrigger,
-            content: () =>
-              h(
-                'div',
-                {
-                  class: ['border w-content rounded bg-b-1 brightness-lifted text-xxs leading-5 text-c-1'],
-                },
-                tooltipContent,
-              ),
+            default: () => tooltipTrigger,
           },
         )
       },
