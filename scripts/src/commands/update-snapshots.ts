@@ -1,8 +1,8 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
-import { Command } from 'commander'
 import { getWorkspaceRoot } from '@/helpers'
+import { Command } from 'commander'
 
 export const updateTestSnapshots = new Command('update-snapshots')
   .description('Update the snapshot files')
@@ -47,7 +47,7 @@ async function updateSnapshots() {
     // and rename the file with the browser name and platform (linux or macos)
     await fs.copyFile(
       path.join(testResultsFolder, report, actualSnapshot),
-      path.join(root, 'playwright/tests/jsdelivr.spec.ts-snapshots/', `jsdelivr-snapshot-${browserName}-linux.png`),
+      path.join(root, 'playwright/test/jsdelivr.spec.ts-snapshots/', `jsdelivr-snapshot-${browserName}-linux.png`),
     )
   }
 }
