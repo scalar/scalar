@@ -503,8 +503,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       await bundle(document, { treeShake: false, plugins: [fetchUrls()] })
     }
 
-    // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map
-    // Make sure that the document still comply with the schema even if the document is bundled
+    // Store the document in the workspace after wrapping it with a magic proxy and applying any overrides.
+    // The document is coerced to ensure it conforms to the OpenAPI schema, even after bundling or preprocessing.
     workspace.documents[name] = createOverridesProxy(
       createMagicProxy({ ...coerceValue(OpenAPIDocumentSchema, document), ...meta }),
       input.overrides,
@@ -620,8 +620,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         },
         visitedNodes: visitedNodesCache,
       })
-
-      // Validate that the new bundled output still comply with the openapi schema
     },
     addDocument,
     get config() {
