@@ -160,7 +160,7 @@ describe('ApiReference', () => {
     })
   })
 
-  describe('circular dependencies', () => {
+  describe('circular documents', () => {
     it('handles circular references in schemas gracefully', async () => {
       const wrapper = mount(ApiReference, {
         props: {
