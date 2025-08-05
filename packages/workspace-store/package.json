@@ -83,7 +83,8 @@
     "@sinclair/typebox": "catalog:*",
     "github-slugger": "^2.0.0",
     "vue": "catalog:*",
-    "yaml": "catalog:*"
+    "yaml": "catalog:*",
+    "type-fest": "catalog:*"
   },
   "devDependencies": {
     "@google-cloud/storage": "catalog:*",
