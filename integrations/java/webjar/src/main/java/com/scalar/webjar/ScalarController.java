@@ -39,4 +39,4 @@ public class ScalarController {
                 .contentType(MediaType.TEXT_HTML)
                 .body(injectedHtml);
     }
-} 
+}
