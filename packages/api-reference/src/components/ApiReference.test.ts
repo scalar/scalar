@@ -1,9 +1,21 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import ApiReference from '@/components/ApiReference.vue'
+import { disableConsoleError, enableConsoleError, enableConsoleWarn } from '@scalar/helpers/testing/console-spies'
 import { flushPromises, mount } from '@vue/test-utils'
 
 describe('ApiReference', () => {
+  beforeEach(() => {
+    enableConsoleWarn()
+    enableConsoleError()
+
+    // Mock window.scrollTo
+    Object.defineProperty(window, 'scrollTo', {
+      value: vi.fn(),
+      writable: true,
+    })
+  })
+
   describe('multiple configurations', () => {
     it('renders a single API reference', async () => {
       const wrapper = mount(ApiReference, {
@@ -148,8 +160,80 @@ describe('ApiReference', () => {
     })
   })
 
+  describe('circular dependencies', () => {
+    it('handles circular references in schemas gracefully', async () => {
+      const wrapper = mount(ApiReference, {
+        props: {
+          configuration: {
+            content: {
+              openapi: '3.0.1',
+              info: {
+                title: 'API with Circular Dependencies',
+                version: '1.0.0',
+              },
+              components: {
+                schemas: {
+                  Base: {
+                    required: ['Type'],
+                    type: 'object',
+                    anyOf: [{ $ref: '#/components/schemas/Derived1' }, { $ref: '#/components/schemas/Derived2' }],
+                    discriminator: {
+                      propertyName: 'Type',
+                      mapping: {
+                        'Value1': '#/components/schemas/Derived1',
+                        'Value2': '#/components/schemas/Derived2',
+                      },
+                    },
+                  },
+                  Derived1: {
+                    properties: {
+                      Type: {
+                        enum: ['Value1'],
+                        type: 'string',
+                      },
+                    },
+                  },
+                  Derived2: {
+                    required: ['Ref'],
+                    properties: {
+                      Type: {
+                        enum: ['Value2'],
+                        type: 'string',
+                      },
+                      Ref: {
+                        $ref: '#/components/schemas/Base',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+
+      // Wait for the API reference to be rendered
+      await flushPromises()
+
+      // Check whether it renders the ApiReferenceWorkspace component
+      expect(wrapper.findAllComponents({ name: 'ApiReferenceWorkspace' })).toHaveLength(1)
+
+      // Verify the component doesn't crash or throw errors when processing circular references
+      expect(wrapper.exists()).toBe(true)
+
+      // Check that the component is still functional despite circular dependencies
+      const apiReferenceWorkspace = wrapper.findComponent({ name: 'ApiReferenceWorkspace' })
+      expect(apiReferenceWorkspace.exists()).toBe(true)
+
+      wrapper.unmount()
+    })
+  })
+
   describe('multiple sources', () => {
     it('renders two URLs', async () => {
+      // Disable check as these documents do not exist
+      disableConsoleError()
+
       const wrapper = mount(ApiReference, {
         props: {
           configuration: {
@@ -172,6 +256,7 @@ describe('ApiReference', () => {
 
       // Check whether it renders the select
       const documentSelector = wrapper.findComponent({ name: 'DocumentSelector' })
+      await documentSelector.find('button').trigger('click')
       expect(documentSelector.html()).not.toBe('<!--v-if-->')
 
       // Check whether it renders the names
