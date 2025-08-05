@@ -275,6 +275,110 @@ describe('Operation', () => {
     expect(parameters[0].$ref).toBeUndefined()
   })
 
+  it('overrides path parameters with operation parameters of the same name', () => {
+    const documentWithOverridingParams = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/users/{userId}': {
+          parameters: [
+            {
+              in: 'path',
+              name: 'userId',
+              schema: {
+                type: 'string',
+              },
+              required: true,
+              deprecated: false,
+              description: 'Path parameter description',
+            },
+            {
+              in: 'query',
+              name: 'include',
+              schema: {
+                type: 'string',
+              },
+              required: false,
+              deprecated: false,
+              description: 'Path query parameter',
+            },
+          ],
+          get: {
+            summary: 'Get user by ID',
+            parameters: [
+              {
+                in: 'path',
+                name: 'userId',
+                schema: {
+                  type: 'string',
+                },
+                required: false,
+                deprecated: true,
+                description: 'Operation parameter description - should override',
+              },
+              {
+                in: 'query',
+                name: 'include',
+                schema: {
+                  type: 'array',
+                  items: {
+                    type: 'string',
+                  },
+                },
+                required: true,
+                deprecated: false,
+                description: 'Operation query parameter - should override',
+              },
+            ],
+          },
+        },
+      },
+      components: {
+        schemas: {},
+      },
+    }
+
+    const storeWithOverridingParams = createMockStore(documentWithOverridingParams as WorkspaceDocument)
+
+    const wrapper = mount(Operation, {
+      props: {
+        id: 'test-operation',
+        path: '/users/{userId}',
+        method: 'get',
+        clientOptions: [],
+        isWebhook: false,
+        layout: 'modern',
+        server: undefined,
+        store: storeWithOverridingParams,
+        collection: mockCollection,
+        document: documentWithOverridingParams as OpenAPIV3_1.Document,
+      },
+    })
+
+    const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
+    const parameters = modernLayout.props('parameters')
+
+    // Should have 2 parameters (path and query)
+    expect(parameters).toHaveLength(2)
+
+    // Check that the path parameter is overridden by operation parameter
+    const pathParameter = parameters.find((p: any) => p.in === 'path' && p.name === 'userId')
+    expect(pathParameter).toBeDefined()
+    expect(pathParameter.required).toBe(false) // Overridden from true
+    expect(pathParameter.deprecated).toBe(true) // Overridden from false
+    expect(pathParameter.description).toBe('Operation parameter description - should override')
+
+    // Check that the query parameter is overridden by operation parameter
+    const queryParameter = parameters.find((p: any) => p.in === 'query' && p.name === 'include')
+    expect(queryParameter).toBeDefined()
+    expect(queryParameter.required).toBe(true) // Overridden from false
+    expect(queryParameter.schema.type).toBe('array') // Overridden from string
+    expect(queryParameter.description).toBe('Operation query parameter - should override')
+  })
+
   it('renders classic layout when specified', () => {
     const wrapper = mount(Operation, {
       props: {

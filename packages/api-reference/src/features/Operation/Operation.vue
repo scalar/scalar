@@ -92,14 +92,29 @@ const selectedSecuritySchemes = computed(() =>
   ).map(convertSecurityScheme),
 )
 
-/** Dereference path parameters and combine with operation parameters */
+/**
+ * Dereference path parameters and combine with operation parameters
+ *
+ * Ensure that operation parameters take prescedence and there are no duplicates
+ */
 const parameters = computed(() => {
   const pathParams = pathItem.value?.parameters ?? []
   const operationParams = operation.value?.parameters ?? []
 
-  return [...pathParams, ...operationParams].filter(
+  const allParams = [...pathParams, ...operationParams].filter(
     isResolvedRef<ParameterObject>,
   )
+
+  // Use a Map to ensure unique in+name combinations
+  // Operation parameters take precedence over path parameters
+  const uniqueParams = new Map<string, ParameterObject>()
+
+  for (const param of allParams) {
+    const key = `${param.in}:${param.name}`
+    uniqueParams.set(key, param)
+  }
+
+  return Array.from(uniqueParams.values())
 })
 </script>
 
