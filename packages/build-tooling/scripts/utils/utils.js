@@ -5,7 +5,7 @@ import { execSync } from 'node:child_process'
  * @param command The command to execute
  * @param errorMessage Optional custom error message
  */
-export const executeCommand = (command: string, errorMessage?: string): void => {
+export const executeCommand = (/** @type {string} */ command, /** @type {string} */ errorMessage) => {
   try {
     execSync(command, { stdio: 'inherit', env: { ...process.env, NODE_ENV: 'production' } })
   } catch (error) {
@@ -19,7 +19,7 @@ export const executeCommand = (command: string, errorMessage?: string): void => 
  * @param commands Array of commands to execute
  * @param taskName Name of the task for error reporting
  */
-export const executeCommands = (commands: string[], taskName: string): void => {
+export const executeCommands = (/** @type {string[]} */ commands, /** @type {string} */ taskName) => {
   try {
     for (const command of commands) {
       execSync(command, { stdio: 'inherit', env: { ...process.env, NODE_ENV: 'production' } })
