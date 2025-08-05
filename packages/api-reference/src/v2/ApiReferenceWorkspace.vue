@@ -122,6 +122,7 @@ onBeforeMount(() => {
 const addOrUpdateDocument = async (
   config: Partial<ApiReferenceConfigurationWithSources>,
 ) => {
+  console.trace('add or update', config)
   const document = normalizeContent(config.content)
 
   /** Generate a name from the document/config */
@@ -280,28 +281,6 @@ useFavicon(favicon)
       v-if="selectedConfiguration?.customCss">
       {{ selectedConfiguration.customCss }}
     </component>
-    <ApiReferenceLayout
-      :configuration="selectedConfiguration"
-      :isDark="!!store.workspace['x-scalar-dark-mode']"
-      :store="store"
-      @toggleDarkMode="() => toggleColorMode()"
-      @updateContent="$emit('updateContent', $event)">
-      <template #footer>
-        <slot name="footer" />
-      </template>
-      <!-- Expose the content end slot as a slot for the footer -->
-      <template #content-end>
-        <slot name="footer" />
-      </template>
-      <template #document-selector>
-        <DocumentSelector
-          v-model="selectedDocumentIndex"
-          :options="availableDocuments" />
-      </template>
-      <template #sidebar-start>
-        <slot name="sidebar-start" />
-      </template>
-    </ApiReferenceLayout>
   </div>
 </template>
 
