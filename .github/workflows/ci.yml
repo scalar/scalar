@@ -284,7 +284,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@09d2acae674a48949e3602304ab46fd20ae0c42f
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - name: Build packages
         uses: ./.github/actions/build-blacksmith
         with:
@@ -306,6 +306,32 @@ jobs:
       - name: Run e2e tests (@scalar/api-reference)
         run: CI=1 pnpm test:e2e:api-reference
 
+  test-galaxy-scalar-com:
+    needs: [build]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    permissions:
+      contents: read
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        node-version: [22]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - name: Build packages
+        uses: ./.github/actions/build-blacksmith
+        with:
+          node-version: ${{ matrix.node-version }}
+          packages: './packages/**'
+      - name: Install Playwright browsers
+        run: npx playwright install
+      - name: Install Playwright dependencies
+        run: npx playwright install-deps
+      - name: Start @scalar/mock-server playground (galaxy.scalar.com)
+        run: pnpm --filter @scalar/mock-server dev:local &
+      - name: Run e2e tests (galaxy.scalar.com)
+        run: CI=1 pnpm test:e2e:galaxy-scalar-com
+
   test-e2e-scalar-app:
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -318,7 +344,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@09d2acae674a48949e3602304ab46fd20ae0c42f
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - name: Build packages
         uses: ./.github/actions/build-blacksmith
         with:
