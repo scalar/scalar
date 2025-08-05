@@ -177,6 +177,7 @@ const handleLabelClick = () => {
   overflow: hidden;
   padding: 0;
   text-overflow: ellipsis;
+  word-break: break-word;
 }
 .required::after {
   content: 'Required';
