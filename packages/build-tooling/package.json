@@ -16,14 +16,14 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "vite-node scripts/build-esbuild.ts",
+    "build": "node scripts/build-esbuild.js",
     "dev": "vite",
-    "format": "vite-node scripts/format.ts",
-    "lint:check": "vite-node scripts/lint-check.ts",
-    "lint:fix": "vite-node scripts/lint-fix.ts",
+    "format": "node scripts/format.js",
+    "lint:check": "node scripts/lint-check.js",
+    "lint:fix": "node scripts/lint-fix.js",
     "preview": "dotenv -o -- vite preview",
-    "types:build": "vite-node scripts/types-build.ts",
-    "types:check": "vite-node scripts/types-check.ts"
+    "types:build": "node scripts/types-build.js",
+    "types:check": "node scripts/types-check.js"
   },
   "type": "module",
   "exports": {
@@ -69,17 +69,17 @@
     }
   },
   "bin": {
-    "scalar-build-esbuild": "scripts/build-esbuild.ts",
-    "scalar-build-rollup": "scripts/build-rollup.ts",
-    "scalar-build-vite": "scripts/build-vite.ts",
-    "scalar-format-check": "scripts/format-check.ts",
-    "scalar-format": "scripts/format.ts",
-    "scalar-lint-check": "scripts/lint-check.ts",
-    "scalar-lint-fix": "scripts/lint-fix.ts",
-    "scalar-types-build-vue": "scripts/types-build-vue.ts",
-    "scalar-types-build": "scripts/types-build.ts",
-    "scalar-types-check-vue": "scripts/types-check-vue.ts",
-    "scalar-types-check": "scripts/types-check.ts"
+    "scalar-build-esbuild": "scripts/build-esbuild.js",
+    "scalar-build-rollup": "scripts/build-rollup.js",
+    "scalar-build-vite": "scripts/build-vite.js",
+    "scalar-format-check": "scripts/format-check.js",
+    "scalar-format": "scripts/format.js",
+    "scalar-lint-check": "scripts/lint-check.js",
+    "scalar-lint-fix": "scripts/lint-fix.js",
+    "scalar-types-build-vue": "scripts/types-build-vue.js",
+    "scalar-types-build": "scripts/types-build.js",
+    "scalar-types-check-vue": "scripts/types-check-vue.js",
+    "scalar-types-check": "scripts/types-check.js"
   },
   "dependencies": {
     "@rollup/plugin-alias": "^5.1.0",
