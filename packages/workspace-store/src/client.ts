@@ -470,8 +470,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   // Add a document to the store synchronously from an in-memory OpenAPI document
   async function addInMemoryDocument(input: ObjectDoc) {
     const { name, meta } = input
+    const inputDocument = deepClone(input.document)
 
-    const document = coerceValue(OpenAPIDocumentSchema, upgrade(input.document).specification)
+    const document = coerceValue(OpenAPIDocumentSchema, upgrade(inputDocument).specification)
 
     // Store the original document in the originalDocuments map
     // This is used to track the original state of the document as it was loaded into the workspace
@@ -577,13 +578,14 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     },
     replaceDocument(documentName: string, input: Record<string, unknown>) {
       const currentDocument = workspace.documents[documentName]
+      const inputDocument = deepClone(input)
 
       if (!currentDocument) {
         return console.error(`Document '${documentName}' does not exist in the workspace.`)
       }
 
       // Normalize the input document to ensure it matches the OpenAPI schema and is upgraded to the latest version.
-      const newDocument = coerceValue(OpenAPIDocumentSchema, upgrade(input).specification)
+      const newDocument = coerceValue(OpenAPIDocumentSchema, upgrade(inputDocument).specification)
       // Update the current document in place, applying only the necessary changes and omitting any preprocessing fields.
       applySelectiveUpdates(currentDocument, newDocument)
     },
