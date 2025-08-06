@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ScalarButton, ScalarIcon, ScalarTeleport } from '@scalar/components'
+import { ScalarButton, ScalarTeleport } from '@scalar/components'
+import { ScalarIconGlobe, ScalarIconPlus } from '@scalar/icons'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import { onClickOutside } from '@vueuse/core'
 import Fuse from 'fuse.js'
@@ -8,6 +9,8 @@ import { useRouter } from 'vue-router'
 
 import { parseEnvVariables } from '@/libs'
 import { getEnvColor, type EnvVariables } from '@/libs/env-helpers'
+import { PathId } from '@/routes'
+import { useActiveEntities } from '@/store'
 
 const props = defineProps<{
   query: string
@@ -25,20 +28,35 @@ const isOpen = ref(true)
 const dropdownRef = ref<HTMLElement | null>(null)
 const selectedVariableIndex = ref(0)
 const router = useRouter()
+const { activeCollection } = useActiveEntities()
 
 const redirectToEnvironment = () => {
   if (!router) {
     return
   }
   const { currentRoute, push } = router
-
   const workspaceId = currentRoute.value.params.workspace
-  push({
-    name: 'environment.default',
-    params: {
-      workspace: workspaceId,
-    },
-  })
+
+  // Global environment page for draft collection
+  if (
+    !activeCollection.value ||
+    activeCollection.value.info?.title === 'Drafts'
+  ) {
+    push({
+      name: 'environment.default',
+      params: {
+        [PathId.Workspace]: workspaceId,
+      },
+    })
+  } else {
+    // Collection environment page for collections
+    push({
+      name: 'collection.environment',
+      params: {
+        [PathId.Collection]: activeCollection.value.uid,
+      },
+    })
+  }
   isOpen.value = false
 }
 
@@ -139,14 +157,17 @@ onClickOutside(
             @click="selectVariable(item.key)">
             <div class="flex items-center gap-2 whitespace-nowrap">
               <span
-                v-if="item.source === 'collection'"
+                v-if="
+                  item.source === 'collection' &&
+                  environment.name !== 'No Environment'
+                "
                 class="h-2.25 w-2.25 min-w-2.25 rounded-full"
                 :style="{
                   backgroundColor: getEnvColor(environment),
                 }"></span>
-              <ScalarIcon
+              <ScalarIconGlobe
                 v-else
-                class="-ml-1/2 h-2.5 w-2.5"
+                class="-ml-0.25 size-2.5"
                 icon="Globe" />
               {{ item.key }}
             </div>
@@ -159,12 +180,10 @@ onClickOutside(
       </ul>
       <ScalarButton
         v-else-if="router"
-        class="font-code text-xxs hover:bg-b-2 flex h-8 w-full justify-start gap-2 px-1.5 transition-colors duration-150"
+        class="font-code text-xxs bg-b-inherit hover:bg-b-2 flex h-8 w-full justify-start gap-2 px-1.5 transition-colors duration-150"
         variant="outlined"
         @click="redirectToEnvironment">
-        <ScalarIcon
-          icon="Add"
-          size="sm" />
+        <ScalarIconPlus class="size-3" />
         Add Variable
       </ScalarButton>
       <!-- Backdrop for the dropdown -->

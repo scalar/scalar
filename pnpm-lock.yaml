@@ -2626,6 +2626,9 @@ importers:
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
+      type-fest:
+        specifier: catalog:*
+        version: 4.41.0
       vue:
         specifier: catalog:*
         version: 3.5.17(typescript@5.8.3)
@@ -2722,6 +2725,9 @@ importers:
       '@electron-toolkit/tsconfig':
         specifier: ^1.0.1
         version: 1.0.1(@types/node@22.15.3)
+      '@playwright/test':
+        specifier: ^1.49.1
+        version: 1.49.1
       '@rushstack/eslint-patch':
         specifier: ^1.10.3
         version: 1.10.3
@@ -20238,6 +20244,9 @@ packages:
   vue-component-type-helpers@3.0.4:
     resolution: {integrity: sha512-WtR3kPk8vqKYfCK/HGyT47lK/T3FaVyWxaCNuosaHYE8h9/k0lYRZ/PI/+T/z2wP+uuNKmL6z30rOcBboOu/YA==}
 
+  vue-component-type-helpers@3.0.5:
+    resolution: {integrity: sha512-uoNZaJ+a1/zppa/Vgmi8zIOP2PHXDN2rT8NyF+zQRK6ZG94lNB9prcV0GdLJbY9i9lrD47JOVIH92SaiA7oJ1A==}
+
   vue-demi@0.14.10:
     resolution: {integrity: sha512-nMZBOwuzabUO0nLgIcc6rycZEebF6eeUfaiQx9+WSk8e29IbLvPU9feI6tqW4kTo3hvoYAJkMh8n8D0fuISphg==}
     engines: {node: '>=12'}
@@ -28640,7 +28649,7 @@ snapshots:
       ts-dedent: 2.2.0
       type-fest: 2.19.0
       vue: 3.5.17(typescript@5.6.2)
-      vue-component-type-helpers: 3.0.4
+      vue-component-type-helpers: 3.0.5
     transitivePeerDependencies:
       - encoding
       - prettier
@@ -33879,7 +33888,7 @@ snapshots:
       enhanced-resolve: 5.18.1
       mlly: 1.7.4
       pathe: 1.1.2
-      ufo: 1.5.4
+      ufo: 1.6.1
 
   extract-zip@2.0.1:
     dependencies:
@@ -34519,7 +34528,7 @@ snapshots:
       citty: 0.1.6
       consola: 3.4.2
       defu: 6.1.4
-      node-fetch-native: 1.6.4
+      node-fetch-native: 1.6.6
       nypm: 0.3.12
       ohash: 1.1.4
       pathe: 1.1.2
@@ -43670,6 +43679,8 @@ snapshots:
   vue-component-type-helpers@2.2.10: {}
 
   vue-component-type-helpers@3.0.4: {}
+
+  vue-component-type-helpers@3.0.5: {}
 
   vue-demi@0.14.10(vue@3.5.17(typescript@5.6.2)):
     dependencies:

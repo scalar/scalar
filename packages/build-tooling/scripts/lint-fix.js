@@ -1,5 +1,5 @@
-#!/usr/bin/env vite-node
-import { executeCommand } from './utils/utils'
+#!/usr/bin/env node
+import { executeCommand } from './utils/utils.js'
 import { globSync } from 'glob'
 
 // Run Biome lint

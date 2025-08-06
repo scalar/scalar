@@ -2,9 +2,11 @@ import { statSync } from 'node:fs'
 import { join } from 'node:path'
 import { _electron, expect, test } from '@playwright/test'
 
-import { waitFor } from './utils/waitFor'
+import { waitFor } from './utils/wait-for'
 
-// Helper function to find the frontend build
+/**
+ * Helper function to find the frontend build
+ */
 const findFolder = () => {
   const possiblePaths = ['../../projects/scalar-app', '../projects/scalar-app', './projects/scalar-app']
 

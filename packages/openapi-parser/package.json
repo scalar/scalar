@@ -39,6 +39,16 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./plugins/fetch-urls": {
+      "import": "./dist/plugins/fetch-urls/index.js",
+      "types": "./dist/plugins/fetch-urls/index.d.ts",
+      "default": "./dist/plugins/fetch-urls/index.js"
+    },
+    "./plugins/read-files": {
+      "import": "./dist/plugins/read-files/index.js",
+      "types": "./dist/plugins/read-files/index.d.ts",
+      "default": "./dist/plugins/read-files/index.js"
     }
   },
   "files": [
