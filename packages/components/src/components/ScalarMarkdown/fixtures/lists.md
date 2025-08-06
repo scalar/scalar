@@ -72,3 +72,11 @@ Nested mixed lists
     * Item
   1. Three
   1. Four
+
+---
+
+Task list
+
+- [x] Write the press release
+- [ ] Update the website
+- [ ] Contact the media

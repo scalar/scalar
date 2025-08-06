@@ -27,3 +27,9 @@ _single underscores_
 Inline Code
 
 Use the `printf()` function.
+
+---
+
+Emoji
+
+:sparkles:

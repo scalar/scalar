@@ -28,7 +28,7 @@
     "test": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:report": "playwright show-report",
-    "test:e2e:snapshots": "playwright test --update-snapshots",
+    "test:e2e:update": "playwright test --update-snapshots",
     "test:e2e:ui": "playwright test --ui",
     "typegen:icons": "vite-node ./src/scripts/typegen.ts",
     "types:build": "scalar-types-build-vue",
