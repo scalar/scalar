@@ -1,4 +1,4 @@
-import { Type, type Static, type TSchema } from '@sinclair/typebox'
+import { Type, type Static, type TIntersect, type TRecursive, type TSchema } from '@sinclair/typebox'
 import { DiscriminatorObjectSchema } from './discriminator'
 import { XMLObjectSchema } from './xml'
 import { ExternalDocumentationObjectSchema } from './external-documentation'
@@ -6,18 +6,60 @@ import { ExtensionsSchema } from './extensions'
 import { compose } from '@/schemas/compose'
 
 /**
- * Null or Boolean don't have any extra properties, we also make this type optional
+ * Primitive types that don't have additional validation properties.
+ * These types (null, boolean, string, number, integer, object, array) can be used
+ * without additional validation constraints.
+ *
+ * TODO: Type array will actually validate against every union type but we can cross that bridge when we come to it
  */
-const NullOrBooleanProperties = Type.Object({
-  type: Type.Optional(Type.Union([Type.Literal('null'), Type.Literal('boolean')])),
+const OtherTypes = Type.Object({
+  type: Type.Optional(
+    Type.Union([
+      Type.Literal('null'),
+      Type.Literal('boolean'),
+      Type.Array(
+        Type.Union([
+          Type.Literal('null'),
+          Type.Literal('boolean'),
+          Type.Literal('string'),
+          Type.Literal('number'),
+          Type.Literal('integer'),
+          Type.Literal('object'),
+          Type.Literal('array'),
+        ]),
+      ),
+    ]),
+  ),
 })
 
 /**
  * Numeric validation properties for number and integer types.
  */
 const NumericProperties = Type.Object({
-  /** The type of the number. */
   type: Type.Union([Type.Literal('number'), Type.Literal('integer')]),
+  /** Different subtypes */
+  format: Type.Optional(
+    Type.Union([
+      // Integer formats
+      Type.Literal('int8'),
+      Type.Literal('int16'),
+      Type.Literal('int32'),
+      Type.Literal('int64'),
+      Type.Literal('uint8'),
+      Type.Literal('uint16'),
+      Type.Literal('uint32'),
+      Type.Literal('uint64'),
+      Type.Literal('double-int'),
+      // Number formats
+      Type.Literal('float'),
+      Type.Literal('double'),
+      Type.Literal('decimal'),
+      Type.Literal('decimal128'),
+      // Structured field number formats
+      Type.Literal('sf-integer'),
+      Type.Literal('sf-decimal'),
+    ]),
+  ),
   /** Number must be a multiple of this value. */
   multipleOf: Type.Optional(Type.Number()),
   /** Maximum value (inclusive). */
@@ -35,6 +77,50 @@ const NumericProperties = Type.Object({
  */
 const StringValidationProperties = Type.Object({
   type: Type.Literal('string'),
+  /** Different subtypes */
+  format: Type.Optional(
+    Type.Union([
+      // Date and time formats
+      Type.Literal('date'),
+      Type.Literal('date-time'),
+      Type.Literal('date-time-local'),
+      Type.Literal('time'),
+      Type.Literal('time-local'),
+      Type.Literal('duration'),
+      Type.Literal('http-date'),
+      // Network formats
+      Type.Literal('email'),
+      Type.Literal('idn-email'),
+      Type.Literal('hostname'),
+      Type.Literal('idn-hostname'),
+      Type.Literal('ipv4'),
+      Type.Literal('ipv6'),
+      Type.Literal('uri'),
+      Type.Literal('uri-reference'),
+      Type.Literal('uri-template'),
+      Type.Literal('iri'),
+      Type.Literal('iri-reference'),
+      Type.Literal('uuid'),
+      // Content formats
+      Type.Literal('binary'),
+      Type.Literal('byte'),
+      Type.Literal('base64url'),
+      Type.Literal('html'),
+      Type.Literal('commonmark'),
+      Type.Literal('password'),
+      Type.Literal('regex'),
+      Type.Literal('json-pointer'),
+      Type.Literal('relative-json-pointer'),
+      Type.Literal('media-range'),
+      // Character formats
+      Type.Literal('char'),
+      // Structured field string formats
+      Type.Literal('sf-string'),
+      Type.Literal('sf-token'),
+      Type.Literal('sf-binary'),
+      Type.Literal('sf-boolean'),
+    ]),
+  ),
   /** Maximum string length. */
   maxLength: Type.Optional(Type.Integer({ minimum: 0 })),
   /** Minimum string length. */
@@ -139,14 +225,24 @@ export const schemaObjectSchemaBuilder = <S extends TSchema>(schema: S) => {
     patternProperties: Type.Optional(Type.Record(Type.String(), schema)),
   })
 
-  return Type.Union([
-    Type.Intersect([CorePropertiesWithSchema, NullOrBooleanProperties]),
-    Type.Intersect([CorePropertiesWithSchema, NumericProperties]),
-    Type.Intersect([CorePropertiesWithSchema, StringValidationProperties]),
-    Type.Intersect([CorePropertiesWithSchema, ArrayValidationPropertiesWithSchema]),
-    Type.Intersect([CorePropertiesWithSchema, ObjectValidationPropertiesWithSchema]),
-  ])
+  return compose(
+    CorePropertiesWithSchema,
+    Type.Union([
+      OtherTypes,
+      NumericProperties,
+      StringValidationProperties,
+      ArrayValidationPropertiesWithSchema,
+      ObjectValidationPropertiesWithSchema,
+    ]),
+  )
 }
+
+/**
+ * The type annotation is needed because the inferred type of this node exceeds the maximum length the compiler will serialize.
+ * This is due to the complex nested structure of the OpenAPI document schema, which includes multiple optional fields,
+ * arrays, and nested objects. The explicit type annotation helps TypeScript handle this large type definition.
+ */
+type SchemaObjectSchemaType = TRecursive<TIntersect<[typeof ExtensionsSchema, TSchema]>>
 
 export const SchemaObjectSchema = Type.Recursive((This) => compose(ExtensionsSchema, schemaObjectSchemaBuilder(This)))
 
