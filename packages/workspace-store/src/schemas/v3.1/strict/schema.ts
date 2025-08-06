@@ -4,6 +4,7 @@ import { XMLObjectSchema } from './xml'
 import { ExternalDocumentationObjectSchema } from './external-documentation'
 import { ExtensionsSchema } from './extensions'
 import { compose } from '@/schemas/compose'
+import type { Simplify } from 'type-fest'
 
 /**
  * Primitive types that don't have additional validation properties.
@@ -238,16 +239,14 @@ export const schemaObjectSchemaBuilder = <S extends TSchema>(schema: S) => {
 }
 
 /**
- * The type annotation is needed because the inferred type of this node exceeds the maximum length the compiler will serialize.
- * This is due to the complex nested structure of the OpenAPI document schema, which includes multiple optional fields,
- * arrays, and nested objects. The explicit type annotation helps TypeScript handle this large type definition.
+ * This will give us an any like type to beat the t
  */
 type SchemaObjectSchemaType = TRecursive<
   TIntersect<[typeof ExtensionsSchema, ReturnType<typeof schemaObjectSchemaBuilder>]>
 >
 
-export const SchemaObjectSchema: SchemaObjectSchemaType = Type.Recursive((This) =>
-  compose(ExtensionsSchema, schemaObjectSchemaBuilder(This)),
-)
+export const SchemaObjectSchema = Type.Recursive((This) => compose(ExtensionsSchema, schemaObjectSchemaBuilder(This)))
 
 export type SchemaObject = Static<typeof SchemaObjectSchema>
+
+type PrintMe = Simplify<SchemaObject>
