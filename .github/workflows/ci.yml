@@ -306,6 +306,70 @@ jobs:
       - name: Run e2e tests (@scalar/api-reference)
         run: CI=1 pnpm test:e2e:api-reference
 
+  test-e2e-scalar-app:
+    needs: [build]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    permissions:
+      contents: read
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        node-version: [22]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@09d2acae674a48949e3602304ab46fd20ae0c42f
+      - name: Build packages
+        uses: ./.github/actions/build-blacksmith
+        with:
+          node-version: ${{ matrix.node-version }}
+          packages: './packages/**'
+      - name: Build scalar-app
+        uses: ./.github/actions/build-blacksmith
+        with:
+          node-version: ${{ matrix.node-version }}
+          packages: './projects/scalar-app'
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "PLAYWRIGHT_VERSION=$(npx playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
+      - name: Playwright binary cache
+        uses: actions/cache@640a1c2554105b57832a23eea0b4672fc7a790d5
+        with:
+          path: |
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.PLAYWRIGHT_VERSION }}
+      - name: Install Playwright browsers (chromium only)
+        run: npx playwright install chromium
+      - name: Install Playwright dependencies
+        run: npx playwright install-deps
+      - name: Check whether the appFiles are there
+        run: ls -R ./projects/scalar-app/dist
+      - name: Start Xvfb
+        run: |
+          Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+          echo "DISPLAY=:99" >> $GITHUB_ENV
+      - name: Run e2e tests (scalar-app)
+        run: CI=1 DEBUG=pw:browser* pnpm test:e2e:electron
+        env:
+          DISPLAY: ':99'
+      - if: failure()
+        name: Show stack traces and debug info
+        working-directory: playwright
+        run: |
+          echo "=== Playwright Logs ==="
+          cat ~/.cache/ms-playwright/browser_logs/*.log || true
+
+          echo "=== Test Results ==="
+          ls -la test-results/ || true
+
+          echo "=== Trace Information ==="
+          for trace_file in test-results/*/trace.zip; do
+            if [ -f "$trace_file" ]; then
+              echo -e "\nAttempting to show trace: $trace_file"
+              timeout 30 pnpm exec playwright show-trace "$trace_file" || echo "Trace viewing timed out"
+            fi
+          done
+
   npm-publish:
     if: github.ref == 'refs/heads/main'
     runs-on: beefcake
