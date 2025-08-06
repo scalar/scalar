@@ -15,7 +15,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "copy:standalone": "shx cp ../../../packages/api-reference/dist/browser/standalone.js ./integrations/java/webjar/src/main/resources/META-INF/resources/webjars/scalar/0.1.0/scalar.js",
+    "copy:standalone": "shx cp ../../../packages/api-reference/dist/browser/standalone.js ./src/main/resources/META-INF/resources/webjars/scalar/0.1.0/scalar.js",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
