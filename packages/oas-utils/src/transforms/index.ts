@@ -1,7 +1,7 @@
 export {
   getSlugUid,
   importSpecToWorkspace,
-  getServersFromOpenApiDocument,
+  getServersFromDocument,
   parseSchema,
   type ImportSpecToWorkspaceArgs,
 } from './import-spec'

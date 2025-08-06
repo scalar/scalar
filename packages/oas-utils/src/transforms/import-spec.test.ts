@@ -1097,7 +1097,7 @@ describe('parseSchema', () => {
   })
 })
 
-describe('getServersFromOpenApiDocument', () => {
+describe('getServersFromDocument', () => {
   it('parses a simple server', async () => {
     const result = await importSpecToWorkspace({
       servers: [{ url: 'https://example.com' }],

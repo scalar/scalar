@@ -22,7 +22,7 @@ import { type Request, type RequestPayload, requestSchema } from '@/entities/spe
 import { type Server, serverSchema } from '@/entities/spec/server'
 import { type Tag, tagSchema } from '@/entities/spec/spec-objects'
 import { schemaModel } from '@/helpers/schema-model'
-import { getServersFromOpenApiDocument } from '@/libs/servers'
+import { getServersFromDocument } from '@/libs/servers'
 
 const dereferenceDocument = async (
   document: string | UnknownObject,
@@ -184,7 +184,7 @@ export async function importSpecToWorkspace(
   const requests: Request[] = []
 
   // Add the base server url to collection servers
-  const collectionServers: Server[] = getServersFromOpenApiDocument(configuredServers || schema.servers, {
+  const collectionServers: Server[] = getServersFromDocument(configuredServers || schema.servers, {
     baseServerURL,
     documentUrl,
   })
