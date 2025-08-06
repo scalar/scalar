@@ -356,7 +356,7 @@ export type WorkspaceStore = {
   rebaseDocument: (
     documentName: string,
     newDocumentOrigin: Record<string, unknown>,
-    resolvedConflicts?: Difference[],
+    resolvedConflicts?: Difference<unknown>[],
   ) => void | ReturnType<typeof merge>['conflicts']
 }
 
@@ -709,11 +709,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         ),
       )
     },
-    rebaseDocument: (
-      documentName: string,
-      newDocumentOrigin: Record<string, unknown>,
-      resolvedConflicts?: Difference[],
-    ) => {
+    rebaseDocument: (documentName, newDocumentOrigin, resolvedConflicts) => {
       const newOrigin = coerceValue(OpenAPIDocumentSchema, upgrade(newDocumentOrigin).specification)
 
       const originalDocument = originalDocuments[documentName]
@@ -739,7 +735,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       const changesetA = changesA.diffs.concat(resolvedConflicts)
 
       // Apply the changes to the original document to get the new intermediate
-      const newIntermediateDocument = apply(deepClone(originalDocument), changesetA) as typeof originalDocument
+      const newIntermediateDocument = apply(deepClone(originalDocument), changesetA)
       intermediateDocuments[documentName] = newIntermediateDocument
 
       // Update the original document
@@ -755,7 +751,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // TODO: In the future, implement smarter conflict resolution if needed
       const changesetB = changesB.diffs.concat(changesB.conflicts.flatMap((it) => it[0]))
 
-      const newActiveDocument = apply(deepClone(newIntermediateDocument), changesetB) as typeof newIntermediateDocument
+      const newActiveDocument = apply(deepClone(newIntermediateDocument), changesetB)
 
       // Update the active document to the new value
       workspace.documents[documentName] = createOverridesProxy(

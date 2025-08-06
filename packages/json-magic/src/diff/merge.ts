@@ -39,7 +39,7 @@ import { isArrayEqual, isKeyCollisions, mergeObjects } from '@/diff/utils'
  * //   ]
  * // }
  */
-export const merge = (diff1: Difference[], diff2: Difference[]) => {
+export const merge = <T>(diff1: Difference<T>[], diff2: Difference<T>[]) => {
   // Here we need to use a trie to optimize searching for a prefix
   // With the naive approach time complexity of the algorithm would be
   //                         O(n * m)
@@ -49,7 +49,7 @@ export const merge = (diff1: Difference[], diff2: Difference[]) => {
   // Assuming that the maximum depth of the nested objects would be constant lets say 0 <= D <= 100
   // we try to optimize for that using the tire data structure.
   // So the new time complexity would be O(n * D) where D is the maximum depth of the nested object
-  const trie = new Trie<{ index: number; changes: Difference }>()
+  const trie = new Trie<{ index: number; changes: Difference<T> }>()
 
   // Create the trie
   for (const [index, diff] of diff1.entries()) {
@@ -62,10 +62,10 @@ export const merge = (diff1: Difference[], diff2: Difference[]) => {
   // Keep related conflicts together for easy A, B pick conflict resolution
   // map key is going to be conflicting index of first diff list where the diff will be
   // a delete operation or an add/update operation with a one to many conflicts
-  const conflictsMap1 = new Map<number, [Difference[], Difference[]]>()
+  const conflictsMap1 = new Map<number, [Difference<T>[], Difference<T>[]]>()
   // map key will be the index from the second diff list where the diff will be
   // a delete operation with one to many conflicts
-  const conflictsMap2 = new Map<number, [Difference[], Difference[]]>()
+  const conflictsMap2 = new Map<number, [Difference<T>[], Difference<T>[]]>()
 
   for (const [index, diff] of diff2.entries()) {
     trie.findMatch(diff.path, (value) => {
@@ -123,11 +123,11 @@ export const merge = (diff1: Difference[], diff2: Difference[]) => {
     })
   }
 
-  const conflicts: [Difference[], Difference[]][] = [...conflictsMap1.values(), ...conflictsMap2.values()]
+  const conflicts: [Difference<T>[], Difference<T>[]][] = [...conflictsMap1.values(), ...conflictsMap2.values()]
 
   // Filter all changes that should be skipped because of conflicts
   // or auto conflict resolution
-  const diffs: Difference[] = [
+  const diffs: Difference<T>[] = [
     ...diff1.filter((_, index) => !skipDiff1.has(index)),
     ...diff2.filter((_, index) => !skipDiff2.has(index)),
   ]
