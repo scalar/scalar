@@ -303,6 +303,6 @@ type SchemaObjectSchemaType = TRecursive<
   >
 >
 
-export const SchemaObjectSchema: SchemaObjectSchemaType = Type.Recursive((This) => schemaObjectSchemaBuilder(This))
+export const SchemaObjectSchema: any = Type.Recursive((This) => schemaObjectSchemaBuilder(This))
 
-export type SchemaObject = Static<typeof SchemaObjectSchema>
+export type SchemaObject = Static<SchemaObjectSchemaType>
