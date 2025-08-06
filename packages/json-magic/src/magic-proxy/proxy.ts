@@ -19,6 +19,14 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
 
   const handler: ProxyHandler<T> = {
     get(target, prop, receiver) {
+      if (prop === isMagicProxy) {
+        return true
+      }
+
+      if (prop === magicProxyTarget) {
+        return target
+      }
+
       const ref = Reflect.get(target, REF_KEY, receiver)
 
       if (prop === REF_VALUE && typeof ref === 'string' && isLocalRef(ref)) {
