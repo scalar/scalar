@@ -57,7 +57,7 @@ public sealed class ScalarOptions
     /// <summary>
     /// Gets or sets whether the sidebar and search uses the operation summary or the operation path.
     /// </summary>
-    /// <value>The default value is 'summary'.</value>
+    /// <value>The default value is "summary".</value>
     public string? OperationTitleSource { get; set; }
 
     /// <summary>
