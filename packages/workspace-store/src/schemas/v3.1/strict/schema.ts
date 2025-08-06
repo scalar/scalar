@@ -1,4 +1,4 @@
-import { Type, type Static, type TIntersect, type TSchema } from '@sinclair/typebox'
+import { Type, type Static, type TIntersect, type TRecursive, type TSchema } from '@sinclair/typebox'
 import { DiscriminatorObjectSchema } from './discriminator'
 import { XMLObjectSchema } from './xml'
 import { ExternalDocumentationObjectSchema } from './external-documentation'
@@ -242,7 +242,9 @@ export const schemaObjectSchemaBuilder = <S extends TSchema>(schema: S) => {
  * This is due to the complex nested structure of the OpenAPI document schema, which includes multiple optional fields,
  * arrays, and nested objects. The explicit type annotation helps TypeScript handle this large type definition.
  */
-type SchemaObjectSchemaType = TIntersect<[typeof ExtensionsSchema, ReturnType<typeof schemaObjectSchemaBuilder>]>
+type SchemaObjectSchemaType = TRecursive<
+  TIntersect<[typeof ExtensionsSchema, ReturnType<typeof schemaObjectSchemaBuilder>]>
+>
 
 export const SchemaObjectSchema: SchemaObjectSchemaType = Type.Recursive((This) =>
   compose(ExtensionsSchema, schemaObjectSchemaBuilder(This)),
