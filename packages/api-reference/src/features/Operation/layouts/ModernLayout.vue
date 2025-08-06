@@ -38,21 +38,20 @@ import { useConfig } from '@/hooks/useConfig'
 import { RequestExample } from '@/v2/blocks/scalar-request-example-block'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
-const { path, operation, method, isWebhook, oldOperation, store } =
-  defineProps<{
-    id: string
-    path: string
-    clientOptions: ClientOptionGroup[]
-    method: HttpMethodType
-    operation: Dereference<OperationObject>
-    oldOperation: OpenAPIV3_1.OperationObject
-    // pathServers: ServerObject[] | undefined
-    isWebhook: boolean
-    securitySchemes: SecuritySchemeObject[]
-    server: ServerObject | undefined
-    schemas?: Schemas
-    store: WorkspaceStore
-  }>()
+const { path, operation, method, isWebhook, oldOperation } = defineProps<{
+  id: string
+  path: string
+  clientOptions: ClientOptionGroup[]
+  method: HttpMethodType
+  operation: Dereference<OperationObject>
+  oldOperation: OpenAPIV3_1.OperationObject
+  // pathServers: ServerObject[] | undefined
+  isWebhook: boolean
+  securitySchemes: SecuritySchemeObject[]
+  server: ServerObject | undefined
+  schemas?: Schemas
+  store: WorkspaceStore
+}>()
 
 const operationTitle = computed(() => operation.summary || path || '')
 
