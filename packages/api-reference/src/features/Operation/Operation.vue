@@ -5,13 +5,10 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
-import {
-  isReference,
-  isResolvedRef,
-} from '@scalar/workspace-store/schemas/v3.1/type-guard'
+import { isReference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import { computed } from 'vue'
 
+import { combineParams } from '@/features/Operation/helpers/combine-params'
 import { convertSecurityScheme } from '@/helpers/convert-security-scheme'
 import { useOperationDiscriminator } from '@/hooks/useOperationDiscriminator'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
@@ -51,16 +48,23 @@ const pathItem = computed(() => {
 
 /**
  * Operation from the new workspace store, ensure we are de-referenced
- * TODO: loading/error states
+ *
+ * Also adds in params from the pathItemObject
  */
 const operation = computed(() => {
   const entity = pathItem.value?.[method]
 
-  if (isReference(entity)) {
+  if (!entity || isReference(entity)) {
     return null
   }
 
-  return entity
+  // Combine params from the pathItem and the operation
+  const parameters = combineParams(
+    pathItem.value?.parameters,
+    entity.parameters,
+  )
+
+  return { ...entity, parameters }
 })
 
 const oldOperation = computed(() =>
@@ -91,31 +95,6 @@ const selectedSecuritySchemes = computed(() =>
     securitySchemes,
   ).map(convertSecurityScheme),
 )
-
-/**
- * Dereference path parameters and combine with operation parameters
- *
- * Ensure that operation parameters take prescedence and there are no duplicates
- */
-const parameters = computed(() => {
-  const pathParams = pathItem.value?.parameters ?? []
-  const operationParams = operation.value?.parameters ?? []
-
-  const allParams = [...pathParams, ...operationParams].filter(
-    isResolvedRef<ParameterObject>,
-  )
-
-  // Use a Map to ensure unique in+name combinations
-  // Operation parameters take precedence over path parameters
-  const uniqueParams = new Map<string, ParameterObject>()
-
-  for (const param of allParams) {
-    const key = `${param.in}:${param.name}`
-    uniqueParams.set(key, param)
-  }
-
-  return Array.from(uniqueParams.values())
-})
 </script>
 
 <template>
@@ -129,7 +108,6 @@ const parameters = computed(() => {
         :oldOperation="oldOperation"
         :clientOptions="clientOptions"
         :securitySchemes="selectedSecuritySchemes"
-        :parameters="parameters"
         :store="store"
         :path="path"
         :schemas="document?.components?.schemas"
@@ -144,7 +122,6 @@ const parameters = computed(() => {
         :clientOptions="clientOptions"
         :oldOperation="oldOperation"
         :securitySchemes="selectedSecuritySchemes"
-        :parameters="parameters"
         :path="path"
         :store="store"
         :operation="operation"

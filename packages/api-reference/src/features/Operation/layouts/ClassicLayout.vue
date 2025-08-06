@@ -18,7 +18,6 @@ import {
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
@@ -49,7 +48,6 @@ const { operation, path, isWebhook } = defineProps<{
   method: HttpMethodType
   operation: Dereference<OperationObject>
   oldOperation: OpenAPIV3_1.OperationObject
-  parameters: ParameterObject[]
   // pathServers: ServerObject[] | undefined
   isWebhook: boolean
   server: ServerObject | undefined
@@ -142,7 +140,7 @@ const handleDiscriminatorChange = (type: string) => {
         <div class="operation-details-card-item">
           <OperationParameters
             :requestBody="oldOperation.requestBody"
-            :parameters
+            :parameters="operation.parameters"
             :schemas
             @update:modelValue="handleDiscriminatorChange" />
         </div>
