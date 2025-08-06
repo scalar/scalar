@@ -584,7 +584,7 @@ jobs:
         run: npx @scalar/cli auth login --token ${{ secrets.SCALAR_API_KEY }}
       - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
         name: Push to Scalar Registry
-        run: npx @scalar/cli registry publish --force true --namespace scalar --slug galaxy --version ${{ env.VERSION }} packages/galaxy/dist/latest.yaml
+        run: npx @scalar/cli registry publish --namespace scalar --slug galaxy --version ${{ env.VERSION }} packages/galaxy/dist/latest.yaml
 
   deploy-examples:
     # Main Branch or PR from the same repository
