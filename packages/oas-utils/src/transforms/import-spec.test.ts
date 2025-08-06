@@ -1283,7 +1283,7 @@ describe('getServersFromOpenApiDocument', () => {
     expect(result.servers).toMatchObject([{ url: 'http://localhost:3000' }])
   })
 
-  it('returns an empty array when something is invalid', async () => {
+  it('returns the fallback url when something is invalid', async () => {
     const result = await importSpecToWorkspace({
       servers: [{ url: false }],
     })
@@ -1466,7 +1466,7 @@ describe('getServersFromOpenApiDocument', () => {
 
     const result = await importSpecToWorkspace(
       {
-        servers: [{ url: '/' }],
+        servers: [{ url: '/' }, { url: '/v1' }, { url: '/api/v2' }],
       },
       {
         documentUrl: '/openapi.json',
@@ -1477,7 +1477,11 @@ describe('getServersFromOpenApiDocument', () => {
       throw result.error
     }
 
-    expect(result.servers).toMatchObject([{ url: 'http://localhost:3000/' }])
+    expect(result.servers).toMatchObject([
+      { url: 'http://localhost:3000/' },
+      { url: 'http://localhost:3000/v1' },
+      { url: 'http://localhost:3000/api/v2' },
+    ])
 
     // Restore the original window.location
     vi.stubGlobal('location', originalLocation)

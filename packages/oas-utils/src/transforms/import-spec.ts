@@ -1,6 +1,5 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
-import { combineUrlAndPath } from '@scalar/helpers/url/merge-urls'
 import { keysOf } from '@scalar/object-utils/arrays'
 import { type LoadResult, dereference, load, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
@@ -23,6 +22,7 @@ import { type Request, type RequestPayload, requestSchema } from '@/entities/spe
 import { type Server, serverSchema } from '@/entities/spec/server'
 import { type Tag, tagSchema } from '@/entities/spec/spec-objects'
 import { schemaModel } from '@/helpers/schema-model'
+import { getServersFromOpenApiDocument } from '@/libs/servers'
 
 const dereferenceDocument = async (
   document: string | UnknownObject,
@@ -191,15 +191,6 @@ export async function importSpecToWorkspace(
 
   // Store operation servers
   const operationServers: Server[] = []
-
-  // Fallback to the current window.location.origin if no servers are provided
-  if (!collectionServers.length) {
-    const fallbackUrl = getFallbackUrl()
-
-    if (fallbackUrl) {
-      collectionServers.push(serverSchema.parse({ url: fallbackUrl }))
-    }
-  }
 
   /**
    * List of all tag strings. For non compliant specs we may need to
@@ -544,112 +535,4 @@ export async function importSpecToWorkspace(
     tags,
     securitySchemes,
   }
-}
-
-/**
- * Extracts the base URL (protocol + hostname) from a document URL.
- * Falls back to the original URL if it's not a valid URL.
- */
-function getBaseUrlFromDocumentUrl(documentUrl: string): string | undefined {
-  try {
-    const url = new URL(documentUrl)
-    return `${url.protocol}//${url.hostname}${url.port ? `:${url.port}` : ''}`
-  } catch {
-    // If the documentUrl is not a valid URL, we can't use it
-    return undefined
-  }
-}
-
-/**
- * Retrieves a list of servers from an OpenAPI document and converts them to a list of Server entities.
- */
-export function getServersFromOpenApiDocument(
-  servers: OpenAPIV3_1.ServerObject[] | undefined,
-  {
-    baseServerURL,
-    documentUrl,
-  }: Pick<ApiReferenceConfiguration, 'baseServerURL'> & Pick<ImportSpecToWorkspaceArgs, 'documentUrl'> = {},
-): Server[] {
-  // If the document doesn't have any servers, try to use the documentUrl as the default server.
-  if (!servers?.length && documentUrl) {
-    const newServerUrl = getBaseUrlFromDocumentUrl(documentUrl)
-
-    if (newServerUrl) {
-      return [serverSchema.parse({ url: newServerUrl })]
-    }
-  }
-
-  // If the servers are not an array, return an empty array.
-  if (!servers || !Array.isArray(servers)) {
-    return []
-  }
-
-  return servers
-    .map((server): Server | undefined => {
-      try {
-        // Validate the server against the schema
-        const parsedSchema = serverSchema.parse(server)
-
-        // Prepend with the base server URL (if the given URL is relative)
-        if (parsedSchema?.url?.startsWith('/')) {
-          // Use the base server URL (if provided)
-          if (baseServerURL) {
-            parsedSchema.url = combineUrlAndPath(baseServerURL, parsedSchema.url)
-
-            return parsedSchema
-          }
-
-          if (documentUrl) {
-            const baseUrl = getBaseUrlFromDocumentUrl(documentUrl)
-
-            if (baseUrl) {
-              parsedSchema.url = combineUrlAndPath(baseUrl, parsedSchema.url)
-            } else {
-              const fallbackUrl = getFallbackUrl()
-
-              if (fallbackUrl) {
-                parsedSchema.url = combineUrlAndPath(fallbackUrl, parsedSchema.url)
-              }
-            }
-
-            return parsedSchema
-          }
-
-          // Fallback to the current window origin
-          const fallbackUrl = getFallbackUrl()
-
-          if (fallbackUrl) {
-            parsedSchema.url = combineUrlAndPath(fallbackUrl, parsedSchema.url.replace(/^\//, ''))
-
-            return parsedSchema
-          }
-        }
-
-        // Must be good, return it
-        return parsedSchema
-      } catch (error) {
-        console.warn("Oops, that's an invalid server configuration.")
-        console.warn('Server:', server)
-        console.warn('Error:', error)
-
-        // Return undefined to remove the server
-        return undefined
-      }
-    })
-    .filter(isDefined)
-}
-
-/**
- * Fallback to the current window.location.origin, if available
- */
-function getFallbackUrl() {
-  if (typeof window === 'undefined') {
-    return undefined
-  }
-
-  if (typeof window?.location?.origin !== 'string') {
-    return undefined
-  }
-
-  return window.location.origin
 }
