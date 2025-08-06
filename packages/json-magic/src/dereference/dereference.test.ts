@@ -37,18 +37,22 @@ describe('dereference', () => {
             },
           },
           profile: {
-            'x-original-ref': '#/users',
-            name: 'John Doe',
-            age: 30,
-            address: {
-              city: 'New York',
-              street: '5th Avenue',
+            '$ref': '#/users',
+            '$ref-value': {
+              name: 'John Doe',
+              age: 30,
+              address: {
+                city: 'New York',
+                street: '5th Avenue',
+              },
             },
           },
           address: {
-            'x-original-ref': '#/users/address',
-            city: 'New York',
-            street: '5th Avenue',
+            '$ref': '#/users/address',
+            '$ref-value': {
+              city: 'New York',
+              street: '5th Avenue',
+            },
           },
         },
       })
@@ -97,18 +101,22 @@ describe('dereference', () => {
         success: true,
         data: {
           profile: {
-            'x-original-ref': '#/x-ext/5bd1cdd',
-            name: 'Jane Doe',
-            age: 25,
-            address: {
-              city: 'Los Angeles',
-              street: 'Sunset Boulevard',
+            '$ref': '#/x-ext/5bd1cdd',
+            '$ref-value': {
+              name: 'Jane Doe',
+              age: 25,
+              address: {
+                city: 'Los Angeles',
+                street: 'Sunset Boulevard',
+              },
             },
           },
           address: {
-            'x-original-ref': '#/x-ext/5bd1cdd/address',
-            city: 'Los Angeles',
-            street: 'Sunset Boulevard',
+            '$ref': '#/x-ext/5bd1cdd/address',
+            '$ref-value': {
+              city: 'Los Angeles',
+              street: 'Sunset Boulevard',
+            },
           },
           'x-ext': {
             '5bd1cdd': userProfile,

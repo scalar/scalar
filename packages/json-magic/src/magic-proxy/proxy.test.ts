@@ -2,144 +2,1006 @@ import { createMagicProxy } from './proxy'
 import { describe, expect, it } from 'vitest'
 
 describe('createMagicProxy', () => {
-  it('should correctly proxy internal refs', () => {
-    const input = {
-      a: 'hello',
-      b: {
-        '$ref': '#/a',
-      },
-    }
-
-    const result = createMagicProxy(input)
-
-    expect(result.b).toBe('hello')
-  })
-
-  it('should correctly proxy deep nested refs', () => {
-    const input = {
-      a: {
+  describe('get', () => {
+    it('should correctly proxy internal refs', () => {
+      const input = {
+        a: 'hello',
         b: {
-          c: {
-            d: {
-              prop: 'hello',
-            },
-            e: {
-              '$ref': '#/a/b/c/d',
-            },
-          },
+          '$ref': '#/a',
         },
-      },
-    }
+      }
 
-    const result = createMagicProxy(input) as any
-    expect(result.a.b.c.e.prop).toBe('hello')
-  })
-
-  it('should correctly proxy multi refs', () => {
-    const input = {
-      a: {
-        b: {
-          c: {
-            prop: 'hello',
-          },
-        },
-      },
-      e: {
-        f: {
-          $ref: '#/a/b/c/prop',
-        },
-      },
-      d: {
-        $ref: '#/e/f',
-      },
-    }
-
-    const result = createMagicProxy(input)
-
-    expect(result.d).toBe('hello')
-  })
-
-  it('should preserve information about the ref when the ref is resolved', () => {
-    const input = {
-      a: {
-        b: {
-          c: {
-            d: {
-              prop: 'hello',
-            },
-            e: {
-              '$ref': '#/a/b/c/d',
-            },
-          },
-        },
-      },
-    }
-
-    const result = createMagicProxy(input)
-    expect(result.a.b.c.e).toEqual({
-      prop: 'hello',
-      'x-original-ref': '#/a/b/c/d',
+      const result = createMagicProxy(input)
+      expect(result.b).toEqual({ $ref: '#/a', '$ref-value': 'hello' })
     })
-  })
 
-  it('should preserve the first ref on nested refs', () => {
-    const input = {
-      a: {
-        b: {
-          c: {
-            d: {
-              '$ref': '#/a/b/c/f',
-            },
-            e: {
-              '$ref': '#/a/b/c/d',
-            },
-            f: {
-              someProp: 'test',
-            },
-          },
-        },
-      },
-    }
-
-    const result = createMagicProxy(input)
-    expect(result.a.b.c.e).toEqual({
-      someProp: 'test',
-      'x-original-ref': '#/a/b/c/d',
-    })
-  })
-
-  it('should resolve the references inside an array', () => {
-    const input = {
-      $defs: {
+    it('should correctly proxy deep nested refs', () => {
+      const input = {
         a: {
           b: {
-            prop: 'hello',
-          },
-          c: {
-            someOtherProp: 'world',
+            c: {
+              d: {
+                prop: 'hello',
+              },
+              e: {
+                '$ref': '#/a/b/c/d',
+              },
+            },
           },
         },
-      },
-      a: {
-        b: [
-          {
-            $ref: '#/$defs/a/b',
-          },
-          {
-            $ref: '#/$defs/a/c',
-          },
-        ],
-      },
-    }
+      }
 
-    const result = createMagicProxy(input)
-    expect(JSON.stringify(result.a)).toEqual(
-      JSON.stringify({
-        'b': [
-          { 'prop': 'hello', 'x-original-ref': '#/$defs/a/b' },
-          { 'someOtherProp': 'world', 'x-original-ref': '#/$defs/a/c' },
+      const result = createMagicProxy(input) as any
+      expect(result.a.b.c.e['$ref-value'].prop).toBe('hello')
+    })
+
+    it('should correctly proxy multi refs', () => {
+      const input = {
+        a: {
+          b: {
+            c: {
+              prop: 'hello',
+            },
+          },
+        },
+        e: {
+          f: {
+            $ref: '#/a/b/c/prop',
+          },
+        },
+        d: {
+          $ref: '#/e/f',
+        },
+      }
+
+      const result = createMagicProxy(input)
+
+      expect(result.d).toEqual({
+        $ref: '#/e/f',
+        '$ref-value': {
+          $ref: '#/a/b/c/prop',
+          '$ref-value': 'hello',
+        },
+      })
+    })
+
+    it('should preserve information about the ref when the ref is resolved', () => {
+      const input = {
+        a: {
+          b: {
+            c: {
+              d: {
+                prop: 'hello',
+              },
+              e: {
+                '$ref': '#/a/b/c/d',
+              },
+            },
+          },
+        },
+      }
+
+      const result = createMagicProxy(input)
+      expect(result.a.b.c.e).toEqual({
+        '$ref': '#/a/b/c/d',
+        '$ref-value': {
+          prop: 'hello',
+        },
+      })
+    })
+
+    it('should resolve the references inside an array', () => {
+      const input = {
+        $defs: {
+          a: {
+            b: {
+              prop: 'hello',
+            },
+            c: {
+              someOtherProp: 'world',
+            },
+          },
+        },
+        a: {
+          b: [
+            {
+              $ref: '#/$defs/a/b',
+            },
+            {
+              $ref: '#/$defs/a/c',
+            },
+          ],
+        },
+      }
+
+      const result = createMagicProxy(input)
+      expect(JSON.stringify(result.a)).toEqual(
+        JSON.stringify({
+          'b': [
+            { '$ref': '#/$defs/a/b', '$ref-value': { 'prop': 'hello' } },
+            { '$ref': '#/$defs/a/c', '$ref-value': { 'someOtherProp': 'world' } },
+          ],
+        }),
+      )
+    })
+
+    it('should return undefined if the ref is an external ref', () => {
+      const input = {
+        a: 'hello',
+        b: {
+          $ref: 'https://example.com/document.json/#',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      expect(result).toEqual({
+        a: 'hello',
+        b: {
+          $ref: 'https://example.com/document.json/#',
+          '$ref-value': undefined,
+        },
+      })
+    })
+  })
+
+  describe('set', () => {
+    it('sets properties on the target object', () => {
+      const input: any = {
+        a: 'hello',
+        b: {
+          $ref: '#/a',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      result.c = 'world'
+
+      expect(result.c).toBe('world')
+    })
+
+    it('sets properties on nested objects', () => {
+      const input: any = {
+        a: {
+          b: {
+            c: 'hello',
+          },
+        },
+      }
+
+      const result = createMagicProxy(input)
+      result.a.b.d = 'world'
+
+      expect(result.a.b.d).toBe('world')
+    })
+
+    it('sets properties on objects with refs', () => {
+      const input: any = {
+        a: {
+          b: {
+            c: 'hello',
+          },
+        },
+        d: {
+          $ref: '#/a/b',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      result.d.e = 'world'
+
+      expect(result.d.e).toBe('world')
+    })
+
+    it('sets properties on arrays', () => {
+      const input = {
+        items: [{ name: 'item1' }, { name: 'item2' }],
+      }
+
+      const result = createMagicProxy(input)
+      result.items[2] = { name: 'item3' }
+
+      expect(result.items[2].name).toBe('item3')
+    })
+
+    it('sets properties on array elements with refs', () => {
+      const input: any = {
+        $defs: {
+          item: { name: 'default' },
+        },
+        items: [{ $ref: '#/$defs/item' }],
+      }
+
+      const result = createMagicProxy(input)
+      result.items[0].id = 123
+
+      expect(input.items[0].id).toBe(123)
+    })
+
+    it('overwrites existing properties', () => {
+      const input = {
+        a: 'hello',
+        b: {
+          c: 'world',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      result.a = 'updated'
+      result.b.c = 'updated'
+
+      expect(result.a).toBe('updated')
+      expect(result.b.c).toBe('updated')
+    })
+
+    it('sets properties on the root object', () => {
+      const input: any = {
+        a: 'hello',
+      }
+
+      const result = createMagicProxy(input)
+      result.rootProperty = 'root value'
+
+      expect(result.rootProperty).toBe('root value')
+    })
+
+    it('sets properties that are accessed via ref-value', () => {
+      const input: any = {
+        a: {
+          b: {
+            c: 'hello',
+          },
+        },
+        d: {
+          $ref: '#/a/b',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      const refValue = result.d['$ref-value']
+      refValue.newProp = 'new value'
+
+      expect(refValue.newProp).toBe('new value')
+      expect(input.a.b.newProp).toBe('new value')
+    })
+
+    it('sets properties on deeply nested refs', () => {
+      const input: any = {
+        a: {
+          b: {
+            c: {
+              d: {
+                e: 'hello',
+              },
+            },
+          },
+        },
+        f: {
+          $ref: '#/a/b/c/d',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      result.f['$ref-value'].g = 'world'
+
+      expect(result.f['$ref-value'].g).toBe('world')
+      expect(input.a.b.c.d.g).toBe('world')
+    })
+  })
+
+  describe('has', () => {
+    it('returns true for $ref-value when $ref exists', () => {
+      const input = {
+        a: 'hello',
+        b: {
+          $ref: '#/a',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      expect('$ref-value' in result.b).toBe(true)
+    })
+
+    it('returns false for $ref-value when $ref does not exist', () => {
+      const input = {
+        a: 'hello',
+        b: {
+          c: 'world',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      expect('$ref-value' in result.b).toBe(false)
+    })
+
+    it('returns true for existing properties', () => {
+      const input = {
+        a: 'hello',
+        b: {
+          c: 'world',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      expect('a' in result).toBe(true)
+      expect('b' in result).toBe(true)
+      expect('c' in result.b).toBe(true)
+    })
+
+    it('returns false for non-existent properties', () => {
+      const input = {
+        a: 'hello',
+      }
+
+      const result = createMagicProxy(input)
+      expect('nonExistent' in result).toBe(false)
+      expect('$ref-value' in result).toBe(false)
+    })
+
+    it('handles nested objects with refs', () => {
+      const input = {
+        a: {
+          b: {
+            c: 'hello',
+          },
+        },
+        d: {
+          $ref: '#/a/b',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      expect('$ref-value' in result.d).toBe(true)
+      expect('c' in result.a.b).toBe(true)
+    })
+
+    it('handles arrays with refs', () => {
+      const input = {
+        items: [{ name: 'item1' }, { $ref: '#/items/0' }],
+      }
+
+      const result = createMagicProxy(input)
+      expect('$ref-value' in result.items[1]).toBe(true)
+      expect('name' in result.items[0]).toBe(true)
+    })
+
+    it('handles deeply nested refs', () => {
+      const input = {
+        a: {
+          b: {
+            c: {
+              d: {
+                e: 'hello',
+              },
+            },
+          },
+        },
+        f: {
+          $ref: '#/a/b/c/d',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      expect('$ref-value' in result.f).toBe(true)
+    })
+
+    it('handles objects with both $ref and other properties', () => {
+      const input = {
+        a: {
+          b: {
+            c: 'hello',
+          },
+        },
+        d: {
+          $ref: '#/a/b',
+          extraProp: 'extra',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      expect('$ref-value' in result.d).toBe(true)
+      expect('extraProp' in result.d).toBe(true)
+      expect('$ref' in result.d).toBe(true)
+    })
+
+    it('handles external refs', () => {
+      const input = {
+        a: 'hello',
+        b: {
+          $ref: 'https://example.com/document.json/#',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      expect('$ref-value' in result.b).toBe(true)
+    })
+
+    it('handles empty objects', () => {
+      const input = {}
+
+      const result = createMagicProxy(input)
+      expect('$ref-value' in result).toBe(false)
+      expect('anyProperty' in result).toBe(false)
+    })
+
+    it('handles null and undefined values', () => {
+      const input = {
+        a: null,
+        b: undefined,
+        c: {
+          $ref: '#/a',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      expect('$ref-value' in result.c).toBe(true)
+      expect('a' in result).toBe(true)
+      expect('b' in result).toBe(true)
+    })
+  })
+
+  describe('delete', () => {
+    it('deletes properties from the target object', () => {
+      const input = {
+        a: 'hello',
+        b: 'world',
+        c: 'test',
+      }
+
+      const result = createMagicProxy(input)
+      delete result.b
+
+      expect('b' in result).toBe(false)
+      expect(result.a).toBe('hello')
+      expect(result.c).toBe('test')
+    })
+
+    it('deletes properties from nested objects', () => {
+      const input = {
+        a: {
+          b: 'hello',
+          c: 'world',
+          d: 'test',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      delete result.a.c
+
+      expect('c' in result.a).toBe(false)
+      expect(result.a.b).toBe('hello')
+      expect(result.a.d).toBe('test')
+    })
+
+    it('deletes properties from objects with refs', () => {
+      const input = {
+        a: {
+          b: 'hello',
+          c: 'world',
+        },
+        d: {
+          $ref: '#/a',
+          extraProp: 'extra',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      delete result.d.extraProp
+
+      expect('extraProp' in result.d).toBe(false)
+      expect('$ref' in result.d).toBe(true)
+      expect('$ref-value' in result.d).toBe(true)
+    })
+
+    it('deletes properties from ref-value objects', () => {
+      const input = {
+        a: {
+          b: {
+            c: 'hello',
+            d: 'world',
+          },
+        },
+        e: {
+          $ref: '#/a/b',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      delete result.e['$ref-value'].d
+
+      expect('d' in result.e['$ref-value']).toBe(false)
+      expect(result.e['$ref-value'].c).toBe('hello')
+      expect(input.a.b.d).toBeUndefined()
+    })
+
+    it('deletes array elements', () => {
+      const input = {
+        items: ['a', 'b', 'c', 'd'],
+      }
+
+      const result = createMagicProxy(input)
+      delete result.items[1]
+
+      expect(result.items[1]).toBeUndefined()
+      expect(result.items[0]).toBe('a')
+      expect(result.items[2]).toBe('c')
+      expect(result.items[3]).toBe('d')
+    })
+
+    it('deletes properties from array elements with refs', () => {
+      const input = {
+        $defs: {
+          item: { name: 'default', id: 123, type: 'test' },
+        },
+        items: [{ $ref: '#/$defs/item' }],
+      }
+
+      const result = createMagicProxy(input)
+      delete result.items[0]['$ref-value'].type
+
+      expect('type' in result.items[0]['$ref-value']).toBe(false)
+      expect(result.items[0]['$ref-value'].name).toBe('default')
+      expect(result.items[0]['$ref-value'].id).toBe(123)
+    })
+
+    it('deletes deeply nested properties', () => {
+      const input = {
+        a: {
+          b: {
+            c: {
+              d: {
+                e: 'hello',
+                f: 'world',
+              },
+            },
+          },
+        },
+      }
+
+      const result = createMagicProxy(input)
+      delete result.a.b.c.d.f
+
+      expect('f' in result.a.b.c.d).toBe(false)
+      expect(result.a.b.c.d.e).toBe('hello')
+    })
+
+    it('deletes properties from deeply nested refs', () => {
+      const input = {
+        a: {
+          b: {
+            c: {
+              d: {
+                e: 'hello',
+                f: 'world',
+              },
+            },
+          },
+        },
+        g: {
+          $ref: '#/a/b/c/d',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      delete result.g['$ref-value'].f
+
+      expect('f' in result.g['$ref-value']).toBe(false)
+      expect(result.g['$ref-value'].e).toBe('hello')
+      expect(input.a.b.c.d.f).toBeUndefined()
+    })
+
+    it('deletes root level properties', () => {
+      const input: any = {
+        rootProp: 'root value',
+        nestedProp: 'nested value',
+      }
+
+      const result = createMagicProxy(input)
+      delete result.rootProp
+
+      expect('rootProp' in result).toBe(false)
+      expect(result.nestedProp).toBe('nested value')
+    })
+
+    it('deletes properties that do not exist', () => {
+      const input: any = {
+        a: 'hello',
+      }
+
+      const result = createMagicProxy(input)
+      const deleteResult = delete result.nonExistent
+
+      expect(deleteResult).toBe(true)
+      expect('nonExistent' in result).toBe(false)
+    })
+
+    it('deletes properties from objects with multiple refs', () => {
+      const input = {
+        a: {
+          b: {
+            c: 'hello',
+            d: 'world',
+          },
+        },
+        e: {
+          $ref: '#/a/b',
+        },
+        f: {
+          $ref: '#/e',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      delete result.f['$ref-value']['$ref-value'].d
+
+      expect('d' in result.f['$ref-value']['$ref-value']).toBe(false)
+      expect(result.f['$ref-value']['$ref-value'].c).toBe('hello')
+      expect(input.a.b.d).toBeUndefined()
+    })
+
+    it('deletes properties from external refs', () => {
+      const input = {
+        a: 'hello',
+        b: {
+          $ref: 'https://example.com/document.json/#',
+          localProp: 'local',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      delete result.b.localProp
+
+      expect('localProp' in result.b).toBe(false)
+      expect('$ref' in result.b).toBe(true)
+      expect('$ref-value' in result.b).toBe(true)
+    })
+
+    it('deletes properties from empty objects', () => {
+      const input: any = {}
+
+      const result = createMagicProxy(input)
+      const deleteResult = delete result.anyProperty
+
+      expect(deleteResult).toBe(true)
+      expect('anyProperty' in result).toBe(false)
+    })
+
+    it('deletes properties from objects with null and undefined values', () => {
+      const input = {
+        a: null,
+        b: undefined,
+        c: {
+          d: null,
+          e: undefined,
+        },
+      }
+
+      const result = createMagicProxy(input)
+      delete result.a
+      delete result.c.d
+
+      expect('a' in result).toBe(false)
+      expect('d' in result.c).toBe(false)
+      expect('b' in result).toBe(true)
+      expect('e' in result.c).toBe(true)
+    })
+
+    it('deletes properties from arrays with mixed content', () => {
+      const input: any = {
+        items: [{ name: 'item1', id: 1 }, { $ref: '#/items/0' }, 'string item', { name: 'item2', id: 2 }],
+      }
+
+      const result = createMagicProxy(input)
+      delete result.items[0].id
+      delete result.items[1]['$ref-value'].name
+
+      expect('id' in result.items[0]).toBe(false)
+      expect('name' in result.items[1]['$ref-value']).toBe(false)
+      expect(result.items[0].name).toBe(undefined)
+      expect(result.items[2]).toBe('string item')
+    })
+
+    it('deletes properties from objects with both direct and ref properties', () => {
+      const input = {
+        a: {
+          b: {
+            c: 'hello',
+            d: 'world',
+          },
+        },
+        e: {
+          $ref: '#/a/b',
+          directProp: 'direct',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      delete result.e.directProp
+      delete result.e['$ref-value'].d
+
+      expect('directProp' in result.e).toBe(false)
+      expect('d' in result.e['$ref-value']).toBe(false)
+      expect('$ref' in result.e).toBe(true)
+      expect(result.e['$ref-value'].c).toBe('hello')
+    })
+  })
+
+  describe('ownKeys', () => {
+    it('returns original keys when no $ref exists', () => {
+      const input = {
+        a: 'hello',
+        b: 'world',
+        c: 'test',
+      }
+
+      const result = createMagicProxy(input)
+      const keys = Object.keys(result)
+      
+      expect(keys).toEqual(['a', 'b', 'c'])
+    })
+
+    it('includes $ref-value when $ref exists', () => {
+      const input = {
+        a: 'hello',
+        b: {
+          $ref: '#/a',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      const keys = Object.keys(result.b)
+      
+      expect(keys).toEqual(['$ref', '$ref-value'])
+    })
+
+    it('does not duplicate $ref-value if it already exists', () => {
+      const input = {
+        a: 'hello',
+        b: {
+          $ref: '#/a',
+          '$ref-value': 'existing',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      const keys = Object.keys(result.b)
+      
+      expect(keys).toEqual(['$ref', '$ref-value'])
+    })
+
+    it('handles nested objects with refs', () => {
+      const input = {
+        a: {
+          b: {
+            c: 'hello',
+          },
+        },
+        d: {
+          $ref: '#/a/b',
+          extraProp: 'extra',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      const keys = Object.keys(result.d)
+      
+      expect(keys).toEqual(['$ref', 'extraProp', '$ref-value'])
+    })
+
+    it('handles arrays with refs', () => {
+      const input = {
+        items: [
+          { name: 'item1' },
+          { $ref: '#/items/0' },
+          { name: 'item2', id: 2 },
         ],
-      }),
-    )
+      }
+
+      const result = createMagicProxy(input)
+      const keys = Object.keys(result.items[1])
+      
+      expect(keys).toEqual(['$ref', '$ref-value'])
+    })
+
+    it('handles deeply nested refs', () => {
+      const input = {
+        a: {
+          b: {
+            c: {
+              d: {
+                e: 'hello',
+              },
+            },
+          },
+        },
+        f: {
+          $ref: '#/a/b/c/d',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      const keys = Object.keys(result.f)
+      
+      expect(keys).toEqual(['$ref', '$ref-value'])
+    })
+
+    it('handles objects with multiple refs', () => {
+      const input = {
+        a: {
+          b: {
+            c: 'hello',
+          },
+        },
+        d: {
+          $ref: '#/a/b',
+        },
+        e: {
+          $ref: '#/d',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      const dKeys = Object.keys(result.d)
+      const eKeys = Object.keys(result.e)
+      
+      expect(dKeys).toEqual(['$ref', '$ref-value'])
+      expect(eKeys).toEqual(['$ref', '$ref-value'])
+    })
+
+    it('handles external refs', () => {
+      const input = {
+        a: 'hello',
+        b: {
+          $ref: 'https://example.com/document.json/#',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      const keys = Object.keys(result.b)
+      
+      expect(keys).toEqual(['$ref', '$ref-value'])
+    })
+
+    it('handles empty objects', () => {
+      const input = {}
+
+      const result = createMagicProxy(input)
+      const keys = Object.keys(result)
+      
+      expect(keys).toEqual([])
+    })
+
+    it('handles objects with only $ref', () => {
+      const input = {
+        a: {
+          $ref: '#/b',
+        },
+        b: 'hello',
+      }
+
+      const result = createMagicProxy(input)
+      const keys = Object.keys(result.a)
+      
+      expect(keys).toEqual(['$ref', '$ref-value'])
+    })
+
+    it('handles objects with null and undefined values', () => {
+      const input = {
+        a: null,
+        b: undefined,
+        c: {
+          $ref: '#/a',
+        },
+        d: {
+          $ref: '#/b',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      const cKeys = Object.keys(result.c)
+      const dKeys = Object.keys(result.d)
+      
+      expect(cKeys).toEqual(['$ref', '$ref-value'])
+      expect(dKeys).toEqual(['$ref', '$ref-value'])
+    })
+
+    it('handles arrays with mixed content', () => {
+      const input = {
+        items: [
+          { name: 'item1' },
+          { $ref: '#/items/0' },
+          'string item',
+          { name: 'item2', id: 2 },
+        ],
+      }
+
+      const result = createMagicProxy(input)
+      const item0Keys = Object.keys(result.items[0])
+      const item1Keys = Object.keys(result.items[1])
+      
+      expect(item0Keys).toEqual(['name'])
+      expect(item1Keys).toEqual(['$ref', '$ref-value'])
+    })
+
+    it('handles objects with both direct and ref properties', () => {
+      const input = {
+        a: {
+          b: {
+            c: 'hello',
+          },
+        },
+        d: {
+          $ref: '#/a/b',
+          directProp: 'direct',
+          anotherProp: 'another',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      const keys = Object.keys(result.d)
+      
+      expect(keys).toEqual(['$ref', 'directProp', 'anotherProp', '$ref-value'])
+    })
+
+    it('handles objects with symbol keys', () => {
+      const symbolKey = Symbol('test')
+      const input = {
+        [symbolKey]: 'symbol value',
+        a: 'hello',
+        b: {
+          $ref: '#/a',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      const keys = Object.keys(result)
+      const ownKeys = Object.getOwnPropertySymbols(result)
+      
+      expect(keys).toEqual(['a', 'b'])
+      expect(ownKeys).toEqual([symbolKey])
+    })
+
+    it('handles objects with non-enumerable properties', () => {
+      const input = {
+        a: 'hello',
+        b: {
+          $ref: '#/a',
+        },
+      }
+
+      Object.defineProperty(input.b, 'nonEnumerable', {
+        value: 'test',
+        enumerable: false,
+      })
+
+      const result = createMagicProxy(input)
+      const keys = Object.keys(result.b)
+      const ownKeys = Reflect.ownKeys(result.b)
+      
+      expect(keys).toEqual(['$ref', '$ref-value'])
+      expect(ownKeys).toContain('nonEnumerable')
+      expect(ownKeys).toContain('$ref')
+      expect(ownKeys).toContain('$ref-value')
+    })
+
+    it('handles objects with getter properties', () => {
+      const input = {
+        a: 'hello',
+        b: {
+          $ref: '#/a',
+        },
+      }
+
+      Object.defineProperty(input.b, 'getterProp', {
+        get() {
+          return 'getter value'
+        },
+        enumerable: true,
+      })
+
+      const result = createMagicProxy(input)
+      const keys = Object.keys(result.b)
+      
+      expect(keys).toEqual(['$ref', 'getterProp', '$ref-value'])
+    })
   })
 })
