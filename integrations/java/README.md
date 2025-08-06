@@ -51,7 +51,7 @@ To build the WebJar:
 
 ```bash
 cd integrations/java/webjar
-mvn clean package
+mvn clean install
 ```
 
 To test the Spring Boot integration:
