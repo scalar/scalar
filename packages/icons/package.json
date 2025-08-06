@@ -35,9 +35,9 @@
       "require": "./dist/index.cjs"
     },
     "./types": {
+      "types": "./dist/types.d.ts",
       "import": "./dist/types.js",
-      "require": "./dist/types.cjs",
-      "types": "./dist/types.d.ts"
+      "require": "./dist/types.cjs"
     },
     "./library": {
       "import": "./dist/library/index.js",
