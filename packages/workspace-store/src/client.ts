@@ -21,6 +21,25 @@ import { bundle } from '@scalar/json-magic/bundle'
 import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
 import { apply, diff, merge, type Difference } from '@scalar/json-magic/diff'
 import type { TraverseSpecOptions } from '@/navigation/types'
+import type { PartialDeep } from 'type-fest'
+
+type DocumentConfiguration = Config &
+  PartialDeep<{
+    'x-scalar-reference-config': {
+      tagSort: TraverseSpecOptions['tagsSorter']
+      operationsSorter: TraverseSpecOptions['operationsSorter']
+      getHeadingId: TraverseSpecOptions['getHeadingId']
+      getOperationId: TraverseSpecOptions['getOperationId']
+      getWebhookId: TraverseSpecOptions['getWebhookId']
+      getModelId: TraverseSpecOptions['getModelId']
+      getTagId: TraverseSpecOptions['getTagId']
+    }
+  }>
+
+const defaultConfig: RequiredDeep<Config> = {
+  'x-scalar-reference-config': defaultReferenceConfig,
+}
+import type { TraverseSpecOptions } from '@/navigation/types'
 import type { PartialDeep, RequiredDeep } from 'type-fest'
 
 type DocumentConfiguration = Config &
@@ -131,6 +150,9 @@ export type WorkspaceStore = {
   /**
    * Returns the reactive workspace object with an additional activeDocument getter
    */
+  /**
+   * Returns the reactive workspace object with an additional activeDocument getter
+   */
   readonly workspace: Workspace
   /**
    * Updates a specific metadata field in the workspace
@@ -140,7 +162,27 @@ export type WorkspaceStore = {
    * // Update the workspace title
    * update('x-scalar-active-document', 'document-name')
    */
+  /**
+   * Updates a specific metadata field in the workspace
+   * @param key - The metadata field to update
+   * @param value - The new value for the field
+   * @example
+   * // Update the workspace title
+   * update('x-scalar-active-document', 'document-name')
+   */
   update<K extends keyof WorkspaceMeta>(key: K, value: WorkspaceMeta[K]): void
+  /**
+   * Updates a specific metadata field in a document
+   * @param name - The name of the document to update ('active' or a specific document name)
+   * @param key - The metadata field to update
+   * @param value - The new value for the field
+   * @throws Error if the specified document doesn't exist
+   * @example
+   * // Update the auth of the active document
+   * updateDocument('active', 'x-scalar-active-auth', 'Bearer')
+   * // Update the auth of a specific document
+   * updateDocument('document-name', 'x-scalar-active-auth', 'Bearer')
+   */
   /**
    * Updates a specific metadata field in a document
    * @param name - The name of the document to update ('active' or a specific document name)
@@ -174,7 +216,34 @@ export type WorkspaceStore = {
    *   paths: {},
    * })
    */
+  /**
+   * Replaces the content of a specific document in the workspace with the provided input.
+   * This method computes the difference between the current document and the new input,
+   * then applies only the necessary changes in place. The updates are applied atomically,
+   * ensuring the document is updated in a single operation.
+   *
+   * @param documentName - The name of the document to update.
+   * @param input - The new content to apply to the document (as a plain object).
+   * @example
+   * // Replace the content of the 'api' document with new data
+   * store.replaceDocument('api', {
+   *   openapi: '3.1.0',
+   *   info: { title: 'Updated API', version: '1.0.1' },
+   *   paths: {},
+   * })
+   */
   replaceDocument(documentName: string, input: Record<string, unknown>): void
+  /**
+   * Resolves a reference in the active document by following the provided path and resolving any external $ref references.
+   * This method traverses the document structure following the given path and resolves any $ref references it encounters.
+   * During resolution, it sets a loading status and updates the reference with the resolved content.
+   *
+   * @param path - Array of strings representing the path to the reference (e.g. ['paths', '/users', 'get', 'responses', '200'])
+   * @throws Error if the path is invalid or empty
+   * @example
+   * // Resolve a reference in the active document
+   * resolve(['paths', '/users', 'get', 'responses', '200'])
+   */
   /**
    * Resolves a reference in the active document by following the provided path and resolving any external $ref references.
    * This method traverses the document structure following the given path and resolves any $ref references it encounters.
@@ -205,6 +274,24 @@ export type WorkspaceStore = {
    *   }
    * })
    */
+  /**
+   * Adds a new document to the workspace
+   * @param document - The document content to add. This should be a valid OpenAPI/Swagger document or other supported format
+   * @param meta - Metadata for the document, including its name and other properties defined in WorkspaceDocumentMeta
+   * @example
+   * // Add a new OpenAPI document to the workspace
+   * store.addDocument({
+   *   name: 'name',
+   *   document: {
+   *     openapi: '3.0.0',
+   *     info: { title: 'title' },
+   *   },
+   *   meta: {
+   *     'x-scalar-active-auth': 'Bearer',
+   *     'x-scalar-active-server': 'production'
+   *   }
+   * })
+   */
   addDocument(input: WorkspaceDocumentInput): Promise<void>
   /**
    * Returns the merged configuration for the active document.
@@ -217,7 +304,37 @@ export type WorkspaceStore = {
    * The active document is determined by the workspace's activeDocument extension,
    * falling back to the first document if none is specified.
    */
+  /**
+   * Returns the merged configuration for the active document.
+   *
+   * This getter merges configurations in the following order of precedence:
+   * 1. Document-specific configuration (highest priority)
+   * 2. Workspace-level configuration
+   * 3. Default configuration (lowest priority)
+   *
+   * The active document is determined by the workspace's activeDocument extension,
+   * falling back to the first document if none is specified.
+   */
   readonly config: typeof defaultConfig
+  /**
+   * Exports the specified document in the requested format.
+   *
+   * This method serializes the most recently saved local version of the document (from the intermediateDocuments map)
+   * to either JSON or YAML. The exported document reflects the last locally saved state, including any edits
+   * that have been saved but not yet synced to a remote registry. Runtime/in-memory changes that have not been saved
+   * will not be included.
+   *
+   * @param documentName - The name of the document to export.
+   * @param format - The output format: 'json' for a JSON string, or 'yaml' for a YAML string.
+   * @returns The document as a string in the requested format, or undefined if the document does not exist.
+   *
+   * @example
+   * // Export a document as JSON
+   * const jsonString = store.exportDocument('api', 'json')
+   *
+   * // Export a document as YAML
+   * const yamlString = store.exportDocument('api', 'yaml')
+   */
   /**
    * Exports the specified document in the requested format.
    *
@@ -257,7 +374,43 @@ export type WorkspaceStore = {
    * // Save the current state of the document named 'api'
    * const excludedDiffs = store.saveDocument('api')
    */
+  /**
+   * Saves the current state of the specified document to the intermediate documents map.
+   *
+   * This function captures the latest (reactive) state of the document from the workspace and
+   * applies its changes to the corresponding entry in the `intermediateDocuments` map.
+   * The `intermediateDocuments` map represents the most recently "saved" local version of the document,
+   * which may include edits not yet synced to the remote registry.
+   *
+   * The update is performed in-place. A deep clone of the current document
+   * state is used to avoid mutating the reactive object directly.
+   *
+   * @param documentName - The name of the document to save.
+   * @returns An array of diffs that were excluded from being applied (such as changes to ignored keys),
+   *          or undefined if the document does not exist or cannot be updated.
+   *
+   * @example
+   * // Save the current state of the document named 'api'
+   * const excludedDiffs = store.saveDocument('api')
+   */
   saveDocument(documentName: string): unknown[] | undefined
+  /**
+   * Restores the specified document to its last locally saved state.
+   *
+   * This method updates the current reactive document (in the workspace) with the contents of the
+   * corresponding intermediate document (from the `intermediateDocuments` map), effectively discarding
+   * any unsaved in-memory changes and reverting to the last saved version.
+   * Vue reactivity is preserved by updating the existing reactive object in place.
+   *
+   * **Warning:** This operation will discard all unsaved (in-memory) changes to the specified document.
+   *
+   * @param documentName - The name of the document to restore.
+   * @returns void
+   *
+   * @example
+   * // Restore the document named 'api' to its last saved state
+   * store.revertDocumentChanges('api')
+   */
   /**
    * Restores the specified document to its last locally saved state.
    *
@@ -286,6 +439,16 @@ export type WorkspaceStore = {
    * @remarks
    * The actual commit logic is not implemented yet.
    */
+  /**
+   * Commits the specified document.
+   *
+   * This method is intended to finalize and persist the current state of the document,
+   * potentially syncing it with a remote registry or marking it as the latest committed version.
+   *
+   * @param documentName - The name of the document to commit.
+   * @remarks
+   * The actual commit logic is not implemented yet.
+   */
   commitDocument(documentName: string): void
   /**
    * Serializes the current workspace state to a JSON string for backup, persistence, or sharing.
@@ -297,7 +460,26 @@ export type WorkspaceStore = {
    *
    * @returns A JSON string representing the complete workspace state.
    */
+  /**
+   * Serializes the current workspace state to a JSON string for backup, persistence, or sharing.
+   *
+   * This method exports all workspace documents (removing Vue reactivity proxies), workspace metadata,
+   * document configurations, and both the original and intermediate document states. The resulting JSON
+   * can be imported later to fully restore the workspace to this exact state, including all documents
+   * and their configurations.
+   *
+   * @returns A JSON string representing the complete workspace state.
+   */
   exportWorkspace(): string
+  /**
+   * Imports a workspace from a serialized JSON string.
+   *
+   * This method parses the input string using the InMemoryWorkspaceSchema,
+   * then updates the current workspace state, including documents, metadata,
+   * and configuration, with the imported values.
+   *
+   * @param input - The serialized workspace JSON string to import.
+   */
   /**
    * Imports a workspace from a serialized JSON string.
    *
@@ -332,7 +514,51 @@ export type WorkspaceStore = {
    *
    * @param specification - The workspace specification to import.
    */
+  /**
+   * Imports a workspace from a WorkspaceSpecification object.
+   *
+   * This method assigns workspace metadata and adds all documents defined in the specification.
+   * Each document is added using its $ref and optional overrides.
+   *
+   * @example
+   * ```ts
+   * await store.importWorkspaceFromSpecification({
+   *   documents: {
+   *     api: { $ref: '/specs/api.yaml' },
+   *     petstore: { $ref: '/specs/petstore.yaml' }
+   *   },
+   *   overrides: {
+   *     api: { config: { features: { showModels: true } } }
+   *   },
+   *   info: { title: 'My Workspace' },
+   *   workspace: 'v1',
+   *   "x-scalar-dark-mode": true
+   * })
+   * ```
+   *
+   * @param specification - The workspace specification to import.
+   */
   importWorkspaceFromSpecification(specification: WorkspaceSpecification): Promise<void[]>
+  /**
+   * Rebases a document in the workspace with a new origin, resolving conflicts if provided.
+   *
+   * This method is used to rebase a document (e.g., after pulling remote changes) by applying the changes
+   * from the new origin and merging them with local edits. If there are conflicts, they can be resolved
+   * by providing a list of resolved conflicts.
+   *
+   * @param documentName - The name of the document to rebase.
+   * @param newDocumentOrigin - The new origin document (as an object) to rebase onto.
+   * @param resolvedConflicts - (Optional) An array of resolved conflicts to apply.
+   * @returns If there are unresolved conflicts and no resolution is provided, returns the list of conflicts.
+   *
+   * @example
+   * // Example: Rebase a document with a new origin and resolve conflicts
+   * const conflicts = store.rebaseDocument('api', newOriginDoc)
+   * if (conflicts && conflicts.length > 0) {
+   *   // User resolves conflicts here...
+   *   store.rebaseDocument('api', newOriginDoc, userResolvedConflicts)
+   * }
+   */
   /**
    * Rebases a document in the workspace with a new origin, resolving conflicts if provided.
    *
@@ -409,6 +635,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * The key is the document name, and the value is a deep partial
    * OpenAPI document representing the overridden fields.
    */
+  const overrides: Record<string, PartialDeep<OpenApiDocument>> = {}
   const overrides: Record<string, PartialDeep<OpenApiDocument>> = {}
 
   // Create a reactive workspace object with proxied documents
@@ -491,7 +718,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   async function addInMemoryDocument(input: ObjectDoc) {
     const { name, meta } = input
     const inputDocument = deepClone(input.document)
+    const inputDocument = deepClone(input.document)
 
+    const document = coerceValue(OpenAPIDocumentSchema, upgrade(inputDocument).specification)
     const document = coerceValue(OpenAPIDocumentSchema, upgrade(inputDocument).specification)
 
     // Store the original document in the originalDocuments map
@@ -512,6 +741,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (document[extensions.document.navigation] === undefined) {
+      const showModels = input.config?.['x-scalar-reference-config']?.features?.showModels
+
+      document[extensions.document.navigation] = createNavigation(document, {
+        ...(input.config?.['x-scalar-reference-config'] ?? {}),
+        hideModels: showModels === undefined ? undefined : !showModels,
+      }).entries
       const showModels = input.config?.['x-scalar-reference-config']?.features?.showModels
 
       document[extensions.document.navigation] = createNavigation(document, {
@@ -611,6 +846,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       }
 
       // Normalize the input document to ensure it matches the OpenAPI schema and is upgraded to the latest version.
+      const newDocument = coerceValue(OpenAPIDocumentSchema, upgrade(inputDocument).specification)
       const newDocument = coerceValue(OpenAPIDocumentSchema, upgrade(inputDocument).specification)
       // Update the current document in place, applying only the necessary changes and omitting any preprocessing fields.
       applySelectiveUpdates(currentDocument, newDocument)

@@ -61,6 +61,7 @@ describe('create-workspace-store', () => {
   let server: FastifyInstance
   const port = 9988
   const url = `http://localhost:${port}`
+  const url = `http://localhost:${port}`
 
   beforeEach(() => {
     server = fastify({ logger: false })
