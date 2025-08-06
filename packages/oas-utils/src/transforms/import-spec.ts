@@ -22,7 +22,7 @@ import { type Request, type RequestPayload, requestSchema } from '@/entities/spe
 import { type Server, serverSchema } from '@/entities/spec/server'
 import { type Tag, tagSchema } from '@/entities/spec/spec-objects'
 import { schemaModel } from '@/helpers/schema-model'
-import { getServersFromDocument } from '@/libs/servers'
+import { getServersFromDocument } from '@/helpers/servers'
 
 const dereferenceDocument = async (
   document: string | UnknownObject,
