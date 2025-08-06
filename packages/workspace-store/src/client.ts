@@ -21,25 +21,6 @@ import { bundle } from '@scalar/json-magic/bundle'
 import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
 import { apply, diff, merge, type Difference } from '@scalar/json-magic/diff'
 import type { TraverseSpecOptions } from '@/navigation/types'
-import type { PartialDeep } from 'type-fest'
-
-type DocumentConfiguration = Config &
-  PartialDeep<{
-    'x-scalar-reference-config': {
-      tagSort: TraverseSpecOptions['tagsSorter']
-      operationsSorter: TraverseSpecOptions['operationsSorter']
-      getHeadingId: TraverseSpecOptions['getHeadingId']
-      getOperationId: TraverseSpecOptions['getOperationId']
-      getWebhookId: TraverseSpecOptions['getWebhookId']
-      getModelId: TraverseSpecOptions['getModelId']
-      getTagId: TraverseSpecOptions['getTagId']
-    }
-  }>
-
-const defaultConfig: RequiredDeep<Config> = {
-  'x-scalar-reference-config': defaultReferenceConfig,
-}
-import type { TraverseSpecOptions } from '@/navigation/types'
 import type { PartialDeep, RequiredDeep } from 'type-fest'
 
 type DocumentConfiguration = Config &
@@ -636,7 +617,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * OpenAPI document representing the overridden fields.
    */
   const overrides: Record<string, PartialDeep<OpenApiDocument>> = {}
-  const overrides: Record<string, PartialDeep<OpenApiDocument>> = {}
 
   // Create a reactive workspace object with proxied documents
   // Each document is wrapped in a proxy to enable reactive updates and reference resolution
@@ -718,9 +698,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   async function addInMemoryDocument(input: ObjectDoc) {
     const { name, meta } = input
     const inputDocument = deepClone(input.document)
-    const inputDocument = deepClone(input.document)
 
-    const document = coerceValue(OpenAPIDocumentSchema, upgrade(inputDocument).specification)
     const document = coerceValue(OpenAPIDocumentSchema, upgrade(inputDocument).specification)
 
     // Store the original document in the originalDocuments map
@@ -741,12 +719,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (document[extensions.document.navigation] === undefined) {
-      const showModels = input.config?.['x-scalar-reference-config']?.features?.showModels
-
-      document[extensions.document.navigation] = createNavigation(document, {
-        ...(input.config?.['x-scalar-reference-config'] ?? {}),
-        hideModels: showModels === undefined ? undefined : !showModels,
-      }).entries
       const showModels = input.config?.['x-scalar-reference-config']?.features?.showModels
 
       document[extensions.document.navigation] = createNavigation(document, {
@@ -846,7 +818,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       }
 
       // Normalize the input document to ensure it matches the OpenAPI schema and is upgraded to the latest version.
-      const newDocument = coerceValue(OpenAPIDocumentSchema, upgrade(inputDocument).specification)
       const newDocument = coerceValue(OpenAPIDocumentSchema, upgrade(inputDocument).specification)
       // Update the current document in place, applying only the necessary changes and omitting any preprocessing fields.
       applySelectiveUpdates(currentDocument, newDocument)
