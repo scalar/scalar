@@ -709,26 +709,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         ),
       )
     },
-    /**
-     * Rebases a document in the workspace with a new origin, resolving conflicts if provided.
-     *
-     * This method is used to rebase a document (e.g., after pulling remote changes) by applying the changes
-     * from the new origin and merging them with local edits. If there are conflicts, they can be resolved
-     * by providing a list of resolved conflicts.
-     *
-     * @param documentName - The name of the document to rebase.
-     * @param newDocumentOrigin - The new origin document (as an object) to rebase onto.
-     * @param resolvedConflicts - (Optional) An array of resolved conflicts to apply.
-     * @returns If there are unresolved conflicts and no resolution is provided, returns the list of conflicts.
-     *
-     * @example
-     * // Example: Rebase a document with a new origin and resolve conflicts
-     * const conflicts = store.rebaseDocument('api', newOriginDoc)
-     * if (conflicts && conflicts.length > 0) {
-     *   // User resolves conflicts here...
-     *   store.rebaseDocument('api', newOriginDoc, userResolvedConflicts)
-     * }
-     */
     rebaseDocument: (documentName, newDocumentOrigin, resolvedConflicts) => {
       const newOrigin = coerceValue(OpenAPIDocumentSchema, upgrade(newDocumentOrigin).specification)
 
