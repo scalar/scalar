@@ -11,9 +11,11 @@ test.describe('persistAuth', () => {
           version: '1.0.0',
         },
         paths: {},
-        security: {
-          apiKey: [],
-        },
+        security: [
+          {
+            apiKey: [],
+          },
+        ],
         components: {
           securitySchemes: {
             apiKey: {
@@ -47,9 +49,11 @@ test.describe('persistAuth', () => {
           version: '1.0.0',
         },
         paths: {},
-        security: {
-          apiKey: [],
-        },
+        security: [
+          {
+            apiKey: [],
+          },
+        ],
         components: {
           securitySchemes: {
             apiKey: {

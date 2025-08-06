@@ -1097,7 +1097,7 @@ describe('parseSchema', () => {
   })
 })
 
-describe('getServersFromOpenApiDocument', () => {
+describe('getServersFromDocument', () => {
   it('parses a simple server', async () => {
     const result = await importSpecToWorkspace({
       servers: [{ url: 'https://example.com' }],
@@ -1283,7 +1283,7 @@ describe('getServersFromOpenApiDocument', () => {
     expect(result.servers).toMatchObject([{ url: 'http://localhost:3000' }])
   })
 
-  it('returns an empty array when something is invalid', async () => {
+  it('returns the fallback url when something is invalid', async () => {
     const result = await importSpecToWorkspace({
       servers: [{ url: false }],
     })
@@ -1451,6 +1451,37 @@ describe('getServersFromOpenApiDocument', () => {
     }
 
     expect(result.servers).toMatchObject([{ url: 'http://localhost:3000' }])
+
+    // Restore the original window.location
+    vi.stubGlobal('location', originalLocation)
+  })
+
+  it('does not use the document URL if it is relative', async () => {
+    const originalLocation = typeof window !== 'undefined' ? window.location : { origin: undefined }
+    vi.stubGlobal('window', {
+      location: {
+        origin: 'http://localhost:3000',
+      },
+    })
+
+    const result = await importSpecToWorkspace(
+      {
+        servers: [{ url: '/' }, { url: '/v1' }, { url: '/api/v2' }],
+      },
+      {
+        documentUrl: '/openapi.json',
+      },
+    )
+
+    if (result.error) {
+      throw result.error
+    }
+
+    expect(result.servers).toMatchObject([
+      { url: 'http://localhost:3000/' },
+      { url: 'http://localhost:3000/v1' },
+      { url: 'http://localhost:3000/api/v2' },
+    ])
 
     // Restore the original window.location
     vi.stubGlobal('location', originalLocation)
