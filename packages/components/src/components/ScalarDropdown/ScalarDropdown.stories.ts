@@ -54,5 +54,5 @@ type Story = StoryObj<typeof meta>
 export const Base: Story = {}
 
 export const CustomClasses: Story = {
-  args: { class: 'border-red' },
+  args: { class: 'border border-red rounded' },
 }

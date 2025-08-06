@@ -19,7 +19,7 @@
     "build:storybook": "storybook build",
     "clean:snapshots": "shx rm -rf \"**/snapshots\"",
     "dev": "storybook dev -p 5100 --ci",
-    "preview": "pnpm dlx http-server storybook-static -p 5101",
+    "preview": "pnpm dlx http-server storybook-static -p 5100",
     "format": "pnpm prettier --write .",
     "format:check": "pnpm prettier --check .",
     "lint:check": "eslint . && pnpm lint:icons",
