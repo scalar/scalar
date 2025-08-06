@@ -1,3 +1,4 @@
+import { createPluginManager } from '@/plugins/plugin-manager'
 import {
   consoleErrorSpy,
   consoleWarnSpy,
@@ -8,6 +9,11 @@ import {
   resetConsoleSpies,
 } from '@scalar/helpers/testing/console-spies'
 import { afterEach, expect, vi } from 'vitest'
+
+// Mock usePluginManager
+vi.mock('@/plugins/hooks/usePluginManager', () => ({
+  usePluginManager: vi.fn(() => createPluginManager({})),
+}))
 
 afterEach(() => {
   /**
