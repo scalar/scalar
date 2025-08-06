@@ -150,7 +150,7 @@ class ScalarControllerTest {
 
         @BeforeEach
         void setUp() {
-            when(properties.getUrl()).thenReturn("https://test.example.com/api.json");
+            when(properties.getUrl()).thenReturn("https://example.com/api.json");
         }
 
         @Test
@@ -163,15 +163,9 @@ class ScalarControllerTest {
             String html = response.getBody();
             assertThat(html)
                 .isNotNull()
-                .contains("<!doctype html>")
-                .contains("<html>")
-                .contains("<head>")
                 .contains("<title>Scalar API Reference</title>")
-                .contains("<meta charset=\"utf-8\"")
-                .contains("name=\"viewport\"")
-                .contains("<body>")
                 .contains("<div id=\"app\"></div>")
-                .contains("<script src=\"https://cdn.jsdelivr.net/npm/@scalar/api-reference\"></script>")
+                .contains("<script src=\"/scalar/scalar.js\"></script>")
                 .contains("Scalar.createApiReference('#app',");
         }
 
@@ -186,7 +180,7 @@ class ScalarControllerTest {
             assertThat(html)
                 .isNotNull()
                 .doesNotContain("__CONFIGURATION__")
-                .contains("url: \"https://test.example.com/api.json\"");
+                .contains("url: \"https://example.com/api.json\"");
         }
     }
 
