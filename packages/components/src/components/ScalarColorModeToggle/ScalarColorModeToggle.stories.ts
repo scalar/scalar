@@ -22,7 +22,7 @@ type Story = StoryObj<typeof meta>
 
 export const Base: Story = {}
 
-export const ButtonOnly: Story = {
+export const Button: Story = {
   argTypes: {
     class: {
       control: 'text',
@@ -37,7 +37,7 @@ export const ButtonOnly: Story = {
   }),
 }
 
-export const IconOnly: Story = {
+export const Icon: Story = {
   argTypes: {
     class: {
       control: 'text',
