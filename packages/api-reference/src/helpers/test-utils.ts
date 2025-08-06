@@ -63,7 +63,6 @@ export const createMockStore = (activeDocument: WorkspaceDocument): WorkspaceSto
   workspace: {
     documents: {},
     activeDocument,
-    'x-scalar-default-client': 'shell/curl',
   },
   update: vi.fn(),
   updateDocument: vi.fn(),
