@@ -1,10 +1,25 @@
-import { Type, type Static, type TIntersect, type TRecursive, type TSchema } from '@sinclair/typebox'
+import {
+  type Static,
+  type TArray,
+  type TBoolean,
+  type TIntersect,
+  type TInteger,
+  type TLiteral,
+  type TObject,
+  type TOptional,
+  type TRecord,
+  type TRecursive,
+  type TSchema,
+  type TString,
+  type TUnion,
+  type TUnknown,
+  Type,
+} from '@sinclair/typebox'
 import { DiscriminatorObjectSchema } from './discriminator'
 import { XMLObjectSchema } from './xml'
 import { ExternalDocumentationObjectSchema } from './external-documentation'
 import { ExtensionsSchema } from './extensions'
 import { compose } from '@/schemas/compose'
-import type { Simplify } from 'type-fest'
 
 /**
  * Primitive types that don't have additional validation properties.
@@ -130,13 +145,7 @@ const StringValidationProperties = Type.Object({
   pattern: Type.Optional(Type.String()),
 })
 
-/**
- * The Schema Object allows the definition of input and output data types. These types can be objects, but also primitives and arrays. This object is a superset of the JSON Schema Specification Draft 2020-12. The empty schema (which allows any instance to validate) MAY be represented by the boolean value true and a schema which allows no instance to validate MAY be represented by the boolean value false.
- *
- * For more information about the keywords, see JSON Schema Core and JSON Schema Validation.
- *
- * Unless stated otherwise, the keyword definitions follow those of JSON Schema and do not add any additional semantics; this includes keywords such as $schema, $id, $ref, and $dynamicRef being URIs rather than URLs. Where JSON Schema indicates that behavior is defined by the application (e.g. for annotations), OAS also defers the definition of semantics to the application consuming the OpenAPI document.
- */
+/** Builds the recursive schema schema */
 export const schemaObjectSchemaBuilder = <S extends TSchema>(schema: S) => {
   const CorePropertiesWithSchema = Type.Object({
     // Base JSON Schema
@@ -147,9 +156,9 @@ export const schemaObjectSchemaBuilder = <S extends TSchema>(schema: S) => {
     /** Default value for the schema. */
     default: Type.Optional(Type.Unknown()),
     /** Array of allowed values. */
-    enum: Type.Optional(Type.Array(Type.Any())),
+    enum: Type.Optional(Type.Array(Type.Unknown())),
     /** Constant value that must match exactly. */
-    const: Type.Optional(Type.Any()),
+    const: Type.Optional(Type.Unknown()),
 
     // Composition
     /** All schemas must be valid. */
@@ -185,7 +194,7 @@ export const schemaObjectSchemaBuilder = <S extends TSchema>(schema: S) => {
      *
      * @deprecated The example field has been deprecated in favor of the JSON Schema examples keyword. Use of example is discouraged, and later versions of this specification may remove it.
      */
-    example: Type.Optional(Type.Any()),
+    example: Type.Optional(Type.Unknown()),
     /**
      * An array of examples of valid instances for this schema. This keyword follows the JSON Schema Draft 2020-12 specification.
      * Each example should be a valid instance of the schema.
@@ -227,6 +236,7 @@ export const schemaObjectSchemaBuilder = <S extends TSchema>(schema: S) => {
   })
 
   return compose(
+    ExtensionsSchema,
     CorePropertiesWithSchema,
     Type.Union([
       OtherTypes,
@@ -238,15 +248,61 @@ export const schemaObjectSchemaBuilder = <S extends TSchema>(schema: S) => {
   )
 }
 
-/**
- * This will give us an any like type to beat the t
- */
 type SchemaObjectSchemaType = TRecursive<
-  TIntersect<[typeof ExtensionsSchema, ReturnType<typeof schemaObjectSchemaBuilder>]>
+  TIntersect<
+    [
+      TObject<{
+        title: TOptional<TString>
+        description: TOptional<TString>
+        default: TOptional<TUnknown>
+        enum: TOptional<TArray<TUnknown>>
+        const: TOptional<TUnknown>
+        allOf: TOptional<TArray<SchemaObjectSchemaType>>
+        oneOf: TOptional<TArray<SchemaObjectSchemaType>>
+        anyOf: TOptional<TArray<SchemaObjectSchemaType>>
+        not: TOptional<SchemaObjectSchemaType>
+        contentMediaType: TOptional<TString>
+        contentEncoding: TOptional<TString>
+        contentSchema: TOptional<SchemaObjectSchemaType>
+        deprecated: TOptional<TBoolean>
+        discriminator: TOptional<typeof DiscriminatorObjectSchema>
+        readOnly: TOptional<TBoolean>
+        writeOnly: TOptional<TBoolean>
+        xml?: TOptional<typeof XMLObjectSchema>
+        externalDocs: TOptional<typeof ExternalDocumentationObjectSchema>
+        example: TOptional<TUnknown>
+        examples: TOptional<TArray<TUnknown>>
+        'x-tags': TOptional<TArray<TString>>
+      }>,
+      TUnion<
+        [
+          typeof OtherTypes,
+          typeof NumericProperties,
+          typeof StringValidationProperties,
+          TObject<{
+            type: TLiteral<'object'>
+            maxProperties: TOptional<TInteger>
+            minProperties: TOptional<TInteger>
+            required: TOptional<TArray<TString>>
+            properties: TOptional<TRecord<TString, SchemaObjectSchemaType>>
+            additionalProperties: TOptional<TUnion<[TBoolean, SchemaObjectSchemaType]>>
+            patternProperties: TOptional<TRecord<TString, SchemaObjectSchemaType>>
+          }>,
+          TObject<{
+            type: TLiteral<'array'>
+            maxItems: TOptional<TInteger>
+            minItems: TOptional<TInteger>
+            uniqueItems: TOptional<TBoolean>
+            items: TOptional<SchemaObjectSchemaType>
+            prefixItems: TOptional<TArray<SchemaObjectSchemaType>>
+          }>,
+        ]
+      >,
+      typeof ExtensionsSchema,
+    ]
+  >
 >
 
-export const SchemaObjectSchema = Type.Recursive((This) => compose(ExtensionsSchema, schemaObjectSchemaBuilder(This)))
+export const SchemaObjectSchema = Type.Recursive((This) => schemaObjectSchemaBuilder(This))
 
 export type SchemaObject = Static<typeof SchemaObjectSchema>
-
-type PrintMe = Simplify<SchemaObject>
