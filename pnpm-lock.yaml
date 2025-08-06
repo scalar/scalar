@@ -2626,6 +2626,9 @@ importers:
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
+      type-fest:
+        specifier: catalog:*
+        version: 4.41.0
       vue:
         specifier: catalog:*
         version: 3.5.17(typescript@5.8.3)
@@ -33885,7 +33888,7 @@ snapshots:
       enhanced-resolve: 5.18.1
       mlly: 1.7.4
       pathe: 1.1.2
-      ufo: 1.5.4
+      ufo: 1.6.1
 
   extract-zip@2.0.1:
     dependencies:
@@ -34525,7 +34528,7 @@ snapshots:
       citty: 0.1.6
       consola: 3.4.2
       defu: 6.1.4
-      node-fetch-native: 1.6.4
+      node-fetch-native: 1.6.6
       nypm: 0.3.12
       ohash: 1.1.4
       pathe: 1.1.2

@@ -1,19 +1,3 @@
-export type DeepRequired<T> = T extends Function
-  ? T
-  : T extends Array<infer U>
-    ? Array<DeepRequired<U>>
-    : T extends object
-      ? { [K in keyof T]-?: DeepRequired<T[K]> }
-      : T
-
-export type DeepPartial<T> = T extends Function
-  ? T
-  : T extends Array<infer U>
-    ? Array<DeepPartial<U>>
-    : T extends object
-      ? { [K in keyof T]?: DeepPartial<T[K]> }
-      : T
-
 /**
  * Converts a readonly array type to a mutable array type.
  *
