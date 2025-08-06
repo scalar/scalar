@@ -14,7 +14,6 @@ public class ScalarController {
 
     private static final String DEFAULT_PATH = "/scalar";
     private static final String JS_FILENAME = "scalar.js";
-    private static final String WEBJAR_VERSION = "0.1.0";
 
     private final ScalarProperties properties;
 
@@ -25,7 +24,7 @@ public class ScalarController {
     @GetMapping("${scalar.path:" + DEFAULT_PATH + "}")
     public ResponseEntity<String> getDocs() throws IOException {
         // Load the template HTML
-        InputStream inputStream = getClass().getResourceAsStream("/META-INF/resources/webjars/scalar/" + WEBJAR_VERSION + "/index.html");
+        InputStream inputStream = getClass().getResourceAsStream("/META-INF/resources/webjars/scalar/index.html");
         if (inputStream == null) {
             return ResponseEntity.notFound().build();
         }
@@ -50,7 +49,7 @@ public class ScalarController {
     @GetMapping("${scalar.path:" + DEFAULT_PATH + "}/" + JS_FILENAME)
     public ResponseEntity<byte[]> getScalarJs() throws IOException {
         // Load the scalar.js file
-        InputStream inputStream = getClass().getResourceAsStream("/META-INF/resources/webjars/scalar/" + WEBJAR_VERSION + "/" + JS_FILENAME);
+        InputStream inputStream = getClass().getResourceAsStream("/META-INF/resources/webjars/scalar/" + JS_FILENAME);
         if (inputStream == null) {
             return ResponseEntity.notFound().build();
         }

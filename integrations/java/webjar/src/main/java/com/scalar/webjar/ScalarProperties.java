@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "scalar")
 public class ScalarProperties {
-    
+
     private String url = "https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json";
     private boolean enabled = true;
     private String path = "/scalar";
@@ -32,4 +32,4 @@ public class ScalarProperties {
     public void setPath(String path) {
         this.path = path;
     }
-} 
+}
