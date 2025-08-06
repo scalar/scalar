@@ -1,5 +1,5 @@
 import { testComponent } from '@test/testComponent'
 
 testComponent('ScalarCard', {
-  variants: ['Default', 'Minimal Card'],
+  variants: ['Base', 'With Actions', 'Minimal'],
 })

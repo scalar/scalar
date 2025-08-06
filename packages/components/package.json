@@ -17,6 +17,7 @@
   "scripts": {
     "build": "pnpm typegen:icons && scalar-build-vite",
     "build:storybook": "storybook build",
+    "clean:snapshots": "shx rm -rf \"**/snapshots\"",
     "dev": "storybook dev -p 5100 --ci",
     "preview": "pnpm dlx http-server storybook-static -p 5101",
     "format": "pnpm prettier --write .",
@@ -26,6 +27,8 @@
     "lint:icons": "svglint src/components/ScalarIcon/icons/*.svg --config src/components/ScalarIcon/.svglintrc.js",
     "test": "vitest",
     "test:e2e": "playwright test",
+    "test:e2e:report": "playwright show-report",
+    "test:e2e:snapshots": "playwright test --update-snapshots",
     "test:e2e:ui": "playwright test --ui",
     "typegen:icons": "vite-node ./src/scripts/typegen.ts",
     "types:build": "scalar-types-build-vue",
