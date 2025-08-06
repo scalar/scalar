@@ -253,6 +253,8 @@ jobs:
   test-java-webjar:
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
+    permissions:
+      contents: read
     timeout-minutes: 10
     steps:
       - name: Checkout repository
