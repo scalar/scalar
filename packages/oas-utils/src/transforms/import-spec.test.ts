@@ -1455,4 +1455,31 @@ describe('getServersFromOpenApiDocument', () => {
     // Restore the original window.location
     vi.stubGlobal('location', originalLocation)
   })
+
+  it('does not use the document URL if it is relative', async () => {
+    const originalLocation = typeof window !== 'undefined' ? window.location : { origin: undefined }
+    vi.stubGlobal('window', {
+      location: {
+        origin: 'http://localhost:3000',
+      },
+    })
+
+    const result = await importSpecToWorkspace(
+      {
+        servers: [{ url: '/' }],
+      },
+      {
+        documentUrl: '/openapi.json',
+      },
+    )
+
+    if (result.error) {
+      throw result.error
+    }
+
+    expect(result.servers).toMatchObject([{ url: 'http://localhost:3000/' }])
+
+    // Restore the original window.location
+    vi.stubGlobal('location', originalLocation)
+  })
 })

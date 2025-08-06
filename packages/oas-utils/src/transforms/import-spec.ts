@@ -604,6 +604,12 @@ export function getServersFromOpenApiDocument(
 
             if (baseUrl) {
               parsedSchema.url = combineUrlAndPath(baseUrl, parsedSchema.url)
+            } else {
+              const fallbackUrl = getFallbackUrl()
+
+              if (fallbackUrl) {
+                parsedSchema.url = combineUrlAndPath(fallbackUrl, parsedSchema.url)
+              }
             }
 
             return parsedSchema
