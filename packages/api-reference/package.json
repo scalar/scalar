@@ -90,7 +90,10 @@
     "zod": "catalog:*"
   },
   "devDependencies": {
+    "@hono/node-server": "^1.11.0",
+    "@playwright/test": "catalog:*",
     "@scalar/build-tooling": "workspace:*",
+    "@scalar/core": "workspace:*",
     "@scalar/galaxy": "workspace:*",
     "@scalar/react-renderer": "workspace:*",
     "@tailwindcss/vite": "catalog:*",
@@ -99,6 +102,7 @@
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/server-renderer": "^3.5.17",
     "@vue/test-utils": "^2.4.1",
+    "hono": "^4.6.5",
     "react": "catalog:*",
     "react-dom": "catalog:*",
     "rollup-plugin-webpack-stats": "^0.2.5",
@@ -106,10 +110,6 @@
     "vite": "catalog:*",
     "vite-plugin-banner": "^0.7.1",
     "vite-plugin-css-injected-by-js": "^3.4.0",
-    "vitest": "catalog:*",
-    "@hono/node-server": "^1.11.0",
-    "@playwright/test": "catalog:*",
-    "hono": "^4.6.5",
-    "@scalar/core": "workspace:*"
+    "vitest": "catalog:*"
   }
 }
