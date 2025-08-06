@@ -501,7 +501,9 @@ export default {
   stroke-width: 1.5;
 }
 .line-wrapping:focus-within :deep(.cm-content) {
+  display: inline-table;
   min-height: fit-content;
+  padding: 3px 6px;
   white-space: break-spaces;
   word-break: break-all;
 }
