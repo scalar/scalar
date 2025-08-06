@@ -242,8 +242,8 @@ export const schemaObjectSchemaBuilder = <S extends TSchema>(schema: S) => {
       OtherTypes,
       NumericProperties,
       StringValidationProperties,
-      ArrayValidationPropertiesWithSchema,
       ObjectValidationPropertiesWithSchema,
+      ArrayValidationPropertiesWithSchema,
     ]),
   )
 }
@@ -251,24 +251,25 @@ export const schemaObjectSchemaBuilder = <S extends TSchema>(schema: S) => {
 type SchemaObjectSchemaType = TRecursive<
   TIntersect<
     [
+      typeof ExtensionsSchema,
       TObject<{
         title: TOptional<TString>
         description: TOptional<TString>
         default: TOptional<TUnknown>
         enum: TOptional<TArray<TUnknown>>
         const: TOptional<TUnknown>
-        allOf: TOptional<TArray<SchemaObjectSchemaType>>
-        oneOf: TOptional<TArray<SchemaObjectSchemaType>>
-        anyOf: TOptional<TArray<SchemaObjectSchemaType>>
-        not: TOptional<SchemaObjectSchemaType>
+        allOf: TOptional<TArray<any>>
+        oneOf: TOptional<TArray<any>>
+        anyOf: TOptional<TArray<any>>
+        not: TOptional<any>
         contentMediaType: TOptional<TString>
         contentEncoding: TOptional<TString>
-        contentSchema: TOptional<SchemaObjectSchemaType>
+        contentSchema: TOptional<any>
         deprecated: TOptional<TBoolean>
         discriminator: TOptional<typeof DiscriminatorObjectSchema>
         readOnly: TOptional<TBoolean>
         writeOnly: TOptional<TBoolean>
-        xml?: TOptional<typeof XMLObjectSchema>
+        xml: TOptional<typeof XMLObjectSchema>
         externalDocs: TOptional<typeof ExternalDocumentationObjectSchema>
         example: TOptional<TUnknown>
         examples: TOptional<TArray<TUnknown>>
@@ -284,25 +285,24 @@ type SchemaObjectSchemaType = TRecursive<
             maxProperties: TOptional<TInteger>
             minProperties: TOptional<TInteger>
             required: TOptional<TArray<TString>>
-            properties: TOptional<TRecord<TString, SchemaObjectSchemaType>>
-            additionalProperties: TOptional<TUnion<[TBoolean, SchemaObjectSchemaType]>>
-            patternProperties: TOptional<TRecord<TString, SchemaObjectSchemaType>>
+            properties: TOptional<TRecord<TString, any>>
+            additionalProperties: TOptional<TUnion<[TBoolean, any]>>
+            patternProperties: TOptional<TRecord<TString, any>>
           }>,
           TObject<{
             type: TLiteral<'array'>
             maxItems: TOptional<TInteger>
             minItems: TOptional<TInteger>
             uniqueItems: TOptional<TBoolean>
-            items: TOptional<SchemaObjectSchemaType>
-            prefixItems: TOptional<TArray<SchemaObjectSchemaType>>
+            items: TOptional<any>
+            prefixItems: TOptional<TArray<any>>
           }>,
         ]
       >,
-      typeof ExtensionsSchema,
     ]
   >
 >
 
-export const SchemaObjectSchema = Type.Recursive((This) => schemaObjectSchemaBuilder(This))
+export const SchemaObjectSchema: SchemaObjectSchemaType = Type.Recursive((This) => schemaObjectSchemaBuilder(This))
 
 export type SchemaObject = Static<typeof SchemaObjectSchema>
