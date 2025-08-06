@@ -31,7 +31,7 @@ type ComponentOptions = {
 }
 
 const defaultOptions: ComponentOptions = {
-  stories: ['base'],
+  stories: ['Base'],
 } as const
 
 const formatStorybookUrl = (str: string) => str.replace(/ /g, '-').toLowerCase()
