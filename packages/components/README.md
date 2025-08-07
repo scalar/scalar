@@ -105,6 +105,12 @@ Since you can directly target the reference element with Tailwind classes any cl
 
 The components package uses the same [CSS Layers](https://developer.mozilla.org/en-US/docs/Web/CSS/@layer) as the themes package to apply the theme styles. For more information see the [themes README](https://github.com/scalar/scalar/tree/main/packages/themes).
 
+## Testing
+
+The components library uses both unit testing (vitest) and snapshot testing to ensure quality and visual consistency. Snapshot tests are written using Playwright and capture screenshots of Storybook stories to detect visual regressions.
+
+For detailed information about the testing setup, see the [test README](./test/README.md).
+
 ## Contributing
 
 All pull requests should include the following checklist:
@@ -123,4 +129,5 @@ All pull requests should include the following checklist:
 - [ ] Allows overriding of Tailwind classes where applicable (see useBindCx)
 - [ ] Has stories showcasing any applicable variants
 - [ ] Has unit tests covering any applicable interactions
+- [ ] Has snapshot tests covering any visual variations
 ```
