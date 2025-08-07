@@ -278,25 +278,40 @@ jobs:
     if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
     needs: [build, test-java-webjar]
     runs-on: blacksmith-2vcpu-ubuntu-2204
+    concurrency:
+      group: publish-java-webjar
+      cancel-in-progress: false
     permissions:
       contents: read
     timeout-minutes: 10
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-      - name: Build @scalar/api-reference
+      - name: Check for new Webjar version
+        id: changed-files
+        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
+        with:
+          files_yaml: |
+            java_webjar_package:
+              - integrations/java/webjar/package.json
+
+      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
+        name: Build @scalar/api-reference
         uses: ./.github/actions/build-blacksmith
         with:
           node-version: '22'
           packages: '@scalar/api-reference'
-      - name: Copy JavaScript asset from @scalar/api-reference
+      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
+        name: Copy JavaScript asset from @scalar/api-reference
         run: pnpm --filter @scalar/webjar copy:standalone
-      - name: Setup Java
+      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
+        name: Setup Java
         uses: useblacksmith/setup-java@4ef812391eff6e9737ba13bf0356d0f702877a64 # v5
         with:
           distribution: 'temurin'
           java-version: '17'
-      - name: Release Java WebJar
+      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
+        name: Release Java WebJar
         run: pnpm --filter @scalar/webjar release
 
   # This is a workaround to keep the version number in sync with the npm package version.
@@ -329,6 +344,7 @@ jobs:
           commit_message: 'chore: update java webjar version'
           file_pattern: |
             integrations/java/webjar/pom.xml
+
   stats:
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
