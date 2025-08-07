@@ -297,7 +297,6 @@ jobs:
           files_yaml: |
             java_webjar_package:
               - integrations/java/webjar/package.json
-
       - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
         name: Build @scalar/api-reference
         uses: ./.github/actions/build-blacksmith
@@ -313,9 +312,17 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
+        name: Build Java WebJar
+        run: pnpm --filter @scalar/webjar build
       - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
         name: Release Java WebJar
         run: pnpm --filter @scalar/webjar release
+        env:
+          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
 
   # This is a workaround to keep the version number in sync with the npm package version (managed by changesets).
   #
