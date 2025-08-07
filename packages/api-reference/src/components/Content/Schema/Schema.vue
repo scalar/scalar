@@ -5,7 +5,6 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed, inject } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
-import { DISCRIMINATOR_CONTEXT } from '@/hooks/useDiscriminator'
 
 import { isTypeObject } from './helpers/is-type-object'
 import SchemaHeading from './SchemaHeading.vue'
@@ -35,63 +34,14 @@ const props = withDefaults(
     additionalProperties?: boolean
     /** Hide model names in type display */
     hideModelNames?: boolean
-    /** Selected discriminator */
-    discriminator?: string
-    /** Discriminator mapping */
-    discriminatorMapping?: Record<string, string>
-    /** Discriminator property name */
-    discriminatorPropertyName?: string
-    /** Whether the schema has a discriminator */
-    hasDiscriminator?: boolean
     /** Breadcrumb for the schema */
     breadcrumb?: string[]
   }>(),
   { level: 0, noncollapsible: false, hideModelNames: false },
 )
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: string): void
-}>()
-
-// Inject the discriminator context
-const discriminatorContext = inject(DISCRIMINATOR_CONTEXT, null)
-
-// Use injected context values or fallback to props for backward compatibility
-const discriminatorMapping = computed(
-  () =>
-    discriminatorContext?.value?.discriminatorMapping ||
-    props.discriminatorMapping ||
-    {},
-)
-const discriminatorPropertyName = computed(
-  () =>
-    discriminatorContext?.value?.discriminatorPropertyName ||
-    props.discriminatorPropertyName ||
-    '',
-)
-const discriminator = computed(
-  () => discriminatorContext?.value?.selectedType || props.discriminator,
-)
-
 /* Returns the resolved schema from discriminator context when available for display */
 const schema = computed(() => {
-  // Get the merged schema from the discriminator context
-  const mergedSchema = discriminatorContext?.value?.mergedSchema
-
-  // Get the original schema from the props
-  const originalSchema = props.value
-
-  // If the merged schema is an object schema and the original schema is an object schema, return the merged schema
-  if (
-    mergedSchema &&
-    props.level === 0 &&
-    props.hasDiscriminator &&
-    isTypeObject(originalSchema) &&
-    isTypeObject(mergedSchema)
-  ) {
-    return mergedSchema
-  }
-
   // Otherwise fall back to the resolved schema prop or value prop
   return props.value
 })
@@ -168,10 +118,6 @@ const schemaDescription = computed(() => {
 // Prevent click action if noncollapsible
 const handleClick = (e: MouseEvent) =>
   props.noncollapsible && e.stopPropagation()
-
-const handleDiscriminatorChange = (type: string) => {
-  emit('update:modelValue', type)
-}
 </script>
 <template>
   <Disclosure
@@ -261,12 +207,7 @@ const handleDiscriminatorChange = (type: string) => {
             :compact="compact"
             :hideHeading="hideHeading"
             :level="level + 1"
-            :hideModelNames="hideModelNames"
-            :discriminator="discriminator"
-            :discriminatorMapping="discriminatorMapping"
-            :discriminatorPropertyName="discriminatorPropertyName"
-            :hasDiscriminator="hasDiscriminator"
-            @update:modelValue="handleDiscriminatorChange" />
+            :hideModelNames="hideModelNames" />
 
           <!-- Not an object -->
           <template v-else>
@@ -280,11 +221,7 @@ const handleDiscriminatorChange = (type: string) => {
               :name="(schema as OpenAPIV3_1.SchemaObject).name"
               :value="
                 value.discriminator?.propertyName === name ? value : schema
-              "
-              :discriminatorMapping="discriminatorMapping"
-              :discriminatorPropertyName="discriminatorPropertyName"
-              :modelValue="discriminator"
-              @update:modelValue="handleDiscriminatorChange" />
+              " />
           </template>
         </DisclosurePanel>
       </div>

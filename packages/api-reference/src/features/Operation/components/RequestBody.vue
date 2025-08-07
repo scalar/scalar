@@ -12,14 +12,9 @@ import ContentTypeSelect from './ContentTypeSelect.vue'
  */
 const MAX_VISIBLE_PROPERTIES = 12
 
-const { requestBody, schemas } = defineProps<{
+const { requestBody } = defineProps<{
   breadcrumb?: string[]
   requestBody?: OpenAPIV3_1.OperationObject['requestBody']
-  schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
-}>()
-
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: string): void
 }>()
 
 const availableContentTypes = computed(() =>
@@ -69,10 +64,6 @@ const partitionedSchema = computed(() => {
     },
   }
 })
-
-const handleDiscriminatorChange = (type: string) => {
-  emit('update:modelValue', type)
-}
 </script>
 <template>
   <div
@@ -109,16 +100,13 @@ const handleDiscriminatorChange = (type: string) => {
         name="Request Body"
         noncollapsible
         :breadcrumb
-        :schemas="schemas"
-        :value="partitionedSchema.visibleProperties"
-        @update:modelValue="handleDiscriminatorChange" />
+        :value="partitionedSchema.visibleProperties" />
 
       <Schema
         additionalProperties
         compact
         name="Request Body"
         :breadcrumb
-        :schemas="schemas"
         :value="partitionedSchema.collapsedProperties" />
     </div>
 
@@ -131,9 +119,7 @@ const handleDiscriminatorChange = (type: string) => {
         compact
         name="Request Body"
         noncollapsible
-        :schemas="schemas"
-        :value="requestBody.content?.[selectedContentType]?.schema"
-        @update:modelValue="handleDiscriminatorChange" />
+        :value="requestBody.content?.[selectedContentType]?.schema" />
     </div>
   </div>
 </template>

@@ -51,16 +51,8 @@ const { path, operation, method, isWebhook } = defineProps<{
 
 const operationTitle = computed(() => operation.summary || path || '')
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: string): void
-}>()
-
 const labelId = useId()
 const config = useConfig()
-
-const handleDiscriminatorChange = (type: string) => {
-  emit('update:modelValue', type)
-}
 </script>
 
 <template>
@@ -105,8 +97,7 @@ const handleDiscriminatorChange = (type: string) => {
             <OperationParameters
               :breadcrumb="[id]"
               :parameters="operation.parameters"
-              :requestBody="operation.requestBody"
-              @update:modelValue="handleDiscriminatorChange">
+              :requestBody="operation.requestBody">
             </OperationParameters>
             <OperationResponses
               :breadcrumb="[id]"
@@ -140,8 +131,7 @@ const handleDiscriminatorChange = (type: string) => {
                 :selectedClient="store.workspace['x-scalar-default-client']"
                 :path="path"
                 fallback
-                :operation="operation"
-                @update:modelValue="handleDiscriminatorChange">
+                :operation="operation">
                 <template #header>
                   <OperationPath
                     class="font-code text-c-2 [&_em]:text-c-1 [&_em]:not-italic"

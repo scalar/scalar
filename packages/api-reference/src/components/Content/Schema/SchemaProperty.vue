@@ -1,11 +1,10 @@
 <script lang="ts" setup>
 import { ScalarMarkdown } from '@scalar/components'
-import { computed, inject, type Component } from 'vue'
+import { computed, type Component } from 'vue'
 
 import { WithBreadcrumb } from '@/components/Anchor'
 import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
 import { SpecificationExtension } from '@/features/specification-extension'
-import { DISCRIMINATOR_CONTEXT } from '@/hooks/useDiscriminator'
 
 import {
   compositions,
@@ -36,9 +35,6 @@ const props = withDefaults(
     withExamples?: boolean
     hideModelNames?: boolean
     hideHeading?: boolean
-    discriminatorMapping?: Record<string, string>
-    discriminatorPropertyName?: string
-    isDiscriminator?: boolean
     variant?: 'additionalProperties' | 'patternProperties'
     breadcrumb?: string[]
   }>(),
@@ -50,10 +46,6 @@ const props = withDefaults(
     hideModelNames: false,
   },
 )
-
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: string): void
-}>()
 
 const descriptions: Record<string, Record<string, string>> = {
   integer: {
@@ -116,18 +108,11 @@ const getEnumFromValue = (value?: Record<string, any>): any[] | [] =>
 /** Simplified composition with `null` type. */
 const optimizedValue = computed(() => optimizeValueForDisplay(props.value))
 
-// Inject the discriminator context
-const discriminatorContext = inject(DISCRIMINATOR_CONTEXT, null)
-
 /** Handle schema value according to discriminator context */
 const schema = computed(() => {
   // Prevent recursion in discriminator context presence
   if (props.level > 0) {
     return optimizedValue.value
-  }
-
-  if (discriminatorContext?.value?.mergedSchema) {
-    return discriminatorContext.value.mergedSchema
   }
 
   return optimizedValue.value
@@ -150,11 +135,6 @@ const displayPropertyHeading = (
     value?.readOnly ||
     required
   )
-}
-
-// Handle discriminator type change
-const handleDiscriminatorChange = (type: string) => {
-  emit('update:modelValue', type)
 }
 
 /**
@@ -230,7 +210,6 @@ const shouldHaveLink = computed(() => props.level <= 1)
       :enum="getEnumFromValue(optimizedValue).length > 0"
       :value="optimizedValue"
       :required
-      :isDiscriminator
       :hideModelNames>
       <template
         v-if="name"
@@ -287,10 +266,7 @@ const shouldHaveLink = computed(() => props.level <= 1)
         :name="name"
         :noncollapsible="noncollapsible"
         :value="schema"
-        :resolvedSchema="schema"
-        :discriminatorMapping="discriminatorMapping"
-        :discriminatorPropertyName="discriminatorPropertyName"
-        @update:modelValue="handleDiscriminatorChange" />
+        :resolvedSchema="schema" />
     </div>
     <!-- Array of objects -->
     <template
@@ -312,10 +288,7 @@ const shouldHaveLink = computed(() => props.level <= 1)
             schema && typeof schema === 'object' && 'items' in schema
               ? schema.items
               : optimizedValue.items
-          "
-          :discriminatorMapping="discriminatorMapping"
-          :discriminatorPropertyName="discriminatorPropertyName"
-          @update:modelValue="handleDiscriminatorChange" />
+          " />
       </div>
     </template>
     <!-- Compositions -->

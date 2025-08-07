@@ -10,7 +10,6 @@ import { computed } from 'vue'
 
 import { combineParams } from '@/features/Operation/helpers/combine-params'
 import { convertSecurityScheme } from '@/helpers/convert-security-scheme'
-import { useOperationDiscriminator } from '@/hooks/useOperationDiscriminator'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
 import ClassicLayout from './layouts/ClassicLayout.vue'
@@ -67,22 +66,6 @@ const operation = computed(() => {
   return { ...entity, parameters }
 })
 
-const oldOperation = computed(() =>
-  isWebhook
-    ? document?.webhooks?.[path]?.[method]
-    : document?.paths?.[path]?.[method],
-)
-
-/**
- * Handle the selection of discriminator in the request body (anyOf, oneOf…)
- *
- * TODO: update this to use the new store
- */
-const { handleDiscriminatorChange } = useOperationDiscriminator(
-  oldOperation.value,
-  document?.components?.schemas,
-)
-
 /**
  * TEMP
  * This still uses the client store and formats it into the new store format
@@ -98,21 +81,19 @@ const selectedSecuritySchemes = computed(() =>
 </script>
 
 <template>
-  <template v-if="operation && oldOperation">
+  <template v-if="operation">
     <template v-if="layout === 'classic'">
       <ClassicLayout
         :id="id"
         :isWebhook
         :method="method"
         :operation="operation"
-        :oldOperation="oldOperation"
         :clientOptions="clientOptions"
         :securitySchemes="selectedSecuritySchemes"
         :store="store"
         :path="path"
         :schemas="document?.components?.schemas"
-        :server="server"
-        @update:modelValue="handleDiscriminatorChange" />
+        :server="server" />
     </template>
     <template v-else>
       <ModernLayout
@@ -120,14 +101,12 @@ const selectedSecuritySchemes = computed(() =>
         :isWebhook="isWebhook"
         :method="method"
         :clientOptions="clientOptions"
-        :oldOperation="oldOperation"
         :securitySchemes="selectedSecuritySchemes"
         :path="path"
         :store="store"
         :operation="operation"
         :schemas="document?.components?.schemas"
-        :server="server"
-        @update:modelValue="handleDiscriminatorChange" />
+        :server="server" />
     </template>
   </template>
 </template>

@@ -2,26 +2,15 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed } from 'vue'
 
-import type { Schemas } from '@/features/Operation/types/schemas'
-
 import SchemaProperty from './SchemaProperty.vue'
 
-const { schema, discriminatorPropertyName } = defineProps<{
+const { schema } = defineProps<{
   schema: OpenAPIV3_1.SchemaObject
   compact?: boolean
   hideHeading?: boolean
   level?: number
   hideModelNames?: boolean
-  schemas?: Schemas
-  discriminator?: string
-  discriminatorMapping?: Record<string, string>
-  discriminatorPropertyName?: string
-  hasDiscriminator?: boolean
   breadcrumb?: string[]
-}>()
-
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: string): void
 }>()
 
 /**
@@ -37,8 +26,9 @@ const sortedProperties = computed(() => {
   const requiredPropertiesSet = new Set(schema.required || [])
 
   return propertyNames.sort((a, b) => {
-    const aDiscriminator = a === discriminatorPropertyName
-    const bDiscriminator = b === discriminatorPropertyName
+    // TODO: fill this in
+    const aDiscriminator = a === 'discriminatorPropertyName'
+    const bDiscriminator = b === 'discriminatorPropertyName'
     const aRequired = requiredPropertiesSet.has(a)
     const bRequired = requiredPropertiesSet.has(b)
 
@@ -62,14 +52,6 @@ const sortedProperties = computed(() => {
     return a.localeCompare(b)
   })
 })
-
-/**
- * Handles discriminator type changes from child SchemaProperty components.
- * Propagates the change up to the parent component.
- */
-const handleDiscriminatorChange = (type: string) => {
-  emit('update:modelValue', type)
-}
 
 /**
  * Get the display name for additional properties.
@@ -131,21 +113,8 @@ const getAdditionalPropertiesValue = (
         schema.required?.includes(property) ||
         schema.properties[property]?.required === true
       "
-      :schemas="schemas"
       :resolvedSchema="schema.properties[property]"
-      :value="schema.properties[property]"
-      :discriminatorMapping="
-        schema.discriminator?.mapping || discriminatorMapping
-      "
-      :discriminatorPropertyName="
-        schema.discriminator?.propertyName || discriminatorPropertyName
-      "
-      :isDiscriminator="
-        property ===
-        (schema.discriminator?.propertyName || discriminatorPropertyName)
-      "
-      :modelValue="discriminator"
-      @update:modelValue="handleDiscriminatorChange" />
+      :value="schema.properties[property]" />
   </template>
 
   <!-- patternProperties -->
@@ -160,16 +129,10 @@ const getAdditionalPropertiesValue = (
       :level="level"
       :name="property"
       :hideModelNames="hideModelNames"
-      :schemas="schemas"
       :resolvedSchema="schema.patternProperties[property]"
       :value="{
         ...schema.patternProperties[property],
-      }"
-      :discriminatorMapping="discriminatorMapping"
-      :discriminatorPropertyName="discriminatorPropertyName"
-      :isDiscriminator="false"
-      :modelValue="discriminator"
-      @update:modelValue="handleDiscriminatorChange" />
+      }" />
   </template>
 
   <!-- additionalProperties -->
@@ -182,16 +145,10 @@ const getAdditionalPropertiesValue = (
       :level="level"
       :name="getAdditionalPropertiesName(schema.additionalProperties)"
       :hideModelNames="hideModelNames"
-      :schemas="schemas"
       :resolvedSchema="
         getAdditionalPropertiesValue(schema.additionalProperties)
       "
       :value="getAdditionalPropertiesValue(schema.additionalProperties)"
-      :discriminatorMapping="discriminatorMapping"
-      :discriminatorPropertyName="discriminatorPropertyName"
-      :isDiscriminator="false"
-      :modelValue="discriminator"
-      noncollapsible
-      @update:modelValue="handleDiscriminatorChange" />
+      noncollapsible />
   </template>
 </template>
