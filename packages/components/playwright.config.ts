@@ -1,4 +1,6 @@
-import { defineConfig } from '@playwright/test'
+import { defineConfig, type PlaywrightTestConfig } from '@playwright/test'
+
+type WebServer = PlaywrightTestConfig['webServer']
 
 const CI = !!process.env.CI
 
@@ -8,12 +10,16 @@ const CI = !!process.env.CI
  * This runs the playwright test browser(s) in a docker container to make sure
  * the tests are run in a consistent environment locally and in CI.
  */
-const playwrightServer = {
+const playwrightServer: WebServer = {
   name: 'Playwright',
   command: 'pnpm test:e2e:playwright',
   url: 'http://localhost:5001',
   timeout: 120 * 1000,
   reuseExistingServer: !CI,
+  gracefulShutdown: {
+    signal: 'SIGINT',
+    timeout: 10 * 1000,
+  },
 } as const
 
 /**
@@ -22,7 +28,7 @@ const playwrightServer = {
  * This runs the storybook built storybook files from `pnpm build:storybook`
  * unless you're already running the storybook dev server.
  */
-const storybookServer = {
+const storybookServer: WebServer = {
   name: 'Storybook',
   command: 'pnpm preview',
   url: 'http://localhost:5100',
