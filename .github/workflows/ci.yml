@@ -278,7 +278,7 @@ jobs:
         run: pnpm --filter @scalar/webjar test
 
   publish-java-webjar:
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
+    # if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
     needs: [build, test-java-webjar]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     concurrency:
