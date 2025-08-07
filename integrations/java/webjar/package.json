@@ -15,12 +15,10 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "command -v mvn >/dev/null 2>&1 && pnpm copy:standalone && mvn clean package || echo '⚠️ Maven is not available, skipping the build.'",
+    "build": "command -v mvn >/dev/null 2>&1 && pnpm copy:standalone && pnpm update:version && mvn clean package || echo '⚠️ Maven is not available, skipping the build.'",
     "copy:standalone": "shx cp ../../../packages/api-reference/dist/browser/standalone.js ./src/main/resources/META-INF/resources/webjars/scalar/scalar.js",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix",
+    "update:version": "shx sed -i 's/^  <version>[0-9.]*<\\/version>$/  <version>'$npm_package_version'<\\/version>/' pom.xml",
+    "release": "command -v mvn >/dev/null 2>&1 && mvn deploy || echo '⚠️ Maven is not available, skipping the release.'",
     "test": "mvn clean test"
   },
   "dependencies": {
