@@ -405,7 +405,9 @@ jobs:
     strategy:
       matrix:
         node-version: [22]
-
+    container:
+      image: mcr.microsoft.com/playwright:v1.54.0-noble
+      options: --user 1001
     steps:
       - name: Checkout repository
         uses: actions/checkout@09d2acae674a48949e3602304ab46fd20ae0c42f
@@ -419,27 +421,24 @@ jobs:
       - name: Get Playwright version
         id: playwright-version
         run: echo "PLAYWRIGHT_VERSION=$(npx playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
-      - name: Playwright binary cache
-        uses: actions/cache@640a1c2554105b57832a23eea0b4672fc7a790d5
-        with:
-          path: |
-            ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.PLAYWRIGHT_VERSION }}
-      - name: Install Netlify CLI
-        run: pnpm install -g netlify
       - name: Build storybook
         run: pnpm --filter components build:storybook
       - name: Run e2e tests (@scalar/components)
-        run: CI=1 pnpm --filter components test:e2e
+        run: CI=1 pnpm --filter components playwright test
       - if: ${{ !cancelled() }}
-        name: Upload Playwright report
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: playwright-report
-          path: packages/components/playwright-report/
-          retention-days: 30
-
-      - name: Add Netlify Playwright Report URL to the PR
+        name: Install Netlify CLI
+        run: pnpm install -g netlify
+      - if: ${{ !cancelled() }}
+        name: Deploy Playwright Report to Netlify
+        run: |
+          netlify deploy --dir "./packages/components/playwright-report" \
+            --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
+            --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
+            --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
+            --filter @scalar/components \
+            --alias=${{env.DEPLOY_ID}}
+      - if: ${{ !cancelled() }}
+        name: Add Netlify Playwright Report URL to the PR
         uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
         with:
           message: |

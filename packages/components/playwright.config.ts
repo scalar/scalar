@@ -1,5 +1,33 @@
 import { defineConfig } from '@playwright/test'
 
+const CI = process.env.CI === '1'
+/**
+ * Playwright Test Server
+ *
+ * This runs the playwright test browser(s) in a docker container to make sure
+ * the tests are run in a consistent environment locally and in CI.
+ */
+const playwrightServer = {
+  name: 'Playwright',
+  command: 'pnpm test:e2e:playwright',
+  url: 'http://localhost:5001',
+  timeout: 120 * 1000,
+  reuseExistingServer: !process.env.CI,
+} as const
+
+/**
+ * Storybook
+ *
+ * This runs the storybook built storybook files from `pnpm build:storybook`
+ * unless you're already running the storybook dev server.
+ */
+const storybookServer = {
+  name: 'Storybook',
+  command: 'pnpm preview',
+  url: 'http://localhost:5100',
+  reuseExistingServer: !process.env.CI,
+}
+
 // https://playwright.dev/docs/test-configuration
 export default defineConfig({
   testMatch: '**/*.e2e.ts',
@@ -14,36 +42,15 @@ export default defineConfig({
     },
   },
 
-  webServer: [
-    /**
-     * Playwright Test Server
-     *
-     * This runs the playwright test browser(s) in a docker container to make sure
-     * the tests are run in a consistent environment locally and in CI.
-     */
-    {
-      name: 'Playwright',
-      command: 'pnpm test:e2e:playwright',
-      url: 'http://localhost:5001',
-      timeout: 120 * 1000,
-      reuseExistingServer: !process.env.CI,
-    },
-    /**
-     * Storybook
-     *
-     * This runs the storybook built storybook files from `pnpm build:storybook`
-     * unless you're already running the storybook dev server.
-     */
-    {
-      name: 'Storybook',
-      command: 'pnpm preview',
-      url: 'http://localhost:5100',
-      reuseExistingServer: !process.env.CI,
-    },
-  ],
+  /**
+   * In CI we only need the storybook server because the CI container is the playwright server
+   *
+   * @see https://playwright.dev/docs/ci#via-containers
+   */
+  webServer: CI ? [storybookServer] : [playwrightServer, storybookServer],
   use: {
     /** The base URL is on the docker host where we're running storybook */
-    baseURL: 'http://host.docker.internal:5100/',
+    baseURL: CI ? 'http://host.docker.internal:5100/' : 'http://localhost:5100/',
     /** Use a smaller viewport for components */
     viewport: { width: 640, height: 480 },
   },
