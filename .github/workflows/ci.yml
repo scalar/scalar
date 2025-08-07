@@ -339,7 +339,7 @@ jobs:
       - name: Replace version number in pom.xml
         run: pnpm --filter @scalar/webjar update:version
       - name: Commit version changes
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@b863ae1933cb653a53c021fe36dbb774e1fb9403 # v5
         with:
           commit_message: 'chore: update java webjar version'
           file_pattern: |
