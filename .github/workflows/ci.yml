@@ -408,6 +408,8 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v1.54.0-noble
       options: --user root
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@09d2acae674a48949e3602304ab46fd20ae0c42f
@@ -424,7 +426,7 @@ jobs:
       - name: Build storybook
         run: pnpm --filter components build:storybook
       - name: Run e2e tests (@scalar/components)
-        run: CI=1 pnpm --filter components test:e2e:ci
+        run: pnpm --filter components test:e2e:ci
       - if: ${{ !cancelled() }}
         name: Deploy Playwright Report to Netlify
         run: |

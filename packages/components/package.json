@@ -27,7 +27,7 @@
     "preview": "pnpm dlx http-server storybook-static -p 5100",
     "test": "vitest",
     "test:e2e": "PW_TEST_CONNECT_WS_ENDPOINT=ws://127.0.0.1:5001/ playwright test",
-    "test:e2e:ci": "playwright test",
+    "test:e2e:ci": "CI=1 playwright test",
     "test:e2e:playwright": "docker-compose -f test/compose.yml up --remove-orphans --force-recreate",
     "test:e2e:report": "playwright show-report",
     "test:e2e:ui": "pnpm test:e2e --ui",

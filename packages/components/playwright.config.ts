@@ -1,6 +1,7 @@
 import { defineConfig } from '@playwright/test'
 
-const CI = process.env.CI === '1'
+const CI = !!process.env.CI
+
 /**
  * Playwright Test Server
  *
@@ -12,7 +13,7 @@ const playwrightServer = {
   command: 'pnpm test:e2e:playwright',
   url: 'http://localhost:5001',
   timeout: 120 * 1000,
-  reuseExistingServer: !process.env.CI,
+  reuseExistingServer: !CI,
 } as const
 
 /**
@@ -25,7 +26,7 @@ const storybookServer = {
   name: 'Storybook',
   command: 'pnpm preview',
   url: 'http://localhost:5100',
-  reuseExistingServer: !process.env.CI,
+  reuseExistingServer: !CI,
 }
 
 // https://playwright.dev/docs/test-configuration
@@ -50,7 +51,7 @@ export default defineConfig({
   webServer: CI ? [storybookServer] : [playwrightServer, storybookServer],
   use: {
     /** The base URL is on the docker host where we're running storybook */
-    baseURL: CI ? 'http://host.docker.internal:5100/' : 'http://localhost:5100/',
+    baseURL: CI ? 'http://localhost:5100/' : 'http://host.docker.internal:5100/',
     /** Use a smaller viewport for components */
     viewport: { width: 640, height: 480 },
   },
