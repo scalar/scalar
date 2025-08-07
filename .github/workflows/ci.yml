@@ -317,8 +317,16 @@ jobs:
         name: Release Java WebJar
         run: pnpm --filter @scalar/webjar release
 
-  # This is a workaround to keep the version number in sync with the npm package version.
+  # This is a workaround to keep the version number in sync with the npm package version (managed by changesets).
+  #
   # We will add a commit to the main branch *after* the release commit.
+  #
+  # In a perfect world, this would run in the release PR, *but* because that's created by a GHA workflow already,
+  # it won't trigger a new workflow run.
+  #
+  # So, we're running it in the main branch, and it will run after the release PR is merged.
+  #
+  # This helps to accept the limitations of GHA workflows: https://www.youtube.com/watch?v=FTQbiNvZqaY
   after-release-java-webjar:
     # if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
     # needs: [publish-java-webjar]
@@ -328,8 +336,8 @@ jobs:
       # Give the default GITHUB_TOKEN write permission to commit and push the
       # added or changed files to the repository.
       #
-      # We're making an exception here because we want to keep the version number in sync with the npm package version
-      # in a reliable way.
+      # We have to make an exception here because we want to keep the version number in sync with the
+      # npm package version in a *reliable* way. And the most reliable way is to hook into the existing release flow.
       contents: write
     timeout-minutes: 10
     strategy:
