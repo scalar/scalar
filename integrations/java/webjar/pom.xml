@@ -4,6 +4,7 @@
          http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
+  <!-- Don't touch this, this is our verified namespace in the Maven Central Repository. -->
   <groupId>com.scalar.maven</groupId>
   <artifactId>scalar</artifactId>
   <!-- This will replaced with the version from the package.json right before release. -->
@@ -26,7 +27,9 @@
   <developers>
     <developer>
       <id>scalar</id>
+      <!-- Don't touch this, it needs to match the GPG Key (Scalar <support@scalar.com>) -->
       <name>Scalar</name>
+      <!-- Don't touch this, it needs to match the GPG Key (Scalar <support@scalar.com>) -->
       <email>support@scalar.com</email>
     </developer>
   </developers>
