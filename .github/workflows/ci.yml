@@ -266,6 +266,9 @@ jobs:
           packages: '@scalar/api-reference'
       - name: Copy JavaScript asset from @scalar/api-reference
         run: pnpm --filter @scalar/webjar copy:standalone
+      - name: Check if the JS file exists
+        run: |
+          ls -la integrations/java/webjar/src/main/resources/META-INF/resources/webjars/scalar/scalara.js || exit 1
       - name: Setup Java
         uses: useblacksmith/setup-java@4ef812391eff6e9737ba13bf0356d0f702877a64 # v5
         with:
