@@ -36,9 +36,12 @@ export class InvalidChangesDetectedError extends Error {
  * const updated = apply(original, changes)
  * // Result: original document with content added to the 200 response
  */
-export const apply = (document: Record<string, unknown>, diff: Difference[]): Record<string, unknown> => {
+export const apply = <T extends Record<string, unknown>>(
+  document: Record<string, unknown>,
+  diff: Difference<T>[],
+): T => {
   // Traverse the object and apply the change
-  const applyChange = (current: any, path: string[], d: Difference, depth = 0) => {
+  const applyChange = (current: any, path: string[], d: Difference<T>, depth = 0) => {
     if (path[depth] === undefined) {
       throw new InvalidChangesDetectedError(
         `Process aborted. Path ${path.join('.')} at depth ${depth} is undefined, check diff object`,
@@ -74,5 +77,7 @@ export const apply = (document: Record<string, unknown>, diff: Difference[]): Re
     applyChange(document, d.path, d)
   }
 
-  return document
+  // It is safe to cast here because this function mutates the input document
+  // to match the target type T as described by the diff changeset.
+  return document as T
 }

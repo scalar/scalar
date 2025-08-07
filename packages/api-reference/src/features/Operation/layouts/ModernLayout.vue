@@ -9,7 +9,6 @@ import {
 } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
@@ -46,7 +45,6 @@ const { path, operation, method, isWebhook, oldOperation } = defineProps<{
   method: HttpMethodType
   operation: Dereference<OperationObject>
   oldOperation: OpenAPIV3_1.OperationObject
-  parameters: ParameterObject[]
   // pathServers: ServerObject[] | undefined
   isWebhook: boolean
   securitySchemes: SecuritySchemeObject[]
@@ -110,7 +108,7 @@ const handleDiscriminatorChange = (type: string) => {
               :anchorPrefix="id" />
             <OperationParameters
               :breadcrumb="[id]"
-              :parameters
+              :parameters="operation.parameters"
               :requestBody="oldOperation.requestBody"
               :schemas
               @update:modelValue="handleDiscriminatorChange">
