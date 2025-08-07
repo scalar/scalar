@@ -15,6 +15,7 @@
     "node": ">=20"
   },
   "scripts": {
+    "build": "command -v mvn >/dev/null 2>&1 && pnpm copy:standalone && mvn clean package || echo '⚠️ Maven is not available, skipping the build.'",
     "copy:standalone": "shx cp ../../../packages/api-reference/dist/browser/standalone.js ./src/main/resources/META-INF/resources/webjars/scalar/scalar.js",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
