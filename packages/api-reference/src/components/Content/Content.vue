@@ -56,7 +56,7 @@ const clientOptions = computed(() =>
     <!-- Models -->
     <Models
       v-if="!config?.hideModels"
-      :document
+      :document="store.workspace.activeDocument"
       :config />
 
     <slot name="end" />
