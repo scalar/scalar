@@ -408,8 +408,6 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v1.54.0-noble
       options: --user root
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@09d2acae674a48949e3602304ab46fd20ae0c42f
@@ -441,6 +439,8 @@ jobs:
       - if: ${{ !cancelled() }}
         name: Add Netlify Playwright Report URL to the PR
         uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           message: |
             **Components Playwright Report**
