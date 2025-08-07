@@ -412,6 +412,12 @@
                   "type": "page"
                 },
                 {
+                  "name": "Spring Boot",
+                  "slug": "spring-boot",
+                  "path": "documentation/integrations/spring-boot.md",
+                  "type": "page"
+                },
+                {
                   "name": "SvelteKit",
                   "slug": "sveltekit",
                   "path": "documentation/integrations/sveltekit.md",
