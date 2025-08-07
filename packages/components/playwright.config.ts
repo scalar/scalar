@@ -39,7 +39,7 @@ const storybookServer: WebServer = {
 export default defineConfig({
   testMatch: '**/*.e2e.ts',
   reporter: CI
-    ? [['list'], ['html', { open: 'never' }], ['json', { outputFile: 'results.json' }]]
+    ? [['list'], ['html', { open: 'never' }], ['json', { outputFile: 'playwright-results.json' }]]
     : [['list'], ['html', { open: 'on-failure' }]],
 
   snapshotPathTemplate: '{testFileDir}/snapshots/{arg}{ext}',

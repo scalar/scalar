@@ -444,7 +444,7 @@ jobs:
         with:
           comment-title: 'Scalar Components Snapshot Test Results'
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
-          report-file: results.json
+          report-file: packages/components/playwright-results.json
 
   npm-publish:
     if: github.ref == 'refs/heads/main'
