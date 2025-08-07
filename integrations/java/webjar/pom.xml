@@ -6,7 +6,7 @@
 
   <groupId>com.scalar.maven</groupId>
   <artifactId>scalar</artifactId>
-  <version>0.1.0</version>
+  <version>0.0.0</version>
   <packaging>jar</packaging>
 
   <name>Scalar API Reference</name>
