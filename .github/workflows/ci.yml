@@ -250,7 +250,7 @@ jobs:
       - name: Run tests for the proxy server (Go)
         run: cd projects/proxy-scalar-com && go test -v
 
-  test-java-webjar:
+  java-webjar-test:
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     permissions:
@@ -277,12 +277,12 @@ jobs:
       - name: Run Maven tests
         run: pnpm --filter @scalar/webjar test
 
-  publish-java-webjar:
+  java-webjar-publish:
     # if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
-    needs: [build, test-java-webjar]
+    needs: [build, java-webjar-test]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     concurrency:
-      group: publish-java-webjar
+      group: java-webjar-publish
       cancel-in-progress: false
     permissions:
       contents: read
