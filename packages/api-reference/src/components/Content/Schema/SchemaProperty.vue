@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ScalarMarkdown } from '@scalar/components'
+import type { DiscriminatorObject } from '@scalar/workspace-store/schemas/v3.1/strict/discriminator'
 import { computed, type Component } from 'vue'
 
 import { WithBreadcrumb } from '@/components/Anchor'
@@ -31,6 +32,7 @@ const props = withDefaults(
     name?: string
     required?: boolean
     compact?: boolean
+    discriminator?: DiscriminatorObject
     description?: string
     withExamples?: boolean
     hideModelNames?: boolean
@@ -207,6 +209,7 @@ const shouldHaveLink = computed(() => props.level <= 1)
     <SchemaPropertyHeading
       v-if="displayPropertyHeading(optimizedValue, name, required)"
       class="group"
+      :isDiscriminator="discriminator?.propertyName === name"
       :enum="getEnumFromValue(optimizedValue).length > 0"
       :value="optimizedValue"
       :required
@@ -265,8 +268,7 @@ const shouldHaveLink = computed(() => props.level <= 1)
         :level="level + 1"
         :name="name"
         :noncollapsible="noncollapsible"
-        :value="schema"
-        :resolvedSchema="schema" />
+        :value="schema" />
     </div>
     <!-- Array of objects -->
     <template
@@ -280,11 +282,6 @@ const shouldHaveLink = computed(() => props.level <= 1)
           :name="name"
           :noncollapsible="noncollapsible"
           :value="
-            schema && typeof schema === 'object' && 'items' in schema
-              ? schema.items
-              : optimizedValue.items
-          "
-          :resolvedSchema="
             schema && typeof schema === 'object' && 'items' in schema
               ? schema.items
               : optimizedValue.items
@@ -310,6 +307,7 @@ const shouldHaveLink = computed(() => props.level <= 1)
           :breadcrumb="breadcrumb"
           :compact="compact"
           :composition="composition"
+          :discriminator="value?.discriminator"
           :hideHeading="hideHeading"
           :level="level"
           :name="name"
@@ -325,6 +323,7 @@ const shouldHaveLink = computed(() => props.level <= 1)
           :breadcrumb="breadcrumb"
           :compact="compact"
           :composition="composition"
+          :discriminator="value?.discriminator"
           :hideHeading="hideHeading"
           :level="level"
           :name="name"

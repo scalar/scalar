@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { computed, inject } from 'vue'
+import type { DiscriminatorObject } from '@scalar/workspace-store/schemas/v3.1/strict/discriminator'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
+import { computed } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
 
@@ -13,14 +14,7 @@ import SchemaProperty from './SchemaProperty.vue'
 
 const props = withDefaults(
   defineProps<{
-    value?:
-      | OpenAPIV3_1.OperationObject
-      | OpenAPIV3_1.SchemaObject
-      | OpenAPIV3_1.ArraySchemaObject
-      | OpenAPIV3_1.NonArraySchemaObject
-      | OpenAPIV3_1.SchemaObject
-      | OpenAPIV3_1.ArraySchemaObject
-      | OpenAPIV3_1.NonArraySchemaObject
+    value?: SchemaObject
     /** Track how deep we've gone */
     level?: number
     /* Show as a heading */
@@ -29,11 +23,14 @@ const props = withDefaults(
     compact?: boolean
     /** Shows a toggle to hide/show children */
     noncollapsible?: boolean
+    /** Hide the heading */
     hideHeading?: boolean
     /** Show a special one way toggle for additional properties, also has a top border when open */
     additionalProperties?: boolean
     /** Hide model names in type display */
     hideModelNames?: boolean
+    /** Discriminator object */
+    discriminator?: DiscriminatorObject
     /** Breadcrumb for the schema */
     breadcrumb?: string[]
   }>(),
@@ -203,6 +200,7 @@ const handleClick = (e: MouseEvent) =>
           <SchemaObjectProperties
             v-if="isTypeObject(schema)"
             :breadcrumb="breadcrumb"
+            :discriminator
             :schema="schema"
             :compact="compact"
             :hideHeading="hideHeading"
@@ -213,15 +211,12 @@ const handleClick = (e: MouseEvent) =>
           <template v-else>
             <SchemaProperty
               v-if="schema"
-              :breadcrumb="breadcrumb"
-              :compact="compact"
-              :hideHeading="hideHeading"
-              :hideModelNames="hideModelNames"
-              :level="level"
-              :name="(schema as OpenAPIV3_1.SchemaObject).name"
-              :value="
-                value.discriminator?.propertyName === name ? value : schema
-              " />
+              :breadcrumb
+              :compact
+              :hideHeading
+              :hideModelNames
+              :level
+              :value />
           </template>
         </DisclosurePanel>
       </div>

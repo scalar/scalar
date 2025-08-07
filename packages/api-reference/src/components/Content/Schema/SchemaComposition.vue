@@ -2,9 +2,8 @@
 import { ScalarListbox, type ScalarListboxOption } from '@scalar/components'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { DiscriminatorObject } from '@scalar/workspace-store/schemas/v3.1/strict/discriminator'
 import { computed, ref } from 'vue'
-
-import type { Schemas } from '@/features/Operation/types/schemas'
 
 import { getSchemaType } from './helpers/get-schema-type'
 import { mergeAllOfSchemas } from './helpers/merge-all-of-schemas'
@@ -14,9 +13,9 @@ import {
 } from './helpers/schema-composition'
 import Schema from './Schema.vue'
 
-const { schemas, value, composition } = defineProps<{
+const { value, composition } = defineProps<{
   composition: CompositionKeyword
-  schemas?: Schemas
+  discriminator?: DiscriminatorObject
   name?: string
   value: Record<string, any>
   level: number
@@ -183,7 +182,6 @@ const shouldRenderSchema = computed(() => {
         :level="level"
         :name="name"
         :noncollapsible="level != 0 ? false : true"
-        :schemas="schemas"
         :value="schema" />
     </template>
 
@@ -207,12 +205,12 @@ const shouldRenderSchema = computed(() => {
         <Schema
           v-if="shouldRenderSchema"
           :breadcrumb="breadcrumb"
+          :discriminator
           :compact="compact"
           :level="level + 1"
           :hideHeading="hideHeading"
           :name="name"
           :noncollapsible="true"
-          :schemas="schemas"
           :value="
             compositionSchema?.properties
               ? {
@@ -228,26 +226,26 @@ const shouldRenderSchema = computed(() => {
             :breadcrumb="breadcrumb"
             :compact="compact"
             :composition="compositionType"
+            :discriminator
             :hideHeading="hideHeading"
             :level="level + 1"
             :name="name"
             :noncollapsible="true"
-            :schemas="schemas"
             :value="{
               [compositionType]: compositionValue,
             }" />
         </template>
       </div>
     </template>
-    <template v-else>
-      <Schema
+    <!-- TODO: we will no longer merge all of schemas -->
+    <!-- <template v-else> -->
+    <!-- <Schema
         :breadcrumb="breadcrumb"
         :compact="compact"
         :level="level"
         :name="name"
         :noncollapsible="level != 0 ? false : true"
-        :schemas="schemas"
-        :value="mergeAllOfSchemas(value[composition])" />
-    </template>
+        :value="mergeAllOfSchemas(value[composition])" /> -->
+    <!-- </template> -->
   </div>
 </template>

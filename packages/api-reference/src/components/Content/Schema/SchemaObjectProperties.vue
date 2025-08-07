@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { DiscriminatorObject } from '@scalar/workspace-store/schemas/v3.1/strict/discriminator'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 import { computed } from 'vue'
 
 import SchemaProperty from './SchemaProperty.vue'
 
-const { schema } = defineProps<{
-  schema: OpenAPIV3_1.SchemaObject
+const { schema, discriminator } = defineProps<{
+  schema: SchemaObject
+  discriminator?: DiscriminatorObject
   compact?: boolean
   hideHeading?: boolean
   level?: number
@@ -27,8 +29,8 @@ const sortedProperties = computed(() => {
 
   return propertyNames.sort((a, b) => {
     // TODO: fill this in
-    const aDiscriminator = a === 'discriminatorPropertyName'
-    const bDiscriminator = b === 'discriminatorPropertyName'
+    const aDiscriminator = a === discriminator?.propertyName
+    const bDiscriminator = b === discriminator?.propertyName
     const aRequired = requiredPropertiesSet.has(a)
     const bRequired = requiredPropertiesSet.has(b)
 
@@ -53,13 +55,15 @@ const sortedProperties = computed(() => {
   })
 })
 
+console.log('sortedProperties', discriminator)
+
 /**
  * Get the display name for additional properties.
  *
  * Uses x-additionalPropertiesName extension if available, otherwise falls back to a default name.
  */
 const getAdditionalPropertiesName = (
-  additionalProperties: OpenAPIV3_1.SchemaObject | boolean,
+  additionalProperties: SchemaObject['additionalProperties'],
 ) => {
   if (
     typeof additionalProperties === 'object' &&
@@ -78,7 +82,7 @@ const getAdditionalPropertiesName = (
  * When additionalProperties is true or an empty object, it should render as { type: 'anything' }.
  */
 const getAdditionalPropertiesValue = (
-  additionalProperties: OpenAPIV3_1.SchemaObject | boolean,
+  additionalProperties: SchemaObject['additionalProperties'],
 ) => {
   if (
     additionalProperties === true ||
@@ -103,51 +107,43 @@ const getAdditionalPropertiesValue = (
     <SchemaProperty
       v-for="property in sortedProperties"
       :key="property"
-      :breadcrumb="breadcrumb"
-      :compact="compact"
-      :hideHeading="hideHeading"
-      :level="level"
+      :breadcrumb
+      :compact
+      :discriminator
+      :hideHeading
+      :level
       :name="property"
-      :hideModelNames="hideModelNames"
-      :required="
-        schema.required?.includes(property) ||
-        schema.properties[property]?.required === true
-      "
-      :resolvedSchema="schema.properties[property]"
+      :hideModelNames
+      :required="schema.required?.includes(property)"
       :value="schema.properties[property]" />
   </template>
 
   <!-- patternProperties -->
   <template v-if="schema.patternProperties">
     <SchemaProperty
-      :breadcrumb="breadcrumb"
       v-for="property in Object.keys(schema.patternProperties)"
       :key="property"
-      variant="patternProperties"
-      :compact="compact"
-      :hideHeading="hideHeading"
-      :level="level"
+      :breadcrumb
+      :compact
+      :discriminator
+      :hideHeading
+      :level
       :name="property"
       :hideModelNames="hideModelNames"
-      :resolvedSchema="schema.patternProperties[property]"
-      :value="{
-        ...schema.patternProperties[property],
-      }" />
+      :value="schema.patternProperties[property]" />
   </template>
 
   <!-- additionalProperties -->
   <template v-if="schema.additionalProperties">
     <SchemaProperty
-      :breadcrumb="breadcrumb"
       variant="additionalProperties"
-      :compact="compact"
-      :hideHeading="hideHeading"
-      :level="level"
+      :breadcrumb
+      :compact
+      :discriminator
+      :hideHeading
+      :level
       :name="getAdditionalPropertiesName(schema.additionalProperties)"
-      :hideModelNames="hideModelNames"
-      :resolvedSchema="
-        getAdditionalPropertiesValue(schema.additionalProperties)
-      "
+      :hideModelNames
       :value="getAdditionalPropertiesValue(schema.additionalProperties)"
       noncollapsible />
   </template>
