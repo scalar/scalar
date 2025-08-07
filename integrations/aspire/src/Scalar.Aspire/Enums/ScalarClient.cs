@@ -193,5 +193,23 @@ public enum ScalarClient
     /// OFetch client.
     /// </summary>
     [Description("ofetch")]
-    OFetch
+    OFetch,
+
+    /// <summary>
+    /// HTTPX (Sync) client.
+    /// </summary>
+    [Description("httpx_sync")]
+    HttpxSync,
+
+    /// <summary>
+    /// HTTPX (Async) client.
+    /// </summary>
+    [Description("httpx_async")]
+    HttpxAsync,
+
+    /// <summary>
+    /// Reqwest client.
+    /// </summary>
+    [Description("reqwest")]
+    Reqwest
 }

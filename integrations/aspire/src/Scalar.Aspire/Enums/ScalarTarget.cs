@@ -112,6 +112,12 @@ public enum ScalarTarget
     Ruby,
 
     /// <summary>
+    /// Rust programming language.
+    /// </summary>
+    [Description("rust")]
+    Rust,
+
+    /// <summary>
     /// Shell scripting language.
     /// </summary>
     [Description("shell")]
