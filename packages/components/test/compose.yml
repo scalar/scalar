@@ -1,0 +1,12 @@
+name: scalar-components-playwright
+services:
+  playwright:
+    container_name: playwright
+    ports:
+      - 5001:5001
+    init: true
+    working_dir: /home/pwuser
+    user: pwuser
+    image: mcr.microsoft.com/playwright:v1.54.0-noble
+    command: /bin/sh -c "npx -y playwright@1.54.0 run-server --port 5001 --host
+      0.0.0.0"
