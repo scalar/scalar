@@ -1,4 +1,3 @@
-name: scalar-components-playwright
 services:
   playwright:
     container_name: playwright
