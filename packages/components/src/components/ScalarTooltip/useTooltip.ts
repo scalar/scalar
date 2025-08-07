@@ -65,8 +65,10 @@ watch(
     }
 
     if (opts) {
+      const contentTarget = unref(opts?.contentTarget) ?? 'textContent'
+
       // Update the tooltip content
-      el.value.textContent = unref(opts?.content) ?? null
+      el.value[contentTarget] = unref(opts?.content) ?? ''
 
       // Show the tooltip
       const offset = unref(opts?.offset) ?? DEFAULT_OFFSET
@@ -74,7 +76,7 @@ watch(
       el.value.style.setProperty('display', 'block')
     } else {
       // Clear the tooltip content
-      el.value.textContent = null
+      el.value.innerHTML = ''
 
       // Hide the tooltip
       el.value.style.removeProperty('--scalar-tooltip-offset')
