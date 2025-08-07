@@ -2732,8 +2732,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1(@types/node@22.15.3)
       '@playwright/test':
-        specifier: ^1.49.1
-        version: 1.49.1
+        specifier: catalog:*
+        version: 1.54.0
       '@rushstack/eslint-patch':
         specifier: ^1.10.3
         version: 1.10.3
