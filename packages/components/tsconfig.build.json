@@ -3,6 +3,7 @@
   "include": ["src"],
   "exclude": ["test/**", "src/scripts/**", "**/*.test.ts", "**/*.e2e.ts", "**/*.stories.ts"],
   "compilerOptions": {
+    "rootDir": "src",
     "skipLibCheck": true,
     "declaration": true,
     "declarationMap": true,
