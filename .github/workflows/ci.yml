@@ -305,6 +305,13 @@ jobs:
         run: npx playwright install-deps
       - name: Run e2e tests (@scalar/api-reference)
         run: CI=1 pnpm test:e2e:api-reference
+      - if: ${{ failure() }}
+        name: Upload Playwright Test Results
+        uses: actions/upload-artifact@de65e23aa2b7e23d713bb51fbfcb6d502f8667d8
+        with:
+          name: playwright-test-results
+          path: ./packages/api-reference/test-results
+          retention-days: 5
 
   test-e2e-scalar-app:
     needs: [build]
