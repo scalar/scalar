@@ -407,7 +407,7 @@ jobs:
         node-version: [22]
     container:
       image: mcr.microsoft.com/playwright:v1.54.0-noble
-      options: --user 1001
+      options: --user root
     steps:
       - name: Checkout repository
         uses: actions/checkout@09d2acae674a48949e3602304ab46fd20ae0c42f
