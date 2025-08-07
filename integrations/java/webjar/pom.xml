@@ -6,6 +6,8 @@
 
   <groupId>com.scalar.maven</groupId>
   <artifactId>scalar</artifactId>
+  <!-- This will replaced with the version from the package.json right before release. -->
+  <!-- Just keep it 0.0.0, don't touch it. -->
   <version>0.0.0</version>
   <packaging>jar</packaging>
 

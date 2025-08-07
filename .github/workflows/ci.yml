@@ -324,51 +324,6 @@ jobs:
           MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
 
-  # This is a workaround to keep the version number in sync with the npm package version (managed by changesets).
-  #
-  # We will add a commit to the main branch *after* the release commit.
-  #
-  # In a perfect world, this would run in the release PR, *but* because that's created by a GHA workflow already,
-  # it won't trigger a new workflow run.
-  #
-  # So, we're running it in the main branch, and it will run after the release PR is merged.
-  #
-  # This helps to accept the limitations of GHA workflows: https://www.youtube.com/watch?v=FTQbiNvZqaY
-  after-release-java-webjar:
-    # if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
-    # needs: [publish-java-webjar]
-    needs: [build]
-    runs-on: blacksmith-4vcpu-ubuntu-2204
-    permissions:
-      # Give the default GITHUB_TOKEN write permission to commit and push the
-      # added or changed files to the repository.
-      #
-      # We have to make an exception here because we want to keep the version number in sync with the
-      # npm package version in a *reliable* way. And the most reliable way is to hook into the existing release flow.
-      contents: write
-    timeout-minutes: 10
-    strategy:
-      matrix:
-        node-version: [22]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: useblacksmith/setup-node@65c6ca86fdeb0ab3d85e78f57e4f6a7e4780b391 # v5
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
-      - name: Replace version number in pom.xml
-        run: pnpm --filter @scalar/webjar update:version
-      - name: Commit version changes
-        uses: stefanzweifel/git-auto-commit-action@b863ae1933cb653a53c021fe36dbb774e1fb9403 # v5
-        with:
-          commit_message: 'chore: update java webjar version'
-          file_pattern: |
-            integrations/java/webjar/pom.xml
-
   stats:
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
