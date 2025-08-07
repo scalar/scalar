@@ -789,23 +789,25 @@ describe('create-workspace-store', () => {
                     },
                     schema: {
                       items: {
-                        properties: {
-                          email: {
-                            description: 'The user email',
-                            format: 'email',
-                            type: 'string',
+                        $ref: '#/components/schemas/User',
+                        '$ref-value': {
+                          properties: {
+                            email: {
+                              description: 'The user email',
+                              format: 'email',
+                              type: 'string',
+                            },
+                            id: {
+                              description: 'The user ID',
+                              type: 'string',
+                            },
+                            name: {
+                              description: 'The user name',
+                              type: 'string',
+                            },
                           },
-                          id: {
-                            description: 'The user ID',
-                            type: 'string',
-                          },
-                          name: {
-                            description: 'The user name',
-                            type: 'string',
-                          },
+                          type: 'object',
                         },
-                        type: 'object',
-                        'x-original-ref': '#/components/schemas/User',
                       },
                       type: 'array',
                     },
