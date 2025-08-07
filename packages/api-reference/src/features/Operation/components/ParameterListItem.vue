@@ -8,6 +8,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed, ref } from 'vue'
 
 import { SchemaProperty } from '@/components/Content/Schema'
+import SchemaPropertyHeading from '@/components/Content/Schema/SchemaPropertyHeading.vue'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 import ParameterHeaders from './ParameterHeaders.vue'
@@ -22,11 +23,13 @@ const props = withDefaults(
     withExamples?: boolean
     schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
     breadcrumb?: string[]
+    propertyHeading?: boolean
   }>(),
   {
     showChildren: false,
     collapsableItems: false,
     withExamples: true,
+    propertyHeading: true,
   },
 )
 
@@ -84,6 +87,19 @@ const shouldShowParameter = computed(() => {
             v-if="parameter.description"
             class="markdown"
             :value="parameter.description" />
+          <SchemaPropertyHeading
+            :value="{
+              ...(parameter.content
+                ? parameter.content?.[selectedContentType]?.schema
+                : parameter.schema),
+              deprecated: parameter.deprecated,
+              ...(isDefined(parameter.example) && {
+                example: parameter.example,
+              }),
+            }"
+            :schemas="schemas"
+            :withExamples="false"
+            :hideModelNames="false" />
         </span>
       </DisclosureButton>
       <DisclosurePanel
@@ -115,6 +131,7 @@ const shouldShowParameter = computed(() => {
                 }
               : parameter.examples || parameter.schema?.examples,
           }"
+          :propertyHeading="propertyHeading"
           :withExamples="withExamples" />
       </DisclosurePanel>
     </Disclosure>
@@ -162,6 +179,8 @@ const shouldShowParameter = computed(() => {
 }
 
 .parameter-item-type {
+  display: flex;
+  align-items: center;
   font-size: var(--scalar-mini);
   color: var(--scalar-color-2);
   margin-right: 6px;
@@ -170,6 +189,12 @@ const shouldShowParameter = computed(() => {
   text-overflow: ellipsis;
   width: 100%;
   overflow: hidden;
+}
+
+.parameter-item-type:has(.property-detail) :deep(.property-heading)::before {
+  display: block;
+  content: '·';
+  margin: 0 0.5ch;
 }
 
 .parameter-item-trigger-open .parameter-item-type {

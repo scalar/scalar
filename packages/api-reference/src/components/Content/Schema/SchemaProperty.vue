@@ -44,6 +44,7 @@ const props = withDefaults(
     isDiscriminator?: boolean
     variant?: 'additionalProperties' | 'patternProperties'
     breadcrumb?: string[]
+    propertyHeading?: boolean
   }>(),
   {
     level: 0,
@@ -51,6 +52,7 @@ const props = withDefaults(
     compact: false,
     withExamples: true,
     hideModelNames: false,
+    propertyHeading: true,
   },
 )
 
@@ -238,7 +240,10 @@ const shouldHaveLink = computed(() => props.level <= 1)
       },
     ]">
     <SchemaPropertyHeading
-      v-if="displayPropertyHeading(optimizedValue, name, required)"
+      v-if="
+        displayPropertyHeading(optimizedValue, name, required) &&
+        propertyHeading
+      "
       :enum="getEnumFromValue(optimizedValue).length > 0"
       :required="required"
       :value="optimizedValue"
