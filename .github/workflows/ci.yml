@@ -276,7 +276,30 @@ jobs:
       - name: Run Maven tests
         run: pnpm --filter @scalar/webjar test
 
-  # TODO: publish-java-webjar
+  publish-java-webjar:
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
+    needs: [build, test-java-webjar]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    permissions:
+      contents: read
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - name: Build @scalar/api-reference
+        uses: ./.github/actions/build-blacksmith
+        with:
+          node-version: '22'
+          packages: '@scalar/api-reference'
+      - name: Copy JavaScript asset from @scalar/api-reference
+        run: pnpm --filter @scalar/webjar copy:standalone
+      - name: Setup Java
+        uses: useblacksmith/setup-java@4ef812391eff6e9737ba13bf0356d0f702877a64 # v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Release Java WebJar
+        run: pnpm --filter @scalar/webjar release
 
   stats:
     needs: [build]
