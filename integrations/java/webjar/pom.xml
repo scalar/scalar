@@ -15,6 +15,36 @@
   <description>WebJar for the Scalar API Reference</description>
   <url>https://github.com/scalar/scalar</url>
 
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>https://opensource.org/licenses/MIT</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>scalar</id>
+      <name>Scalar</name>
+      <email>support@scalar.com</email>
+    </developer>
+  </developers>
+
+  <scm>
+    <url>https://github.com/scalar/scalar</url>
+    <connection>scm:git:https://github.com/scalar/scalar.git</connection>
+    <developerConnection>scm:git:git@github.com/scalar/scalar.git</developerConnection>
+  </scm>
+
+  <distributionManagement>
+    <repository>
+      <id>central</id>
+      <name>Maven Central Release Repository</name>
+      <url>https://central.sonatype.com/api/v1/publish</url>
+    </repository>
+  </distributionManagement>
+
   <properties>
     <java.version>17</java.version>
     <spring-boot.version>3.3.0</spring-boot.version>
@@ -80,6 +110,7 @@
 
   <build>
     <plugins>
+      <!-- Maven Compiler Plugin -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -100,27 +131,61 @@
             <argLine>-Dnet.bytebuddy.experimental=true</argLine>
         </configuration>
       </plugin>
+
+      <!-- GPG Signing -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>sign-artifacts</id>
+            <phase>verify</phase>
+            <goals><goal>sign</goal></goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Source JAR -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>3.2.1</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <phase>verify</phase>
+            <goals><goal>jar</goal></goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Javadoc JAR -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.6.3</version>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <phase>verify</phase>
+            <goals><goal>jar</goal></goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Required for Maven Central publishing -->
+      <plugin>
+        <groupId>org.sonatype.central</groupId>
+        <artifactId>central-publishing-maven-plugin</artifactId>
+        <version>0.8.0</version>
+        <extensions>true</extensions>
+        <configuration>
+          <publishingServerId>central</publishingServerId>
+          <autoPublish>true</autoPublish>
+          <waitUntil>published</waitUntil>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
-
-  <licenses>
-    <license>
-      <name>MIT License</name>
-      <url>https://opensource.org/licenses/MIT</url>
-    </license>
-  </licenses>
-
-  <scm>
-    <url>https://github.com/scalar/scalar</url>
-    <connection>scm:git:https://github.com/scalar/scalar.git</connection>
-    <developerConnection>scm:git:git@github.com/scalar/scalar.git</developerConnection>
-  </scm>
-
-  <developers>
-    <developer>
-      <id>scalar</id>
-      <name>Scalar</name>
-      <email>support@scalar.com</email>
-    </developer>
-  </developers>
 </project>

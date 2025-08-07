@@ -312,6 +312,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+          server-id: 'central'
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
       - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
@@ -321,6 +322,8 @@ jobs:
         name: Release Java WebJar
         run: pnpm --filter @scalar/webjar release
         env:
+          # Create an account on Sonatype and add the credentials to the repository secrets.
+          # Generate User Token: https://central.sonatype.com/account
           MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
 
