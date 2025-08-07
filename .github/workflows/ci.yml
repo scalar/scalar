@@ -318,7 +318,8 @@ jobs:
   # We will add a commit to the main branch *after* the release commit.
   after-release-java-webjar:
     # if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
-    needs: [publish-java-webjar]
+    # needs: [publish-java-webjar]
+    needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     permissions:
       # Give the default GITHUB_TOKEN write permission to commit and push the
