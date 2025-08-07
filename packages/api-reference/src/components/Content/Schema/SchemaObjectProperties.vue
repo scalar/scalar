@@ -6,7 +6,7 @@ import type { Schemas } from '@/features/Operation/types/schemas'
 
 import SchemaProperty from './SchemaProperty.vue'
 
-const { schema } = defineProps<{
+const { schema, discriminatorPropertyName } = defineProps<{
   schema: OpenAPIV3_1.SchemaObject
   compact?: boolean
   hideHeading?: boolean
@@ -37,10 +37,20 @@ const sortedProperties = computed(() => {
   const requiredPropertiesSet = new Set(schema.required || [])
 
   return propertyNames.sort((a, b) => {
+    const aDiscriminator = a === discriminatorPropertyName
+    const bDiscriminator = b === discriminatorPropertyName
     const aRequired = requiredPropertiesSet.has(a)
     const bRequired = requiredPropertiesSet.has(b)
 
-    // If one is required and the other isn't, required comes first
+    // Discriminator comes first
+    if (aDiscriminator && !bDiscriminator) {
+      return -1
+    }
+    if (!aDiscriminator && bDiscriminator) {
+      return 1
+    }
+
+    // If both are discriminator or both are not discriminator, sort by required status
     if (aRequired && !bRequired) {
       return -1
     }

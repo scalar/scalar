@@ -1,8 +1,9 @@
+import { getRefName } from '@/components/Content/Schema/helpers/get-ref-name'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 /**
  * Computes the human-readable type for a schema.
- **/
+ */
 export const getSchemaType = (value: OpenAPIV3_1.SchemaObject): string => {
   if (value?.const !== undefined) {
     return 'const'
@@ -55,6 +56,11 @@ export const getSchemaType = (value: OpenAPIV3_1.SchemaObject): string => {
 
   if (value?.type && value.contentEncoding) {
     return `${value.type} • ${value.contentEncoding}`
+  }
+
+  const refName = getRefName(value)
+  if (refName) {
+    return refName
   }
 
   return value?.type ?? ''

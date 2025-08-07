@@ -1,7 +1,9 @@
+import { getRefName } from './get-ref-name'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 /**
  * Extract schema name from various schema formats
+ *
  * Handles $ref, title, name, type, and schema dictionary lookup
  */
 export function getModelNameFromSchema(schema: OpenAPIV3_1.SchemaObject): string | null {
@@ -18,14 +20,10 @@ export function getModelNameFromSchema(schema: OpenAPIV3_1.SchemaObject): string
     return schema.name
   }
 
-  // Handle $ref schemas - extract name from reference path
-  // e.g. SchemaName for #/components/schemas/SchemaName
-  if ('$ref' in schema) {
-    const refPath = schema.$ref
-    const match = refPath.match(/\/([^\/]+)$/)
-    if (match) {
-      return match[1]
-    }
+  // Grab the name of the schema from the ref path
+  const refName = getRefName(schema)
+  if (refName) {
+    return refName
   }
 
   return null

@@ -1,7 +1,7 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 
-import { getCompositionDisplay, getModelName, getModelNameFromSchema, getSchemaNameFromSchemas } from './schema-name'
+import { getModelName, getModelNameFromSchema } from './schema-name'
 
 describe('schema-name', () => {
   describe('getModelNameFromSchema', () => {
@@ -26,84 +26,6 @@ describe('schema-name', () => {
     })
   })
 
-  describe('getSchemaNameFromSchemas', () => {
-    it('finds schema name by matching object properties', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
-        type: 'object',
-        properties: {
-          name: { type: 'string' },
-          username: { type: 'string' },
-          deletedAt: { type: 'string', format: 'date-time', nullable: true },
-        },
-      }
-      const schemas = {
-        UserRequest: {
-          type: 'object',
-          properties: {
-            name: { type: 'string' },
-            username: { type: 'string' },
-            deletedAt: { type: 'string', format: 'date-time', nullable: true },
-          },
-        },
-        ProblemDetails: {
-          type: 'object',
-          properties: {
-            type: { type: 'string', format: 'uri' },
-            title: { type: 'string' },
-            status: { type: 'integer', format: 'int32' },
-          },
-        },
-      }
-      expect(getSchemaNameFromSchemas(schema, schemas)).toBe('UserRequest')
-    })
-
-    it('finds schema name by matching array types', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
-        type: 'array',
-        items: { type: 'string' },
-      }
-      const schemas = {
-        StringArray: {
-          type: 'array',
-          items: { type: 'string' },
-        },
-        NumberArray: {
-          type: 'array',
-          items: { type: 'number' },
-        },
-      }
-      expect(getSchemaNameFromSchemas(schema, schemas)).toBe('StringArray')
-    })
-
-    it('returns null when no matching schema found', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
-        type: 'object',
-        properties: { id: { type: 'string' } },
-      }
-      const schemas = {
-        User: {
-          type: 'object',
-          properties: { name: { type: 'string' } },
-        },
-      }
-      expect(getSchemaNameFromSchemas(schema, schemas)).toBe(null)
-    })
-
-    it('returns null when schemas is undefined', () => {
-      const schema: OpenAPIV3_1.SchemaObject = { type: 'object' }
-      expect(getSchemaNameFromSchemas(schema)).toBe(null)
-    })
-
-    it('does not return schema name for simple primitive types', () => {
-      const schema: OpenAPIV3_1.SchemaObject = { type: 'string' }
-      const schemas = {
-        foo: { type: 'string' },
-        bar: { type: 'number' },
-      }
-      expect(getSchemaNameFromSchemas(schema, schemas)).toBe(null)
-    })
-  })
-
   describe('getModelName', () => {
     it('returns null when value has no type', () => {
       const value = { properties: { name: { type: 'string' } } }
@@ -115,12 +37,12 @@ describe('schema-name', () => {
         type: 'array',
         items: { type: 'string' },
       }
-      expect(getModelName(value, {}, true)).toBe(null)
+      expect(getModelName(value, true)).toBe(null)
     })
 
     it('returns null when hideModelNames is true and not array', () => {
       const value = { type: 'object' }
-      expect(getModelName(value, {}, true)).toBe(null)
+      expect(getModelName(value, true)).toBe(null)
     })
 
     it('returns model name with title', () => {
@@ -175,32 +97,6 @@ describe('schema-name', () => {
         items: {},
       }
       expect(getModelName(value)).toBe('array object[]')
-    })
-
-    it('handles discriminator schema names', () => {
-      const value = {
-        type: 'array',
-        items: { type: 'object' },
-      }
-      const mockGetDiscriminatorSchemaName = () => 'DiscriminatorModel'
-      expect(getModelName(value, {}, false, mockGetDiscriminatorSchemaName)).toBe('array DiscriminatorModel[]')
-    })
-
-    it('returns null when no matching schema found for a primitive type (string)', () => {
-      const value = {
-        type: 'string',
-      }
-      const schemas = {
-        Timestamp: {
-          type: 'string',
-          format: 'date-time',
-          description: 'ISO-8601 Timestamp',
-          example: '2024-11-30T10:04:46+00:00',
-          readOnly: true,
-        },
-      }
-      const result = getModelName(value, schemas)
-      expect(result).toBe(null)
     })
   })
 

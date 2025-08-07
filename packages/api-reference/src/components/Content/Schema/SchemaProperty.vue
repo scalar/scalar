@@ -13,7 +13,6 @@ import {
 } from './helpers/optimize-value-for-display'
 import Schema from './Schema.vue'
 import SchemaComposition from './SchemaComposition.vue'
-import SchemaDiscriminator from './SchemaDiscriminator.vue'
 import SchemaEnumValues from './SchemaEnumValues.vue'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 
@@ -132,16 +131,6 @@ const schema = computed(() => {
   }
 
   return optimizedValue.value
-})
-
-/** Get the current selected discriminator schema with the first as default */
-const currentDiscriminator = computed(() => {
-  return (
-    discriminatorContext?.value?.selectedType ||
-    (props.discriminatorMapping
-      ? Object.keys(props.discriminatorMapping)[0]
-      : '')
-  )
 })
 
 // Display the property heading if any of the following are true
@@ -370,11 +359,6 @@ const shouldHaveLink = computed(() => props.level <= 1)
           :value="optimizedValue?.items" />
       </template>
     </template>
-    <SchemaDiscriminator
-      v-if="isDiscriminator && discriminatorMapping && compact"
-      :discriminator-mapping="discriminatorMapping"
-      :discriminator="currentDiscriminator"
-      @update:modelValue="handleDiscriminatorChange" />
     <SpecificationExtension :value="optimizedValue" />
   </component>
 </template>
