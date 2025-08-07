@@ -270,7 +270,7 @@ jobs:
         run: |
           ls -la integrations/java/webjar/src/main/resources/META-INF/resources/webjars/scalar/scalar.js || exit 1
       - name: Setup Java
-        uses: useblacksmith/setup-java@4ef812391eff6e9737ba13bf0356d0f702877a64 # v5
+        uses: actions/setup-java@17f84c3641ba7b8f6deff6309fc4c864478f5d62 # v3
         with:
           distribution: 'temurin'
           java-version: '17'
@@ -308,7 +308,7 @@ jobs:
         run: pnpm --filter @scalar/webjar copy:standalone
       - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
         name: Setup Java
-        uses: useblacksmith/setup-java@4ef812391eff6e9737ba13bf0356d0f702877a64 # v5
+        uses: actions/setup-java@17f84c3641ba7b8f6deff6309fc4c864478f5d62 # v3
         with:
           distribution: 'temurin'
           java-version: '17'
