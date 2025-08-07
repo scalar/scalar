@@ -33,7 +33,7 @@ const meta: Meta<typeof ScalarCard> = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {
+export const Base: Story = {
   args: {},
 }
 
@@ -43,7 +43,7 @@ export const WithLabel: Story = {
   },
 }
 
-export const HeaderWithActions: Story = {
+export const WithActions: Story = {
   render: (args) => ({
     components: { ScalarCard, ScalarCardHeader, ScalarCardSection },
     setup() {
@@ -65,7 +65,7 @@ export const HeaderWithActions: Story = {
   }),
 }
 
-export const MinimalCard: Story = {
+export const Minimal: Story = {
   render: (args) => ({
     components: { ScalarCard, ScalarCardSection },
     setup() {

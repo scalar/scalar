@@ -21,15 +21,6 @@
     "types:check": "scalar-types-check"
   },
   "type": "module",
-  "dependencies": {
-    "yaml": "catalog:*",
-    "vue": "catalog:*"
-  },
-  "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
-    "vite": "catalog:*",
-    "fastify": "catalog:*"
-  },
   "exports": {
     "./bundle": {
       "import": "./dist/bundle/index.js",
@@ -61,5 +52,14 @@
       "types": "./dist/magic-proxy/index.d.ts",
       "default": "./dist/magic-proxy/index.js"
     }
+  },
+  "dependencies": {
+    "vue": "catalog:*",
+    "yaml": "catalog:*"
+  },
+  "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
+    "fastify": "catalog:*",
+    "vite": "catalog:*"
   }
 }

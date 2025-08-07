@@ -12,7 +12,7 @@
     "@changesets/cli": "^2.27.10",
     "@ianvs/prettier-plugin-sort-imports": "^4.4.0",
     "@nuxt/eslint-config": "^0.7.3",
-    "@playwright/test": "^1.49.1",
+    "@playwright/test": "catalog:*",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/node": "catalog:*",
     "@vue/eslint-config-typescript": "^14.1.3",

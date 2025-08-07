@@ -396,6 +396,56 @@ jobs:
             fi
           done
 
+  test-component-snapshots:
+    if: github.event_name == 'pull_request'
+    needs: [build]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    permissions:
+      contents: read
+      pull-requests: write
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        node-version: [22]
+    container:
+      image: mcr.microsoft.com/playwright:v1.54.0-noble
+      options: --user root
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@09d2acae674a48949e3602304ab46fd20ae0c42f
+      - name: Generate new DEPLOY_ID
+        run: echo "DEPLOY_ID=$(npx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
+      - name: Build
+        uses: ./.github/actions/build-blacksmith
+        with:
+          node-version: ${{ matrix.node-version }}
+          packages: './packages/**'
+        env:
+          DEPLOY_ID: ${{ env.DEPLOY_ID }}
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "PLAYWRIGHT_VERSION=$(npx playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
+      - name: Build storybook
+        run: pnpm --filter components build:storybook
+      - name: Run e2e tests (@scalar/components)
+        run: pnpm --filter components test:e2e:ci
+      - if: ${{ !cancelled() }}
+        name: Deploy Playwright Report to Netlify
+        run: |
+          pnpx netlify deploy --dir "./packages/components/playwright-report" \
+            --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
+            --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
+            --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
+            --filter @scalar/components \
+            --alias=${{env.DEPLOY_ID}}
+      - if: ${{ !cancelled() }}
+        name: Add Netlify Playwright Report URL to the PR
+        uses: daun/playwright-report-summary@93883773b4f4f0951d8bcdb780c6443ca51eaf7b # v3
+        with:
+          comment-title: 'Scalar Components Snapshot Test Results'
+          report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
+          report-file: packages/components/playwright-results.json
+
   npm-publish:
     if: github.ref == 'refs/heads/main'
     runs-on: beefcake
@@ -633,20 +683,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-      - name: Check which files were touched
-        id: changed-files
-        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
-        with:
-          files_yaml: |
-            components:
-              - packages/components/**
 
-      - if: steps.changed-files.outputs.components_any_changed == 'true'
-        name: Generate new DEPLOY_ID
+      - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
 
-      - if: steps.changed-files.outputs.components_any_changed == 'true'
-        name: Build
+      - name: Build
         uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
@@ -654,16 +695,13 @@ jobs:
         env:
           DEPLOY_ID: ${{ env.DEPLOY_ID }}
 
-      - if: steps.changed-files.outputs.components_any_changed == 'true'
-        name: Install Netlify CLI
+      - name: Install Netlify CLI
         run: pnpm install -g netlify
 
-      - if: steps.changed-files.outputs.components_any_changed == 'true'
-        name: Build storybook
+      - name: Build storybook
         run: pnpm --filter components build:storybook
 
-      - if: steps.changed-files.outputs.components_any_changed == 'true'
-        name: Deploy Storybook to Netlify (Preview)
+      - name: Deploy Storybook to Netlify (Preview)
         run: |
           netlify deploy --dir "./packages/components/storybook-static" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
@@ -672,8 +710,7 @@ jobs:
             --filter @scalar/components \
             --alias=${{env.DEPLOY_ID}}
 
-      - if: steps.changed-files.outputs.components_any_changed == 'true'
-        name: Add Netlify Preview URL to the PR
+      - name: Add Netlify Preview URL to the PR
         uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
         with:
           message: |
