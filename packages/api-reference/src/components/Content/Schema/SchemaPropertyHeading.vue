@@ -14,12 +14,14 @@ import SchemaPropertyExamples from './SchemaPropertyExamples.vue'
 
 const {
   value,
+  isDiscriminator = false,
   required = false,
   withExamples = true,
   hideModelNames = false,
 } = defineProps<{
   value?: SchemaObject
   enum?: boolean
+  isDiscriminator?: boolean
   required?: boolean
   additional?: boolean
   withExamples?: boolean
@@ -86,7 +88,7 @@ const modelName = computed(() => {
       <slot name="name" />
     </div>
     <div
-      v-if="value?.isDiscriminator"
+      v-if="isDiscriminator"
       class="property-discriminator">
       Discriminator
     </div>

@@ -122,6 +122,15 @@ export const schemaObjectSchemaBuilder = <S extends TSchema>(schema: S) =>
       /** Schema must not be valid. */
       not: Type.Optional(schema),
 
+      // OpenAPI 3.0
+      /**
+       * Whether the schema is nullable.
+       *
+       * @deprecated this was deprecated in OpenAPI 3.1 and replaced with type: [null]
+       * @see https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
+       */
+      nullable: Type.Optional(Type.Boolean()),
+
       // OpenAPI 3.1
       /** Media type for content validation. */
       contentMediaType: Type.Optional(Type.String()),

@@ -123,13 +123,7 @@ const getAdditionalPropertiesValue = (
       "
       :schemas="schemas"
       :resolvedSchema="schema.properties[property]"
-      :value="{
-        ...schema.properties[property],
-        parent: schema,
-        isDiscriminator:
-          property === discriminatorPropertyName ||
-          schema.discriminator?.propertyName === property,
-      }"
+      :value="schema.properties[property]"
       :discriminatorMapping="
         schema.discriminator?.mapping || discriminatorMapping
       "

@@ -4,7 +4,6 @@ import { computed, inject, type Component } from 'vue'
 
 import { WithBreadcrumb } from '@/components/Anchor'
 import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
-import type { Schemas } from '@/features/Operation/types/schemas'
 import { SpecificationExtension } from '@/features/specification-extension'
 import { DISCRIMINATOR_CONTEXT } from '@/hooks/useDiscriminator'
 
@@ -37,7 +36,6 @@ const props = withDefaults(
     description?: string
     withExamples?: boolean
     hideModelNames?: boolean
-    schemas?: Schemas
     hideHeading?: boolean
     discriminatorMapping?: Record<string, string>
     discriminatorPropertyName?: string
@@ -239,12 +237,12 @@ const shouldHaveLink = computed(() => props.level <= 1)
     ]">
     <SchemaPropertyHeading
       v-if="displayPropertyHeading(optimizedValue, name, required)"
+      class="group"
       :enum="getEnumFromValue(optimizedValue).length > 0"
-      :required="required"
       :value="optimizedValue"
-      :schemas="schemas"
-      :hideModelNames="hideModelNames"
-      class="group">
+      :required
+      :isDiscriminator
+      :hideModelNames>
       <template
         v-if="name"
         #name>
@@ -303,7 +301,6 @@ const shouldHaveLink = computed(() => props.level <= 1)
         :resolvedSchema="schema"
         :discriminatorMapping="discriminatorMapping"
         :discriminatorPropertyName="discriminatorPropertyName"
-        :schemas="schemas"
         @update:modelValue="handleDiscriminatorChange" />
     </div>
     <!-- Array of objects -->
@@ -329,7 +326,6 @@ const shouldHaveLink = computed(() => props.level <= 1)
           "
           :discriminatorMapping="discriminatorMapping"
           :discriminatorPropertyName="discriminatorPropertyName"
-          :schemas="schemas"
           @update:modelValue="handleDiscriminatorChange" />
       </div>
     </template>
@@ -356,7 +352,6 @@ const shouldHaveLink = computed(() => props.level <= 1)
           :level="level"
           :name="name"
           :noncollapsible="noncollapsible"
-          :schemas="schemas"
           :value="optimizedValue" />
       </template>
 
@@ -372,7 +367,6 @@ const shouldHaveLink = computed(() => props.level <= 1)
           :level="level"
           :name="name"
           :noncollapsible="noncollapsible"
-          :schemas="schemas"
           :value="optimizedValue?.items" />
       </template>
     </template>

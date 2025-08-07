@@ -5,7 +5,6 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed, inject } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
-import type { Schemas } from '@/features/Operation/types/schemas'
 import { DISCRIMINATOR_CONTEXT } from '@/hooks/useDiscriminator'
 
 import { isTypeObject } from './helpers/is-type-object'
@@ -36,8 +35,6 @@ const props = withDefaults(
     additionalProperties?: boolean
     /** Hide model names in type display */
     hideModelNames?: boolean
-    /** All schemas for model name retrieval */
-    schemas?: Schemas
     /** Selected discriminator */
     discriminator?: string
     /** Discriminator mapping */
@@ -265,7 +262,6 @@ const handleDiscriminatorChange = (type: string) => {
             :hideHeading="hideHeading"
             :level="level + 1"
             :hideModelNames="hideModelNames"
-            :schemas="schemas"
             :discriminator="discriminator"
             :discriminatorMapping="discriminatorMapping"
             :discriminatorPropertyName="discriminatorPropertyName"
@@ -282,7 +278,6 @@ const handleDiscriminatorChange = (type: string) => {
               :hideModelNames="hideModelNames"
               :level="level"
               :name="(schema as OpenAPIV3_1.SchemaObject).name"
-              :schemas="schemas"
               :value="
                 value.discriminator?.propertyName === name ? value : schema
               "
