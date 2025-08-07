@@ -14,6 +14,7 @@ public class ScalarOptionsExtensionsTests
             .WithTestRequestButton(false)
             .WithDarkMode(false)
             .WithSidebar(false)
+            .WithOperationTitleSource(TitleSource.Path)
             .WithTheme(ScalarTheme.Saturn)
             .WithLayout(ScalarLayout.Classic)
             .WithSearchHotKey("o")
@@ -44,7 +45,7 @@ public class ScalarOptionsExtensionsTests
         options.HideTestRequestButton.Should().BeTrue();
         options.DarkMode.Should().BeFalse();
         options.ShowSidebar.Should().BeFalse();
-        options.OperationTitleSource.Should().BeNull();
+        options.OperationTitleSource.Should().Be(TitleSource.Path);
         options.Theme.Should().Be(ScalarTheme.Saturn);
         options.Layout.Should().Be(ScalarLayout.Classic);
         options.SearchHotKey.Should().Be("o");

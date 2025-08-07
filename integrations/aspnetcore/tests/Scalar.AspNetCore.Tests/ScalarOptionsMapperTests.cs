@@ -47,6 +47,7 @@ public class ScalarOptionsMapperTests
         {
             ProxyUrl = "http://localhost:8080",
             ShowSidebar = false,
+            OperationTitleSource = TitleSource.Path,
             HideModels = true,
             HideTestRequestButton = true,
             DarkMode = false,
@@ -87,6 +88,7 @@ public class ScalarOptionsMapperTests
         // Assert
         configuration.ProxyUrl.Should().Be("http://localhost:8080");
         configuration.ShowSidebar.Should().BeFalse();
+        configuration.OperationTitleSource.Should().Be(TitleSource.Path);
         configuration.HideModels.Should().BeTrue();
         configuration.DocumentDownloadType.Should().Be(DocumentDownloadType.None);
         configuration.HideTestRequestButton.Should().BeTrue();
