@@ -735,7 +735,7 @@ describe('createMagicProxy', () => {
 
       const result = createMagicProxy(input)
       const keys = Object.keys(result)
-      
+
       expect(keys).toEqual(['a', 'b', 'c'])
     })
 
@@ -749,7 +749,7 @@ describe('createMagicProxy', () => {
 
       const result = createMagicProxy(input)
       const keys = Object.keys(result.b)
-      
+
       expect(keys).toEqual(['$ref', '$ref-value'])
     })
 
@@ -764,7 +764,7 @@ describe('createMagicProxy', () => {
 
       const result = createMagicProxy(input)
       const keys = Object.keys(result.b)
-      
+
       expect(keys).toEqual(['$ref', '$ref-value'])
     })
 
@@ -783,22 +783,18 @@ describe('createMagicProxy', () => {
 
       const result = createMagicProxy(input)
       const keys = Object.keys(result.d)
-      
+
       expect(keys).toEqual(['$ref', 'extraProp', '$ref-value'])
     })
 
     it('handles arrays with refs', () => {
       const input = {
-        items: [
-          { name: 'item1' },
-          { $ref: '#/items/0' },
-          { name: 'item2', id: 2 },
-        ],
+        items: [{ name: 'item1' }, { $ref: '#/items/0' }, { name: 'item2', id: 2 }],
       }
 
       const result = createMagicProxy(input)
       const keys = Object.keys(result.items[1])
-      
+
       expect(keys).toEqual(['$ref', '$ref-value'])
     })
 
@@ -820,7 +816,7 @@ describe('createMagicProxy', () => {
 
       const result = createMagicProxy(input)
       const keys = Object.keys(result.f)
-      
+
       expect(keys).toEqual(['$ref', '$ref-value'])
     })
 
@@ -842,7 +838,7 @@ describe('createMagicProxy', () => {
       const result = createMagicProxy(input)
       const dKeys = Object.keys(result.d)
       const eKeys = Object.keys(result.e)
-      
+
       expect(dKeys).toEqual(['$ref', '$ref-value'])
       expect(eKeys).toEqual(['$ref', '$ref-value'])
     })
@@ -857,7 +853,7 @@ describe('createMagicProxy', () => {
 
       const result = createMagicProxy(input)
       const keys = Object.keys(result.b)
-      
+
       expect(keys).toEqual(['$ref', '$ref-value'])
     })
 
@@ -866,7 +862,7 @@ describe('createMagicProxy', () => {
 
       const result = createMagicProxy(input)
       const keys = Object.keys(result)
-      
+
       expect(keys).toEqual([])
     })
 
@@ -880,7 +876,7 @@ describe('createMagicProxy', () => {
 
       const result = createMagicProxy(input)
       const keys = Object.keys(result.a)
-      
+
       expect(keys).toEqual(['$ref', '$ref-value'])
     })
 
@@ -899,25 +895,20 @@ describe('createMagicProxy', () => {
       const result = createMagicProxy(input)
       const cKeys = Object.keys(result.c)
       const dKeys = Object.keys(result.d)
-      
+
       expect(cKeys).toEqual(['$ref', '$ref-value'])
       expect(dKeys).toEqual(['$ref', '$ref-value'])
     })
 
     it('handles arrays with mixed content', () => {
       const input = {
-        items: [
-          { name: 'item1' },
-          { $ref: '#/items/0' },
-          'string item',
-          { name: 'item2', id: 2 },
-        ],
+        items: [{ name: 'item1' }, { $ref: '#/items/0' }, 'string item', { name: 'item2', id: 2 }],
       }
 
       const result = createMagicProxy(input)
       const item0Keys = Object.keys(result.items[0])
       const item1Keys = Object.keys(result.items[1])
-      
+
       expect(item0Keys).toEqual(['name'])
       expect(item1Keys).toEqual(['$ref', '$ref-value'])
     })
@@ -938,7 +929,7 @@ describe('createMagicProxy', () => {
 
       const result = createMagicProxy(input)
       const keys = Object.keys(result.d)
-      
+
       expect(keys).toEqual(['$ref', 'directProp', 'anotherProp', '$ref-value'])
     })
 
@@ -955,7 +946,7 @@ describe('createMagicProxy', () => {
       const result = createMagicProxy(input)
       const keys = Object.keys(result)
       const ownKeys = Object.getOwnPropertySymbols(result)
-      
+
       expect(keys).toEqual(['a', 'b'])
       expect(ownKeys).toEqual([symbolKey])
     })
@@ -976,7 +967,7 @@ describe('createMagicProxy', () => {
       const result = createMagicProxy(input)
       const keys = Object.keys(result.b)
       const ownKeys = Reflect.ownKeys(result.b)
-      
+
       expect(keys).toEqual(['$ref', '$ref-value'])
       expect(ownKeys).toContain('nonEnumerable')
       expect(ownKeys).toContain('$ref')
@@ -1000,7 +991,7 @@ describe('createMagicProxy', () => {
 
       const result = createMagicProxy(input)
       const keys = Object.keys(result.b)
-      
+
       expect(keys).toEqual(['$ref', 'getterProp', '$ref-value'])
     })
   })

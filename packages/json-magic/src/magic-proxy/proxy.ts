@@ -12,17 +12,17 @@ const REF_KEY = '$ref'
 /**
  * Creates a "magic" proxy for a given object or array, enabling transparent access to
  * JSON Reference ($ref) values as if they were directly present on the object.
- * 
+ *
  * - If an object contains a `$ref` property, accessing the special `$ref-value` property
  *   will resolve and return the referenced value from the root object.
  * - All nested objects and arrays are recursively wrapped in proxies, so reference resolution
  *   works at any depth.
  * - Setting, deleting, and enumerating properties works as expected, including for proxied references.
- * 
+ *
  * @param target - The object or array to wrap in a magic proxy
  * @param root - The root object for resolving local JSON references (defaults to target)
  * @returns A proxied version of the input object/array with magic $ref-value support
- * 
+ *
  * @example
  * const input = {
  *   definitions: {
@@ -31,10 +31,10 @@ const REF_KEY = '$ref'
  *   refObj: { $ref: '#/definitions/foo' }
  * }
  * const proxy = createMagicProxy(input)
- * 
+ *
  * // Accessing proxy.refObj['$ref-value'] will resolve to { bar: 123 }
  * console.log(proxy.refObj['$ref-value']) // { bar: 123 }
- * 
+ *
  * // Setting and deleting properties works as expected
  * proxy.refObj.extra = 'hello'
  * delete proxy.refObj.extra
