@@ -440,13 +440,11 @@ jobs:
             --alias=${{env.DEPLOY_ID}}
       - if: ${{ !cancelled() }}
         name: Add Netlify Playwright Report URL to the PR
-        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
+        uses: daun/playwright-report-summary@93883773b4f4f0951d8bcdb780c6443ca51eaf7b # v3
         with:
-          message: |
-            **Components Playwright Report**
-
-            https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
-          comment-tag: 'components-playwright-report-preview'
+          comment-title: 'Scalar Components Snapshot Test Results'
+          report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
+          report-file: results.json
 
   npm-publish:
     if: github.ref == 'refs/heads/main'

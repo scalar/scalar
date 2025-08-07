@@ -38,7 +38,9 @@ const storybookServer: WebServer = {
 // https://playwright.dev/docs/test-configuration
 export default defineConfig({
   testMatch: '**/*.e2e.ts',
-  reporter: [['list'], ['html', { open: 'on-failure' }]],
+  reporter: CI
+    ? [['list'], ['html', { open: 'never' }], ['json', { outputFile: 'results.json' }]]
+    : [['list'], ['html', { open: 'on-failure' }]],
 
   snapshotPathTemplate: '{testFileDir}/snapshots/{arg}{ext}',
 
