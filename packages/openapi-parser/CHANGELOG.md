@@ -1,5 +1,12 @@
 # @scalar/openapi-parser
 
+## 0.19.1
+
+### Patch Changes
+
+- e203e90: fix: can’t import plugins from parser package anymore
+  - @scalar/openapi-types@0.3.7
+
 ## 0.19.0
 
 ### Minor Changes

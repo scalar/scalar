@@ -1,5 +1,11 @@
 # @scalar/icons
 
+## 0.4.7
+
+### Patch Changes
+
+- b1ceaab: fix: order of package.json exports for icons
+
 ## 0.4.6
 
 ### Patch Changes

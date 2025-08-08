@@ -1,5 +1,24 @@
 # @scalar/workspace-store
 
+## 0.13.0
+
+### Minor Changes
+
+- 0d502cb: chore(workspace-store): clean up client store
+- 0afc40c: feat(json-magic): introduce type-safe apply function with tracked target type in diff results
+- 128af48: feat(workspace-store, json-magic): support `externalValue` fields on example object
+
+### Patch Changes
+
+- Updated dependencies [e203e90]
+- Updated dependencies [0afc40c]
+- Updated dependencies [128af48]
+  - @scalar/openapi-parser@0.19.1
+  - @scalar/json-magic@0.2.0
+  - @scalar/code-highlight@0.1.9
+  - @scalar/helpers@0.0.7
+  - @scalar/types@0.2.11
+
 ## 0.12.0
 
 ### Minor Changes
