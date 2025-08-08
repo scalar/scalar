@@ -147,6 +147,9 @@
             <goals><goal>sign</goal></goals>
           </execution>
         </executions>
+        <configuration>
+          <signAllArtifacts>true</signAllArtifacts>
+        </configuration>
       </plugin>
 
       <!-- Source JAR -->
