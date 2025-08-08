@@ -6,17 +6,17 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
  *
  * Handles $ref, title, name, type, and schema dictionary lookup
  */
-export function getModelNameFromSchema(schema: OpenAPIV3_1.SchemaObject): string | null {
+export const getModelNameFromSchema = (schema: OpenAPIV3_1.SchemaObject): string | null => {
   if (!schema) {
     return null
   }
 
-  // Direct title/name properties
-  if ('title' in schema && schema.title) {
+  // Direct title/name properties - use direct property access for better performance
+  if (schema.title) {
     return schema.title
   }
 
-  if ('name' in schema && schema.name) {
+  if (schema.name) {
     return schema.name
   }
 
@@ -32,51 +32,54 @@ export function getModelNameFromSchema(schema: OpenAPIV3_1.SchemaObject): string
 /**
  * Format the type and model name for display
  */
-export function formatTypeWithModel(type: string, modelName: string): string {
-  return type === 'array' ? `${type} ${modelName}[]` : `${type} ${modelName}`
-}
+export const formatTypeWithModel = (type: string, modelName: string): string =>
+  `${type} ${modelName}${type === 'array' ? '[]' : ''}`
 
 /**
  * Get the model name for a schema property
  * e.g. User | Admin | array of User | array of Admin
  */
-export function getModelName(value: Record<string, any>, hideModelNames = false): string | null {
-  if (!value?.type) {
+export const getModelName = (value: Record<string, any>, hideModelNames = false): string | null => {
+  if (!value?.type || hideModelNames) {
     return null
   }
 
-  if (hideModelNames) {
-    return null
-  }
+  const valueType = value.type
 
   // First check if the entire schema matches a component schema
   const modelName = getModelNameFromSchema(value)
   if (modelName && (value.title || value.name)) {
-    return value.type === 'array' ? `array ${modelName}[]` : modelName
+    return valueType === 'array' ? `array ${modelName}[]` : modelName
   }
 
   // Handle array types with item references only if no full schema match was found
-  if (value.type === 'array' && value.items) {
+  if (valueType === 'array' && value.items) {
+    const items = value.items
+
     // Handle title/name
-    if (value.items.title || value.items.name) {
-      return formatTypeWithModel(value.type, value.items.title || value.items.name)
+    const itemName = items.title || items.name
+    if (itemName) {
+      return formatTypeWithModel(valueType, itemName)
     }
 
-    const itemModelName = getModelNameFromSchema(value.items)
-    if (itemModelName && itemModelName !== value.items.type) {
-      return formatTypeWithModel(value.type, itemModelName)
+    // Use the model name
+    const itemModelName = getModelNameFromSchema(items)
+    if (itemModelName && itemModelName !== items.type) {
+      return formatTypeWithModel(valueType, itemModelName)
     }
 
-    if (value.items.type) {
-      return formatTypeWithModel(value.type, value.items.type)
+    // Use the type
+    if (items.type) {
+      return formatTypeWithModel(valueType, items.type)
     }
 
-    return formatTypeWithModel(value.type, 'object')
+    return formatTypeWithModel(valueType, 'object')
   }
 
-  if (modelName && modelName !== value.type) {
+  if (modelName && modelName !== valueType) {
     if (modelName.startsWith('Array of ')) {
-      const itemType = modelName.replace('Array of ', '')
+      // Use more efficient string replacement for known pattern
+      const itemType = modelName.slice(9)
       return `array ${itemType}[]`
     }
     return modelName
