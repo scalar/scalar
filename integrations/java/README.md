@@ -1,6 +1,6 @@
 ### Example
 
-See the `springboot/` directory for a complete example Spring Boot application.
+See the `spring-boot/` directory for a complete example Spring Boot application.
 
 ## Building
 
