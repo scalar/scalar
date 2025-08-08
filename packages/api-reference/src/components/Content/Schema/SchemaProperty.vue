@@ -1,16 +1,16 @@
 <script lang="ts" setup>
 import { ScalarMarkdown } from '@scalar/components'
+import { isDefined } from '@scalar/helpers/array/is-defined'
 import type { DiscriminatorObject } from '@scalar/workspace-store/schemas/v3.1/strict/discriminator'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 import { computed, type Component } from 'vue'
 
 import { WithBreadcrumb } from '@/components/Anchor'
 import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
 import { SpecificationExtension } from '@/features/specification-extension'
 
-import {
-  compositions,
-  optimizeValueForDisplay,
-} from './helpers/optimize-value-for-display'
+import { optimizeValueForDisplay } from './helpers/optimize-value-for-display'
+import { compositions } from './helpers/schema-composition'
 import Schema from './Schema.vue'
 import SchemaComposition from './SchemaComposition.vue'
 import SchemaEnumValues from './SchemaEnumValues.vue'
@@ -26,7 +26,7 @@ import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 const props = withDefaults(
   defineProps<{
     is?: string | Component
-    value?: Record<string, any>
+    value: SchemaObject
     noncollapsible?: boolean
     level?: number
     name?: string
@@ -110,16 +110,6 @@ const getEnumFromValue = (value?: Record<string, any>): any[] | [] =>
 /** Simplified composition with `null` type. */
 const optimizedValue = computed(() => optimizeValueForDisplay(props.value))
 
-/** Handle schema value according to discriminator context */
-const schema = computed(() => {
-  // Prevent recursion in discriminator context presence
-  if (props.level > 0) {
-    return optimizedValue.value
-  }
-
-  return optimizedValue.value
-})
-
 // Display the property heading if any of the following are true
 const displayPropertyHeading = (
   value?: Record<string, any>,
@@ -151,7 +141,11 @@ const hasComplexArrayItems = computed(() => {
 
   const items = value.items
   return (
-    ('type' in items && ['object'].includes(items.type)) ||
+    ('type' in items &&
+      items.type &&
+      (Array.isArray(items.type)
+        ? items.type.includes('object')
+        : ['object'].includes(items.type))) ||
     '$ref' in items ||
     'discriminator' in items ||
     'allOf' in items ||
@@ -193,6 +187,50 @@ const shouldRenderObjectProperties = computed(() => {
 })
 
 const shouldHaveLink = computed(() => props.level <= 1)
+
+/**
+ * Computes which compositions should be rendered and with which values.
+ * This consolidates the template logic for better performance and readability.
+ */
+const compositionsToRender = computed(() => {
+  if (!optimizedValue.value) {
+    return []
+  }
+
+  return compositions
+    .map((composition) => {
+      // Check if we should render property composition
+      const hasPropertyComposition =
+        optimizedValue.value?.[composition] &&
+        !(
+          optimizedValue.value?.items &&
+          typeof composition === 'string' &&
+          typeof optimizedValue.value.items === 'object' &&
+          composition in optimizedValue.value.items
+        )
+
+      if (hasPropertyComposition) {
+        return {
+          composition,
+          value: optimizedValue.value,
+        }
+      }
+
+      // Check if we should render array item composition
+      if (
+        shouldRenderArrayItemComposition(composition) &&
+        optimizedValue.value?.items
+      ) {
+        return {
+          composition,
+          value: optimizedValue.value.items,
+        }
+      }
+
+      return null
+    })
+    .filter(isDefined)
+})
 </script>
 <template>
   <component
@@ -273,7 +311,7 @@ const shouldHaveLink = computed(() => props.level <= 1)
         :level="level + 1"
         :name="name"
         :noncollapsible="noncollapsible"
-        :value="schema" />
+        :value="optimizedValue" />
     </div>
 
     <!-- Array of objects -->
@@ -287,57 +325,23 @@ const shouldHaveLink = computed(() => props.level <= 1)
           :level="level + 1"
           :name="name"
           :noncollapsible="noncollapsible"
-          :value="
-            schema && typeof schema === 'object' && 'items' in schema
-              ? schema.items
-              : optimizedValue.items
-          " />
+          :value="optimizedValue.items" />
       </div>
     </template>
 
     <!-- Compositions -->
-    <template
-      v-for="composition in compositions"
-      :key="composition">
-      <!-- Property composition -->
-      <template
-        v-if="
-          optimizedValue?.[composition] &&
-          !(
-            optimizedValue?.items &&
-            typeof composition === 'string' &&
-            typeof optimizedValue.items === 'object' &&
-            composition in optimizedValue.items
-          )
-        ">
-        <SchemaComposition
-          :breadcrumb="breadcrumb"
-          :compact="compact"
-          :composition="composition"
-          :discriminator="value?.discriminator"
-          :hideHeading="hideHeading"
-          :level="level"
-          :name="name"
-          :noncollapsible="noncollapsible"
-          :value="optimizedValue" />
-      </template>
-
-      <!-- Array item composition -->
-      <template
-        v-else-if="shouldRenderArrayItemComposition(composition)"
-        :key="composition">
-        <SchemaComposition
-          :breadcrumb="breadcrumb"
-          :compact="compact"
-          :composition="composition"
-          :discriminator="value?.discriminator"
-          :hideHeading="hideHeading"
-          :level="level"
-          :name="name"
-          :noncollapsible="noncollapsible"
-          :value="optimizedValue?.items" />
-      </template>
-    </template>
+    <SchemaComposition
+      v-for="compositionData in compositionsToRender"
+      :key="compositionData.composition"
+      :breadcrumb="breadcrumb"
+      :compact="compact"
+      :composition="compositionData.composition"
+      :discriminator="value?.discriminator"
+      :hideHeading="hideHeading"
+      :level="level"
+      :name="name"
+      :noncollapsible="noncollapsible"
+      :value="compositionData.value" />
     <SpecificationExtension :value="optimizedValue" />
   </component>
 </template>

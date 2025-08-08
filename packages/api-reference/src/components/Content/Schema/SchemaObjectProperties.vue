@@ -119,16 +119,16 @@ const getAdditionalPropertiesValue = (
   <!-- patternProperties -->
   <template v-if="schema.patternProperties">
     <SchemaProperty
-      v-for="property in Object.keys(schema.patternProperties)"
-      :key="property"
+      v-for="[key, property] in Object.entries(schema.patternProperties)"
+      :key="key"
       :breadcrumb
       :compact
       :discriminator
       :hideHeading
       :level
-      :name="property"
+      :name="key"
       :hideModelNames="hideModelNames"
-      :value="schema.patternProperties[property]" />
+      :value="property" />
   </template>
 
   <!-- additionalProperties -->
