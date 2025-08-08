@@ -46,7 +46,9 @@ export default defineConfig({
 
   expect: {
     toHaveScreenshot: {
-      stylePath: './.storybook/snapshot.css',
+      // Use device pixels for for high DPI screenshots
+      scale: 'device',
+      // Allow for small differences in the screenshot (0.1% of the total pixels)
       maxDiffPixelRatio: 0.001,
     },
   },
