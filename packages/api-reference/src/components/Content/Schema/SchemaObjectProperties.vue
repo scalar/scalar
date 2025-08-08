@@ -55,8 +55,6 @@ const sortedProperties = computed(() => {
   })
 })
 
-console.log('sortedProperties', discriminator)
-
 /**
  * Get the display name for additional properties.
  *
