@@ -9,6 +9,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * REST controller for serving the Scalar API Reference interface.
+ * 
+ * <p>This controller provides endpoints for accessing the Scalar API Reference
+ * interface and the associated JavaScript bundle. It automatically configures
+ * the interface based on the provided {@link ScalarProperties}.</p>
+ * 
+ * <p>The controller serves two main endpoints:</p>
+ * <ul>
+ *   <li>{@code /scalar} (or custom path) - The main API reference interface</li>
+ *   <li>{@code /scalar/scalar.js} (or custom path) - The JavaScript bundle</li>
+ * </ul>
+ * 
+ * @since 0.1.0
+ */
 @RestController
 public class ScalarController {
 
@@ -17,10 +32,25 @@ public class ScalarController {
 
     private final ScalarProperties properties;
 
+    /**
+     * Creates a new ScalarController with the specified properties.
+     * 
+     * @param properties the configuration properties for the Scalar integration
+     */
     public ScalarController(ScalarProperties properties) {
         this.properties = properties;
     }
 
+    /**
+     * Serves the main API reference interface.
+     * 
+     * <p>This endpoint returns an HTML page that displays the Scalar API Reference
+     * interface. The page is configured with the OpenAPI specification URL from
+     * the properties.</p>
+     * 
+     * @return a ResponseEntity containing the HTML content for the API reference interface
+     * @throws IOException if the HTML template cannot be loaded
+     */
     @GetMapping("${scalar.path:" + DEFAULT_PATH + "}")
     public ResponseEntity<String> getDocs() throws IOException {
         // Load the template HTML
@@ -46,6 +76,15 @@ public class ScalarController {
                 .body(injectedHtml);
     }
 
+    /**
+     * Serves the JavaScript bundle for the Scalar API Reference.
+     * 
+     * <p>This endpoint returns the JavaScript file that powers the Scalar API Reference
+     * interface. The file is served with the appropriate MIME type.</p>
+     * 
+     * @return a ResponseEntity containing the JavaScript bundle
+     * @throws IOException if the JavaScript file cannot be loaded
+     */
     @GetMapping("${scalar.path:" + DEFAULT_PATH + "}/" + JS_FILENAME)
     public ResponseEntity<byte[]> getScalarJs() throws IOException {
         // Load the scalar.js file
@@ -64,6 +103,8 @@ public class ScalarController {
     /**
      * Builds the CDN URL for the Scalar JavaScript file.
      * Uses the configured path if available, otherwise defaults to the DEFAULT_PATH.
+     * 
+     * @return the complete URL for the JavaScript bundle
      */
     private String buildJsBundleUrl() {
         String basePath = properties.getPath();
