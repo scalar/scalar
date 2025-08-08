@@ -47,3 +47,10 @@ export type TooltipConfiguration = {
 }
 
 export type PublicTooltipConfiguration = Omit<TooltipConfiguration, 'contentTarget'>
+
+export type ScalarTooltipProps = {
+  content?: string
+  delay?: number
+  placement?: ScalarTooltipPlacement
+  offset?: number
+}

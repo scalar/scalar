@@ -177,11 +177,27 @@ function clearTimer() {
   }
 }
 
+/** Get all the parents of an element */
+function getAllParents(el: Element): Element[] {
+  const parents: Element[] = []
+  let parent = el.parentElement
+  while (parent) {
+    parents.push(parent)
+    parent = parent.parentElement
+  }
+  return parents
+}
+
 /** Check if mouse moved off the target but onto the tooltip */
 function isMovingOffElements(e: Event): boolean {
   const target = unref(config.value?.targetRef)
   if (e instanceof MouseEvent && e.relatedTarget instanceof Element && target) {
-    return e.relatedTarget.id !== ELEMENT_ID && e.relatedTarget !== target
+    const relatedTargetParents = getAllParents(e.relatedTarget)
+    return (
+      e.relatedTarget.id !== ELEMENT_ID &&
+      !relatedTargetParents.some((parent) => parent.id === ELEMENT_ID) &&
+      e.relatedTarget !== target
+    )
   }
   return true
 }

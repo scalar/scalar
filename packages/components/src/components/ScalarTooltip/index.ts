@@ -1,4 +1,5 @@
 export { default as ScalarTooltip } from './ScalarTooltip.vue'
+export { default as ScalarHotkeyTooltip } from './ScalarHotkeyTooltip.vue'
 
 export type {
   ScalarTooltipPlacement,
