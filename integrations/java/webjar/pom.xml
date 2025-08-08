@@ -173,6 +173,11 @@
         <version>3.6.3</version>
         <executions>
           <execution>
+            <id>generate-javadoc</id>
+            <phase>compile</phase>
+            <goals><goal>javadoc</goal></goals>
+          </execution>
+          <execution>
             <id>attach-javadocs</id>
             <phase>verify</phase>
             <goals><goal>jar</goal></goals>
@@ -182,6 +187,8 @@
           <source>17</source>
           <encoding>UTF-8</encoding>
           <doclint>none</doclint>
+          <failOnError>true</failOnError>
+          <reportOutputDirectory>${project.build.directory}/apidocs</reportOutputDirectory>
         </configuration>
       </plugin>
 
