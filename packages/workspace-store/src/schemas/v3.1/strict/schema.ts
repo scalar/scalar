@@ -24,18 +24,17 @@ export const schemaObjectSchemaBuilder = <S extends TSchema>(schema: S) =>
           Type.Literal('integer'),
           Type.Literal('object'),
           Type.Literal('array'),
-          // Too complex for typescript
-          // Type.Array(
-          //   Type.Union([
-          //     Type.Literal('null'),
-          //     Type.Literal('boolean'),
-          //     Type.Literal('string'),
-          //     Type.Literal('number'),
-          //     Type.Literal('integer'),
-          //     Type.Literal('object'),
-          //     Type.Literal('array'),
-          //   ]),
-          // ),
+          Type.Array(
+            Type.Union([
+              Type.Literal('null'),
+              Type.Literal('boolean'),
+              Type.Literal('string'),
+              Type.Literal('number'),
+              Type.Literal('integer'),
+              Type.Literal('object'),
+              Type.Literal('array'),
+            ]),
+          ),
         ]),
       ),
       /** Different subtypes */

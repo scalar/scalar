@@ -243,6 +243,7 @@ const shouldHaveLink = computed(() => props.level <= 1)
         {{ optimizedValue.example }}
       </template>
     </SchemaPropertyHeading>
+
     <!-- Description -->
     <div
       v-if="displayDescription(description, optimizedValue)"
@@ -256,8 +257,12 @@ const shouldHaveLink = computed(() => props.level <= 1)
       <ScalarMarkdown
         :value="generatePropertyDescription(optimizedValue) || ''" />
     </div>
+
     <!-- Enum -->
-    <SchemaEnumValues :value="optimizedValue" />
+    <SchemaEnumValues
+      v-if="(optimizedValue?.enum || optimizedValue?.items?.enum || []).length"
+      :value="optimizedValue" />
+
     <!-- Object -->
     <div
       v-if="shouldRenderObjectProperties"
@@ -270,6 +275,7 @@ const shouldHaveLink = computed(() => props.level <= 1)
         :noncollapsible="noncollapsible"
         :value="schema" />
     </div>
+
     <!-- Array of objects -->
     <template
       v-if="optimizedValue?.items && typeof optimizedValue.items === 'object'">
@@ -288,6 +294,7 @@ const shouldHaveLink = computed(() => props.level <= 1)
           " />
       </div>
     </template>
+
     <!-- Compositions -->
     <template
       v-for="composition in compositions"
