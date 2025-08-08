@@ -135,23 +135,6 @@
         </configuration>
       </plugin>
 
-      <!-- GPG Signing -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-gpg-plugin</artifactId>
-        <version>3.1.0</version>
-        <executions>
-          <execution>
-            <id>sign-artifacts</id>
-            <phase>verify</phase>
-            <goals><goal>sign</goal></goals>
-          </execution>
-        </executions>
-        <configuration>
-          <signAllArtifacts>true</signAllArtifacts>
-        </configuration>
-      </plugin>
-
       <!-- Source JAR -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -189,6 +172,23 @@
           <doclint>none</doclint>
           <failOnError>true</failOnError>
           <reportOutputDirectory>${project.build.directory}/apidocs</reportOutputDirectory>
+        </configuration>
+      </plugin>
+
+      <!-- GPG Signing -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>sign-artifacts</id>
+            <phase>verify</phase>
+            <goals><goal>sign</goal></goals>
+          </execution>
+        </executions>
+        <configuration>
+          <signAllArtifacts>true</signAllArtifacts>
         </configuration>
       </plugin>
 
