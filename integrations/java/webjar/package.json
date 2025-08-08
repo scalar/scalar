@@ -15,9 +15,9 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "command -v mvn >/dev/null 2>&1 && pnpm copy:standalone && pnpm update:version && mvn clean package || echo '⚠️ Maven is not available or the build failed, ignoring it.'",
+    "build": "command -v mvn >/dev/null 2>&1 && pnpm copy:standalone && mvn clean package || echo '⚠️ Maven is not available or the build failed, ignoring it.'",
     "copy:standalone": "shx cp ../../../packages/api-reference/dist/browser/standalone.js ./src/main/resources/META-INF/resources/webjars/scalar/scalar.js",
-    "update:version": "shx sed -i 's/^  <version>[0-9.]*<\\/version>$/  <version>'$npm_package_version'<\\/version>/' pom.xml",
+    "update:version": "mvn versions:set -DnewVersion=$npm_package_version -DgenerateBackupPoms=false",
     "release": "mvn deploy",
     "test": "mvn clean test"
   },
