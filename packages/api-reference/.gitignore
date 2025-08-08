@@ -1,2 +1,3 @@
 /coverage
 /test-results
+**/*.e2e.ts-snapshots/**-darwin.png
