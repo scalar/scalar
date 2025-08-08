@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useBindCx } from '@scalar/components'
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { computed } from 'vue'
 
 import { formatHotkeySymbols, formatScreenReaderLabel } from './formatHotkey'
