@@ -78,7 +78,7 @@ export const traverseSchemas = (
     // Add to untagged
     else {
       // type cast is due to the typescript limit on the schema
-      untagged.push(createSchemaEntry(ref, name, titlesMap, getModelId, undefined, schemas[name] as SchemaObject))
+      untagged.push(createSchemaEntry(ref, name, titlesMap, getModelId, undefined, schemas[name]))
     }
   }
 

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 import { computed } from 'vue'
 
 import { Lazy } from '@/components/Lazy'
@@ -34,7 +33,7 @@ const schemas = computed(() => {
     }
 
     // Need the type assertion because of the typescript limitation
-    return [{ name, schema: schema as SchemaObject }]
+    return [{ name, schema: schema }]
   })
 })
 </script>

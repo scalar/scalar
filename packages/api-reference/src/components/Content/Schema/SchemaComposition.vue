@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { ScalarListbox, type ScalarListboxOption } from '@scalar/components'
 import { ScalarIconCaretDown } from '@scalar/icons'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { DiscriminatorObject } from '@scalar/workspace-store/schemas/v3.1/strict/discriminator'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 import { computed, ref } from 'vue'
@@ -48,8 +47,8 @@ const selectedIndex = ref(0)
  * Get the composition schemas to display in the composition panel.
  * Handles nested compositions by processing allOf schemas that contain other composition keywords.
  */
-const schemaComposition = computed(() => {
-  const schemas = props.value[props.composition] as OpenAPIV3_1.SchemaObject[]
+const schemaComposition = computed<SchemaObject[]>(() => {
+  const schemas = props.value[props.composition]
   if (!Array.isArray(schemas)) {
     return []
   }
@@ -81,12 +80,10 @@ const compositionDisplay = computed(() => schemaComposition.value)
  * Each option represents a schema in the composition with a human-readable label.
  */
 const listboxOptions = computed((): ScalarListboxOption[] =>
-  compositionDisplay.value.map(
-    (schema: OpenAPIV3_1.SchemaObject, index: number) => ({
-      id: String(index),
-      label: getSchemaType(schema) || 'Schema',
-    }),
-  ),
+  compositionDisplay.value.map((schema: SchemaObject, index: number) => ({
+    id: String(index),
+    label: getSchemaType(schema) || 'Schema',
+  })),
 )
 
 /**
@@ -141,9 +138,8 @@ const humanizeType = (type: CompositionKeyword): string => {
 /**
  * Get the currently selected composition schema.
  */
-const compositionSchema = computed(
-  (): OpenAPIV3_1.SchemaObject | undefined =>
-    schemaComposition.value[selectedIndex.value],
+const compositionSchema = computed<SchemaObject | undefined>(
+  () => schemaComposition.value[selectedIndex.value],
 )
 
 /**
@@ -189,9 +185,9 @@ const shouldRenderSchema = computed((): boolean => {
 /**
  * Check if the current composition has nested composition keywords.
  */
-const hasNestedCompositionInCurrent = computed((): boolean => {
-  return !!(compositionSchema.value?.oneOf || compositionSchema.value?.anyOf)
-})
+const hasNestedCompositionInCurrent = computed(() =>
+  Boolean(compositionSchema.value?.oneOf || compositionSchema.value?.anyOf),
+)
 
 /**
  * Get the properly typed schema value for the Schema component.
@@ -208,10 +204,10 @@ const schemaValue = computed((): SchemaObject | undefined => {
       type: 'object',
       properties: schema.properties,
       required: schema.required,
-    } as SchemaObject
+    }
   }
 
-  return schema as SchemaObject
+  return schema
 })
 </script>
 
