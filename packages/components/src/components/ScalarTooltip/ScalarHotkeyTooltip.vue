@@ -54,7 +54,11 @@ const renderedContent = computed<string>(() => {
     render(
       h('div', { class: 'flex items-center gap-2' }, [
         content,
-        h(ScalarHotkey, { class: '-my-1.5 -mx-0.5', hotkey, modifier }),
+        h(ScalarHotkey, {
+          class: 'border-c-tooltip -my-1.5 -mx-0.5',
+          hotkey,
+          modifier,
+        }),
       ]),
       el,
     )
