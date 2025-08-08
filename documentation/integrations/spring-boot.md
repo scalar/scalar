@@ -14,7 +14,9 @@ The Scalar WebJar provides automatic integration with Spring Boot applications. 
 </dependency>
 ```
 
-2. Configure the API specification URL in your `application.properties`:
+Maven Central Repository: https://central.sonatype.com/artifact/com.scalar.maven/scalar
+
+1. Configure the API specification URL in your `application.properties`:
 
 ```properties
 # The URL of your OpenAPI specification
