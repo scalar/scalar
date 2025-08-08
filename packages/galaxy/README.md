@@ -15,6 +15,14 @@ npm install @scalar/galaxy
 
 ## Usage
 
+### Scalar Registry
+
+| Version | Format  | URL                                                                |
+| ------- | ------- | ------------------------------------------------------------------ |
+| Latest  | Preview | https://registry.scalar.com/@scalar/apis/galaxy                    |
+| Latest  | JSON    | https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json |
+| Latest  | YAML    | https://registry.scalar.com/@scalar/apis/galaxy/latest?format=yaml |
+
 ### CDN
 
 | Version     | Format | URL                                                          |
