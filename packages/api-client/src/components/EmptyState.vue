@@ -1,14 +1,15 @@
 <script setup lang="ts">
+import { ScalarHotkey } from '@scalar/components'
+
 import Keycap from '@/assets/keycap.ascii?raw'
 
 import ScalarAsciiArt from './ScalarAsciiArt.vue'
-import ScalarHotkey from './ScalarHotkey.vue'
 </script>
 <template>
   <div class="flex-center flex w-full scale-75">
     <div class="relative">
       <ScalarHotkey
-        class="keycap-hotkey right-14 border-transparent text-xl"
+        class="keycap-hotkey right-14 border-transparent py-0 text-xl"
         hotkey="" />
       <ScalarAsciiArt
         :art="Keycap"

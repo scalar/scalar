@@ -15,7 +15,7 @@ export default {}
 import { type Ref, computed, ref } from 'vue'
 
 import { DEFAULT_DELAY, DEFAULT_OFFSET } from './constants'
-import type { ScalarTooltipPlacement } from './types'
+import type { ScalarTooltipProps } from './types'
 import { useTooltip } from './useTooltip'
 
 const {
@@ -23,12 +23,7 @@ const {
   content = '',
   placement = 'top',
   offset = DEFAULT_OFFSET,
-} = defineProps<{
-  content?: string
-  delay?: number
-  placement?: ScalarTooltipPlacement
-  offset?: number
-}>()
+} = defineProps<ScalarTooltipProps>()
 
 const wrapperRef: Ref<HTMLElement | null> = ref(null)
 

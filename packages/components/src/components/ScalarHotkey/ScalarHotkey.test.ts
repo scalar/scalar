@@ -46,11 +46,7 @@ describe('ScalarHotkey', () => {
 
       // Mock modern userAgentData API
       Object.defineProperty(global, 'navigator', {
-        value: {
-          userAgentData: {
-            platform: 'macOS',
-          },
-        },
+        value: { userAgentData: { platform: 'macOS' } },
       })
 
       const wrapper = mount(ScalarHotkey, {
@@ -64,11 +60,7 @@ describe('ScalarHotkey', () => {
       expect(visualText.text()).toBe('⌘ K')
 
       Object.defineProperty(global, 'navigator', {
-        value: {
-          userAgentData: {
-            platform: oldUserAgent,
-          },
-        },
+        value: { userAgentData: { platform: oldUserAgent } },
       })
     })
 

@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/vue3'
 
 import { ScalarButton, ScalarIconButton } from '../../'
 import ScalarTooltip from './ScalarTooltip.vue'
+import ScalarHotkeyTooltip from './ScalarHotkeyTooltip.vue'
 import { placements } from '@floating-ui/utils'
 
 const meta = {
@@ -44,7 +45,7 @@ const meta = {
 </div>
 `,
   }),
-} satisfies Meta<typeof ScalarTooltip>
+} satisfies Meta<typeof ScalarTooltip | typeof ScalarHotkeyTooltip>
 
 export default meta
 type Story = StoryObj<typeof meta>
@@ -84,6 +85,53 @@ export const Multiple: Story = {
   <ScalarTooltip v-bind="args" content="JSON">
       <ScalarIconButton icon="programming-language-json" label="JSON" />
   </ScalarTooltip>
+</div>
+`,
+  }),
+}
+
+export const Hotkey: Story = {
+  args: {
+    content: undefined,
+    hotkey: 'K',
+    modifier: ['Meta'],
+  },
+  render: (args) => ({
+    components: {
+      ScalarHotkeyTooltip,
+      ScalarButton,
+    },
+    setup() {
+      return { args }
+    },
+    template: `
+<div class="flex items-center justify-center w-full h-screen">
+  <ScalarHotkeyTooltip v-bind="args">
+      <ScalarButton>Hover Me</ScalarButton>
+  </ScalarHotkeyTooltip>
+</div>
+`,
+  }),
+}
+export const LabelAndHotkey: Story = {
+  args: {
+    content: 'Open',
+    hotkey: 'K',
+    modifier: ['Meta'],
+  },
+  render: (args) => ({
+    components: {
+      ScalarHotkeyTooltip,
+      ScalarButton,
+    },
+    setup() {
+      return { args }
+    },
+    template: `
+<div class="flex items-center justify-center w-full h-screen">
+  <ScalarHotkeyTooltip v-bind="args">
+      <ScalarButton>Hover Me</ScalarButton>
+  </ScalarHotkeyTooltip>
 </div>
 `,
   }),

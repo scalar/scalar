@@ -230,4 +230,99 @@ describe('useTooltip', () => {
     // New target should have aria-describedby
     expect(newTarget.getAttribute('aria-describedby')).toBe(ELEMENT_ID)
   })
+
+  it('should escape HTML by default', async () => {
+    const htmlContent = '<script>alert("xss")</script>Safe text'
+    useTooltip({
+      content: htmlContent,
+      targetRef: targetElement,
+    })
+
+    // Show tooltip
+    targetElement.dispatchEvent(new MouseEvent('mouseenter'))
+    vi.runAllTimers()
+    await nextTick()
+
+    const tooltipElement = document.getElementById(ELEMENT_ID)
+    expect(tooltipElement?.textContent).toBe(htmlContent)
+    expect(tooltipElement?.innerHTML).toBe('&lt;script&gt;alert("xss")&lt;/script&gt;Safe text')
+  })
+
+  it('should support html content when contentTarget is set to innerHTML', async () => {
+    const htmlContent = '<strong>Bold</strong> text'
+    useTooltip({
+      content: htmlContent,
+      targetRef: targetElement,
+      contentTarget: 'innerHTML',
+    })
+
+    // Show tooltip
+    targetElement.dispatchEvent(new MouseEvent('mouseenter'))
+    vi.runAllTimers()
+    await nextTick()
+
+    const tooltipElement = document.getElementById(ELEMENT_ID)
+    expect(tooltipElement?.innerHTML).toBe(htmlContent)
+    expect(tooltipElement?.textContent).toBe('Bold text')
+  })
+
+  it('should update contentTarget when it changes', async () => {
+    const contentTarget = ref<'textContent' | 'innerHTML'>('textContent')
+    const htmlContent = '<em>Italic</em> text'
+
+    useTooltip({
+      content: htmlContent,
+      targetRef: targetElement,
+      contentTarget,
+    })
+
+    // Show tooltip with textContent
+    targetElement.dispatchEvent(new MouseEvent('mouseenter'))
+    vi.runAllTimers()
+    await nextTick()
+
+    const tooltipElement = document.getElementById(ELEMENT_ID)
+    expect(tooltipElement?.textContent).toBe(htmlContent)
+
+    // Change to innerHTML
+    contentTarget.value = 'innerHTML'
+    await nextTick()
+
+    expect(tooltipElement?.innerHTML).toBe(htmlContent)
+    expect(tooltipElement?.textContent).toBe('Italic text')
+  })
+
+  it('should work with reactive content and contentTarget', async () => {
+    const content = ref('Initial content')
+    const contentTarget = ref<'textContent' | 'innerHTML'>('textContent')
+
+    useTooltip({
+      content,
+      targetRef: targetElement,
+      contentTarget,
+    })
+
+    // Show tooltip
+    targetElement.dispatchEvent(new MouseEvent('mouseenter'))
+    vi.runAllTimers()
+    await nextTick()
+
+    const tooltipElement = document.getElementById(ELEMENT_ID)
+    expect(tooltipElement?.textContent).toBe('Initial content')
+
+    // Update content to HTML
+    content.value = '<strong>Bold</strong> content'
+    await nextTick()
+
+    // Should still be escaped as textContent
+    expect(tooltipElement?.textContent).toBe('<strong>Bold</strong> content')
+
+    // Switch to innerHTML
+    contentTarget.value = 'innerHTML'
+    await nextTick()
+
+    // Should now render as HTML
+    expect(tooltipElement?.innerHTML).toBe('<strong>Bold</strong> content')
+    expect(tooltipElement?.textContent).toBe('Bold content')
+  })
 })
