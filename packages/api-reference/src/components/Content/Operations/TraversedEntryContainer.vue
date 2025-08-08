@@ -2,9 +2,9 @@
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import { freezeAtTop } from '@scalar/helpers/dom/freeze-at-top'
 import { getSlugUid } from '@scalar/oas-utils/transforms'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref } from 'vue'
 
 import { getCurrentIndex } from '@/components/Content/Operations/get-current-index'
@@ -15,14 +15,15 @@ import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block
 
 import TraversedEntry from './TraversedEntry.vue'
 
-const { document, config } = defineProps<{
-  document: OpenAPIV3_1.Document
+const { config, store } = defineProps<{
   config: ApiReferenceConfiguration
   clientOptions: ClientOptionGroup[]
+  document: OpenApiDocument
   store: WorkspaceStore
 }>()
 
 const emit = defineEmits<{
+  /** When all entries are loaded, used for testing */
   allEntriesLoaded: [loaded: true]
 }>()
 
@@ -121,9 +122,9 @@ setTimeout(() => resume(), 5000)
       :entries="items.entries"
       :activeCollection
       :activeServer
+      :document
       :clientOptions
       :config
-      :document
       :rootIndex
       :store />
   </div>

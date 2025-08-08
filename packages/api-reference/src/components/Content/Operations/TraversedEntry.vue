@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import { getCurrentIndex } from '@/components/Content/Operations/get-current-index'
@@ -27,8 +27,8 @@ const {
   level?: number
   rootIndex: number
   entries: TraversedEntry[]
-  document: OpenAPIV3_1.Document
   config: ApiReferenceConfiguration
+  document: OpenApiDocument
   clientOptions: ClientOptionGroup[]
   activeCollection: Collection
   activeServer: Server | undefined
@@ -107,8 +107,8 @@ defineExpose({
           :path="isWebhook(entry) ? entry.name : entry.path"
           :method="entry.method"
           :id="entry.id"
-          :document
           :collection="activeCollection"
+          :document
           :clientOptions
           :layout="config.layout"
           :store
@@ -129,10 +129,10 @@ defineExpose({
             :entries="entry.children"
             :activeCollection
             :activeServer
+            :document
             :clientOptions
             :rootIndex
             :config
-            :document
             :store />
         </template>
       </Tag>

@@ -3,8 +3,8 @@ import { useWorkspace } from '@scalar/api-client/store'
 import { filterSecurityRequirements } from '@scalar/api-client/views/Request/RequestSection'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { isReference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import { computed } from 'vue'
 
@@ -17,8 +17,8 @@ import ModernLayout from './layouts/ModernLayout.vue'
 
 const {
   layout = 'modern',
-  document,
   server,
+  document,
   isWebhook,
   collection,
   path,
@@ -28,6 +28,7 @@ const {
   path: string
   method: HttpMethod
   clientOptions: ClientOptionGroup[]
+  document: OpenApiDocument
   isWebhook: boolean
   layout?: 'modern' | 'classic'
   id: string
@@ -35,14 +36,12 @@ const {
   store: WorkspaceStore
   /** @deprecated Use `document` instead, we just need the selected security scheme uids for now */
   collection: Collection
-  /** @deprecated Use the new workspace store instead*/
-  document?: OpenAPIV3_1.Document
 }>()
 
 /** Grab the pathItem from either webhooks or paths */
 const pathItem = computed(() => {
   const initialKey = isWebhook ? 'webhooks' : 'paths'
-  return store.workspace.activeDocument?.[initialKey]?.[path]
+  return document[initialKey]?.[path]
 })
 
 /**
@@ -73,7 +72,7 @@ const operation = computed(() => {
 const { securitySchemes } = useWorkspace()
 const selectedSecuritySchemes = computed(() =>
   filterSecurityRequirements(
-    operation.value?.security || document?.security,
+    operation.value?.security || document.security || [],
     collection.selectedSecuritySchemeUids,
     securitySchemes,
   ).map(convertSecurityScheme),
@@ -92,7 +91,6 @@ const selectedSecuritySchemes = computed(() =>
         :securitySchemes="selectedSecuritySchemes"
         :store="store"
         :path="path"
-        :schemas="document?.components?.schemas"
         :server="server" />
     </template>
     <template v-else>
@@ -105,7 +103,6 @@ const selectedSecuritySchemes = computed(() =>
         :path="path"
         :store="store"
         :operation="operation"
-        :schemas="document?.components?.schemas"
         :server="server" />
     </template>
   </template>

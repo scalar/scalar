@@ -10,7 +10,7 @@ import ClassicLayout from './ClassicLayout.vue'
 import ModernLayout from './ModernLayout.vue'
 
 const { document } = defineProps<{
-  document: OpenApiDocument | undefined
+  document: OpenApiDocument
   config: ApiReferenceConfiguration
 }>()
 
@@ -18,7 +18,7 @@ const { hash } = useNavState()
 
 /** Array of the name and value of all component schemas */
 const schemas = computed(() => {
-  const _schemas = document?.components?.schemas
+  const _schemas = document.components?.schemas
 
   if (!_schemas) {
     return []

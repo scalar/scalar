@@ -12,7 +12,7 @@ import { generateClientOptions } from '@/v2/blocks/scalar-request-example-block/
 
 import { TraversedEntryContainer } from './Operations'
 
-defineProps<{
+const { store } = defineProps<{
   document: OpenAPIV3_1.Document
   config: ApiReferenceConfiguration
   store: WorkspaceStore
@@ -26,11 +26,20 @@ const config = useConfig()
 const clientOptions = computed(() =>
   generateClientOptions(config.value.hiddenClients),
 )
+
+/**
+ * Active Document
+ *
+ * We computed it here instead of using activeDocument in case we want to handle multiple active documents
+ */
+const document = computed(() => store.workspace.activeDocument)
 </script>
 <template>
   <SectionFlare />
 
-  <div class="narrow-references-container">
+  <div
+    class="narrow-references-container"
+    v-if="document">
     <slot name="start" />
 
     <!-- Introduction -->
@@ -48,15 +57,15 @@ const clientOptions = computed(() =>
 
     <!-- Loop on traversed entries -->
     <TraversedEntryContainer
-      :document
       :config
+      :document
       :clientOptions
       :store />
 
     <!-- Models -->
     <Models
       v-if="!config?.hideModels"
-      :document="store.workspace.activeDocument"
+      :document="document"
       :config />
 
     <slot name="end" />
