@@ -150,6 +150,7 @@ And there's an ever-growing list of plugins and integrations:
 - [React](documentation/integrations/react.md)
 - [Ruby on Rails](documentation/integrations/ruby-on-rails.md)
 - [Rust](documentation/integrations/rust.md)
+- [Spring Boot](documentation/integrations/spring-boot.md)
 - [SvelteKit](documentation/integrations/sveltekit.md)
 - [Ts.ED](documentation/integrations/tsed.md)
 - [Vue.js](documentation/integrations/vue.md)

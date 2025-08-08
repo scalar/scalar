@@ -250,6 +250,90 @@ jobs:
       - name: Run tests for the proxy server (Go)
         run: cd projects/proxy-scalar-com && go test -v
 
+  java-webjar-test:
+    needs: [build]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    permissions:
+      contents: read
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - name: Build @scalar/api-reference
+        uses: ./.github/actions/build-blacksmith
+        with:
+          node-version: '22'
+          packages: '@scalar/api-reference'
+      - name: Copy JavaScript asset from @scalar/api-reference
+        run: pnpm --filter @scalar/webjar copy:standalone
+      - name: Check if the JS file exists
+        run: |
+          ls -la integrations/java/webjar/src/main/resources/META-INF/resources/webjars/scalar/scalar.js || exit 1
+      - name: Setup Java
+        uses: actions/setup-java@17f84c3641ba7b8f6deff6309fc4c864478f5d62 # v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Run Maven tests
+        run: pnpm --filter @scalar/webjar test
+
+  java-webjar-publish:
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
+    needs: [build, java-webjar-test]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    concurrency:
+      group: java-webjar-publish
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - name: Check for new Webjar version
+        id: changed-files
+        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
+        with:
+          files_yaml: |
+            java_webjar_package:
+              - integrations/java/webjar/package.json
+      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
+        name: Build @scalar/api-reference
+        uses: ./.github/actions/build-blacksmith
+        with:
+          node-version: '22'
+          packages: '@scalar/api-reference'
+      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
+        name: Copy JavaScript asset from @scalar/api-reference
+        run: pnpm --filter @scalar/webjar copy:standalone
+      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
+        name: Setup Java
+        uses: actions/setup-java@17f84c3641ba7b8f6deff6309fc4c864478f5d62 # v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          server-id: 'central'
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: GPG_PASSPHRASE
+      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
+        name: Set version in pom.xml (using the version from package.json)
+        run: pnpm --filter @scalar/webjar update:version
+      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
+        name: Build Java WebJar
+        run: pnpm --filter @scalar/webjar build
+      - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
+        name: Release Java WebJar
+        run: pnpm --filter @scalar/webjar release
+        env:
+          # Create an account on Sonatype and add the credentials to the repository secrets.
+          # Generate User Token: https://central.sonatype.com/account
+          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+          GPG_KEYNAME: ${{ secrets.GPG_KEY_ID }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+
   stats:
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
