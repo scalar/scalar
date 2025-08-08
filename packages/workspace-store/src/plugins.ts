@@ -78,13 +78,18 @@ export const refsEverywhere = (): LifecyclePlugin => {
   return {
     type: 'lifecycle',
     onBeforeNodeProcess: async (node, context) => {
+      const { path, resolutionCache, parentNode } = context
+      const ref = node['$ref']
+
       // Only process nodes that have a $ref property as a string
-      if (!('$ref' in node) || typeof node['$ref'] !== 'string') {
+      if (typeof ref !== 'string') {
         return
       }
 
-      const ref = node['$ref']
-      const { path, resolutionCache } = context
+      // Can not resolve top level refs
+      if (!parentNode || !path.length) {
+        return
+      }
 
       // Support resolving $ref on the info object
       if (path[0] === 'info') {
@@ -96,9 +101,8 @@ export const refsEverywhere = (): LifecyclePlugin => {
         const result = await resolutionCache.get(ref)
 
         if (result?.ok) {
-          delete node['$ref']
-          // TODO: handle primitive types (going to need access to the parent node)
-          Object.assign(node, result.data)
+          // Replace the ref with the resolved data
+          parentNode[path.at(-1)!] = result.data
         }
       }
     },

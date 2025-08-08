@@ -2031,6 +2031,7 @@ describe('bundle', () => {
       expect(onBeforeNodeProcessCallback.mock.calls[0][1]).toEqual({
         path: [],
         resolutionCache: new Map(),
+        parentNode: null,
       })
       expect(onBeforeNodeProcessCallback.mock.calls[1][0]).toEqual({
         innerProp: 'string',
@@ -2038,6 +2039,11 @@ describe('bundle', () => {
       expect(onBeforeNodeProcessCallback.mock.calls[1][1]).toEqual({
         path: ['prop'],
         resolutionCache: new Map(),
+        parentNode: {
+          prop: {
+            innerProp: 'string',
+          },
+        },
       })
       expect(onAfterNodeProcessCallback).toHaveBeenCalledTimes(2)
       expect(onAfterNodeProcessCallback.mock.calls[0][0]).toEqual({
@@ -2046,6 +2052,11 @@ describe('bundle', () => {
       expect(onAfterNodeProcessCallback.mock.calls[0][1]).toEqual({
         path: ['prop'],
         resolutionCache: new Map(),
+        parentNode: {
+          prop: {
+            innerProp: 'string',
+          },
+        },
       })
       expect(onAfterNodeProcessCallback.mock.calls[1][0]).toEqual({
         prop: {
@@ -2055,6 +2066,7 @@ describe('bundle', () => {
       expect(onAfterNodeProcessCallback.mock.calls[1][1]).toEqual({
         path: [],
         resolutionCache: new Map(),
+        parentNode: null,
       })
     })
 
@@ -2124,6 +2136,97 @@ describe('bundle', () => {
       expect(onResolveSuccess.mock.calls[0][0]).toEqual({
         $ref: '#/x-ext/4e7a208',
       })
+    })
+
+    it('correctly provides the parent node in different levels', async () => {
+      const onBeforeNodeProcess = vi.fn()
+      const input = {
+        a: {
+          b: {
+            c: {
+              someNode: 'hello world',
+            },
+          },
+        },
+        d: {
+          $ref: '#/a',
+        },
+        e: {
+          f: {
+            $ref: '#/a/b/c',
+          },
+        },
+      }
+
+      await bundle(input, {
+        plugins: [
+          {
+            type: 'lifecycle',
+            onBeforeNodeProcess,
+          },
+        ],
+        treeShake: false,
+      })
+
+      expect(onBeforeNodeProcess).toHaveBeenCalled()
+
+      // First call should be the root with a null parent
+      expect(onBeforeNodeProcess.mock.calls[0][0]).toEqual(input)
+      expect(onBeforeNodeProcess.mock.calls[0][1].parentNode).toEqual(null)
+
+      expect(onBeforeNodeProcess.mock.calls[1][0]).toEqual(input.a)
+      expect(onBeforeNodeProcess.mock.calls[1][1].parentNode).toEqual(input)
+
+      expect(onBeforeNodeProcess.mock.calls[2][0]).toEqual(input.d)
+      expect(onBeforeNodeProcess.mock.calls[2][1].parentNode).toEqual(input)
+
+      expect(onBeforeNodeProcess.mock.calls[3][0]).toEqual(input.e)
+      expect(onBeforeNodeProcess.mock.calls[3][1].parentNode).toEqual(input)
+
+      expect(onBeforeNodeProcess.mock.calls[4][0]).toEqual(input.a.b)
+      expect(onBeforeNodeProcess.mock.calls[4][1].parentNode).toEqual(input.a)
+
+      expect(onBeforeNodeProcess.mock.calls[5][0]).toEqual(input.e.f)
+      expect(onBeforeNodeProcess.mock.calls[5][1].parentNode).toEqual(input.e)
+
+      expect(onBeforeNodeProcess.mock.calls[6][0]).toEqual(input.a.b.c)
+      expect(onBeforeNodeProcess.mock.calls[6][1].parentNode).toEqual(input.a.b)
+    })
+
+    it('correctly provides the parent node on partial bundle for referenced nodes', async () => {
+      const onBeforeNodeProcess = vi.fn()
+
+      const input = {
+        a: {
+          b: 'some-prop',
+        },
+        b: {
+          c: {
+            $ref: '#/a',
+          },
+        },
+      }
+
+      await bundle(input.b, {
+        treeShake: false,
+        root: input,
+        plugins: [
+          {
+            type: 'lifecycle',
+            onBeforeNodeProcess,
+          },
+        ],
+      })
+
+      expect(onBeforeNodeProcess).toHaveBeenCalled()
+      expect(onBeforeNodeProcess.mock.calls[0][0]).toEqual(input.b)
+      expect(onBeforeNodeProcess.mock.calls[0][1].parentNode).toEqual(null)
+
+      expect(onBeforeNodeProcess.mock.calls[1][0]).toEqual(input.b.c)
+      expect(onBeforeNodeProcess.mock.calls[1][1].parentNode).toEqual(input.b)
+
+      expect(onBeforeNodeProcess.mock.calls[2][0]).toEqual(input.a)
+      expect(onBeforeNodeProcess.mock.calls[2][1].parentNode).toEqual(input)
     })
   })
 })

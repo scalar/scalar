@@ -396,6 +396,7 @@ export type LoaderPlugin = {
 type NodeProcessContext = {
   path: readonly string[]
   resolutionCache: Map<string, Promise<Readonly<ResolveResult>>>
+  parentNode: UnknownObject | null
 }
 
 /**
@@ -674,6 +675,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     isChunkParent = false,
     depth = 0,
     path: readonly string[] = [],
+    parent: UnknownObject = null,
   ) => {
     // If a maximum depth is set in the config, stop bundling when the current depth reaches or exceeds it
     if (config.depth !== undefined && depth > config.depth) {
@@ -693,10 +695,14 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     processedNodes.add(root)
 
     // Invoke the onBeforeNodeProcess hook for the current node before any further processing
-    await config.hooks?.onBeforeNodeProcess?.(root as UnknownObject, { path, resolutionCache: cache })
+    await config.hooks?.onBeforeNodeProcess?.(root as UnknownObject, {
+      path,
+      resolutionCache: cache,
+      parentNode: parent,
+    })
     // Invoke onBeforeNodeProcess hooks from all registered lifecycle plugins
     for (const plugin of lifecyclePlugin) {
-      await plugin.onBeforeNodeProcess?.(root as UnknownObject, { path, resolutionCache: cache })
+      await plugin.onBeforeNodeProcess?.(root as UnknownObject, { path, resolutionCache: cache, parentNode: parent })
     }
 
     if (typeof root === 'object' && '$ref' in root && typeof root['$ref'] === 'string') {
@@ -706,11 +712,13 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       if (isLocalRef(ref)) {
         if (isPartialBundling) {
           const segments = getSegmentsFromPath(ref.substring(1))
+          const parent = segments.length > 0 ? getNestedValue(documentRoot, segments.slice(0, -1)) : undefined
+
           // When doing partial bundling, we need to recursively bundle all dependencies
           // referenced by this local reference to ensure the partial bundle is complete.
           // This includes not just the direct reference but also all its dependencies,
           // creating a complete and self-contained partial bundle.
-          await bundler(getNestedValue(documentRoot, segments), origin, isChunkParent, depth + 1, segments)
+          await bundler(getNestedValue(documentRoot, segments), origin, isChunkParent, depth + 1, segments, parent)
         }
         return
       }
@@ -764,6 +772,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           await bundler(result.data, isChunk ? origin : resolvedPath, isChunk, depth + 1, [
             extensions.externalDocuments,
             compressedPath,
+            documentRoot[extensions.externalDocumentsMappings],
           ])
 
           // Store the mapping between hashed keys and original URLs in x-ext-urls
@@ -823,18 +832,22 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           return
         }
 
-        await bundler(value, origin, isChunkParent, depth + 1, [...path, key])
+        await bundler(value, origin, isChunkParent, depth + 1, [...path, key], root as UnknownObject)
       }),
     )
 
     // Invoke the optional onAfterNodeProcess hook from the config, if provided.
     // This allows for custom post-processing logic after a node has been handled by the bundler.
-    await config.hooks?.onAfterNodeProcess?.(root as UnknownObject, { path, resolutionCache: cache })
+    await config.hooks?.onAfterNodeProcess?.(root as UnknownObject, {
+      path,
+      resolutionCache: cache,
+      parentNode: parent,
+    })
 
     // Iterate through all lifecycle plugins and invoke their onAfterNodeProcess hooks, if defined.
     // This enables plugins to perform additional post-processing or cleanup after the node is processed.
     for (const plugin of lifecyclePlugin) {
-      await plugin.onAfterNodeProcess?.(root as UnknownObject, { path, resolutionCache: cache })
+      await plugin.onAfterNodeProcess?.(root as UnknownObject, { path, resolutionCache: cache, parentNode: parent })
     }
   }
 
