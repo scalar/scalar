@@ -124,7 +124,7 @@ class ScalarControllerTest {
         }
 
         @Test
-        @DisplayName("should handle null URL by converting to 'null' string")
+        @DisplayName("should handle null URL by converting to empty string")
         void shouldHandleNullUrl() throws Exception {
             // Given
             when(properties.getUrl()).thenReturn(null);
@@ -140,7 +140,220 @@ class ScalarControllerTest {
             String html = response.getBody();
             assertThat(html)
                 .isNotNull()
-                .contains("url: \"null\"");
+                .contains("url: \"\"");
+        }
+
+        @Test
+        @DisplayName("should include showSidebar configuration when disabled")
+        void shouldIncludeShowSidebarConfigurationWhenDisabled() throws Exception {
+            // Given
+            when(properties.getUrl()).thenReturn("https://example.com/api.json");
+            when(properties.isShowSidebar()).thenReturn(false);
+
+            // When
+            ResponseEntity<String> response = controller.getDocs();
+
+            // Then
+            String html = response.getBody();
+            assertThat(html)
+                .isNotNull()
+                .contains("showSidebar: false");
+        }
+
+        @Test
+        @DisplayName("should include hideModels configuration when enabled")
+        void shouldIncludeHideModelsConfigurationWhenEnabled() throws Exception {
+            // Given
+            when(properties.getUrl()).thenReturn("https://example.com/api.json");
+            when(properties.isHideModels()).thenReturn(true);
+
+            // When
+            ResponseEntity<String> response = controller.getDocs();
+
+            // Then
+            String html = response.getBody();
+            assertThat(html)
+                .isNotNull()
+                .contains("hideModels: true");
+        }
+
+        @Test
+        @DisplayName("should include hideTestRequestButton configuration when enabled")
+        void shouldIncludeHideTestRequestButtonConfigurationWhenEnabled() throws Exception {
+            // Given
+            when(properties.getUrl()).thenReturn("https://example.com/api.json");
+            when(properties.isHideTestRequestButton()).thenReturn(true);
+
+            // When
+            ResponseEntity<String> response = controller.getDocs();
+
+            // Then
+            String html = response.getBody();
+            assertThat(html)
+                .isNotNull()
+                .contains("hideTestRequestButton: true");
+        }
+
+        @Test
+        @DisplayName("should include darkMode configuration when enabled")
+        void shouldIncludeDarkModeConfigurationWhenEnabled() throws Exception {
+            // Given
+            when(properties.getUrl()).thenReturn("https://example.com/api.json");
+            when(properties.isDarkMode()).thenReturn(true);
+
+            // When
+            ResponseEntity<String> response = controller.getDocs();
+
+            // Then
+            String html = response.getBody();
+            assertThat(html)
+                .isNotNull()
+                .contains("darkMode: true");
+        }
+
+        @Test
+        @DisplayName("should include hideDarkModeToggle configuration when enabled")
+        void shouldIncludeHideDarkModeToggleConfigurationWhenEnabled() throws Exception {
+            // Given
+            when(properties.getUrl()).thenReturn("https://example.com/api.json");
+            when(properties.isHideDarkModeToggle()).thenReturn(true);
+
+            // When
+            ResponseEntity<String> response = controller.getDocs();
+
+            // Then
+            String html = response.getBody();
+            assertThat(html)
+                .isNotNull()
+                .contains("hideDarkModeToggle: true");
+        }
+
+        @Test
+        @DisplayName("should include customCss configuration when provided")
+        void shouldIncludeCustomCssConfigurationWhenProvided() throws Exception {
+            // Given
+            when(properties.getUrl()).thenReturn("https://example.com/api.json");
+            when(properties.getCustomCss()).thenReturn("body { background-color: #BADA55; }");
+
+            // When
+            ResponseEntity<String> response = controller.getDocs();
+
+            // Then
+            String html = response.getBody();
+            assertThat(html)
+                .isNotNull()
+                .contains("customCss: \"body { background-color: #BADA55; }\"");
+        }
+
+        @Test
+        @DisplayName("should include theme configuration when not default")
+        void shouldIncludeThemeConfigurationWhenNotDefault() throws Exception {
+            // Given
+            when(properties.getUrl()).thenReturn("https://example.com/api.json");
+            when(properties.getTheme()).thenReturn("mars");
+
+            // When
+            ResponseEntity<String> response = controller.getDocs();
+
+            // Then
+            String html = response.getBody();
+            assertThat(html)
+                .isNotNull()
+                .contains("theme: \"mars\"");
+        }
+
+        @Test
+        @DisplayName("should include layout configuration when not modern")
+        void shouldIncludeLayoutConfigurationWhenNotModern() throws Exception {
+            // Given
+            when(properties.getUrl()).thenReturn("https://example.com/api.json");
+            when(properties.getLayout()).thenReturn("classic");
+
+            // When
+            ResponseEntity<String> response = controller.getDocs();
+
+            // Then
+            String html = response.getBody();
+            assertThat(html)
+                .isNotNull()
+                .contains("layout: \"classic\"");
+        }
+
+        @Test
+        @DisplayName("should include hideSearch configuration when enabled")
+        void shouldIncludeHideSearchConfigurationWhenEnabled() throws Exception {
+            // Given
+            when(properties.getUrl()).thenReturn("https://example.com/api.json");
+            when(properties.isHideSearch()).thenReturn(true);
+
+            // When
+            ResponseEntity<String> response = controller.getDocs();
+
+            // Then
+            String html = response.getBody();
+            assertThat(html)
+                .isNotNull()
+                .contains("hideSearch: true");
+        }
+
+        @Test
+        @DisplayName("should include documentDownloadType configuration when not both")
+        void shouldIncludeDocumentDownloadTypeConfigurationWhenNotBoth() throws Exception {
+            // Given
+            when(properties.getUrl()).thenReturn("https://example.com/api.json");
+            when(properties.getDocumentDownloadType()).thenReturn("json");
+
+            // When
+            ResponseEntity<String> response = controller.getDocs();
+
+            // Then
+            String html = response.getBody();
+            assertThat(html)
+                .isNotNull()
+                .contains("documentDownloadType: \"json\"");
+        }
+
+        @Test
+        @DisplayName("should handle multiple configuration options together")
+        void shouldHandleMultipleConfigurationOptionsTogether() throws Exception {
+            // Given
+            when(properties.getUrl()).thenReturn("https://example.com/api.json");
+            when(properties.isShowSidebar()).thenReturn(false);
+            when(properties.isHideModels()).thenReturn(true);
+            when(properties.isDarkMode()).thenReturn(true);
+            when(properties.getTheme()).thenReturn("mars");
+            when(properties.getCustomCss()).thenReturn("body { background-color: #BADA55; }");
+
+            // When
+            ResponseEntity<String> response = controller.getDocs();
+
+            // Then
+            String html = response.getBody();
+            assertThat(html)
+                .isNotNull()
+                .contains("url: \"https://example.com/api.json\"")
+                .contains("showSidebar: false")
+                .contains("hideModels: true")
+                .contains("darkMode: true")
+                .contains("theme: \"mars\"")
+                .contains("customCss: \"body { background-color: #BADA55; }\"");
+        }
+
+        @Test
+        @DisplayName("should escape special characters in customCss")
+        void shouldEscapeSpecialCharactersInCustomCss() throws Exception {
+            // Given
+            when(properties.getUrl()).thenReturn("https://example.com/api.json");
+            when(properties.getCustomCss()).thenReturn("body { content: \"quoted text\"; }");
+
+            // When
+            ResponseEntity<String> response = controller.getDocs();
+
+            // Then
+            String html = response.getBody();
+            assertThat(html)
+                .isNotNull()
+                .contains("customCss: \"body { content: \\\"quoted text\\\"; }\"");
         }
     }
 

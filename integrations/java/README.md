@@ -8,7 +8,7 @@ To build the WebJar:
 
 ```bash
 cd integrations/java/webjar
-mvn clean install
+pnpm local:install
 ```
 
 To test the Spring Boot integration:
