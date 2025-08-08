@@ -1,3 +1,4 @@
+import { REGEX } from '@scalar/helpers/regex/regex-helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 /**
@@ -14,7 +15,7 @@ export const getRefName = (schema: OpenAPIV3_1.SchemaObject) => {
     return null
   }
 
-  const match = ref.match(/\/([^\/]+)$/)
+  const match = ref.match(REGEX.REF_NAME)
   if (match) {
     return match[1]
   }
