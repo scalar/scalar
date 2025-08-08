@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 
 import ScalarCodeBlock from './ScalarCodeBlock.vue'
+import ScalarCodeBlockCopy from './ScalarCodeBlockCopy.vue'
 
 const contentJs = `import { ApiClientReact } from '@scalar/api-client-react'
 import React, { useState } from 'react'
@@ -92,4 +93,23 @@ export const HideCredentials: Story = {
   --header 'Authorization: Bearer 123234324'`,
     hideCredentials: ['123234324'],
   },
+}
+
+export const CopyButton: StoryObj = {
+  argTypes: {
+    content: { control: 'text' },
+    controls: { control: 'text' },
+    class: { control: 'text' },
+  },
+  render: (args) => ({
+    components: { ScalarCodeBlockCopy },
+    setup() {
+      return { args }
+    },
+    template: `
+      <div class="bg-b-2 flex">
+        <ScalarCodeBlockCopy v-bind="args" class="opacity-100 left-10" />
+      </div>
+      `,
+  }),
 }

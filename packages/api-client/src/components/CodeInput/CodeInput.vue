@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
-import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 import {
   colorPicker as colorPickerExtension,
   useCodeMirror,
@@ -10,7 +8,6 @@ import {
   type CodeMirrorLanguage,
   type Extension,
 } from '@scalar/use-codemirror'
-import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { nanoid } from 'nanoid'
 import { computed, ref, toRef, useAttrs, watch, type Ref } from 'vue'
 
@@ -45,7 +42,6 @@ const props = withDefaults(
     nullable?: boolean
     withVariables?: boolean
     importCurl?: boolean
-    isCopyable?: boolean
     default?: string | number
     environment: Environment
     envVariables: EnvVariable[]
@@ -61,7 +57,6 @@ const props = withDefaults(
     colorPicker: false,
     nullable: false,
     withVariables: true,
-    isCopyable: false,
     disabled: false,
     lineWrapping: false,
   },
@@ -87,7 +82,6 @@ const dropdownRef = ref<InstanceType<
 > | null>(null)
 
 const { layout } = useLayout()
-const { copyToClipboard } = useClipboard()
 
 // ---------------------------------------------------------------------------
 // Event mapping from codemirror to standard input interfaces
@@ -312,20 +306,6 @@ export default {
       @keydown.escape="handleKeyDown('escape', $event)"
       @keydown.up.stop="handleKeyDown('up', $event)">
       <div
-        v-if="isCopyable"
-        class="scalar-code-copy z-context">
-        <button
-          class="copy-button"
-          type="button"
-          @click="copyToClipboard(prettyPrintJson(modelValue))">
-          <span class="sr-only">Copy content</span>
-
-          <ScalarIcon
-            icon="Clipboard"
-            size="md" />
-        </button>
-      </div>
-      <div
         v-if="!disableTabIndent"
         class="z-context text-c-2 absolute right-1.5 bottom-1 hidden font-sans group-has-[:focus-visible]/input:block"
         role="alert">
@@ -431,7 +411,7 @@ export default {
   border-right: none;
   color: var(--scalar-color-3);
   font-size: var(--scalar-small);
-  line-height: 1.44;
+  line-height: 22px;
   border-radius: 0 0 0 3px;
 }
 :deep(.cm-gutters:before) {
@@ -446,59 +426,21 @@ export default {
 }
 :deep(.cm-gutterElement) {
   font-family: var(--scalar-font-code) !important;
-  padding: 0 6px 0 8px !important;
+  padding-left: 0px !important;
+  padding-right: 6px !important;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   position: relative;
+}
+:deep(.cm-lineNumbers .cm-gutterElement) {
+  min-width: fit-content;
 }
 :deep(.cm-gutter + .cm-gutter :not(.cm-foldGutter) .cm-gutterElement) {
   padding-left: 0 !important;
 }
 :deep(.cm-scroller) {
   overflow: auto;
-}
-/* Copy Button */
-.peer:hover .copy-button,
-.copy-button:focus-visible {
-  opacity: 100;
-}
-.scalar-code-copy {
-  align-items: flex-start;
-  display: flex;
-  inset: 0;
-  justify-content: flex-end;
-  position: sticky;
-}
-.copy-button {
-  align-items: center;
-  display: flex;
-  position: relative;
-  background-color: var(--scalar-background-2);
-  border: 1px solid var(--scalar-border-color);
-  border-radius: 3px;
-  color: var(--scalar-color-3);
-  cursor: pointer;
-  height: 30px;
-  margin-bottom: -30px;
-  opacity: 0;
-  padding: 6px;
-  transition:
-    opacity 0.15s ease-in-out,
-    color 0.15s ease-in-out;
-  top: 0px;
-  right: 0px;
-}
-.scalar-code-copy,
-.copy-button {
-  /* Pass down the background color */
-  background: inherit;
-}
-.copy-button:hover {
-  color: var(--scalar-color-1);
-}
-.copy-button svg {
-  stroke-width: 1.5;
 }
 .line-wrapping:focus-within :deep(.cm-content) {
   display: inline-table;
