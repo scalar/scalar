@@ -1,5 +1,6 @@
 import { normalize } from '@/utils/normalize'
-import { isFilePath, type Plugin, type ResolveResult } from '@/bundle/bundle'
+import type { LoaderPlugin, ResolveResult } from '@/bundle'
+import { isFilePath } from '@/bundle/bundle'
 
 /**
  * Reads and normalizes data from a local file
@@ -47,8 +48,9 @@ export async function readFile(path: string): Promise<ResolveResult> {
  *   const result = await filePlugin.exec('./local-schema.json')
  * }
  */
-export function readFiles(): Plugin {
+export function readFiles(): LoaderPlugin {
   return {
+    type: 'loader',
     validate: isFilePath,
     exec: readFile,
   }

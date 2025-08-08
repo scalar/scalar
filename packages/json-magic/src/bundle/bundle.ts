@@ -77,7 +77,7 @@ export type ResolveResult = { ok: true; data: unknown } | { ok: false }
  * // No matching plugin returns { ok: false }
  * await resolveContents('#/components/schemas/User', [urlPlugin, filePlugin])
  */
-async function resolveContents(value: string, plugins: Plugin[]): Promise<ResolveResult> {
+async function resolveContents(value: string, plugins: LoaderPlugin[]): Promise<ResolveResult> {
   const plugin = plugins.find((p) => p.validate(value))
 
   if (plugin) {
@@ -360,21 +360,64 @@ const resolveAndCopyReferences = (
 }
 
 /**
- * Represents a plugin that handles resolving references from external sources.
- * Plugins are responsible for fetching and processing data from different sources
- * like URLs or the filesystem. Each plugin must implement validation to determine
- * if it can handle a specific reference, and an execution function to perform
- * the actual resolution.
+ * A loader plugin for resolving external references during bundling.
+ * Loader plugins are responsible for handling specific types of external references,
+ * such as files, URLs, or custom protocols. Each loader plugin must provide:
  *
- * @property validate - Determines if this plugin can handle the given reference
- * @property exec - Fetches and processes the reference, returning the resolved data
+ * - A `validate` function to determine if the plugin can handle a given reference string.
+ * - An `exec` function to asynchronously fetch and resolve the referenced data,
+ *   returning a Promise that resolves to a `ResolveResult`.
+ *
+ * Loader plugins enable extensible support for different reference sources in the bundler.
+ *
+ * @property type - The plugin type, always 'loader' for loader plugins.
+ * @property validate - Function to check if the plugin can handle a given reference value.
+ * @property exec - Function to fetch and resolve the reference, returning the resolved data.
  */
-export type Plugin = {
-  // Determines if this plugin can handle the given reference value
+export type LoaderPlugin = {
+  type: 'loader'
+  // Returns true if this plugin can handle the given reference value
   validate: (value: string) => boolean
-  // Fetches and processes the reference, returning the resolved data
+  // Asynchronously fetches and resolves the reference, returning the resolved data
   exec: (value: string) => Promise<ResolveResult>
 }
+
+/**
+ * Context information for a node during traversal or processing.
+ *
+ * Note: The `path` parameter represents the path to the current node being processed.
+ * If you are performing a partial bundle (i.e., providing a custom root), this path will be relative
+ * to the root you provide, not the absolute root of the original document. You may need to prefix
+ * it with your own base path if you want to construct a full path from the absolute document root.
+ *
+ * - `path`: The JSON pointer path (as an array of strings) from the document root to the current node.
+ * - `resolutionCache`: A cache for storing promises of resolved references.
+ */
+type NodeProcessContext = {
+  path: readonly string[]
+  resolutionCache: Map<string, Promise<Readonly<ResolveResult>>>
+}
+
+/**
+ * A plugin type for lifecycle hooks, allowing custom logic to be injected into the bundler's process.
+ * This type extends the Config['hooks'] interface and is identified by type: 'lifecycle'.
+ */
+export type LifecyclePlugin = { type: 'lifecycle' } & Config['hooks']
+
+/**
+ * Represents a plugin used by the bundler for extensibility.
+ *
+ * Plugins can be either:
+ * - Loader plugins: Responsible for resolving and loading external references (e.g., from files, URLs, or custom sources).
+ * - Lifecycle plugins: Provide lifecycle hooks to customize or extend the bundling process.
+ *
+ * Loader plugins must implement:
+ *   - `validate`: Checks if the plugin can handle a given reference value.
+ *   - `exec`: Asynchronously resolves and returns the referenced data.
+ *
+ * Lifecycle plugins extend the bundler's lifecycle hooks for custom logic.
+ */
+export type Plugin = LoaderPlugin | LifecyclePlugin
 
 /**
  * Configuration options for the bundler.
@@ -460,12 +503,12 @@ type Config = {
      * Optional hook invoked before processing a node.
      * Can be used for preprocessing, mutation, or custom logic before the node is handled by the bundler.
      */
-    onBeforeNodeProcess: (node: UnknownObject) => void | Promise<void>
+    onBeforeNodeProcess: (node: UnknownObject, context: NodeProcessContext) => void | Promise<void>
     /**
      * Optional hook invoked after processing a node.
      * Useful for postprocessing, cleanup, or custom logic after the node has been handled by the bundler.
      */
-    onAfterNodeProcess: (node: UnknownObject) => void | Promise<void>
+    onAfterNodeProcess: (node: UnknownObject, context: NodeProcessContext) => void | Promise<void>
   }>
 }
 
@@ -560,6 +603,9 @@ export async function bundle(input: UnknownObject | string, config: Config) {
   // to avoid duplicate fetches/reads of the same resource
   const cache = config.cache ?? new Map<string, Promise<ResolveResult>>()
 
+  const loaderPlugins = config.plugins.filter((it) => it.type === 'loader')
+  const lifecyclePlugin = config.plugins.filter((it) => it.type === 'lifecycle')
+
   /**
    * Resolves the input value by either returning it directly if it's not a string,
    * or attempting to resolve it using the provided plugins if it is a string.
@@ -569,7 +615,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     if (typeof input !== 'string') {
       return input
     }
-    const result = await resolveContents(input, config.plugins)
+    const result = await resolveContents(input, loaderPlugins)
 
     if (result.ok && typeof result.data === 'object') {
       return result.data
@@ -622,7 +668,13 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     documentRoot[extensions.externalDocumentsMappings],
   )
 
-  const bundler = async (root: unknown, origin: string = defaultOrigin(), isChunkParent = false, depth = 0) => {
+  const bundler = async (
+    root: unknown,
+    origin: string = defaultOrigin(),
+    isChunkParent = false,
+    depth = 0,
+    path: readonly string[] = [],
+  ) => {
     // If a maximum depth is set in the config, stop bundling when the current depth reaches or exceeds it
     if (config.depth !== undefined && depth > config.depth) {
       return
@@ -640,8 +692,12 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     // Mark this node as processed before continuing
     processedNodes.add(root)
 
-    // Call the preprocessing hook on the node before we do any other operation on the node
-    await config.hooks?.onBeforeNodeProcess?.(root as UnknownObject)
+    // Invoke the onBeforeNodeProcess hook for the current node before any further processing
+    await config.hooks?.onBeforeNodeProcess?.(root as UnknownObject, { path, resolutionCache: cache })
+    // Invoke onBeforeNodeProcess hooks from all registered lifecycle plugins
+    for (const plugin of lifecyclePlugin) {
+      await plugin.onBeforeNodeProcess?.(root as UnknownObject, { path, resolutionCache: cache })
+    }
 
     if (typeof root === 'object' && '$ref' in root && typeof root['$ref'] === 'string') {
       const ref = root['$ref']
@@ -649,16 +705,12 @@ export async function bundle(input: UnknownObject | string, config: Config) {
 
       if (isLocalRef(ref)) {
         if (isPartialBundling) {
+          const segments = getSegmentsFromPath(ref.substring(1))
           // When doing partial bundling, we need to recursively bundle all dependencies
           // referenced by this local reference to ensure the partial bundle is complete.
           // This includes not just the direct reference but also all its dependencies,
           // creating a complete and self-contained partial bundle.
-          await bundler(
-            getNestedValue(documentRoot, getSegmentsFromPath(ref.substring(1))),
-            origin,
-            isChunkParent,
-            depth + 1,
-          )
+          await bundler(getNestedValue(documentRoot, segments), origin, isChunkParent, depth + 1, segments)
         }
         return
       }
@@ -677,10 +729,11 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       const seen = cache.has(resolvedPath)
 
       if (!seen) {
-        cache.set(resolvedPath, resolveContents(resolvedPath, config.plugins))
+        cache.set(resolvedPath, resolveContents(resolvedPath, loaderPlugins))
       }
 
       config?.hooks?.onResolveStart?.(root)
+      lifecyclePlugin.forEach((it) => it.onResolveStart?.(root))
 
       // Resolve the remote document
       const result = await cache.get(resolvedPath)
@@ -708,7 +761,10 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // to handle any nested references it may contain. We pass the resolvedPath as the new origin
           // to ensure any relative references within this content are resolved correctly relative to
           // their new location in the bundled document.
-          await bundler(result.data, isChunk ? origin : resolvedPath, isChunk, depth + 1)
+          await bundler(result.data, isChunk ? origin : resolvedPath, isChunk, depth + 1, [
+            extensions.externalDocuments,
+            compressedPath,
+          ])
 
           // Store the mapping between hashed keys and original URLs in x-ext-urls
           // This allows tracking which external URLs were bundled and their corresponding locations
@@ -743,11 +799,16 @@ export async function bundle(input: UnknownObject | string, config: Config) {
         // This is necessary because we need to maintain the correct path context
         // for the embedded document while preserving its internal structure
         root.$ref = prefixInternalRef(`#${path}`, [extensions.externalDocuments, compressedPath])
+
         config?.hooks?.onResolveSuccess?.(root)
+        lifecyclePlugin.forEach((it) => it.onResolveSuccess?.(root))
+
         return
       }
 
       config?.hooks?.onResolveError?.(root)
+      lifecyclePlugin.forEach((it) => it.onResolveError?.(root))
+
       return console.warn(
         `Failed to resolve external reference "${resolvedPath}". The reference may be invalid, inaccessible, or missing a loader for this type of reference.`,
       )
@@ -762,11 +823,19 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           return
         }
 
-        await bundler(value, origin, isChunkParent, depth + 1)
+        await bundler(value, origin, isChunkParent, depth + 1, [...path, key])
       }),
     )
 
-    await config.hooks?.onAfterNodeProcess?.(root as UnknownObject)
+    // Invoke the optional onAfterNodeProcess hook from the config, if provided.
+    // This allows for custom post-processing logic after a node has been handled by the bundler.
+    await config.hooks?.onAfterNodeProcess?.(root as UnknownObject, { path, resolutionCache: cache })
+
+    // Iterate through all lifecycle plugins and invoke their onAfterNodeProcess hooks, if defined.
+    // This enables plugins to perform additional post-processing or cleanup after the node is processed.
+    for (const plugin of lifecyclePlugin) {
+      await plugin.onAfterNodeProcess?.(root as UnknownObject, { path, resolutionCache: cache })
+    }
   }
 
   await bundler(rawSpecification)

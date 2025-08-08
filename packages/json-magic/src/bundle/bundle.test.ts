@@ -10,6 +10,7 @@ import {
   prefixInternalRef,
   prefixInternalRefRecursive,
   setValueAtPath,
+  type LoaderPlugin,
 } from './bundle'
 import { fetchUrls } from './plugins/fetch-urls'
 import { readFiles } from './plugins/read-files'
@@ -18,6 +19,7 @@ import { parseJson } from '@/bundle/plugins/parse-json'
 import { parseYaml } from '@/bundle/plugins/parse-yaml'
 import YAML from 'yaml'
 import { getHash } from '@/bundle/value-generator'
+import { consoleWarnSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
 
 describe('bundle', () => {
   describe('external urls', () => {
@@ -1856,6 +1858,271 @@ describe('bundle', () => {
 
         expect(fn).toHaveBeenCalled()
         expect(fn).toHaveBeenCalledTimes(3)
+      })
+    })
+  })
+
+  describe('plugins', () => {
+    it('use load plugins to load the documents', async () => {
+      const validate = vi.fn()
+      const exec = vi.fn()
+
+      const resolver = (): LoaderPlugin => {
+        return {
+          type: 'loader',
+          validate(value) {
+            validate(value)
+            return true
+          },
+          async exec(value) {
+            exec(value)
+            return {
+              ok: true,
+              data: { message: 'Resolved document' },
+            }
+          },
+        }
+      }
+
+      const result = await bundle('hello', { treeShake: false, plugins: [resolver()] })
+
+      expect(validate).toHaveBeenCalledOnce()
+      expect(exec).toHaveBeenCalledOnce()
+
+      expect(validate.mock.calls[0][0]).toBe('hello')
+      expect(exec.mock.calls[0][0]).toBe('hello')
+
+      expect(result).toEqual({ message: 'Resolved document' })
+    })
+
+    it('throws if we can not process the input with any of the provided loaders', async () => {
+      const validate = vi.fn()
+      const exec = vi.fn()
+
+      const resolver = (): LoaderPlugin => {
+        return {
+          type: 'loader',
+          validate(value) {
+            validate(value)
+            return false
+          },
+          async exec(value) {
+            exec(value)
+            return {
+              ok: true,
+              data: { message: 'Resolved document' },
+            }
+          },
+        }
+      }
+
+      await expect(bundle('hello', { treeShake: false, plugins: [resolver()] })).rejects.toThrow()
+
+      expect(validate).toHaveBeenCalledOnce()
+      expect(validate.mock.calls[0][0]).toBe('hello')
+
+      expect(exec).not.toHaveBeenCalled()
+    })
+
+    it('use load plugin to resolve external refs', async () => {
+      const validate = vi.fn()
+      const exec = vi.fn()
+
+      const resolver = (): LoaderPlugin => {
+        return {
+          type: 'loader',
+          validate(value) {
+            validate(value)
+            return true
+          },
+          async exec(value) {
+            exec(value)
+            return {
+              ok: true,
+              data: { message: 'Resolved document' },
+            }
+          },
+        }
+      }
+
+      const result = await bundle({ $ref: 'hello' }, { treeShake: false, plugins: [resolver()] })
+
+      expect(validate).toHaveBeenCalledOnce()
+      expect(exec).toHaveBeenCalledOnce()
+
+      expect(validate.mock.calls[0][0]).toBe('hello')
+      expect(exec.mock.calls[0][0]).toBe('hello')
+
+      expect(result).toEqual({
+        $ref: '#/x-ext/aaf4c61',
+        'x-ext': {
+          'aaf4c61': {
+            message: 'Resolved document',
+          },
+        },
+      })
+    })
+
+    it('emits warning when there is no loader to resolve the external ref', async () => {
+      resetConsoleSpies()
+      const validate = vi.fn()
+      const exec = vi.fn()
+
+      const resolver = (): LoaderPlugin => {
+        return {
+          type: 'loader',
+          validate(value) {
+            validate(value)
+            return false
+          },
+          async exec(value) {
+            exec(value)
+            return {
+              ok: true,
+              data: { message: 'Resolved document' },
+            }
+          },
+        }
+      }
+
+      const result = await bundle({ $ref: 'hello' }, { treeShake: false, plugins: [resolver()] })
+
+      expect(validate).toHaveBeenCalledOnce()
+      expect(validate.mock.calls[0][0]).toBe('hello')
+
+      expect(exec).not.toHaveBeenCalled()
+
+      expect(result).toEqual({ $ref: 'hello' })
+
+      expect(consoleWarnSpy).toHaveBeenCalledTimes(1)
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        'Failed to resolve external reference "hello". The reference may be invalid, inaccessible, or missing a loader for this type of reference.',
+      )
+    })
+
+    it('lets plugins hook into nodes lifecycle #1', async () => {
+      const onBeforeNodeProcessCallback = vi.fn()
+      const onAfterNodeProcessCallback = vi.fn()
+
+      await bundle(
+        {
+          prop: {
+            innerProp: 'string',
+          },
+        },
+        {
+          treeShake: false,
+          plugins: [
+            {
+              type: 'lifecycle',
+              onBeforeNodeProcess: onBeforeNodeProcessCallback,
+              onAfterNodeProcess: onAfterNodeProcessCallback,
+            },
+          ],
+        },
+      )
+
+      expect(onBeforeNodeProcessCallback).toHaveBeenCalledTimes(2)
+      expect(onBeforeNodeProcessCallback.mock.calls[0][0]).toEqual({
+        prop: {
+          innerProp: 'string',
+        },
+      })
+      expect(onBeforeNodeProcessCallback.mock.calls[0][1]).toEqual({
+        path: [],
+        resolutionCache: new Map(),
+      })
+      expect(onBeforeNodeProcessCallback.mock.calls[1][0]).toEqual({
+        innerProp: 'string',
+      })
+      expect(onBeforeNodeProcessCallback.mock.calls[1][1]).toEqual({
+        path: ['prop'],
+        resolutionCache: new Map(),
+      })
+      expect(onAfterNodeProcessCallback).toHaveBeenCalledTimes(2)
+      expect(onAfterNodeProcessCallback.mock.calls[0][0]).toEqual({
+        innerProp: 'string',
+      })
+      expect(onAfterNodeProcessCallback.mock.calls[0][1]).toEqual({
+        path: ['prop'],
+        resolutionCache: new Map(),
+      })
+      expect(onAfterNodeProcessCallback.mock.calls[1][0]).toEqual({
+        prop: {
+          innerProp: 'string',
+        },
+      })
+      expect(onAfterNodeProcessCallback.mock.calls[1][1]).toEqual({
+        path: [],
+        resolutionCache: new Map(),
+      })
+    })
+
+    it('lets plugins hook into nodes lifecycle #2', async () => {
+      const validate = vi.fn()
+      const exec = vi.fn()
+      const onResolveStart = vi.fn()
+      const onResolveError = vi.fn()
+      const onResolveSuccess = vi.fn()
+      await bundle(
+        {
+          hello: {
+            $ref: 'some-value',
+          },
+          hi: {
+            $ref: 'resolve',
+          },
+        },
+        {
+          treeShake: false,
+          plugins: [
+            {
+              type: 'loader',
+              validate(value) {
+                validate()
+                if (value === 'resolve') {
+                  return true
+                }
+                return false
+              },
+              async exec(value) {
+                exec()
+                return {
+                  ok: true,
+                  data: {
+                    message: 'Resolved value',
+                    'x-original-value': value,
+                  },
+                }
+              },
+            },
+            {
+              type: 'lifecycle',
+              onResolveStart,
+              onResolveError,
+              onResolveSuccess,
+            },
+          ],
+        },
+      )
+
+      expect(validate).toHaveBeenCalledTimes(2)
+      expect(exec).toHaveBeenCalledOnce()
+
+      expect(onResolveStart).toHaveBeenCalledTimes(2)
+      expect(onResolveStart.mock.calls[0][0]).toEqual({
+        $ref: 'some-value',
+      })
+      expect(onResolveStart.mock.calls[1][0]).toEqual({
+        $ref: '#/x-ext/4e7a208',
+      })
+      expect(onResolveError).toHaveBeenCalledTimes(1)
+      expect(onResolveError.mock.calls[0][0]).toEqual({
+        $ref: 'some-value',
+      })
+      expect(onResolveSuccess).toHaveBeenCalledTimes(1)
+      expect(onResolveSuccess.mock.calls[0][0]).toEqual({
+        $ref: '#/x-ext/4e7a208',
       })
     })
   })
