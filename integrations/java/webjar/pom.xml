@@ -204,6 +204,24 @@
           <waitUntil>published</waitUntil>
         </configuration>
       </plugin>
+
+      <!-- Maven Clean Plugin -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>3.3.2</version>
+        <configuration>
+          <filesets>
+            <fileset>
+              <directory>${project.build.directory}</directory>
+              <includes>
+                <include>**/*</include>
+              </includes>
+              <followSymlinks>false</followSymlinks>
+            </fileset>
+          </filesets>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 </project>
