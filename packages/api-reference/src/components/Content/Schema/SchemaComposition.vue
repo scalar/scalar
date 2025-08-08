@@ -146,8 +146,12 @@ const compositionSchema = computed<SchemaObject | undefined>(
  * Determine the current composition keyword for nested compositions.
  */
 const compositionType = computed((): CompositionKeyword => {
-  if (compositionSchema.value?.oneOf) return 'oneOf'
-  if (compositionSchema.value?.anyOf) return 'anyOf'
+  if (compositionSchema.value?.oneOf) {
+    return 'oneOf'
+  }
+  if (compositionSchema.value?.anyOf) {
+    return 'anyOf'
+  }
   return 'allOf'
 })
 
@@ -169,16 +173,16 @@ const shouldRenderSchema = computed((): boolean => {
     return false
   }
 
-  return !!(
+  return Boolean(
     schema.properties ||
-    schema.type ||
-    schema.nullable ||
-    schema.const !== undefined ||
-    schema.enum ||
-    schema.allOf ||
-    schema.oneOf ||
-    schema.anyOf ||
-    schema.items
+      schema.type ||
+      schema.nullable ||
+      schema.const !== undefined ||
+      schema.enum ||
+      schema.allOf ||
+      schema.oneOf ||
+      schema.anyOf ||
+      schema.items,
   )
 })
 
