@@ -1,5 +1,4 @@
 import type { UnknownObject } from '@scalar/types/utils'
-import { mergeAllOfSchemas } from './merge-all-of-schemas'
 import type { CompositionKeyword } from './schema-composition'
 
 export const compositions: CompositionKeyword[] = ['oneOf', 'anyOf', 'allOf', 'not']
@@ -45,43 +44,13 @@ export function optimizeValueForDisplay(value: UnknownObject | undefined): Recor
     (composition === 'oneOf' || composition === 'anyOf') &&
     (schemas.some((schema: any) => schema.allOf) || hasRootProperties)
 
-  // Process schemas to merge allOf and handle nulls
-  const processedSchemas = schemas.map((schema: any) => {
-    // If this schema has allOf, merge it
-    if (schema.allOf && Array.isArray(schema.allOf)) {
-      let mergedSchema = mergeAllOfSchemas(schema.allOf)
-
-      // If we need to merge root properties, do it here
-      if (shouldMergeRootProperties) {
-        mergedSchema = mergeAllOfSchemas(schema.allOf, rootProperties)
-      }
-
-      // Preserve all non-composition properties from the original schema
-      Object.keys(schema).forEach((key) => {
-        if (!compositions.includes(key as CompositionKeyword) && !(key in mergedSchema)) {
-          mergedSchema[key] = schema[key]
-        }
-      })
-
-      return mergedSchema
-    }
-
-    // If we need to merge root properties and this schema doesn't have allOf,
-    // merge the root properties directly
-    if (shouldMergeRootProperties && !schema.allOf) {
-      return { ...rootProperties, ...schema }
-    }
-
-    return schema
-  })
-
   // If there's an object with type 'null' in the anyOf, oneOf, allOf, mark the property as nullable
-  if (processedSchemas.some((schema: any) => schema.type === 'null')) {
+  if (schemas.some((schema: any) => schema.type === 'null')) {
     newValue.nullable = true
   }
 
   // Remove objects with type 'null' from the schemas
-  const newSchemas = processedSchemas.filter((schema: any) => !(schema.type === 'null'))
+  const newSchemas = schemas.filter((schema: any) => !(schema.type === 'null'))
 
   // If there's only one schema, overwrite the original value with the schema
   // Skip it for arrays for now, need to handle that specifically.

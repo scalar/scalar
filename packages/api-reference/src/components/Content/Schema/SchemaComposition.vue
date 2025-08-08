@@ -3,99 +3,62 @@ import { ScalarListbox, type ScalarListboxOption } from '@scalar/components'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { DiscriminatorObject } from '@scalar/workspace-store/schemas/v3.1/strict/discriminator'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 import { computed, ref } from 'vue'
 
 import { getSchemaType } from './helpers/get-schema-type'
-import { mergeAllOfSchemas } from './helpers/merge-all-of-schemas'
 import {
   hasComposition,
   type CompositionKeyword,
 } from './helpers/schema-composition'
 import Schema from './Schema.vue'
 
-const { value, composition } = defineProps<{
+/**
+ * Props for the SchemaComposition component.
+ * Handles rendering of OpenAPI schema composition keywords (oneOf, anyOf, allOf).
+ */
+interface Props {
+  /** The composition keyword (oneOf, anyOf, allOf) */
   composition: CompositionKeyword
+  /** Optional discriminator object for polymorphic schemas */
   discriminator?: DiscriminatorObject
+  /** Optional name for the schema */
   name?: string
+  /** The schema value containing the composition */
   value: Record<string, any>
+  /** Nesting level for proper indentation */
   level: number
+  /** Whether to use compact layout */
   compact?: boolean
+  /** Whether to hide the heading */
   hideHeading?: boolean
+  /** Breadcrumb for navigation */
   breadcrumb?: string[]
-}>()
+}
 
+const props = withDefaults(defineProps<Props>(), {
+  compact: false,
+  hideHeading: false,
+})
+
+/** Currently selected schema index in the composition */
 const selectedIndex = ref(0)
 
-/** Get the composition schemas to display in the composition panel */
-const compositionDisplay = computed(() => {
-  // Always use the processed schemaComposition to ensure allOf schemas are properly merged
-  return schemaComposition.value
-})
-
-const listboxOptions = computed(() =>
-  compositionDisplay.value.map(
-    (schema: OpenAPIV3_1.SchemaObject, index: number) => ({
-      id: String(index),
-      label: getSchemaType(schema) || 'Schema',
-    }),
-  ),
-)
-
-const selectedOption = computed({
-  get: () =>
-    listboxOptions.value.find(
-      (opt: ScalarListboxOption) => opt.id === String(selectedIndex.value),
-    ),
-  set: (opt: ScalarListboxOption) => (selectedIndex.value = Number(opt.id)),
-})
-
-/** Check if the composition keyword is oneOf or anyOf or allOf with nested composition keywords */
-const hasNestedComposition = computed(() => {
-  const isOneOfOrAnyOf = ['oneOf', 'anyOf'].includes(composition)
-  const hasNestedCompositionInAllOf =
-    composition === 'allOf' &&
-    value[composition]?.some((schema: any) => hasComposition(schema))
-
-  return isOneOfOrAnyOf || hasNestedCompositionInAllOf
-})
-
-const getSchemaWithComposition = (schemas: any[]) => {
-  return schemas.find((schema: any) => hasComposition(schema))
-}
-
-/** Checks if a schema contains nestd composition */
-const schemaHasNestedComposition = (schema: any): boolean => {
-  if (!schema.allOf || !Array.isArray(schema.allOf)) {
-    return false
-  }
-
-  return schema.allOf.some(
-    (subSchema: any) => subSchema.oneOf || subSchema.anyOf || subSchema.allOf,
-  )
-}
-
 /**
- * Processes a single schema, merging allOf if it doesn't contain nested compositions.
+ * Get the composition schemas to display in the composition panel.
+ * Handles nested compositions by processing allOf schemas that contain other composition keywords.
  */
-const processSchema = (schema: any): any => {
-  if (schema.allOf && Array.isArray(schema.allOf)) {
-    return schemaHasNestedComposition(schema)
-      ? schema
-      : mergeAllOfSchemas(schema.allOf)
-  }
-  return schema
-}
-
 const schemaComposition = computed(() => {
-  const schemas = value[composition]
-  const schemaWithComposition = getSchemaWithComposition(schemas)
+  const schemas = props.value[props.composition] as OpenAPIV3_1.SchemaObject[]
+  if (!Array.isArray(schemas)) {
+    return []
+  }
 
-  // No nested compositions, just process each schema
-  if (
-    !schemaWithComposition ||
-    (composition !== 'allOf' && schemaWithComposition.allOf)
-  ) {
-    return schemas.map(processSchema)
+  const schemaWithComposition = schemas.find((schema) => hasComposition(schema))
+
+  // No nested compositions, return schemas as-is
+  if (!schemaWithComposition) {
+    return schemas
   }
 
   // Handle nested compositions (like allOf containing oneOf)
@@ -104,13 +67,60 @@ const schemaComposition = computed(() => {
     schemaWithComposition.anyOf ||
     schemaWithComposition.allOf
 
-  return nestedComposition.map(processSchema)
+  return nestedComposition || schemas
 })
 
-/** Humanizes composition keyword name e.g. oneOf -> One of */
-const humanizeType = (type: CompositionKeyword) => {
+/**
+ * Get the composition schemas to display in the composition panel.
+ * Always uses the processed schemaComposition to ensure allOf schemas are properly merged.
+ */
+const compositionDisplay = computed(() => schemaComposition.value)
+
+/**
+ * Generate listbox options for the composition selector.
+ * Each option represents a schema in the composition with a human-readable label.
+ */
+const listboxOptions = computed((): ScalarListboxOption[] =>
+  compositionDisplay.value.map(
+    (schema: OpenAPIV3_1.SchemaObject, index: number) => ({
+      id: String(index),
+      label: getSchemaType(schema) || 'Schema',
+    }),
+  ),
+)
+
+/**
+ * Two-way computed property for the selected option.
+ * Handles conversion between the selected index and the listbox option format.
+ */
+const selectedOption = computed({
+  get: (): ScalarListboxOption | undefined =>
+    listboxOptions.value.find(
+      (opt: ScalarListboxOption) => opt.id === String(selectedIndex.value),
+    ),
+  set: (opt: ScalarListboxOption) => {
+    selectedIndex.value = Number(opt.id)
+  },
+})
+
+/**
+ * Check if the composition keyword is oneOf, anyOf, or allOf with nested composition keywords.
+ * This determines whether to show the composition selector UI.
+ */
+const hasNestedComposition = computed((): boolean => {
+  const compositionTypes = ['oneOf', 'allOf', 'anyOf'] as const
+  return compositionTypes.includes(
+    props.composition as (typeof compositionTypes)[number],
+  )
+})
+
+/**
+ * Humanize composition keyword name for display.
+ * Converts camelCase to Title Case (e.g., oneOf -> One of).
+ */
+const humanizeType = (type: CompositionKeyword): string => {
   if (type === 'allOf') {
-    const schemaWithComposition = value?.[type]?.find((schema: any) =>
+    const schemaWithComposition = props.value?.[type]?.find((schema: any) =>
       hasComposition(schema),
     )
     if (schemaWithComposition?.oneOf) {
@@ -128,24 +138,36 @@ const humanizeType = (type: CompositionKeyword) => {
     .replace(/^(\w)/, (c) => c.toUpperCase())
 }
 
-/** Get current composition schema */
+/**
+ * Get the currently selected composition schema.
+ */
 const compositionSchema = computed(
-  () => schemaComposition.value[selectedIndex.value],
+  (): OpenAPIV3_1.SchemaObject | undefined =>
+    schemaComposition.value[selectedIndex.value],
 )
 
-/** Return current composition keyword */
-const compositionType = computed<CompositionKeyword>(() => {
-  return compositionSchema.value?.oneOf ? 'oneOf' : 'anyOf'
+/**
+ * Determine the current composition keyword for nested compositions.
+ */
+const compositionType = computed((): CompositionKeyword => {
+  if (compositionSchema.value?.oneOf) return 'oneOf'
+  if (compositionSchema.value?.anyOf) return 'anyOf'
+  return 'allOf'
 })
 
-/** Return current schema's composition value */
+/**
+ * Get the current schema's composition value for nested compositions.
+ */
 const compositionValue = computed(() => {
   const type = compositionType.value
   return compositionSchema.value?.[type]
 })
 
-/** Check if the composition schema should be rendered */
-const shouldRenderSchema = computed(() => {
+/**
+ * Check if the composition schema should be rendered.
+ * Only renders schemas that have meaningful content to display.
+ */
+const shouldRenderSchema = computed((): boolean => {
   const schema = compositionSchema.value
   if (!schema) {
     return false
@@ -163,10 +185,39 @@ const shouldRenderSchema = computed(() => {
     schema.items
   )
 })
+
+/**
+ * Check if the current composition has nested composition keywords.
+ */
+const hasNestedCompositionInCurrent = computed((): boolean => {
+  return !!(compositionSchema.value?.oneOf || compositionSchema.value?.anyOf)
+})
+
+/**
+ * Get the properly typed schema value for the Schema component.
+ * Handles the case where we need to create an object schema from properties.
+ */
+const schemaValue = computed((): SchemaObject | undefined => {
+  const schema = compositionSchema.value
+  if (!schema) {
+    return undefined
+  }
+
+  if (schema.properties) {
+    return {
+      type: 'object',
+      properties: schema.properties,
+      required: schema.required,
+    } as SchemaObject
+  }
+
+  return schema as SchemaObject
+})
 </script>
 
 <template>
   <div class="property-rule">
+    <!-- Handle allOf schemas with nested compositions -->
     <template
       v-if="
         composition === 'allOf' &&
@@ -181,11 +232,11 @@ const shouldRenderSchema = computed(() => {
         :compact="compact"
         :level="level"
         :name="name"
-        :noncollapsible="level != 0 ? false : true"
+        :noncollapsible="level !== 0"
         :value="schema" />
     </template>
 
-    <!-- Tabs -->
+    <!-- Composition selector and panel for nested compositions -->
     <template v-if="hasNestedComposition">
       <ScalarListbox
         v-model="selectedOption"
@@ -201,33 +252,28 @@ const shouldRenderSchema = computed(() => {
           <ScalarIconCaretDown />
         </button>
       </ScalarListbox>
+
       <div class="composition-panel">
+        <!-- Render the selected schema if it has content to display -->
         <Schema
           v-if="shouldRenderSchema"
           :breadcrumb="breadcrumb"
-          :discriminator
+          :discriminator="discriminator"
           :compact="compact"
           :level="level + 1"
-          :hideHeading="hideHeading"
+          :hide-heading="hideHeading"
           :name="name"
           :noncollapsible="true"
-          :value="
-            compositionSchema?.properties
-              ? {
-                  type: 'object',
-                  properties: compositionSchema.properties,
-                  required: compositionSchema.required,
-                }
-              : compositionSchema
-          " />
-        <!-- Nested tabs -->
-        <template v-if="compositionSchema?.oneOf || compositionSchema?.anyOf">
+          :value="schemaValue" />
+
+        <!-- Handle nested compositions recursively -->
+        <template v-if="hasNestedCompositionInCurrent">
           <SchemaComposition
             :breadcrumb="breadcrumb"
             :compact="compact"
             :composition="compositionType"
-            :discriminator
-            :hideHeading="hideHeading"
+            :discriminator="discriminator"
+            :hide-heading="hideHeading"
             :level="level + 1"
             :name="name"
             :noncollapsible="true"
@@ -237,15 +283,5 @@ const shouldRenderSchema = computed(() => {
         </template>
       </div>
     </template>
-    <!-- TODO: we will no longer merge all of schemas -->
-    <!-- <template v-else> -->
-    <!-- <Schema
-        :breadcrumb="breadcrumb"
-        :compact="compact"
-        :level="level"
-        :name="name"
-        :noncollapsible="level != 0 ? false : true"
-        :value="mergeAllOfSchemas(value[composition])" /> -->
-    <!-- </template> -->
   </div>
 </template>
