@@ -66,12 +66,12 @@ export const externalValueResolver = (): LifecyclePlugin => {
 
 /**
  * Lifecycle plugin to resolve $ref on any object, including non-standard locations like the info object.
- * 
+ *
  * This plugin will:
  *   - Detect if a node contains a $ref property (as a string).
  *   - If the node is under the 'info' path, attempt to resolve the reference using fetchUrls.
  *   - Replace the node's properties with the resolved data if successful.
- * 
+ *
  * Note: This currently only supports refs on the 'info' object and does not handle primitive types.
  */
 export const refsEverywhere = (): LifecyclePlugin => {
