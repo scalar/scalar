@@ -23,7 +23,7 @@
   "scripts": {
     "build": "scalar-build-esbuild",
     "dev": "npx @scalar/cli document serve ./src/documents/3.1.yaml --watch",
-    "live": "cd src/documents && pnpx http-server --cors",
+    "dev:live": "cd src/documents && pnpx http-server --cors",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "test": "vitest",
