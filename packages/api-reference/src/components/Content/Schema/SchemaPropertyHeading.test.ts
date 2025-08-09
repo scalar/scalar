@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 
 describe('SchemaPropertyHeading', () => {
-  it('renders falsy default values', async () => {
+  it('renders falsy default values', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
         value: {
@@ -19,7 +19,7 @@ describe('SchemaPropertyHeading', () => {
     expect(defaultValueElement.text()).toContain('false')
   })
 
-  it('renders required property', async () => {
+  it('renders required property', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
         required: true,
@@ -31,7 +31,7 @@ describe('SchemaPropertyHeading', () => {
     expect(requiredElement.text()).toBe('required')
   })
 
-  it('renders property type and format', async () => {
+  it('renders property type and format', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
         value: {
@@ -47,7 +47,7 @@ describe('SchemaPropertyHeading', () => {
   })
 
   describe('const', () => {
-    it('renders const value', async () => {
+    it('renders const value', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
           value: {
@@ -61,7 +61,7 @@ describe('SchemaPropertyHeading', () => {
       expect(constElement.text()).toContain('example')
     })
 
-    it('renders const value: false', async () => {
+    it('renders const value: false', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
           value: {
@@ -74,7 +74,7 @@ describe('SchemaPropertyHeading', () => {
       expect(constElement.text()).toContain('false')
     })
 
-    it('renders const value: 0', async () => {
+    it('renders const value: 0', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
           value: {
@@ -87,7 +87,7 @@ describe('SchemaPropertyHeading', () => {
       expect(constElement.text()).toContain('0')
     })
 
-    it('renders const value: empty string', async () => {
+    it('renders const value: empty string', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
           value: {
@@ -100,7 +100,7 @@ describe('SchemaPropertyHeading', () => {
       expect(constElement.text()).toContain('')
     })
 
-    it('renders const value: null', async () => {
+    it('renders const value: null', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
           value: {
@@ -113,7 +113,7 @@ describe('SchemaPropertyHeading', () => {
       expect(constElement.exists()).toBe(true)
     })
 
-    it('renders const value in array items', async () => {
+    it('renders const value in array items', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
           value: {
@@ -134,15 +134,15 @@ describe('SchemaPropertyHeading', () => {
     })
   })
 
-  it('renders schema name', async () => {
+  it('renders schema title', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
         value: {
           type: 'array',
-          items: { type: 'object', name: 'Model' },
+          items: { type: 'object', title: 'Model' },
         },
         schemas: {
-          Model: { type: 'object', name: 'Model' },
+          Model: { type: 'object', title: 'Model' },
         },
       },
     })
@@ -151,7 +151,7 @@ describe('SchemaPropertyHeading', () => {
     expect(detailsElement.text()).toContain('array Model[]')
   })
 
-  it('renders default value: null', async () => {
+  it('renders default value: null', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
         value: {
@@ -164,7 +164,7 @@ describe('SchemaPropertyHeading', () => {
     expect(defaultValueElement.text()).toContain('null')
   })
 
-  it('renders default value: empty', async () => {
+  it('renders default value: empty', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
         value: {
@@ -175,20 +175,6 @@ describe('SchemaPropertyHeading', () => {
     const defaultValueElement = wrapper.find('.property-heading')
     expect(defaultValueElement.text()).toContain('default:')
     expect(defaultValueElement.text()).toContain('""')
-  })
-
-  it('prefers title over name for non-array schemas', () => {
-    const wrapper = mount(SchemaPropertyHeading, {
-      props: {
-        value: {
-          type: 'object',
-          name: 'ModelName',
-          title: 'PrettyModel',
-        },
-      },
-    })
-    const detailsElement = wrapper.find('.property-heading')
-    expect(detailsElement.text()).toContain('PrettyModel')
   })
 
   it('renders default value without type being present', () => {
@@ -210,7 +196,7 @@ describe('SchemaPropertyHeading', () => {
       props: {
         value: {
           type: 'array',
-          items: { type: 'object', name: 'FooModel' },
+          items: { type: 'object', title: 'FooModel' },
         },
       },
     })
@@ -223,7 +209,7 @@ describe('SchemaPropertyHeading', () => {
       props: {
         value: {
           type: 'object',
-          name: 'BarModel',
+          title: 'BarModel',
         },
       },
     })
@@ -237,7 +223,7 @@ describe('SchemaPropertyHeading', () => {
       props: {
         value: {
           type: 'array',
-          items: { type: 'object', name: 'BarModel' },
+          items: { type: 'object', title: 'BarModel' },
         },
       },
     })
@@ -294,7 +280,7 @@ describe('SchemaPropertyHeading', () => {
       },
     })
     const detailsElement = wrapper.find('.property-heading')
-    expect(detailsElement.text()).toContain('array string[]')
+    expect(detailsElement.text()).toContain('Type: array string[]')
     expect(detailsElement.text()).not.toContain('Planet')
   })
 
@@ -501,7 +487,8 @@ describe('SchemaPropertyHeading', () => {
     it('renders discriminator property', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          value: { type: 'object', isDiscriminator: true },
+          value: { type: 'object' },
+          isDiscriminator: true,
         },
       })
 
@@ -513,7 +500,8 @@ describe('SchemaPropertyHeading', () => {
     it('does not render discriminator when isDiscriminator is false', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          value: { type: 'object', isDiscriminator: false },
+          value: { type: 'object' },
+          isDiscriminator: false,
         },
       })
 
@@ -843,7 +831,7 @@ describe('SchemaPropertyHeading', () => {
         props: {
           value: {
             type: 'string',
-            examples: { example1: { value: 'test' } },
+            examples: [{ value: 'test' }],
             example: 'default example',
           },
           withExamples: true,
@@ -851,7 +839,7 @@ describe('SchemaPropertyHeading', () => {
       })
 
       const examplesElement = wrapper.findComponent({ name: 'SchemaPropertyExamples' })
-      expect(examplesElement.props('examples')).toEqual({ example1: { value: 'test' } })
+      expect(examplesElement.props('examples')).toEqual([{ value: 'test' }])
       expect(examplesElement.props('example')).toBe('default example')
     })
 
@@ -897,7 +885,7 @@ describe('SchemaPropertyHeading', () => {
     it('handles undefined schemas', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          value: { type: 'object', name: 'TestModel' },
+          value: { type: 'object' },
           schemas: undefined,
         },
       })
@@ -908,7 +896,7 @@ describe('SchemaPropertyHeading', () => {
     it('handles empty schemas object', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          value: { type: 'object', name: 'TestModel' },
+          value: { type: 'object' },
           schemas: {},
         },
       })
