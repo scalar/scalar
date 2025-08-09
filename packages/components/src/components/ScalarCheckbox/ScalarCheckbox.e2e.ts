@@ -6,9 +6,9 @@ test.describe('ScalarCheckbox', () => {
   test.use({ background: true }),
     stories.forEach((story) =>
       test(story, async ({ page, snapshot }) => {
-        await snapshot()
+        await snapshot('1-normal')
         await page.getByRole('checkbox').click()
-        await snapshot('checked')
+        await snapshot('2-checked')
       }),
     )
 })
