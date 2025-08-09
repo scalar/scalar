@@ -296,11 +296,11 @@ function getCodeMirrorExtensions({
     syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
     EditorView.theme({
       '.cm-line': {
-        lineHeight: '20px',
+        lineHeight: '22px',
         padding: '0 2px 0 4px',
       },
       '.cm-gutterElement': {
-        lineHeight: '20px',
+        lineHeight: '22px',
       },
       '.cm-tooltip': {
         border: '1px solid #f5c6cb',
