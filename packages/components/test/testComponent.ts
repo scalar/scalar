@@ -42,6 +42,13 @@ type ComponentOptions = {
    * @default 2
    */
   scale?: number
+
+  /**
+   * Whether to crop the snapshot to the size of the component
+   *
+   * @default false
+   */
+  crop?: boolean
 }
 
 const defaultOptions: ComponentOptions = {
@@ -54,12 +61,14 @@ const formatStorybookUrl = (str: string) => str.replace(/ /g, '-').toLowerCase()
 const getSnapshotFn =
   (page: Page, variant: string, options: Partial<ComponentOptions>): SnapshotFn =>
   async (suffix?: string) => {
+    const query = options.crop ? '#storybook-root > *' : 'body'
     const filename = [formatStorybookUrl(variant), suffix ? `-${suffix}` : '', '.png'].join('')
     const screenshotOptions = {
       omitBackground: !options.background,
       stylePath: options.background ? undefined : './test/transparent.css',
     }
-    await expect(page.locator('body')).toHaveScreenshot(filename, screenshotOptions)
+
+    await expect(page.locator(query)).toHaveScreenshot(filename, screenshotOptions)
   }
 
 const getStorybookUrl = (component: string, variant: string) =>
