@@ -113,18 +113,23 @@ describe('html-rendering', () => {
 
     it('preserves function properties in configuration', () => {
       const config = {
-        tagsSorter: (a: any, b: any) => a.name.localeCompare(b.name),
-        operationsSorter: (a: any, b: any) => a.path.localeCompare(b.path),
-        generateHeadingSlug: (heading: any) => `heading-${heading.slug}`,
-        generateModelSlug: (model: any) => `model-${model.name}`,
-        generateTagSlug: (tag: any) => `tag-${tag.name}`,
-        generateOperationSlug: (operation: any) => `${operation.method}-${operation.path}`,
-        generateWebhookSlug: (webhook: any) => `webhook-${webhook.name}`,
+        tagsSorter: (a, b) => a.name.localeCompare(b.name),
+        operationsSorter: (a, b) => a.path.localeCompare(b.path),
+        generateHeadingSlug: (heading) => `heading-${heading.slug}`,
+        generateModelSlug: (model) => `model-${model.name}`,
+        generateTagSlug: (tag) => `tag-${tag.name}`,
+        generateOperationSlug: (operation) => `${operation.method}-${operation.path}`,
+        generateWebhookSlug: (webhook) => `webhook-${webhook.name}`,
         onLoaded: () => console.log('loaded'),
-        redirect: (path: string) => path.replace('/old', '/new'),
-        onSpecUpdate: (spec: string) => console.log('spec updated', spec),
-        onServerChange: (server: string) => console.log('server changed', server),
-      }
+        redirect: (path) => path.replace('/old', '/new'),
+        onSpecUpdate: (spec) => console.log('spec updated', spec),
+        onServerChange: (server) => console.log('server changed', server),
+        onDocumentSelect: () => console.log('document changed'),
+        onBeforeRequest: ({ request }) => console.log('before request', request),
+        onShowMore: (tagId) => console.log('show more', tagId),
+        onSidebarClick: (href) => console.log('sidebar click', href),
+        onRequestSent: (request) => console.log('request sent', request),
+      } satisfies Partial<ApiReferenceConfiguration>
 
       const tags = getScriptTags(config, 'https://example.com/script.js')
 
@@ -140,6 +145,11 @@ describe('html-rendering', () => {
       expect(tags).toContain('"redirect": (path) => path.replace("/old", "/new")')
       expect(tags).toContain('"onSpecUpdate": (spec) => console.log("spec updated", spec)')
       expect(tags).toContain('"onServerChange": (server) => console.log("server changed", server)')
+      expect(tags).toContain('"onDocumentSelect": () => console.log("document changed")')
+      expect(tags).toContain('"onBeforeRequest": ({ request }) => console.log("before request", request)')
+      expect(tags).toContain('"onShowMore": (tagId) => console.log("show more", tagId)')
+      expect(tags).toContain('"onSidebarClick": (href) => console.log("sidebar click", href)')
+      expect(tags).toContain('"onRequestSent": (request) => console.log("request sent", request)')
     })
 
     it('handle configuration properties that accept both string and function types', () => {
