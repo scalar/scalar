@@ -87,23 +87,9 @@ export function getScriptTags(configuration: Partial<ApiReferenceConfiguration>,
   const restConfig = { ...configuration }
 
   const functionProps: string[] = []
-  const functionKeys = [
-    'tagsSorter',
-    'operationsSorter',
-    'generateHeadingSlug',
-    'generateModelSlug',
-    'generateTagSlug',
-    'generateOperationSlug',
-    'generateWebhookSlug',
-    'onLoaded',
-    'redirect',
-    'onSpecUpdate',
-    'onServerChange',
-  ] as const
 
-  for (const key of functionKeys) {
-    const value = configuration[key]
-    if (value && typeof value === 'function') {
+  for (const [key, value] of Object.entries(configuration) as [keyof typeof configuration, unknown][]) {
+    if (typeof value === 'function') {
       functionProps.push(`"${key}": ${value.toString()}`)
       delete restConfig[key]
     }
