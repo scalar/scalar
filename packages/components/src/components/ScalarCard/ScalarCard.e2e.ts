@@ -1,5 +1,3 @@
-import { testComponent } from '@test/testComponent'
+import { takeSnapshot, test } from '@test/helpers'
 
-testComponent('ScalarCard', {
-  stories: ['Base', 'With Actions', 'Minimal'],
-})
+test.describe('ScalarCard', () => ['Base', 'With Actions', 'Minimal'].forEach((story) => test(story, takeSnapshot)))
