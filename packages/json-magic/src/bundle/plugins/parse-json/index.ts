@@ -1,5 +1,5 @@
 import { isJsonObject } from '@/utils/is-json-object'
-import type { Plugin, ResolveResult } from '@/bundle'
+import type { LoaderPlugin, ResolveResult } from '@/bundle'
 
 /**
  * Creates a plugin that parses JSON strings into JavaScript objects.
@@ -11,8 +11,9 @@ import type { Plugin, ResolveResult } from '@/bundle'
  * // result = { name: 'John', age: 30 }
  * ```
  */
-export function parseJson(): Plugin {
+export function parseJson(): LoaderPlugin {
   return {
+    type: 'loader',
     validate: isJsonObject,
     exec: async (value): Promise<ResolveResult> => {
       try {

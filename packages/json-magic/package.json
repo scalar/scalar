@@ -55,7 +55,8 @@
   },
   "dependencies": {
     "vue": "catalog:*",
-    "yaml": "catalog:*"
+    "yaml": "catalog:*",
+    "@scalar/helpers": "workspace:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
