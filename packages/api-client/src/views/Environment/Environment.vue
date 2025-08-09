@@ -547,7 +547,6 @@ watch(
           class="py-2 pr-2 pl-px md:px-4"
           :envVariables="activeEnvVariables"
           :environment="activeEnvironment"
-          isCopyable
           language="json"
           lineNumbers
           lint

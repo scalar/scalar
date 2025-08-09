@@ -230,11 +230,11 @@ const showDeleteButton = (item: RequestExampleParameter) => {
   display: flex;
   font-family: var(--scalar-font);
   font-size: var(--scalar-small);
-  padding: 6px 8px;
+  padding: 5px 8px;
   width: 100%;
 }
 :deep(.cm-content):has(.cm-pill) {
-  padding: 6px 8px;
+  padding: 5px 8px;
 }
 :deep(.cm-content .cm-pill:not(:last-of-type)) {
   margin-right: 0.5px;
