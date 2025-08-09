@@ -344,13 +344,31 @@ import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 
 const result = createMagicProxy({
   a: 'hello',
-  b: '#/a'
+  b: {
+    $ref: '#/a'
+  }
 })
 
-// Resolved internal references for the input object
+/**
+ * Output:
+ * {
+ *  a: 'hello',
+ *  b: {
+ *    $ref: '#/a',
+ *    '$ref-value': 'hello'
+ *  }
+ * }
+ */
 console.log(result)
 
 const rawObject = getRaw(result)
-// Get the raw version of the object (unwrap it from the magic proxy)
+/**
+ * {
+ *  a: 'hello',
+ *  b: {
+ *    $ref: '#/a'
+ *  }
+ * }
+ */
 console.log(rawObject)
 ```

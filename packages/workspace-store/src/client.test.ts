@@ -243,7 +243,7 @@ describe('create-workspace-store', () => {
 
     expect(
       (store?.workspace?.activeDocument?.paths?.['/users']?.get as any)?.responses?.[200]?.content['application/json']
-        .schema.items.properties.name,
+        .schema.items['$ref-value'].properties.name,
     ).toEqual({
       type: 'string',
       description: 'The user name',
@@ -287,16 +287,16 @@ describe('create-workspace-store', () => {
     await store.resolve(['paths', '/users', 'get'])
 
     // We expect the ref to have been resolved with the correct contents
-    expect(store.workspace.activeDocument?.paths?.['/users']?.get?.summary).toEqual(
+    expect((store.workspace.activeDocument?.paths?.['/users']?.get as any)['$ref-value'].summary).toEqual(
       getDocument().paths['/users'].get.summary,
     )
 
     expect(
-      (store.workspace.activeDocument?.paths?.['/users']?.get as any)?.responses?.[200]?.content['application/json']
-        ?.schema?.items,
+      (store.workspace.activeDocument?.paths?.['/users']?.get as any)['$ref-value']?.responses?.[200]?.content[
+        'application/json'
+      ]?.schema?.items['$ref-value']['$ref-value'],
     ).toEqual({
       ...getDocument().components.schemas.User,
-      'x-original-ref': '#/components/schemas/User',
     })
   })
 
@@ -412,7 +412,7 @@ describe('create-workspace-store', () => {
     // We resolve the ref
     await store.resolve(['paths', '/users', 'get'])
 
-    expect((store.workspace.activeDocument?.components?.schemas?.['User'] as any)?.type).toBe('object')
+    expect((store.workspace.activeDocument?.components?.schemas?.['User'] as any)['$ref-value'].type).toBe('object')
   })
 
   it('build the sidebar client side', async () => {
@@ -497,19 +497,21 @@ describe('create-workspace-store', () => {
                   'application/json': {
                     'schema': {
                       'items': {
-                        'x-original-ref': '#/components/schemas/Todo',
-                        'properties': {
-                          'completed': {
-                            'type': 'boolean',
+                        '$ref': '#/components/schemas/Todo',
+                        '$ref-value': {
+                          'properties': {
+                            'completed': {
+                              'type': 'boolean',
+                            },
+                            'id': {
+                              'type': 'string',
+                            },
+                            'title': {
+                              'type': 'string',
+                            },
                           },
-                          'id': {
-                            'type': 'string',
-                          },
-                          'title': {
-                            'type': 'string',
-                          },
+                          'type': 'object',
                         },
-                        'type': 'object',
                       },
                       'type': 'array',
                     },
@@ -661,22 +663,24 @@ describe('create-workspace-store', () => {
       openapi: '',
       paths: {
         '/ping': {
-          get: {
-            responses: {
-              200: {
-                content: {
-                  'application/json': {
-                    schema: {
-                      type: 'string',
+          '$ref-value': {
+            get: {
+              responses: {
+                200: {
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'string',
+                      },
                     },
                   },
+                  description: 'Successful response',
                 },
-                description: 'Successful response',
               },
+              summary: 'Ping the remote server',
             },
-            summary: 'Ping the remote server',
           },
-          'x-original-ref': '#/x-ext/c766ed8',
+          '$ref': '#/x-ext/c766ed8',
         },
       },
       'x-ext': {
@@ -785,23 +789,25 @@ describe('create-workspace-store', () => {
                     },
                     schema: {
                       items: {
-                        properties: {
-                          email: {
-                            description: 'The user email',
-                            format: 'email',
-                            type: 'string',
+                        $ref: '#/components/schemas/User',
+                        '$ref-value': {
+                          properties: {
+                            email: {
+                              description: 'The user email',
+                              format: 'email',
+                              type: 'string',
+                            },
+                            id: {
+                              description: 'The user ID',
+                              type: 'string',
+                            },
+                            name: {
+                              description: 'The user name',
+                              type: 'string',
+                            },
                           },
-                          id: {
-                            description: 'The user ID',
-                            type: 'string',
-                          },
-                          name: {
-                            description: 'The user name',
-                            type: 'string',
-                          },
+                          type: 'object',
                         },
-                        type: 'object',
-                        'x-original-ref': '#/components/schemas/User',
                       },
                       type: 'array',
                     },
@@ -1675,23 +1681,25 @@ describe('create-workspace-store', () => {
                     'application/json': {
                       schema: {
                         items: {
-                          properties: {
-                            email: {
-                              description: 'The user email',
-                              format: 'email',
-                              type: 'string',
+                          '$ref-value': {
+                            properties: {
+                              email: {
+                                description: 'The user email',
+                                format: 'email',
+                                type: 'string',
+                              },
+                              id: {
+                                description: 'The user ID',
+                                type: 'string',
+                              },
+                              name: {
+                                description: 'The user name',
+                                type: 'string',
+                              },
                             },
-                            id: {
-                              description: 'The user ID',
-                              type: 'string',
-                            },
-                            name: {
-                              description: 'The user name',
-                              type: 'string',
-                            },
+                            type: 'object',
                           },
-                          type: 'object',
-                          'x-original-ref': '#/components/schemas/User',
+                          '$ref': '#/components/schemas/User',
                         },
                         type: 'array',
                       },
@@ -1810,23 +1818,25 @@ describe('create-workspace-store', () => {
                     'application/json': {
                       schema: {
                         items: {
-                          properties: {
-                            email: {
-                              description: 'The user email',
-                              format: 'email',
-                              type: 'string',
+                          '$ref': '#/components/schemas/User',
+                          '$ref-value': {
+                            properties: {
+                              email: {
+                                description: 'The user email',
+                                format: 'email',
+                                type: 'string',
+                              },
+                              id: {
+                                description: 'Updated user id schema description',
+                                type: 'string',
+                              },
+                              name: {
+                                description: 'The user name',
+                                type: 'string',
+                              },
                             },
-                            id: {
-                              description: 'Updated user id schema description',
-                              type: 'string',
-                            },
-                            name: {
-                              description: 'The user name',
-                              type: 'string',
-                            },
+                            type: 'object',
                           },
-                          type: 'object',
-                          'x-original-ref': '#/components/schemas/User',
                         },
                         type: 'array',
                       },

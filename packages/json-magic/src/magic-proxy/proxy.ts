@@ -1,211 +1,155 @@
-import { isReactive, toRaw } from 'vue'
 import { isLocalRef } from '@/bundle/bundle'
 import type { UnknownObject } from '@/types'
 import { isObject } from '@/utils/is-object'
 import { getValueByPath, parseJsonPointer } from '@/utils/json-path-utils'
 
 const isMagicProxy = Symbol('isMagicProxy')
+const magicProxyTarget = Symbol('magicProxyTarget')
+
+const REF_VALUE = '$ref-value'
+const REF_KEY = '$ref'
 
 /**
- * Creates a proxy handler that automatically resolves JSON references ($ref) in an object.
- * The handler intercepts property access, assignment, and property enumeration to automatically
- * resolve any $ref references to their target values in the source document.
+ * Creates a "magic" proxy for a given object or array, enabling transparent access to
+ * JSON Reference ($ref) values as if they were directly present on the object.
  *
- * @param sourceDocument - The source document containing the reference targets
- * @param resolvedProxyCache - Optional cache to store resolved proxies and prevent duplicate proxies
- * @returns A proxy handler that automatically resolves $ref references
+ * - If an object contains a `$ref` property, accessing the special `$ref-value` property
+ *   will resolve and return the referenced value from the root object.
+ * - All nested objects and arrays are recursively wrapped in proxies, so reference resolution
+ *   works at any depth.
+ * - Setting, deleting, and enumerating properties works as expected, including for proxied references.
+ *
+ * @param target - The object or array to wrap in a magic proxy
+ * @param root - The root object for resolving local JSON references (defaults to target)
+ * @returns A proxied version of the input object/array with magic $ref-value support
+ *
+ * @example
+ * const input = {
+ *   definitions: {
+ *     foo: { bar: 123 }
+ *   },
+ *   refObj: { $ref: '#/definitions/foo' }
+ * }
+ * const proxy = createMagicProxy(input)
+ *
+ * // Accessing proxy.refObj['$ref-value'] will resolve to { bar: 123 }
+ * console.log(proxy.refObj['$ref-value']) // { bar: 123 }
+ *
+ * // Setting and deleting properties works as expected
+ * proxy.refObj.extra = 'hello'
+ * delete proxy.refObj.extra
  */
-function createProxyHandler(
-  sourceDocument: UnknownObject | UnknownObject[],
-  resolvedProxyCache?: WeakMap<object, UnknownObject | UnknownObject[]>,
-): ProxyHandler<UnknownObject | UnknownObject[]> {
-  return {
-    get(target, property, receiver) {
-      if (property === TARGET_SYMBOL) {
-        return target
-      }
+export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S extends UnknownObject>(
+  target: T,
+  root: S | T = target,
+) => {
+  if (!isObject(target) && !Array.isArray(target)) {
+    return target
+  }
 
-      if (property === isMagicProxy) {
+  const handler: ProxyHandler<T> = {
+    /**
+     * Proxy "get" trap for magic proxy.
+     * - If accessing the special isMagicProxy symbol, return true to identify proxy.
+     * - If accessing the magicProxyTarget symbol, return the original target object.
+     * - If accessing "$ref-value" and the object has a local $ref, resolve and return the referenced value as a new magic proxy.
+     * - For all other properties, recursively wrap the returned value in a magic proxy (if applicable).
+     */
+    get(target, prop, receiver) {
+      if (prop === isMagicProxy) {
+        // Used to identify if an object is a magic proxy
         return true
       }
 
-      const value = Reflect.get(target, property, receiver)
-
-      /**
-       * Recursively resolves nested references in an object.
-       * If the value is not an object, returns it as is.
-       * If the value has a $ref property:
-       *   - For local references: resolves the reference and continues resolving nested refs
-       *   - For all other objects: creates a proxy for lazy resolution
-       */
-      const deepResolveNestedRefs = (value: unknown, originalRef?: string) => {
-        if (!isObject(value) && !Array.isArray(value)) {
-          return value
-        }
-
-        if (typeof value === 'object' && '$ref' in value) {
-          const ref = value.$ref as string
-
-          if (isLocalRef(ref)) {
-            const referencePath = parseJsonPointer(ref)
-            const resolvedValue = getValueByPath(sourceDocument, referencePath)
-
-            // preserve the first $ref to maintain the original reference
-            return deepResolveNestedRefs(resolvedValue, originalRef ?? ref)
-          }
-        }
-
-        if (originalRef && typeof value === 'object') {
-          return createMagicProxy({ ...value, 'x-original-ref': originalRef }, sourceDocument, resolvedProxyCache)
-        }
-
-        return createMagicProxy(value as UnknownObject, sourceDocument, resolvedProxyCache)
+      if (prop === magicProxyTarget) {
+        // Used to retrieve the original target object from the proxy
+        return target
       }
 
-      return deepResolveNestedRefs(value)
+      const ref = Reflect.get(target, REF_KEY, receiver)
+
+      // If accessing "$ref-value" and $ref is a local reference, resolve and return the referenced value
+      if (prop === REF_VALUE && typeof ref === 'string' && isLocalRef(ref)) {
+        return createMagicProxy(getValueByPath(root, parseJsonPointer(ref)), root)
+      }
+
+      // For all other properties, recursively wrap the value in a magic proxy
+      const value = Reflect.get(target, prop, receiver)
+      return createMagicProxy(value, root)
     },
-
-    set(target: UnknownObject, property: string, newValue: unknown, receiver: UnknownObject) {
-      const rawTarget = isReactive(target) ? toRaw(target) : target
-      const currentValue = rawTarget[property]
-
-      if (
-        typeof currentValue === 'object' &&
-        isObject(currentValue) &&
-        '$ref' in currentValue &&
-        typeof currentValue.$ref === 'string' &&
-        isLocalRef(currentValue.$ref)
-      ) {
-        const referencePath = parseJsonPointer(currentValue.$ref)
-        const targetObject = getValueByPath(sourceDocument, referencePath.slice(0, -1)) as UnknownObject
-        const lastPathSegment = referencePath[referencePath.length - 1]
-
-        if (targetObject && lastPathSegment) {
-          targetObject[lastPathSegment] = newValue
+    /**
+     * Proxy "set" trap for magic proxy.
+     * Allows setting properties on the proxied object.
+     * This will update the underlying target object.
+     */
+    set(target, prop, newValue, receiver) {
+      return Reflect.set(target, prop, newValue, receiver)
+    },
+    /**
+     * Proxy "deleteProperty" trap for magic proxy.
+     * Allows deleting properties from the proxied object.
+     * This will update the underlying target object.
+     */
+    deleteProperty(target, prop) {
+      return Reflect.deleteProperty(target, prop)
+    },
+    /**
+     * Proxy "has" trap for magic proxy.
+     * - Pretend that "$ref-value" exists if "$ref" exists on the target.
+     *   This allows expressions like `"$ref-value" in obj` to return true for objects with a $ref,
+     *   even though "$ref-value" is a virtual property provided by the proxy.
+     * - For all other properties, defer to the default Reflect.has behavior.
+     */
+    has(target, prop) {
+      // Pretend that "$ref-value" exists if "$ref" exists
+      if (prop === REF_VALUE && REF_KEY in target) {
+        return true
+      }
+      return Reflect.has(target, prop)
+    },
+    /**
+     * Proxy "ownKeys" trap for magic proxy.
+     * - Returns the list of own property keys for the proxied object.
+     * - If the object has a "$ref" property, ensures that "$ref-value" is also included in the keys,
+     *   even though "$ref-value" is a virtual property provided by the proxy.
+     *   This allows Object.keys, Reflect.ownKeys, etc. to include "$ref-value" for objects with $ref.
+     */
+    ownKeys(target) {
+      const keys = Reflect.ownKeys(target)
+      if (REF_KEY in target && !keys.includes(REF_VALUE)) {
+        keys.push(REF_VALUE)
+      }
+      return keys
+    },
+    /**
+     * Proxy "getOwnPropertyDescriptor" trap for magic proxy.
+     * - If the requested property is "$ref-value" and the target has a "$ref" property (which is a string),
+     *   returns a property descriptor for "$ref-value" as a virtual property.
+     *   This allows Object.getOwnPropertyDescriptor, Object.getOwnPropertyNames, etc. to see "$ref-value"
+     *   as a real property for objects with $ref, even though it is computed on the fly.
+     * - For all other properties, defers to the default Reflect.getOwnPropertyDescriptor behavior.
+     */
+    getOwnPropertyDescriptor(target, prop) {
+      if (prop === REF_VALUE && REF_KEY in target && typeof target[REF_KEY] === 'string') {
+        return {
+          configurable: true,
+          enumerable: true,
+          writable: false,
+          value: (() => {
+            if (isLocalRef(target[REF_KEY])) {
+              return createMagicProxy(getValueByPath(root, parseJsonPointer(target[REF_KEY])), root)
+            }
+            return undefined
+          })(),
         }
-      } else {
-        Reflect.set(rawTarget, property, newValue, receiver)
       }
-      return true
-    },
-
-    has(target: UnknownObject, key: string) {
-      if (typeof key === 'string' && key !== '$ref' && typeof target.$ref === 'string' && isLocalRef(target.$ref)) {
-        const referencePath = parseJsonPointer(target['$ref'])
-        const resolvedValue = getValueByPath(sourceDocument, referencePath) as UnknownObject
-
-        return resolvedValue ? key in resolvedValue : false
-      }
-
-      return key in target
-    },
-
-    ownKeys(target: UnknownObject) {
-      if ('$ref' in target && typeof target.$ref === 'string' && isLocalRef(target.$ref)) {
-        const referencePath = parseJsonPointer(target['$ref'])
-        const resolvedValue = getValueByPath<UnknownObject>(sourceDocument, referencePath)
-
-        return resolvedValue ? Reflect.ownKeys(resolvedValue) : []
-      }
-
-      return Reflect.ownKeys(target)
-    },
-
-    getOwnPropertyDescriptor(target: UnknownObject, key: string) {
-      if ('$ref' in target && key !== '$ref' && typeof target.$ref === 'string' && isLocalRef(target.$ref)) {
-        const referencePath = parseJsonPointer(target['$ref'])
-        const resolvedValue = getValueByPath(sourceDocument, referencePath)
-
-        if (resolvedValue) {
-          return Object.getOwnPropertyDescriptor(resolvedValue, key)
-        }
-      }
-
-      return Object.getOwnPropertyDescriptor(target, key)
+      return Reflect.getOwnPropertyDescriptor(target, prop)
     },
   }
+
+  return new Proxy<T>(target, handler)
 }
 
-/**
- * Creates a proxy that automatically resolves JSON references ($ref) in an object.
- * The proxy intercepts property access and automatically resolves any $ref references
- * to their target values in the source document.
- *
- * @param targetObject - The object to create a proxy for
- * @param sourceDocument - The source document containing the reference targets (defaults to targetObject)
- * @param resolvedProxyCache - Optional cache to store resolved proxies and prevent duplicate proxies
- * @returns A proxy that automatically resolves $ref references
- *
- * @example
- * // Basic usage with local references
- * const doc = {
- *   components: {
- *     schemas: {
- *       User: { type: 'object', properties: { name: { type: 'string' } } }
- *     }
- *   },
- *   paths: {
- *     '/users': {
- *       get: {
- *         responses: {
- *           200: {
- *             content: {
- *               'application/json': {
- *                 schema: { $ref: '#/components/schemas/User' }
- *               }
- *             }
- *           }
- *         }
- *       }
- *     }
- *   }
- * }
- *
- * const proxy = createMagicProxy(doc)
- * // Accessing the schema will automatically resolve the $ref
- * console.log(proxy.paths['/users'].get.responses[200].content['application/json'].schema)
- * // Output: { type: 'object', properties: { name: { type: 'string' } } }
- *
- * @example
- * // Using with a cache to prevent duplicate proxies
- * const cache = new WeakMap()
- * const proxy1 = createMagicProxy(doc, doc, cache)
- * const proxy2 = createMagicProxy(doc, doc, cache)
- * // proxy1 and proxy2 are the same instance due to caching
- * console.log(proxy1 === proxy2) // true
- */
-export function createMagicProxy<T extends UnknownObject | UnknownObject[]>(
-  targetObject: T,
-  sourceDocument: T = targetObject,
-  resolvedProxyCache?: WeakMap<object, T>,
-): T {
-  if (!isObject(targetObject) && !Array.isArray(targetObject)) {
-    return targetObject
-  }
-
-  const rawTarget = isReactive(targetObject) ? toRaw(targetObject) : targetObject
-
-  // check for cached results
-  if (resolvedProxyCache?.has(rawTarget)) {
-    const cachedValue = resolvedProxyCache.get(rawTarget)
-
-    if (cachedValue) {
-      return cachedValue
-    }
-  }
-
-  // Create a handler with the correct context
-  const handler = createProxyHandler(sourceDocument, resolvedProxyCache)
-  const proxy = new Proxy<T>(rawTarget, handler)
-
-  if (resolvedProxyCache) {
-    resolvedProxyCache.set(rawTarget, proxy)
-  }
-
-  return proxy
-}
-
-export const TARGET_SYMBOL = Symbol('magicProxyTarget')
 /**
  * Gets the raw (non-proxied) version of an object created by createMagicProxy.
  * This is useful when you need to access the original object without the magic proxy wrapper.
@@ -218,7 +162,7 @@ export const TARGET_SYMBOL = Symbol('magicProxyTarget')
  */
 export function getRaw<T extends UnknownObject>(obj: T): T {
   if ((obj as T & { [isMagicProxy]: boolean | undefined })[isMagicProxy]) {
-    return (obj as T & { [TARGET_SYMBOL]: T })[TARGET_SYMBOL]
+    return (obj as T & { [magicProxyTarget]: T })[magicProxyTarget]
   }
 
   return obj
