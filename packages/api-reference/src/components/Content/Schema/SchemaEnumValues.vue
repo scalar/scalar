@@ -1,105 +1,30 @@
-<script lang="ts" setup>
+<script setup lang="ts">
 import { ScalarButton } from '@scalar/components'
 import { ScalarIconPlus } from '@scalar/icons'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 import { computed, ref } from 'vue'
 
 import SchemaEnumPropertyItem from './SchemaEnumPropertyItem.vue'
 
 const ENUM_DISPLAY_THRESHOLD = 9
 const INITIAL_VISIBLE_COUNT = 5
-const THIN_SPACE = ' '
+const THIN_SPACE = ' '
 
-type SchemaValue = {
-  'enum'?: any[]
-  'items'?: { enum?: any[] }
-  'x-enumDescriptions'?: Record<string, string> | string[]
-  'x-enum-descriptions'?: Record<string, string> | string[]
-  'x-enum-varnames'?: string[]
-  'x-enumNames'?: string[]
-} & Record<string, any>
-
-// Props
-const { value, isDiscriminator } = defineProps<{
+const { value } = defineProps<{
   /** The schema object containing enum values and metadata */
-  value?: SchemaValue
-  /** Whether this enum is used as a discriminator property */
-  isDiscriminator?: boolean
+  value?: SchemaObject
 }>()
 
 /**
  * Extracts enum values from the schema object.
  * Handles both direct enum values and nested enum arrays.
  */
-const extractEnumValues = (schemaValue?: SchemaValue): any[] => {
-  if (!schemaValue) {
+const enumValues = computed((): any[] => {
+  if (!value) {
     return []
   }
-
-  return schemaValue.enum || schemaValue.items?.enum || []
-}
-
-/**
- * Formats an enum value with its variable name if available.
- * This supports both x-enum-varnames and x-enumNames extensions.
- *
- * @example "active" becomes "active = ACTIVE_STATUS"
- */
-const formatEnumValueWithName = (enumValue: any, index: number): string => {
-  const varName =
-    value?.['x-enum-varnames']?.[index] ?? value?.['x-enumNames']?.[index]
-  return varName
-    ? `${enumValue}${THIN_SPACE}=${THIN_SPACE}${varName}`
-    : String(enumValue)
-}
-
-/**
- * Gets the description for an enum value at a specific index.
- * Supports both x-enum-descriptions and x-enumDescriptions formats.
- */
-const getEnumValueDescription = (index: number): string | undefined => {
-  // Check if it's an array before using number index
-  const enumDescriptions = value?.['x-enum-descriptions']
-
-  if (Array.isArray(enumDescriptions)) {
-    return enumDescriptions[index]
-  }
-
-  const xEnumDescriptions = value?.['x-enumDescriptions']
-
-  if (Array.isArray(xEnumDescriptions)) {
-    return xEnumDescriptions[index]
-  }
-
-  return undefined
-}
-
-/**
- * Gets the description for an enum value from object format.
- * Used when x-enumDescriptions is an object mapping enum values to descriptions.
- */
-const getEnumValueDescriptionFromObject = (
-  enumValue: any,
-): string | undefined => {
-  // Check if it's an object before using string index
-  const enumDescriptions = value?.['x-enumDescriptions']
-
-  if (enumDescriptions && !Array.isArray(enumDescriptions)) {
-    return enumDescriptions[enumValue]
-  }
-
-  const xEnumDescriptions = value?.['x-enum-descriptions']
-
-  if (xEnumDescriptions && !Array.isArray(xEnumDescriptions)) {
-    return xEnumDescriptions[enumValue]
-  }
-
-  return undefined
-}
-
-// Computed properties
-const enumValues = computed(() => extractEnumValues(value))
-
-const hasEnumValues = computed(() => enumValues.value.length > 0)
+  return value.enum || value.items?.enum || []
+})
 
 /**
  * Determines if we should show the long enum list UI.
@@ -112,7 +37,7 @@ const shouldUseLongListDisplay = computed(
 const initialVisibleCount = computed(() =>
   shouldUseLongListDisplay.value
     ? INITIAL_VISIBLE_COUNT
-    : ENUM_DISPLAY_THRESHOLD,
+    : enumValues.value.length,
 )
 
 const visibleEnumValues = computed(() =>
@@ -124,23 +49,42 @@ const hiddenEnumValues = computed(() =>
 )
 
 /**
- * Determines if x-enumDescriptions is in object format (not array).
+ * Gets the description for an enum value.
+ * Supports both array and object formats for x-enumDescriptions.
  */
-const isObjectFormat = computed(() => {
+const getEnumValueDescription = (
+  enumValue: any,
+  index: number,
+): string | undefined => {
   const descriptions =
     value?.['x-enumDescriptions'] ?? value?.['x-enum-descriptions']
-  return (
-    descriptions &&
-    typeof descriptions === 'object' &&
-    !Array.isArray(descriptions)
-  )
-})
+
+  if (!descriptions) {
+    return undefined
+  }
+
+  if (Array.isArray(descriptions)) {
+    return descriptions[index]
+  }
+
+  if (typeof descriptions === 'object' && descriptions !== null) {
+    return (descriptions as Record<string, string>)[String(enumValue)]
+  }
+
+  return undefined
+}
 
 /**
- * Determines if this component should render anything.
- * We do not show enum values for discriminator properties.
+ * Formats an enum value with its variable name if available.
+ * This supports both x-enum-varnames and x-enumNames extensions.
  */
-const shouldRender = computed(() => hasEnumValues.value && !isDiscriminator)
+const formatEnumValueWithName = (enumValue: any, index: number): string => {
+  const varNames = value?.['x-enum-varnames'] ?? value?.['x-enumNames']
+  const varName = Array.isArray(varNames) ? varNames[index] : undefined
+  return varName
+    ? `${enumValue}${THIN_SPACE}=${THIN_SPACE}${varName}`
+    : String(enumValue)
+}
 
 /**
  * Controls whether the hidden enum values are visible.
@@ -153,60 +97,41 @@ const toggleExpanded = () => {
 </script>
 
 <template>
-  <div
-    v-if="shouldRender"
-    class="property-enum">
-    <!-- Key-value description format -->
-    <template v-if="isObjectFormat">
-      <ul class="property-enum-values">
+  <div class="property-enum">
+    <ul class="property-enum-values">
+      <!-- Visible enum values -->
+      <SchemaEnumPropertyItem
+        v-for="(enumValue, index) in visibleEnumValues"
+        :key="enumValue"
+        :label="formatEnumValueWithName(enumValue, index)"
+        :description="getEnumValueDescription(enumValue, index)" />
+
+      <!-- Hidden enum values (when expanded) -->
+      <template v-if="shouldUseLongListDisplay && isExpanded">
         <SchemaEnumPropertyItem
-          v-for="(enumValue, index) in enumValues"
+          v-for="(enumValue, index) in hiddenEnumValues"
           :key="enumValue"
-          :label="enumValue"
+          :label="
+            formatEnumValueWithName(enumValue, initialVisibleCount + index)
+          "
           :description="
-            isObjectFormat
-              ? getEnumValueDescriptionFromObject(enumValue)
-              : getEnumValueDescription(index)
+            getEnumValueDescription(enumValue, initialVisibleCount + index)
           " />
-      </ul>
-    </template>
+      </template>
 
-    <!-- Standard enum list format -->
-    <template v-else>
-      <ul class="property-enum-values">
-        <SchemaEnumPropertyItem
-          v-for="(enumValue, index) in visibleEnumValues"
-          :key="enumValue"
-          :label="formatEnumValueWithName(enumValue, index)"
-          :description="getEnumValueDescription(index)" />
-
-        <template v-if="shouldUseLongListDisplay">
-          <SchemaEnumPropertyItem
-            v-for="(enumValue, index) in hiddenEnumValues"
-            v-if="isExpanded"
-            :key="enumValue"
-            :label="
-              formatEnumValueWithName(enumValue, initialVisibleCount + index)
-            "
-            :description="
-              getEnumValueDescription(initialVisibleCount + index)
-            " />
-          <li>
-            <ScalarButton
-              class="enum-toggle-button my-2 flex h-fit gap-1 rounded-full border py-1.5 pr-2.5 pl-2 leading-none"
-              variant="ghost"
-              @click="toggleExpanded">
-              <ScalarIconPlus
-                weight="bold"
-                :class="{
-                  'rotate-45': isExpanded,
-                }" />
-              {{ isExpanded ? 'Hide values' : 'Show all values' }}
-            </ScalarButton>
-          </li>
-        </template>
-      </ul>
-    </template>
+      <!-- Toggle button for long lists -->
+      <li v-if="shouldUseLongListDisplay">
+        <ScalarButton
+          class="enum-toggle-button my-2 flex h-fit gap-1 rounded-full border py-1.5 pr-2.5 pl-2 leading-none"
+          variant="ghost"
+          @click="toggleExpanded">
+          <ScalarIconPlus
+            weight="bold"
+            :class="{ 'rotate-45': isExpanded }" />
+          {{ isExpanded ? 'Hide values' : 'Show all values' }}
+        </ScalarButton>
+      </li>
+    </ul>
   </div>
 </template>
 

@@ -4,7 +4,6 @@ import { ScalarMarkdown } from '@scalar/components'
 import { ScalarIconCaretRight } from '@scalar/icons'
 import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 import { isDefined } from '@scalar/oas-utils/helpers'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed, ref } from 'vue'
 
 import { SchemaProperty } from '@/components/Content/Schema'
@@ -20,7 +19,6 @@ const props = withDefaults(
     showChildren?: boolean
     collapsableItems?: boolean
     withExamples?: boolean
-    schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
     breadcrumb?: string[]
   }>(),
   {
@@ -101,7 +99,6 @@ const shouldShowParameter = computed(() => {
           :name="shouldCollapse ? '' : parameter.name"
           :noncollapsible="true"
           :required="parameter.required"
-          :schemas="schemas"
           :value="{
             ...(parameter.content
               ? parameter.content?.[selectedContentType]?.schema

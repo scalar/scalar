@@ -1,11 +1,11 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 import { getSchemaType } from './get-schema-type'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 
 describe('get-schema-type', () => {
   describe('getSchemaType', () => {
     it('returns joined types when type is an array', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: ['string', 'number', 'boolean'],
       }
 
@@ -15,7 +15,7 @@ describe('get-schema-type', () => {
     })
 
     it('returns title when present', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         title: 'User Profile',
         type: 'object',
       }
@@ -25,19 +25,8 @@ describe('get-schema-type', () => {
       expect(result).toBe('User Profile')
     })
 
-    it('returns name when present and no title', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
-        name: 'UserSchema',
-        type: 'object',
-      }
-
-      const result = getSchemaType(schema)
-
-      expect(result).toBe('UserSchema')
-    })
-
     it('returns type with content encoding when both present', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: 'string',
         contentEncoding: 'base64',
       }
@@ -48,7 +37,7 @@ describe('get-schema-type', () => {
     })
 
     it('returns type when only type is present', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: 'integer',
       }
 
@@ -58,7 +47,7 @@ describe('get-schema-type', () => {
     })
 
     it('returns empty string when no type is present', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {}
+      const schema: SchemaObject = {}
 
       const result = getSchemaType(schema)
 
@@ -78,7 +67,7 @@ describe('get-schema-type', () => {
     })
 
     it('prioritizes array type over title', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: ['string', 'null'],
         title: 'Optional String',
       }
@@ -88,32 +77,8 @@ describe('get-schema-type', () => {
       expect(result).toBe('string | null')
     })
 
-    it('prioritizes title over name', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
-        title: 'User Object',
-        name: 'UserSchema',
-        type: 'object',
-      }
-
-      const result = getSchemaType(schema)
-
-      expect(result).toBe('User Object')
-    })
-
-    it('prioritizes name over type with content encoding', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
-        name: 'Base64String',
-        type: 'string',
-        contentEncoding: 'base64',
-      }
-
-      const result = getSchemaType(schema)
-
-      expect(result).toBe('Base64String')
-    })
-
     it('handles empty array type', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: [],
       }
 
@@ -123,7 +88,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles single item array type', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: ['string'],
       }
 
@@ -133,7 +98,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles content encoding without type', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         contentEncoding: 'base64',
       }
 
@@ -143,10 +108,9 @@ describe('get-schema-type', () => {
     })
 
     it('handles complex schema with all properties', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: ['string', 'number'],
         title: 'Mixed Value',
-        name: 'MixedSchema',
         contentEncoding: 'utf8',
       }
 
@@ -156,7 +120,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array type containing object', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: ['string', 'object', 'null'],
       }
 
@@ -166,7 +130,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array type with only object', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: ['object'],
       }
 
@@ -176,7 +140,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array schema with object items', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: 'array',
         items: {
           type: 'object',
@@ -189,7 +153,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles nullable array schema with object items', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: ['array', 'null'],
         items: {
           type: 'object',
@@ -202,7 +166,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array type with array and other types', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: ['array', 'string', 'null'],
         items: {
           type: 'number',
@@ -215,7 +179,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array type with array but no items', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: ['array', 'string'],
       }
 
@@ -225,7 +189,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array type with array and items but no other types', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: ['array'],
         items: {
           type: 'boolean',
@@ -238,7 +202,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array schema with items that have no type', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: 'array',
         items: {},
       }
@@ -249,7 +213,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array schema with items that have title', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: 'array',
         items: {
           title: 'User Object',
@@ -262,22 +226,8 @@ describe('get-schema-type', () => {
       expect(result).toBe('array User Object[]')
     })
 
-    it('handles array schema with items that have name', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
-        type: 'array',
-        items: {
-          name: 'UserSchema',
-          type: 'object',
-        },
-      }
-
-      const result = getSchemaType(schema)
-
-      expect(result).toBe('array UserSchema[]')
-    })
-
     it('handles array schema with items that have content encoding', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: 'array',
         items: {
           type: 'string',
@@ -291,7 +241,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array schema with items that are arrays', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: 'array',
         items: {
           type: 'array',
@@ -307,7 +257,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles nullable array schema with items that have no type', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: 'array',
         nullable: true,
         items: {},
@@ -319,7 +269,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array schema without items property', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: 'array',
       }
 
@@ -329,7 +279,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles nullable array schema without items property', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: 'array',
         nullable: true,
       }
@@ -340,7 +290,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles schema with only type property', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: 'string',
       }
 
@@ -350,7 +300,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles schema with only content encoding', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         contentEncoding: 'base64',
       }
 
@@ -360,7 +310,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles schema with nullable property but no type', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         nullable: true,
       }
 
@@ -370,7 +320,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles schema with items but no type', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         items: {
           type: 'string',
         },
@@ -382,7 +332,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles deeply nested array items', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: 'array',
         items: {
           type: 'array',
@@ -401,7 +351,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array type with multiple array types', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: ['array', 'array'],
         items: {
           type: 'string',
@@ -414,7 +364,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array type with array and complex items', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: ['array', 'object'],
         items: {
           type: ['string', 'number'],
@@ -427,7 +377,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array schema with nullable items', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: 'array',
         items: {
           type: 'string',
@@ -441,7 +391,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array schema with items that have array type', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: 'array',
         items: {
           type: ['string', 'array'],
@@ -457,7 +407,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array schema with items that have array type and other properties', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: 'array',
         items: {
           type: ['string', 'array'],
@@ -473,15 +423,14 @@ describe('get-schema-type', () => {
       expect(result).toBe('array (array number[] | string)[]')
     })
 
-    it('handles array schema with items that have array type and name', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+    it('handles array schema with items that have array type', () => {
+      const schema: SchemaObject = {
         type: 'array',
         items: {
           type: ['string', 'array'],
           items: {
             type: 'number',
           },
-          name: 'MixedSchema',
         },
       }
 
@@ -491,7 +440,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array schema with items that have array type and content encoding', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: 'array',
         items: {
           type: ['string', 'array'],
@@ -508,7 +457,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array schema with items that have only array type', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: 'array',
         items: {
           type: ['array'],
@@ -524,7 +473,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array schema with items that have array type but no items', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         type: 'array',
         items: {
           type: ['string', 'array'],
@@ -538,7 +487,7 @@ describe('get-schema-type', () => {
 
     describe('title property', () => {
       it('uses the title for an array type if items are not defined', () => {
-        const schema: OpenAPIV3_1.SchemaObject = {
+        const schema: SchemaObject = {
           title: 'CustomArray',
           type: 'array',
         }
@@ -547,7 +496,7 @@ describe('get-schema-type', () => {
       })
 
       it('ignores the title for an array type if items are defined', () => {
-        const schema: OpenAPIV3_1.SchemaObject = {
+        const schema: SchemaObject = {
           title: 'CustomArray',
           type: 'array',
           items: {
@@ -561,7 +510,7 @@ describe('get-schema-type', () => {
 
     describe('xml.name property', () => {
       it('returns xml.name when present and no title or name', () => {
-        const schema: OpenAPIV3_1.SchemaObject = {
+        const schema: SchemaObject = {
           type: 'object',
           xml: {
             name: 'XmlTag',
@@ -574,7 +523,7 @@ describe('get-schema-type', () => {
       })
 
       it('prioritizes title over xml.name', () => {
-        const schema: OpenAPIV3_1.SchemaObject = {
+        const schema: SchemaObject = {
           title: 'Schema Title',
           type: 'object',
           xml: {
@@ -587,22 +536,8 @@ describe('get-schema-type', () => {
         expect(result).toBe('Schema Title')
       })
 
-      it('prioritizes name over xml.name', () => {
-        const schema: OpenAPIV3_1.SchemaObject = {
-          name: 'SchemaName',
-          type: 'object',
-          xml: {
-            name: 'XmlTag',
-          },
-        }
-
-        const result = getSchemaType(schema)
-
-        expect(result).toBe('SchemaName')
-      })
-
       it('prioritizes xml.name over type with content encoding', () => {
-        const schema: OpenAPIV3_1.SchemaObject = {
+        const schema: SchemaObject = {
           type: 'string',
           contentEncoding: 'base64',
           xml: {
@@ -616,7 +551,7 @@ describe('get-schema-type', () => {
       })
 
       it('prioritizes xml.name over type only', () => {
-        const schema: OpenAPIV3_1.SchemaObject = {
+        const schema: SchemaObject = {
           type: 'string',
           xml: {
             name: 'XmlTag',
@@ -629,7 +564,7 @@ describe('get-schema-type', () => {
       })
 
       it('uses xml.name for an array type when items are not defined', () => {
-        const schema: OpenAPIV3_1.SchemaObject = {
+        const schema: SchemaObject = {
           type: 'array',
           xml: {
             name: 'XmlArray',
@@ -642,7 +577,7 @@ describe('get-schema-type', () => {
       })
 
       it('ignores xml.name for an array type when items are defined', () => {
-        const schema: OpenAPIV3_1.SchemaObject = {
+        const schema: SchemaObject = {
           type: 'array',
           items: {
             type: 'string',
@@ -658,7 +593,7 @@ describe('get-schema-type', () => {
       })
 
       it('handles xml.name with array type in type array', () => {
-        const schema: OpenAPIV3_1.SchemaObject = {
+        const schema: SchemaObject = {
           type: ['array', 'null'],
           xml: {
             name: 'NullableXmlArray',
@@ -671,7 +606,7 @@ describe('get-schema-type', () => {
       })
 
       it('handles xml.name with complex array type', () => {
-        const schema: OpenAPIV3_1.SchemaObject = {
+        const schema: SchemaObject = {
           type: ['string', 'null'],
           xml: {
             name: 'NullableString',
@@ -684,7 +619,7 @@ describe('get-schema-type', () => {
       })
 
       it('handles xml object without name property', () => {
-        const schema: OpenAPIV3_1.SchemaObject = {
+        const schema: SchemaObject = {
           type: 'object',
           xml: {},
         }
@@ -695,7 +630,7 @@ describe('get-schema-type', () => {
       })
 
       it('handles xml.name with empty string', () => {
-        const schema: OpenAPIV3_1.SchemaObject = {
+        const schema: SchemaObject = {
           type: 'object',
           xml: {
             name: '',
@@ -717,16 +652,15 @@ describe('get-schema-type', () => {
 
         schemas.forEach(({ type, xml, expected }) => {
           const schema = { type, xml }
-          const result = getSchemaType(schema as OpenAPIV3_1.SchemaObject)
+          const result = getSchemaType(schema as SchemaObject)
           expect(result).toBe(expected)
         })
       })
 
       it('handles xml.name with all properties present', () => {
-        const schema: OpenAPIV3_1.SchemaObject = {
+        const schema: SchemaObject = {
           type: 'string',
           title: 'Schema Title',
-          name: 'SchemaName',
           contentEncoding: 'base64',
           xml: {
             name: 'XmlTag',
@@ -739,7 +673,7 @@ describe('get-schema-type', () => {
       })
 
       it('handles xml.name in array items', () => {
-        const schema: OpenAPIV3_1.SchemaObject = {
+        const schema: SchemaObject = {
           type: 'array',
           items: {
             type: 'object',
@@ -755,7 +689,7 @@ describe('get-schema-type', () => {
       })
 
       it('handles xml.name in nested array items', () => {
-        const schema: OpenAPIV3_1.SchemaObject = {
+        const schema: SchemaObject = {
           type: 'array',
           items: {
             type: 'array',
@@ -774,7 +708,7 @@ describe('get-schema-type', () => {
       })
 
       it('prioritizes title over xml.name in array items', () => {
-        const schema: OpenAPIV3_1.SchemaObject = {
+        const schema: SchemaObject = {
           type: 'array',
           items: {
             type: 'object',
@@ -788,23 +722,6 @@ describe('get-schema-type', () => {
         const result = getSchemaType(schema)
 
         expect(result).toBe('array Item Title[]')
-      })
-
-      it('prioritizes name over xml.name in array items', () => {
-        const schema: OpenAPIV3_1.SchemaObject = {
-          type: 'array',
-          items: {
-            type: 'object',
-            name: 'ItemName',
-            xml: {
-              name: 'XmlItem',
-            },
-          },
-        }
-
-        const result = getSchemaType(schema)
-
-        expect(result).toBe('array ItemName[]')
       })
     })
   })
