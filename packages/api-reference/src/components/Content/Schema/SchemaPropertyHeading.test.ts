@@ -174,7 +174,6 @@ describe('SchemaPropertyHeading', () => {
     })
     const defaultValueElement = wrapper.find('.property-heading')
     expect(defaultValueElement.text()).toContain('default:')
-    expect(defaultValueElement.text()).toContain('""')
   })
 
   it('renders default value without type being present', () => {
@@ -188,7 +187,7 @@ describe('SchemaPropertyHeading', () => {
     })
     const defaultValueElement = wrapper.find('.property-heading')
     expect(defaultValueElement.text()).toContain('default:')
-    expect(defaultValueElement.text()).toContain('"foo"')
+    expect(defaultValueElement.text()).toContain('foo')
   })
 
   it('formats array type with model reference', () => {

@@ -6,7 +6,6 @@ import { computed, toRef } from 'vue'
 import { Badge } from '@/components/Badge'
 import ScreenReader from '@/components/ScreenReader.vue'
 
-import { flattenDefaultValue } from './helpers/flatten-default-value'
 import { getSchemaType } from './helpers/get-schema-type'
 import { getModelName } from './helpers/schema-name'
 import RenderString from './RenderString.vue'
@@ -201,10 +200,34 @@ const displayType = computed(() => {
   return modelName.value || getSchemaType(props.value)
 })
 
-/** Check if we have a default value to display */
-const hasDefaultValue = computed(() => {
-  const flattened = flattenDefaultValue(props.value)
-  return flattened !== undefined
+/**
+ * Flattens default values for display purposes.
+ */
+const flattenedDefaultValue = computed(() => {
+  const value = props.value
+
+  if (!value) {
+    return value
+  }
+
+  if (value.default === null || !('default' in value)) {
+    return 'null'
+  }
+
+  if (Array.isArray(value.default) && value.default.length === 1) {
+    return String(value.default[0])
+  }
+
+  if (Array.isArray(value.default)) {
+    return JSON.stringify(value.default)
+  }
+
+  if (typeof value.default === 'object') {
+    return JSON.stringify(value.default)
+  }
+
+  // Return the default value converted to string (handles 0, false, '' correctly)
+  return String(value.default)
 })
 </script>
 <template>
@@ -242,8 +265,7 @@ const hasDefaultValue = computed(() => {
           v-if="property.prefix"
           #prefix
           >{{ property.prefix }}</template
-        >
-        {{ property.value }}
+        >{{ property.value }}
       </SchemaPropertyDetail>
 
       <!-- Enum indicator -->
@@ -251,10 +273,9 @@ const hasDefaultValue = computed(() => {
 
       <!-- Default value -->
       <SchemaPropertyDetail
-        v-if="hasDefaultValue"
+        v-if="isDefined(flattenedDefaultValue)"
         truncate>
-        <template #prefix>default: </template>
-        {{ flattenDefaultValue(props.value) }}
+        <template #prefix>default:</template>{{ flattenedDefaultValue }}
       </SchemaPropertyDetail>
     </template>
     <div
