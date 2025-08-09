@@ -1,6 +1,6 @@
 ---
-'@scalar/aspnetcore': minor
-'@scalar/aspire': minor
+'@scalar/aspnetcore': patch
+'@scalar/aspire': patch
 ---
 
 fix: added missing clients and targets
