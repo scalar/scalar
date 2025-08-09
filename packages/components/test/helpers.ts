@@ -1,6 +1,13 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { test as base, expect, type BrowserContext, type BrowserContextOptions, type TestInfo } from '@playwright/test'
+import {
+  expect,
+  test as base,
+  type BrowserContext,
+  type BrowserContextOptions,
+  type Page,
+  type TestInfo,
+} from '@playwright/test'
 
 export { expect }
 
@@ -25,6 +32,8 @@ export type ComponentTestOptions = {
   crop: boolean
   /** Device scale factor used for screenshots. Defaults to 2. */
   scale: number
+  /** Color mode to use for screenshots. Defaults to ['light']. */
+  colorModes: ['light'] | ['dark'] | ['light', 'dark']
 }
 
 type ComponentTestFixtures = {
@@ -61,6 +70,25 @@ const componentDetailsFromContext = (
   )
 }
 
+/**
+ * Sets the color mode for the page using a class
+ */
+const setColorMode = async (page: Page, colorMode: 'light' | 'dark') => {
+  const body = await page.locator('body').elementHandle()
+
+  if (colorMode === 'dark') {
+    await body?.evaluate((el) => {
+      el.classList.add('dark-mode')
+      el.classList.remove('light-mode')
+    })
+  } else {
+    await body?.evaluate((el) => {
+      el.classList.add('light-mode')
+      el.classList.remove('dark-mode')
+    })
+  }
+}
+
 export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
   // Options (can be overridden per test via test.use)
   component: [undefined, { option: true }],
@@ -68,6 +96,7 @@ export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
   background: [false, { option: true }],
   crop: [false, { option: true }],
   scale: [2, { option: true }],
+  colorModes: [['light'], { option: true }],
 
   // Ensure the deviceScaleFactor option is applied by creating a context with scale
   context: async ({ browser, contextOptions, scale }, use, testInfo) => {
@@ -95,15 +124,19 @@ export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
   ],
 
   // Snapshot helper bound to current test settings
-  snapshot: async ({ page, background, crop, component: c, story: s }, use, testInfo) => {
+  snapshot: async ({ page, background, crop, colorModes, component: c, story: s }, use, testInfo) => {
     const takeSnapshot: SnapshotFn = async (suffix?: string): Promise<void> => {
       const { story } = componentDetailsFromContext(c, s, testInfo)
-      const filename = `${toSlug(story)}${suffix ? `-${suffix}` : ''}.png`
       const locator = crop ? '#storybook-root > *' : 'body'
-      await expect(page.locator(locator)).toHaveScreenshot(filename, {
-        omitBackground: !background,
-        stylePath: background ? undefined : transparentCssPath,
-      })
+      for (const colorMode of colorModes) {
+        const colorModeSuffix = colorMode === 'light' ? '' : `-${colorMode}`
+        const filename = `${toSlug(story)}${suffix ? `-${suffix}` : ''}${colorModeSuffix}.png`
+        await setColorMode(page, colorMode)
+        await expect(page.locator(locator)).toHaveScreenshot(filename, {
+          omitBackground: !background,
+          stylePath: background ? undefined : transparentCssPath,
+        })
+      }
     }
 
     await use(takeSnapshot)
