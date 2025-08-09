@@ -1,5 +1,6 @@
-import { testComponent } from '@test/testComponent'
+import { test, takeSnapshot } from '@test/helpers'
 
-testComponent('ScalarMarkdown', {
-  stories: ['Alerts', 'Blockquotes', 'Codeblocks', 'Headers', 'Html', 'Inline', 'Lists', 'Paragraphs', 'Tables'],
-})
+test.describe('ScalarMarkdown', () =>
+  ['Alerts', 'Blockquotes', 'Codeblocks', 'Headers', 'Html', 'Inline', 'Lists', 'Paragraphs', 'Tables'].forEach(
+    (story) => test(story, takeSnapshot),
+  ))
