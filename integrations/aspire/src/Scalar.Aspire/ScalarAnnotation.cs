@@ -2,4 +2,4 @@
 
 namespace Scalar.Aspire;
 
-internal sealed record ScalarAnnotation(IResource Resource, Action<ScalarOptions>? ConfigureOptions) : IResourceAnnotation;
+internal sealed record ScalarAnnotation(IResource Resource, Func<ScalarOptions, CancellationToken, Task>? ConfigureOptions) : IResourceAnnotation;

@@ -16,21 +16,21 @@ internal sealed class ScalarHook(IServiceProvider provider) : IDistributedApplic
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    public Task BeforeStartAsync(DistributedApplicationModel appModel, CancellationToken cancellationToken = default)
+    public async Task BeforeStartAsync(DistributedApplicationModel appModel, CancellationToken cancellationToken = default)
     {
         var scalarResource = appModel.Resources.OfType<ScalarResource>().FirstOrDefault();
 
         if (scalarResource is null)
         {
-            return Task.CompletedTask;
+            return;
         }
 
         var scalarAnnotations = scalarResource.Annotations.OfType<ScalarAnnotation>();
-        var scalarConfigurations = CreateConfigurations(provider, scalarAnnotations);
+        var scalarConfigurations = CreateConfigurationsAsync(provider, scalarAnnotations, cancellationToken);
 
-        var configurations = scalarConfigurations.ToScalarConfigurations();
+        var serializedConfigurations = await scalarConfigurations.ToScalarConfigurationsAsync(cancellationToken).SerializeToJsonAsync(JsonSerializerOptions, cancellationToken);
 
-        var serializedConfigurations = JsonSerializer.Serialize(configurations, JsonSerializerOptions);
+        // var serializedConfigurations = JsonSerializer.Serialize(configurations, JsonSerializerOptions);
 
         var scalarAspireOptions = provider.GetRequiredService<IOptions<ScalarAspireOptions>>().Value;
         var callback = new EnvironmentCallbackAnnotation(context =>
@@ -44,11 +44,9 @@ internal sealed class ScalarHook(IServiceProvider provider) : IDistributedApplic
             }
         });
         scalarResource.Annotations.Add(callback);
-
-        return Task.CompletedTask;
     }
 
-    private static IEnumerable<ScalarOptions> CreateConfigurations(IServiceProvider serviceProvider, IEnumerable<ScalarAnnotation> annotations)
+    private static async IAsyncEnumerable<ScalarAspireOptions> CreateConfigurationsAsync(IServiceProvider serviceProvider, IEnumerable<ScalarAnnotation> annotations, CancellationToken cancellationToken)
     {
         foreach (var scalarAnnotation in annotations)
         {
@@ -57,7 +55,10 @@ internal sealed class ScalarHook(IServiceProvider provider) : IDistributedApplic
 
             using var scope = serviceProvider.CreateScope();
             var scalarAspireOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<ScalarAspireOptions>>().Value;
-            scalarAnnotation.ConfigureOptions?.Invoke(scalarAspireOptions);
+            if (scalarAnnotation.ConfigureOptions is not null)
+            {
+                await scalarAnnotation.ConfigureOptions.Invoke(scalarAspireOptions, cancellationToken);
+            }
             if (scalarAspireOptions.DefaultProxy)
             {
                 ConfigureProxyUrl(scalarAspireOptions);

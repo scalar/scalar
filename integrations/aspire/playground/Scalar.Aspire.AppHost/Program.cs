@@ -22,8 +22,9 @@ var scalar = builder
 
 
 scalar
-    .WithApiReference(userService, options =>
+    .WithApiReference(userService, async (options, ctx) =>
     {
+        await Task.Delay(2000, ctx);
         options.WithTheme(ScalarTheme.Mars);
         options.WithDefaultHttpClient(ScalarTarget.JavaScript, ScalarClient.Fetch);
         options.AddDocument("external");

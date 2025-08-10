@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace Scalar.Aspire;
 
 internal static class ScalarOptionsMapper
@@ -29,6 +31,14 @@ internal static class ScalarOptionsMapper
     };
 
     internal static IEnumerable<ScalarConfiguration> ToScalarConfigurations(this IEnumerable<ScalarOptions> options) => options.Select(option => option.ToScalarConfiguration());
+
+    internal static async IAsyncEnumerable<ScalarConfiguration> ToScalarConfigurationsAsync(this IAsyncEnumerable<ScalarOptions> options, [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        await foreach (var option in options.WithCancellation(cancellationToken))
+        {
+            yield return option.ToScalarConfiguration();
+        }
+    }
 
     internal static ScalarConfiguration ToScalarConfiguration(this ScalarOptions options)
     {
