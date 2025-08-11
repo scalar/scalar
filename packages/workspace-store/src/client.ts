@@ -4,7 +4,7 @@ import { upgrade } from '@scalar/openapi-parser'
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 
 import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
-import { deepClone, isObject, safeAssign, type UnknownObject } from '@/helpers/general'
+import { deepClone, isObject, safeAssign } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
 import { createNavigation } from '@/navigation'
@@ -22,6 +22,7 @@ import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
 import { apply, diff, merge, type Difference } from '@scalar/json-magic/diff'
 import type { TraverseSpecOptions } from '@/navigation/types'
 import type { PartialDeep, RequiredDeep } from 'type-fest'
+import { externalValueResolver, loadingStatus, refsEverywhere } from '@/plugins'
 
 type DocumentConfiguration = Config &
   PartialDeep<{
@@ -467,26 +468,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     return excludedDiffs
   }
 
-  /**
-   * Hook function to be called after processing a node during document bundling.
-   * If the node contains an 'externalValue' property (as a string), this function
-   * fetches the external value (e.g., from a URL or file) and assigns the result to the node's 'value' property.
-   * This is used to resolve and embed external content referenced in the OpenAPI document.
-   *
-   * @param node - The node being processed, potentially containing an 'externalValue' property.
-   */
-  async function onAfterNodeProcess(node: UnknownObject) {
-    if (typeof node['externalValue'] !== 'string') {
-      return
-    }
-
-    const result = await fetchUrls().exec(node['externalValue'])
-
-    if (result.ok) {
-      node['value'] = result.data
-    }
-  }
-
   // Add a document to the store synchronously from an in-memory OpenAPI document
   async function addInMemoryDocument(input: ObjectDoc) {
     const { name, meta } = input
@@ -523,10 +504,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // This typically applies when the document is not preprocessed by the server and needs local reference resolution.
       await bundle(document, {
         treeShake: false,
-        plugins: [fetchUrls()],
-        hooks: {
-          onAfterNodeProcess,
-        },
+        plugins: [fetchUrls(), externalValueResolver(), refsEverywhere()],
       })
     }
 
@@ -632,17 +610,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return bundle(target, {
         root: activeDocument,
         treeShake: false,
-        plugins: [fetchUrls()],
+        plugins: [fetchUrls(), loadingStatus(), externalValueResolver()],
         urlMap: false,
-        hooks: {
-          onResolveStart: (node) => {
-            node['$status'] = 'loading'
-          },
-          onResolveError: (node) => {
-            node['$status'] = 'error'
-          },
-          onAfterNodeProcess,
-        },
         visitedNodes: visitedNodesCache,
       })
     },

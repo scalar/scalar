@@ -1,4 +1,4 @@
-import type { Plugin, ResolveResult } from '@/bundle/bundle'
+import type { LoaderPlugin, ResolveResult } from '@/bundle'
 import { isYaml } from '@/utils/is-yaml'
 import YAML from 'yaml'
 
@@ -12,8 +12,9 @@ import YAML from 'yaml'
  * // result = { name: 'John', age: 30 }
  * ```
  */
-export function parseYaml(): Plugin {
+export function parseYaml(): LoaderPlugin {
   return {
+    type: 'loader',
     validate: isYaml,
     exec: async (value): Promise<ResolveResult> => {
       try {

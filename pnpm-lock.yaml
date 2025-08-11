@@ -1941,6 +1941,9 @@ importers:
 
   packages/json-magic:
     dependencies:
+      '@scalar/helpers':
+        specifier: workspace:*
+        version: link:../helpers
       vue:
         specifier: catalog:*
         version: 3.5.17(typescript@5.8.3)
