@@ -154,7 +154,7 @@ public class ScalarOptionsMapperTests
         hiddenClients.Should().ContainKey("csharp")
             .WhoseValue.Should().ContainSingle().Which.Should().Be("restsharp");
         hiddenClients.Should().ContainKey("python")
-            .WhoseValue.Should().ContainSingle().Which.Should().Be("requests");
+            .WhoseValue.Should().ContainInOrder("requests", "httpx_sync", "httpx_async");
     }
 
     [Fact]

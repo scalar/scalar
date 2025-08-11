@@ -17,14 +17,15 @@ internal static class ScalarOptionsMapper
         { ScalarTarget.OCaml, [ScalarClient.CoHttp] },
         { ScalarTarget.Php, [ScalarClient.Curl, ScalarClient.Guzzle, ScalarClient.Http1, ScalarClient.Http2] },
         { ScalarTarget.PowerShell, [ScalarClient.WebRequest, ScalarClient.RestMethod] },
-        { ScalarTarget.Python, [ScalarClient.Python3, ScalarClient.Requests] },
+        { ScalarTarget.Python, [ScalarClient.Python3, ScalarClient.Requests, ScalarClient.HttpxSync, ScalarClient.HttpxAsync] },
         { ScalarTarget.R, [ScalarClient.Httr] },
         { ScalarTarget.Ruby, [ScalarClient.Native] },
         { ScalarTarget.Shell, [ScalarClient.Curl, ScalarClient.Httpie, ScalarClient.Wget] },
         { ScalarTarget.Swift, [ScalarClient.Nsurlsession] },
         { ScalarTarget.Go, [ScalarClient.Native] },
         { ScalarTarget.Kotlin, [ScalarClient.OkHttp] },
-        { ScalarTarget.Dart, [ScalarClient.Http] }
+        { ScalarTarget.Dart, [ScalarClient.Http] },
+        { ScalarTarget.Rust, [ScalarClient.Reqwest] }
     };
 
     internal static IEnumerable<ScalarConfiguration> ToScalarConfigurations(this IEnumerable<ScalarOptions> options) => options.Select(option => option.ToScalarConfiguration());
