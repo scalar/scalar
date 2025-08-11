@@ -3,7 +3,7 @@
   "info": {
     "title": "DefiLlama Pro - OpenAPI 3.0",
     "version": "1.0.0",
-    "description": "Docs for DefiLlama's Pro API \n\n download the standard <a href='https://raw.githubusercontent.com/DefiLlama/api-docs/refs/heads/main/defillama-llms.txt'>llms.txt</a> file(guide for AI models)"
+    "description": "Docs for DefiLlama's Pro API \n\n\n Coding with AI? Paste this link to LLM-specific docs for best results \n<a href='/llms.txt'>llms.txt</a>"
   },
   "servers": [
     {

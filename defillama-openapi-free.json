@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "description": "\n\nNeed higher rate limits or priority support? We offer a premium plan for 300$/mo. To get it, go to https://defillama.com/subscription\n \n\n download the standard <a href='https://raw.githubusercontent.com/DefiLlama/api-docs/refs/heads/main/defillama-llms.txt'>llms.txt</a> file(guide for AI models)",
+    "description": "\n\nNeed higher rate limits or priority support? We offer a premium plan for 300$/mo. To get it, go to https://defillama.com/subscription \n\n\n Coding with AI? Paste this link to LLM-specific docs for best results \n<a href='/llms.txt'>llms.txt</a>",
     "version": "1.0.0-oas3",
     "title": "DefiLlama API"
   },
