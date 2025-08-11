@@ -30,8 +30,6 @@ internal static class ScalarOptionsMapper
         { ScalarTarget.Rust, [ScalarClient.Reqwest] }
     };
 
-    internal static IEnumerable<ScalarConfiguration> ToScalarConfigurations(this IEnumerable<ScalarOptions> options) => options.Select(option => option.ToScalarConfiguration());
-
     internal static async IAsyncEnumerable<ScalarConfiguration> ToScalarConfigurationsAsync(this IAsyncEnumerable<ScalarOptions> options, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         await foreach (var option in options.WithCancellation(cancellationToken))
