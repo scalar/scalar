@@ -26,8 +26,8 @@ public static class ResourceBuilderExtensions
                 configureOptions?.Invoke(options);
                 return Task.CompletedTask;
             }));
-    
-    
+
+
     /// <summary>
     /// Adds an OpenAPI reference to the Scalar resource from another resource with service discovery.
     /// </summary>

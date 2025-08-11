@@ -45,7 +45,7 @@ internal sealed class ScalarHook(IServiceProvider provider) : IDistributedApplic
         scalarResource.Annotations.Add(callback);
     }
 
-    
+
     private static async IAsyncEnumerable<ScalarAspireOptions> CreateConfigurationsAsync(IServiceProvider serviceProvider, IEnumerable<ScalarAnnotation> annotations, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         foreach (var scalarAnnotation in annotations)
@@ -59,6 +59,7 @@ internal sealed class ScalarHook(IServiceProvider provider) : IDistributedApplic
             {
                 await scalarAnnotation.ConfigureOptions.Invoke(scalarAspireOptions, cancellationToken);
             }
+
             if (scalarAspireOptions.DefaultProxy)
             {
                 ConfigureProxyUrl(scalarAspireOptions);
