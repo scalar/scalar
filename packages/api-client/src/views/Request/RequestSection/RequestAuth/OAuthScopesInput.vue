@@ -44,11 +44,19 @@ function setScope(id: string, checked: boolean) {
   }
 }
 
-function selectAllScopes() {
+const allScopesSelected = computed(() => {
+  return flow?.selectedScopes?.length === Object.keys(flow?.scopes ?? {}).length
+})
+
+const selectAllScopes = () => {
   updateScheme(
     `flows.${flow.type}.selectedScopes`,
     Object.keys(flow?.scopes ?? {}),
   )
+}
+
+const deselectAllScopes = () => {
+  updateScheme(`flows.${flow.type}.selectedScopes`, [])
 }
 </script>
 
@@ -72,12 +80,14 @@ function selectAllScopes() {
           </div>
           <div class="flex items-center gap-1.75">
             <ScalarButton
-              v-if="
-                flow?.selectedScopes?.length > 4 &&
-                open &&
-                flow?.selectedScopes?.length <
-                  Object.keys(flow?.scopes ?? {}).length
-              "
+              v-if="allScopesSelected"
+              class="text-c-3 hover:bg-b-2 hover:text-c-1 rounded px-1.5"
+              size="sm"
+              @click.stop="deselectAllScopes">
+              Deselect All
+            </ScalarButton>
+            <ScalarButton
+              v-if="!allScopesSelected"
               class="text-c-3 hover:bg-b-2 hover:text-c-1 rounded px-1.5"
               size="sm"
               @click.stop="selectAllScopes">
