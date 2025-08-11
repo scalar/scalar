@@ -7,7 +7,7 @@ import { ref } from 'vue'
 import { createFuseInstance } from './helpers/create-fuse-instance'
 import { createSearchIndex } from './helpers/create-search-index'
 
-function createSearchFoobar(query: string, document: Partial<OpenAPIV3_1.Document>) {
+function search(query: string, document: Partial<OpenAPIV3_1.Document>) {
   const { entries } = traverseDocument(document, {
     config: ref(apiReferenceConfigurationSchema.parse({ hideModels: false })),
     getHeadingId: () => '',
@@ -24,7 +24,7 @@ function createSearchFoobar(query: string, document: Partial<OpenAPIV3_1.Documen
   return fuse.search(query)
 }
 
-describe('search', () => {
+describe('search quality', () => {
   it('looks up operations by summary', () => {
     const query = 'Get a token'
 
@@ -41,7 +41,7 @@ describe('search', () => {
       },
     }
 
-    const result = createSearchFoobar(query, document)
+    const result = search(query, document)
 
     expect(result[0]?.item?.title).toEqual('Get a token')
     expect(result.length).toEqual(1)
