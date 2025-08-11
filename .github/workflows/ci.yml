@@ -378,7 +378,7 @@ jobs:
         id: playwright-version
         run: echo "PLAYWRIGHT_VERSION=$(npx playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
       - name: Playwright binary cache
-        uses: actions/cache@640a1c2554105b57832a23eea0b4672fc7a790d5
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4
         with:
           path: |
             ~/.cache/ms-playwright
@@ -443,7 +443,7 @@ jobs:
         id: playwright-version
         run: echo "PLAYWRIGHT_VERSION=$(npx playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
       - name: Playwright binary cache
-        uses: actions/cache@640a1c2554105b57832a23eea0b4672fc7a790d5
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4
         with:
           path: |
             ~/.cache/ms-playwright
@@ -496,7 +496,7 @@ jobs:
       options: --user root
     steps:
       - name: Checkout repository
-        uses: actions/checkout@09d2acae674a48949e3602304ab46fd20ae0c42f
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(npx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Build
@@ -720,7 +720,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@09d2acae674a48949e3602304ab46fd20ae0c42f
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - name: Build @scalar/galaxy
         uses: ./.github/actions/build-blacksmith
         with:
@@ -728,7 +728,7 @@ jobs:
           packages: '@scalar/galaxy...'
       - name: Check whether there's a new version of @scalar/galaxy
         id: changed-files
-        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94
+        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
         with:
           files_yaml: |
             galaxy:
