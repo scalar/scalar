@@ -1,7 +1,7 @@
 import { Type, type TSchema } from '@sinclair/typebox'
 import { ExternalDocumentationObjectSchema } from './external-documentation'
 import { ParameterObjectSchema } from './parameter'
-import { ReferenceObjectSchema } from './reference'
+import { reference, ReferenceObjectSchema, type ReferenceType } from './reference'
 import { RequestBodyObjectSchema } from './request-body'
 import { ResponsesObjectSchema } from './responses'
 import { SecurityRequirementObjectSchema } from './security-requirement'
@@ -31,9 +31,9 @@ export const operationObjectSchemaBuilder = <C extends TSchema>(callback: C) =>
         /** Unique string used to identify the operation. The id MUST be unique among all operations described in the API. The operationId value is case-sensitive. Tools and libraries MAY use the operationId to uniquely identify an operation, therefore, it is RECOMMENDED to follow common programming naming conventions. */
         operationId: Type.Optional(Type.String()),
         /** A list of parameters that are applicable for this operation. If a parameter is already defined at the Path Item, the new definition will override it but can never remove it. The list MUST NOT include duplicated parameters. A unique parameter is defined by a combination of a name and location. The list can use the Reference Object to link to parameters that are defined in the OpenAPI Object's components.parameters. */
-        parameters: Type.Optional(Type.Array(Type.Union([ParameterObjectSchema, ReferenceObjectSchema]))),
+        parameters: Type.Optional(Type.Array(Type.Union([ParameterObjectSchema, reference(ParameterObjectSchema)]))),
         /** The request body applicable for this operation. The requestBody is fully supported in HTTP methods where the HTTP 1.1 specification RFC7231 has explicitly defined semantics for request bodies. In other cases where the HTTP spec is vague (such as GET, HEAD and DELETE), requestBody is permitted but does not have well-defined semantics and SHOULD be avoided if possible. */
-        requestBody: Type.Optional(Type.Union([RequestBodyObjectSchema, ReferenceObjectSchema])),
+        requestBody: Type.Optional(Type.Union([RequestBodyObjectSchema, reference(RequestBodyObjectSchema)])),
         /** The list of possible responses as they are returned from executing this operation. */
         responses: Type.Optional(ResponsesObjectSchema),
         /** Declares this operation to be deprecated. Consumers SHOULD refrain from usage of the declared operation. Default value is false. */
@@ -43,7 +43,12 @@ export const operationObjectSchemaBuilder = <C extends TSchema>(callback: C) =>
         /** An alternative servers array to service this operation. If a servers array is specified at the Path Item Object or OpenAPI Object level, it will be overridden by this value. */
         servers: Type.Optional(Type.Array(ServerObjectSchema)),
         /** A map of possible out-of band callbacks related to the parent operation. The key is a unique identifier for the Callback Object. Each value in the map is a Callback Object that describes a request that may be initiated by the API provider and the expected responses. */
-        callbacks: Type.Optional(Type.Record(Type.String(), Type.Union([callback, ReferenceObjectSchema]))),
+        callbacks: Type.Optional(
+          Type.Record(
+            Type.String(),
+            Type.Union([callback, reference(callback) as unknown as ReferenceType<typeof callback>]),
+          ),
+        ),
       }),
       OperationExtensionsSchema,
       ExtensionsSchema,

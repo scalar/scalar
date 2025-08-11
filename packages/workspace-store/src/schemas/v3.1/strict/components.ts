@@ -10,7 +10,7 @@ import {
 } from '@sinclair/typebox'
 import { SchemaObjectSchema } from './schema'
 import { ResponseObjectSchema } from './response'
-import { ReferenceObjectSchema } from './reference'
+import { reference, type ReferenceType } from './reference'
 import { ParameterObjectSchema } from './parameter'
 import { ExampleObjectSchema } from './example'
 import { RequestBodyObjectSchema } from './request-body'
@@ -34,23 +34,35 @@ export type ComponentsObjectSchemaType = TIntersect<
       /** Schema Objects that define input and output data types. These can be objects, primitives, and arrays, and are a superset of JSON Schema Specification Draft 2020-12. */
       schemas: TOptional<TRecord<TString, typeof SchemaObjectSchema>>
       /** Response Objects that describe a single response from an API operation, including headers, content, and links. */
-      responses: TOptional<TRecord<TString, TUnion<[typeof ResponseObjectSchema, typeof ReferenceObjectSchema]>>>
+      responses: TOptional<
+        TRecord<TString, TUnion<[typeof ResponseObjectSchema, ReferenceType<typeof ResponseObjectSchema>]>>
+      >
       /** Parameter Objects that describe a single operation parameter with a unique combination of name and location (query, header, path, or cookie). */
-      parameters: TOptional<TRecord<TString, TUnion<[typeof ParameterObjectSchema, typeof ReferenceObjectSchema]>>>
+      parameters: TOptional<
+        TRecord<TString, TUnion<[typeof ParameterObjectSchema, ReferenceType<typeof ParameterObjectSchema>]>>
+      >
       /** Example Objects that group example values with metadata for demonstrating usage of properties, parameters, and objects. */
-      examples: TOptional<TRecord<TString, TUnion<[typeof ExampleObjectSchema, typeof ReferenceObjectSchema]>>>
+      examples: TOptional<
+        TRecord<TString, TUnion<[typeof ExampleObjectSchema, ReferenceType<typeof ExampleObjectSchema>]>>
+      >
       /** Request Body Objects that describe a single request body with content and optional required flag. */
-      requestBodies: TOptional<TRecord<TString, TUnion<[typeof RequestBodyObjectSchema, typeof ReferenceObjectSchema]>>>
+      requestBodies: TOptional<
+        TRecord<TString, TUnion<[typeof RequestBodyObjectSchema, ReferenceType<typeof RequestBodyObjectSchema>]>>
+      >
       /** Header Objects that describe HTTP response headers and multipart representation headers, following Parameter Object structure. */
-      headers: TOptional<TRecord<TString, TUnion<[typeof HeaderObjectSchema, typeof ReferenceObjectSchema]>>>
+      headers: TOptional<
+        TRecord<TString, TUnion<[typeof HeaderObjectSchema, ReferenceType<typeof HeaderObjectSchema>]>>
+      >
       /** Security Scheme Objects that define security mechanisms for API operations (apiKey, http, mutualTLS, oauth2, openIdConnect). */
       securitySchemes: TOptional<
-        TRecord<TString, TUnion<[typeof SecuritySchemeObjectSchema, typeof ReferenceObjectSchema]>>
+        TRecord<TString, TUnion<[typeof SecuritySchemeObjectSchema, ReferenceType<typeof SecuritySchemeObjectSchema>]>>
       >
       /** Link Objects that represent design-time links for responses, providing relationships and traversal mechanisms between operations. */
-      links: TOptional<TRecord<TString, TUnion<[typeof LinkObjectSchema, typeof ReferenceObjectSchema]>>>
+      links: TOptional<TRecord<TString, TUnion<[typeof LinkObjectSchema, ReferenceType<typeof LinkObjectSchema>]>>>
       /** Callback Objects that describe out-of-band callbacks related to parent operations, with Path Item Objects for request definitions. */
-      callbacks: TOptional<TRecord<TString, TUnion<[typeof CallbackObjectSchema, typeof ReferenceObjectSchema]>>>
+      callbacks: TOptional<
+        TRecord<TString, TUnion<[typeof CallbackObjectSchema, ReferenceType<typeof CallbackObjectSchema>]>>
+      >
       /** Path Item Objects that describe operations available on a single path, including HTTP methods and shared parameters. */
       pathItems: TOptional<TRecord<TString, typeof PathItemObjectSchema>>
     }>,
@@ -64,25 +76,76 @@ export const ComponentsObjectSchema: ComponentsObjectSchemaType = compose(
     /** An object to hold reusable Schema Objects. */
     schemas: Type.Optional(Type.Record(Type.String(), SchemaObjectSchema)),
     /** An object to hold reusable Response Objects. */
-    responses: Type.Optional(Type.Record(Type.String(), Type.Union([ResponseObjectSchema, ReferenceObjectSchema]))),
+    responses: Type.Optional(
+      Type.Record(
+        Type.String(),
+        Type.Union([
+          ResponseObjectSchema,
+          reference(ResponseObjectSchema) as ReferenceType<typeof ResponseObjectSchema>,
+        ]),
+      ),
+    ),
     /** An object to hold reusable Parameter Objects. */
-    parameters: Type.Optional(Type.Record(Type.String(), Type.Union([ParameterObjectSchema, ReferenceObjectSchema]))),
+    parameters: Type.Optional(
+      Type.Record(
+        Type.String(),
+        Type.Union([
+          ParameterObjectSchema,
+          reference(ParameterObjectSchema) as ReferenceType<typeof ParameterObjectSchema>,
+        ]),
+      ),
+    ),
     /** An object to hold reusable Example Objects. */
-    examples: Type.Optional(Type.Record(Type.String(), Type.Union([ExampleObjectSchema, ReferenceObjectSchema]))),
+    examples: Type.Optional(
+      Type.Record(
+        Type.String(),
+        Type.Union([ExampleObjectSchema, reference(ExampleObjectSchema) as ReferenceType<typeof ExampleObjectSchema>]),
+      ),
+    ),
     /** An object to hold reusable Request Body Objects. */
     requestBodies: Type.Optional(
-      Type.Record(Type.String(), Type.Union([RequestBodyObjectSchema, ReferenceObjectSchema])),
+      Type.Record(
+        Type.String(),
+        Type.Union([
+          RequestBodyObjectSchema,
+          reference(RequestBodyObjectSchema) as ReferenceType<typeof RequestBodyObjectSchema>,
+        ]),
+      ),
     ),
     /** An object to hold reusable Header Objects. */
-    headers: Type.Optional(Type.Record(Type.String(), Type.Union([HeaderObjectSchema, ReferenceObjectSchema]))),
+    headers: Type.Optional(
+      Type.Record(
+        Type.String(),
+        Type.Union([HeaderObjectSchema, reference(HeaderObjectSchema) as ReferenceType<typeof HeaderObjectSchema>]),
+      ),
+    ),
     /** An object to hold reusable Security Scheme Objects. */
     securitySchemes: Type.Optional(
-      Type.Record(Type.String(), Type.Union([SecuritySchemeObjectSchema, ReferenceObjectSchema])),
+      Type.Record(
+        Type.String(),
+        Type.Union([
+          SecuritySchemeObjectSchema,
+          reference(SecuritySchemeObjectSchema) as ReferenceType<typeof SecuritySchemeObjectSchema>,
+        ]),
+      ),
     ),
     /** An object to hold reusable Link Objects. */
-    links: Type.Optional(Type.Record(Type.String(), Type.Union([LinkObjectSchema, ReferenceObjectSchema]))),
+    links: Type.Optional(
+      Type.Record(
+        Type.String(),
+        Type.Union([LinkObjectSchema, reference(LinkObjectSchema) as ReferenceType<typeof LinkObjectSchema>]),
+      ),
+    ),
     /** An object to hold reusable Callback Objects. */
-    callbacks: Type.Optional(Type.Record(Type.String(), Type.Union([CallbackObjectSchema, ReferenceObjectSchema]))),
+    callbacks: Type.Optional(
+      Type.Record(
+        Type.String(),
+        Type.Union([
+          CallbackObjectSchema,
+          reference(CallbackObjectSchema) as ReferenceType<typeof CallbackObjectSchema>,
+        ]),
+      ),
+    ),
     /** An object to hold reusable Path Item Objects. */
     pathItems: Type.Optional(Type.Record(Type.String(), PathItemObjectSchema)),
   }),

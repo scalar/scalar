@@ -1,6 +1,6 @@
 import { compose } from '@/schemas/compose'
 import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
-import { Type, type Static } from '@sinclair/typebox'
+import { Type, type Static, type TIntersect, type TObject, type TSchema } from '@sinclair/typebox'
 
 export const ReferenceObjectExtensionsSchema = Type.Object({
   /** Indicates the current status of the reference resolution. Can be either 'loading' while fetching the reference or 'error' if the resolution failed. */
@@ -29,3 +29,15 @@ export const ReferenceObjectSchema = compose(
 )
 
 export type ReferenceObject = Static<typeof ReferenceObjectSchema>
+
+export const reference = (schema: TSchema) =>
+  Type.Intersect([ReferenceObjectSchema, Type.Object({ '$ref-value': schema })])
+
+export type ReferenceType<Schema extends TSchema> = TIntersect<
+  [
+    typeof ReferenceObjectSchema,
+    TObject<{
+      '$ref-value': Schema
+    }>,
+  ]
+>
