@@ -519,11 +519,25 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     overrides[name] = input.overrides ?? {}
 
     const strictDocument = createMagicProxy({ ...looseDocument, ...meta })
+
     // Mutate the original document wrapped in the proxy in order to preserve the original refs
     Value.Mutate(
       strictDocument,
       coerceValue(OpenAPIDocumentSchemaStrict, createMagicProxy({ ...looseDocument, ...meta })),
     )
+
+    if (strictDocument[extensions.document.navigation] === undefined) {
+      // If the document navigation is not already present, bundle the entire document to resolve all references.
+      // This typically applies when the document is not preprocessed by the server and needs local reference resolution.
+      // We need to bundle document first before we validate, so we can also validate the external references
+      await bundle(getRaw(strictDocument), {
+        treeShake: false,
+        plugins: [fetchUrls()],
+        hooks: {
+          onAfterNodeProcess,
+        },
+      })
+    }
 
     const isValid = Value.Check(OpenAPIDocumentSchemaStrict, strictDocument)
 
@@ -539,20 +553,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         ...(input.config?.['x-scalar-reference-config'] ?? {}),
         hideModels: showModels === undefined ? undefined : !showModels,
       }).entries
-
-      // If the document navigation is not already present, bundle the entire document to resolve all references.
-      // This typically applies when the document is not preprocessed by the server and needs local reference resolution.
-      await bundle(strictDocument, {
-        treeShake: false,
-        plugins: [fetchUrls()],
-        hooks: {
-          onAfterNodeProcess,
-        },
-      })
     }
 
     // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map
-    workspace.documents[name] = createOverridesProxy(createMagicProxy({ ...strictDocument, ...meta }), input.overrides)
+    workspace.documents[name] = createOverridesProxy(strictDocument, input.overrides)
   }
 
   // Asynchronously adds a new document to the workspace by loading and validating the input.

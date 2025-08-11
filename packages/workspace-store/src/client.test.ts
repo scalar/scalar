@@ -1099,8 +1099,8 @@ describe('create-workspace-store', () => {
             default: {
               openapi: '3.1.1',
               info: { title: 'My API', version: '1.0.0' },
-              'x-scalar-navigation': [],
               'x-scalar-active-server': 'server-1',
+              'x-scalar-navigation': [],
             },
             'pet-store': {
               openapi: '3.1.1',
@@ -1132,7 +1132,6 @@ describe('create-workspace-store', () => {
             default: {
               openapi: '3.1.1',
               info: { title: 'My API', version: '1.0.0' },
-              'x-scalar-active-server': 'server-1',
             },
             'pet-store': {
               openapi: '3.1.1',
@@ -1144,7 +1143,6 @@ describe('create-workspace-store', () => {
             default: {
               openapi: '3.1.1',
               info: { title: 'My API', version: '1.0.0' },
-              'x-scalar-active-server': 'server-1',
             },
             'pet-store': {
               openapi: '3.1.1',
