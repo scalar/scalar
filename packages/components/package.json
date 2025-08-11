@@ -55,6 +55,7 @@
     "@floating-ui/vue": "catalog:*",
     "@headlessui/vue": "catalog:*",
     "@scalar/code-highlight": "workspace:*",
+    "@scalar/helpers": "workspace:*",
     "@scalar/icons": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/themes": "workspace:*",

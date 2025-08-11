@@ -5,14 +5,13 @@ import {
   ScalarDropdownDivider,
   ScalarDropdownMenu,
   ScalarFloating,
+  ScalarHotkey,
   ScalarIcon,
   ScalarTooltip,
   type Icon,
 } from '@scalar/components'
 import { isMacOS } from '@scalar/helpers/general/is-mac-os'
 import { LibraryIcon } from '@scalar/icons/library'
-
-import ScalarHotkey from '@/components/ScalarHotkey.vue'
 
 defineProps<{
   hotkey?: string
