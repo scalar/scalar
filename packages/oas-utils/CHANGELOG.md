@@ -1,5 +1,20 @@
 # @scalar/oas-utils
 
+## 0.4.19
+
+### Patch Changes
+
+- 3de82ac: fix: uses document url even if it's relative
+- Updated dependencies [0d502cb]
+- Updated dependencies [0afc40c]
+- Updated dependencies [128af48]
+  - @scalar/workspace-store@0.13.0
+  - @scalar/helpers@0.0.7
+  - @scalar/object-utils@1.2.3
+  - @scalar/openapi-types@0.3.7
+  - @scalar/themes@0.13.12
+  - @scalar/types@0.2.11
+
 ## 0.4.18
 
 ### Patch Changes

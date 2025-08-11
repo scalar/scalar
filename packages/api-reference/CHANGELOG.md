@@ -1,5 +1,41 @@
 # @scalar/api-reference
 
+## 1.34.3
+
+### Patch Changes
+
+- 97f199a: fix(api-reference): path parameters not showing in request example code
+- 0d502cb: chore(workspace-store): clean up client store
+- 3de82ac: fix: uses document url even if it's relative
+- 58b9321: feat: adds scalar code block copy component
+- 2c74892: fix: x-scalar-ignore models schema displayed
+- Updated dependencies [b235392]
+- Updated dependencies [0d502cb]
+- Updated dependencies [e203e90]
+- Updated dependencies [3de82ac]
+- Updated dependencies [58b9321]
+- Updated dependencies [68e4631]
+- Updated dependencies [b1ceaab]
+- Updated dependencies [fbafeab]
+- Updated dependencies [0afc40c]
+- Updated dependencies [128af48]
+- Updated dependencies [376739d]
+  - @scalar/api-client@2.5.23
+  - @scalar/workspace-store@0.13.0
+  - @scalar/openapi-parser@0.19.1
+  - @scalar/oas-utils@0.4.19
+  - @scalar/components@0.14.24
+  - @scalar/icons@0.4.7
+  - @scalar/code-highlight@0.1.9
+  - @scalar/helpers@0.0.7
+  - @scalar/object-utils@1.2.3
+  - @scalar/openapi-types@0.3.7
+  - @scalar/snippetz@0.4.4
+  - @scalar/themes@0.13.12
+  - @scalar/types@0.2.11
+  - @scalar/use-hooks@0.2.4
+  - @scalar/use-toasts@0.8.0
+
 ## 1.34.2
 
 ### Patch Changes
