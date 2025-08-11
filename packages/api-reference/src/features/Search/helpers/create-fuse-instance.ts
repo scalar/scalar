@@ -40,10 +40,6 @@ export function createFuseInstance(): Fuse<FuseData> {
     // Include detailed match information showing which parts of the text matched
     includeMatches: true,
 
-    // Minimum number of characters that must match to be considered a result
-    // Prevents single-character matches that are usually noise
-    minMatchCharLength: 2,
-
     // Don't require matches to be at the beginning of strings
     // Makes search more flexible and user-friendly
     ignoreLocation: true,
