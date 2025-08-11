@@ -44,9 +44,9 @@ function setScope(id: string, checked: boolean) {
   }
 }
 
-const allScopesSelected = computed(() => {
-  return flow?.selectedScopes?.length === Object.keys(flow?.scopes ?? {}).length
-})
+const allScopesSelected = computed(
+  () => flow?.selectedScopes?.length === Object.keys(flow?.scopes ?? {}).length,
+)
 
 const selectAllScopes = () => {
   updateScheme(
