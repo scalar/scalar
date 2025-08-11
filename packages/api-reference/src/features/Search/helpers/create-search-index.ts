@@ -55,7 +55,7 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[]): void {
   if ('webhook' in entry) {
     index.push({
       type: 'webhook',
-      title: entry.name,
+      title: entry.title,
       href: `#${entry.id}`,
       description: 'Webhook',
       method: entry.method,

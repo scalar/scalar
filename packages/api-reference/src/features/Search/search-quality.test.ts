@@ -281,7 +281,7 @@ describe('search quality', () => {
     const result = search(query, document)
 
     expect(result[0]?.item?.type).toEqual('webhook')
-    expect(result[0]?.item?.title).toEqual('user.created')
+    expect(result[0]?.item?.title).toEqual('User created webhook')
   })
 
   it('finds webhooks by description', () => {
@@ -301,7 +301,7 @@ describe('search quality', () => {
     const result = search(query, document)
 
     expect(result[0]?.item?.type).toEqual('webhook')
-    expect(result[0]?.item?.title).toEqual('user.created')
+    expect(result[0]?.item?.title).toEqual('User created webhook')
   })
 
   it('finds tags by name', () => {
