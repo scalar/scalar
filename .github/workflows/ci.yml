@@ -728,7 +728,7 @@ jobs:
           packages: '@scalar/galaxy...'
       - name: Check whether there's a new version of @scalar/galaxy
         id: changed-files
-        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94
+        uses: step-security/changed-files@89030a259c7f36d294c5ad1184fd3ca4a76942de
         with:
           files_yaml: |
             galaxy:
