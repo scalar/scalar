@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Runtime.CompilerServices;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Lifecycle;
@@ -30,8 +31,6 @@ internal sealed class ScalarHook(IServiceProvider provider) : IDistributedApplic
 
         var serializedConfigurations = await scalarConfigurations.ToScalarConfigurationsAsync(cancellationToken).SerializeToJsonAsync(JsonSerializerOptions, cancellationToken);
 
-        // var serializedConfigurations = JsonSerializer.Serialize(configurations, JsonSerializerOptions);
-
         var scalarAspireOptions = provider.GetRequiredService<IOptions<ScalarAspireOptions>>().Value;
         var callback = new EnvironmentCallbackAnnotation(context =>
         {
@@ -46,7 +45,8 @@ internal sealed class ScalarHook(IServiceProvider provider) : IDistributedApplic
         scalarResource.Annotations.Add(callback);
     }
 
-    private static async IAsyncEnumerable<ScalarAspireOptions> CreateConfigurationsAsync(IServiceProvider serviceProvider, IEnumerable<ScalarAnnotation> annotations, CancellationToken cancellationToken)
+    
+    private static async IAsyncEnumerable<ScalarAspireOptions> CreateConfigurationsAsync(IServiceProvider serviceProvider, IEnumerable<ScalarAnnotation> annotations, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         foreach (var scalarAnnotation in annotations)
         {
