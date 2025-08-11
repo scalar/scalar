@@ -176,10 +176,6 @@
       "additionalBranchPrefix": "use-toasts"
     },
     {
-      "matchFileNames": ["packages/use-tooltip/**"],
-      "additionalBranchPrefix": "use-tooltip"
-    },
-    {
       "matchFileNames": ["packages/void-server/**"],
       "additionalBranchPrefix": "void-server"
     },
