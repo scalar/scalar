@@ -242,6 +242,10 @@
       "additionalBranchPrefix": "hono"
     },
     {
+      "matchFileNames": ["integrations/java/**"],
+      "additionalBranchPrefix": "java"
+    },
+    {
       "matchFileNames": ["integrations/nestjs/**", "examples/nestjs/**"],
       "additionalBranchPrefix": "nestjs"
     },
