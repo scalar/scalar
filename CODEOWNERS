@@ -43,7 +43,6 @@
 /integrations/express @hanspagel @marclave
 /integrations/nextjs @amritk @marclave
 /integrations/django-ninja @marclave
-# /packages/use-tooltip
 /packages/api-reference @hanspagel @marclave
 /packages/code-highlight @geoffgscott @marclave
 /integrations/fastify @hanspagel @marclave
