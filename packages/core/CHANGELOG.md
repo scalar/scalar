@@ -1,5 +1,12 @@
 # @scalar/core
 
+## 0.3.12
+
+### Patch Changes
+
+- 7dfbe9e: fix: dynamically handle function properties
+  - @scalar/types@0.2.11
+
 ## 0.3.11
 
 ### Patch Changes

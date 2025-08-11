@@ -1,5 +1,20 @@
 # @scalar/components
 
+## 0.14.24
+
+### Patch Changes
+
+- 58b9321: feat: adds scalar code block copy component
+- fbafeab: test(components): add snapshot testing to scalar components
+- Updated dependencies [3de82ac]
+- Updated dependencies [b1ceaab]
+  - @scalar/oas-utils@0.4.19
+  - @scalar/icons@0.4.7
+  - @scalar/code-highlight@0.1.9
+  - @scalar/themes@0.13.12
+  - @scalar/use-hooks@0.2.4
+  - @scalar/use-toasts@0.8.0
+
 ## 0.14.23
 
 ### Patch Changes

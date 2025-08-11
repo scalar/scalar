@@ -1,5 +1,16 @@
 # @scalar/scripts
 
+## 0.0.25
+
+### Patch Changes
+
+- a93afcc: docs(pre-post-request-scripts): fix discord badge link
+- Updated dependencies [3de82ac]
+- Updated dependencies [58b9321]
+- Updated dependencies [fbafeab]
+  - @scalar/oas-utils@0.4.19
+  - @scalar/components@0.14.24
+
 ## 0.0.24
 
 ### Patch Changes
