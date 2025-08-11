@@ -30,8 +30,7 @@ export const ReferenceObjectSchema = compose(
 
 export type ReferenceObject = Static<typeof ReferenceObjectSchema>
 
-export const reference = (schema: TSchema) =>
-  Type.Intersect([ReferenceObjectSchema, Type.Object({ '$ref-value': schema })])
+export const reference = (schema: TSchema) => compose(ReferenceObjectSchema, Type.Object({ '$ref-value': schema }))
 
 export type ReferenceType<Schema extends TSchema> = TIntersect<
   [
