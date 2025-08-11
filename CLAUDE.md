@@ -43,7 +43,6 @@ This is a Vue 3 + TypeScript monorepo for Scalar - an API documentation and test
 ### Vue Composables & Hooks
 - `@scalar/use-hooks` - Shared Vue composables and utility functions
 - `@scalar/use-toasts` - Toast notification system for Vue applications
-- `@scalar/use-tooltip` - Tooltip functionality for Vue components
 - `@scalar/draggable` - Vue wrapper around HTML drag and drop
 
 ### Code Generation & Conversion

@@ -1,4 +1,4 @@
-import { createMagicProxy } from './proxy'
+import { createMagicProxy, getRaw } from './proxy'
 import { describe, expect, it } from 'vitest'
 
 describe('createMagicProxy', () => {
@@ -285,6 +285,34 @@ describe('createMagicProxy', () => {
 
       expect(result.f['$ref-value'].g).toBe('world')
       expect(input.a.b.c.d.g).toBe('world')
+    })
+
+    it('correctly writes on the referenced value', () => {
+      const input = {
+        a: {
+          b: {
+            hello: 'hi',
+          },
+        },
+        c: {
+          $ref: '#/a/b',
+        },
+      }
+
+      const proxied = createMagicProxy(input)
+
+      proxied.c['$ref-value'].hello = 'new value'
+
+      expect(input).toEqual({
+        a: {
+          b: {
+            hello: 'new value',
+          },
+        },
+        c: {
+          $ref: '#/a/b',
+        },
+      })
     })
   })
 
@@ -993,6 +1021,29 @@ describe('createMagicProxy', () => {
       const keys = Object.keys(result.b)
 
       expect(keys).toEqual(['$ref', 'getterProp', '$ref-value'])
+    })
+  })
+
+  describe('getRaw', () => {
+    it('should get the raw version of the document', () => {
+      const input = {
+        a: 'hello',
+        b: {
+          $ref: '#/a',
+        },
+      }
+
+      const proxied = createMagicProxy(input)
+
+      expect(proxied).toEqual({
+        a: 'hello',
+        b: {
+          $ref: '#/a',
+          '$ref-value': 'hello',
+        },
+      })
+
+      expect(getRaw(proxied)).toEqual(input)
     })
   })
 })

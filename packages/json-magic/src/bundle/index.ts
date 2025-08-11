@@ -1,2 +1,3 @@
 // biome-ignore lint/performance/noBarrelFile: <explanation>
-export { bundle, type Plugin, type ResolveResult } from './bundle'
+export { bundle } from './bundle'
+export type { Plugin, LoaderPlugin, LifecyclePlugin, ResolveResult } from './bundle'

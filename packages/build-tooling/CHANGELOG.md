@@ -1,5 +1,11 @@
 # @scalar/build-tooling
 
+## 0.2.5
+
+### Patch Changes
+
+- 4502b11: Move to .js bin scripts to avoid vite-node conflicts
+
 ## 0.2.4
 
 ### Patch Changes

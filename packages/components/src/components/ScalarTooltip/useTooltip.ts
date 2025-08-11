@@ -65,8 +65,10 @@ watch(
     }
 
     if (opts) {
+      const contentTarget = unref(opts?.contentTarget) ?? 'textContent'
+
       // Update the tooltip content
-      el.value.textContent = unref(opts?.content) ?? null
+      el.value[contentTarget] = unref(opts?.content) ?? ''
 
       // Show the tooltip
       const offset = unref(opts?.offset) ?? DEFAULT_OFFSET
@@ -74,7 +76,7 @@ watch(
       el.value.style.setProperty('display', 'block')
     } else {
       // Clear the tooltip content
-      el.value.textContent = null
+      el.value.innerHTML = ''
 
       // Hide the tooltip
       el.value.style.removeProperty('--scalar-tooltip-offset')
@@ -175,11 +177,27 @@ function clearTimer() {
   }
 }
 
+/** Get all the parents of an element */
+function getAllParents(el: Element): Element[] {
+  const parents: Element[] = []
+  let parent = el.parentElement
+  while (parent) {
+    parents.push(parent)
+    parent = parent.parentElement
+  }
+  return parents
+}
+
 /** Check if mouse moved off the target but onto the tooltip */
 function isMovingOffElements(e: Event): boolean {
   const target = unref(config.value?.targetRef)
   if (e instanceof MouseEvent && e.relatedTarget instanceof Element && target) {
-    return e.relatedTarget.id !== ELEMENT_ID && e.relatedTarget !== target
+    const relatedTargetParents = getAllParents(e.relatedTarget)
+    return (
+      e.relatedTarget.id !== ELEMENT_ID &&
+      !relatedTargetParents.some((parent) => parent.id === ELEMENT_ID) &&
+      e.relatedTarget !== target
+    )
   }
   return true
 }

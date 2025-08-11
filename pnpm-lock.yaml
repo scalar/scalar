@@ -1175,9 +1175,6 @@ importers:
       '@scalar/use-toasts':
         specifier: workspace:*
         version: link:../use-toasts
-      '@scalar/use-tooltip':
-        specifier: workspace:*
-        version: link:../use-tooltip
       '@types/har-format':
         specifier: ^1.2.15
         version: 1.2.15
@@ -1692,6 +1689,9 @@ importers:
       '@scalar/code-highlight':
         specifier: workspace:*
         version: link:../code-highlight
+      '@scalar/helpers':
+        specifier: workspace:*
+        version: link:../helpers
       '@scalar/icons':
         specifier: workspace:*
         version: link:../icons
@@ -1938,6 +1938,9 @@ importers:
 
   packages/json-magic:
     dependencies:
+      '@scalar/helpers':
+        specifier: workspace:*
+        version: link:../helpers
       vue:
         specifier: catalog:*
         version: 3.5.17(typescript@5.8.3)
@@ -2589,19 +2592,6 @@ importers:
       vitest:
         specifier: catalog:*
         version: 3.2.4(@types/debug@4.1.12)(@types/node@22.15.3)(jiti@2.4.2)(jsdom@25.0.1)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
-
-  packages/use-tooltip:
-    dependencies:
-      tippy.js:
-        specifier: ^6.3.7
-        version: 6.3.7
-    devDependencies:
-      '@scalar/build-tooling':
-        specifier: workspace:*
-        version: link:../build-tooling
-      vue:
-        specifier: catalog:*
-        version: 3.5.17(typescript@5.8.3)
 
   packages/void-server:
     dependencies:
@@ -7730,9 +7720,6 @@ packages:
 
   '@polka/url@1.0.0-next.25':
     resolution: {integrity: sha512-j7P6Rgr3mmtdkeDGTe0E/aYyWEWVtc5yFXtHCRHs28/jptDEWfaVOc5T7cblqy1XKPPfCxJc/8DwQ5YgLOZOVQ==}
-
-  '@popperjs/core@2.11.8':
-    resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
 
   '@poppinss/colors@4.1.5':
     resolution: {integrity: sha512-FvdDqtcRCtz6hThExcFOgW0cWX+xwSMWcRuQe5ZEb2m7cVQOAVZOIMt+/v9RxGiD9/OY16qJBXK4CVKWAPalBw==}
@@ -19035,9 +19022,6 @@ packages:
     resolution: {integrity: sha512-t2T/WLB2WRgZ9EpE4jgPJ9w+i66UZfDc8wHh0xrwiRNN+UwH98GIJkTeZqX9rg0i0ptwzqW+uYeIF0T4F8LR7A==}
     engines: {node: '>=14.0.0'}
 
-  tippy.js@6.3.7:
-    resolution: {integrity: sha512-E1d3oP2emgJ9dRQZdf3Kkn0qJgI6ZLpyS5z6ZkY1DF3kaQaBsGZsndEpHwx+eC+tYM41HaSNvNtLx8tU57FzTQ==}
-
   tldts-core@6.1.61:
     resolution: {integrity: sha512-In7VffkDWUPgwa+c9picLUxvb0RltVwTkSgMNFgvlGSWveCzGBemBqTsgJCL4EDFWZ6WH0fKTsot6yNhzy3ZzQ==}
 
@@ -27426,8 +27410,6 @@ snapshots:
       config-chain: 1.1.13
 
   '@polka/url@1.0.0-next.25': {}
-
-  '@popperjs/core@2.11.8': {}
 
   '@poppinss/colors@4.1.5':
     dependencies:
@@ -42273,10 +42255,6 @@ snapshots:
   tinyspy@2.2.1: {}
 
   tinyspy@4.0.3: {}
-
-  tippy.js@6.3.7:
-    dependencies:
-      '@popperjs/core': 2.11.8
 
   tldts-core@6.1.61: {}
 

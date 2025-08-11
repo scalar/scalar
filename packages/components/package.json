@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/components"
   },
-  "version": "0.14.23",
+  "version": "0.14.24",
   "engines": {
     "node": ">=20"
   },
@@ -55,6 +55,7 @@
     "@floating-ui/vue": "catalog:*",
     "@headlessui/vue": "catalog:*",
     "@scalar/code-highlight": "workspace:*",
+    "@scalar/helpers": "workspace:*",
     "@scalar/icons": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/themes": "workspace:*",

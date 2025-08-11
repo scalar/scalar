@@ -1,6 +1,6 @@
 import { normalize } from '@/utils/normalize'
 import { createLimiter } from '@/bundle/create-limiter'
-import type { Plugin, ResolveResult } from '@/bundle'
+import type { LoaderPlugin, ResolveResult } from '@/bundle'
 import { isRemoteUrl } from '@/bundle/bundle'
 
 type FetchConfig = Partial<{
@@ -83,11 +83,12 @@ export async function fetchUrl(
  *   const result = await urlPlugin.exec('https://example.com/schema.json')
  * }
  */
-export function fetchUrls(config?: FetchConfig & Partial<{ limit: number | null }>): Plugin {
+export function fetchUrls(config?: FetchConfig & Partial<{ limit: number | null }>): LoaderPlugin {
   // If there is a limit specified we limit the number of concurrent calls
   const limiter = config?.limit ? createLimiter(config.limit) : <T>(fn: () => Promise<T>) => fn()
 
   return {
+    type: 'loader',
     validate: isRemoteUrl,
     exec: (value) => fetchUrl(value, limiter, config),
   }

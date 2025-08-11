@@ -176,10 +176,6 @@
       "additionalBranchPrefix": "use-toasts"
     },
     {
-      "matchFileNames": ["packages/use-tooltip/**"],
-      "additionalBranchPrefix": "use-tooltip"
-    },
-    {
       "matchFileNames": ["packages/void-server/**"],
       "additionalBranchPrefix": "void-server"
     },
@@ -240,6 +236,10 @@
     {
       "matchFileNames": ["integrations/hono/**"],
       "additionalBranchPrefix": "hono"
+    },
+    {
+      "matchFileNames": ["integrations/java/**"],
+      "additionalBranchPrefix": "java"
     },
     {
       "matchFileNames": ["integrations/nestjs/**", "examples/nestjs/**"],

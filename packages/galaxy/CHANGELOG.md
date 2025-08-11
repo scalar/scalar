@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.5.6
+
+### Patch Changes
+
+- 525b7d7: feat: publish @scalar/galaxy in the Scalar Registry
+
 ## 0.5.5
 
 ### Patch Changes

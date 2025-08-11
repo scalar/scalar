@@ -4,6 +4,7 @@ import {
   ScalarDropdownButton,
   ScalarDropdownMenu,
   ScalarFloating,
+  ScalarHotkey,
   ScalarIcon,
   type Icon,
 } from '@scalar/components'
@@ -13,7 +14,6 @@ import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import { ROUTES } from '@/constants'
 import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
