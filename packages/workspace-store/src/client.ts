@@ -682,7 +682,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               name,
               // Extract the raw document data for export, removing any Vue reactivity wrappers.
               // When importing, the document can be wrapped again in a magic proxy.
-              createOverridesProxy(getRaw(doc), overrides[name]),
+              getRaw(doc),
             ]),
           ),
         },
@@ -699,7 +699,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // Assign the magic proxy to the documents
       safeAssign(
         workspace.documents,
-        Object.fromEntries(Object.entries(result.documents).map(([name, doc]) => [name, createMagicProxy(doc)])),
+        Object.fromEntries(
+          Object.entries(result.documents).map(([name, doc]) => [
+            name,
+            createOverridesProxy(createMagicProxy(doc), result.overrides[name]),
+          ]),
+        ),
       )
 
       safeAssign(originalDocuments, result.originalDocuments)
