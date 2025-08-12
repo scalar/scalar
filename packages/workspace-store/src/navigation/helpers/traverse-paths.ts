@@ -73,7 +73,7 @@ export const traversePaths = (
 ) => {
   // Traverse paths
   Object.entries(content.paths ?? {}).forEach(([path, pathItem]) => {
-    const pathEntries = Object.entries(pathItem ?? {}).filter((it) => methods.has(it[0]))
+    const pathEntries = Object.entries(pathItem ?? {}).filter((it) => methods.has(it[0])) as [string, OperationObject][]
 
     // Traverse operations
     pathEntries.forEach(([method, operation]) => {
