@@ -23,7 +23,7 @@ plugins: [
       route: '/scalar',
       showNavLink: true, // optional, default is true
       configuration: {
-        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+        url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=yaml',
       },
     } as ScalarOptions,
   ],
@@ -50,7 +50,7 @@ plugins: [
       route: '/scalar',
       showNavLink: true, // optional, default is true
       configuration: {
-        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+        url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
       },
     } as ScalarOptions,
   ],
@@ -161,7 +161,7 @@ const config = {
         route: '/scalar',
         configuration: {
           // Put the URL to your OpenAPI document here:
-          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+          url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
         },
       },
     ],
@@ -192,7 +192,7 @@ const config: Config = {
         route: '/scalar',
         configuration: {
           // Put the URL to your OpenAPI document here:
-          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+          url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
         },
       } as ScalarOptions,
     ],

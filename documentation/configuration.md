@@ -87,7 +87,7 @@ Scalar.createApiReference('#app', {
     {
       title: 'Scalar Galaxy', // optional, would fallback to 'API #1'
       slug: 'scalar-galaxy', // optional, would be auto-generated from the title or the index
-      url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+      url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
     },
     // API #2
     {
@@ -109,7 +109,7 @@ Scalar.createApiReference('#app', {
   sources: [
     // API #1
     {
-      url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+      url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
     },
     // API #2
     {
@@ -133,7 +133,7 @@ Scalar.createApiReference('#app', [
   {
     title: 'Scalar Galaxy', // optional, would fallback to 'API #1'
     slug: 'scalar-galaxy', // optional, would be auto-generated from the title or the index
-    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+    url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
     customCss: `body { background-color: #BADA55}`
   },
   // Configuration #2
@@ -154,7 +154,7 @@ By default, the first one in the list will be the default configuration. You can
 ```ts
 Scalar.createApiReference('#app', [
   {
-    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+    url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
   },
   {
     url: 'https://example.com/openapi.json',
@@ -180,7 +180,7 @@ Scalar.createApiReference('#app', [
     sources: [
       // API #1
       {
-        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+        url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
       },
       // API #2
       {

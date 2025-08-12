@@ -345,7 +345,7 @@ await fastify.register(ScalarApiReference, {
     // On your domain:
     url: '/openapi.json',
     // Or somewhere else:
-    // url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+    // url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=yaml',
   },
 })
 ```

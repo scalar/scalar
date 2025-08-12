@@ -59,7 +59,7 @@ import { createApiClientApp } from '@/App'
 
 // Initialize
 await createApiClientApp(document.getElementById('scalar-client'), {
-  url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+  url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
   proxyUrl: 'https://proxy.scalar.com',
 })
 ```
@@ -76,7 +76,7 @@ import { createApiClientApp } from '@/App'
 const { open } = await createApiClientApp(
   document.getElementById('scalar-client'),
   {
-    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+    url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
     proxyUrl: 'https://proxy.scalar.com',
   },
 )
