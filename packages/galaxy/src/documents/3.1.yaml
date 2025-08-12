@@ -332,6 +332,7 @@ paths:
       summary: Create a celestial body
       operationId: createCelestialBody
       requestBody:
+        description: Celestial body to create
         required: true
         content:
           application/json:
@@ -587,16 +588,6 @@ components:
         format: int64
         examples:
           - 1
-    satelliteId:
-      name: satelliteId
-      description: The ID of the satellite to get
-      in: path
-      required: true
-      schema:
-        type: integer
-        format: int64
-        examples:
-          - 1
     limit:
       name: limit
       description: The number of items to return
@@ -659,11 +650,6 @@ components:
       schema:
         type: string
         example: 'max-age=3600, public'
-    Content-Length:
-      description: The length of the response body in bytes
-      schema:
-        type: integer
-        example: 1024
     ETag:
       description: Entity tag for caching
       schema:
@@ -1266,3 +1252,25 @@ components:
           type: string
           examples:
             - The request was invalid.
+    TooManyRequestsError:
+      x-scalar-ignore: true
+      description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
+      type: object
+      properties:
+        type:
+          type: string
+          examples:
+            - https://example.com/errors/too-many-requests
+        title:
+          type: string
+          examples:
+            - Too Many Requests
+        status:
+          type: integer
+          format: int64
+          examples:
+            - 429
+        detail:
+          type: string
+          examples:
+            - Rate limit exceeded. Please try again later.
