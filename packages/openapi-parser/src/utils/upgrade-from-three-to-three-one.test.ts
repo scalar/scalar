@@ -398,6 +398,7 @@ describe('upgradeFromThreeToThreeOne', () => {
                         },
                         fileName: {
                           type: 'string',
+                          description: 'The file name',
                           format: 'binary',
                         },
                       },
@@ -419,6 +420,7 @@ describe('upgradeFromThreeToThreeOne', () => {
             },
             fileName: {
               type: 'string',
+              description: 'The file name',
               contentMediaType: 'application/octet-stream',
             },
           },
