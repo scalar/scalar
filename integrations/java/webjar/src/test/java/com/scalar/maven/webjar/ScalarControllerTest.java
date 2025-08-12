@@ -36,7 +36,7 @@ class ScalarControllerTest {
         @DisplayName("should return HTML with default configuration when URL is not specified")
         void shouldReturnHtmlWithDefaultConfiguration() throws Exception {
             // Given
-            when(properties.getUrl()).thenReturn("https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json");
+            when(properties.getUrl()).thenReturn("https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json");
 
             // When
             ResponseEntity<String> response = controller.getDocs();
