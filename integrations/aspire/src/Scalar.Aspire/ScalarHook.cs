@@ -34,7 +34,7 @@ internal sealed class ScalarHook(IServiceProvider provider) : IDistributedApplic
 
         var serializedConfigurations = await scalarConfigurations.ToScalarConfigurationsAsync(cancellationToken).SerializeToJsonAsync(JsonSerializerOptions, cancellationToken);
 
-        var scalarAspireOptions = provider.GetRequiredService<IOptions<ScalarAspireOptions>>().Value;
+        var scalarAspireOptions = provider.GetRequiredService<IOptionsMonitor<ScalarAspireOptions>>().Get(scalarResource.Name);
         var callback = new EnvironmentCallbackAnnotation(context =>
         {
             var environmentVariables = context.EnvironmentVariables;
@@ -56,7 +56,7 @@ internal sealed class ScalarHook(IServiceProvider provider) : IDistributedApplic
 
 
             using var scope = serviceProvider.CreateScope();
-            var scalarAspireOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<ScalarAspireOptions>>().Value;
+            var scalarAspireOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<ScalarAspireOptions>>().Get(resourceName);
             if (scalarAnnotation.ConfigureOptions is not null)
             {
                 await scalarAnnotation.ConfigureOptions.Invoke(scalarAspireOptions, cancellationToken);

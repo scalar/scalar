@@ -47,7 +47,7 @@ public static class DistributedApplicationBuilderExtensions
     {
         if (configureOptions is not null)
         {
-            builder.Services.Configure(configureOptions);
+            builder.Services.Configure(name, configureOptions);
         }
 
         builder.Services.TryAddLifecycleHook<ScalarHook>();
