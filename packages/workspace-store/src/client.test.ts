@@ -966,6 +966,59 @@ describe('create-workspace-store', () => {
     )
   })
 
+  it('ingress documents with circular references', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'default',
+      document: {
+        openapi: '3.0.1',
+        info: {
+          title: 'API with Circular Dependencies',
+          version: '1.0.0',
+        },
+        components: {
+          schemas: {
+            Base: {
+              required: ['Type'],
+              type: 'object',
+              anyOf: [{ $ref: '#/components/schemas/Derived1' }, { $ref: '#/components/schemas/Derived2' }],
+              discriminator: {
+                propertyName: 'Type',
+                mapping: {
+                  Value1: '#/components/schemas/Derived1',
+                  Value2: '#/components/schemas/Derived2',
+                },
+              },
+            },
+            Derived1: {
+              properties: {
+                Type: {
+                  enum: ['Value1'],
+                  type: 'string',
+                },
+              },
+            },
+            Derived2: {
+              required: ['Ref'],
+              properties: {
+                Type: {
+                  enum: ['Value2'],
+                  type: 'string',
+                },
+                Ref: {
+                  $ref: '#/components/schemas/Base',
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    expect(store.exportDocument('default', 'json')).toBe(
+      '{"openapi":"3.1.1","info":{"title":"API with Circular Dependencies","version":"1.0.0"},"components":{"schemas":{"Base":{"required":["Type"],"type":"object","anyOf":[{"$ref":"#/components/schemas/Derived1"},{"$ref":"#/components/schemas/Derived2"}],"discriminator":{"propertyName":"Type","mapping":{"Value1":"#/components/schemas/Derived1","Value2":"#/components/schemas/Derived2"}}},"Derived1":{"properties":{"Type":{"enum":["Value1"],"type":"string"}}},"Derived2":{"required":["Ref"],"properties":{"Type":{"enum":["Value2"],"type":"string"},"Ref":{"$ref":"#/components/schemas/Base"}}}}}}',
+    )
+  })
+
   describe('download original document', () => {
     it('gets the original document from the store json', async () => {
       const store = createWorkspaceStore()
