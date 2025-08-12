@@ -46,7 +46,7 @@ internal sealed class ScalarHook(IServiceProvider provider) : IDistributedApplic
     }
 
 
-    private static async IAsyncEnumerable<ScalarAspireOptions> CreateConfigurationsAsync(IServiceProvider serviceProvider, IEnumerable<ScalarAnnotation> annotations, [EnumeratorCancellation] CancellationToken cancellationToken)
+    private static async IAsyncEnumerable<ScalarOptions> CreateConfigurationsAsync(IServiceProvider serviceProvider, IEnumerable<ScalarAnnotation> annotations, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         foreach (var scalarAnnotation in annotations)
         {
