@@ -183,7 +183,7 @@ const dataTableInputProps = {
         :aria-label="scheme.description"
         class="text-c-2 auth-description-container relative outline-none">
         <ScalarMarkdown
-          class="auth-description bg-b-1 text-c-2 outline-b-3 top-0 right-0 left-0 z-1 line-clamp-1 h-auto w-full border border-transparent px-3 py-1.25 text-ellipsis hover:absolute hover:z-10 hover:line-clamp-none hover:rounded-b-lg hover:shadow-lg"
+          class="auth-description bg-b-1 text-c-2 top-0 right-0 left-0 z-1 line-clamp-1 h-auto w-full px-3 py-1 text-ellipsis hover:absolute hover:line-clamp-none"
           :value="scheme.description" />
       </DataTableCell>
     </DataTableRow>
