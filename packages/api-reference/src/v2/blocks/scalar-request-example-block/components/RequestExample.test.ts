@@ -619,7 +619,7 @@ describe('RequestExample', () => {
           ...defaultProps,
           operation: {
             summary: 'Referenced operation',
-            requestBody: { $ref: '#/components/requestBodies/TestBody' },
+            requestBody: { $ref: '#/components/requestBodies/TestBody', '$ref-value': undefined },
           },
         },
       })
