@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, inject, onMounted, type Ref } from 'vue'
 
 import { Badge } from '@/components/Badge'
@@ -24,7 +24,7 @@ import { useNavState } from '@/hooks/useNavState'
 import Description from './Description.vue'
 
 const { document, config } = defineProps<{
-  document: OpenAPIV3_1.Document
+  document: OpenApiDocument
   config?: ApiReferenceConfiguration
 }>()
 

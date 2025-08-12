@@ -35,16 +35,13 @@ const clientOptions = computed(() =>
 
     <!-- Introduction -->
     <Introduction
-      v-if="document?.info?.title || document?.info?.description"
-      :document
       :store
       :clientOptions
-      :config />
-
-    <!-- Empty State -->
-    <slot
-      v-else
-      name="empty-state" />
+      :config>
+      <template #empty-state>
+        <slot name="empty-state" />
+      </template>
+    </Introduction>
 
     <!-- Loop on traversed entries -->
     <TraversedEntryContainer

@@ -3,7 +3,6 @@ import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import { RequestAuth } from '@scalar/api-client/views/Request/RequestSection/RequestAuth'
 import { ScalarErrorBoundary } from '@scalar/components'
 import { getSlugUid } from '@scalar/oas-utils/transforms'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { computed } from 'vue'
@@ -16,8 +15,7 @@ import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block
 import { ClientLibraries } from '../ClientLibraries'
 import IntroductionSection from './IntroductionSection.vue'
 
-const { config } = defineProps<{
-  document: OpenAPIV3_1.Document
+const { config, store } = defineProps<{
   config?: ApiReferenceConfiguration
   clientOptions: ClientOptionGroup[]
   store: WorkspaceStore
@@ -65,12 +63,19 @@ const introCardsSlot = computed(() =>
 const { hash } = useNavState()
 </script>
 <template>
+  <!-- Empty State -->
+  <slot
+    v-if="!store.workspace.activeDocument"
+    name="empty-state" />
+
+  <!-- Introduction -->
   <Lazy
+    v-else
     id="introduction-card"
     prev
     :isLazy="Boolean(hash) && !hash.startsWith('description')">
     <IntroductionSection
-      :document="document"
+      :document="store.workspace.activeDocument"
       :config="config">
       <template #[introCardsSlot]>
         <ScalarErrorBoundary>
