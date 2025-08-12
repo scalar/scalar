@@ -3,7 +3,7 @@ import { apply, diff, type Difference } from '@scalar/json-magic/diff'
 
 // Keys to exclude from the diff - these are metadata fields that should not be persisted
 // when applying updates to the original document
-const excludeKeys = new Set(['x-scalar-navigation', 'x-ext', 'x-ext-urls', '$ref', '$status'])
+const excludeKeys = new Set(['x-scalar-navigation', 'x-ext', 'x-ext-urls', '$status'])
 
 /**
  * Applies updates from an updated document to an original document, while excluding changes to certain metadata keys.

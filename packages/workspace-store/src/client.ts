@@ -4,7 +4,7 @@ import { upgrade } from '@scalar/openapi-parser'
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 
 import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
-import { deepClone, isObject, safeAssign } from '@/helpers/general'
+import { deepClone, isObject, safeAssign, type UnknownObject } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
 import { createNavigation } from '@/navigation'
@@ -22,7 +22,7 @@ import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
 import { apply, diff, merge, type Difference } from '@scalar/json-magic/diff'
 import type { TraverseSpecOptions } from '@/navigation/types'
 import type { PartialDeep, RequiredDeep } from 'type-fest'
-import { externalValueResolver, loadingStatus, refsEverywhere } from '@/plugins'
+import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
 
 type DocumentConfiguration = Config &
   PartialDeep<{
@@ -258,7 +258,7 @@ export type WorkspaceStore = {
    * // Save the current state of the document named 'api'
    * const excludedDiffs = store.saveDocument('api')
    */
-  saveDocument(documentName: string): unknown[] | undefined
+  saveDocument(documentName: string): Promise<unknown[] | undefined>
   /**
    * Restores the specified document to its last locally saved state.
    *
@@ -447,7 +447,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   // applies its changes to the corresponding entry in the `intermediateDocuments` map.
   // The `intermediateDocuments` map represents the most recently "saved" local version of the document,
   // which may include edits not yet synced to the remote registry.
-  function saveDocument(documentName: string) {
+  async function saveDocument(documentName: string) {
     const intermediateDocument = intermediateDocuments[documentName]
     const workspaceDocument = workspace.documents[documentName]
 
@@ -463,8 +463,15 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return
     }
 
+    // Traverse the document and convert refs back to the original shape
+    const updatedWithOriginalRefs = await bundle(deepClone(updatedDocument), {
+      plugins: [restoreOriginalRefs()],
+      treeShake: false,
+      urlMap: true,
+    })
+
     // Apply changes from the current document to the intermediate document in place
-    const excludedDiffs = applySelectiveUpdates(intermediateDocument, updatedDocument)
+    const excludedDiffs = applySelectiveUpdates(intermediateDocument, updatedWithOriginalRefs as UnknownObject)
     return excludedDiffs
   }
 
@@ -505,6 +512,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       await bundle(document, {
         treeShake: false,
         plugins: [fetchUrls(), externalValueResolver(), refsEverywhere()],
+        urlMap: true,
       })
     }
 
@@ -618,7 +626,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         root: activeDocument,
         treeShake: false,
         plugins: [fetchUrls(), loadingStatus(), externalValueResolver()],
-        urlMap: false,
+        urlMap: true,
         visitedNodes: visitedNodesCache,
       })
     },
@@ -644,6 +652,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     },
     saveDocument,
     revertDocumentChanges(documentName: string) {
+      // TODO: same ass add document
       const workspaceDocument = workspace.documents[documentName]
 
       if (!workspaceDocument) {

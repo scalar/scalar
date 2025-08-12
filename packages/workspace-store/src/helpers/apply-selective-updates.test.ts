@@ -85,56 +85,6 @@ describe('applySelectiveUpdates', () => {
     ])
   })
 
-  it('should not update refs', () => {
-    const [result, excludedDiffs] = applySelectiveUpdates(
-      {
-        a: 1,
-        b: {
-          c: 2,
-          d: 3,
-          e: {
-            $ref: 'http://example.com/some-ref',
-          },
-        },
-      },
-      {
-        a: 0,
-        b: {
-          c: 2,
-          d: 5,
-          e: {
-            $ref: '#/definitions/internal-ref',
-            $status: 'loading',
-          },
-        },
-      },
-    )
-
-    expect(result).toEqual({
-      a: 0,
-      b: {
-        c: 2,
-        d: 5,
-        e: {
-          $ref: 'http://example.com/some-ref',
-        },
-      },
-    })
-
-    expect(excludedDiffs).toEqual([
-      {
-        changes: '#/definitions/internal-ref',
-        path: ['b', 'e', '$ref'],
-        type: 'update',
-      },
-      {
-        changes: 'loading',
-        path: ['b', 'e', '$status'],
-        type: 'add',
-      },
-    ])
-  })
-
   it('should skip navigation properties', () => {
     const [result, excludedDiffs] = applySelectiveUpdates(
       {

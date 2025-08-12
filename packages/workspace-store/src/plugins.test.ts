@@ -1,4 +1,5 @@
-import { externalValueResolver, loadingStatus, refsEverywhere } from '@/plugins'
+import { deepClone } from '@/helpers/general'
+import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
 import { bundle } from '@scalar/json-magic/bundle'
 import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
 import { fastify, type FastifyInstance } from 'fastify'
@@ -229,6 +230,59 @@ describe('plugins', () => {
           'c766ed8': {
             description: 'Some description',
           },
+        },
+      })
+    })
+  })
+
+  describe('restoreOriginalRefs', async () => {
+    let server: FastifyInstance
+    const port = 9988
+    const url = `http://localhost:${port}`
+
+    beforeEach(() => {
+      server = fastify({ logger: false })
+    })
+
+    afterEach(async () => {
+      await server.close()
+      await setTimeout(100)
+    })
+
+    it('restores the original references', { timeout: 100000 }, async () => {
+      server.get('/', () => ({ description: 'Some resolved value' }))
+      await server.listen({ port })
+
+      const originalInput = {
+        a: 'a',
+        b: {
+          $ref: url,
+        },
+      }
+
+      const input = deepClone(originalInput)
+
+      await bundle(input, {
+        plugins: [fetchUrls()],
+        treeShake: false,
+        urlMap: true,
+      })
+
+      await bundle(input, {
+        treeShake: false,
+        urlMap: true,
+        plugins: [restoreOriginalRefs()],
+      })
+
+      expect(input).toEqual({
+        ...originalInput,
+        'x-ext': {
+          'c766ed8': {
+            'description': 'Some resolved value',
+          },
+        },
+        'x-ext-urls': {
+          'c766ed8': 'http://localhost:9988',
         },
       })
     })

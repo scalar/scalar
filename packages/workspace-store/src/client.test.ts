@@ -161,6 +161,7 @@ describe('create-workspace-store', () => {
       'x-scalar-active-auth': 'Bearer',
       'x-scalar-active-server': 'server-1',
       'x-scalar-navigation': [],
+      'x-ext-urls': {},
     })
   })
 
@@ -183,6 +184,7 @@ describe('create-workspace-store', () => {
       },
       openapi: '3.1.1',
       'x-scalar-navigation': [],
+      'x-ext-urls': {},
     })
   })
 
@@ -548,6 +550,7 @@ describe('create-workspace-store', () => {
           type: 'text',
         },
       ],
+      'x-ext-urls': {},
     })
   })
 
@@ -702,6 +705,9 @@ describe('create-workspace-store', () => {
           },
         },
       },
+      'x-ext-urls': {
+        'c766ed8': 'http://localhost:9988',
+      },
       'x-scalar-navigation': [],
     })
   })
@@ -844,6 +850,7 @@ describe('create-workspace-store', () => {
           type: 'text',
         },
       ],
+      'x-ext-urls': {},
     })
   })
 
@@ -940,7 +947,7 @@ describe('create-workspace-store', () => {
       }
 
       // Write the changes back to the original document
-      store.saveDocument('api-3')
+      await store.saveDocument('api-3')
 
       // Should return the original document without any modifications
       expect(store.exportDocument('api-1', 'json')).toBe(
@@ -987,7 +994,7 @@ describe('create-workspace-store', () => {
       }
 
       // Write the changes back to the original document
-      store.saveDocument('default')
+      await store.saveDocument('default')
 
       // Should return the updated document without any extensions
       expect(store.exportDocument('default', 'json')).toEqual(
@@ -1100,6 +1107,7 @@ describe('create-workspace-store', () => {
               openapi: '3.1.1',
               info: { title: 'My API', version: '1.0.0' },
               'x-scalar-navigation': [],
+              'x-ext-urls': {},
               'x-scalar-active-server': 'server-1',
             },
             'pet-store': {
@@ -1116,6 +1124,7 @@ describe('create-workspace-store', () => {
                   type: 'operation',
                 },
               ],
+              'x-ext-urls': {},
             },
           },
           meta: {
@@ -1340,7 +1349,7 @@ describe('create-workspace-store', () => {
       expect(defaultDocument.info.version).toBe('2.0.0')
       expect(defaultDocument.openapi).toBe('3.1.1')
 
-      store.saveDocument('default')
+      await store.saveDocument('default')
       expect(store.exportDocument('default', 'json')).toBe(
         '{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"}}',
       )
@@ -1372,7 +1381,7 @@ describe('create-workspace-store', () => {
       expect(defaultDocument.info.version).toBe('2.0.0')
       expect(defaultDocument.openapi).toBe('3.1.1')
 
-      store.saveDocument('default')
+      await store.saveDocument('default')
       const exported = store.exportWorkspace()
 
       // Create a new store and load the exported workspace
@@ -1454,7 +1463,7 @@ describe('create-workspace-store', () => {
       })
 
       expect(store.exportWorkspace()).toBe(
-        '{"documents":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}},"x-scalar-navigation":[{"id":"Get all users","title":"Get all users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation"},{"id":"","title":"Models","children":[{"id":"User","title":"User","name":"User","ref":"#/content/components/schemas/User","type":"model"}],"type":"text"}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}},"overrides":{"default":{}}}',
+        '{"documents":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}},"x-scalar-navigation":[{"id":"Get all users","title":"Get all users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation"},{"id":"","title":"Models","children":[{"id":"User","title":"User","name":"User","ref":"#/content/components/schemas/User","type":"model"}],"type":"text"}],"x-ext-urls":{}}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}},"overrides":{"default":{}}}',
       )
     })
 
@@ -1712,6 +1721,7 @@ describe('create-workspace-store', () => {
             },
           },
         },
+        'x-ext-urls': {},
         'x-scalar-navigation': [
           {
             id: 'Get all users',
@@ -1849,6 +1859,7 @@ describe('create-workspace-store', () => {
             },
           },
         },
+        'x-ext-urls': {},
         'x-scalar-navigation': [
           {
             id: 'Get all users',
@@ -1903,7 +1914,7 @@ describe('create-workspace-store', () => {
       })
 
       store.workspace.activeDocument!.info.title = 'new title'
-      store.saveDocument(documentName)
+      await store.saveDocument(documentName)
 
       const result = store.rebaseDocument(documentName, {
         ...getDocument(),
@@ -1939,7 +1950,7 @@ describe('create-workspace-store', () => {
       })
 
       store.workspace.activeDocument!.info.title = 'new title'
-      store.saveDocument(documentName)
+      await store.saveDocument(documentName)
 
       const newDocument = {
         ...getDocument(),
@@ -1997,7 +2008,7 @@ describe('create-workspace-store', () => {
       })
 
       store.workspace.activeDocument!.info.title = 'new title'
-      store.saveDocument(documentName)
+      await store.saveDocument(documentName)
 
       store.workspace.activeDocument!.info.version = '2.0'
 
