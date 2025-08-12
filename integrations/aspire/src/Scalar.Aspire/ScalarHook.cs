@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Lifecycle;
@@ -19,13 +18,18 @@ internal sealed class ScalarHook(IServiceProvider provider) : IDistributedApplic
 
     public async Task BeforeStartAsync(DistributedApplicationModel appModel, CancellationToken cancellationToken = default)
     {
-        var scalarResource = appModel.Resources.OfType<ScalarResource>().FirstOrDefault();
+        var scalarResources = appModel.Resources.OfType<ScalarResource>();
 
-        if (scalarResource is null)
+        foreach (var scalarResource in scalarResources)
         {
-            return;
+            ConfigureScalarResource(scalarResource);
         }
 
+        return Task.CompletedTask;
+    }
+
+    private void ConfigureScalarResource(ScalarResource scalarResource)
+    {
         var scalarAnnotations = scalarResource.Annotations.OfType<ScalarAnnotation>();
         var scalarConfigurations = CreateConfigurationsAsync(provider, scalarAnnotations, cancellationToken);
 

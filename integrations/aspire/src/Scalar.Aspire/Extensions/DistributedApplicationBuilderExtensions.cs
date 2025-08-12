@@ -29,7 +29,7 @@ public static class DistributedApplicationBuilderExtensions
     public static IResourceBuilder<ScalarResource> AddScalarApiReference(
         this IDistributedApplicationBuilder builder,
         [ResourceName] string name,
-        Action<ScalarOptions> configureOptions) => builder.AddScalarApiReference(name, null, configureOptions);
+        Action<ScalarAspireOptions> configureOptions) => builder.AddScalarApiReference(name, null, configureOptions);
 
     /// <summary>
     /// Adds a Scalar API reference resource to the distributed application with detailed configuration.
