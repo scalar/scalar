@@ -2032,6 +2032,11 @@ describe('bundle', () => {
         path: [],
         resolutionCache: new Map(),
         parentNode: null,
+        rootNode: {
+          prop: {
+            innerProp: 'string',
+          },
+        },
       })
       expect(onBeforeNodeProcessCallback.mock.calls[1][0]).toEqual({
         innerProp: 'string',
@@ -2040,6 +2045,11 @@ describe('bundle', () => {
         path: ['prop'],
         resolutionCache: new Map(),
         parentNode: {
+          prop: {
+            innerProp: 'string',
+          },
+        },
+        rootNode: {
           prop: {
             innerProp: 'string',
           },
@@ -2057,6 +2067,11 @@ describe('bundle', () => {
             innerProp: 'string',
           },
         },
+        rootNode: {
+          prop: {
+            innerProp: 'string',
+          },
+        },
       })
       expect(onAfterNodeProcessCallback.mock.calls[1][0]).toEqual({
         prop: {
@@ -2067,6 +2082,11 @@ describe('bundle', () => {
         path: [],
         resolutionCache: new Map(),
         parentNode: null,
+        rootNode: {
+          prop: {
+            innerProp: 'string',
+          },
+        },
       })
     })
 

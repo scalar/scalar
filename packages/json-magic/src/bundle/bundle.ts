@@ -397,6 +397,7 @@ type NodeProcessContext = {
   path: readonly string[]
   resolutionCache: Map<string, Promise<Readonly<ResolveResult>>>
   parentNode: UnknownObject | null
+  rootNode: UnknownObject
 }
 
 /**
@@ -699,10 +700,16 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       path,
       resolutionCache: cache,
       parentNode: parent,
+      rootNode: documentRoot as UnknownObject,
     })
     // Invoke onBeforeNodeProcess hooks from all registered lifecycle plugins
     for (const plugin of lifecyclePlugin) {
-      await plugin.onBeforeNodeProcess?.(root as UnknownObject, { path, resolutionCache: cache, parentNode: parent })
+      await plugin.onBeforeNodeProcess?.(root as UnknownObject, {
+        path,
+        resolutionCache: cache,
+        parentNode: parent,
+        rootNode: documentRoot as UnknownObject,
+      })
     }
 
     if (typeof root === 'object' && '$ref' in root && typeof root['$ref'] === 'string') {
@@ -842,12 +849,18 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       path,
       resolutionCache: cache,
       parentNode: parent,
+      rootNode: documentRoot as UnknownObject,
     })
 
     // Iterate through all lifecycle plugins and invoke their onAfterNodeProcess hooks, if defined.
     // This enables plugins to perform additional post-processing or cleanup after the node is processed.
     for (const plugin of lifecyclePlugin) {
-      await plugin.onAfterNodeProcess?.(root as UnknownObject, { path, resolutionCache: cache, parentNode: parent })
+      await plugin.onAfterNodeProcess?.(root as UnknownObject, {
+        path,
+        resolutionCache: cache,
+        parentNode: parent,
+        rootNode: documentRoot as UnknownObject,
+      })
     }
   }
 
