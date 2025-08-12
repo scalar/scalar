@@ -130,17 +130,13 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      * - For all other properties, defers to the default Reflect.getOwnPropertyDescriptor behavior.
      */
     getOwnPropertyDescriptor(target, prop) {
-      if (prop === REF_VALUE && REF_KEY in target && typeof target[REF_KEY] === 'string') {
-        return {
-          configurable: true,
-          enumerable: true,
-          writable: false,
-          value: (() => {
-            if (isLocalRef(target[REF_KEY])) {
-              return createMagicProxy(getValueByPath(root, parseJsonPointer(target[REF_KEY])), root)
-            }
-            return undefined
-          })(),
+      const ref = Reflect.get(target, REF_KEY)
+
+      if (prop === REF_VALUE && typeof ref === 'string' && isLocalRef(ref)) {
+        const result = getValueByPath(root, parseJsonPointer(ref))
+
+        if (typeof result === 'object') {
+          return Reflect.getOwnPropertyDescriptor(result, prop)
         }
       }
       return Reflect.getOwnPropertyDescriptor(target, prop)
