@@ -175,7 +175,7 @@ export type WorkspaceStore = {
    *   paths: {},
    * })
    */
-  replaceDocument(documentName: string, input: Record<string, unknown>): void
+  replaceDocument(documentName: string, input: Record<string, unknown>): Promise<void>
   /**
    * Resolves a reference in the active document by following the provided path and resolving any external $ref references.
    * This method traverses the document structure following the given path and resolves any $ref references it encounters.
@@ -580,18 +580,25 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       Object.assign(currentDocument, { [key]: value })
     },
-    replaceDocument(documentName: string, input: Record<string, unknown>) {
+    async replaceDocument(documentName: string, input: Record<string, unknown>) {
       const currentDocument = workspace.documents[documentName]
-      const inputDocument = deepClone(input)
 
       if (!currentDocument) {
         return console.error(`Document '${documentName}' does not exist in the workspace.`)
       }
 
-      // Normalize the input document to ensure it matches the OpenAPI schema and is upgraded to the latest version.
-      const newDocument = coerceValue(OpenAPIDocumentSchema, upgrade(inputDocument).specification)
-      // Update the current document in place, applying only the necessary changes and omitting any preprocessing fields.
-      applySelectiveUpdates(currentDocument, newDocument)
+      // Replace the whole document
+      await addInMemoryDocument({
+        name: documentName,
+        document: input,
+        config: documentConfigs[documentName],
+        overrides: overrides[documentName],
+        // Preserve the current metadata
+        meta: {
+          'x-scalar-active-auth': currentDocument['x-scalar-active-auth'],
+          'x-scalar-active-server': currentDocument['x-scalar-active-server'],
+        },
+      })
     },
     resolve: async (path: string[]) => {
       const activeDocument = workspace.activeDocument

@@ -1738,14 +1738,14 @@ describe('create-workspace-store', () => {
         ],
       })
 
-      store.replaceDocument('default', {
+      await store.replaceDocument('default', {
         openapi: '3.0.0',
         info: {
           title: 'Updated API',
           version: '1.0.0',
         },
         paths: {
-          '/users': {
+          '/users-v2': {
             get: {
               summary: 'Get all users',
               responses: {
@@ -1810,7 +1810,7 @@ describe('create-workspace-store', () => {
         },
         openapi: '3.1.1',
         paths: {
-          '/users': {
+          '/users-v2': {
             get: {
               responses: {
                 '200': {
@@ -1853,8 +1853,8 @@ describe('create-workspace-store', () => {
           {
             id: 'Get all users',
             method: 'get',
-            path: '/users',
-            ref: '#/paths/~1users/get',
+            path: '/users-v2',
+            ref: '#/paths/~1users-v2/get',
             title: 'Get all users',
             type: 'operation',
           },
