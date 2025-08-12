@@ -55,7 +55,7 @@ class ScalarControllerTest {
                 .contains("<!doctype html>")
                 .contains("<title>Scalar API Reference</title>")
                 .contains("Scalar.createApiReference('#app',")
-                .contains("url: \"https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json\"");
+                .contains("url: \"https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json\"");
         }
 
         @Test
