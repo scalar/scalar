@@ -481,7 +481,7 @@ jobs:
           done
 
   test-component-snapshots:
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     permissions:
