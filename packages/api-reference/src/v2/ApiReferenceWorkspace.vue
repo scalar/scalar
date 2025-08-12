@@ -170,12 +170,25 @@ const addOrUpdateDocument = async (
   return
 }
 
-/** Watch for slug changes to add or update the document */
+/** Watch for changes to the slug to add or update the document */
 watch(
   () => selectedConfiguration.value.slug,
-  () =>
-    (selectedConfiguration.value.url || selectedConfiguration.value.content) &&
-    addOrUpdateDocument(selectedConfiguration.value),
+  (newSlug) => newSlug && addOrUpdateDocument(selectedConfiguration.value),
+  { immediate: true },
+)
+
+/** Watch for changes to the URL to add or update the document */
+watch(
+  () => selectedConfiguration.value.url,
+  (newUrl) => newUrl && addOrUpdateDocument(selectedConfiguration.value),
+  { immediate: true },
+)
+
+/** Watch for changes to the content to add or update the document */
+watch(
+  () => selectedConfiguration.value.content,
+  (newContent) =>
+    newContent && addOrUpdateDocument(selectedConfiguration.value),
   { immediate: true },
 )
 
