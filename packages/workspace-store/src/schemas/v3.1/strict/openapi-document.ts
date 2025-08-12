@@ -22,7 +22,6 @@ import { xScalarClientConfigEnvironmentsSchema } from '@/schemas/v3.1/strict/cli
 import { xScalarClientConfigCookiesSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-cookies'
 import { extensions } from '@/schemas/extensions'
 import { TraversedEntrySchema } from '@/schemas/navigation'
-import { WorkspaceDocumentMetaSchema } from '@/schemas/workspace'
 
 const OpenApiExtensionsSchema = Type.Partial(
   Type.Object({
@@ -64,7 +63,6 @@ export type OpenApiDocumentSchemaType = TIntersect<
     }>,
     typeof ExtensionsSchema,
     typeof OpenApiExtensionsSchema,
-    typeof WorkspaceDocumentMetaSchema,
   ]
 >
 
@@ -93,7 +91,6 @@ export const OpenAPIDocumentSchema: OpenApiDocumentSchemaType = compose(
   }),
   ExtensionsSchema,
   OpenApiExtensionsSchema,
-  WorkspaceDocumentMetaSchema,
 )
 
 export type OpenApiDocument = Static<typeof OpenAPIDocumentSchema>
