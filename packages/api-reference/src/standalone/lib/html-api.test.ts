@@ -302,7 +302,7 @@ describe('html-api', () => {
     it.skip('handles missing spec elements with error', () => {
       expect(getConfigurationFromDataAttributes(document)).toStrictEqual(baseConfig)
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        "Couldn't find a [data-spec], [data-spec-url] or <script id='api-reference' /> element. Try adding it like this: %c<div data-spec-url='https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml' />",
+        "Couldn't find a [data-spec], [data-spec-url] or <script id='api-reference' /> element. Try adding it like this: %c<div data-spec-url='https://registry.scalar.com/@scalar/apis/galaxy/latest?format=yaml' />",
         'font-family: monospace;',
       )
     })

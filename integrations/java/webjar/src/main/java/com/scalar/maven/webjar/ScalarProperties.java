@@ -29,7 +29,7 @@ public class ScalarProperties {
      * The URL of the OpenAPI specification to display in the API reference.
      * Defaults to a sample specification from the Scalar Galaxy CDN.
      */
-    private String url = "https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json";
+    private String url = "https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json";
 
     /**
      * Whether the Scalar API Reference is enabled.

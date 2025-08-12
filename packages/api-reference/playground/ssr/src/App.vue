@@ -5,6 +5,6 @@ import { ApiReference } from '@/index'
 <template>
   <ApiReference
     :configuration="{
-      url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+      url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
     }" />
 </template>

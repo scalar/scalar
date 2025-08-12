@@ -28,7 +28,7 @@ const themeIds: ThemeId[] = [
 
 async function fetchExampleSpecification() {
   const response = await fetch(
-    'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+    'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=yaml',
   )
 
   emits('updateContent', await response.text())

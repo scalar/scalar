@@ -1,6 +1,6 @@
-import { Scalar, apiReference } from './scalar'
 import { Hono } from 'hono'
 import { describe, expect, it } from 'vitest'
+import { Scalar, apiReference } from './scalar'
 
 type Bindings = {
   SOME_VAR: string
@@ -102,7 +102,7 @@ describe('apiReference', () => {
     app.get(
       '/',
       Scalar({
-        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+        url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
       }),
     )
 
@@ -110,7 +110,7 @@ describe('apiReference', () => {
     const text = await response.text()
 
     // Check the URL is present
-    expect(text).toContain('https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json')
+    expect(text).toContain('https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json')
   })
 
   it('applies custom theme CSS without theme specified', async () => {
