@@ -33,10 +33,15 @@ const { getFullHash, isIntersectionEnabled, replaceUrlState } = useNavState()
 const config = useConfig()
 
 const getPathOrTitle = (item: TraversedEntry): string => {
-  if ('path' in item) {
-    return item.path
-  }
-  return item.title
+  const itemPath = 'path' in item ? item.path : item.title
+  const escapedItemPath = itemPath
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\//g, '&#47;<wbr>') // add a line break opportunity after every forward-slash
+  return escapedItemPath
 }
 
 // We disable intersection observer on click
@@ -137,8 +142,8 @@ const onAnchorClick = async (ev: Event) => {
         <p class="sidebar-heading-link-title">
           <span
             v-if="config.operationTitleSource === 'path'"
-            class="hanging-indent">
-            {{ getPathOrTitle(item) }}
+            class="hanging-indent"
+            v-html="getPathOrTitle(item)">
           </span>
           <span v-else>
             {{ item.title }}
