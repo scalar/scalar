@@ -181,9 +181,9 @@ const dataTableInputProps = {
     <DataTableRow v-if="scheme?.description && security.length <= 1">
       <DataTableCell
         :aria-label="scheme.description"
-        class="text-c-2 group/auth auth-description-container flex items-center whitespace-nowrap outline-none hover:whitespace-normal">
+        class="text-c-2 auth-description-container relative outline-none">
         <ScalarMarkdown
-          class="auth-description bg-b-1 text-c-2 outline-b-3 top-0 z-1 h-full w-full px-3 py-1.25 group-hover/auth:absolute group-hover/auth:h-auto group-hover/auth:border-b *:first:line-clamp-1 *:first:text-ellipsis group-hover/auth:*:first:line-clamp-none"
+          class="auth-description bg-b-1 text-c-2 outline-b-3 top-0 right-0 left-0 z-1 line-clamp-1 h-auto w-full border border-transparent px-3 py-1.25 text-ellipsis hover:absolute hover:z-10 hover:line-clamp-none hover:rounded-b-lg hover:shadow-lg"
           :value="scheme.description" />
       </DataTableCell>
     </DataTableRow>
