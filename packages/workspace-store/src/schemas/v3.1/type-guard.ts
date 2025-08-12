@@ -3,7 +3,7 @@ import type { ReferenceObject } from '@/schemas/v3.1/strict/reference'
 /**
  * Type helper we can use if we have performed the isReference check higher in the stack
  */
-export type Dereference<T> = Exclude<T, ReferenceObject>
+export type Dereference<T> = T extends { $ref: string; '$ref-value'?: infer V } ? (V extends object ? V : never) : T
 
 /** Type guard to check if a value is a reference */
 export const isReference = (value: unknown): value is ReferenceObject =>
