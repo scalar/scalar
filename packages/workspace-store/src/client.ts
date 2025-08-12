@@ -4,7 +4,7 @@ import { upgrade } from '@scalar/openapi-parser'
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 
 import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
-import { deepClone, isObject, safeAssign } from '@/helpers/general'
+import { deepClone, isObject, safeAssign, type UnknownObject } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
 import { createNavigation } from '@/navigation'
@@ -30,7 +30,7 @@ import { apply, diff, merge, type Difference } from '@scalar/json-magic/diff'
 import type { TraverseSpecOptions } from '@/navigation/types'
 import type { PartialDeep, RequiredDeep } from 'type-fest'
 import { Value } from '@sinclair/typebox/value'
-import { externalValueResolver, loadingStatus, refsEverywhere } from '@/plugins'
+import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
 
 type DocumentConfiguration = Config &
   PartialDeep<{
@@ -183,7 +183,7 @@ export type WorkspaceStore = {
    *   paths: {},
    * })
    */
-  replaceDocument(documentName: string, input: Record<string, unknown>): void
+  replaceDocument(documentName: string, input: Record<string, unknown>): Promise<void>
   /**
    * Resolves a reference in the active document by following the provided path and resolving any external $ref references.
    * This method traverses the document structure following the given path and resolves any $ref references it encounters.
@@ -266,7 +266,7 @@ export type WorkspaceStore = {
    * // Save the current state of the document named 'api'
    * const excludedDiffs = store.saveDocument('api')
    */
-  saveDocument(documentName: string): unknown[] | undefined
+  saveDocument(documentName: string): Promise<unknown[] | undefined>
   /**
    * Restores the specified document to its last locally saved state.
    *
@@ -284,7 +284,7 @@ export type WorkspaceStore = {
    * // Restore the document named 'api' to its last saved state
    * store.revertDocumentChanges('api')
    */
-  revertDocumentChanges(documentName: string): void
+  revertDocumentChanges(documentName: string): Promise<void>
   /**
    * Commits the specified document.
    *
@@ -455,7 +455,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   // applies its changes to the corresponding entry in the `intermediateDocuments` map.
   // The `intermediateDocuments` map represents the most recently "saved" local version of the document,
   // which may include edits not yet synced to the remote registry.
-  function saveDocument(documentName: string) {
+  async function saveDocument(documentName: string) {
     const intermediateDocument = intermediateDocuments[documentName]
     const workspaceDocument = workspace.documents[documentName]
 
@@ -471,33 +471,42 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return
     }
 
+    // Traverse the document and convert refs back to the original shape
+    const updatedWithOriginalRefs = await bundle(deepClone(updatedDocument), {
+      plugins: [restoreOriginalRefs()],
+      treeShake: false,
+      urlMap: true,
+    })
+
     // Apply changes from the current document to the intermediate document in place
-    const excludedDiffs = applySelectiveUpdates(intermediateDocument, updatedDocument)
+    const excludedDiffs = applySelectiveUpdates(intermediateDocument, updatedWithOriginalRefs as UnknownObject)
     return excludedDiffs
   }
 
   // Add a document to the store synchronously from an in-memory OpenAPI document
-  async function addInMemoryDocument(input: ObjectDoc) {
+  async function addInMemoryDocument(input: ObjectDoc & { initialize?: boolean }) {
     const { name, meta } = input
     const inputDocument = deepClone(input.document)
 
     const looseDocument = coerceValue(OpenAPIDocumentSchemaLoose, upgrade(inputDocument).specification)
 
-    // Store the original document in the originalDocuments map
-    // This is used to track the original state of the document as it was loaded into the workspace
-    originalDocuments[name] = deepClone({ ...looseDocument })
+    if (input.initialize !== false) {
+      // Store the original document in the originalDocuments map
+      // This is used to track the original state of the document as it was loaded into the workspace
+      originalDocuments[name] = deepClone({ ...looseDocument })
 
-    // Store the intermediate document state for local edits
-    // This is used to track the last saved state of the document
-    // It allows us to differentiate between the original document and the latest saved version
-    // This is important for local edits that are not yet synced with the remote registry
-    // The intermediate document is used to store the latest saved state of the document
-    // This allows us to track changes and revert to the last saved state if needed
-    intermediateDocuments[name] = deepClone({ ...looseDocument })
-    // Add the document config to the documentConfigs map
-    documentConfigs[name] = input.config ?? {}
-    // Store the overrides for this document, or an empty object if none are provided
-    overrides[name] = input.overrides ?? {}
+      // Store the intermediate document state for local edits
+      // This is used to track the last saved state of the document
+      // It allows us to differentiate between the original document and the latest saved version
+      // This is important for local edits that are not yet synced with the remote registry
+      // The intermediate document is used to store the latest saved state of the document
+      // This allows us to track changes and revert to the last saved state if needed
+      intermediateDocuments[name] = deepClone({ ...looseDocument })
+      // Add the document config to the documentConfigs map
+      documentConfigs[name] = input.config ?? {}
+      // Store the overrides for this document, or an empty object if none are provided
+      overrides[name] = input.overrides ?? {}
+    }
 
     const strictDocument = createMagicProxy({ ...looseDocument, ...meta })
 
@@ -508,6 +517,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       await bundle(getRaw(strictDocument), {
         treeShake: false,
         plugins: [fetchUrls(), externalValueResolver(), refsEverywhere()],
+        urlMap: true,
       })
 
       // We coerce the values only when the document is not preprocessed by the server-side-store
@@ -605,18 +615,24 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       Object.assign(currentDocument, { [key]: value })
     },
-    replaceDocument(documentName: string, input: Record<string, unknown>) {
+    async replaceDocument(documentName: string, input: Record<string, unknown>) {
       const currentDocument = workspace.documents[documentName]
-      const inputDocument = deepClone(input)
 
       if (!currentDocument) {
         return console.error(`Document '${documentName}' does not exist in the workspace.`)
       }
 
-      // Normalize the input document to ensure it matches the OpenAPI schema and is upgraded to the latest version.
-      const newDocument = coerceValue(OpenAPIDocumentSchemaStrict, upgrade(inputDocument).specification)
-      // Update the current document in place, applying only the necessary changes and omitting any preprocessing fields.
-      applySelectiveUpdates(currentDocument, newDocument)
+      // Replace the whole document
+      await addInMemoryDocument({
+        name: documentName,
+        document: input,
+        // Preserve the current metadata
+        meta: {
+          'x-scalar-active-auth': currentDocument['x-scalar-active-auth'],
+          'x-scalar-active-server': currentDocument['x-scalar-active-server'],
+        },
+        initialize: false,
+      })
     },
     resolve: async (path: string[]) => {
       const activeDocument = workspace.activeDocument
@@ -636,7 +652,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         root: activeDocument,
         treeShake: false,
         plugins: [fetchUrls(), loadingStatus(), externalValueResolver()],
-        urlMap: false,
+        urlMap: true,
         visitedNodes: visitedNodesCache,
       })
     },
@@ -661,23 +677,19 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return YAML.stringify(intermediateDocument)
     },
     saveDocument,
-    revertDocumentChanges(documentName: string) {
+    async revertDocumentChanges(documentName: string) {
       const workspaceDocument = workspace.documents[documentName]
+      const intermediate = intermediateDocuments[documentName]
 
-      if (!workspaceDocument) {
+      if (!workspaceDocument || !intermediate) {
         return
       }
 
-      const intermediateDocument = intermediateDocuments[documentName]
-      // Get the raw state of the current document to avoid diffing resolved references.
-      const updatedDocument = getRaw(workspaceDocument)
-
-      if (!intermediateDocument || !updatedDocument) {
-        return
-      }
-
-      // Overwrite the current document with the last saved state, discarding unsaved changes.
-      applySelectiveUpdates(updatedDocument, intermediateDocument)
+      await addInMemoryDocument({
+        name: documentName,
+        document: intermediate,
+        initialize: false,
+      })
     },
     commitDocument(documentName: string) {
       // TODO: Implement commit logic
@@ -691,7 +703,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               name,
               // Extract the raw document data for export, removing any Vue reactivity wrappers.
               // When importing, the document can be wrapped again in a magic proxy.
-              createOverridesProxy(getRaw(doc), overrides[name]),
+              getRaw(doc),
             ]),
           ),
         },
@@ -708,7 +720,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // Assign the magic proxy to the documents
       safeAssign(
         workspace.documents,
-        Object.fromEntries(Object.entries(result.documents).map(([name, doc]) => [name, createMagicProxy(doc)])),
+        Object.fromEntries(
+          Object.entries(result.documents).map(([name, doc]) => [
+            name,
+            createOverridesProxy(createMagicProxy(doc), result.overrides[name]),
+          ]),
+        ),
       )
 
       safeAssign(originalDocuments, result.originalDocuments)

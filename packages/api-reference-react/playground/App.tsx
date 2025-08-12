@@ -1,8 +1,8 @@
 import { generate } from 'random-words'
 import { useEffect, useState } from 'react'
 
-import { ApiReferenceReact } from '../src'
 import type { ApiReferenceConfiguration } from '@scalar/api-reference'
+import { ApiReferenceReact } from '../src'
 
 function App() {
   const [auth, setAuth] = useState<Required<ApiReferenceConfiguration>['authentication']>({})
@@ -41,7 +41,7 @@ function App() {
         {
           title: 'Scalar Galaxy', // optional, would fallback to 'API #1'
           slug: 'scalar-galaxy', // optional, would be auto-generated from the title or the index
-          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+          url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
           authentication: auth,
         },
       ]}

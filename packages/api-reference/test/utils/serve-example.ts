@@ -14,7 +14,7 @@ const DEFAULT_PORT = process.env.PORT || 0
 
 const DEFAULT_CONFIGURATION: Partial<HtmlRenderingConfiguration> = {
   cdn: '/scalar.js',
-  url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+  url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
   proxyUrl: 'https://proxy.scalar.com',
 }
 

@@ -1,12 +1,12 @@
-import React from 'react'
 import { ApiReferenceReact } from '@scalar/api-reference-react'
+import React from 'react'
 import '@scalar/api-reference-react/style.css'
 
 const App = () => {
   return (
     <ApiReferenceReact
       configuration={{
-        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+        url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=yaml',
       }}
     />
   )

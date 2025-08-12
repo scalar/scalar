@@ -3,7 +3,7 @@ import { createApiClientModal } from '@/index'
 const { open } = await createApiClientModal({
   el: document.getElementById('app'),
   configuration: {
-    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+    url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
     proxyUrl: 'https://proxy.scalar.com',
   },
 })

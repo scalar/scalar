@@ -1,0 +1,28 @@
+// For details, see https://aka.ms/devcontainer.json.
+{
+  "name": "Scalar Node",
+  "image": "mcr.microsoft.com/devcontainers/base:debian",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22",
+      "pnpmVersion": "10.5.2"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vue.volar",
+        "cpylua.language-postcss",
+        "streetsidesoftware.code-spell-checker",
+        "biomejs.biome",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "vitest.explorer"
+      ]
+    }
+  },
+  "hostRequirements": {
+    "memory": "8gb",
+    "cpus": 4
+  }
+}

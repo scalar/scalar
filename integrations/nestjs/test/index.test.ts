@@ -1,8 +1,8 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { createTestApp } from './app.factory'
-import request from 'supertest'
-import { apiReference } from '../src'
 import type { INestApplication } from '@nestjs/common'
+import request from 'supertest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { apiReference } from '../src'
+import { createTestApp } from './app.factory'
 
 describe('apiReference middleware (express)', () => {
   let app: INestApplication
@@ -87,13 +87,13 @@ describe('apiReference middleware (express)', () => {
     app.use(
       '/reference',
       apiReference({
-        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+        url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
       }),
     )
 
     const res = await request(app.getHttpServer()).get('/reference')
 
-    expect(res.text).toContain('https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json')
+    expect(res.text).toContain('https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json')
   })
 
   it('handles content as function', async () => {

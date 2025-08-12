@@ -60,7 +60,6 @@ This is a Vue 3 + TypeScript monorepo for Scalar - an API documentation and test
 - `@scalar/react-renderer` - Bridge for rendering React components in Vue
 
 ### Configuration & Types
-- `@scalar/config` - Configuration schema and validation utilities
 - `@scalar/types` - Shared TypeScript type definitions
 - `@scalar/workspace-store` - Data store and state management
 

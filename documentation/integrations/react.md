@@ -23,7 +23,7 @@ function App() {
   return (
     <ApiReferenceReact
       configuration={{
-        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+        url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=yaml',
       }}
     />
   )
@@ -117,7 +117,7 @@ function App() {
   return (
     <ApiReferenceReact
       configuration={{
-        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+        url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=yaml',
       }}
     />
   )

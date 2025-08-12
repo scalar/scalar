@@ -210,7 +210,7 @@ import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
 
 // Load a file and all referenced files
 const { filesystem } = await load(
-  'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+  'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=yaml',
   {
     plugins: [fetchUrls()],
   },
@@ -227,7 +227,7 @@ import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
 
 // Load a file and all referenced files
 const { filesystem } = await load(
-  'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+  'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=yaml',
   {
     plugins: [
       fetchUrls({

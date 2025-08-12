@@ -23,7 +23,7 @@ To get started, you can use a simple HTML file. It's the easiest, and probably a
     <script>
       Scalar.createApiReference('#app', {
         // The URL of the OpenAPI/Swagger document
-        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+        url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
         // Avoid CORS issues
         proxyUrl: 'https://proxy.scalar.com',
       })
@@ -56,7 +56,7 @@ The HTML sample above showed how to integrate Scalar using automatic mounting an
 
 ```ts
 Scalar.createApiReference('#app', {
-  url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+  url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
 })
 ```
 
@@ -64,7 +64,7 @@ Scalar.createApiReference('#app', {
 
 ```ts
 const app = Scalar.createApiReference({
-  url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+  url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
 })
 
 // Mounting
@@ -83,7 +83,7 @@ app.mount(element)
 
 ```ts
 const app = Scalar.createApiReference('#app', {
-  url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+  url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
 })
 
 // Updating the configuration
@@ -96,7 +96,7 @@ app.updateConfiguration({
 
 ```ts
 const app = Scalar.createApiReference('#app', {
-  url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+  url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
 })
 
 app.destroy()
@@ -115,6 +115,6 @@ Here is an example:
 import { createApiReference } from '@scalar/api-reference'
 
 createApiReference('#app', {
-  url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+  url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
 })
 ```
