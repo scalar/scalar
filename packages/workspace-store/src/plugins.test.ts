@@ -146,7 +146,7 @@ describe('plugins', () => {
 
       await bundle(input, {
         treeShake: false,
-        plugins: [externalValueResolver()],
+        plugins: [externalValueResolver(), fetchUrls()],
       })
 
       expect(input).toEqual({
@@ -189,7 +189,7 @@ describe('plugins', () => {
 
       const result = await bundle(input, {
         treeShake: false,
-        plugins: [refsEverywhere()],
+        plugins: [refsEverywhere(), fetchUrls()],
       })
 
       expect(result).toEqual({

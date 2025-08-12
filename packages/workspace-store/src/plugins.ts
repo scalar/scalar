@@ -5,7 +5,6 @@
  */
 import { isLocalRef } from '@/helpers/general'
 import type { LifecyclePlugin } from '@scalar/json-magic/bundle'
-import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
 
 /**
  * A lifecycle plugin that adds a `$status` property to nodes during resolution.
@@ -51,8 +50,15 @@ export const externalValueResolver = (): LifecyclePlugin => {
         return
       }
 
+      const loader = context.loaders.find((it) => it.validate(externalValue))
+
+      // We can not process the external value
+      if (!loader) {
+        return
+      }
+
       if (!cache.has(externalValue)) {
-        cache.set(externalValue, fetchUrls().exec(externalValue))
+        cache.set(externalValue, loader.exec(externalValue))
       }
 
       const result = await cache.get(externalValue)
@@ -92,11 +98,18 @@ export const refsEverywhere = (): LifecyclePlugin => {
         return
       }
 
+      const loader = context.loaders.find((it) => it.validate(ref))
+
+      // Can not load the external ref
+      if (!loader) {
+        return
+      }
+
       // Support resolving $ref on the info object
       if (path[0] === 'info') {
         // Use the cache to avoid duplicate fetches
         if (!resolutionCache.has(ref)) {
-          resolutionCache.set(ref, fetchUrls().exec(ref))
+          resolutionCache.set(ref, loader.exec(ref))
         }
 
         const result = await resolutionCache.get(ref)

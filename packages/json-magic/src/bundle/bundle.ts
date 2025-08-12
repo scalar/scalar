@@ -398,6 +398,7 @@ type NodeProcessContext = {
   resolutionCache: Map<string, Promise<Readonly<ResolveResult>>>
   parentNode: UnknownObject | null
   rootNode: UnknownObject
+  loaders: LoaderPlugin[]
 }
 
 /**
@@ -701,6 +702,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       resolutionCache: cache,
       parentNode: parent,
       rootNode: documentRoot as UnknownObject,
+      loaders: loaderPlugins,
     })
     // Invoke onBeforeNodeProcess hooks from all registered lifecycle plugins
     for (const plugin of lifecyclePlugin) {
@@ -709,6 +711,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
         resolutionCache: cache,
         parentNode: parent,
         rootNode: documentRoot as UnknownObject,
+        loaders: loaderPlugins,
       })
     }
 
@@ -850,6 +853,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       resolutionCache: cache,
       parentNode: parent,
       rootNode: documentRoot as UnknownObject,
+      loaders: loaderPlugins,
     })
 
     // Iterate through all lifecycle plugins and invoke their onAfterNodeProcess hooks, if defined.
@@ -860,6 +864,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
         resolutionCache: cache,
         parentNode: parent,
         rootNode: documentRoot as UnknownObject,
+        loaders: loaderPlugins,
       })
     }
   }
