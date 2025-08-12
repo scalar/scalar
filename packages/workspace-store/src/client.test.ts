@@ -1049,7 +1049,7 @@ describe('create-workspace-store', () => {
       })
 
       expect(store.exportWorkspace()).toEqual(
-        '{"documents":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}},"/external":{"get":{"$ref":"#/x-ext/29442af"}}},"x-scalar-navigation":[{"id":"Get all users","title":"Get all users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation"},{"id":"","title":"Models","children":[{"id":"User","title":"User","name":"User","ref":"#/content/components/schemas/User","type":"model"}],"type":"text"}],"x-ext-urls":{"29442af":"http://localhost:9988/some-other-path"},"x-ext":{"29442af":{"description":"New content"}}}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}},"/external":{"get":{"$ref":"http://localhost:9988/some-other-path"}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}},"/external":{"get":{"$ref":"http://localhost:9988/some-other-path"}}}}},"overrides":{"default":{}}}',
+        '{"documents":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}},"/external":{"get":{"$ref":"#/x-ext/29442af"}}},"x-scalar-navigation":[{"id":"Get all users","title":"Get all users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation"},{"id":"","title":"Models","children":[{"id":"User","title":"User","name":"User","ref":"#/content/components/schemas/User","type":"model"}],"type":"text"}],"x-ext-urls":{"29442af":"http://localhost:9988/some-other-path"},"x-ext":{"29442af":{"description":"New content"}}}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}},"/external":{"get":{"$ref":"http://localhost:9988"}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}},"/external":{"get":{"$ref":"http://localhost:9988"}}}}},"overrides":{"default":{}}}',
       )
     })
   })
@@ -1083,7 +1083,7 @@ describe('create-workspace-store', () => {
       expect(store.workspace?.documents['api-3']?.info?.title).toBe('Updated API')
 
       // Revert the changes
-      store.revertDocumentChanges('api-3')
+      await store.revertDocumentChanges('api-3')
 
       // Should return the original document without any modifications
       expect(store.exportDocument('api-1', 'json')).toBe(
@@ -1471,11 +1471,65 @@ describe('create-workspace-store', () => {
       expect(defaultDocument.openapi).toBe('3.1.1')
 
       // Revert the changes
-      store.revertDocumentChanges('default')
+      await store.revertDocumentChanges('default')
 
       expect(defaultDocument.info.title).toBe('Edited title')
       expect(defaultDocument.info.version).toBe('2.0.0')
       expect(defaultDocument.openapi).toBe('3.1.1')
+    })
+
+    it('correctly reverts back the document while preserving external references', async () => {
+      server.get('/', () => ({
+        description: 'some description',
+      }))
+      server.get('/a', () => ({
+        description: 'updated',
+      }))
+      await server.listen({ port })
+
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.1.1',
+          paths: {
+            '/': {
+              get: {
+                requestBody: {
+                  $ref: url,
+                },
+              },
+            },
+          },
+        },
+      })
+
+      expect(store.exportWorkspace()).toBe(
+        '{"documents":{"default":{"openapi":"3.1.1","info":{"title":"","version":""},"paths":{"/":{"get":{"requestBody":{"$ref":"#/x-ext/c766ed8"}}}},"x-scalar-navigation":[{"id":"","title":"/","path":"/","method":"get","ref":"#/paths/~1/get","type":"operation"}],"x-ext-urls":{"c766ed8":"http://localhost:9988"},"x-ext":{"c766ed8":{"description":"some description"}}}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","info":{"title":"","version":""},"paths":{"/":{"get":{"requestBody":{"$ref":"http://localhost:9988"}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","info":{"title":"","version":""},"paths":{"/":{"get":{"requestBody":{"$ref":"http://localhost:9988"}}}}}},"overrides":{"default":{}}}',
+      )
+
+      await store.replaceDocument('default', {
+        openapi: '3.1.1',
+        paths: {
+          '/': {
+            get: {
+              requestBody: {
+                $ref: `${url}/a`,
+              },
+            },
+          },
+        },
+      })
+      expect(store.exportWorkspace()).toBe(
+        '{"documents":{"default":{"openapi":"3.1.1","info":{"title":"","version":""},"paths":{"/":{"get":{"requestBody":{"$ref":"#/x-ext/8fad302"}}}},"x-scalar-navigation":[{"id":"","title":"/","path":"/","method":"get","ref":"#/paths/~1/get","type":"operation"}],"x-ext-urls":{"8fad302":"http://localhost:9988/a"},"x-ext":{"8fad302":{"description":"updated"}}}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","info":{"title":"","version":""},"paths":{"/":{"get":{"requestBody":{"$ref":"http://localhost:9988"}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","info":{"title":"","version":""},"paths":{"/":{"get":{"requestBody":{"$ref":"http://localhost:9988"}}}}}},"overrides":{"default":{}}}',
+      )
+
+      await store.revertDocumentChanges('default')
+
+      expect(store.exportWorkspace()).toBe(
+        '{"documents":{"default":{"openapi":"3.1.1","info":{"title":"","version":""},"paths":{"/":{"get":{"requestBody":{"$ref":"#/x-ext/c766ed8"}}}},"x-scalar-navigation":[{"id":"","title":"/","path":"/","method":"get","ref":"#/paths/~1/get","type":"operation"}],"x-ext-urls":{"c766ed8":"http://localhost:9988"},"x-ext":{"c766ed8":{"description":"some description"}}}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","info":{"title":"","version":""},"paths":{"/":{"get":{"requestBody":{"$ref":"http://localhost:9988"}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","info":{"title":"","version":""},"paths":{"/":{"get":{"requestBody":{"$ref":"http://localhost:9988"}}}}}},"overrides":{"default":{}}}',
+      )
     })
   })
 

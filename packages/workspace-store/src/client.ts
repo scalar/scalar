@@ -276,7 +276,7 @@ export type WorkspaceStore = {
    * // Restore the document named 'api' to its last saved state
    * store.revertDocumentChanges('api')
    */
-  revertDocumentChanges(documentName: string): void
+  revertDocumentChanges(documentName: string): Promise<void>
   /**
    * Commits the specified document.
    *
@@ -476,27 +476,29 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   }
 
   // Add a document to the store synchronously from an in-memory OpenAPI document
-  async function addInMemoryDocument(input: ObjectDoc) {
+  async function addInMemoryDocument(input: ObjectDoc & { initialize?: boolean }) {
     const { name, meta } = input
     const inputDocument = deepClone(input.document)
 
     const document = coerceValue(OpenAPIDocumentSchema, upgrade(inputDocument).specification)
 
-    // Store the original document in the originalDocuments map
-    // This is used to track the original state of the document as it was loaded into the workspace
-    originalDocuments[name] = deepClone({ ...document, ...meta })
+    if (input.initialize !== false) {
+      // Store the original document in the originalDocuments map
+      // This is used to track the original state of the document as it was loaded into the workspace
+      originalDocuments[name] = deepClone({ ...document, ...meta })
 
-    // Store the intermediate document state for local edits
-    // This is used to track the last saved state of the document
-    // It allows us to differentiate between the original document and the latest saved version
-    // This is important for local edits that are not yet synced with the remote registry
-    // The intermediate document is used to store the latest saved state of the document
-    // This allows us to track changes and revert to the last saved state if needed
-    intermediateDocuments[name] = deepClone({ ...document, ...meta })
-    // Add the document config to the documentConfigs map
-    documentConfigs[name] = input.config ?? {}
-    // Store the overrides for this document, or an empty object if none are provided
-    overrides[name] = input.overrides ?? {}
+      // Store the intermediate document state for local edits
+      // This is used to track the last saved state of the document
+      // It allows us to differentiate between the original document and the latest saved version
+      // This is important for local edits that are not yet synced with the remote registry
+      // The intermediate document is used to store the latest saved state of the document
+      // This allows us to track changes and revert to the last saved state if needed
+      intermediateDocuments[name] = deepClone({ ...document, ...meta })
+      // Add the document config to the documentConfigs map
+      documentConfigs[name] = input.config ?? {}
+      // Store the overrides for this document, or an empty object if none are provided
+      overrides[name] = input.overrides ?? {}
+    }
 
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (document[extensions.document.navigation] === undefined) {
@@ -599,13 +601,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       await addInMemoryDocument({
         name: documentName,
         document: input,
-        config: documentConfigs[documentName],
-        overrides: overrides[documentName],
         // Preserve the current metadata
         meta: {
           'x-scalar-active-auth': currentDocument['x-scalar-active-auth'],
           'x-scalar-active-server': currentDocument['x-scalar-active-server'],
         },
+        initialize: false,
       })
     },
     resolve: async (path: string[]) => {
@@ -651,24 +652,19 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return YAML.stringify(intermediateDocument)
     },
     saveDocument,
-    revertDocumentChanges(documentName: string) {
-      // TODO: same ass add document
+    async revertDocumentChanges(documentName: string) {
       const workspaceDocument = workspace.documents[documentName]
+      const intermediate = intermediateDocuments[documentName]
 
-      if (!workspaceDocument) {
+      if (!workspaceDocument || !intermediate) {
         return
       }
 
-      const intermediateDocument = intermediateDocuments[documentName]
-      // Get the raw state of the current document to avoid diffing resolved references.
-      const updatedDocument = getRaw(workspaceDocument)
-
-      if (!intermediateDocument || !updatedDocument) {
-        return
-      }
-
-      // Overwrite the current document with the last saved state, discarding unsaved changes.
-      applySelectiveUpdates(updatedDocument, intermediateDocument)
+      await addInMemoryDocument({
+        name: documentName,
+        document: intermediate,
+        initialize: false,
+      })
     },
     commitDocument(documentName: string) {
       // TODO: Implement commit logic
