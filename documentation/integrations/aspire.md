@@ -117,7 +117,7 @@ scalar.WithApiReference(bookService, async (options, cancellationToken) =>
 
     options
         .AddPreferredSecuritySchemes("BookApiKey")
-        .AddApiKeyAuthentication("ApiKey", apiKey => apiKey.WithValue(apiKey));
+        .AddApiKeyAuthentication("ApiKey", schema => schema.WithValue(apiKey));
 });
 ```
 
