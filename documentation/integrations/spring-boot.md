@@ -2,9 +2,9 @@
 
 The Scalar WebJar provides automatic integration with Spring Boot applications. It includes auto-configuration that automatically sets up the API reference endpoint.
 
-### Usage
+## Usage
 
-1. Add the WebJar dependency to your `pom.xml`:
+Add the [WebJar dependency](https://central.sonatype.com/artifact/com.scalar.maven/scalar) to your `pom.xml`:
 
 ```xml
 <dependency>
@@ -14,11 +14,9 @@ The Scalar WebJar provides automatic integration with Spring Boot applications. 
 </dependency>
 ```
 
-Maven Central Repository: https://central.sonatype.com/artifact/com.scalar.maven/scalar
+Configure the OpenAPI document URL in your `application.properties`:
 
-1. Configure the API specification URL in your `application.properties`:
-
-```properties
+```
 # The URL of your OpenAPI specification
 scalar.url=https://my-api-spec.json
 
@@ -29,7 +27,7 @@ scalar.path=/docs
 scalar.enabled=true
 ```
 
-3. Access your API reference at `http://localhost:8080/scalar` (or your custom path)
+Access your API reference at `http://localhost:8080/scalar` (or your custom path)
 
 ### Configuration Properties
 
