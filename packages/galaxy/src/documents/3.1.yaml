@@ -103,6 +103,17 @@ paths:
       responses:
         '200':
           description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-Pagination-Total:
+              $ref: '#/components/headers/X-Pagination-Total'
+            X-Pagination-Page:
+              $ref: '#/components/headers/X-Pagination-Page'
+            X-Pagination-Per-Page:
+              $ref: '#/components/headers/X-Pagination-Per-Page'
+            X-Cache-Control:
+              $ref: '#/components/headers/X-Cache-Control'
           content:
             application/json:
               schema:
@@ -182,6 +193,13 @@ paths:
       responses:
         '201':
           description: Created
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            Location:
+              $ref: '#/components/headers/Location'
+            X-Processing-Time:
+              $ref: '#/components/headers/X-Processing-Time'
           content:
             application/json:
               schema:
@@ -207,6 +225,15 @@ paths:
       responses:
         '200':
           description: Planet Found
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            ETag:
+              $ref: '#/components/headers/ETag'
+            Last-Modified:
+              $ref: '#/components/headers/Last-Modified'
+            X-Cache-Control:
+              $ref: '#/components/headers/X-Cache-Control'
           content:
             application/json:
               schema:
@@ -364,6 +391,13 @@ paths:
       responses:
         '201':
           description: Created
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            Location:
+              $ref: '#/components/headers/Location'
+            X-Processing-Time:
+              $ref: '#/components/headers/X-Processing-Time'
           content:
             application/json:
               schema:
@@ -402,6 +436,15 @@ paths:
       responses:
         '201':
           description: Token Created
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
           content:
             application/json:
               schema:
@@ -415,6 +458,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
   '/me':
     get:
       tags:
@@ -432,6 +477,15 @@ paths:
       responses:
         '200':
           description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            ETag:
+              $ref: '#/components/headers/ETag'
+            Last-Modified:
+              $ref: '#/components/headers/Last-Modified'
+            X-Cache-Control:
+              $ref: '#/components/headers/X-Cache-Control'
           content:
             application/json:
               schema:
@@ -563,9 +617,83 @@ components:
         type: integer
         format: int64
         default: 0
+  headers:
+    X-RateLimit-Limit:
+      description: The number of allowed requests in the current period
+      schema:
+        type: integer
+        example: 100
+    X-RateLimit-Remaining:
+      description: The number of remaining requests in the current period
+      schema:
+        type: integer
+        example: 95
+    X-RateLimit-Reset:
+      description: The number of seconds left in the current period
+      schema:
+        type: integer
+        example: 3600
+    X-Request-ID:
+      description: Unique identifier for the request
+      schema:
+        type: string
+        format: uuid
+        example: '123e4567-e89b-12d3-a456-426614174000'
+    X-Pagination-Total:
+      description: Total number of items available
+      schema:
+        type: integer
+        example: 1000
+    X-Pagination-Page:
+      description: Current page number
+      schema:
+        type: integer
+        example: 1
+    X-Pagination-Per-Page:
+      description: Number of items per page
+      schema:
+        type: integer
+        example: 10
+    X-Cache-Control:
+      description: Cache control directives
+      schema:
+        type: string
+        example: 'max-age=3600, public'
+    Content-Length:
+      description: The length of the response body in bytes
+      schema:
+        type: integer
+        example: 1024
+    ETag:
+      description: Entity tag for caching
+      schema:
+        type: string
+        example: '"33a64df551"'
+    Last-Modified:
+      description: The last modification date of the resource
+      schema:
+        type: string
+        format: date-time
+        example: '2023-12-01T12:00:00Z'
+    Location:
+      description: The URL of the newly created resource
+      schema:
+        type: string
+        format: uri
+        example: 'https://galaxy.scalar.com/planets/123'
+    X-Processing-Time:
+      description: The time taken to process the request in milliseconds
+      schema:
+        type: integer
+        example: 150
   responses:
     ImageUploaded:
       description: Image uploaded
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+        X-Cache-Control:
+          $ref: '#/components/headers/X-Cache-Control'
       content:
         application/json:
           schema:
@@ -575,6 +703,9 @@ components:
             $ref: '#/components/schemas/ImageUploadedMessage'
     BadRequest:
       description: Bad Request
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
       content:
         application/json:
           schema:
@@ -627,6 +758,29 @@ components:
         application/xml:
           schema:
             $ref: '#/components/schemas/UnprocessableEntity'
+    TooManyRequests:
+      description: Too Many Requests
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+        X-RateLimit-Limit:
+          $ref: '#/components/headers/X-RateLimit-Limit'
+        X-RateLimit-Remaining:
+          $ref: '#/components/headers/X-RateLimit-Remaining'
+        X-RateLimit-Reset:
+          $ref: '#/components/headers/X-RateLimit-Reset'
+        Retry-After:
+          description: The number of seconds to wait before retrying
+          schema:
+            type: integer
+            example: 60
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TooManyRequestsError'
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/TooManyRequestsError'
   schemas:
     User:
       description: A user
