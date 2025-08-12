@@ -28,7 +28,7 @@ export const mergeObjects = <R>(a: Record<string, unknown>, b: Record<string, un
       const bValue = b[key]
 
       if (typeof aValue === 'object' && aValue !== null && typeof bValue === 'object' && bValue !== null) {
-        a[key] = mergeObjects(aValue as Record<string, unknown>, bValue as Record<string, unknown>)
+        mergeObjects(aValue as Record<string, unknown>, bValue as Record<string, unknown>)
       } else {
         a[key] = bValue // Overwrite with b's value if not an object
       }

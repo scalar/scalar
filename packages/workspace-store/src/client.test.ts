@@ -847,6 +847,62 @@ describe('create-workspace-store', () => {
     })
   })
 
+  it('coerces internal references and validates the input', async () => {
+    const client = createWorkspaceStore()
+
+    await client.addDocument({
+      name: 'default',
+      document: {
+        openapi: '3.1.1',
+        paths: {
+          '/users': {
+            get: {
+              requestBody: {
+                $ref: '#/$defs/usersRequestBody',
+              },
+            },
+          },
+        },
+        $defs: {
+          usersRequestBody: {
+            description: 'Some description',
+          },
+        },
+      },
+    })
+
+    expect(client.exportWorkspace()).toBe(
+      '{"documents":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/$defs/usersRequestBody"}}}},"$defs":{"usersRequestBody":{"description":"Some description","content":{}}},"info":{"title":"","version":""},"x-scalar-navigation":[{"id":"","title":"/users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation"}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/$defs/usersRequestBody"}}}},"$defs":{"usersRequestBody":{"description":"Some description"}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/$defs/usersRequestBody"}}}},"$defs":{"usersRequestBody":{"description":"Some description"}}}},"overrides":{"default":{}}}',
+    )
+  })
+
+  it('coerces external values after it bundles them', async () => {
+    server.get('/', () => ({ description: 'Some description' }))
+    await server.listen({ port })
+
+    const client = createWorkspaceStore()
+
+    await client.addDocument({
+      name: 'default',
+      document: {
+        openapi: '3.1.1',
+        paths: {
+          '/users': {
+            get: {
+              requestBody: {
+                $ref: url,
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(client.exportWorkspace()).toBe(
+      '{"documents":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/x-ext/c766ed8"}}}},"x-ext":{"c766ed8":{"description":"Some description","content":{}}},"info":{"title":"","version":""},"x-scalar-navigation":[{"id":"","title":"/users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation"}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988"}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988"}}}}}},"overrides":{"default":{}}}',
+    )
+  })
+
   describe('download original document', () => {
     it('gets the original document from the store json', async () => {
       const store = createWorkspaceStore()

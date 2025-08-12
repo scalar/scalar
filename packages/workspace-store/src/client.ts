@@ -501,12 +501,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     const strictDocument = createMagicProxy({ ...looseDocument, ...meta })
 
-    // Mutate the original document wrapped in the proxy in order to preserve the original refs
-    Value.Mutate(
-      strictDocument,
-      coerceValue(OpenAPIDocumentSchemaStrict, createMagicProxy({ ...looseDocument, ...meta })),
-    )
-
     if (strictDocument[extensions.document.navigation] === undefined) {
       // If the document navigation is not already present, bundle the entire document to resolve all references.
       // This typically applies when the document is not preprocessed by the server and needs local reference resolution.
@@ -515,6 +509,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         treeShake: false,
         plugins: [fetchUrls(), externalValueResolver(), refsEverywhere()],
       })
+
+      // We coerce the values only when the document is not preprocessed by the server-side-store
+      mergeObjects(
+        strictDocument,
+        coerceValue(OpenAPIDocumentSchemaStrict, createMagicProxy({ ...deepClone(getRaw(strictDocument)) })),
+      )
     }
 
     const isValid = Value.Check(OpenAPIDocumentSchemaStrict, strictDocument)
