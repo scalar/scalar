@@ -101,6 +101,26 @@ scalar
     });
 ```
 
+#### Async Service-Specific Configuration
+
+Use the async overload of `WithApiReference` when you need to perform asynchronous work (for example, fetching secrets or remote configuration):
+
+```csharp
+scalar.WithApiReference(bookService, async (options, cancellationToken) =>
+{
+    options
+        .AddDocument("v1", "Book Management API")
+        .WithOpenApiRoutePattern("/swagger/{documentName}.json");
+
+    // Example: load a dev API key asynchronously
+    var apiKey = await secretProvider.GetValueAsync("BOOKS_API_KEY", cancellationToken);
+
+    options
+        .AddPreferredSecuritySchemes("BookApiKey")
+        .AddApiKeyAuthentication("ApiKey", apiKey => apiKey.WithValue(apiKey));
+});
+```
+
 ### Multiple OpenAPI Documents per Service
 
 Each service can expose multiple OpenAPI documents:
