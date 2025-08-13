@@ -170,3 +170,15 @@ export const restoreOriginalRefs = (): LifecyclePlugin => {
     },
   }
 }
+
+export const cleanUp = (): LifecyclePlugin => {
+  return {
+    type: 'lifecycle',
+    onBeforeNodeProcess: (node) => {
+      // Add the object type on the schemas that are missing property type
+      if ('properties' in node && !('type' in node)) {
+        node['type'] = 'object'
+      }
+    },
+  }
+}

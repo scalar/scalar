@@ -30,7 +30,7 @@ import { apply, diff, merge, type Difference } from '@scalar/json-magic/diff'
 import type { TraverseSpecOptions } from '@/navigation/types'
 import type { PartialDeep, RequiredDeep } from 'type-fest'
 import { Value } from '@sinclair/typebox/value'
-import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
+import { cleanUp, externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
 
 type DocumentConfiguration = Config &
   PartialDeep<{
@@ -487,6 +487,14 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   async function addInMemoryDocument(input: ObjectDoc & { initialize?: boolean }) {
     const { name, meta } = input
     const inputDocument = deepClone(input.document)
+
+    // Document preprocessing
+    // Clean up the document to support non compliant documents
+    // Note: we are not bundling document yet, this is just for preprocessing
+    await bundle(inputDocument, {
+      treeShake: false,
+      plugins: [cleanUp()],
+    })
 
     const looseDocument = coerceValue(OpenAPIDocumentSchemaLoose, upgrade(inputDocument).specification)
 
