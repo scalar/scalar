@@ -223,11 +223,11 @@ describe('plugins', () => {
       expect(result).toEqual({
         someProp: {
           info: {
-            '$ref': '#/x-ext/c766ed8',
+            '$ref': '#/x-ext/9002c86',
           },
         },
         'x-ext': {
-          'c766ed8': {
+          '9002c86': {
             description: 'Some description',
           },
         },

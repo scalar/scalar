@@ -217,14 +217,8 @@ export const cleanUp = (): LifecyclePlugin => {
       }
 
       // Set type to 'array' for schemas that have array-related keywords but are missing a type
-      if (
-        ('items' in node ||
-          'prefixItems' in node ||
-          'minItems' in node ||
-          'maxItems' in node ||
-          'uniqueItems' in node) &&
-        !('type' in node)
-      ) {
+      const arrayKeywords = ['items', 'prefixItems', 'minItems', 'maxItems', 'uniqueItems']
+      if (arrayKeywords.some((it) => Object.hasOwn(node, it)) && !('type' in node)) {
         node['type'] = 'array'
       }
     },
