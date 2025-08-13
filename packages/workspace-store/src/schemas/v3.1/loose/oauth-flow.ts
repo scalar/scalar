@@ -2,8 +2,6 @@ import { Type, type Static } from '@sinclair/typebox'
 
 import { compose } from '@/schemas/compose'
 
-import { ExtensionsSchema } from './extensions'
-
 /** Common properties used across all OAuth flows */
 const OAuthFlowCommonSchema = Type.Object({
   /** The URL to be used for obtaining refresh tokens. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
@@ -19,7 +17,6 @@ export const OAuthFlowImplicitSchema = compose(
     /** The authorization URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
     authorizationUrl: Type.Optional(Type.String()),
   }),
-  ExtensionsSchema,
 )
 
 /** Configuration for the OAuth Resource Owner Password flow */
@@ -29,7 +26,6 @@ export const OAuthFlowPasswordSchema = compose(
     /** The token URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
     tokenUrl: Type.Optional(Type.String()),
   }),
-  ExtensionsSchema,
 )
 
 /** Configuration for the OAuth Client Credentials flow. Previously called application in OpenAPI 2.0. */
@@ -39,7 +35,6 @@ export const OAuthFlowClientCredentialsSchema = compose(
     /** The token URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
     tokenUrl: Type.Optional(Type.String()),
   }),
-  ExtensionsSchema,
 )
 
 /** Configuration for the OAuth Authorization Code flow. Previously called accessCode in OpenAPI 2.0. */
@@ -51,7 +46,6 @@ export const OAuthFlowAuthorizationCodeSchema = compose(
     /** The token URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
     tokenUrl: Type.Optional(Type.String()),
   }),
-  ExtensionsSchema,
 )
 
 /** Union of all OAuth flow schemas */

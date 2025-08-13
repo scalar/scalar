@@ -2,7 +2,6 @@ import { Type, type Static } from '@sinclair/typebox'
 import { DiscriminatorObjectSchema } from './discriminator'
 import { XMLObjectSchema } from './xml'
 import { ExternalDocumentationObjectSchema } from './external-documentation'
-import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
 import { compose } from '@/schemas/compose'
 
 const SchemaExtensionsSchema = Type.Partial(
@@ -38,7 +37,6 @@ export const SchemaObjectSchema = compose(
      */
     examples: Type.Optional(Type.Array(Type.Unknown())),
   }),
-  ExtensionsSchema,
   SchemaExtensionsSchema,
   Type.Record(Type.String(), Type.Unknown()),
 )

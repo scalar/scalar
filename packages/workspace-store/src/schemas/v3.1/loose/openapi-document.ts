@@ -21,7 +21,6 @@ import { ComponentsObjectSchema } from './components'
 import { SecurityRequirementObjectSchema } from './security-requirement'
 import { TagObjectSchema } from './tag'
 import { ExternalDocumentationObjectSchema } from './external-documentation'
-import { ExtensionsSchema } from './extensions'
 import { PathItemObjectSchema } from './path-operations'
 import { xScalarClientConfigEnvironmentsSchema } from './client-config-extensions/x-scalar-client-config-environments'
 import { xScalarClientConfigCookiesSchema } from './client-config-extensions/x-scalar-client-config-cookies'
@@ -65,7 +64,6 @@ export type OpenApiDocumentSchemaType = TIntersect<
       tags: TOptional<TArray<typeof TagObjectSchema>>
       externalDocs: TOptional<typeof ExternalDocumentationObjectSchema>
     }>,
-    typeof ExtensionsSchema,
     typeof OpenApiExtensionsSchema,
   ]
 >
@@ -93,7 +91,6 @@ export const OpenAPIDocumentSchema: OpenApiDocumentSchemaType = compose(
     /** Additional external documentation. */
     externalDocs: Type.Optional(ExternalDocumentationObjectSchema),
   }),
-  ExtensionsSchema,
   OpenApiExtensionsSchema,
 )
 

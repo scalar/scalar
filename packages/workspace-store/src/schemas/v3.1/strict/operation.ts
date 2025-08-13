@@ -8,7 +8,6 @@ import { SecurityRequirementObjectSchema } from './security-requirement'
 import { ServerObjectSchema } from './server'
 import { compose } from '@/schemas/compose'
 import { xScalarClientConfigRequestExampleSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-request-example'
-import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
 
 const OperationExtensionsSchema = Type.Partial(
   Type.Object({
@@ -51,7 +50,6 @@ export const operationObjectSchemaBuilder = <C extends TSchema>(callback: C) =>
         ),
       }),
       OperationExtensionsSchema,
-      ExtensionsSchema,
     ),
     ReferenceObjectSchema,
   ])

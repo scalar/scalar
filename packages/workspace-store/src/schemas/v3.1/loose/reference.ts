@@ -2,8 +2,6 @@ import { Type, type Static } from '@sinclair/typebox'
 
 import { compose } from '@/schemas/compose'
 
-import { ExtensionsSchema } from './extensions'
-
 export const ReferenceObjectExtensionsSchema = Type.Object({
   /** Indicates the current status of the reference resolution. Can be either 'loading' while fetching the reference or 'error' if the resolution failed. */
   '$status': Type.Optional(Type.Union([Type.Literal('loading'), Type.Literal('error')])),
@@ -27,7 +25,6 @@ export const ReferenceObjectSchema = compose(
     description: Type.Optional(Type.String()),
   }),
   ReferenceObjectExtensionsSchema,
-  ExtensionsSchema,
 )
 
 export type ReferenceObject = Static<typeof ReferenceObjectSchema>

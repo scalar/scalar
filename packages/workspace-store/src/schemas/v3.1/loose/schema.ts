@@ -5,7 +5,6 @@ import { compose } from '@/schemas/compose'
 import { DiscriminatorObjectSchema } from './discriminator'
 import { XMLObjectSchema } from './xml'
 import { ExternalDocumentationObjectSchema } from './external-documentation'
-import { ExtensionsSchema } from './extensions'
 
 const SchemaExtensionsSchema = Type.Partial(
   Type.Object({
@@ -40,7 +39,6 @@ export const SchemaObjectSchema = compose(
      */
     examples: Type.Optional(Type.Array(Type.Unknown())),
   }),
-  ExtensionsSchema,
   SchemaExtensionsSchema,
   Type.Record(Type.String(), Type.Unknown()),
 )

@@ -1,8 +1,6 @@
 import { Type, type Static } from '@sinclair/typebox'
 import { reference } from './reference'
 import { ResponseObjectSchema } from './response'
-import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
-import { compose } from '@/schemas/compose'
 
 /**
  * A container for the expected responses of an operation. The container maps a HTTP response code to the expected response.
@@ -13,9 +11,9 @@ import { compose } from '@/schemas/compose'
  *
  * The Responses Object MUST contain at least one response code, and if only one response code is provided it SHOULD be the response for a successful operation call.
  */
-export const ResponsesObjectSchema = compose(
-  Type.Record(Type.String(), Type.Union([ResponseObjectSchema, reference(ResponseObjectSchema)])),
-  ExtensionsSchema,
+export const ResponsesObjectSchema = Type.Record(
+  Type.String(),
+  Type.Union([ResponseObjectSchema, reference(ResponseObjectSchema)]),
 )
 
 export type ResponsesObject = Static<typeof ResponsesObjectSchema>

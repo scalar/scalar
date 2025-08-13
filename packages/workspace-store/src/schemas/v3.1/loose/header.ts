@@ -3,21 +3,17 @@ import { Type, type TSchema } from '@sinclair/typebox'
 import { compose } from '@/schemas/compose'
 
 import { ExampleObjectSchema } from './example'
-import { ExtensionsSchema } from './extensions'
 import { ReferenceObjectSchema } from './reference'
 import { SchemaObjectSchema } from './schema'
 
-export const HeaderObjectSchemaBase = compose(
-  Type.Object({
-    /** A brief description of the header. This could contain examples of use. CommonMark syntax MAY be used for rich text representation. */
-    description: Type.Optional(Type.String()),
-    /** Determines whether this header is mandatory. The default value is false. */
-    required: Type.Optional(Type.Boolean()),
-    /** Specifies that the header is deprecated and SHOULD be transitioned out of usage. Default value is false. */
-    deprecated: Type.Optional(Type.Boolean()),
-  }),
-  ExtensionsSchema,
-)
+export const HeaderObjectSchemaBase = Type.Object({
+  /** A brief description of the header. This could contain examples of use. CommonMark syntax MAY be used for rich text representation. */
+  description: Type.Optional(Type.String()),
+  /** Determines whether this header is mandatory. The default value is false. */
+  required: Type.Optional(Type.Boolean()),
+  /** Specifies that the header is deprecated and SHOULD be transitioned out of usage. Default value is false. */
+  deprecated: Type.Optional(Type.Boolean()),
+})
 
 export const HeaderObjectWithSchemaSchema = compose(
   HeaderObjectSchemaBase,

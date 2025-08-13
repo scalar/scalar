@@ -3,15 +3,11 @@ import { Type, type Static } from '@sinclair/typebox'
 import { compose } from '@/schemas/compose'
 
 import { OAuthFlowsObjectSchema } from './oauthflows'
-import { ExtensionsSchema } from './extensions'
 
-export const DescriptionSchema = compose(
-  Type.Object({
-    /** A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
-    description: Type.Optional(Type.String()),
-  }),
-  ExtensionsSchema,
-)
+export const DescriptionSchema = Type.Object({
+  /** A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
+  description: Type.Optional(Type.String()),
+})
 
 export const ApiKeySchema = compose(
   DescriptionSchema,

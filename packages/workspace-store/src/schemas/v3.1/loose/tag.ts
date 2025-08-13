@@ -3,7 +3,6 @@ import { Type, type Static } from '@sinclair/typebox'
 import { compose } from '@/schemas/compose'
 
 import { ExternalDocumentationObjectSchema } from './external-documentation'
-import { ExtensionsSchema } from './extensions'
 
 const TagExtensionsSchema = Type.Partial(
   Type.Object({
@@ -22,7 +21,6 @@ export const TagObjectSchema = compose(
     externalDocs: Type.Optional(ExternalDocumentationObjectSchema),
   }),
   TagExtensionsSchema,
-  ExtensionsSchema,
 )
 
 export type TagObject = Static<typeof TagObjectSchema>

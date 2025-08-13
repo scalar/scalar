@@ -1,5 +1,3 @@
-import { compose } from '@/schemas/compose'
-import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
 import { Type, type Static } from '@sinclair/typebox'
 
 /**
@@ -7,14 +5,11 @@ import { Type, type Static } from '@sinclair/typebox'
  *
  * Note that discriminator MUST NOT change the validation outcome of the schema.
  */
-export const DiscriminatorObjectSchema = compose(
-  Type.Object({
-    /** REQUIRED. The name of the property in the payload that will hold the discriminating value. This property SHOULD be required in the payload schema, as the behavior when the property is absent is undefined. */
-    propertyName: Type.String(),
-    /** An object to hold mappings between payload values and schema names or URI references. */
-    mapping: Type.Optional(Type.Record(Type.String(), Type.String())),
-  }),
-  ExtensionsSchema,
-)
+export const DiscriminatorObjectSchema = Type.Object({
+  /** REQUIRED. The name of the property in the payload that will hold the discriminating value. This property SHOULD be required in the payload schema, as the behavior when the property is absent is undefined. */
+  propertyName: Type.String(),
+  /** An object to hold mappings between payload values and schema names or URI references. */
+  mapping: Type.Optional(Type.Record(Type.String(), Type.String())),
+})
 
 export type DiscriminatorObject = Static<typeof DiscriminatorObjectSchema>

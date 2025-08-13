@@ -10,7 +10,6 @@ import { ResponsesObjectSchema } from './responses'
 import { SecurityRequirementObjectSchema } from './security-requirement'
 import { ServerObjectSchema } from './server'
 import { xScalarClientConfigRequestExampleSchema } from './client-config-extensions/x-scalar-client-config-request-example'
-import { ExtensionsSchema } from './extensions'
 
 const OperationExtensionsSchema = Type.Partial(
   Type.Object({
@@ -48,7 +47,6 @@ export const operationObjectSchemaBuilder = <C extends TSchema>(callback: C) =>
         callbacks: Type.Optional(Type.Record(Type.String(), Type.Union([callback, ReferenceObjectSchema]))),
       }),
       OperationExtensionsSchema,
-      ExtensionsSchema,
     ),
     ReferenceObjectSchema,
   ])
