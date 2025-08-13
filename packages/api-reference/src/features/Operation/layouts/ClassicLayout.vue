@@ -37,6 +37,7 @@ import OperationParameters from '@/features/Operation/components/OperationParame
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
 import type { Schemas } from '@/features/Operation/types/schemas'
 import { TestRequestButton } from '@/features/test-request-button'
+import { XBadges } from '@/features/x-badges'
 import { useConfig } from '@/hooks/useConfig'
 import { RequestExample } from '@/v2/blocks/scalar-request-example-block'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
@@ -93,23 +94,35 @@ const handleDiscriminatorChange = (type: string) => {
               <div class="endpoint-label-name">
                 {{ operationTitle }}
               </div>
+              <!-- Stability badge -->
               <Badge
+                class="capitalize"
                 v-if="getOperationStability(operation)"
                 :class="getOperationStabilityColor(operation)">
                 {{ getOperationStability(operation) }}
               </Badge>
 
+              <!-- Webhook badge -->
               <Badge
                 v-if="isWebhook"
                 class="font-code text-green flex w-fit items-center justify-center gap-1">
                 <ScalarIconWebhooksLogo weight="bold" />Webhook
               </Badge>
+
+              <!-- x-badges before -->
+              <XBadges
+                :badges="operation['x-badges']"
+                position="before" />
             </h3>
           </Anchor>
         </div>
       </div>
     </template>
     <template #actions="{ active }">
+      <!-- x-badges after -->
+      <XBadges
+        :badges="operation['x-badges']"
+        position="after" />
       <TestRequestButton
         v-if="active && !isWebhook"
         :method="method"
