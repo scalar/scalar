@@ -4,8 +4,8 @@ import { createSSRApp, h } from 'vue'
 
 import { dereference, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import ApiReferenceLayout from './ApiReferenceLayout.vue'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import ApiReferenceLayout from './ApiReferenceLayout.vue'
 
 const EXAMPLE_API_DEFINITIONS = [
   {
@@ -15,12 +15,12 @@ const EXAMPLE_API_DEFINITIONS = [
   },
   {
     title: 'Scalar Galaxy',
-    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+    url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
     name: 'scalar-galaxy-1.json',
   },
   {
     title: 'Scalar Galaxy',
-    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+    url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=yaml',
     name: 'scalar-galaxy-2.yaml',
   },
   {
