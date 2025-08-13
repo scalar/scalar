@@ -1,5 +1,7 @@
 // Theming
 import '@scalar/themes/style.css'
+import '@scalar/themes/fonts.css'
+
 import type { Preview } from '@storybook/vue3'
 
 import '../src/style.css'
