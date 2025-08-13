@@ -1,6 +1,6 @@
 # Scalar API Reference for .NET ASP.NET Core
 
-The `Scalar.AspNetCore` NuGet package provides an easy way to render beautiful API References based on OpenAPI/Swagger documents.
+The `Scalar.AspNetCore` NuGet package provides an easy way to render beautiful API References based on OpenAPI documents.
 
 ## Basic Setup
 
@@ -32,7 +32,7 @@ if (app.Environment.IsDevelopment())
 }
 ```
 
-For `Swashbuckle.AspNetCore`:
+For `Swashbuckle.AspNetCore.SwaggerGen`:
 
 ```csharp
 builder.Services.AddEndpointsApiExplorer();
@@ -40,10 +40,7 @@ builder.Services.AddSwaggerGen();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger(options =>
-    {
-        options.RouteTemplate = "/openapi/{documentName}.json";
-    });
+    app.MapSwagger("/openapi/{documentName}.json");
     app.MapScalarApiReference();
 }
 ```
@@ -131,16 +128,16 @@ app.MapScalarApiReference("/api-reference");
 
 ### OpenAPI Document Route
 
-Scalar expects the OpenAPI document to be available at `/openapi/{documentName}.json`, which aligns with the default route used by the `Microsoft.AspNetCore.OpenApi` package. If your OpenAPI document is hosted at a different path (such as when using `Swashbuckle.AspNetCore` or `NSwag`), you can specify the correct path or URL using the `OpenApiRoutePattern` property:
+Scalar expects the OpenAPI document to be available at `/openapi/{documentName}.json`, which aligns with the default route used by the `Microsoft.AspNetCore.OpenApi` package. If your OpenAPI document is hosted at a different path you can specify the correct path or URL using the `OpenApiRoutePattern` property:
 
 ```csharp
 app.MapScalarApiReference(options =>
 {
-    options.WithOpenApiRoutePattern("/swagger/{documentName}.json");
+    options.WithOpenApiRoutePattern("/api-documentation/{documentName}.json");
     // or
-    options.OpenApiRoutePattern = "/swagger/{documentName}.json";
+    options.OpenApiRoutePattern = "/api-documentation/{documentName}.json";
     // Can also point to an external URL:
-    options.OpenApiRoutePattern = "https://example.com/swagger/{documentName}.json";
+    options.OpenApiRoutePattern = "https://example.com/api-documentation/{documentName}.json";
 });
 ```
 
@@ -719,10 +716,10 @@ This guide explains how to integrate Scalar API Reference into .NET Framework an
 
 ### Prerequisites
 
-- An ASP.NET or ASP.NET Core application with OpenAPI/Swagger support (using `Swashbuckle.AspNetCore` or `NSwag`)
+- An ASP.NET or ASP.NET Core application with OpenAPI support (using `Swashbuckle.AspNetCore` or `NSwag`)
 
 
-### Step 1: Enable Swagger/OpenAPI in your project
+### Step 1: Enable OpenAPI support in your project
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
@@ -818,9 +815,9 @@ To use a specific version instead of the latest, specify the version in your HTM
 
 ### Troubleshooting
 
-- **Swagger JSON not loading**: Verify the URL path to your Swagger JSON in the configuration
+- **OpenAPI document doesn't load**: Verify the URL path to your OpenAPI document in the configuration
 - **CORS issues**: Ensure your API allows CORS if hosted on a different domain
 - **Static files not serving**: Check that `app.UseStaticFiles()` is present in your middleware pipeline
 - **404 errors**: Confirm the directory structure and that the files are correctly named
 
-For more configuration options, refer to the [official Scalar configuration documentation](https://github.com/scalar/scalar/blob/main/documentation/configuration.md).
+For more configuration options, refer to the [official Scalar configuration documentation](https://guides.scalar.com/scalar/scalar-api-references/configuration).
