@@ -13,6 +13,7 @@ import { xScalarClientConfigRequestExampleSchema } from './client-config-extensi
 import { XBadgesSchema } from '@/schemas/extensions/operation/x-badge'
 import { XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
 import { XInternalSchema } from '@/schemas/extensions/document/x-internal'
+import { XCodeSamplesSchema } from '@/schemas/extensions/operation/x-code-samples'
 
 const OperationExtensionsSchema = Type.Partial(
   Type.Object({
@@ -53,6 +54,7 @@ export const operationObjectSchemaBuilder = <C extends TSchema>(callback: C) =>
       XBadgesSchema,
       XInternalSchema,
       XScalarIgnoreSchema,
+      XCodeSamplesSchema,
     ),
     ReferenceObjectSchema,
   ])

@@ -1,6 +1,7 @@
 import { Type, type Static } from '@sinclair/typebox'
 
 import { compose } from '@/schemas/compose'
+import { XScalarSecretTokenSchema } from '@/schemas/extensions/security/x-scalar-security-secrets'
 
 /** Common properties used across all OAuth flows */
 const OAuthFlowCommonSchema = Type.Object({
@@ -13,6 +14,7 @@ const OAuthFlowCommonSchema = Type.Object({
 /** Configuration for the OAuth Implicit flow */
 export const OAuthFlowImplicitSchema = compose(
   OAuthFlowCommonSchema,
+  XScalarSecretTokenSchema,
   Type.Object({
     /** The authorization URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
     authorizationUrl: Type.Optional(Type.String()),
@@ -22,6 +24,7 @@ export const OAuthFlowImplicitSchema = compose(
 /** Configuration for the OAuth Resource Owner Password flow */
 export const OAuthFlowPasswordSchema = compose(
   OAuthFlowCommonSchema,
+  XScalarSecretTokenSchema,
   Type.Object({
     /** The token URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
     tokenUrl: Type.Optional(Type.String()),
@@ -31,6 +34,7 @@ export const OAuthFlowPasswordSchema = compose(
 /** Configuration for the OAuth Client Credentials flow. Previously called application in OpenAPI 2.0. */
 export const OAuthFlowClientCredentialsSchema = compose(
   OAuthFlowCommonSchema,
+  XScalarSecretTokenSchema,
   Type.Object({
     /** The token URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
     tokenUrl: Type.Optional(Type.String()),
@@ -40,6 +44,7 @@ export const OAuthFlowClientCredentialsSchema = compose(
 /** Configuration for the OAuth Authorization Code flow. Previously called accessCode in OpenAPI 2.0. */
 export const OAuthFlowAuthorizationCodeSchema = compose(
   OAuthFlowCommonSchema,
+  XScalarSecretTokenSchema,
   Type.Object({
     /** The authorization URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
     authorizationUrl: Type.Optional(Type.String()),

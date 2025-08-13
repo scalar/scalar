@@ -1,6 +1,10 @@
 import { Type, type Static } from '@sinclair/typebox'
 import { OAuthFlowsObjectSchema } from './oauthflows'
 import { compose } from '@/schemas/compose'
+import {
+  XScalarSecretHTTPSchema,
+  XScalarSecretTokenSchema,
+} from '@/schemas/extensions/security/x-scalar-security-secrets'
 
 export const DescriptionSchema = Type.Object({
   /** A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
@@ -9,6 +13,7 @@ export const DescriptionSchema = Type.Object({
 
 export const ApiKeySchema = compose(
   DescriptionSchema,
+  XScalarSecretTokenSchema,
   Type.Object({
     /** REQUIRED. The type of the security scheme. Valid values are "apiKey", "http", "mutualTLS", "oauth2", "openIdConnect". */
     type: Type.Literal('apiKey'),
@@ -21,6 +26,8 @@ export const ApiKeySchema = compose(
 
 export const HttpSchema = compose(
   DescriptionSchema,
+  XScalarSecretTokenSchema,
+  XScalarSecretHTTPSchema,
   Type.Object({
     /** REQUIRED. The type of the security scheme. Valid values are "apiKey", "http", "mutualTLS", "oauth2", "openIdConnect". */
     type: Type.Literal('http'),

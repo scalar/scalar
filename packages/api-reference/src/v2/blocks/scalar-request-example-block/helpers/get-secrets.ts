@@ -2,7 +2,7 @@ import { isDefined } from '@scalar/helpers/array/is-defined'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 
 /** Extract secrets from security schemes */
-export const getSecrets = (securitySchemes: SecuritySchemeObject[]) =>
+export const getSecrets = (securitySchemes: SecuritySchemeObject[]): string[] =>
   securitySchemes
     .flatMap((scheme) => {
       if (scheme.type === 'apiKey') {
@@ -23,4 +23,4 @@ export const getSecrets = (securitySchemes: SecuritySchemeObject[]) =>
 
       return []
     })
-    .filter(isDefined) as string[]
+    .filter(isDefined)

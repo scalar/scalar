@@ -40,21 +40,9 @@ export const requestExampleMutators = (document?: WorkspaceDocument) => {
     slug,
     request,
   }: OperationIdentifier & { slug: string; request: XScalarClientConfigRequestExample }) => {
-    if (!document || !document.paths) {
-      return false
-    }
+    const operation = document?.paths?.[path]?.[method]
 
-    if (!document.paths[path]) {
-      document.paths[path] = {}
-    }
-
-    if (!document.paths[path][method]) {
-      document.paths[path][method] = {}
-    }
-
-    const operation = document.paths[path][method]
-
-    if (isReference(operation)) {
+    if (!operation || isReference(operation)) {
       return false
     }
 
