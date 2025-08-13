@@ -171,11 +171,34 @@ export const restoreOriginalRefs = (): LifecyclePlugin => {
   }
 }
 
+/**
+ * Lifecycle plugin to clean up OpenAPI schema nodes before processing.
+ *
+ * This plugin ensures that any schema object with a "properties" field but missing a "type"
+ * will have its "type" set to "object". This is important for OpenAPI/JSON Schema compatibility,
+ * as schemas with "properties" but no "type" are ambiguous and may not be interpreted correctly
+ * by validators or tooling.
+ *
+ * Usage:
+ * - Use this plugin in the bundling process to automatically fix schemas that omit "type: object"
+ *   when defining properties.
+ *
+ * Example:
+ *   // Before:
+ *   {
+ *     properties: { foo: { type: "string" } }
+ *   }
+ *   // After plugin:
+ *   {
+ *     type: "object",
+ *     properties: { foo: { type: "string" } }
+ *   }
+ */
 export const cleanUp = (): LifecyclePlugin => {
   return {
     type: 'lifecycle',
     onBeforeNodeProcess: (node) => {
-      // Add the object type on the schemas that are missing property type
+      // If the node has "properties" but no "type", set "type" to "object"
       if ('properties' in node && !('type' in node)) {
         node['type'] = 'object'
       }

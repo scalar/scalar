@@ -1,5 +1,5 @@
 import { deepClone } from '@/helpers/general'
-import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
+import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs, cleanUp } from '@/plugins'
 import { bundle } from '@scalar/json-magic/bundle'
 import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
 import { fastify, type FastifyInstance } from 'fastify'
@@ -285,6 +285,325 @@ describe('plugins', () => {
           'c766ed8': 'http://localhost:9988',
         },
       })
+    })
+  })
+
+  describe('cleanUp', () => {
+    it('adds type: object to schemas with properties but no type', async () => {
+      const input = {
+        components: {
+          schemas: {
+            User: {
+              properties: {
+                name: { type: 'string' },
+                email: { type: 'string' },
+              },
+            },
+            Product: {
+              properties: {
+                id: { type: 'string' },
+                price: { type: 'number' },
+              },
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [cleanUp()],
+      })
+
+      expect((input.components.schemas.User as any).type).toBe('object')
+      expect((input.components.schemas.Product as any).type).toBe('object')
+    })
+
+    it('does not modify schemas that already have a type', async () => {
+      const input = {
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+              },
+            },
+            StringSchema: {
+              type: 'string',
+              properties: {
+                minLength: { type: 'number' },
+              },
+            },
+          },
+        },
+      }
+
+      const originalInput = deepClone(input)
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [cleanUp()],
+      })
+
+      expect(input).toEqual(originalInput)
+    })
+
+    it('does not modify nodes without properties', async () => {
+      const input = {
+        components: {
+          schemas: {
+            SimpleString: { type: 'string' },
+            SimpleNumber: { type: 'number' },
+            SimpleBoolean: { type: 'boolean' },
+          },
+        },
+      }
+
+      const originalInput = deepClone(input)
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [cleanUp()],
+      })
+
+      expect(input).toEqual(originalInput)
+    })
+
+    it('handles nested schema objects', async () => {
+      const input = {
+        components: {
+          schemas: {
+            User: {
+              properties: {
+                profile: {
+                  properties: {
+                    avatar: { type: 'string' },
+                  },
+                },
+                settings: {
+                  properties: {
+                    theme: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [cleanUp()],
+      })
+
+      expect((input.components.schemas.User as any).type).toBe('object')
+      expect((input.components.schemas.User as any).properties.profile.type).toBe('object')
+      expect((input.components.schemas.User as any).properties.settings.type).toBe('object')
+    })
+
+    it('handles array items with properties', async () => {
+      const input = {
+        components: {
+          schemas: {
+            UserList: {
+              type: 'array',
+              items: {
+                properties: {
+                  name: { type: 'string' },
+                  email: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [cleanUp()],
+      })
+
+      expect((input.components.schemas.UserList.items as any).type).toBe('object')
+    })
+
+    it('handles allOf, anyOf, oneOf schemas', async () => {
+      const input = {
+        components: {
+          schemas: {
+            CombinedUser: {
+              allOf: [
+                {
+                  properties: {
+                    base: { type: 'string' },
+                  },
+                },
+                {
+                  properties: {
+                    extended: { type: 'string' },
+                  },
+                },
+              ],
+            },
+            AlternativeUser: {
+              anyOf: [
+                {
+                  properties: {
+                    option1: { type: 'string' },
+                  },
+                },
+                {
+                  properties: {
+                    option2: { type: 'string' },
+                  },
+                },
+              ],
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [cleanUp()],
+      })
+
+      expect((input.components.schemas.CombinedUser.allOf[0] as any).type).toBe('object')
+      expect((input.components.schemas.CombinedUser.allOf[1] as any).type).toBe('object')
+      expect((input.components.schemas.AlternativeUser.anyOf[0] as any).type).toBe('object')
+      expect((input.components.schemas.AlternativeUser.anyOf[1] as any).type).toBe('object')
+    })
+
+    it('handles requestBody and responses', async () => {
+      const input = {
+        paths: {
+          '/users': {
+            post: {
+              requestBody: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      properties: {
+                        name: { type: 'string' },
+                        email: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+              },
+              responses: {
+                '200': {
+                  content: {
+                    'application/json': {
+                      schema: {
+                        properties: {
+                          id: { type: 'string' },
+                          success: { type: 'boolean' },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [cleanUp()],
+      })
+
+      expect((input.paths['/users'].post.requestBody?.content['application/json'].schema as any).type).toBe('object')
+      expect((input.paths['/users'].post.responses['200']?.content['application/json'].schema as any).type).toBe(
+        'object',
+      )
+    })
+
+    it('preserves existing properties when adding type', async () => {
+      const input = {
+        components: {
+          schemas: {
+            User: {
+              properties: {
+                name: { type: 'string' },
+                email: { type: 'string' },
+              },
+              required: ['name', 'email'],
+              description: 'A user in the system',
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [cleanUp()],
+      })
+
+      expect((input.components.schemas.User as any).type).toBe('object')
+      expect(input.components.schemas.User.properties).toEqual({
+        name: { type: 'string' },
+        email: { type: 'string' },
+      })
+      expect(input.components.schemas.User.required).toEqual(['name', 'email'])
+      expect(input.components.schemas.User.description).toBe('A user in the system')
+    })
+
+    it('handles empty properties object', async () => {
+      const input = {
+        components: {
+          schemas: {
+            EmptySchema: {
+              properties: {},
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [cleanUp()],
+      })
+
+      expect((input.components.schemas.EmptySchema as any).type).toBe('object')
+      expect(input.components.schemas.EmptySchema.properties).toEqual({})
+    })
+
+    it('does not modify non-schema nodes', async () => {
+      const input = {
+        info: {
+          title: 'API',
+          version: '1.0.0',
+        },
+        servers: [
+          {
+            url: 'https://api.example.com',
+            description: 'Production server',
+          },
+        ],
+        paths: {
+          '/health': {
+            get: {
+              summary: 'Health check',
+              responses: {
+                '200': {
+                  description: 'OK',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const originalInput = deepClone(input)
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [cleanUp()],
+      })
+
+      expect(input).toEqual(originalInput)
     })
   })
 })
