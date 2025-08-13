@@ -32,9 +32,9 @@ public abstract class ScalarOptions
     public bool ShowSidebar { get; set; } = true;
 
     /// <summary>
-    /// Gets or sets whether the sidebar and search should use the operation summary or the operation path.
+    /// Gets or sets whether the sidebar and search should use the operation <i>summary</i> or the operation <i>path</i>.
     /// </summary>
-    /// <value>The default value is 'summary.</value>
+    /// <value>The default value is <i>summary</i>.</value>
     public TitleSource? OperationTitleSource { get; set; }
 
     /// <summary>
