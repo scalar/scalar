@@ -1,6 +1,5 @@
 ﻿using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
-using Aspire.Hosting.Lifecycle;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Scalar.Aspire;
@@ -50,8 +49,6 @@ public static class DistributedApplicationBuilderExtensions
             builder.Services.Configure(name, configureOptions);
         }
 
-        builder.Services.TryAddLifecycleHook<ScalarHook>();
-
         var resource = new ScalarResource(name);
         return builder
             .AddResource(resource)
@@ -63,6 +60,12 @@ public static class DistributedApplicationBuilderExtensions
                 x.DisplayText = "Scalar API Reference";
                 x.Url = ApiReferenceEndpoint;
             })
-            .WithHttpHealthCheck(HealthCheckEndpoint);
+            .WithHttpHealthCheck(HealthCheckEndpoint)
+            .WithEnvironment(async context =>
+            {
+                var provider = context.ExecutionContext.ServiceProvider;
+                var hook = new ScalarHook(provider);
+                await hook.ConfigureScalarResourceAsync(context, context.CancellationToken);
+            });
     }
 }

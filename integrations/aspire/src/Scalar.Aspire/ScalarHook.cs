@@ -2,14 +2,13 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Aspire.Hosting.ApplicationModel;
-using Aspire.Hosting.Lifecycle;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Scalar.Aspire.Helper;
 
 namespace Scalar.Aspire;
 
-internal sealed class ScalarHook(IServiceProvider provider) : IDistributedApplicationLifecycleHook
+internal sealed class ScalarHook(IServiceProvider provider)
 {
     private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
@@ -17,35 +16,23 @@ internal sealed class ScalarHook(IServiceProvider provider) : IDistributedApplic
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    public async Task BeforeStartAsync(DistributedApplicationModel appModel, CancellationToken cancellationToken = default)
+    public async Task ConfigureScalarResourceAsync(EnvironmentCallbackContext context, CancellationToken cancellationToken)
     {
-        var scalarResources = appModel.Resources.OfType<ScalarResource>();
-
-        foreach (var scalarResource in scalarResources)
-        {
-            await ConfigureScalarResourceAsync(scalarResource, cancellationToken);
-        }
-    }
-
-    private async Task ConfigureScalarResourceAsync(ScalarResource scalarResource, CancellationToken cancellationToken)
-    {
-        var scalarAnnotations = scalarResource.Annotations.OfType<ScalarAnnotation>();
+        var resource = context.Resource;
+        var scalarAnnotations = resource.Annotations.OfType<ScalarAnnotation>();
         var scalarConfigurations = CreateConfigurationsAsync(provider, scalarAnnotations, cancellationToken);
 
         var serializedConfigurations = await scalarConfigurations.ToScalarConfigurationsAsync(cancellationToken).SerializeToJsonAsync(JsonSerializerOptions, cancellationToken);
 
-        var scalarAspireOptions = provider.GetRequiredService<IOptionsMonitor<ScalarAspireOptions>>().Get(scalarResource.Name);
-        var callback = new EnvironmentCallbackAnnotation(context =>
+        var scalarAspireOptions = provider.GetRequiredService<IOptionsMonitor<ScalarAspireOptions>>().Get(resource.Name);
+
+        var environmentVariables = context.EnvironmentVariables;
+        environmentVariables.Add(ApiReferenceConfig, serializedConfigurations);
+        environmentVariables.Add(CdnUrl, scalarAspireOptions.CdnUrl);
+        if (scalarAspireOptions.DefaultProxy)
         {
-            var environmentVariables = context.EnvironmentVariables;
-            environmentVariables.Add(ApiReferenceConfig, serializedConfigurations);
-            environmentVariables.Add(CdnUrl, scalarAspireOptions.CdnUrl);
-            if (scalarAspireOptions.DefaultProxy)
-            {
-                environmentVariables.Add(DefaultProxy, "true");
-            }
-        });
-        scalarResource.Annotations.Add(callback);
+            environmentVariables.Add(DefaultProxy, "true");
+        }
     }
 
     private static async IAsyncEnumerable<ScalarOptions> CreateConfigurationsAsync(IServiceProvider serviceProvider, IEnumerable<ScalarAnnotation> annotations, [EnumeratorCancellation] CancellationToken cancellationToken)
