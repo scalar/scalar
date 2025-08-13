@@ -121,9 +121,13 @@ const applyChangesToDocument = (schema: UnknownObject, path: string[]) => {
     return {}
   }
 
+  // 6. Handle older formats
+  const { format: _, ...rest } = schema
+
   if (schema.type === 'string') {
     if (schema.format === 'binary') {
       return {
+        ...rest,
         type: 'string',
         contentMediaType: 'application/octet-stream',
       }
@@ -131,6 +135,7 @@ const applyChangesToDocument = (schema: UnknownObject, path: string[]) => {
 
     if (schema.format === 'base64') {
       return {
+        ...rest,
         type: 'string',
         contentEncoding: 'base64',
       }
@@ -140,6 +145,7 @@ const applyChangesToDocument = (schema: UnknownObject, path: string[]) => {
       const parentPath = path.slice(0, -1)
       const contentMediaType = parentPath.find((_, index) => path[index - 1] === 'content')
       return {
+        ...rest,
         type: 'string',
         contentEncoding: 'base64',
         contentMediaType,
@@ -147,7 +153,7 @@ const applyChangesToDocument = (schema: UnknownObject, path: string[]) => {
     }
   }
 
-  // 6. Handle x-webhooks
+  // 7. Handle x-webhooks
   if (schema['x-webhooks'] !== undefined) {
     schema.webhooks = schema['x-webhooks']
     delete schema['x-webhooks']
