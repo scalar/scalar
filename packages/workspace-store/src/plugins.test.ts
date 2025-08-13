@@ -161,7 +161,7 @@ describe('plugins', () => {
 
   describe('refsEverywhere', () => {
     let server: FastifyInstance
-    const port = 9988
+    const port = 9181
     const url = `http://localhost:${port}`
 
     beforeEach(() => {
