@@ -174,14 +174,17 @@ export const restoreOriginalRefs = (): LifecyclePlugin => {
 /**
  * Lifecycle plugin to clean up OpenAPI schema nodes before processing.
  *
- * This plugin ensures that any schema object with a "properties" field but missing a "type"
- * will have its "type" set to "object". This is important for OpenAPI/JSON Schema compatibility,
- * as schemas with "properties" but no "type" are ambiguous and may not be interpreted correctly
- * by validators or tooling.
+ * This plugin automatically adds missing "type" fields to schema objects for better OpenAPI/JSON Schema compatibility.
+ *
+ * - If a schema object contains a "properties" field but lacks a "type", it sets "type" to "object".
+ *   This ensures that schemas with defined properties are explicitly typed as objects, which is required by many tools and validators.
+ *
+ * - If a schema object contains array-related keywords ("items", "prefixItems", "minItems", "maxItems", or "uniqueItems") but lacks a "type",
+ *   it sets "type" to "array". This helps clarify the intended structure for array schemas that may be missing the explicit type.
  *
  * Usage:
- * - Use this plugin in the bundling process to automatically fix schemas that omit "type: object"
- *   when defining properties.
+ *   Use this plugin in the bundling process to automatically fix schemas that omit "type: object" or "type: array"
+ *   when defining properties or array-related keywords.
  *
  * Example:
  *   // Before:
@@ -193,6 +196,16 @@ export const restoreOriginalRefs = (): LifecyclePlugin => {
  *     type: "object",
  *     properties: { foo: { type: "string" } }
  *   }
+ *
+ *   // Before:
+ *   {
+ *     items: { type: "string" }
+ *   }
+ *   // After plugin:
+ *   {
+ *     type: "array",
+ *     items: { type: "string" }
+ *   }
  */
 export const cleanUp = (): LifecyclePlugin => {
   return {
@@ -201,6 +214,18 @@ export const cleanUp = (): LifecyclePlugin => {
       // If the node has "properties" but no "type", set "type" to "object"
       if ('properties' in node && !('type' in node)) {
         node['type'] = 'object'
+      }
+
+      // Set type to 'array' for schemas that have array-related keywords but are missing a type
+      if (
+        ('items' in node ||
+          'prefixItems' in node ||
+          'minItems' in node ||
+          'maxItems' in node ||
+          'uniqueItems' in node) &&
+        !('type' in node)
+      ) {
+        node['type'] = 'array'
       }
     },
   }

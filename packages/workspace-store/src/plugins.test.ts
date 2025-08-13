@@ -605,5 +605,133 @@ describe('plugins', () => {
 
       expect(input).toEqual(originalInput)
     })
+
+    it('adds type: array to schemas with array-related keywords', async () => {
+      const input = {
+        components: {
+          schemas: {
+            StringArray: {
+              items: { type: 'string' },
+            },
+            NumberArray: {
+              prefixItems: [{ type: 'number' }, { type: 'string' }],
+            },
+            ConstrainedArray: {
+              minItems: 1,
+              maxItems: 10,
+              items: { type: 'boolean' },
+            },
+            UniqueArray: {
+              uniqueItems: true,
+              items: { type: 'string' },
+            },
+            MixedArray: {
+              items: { type: 'string' },
+              minItems: 0,
+              maxItems: 100,
+              uniqueItems: false,
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [cleanUp()],
+      })
+
+      expect((input.components.schemas.StringArray as any).type).toBe('array')
+      expect((input.components.schemas.NumberArray as any).type).toBe('array')
+      expect((input.components.schemas.ConstrainedArray as any).type).toBe('array')
+      expect((input.components.schemas.UniqueArray as any).type).toBe('array')
+      expect((input.components.schemas.MixedArray as any).type).toBe('array')
+    })
+
+    it('handles schemas with both properties and array keywords', async () => {
+      const input = {
+        components: {
+          schemas: {
+            ComplexSchema: {
+              properties: {
+                name: { type: 'string' },
+              },
+              items: { type: 'string' },
+              minItems: 1,
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [cleanUp()],
+      })
+
+      // Should prioritize object type when both properties and array keywords exist
+      expect((input.components.schemas.ComplexSchema as any).type).toBe('object')
+    })
+
+    it('handles deeply nested array schemas', async () => {
+      const input = {
+        components: {
+          schemas: {
+            NestedArray: {
+              type: 'array',
+              items: {
+                type: 'array',
+                items: {
+                  properties: {
+                    value: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [cleanUp()],
+      })
+
+      // Should add type: object to the nested schema with properties
+      expect((input.components.schemas.NestedArray.items.items as any).type).toBe('object')
+    })
+
+    it('handles schemas with only one array keyword', async () => {
+      const input = {
+        components: {
+          schemas: {
+            OnlyItems: {
+              items: { type: 'string' },
+            },
+            OnlyMinItems: {
+              minItems: 0,
+            },
+            OnlyMaxItems: {
+              maxItems: 10,
+            },
+            OnlyUniqueItems: {
+              uniqueItems: true,
+            },
+            OnlyPrefixItems: {
+              prefixItems: [{ type: 'number' }],
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [cleanUp()],
+      })
+
+      expect((input.components.schemas.OnlyItems as any).type).toBe('array')
+      expect((input.components.schemas.OnlyMinItems as any).type).toBe('array')
+      expect((input.components.schemas.OnlyMaxItems as any).type).toBe('array')
+      expect((input.components.schemas.OnlyUniqueItems as any).type).toBe('array')
+      expect((input.components.schemas.OnlyPrefixItems as any).type).toBe('array')
+    })
   })
 })

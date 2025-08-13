@@ -1040,12 +1040,10 @@ describe('create-workspace-store', () => {
                   content: {
                     'application/json': {
                       schema: {
-                        properties: {
-                          id: {
-                            type: 'string',
-                          },
-                          name: {
-                            type: 'string',
+                        items: {
+                          properties: {
+                            id: { type: 'string' },
+                            name: { type: 'string' },
                           },
                         },
                       },
@@ -1060,7 +1058,7 @@ describe('create-workspace-store', () => {
     })
 
     expect(store.exportDocument('default', 'json')).toEqual(
-      '{"openapi":"3.1.1","info":{"title":"Missing Object Type Example","version":"1.0.0"},"paths":{"/user":{"get":{"summary":"Get user info","responses":{"200":{"description":"User object without explicit type: object","content":{"application/json":{"schema":{"properties":{"id":{"type":"string"},"name":{"type":"string"}},"type":"object"}}}}}}}}}',
+      '{"openapi":"3.1.1","info":{"title":"Missing Object Type Example","version":"1.0.0"},"paths":{"/user":{"get":{"summary":"Get user info","responses":{"200":{"description":"User object without explicit type: object","content":{"application/json":{"schema":{"items":{"properties":{"id":{"type":"string"},"name":{"type":"string"}},"type":"object"},"type":"array"}}}}}}}}}',
     )
   })
 
