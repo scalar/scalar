@@ -1,0 +1,75 @@
+name: Update Scalar CLI Documentation
+
+on:
+  # Run every day at 15:00 UTC
+  schedule:
+    - cron: '0 15 * * *'
+  # Allow manual triggering
+  workflow_dispatch:
+
+jobs:
+  update-cli-docs:
+    name: Update CLI Documentation
+    permissions:
+      contents: read
+      pull-requests: write
+    if: ${{ github.repository_owner == 'scalar' }}
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        node-version: [22]
+        commands-markdown: [documentation/guides/cli/commands.md]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Generate CLI documentation
+        run: npx @scalar/cli@latest readme generate --output ${{ matrix.commands-markdown }}
+      - name: Extract just the commands
+        run: |
+          sed -n '/^## Commands$/,/^## /p' ${{ matrix.commands-markdown }} | sed '$d' > ${{ matrix.commands-markdown }}-extracted.md
+      - name: Update the heading levels
+        run: |
+          awk '
+            BEGIN { code=0 }
+            /^[[:space:]]*(```|~~~)/ { code = !code; print; next }
+            !code && /^#{1,6} / {
+              sub(/^#/, "", $0)  # remove one leading #
+            }
+            { print }
+          ' ${{ matrix.commands-markdown }}-extracted.md > ${{ matrix.commands-markdown }}
+      - name: Remove the temporary files
+        run: rm -Rf ${{ matrix.commands-markdown }}-*.md
+      - name: Check for changes
+        id: check-changes
+        run: |
+          if git diff --quiet ${{ matrix.commands-markdown }}; then
+            echo "has-changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has-changes=true" >> $GITHUB_OUTPUT
+          fi
+      - name: Create Pull Request
+        if: steps.check-changes.outputs.has-changes == 'true'
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7
+        with:
+          token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          base: main
+          commit-message: 'docs(cli): update commands'
+          title: 'docs(cli): update commands'
+          body: |
+            > This PR was automatically created by a scheduled workflow.
+
+            This PR updates the CLI commands documentation by running the latest version of @scalar/cli.
+
+            ```bash
+            npx @scalar/cli@latest readme generate --output ${{ matrix.commands-markdown }}
+            ```
+          branch: docs/update-cli-documentation
+          delete-branch: true
