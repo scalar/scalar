@@ -11,8 +11,10 @@ test.describe('ScalarMarkdown', () => {
 
   summarySamples.forEach((sample) =>
     test(sample, async ({ page, snapshot }) => {
+      // Make the viewport wider
+      await page.setViewportSize({ width: 800, height: 200 })
       await snapshot('1-closed-wide')
-      // Make the viewport smaller to trigger truncation
+      // Make the viewport narrower to trigger truncation
       await page.setViewportSize({ width: 400, height: 200 })
       await snapshot('2-closed-narrow')
       // Open the summary
@@ -21,7 +23,7 @@ test.describe('ScalarMarkdown', () => {
       // Close the summary
       await page.getByRole('button', { name: 'Close' }).click()
       // Should be the same as the second snapshot
-      await snapshot('2-closed-wide')
+      await snapshot('2-closed-narrow')
     }),
   )
 
