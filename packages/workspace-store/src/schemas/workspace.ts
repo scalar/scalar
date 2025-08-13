@@ -8,7 +8,7 @@ import { ServerObjectSchema } from '@/schemas/v3.1/strict/server'
 import { SecuritySchemeObjectSchema } from '@/schemas/v3.1/strict/security-scheme'
 import { AVAILABLE_CLIENTS } from '@scalar/types/snippetz'
 
-const WorkspaceDocumentMetaSchema = Type.Partial(
+export const WorkspaceDocumentMetaSchema = Type.Partial(
   Type.Object({
     [extensions.document.activeAuth]: Type.String(),
     [extensions.document.activeServer]: Type.String(),

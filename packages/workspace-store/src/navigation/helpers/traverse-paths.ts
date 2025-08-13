@@ -44,6 +44,8 @@ const createOperationEntry = (
   }
 }
 
+const methods = new Set(['get', 'put', 'post', 'delete', 'patch', 'connect', 'options', 'head', 'trace'])
+
 /**
  * Traverses the paths in an OpenAPI document to build a map of operations organized by tags.
  *
@@ -71,7 +73,7 @@ export const traversePaths = (
 ) => {
   // Traverse paths
   Object.entries(content.paths ?? {}).forEach(([path, pathItem]) => {
-    const pathEntries = Object.entries(pathItem ?? {}) as [string, OperationObject][]
+    const pathEntries = Object.entries(pathItem ?? {}).filter((it) => methods.has(it[0])) as [string, OperationObject][]
 
     // Traverse operations
     pathEntries.forEach(([method, operation]) => {

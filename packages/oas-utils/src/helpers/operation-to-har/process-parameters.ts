@@ -2,7 +2,6 @@ import { getExampleFromSchema } from '@/spec-getters/get-example-from-schema'
 import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/example'
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
-import type { ReferenceObject } from '@scalar/workspace-store/schemas/v3.1/strict/reference'
 import { isReference, type Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import type { Request as HarRequest } from 'har-format'
 
@@ -95,7 +94,7 @@ const getParameterValue = (param: ParameterObject, example?: unknown): unknown =
  */
 export const processParameters = (
   harRequest: HarRequest,
-  parameters: (ParameterObject | ReferenceObject)[],
+  parameters: Dereference<OperationObject>['parameters'],
   example?: unknown,
 ): ProcessedParameters => {
   // Create copies of the arrays to avoid modifying the input

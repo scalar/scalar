@@ -234,4 +234,21 @@ describe('should correctly cast/default values to make the input schema complian
       'type': 'oauth2',
     })
   })
+
+  it('should preserve extra properties', () => {
+    const result = coerceValue(
+      Type.Object({
+        hi: Type.String(),
+      }),
+      {
+        hi: 'hello',
+        extra: 'some-extra-property',
+      },
+    )
+
+    expect(result).toEqual({
+      hi: 'hello',
+      extra: 'some-extra-property',
+    })
+  })
 })

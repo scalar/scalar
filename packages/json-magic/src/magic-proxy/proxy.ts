@@ -121,28 +121,26 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
       }
       return keys
     },
+
     /**
      * Proxy "getOwnPropertyDescriptor" trap for magic proxy.
-     * - If the requested property is "$ref-value" and the target has a "$ref" property (which is a string),
-     *   returns a property descriptor for "$ref-value" as a virtual property.
-     *   This allows Object.getOwnPropertyDescriptor, Object.getOwnPropertyNames, etc. to see "$ref-value"
-     *   as a real property for objects with $ref, even though it is computed on the fly.
-     * - For all other properties, defers to the default Reflect.getOwnPropertyDescriptor behavior.
+     * - For the virtual "$ref-value" property, returns a descriptor that makes it appear as a regular property.
+     * - For all other properties, delegates to the default Reflect.getOwnPropertyDescriptor behavior.
+     * - This ensures that Object.getOwnPropertyDescriptor and similar methods work correctly with the virtual property.
      */
     getOwnPropertyDescriptor(target, prop) {
-      if (prop === REF_VALUE && REF_KEY in target && typeof target[REF_KEY] === 'string') {
+      const ref = Reflect.get(target, REF_KEY)
+
+      if (prop === REF_VALUE && typeof ref === 'string') {
         return {
           configurable: true,
           enumerable: true,
+          value: undefined,
           writable: false,
-          value: (() => {
-            if (isLocalRef(target[REF_KEY])) {
-              return createMagicProxy(getValueByPath(root, parseJsonPointer(target[REF_KEY])), root)
-            }
-            return undefined
-          })(),
         }
       }
+
+      // Otherwise, delegate to the default behavior
       return Reflect.getOwnPropertyDescriptor(target, prop)
     },
   }

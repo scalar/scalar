@@ -1,7 +1,7 @@
 import { compose } from '@/schemas/compose'
 import { ExampleObjectSchema } from '@/schemas/v3.1/strict/example'
 import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
-import { ReferenceObjectSchema } from '@/schemas/v3.1/strict/reference'
+import { reference, type ReferenceType } from '@/schemas/v3.1/strict/reference'
 import { SchemaObjectSchema } from '@/schemas/v3.1/strict/schema'
 import { Type, type TSchema } from '@sinclair/typebox'
 
@@ -25,11 +25,18 @@ export const HeaderObjectWithSchemaSchema = compose(
     /** When this is true, header values of type array or object generate a single header whose value is a comma-separated list of the array items or key-value pairs of the map, see Style Examples. For other data types this field has no effect. The default value is false. */
     explode: Type.Optional(Type.Boolean()),
     /** The schema defining the type used for the header. */
-    schema: Type.Optional(Type.Union([SchemaObjectSchema, ReferenceObjectSchema])),
+    schema: Type.Optional(
+      Type.Union([SchemaObjectSchema, reference(SchemaObjectSchema) as ReferenceType<typeof SchemaObjectSchema>]),
+    ),
     /** Example of the header's potential value; see Working With Examples. https://swagger.io/specification/#working-with-examples */
     example: Type.Any(),
     /** Examples of the header's potential value; see Working With Examples. https://swagger.io/specification/#working-with-examples */
-    examples: Type.Optional(Type.Record(Type.String(), Type.Union([ExampleObjectSchema, ReferenceObjectSchema]))),
+    examples: Type.Optional(
+      Type.Record(
+        Type.String(),
+        Type.Union([ExampleObjectSchema, reference(ExampleObjectSchema) as ReferenceType<typeof ExampleObjectSchema>]),
+      ),
+    ),
   }),
 )
 
