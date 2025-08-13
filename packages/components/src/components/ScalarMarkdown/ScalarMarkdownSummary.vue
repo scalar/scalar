@@ -70,8 +70,11 @@ defineOptions({ inheritAttrs: false })
 </template>
 <style>
 .scalar-app {
-  /* Summarized markdown styles */
-  .markdown.markdown-summary {
+  /*
+    Summarized markdown styles
+    Doubled up to bump specificity
+  */
+  .markdown.markdown-summary.markdown-summary {
     /* Hide the before and after pseudo-elements for all elements */
     *:before,
     *:after {

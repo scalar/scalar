@@ -1,3 +1,4 @@
+export default /* md */ `
 Summary / Details
 
 <details>
@@ -17,3 +18,4 @@ Description List
   <dt>Owlman</dt>
   <dd>A giant owl-like creature.</dd>
 </dl>
+`

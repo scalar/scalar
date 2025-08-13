@@ -63,19 +63,19 @@ const componentDetailsFromContext = (
   story: string | undefined,
   testInfo: TestInfo,
 ): { component: string; story: string } => {
-  if (component && story) {
-    return { component, story }
-  }
-
-  // Fall back to the title of the test.describe block and the test block
+  // Extract the title of the test.describe block and the test block
   const [describeTitle, testTitle] = testInfo.titlePath.slice(-2)
-  if (describeTitle && testTitle) {
-    return { component: describeTitle, story: testTitle }
+
+  const componentName = component ?? describeTitle
+  const storyName = story ?? testTitle
+
+  if (!componentName || !storyName) {
+    throw new Error(
+      'Could not determine component and story from test context, make sure to set a test title and a title for the test.describe block',
+    )
   }
 
-  throw new Error(
-    'Could not determine component and story from test context, make sure to set a test title and a title for the test.describe block',
-  )
+  return { component: componentName, story: storyName }
 }
 
 /**
@@ -149,14 +149,15 @@ export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
     async ({ page, component: c, story: s, args }, use, testInfo) => {
       const { component, story } = componentDetailsFromContext(c, s, testInfo)
 
-      const params = new URLSearchParams()
-      params.set('viewMode', 'story')
-      params.set('id', `components-${toSlug(component)}--${toSlug(story)}`)
-      params.set('args', encodeStoryArgs(args))
+      const params = [
+        ['viewMode', 'story'],
+        ['id', `components-${toSlug(component)}--${toSlug(story)}`],
+        ['args', encodeStoryArgs(args)],
+      ]
 
-      await page.goto(`iframe.html?${params.toString()}`)
-
-      await page.waitForLoadState('networkidle')
+      await page.goto(`iframe.html?${params.map(([k, v]) => `${k}=${v}`).join('&')}`, {
+        waitUntil: 'networkidle',
+      })
 
       const error = await page.locator('.sb-errordisplay #error-message').textContent()
       expect(error, `${error}`).toBeFalsy()

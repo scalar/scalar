@@ -1,3 +1,4 @@
+export default /* md */ `
 > [!NOTE]  
 > Highlights information that users should take into account, even when skimming.
 
@@ -12,3 +13,4 @@
 
 > [!CAUTION]
 > Negative potential consequences of an action.
+`

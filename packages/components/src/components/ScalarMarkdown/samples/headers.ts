@@ -1,4 +1,5 @@
-ATX Headers (Prefixed with `#`'s')
+export default /* md */ `
+ATX Headers (Prefixed with \`#\`'s')
 
 # This is a first level header
 
@@ -14,7 +15,7 @@ ATX Headers (Prefixed with `#`'s')
 
 ---
 
-ATX Headers (Prefixed and suffixed with `#`'s')
+ATX Headers (Prefixed and suffixed with \`#\`'s')
 
 # This is a first level header #
 
@@ -37,3 +38,4 @@ This is a first level heading
 
 This is a second level heading
 ------------------------------
+`

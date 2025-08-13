@@ -1,4 +1,4 @@
-
+export default /* md */ `
 Codeblock via indent
 
     tell application "Foo"
@@ -9,27 +9,28 @@ Codeblock via indent
 
 Codeblock via backticks
 
-```javascript
+\`\`\`javascript
 const message = 'this is a code block'
 
 console.log(message)
-```
+\`\`\`
 
 ---
 
 Codeblock with HTML
 
-```html
+\`\`\`html
 <div class="footer">&copy; 2004 Foo Corporation</div>
-```
+\`\`\`
 
 ---
 
 Codeblock with markdown
 
 
-```md
+\`\`\`md
 # Title
 
 I should not be **bold**.
-```
+\`\`\`
+`
