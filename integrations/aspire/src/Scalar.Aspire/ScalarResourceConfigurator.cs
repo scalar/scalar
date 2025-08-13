@@ -8,7 +8,7 @@ using Scalar.Aspire.Helper;
 
 namespace Scalar.Aspire;
 
-internal sealed class ScalarHook(IServiceProvider provider)
+internal static class ScalarResourceConfigurator
 {
     private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
@@ -16,15 +16,16 @@ internal sealed class ScalarHook(IServiceProvider provider)
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    public async Task ConfigureScalarResourceAsync(EnvironmentCallbackContext context, CancellationToken cancellationToken)
+    public static async Task ConfigureScalarResourceAsync(EnvironmentCallbackContext context, CancellationToken cancellationToken)
     {
         var resource = context.Resource;
+        var serviceProvider = context.ExecutionContext.ServiceProvider;
         var scalarAnnotations = resource.Annotations.OfType<ScalarAnnotation>();
-        var scalarConfigurations = CreateConfigurationsAsync(provider, scalarAnnotations, cancellationToken);
+        var scalarConfigurations = CreateConfigurationsAsync(serviceProvider, scalarAnnotations, cancellationToken);
 
         var serializedConfigurations = await scalarConfigurations.ToScalarConfigurationsAsync(cancellationToken).SerializeToJsonAsync(JsonSerializerOptions, cancellationToken);
 
-        var scalarAspireOptions = provider.GetRequiredService<IOptionsMonitor<ScalarAspireOptions>>().Get(resource.Name);
+        var scalarAspireOptions = serviceProvider.GetRequiredService<IOptionsMonitor<ScalarAspireOptions>>().Get(resource.Name);
 
         var environmentVariables = context.EnvironmentVariables;
         environmentVariables.Add(ApiReferenceConfig, serializedConfigurations);
