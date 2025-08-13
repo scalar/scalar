@@ -54,8 +54,9 @@ const generateLink = () => {
   if (typeof window !== 'undefined') {
     const newUrl = new URL(window.location.href)
     newUrl.hash = getFullHash(props.item.id)
-    return `${newUrl.pathname}${newUrl.search}${newUrl.hash}`
+    return `${newUrl.search}${newUrl.hash}`
   }
+
   return `#${getFullHash(props.item.id)}`
 }
 

@@ -220,7 +220,7 @@ describe('SidebarElement', () => {
     })
 
     const link = wrapper.find('.sidebar-heading-link')
-    expect(link.attributes('href')).toBe('/#test-entry')
+    expect(link.attributes('href')).toBe('#test-entry')
   })
 
   it('handles webhook operations correctly', () => {
