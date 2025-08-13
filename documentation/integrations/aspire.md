@@ -43,8 +43,8 @@ var scalar = builder.AddScalarApiReference(options =>
 
 // Configure API References for specific services
 scalar
-    .WithApiReference(userService, options => options.AddDocument("internal", routePattern: "/documentation/{documentName}.json"))
-    .WithApiReference(bookService, options => options.WithOpenApiRoutePattern("/swagger/{documentName}/swagger.json"));
+    .WithApiReference(userService, options => options.AddDocument("internal", routePattern: "/api-documentation/{documentName}.json"))
+    .WithApiReference(bookService, options => options.WithOpenApiRoutePattern("/api-documentation/{documentName}.json"));
 
 builder.Build().Run();
 ```
@@ -61,7 +61,7 @@ You're all set! 🎉 The Aspire dashboard will show a Scalar API Reference resou
 
 ## Service Requirements
 
-To integrate with Scalar for Aspire, each service must expose OpenAPI (Swagger) documents over an HTTP endpoint. Ensure that your service makes its OpenAPI documentation available at a reachable URL.
+To integrate with Scalar for Aspire, each service must expose OpenAPI documents over an HTTP endpoint. Ensure that your service makes its OpenAPI documentation available at a reachable URL.
 
 Currently, only HTTP-based services are supported; HTTPS is not yet supported.
 
@@ -92,7 +92,7 @@ scalar
     {
         // Custom configuration for this service
         options.AddDocument("v1", "Book Management API");
-        options.WithOpenApiRoutePattern("/swagger/{documentName}.json");
+        options.WithOpenApiRoutePattern("/api-documentation/{documentName}.json");
     })
     .WithApiReference(catalogService, options =>
     {
@@ -110,7 +110,7 @@ scalar.WithApiReference(bookService, async (options, cancellationToken) =>
 {
     options
         .AddDocument("v1", "Book Management API")
-        .WithOpenApiRoutePattern("/swagger/{documentName}.json");
+        .WithOpenApiRoutePattern("/api-documentation/{documentName}.json");
 
     // Example: load a dev API key asynchronously
     var apiKey = await secretProvider.GetValueAsync("BOOKS_API_KEY", cancellationToken);
@@ -216,20 +216,12 @@ Here's how to configure a service to work with Scalar Aspire:
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
-// or
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi(); // Exposes at /openapi/{documentName}.json
-    // or
-    app.UseSwagger(options =>
-    {
-        options.RouteTemplate = "/swagger/{documentName}.json";
-    });
+    app.MapOpenApi(); // Exposes document at /openapi/{documentName}.json
 }
 
 app.Run();

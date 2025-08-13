@@ -61,7 +61,7 @@ app.MapScalarApiReference(options =>
     options.AddDocument("v2", routePattern: "/api-docs/{documentName}/spec.json");
     
     // All parameters specified
-    options.AddDocument("v3", "Version 3.0", "/swagger/v3/swagger.json");
+    options.AddDocument("v3", "Version 3.0", "/api-documentation/v3.json");
 
     // Skip title but provide routePattern
     options.AddDocument("external", routePattern: "https://api.example.com/v1/openapi.json");
