@@ -170,19 +170,26 @@ const addOrUpdateDocument = async (
   return
 }
 
-/** Watch for URL changes */
+/** Watch for changes to the slug to add or update the document */
+watch(
+  () => selectedConfiguration.value.slug,
+  (newSlug) => newSlug && addOrUpdateDocument(selectedConfiguration.value),
+  { immediate: true },
+)
+
+/** Watch for changes to the URL to add or update the document */
 watch(
   () => selectedConfiguration.value.url,
   (newUrl) => newUrl && addOrUpdateDocument(selectedConfiguration.value),
   { immediate: true },
 )
 
-/** Watch for content changes */
+/** Watch for changes to the content to add or update the document */
 watch(
   () => selectedConfiguration.value.content,
   (newContent) =>
     newContent && addOrUpdateDocument(selectedConfiguration.value),
-  { immediate: true, deep: true },
+  { immediate: true },
 )
 
 // onCustomEvent(root, 'scalar-update-sidebar', (event) => {
