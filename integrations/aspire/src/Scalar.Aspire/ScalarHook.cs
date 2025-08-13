@@ -19,19 +19,22 @@ internal sealed class ScalarHook(IServiceProvider provider) : IDistributedApplic
 
     public async Task BeforeStartAsync(DistributedApplicationModel appModel, CancellationToken cancellationToken = default)
     {
-        var scalarResource = appModel.Resources.OfType<ScalarResource>().FirstOrDefault();
+        var scalarResources = appModel.Resources.OfType<ScalarResource>();
 
-        if (scalarResource is null)
+        foreach (var scalarResource in scalarResources)
         {
-            return;
+            await ConfigureScalarResourceAsync(scalarResource, cancellationToken);
         }
+    }
 
+    private async Task ConfigureScalarResourceAsync(ScalarResource scalarResource, CancellationToken cancellationToken)
+    {
         var scalarAnnotations = scalarResource.Annotations.OfType<ScalarAnnotation>();
         var scalarConfigurations = CreateConfigurationsAsync(provider, scalarAnnotations, cancellationToken);
 
         var serializedConfigurations = await scalarConfigurations.ToScalarConfigurationsAsync(cancellationToken).SerializeToJsonAsync(JsonSerializerOptions, cancellationToken);
 
-        var scalarAspireOptions = provider.GetRequiredService<IOptions<ScalarAspireOptions>>().Value;
+        var scalarAspireOptions = provider.GetRequiredService<IOptionsMonitor<ScalarAspireOptions>>().Get(scalarResource.Name);
         var callback = new EnvironmentCallbackAnnotation(context =>
         {
             var environmentVariables = context.EnvironmentVariables;
@@ -45,7 +48,6 @@ internal sealed class ScalarHook(IServiceProvider provider) : IDistributedApplic
         scalarResource.Annotations.Add(callback);
     }
 
-
     private static async IAsyncEnumerable<ScalarOptions> CreateConfigurationsAsync(IServiceProvider serviceProvider, IEnumerable<ScalarAnnotation> annotations, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         foreach (var scalarAnnotation in annotations)
@@ -54,7 +56,7 @@ internal sealed class ScalarHook(IServiceProvider provider) : IDistributedApplic
 
 
             using var scope = serviceProvider.CreateScope();
-            var scalarAspireOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<ScalarAspireOptions>>().Value;
+            var scalarAspireOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<ScalarAspireOptions>>().Get(resourceName);
             if (scalarAnnotation.ConfigureOptions is not null)
             {
                 await scalarAnnotation.ConfigureOptions.Invoke(scalarAspireOptions, cancellationToken);
