@@ -7,9 +7,6 @@ import { isReference } from '@/schemas/v3.1/type-guard'
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
 import type { OperationObject } from '@/schemas/v3.1/strict/path-operations'
 import type { TraversedOperation } from '@/schemas/navigation'
-import { coerceValue } from '@/schemas/typebox-coerce'
-import { XInternalSchema } from '@/schemas/extensions/x-internal'
-import { XScalarIgnoreSchema } from '@/schemas/extensions/x-scalar-ignore'
 
 /**
  * Creates a traversed operation entry from an OpenAPI operation object.
@@ -84,13 +81,8 @@ export const traversePaths = (
         return
       }
 
-      const extensions = {
-        ...coerceValue(XInternalSchema, operation),
-        ...coerceValue(XScalarIgnoreSchema, operation),
-      }
-
       // Skip if the operation is internal or scalar-ignore
-      if (extensions['x-internal'] || extensions['x-scalar-ignore'] || !isHttpMethod(method)) {
+      if (operation['x-internal'] || operation['x-scalar-ignore'] || !isHttpMethod(method)) {
         return
       }
 

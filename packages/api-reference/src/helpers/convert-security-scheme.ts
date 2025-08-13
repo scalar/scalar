@@ -1,18 +1,12 @@
 import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 
-type SecuritySchemeWithExtensions = SecuritySchemeObject & {
-  'x-scalar-secret-token'?: string
-  'x-scalar-secret-username'?: string
-  'x-scalar-secret-password'?: string
-}
-
 /**
  * Convert the old security scheme to the new one with secret extensions
  *
  * Remove this once we are migrated to the workspace store
  */
-export const convertSecurityScheme = (scheme: SecurityScheme): SecuritySchemeWithExtensions => {
+export const convertSecurityScheme = (scheme: SecurityScheme): SecuritySchemeObject => {
   // ApiKey
   if (scheme.type === 'apiKey') {
     return {

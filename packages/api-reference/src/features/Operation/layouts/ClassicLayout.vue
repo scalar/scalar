@@ -111,7 +111,7 @@ const handleDiscriminatorChange = (type: string) => {
 
               <!-- x-badges before -->
               <XBadges
-                :payload="operation"
+                :badges="operation['x-badges']"
                 position="before" />
             </h3>
           </Anchor>
@@ -121,7 +121,7 @@ const handleDiscriminatorChange = (type: string) => {
     <template #actions="{ active }">
       <!-- x-badges after -->
       <XBadges
-        :payload="operation"
+        :badges="operation['x-badges']"
         position="after" />
       <TestRequestButton
         v-if="active && !isWebhook"

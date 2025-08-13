@@ -7,9 +7,6 @@ import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/stric
 import type { TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/tag'
 import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import { getTag } from './get-tag'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { XInternalSchema } from '@scalar/workspace-store/schemas/extensions/x-internal'
-import { XScalarIgnoreSchema } from '@scalar/workspace-store/schemas/extensions/x-scalar-ignore'
 
 const createOperationEntry = (
   operation: Dereference<OperationObject>,
@@ -52,13 +49,8 @@ export const traversePaths = (
 
     // Traverse operations
     pathEntries.forEach(([method, operation]) => {
-      const extensions = {
-        ...coerceValue(XInternalSchema, operation),
-        ...coerceValue(XScalarIgnoreSchema, operation),
-      }
-
       // Skip if the operation is internal or scalar-ignore
-      if (extensions['x-internal'] || extensions['x-scalar-ignore'] || !httpMethods.has(method)) {
+      if (operation['x-internal'] || operation['x-scalar-ignore'] || !httpMethods.has(method)) {
         return
       }
 

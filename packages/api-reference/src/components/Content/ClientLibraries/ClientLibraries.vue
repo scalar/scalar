@@ -2,8 +2,6 @@
 import { TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
 import { ScalarCodeBlock, ScalarMarkdown } from '@scalar/components'
 import type { AvailableClients } from '@scalar/snippetz'
-import { XScalarSdkInstallationSchema } from '@scalar/workspace-store/schemas/extensions/x-scalar-sdk-installation'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { computed, useId, useTemplateRef } from 'vue'
 
@@ -63,10 +61,8 @@ const onTabSelect = (i: number) => {
 }
 
 const installationInstructions = computed(() => {
-  const extensions = coerceValue(XScalarSdkInstallationSchema, document.info)
-
   // Get instructions (if we have any)
-  const XScalarSdkInstallation = extensions['x-scalar-sdk-installation']
+  const XScalarSdkInstallation = document.info['x-scalar-sdk-installation']
 
   // Check whether we have instructions at all
   if (

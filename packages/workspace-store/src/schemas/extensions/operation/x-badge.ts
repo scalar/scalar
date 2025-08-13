@@ -1,4 +1,4 @@
-import { Type } from '@sinclair/typebox'
+import { Type, type Static } from '@sinclair/typebox'
 
 /**
  * Schema for individual badge configuration in x-badges extension.
@@ -37,6 +37,8 @@ export const BadgeSchema = Type.Object(
     description: 'Configuration for a single badge in the x-badges extension',
   },
 )
+
+export type XBadge = Static<typeof BadgeSchema>
 
 /**
  * You can add badges to operations to use as indicators in documentation. Each operation can have multiple badges, and the displayed color is also configurable. The following example sets badges on the GET `/hello-world` operation:

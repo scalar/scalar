@@ -7,9 +7,6 @@ import type { UseNavState } from '@/hooks/useNavState'
 import type { TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/tag'
 import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import { getTag } from './get-tag'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { XScalarIgnoreSchema } from '@scalar/workspace-store/schemas/extensions/x-scalar-ignore'
-import { XInternalSchema } from '@scalar/workspace-store/schemas/extensions/x-internal'
 
 type Options = Pick<UseNavState, 'getTagId'> & Pick<ApiReferenceConfiguration, 'tagsSorter' | 'operationsSorter'>
 
@@ -70,13 +67,8 @@ const getSortedTagEntries = (
   return keys.flatMap((key) => {
     const { tag, entries } = getTag(tagsMap, key)
 
-    const extensions = {
-      ...coerceValue(XInternalSchema, tag),
-      ...coerceValue(XScalarIgnoreSchema, tag),
-    }
-
     // Skip if the tag is internal or scalar-ignore
-    if (extensions['x-internal'] || extensions['x-scalar-ignore']) {
+    if (tag['x-internal'] || tag['x-scalar-ignore']) {
       return []
     }
 

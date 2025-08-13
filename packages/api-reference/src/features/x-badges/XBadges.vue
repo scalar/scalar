@@ -1,20 +1,21 @@
 <script setup lang="ts">
-import { XBadgesSchema } from '@scalar/workspace-store/schemas/extensions/x-badge'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import type { XBadge } from '@scalar/workspace-store/schemas/extensions/operation/x-badge'
 import { computed } from 'vue'
 
 import { Badge } from '@/components/Badge'
 
-const { position, payload } = defineProps<{
+const { position, badges } = defineProps<{
   position: 'before' | 'after'
-  payload: object
+  badges: XBadge[] | unknown
 }>()
 
-const filteredBadges = computed(() => {
-  const badges = coerceValue(XBadgesSchema, payload)['x-badges']
-
+const filteredBadges = computed<XBadge[]>(() => {
   if (Array.isArray(badges)) {
-    return badges.filter((badge) => badge.position === position)
+    return badges.filter(
+      (badge) =>
+        badge.position === position ||
+        (position === 'after' && !badge.position),
+    )
   }
 
   return []
