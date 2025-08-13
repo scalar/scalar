@@ -33,7 +33,11 @@ export const Button: Story = {
     setup() {
       return { args }
     },
-    template: `<ScalarColorModeToggleButton v-bind="args" />`,
+    template: `
+      <div class="w-fit p-2">
+        <ScalarColorModeToggleButton v-bind="args" />
+      </div>
+    `,
   }),
 }
 
@@ -49,6 +53,10 @@ export const Icon: Story = {
       const mode = ref<'light' | 'dark'>('light')
       return { args, mode }
     },
-    template: `<ScalarColorModeToggleIcon :mode="mode" v-bind="args" @click="mode = mode === 'light' ? 'dark' : 'light'"  />`,
+    template: `
+      <div class="w-fit p-2">
+        <ScalarColorModeToggleIcon :mode="mode" v-bind="args" @click="mode = mode === 'light' ? 'dark' : 'light'" />
+      </div>
+    `,
   }),
 }

@@ -28,5 +28,5 @@ type Story = StoryObj<typeof meta>
 
 export const Base: Story = {}
 export const WithLabel: Story = {
-  args: { label: 'Click me baby one more time' },
+  args: { label: 'Label' },
 }

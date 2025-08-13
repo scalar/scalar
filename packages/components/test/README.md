@@ -59,15 +59,16 @@ The testing setup ensures that all visual changes are intentional and documented
 
 ### Basic Component Test
 
-Create a `.e2e.ts` file next to your component:
+To capture a basic snapshots of your stories create an `.e2e.ts` file next to your component:
 
 ```ts
-import { testComponent } from '@test/testComponent'
+import { takeSnapshot, test } from '@test/helpers'
 
-testComponent('ScalarButton', {
-  // These need to match the names of your stories in the storybook UI
-  stories: ['Base', 'Variants', 'Sizes'],
-})
+test.describe('ScalarCard', 
+  () => ['Base', 'With Actions', 'Minimal']
+  // takeSnapshot is a simple test function that just take a single snapshot
+  .forEach((story) => test(story, takeSnapshot))
+)
 ```
 
 ### Advanced Component Test with Interactions
@@ -75,35 +76,39 @@ testComponent('ScalarButton', {
 For components that require user interaction:
 
 ```ts
-import { testComponent } from '@test/testComponent'
+import { test } from '@test/helpers'
 
-testComponent('ScalarDropdown', {
-  stories: ['Base', 'With Icons'],
-  testFn: async ({ page, snapshot }) => {
-    // Take initial snapshot
-    await snapshot()
-    
-    // Click to open dropdown
-    await page.click('[data-testid="dropdown-trigger"]')
-    
-    // Take snapshot of opened state
-    await snapshot('open')
-  },
-})
+test.describe('ScalarDropdown', () =>
+  ['Base', 'Custom Classes'].forEach((story) =>
+    test(story, async ({ page, snapshot }) => {
+      // Open the dropdown
+      await page.getByRole('button', { name: 'Click Me' }).click()
+      // Take a snapshot
+      await snapshot()
+    }),
+  ))
 ```
 
-### testComponent API
+### Fixtures and Options
 
-The `testComponent` function accepts:
+The test helper automatically tries to pull the component name and the story name from the describe block title and from the test title. If you want to use a different test title you can set the component name and story manually via [`test.use`](https://playwright.dev/docs/test-use-options#configuration-scopes).
 
-- **`component`** (string): The component name (must match the Storybook component name)
-- **`options`** (object):
-  - **`stories`** (string[]): Array of story names to test (must match Storybook story names)
-  - **`testFn`** (optional): Custom test function for interactions
+#### Available fixtures
 
-The `testFn` receives:
-- **`page`**: Playwright Page object for interactions
-- **`snapshot`**: Function to capture screenshots with optional suffix
+Fixtures are accessible via the test context.
+
+**`snapshot(suffix?)`**: Captures a screenshot named `story[-suffix].png` using the configured options.
+
+#### Available options:
+
+Options can be configured using [`test.use`](https://playwright.dev/docs/test-use-options#configuration-scopes).
+
+
+- **`component: string`**: The component name in Storybook, _inferred from the nearest `test.describe` title if not provided explicitly_.
+- **`story: string`**: The story name in Storybook, _inferred from the `test` title if not provided explicitly_.
+- **`scale: number`**: Device scale factor for crisp screenshots (default 2).
+- **`background: boolean`**: Render with background (default false).
+- **`crop: boolean`**: Crop to `#storybook-root > *` instead of full page (default false).
 
 
 

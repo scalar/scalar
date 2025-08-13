@@ -46,7 +46,9 @@ export default defineConfig({
 
   expect: {
     toHaveScreenshot: {
-      stylePath: './.storybook/snapshot.css',
+      // Use device pixels for for high DPI screenshots
+      scale: 'device',
+      // Allow for small differences in the screenshot (0.1% of the total pixels)
       maxDiffPixelRatio: 0.001,
     },
   },
@@ -62,5 +64,7 @@ export default defineConfig({
     baseURL: CI ? 'http://localhost:5100/' : 'http://host.docker.internal:5100/',
     /** Use a smaller viewport for components */
     viewport: { width: 640, height: 480 },
+    /** Save a screenshot on failure */
+    screenshot: { mode: 'only-on-failure' },
   },
 })

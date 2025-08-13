@@ -94,7 +94,7 @@ export const Multiselect: Story = {
 
 export const CustomClasses: Story = {
   args: {
-    class: 'border-red',
+    class: 'border border-red rounded',
     options: [
       { id: '1', label: 'Option 1' },
       { id: '2', label: 'Option 2' },
