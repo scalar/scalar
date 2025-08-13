@@ -297,9 +297,9 @@ describe('getSecrets', () => {
         {
           type: 'http',
           scheme: 'basic',
-          'x-scalar-secret-token': null,
-          'x-scalar-secret-username': null,
-          'x-scalar-secret-password': null,
+          'x-scalar-secret-token': undefined,
+          'x-scalar-secret-username': undefined,
+          'x-scalar-secret-password': undefined,
         },
       ]
 

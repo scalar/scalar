@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { DEFAULT_CLIENT } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/schemas/workspace'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 
 import ClientLibraries from './ClientLibraries.vue'
 
