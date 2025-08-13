@@ -18,8 +18,8 @@ const { cx } = useBindCx()
 defineOptions({ inheritAttrs: false })
 
 // Expose the element ref to the parent component
-const ref = useTemplateRef('ref')
-defineExpose({ el: ref })
+const templateRef = useTemplateRef('templateRef')
+defineExpose({ el: templateRef })
 
 const transformHeading = (node: Record<string, any>) => {
   if (!withAnchors) {
@@ -59,7 +59,7 @@ const html = computed(() => {
 </script>
 <template>
   <div
-    ref="ref"
+    ref="templateRef"
     v-bind="cx('markdown', { 'line-clamp-(--markdown-clamp)': !!clamp })"
     :style="{ '--markdown-clamp': clamp }"
     v-html="html" />
