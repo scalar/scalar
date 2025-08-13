@@ -118,6 +118,11 @@ export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
       const url = `/iframe.html?args=&viewMode=story&id=components-${toSlug(component)}--${toSlug(story)}`
       await page.goto(url)
 
+      await page.waitForLoadState('networkidle')
+
+      const error = await page.locator('.sb-errordisplay #error-message').textContent()
+      expect(error, `${error}`).toBeFalsy()
+
       await use()
     },
     { auto: true },

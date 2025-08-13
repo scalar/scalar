@@ -64,5 +64,7 @@ export default defineConfig({
     baseURL: CI ? 'http://localhost:5100/' : 'http://host.docker.internal:5100/',
     /** Use a smaller viewport for components */
     viewport: { width: 640, height: 480 },
+    /** Save a screenshot on failure */
+    screenshot: { mode: 'only-on-failure' },
   },
 })
