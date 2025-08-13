@@ -1,11 +1,11 @@
 export const sources = [
   {
     title: 'Scalar Galaxy',
-    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+    url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
   },
   {
     title: 'Scalar Galaxy (YAML)',
-    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+    url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=yaml',
   },
   {
     title: 'Stripe',
