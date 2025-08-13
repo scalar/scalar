@@ -44,15 +44,20 @@
       "types": "./dist/schemas.d.ts",
       "default": "./dist/schemas.js"
     },
-    "./schemas/schemas/workspace": {
-      "import": "./dist/schemas/workspace.js",
-      "types": "./dist/schemas/workspace.d.ts",
-      "default": "./dist/schemas/workspace.js"
+    "./schemas/*": {
+      "import": "./dist/schemas/*.js",
+      "types": "./dist/schemas/*.d.ts",
+      "default": "./dist/schemas/*.js"
     },
     "./helpers/*": {
       "import": "./dist/helpers/*.js",
       "types": "./dist/helpers/*.d.ts",
       "default": "./dist/helpers/*.js"
+    },
+    "./schemas/extensions/*": {
+      "import": "./dist/schemas/extensions/*.js",
+      "types": "./dist/schemas/extensions/*.d.ts",
+      "default": "./dist/schemas/extensions/*.js"
     },
     "./schemas/v3.1/*": {
       "import": "./dist/schemas/v3.1/*.js",
