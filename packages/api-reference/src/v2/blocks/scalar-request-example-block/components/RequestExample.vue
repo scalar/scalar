@@ -76,8 +76,9 @@ import {
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { ScalarIconCaretDown } from '@scalar/icons'
-import type { XCodeSample } from '@scalar/openapi-types/schemas/extensions'
 import { type AvailableClients, type TargetId } from '@scalar/snippetz'
+import { XCodeSamplesSchema } from '@scalar/workspace-store/schemas/extensions/x-code-samples'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/example'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
@@ -145,9 +146,9 @@ const customRequestExamples = computed(() => {
     'x-code-samples',
   ] as const
 
-  return customCodeKeys.flatMap(
-    (key) => (operation[key] as XCodeSample[]) ?? [],
-  )
+  const extensions = coerceValue(XCodeSamplesSchema, operation)
+
+  return customCodeKeys.flatMap((key) => extensions[key] ?? [])
 })
 
 /**

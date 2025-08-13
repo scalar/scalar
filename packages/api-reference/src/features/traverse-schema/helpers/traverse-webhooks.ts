@@ -6,6 +6,9 @@ import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/stric
 import type { TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/tag'
 import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import { getTag } from './get-tag'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { XInternalSchema } from '@scalar/workspace-store/schemas/extensions/x-internal'
+import { XScalarIgnoreSchema } from '@scalar/workspace-store/schemas/extensions/x-scalar-ignore'
 
 /** Handles creating entries for webhooks */
 const createWebhookEntry = (
@@ -48,8 +51,13 @@ export const traverseWebhooks = (
     ][]
 
     pathEntries.forEach(([method, operation]) => {
+      const extensions = {
+        ...coerceValue(XInternalSchema, operation),
+        ...coerceValue(XScalarIgnoreSchema, operation),
+      }
+
       // Skip if the operation is internal or scalar-ignore
-      if (operation['x-internal'] || operation['x-scalar-ignore']) {
+      if (extensions['x-internal'] || extensions['x-scalar-ignore']) {
         return
       }
 
