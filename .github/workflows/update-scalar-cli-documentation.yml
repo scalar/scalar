@@ -29,7 +29,6 @@ jobs:
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
       - name: Generate CLI documentation
         run: npx @scalar/cli@latest readme generate --output README.md
       - name: Check for changes
