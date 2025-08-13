@@ -4,6 +4,9 @@ on:
   # Run every hour
   schedule:
     - cron: '0 * * * *'
+  # Run in PRs
+  # TODO: Remove before merging
+  pull_request:
   # Allow manual triggering
   workflow_dispatch:
 
