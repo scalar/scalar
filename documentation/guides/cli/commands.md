@@ -1,17 +1,5 @@
 # Commands
-This guide has a full exhaustive list of all our CLI commands to make working with markdown, MDX, OpenAPI & the Scalar platform a breeze.
 
-## Overview
-
-- [scalar](#scalar) CLI to work with OpenAPI files, Markdown/MDX, Scalar Platform
-- [auth](#auth) Manage authorization on Scalar platform
-- [document](#document) Manage local openapi files
-- [project](#project) Manage Scalar docs project
-- [registry](#registry) Manage your Scalar registry
-- [team](#team) Manage user teams
-- [help](#help) Display help for command
-
-## scalar
 ```
 Usage: scalar [options] [command]
 
@@ -22,12 +10,50 @@ Options:
   -h, --help      display help for command
 
 Commands:
+  readme          Open documentation for the CLI
+  upgrade         Upgrade current version of your cli
   auth            Manage authorization on scalar platform
   document        Manage local openapi file
   project         Manage scalar project
   registry        Manage your scalar registry
   team            Manage user teams
+  sdk             Manage your Scalar SDKs (Enterprise Only)
+  schema          Manage your Scalar schemas
   help [command]  display help for command
+```
+
+## readme
+```
+Usage: scalar readme [options] [command]
+
+Open documentation for the CLI
+
+Options:
+  -h, --help          display help for command
+
+Commands:
+  generate [options]  Self generate documentation for the cli
+```
+
+### generate
+```
+Usage: scalar readme generate [options]
+
+Self generate documentation for the cli
+
+Options:
+  -o, --output [file]  Path where the documentation file will be written
+  -h, --help           display help for command
+```
+
+## upgrade
+```
+Usage: scalar upgrade [options]
+
+Upgrade current version of your cli
+
+Options:
+  -h, --help  display help for command
 ```
 
 ## auth
@@ -89,7 +115,9 @@ Options:
   -h, --help                    display help for command
 
 Commands:
-  bundle [options] [file|url]   Bundle an OpenAPI specification by resolving all references and external dependencies
+  bundle [options] [file|url]   Bundle an OpenAPI specification by resolving all
+                                references and external dependencies
+  split [options] [file|url]    Split your OpenAPI documents on small chunks
   format [options] [file|url]   Format an OpenAPI file
   mock [options] [file|url]     Mock an API from an OpenAPI file
   serve [options] [file|url]    Serve an API Reference from an OpenAPI file
@@ -105,7 +133,8 @@ Commands:
 ```
 Usage: scalar document bundle [options] [file|url]
 
-Bundle an OpenAPI specification by resolving all references and external dependencies
+Bundle an OpenAPI specification by resolving all references and external
+dependencies
 
 Arguments:
   file|url              Path to OpenAPI file or URL to bundle
@@ -114,8 +143,23 @@ Options:
   -o, --output <file>   Path to save the bundled output file
   --treeShake           Remove unused components from the bundled output
   --urlMap              Generate a map of resolved URLs in the bundled output
-  --fetchLimit <limit>  Maximum number of URLs to fetch during bundling at the same time
+  --fetchLimit <limit>  Maximum number of URLs to fetch during bundling at the
+                        same time
   -h, --help            display help for command
+```
+
+### split
+```
+Usage: scalar document split [options] [file|url]
+
+Split your OpenAPI documents on small chunks
+
+Arguments:
+  file|url             Path to OpenAPI file or URL to split
+
+Options:
+  -o, --output <path>  Path to save the chunks
+  -h, --help           display help for command
 ```
 
 ### format
@@ -238,22 +282,26 @@ Usage: scalar project [options] [command]
 Manage scalar project
 
 Options:
-  -h, --help           display help for command
+  -h, --help                  display help for command
 
 Commands:
-  init [options]       Create a new `scalar.config.json` file to configure where your OpenAPI file is placed.
-  check-config [file]  Check a Scalar Configuration file
-  create [options]     Create a new project that is not linked to a github project.
-  preview [config]     Preview scalar guides
-  publish [options]    Publish new build for a github sync project that is not linked.
-  help [command]       display help for command
+  init [options]              Create a new `scalar.config.json` file to
+                              configure where your OpenAPI file is placed.
+  check-config [file]         Check a Scalar Configuration file
+  create [options]            Create a new project that is not linked to a
+                              github project.
+  preview [options] [config]  Preview scalar guides
+  publish [options]           Publish new build for a github sync project that
+                              is not linked.
+  help [command]              display help for command
 ```
 
 ### init
 ```
 Usage: scalar project init [options]
 
-Create a new `scalar.config.json` file to configure where your OpenAPI file is placed.
+Create a new `scalar.config.json` file to configure where your OpenAPI file is
+placed.
 
 Options:
   -f, --file [file]      your OpenAPI file
@@ -294,10 +342,21 @@ Usage: scalar project preview [options] [config]
 Preview scalar guides
 
 Arguments:
-  config      your config file of the project
+  config                             Path to the Scalar configuration file
+                                     (usually `scalar.config.json5` or
+                                     `scalar.config.json`)
 
 Options:
-  -h, --help  display help for command
+  -p, --port [port]                  port to run the server on. If the port is
+                                     not available, it will select another one.
+                                     (default: "7970")
+  -L, --log-level <level>            Set the log level (debug, info, warn,
+                                     error, trace) (default: "info")
+  -F, --log-formatting <formatting>  Set the log formatting (pretty|none).
+                                     Defaults to pretty formatting outside of
+                                     CI. (default: "pretty")
+  -N, --no-open                      Do not open the browser automatically
+  -h, --help                         display help for command
 ```
 
 ### publish
@@ -322,29 +381,33 @@ Options:
   -h, --help                           display help for command
 
 Commands:
-  create [options] [file]              Create a document on scalar registry
-  update [options] [namespace] [slug]  Update document metadata on scalar registry
+  publish [options] [file]             Publish an OpenAPI document to the Scalar
+                                       registry
+  update [options] [namespace] [slug]  Update document metadata on scalar
+                                       registry
   delete [namespace] [slug]            Delete a document from scalar registry
-  version [options] [slug] [file]      Upload a new document version to an API on scalar registry
-  list [options]                       List all registry APIs for a team namespace
+  list [options]                       List all registry APIs for a team
+                                       namespace
   help [command]                       display help for command
 ```
 
-### create
+### publish
 ```
-Usage: scalar registry create [options] [file]
+Usage: scalar registry publish [options] [file]
 
-Create a document on scalar registry
+Publish an OpenAPI document to the Scalar registry
 
 Arguments:
-  file                         file to upload
+  file                     OpenAPI file to upload
 
 Options:
-  --namespace <namespace>      Namespace
-  --title <title>              Document title
-  --description <description>  Document description
-  --doc-version <doc-version>  Document version
-  -h, --help                   display help for command
+  --slug <slug>            Slug identifier for the registry entry. Defaults to
+                           title.
+  --namespace <namespace>  Scalar team namespace
+  --version <version>      API version (e.g. 0.1.0)
+  --private                Make API private (default: false)
+  --force                  Force override an existing version (default: false)
+  -h, --help               display help for command
 ```
 
 ### update
@@ -375,23 +438,6 @@ Arguments:
 
 Options:
   -h, --help  display help for command
-```
-
-### version
-```
-Usage: scalar registry version [options] [slug] [file]
-
-Upload a new document version to an API on scalar registry
-
-Arguments:
-  slug                         Slug of the registry API you want to version
-  file                         File to upload
-
-Options:
-  --namespace <namespace>      Team namespace
-  --doc-version <doc-version>  API version to create or update
-  --force <force>              Force override an existing version
-  -h, --help                   display help for command
 ```
 
 ### list
@@ -440,3 +486,161 @@ Options:
   --team <team>  Team uid
   -h, --help     display help for command
 ```
+
+## sdk
+```
+Usage: scalar sdk [options] [command]
+
+Manage your Scalar SDKs (Enterprise Only)
+
+Options:
+  -h, --help        display help for command
+
+Commands:
+  list [options]    List all SDKs for a team namespace
+  create [options]  Create a new SDK.
+  update [options]  Update SDK metadata.
+  delete [options]  Delete an SDK.
+  build [options]   Create an SDK build.
+  help [command]    display help for command
+```
+
+### list
+```
+Usage: scalar sdk list [options]
+
+List all SDKs for a team namespace
+
+Options:
+  --namespace <namespace>  Team namespace
+  -h, --help               display help for command
+```
+
+### create
+```
+Usage: scalar sdk create [options]
+
+Create a new SDK.
+
+Options:
+  -a, --api <api>              Registry API slug
+  -n, --namespace <namespace>  Team namespace
+  -l, --language <language>    Language of your SDK (choices: "typescript",
+                               "python", "csharp", "java", "ruby", "php", "go")
+  -h, --help                   display help for command
+```
+
+### update
+```
+Usage: scalar sdk update [options]
+
+Update SDK metadata.
+
+Options:
+  -s, --slug <slug>            SDK slug
+  -n, --namespace <namespace>  Team namespace
+  --title <title>              Title
+  --isPrivate <isPrivate>      Privacy (public/private)
+  -h, --help                   display help for command
+```
+
+### delete
+```
+Usage: scalar sdk delete [options]
+
+Delete an SDK.
+
+Options:
+  -s, --slug <slug>            SDK slug
+  -n, --namespace <namespace>  Team namespace
+  -h, --help                   display help for command
+```
+
+### build
+```
+Usage: scalar sdk build [options]
+
+Create an SDK build.
+
+Options:
+  -s, --slug <slug>            SDK slug
+  -n, --namespace <namespace>  Team namespace
+  -v, --version <version>      SDK Version
+  -h, --help                   display help for command
+```
+
+## schema
+```
+Usage: scalar schema [options] [command]
+
+Manage your Scalar schemas
+
+Options:
+  -h, --help                display help for command
+
+Commands:
+  delete [options]          Delete a schema.
+  update [options]          Update schema metadata.
+  list [options]            List all schemas for a team namespace
+  publish [options] [file]  Publish a shared schema to the Scalar registry
+  help [command]            display help for command
+```
+
+### delete
+```
+Usage: scalar schema delete [options]
+
+Delete a schema.
+
+Options:
+  -s, --slug <slug>            Schema slug
+  -n, --namespace <namespace>  Team namespace
+  -h, --help                   display help for command
+```
+
+### update
+```
+Usage: scalar schema update [options]
+
+Update schema metadata.
+
+Options:
+  -s, --slug <slug>            Schema slug
+  -n, --namespace <namespace>  Team namespace
+  --title <title>              Title
+  --description <description>  Description
+  --isPrivate <isPrivate>      Privacy (public/private)
+  -h, --help                   display help for command
+```
+
+### list
+```
+Usage: scalar schema list [options]
+
+List all schemas for a team namespace
+
+Options:
+  --namespace <namespace>  Team namespace
+  -h, --help               display help for command
+```
+
+### publish
+```
+Usage: scalar schema publish [options] [file]
+
+Publish a shared schema to the Scalar registry
+
+Arguments:
+  file                     OpenAPI file to upload
+
+Options:
+  --slug <slug>            Slug identifier for the registry entry. Defaults to
+                           title.
+  --title <title>          Schema title
+  --namespace <namespace>  Scalar team namespace
+  --version <version>      API version (e.g. 0.1.0)
+  --private                Make API private (default: false)
+  -h, --help               display help for command
+```
+
+
