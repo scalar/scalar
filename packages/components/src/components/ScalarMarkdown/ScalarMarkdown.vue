@@ -1,28 +1,25 @@
 <script setup lang="ts">
 import { htmlFromMarkdown } from '@scalar/code-highlight'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
-import { computed } from 'vue'
+import { computed, useTemplateRef } from 'vue'
+
+import type { ScalarMarkdownProps } from './types'
 
 const {
   value,
-  withImages = false,
   transform,
   transformType,
+  withImages = false,
   withAnchors = false,
   anchorPrefix,
-} = defineProps<{
-  value?: string
-  withImages?: boolean
-  transform?: (node: Record<string, any>) => Record<string, any>
-  transformType?: string
-  /** The number of lines to truncate the content to */
-  clamp?: number
-  withAnchors?: boolean
-  anchorPrefix?: string
-}>()
+} = defineProps<ScalarMarkdownProps>()
 
 const { cx } = useBindCx()
 defineOptions({ inheritAttrs: false })
+
+// Expose the element ref to the parent component
+const ref = useTemplateRef('ref')
+defineExpose({ el: ref })
 
 const transformHeading = (node: Record<string, any>) => {
   if (!withAnchors) {
@@ -62,6 +59,7 @@ const html = computed(() => {
 </script>
 <template>
   <div
+    ref="ref"
     v-bind="cx('markdown', { 'line-clamp-(--markdown-clamp)': !!clamp })"
     :style="{ '--markdown-clamp': clamp }"
     v-html="html" />

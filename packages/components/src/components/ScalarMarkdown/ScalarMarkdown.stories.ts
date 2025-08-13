@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 
 import ScalarMarkdown from './ScalarMarkdown.vue'
+import ScalarMarkdownSummary from './ScalarMarkdownSummary.vue'
+
 import alertsMd from './fixtures/alerts.md?raw'
 import blockquotesMd from './fixtures/blockquotes.md?raw'
 import codeblocksMd from './fixtures/codeblocks.md?raw'
@@ -29,7 +31,7 @@ const meta = {
       return { args }
     },
     template: `
-<div class="w-screen text-base bg-b-1 p-4">
+<div class="w-screen text-base p-4">
   <ScalarMarkdown v-bind="args" />
 </div>
     `,
@@ -50,3 +52,37 @@ export const Inline: Story = { args: { value: inlineMd } }
 export const Lists: Story = { args: { value: listsMd } }
 export const Paragraphs: Story = { args: { value: paragraphsMd } }
 export const Tables: Story = { args: { value: tablesMd } }
+
+export const Summary: Story = {
+  args: {
+    value: 'A paragraph is simply one or more consecutive lines of text, separated by one or more blank lines.',
+  },
+  render: (args) => ({
+    components: { ScalarMarkdownSummary },
+    setup() {
+      return { args }
+    },
+    template: `
+<div class="w-screen text-base p-4">
+  <ScalarMarkdownSummary v-bind="args" />
+</div>
+  `,
+  }),
+}
+
+export const SummaryWithRichText: Story = {
+  args: {
+    value: listsMd,
+  },
+  render: (args) => ({
+    components: { ScalarMarkdownSummary },
+    setup() {
+      return { args }
+    },
+    template: `
+<div class="w-screen text-base p-4">
+  <ScalarMarkdownSummary v-bind="args" />
+</div>
+  `,
+  }),
+}

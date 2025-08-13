@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarMarkdown } from '@scalar/components'
+import { ScalarMarkdownSummary } from '@scalar/components'
 import {
   CLIENT_LS_KEYS,
   safeLocalStorage,
@@ -180,10 +180,10 @@ const dataTableInputProps = {
     <!-- Description -->
     <DataTableRow v-if="scheme?.description && security.length <= 1">
       <DataTableCell
-        :aria-label="scheme.description"
-        class="text-c-2 group/auth auth-description-container flex items-center whitespace-nowrap outline-none hover:whitespace-normal">
-        <ScalarMarkdown
-          class="auth-description bg-b-1 text-c-2 outline-b-3 top-0 z-1 h-full w-full px-3 py-1.25 group-hover/auth:absolute group-hover/auth:h-auto group-hover/auth:border-b *:first:line-clamp-1 *:first:text-ellipsis group-hover/auth:*:first:line-clamp-none"
+        class="max-h-[auto]"
+        :aria-label="scheme.description">
+        <ScalarMarkdownSummary
+          class="auth-description bg-b-1 text-c-2 min-w-0 flex-1 px-3 py-1.25"
           :value="scheme.description" />
       </DataTableCell>
     </DataTableRow>
