@@ -5,6 +5,9 @@ import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@/schemas/v3.1/strict/path-operations'
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
 import { isReference } from '@/schemas/v3.1/type-guard'
+import { coerceValue } from '@/schemas/typebox-coerce'
+import { XInternalSchema } from '@/schemas/extensions/x-internal'
+import { XScalarIgnoreSchema } from '@/schemas/extensions/x-scalar-ignore'
 
 /** Creates a traversed webhook entry from an OpenAPI webhook object.
  *
@@ -75,8 +78,13 @@ export const traverseWebhooks = (
 
       const ref = `#/webhooks/${name}/${method}`
 
+      const extensions = {
+        ...coerceValue(XInternalSchema, operation),
+        ...coerceValue(XScalarIgnoreSchema, operation),
+      }
+
       // Skip if the operation is internal or scalar-ignore
-      if (operation['x-internal'] || operation['x-scalar-ignore']) {
+      if (extensions['x-internal'] || extensions['x-scalar-ignore']) {
         return
       }
 

@@ -3,6 +3,9 @@ import { getTag } from './get-tag'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import type { TraversedEntry, TraversedTag } from '@/schemas/navigation'
+import { XScalarIgnoreSchema } from '@/schemas/extensions/x-scalar-ignore'
+import { coerceValue } from '@/schemas/typebox-coerce'
+import { XInternalSchema } from '@/schemas/extensions/x-internal'
 
 type Options = Pick<TraverseSpecOptions, 'getTagId' | 'tagsSorter' | 'operationsSorter'>
 
@@ -91,8 +94,13 @@ const getSortedTagEntries = (
   return keys.flatMap((key) => {
     const { tag, entries } = getTag(tagsMap, key)
 
+    const extensions = {
+      ...coerceValue(XInternalSchema, tag),
+      ...coerceValue(XScalarIgnoreSchema, tag),
+    }
+
     // Skip if the tag is internal or scalar-ignore
-    if (tag['x-internal'] || tag['x-scalar-ignore']) {
+    if (extensions['x-internal'] || extensions['x-scalar-ignore']) {
       return []
     }
 
