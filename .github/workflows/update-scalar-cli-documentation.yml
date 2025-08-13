@@ -22,6 +22,7 @@ jobs:
     strategy:
       matrix:
         node-version: [22]
+        commands-markdown: [documentation/guides/cli/commands.md]
 
     steps:
       - name: Checkout code
@@ -33,11 +34,26 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Generate CLI documentation
-        run: npx @scalar/cli@latest readme generate --output documentation/guides/cli/commands.md
+        run: npx @scalar/cli@latest readme generate --output ${{ matrix.commands-markdown }}
+      - name: Extract just the commands
+        run: |
+          sed -n '/^## Commands$/,/^## /p' ${{ matrix.commands-markdown }} | sed '$d' > ${{ matrix.commands-markdown }}-extracted.md
+      - name: Update the heading levels
+        run: |
+          awk '
+            BEGIN { code=0 }
+            /^[[:space:]]*(```|~~~)/ { code = !code; print; next }
+            !code && /^#{1,6} / {
+              sub(/^#/, "", $0)  # remove one leading #
+            }
+            { print }
+          ' ${{ matrix.commands-markdown }}-extracted.md > ${{ matrix.commands-markdown }}
+      - name: Remove the temporary files
+        run: rm -Rf ${{ matrix.commands-markdown }}-*.md
       - name: Check for changes
         id: check-changes
         run: |
-          if git diff --quiet documentation/guides/cli/commands.md; then
+          if git diff --quiet ${{ matrix.commands-markdown }}; then
             echo "has-changes=false" >> $GITHUB_OUTPUT
           else
             echo "has-changes=true" >> $GITHUB_OUTPUT
@@ -56,7 +72,7 @@ jobs:
             This PR updates the CLI commands documentation by running the latest version of @scalar/cli.
 
             ```bash
-            npx @scalar/cli@latest readme generate --output documentation/guides/cli/commands.md
+            npx @scalar/cli@latest readme generate --output ${{ matrix.commands-markdown }}
             ```
           branch: docs/update-cli-documentation
           delete-branch: true
