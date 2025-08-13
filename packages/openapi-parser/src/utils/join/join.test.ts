@@ -36,6 +36,7 @@ describe('join', () => {
         },
         paths: {},
         webhooks: {},
+        tags: [],
       },
     })
   })
@@ -87,6 +88,7 @@ describe('join', () => {
           },
         },
         webhooks: {},
+        tags: [],
       },
     })
   })
@@ -181,6 +183,7 @@ describe('join', () => {
             },
           },
         },
+        tags: [],
       },
     })
   })
@@ -224,6 +227,74 @@ describe('join', () => {
           path: '/',
         },
       ],
+    })
+  })
+
+  it('should merge tags', () => {
+    const result = join([
+      {
+        tags: [
+          {
+            name: 'tag-1',
+            description: 'some tag1 description',
+          },
+          {
+            name: 'tag-2',
+            description: 'some tag2 description',
+          },
+        ],
+      },
+      {
+        tags: [
+          {
+            name: 'tag-1',
+            description: 'some tag1 description',
+          },
+          {
+            name: 'tag-3',
+            description: 'some tag3 description',
+          },
+        ],
+      },
+      {
+        tags: [
+          {
+            name: 'tag-4',
+            description: 'some tag4 description',
+          },
+          {
+            name: 'tag-3',
+            description: 'some tag3 description',
+          },
+        ],
+      },
+    ])
+
+    expect(result).toEqual({
+      ok: true,
+      document: {
+        info: {},
+        paths: {},
+        webhooks: {},
+        tags: [
+          {
+            description: 'some tag4 description',
+            name: 'tag-4',
+          },
+          {
+            description: 'some tag3 description',
+            name: 'tag-3',
+          },
+          {
+            description: 'some tag1 description',
+            name: 'tag-1',
+          },
+          {
+            description: 'some tag2 description',
+            name: 'tag-2',
+          },
+        ],
+      },
     })
   })
 })

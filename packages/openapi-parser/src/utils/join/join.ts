@@ -43,7 +43,6 @@ export const mergeObjects = <R>(a: Record<string, unknown>, b: Record<string, un
 }
 
 const getSetIntersection = <T>(a: Set<T>, b: Set<T>) => {
-  console.log({ a, b })
   const result: T[] = []
   for (const value of a) {
     if (b.has(value)) {
@@ -80,6 +79,22 @@ const mergePaths = (inputs: OpenAPIV3_1.PathsObject[]) => {
   return { paths: result, conflicts }
 }
 
+const mergeTags = (inputs: OpenAPIV3_1.TagObject[][]) => {
+  const cache = new Set<string>()
+  const result: OpenAPIV3_1.TagObject[] = []
+
+  for (const tags of inputs) {
+    for (const tag of tags) {
+      if (!cache.has(tag.name)) {
+        result.push(tag)
+      }
+      cache.add(tag.name)
+    }
+  }
+
+  return result
+}
+
 type Conflicts = { type: 'path'; path: string; method: string } | { type: 'webhook'; path: string; method: string }
 type JoinResult = { ok: true; document: OpenAPIV3_1.Document } | { ok: false; conflicts: Conflicts[] }
 
@@ -100,6 +115,9 @@ export const join = (inputs: UnknownObject[], _?: {}): JoinResult => {
 
   // Merge webhooks
   const { paths: webhooks, conflicts: webhookConflicts } = mergePaths(upgraded.map((it) => it.webhooks ?? {}))
+
+  // Merge tags
+  const tags = mergeTags(upgraded.map((it) => it.tags ?? []))
 
   // Merge all documents in the upgraded array into a single object
   const result = upgraded.reduce<UnknownObject>((acc, curr) => ({ ...acc, ...curr }), {})
@@ -123,6 +141,7 @@ export const join = (inputs: UnknownObject[], _?: {}): JoinResult => {
       info,
       paths,
       webhooks,
+      tags,
     },
   }
 }
