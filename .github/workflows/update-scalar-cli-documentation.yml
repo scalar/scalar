@@ -33,18 +33,18 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Generate CLI documentation
-        run: npx @scalar/cli@latest readme generate --output README.md
+        run: npx @scalar/cli@latest readme generate --output documentation/guides/cli/commands.md
       - name: Check for changes
         id: check-changes
         run: |
-          if git diff --quiet README.md; then
+          if git diff --quiet documentation/guides/cli/commands.md; then
             echo "has-changes=false" >> $GITHUB_OUTPUT
           else
             echo "has-changes=true" >> $GITHUB_OUTPUT
           fi
       - name: Create Pull Request
         if: steps.check-changes.outputs.has-changes == 'true'
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7
         with:
           token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
           commit-message: 'docs(cli): update commands'
