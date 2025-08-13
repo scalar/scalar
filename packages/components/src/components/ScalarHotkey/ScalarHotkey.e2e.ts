@@ -1,5 +1,7 @@
-import { testComponent } from '@test/testComponent'
+import { takeSnapshot, test } from '@test/helpers'
 
-testComponent('ScalarHotkey', {
-  stories: ['Base', 'Multiple Modifiers'],
+const stories = ['Base', 'Multiple Modifiers']
+
+test.describe('ScalarHotkey', () => {
+  test.use({ background: true }), stories.forEach((story) => test(story, takeSnapshot))
 })
