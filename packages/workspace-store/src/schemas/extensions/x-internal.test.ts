@@ -19,7 +19,7 @@ describe('XInternalSchema', () => {
     expect(result).toEqual({ 'x-internal': false })
   })
 
-  it('defaults to false when empty', () => {
-    expect(Value.Parse(XInternalSchema, {})).toEqual({ 'x-internal': false })
+  it('defaults to undefined when empty', () => {
+    expect(Value.Parse(XInternalSchema, {})).toEqual({ 'x-internal': undefined })
   })
 })

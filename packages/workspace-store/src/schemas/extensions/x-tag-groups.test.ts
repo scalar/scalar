@@ -4,31 +4,39 @@ import { Value } from '@sinclair/typebox/value'
 
 describe('XTagGroupsSchema', () => {
   it('accepts valid tag groups array', () => {
-    const result = Value.Parse(XTagGroupsSchema, [
-      {
-        name: 'Core',
-        tags: ['users', 'auth'],
-      },
-      {
-        name: 'Products',
-        tags: ['inventory', 'orders'],
-      },
-    ])
-    expect(result).toEqual([
-      {
-        name: 'Core',
-        tags: ['users', 'auth'],
-      },
-      {
-        name: 'Products',
-        tags: ['inventory', 'orders'],
-      },
-    ])
+    const result = Value.Parse(XTagGroupsSchema, {
+      'x-tagGroups': [
+        {
+          name: 'Core',
+          tags: ['users', 'auth'],
+        },
+        {
+          name: 'Products',
+          tags: ['inventory', 'orders'],
+        },
+      ],
+    })
+    expect(result).toEqual({
+      'x-tagGroups': [
+        {
+          name: 'Core',
+          tags: ['users', 'auth'],
+        },
+        {
+          name: 'Products',
+          tags: ['inventory', 'orders'],
+        },
+      ],
+    })
   })
 
   it('accepts empty array', () => {
-    const result = Value.Parse(XTagGroupsSchema, [])
-    expect(result).toEqual([])
+    const result = Value.Parse(XTagGroupsSchema, {
+      'x-tagGroups': [],
+    })
+    expect(result).toEqual({
+      'x-tagGroups': [],
+    })
   })
 
   it('throws when groups have no name', () => {
@@ -43,19 +51,23 @@ describe('XTagGroupsSchema', () => {
   })
 
   it('ensures tags is an array of strings', () => {
-    const result = Value.Parse(XTagGroupsSchema, [
-      {
-        name: 'Core',
-        // invalid: number in tags array
-        tags: [123, 'users'],
-      },
-    ])
+    const result = Value.Parse(XTagGroupsSchema, {
+      'x-tagGroups': [
+        {
+          name: 'Core',
+          // invalid: number in tags array
+          tags: [123, 'users'],
+        },
+      ],
+    })
 
-    expect(result).toEqual([
-      {
-        name: 'Core',
-        tags: ['123', 'users'],
-      },
-    ])
+    expect(result).toEqual({
+      'x-tagGroups': [
+        {
+          name: 'Core',
+          tags: ['123', 'users'],
+        },
+      ],
+    })
   })
 })

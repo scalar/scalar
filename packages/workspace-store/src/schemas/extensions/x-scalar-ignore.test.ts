@@ -19,7 +19,7 @@ describe('XScalarIgnoreSchema', () => {
     expect(result).toEqual({ 'x-scalar-ignore': false })
   })
 
-  it('defaults to false when empty', () => {
-    expect(Value.Parse(XScalarIgnoreSchema, {})).toEqual({ 'x-scalar-ignore': false })
+  it('defaults to undefined when empty', () => {
+    expect(Value.Parse(XScalarIgnoreSchema, {})).toEqual({ 'x-scalar-ignore': undefined })
   })
 })
