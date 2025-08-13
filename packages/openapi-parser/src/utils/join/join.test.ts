@@ -37,6 +37,7 @@ describe('join', () => {
         paths: {},
         webhooks: {},
         tags: [],
+        servers: [],
       },
     })
   })
@@ -89,6 +90,7 @@ describe('join', () => {
         },
         webhooks: {},
         tags: [],
+        servers: [],
       },
     })
   })
@@ -184,6 +186,7 @@ describe('join', () => {
           },
         },
         tags: [],
+        servers: [],
       },
     })
   })
@@ -292,6 +295,76 @@ describe('join', () => {
           {
             description: 'some tag2 description',
             name: 'tag-2',
+          },
+        ],
+        servers: [],
+      },
+    })
+  })
+
+  it('should merge servers', () => {
+    const result = join([
+      {
+        servers: [
+          {
+            url: 'server-1',
+            description: 'some server1 description',
+          },
+          {
+            url: 'server-2',
+            description: 'some server2 description',
+          },
+        ],
+      },
+      {
+        servers: [
+          {
+            url: 'server-1',
+            description: 'some server1 description',
+          },
+          {
+            url: 'server-3',
+            description: 'some server3 description',
+          },
+        ],
+      },
+      {
+        servers: [
+          {
+            url: 'server-4',
+            description: 'some server4 description',
+          },
+          {
+            url: 'server-3',
+            description: 'some server3 description',
+          },
+        ],
+      },
+    ])
+
+    expect(result).toEqual({
+      ok: true,
+      document: {
+        info: {},
+        paths: {},
+        webhooks: {},
+        tags: [],
+        servers: [
+          {
+            description: 'some server4 description',
+            url: 'server-4',
+          },
+          {
+            description: 'some server3 description',
+            url: 'server-3',
+          },
+          {
+            description: 'some server1 description',
+            url: 'server-1',
+          },
+          {
+            description: 'some server2 description',
+            url: 'server-2',
           },
         ],
       },

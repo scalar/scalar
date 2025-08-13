@@ -95,6 +95,22 @@ const mergeTags = (inputs: OpenAPIV3_1.TagObject[][]) => {
   return result
 }
 
+const mergeServers = (inputs: OpenAPIV3_1.ServerObject[][]) => {
+  const cache = new Set<string>()
+  const result: OpenAPIV3_1.TagObject[] = []
+
+  for (const tags of inputs) {
+    for (const tag of tags) {
+      if (!cache.has(tag.url)) {
+        result.push(tag)
+      }
+      cache.add(tag.url)
+    }
+  }
+
+  return result
+}
+
 type Conflicts = { type: 'path'; path: string; method: string } | { type: 'webhook'; path: string; method: string }
 type JoinResult = { ok: true; document: OpenAPIV3_1.Document } | { ok: false; conflicts: Conflicts[] }
 
@@ -119,6 +135,9 @@ export const join = (inputs: UnknownObject[], _?: {}): JoinResult => {
   // Merge tags
   const tags = mergeTags(upgraded.map((it) => it.tags ?? []))
 
+  // Merge servers
+  const servers = mergeServers(upgraded.map((it) => it.servers ?? []))
+
   // Merge all documents in the upgraded array into a single object
   const result = upgraded.reduce<UnknownObject>((acc, curr) => ({ ...acc, ...curr }), {})
 
@@ -141,7 +160,8 @@ export const join = (inputs: UnknownObject[], _?: {}): JoinResult => {
       info,
       paths,
       webhooks,
-      tags,
+      tags: tags,
+      servers: servers,
     },
   }
 }
