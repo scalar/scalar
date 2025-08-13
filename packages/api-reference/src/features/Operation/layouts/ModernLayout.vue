@@ -93,14 +93,14 @@ const handleDiscriminatorChange = (type: string) => {
           </Badge>
           <!-- x-badges before -->
           <XBadges
-            :badges="operation['x-badges']"
+            :payload="operation"
             position="before" />
         </div>
         <!-- Right -->
         <div class="flex gap-1">
           <!-- x-badges after -->
           <XBadges
-            :badges="operation['x-badges']"
+            :payload="operation"
             position="after" />
         </div>
       </div>
