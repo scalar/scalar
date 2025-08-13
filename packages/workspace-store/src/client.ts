@@ -488,9 +488,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     const { name, meta } = input
     const inputDocument = deepClone(input.document)
 
-    // Document preprocessing
-    // Clean up the document to support non compliant documents
-    // Note: we are not bundling document yet, this is just for preprocessing
+    // Preprocess the document to ensure compatibility with OpenAPI/JSON Schema.
+    // This step applies the cleanUp plugin to add missing "type: object" to schemas with "properties",
+    // but does not perform full bundling or reference resolution.
     await bundle(inputDocument, {
       treeShake: false,
       plugins: [cleanUp()],
