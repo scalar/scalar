@@ -1,12 +1,7 @@
 import { Type, type Static } from '@sinclair/typebox'
 import { ExternalDocumentationObjectSchema } from './external-documentation'
 import { compose } from '@/schemas/compose'
-
-const TagExtensionsSchema = Type.Partial(
-  Type.Object({
-    'x-displayName': Type.String(),
-  }),
-)
+import { XDisplayNameSchema } from '@/schemas/extensions/tag/x-display-name'
 
 /** Adds metadata to a single tag that is used by the Operation Object. It is not mandatory to have a Tag Object per tag defined in the Operation Object instances. */
 export const TagObjectSchema = compose(
@@ -18,7 +13,7 @@ export const TagObjectSchema = compose(
     /** Additional external documentation for this tag. */
     externalDocs: Type.Optional(ExternalDocumentationObjectSchema),
   }),
-  TagExtensionsSchema,
+  XDisplayNameSchema,
 )
 
 export type TagObject = Static<typeof TagObjectSchema>
