@@ -167,16 +167,18 @@
               "type": "page"
             },
             {
-              "path": "documentation/guides/registry/dashboard.md",
-              "type": "page"
+              "path": "documentation/guides/registry/upload.md",
+              "type": "page",
+              "name": "Upload"
             },
             {
               "path": "documentation/guides/registry/cli.md",
               "type": "page"
             },
             {
-              "path": "documentation/guides/registry/github-workflows.md",
-              "type": "page"
+              "path": "documentation/guides/registry/github-actions.md",
+              "type": "page",
+              "name": "GitHub Actions"
             }
           ]
         },
