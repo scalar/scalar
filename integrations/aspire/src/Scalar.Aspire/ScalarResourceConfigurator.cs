@@ -16,10 +16,11 @@ internal static class ScalarResourceConfigurator
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    public static async Task ConfigureScalarResourceAsync(EnvironmentCallbackContext context, CancellationToken cancellationToken)
+    public static async Task ConfigureScalarResourceAsync(EnvironmentCallbackContext context)
     {
         var resource = context.Resource;
         var serviceProvider = context.ExecutionContext.ServiceProvider;
+        var cancellationToken = context.CancellationToken;
         var scalarAnnotations = resource.Annotations.OfType<ScalarAnnotation>();
         var scalarConfigurations = CreateConfigurationsAsync(serviceProvider, scalarAnnotations, cancellationToken);
 
@@ -41,7 +42,6 @@ internal static class ScalarResourceConfigurator
         foreach (var scalarAnnotation in annotations)
         {
             var resourceName = scalarAnnotation.Resource.Name;
-
 
             using var scope = serviceProvider.CreateScope();
             var scalarAspireOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<ScalarAspireOptions>>().Get(resourceName);

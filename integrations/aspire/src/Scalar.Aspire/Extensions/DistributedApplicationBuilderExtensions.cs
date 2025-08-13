@@ -63,7 +63,7 @@ public static class DistributedApplicationBuilderExtensions
             .WithHttpHealthCheck(HealthCheckEndpoint)
             .WithEnvironment(async context =>
             {
-                await ScalarResourceConfigurator.ConfigureScalarResourceAsync(context, context.CancellationToken);
+                await ScalarResourceConfigurator.ConfigureScalarResourceAsync(context);
             });
     }
 }
