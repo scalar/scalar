@@ -44,7 +44,7 @@ const config = useConfig()
       <SectionColumns>
         <SectionColumn>
           <ScalarMarkdown
-            :clamp="isCollapsed ? '7' : false"
+            :clamp="isCollapsed ? 7 : undefined"
             :value="tag.tag?.description ?? ''"
             withImages />
         </SectionColumn>

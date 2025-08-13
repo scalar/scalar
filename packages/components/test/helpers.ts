@@ -13,6 +13,8 @@ export { expect }
 
 export type SnapshotFn = (suffix?: string) => Promise<void>
 
+export type StoryTestArgs = Record<string, string | number | boolean | null | undefined>
+
 export type ComponentTestOptions = {
   /**
    * The component to test.
@@ -26,6 +28,12 @@ export type ComponentTestOptions = {
    * Falls back to the title of the test block if not provided.
    */
   story: string | undefined
+  /**
+   * The args to pass to the story.
+   *
+   * Falls back to the args of the test block if not provided.
+   */
+  args: StoryTestArgs | undefined
   /** Whether to render with a background. Defaults to false. */
   background: boolean
   /** Whether to crop the snapshot to the component root. Defaults to false. */
@@ -71,6 +79,31 @@ const componentDetailsFromContext = (
 }
 
 /**
+ * Encodes a single story arg to Storybook URL format
+ */
+const encodeStoryArg = (value: StoryTestArgs[string]): string => {
+  if (value === null || value === undefined || typeof value === 'boolean') {
+    return `!${encodeURIComponent(String(value))}`
+  }
+  return encodeURIComponent(String(value))
+}
+
+/**
+ * Serializes args to Storybook URL format
+ *
+ * See: https://storybook.js.org/docs/writing-stories/args#setting-args-through-the-url
+ */
+const encodeStoryArgs = (args?: StoryTestArgs): string => {
+  if (!args || Object.keys(args).length === 0) {
+    return ''
+  }
+
+  return Object.entries(args)
+    .map(([k, v]) => `${k}:${encodeStoryArg(v)}`)
+    .join(';')
+}
+
+/**
  * Sets the color mode for the page using a class
  */
 const setColorMode = async (page: Page, colorMode: 'light' | 'dark') => {
@@ -93,6 +126,7 @@ export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
   // Options (can be overridden per test via test.use)
   component: [undefined, { option: true }],
   story: [undefined, { option: true }],
+  args: [undefined, { option: true }],
   background: [false, { option: true }],
   crop: [false, { option: true }],
   scale: [2, { option: true }],
@@ -112,11 +146,15 @@ export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
 
   // Utility to open a storybook story
   openStory: [
-    async ({ page, component: c, story: s }, use, testInfo) => {
+    async ({ page, component: c, story: s, args }, use, testInfo) => {
       const { component, story } = componentDetailsFromContext(c, s, testInfo)
 
-      const url = `/iframe.html?args=&viewMode=story&id=components-${toSlug(component)}--${toSlug(story)}`
-      await page.goto(url)
+      const params = new URLSearchParams()
+      params.set('viewMode', 'story')
+      params.set('id', `components-${toSlug(component)}--${toSlug(story)}`)
+      params.set('args', encodeStoryArgs(args))
+
+      await page.goto(`iframe.html?${params.toString()}`)
 
       await page.waitForLoadState('networkidle')
 

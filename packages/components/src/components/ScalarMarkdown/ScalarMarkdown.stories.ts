@@ -19,6 +19,7 @@ const meta = {
   component: ScalarMarkdown,
   argTypes: {
     class: { control: 'text' },
+    clamp: { control: 'number' },
   },
   parameters: { layout: 'fullscreen' },
   tags: ['autodocs'],
