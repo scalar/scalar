@@ -203,6 +203,34 @@ paths:
 +      x-scalar-stability: 'experimental'
 ```
 
+## x-badges
+
+You can add badges to operations to use as indicators in documentation. Each operation can have multiple badges, and the displayed color is also configurable. The following example sets badges on the GET `/hello-world` operation:
+
+```diff
+openapi: 3.1.0
+info:
+  title: x-badges
+  version: 1.0.0
+paths:
+  /hello-world:
+    get:
+      summary: Hello World
++      x-badges:
++        - name: 'Alpha'
++        - name: 'Beta'
++          position: before
++        - name: 'Gamma'
++          position: after
++          color: '#ffcc00'
+```
+
+| Option   | Type   | Description                                                                                                                 |
+| -------- | ------ | --------------------------------------------------------------------------------------------------------------------------- |
+| name     | string | **REQUIRED**. The text that displays in the badge.                                                                          |
+| position | string | The position of the badge in relation to the header. Possible values: `before`, `after`. The default value is `after`.      |
+| color    | string | The color of the badge. It can be defined in various formats such as color keywords, RGB, RGBA, HSL, HSLA, and Hexadecimal. |
+
 ## x-enum-descriptions
 
 You can add a descriptions to `enum` values with `x-enum-descriptions`:
@@ -272,9 +300,9 @@ openapi: 3.1.0
 info:
   title: Example
   version: 1.0
-+  x-scalar-sdk-installation:
-+  - lang: Node
-+    description: Install our **Custom SDK** for Node.js from npm:
-+    source: |-
-+      npm install @your-awesome-company/sdk
+  x-scalar-sdk-installation:
+  - lang: Node
+    description: Install our **Custom SDK** for Node.js from npm:
+    source: |-
+      npm install @your-awesome-company/sdk
 ```

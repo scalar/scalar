@@ -1,15 +1,35 @@
+<script setup lang="ts">
+import { computed } from 'vue'
+
+const { color } = defineProps<{
+  color?: string
+}>()
+
+const badgeStyle = computed(() =>
+  color
+    ? {
+        '--badge-background-color': color,
+        '--badge-text-color': `color-mix(in srgb, ${color}, black 40%)`,
+      }
+    : {},
+)
+</script>
+
 <template>
-  <div class="badge">
+  <div
+    class="badge"
+    :style="badgeStyle">
     <slot />
   </div>
 </template>
 
 <style scoped>
 .badge {
-  color: var(--scalar-color-2);
+  color: var(--badge-text-color, var(--scalar-color-2));
   font-size: var(--scalar-mini);
-  background: var(--scalar-background-2);
-  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  background: var(--badge-background-color, var(--scalar-background-2));
+  border: var(--scalar-border-width) solid
+    var(--badge-border-color, var(--scalar-border-color));
   padding: 2px 6px;
   border-radius: 12px;
   display: inline-block;
