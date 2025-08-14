@@ -34,7 +34,6 @@ export const HeaderObjectWithSchemaSchema = compose(
 export const headerObjectSchemaBuilder = <T extends TSchema>(mediaType: T) =>
   Type.Union([
     HeaderObjectWithSchemaSchema,
-    // @ts-ignore
     compose(
       HeaderObjectSchemaBase,
       Type.Object({

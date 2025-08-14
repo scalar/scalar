@@ -52,5 +52,7 @@ export const PathItemObjectSchema = Type.Recursive((This) =>
 >
 
 export type PathItemObject = Static<typeof PathItemObjectSchema>
+
 export type CallbackObject = Static<typeof CallbackObjectSchema>
+
 export type OperationObject = Static<typeof OperationObjectSchema>
