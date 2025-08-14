@@ -112,6 +112,14 @@ const mergeServers = (inputs: OpenAPIV3_1.ServerObject[][]) => {
   return result
 }
 
+/**
+ * Merges multiple OpenAPI ComponentsObject instances into a single components object.
+ * - If a component with the same type and name appears in multiple inputs, only the first occurrence is included.
+ * - Any conflicts (duplicate component names within the same type) are recorded in the `conflicts` array.
+ *
+ * @param inputs - Array of OpenAPIV3_1.ComponentsObject to merge
+ * @returns An object containing the merged components and an array of conflicts
+ */
 const mergeComponents = (inputs: OpenAPIV3_1.ComponentsObject[]) => {
   const result: OpenAPIV3_1.ComponentsObject = {}
   const conflicts: { componentType: string; name: string }[] = []
@@ -142,42 +150,61 @@ const mergeComponents = (inputs: OpenAPIV3_1.ComponentsObject[]) => {
   return { components: result, conflicts }
 }
 
+/**
+ * Prefixes component names and their references in multiple OpenAPI documents.
+ *
+ * This function mutates each input document in-place by:
+ *   1. Prefixing all component names (e.g., schema names) with the corresponding prefix.
+ *   2. Updating all $ref values that point to components to use the prefixed names.
+ *
+ * This is useful when merging multiple OpenAPI documents to avoid component name collisions.
+ *
+ * @param inputs - Array of OpenAPI documents to mutate.
+ * @param prefixes - Array of prefixes to apply to each document's components.
+ */
 const prefixComponents = async (inputs: OpenAPIV3_1.Document[], prefixes: string[]) => {
   for (const index of inputs.keys()) {
     await bundle(inputs[index], {
       treeShake: false,
       urlMap: false,
       plugins: [
+        // Plugin to update $ref values to use the prefixed component names
         {
           type: 'lifecycle',
           onBeforeNodeProcess: (node) => {
-            const ref = node.ref
+            const ref = node['$ref']
 
             if (typeof ref !== 'string') {
               return
             }
 
+            // Only process refs that point to components
             if (!ref.startsWith('#/components/')) {
               return
             }
 
             const parts = ref.split('/')
-            if (parts.length < 3) {
+            // Ensure the ref has the expected structure: #/components/{type}/{name}
+            if (parts.length < 4) {
               return
             }
 
-            parts[2] = (prefixes[index] ?? '') + parts[2]
+            // Prefix the component name (parts[3]) with the provided prefix
+            parts[3] = `${prefixes[index] ?? ''}${parts[3]}`
+
+            node['$ref'] = parts.join('/')
           },
         },
+        // Plugin to rename component keys with the prefix
         {
           type: 'lifecycle',
           onBeforeNodeProcess: (node, context) => {
-            // Check if the node is a component and we are in the component parent context
+            // Check if the node is a component type object (e.g., schemas, responses) under "components"
             if (context.path.length === 2 && context.path[0] === 'components') {
               const prefix = prefixes[index]
 
               Object.keys(node).forEach((key) => {
-                const newKey = `${prefix}${key}`
+                const newKey = `${prefix ?? ''}${key}`
                 const childNode = node[key]
                 delete node[key]
                 node[newKey] = childNode

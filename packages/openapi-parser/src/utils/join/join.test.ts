@@ -376,29 +376,52 @@ describe('join', () => {
     })
   })
 
-  it('should merge components', async () => {
+  it('should merge all component types correctly', async () => {
     const result = await join([
       {
         components: {
           schemas: {
-            Schema1: {
-              type: 'object',
-              properties: {
-                prop1: { type: 'string' },
-              },
-            },
+            User: { type: 'object', properties: { name: { type: 'string' } } },
+          },
+          responses: {
+            UserResponse: { description: 'User response' },
+          },
+          parameters: {
+            UserId: { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+          },
+          examples: {
+            UserExample: { summary: 'User example' },
+          },
+          requestBodies: {
+            UserRequest: { content: { 'application/json': { schema: { type: 'object' } } } },
+          },
+          headers: {
+            UserHeader: { description: 'User header' },
+          },
+          securitySchemes: {
+            ApiKey: { type: 'apiKey', in: 'header', name: 'X-API-Key' },
+          },
+          links: {
+            UserLink: { operationId: 'getUser' },
+          },
+          callbacks: {
+            UserCallback: { '{$request.body#/url}': { post: { summary: 'Callback' } } },
+          },
+          pathItems: {
+            UserPath: { get: { summary: 'Get user' } },
           },
         },
       },
       {
         components: {
           schemas: {
-            Schema2: {
-              type: 'object',
-              properties: {
-                prop2: { type: 'string' },
-              },
-            },
+            Product: { type: 'object', properties: { title: { type: 'string' } } },
+          },
+          responses: {
+            ProductResponse: { description: 'Product response' },
+          },
+          parameters: {
+            ProductId: { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
           },
         },
       },
@@ -414,18 +437,37 @@ describe('join', () => {
         servers: [],
         components: {
           schemas: {
-            Schema1: {
-              type: 'object',
-              properties: {
-                prop1: { type: 'string' },
-              },
-            },
-            Schema2: {
-              type: 'object',
-              properties: {
-                prop2: { type: 'string' },
-              },
-            },
+            User: { type: 'object', properties: { name: { type: 'string' } } },
+            Product: { type: 'object', properties: { title: { type: 'string' } } },
+          },
+          responses: {
+            UserResponse: { description: 'User response' },
+            ProductResponse: { description: 'Product response' },
+          },
+          parameters: {
+            UserId: { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+            ProductId: { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+          },
+          examples: {
+            UserExample: { summary: 'User example' },
+          },
+          requestBodies: {
+            UserRequest: { content: { 'application/json': { schema: { type: 'object' } } } },
+          },
+          headers: {
+            UserHeader: { description: 'User header' },
+          },
+          securitySchemes: {
+            ApiKey: { type: 'apiKey', in: 'header', name: 'X-API-Key' },
+          },
+          links: {
+            UserLink: { operationId: 'getUser' },
+          },
+          callbacks: {
+            UserCallback: { '{$request.body#/url}': { post: { summary: 'Callback' } } },
+          },
+          pathItems: {
+            UserPath: { get: { summary: 'Get user' } },
           },
         },
       },
@@ -547,6 +589,389 @@ describe('join', () => {
               type: 'object',
               properties: {
                 prop2: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
+    })
+  })
+
+  it('should update the references to the prefixed schemas', async () => {
+    const result = await join(
+      [
+        {
+          $defs: {
+            someKey: { $ref: '#/components/schemas/Schema1' },
+          },
+          components: {
+            schemas: {
+              Schema1: {
+                type: 'object',
+                properties: {
+                  prop1: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        {
+          paths: {
+            '/example': {
+              get: {
+                responses: {
+                  '200': {
+                    description: 'Success',
+                    content: {
+                      'application/json': {
+                        schema: { $ref: '#/components/schemas/Schema2' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          components: {
+            schemas: {
+              Schema2: {
+                type: 'object',
+                properties: {
+                  prop2: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+      ],
+      { prefixComponents: ['prefix1-', 'prefix2-'] },
+    )
+
+    expect(result).toEqual({
+      ok: true,
+      document: {
+        info: {},
+        paths: {
+          '/example': {
+            get: {
+              responses: {
+                200: {
+                  content: {
+                    'application/json': {
+                      schema: {
+                        '$ref': '#/components/schemas/prefix2-Schema2',
+                      },
+                    },
+                  },
+                  description: 'Success',
+                },
+              },
+            },
+          },
+        },
+        webhooks: {},
+        tags: [],
+        servers: [],
+        components: {
+          schemas: {
+            'prefix1-Schema1': {
+              type: 'object',
+              properties: {
+                prop1: { type: 'string' },
+              },
+            },
+            'prefix2-Schema2': {
+              type: 'object',
+              properties: {
+                prop2: { type: 'string' },
+              },
+            },
+          },
+        },
+        '$defs': {
+          someKey: {
+            '$ref': '#/components/schemas/prefix1-Schema1',
+          },
+        },
+      },
+    })
+  })
+
+  it('should handle components with undefined or null values', async () => {
+    const result = await join([
+      {
+        components: {
+          schemas: {
+            Schema1: { type: 'object' },
+          },
+        },
+      },
+      {
+        components: undefined,
+      },
+      {
+        components: null,
+      },
+      {
+        components: {
+          schemas: {
+            Schema2: { type: 'string' },
+          },
+        },
+      },
+    ])
+
+    expect(result).toEqual({
+      ok: true,
+      document: {
+        info: {},
+        paths: {},
+        webhooks: {},
+        tags: [],
+        servers: [],
+        components: {
+          schemas: {
+            Schema1: { type: 'object' },
+            Schema2: { type: 'string' },
+          },
+        },
+      },
+    })
+  })
+
+  it('should handle prefix array smaller than input documents array', async () => {
+    const result = await join(
+      [
+        {
+          components: {
+            schemas: {
+              Schema1: { type: 'object', properties: { prop1: { type: 'string' } } },
+            },
+          },
+        },
+        {
+          components: {
+            schemas: {
+              Schema2: { type: 'object', properties: { prop2: { type: 'string' } } },
+            },
+          },
+        },
+        {
+          components: {
+            schemas: {
+              Schema3: { type: 'object', properties: { prop3: { type: 'string' } } },
+            },
+          },
+        },
+      ],
+      { prefixComponents: ['prefix1-', 'prefix2-'] }, // Only 2 prefixes for 3 documents
+    )
+
+    expect(result).toEqual({
+      ok: true,
+      document: {
+        info: {},
+        paths: {},
+        webhooks: {},
+        tags: [],
+        servers: [],
+        components: {
+          schemas: {
+            'prefix1-Schema1': { type: 'object', properties: { prop1: { type: 'string' } } },
+            'prefix2-Schema2': { type: 'object', properties: { prop2: { type: 'string' } } },
+            Schema3: { type: 'object', properties: { prop3: { type: 'string' } } }, // No prefix applied
+          },
+        },
+      },
+    })
+  })
+
+  it('should handle prefix array larger than input documents array', async () => {
+    const result = await join(
+      [
+        {
+          components: {
+            schemas: {
+              Schema1: { type: 'object', properties: { prop1: { type: 'string' } } },
+            },
+          },
+        },
+        {
+          components: {
+            schemas: {
+              Schema2: { type: 'object', properties: { prop2: { type: 'string' } } },
+            },
+          },
+        },
+      ],
+      { prefixComponents: ['prefix1-', 'prefix2-', 'prefix3-', 'prefix4-'] }, // 4 prefixes for 2 documents
+    )
+
+    expect(result).toEqual({
+      ok: true,
+      document: {
+        info: {},
+        paths: {},
+        webhooks: {},
+        tags: [],
+        servers: [],
+        components: {
+          schemas: {
+            'prefix1-Schema1': { type: 'object', properties: { prop1: { type: 'string' } } },
+            'prefix2-Schema2': { type: 'object', properties: { prop2: { type: 'string' } } },
+          },
+        },
+      },
+    })
+  })
+
+  it('should handle empty prefix array', async () => {
+    const result = await join(
+      [
+        {
+          components: {
+            schemas: {
+              Schema1: { type: 'object', properties: { prop1: { type: 'string' } } },
+            },
+          },
+        },
+        {
+          components: {
+            schemas: {
+              Schema2: { type: 'object', properties: { prop2: { type: 'string' } } },
+            },
+          },
+        },
+      ],
+      { prefixComponents: [] }, // Empty prefix array
+    )
+
+    expect(result).toEqual({
+      ok: true,
+      document: {
+        info: {},
+        paths: {},
+        webhooks: {},
+        tags: [],
+        servers: [],
+        components: {
+          schemas: {
+            Schema1: { type: 'object', properties: { prop1: { type: 'string' } } },
+            Schema2: { type: 'object', properties: { prop2: { type: 'string' } } },
+          },
+        },
+      },
+    })
+  })
+
+  it('should handle components with mixed component types and conflicts', async () => {
+    const result = await join([
+      {
+        components: {
+          schemas: {
+            User: { type: 'object', properties: { name: { type: 'string' } } },
+          },
+          responses: {
+            Error: { description: 'Error response' },
+          },
+        },
+      },
+      {
+        components: {
+          schemas: {
+            User: { type: 'object', properties: { email: { type: 'string' } } }, // Conflict with User schema
+          },
+          responses: {
+            Success: { description: 'Success response' },
+          },
+        },
+      },
+    ])
+
+    expect(result).toEqual({
+      ok: false,
+      conflicts: [
+        {
+          type: 'component',
+          componentType: 'schemas',
+          name: 'User',
+        },
+      ],
+    })
+  })
+
+  it('should merge components with deep nested structures', async () => {
+    const result = await join([
+      {
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              properties: {
+                profile: {
+                  type: 'object',
+                  properties: {
+                    firstName: { type: 'string' },
+                    lastName: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        components: {
+          schemas: {
+            Product: {
+              type: 'object',
+              properties: {
+                details: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                    price: { type: 'number' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    ])
+
+    expect(result).toEqual({
+      ok: true,
+      document: {
+        info: {},
+        paths: {},
+        webhooks: {},
+        tags: [],
+        servers: [],
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              properties: {
+                profile: {
+                  type: 'object',
+                  properties: {
+                    firstName: { type: 'string' },
+                    lastName: { type: 'string' },
+                  },
+                },
+              },
+            },
+            Product: {
+              type: 'object',
+              properties: {
+                details: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                    price: { type: 'number' },
+                  },
+                },
               },
             },
           },
