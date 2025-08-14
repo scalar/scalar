@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { useResizeObserver } from '@vueuse/core'
-import { onMounted, ref, useTemplateRef } from 'vue'
+import { onMounted, ref, useId, useTemplateRef } from 'vue'
 
 import ScalarMarkdown from './ScalarMarkdown.vue'
 import type { ScalarMarkdownProps } from './types'
 
 const { clamp = 1, ...props } = defineProps<ScalarMarkdownProps>()
+
+const id = useId()
 
 /** * Whether the summary is open. */
 const open = defineModel<boolean>({ default: false })
@@ -44,6 +46,7 @@ defineOptions({ inheritAttrs: false })
     <ScalarMarkdown
       ref="scalar-markdown"
       v-bind="props"
+      :id="id"
       :class="{ 'markdown-summary truncate': !open }"
       :clamp="open ? undefined : clamp" />
     <button
@@ -51,6 +54,7 @@ defineOptions({ inheritAttrs: false })
       class="whitespace-nowrap font-medium hover:underline"
       :class="{ 'self-end': open }"
       type="button"
+      :aria-controls="id"
       :aria-expanded="open"
       @click="open = !open">
       <slot
