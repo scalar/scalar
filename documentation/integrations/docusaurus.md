@@ -30,8 +30,6 @@ plugins: [
 ],
 ```
 
-We wrote a [detailed integration guide for Docusaurus](https://github.com/scalar/scalar/tree/main/documentation/integrations/docusaurus.md).
-
 ### Multiple API descriptions
 
 Is it possible to show multiple API descriptions? Yes, it is! :)

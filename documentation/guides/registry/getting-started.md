@@ -7,9 +7,9 @@ To first access the Scalar Registry you need to [create an account](https://dash
 ![Scalar Dashboard](https://api.scalar.com/cdn/images/UCkGjASrXpR8OxgWEj32i/t8MUp4KrYwCT9WKYuVnUu.png "Scalar Dashboard")
 
 Once authenticated you will see your dashboard, you have two options to interface with the Scalar Registry:
-- The Scalar [dashboard](/scalar/scalar-registry/dashboard)
-- The Scalar [CLI](/scalar/scalar-registry/cli)
-- Our [GitHub Workflows](/scalar/scalar-registry/github-workflows)
+- The Scalar [dashboard](https://guides.scalar.com/scalar/scalar-registry/dashboard)
+- The Scalar [CLI](https://guides.scalar.com/scalar/scalar-registry/cli)
+- Our [GitHub Workflows](https://guides.scalar.com/scalar/scalar-registry/github-workflows)
 
 ## So... Why a Registry?
 Managing OpenAPI can be difficult; is the source-of-truth: design, implementation, Git, cloud? How do you manage versions and access, also how do downstream consumers of your API interact with it? Does it need to be private?
