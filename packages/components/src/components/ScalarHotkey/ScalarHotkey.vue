@@ -2,7 +2,7 @@
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { computed } from 'vue'
 
-import { formatHotkeySymbols, formatScreenReaderLabel } from './formatHotkey'
+import { formatHotkeySymbols, getKeyLabel } from './formatHotkey'
 import type { HotKeyModifier } from './types'
 
 const { modifier = ['Meta'], hotkey } = defineProps<{
@@ -11,19 +11,28 @@ const { modifier = ['Meta'], hotkey } = defineProps<{
 }>()
 
 const { cx } = useBindCx()
+defineOptions({ inheritAttrs: false })
 
-const displayHotkey = computed(() => formatHotkeySymbols(hotkey, modifier))
-
-const srLabel = computed(() => formatScreenReaderLabel(hotkey, modifier))
+const hotkeyChars = computed(() => formatHotkeySymbols(hotkey, modifier))
 </script>
 <template>
   <div
     v-bind="
       cx(
-        'border-(--scalar-background-3) inline-block overflow-hidden rounded border text-xxs rounded-b p-1 font-medium uppercase leading-none',
+        'border-(--scalar-background-3) inline-flex gap-px overflow-hidden rounded border text-xxs rounded-b p-1 font-medium uppercase leading-none',
       )
     ">
-    <span aria-hidden="true">{{ displayHotkey }}</span>
-    <span class="sr-only">{{ srLabel }}</span>
+    <div
+      v-for="(char, i) in hotkeyChars"
+      :key="i">
+      <span
+        aria-hidden="true"
+        class="contents">
+        {{ char }}
+      </span>
+      <span class="sr-only">
+        {{ getKeyLabel(char) }}
+      </span>
+    </div>
   </div>
 </template>

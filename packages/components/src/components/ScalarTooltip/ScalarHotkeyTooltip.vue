@@ -49,13 +49,16 @@ const renderedContent = computed<string>(() => {
   // Temp element to render the content into
   const el = document.createElement('div')
 
+  const hotKeyClass =
+    '-m-[2.5px] border-none p-0 grid grid-flow-col auto-cols-fr gap-0.5 *:border *:border-c-tooltip *:rounded *:p-1 *:text-center'
+
   if (content) {
     // Render the content and the hotkey
     render(
       h('div', { class: 'flex items-center gap-2' }, [
         content,
         h(ScalarHotkey, {
-          class: 'border-c-tooltip -my-1.5 -mx-0.5',
+          class: hotKeyClass,
           hotkey,
           modifier,
         }),
@@ -65,7 +68,7 @@ const renderedContent = computed<string>(() => {
   } else {
     render(
       h(ScalarHotkey, {
-        class: 'inline border-none p-0',
+        class: hotKeyClass,
         hotkey,
         modifier,
       }),
