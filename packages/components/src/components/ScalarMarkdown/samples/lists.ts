@@ -1,3 +1,4 @@
+export default /* md */ `
 Unordered list
 
 - Red
@@ -80,3 +81,4 @@ Task list
 - [x] Write the press release
 - [ ] Update the website
 - [ ] Contact the media
+`

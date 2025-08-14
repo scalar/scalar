@@ -141,8 +141,8 @@ describe('TagSection', () => {
         },
       })
 
-      const markdown = wrapper.findComponent({ name: 'ScalarMarkdown' })
-      expect(markdown.props('clamp')).toBe('7')
+      const markdown = wrapper.find('.markdown')
+      expect(markdown.attributes('style')).toContain('clamp')
     })
 
     it('does not apply clamp to markdown when not collapsed', () => {
@@ -155,8 +155,8 @@ describe('TagSection', () => {
         },
       })
 
-      const markdown = wrapper.findComponent({ name: 'ScalarMarkdown' })
-      expect(markdown.props('clamp')).toBe(false)
+      const markdown = wrapper.find('.markdown')
+      expect(`${markdown.attributes('style')}`).not.toContain('clamp')
     })
   })
 

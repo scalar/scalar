@@ -1,4 +1,4 @@
-
+export default /* md */ `
 Basic Table
 
 | Syntax      | Description |
@@ -15,3 +15,4 @@ Table with alignment
 | :---        |    :----:   |          ---: |
 | Header      | Title       | Here's this   |
 | Paragraph   | Text        | And more      |
+`

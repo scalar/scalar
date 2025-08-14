@@ -1,3 +1,4 @@
+export default /* md */ `
 Normal Blockquote
 
 > This is a blockquote with two paragraphs. Lorem ipsum dolor sit amet,
@@ -9,7 +10,7 @@ Normal Blockquote
 
 ---
 
-Blockquote with hard wraps and no additional `>`
+Blockquote with hard wraps and no additional \`>\`
 
 > This is a blockquote with two paragraphs. Lorem ipsum dolor sit amet,
 consectetuer adipiscing elit. Aliquam hendrerit mi posuere lectus.
@@ -40,3 +41,4 @@ Blockquote with nested markdown content
 > Here's some example code:
 >
 >     return shell_exec("echo $input | $markdown_script");
+`

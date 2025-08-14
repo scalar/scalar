@@ -1,6 +1,7 @@
+export default /* md */ `
 Paragraph with inline elements
 
-This is a demo paragraph with **bold text**, _italic text_, a [link](https://example.com), and some `inline code` to show various Markdown inline elements.
+This is a demo paragraph with **bold text**, _italic text_, a [link](https://example.com), and some \`inline code\` to show various Markdown inline elements.
 
 ---
 
@@ -26,10 +27,11 @@ _single underscores_
 
 Inline Code
 
-Use the `printf()` function.
+Use the \`printf()\` function.
 
 ---
 
 Emoji
 
 :sparkles:
+`
