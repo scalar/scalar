@@ -336,6 +336,12 @@
                   "type": "page"
                 },
                 {
+                  "name": "Hapi",
+                  "slug": "hapi",
+                  "path": "documentation/integrations/hapi.md",
+                  "type": "page"
+                },
+                {
                   "name": "Hono",
                   "slug": "hono",
                   "path": "documentation/integrations/hono.md",
