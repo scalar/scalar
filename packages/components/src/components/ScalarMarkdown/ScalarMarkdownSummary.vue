@@ -10,7 +10,7 @@ const { clamp = 1, ...props } = defineProps<ScalarMarkdownProps>()
 /** * Whether the summary is open. */
 const open = defineModel<boolean>({ default: false })
 
-const markdown = useTemplateRef('markdown')
+const markdown = useTemplateRef('scalar-markdown')
 
 /** Observer to check if the markdown is being truncated */
 const observer = new ResizeObserver(checkTruncation)
@@ -49,7 +49,7 @@ defineOptions({ inheritAttrs: false })
       )
     ">
     <ScalarMarkdown
-      ref="markdown"
+      ref="scalar-markdown"
       v-bind="props"
       :class="{ 'markdown-summary truncate': !open }"
       :clamp="open ? undefined : clamp" />
