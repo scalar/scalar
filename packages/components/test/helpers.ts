@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url'
 import {
   expect,
   test as base,
+  devices as playwrightDevices,
   type BrowserContext,
   type BrowserContextOptions,
   type Page,
@@ -10,6 +11,8 @@ import {
 } from '@playwright/test'
 
 export { expect }
+
+export type Device = keyof typeof devices
 
 export type TestBody = Parameters<typeof test>[2]
 
@@ -42,6 +45,8 @@ export type ComponentTestOptions = {
   crop: boolean
   /** Device scale factor used for screenshots. Defaults to 2. */
   scale: number
+  /** Device to emulate. Defaults to no device emulation. */
+  device: Device | undefined
   /** Color mode to use for screenshots. Defaults to ['light']. */
   colorModes: ['light'] | ['dark'] | ['light', 'dark']
 }
@@ -52,6 +57,18 @@ type ComponentTestFixtures = {
   /** Helper to take a snapshot with a normalized filename and optional suffix. */
   snapshot: SnapshotFn
 }
+
+/**
+ * A simplified list of playwright devices to be made available to tests
+ *
+ * @see https://playwright.dev/docs/emulation#devices
+ */
+const devices = {
+  'Chrome': 'Desktop Chrome',
+  'Firefox': 'Desktop Firefox',
+  'Safari': 'Desktop Safari',
+  'Edge': 'Desktop Edge',
+} as const satisfies Record<string, keyof typeof playwrightDevices>
 
 function toSlug(input: string): string {
   return input.replace(/ /g, '-').toLowerCase()
@@ -132,11 +149,18 @@ export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
   background: [false, { option: true }],
   crop: [false, { option: true }],
   scale: [2, { option: true }],
+  device: [undefined, { option: true }],
   colorModes: [['light'], { option: true }],
 
   // Ensure the deviceScaleFactor option is applied by creating a context with scale
-  context: async ({ browser, contextOptions, scale }, use, testInfo) => {
-    const options: BrowserContextOptions = { ...contextOptions, deviceScaleFactor: scale }
+  context: async ({ browser, contextOptions, viewport, scale, device }, use, testInfo) => {
+    const deviceConfig = device ? playwrightDevices[devices[device]] : {}
+    const options: BrowserContextOptions = {
+      ...contextOptions,
+      ...deviceConfig,
+      viewport,
+      deviceScaleFactor: scale,
+    }
     const context: BrowserContext = await browser.newContext(options)
 
     // Add an annotation with the scale factor
@@ -176,7 +200,7 @@ export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
       const locator = crop ? '#storybook-root > *' : 'body'
       for (const colorMode of colorModes) {
         const colorModeSuffix = colorMode === 'light' ? '' : `-${colorMode}`
-        const filename = `${toSlug(story)}${suffix ? `-${suffix}` : ''}${colorModeSuffix}.png`
+        const filename = `${toSlug(story)}${suffix ? `-${toSlug(suffix)}` : ''}${colorModeSuffix}.png`
         await setColorMode(page, colorMode)
         await expect(page.locator(locator)).toHaveScreenshot(filename, {
           omitBackground: !background,
