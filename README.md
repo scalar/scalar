@@ -139,6 +139,7 @@ And there's an ever-growing list of plugins and integrations:
 - [Fastify](documentation/integrations/fastify.md)
 - [Flask](documentation/integrations/flask.md)
 - [Go](documentation/integrations/go.md)
+- [Hapi](documentation/integrations/hapi.md)
 - [Hono](documentation/integrations/hono.md)
 - [Laravel Scribe](documentation/integrations/laravel-scribe.md)
 - [Laravel](documentation/integrations/laravel.md)
