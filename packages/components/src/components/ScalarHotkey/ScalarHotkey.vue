@@ -19,7 +19,7 @@ const hotkeyChars = computed(() => formatHotkeySymbols(hotkey, modifier))
   <div
     v-bind="
       cx(
-        'border-(--scalar-background-3) inline-flex gap-px overflow-hidden rounded border text-xxs rounded-b p-1 font-medium uppercase leading-none',
+        'border-(--scalar-background-3) inline-flex gap-0.5 overflow-hidden rounded border text-xxs rounded-b p-1 font-medium uppercase leading-none',
       )
     ">
     <div

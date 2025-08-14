@@ -11,6 +11,8 @@ import {
 
 export { expect }
 
+export type TestBody = Parameters<typeof test>[2]
+
 export type SnapshotFn = (suffix?: string) => Promise<void>
 
 export type StoryTestArgs = Record<string, string | number | boolean | null | undefined>
@@ -186,8 +188,6 @@ export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
     await use(takeSnapshot)
   },
 })
-
-type TestBody = Parameters<typeof test>[2]
 
 /**
  * Helper to just take a snapshot of a storybook story
