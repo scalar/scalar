@@ -194,7 +194,7 @@ describe('join', () => {
     })
   })
 
-  it('should return conflicts when there is conflicts on the paths', async () => {
+  it('should return conflicts when there are conflicts on webhooks', async () => {
     const result = await join([
       {
         webhooks: {
