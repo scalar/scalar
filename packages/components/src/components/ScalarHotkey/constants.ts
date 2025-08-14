@@ -4,7 +4,9 @@ import type { HotKeyModifierKey } from './types'
 export const HOTKEY_LABELS = {
   '⌘': 'Command',
   '^': 'Control',
+  'ctrl': 'Control',
   '⌥': 'Option',
+  'alt': 'Alt',
   '⇧': 'Shift',
   '⇪': 'Caps Lock',
   '↵': 'Enter',
