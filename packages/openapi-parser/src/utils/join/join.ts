@@ -1,6 +1,7 @@
 import type { UnknownObject } from '@/types'
 import { mergeObjects } from '@/utils/join/merge-objects'
 import { upgrade } from '@/utils/upgrade'
+import { bundle } from '@scalar/json-magic/bundle'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 /**
@@ -141,6 +142,54 @@ const mergeComponents = (inputs: OpenAPIV3_1.ComponentsObject[]) => {
   return { components: result, conflicts }
 }
 
+const prefixComponents = async (inputs: OpenAPIV3_1.Document[], prefixes: string[]) => {
+  for (const index of inputs.keys()) {
+    await bundle(inputs[index], {
+      treeShake: false,
+      urlMap: false,
+      plugins: [
+        {
+          type: 'lifecycle',
+          onBeforeNodeProcess: (node) => {
+            const ref = node.ref
+
+            if (typeof ref !== 'string') {
+              return
+            }
+
+            if (!ref.startsWith('#/components/')) {
+              return
+            }
+
+            const parts = ref.split('/')
+            if (parts.length < 3) {
+              return
+            }
+
+            parts[2] = (prefixes[index] ?? '') + parts[2]
+          },
+        },
+        {
+          type: 'lifecycle',
+          onBeforeNodeProcess: (node, context) => {
+            // Check if the node is a component and we are in the component parent context
+            if (context.path.length === 2 && context.path[0] === 'components') {
+              const prefix = prefixes[index]
+
+              Object.keys(node).forEach((key) => {
+                const newKey = `${prefix}${key}`
+                const childNode = node[key]
+                delete node[key]
+                node[newKey] = childNode
+              })
+            }
+          },
+        },
+      ],
+    })
+  }
+}
+
 export type Conflicts =
   | { type: 'path'; path: string; method: string }
   | { type: 'webhook'; path: string; method: string }
@@ -179,9 +228,17 @@ type JoinResult = { ok: true; document: OpenAPIV3_1.Document } | { ok: false; co
  * // result.document.tags contains both "foo" and "bar"
  * // result.document.servers contains both server URLs
  */
-export const join = (inputs: UnknownObject[]): JoinResult => {
+export const join = async (inputs: UnknownObject[], config?: { prefixComponents: string[] }): Promise<JoinResult> => {
   // Reverse the input list and upgrade them (first input has highest precedence)
-  const upgraded = inputs.reverse().map((it) => upgrade(it).specification)
+  const upgraded = inputs.map((it) => upgrade(it).specification)
+
+  // Preprocess documents by prefixing components if specified
+  if (config?.prefixComponents) {
+    await prefixComponents(upgraded, config.prefixComponents)
+  }
+
+  // Reverse the upgraded documents to ensure the first document has the highest precedence
+  upgraded.reverse()
 
   // Merge only the "info" object from all inputs
   const info = upgraded.reduce<OpenAPIV3_1.InfoObject>((acc, curr) => {

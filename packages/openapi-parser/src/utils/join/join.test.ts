@@ -2,8 +2,8 @@ import { join } from '@/utils/join/join'
 import { describe, expect, it } from 'vitest'
 
 describe('join', () => {
-  it('should handle joining info objects, prioritizing the first input document', () => {
-    const result = join([
+  it('should handle joining info objects, prioritizing the first input document', async () => {
+    const result = await join([
       {
         info: {
           title: 'Main title',
@@ -43,8 +43,8 @@ describe('join', () => {
     })
   })
 
-  it('should merge path operations correctly', () => {
-    const result = join([
+  it('should merge path operations correctly', async () => {
+    const result = await join([
       {
         paths: {
           '/': {
@@ -97,8 +97,8 @@ describe('join', () => {
     })
   })
 
-  it('should return conflicts when there is conflicts on the paths', () => {
-    const result = join([
+  it('should return conflicts when there is conflicts on the paths', async () => {
+    const result = await join([
       {
         paths: {
           '/': {
@@ -140,8 +140,8 @@ describe('join', () => {
     })
   })
 
-  it('should merge webhooks correctly', () => {
-    const result = join([
+  it('should merge webhooks correctly', async () => {
+    const result = await join([
       {
         webhooks: {
           '/': {
@@ -194,8 +194,8 @@ describe('join', () => {
     })
   })
 
-  it('should return conflicts when there is conflicts on the paths', () => {
-    const result = join([
+  it('should return conflicts when there is conflicts on the paths', async () => {
+    const result = await join([
       {
         webhooks: {
           '/': {
@@ -236,8 +236,8 @@ describe('join', () => {
     })
   })
 
-  it('should merge tags', () => {
-    const result = join([
+  it('should merge tags', async () => {
+    const result = await join([
       {
         tags: [
           {
@@ -306,8 +306,8 @@ describe('join', () => {
     })
   })
 
-  it('should merge servers', () => {
-    const result = join([
+  it('should merge servers', async () => {
+    const result = await join([
       {
         servers: [
           {
@@ -376,8 +376,8 @@ describe('join', () => {
     })
   })
 
-  it('should merge components', () => {
-    const result = join([
+  it('should merge components', async () => {
+    const result = await join([
       {
         components: {
           schemas: {
@@ -432,8 +432,8 @@ describe('join', () => {
     })
   })
 
-  it('should handle conflicts in components', () => {
-    const result = join([
+  it('should handle conflicts in components', async () => {
+    const result = await join([
       {
         components: {
           schemas: {
@@ -469,6 +469,89 @@ describe('join', () => {
           type: 'component',
         },
       ],
+    })
+  })
+
+  it('should prefix schemas so there are no conflicts', async () => {
+    const result = await join(
+      [
+        {
+          components: {
+            schemas: {
+              Schema1: {
+                type: 'object',
+                properties: {
+                  prop1: { type: 'string' },
+                },
+              },
+              Schema2: {
+                type: 'object',
+                properties: {
+                  prop1: { type: 'string' },
+                },
+              },
+              Schema3: {
+                type: 'object',
+                properties: {
+                  prop1: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        {
+          components: {
+            schemas: {
+              Schema1: {
+                type: 'object',
+                properties: {
+                  prop2: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+      ],
+      { prefixComponents: ['prefix1-', 'prefix2-'] },
+    )
+
+    expect(result).toEqual({
+      ok: true,
+      document: {
+        info: {},
+        paths: {},
+        webhooks: {},
+        tags: [],
+        servers: [],
+        components: {
+          schemas: {
+            'prefix1-Schema1': {
+              type: 'object',
+              properties: {
+                prop1: { type: 'string' },
+              },
+            },
+            'prefix1-Schema2': {
+              type: 'object',
+              properties: {
+                prop1: { type: 'string' },
+              },
+            },
+            'prefix1-Schema3': {
+              type: 'object',
+              properties: {
+                prop1: { type: 'string' },
+              },
+            },
+            'prefix2-Schema1': {
+              type: 'object',
+              properties: {
+                prop2: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
     })
   })
 })
