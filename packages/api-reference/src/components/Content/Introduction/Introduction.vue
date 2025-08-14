@@ -1,60 +1,23 @@
 <script setup lang="ts">
-import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
-import { RequestAuth } from '@scalar/api-client/views/Request/RequestSection/RequestAuth'
 import { ScalarErrorBoundary } from '@scalar/components'
-import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { computed } from 'vue'
 
+import ScalarAuthSelector from '@/components/Content/Introduction/ScalarAuthSelector.vue'
 import { Lazy } from '@/components/Lazy'
-import { BaseUrl } from '@/features/base-url'
 import { useNavState } from '@/hooks/useNavState'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
-import { ClientLibraries } from '../ClientLibraries'
 import IntroductionSection from './IntroductionSection.vue'
+import ScalarClientSelector from './ScalarClientSelector.vue'
+import ScalarServerSelector from './ScalarServerSelector.vue'
 
 const { config, store } = defineProps<{
   config?: ApiReferenceConfiguration
   clientOptions: ClientOptionGroup[]
   store: WorkspaceStore
 }>()
-
-const { collections, securitySchemes, servers } = useWorkspace()
-const {
-  activeCollection: _activeCollection,
-  activeEnvVariables,
-  activeEnvironment,
-  activeWorkspace,
-} = useActiveEntities()
-
-/** Match the collection by slug if provided */
-const activeCollection = computed(() => {
-  if (config?.slug) {
-    const collection = collections[getSlugUid(config.slug)]
-    if (collection) {
-      return collection
-    }
-  }
-  return _activeCollection.value
-})
-
-/** Ensure the server is the one selected in the collection */
-const activeServer = computed(() => {
-  if (!activeCollection.value) {
-    return undefined
-  }
-
-  if (activeCollection.value.selectedServerUid) {
-    const server = servers[activeCollection.value.selectedServerUid]
-    if (server) {
-      return server
-    }
-  }
-
-  return servers[activeCollection.value.servers[0]]
-})
 
 const introCardsSlot = computed(() =>
   config?.layout === 'classic' ? 'after' : 'aside',
@@ -78,55 +41,29 @@ const { hash } = useNavState()
       :document="store.workspace.activeDocument"
       :config="config">
       <template #[introCardsSlot]>
-        <ScalarErrorBoundary>
-          <div
-            class="introduction-card"
-            :class="{ 'introduction-card-row': config?.layout === 'classic' }">
-            <div
-              v-if="activeCollection?.servers?.length"
-              class="scalar-reference-intro-server scalar-client introduction-card-item text-base leading-normal [--scalar-address-bar-height:0px]">
-              <BaseUrl
-                :collection="activeCollection"
-                :server="activeServer" />
-            </div>
-            <div
-              v-if="
-                activeCollection &&
-                activeWorkspace &&
-                Object.keys(securitySchemes ?? {}).length
-              "
-              class="scalar-reference-intro-auth scalar-client introduction-card-item leading-normal">
-              <RequestAuth
-                :collection="activeCollection"
-                :envVariables="activeEnvVariables"
-                :environment="activeEnvironment"
-                layout="reference"
-                :persistAuth="config?.persistAuth"
-                :selectedSecuritySchemeUids="
-                  activeCollection?.selectedSecuritySchemeUids ?? []
-                "
-                :server="activeServer"
-                title="Authentication"
-                :workspace="activeWorkspace" />
-            </div>
-            <ClientLibraries
-              v-if="
-                config?.hiddenClients !== true &&
-                clientOptions.length &&
-                store.workspace.activeDocument
-              "
-              :clientOptions
-              :document="store.workspace.activeDocument"
-              :selectedClient="store.workspace['x-scalar-default-client']"
-              class="introduction-card-item scalar-reference-intro-clients" />
-          </div>
-        </ScalarErrorBoundary>
+        <div
+          class="introduction-card"
+          :class="{ 'introduction-card-row': config?.layout === 'classic' }">
+          <ScalarErrorBoundary>
+            <ScalarServerSelector :config="config" />
+          </ScalarErrorBoundary>
+          <ScalarErrorBoundary>
+            <ScalarAuthSelector :config="config" />
+          </ScalarErrorBoundary>
+          <ScalarErrorBoundary>
+            <ScalarClientSelector
+              :config="config"
+              :clientOptions="clientOptions"
+              :store="store" />
+          </ScalarErrorBoundary>
+        </div>
       </template>
     </IntroductionSection>
   </Lazy>
 </template>
 
 <style scoped>
+/* TODO: Check what needs to be moved */
 .render-loading {
   height: calc(var(--full-height) - var(--refs-header-height));
   display: flex;
