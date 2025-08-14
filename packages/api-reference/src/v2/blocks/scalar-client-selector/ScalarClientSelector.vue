@@ -5,7 +5,7 @@ import type { AvailableClients } from '@scalar/snippetz'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { computed, useId, useTemplateRef } from 'vue'
 
-import IntroductionCardItem from '@/components/Content/Introduction/IntroductionCardItem.vue'
+import { IntroductionCardItem } from '@/components/IntroductionCard'
 import { DEFAULT_CLIENT } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 import { emitCustomEvent } from '@/v2/events/definitions'
@@ -19,7 +19,7 @@ const {
   selectedClient = DEFAULT_CLIENT,
 } = defineProps<{
   /** Current document from the store */
-  document: WorkspaceDocument
+  document?: WorkspaceDocument
   /** Computed list of all available Http Client options */
   clientOptions: ClientOptionGroup[]
   /** The currently selected Http Client */
@@ -58,12 +58,16 @@ const onTabSelect = (i: number) => {
     return
   }
 
-  emitCustomEvent(wrapperRef.value, 'scalar-update-selected-client', client.id)
+  emitCustomEvent(
+    wrapperRef.value.$el,
+    'scalar-update-selected-client',
+    client.id,
+  )
 }
 
 const installationInstructions = computed(() => {
   // Get instructions (if we have any)
-  const XScalarSdkInstallation = document.info['x-scalar-sdk-installation']
+  const XScalarSdkInstallation = document?.info['x-scalar-sdk-installation']
 
   // Check whether we have instructions at all
   if (

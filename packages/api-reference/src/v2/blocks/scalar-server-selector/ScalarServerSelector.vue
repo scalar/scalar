@@ -1,24 +1,19 @@
 <script setup lang="ts">
 // TODO: Get rid of the API Client store
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
-import { RequestAuth } from '@scalar/api-client/views/Request/RequestSection/RequestAuth'
 import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import { computed } from 'vue'
 
-import IntroductionCardItem from '@/components/Content/Introduction/IntroductionCardItem.vue'
+import { IntroductionCardItem } from '@/components/IntroductionCard'
+import { BaseUrl } from '@/features/base-url'
 
 const { config } = defineProps<{
   config?: ApiReferenceConfiguration
 }>()
 
-const { collections, securitySchemes, servers } = useWorkspace()
-const {
-  activeCollection: _activeCollection,
-  activeEnvVariables,
-  activeEnvironment,
-  activeWorkspace,
-} = useActiveEntities()
+const { collections, servers } = useWorkspace()
+const { activeCollection: _activeCollection } = useActiveEntities()
 
 /** Match the collection by slug if provided */
 const activeCollection = computed(() => {
@@ -50,23 +45,10 @@ const activeServer = computed(() => {
 
 <template>
   <IntroductionCardItem
-    v-if="
-      activeCollection &&
-      activeWorkspace &&
-      Object.keys(securitySchemes ?? {}).length
-    "
-    class="scalar-reference-intro-auth scalar-client leading-normal">
-    <RequestAuth
+    v-if="activeCollection?.servers?.length"
+    class="scalar-reference-intro-server scalar-client text-base leading-normal [--scalar-address-bar-height:0px]">
+    <BaseUrl
       :collection="activeCollection"
-      :envVariables="activeEnvVariables"
-      :environment="activeEnvironment"
-      layout="reference"
-      :persistAuth="config?.persistAuth"
-      :selectedSecuritySchemeUids="
-        activeCollection?.selectedSecuritySchemeUids ?? []
-      "
-      :server="activeServer"
-      title="Authentication"
-      :workspace="activeWorkspace" />
+      :server="activeServer" />
   </IntroductionCardItem>
 </template>

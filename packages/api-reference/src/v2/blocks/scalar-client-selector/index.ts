@@ -1,2 +1,1 @@
-// TODO: Rename components to ScalarClientSelector
-export { default as ScalarClientSelector } from './ClientLibraries.vue'
+export { default as ScalarClientSelector } from './ScalarClientSelector.vue'

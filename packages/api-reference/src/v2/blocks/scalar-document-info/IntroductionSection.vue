@@ -3,9 +3,6 @@ import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { onMounted } from 'vue'
 
-import ScalarInfoLinks from '@/components/Content/Introduction/ScalarInfoLinks.vue'
-import ScalarInfoVersion from '@/components/Content/Introduction/ScalarInfoVersion.vue'
-import ScalarOpenApiVersion from '@/components/Content/Introduction/ScalarOpenApiVersion.vue'
 import {
   Section,
   SectionColumn,
@@ -20,7 +17,10 @@ import { SpecificationExtension } from '@/features/specification-extension'
 import { DEFAULT_INTRODUCTION_SLUG } from '@/features/traverse-schema'
 import { useNavState } from '@/hooks/useNavState'
 
-import ScalarInfoDescription from './ScalarInfoDescription.vue'
+import InfoDescription from './InfoDescription.vue'
+import InfoLinks from './InfoLinks.vue'
+import InfoVersion from './InfoVersion.vue'
+import OpenApiVersion from './OpenApiVersion.vue'
 
 const { document, config } = defineProps<{
   document: OpenApiDocument
@@ -51,8 +51,8 @@ onMounted(() => config?.onLoaded?.())
           (!document?.info?.description && !document?.info?.title)
         ">
         <div class="flex gap-1.5">
-          <ScalarInfoVersion :version="document.info?.version" />
-          <ScalarOpenApiVersion />
+          <InfoVersion :version="document.info?.version" />
+          <OpenApiVersion />
         </div>
         <SectionHeader
           :loading="!document.info?.title"
@@ -61,13 +61,15 @@ onMounted(() => config?.onLoaded?.())
             {{ document.info?.title }}
           </SectionHeaderTag>
           <template #links>
-            <ScalarInfoLinks :document="document" />
+            <InfoLinks
+              :info="document.info"
+              :externalDocs="document.externalDocs" />
           </template>
         </SectionHeader>
         <SectionColumns>
           <SectionColumn>
             <DownloadLinks :title="document.info?.title" />
-            <ScalarInfoDescription :description="document.info?.description" />
+            <InfoDescription :description="document.info?.description" />
           </SectionColumn>
           <SectionColumn v-if="$slots.aside">
             <div class="sticky-cards">

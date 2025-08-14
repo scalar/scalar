@@ -2,16 +2,16 @@ import { ScalarMarkdown } from '@scalar/components'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import ScalarInfoDescription from './ScalarInfoDescription.vue'
+import InfoDescription from './InfoDescription.vue'
 
-describe('ScalarInfoDescription', () => {
+describe('InfoDescription', () => {
   it('renders nothing when no value is provided', () => {
-    const wrapper = mount(ScalarInfoDescription)
+    const wrapper = mount(InfoDescription)
     expect(wrapper.find('.introduction-description').exists()).toBe(false)
   })
 
   it('renders markdown content when value is provided', () => {
-    const wrapper = mount(ScalarInfoDescription, {
+    const wrapper = mount(InfoDescription, {
       props: {
         value: '# Hello World',
       },
@@ -21,7 +21,7 @@ describe('ScalarInfoDescription', () => {
   })
 
   it('splits content into sections', () => {
-    const wrapper = mount(ScalarInfoDescription, {
+    const wrapper = mount(InfoDescription, {
       props: {
         value: '# Heading 1\nContent 1\n# Heading 2\nContent 2',
       },
@@ -31,7 +31,7 @@ describe('ScalarInfoDescription', () => {
   })
 
   it('prefixes the heading section id', () => {
-    const wrapper = mount(ScalarInfoDescription, {
+    const wrapper = mount(InfoDescription, {
       props: {
         value: '# Test Heading',
       },

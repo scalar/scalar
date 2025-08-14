@@ -4,9 +4,9 @@ import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/schemas/
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import ClientLibraries from './ClientLibraries.vue'
+import ScalarClientSelector from './ScalarClientSelector.vue'
 
-describe('ClientLibraries', () => {
+describe('ScalarClientSelector', () => {
   // Mock data setup
   const mockDocument: WorkspaceDocument = {
     info: {
@@ -59,7 +59,7 @@ describe('ClientLibraries', () => {
 
   describe('default client selection', () => {
     it('uses DEFAULT_CLIENT when no defaultClient is provided', () => {
-      const wrapper = mount(ClientLibraries, {
+      const wrapper = mount(ScalarClientSelector, {
         props: {
           document: mockDocument,
           clientOptions: mockClientOptions,
@@ -85,7 +85,7 @@ describe('ClientLibraries', () => {
     it('uses provided defaultClient when available', () => {
       const customClient = 'node/undici'
 
-      const wrapper = mount(ClientLibraries, {
+      const wrapper = mount(ScalarClientSelector, {
         props: {
           document: mockDocument,
           clientOptions: mockClientOptions,
@@ -109,7 +109,7 @@ describe('ClientLibraries', () => {
     })
 
     it('handles undefined defaultClient gracefully', () => {
-      const wrapper = mount(ClientLibraries, {
+      const wrapper = mount(ScalarClientSelector, {
         props: {
           document: mockDocument,
           clientOptions: mockClientOptions,
