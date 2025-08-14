@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
-import { ref, useTemplateRef, watch } from 'vue'
+import { useResizeObserver } from '@vueuse/core'
+import { onMounted, ref, useTemplateRef } from 'vue'
 
 import ScalarMarkdown from './ScalarMarkdown.vue'
 import type { ScalarMarkdownProps } from './types'
@@ -12,11 +13,10 @@ const open = defineModel<boolean>({ default: false })
 
 const markdown = useTemplateRef('scalar-markdown')
 
-/** Observer to check if the markdown is being truncated */
-const observer = new ResizeObserver(checkTruncation)
-
 /** Whether the markdown is being truncated */
 const isTruncated = ref(false)
+
+useResizeObserver(() => markdown.value?.el, checkTruncation)
 
 /** Check if the markdown is being truncated */
 function checkTruncation() {
@@ -28,14 +28,7 @@ function checkTruncation() {
     el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth
 }
 
-/** Watch the markdown template ref and observe the element */
-watch(markdown, (templateRef) => {
-  if (templateRef?.el) {
-    observer.disconnect()
-    observer.observe(templateRef.el)
-    checkTruncation()
-  }
-})
+onMounted(checkTruncation)
 
 const { cx } = useBindCx()
 defineOptions({ inheritAttrs: false })
