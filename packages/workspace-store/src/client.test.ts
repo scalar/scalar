@@ -713,7 +713,7 @@ describe('create-workspace-store', () => {
   })
 
   it('correctly resolves any `externalValue` on the example object', async () => {
-    server.get('/', () => ({ someExample: { someKey: 'someValue' } }))
+    server.get('/', () => ({ someKey: 'someValue' }))
     await server.listen({ port })
 
     const store = createWorkspaceStore()
@@ -738,7 +738,9 @@ describe('create-workspace-store', () => {
                         },
                       },
                       examples: {
-                        externalValue: `http://localhost:${port}`,
+                        someExample: {
+                          externalValue: `http://localhost:${port}`,
+                        },
                       },
                     },
                   },
@@ -786,9 +788,9 @@ describe('create-workspace-store', () => {
                 content: {
                   'application/json': {
                     examples: {
-                      externalValue: 'http://localhost:9988',
-                      value: {
-                        someExample: {
+                      someExample: {
+                        externalValue: 'http://localhost:9988',
+                        value: {
                           someKey: 'someValue',
                         },
                       },
