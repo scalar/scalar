@@ -50,7 +50,7 @@ const renderedContent = computed<string>(() => {
   const el = document.createElement('div')
 
   const hotKeyClass =
-    '-m-[2.5px] border-none p-0 grid grid-flow-col auto-cols-fr gap-0.5 *:border *:border-c-tooltip *:rounded *:p-1 *:text-center'
+    '-m-0.5 border-none p-0 grid grid-flow-col gap-0.5 *:border *:h-5 *:min-w-5 *:border-c-tooltip *:rounded *:px-1 *:flex *:items-center *:justify-center'
 
   if (content) {
     // Render the content and the hotkey
