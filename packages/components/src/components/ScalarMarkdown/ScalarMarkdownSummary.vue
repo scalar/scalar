@@ -60,7 +60,7 @@ defineOptions({ inheritAttrs: false })
       <slot
         name="button"
         :open="open">
-        {{ open ? ' Close' : 'Read More' }}
+        {{ open ? ' Show Less' : 'More' }}
       </slot>
     </button>
   </div>

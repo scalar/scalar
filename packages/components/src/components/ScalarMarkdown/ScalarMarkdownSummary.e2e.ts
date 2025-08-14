@@ -18,10 +18,10 @@ test.describe('ScalarMarkdownSummary', () => {
     await page.setViewportSize({ width: 400, height: 200 })
     await snapshot('2-closed-narrow')
     // Open the summary
-    await page.getByRole('button', { name: 'Read More' }).click()
+    await page.getByRole('button', { name: 'More' }).click()
     await snapshot('3-open')
     // Close the summary
-    await page.getByRole('button', { name: 'Close' }).click()
+    await page.getByRole('button', { name: 'Less' }).click()
     // Should be the same as the second snapshot
     await snapshot('2-closed-narrow')
   })
