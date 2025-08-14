@@ -22,7 +22,7 @@ export const processSecuritySchemes = (securitySchemes: SecuritySchemeObject[]):
   for (const scheme of securitySchemes) {
     // Handle apiKey type
     if (scheme.type === 'apiKey') {
-      const value = (scheme['x-scalar-secret-token'] || 'YOUR_SECRET_TOKEN') as string
+      const value = scheme['x-scalar-secret-token'] || 'YOUR_SECRET_TOKEN'
       if (!scheme.name) {
         continue
       }

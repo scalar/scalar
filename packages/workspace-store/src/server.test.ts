@@ -462,6 +462,7 @@ describe('filter-http-methods-only', () => {
     const result = filterHttpMethodsOnly({
       '/path': {
         get: { description: 'some description' },
+        // @ts-expect-error - this is a test
         'x-scalar-test': 'test',
         servers: [],
         parameters: [{ name: 'name', in: 'path' }],

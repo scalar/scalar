@@ -5,7 +5,7 @@ import { createMockSidebar, createMockStore } from '@/helpers/test-utils'
 
 import Operation from './Operation.vue'
 import { collectionSchema } from '@scalar/oas-utils/entities/spec'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/schemas/workspace'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { enableConsoleError, enableConsoleWarn } from '@scalar/helpers/testing/console-spies'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'

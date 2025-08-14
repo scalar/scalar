@@ -1,4 +1,4 @@
-import { Type, type Static } from '@sinclair/typebox'
+import { Type } from '@sinclair/typebox'
 
 import { encodingObjectSchemaBuilder } from './encoding'
 import { headerObjectSchemaBuilder } from './header'
@@ -36,9 +36,3 @@ export const MediaTypeObjectSchema = Type.Recursive((This) =>
 export const HeaderObjectSchema = Type.Recursive((This) =>
   headerObjectSchemaBuilder(mediaTypeObjectSchemaBuilder(encodingObjectSchemaBuilder(This))),
 )
-
-export type HeaderObject = Static<typeof HeaderObjectSchema>
-
-export type MediaTypeObject = Static<typeof MediaTypeObjectSchema>
-
-export type EncodingObject = Static<typeof EncodingObjectSchema>

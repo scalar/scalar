@@ -1,13 +1,8 @@
 <script setup lang="ts">
+import type { XBadge } from '@scalar/workspace-store/schemas/extensions/operation/x-badge'
 import { computed } from 'vue'
 
 import { Badge } from '@/components/Badge'
-
-type XBadge = {
-  name: string
-  position: 'before' | 'after'
-  color: string
-}
 
 const { position, badges } = defineProps<{
   position: 'before' | 'after'

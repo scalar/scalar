@@ -15,7 +15,6 @@ import { ComponentsObjectSchema } from './components'
 import { SecurityRequirementObjectSchema } from './security-requirement'
 import { TagObjectSchema } from './tag'
 import { ExternalDocumentationObjectSchema } from './external-documentation'
-import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
 import { compose } from '@/schemas/compose'
 import { PathItemObjectSchema } from '@/schemas/v3.1/strict/path-operations'
 import { xScalarClientConfigEnvironmentsSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-environments'
@@ -61,7 +60,6 @@ export type OpenApiDocumentSchemaType = TIntersect<
       tags: TOptional<TArray<typeof TagObjectSchema>>
       externalDocs: TOptional<typeof ExternalDocumentationObjectSchema>
     }>,
-    typeof ExtensionsSchema,
     typeof OpenApiExtensionsSchema,
   ]
 >
@@ -89,7 +87,6 @@ export const OpenAPIDocumentSchema: OpenApiDocumentSchemaType = compose(
     /** Additional external documentation. */
     externalDocs: Type.Optional(ExternalDocumentationObjectSchema),
   }),
-  ExtensionsSchema,
   OpenApiExtensionsSchema,
 )
 

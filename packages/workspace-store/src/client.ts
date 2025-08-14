@@ -16,7 +16,7 @@ import {
 } from '@/schemas/v3.1/strict/openapi-document'
 import {
   OpenAPIDocumentSchema as OpenAPIDocumentSchemaLoose,
-  type OpenApiDocument as OpenApiDocumentLoose,
+  type OpenApiDocumentLoose,
 } from '@/schemas/v3.1/loose/openapi-document'
 import { defaultReferenceConfig } from '@/schemas/reference-config'
 import type { Config } from '@/schemas/workspace-specification/config'

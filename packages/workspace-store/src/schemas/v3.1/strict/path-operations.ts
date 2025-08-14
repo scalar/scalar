@@ -1,7 +1,20 @@
 import { callbackObjectSchemaBuilder } from '@/schemas/v3.1/strict/callback'
 import { operationObjectSchemaBuilder } from '@/schemas/v3.1/strict/operation'
+import type { ParameterObjectSchema } from '@/schemas/v3.1/strict/parameter'
 import { pathItemObjectSchemaBuilder } from '@/schemas/v3.1/strict/path-item'
-import { Type, type Static } from '@sinclair/typebox'
+import type { ReferenceType } from '@/schemas/v3.1/strict/reference'
+import type { ServerObjectSchema } from '@/schemas/v3.1/strict/server'
+import {
+  Type,
+  type Static,
+  type TArray,
+  type TObject,
+  type TOptional,
+  type TRecord,
+  type TRecursive,
+  type TString,
+  type TUnion,
+} from '@sinclair/typebox'
 
 export const OperationObjectSchema = Type.Recursive((This) =>
   operationObjectSchemaBuilder(callbackObjectSchemaBuilder(pathItemObjectSchemaBuilder(This))),
@@ -14,12 +27,29 @@ export const OperationObjectSchema = Type.Recursive((This) =>
  */
 export const CallbackObjectSchema = Type.Recursive((This) =>
   callbackObjectSchemaBuilder(pathItemObjectSchemaBuilder(operationObjectSchemaBuilder(This))),
-)
+) as TRecursive<TRecord<TString, TUnion<[typeof PathItemObjectSchema, ReferenceType<typeof PathItemObjectSchema>]>>>
 
 /** Describes the operations available on a single path. A Path Item MAY be empty, due to ACL constraints. The path itself is still exposed to the documentation viewer but they will not know which operations and parameters are available. */
 export const PathItemObjectSchema = Type.Recursive((This) =>
   pathItemObjectSchemaBuilder(operationObjectSchemaBuilder(callbackObjectSchemaBuilder(This))),
-)
+) as TRecursive<
+  TObject<{
+    $ref: TOptional<TString>
+    summary: TOptional<TString>
+    description: TOptional<TString>
+    get: TOptional<typeof OperationObjectSchema>
+    put: TOptional<typeof OperationObjectSchema>
+    post: TOptional<typeof OperationObjectSchema>
+    delete: TOptional<typeof OperationObjectSchema>
+    patch: TOptional<typeof OperationObjectSchema>
+    connect: TOptional<typeof OperationObjectSchema>
+    options: TOptional<typeof OperationObjectSchema>
+    head: TOptional<typeof OperationObjectSchema>
+    trace: TOptional<typeof OperationObjectSchema>
+    servers: TOptional<TArray<typeof ServerObjectSchema>>
+    parameters: TOptional<TArray<TUnion<[typeof ParameterObjectSchema, ReferenceType<typeof ParameterObjectSchema>]>>>
+  }>
+>
 
 export type PathItemObject = Static<typeof PathItemObjectSchema>
 

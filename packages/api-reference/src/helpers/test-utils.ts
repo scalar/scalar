@@ -2,7 +2,7 @@ import { traverseDocument, type TraversedEntry } from '@/features/traverse-schem
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { apiReferenceConfigurationSchema } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/schemas/workspace'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { vi } from 'vitest'
 import { computed, ref } from 'vue'
 

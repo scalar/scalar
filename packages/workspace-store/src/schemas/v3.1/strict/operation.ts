@@ -1,14 +1,18 @@
 import { Type, type TSchema } from '@sinclair/typebox'
 import { ExternalDocumentationObjectSchema } from './external-documentation'
 import { ParameterObjectSchema } from './parameter'
-import { reference, ReferenceObjectSchema, type ReferenceType } from './reference'
+import { reference, ReferenceObjectSchema } from './reference'
 import { RequestBodyObjectSchema } from './request-body'
 import { ResponsesObjectSchema } from './responses'
 import { SecurityRequirementObjectSchema } from './security-requirement'
 import { ServerObjectSchema } from './server'
 import { compose } from '@/schemas/compose'
 import { xScalarClientConfigRequestExampleSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-request-example'
-import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
+import { XBadgesSchema } from '@/schemas/extensions/operation/x-badge'
+import { XInternalSchema } from '@/schemas/extensions/document/x-internal'
+import { XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
+import { XCodeSamplesSchema } from '@/schemas/extensions/operation/x-code-samples'
+import { XScalarStabilitySchema } from '@/schemas/extensions/operation/x-scalar-stability'
 
 const OperationExtensionsSchema = Type.Partial(
   Type.Object({
@@ -43,15 +47,14 @@ export const operationObjectSchemaBuilder = <C extends TSchema>(callback: C) =>
         /** An alternative servers array to service this operation. If a servers array is specified at the Path Item Object or OpenAPI Object level, it will be overridden by this value. */
         servers: Type.Optional(Type.Array(ServerObjectSchema)),
         /** A map of possible out-of band callbacks related to the parent operation. The key is a unique identifier for the Callback Object. Each value in the map is a Callback Object that describes a request that may be initiated by the API provider and the expected responses. */
-        callbacks: Type.Optional(
-          Type.Record(
-            Type.String(),
-            Type.Union([callback, reference(callback) as unknown as ReferenceType<typeof callback>]),
-          ),
-        ),
+        callbacks: Type.Optional(Type.Record(Type.String(), Type.Union([callback, reference(callback)]))),
       }),
       OperationExtensionsSchema,
-      ExtensionsSchema,
+      XBadgesSchema,
+      XInternalSchema,
+      XScalarIgnoreSchema,
+      XCodeSamplesSchema,
+      XScalarStabilitySchema,
     ),
     ReferenceObjectSchema,
   ])

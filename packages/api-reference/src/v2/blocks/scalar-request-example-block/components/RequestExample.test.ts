@@ -619,6 +619,7 @@ describe('RequestExample', () => {
           ...defaultProps,
           operation: {
             summary: 'Referenced operation',
+            // @ts-expect-error - this is a test
             requestBody: { $ref: '#/components/requestBodies/TestBody', '$ref-value': undefined },
           },
         },
