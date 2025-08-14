@@ -1,5 +1,6 @@
 import {
   Type,
+  type Static,
   type TArray,
   type TIntersect,
   type TObject,
@@ -92,3 +93,5 @@ export const OpenAPIDocumentSchema: OpenApiDocumentSchemaType = compose(
   }),
   OpenApiExtensionsSchema,
 )
+
+export type OpenApiDocumentLoose = Static<typeof OpenAPIDocumentSchema>

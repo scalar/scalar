@@ -1,21 +1,4 @@
-import {
-  Type,
-  type Static,
-  type TArray,
-  type TBoolean,
-  type TInteger,
-  type TIntersect,
-  type TLiteral,
-  type TNumber,
-  type TObject,
-  type TOptional,
-  type TRecord,
-  type TRecursive,
-  type TSchema,
-  type TString,
-  type TUnion,
-  type TUnknown,
-} from '@sinclair/typebox'
+import { Type, type Static, type TSchema } from '@sinclair/typebox'
 
 import { DiscriminatorObjectSchema } from './discriminator'
 import { XMLObjectSchema } from './xml'
@@ -23,88 +6,6 @@ import { ExternalDocumentationObjectSchema } from './external-documentation'
 import { compose } from '@/schemas/compose'
 import { XInternalSchema } from '@/schemas/extensions/document/x-internal'
 import { XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
-
-type SchemaObjectSchemaType = TIntersect<
-  [
-    TRecursive<
-      TObject<{
-        type: TOptional<
-          TUnion<
-            [
-              TLiteral<'null'>,
-              TLiteral<'boolean'>,
-              TLiteral<'string'>,
-              TLiteral<'number'>,
-              TLiteral<'integer'>,
-              TLiteral<'object'>,
-              TLiteral<'array'>,
-              TArray<
-                TUnion<
-                  [
-                    TLiteral<'null'>,
-                    TLiteral<'boolean'>,
-                    TLiteral<'string'>,
-                    TLiteral<'number'>,
-                    TLiteral<'integer'>,
-                    TLiteral<'object'>,
-                    TLiteral<'array'>,
-                  ]
-                >
-              >,
-            ]
-          >
-        >
-        format: TOptional<any>
-        title: TOptional<TString>
-        description: TOptional<TString>
-        default: TOptional<TUnknown>
-        enum: TOptional<TArray<TUnknown>>
-        const: TOptional<TUnknown>
-        allOf: TOptional<TArray<any>>
-        oneOf: TOptional<TArray<any>>
-        anyOf: TOptional<TArray<any>>
-        not: TOptional<any>
-        contentMediaType: TOptional<TString>
-        contentEncoding: TOptional<TString>
-        contentSchema: TOptional<any>
-        deprecated: TOptional<TBoolean>
-        discriminator: TOptional<typeof DiscriminatorObjectSchema>
-        readOnly: TOptional<TBoolean>
-        writeOnly: TOptional<TBoolean>
-        xml: TOptional<typeof XMLObjectSchema>
-        externalDocs: TOptional<typeof ExternalDocumentationObjectSchema>
-        example: TOptional<TUnknown>
-        examples: TOptional<TArray<TUnknown>>
-        'x-tags': TOptional<TArray<TString>>
-
-        maxItems: TOptional<TInteger>
-        minItems: TOptional<TInteger>
-        uniqueItems: TOptional<TBoolean>
-        items: TOptional<any>
-        prefixItems: TOptional<TArray<any>>
-
-        maxProperties: TOptional<TInteger>
-        minProperties: TOptional<TInteger>
-        required: TOptional<TArray<TString>>
-        properties: TOptional<TRecord<TString, any>>
-        additionalProperties: TOptional<TUnion<[TBoolean, any]>>
-        patternProperties: TOptional<TRecord<TString, any>>
-
-        maxLength: TOptional<TInteger>
-        minLength: TOptional<TInteger>
-        pattern: TOptional<TString>
-
-        multipleOf: TOptional<TNumber>
-        maximum: TOptional<TNumber>
-        exclusiveMaximum: TOptional<TUnion<[TBoolean, TNumber]>>
-        minimum: TOptional<TNumber>
-        exclusiveMinimum: TOptional<TUnion<[TBoolean, TNumber]>>
-      }>
-    >,
-    typeof XScalarIgnoreSchema,
-    typeof XInternalSchema,
-  ]
->
 
 /**
  * Builds the recursive schema schema
@@ -315,6 +216,6 @@ export const schemaObjectSchemaBuilder = <S extends TSchema>(schema: S) =>
     XInternalSchema,
   )
 
-export const SchemaObjectSchema: SchemaObjectSchemaType = Type.Recursive(schemaObjectSchemaBuilder)
+export const SchemaObjectSchema = Type.Recursive(schemaObjectSchemaBuilder)
 
 export type SchemaObject = Static<typeof SchemaObjectSchema>
