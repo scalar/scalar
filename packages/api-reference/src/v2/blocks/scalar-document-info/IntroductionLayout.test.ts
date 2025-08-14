@@ -4,7 +4,7 @@ import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/stric
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, reactive, ref } from 'vue'
-import IntroductionSection from './IntroductionSection.vue'
+import IntroductionLayout from './IntroductionLayout.vue'
 
 // Mock the useSidebar hook and SIDEBAR_SYMBOL
 vi.mock('@/features/sidebar/hooks/useSidebar', () => ({
@@ -29,7 +29,7 @@ beforeEach(() => {
   })
 })
 
-describe('IntroductionSection', () => {
+describe('IntroductionLayout', () => {
   it('renders the given information', () => {
     const example: OpenApiDocument = {
       openapi: '3.1.1',
@@ -53,7 +53,7 @@ describe('IntroductionSection', () => {
       },
     }
 
-    const wrapper = mount(IntroductionSection, {
+    const wrapper = mount(IntroductionLayout, {
       props: {
         document: example,
       },
@@ -78,7 +78,7 @@ describe('IntroductionSection', () => {
       },
     }
 
-    const wrapper = mount(IntroductionSection, {
+    const wrapper = mount(IntroductionLayout, {
       props: {
         document: example,
       },
@@ -101,7 +101,7 @@ describe('IntroductionSection', () => {
       },
     }
 
-    const wrapper = mount(IntroductionSection, {
+    const wrapper = mount(IntroductionLayout, {
       props: {
         document: example,
       },
@@ -122,7 +122,7 @@ describe('IntroductionSection', () => {
       },
     }
 
-    const wrapper = mount(IntroductionSection, {
+    const wrapper = mount(IntroductionLayout, {
       props: {
         document: example,
       },
@@ -142,7 +142,7 @@ describe('IntroductionSection', () => {
       },
     }
 
-    const wrapper = mount(IntroductionSection, {
+    const wrapper = mount(IntroductionLayout, {
       props: {
         document: example,
       },
@@ -161,7 +161,7 @@ describe('IntroductionSection', () => {
       },
     }
 
-    const wrapper = mount(IntroductionSection, {
+    const wrapper = mount(IntroductionLayout, {
       props: {
         document: example,
       },
@@ -181,7 +181,7 @@ describe('IntroductionSection', () => {
       },
     }
 
-    const wrapper = mount(IntroductionSection, {
+    const wrapper = mount(IntroductionLayout, {
       props: {
         document: example,
       },
@@ -201,7 +201,7 @@ describe('IntroductionSection', () => {
       },
     }
 
-    const wrapper = mount(IntroductionSection, {
+    const wrapper = mount(IntroductionLayout, {
       props: {
         document: example,
       },
@@ -221,7 +221,7 @@ describe('IntroductionSection', () => {
       },
     }
 
-    const wrapper = mount(IntroductionSection, {
+    const wrapper = mount(IntroductionLayout, {
       props: {
         document: example,
       },

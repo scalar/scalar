@@ -5,7 +5,6 @@ import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { computed } from 'vue'
 
-import { Models } from '@/components/Content/Models'
 import { SectionFlare } from '@/components/SectionFlare'
 import { useConfig } from '@/hooks/useConfig'
 import { ScalarAuthSelector } from '@/v2/blocks/scalar-auth-selector'
@@ -14,6 +13,8 @@ import { ScalarDocumentInfo } from '@/v2/blocks/scalar-document-info'
 import { generateClientOptions } from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
 import { ScalarServerSelector } from '@/v2/blocks/scalar-server-selector'
 
+import IntroductionSection from './IntroductionSection.vue'
+import { Models } from './Models'
 import { TraversedEntryContainer } from './Operations'
 
 defineProps<{
@@ -38,30 +39,31 @@ const clientOptions = computed(() =>
     <slot name="start" />
 
     <!-- Introduction -->
-    <ScalarDocumentInfo
-      :document="store.workspace.activeDocument"
-      :clientOptions
-      :defaultClient="store.workspace['x-scalar-default-client']"
-      :config>
+    <IntroductionSection :showEmptyState="!store.workspace.activeDocument">
+      <ScalarDocumentInfo
+        :document="store.workspace.activeDocument"
+        :config>
+        <template #selectors>
+          <ScalarErrorBoundary>
+            <ScalarServerSelector :config="config" />
+          </ScalarErrorBoundary>
+          <ScalarErrorBoundary>
+            <ScalarAuthSelector :config="config" />
+          </ScalarErrorBoundary>
+          <ScalarErrorBoundary>
+            <ScalarClientSelector
+              :config="config"
+              :clientOptions="clientOptions"
+              :selectedClient="store.workspace['x-scalar-default-client']"
+              :document="store.workspace.activeDocument" />
+          </ScalarErrorBoundary>
+        </template>
+      </ScalarDocumentInfo>
+
       <template #empty-state>
         <slot name="empty-state" />
       </template>
-      <template #selectors>
-        <ScalarErrorBoundary>
-          <ScalarServerSelector :config="config" />
-        </ScalarErrorBoundary>
-        <ScalarErrorBoundary>
-          <ScalarAuthSelector :config="config" />
-        </ScalarErrorBoundary>
-        <ScalarErrorBoundary>
-          <ScalarClientSelector
-            :config="config"
-            :clientOptions="clientOptions"
-            :selectedClient="store.workspace['x-scalar-default-client']"
-            :document="store.workspace.activeDocument" />
-        </ScalarErrorBoundary>
-      </template>
-    </ScalarDocumentInfo>
+    </IntroductionSection>
 
     <!-- Loop on traversed entries -->
     <TraversedEntryContainer

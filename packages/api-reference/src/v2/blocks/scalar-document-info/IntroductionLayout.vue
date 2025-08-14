@@ -84,6 +84,7 @@ onMounted(() => config?.onLoaded?.())
     </Section>
   </SectionContainer>
 </template>
+
 <style scoped>
 .sticky-cards {
   display: flex;

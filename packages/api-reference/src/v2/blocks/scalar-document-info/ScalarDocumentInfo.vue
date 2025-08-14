@@ -4,10 +4,8 @@ import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/stric
 import { computed } from 'vue'
 
 import { IntroductionCard } from '@/components/IntroductionCard'
-import { Lazy } from '@/components/Lazy'
-import { useNavState } from '@/hooks/useNavState'
 
-import IntroductionSection from './IntroductionSection.vue'
+import IntroductionLayout from './IntroductionLayout.vue'
 
 const { config } = defineProps<{
   config?: ApiReferenceConfiguration
@@ -22,29 +20,17 @@ const { config } = defineProps<{
 const introCardsSlot = computed(() =>
   config?.layout === 'classic' ? 'after' : 'aside',
 )
-
-const { hash } = useNavState()
 </script>
-<template>
-  <!-- Empty State -->
-  <slot
-    v-if="!document"
-    name="empty-state" />
 
-  <!-- Introduction -->
-  <Lazy
-    v-else
-    id="introduction-card"
-    prev
-    :isLazy="Boolean(hash) && !hash.startsWith('description')">
-    <IntroductionSection
-      :document="document"
-      :config="config">
-      <template #[introCardsSlot]>
-        <IntroductionCard :row="config?.layout === 'classic'">
-          <slot name="selectors" />
-        </IntroductionCard>
-      </template>
-    </IntroductionSection>
-  </Lazy>
+<template>
+  <IntroductionLayout
+    v-if="document"
+    :document="document"
+    :config="config">
+    <template #[introCardsSlot]>
+      <IntroductionCard :row="config?.layout === 'classic'">
+        <slot name="selectors" />
+      </IntroductionCard>
+    </template>
+  </IntroductionLayout>
 </template>
