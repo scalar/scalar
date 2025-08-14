@@ -1,8 +1,8 @@
 # Getting Started
-Reading this guide helps you to get started with our wonderful Open-Source API References as quick as possible.
 
+The Scalar API Reference renders a modern documentation for your OpenAPI/Swagger documents and all you need is a few lines of code.
 
-Our most simplest example is using the CDN integration of our API References
+The quickest way to start is a HTML page, that loads our JavaScript:
 
 ```html
 <!doctype html>
@@ -34,54 +34,4 @@ Our most simplest example is using the CDN integration of our API References
 </html>
 ```
 
-> Need a Custom Header? Check out this example: https://codepen.io/scalarorg/pen/VwOXqam
-
-### Customization
-
-| Topic                          | Description                          |
-| ------------------------------ | ------------------------------------ |
-| [Themes](themes)               | Predefined themes, layouts & styling |
-| [Configuration](configuration) | The universal configuration object   |
-| [Plugins](plugins)             | Extend the functionality             |
-| [OpenAPI](openapi)             | OpenAPI and our extensions to it     |
-| [Markdown](markdown)           | The supported Markdown syntax        |
-
-And there's an ever-growing list of plugins and integrations:
-
-### Integrations
-
-- [HTML/JS API](integrations/html-js) (works everywhere)
-- [.NET](integrations/aspnetcore/README)
-- [AdonisJS](integrations/adonisjs)
-- [Django](https://github.com/m1guer/django-scalar)
-- [Django Ninja](integrations/django-ninja/README)
-- [Docusaurus](integrations/docusaurus/README)
-- [Express](integrations/express/README)
-- [FastAPI](integrations/fastapi/README)
-- [Fastify](integrations/fastify/README)
-- [Go](integrations/go)
-- [Hono](integrations/hono/README)
-- [Laravel Scribe](integrations/laravel-scribe)
-- [Micronaut](https://micronaut-projects.github.io/micronaut-openapi/latest/guide/index.html#scalar)
-- [NestJS](integrations/nestjs/README)
-- [Next.js](integrations/nextjs/README)
-- [Nuxt](integrations/nuxt/README)
-- [React](packages/api-reference-react/README)
-- [Ruby on Rails](https://github.com/dmytroshevchuk/scalar_ruby)
-- [Rust](integrations/rust)
-- [Scalar for Laravel](https://github.com/scalar/laravel)
-- [Ts.ED](https://tsed.dev/tutorials/scalar.html)
-- [Vue.js](packages/api-reference/README)
-- [Python](https://github.com/iagobalmeida/scalar_doc)
-
-
-### Built-in Support
-
-The following frameworks have chosen Scalar API Reference as their default OpenAPI documentation UI, recognizing its developer-friendly features and modern design:
-
-- [ElysiaJS](integrations/elysiajs)
-- [HappyX](https://github.com/HapticX/happyx)
-- [Litestar](https://docs.litestar.dev/latest/usage/openapi/ui_plugins.html)
-- [Nitro](integrations/nitro)
-- [Platformatic](integrations/platformatic)
-- [oRPC](https://orpc.unnoq.com/docs/openapi/plugins/openapi-reference)
+If you want a more seamless integration with your framework of choice, chances are high we got one for you.
