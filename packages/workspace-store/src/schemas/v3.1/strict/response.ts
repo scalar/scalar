@@ -1,5 +1,5 @@
 import { Type, type Static } from '@sinclair/typebox'
-import { reference, type ReferenceType } from './reference'
+import { reference } from './reference'
 import { LinkObjectSchema } from './link'
 import { HeaderObjectSchema, MediaTypeObjectSchema } from '@/schemas/v3.1/strict/media-header-encoding'
 
@@ -11,12 +11,7 @@ export const ResponseObjectSchema = Type.Object({
   /** A map containing descriptions of potential response payloads. The key is a media type or media type range and the value describes it. For responses that match multiple keys, only the most specific key is applicable. e.g. "text/plain" overrides "text/*"  */
   content: Type.Optional(Type.Record(Type.String(), MediaTypeObjectSchema)),
   /** A map of operations links that can be followed from the response. The key of the map is a short name for the link, following the naming constraints of the names for Component Objects. */
-  links: Type.Optional(
-    Type.Record(
-      Type.String(),
-      Type.Union([LinkObjectSchema, reference(LinkObjectSchema) as ReferenceType<typeof LinkObjectSchema>]),
-    ),
-  ),
+  links: Type.Optional(Type.Record(Type.String(), Type.Union([LinkObjectSchema, reference(LinkObjectSchema)]))),
 })
 
 export type ResponseObject = Static<typeof ResponseObjectSchema>

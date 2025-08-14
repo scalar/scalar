@@ -1,6 +1,6 @@
 import { Type, type TSchema } from '@sinclair/typebox'
 import { ParameterObjectSchema } from './parameter'
-import { reference, type ReferenceType } from './reference'
+import { reference } from './reference'
 import { ServerObjectSchema } from './server'
 
 export const pathItemObjectSchemaBuilder = <O extends TSchema>(operation: O) =>
@@ -36,12 +36,5 @@ export const pathItemObjectSchemaBuilder = <O extends TSchema>(operation: O) =>
     /** An alternative servers array to service all operations in this path. If a servers array is specified at the OpenAPI Object level, it will be overridden by this value. */
     servers: Type.Optional(Type.Array(ServerObjectSchema)),
     /** A list of parameters that are applicable for all the operations described under this path. These parameters can be overridden at the operation level, but cannot be removed there. The list MUST NOT include duplicated parameters. A unique parameter is defined by a combination of a name and location. The list can use the Reference Object to link to parameters that are defined in the OpenAPI Object's components.parameters. */
-    parameters: Type.Optional(
-      Type.Array(
-        Type.Union([
-          ParameterObjectSchema,
-          reference(ParameterObjectSchema) as ReferenceType<typeof ParameterObjectSchema>,
-        ]),
-      ),
-    ),
+    parameters: Type.Optional(Type.Array(Type.Union([ParameterObjectSchema, reference(ParameterObjectSchema)]))),
   })
