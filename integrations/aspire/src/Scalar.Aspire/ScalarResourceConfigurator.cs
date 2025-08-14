@@ -1,15 +1,15 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Aspire.Hosting.ApplicationModel;
-using Aspire.Hosting.Lifecycle;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Scalar.Aspire.Helper;
 
 namespace Scalar.Aspire;
 
-internal sealed class ScalarHook(IServiceProvider provider) : IDistributedApplicationLifecycleHook
+internal static class ScalarResourceConfigurator
 {
     private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
@@ -17,35 +17,31 @@ internal sealed class ScalarHook(IServiceProvider provider) : IDistributedApplic
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    public async Task BeforeStartAsync(DistributedApplicationModel appModel, CancellationToken cancellationToken = default)
+    public static async Task ConfigureScalarResourceAsync(EnvironmentCallbackContext context)
     {
-        var scalarResources = appModel.Resources.OfType<ScalarResource>();
+        var resource = context.Resource;
+        var serviceProvider = context.ExecutionContext.ServiceProvider;
+        var cancellationToken = context.CancellationToken;
+        var scalarAnnotations = resource.Annotations.OfType<ScalarAnnotation>();
+        var scalarConfigurations = CreateConfigurationsAsync(serviceProvider, scalarAnnotations, cancellationToken);
 
-        foreach (var scalarResource in scalarResources)
+        var configurations = await scalarConfigurations.ToScalarConfigurationsAsync(cancellationToken).SerializeToJsonAsync(JsonSerializerOptions, cancellationToken);
+
+        // Encode the configurations to Base64 if in publish mode
+        if (context.ExecutionContext.IsPublishMode)
         {
-            await ConfigureScalarResourceAsync(scalarResource, cancellationToken);
+            configurations = Convert.ToBase64String(Encoding.UTF8.GetBytes(configurations));
         }
-    }
+        
+        var scalarAspireOptions = serviceProvider.GetRequiredService<IOptionsMonitor<ScalarAspireOptions>>().Get(resource.Name);
 
-    private async Task ConfigureScalarResourceAsync(ScalarResource scalarResource, CancellationToken cancellationToken)
-    {
-        var scalarAnnotations = scalarResource.Annotations.OfType<ScalarAnnotation>();
-        var scalarConfigurations = CreateConfigurationsAsync(provider, scalarAnnotations, cancellationToken);
-
-        var serializedConfigurations = await scalarConfigurations.ToScalarConfigurationsAsync(cancellationToken).SerializeToJsonAsync(JsonSerializerOptions, cancellationToken);
-
-        var scalarAspireOptions = provider.GetRequiredService<IOptionsMonitor<ScalarAspireOptions>>().Get(scalarResource.Name);
-        var callback = new EnvironmentCallbackAnnotation(context =>
+        var environmentVariables = context.EnvironmentVariables;
+        environmentVariables.Add(ApiReferenceConfig, configurations);
+        environmentVariables.Add(CdnUrl, scalarAspireOptions.CdnUrl);
+        if (scalarAspireOptions.DefaultProxy)
         {
-            var environmentVariables = context.EnvironmentVariables;
-            environmentVariables.Add(ApiReferenceConfig, serializedConfigurations);
-            environmentVariables.Add(CdnUrl, scalarAspireOptions.CdnUrl);
-            if (scalarAspireOptions.DefaultProxy)
-            {
-                environmentVariables.Add(DefaultProxy, "true");
-            }
-        });
-        scalarResource.Annotations.Add(callback);
+            environmentVariables.Add(DefaultProxy, "true");
+        }
     }
 
     private static async IAsyncEnumerable<ScalarOptions> CreateConfigurationsAsync(IServiceProvider serviceProvider, IEnumerable<ScalarAnnotation> annotations, [EnumeratorCancellation] CancellationToken cancellationToken)
@@ -53,7 +49,6 @@ internal sealed class ScalarHook(IServiceProvider provider) : IDistributedApplic
         foreach (var scalarAnnotation in annotations)
         {
             var resourceName = scalarAnnotation.Resource.Name;
-
 
             using var scope = serviceProvider.CreateScope();
             var scalarAspireOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<ScalarAspireOptions>>().Get(resourceName);
