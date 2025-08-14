@@ -111,7 +111,40 @@ const mergeServers = (inputs: OpenAPIV3_1.ServerObject[][]) => {
   return result
 }
 
-type Conflicts = { type: 'path'; path: string; method: string } | { type: 'webhook'; path: string; method: string }
+const mergeComponents = (inputs: OpenAPIV3_1.ComponentsObject[]) => {
+  const result: OpenAPIV3_1.ComponentsObject = {}
+  const conflicts: { componentType: string; name: string }[] = []
+
+  for (const components of inputs) {
+    if (typeof components !== 'object') {
+      continue
+    }
+
+    // Merge each component type (schemas, responses, parameters, etc.)
+    for (const [key, value] of Object.entries(components)) {
+      for (const [name, component] of Object.entries(value)) {
+        if (!result[key]) {
+          result[key] = {}
+        }
+
+        if (result[key][name]) {
+          // If the component already exists, record a conflict
+          conflicts.push({ componentType: key, name })
+        } else {
+          // Otherwise, add the component
+          result[key][name] = component
+        }
+      }
+    }
+  }
+
+  return { components: result, conflicts }
+}
+
+export type Conflicts =
+  | { type: 'path'; path: string; method: string }
+  | { type: 'webhook'; path: string; method: string }
+  | { type: 'component'; componentType: string; name: string }
 type JoinResult = { ok: true; document: OpenAPIV3_1.Document } | { ok: false; conflicts: Conflicts[] }
 
 /**
@@ -170,13 +203,17 @@ export const join = (inputs: UnknownObject[]): JoinResult => {
   // Merge servers, ensuring uniqueness by server url
   const servers = mergeServers(upgraded.map((it) => it.servers ?? []))
 
+  // Merge components, collecting conflicts
+  const { components, conflicts: componentConflicts } = mergeComponents(upgraded.map((it) => it.components ?? {}))
+
   // Merge all documents in the upgraded array into a single object (shallow merge)
   const result = upgraded.reduce<UnknownObject>((acc, curr) => ({ ...acc, ...curr }), {})
 
   // Collect all conflicts (paths and webhooks)
   const conflicts: Conflicts[] = [
-    ...pathConflicts.map((it) => ({ type: 'path', path: it.path, method: it.method }) as const),
-    ...webhookConflicts.map((it) => ({ type: 'webhook', path: it.path, method: it.method }) as const),
+    ...pathConflicts.map((it) => ({ type: 'path', ...it }) as const),
+    ...webhookConflicts.map((it) => ({ type: 'webhook', ...it }) as const),
+    ...componentConflicts.map((it) => ({ type: 'component', ...it }) as const),
   ]
 
   // If there are any conflicts, return them
@@ -195,8 +232,9 @@ export const join = (inputs: UnknownObject[]): JoinResult => {
       info,
       paths,
       webhooks,
-      tags: tags,
-      servers: servers,
+      tags,
+      servers,
+      components,
     },
   }
 }

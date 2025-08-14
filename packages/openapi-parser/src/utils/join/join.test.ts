@@ -38,6 +38,7 @@ describe('join', () => {
         webhooks: {},
         tags: [],
         servers: [],
+        components: {},
       },
     })
   })
@@ -91,6 +92,7 @@ describe('join', () => {
         webhooks: {},
         tags: [],
         servers: [],
+        components: {},
       },
     })
   })
@@ -187,6 +189,7 @@ describe('join', () => {
         },
         tags: [],
         servers: [],
+        components: {},
       },
     })
   })
@@ -298,6 +301,7 @@ describe('join', () => {
           },
         ],
         servers: [],
+        components: {},
       },
     })
   })
@@ -367,7 +371,104 @@ describe('join', () => {
             url: 'server-2',
           },
         ],
+        components: {},
       },
+    })
+  })
+
+  it('should merge components', () => {
+    const result = join([
+      {
+        components: {
+          schemas: {
+            Schema1: {
+              type: 'object',
+              properties: {
+                prop1: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
+      {
+        components: {
+          schemas: {
+            Schema2: {
+              type: 'object',
+              properties: {
+                prop2: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
+    ])
+
+    expect(result).toEqual({
+      ok: true,
+      document: {
+        info: {},
+        paths: {},
+        webhooks: {},
+        tags: [],
+        servers: [],
+        components: {
+          schemas: {
+            Schema1: {
+              type: 'object',
+              properties: {
+                prop1: { type: 'string' },
+              },
+            },
+            Schema2: {
+              type: 'object',
+              properties: {
+                prop2: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
+    })
+  })
+
+  it('should handle conflicts in components', () => {
+    const result = join([
+      {
+        components: {
+          schemas: {
+            Schema1: {
+              type: 'object',
+              properties: {
+                prop1: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
+      {
+        components: {
+          schemas: {
+            Schema1: {
+              type: 'object',
+              properties: {
+                prop2: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
+    ])
+
+    expect(result).toEqual({
+      ok: false,
+      conflicts: [
+        {
+          componentType: 'schemas',
+          name: 'Schema1',
+          type: 'component',
+        },
+      ],
     })
   })
 })
