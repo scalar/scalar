@@ -1,4 +1,3 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
@@ -22,8 +21,8 @@ vi.mock('@/hooks/useNavState', () => ({
 }))
 
 describe('Models', () => {
-  const mockDocument: OpenAPIV3_1.Document = {
-    openapi: '3.1.0',
+  const mockDocument = {
+    openapi: '3.1.0' as const,
     info: {
       title: 'Test API',
       version: '1.0.0',
@@ -31,28 +30,28 @@ describe('Models', () => {
     components: {
       schemas: {
         User: {
-          type: 'object',
+          type: 'object' as const,
           properties: {
             id: {
-              type: 'string',
+              type: 'string' as const,
               description: 'User ID',
             },
             name: {
-              type: 'string',
+              type: 'string' as const,
               description: 'User name',
             },
           },
           required: ['id'],
         },
         Pet: {
-          type: 'object',
+          type: 'object' as const,
           properties: {
             id: {
-              type: 'integer',
+              type: 'integer' as const,
               description: 'Pet ID',
             },
             name: {
-              type: 'string',
+              type: 'string' as const,
               description: 'Pet name',
             },
           },
@@ -138,21 +137,21 @@ describe('Models', () => {
   })
 
   it('excludes schemas with x-scalar-ignore', () => {
-    const documentWithIgnoredSchema: OpenAPIV3_1.Document = {
+    const documentWithIgnoredSchema = {
       ...mockDocument,
       components: {
         schemas: {
           User: {
-            type: 'object',
+            type: 'object' as const,
             properties: {
-              id: { type: 'string' },
-              name: { type: 'string' },
+              id: { type: 'string' as const },
+              name: { type: 'string' as const },
             },
           },
           ImageUploadedMessage: {
             'x-scalar-ignore': true,
             description: 'Message about an image upload',
-            type: 'object',
+            type: 'object' as const,
           },
         },
       },
@@ -185,17 +184,6 @@ describe('Models', () => {
       const wrapper = mount(Models, {
         props: {
           document: { ...mockDocument, components: undefined },
-          config: mockConfigClassic,
-        },
-      })
-
-      expect(wrapper.text()).toBe('')
-    })
-
-    it('renders nothing if document is undefined', () => {
-      const wrapper = mount(Models, {
-        props: {
-          document: undefined as any,
           config: mockConfigClassic,
         },
       })

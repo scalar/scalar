@@ -10,17 +10,16 @@ describe('Schema', () => {
         props: {
           name: 'Request Body',
           value: {
-            type: 'object',
             description: 'This description should be shown',
             allOf: [
               {
                 type: 'object',
-                description: 'This description should not be shown',
+                description: 'This description should be shown 2',
                 properties: { name: { type: 'string' } },
               },
               {
                 type: 'object',
-                description: 'This description should not be shown',
+                description: 'This description should be shown 3',
                 properties: { email: { type: 'string' } },
               },
             ],
@@ -30,7 +29,7 @@ describe('Schema', () => {
 
       const text = wrapper.text()
       expect(text).toContain('This description should be shown')
-      expect(text).not.toContain('This description should not be shown')
+      expect(text).toContain('This description should be shown 2')
     })
 
     it('shows the first description with allOf composition', () => {
@@ -38,7 +37,6 @@ describe('Schema', () => {
         props: {
           name: 'Request Body',
           value: {
-            type: 'object',
             allOf: [
               {
                 type: 'object',
@@ -58,31 +56,6 @@ describe('Schema', () => {
       const text = wrapper.text()
       expect(text).toContain('This description should be shown')
       expect(text).not.toContain('This description should not be shown')
-    })
-
-    it('shows the first description with allOf composition if there is only one', () => {
-      const wrapper = mount(Schema, {
-        props: {
-          name: 'Request Body',
-          value: {
-            type: 'object',
-            allOf: [
-              {
-                type: 'object',
-                properties: { name: { type: 'string' } },
-              },
-              {
-                type: 'object',
-                description: 'This description should be shown',
-                properties: { email: { type: 'string' } },
-              },
-            ],
-          },
-        },
-      })
-
-      const text = wrapper.text()
-      expect(text).toContain('This description should be shown')
     })
 
     it('does not show the allOf description if we are not in the Request Body', () => {

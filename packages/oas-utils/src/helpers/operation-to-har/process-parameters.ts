@@ -252,13 +252,13 @@ export const processParameters = (
         if (explode) {
           // Handle array values with explode
           if (Array.isArray(paramValue)) {
-            for (const value of paramValue as unknown[]) {
+            for (const value of paramValue) {
               harRequest.cookies.push({ name: param.name, value: value === null ? 'null' : String(value) })
             }
           }
           // Handle object values with explode
           else if (typeof paramValue === 'object' && paramValue !== null) {
-            for (const [key, value] of Object.entries(paramValue as Record<string, unknown>)) {
+            for (const [key, value] of Object.entries(paramValue)) {
               harRequest.cookies.push({ name: key, value: value === null ? 'null' : String(value) })
             }
           }
@@ -269,7 +269,7 @@ export const processParameters = (
         } else {
           // Handle array values without explode
           if (Array.isArray(paramValue)) {
-            const serializedValues = (paramValue as unknown[]).map((v) => (v === null ? 'null' : String(v))).join(',')
+            const serializedValues = paramValue.map((v) => (v === null ? 'null' : String(v))).join(',')
             harRequest.cookies.push({ name: param.name, value: serializedValues })
           }
           // Handle object values without explode

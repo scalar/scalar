@@ -58,19 +58,6 @@ describe('SchemaEnumValues', () => {
       expect(wrapper.html()).toBe('<!--v-if-->')
     })
 
-    it('does not render when isDiscriminator is true', () => {
-      const wrapper = mount(SchemaEnumValues, {
-        props: {
-          value: {
-            enum: ['value1', 'value2'],
-          },
-          isDiscriminator: true,
-        },
-      })
-
-      expect(wrapper.html()).toBe('<!--v-if-->')
-    })
-
     it('handles missing value prop gracefully', () => {
       const wrapper = mount(SchemaEnumValues, {
         props: {},

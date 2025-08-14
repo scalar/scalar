@@ -1,9 +1,18 @@
-import { PartialDeep } from '@/schemas/typebox-types'
+import { PartialDeep, type TPartialDeep } from '@/schemas/typebox-types'
 import { WorkspaceDocumentSchema, WorkspaceMetaSchema } from '@/schemas/workspace'
 import { ConfigSchema } from '@/schemas/workspace-specification/config'
-import { Type, type Static } from '@sinclair/typebox'
+import { Type, type Static, type TObject, type TRecord, type TString } from '@sinclair/typebox'
 
-export const InMemoryWorkspaceSchema = Type.Object({
+type InMemoryWorkspaceSchemaType = TObject<{
+  meta: typeof WorkspaceMetaSchema
+  documentConfigs: TRecord<TString, typeof ConfigSchema>
+  documents: TRecord<TString, typeof WorkspaceDocumentSchema>
+  originalDocuments: TRecord<TString, typeof WorkspaceDocumentSchema>
+  intermediateDocuments: TRecord<TString, typeof WorkspaceDocumentSchema>
+  overrides: TRecord<TString, TPartialDeep<typeof WorkspaceDocumentSchema>>
+}>
+
+export const InMemoryWorkspaceSchema: InMemoryWorkspaceSchemaType = Type.Object({
   meta: WorkspaceMetaSchema,
   documentConfigs: Type.Record(Type.String(), ConfigSchema),
   documents: Type.Record(Type.String(), WorkspaceDocumentSchema),

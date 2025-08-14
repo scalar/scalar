@@ -1,12 +1,13 @@
 import { useSidebar } from '@/features/sidebar'
 import { createMockSidebar, createMockSidebarFromDocument, createMockNavState } from '@/helpers/test-utils'
-import { type OpenAPIV3_1, apiReferenceConfigurationSchema } from '@scalar/types'
+import { apiReferenceConfigurationSchema } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi, afterEach } from 'vitest'
 import TraversedEntryContainer from './TraversedEntryContainer.vue'
 import { useNavState } from '@/hooks/useNavState'
 import { lazyBus, hasLazyLoaded } from '@/components/Lazy/lazyBus'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/schemas/workspace'
 
 // Mock the sidebar module
 vi.mock('@/features/sidebar')
@@ -36,7 +37,7 @@ vi.mock('@scalar/api-client/store', () => ({
 }))
 
 /** Helper to generate props for the component */
-const getProps = (document: OpenAPIV3_1.Document) => ({
+const getProps = (document: WorkspaceDocument) => ({
   props: {
     document,
     config: apiReferenceConfigurationSchema.parse({}),
@@ -45,7 +46,7 @@ const getProps = (document: OpenAPIV3_1.Document) => ({
       workspace: {
         activeDocument: document,
       },
-    } as unknown as WorkspaceStore,
+    } as WorkspaceStore,
   },
 })
 
@@ -61,7 +62,7 @@ describe('TraversedEntryContainer', () => {
   describe('basic operation rendering', () => {
     it('renders a single operation summary when document has one operation and no tag', () => {
       const document = {
-        openapi: '3.1.0',
+        openapi: '3.1.0' as const,
         info: {
           title: 'Test',
           version: '1.0.0',
@@ -74,7 +75,7 @@ describe('TraversedEntryContainer', () => {
             },
           },
         },
-      } as const
+      }
 
       // Mock the sidebar with the correct entries for this document
       vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
@@ -85,7 +86,7 @@ describe('TraversedEntryContainer', () => {
 
     it('renders multiple operations with different methods', async () => {
       const document = {
-        openapi: '3.1.0',
+        openapi: '3.1.0' as const,
         info: {
           title: 'Test',
           version: '1.0.0',
@@ -110,7 +111,7 @@ describe('TraversedEntryContainer', () => {
             },
           },
         },
-      } as const
+      }
 
       // Mock the sidebar with the correct entries for this document
       vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
@@ -135,7 +136,7 @@ describe('TraversedEntryContainer', () => {
           version: '1.0.0',
         },
         paths: {},
-      } as const
+      }
 
       // Mock the sidebar with empty entries
       vi.mocked(useSidebar).mockReturnValue(createMockSidebar({}, []))
@@ -149,7 +150,7 @@ describe('TraversedEntryContainer', () => {
   describe('tag-based grouping', () => {
     it('renders operations grouped under tags', () => {
       const document = {
-        openapi: '3.1.0',
+        openapi: '3.1.0' as const,
         info: {
           title: 'Test',
           version: '1.0.0',
@@ -169,7 +170,7 @@ describe('TraversedEntryContainer', () => {
             },
           },
         },
-      } as const
+      }
 
       // Mock the sidebar with the correct entries for this document
       vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
@@ -182,7 +183,7 @@ describe('TraversedEntryContainer', () => {
 
     it('renders tag groups with x-tagGroups extension', () => {
       const document = {
-        openapi: '3.1.0',
+        openapi: '3.1.0' as const,
         info: {
           title: 'Test',
           version: '1.0.0',
@@ -213,7 +214,7 @@ describe('TraversedEntryContainer', () => {
             },
           },
         },
-      } as const
+      }
 
       // Mock the sidebar with the correct entries for this document
       vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
@@ -228,7 +229,7 @@ describe('TraversedEntryContainer', () => {
 
     it('renders complex nested tag groups with multiple levels', () => {
       const document = {
-        openapi: '3.1.0',
+        openapi: '3.1.0' as const,
         info: {
           title: 'Test',
           version: '1.0.0',
@@ -271,7 +272,7 @@ describe('TraversedEntryContainer', () => {
             },
           },
         },
-      } as const
+      }
 
       // Mock the sidebar with the correct entries for this document
       vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
@@ -288,7 +289,7 @@ describe('TraversedEntryContainer', () => {
   describe('webhook rendering', () => {
     it('renders webhooks grouped under webhook section', () => {
       const document = {
-        openapi: '3.1.0',
+        openapi: '3.1.0' as const,
         info: {
           title: 'Test',
           version: '1.0.0',
@@ -307,7 +308,7 @@ describe('TraversedEntryContainer', () => {
             },
           },
         },
-      } as const
+      }
 
       // Mock the sidebar with the correct entries for this document
       vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
@@ -320,7 +321,7 @@ describe('TraversedEntryContainer', () => {
 
     it('renders webhooks with tags', () => {
       const document = {
-        openapi: '3.1.0',
+        openapi: '3.1.0' as const,
         info: {
           title: 'Test',
           version: '1.0.0',
@@ -335,7 +336,7 @@ describe('TraversedEntryContainer', () => {
             },
           },
         },
-      } as const
+      }
 
       // Mock the sidebar with the correct entries for this document
       vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
@@ -349,7 +350,7 @@ describe('TraversedEntryContainer', () => {
   describe('mixed content rendering', () => {
     it('renders operations and webhooks mixed under tags', () => {
       const document = {
-        openapi: '3.1.0',
+        openapi: '3.1.0' as const,
         info: {
           title: 'Test',
           version: '1.0.0',
@@ -373,7 +374,7 @@ describe('TraversedEntryContainer', () => {
             },
           },
         },
-      } as const
+      }
 
       // Mock the sidebar with the correct entries for this document
       vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
@@ -402,7 +403,7 @@ describe('TraversedEntryContainer', () => {
 
     it('sets hasLazyLoaded to true when no hash is present', async () => {
       const document = {
-        openapi: '3.1.0',
+        openapi: '3.1.0' as const,
         info: { title: 'Test', version: '1.0.0' },
         paths: {
           '/hello': {
@@ -412,7 +413,7 @@ describe('TraversedEntryContainer', () => {
             },
           },
         },
-      } as const
+      }
 
       // Mock useNavState to return empty hash
       vi.mocked(useNavState).mockReturnValue(createMockNavState(''))
@@ -433,7 +434,7 @@ describe('TraversedEntryContainer', () => {
 
     it('sets hasLazyLoaded to true when hash starts with description', async () => {
       const document = {
-        openapi: '3.1.0',
+        openapi: '3.1.0' as const,
         info: { title: 'Test', version: '1.0.0' },
         paths: {
           '/hello': {
@@ -443,7 +444,7 @@ describe('TraversedEntryContainer', () => {
             },
           },
         },
-      } as const
+      }
 
       // Mock useNavState to return hash starting with description
       vi.mocked(useNavState).mockReturnValue(createMockNavState('description/introduction'))
@@ -462,7 +463,7 @@ describe('TraversedEntryContainer', () => {
 
     it('tracks lazy loading events through lazyBus', () => {
       const document = {
-        openapi: '3.1.0',
+        openapi: '3.1.0' as const,
         info: { title: 'Test', version: '1.0.0' },
         paths: {
           '/hello': {
@@ -472,7 +473,7 @@ describe('TraversedEntryContainer', () => {
             },
           },
         },
-      } as const
+      }
 
       // Mock useNavState to return a hash
       vi.mocked(useNavState).mockReturnValue(createMockNavState('tag/users/get/users'))
@@ -494,7 +495,7 @@ describe('TraversedEntryContainer', () => {
 
     it('resumes scrolling when all lazy elements are loaded', async () => {
       const document = {
-        openapi: '3.1.0',
+        openapi: '3.1.0' as const,
         info: { title: 'Test', version: '1.0.0' },
         paths: {
           '/hello': {
@@ -504,7 +505,7 @@ describe('TraversedEntryContainer', () => {
             },
           },
         },
-      } as const
+      }
 
       // Mock useNavState to return a hash
       vi.mocked(useNavState).mockReturnValue(createMockNavState('tag/users/get/users'))
@@ -533,7 +534,7 @@ describe('TraversedEntryContainer', () => {
 
     it('resumes scrolling after 5 seconds as failsafe', () => {
       const document = {
-        openapi: '3.1.0',
+        openapi: '3.1.0' as const,
         info: { title: 'Test', version: '1.0.0' },
         paths: {
           '/hello': {
@@ -543,7 +544,7 @@ describe('TraversedEntryContainer', () => {
             },
           },
         },
-      } as const
+      }
 
       // Mock useNavState to return a hash
       vi.mocked(useNavState).mockReturnValue(createMockNavState('tag/users/get/users'))
@@ -561,7 +562,7 @@ describe('TraversedEntryContainer', () => {
 
     it('does not resume scrolling if hasLazyLoaded is already true', () => {
       const document = {
-        openapi: '3.1.0',
+        openapi: '3.1.0' as const,
         info: { title: 'Test', version: '1.0.0' },
         paths: {
           '/hello': {
@@ -571,7 +572,7 @@ describe('TraversedEntryContainer', () => {
             },
           },
         },
-      } as const
+      }
 
       // Set hasLazyLoaded to true initially
       hasLazyLoaded.value = true
@@ -604,7 +605,7 @@ describe('TraversedEntryContainer', () => {
       }))
 
       const openApiDocument = {
-        openapi: '3.1.0',
+        openapi: '3.1.0' as const,
         info: { title: 'Test', version: '1.0.0' },
         paths: {
           '/hello': {
@@ -614,7 +615,7 @@ describe('TraversedEntryContainer', () => {
             },
           },
         },
-      } as const
+      }
 
       // Mock useNavState to return a hash
       vi.mocked(useNavState).mockReturnValue(createMockNavState('tag/users/get/users'))
@@ -634,7 +635,7 @@ describe('TraversedEntryContainer', () => {
 
     it('handles mutation observer with childList changes', () => {
       const document = {
-        openapi: '3.1.0',
+        openapi: '3.1.0' as const,
         info: { title: 'Test', version: '1.0.0' },
         paths: {
           '/hello': {
@@ -644,7 +645,7 @@ describe('TraversedEntryContainer', () => {
             },
           },
         },
-      } as const
+      }
 
       // Mock useNavState to return a hash
       vi.mocked(useNavState).mockReturnValue(createMockNavState('tag/users/get/users'))
@@ -658,7 +659,7 @@ describe('TraversedEntryContainer', () => {
 
     it('handles mutation observer with non-childList changes', () => {
       const document = {
-        openapi: '3.1.0',
+        openapi: '3.1.0' as const,
         info: { title: 'Test', version: '1.0.0' },
         paths: {
           '/hello': {
@@ -668,7 +669,7 @@ describe('TraversedEntryContainer', () => {
             },
           },
         },
-      } as const
+      }
 
       // Mock useNavState to return a hash
       vi.mocked(useNavState).mockReturnValue(createMockNavState('tag/users/get/users'))
@@ -682,7 +683,7 @@ describe('TraversedEntryContainer', () => {
 
     it('handles lazy loading with multiple operations', async () => {
       const document = {
-        openapi: '3.1.0',
+        openapi: '3.1.0' as const,
         info: { title: 'Test', version: '1.0.0' },
         paths: {
           '/users': {
@@ -702,7 +703,7 @@ describe('TraversedEntryContainer', () => {
             },
           },
         },
-      } as const
+      }
 
       // Mock useNavState to return a hash
       vi.mocked(useNavState).mockReturnValue(createMockNavState('tag/users/get/users'))
@@ -733,7 +734,7 @@ describe('TraversedEntryContainer', () => {
 
     it('handles lazy loading with webhooks', async () => {
       const document = {
-        openapi: '3.1.0',
+        openapi: '3.1.0' as const,
         info: { title: 'Test', version: '1.0.0' },
         webhooks: {
           'user.created': {
@@ -749,7 +750,7 @@ describe('TraversedEntryContainer', () => {
             },
           },
         },
-      } as const
+      }
 
       // Mock useNavState to return a hash
       vi.mocked(useNavState).mockReturnValue(createMockNavState('webhook/POST/user.created'))
@@ -776,7 +777,7 @@ describe('TraversedEntryContainer', () => {
 
     it('handles lazy loading with mixed content (operations and webhooks)', async () => {
       const document = {
-        openapi: '3.1.0',
+        openapi: '3.1.0' as const,
         info: { title: 'Test', version: '1.0.0' },
         tags: [{ name: 'Events', description: 'Event operations and webhooks' }],
         paths: {
@@ -797,7 +798,7 @@ describe('TraversedEntryContainer', () => {
             },
           },
         },
-      } as const
+      }
 
       // Mock useNavState to return a hash
       vi.mocked(useNavState).mockReturnValue(createMockNavState('tag/events/get/events'))

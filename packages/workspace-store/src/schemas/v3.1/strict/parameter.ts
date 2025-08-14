@@ -67,3 +67,8 @@ export const ParameterObjectWithContentSchema = compose(
 export const ParameterObjectSchema = Type.Union([ParameterObjectWithSchemaSchema, ParameterObjectWithContentSchema])
 
 export type ParameterObject = Static<typeof ParameterObjectSchema>
+
+/** Type guard to check for ParameterObjectWithSchema  */
+export const isParameterWithSchema = (
+  parameter: ParameterObject | undefined,
+): parameter is Static<typeof ParameterObjectWithSchemaSchema> => Boolean(parameter && 'schema' in parameter)

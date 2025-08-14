@@ -7,7 +7,6 @@ import {
   getOperationStabilityColor,
   isOperationDeprecated,
 } from '@scalar/oas-utils/helpers'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
@@ -32,40 +31,29 @@ import { ExternalDocs } from '@/features/external-docs'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
-import type { Schemas } from '@/features/Operation/types/schemas'
 import { TestRequestButton } from '@/features/test-request-button'
 import { XBadges } from '@/features/x-badges'
 import { useConfig } from '@/hooks/useConfig'
 import { RequestExample } from '@/v2/blocks/scalar-request-example-block'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
-const { path, operation, method, isWebhook, oldOperation } = defineProps<{
+const { path, operation, method, isWebhook } = defineProps<{
   id: string
   path: string
   clientOptions: ClientOptionGroup[]
   method: HttpMethodType
   operation: Dereference<OperationObject>
-  oldOperation: OpenAPIV3_1.OperationObject
   // pathServers: ServerObject[] | undefined
   isWebhook: boolean
   securitySchemes: SecuritySchemeObject[]
   server: ServerObject | undefined
-  schemas?: Schemas
   store: WorkspaceStore
 }>()
 
 const operationTitle = computed(() => operation.summary || path || '')
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: string): void
-}>()
-
 const labelId = useId()
 const config = useConfig()
-
-const handleDiscriminatorChange = (type: string) => {
-  emit('update:modelValue', type)
-}
 </script>
 
 <template>
@@ -127,14 +115,11 @@ const handleDiscriminatorChange = (type: string) => {
             <OperationParameters
               :breadcrumb="[id]"
               :parameters="operation.parameters"
-              :requestBody="oldOperation.requestBody"
-              :schemas
-              @update:modelValue="handleDiscriminatorChange">
+              :requestBody="operation.requestBody">
             </OperationParameters>
             <OperationResponses
               :breadcrumb="[id]"
-              :responses="oldOperation.responses"
-              :schemas="schemas" />
+              :responses="operation.responses" />
 
             <!-- Callbacks -->
             <ScalarErrorBoundary>
@@ -143,8 +128,7 @@ const handleDiscriminatorChange = (type: string) => {
                 v-if="operation.callbacks"
                 :path="path"
                 :callbacks="operation.callbacks"
-                :method="method"
-                :schemas="schemas" />
+                :method="method" />
             </ScalarErrorBoundary>
           </div>
         </SectionColumn>
@@ -165,8 +149,7 @@ const handleDiscriminatorChange = (type: string) => {
                 :selectedClient="store.workspace['x-scalar-default-client']"
                 :path="path"
                 fallback
-                :operation="operation"
-                @update:modelValue="handleDiscriminatorChange">
+                :operation="operation">
                 <template #header>
                   <OperationPath
                     class="font-code text-c-2 [&_em]:text-c-1 [&_em]:not-italic"

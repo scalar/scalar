@@ -1,4 +1,4 @@
-import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPI } from '@scalar/openapi-types'
 import { isDereferenced } from '@scalar/openapi-types/helpers'
 
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
@@ -79,63 +79,6 @@ export function extractRequestBody(operation: Dereference<OperationObject>): str
   } catch (_error) {
     return false
   }
-}
-
-/**
- * Returns all models from the specification, no matter if it's OpenAPI 3.x.
- */
-export function getModels(document?: OpenAPIV3_1.Document) {
-  if (!document) {
-    return {} as Record<string, OpenAPIV3_1.SchemaObject>
-  }
-
-  const models =
-    // OpenAPI 3.x
-    (
-      Object.keys(document?.components?.schemas ?? {}).length
-        ? document?.components?.schemas
-        : // Fallback
-          {}
-    ) as Record<string, OpenAPIV3_1.SchemaObject>
-
-  // Filter out all schemas with `x-internal: true`
-  Object.keys(models ?? {}).forEach((key) => {
-    if (models[key]?.['x-internal'] === true || models[key]?.['x-scalar-ignore'] === true) {
-      delete models[key]
-    }
-  })
-
-  return models
-}
-
-/**
- * Checks if the OpenAPI document has schemas.
- */
-export const hasModels = (content?: OpenAPIV3_1.Document) => {
-  if (!content) {
-    return false
-  }
-
-  if (Object.keys(getModels(content) ?? {}).length) {
-    return true
-  }
-
-  return false
-}
-
-/**
- * Checks if the OpenAPI document has webhooks.
- */
-export const hasWebhooks = (document?: OpenAPIV3_1.Document) => {
-  if (!document) {
-    return false
-  }
-
-  if (Object.keys(document?.webhooks ?? {}).length) {
-    return true
-  }
-
-  return false
 }
 
 /**

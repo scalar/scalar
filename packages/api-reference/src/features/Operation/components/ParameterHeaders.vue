@@ -1,20 +1,22 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import {
+  isParameterWithSchema,
+  type ParameterObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
+import { computed } from 'vue'
 
 import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
 
-defineProps<{
-  headers: { [key: string]: OpenAPIV3_1.HeaderObject }
+const { headers } = defineProps<{
+  headers: ParameterObject[]
   breadcrumb?: string[]
 }>()
 
-function hasSchema(
-  header: OpenAPIV3_1.HeaderObject,
-): header is OpenAPIV3_1.HeaderObject {
-  return (header as OpenAPIV3_1.HeaderObject).schema !== undefined
-}
+const parametersWithSchema = computed(() =>
+  headers.filter(isParameterWithSchema),
+)
 </script>
 <template>
   <Disclosure v-slot="{ open }">
@@ -40,11 +42,11 @@ function hasSchema(
         <DisclosurePanel>
           <SchemaProperty
             :breadcrumb="breadcrumb ? [...breadcrumb, 'headers'] : undefined"
-            v-for="(header, key) in headers"
+            v-for="(header, key) in parametersWithSchema"
             :key="key"
             :description="header.description"
             :name="`${key}`"
-            :value="hasSchema(header) ? header.schema : undefined" />
+            :value="header.schema" />
         </DisclosurePanel>
       </div>
     </div>

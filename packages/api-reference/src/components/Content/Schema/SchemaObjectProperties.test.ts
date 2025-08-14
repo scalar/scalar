@@ -1,4 +1,3 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import SchemaObjectProperties from './SchemaObjectProperties.vue'
@@ -29,11 +28,11 @@ vi.mock('./SchemaProperty.vue', () => ({
 
 describe('SchemaObjectProperties', () => {
   it('renders properties as SchemaProperty components', () => {
-    const schema: OpenAPIV3_1.SchemaObject = {
-      type: 'object',
+    const schema = {
+      type: 'object' as const,
       properties: {
-        foo: { type: 'string' },
-        bar: { type: 'number' },
+        foo: { type: 'string' as const },
+        bar: { type: 'number' as const },
       },
       required: ['foo'],
     }
@@ -48,11 +47,11 @@ describe('SchemaObjectProperties', () => {
   })
 
   it('marks required properties', () => {
-    const schema: OpenAPIV3_1.SchemaObject = {
-      type: 'object',
+    const schema = {
+      type: 'object' as const,
       properties: {
-        foo: { type: 'string' },
-        bar: { type: 'number', required: true },
+        foo: { type: 'string' as const },
+        bar: { type: 'number' as const },
       },
       required: ['foo'],
     }
@@ -66,11 +65,11 @@ describe('SchemaObjectProperties', () => {
   })
 
   it('renders patternProperties as SchemaProperty components', () => {
-    const schema: OpenAPIV3_1.SchemaObject = {
-      type: 'object',
+    const schema = {
+      type: 'object' as const,
       patternProperties: {
-        '^x-': { type: 'string' },
-        '^y-': { type: 'boolean' },
+        '^x-': { type: 'string' as const },
+        '^y-': { type: 'boolean' as const },
       },
     }
 
@@ -85,9 +84,9 @@ describe('SchemaObjectProperties', () => {
   })
 
   it('renders additionalProperties as SchemaProperty with default name', () => {
-    const schema: OpenAPIV3_1.SchemaObject = {
-      type: 'object',
-      additionalProperties: { type: 'string' },
+    const schema = {
+      type: 'object' as const,
+      additionalProperties: { type: 'string' as const },
     }
 
     const wrapper = mount(SchemaObjectProperties, {
@@ -100,10 +99,10 @@ describe('SchemaObjectProperties', () => {
   })
 
   it('renders additionalProperties with x-additionalPropertiesName', () => {
-    const schema: OpenAPIV3_1.SchemaObject = {
-      type: 'object',
+    const schema = {
+      type: 'object' as const,
       additionalProperties: {
-        type: 'string',
+        type: 'string' as const,
         'x-additionalPropertiesName': 'customName',
       },
     }
@@ -118,8 +117,8 @@ describe('SchemaObjectProperties', () => {
   })
 
   it('handles additionalProperties as boolean true correctly', () => {
-    const schema: OpenAPIV3_1.SchemaObject = {
-      type: 'object',
+    const schema = {
+      type: 'object' as const,
       additionalProperties: true,
     }
 
@@ -133,8 +132,8 @@ describe('SchemaObjectProperties', () => {
   })
 
   it('handles additionalProperties as empty object correctly', () => {
-    const schema: OpenAPIV3_1.SchemaObject = {
-      type: 'object',
+    const schema = {
+      type: 'object' as const,
       additionalProperties: {},
     }
 
@@ -148,7 +147,7 @@ describe('SchemaObjectProperties', () => {
   })
 
   it('does not render anything if schema has no properties, patternProperties, or additionalProperties', () => {
-    const schema: OpenAPIV3_1.SchemaObject = { type: 'object' }
+    const schema = { type: 'object' as const }
 
     const wrapper = mount(SchemaObjectProperties, {
       props: { schema },
@@ -158,12 +157,12 @@ describe('SchemaObjectProperties', () => {
   })
 
   it('sorts properties alphabetically when all have same required status', () => {
-    const schema: OpenAPIV3_1.SchemaObject = {
-      type: 'object',
+    const schema = {
+      type: 'object' as const,
       properties: {
-        zebra: { type: 'string' },
-        alpha: { type: 'number' },
-        beta: { type: 'boolean' },
+        zebra: { type: 'string' as const },
+        alpha: { type: 'number' as const },
+        beta: { type: 'boolean' as const },
       },
     }
 
@@ -179,13 +178,13 @@ describe('SchemaObjectProperties', () => {
   })
 
   it('sorts required properties first, then alphabetically', () => {
-    const schema: OpenAPIV3_1.SchemaObject = {
-      type: 'object',
+    const schema = {
+      type: 'object' as const,
       properties: {
-        zebra: { type: 'string' },
-        alpha: { type: 'number' },
-        beta: { type: 'boolean' },
-        gamma: { type: 'object' },
+        zebra: { type: 'string' as const },
+        alpha: { type: 'number' as const },
+        beta: { type: 'boolean' as const },
+        gamma: { type: 'object' as const },
       },
       required: ['zebra', 'gamma'],
     }

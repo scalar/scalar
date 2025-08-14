@@ -15,7 +15,6 @@ import {
   getOperationStabilityColor,
   isOperationDeprecated,
 } from '@scalar/oas-utils/helpers'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
@@ -35,7 +34,6 @@ import { ExternalDocs } from '@/features/external-docs'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
-import type { Schemas } from '@/features/Operation/types/schemas'
 import { TestRequestButton } from '@/features/test-request-button'
 import { XBadges } from '@/features/x-badges'
 import { useConfig } from '@/hooks/useConfig'
@@ -48,12 +46,10 @@ const { operation, path, isWebhook } = defineProps<{
   clientOptions: ClientOptionGroup[]
   method: HttpMethodType
   operation: Dereference<OperationObject>
-  oldOperation: OpenAPIV3_1.OperationObject
   // pathServers: ServerObject[] | undefined
   isWebhook: boolean
   server: ServerObject | undefined
   securitySchemes: SecuritySchemeObject[]
-  schemas?: Schemas
   store: WorkspaceStore
 }>()
 
@@ -61,14 +57,6 @@ const operationTitle = computed(() => operation.summary || path || '')
 
 const { copyToClipboard } = useClipboard()
 const config = useConfig()
-
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: string): void
-}>()
-
-const handleDiscriminatorChange = (type: string) => {
-  emit('update:modelValue', type)
-}
 </script>
 <template>
   <SectionAccordion
@@ -152,16 +140,13 @@ const handleDiscriminatorChange = (type: string) => {
       <div class="operation-details-card">
         <div class="operation-details-card-item">
           <OperationParameters
-            :requestBody="oldOperation.requestBody"
-            :parameters="operation.parameters"
-            :schemas
-            @update:modelValue="handleDiscriminatorChange" />
+            :requestBody="operation.requestBody"
+            :parameters="operation.parameters" />
         </div>
         <div class="operation-details-card-item">
           <OperationResponses
             :collapsableItems="false"
-            :responses="oldOperation.responses"
-            :schemas="schemas" />
+            :responses="operation.responses" />
         </div>
 
         <!-- Callbacks -->
@@ -171,8 +156,7 @@ const handleDiscriminatorChange = (type: string) => {
           <Callbacks
             :method="method"
             :path="path"
-            :callbacks="operation.callbacks"
-            :schemas="schemas" />
+            :callbacks="operation.callbacks" />
         </div>
       </div>
 
@@ -197,8 +181,7 @@ const handleDiscriminatorChange = (type: string) => {
             :securitySchemes="securitySchemes"
             :path="path"
             fallback
-            :operation="operation"
-            @update:modelValue="handleDiscriminatorChange" />
+            :operation="operation" />
         </ScalarErrorBoundary>
       </div>
     </div>
