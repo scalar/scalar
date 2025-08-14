@@ -98,6 +98,13 @@ const server = createServer((req, res) => {
       { id: 1, name: 'John Doe', email: 'john@example.com', createdAt: '2025-01-01T00:00:00Z' },
       { id: 2, name: 'Jane Smith', email: 'jane@example.com', createdAt: '2025-01-02T00:00:00Z' },
       { id: 3, name: 'Bob Johnson', email: 'bob@example.com', createdAt: '2025-01-03T00:00:00Z' },
+      { id: 4, name: 'Alice Brown', email: 'alice@example.com', createdAt: '2025-01-04T00:00:00Z' },
+      { id: 5, name: 'Charlie Wilson', email: 'charlie@example.com', createdAt: '2025-01-05T00:00:00Z' },
+      { id: 6, name: 'Diana Davis', email: 'diana@example.com', createdAt: '2025-01-06T00:00:00Z' },
+      { id: 7, name: 'Edward Miller', email: 'edward@example.com', createdAt: '2025-01-07T00:00:00Z' },
+      { id: 8, name: 'Fiona Garcia', email: 'fiona@example.com', createdAt: '2025-01-08T00:00:00Z' },
+      { id: 9, name: 'George Martinez', email: 'george@example.com', createdAt: '2025-01-09T00:00:00Z' },
+      { id: 10, name: 'Helen Rodriguez', email: 'helen@example.com', createdAt: '2025-01-10T00:00:00Z' },
     ]
     res.writeHead(200)
     res.end(JSON.stringify(users.slice(0, limit), null, 2))
