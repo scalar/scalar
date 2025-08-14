@@ -14,10 +14,35 @@
       "sidebar": [
         {
           "name": "Introduction",
-          "description": "Introduction to Scalar",
           "icon": "phosphor/regular/house",
           "path": "documentation/guides/introduction.md",
           "type": "page"
+        },
+        {
+          "name": "Scalar Registry",
+          "type": "folder",
+          "defaultOpen": false,
+          "icon": "phosphor/regular/seal-check",
+          "children": [
+            {
+              "path": "documentation/guides/registry/getting-started.md",
+              "type": "page"
+            },
+            {
+              "path": "documentation/guides/registry/upload.md",
+              "type": "page",
+              "name": "Upload"
+            },
+            {
+              "path": "documentation/guides/registry/cli.md",
+              "type": "page"
+            },
+            {
+              "path": "documentation/guides/registry/github-actions.md",
+              "type": "page",
+              "name": "GitHub Actions"
+            }
+          ]
         },
         {
           "name": "Scalar Docs",
@@ -157,38 +182,6 @@
           ]
         },
         {
-          "name": "Scalar Registry",
-          "type": "folder",
-          "defaultOpen": false,
-          "icon": "phosphor/regular/seal-check",
-          "children": [
-            {
-              "path": "documentation/guides/registry/getting-started.md",
-              "type": "page"
-            },
-            {
-              "path": "documentation/guides/registry/upload.md",
-              "type": "page",
-              "name": "Upload"
-            },
-            {
-              "path": "documentation/guides/registry/cli.md",
-              "type": "page"
-            },
-            {
-              "path": "documentation/guides/registry/github-actions.md",
-              "type": "page",
-              "name": "GitHub Actions"
-            }
-          ]
-        },
-        {
-          "name": "Access",
-          "icon": "phosphor/regular/lock-simple",
-          "path": "documentation/guides/access.md",
-          "type": "page"
-        },
-        {
           "name": "Scalar CLI",
           "type": "folder",
           "defaultOpen": false,
@@ -203,6 +196,12 @@
               "type": "page"
             }
           ]
+        },
+        {
+          "name": "Access",
+          "icon": "phosphor/regular/lock-simple",
+          "path": "documentation/guides/access.md",
+          "type": "page"
         },
         {
           "name": "Scalar API References",
@@ -221,23 +220,23 @@
               "type": "page"
             },
             {
-              "name": "Themes",
-              "path": "documentation/themes.md",
-              "type": "page"
-            },
-            {
-              "name": "Plugins",
-              "path": "documentation/plugins.md",
-              "type": "page"
-            },
-            {
               "name": "OpenAPI",
               "path": "documentation/openapi.md",
               "type": "page"
             },
             {
+              "name": "Themes",
+              "path": "documentation/themes.md",
+              "type": "page"
+            },
+            {
               "name": "Markdown",
               "path": "documentation/markdown.md",
+              "type": "page"
+            },
+            {
+              "name": "Plugins",
+              "path": "documentation/plugins.md",
               "type": "page"
             },
             {
@@ -442,12 +441,6 @@
           ]
         }
       ]
-    }
-  ],
-  "references": [
-    {
-      "liveLink": "https://registry.scalar.com/@scalar/apis/access-service/latest",
-      "name": "Scalar API"
     }
   ],
   "siteConfig": {
