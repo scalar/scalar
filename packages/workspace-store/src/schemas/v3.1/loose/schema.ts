@@ -1,4 +1,4 @@
-import { Type, type Static, type TSchema } from '@sinclair/typebox'
+import { Type, type TSchema } from '@sinclair/typebox'
 
 import { DiscriminatorObjectSchema } from './discriminator'
 import { XMLObjectSchema } from './xml'
@@ -217,5 +217,3 @@ export const schemaObjectSchemaBuilder = <S extends TSchema>(schema: S) =>
   )
 
 export const SchemaObjectSchema = Type.Recursive(schemaObjectSchemaBuilder)
-
-export type SchemaObject = Static<typeof SchemaObjectSchema>

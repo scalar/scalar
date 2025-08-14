@@ -1,4 +1,4 @@
-import { Type, type Static } from '@sinclair/typebox'
+import { Type } from '@sinclair/typebox'
 
 /** Allows referencing an external resource for extended documentation. */
 export const ExternalDocumentationObjectSchema = Type.Object({
@@ -7,5 +7,3 @@ export const ExternalDocumentationObjectSchema = Type.Object({
   /** The URI for the target documentation. This MUST be in the form of a URI. */
   url: Type.Optional(Type.String()),
 })
-
-export type ExternalDocumentationObject = Static<typeof ExternalDocumentationObjectSchema>

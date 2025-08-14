@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { ResponsesObjectSchema, type ResponsesObject } from './responses'
+import { ResponsesObjectSchema } from './responses'
 import { Value } from '@sinclair/typebox/value'
 import { coerceValue } from '@/schemas/typebox-coerce'
 
@@ -199,7 +199,7 @@ describe('ResponsesObjectSchema', () => {
 
   describe('type inference', () => {
     it('correctly infers ResponsesObject type', () => {
-      const response: ResponsesObject = {
+      const response = {
         '200': {
           description: 'Success',
         },
@@ -211,7 +211,7 @@ describe('ResponsesObjectSchema', () => {
     })
 
     it('allows mixed ResponseObject and ReferenceObject', () => {
-      const mixedResponse: ResponsesObject = {
+      const mixedResponse = {
         '200': {
           description: 'Success',
         },

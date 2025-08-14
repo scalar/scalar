@@ -1,4 +1,4 @@
-import { Type, type Static } from '@sinclair/typebox'
+import { Type } from '@sinclair/typebox'
 
 import { ReferenceObjectSchema } from './reference'
 import { ResponseObjectSchema } from './response'
@@ -16,5 +16,3 @@ export const ResponsesObjectSchema = Type.Record(
   Type.String(),
   Type.Union([ResponseObjectSchema, ReferenceObjectSchema]),
 )
-
-export type ResponsesObject = Static<typeof ResponsesObjectSchema>

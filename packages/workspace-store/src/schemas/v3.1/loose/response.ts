@@ -1,4 +1,4 @@
-import { Type, type Static } from '@sinclair/typebox'
+import { Type } from '@sinclair/typebox'
 
 import { ReferenceObjectSchema } from './reference'
 import { LinkObjectSchema } from './link'
@@ -14,5 +14,3 @@ export const ResponseObjectSchema = Type.Object({
   /** A map of operations links that can be followed from the response. The key of the map is a short name for the link, following the naming constraints of the names for Component Objects. */
   links: Type.Optional(Type.Record(Type.String(), Type.Union([LinkObjectSchema, ReferenceObjectSchema]))),
 })
-
-export type ResponseObject = Static<typeof ResponseObjectSchema>

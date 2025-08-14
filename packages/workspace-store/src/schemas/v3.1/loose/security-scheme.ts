@@ -1,4 +1,4 @@
-import { Type, type Static } from '@sinclair/typebox'
+import { Type } from '@sinclair/typebox'
 
 import { compose } from '@/schemas/compose'
 
@@ -66,5 +66,3 @@ export const OpenIdConnect = compose(
  * Supported schemes are HTTP authentication, an API key (either as a header, a cookie parameter or as a query parameter), mutual TLS (use of a client certificate), OAuth2's common flows (implicit, password, client credentials and authorization code) as defined in RFC6749, and [[OpenID-Connect-Core]]. Please note that as of 2020, the implicit flow is about to be deprecated by OAuth 2.0 Security Best Current Practice. Recommended for most use cases is Authorization Code Grant flow with PKCE.
  */
 export const SecuritySchemeObjectSchema = Type.Union([ApiKeySchema, HttpSchema, OAuth2, OpenIdConnect])
-
-export type SecuritySchemeObject = Static<typeof SecuritySchemeObjectSchema>

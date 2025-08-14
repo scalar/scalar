@@ -1,12 +1,4 @@
-import {
-  Type,
-  type Static,
-  type TObject,
-  type TOptional,
-  type TRecord,
-  type TString,
-  type TUnion,
-} from '@sinclair/typebox'
+import { Type, type TObject, type TOptional, type TRecord, type TString, type TUnion } from '@sinclair/typebox'
 
 import { SchemaObjectSchema } from './schema'
 import { ResponseObjectSchema } from './response'
@@ -78,5 +70,3 @@ export const ComponentsObjectSchema: ComponentsObjectSchemaType = Type.Object({
   /** An object to hold reusable Path Item Objects. */
   pathItems: Type.Optional(Type.Record(Type.String(), PathItemObjectSchema)),
 })
-
-export type ComponentsObject = Static<typeof ComponentsObjectSchema>

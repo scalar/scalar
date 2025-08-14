@@ -1,4 +1,4 @@
-import { Type, type Static } from '@sinclair/typebox'
+import { Type } from '@sinclair/typebox'
 
 import { compose } from '@/schemas/compose'
 import { XScalarSecretTokenSchema } from '@/schemas/extensions/security/x-scalar-security-secrets'
@@ -60,9 +60,3 @@ export const OAuthFlowObjectSchema = Type.Union([
   OAuthFlowClientCredentialsSchema,
   OAuthFlowAuthorizationCodeSchema,
 ])
-
-export type OAuthFlowObject = Static<typeof OAuthFlowObjectSchema>
-export type OAuthFlowImplicit = Static<typeof OAuthFlowImplicitSchema>
-export type OAuthFlowPassword = Static<typeof OAuthFlowPasswordSchema>
-export type OAuthFlowClientCredentials = Static<typeof OAuthFlowClientCredentialsSchema>
-export type OAuthFlowAuthorizationCode = Static<typeof OAuthFlowAuthorizationCodeSchema>

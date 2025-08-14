@@ -1,4 +1,4 @@
-import { Type, type Static } from '@sinclair/typebox'
+import { Type } from '@sinclair/typebox'
 
 import { callbackObjectSchemaBuilder } from './callback'
 import { operationObjectSchemaBuilder } from './operation'
@@ -21,9 +21,3 @@ export const CallbackObjectSchema = Type.Recursive((This) =>
 export const PathItemObjectSchema = Type.Recursive((This) =>
   pathItemObjectSchemaBuilder(operationObjectSchemaBuilder(callbackObjectSchemaBuilder(This))),
 )
-
-export type PathItemObject = Static<typeof PathItemObjectSchema>
-
-export type CallbackObject = Static<typeof CallbackObjectSchema>
-
-export type OperationObject = Static<typeof OperationObjectSchema>

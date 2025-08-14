@@ -1,4 +1,4 @@
-import { Type, type Static } from '@sinclair/typebox'
+import { Type } from '@sinclair/typebox'
 
 import { MediaTypeObjectSchema } from './media-header-encoding'
 
@@ -11,5 +11,3 @@ export const RequestBodyObjectSchema = Type.Object({
   /** Determines if the request body is required in the request. Defaults to false. */
   required: Type.Optional(Type.Boolean()),
 })
-
-export type RequestBodyObject = Static<typeof RequestBodyObjectSchema>

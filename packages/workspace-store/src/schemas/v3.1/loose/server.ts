@@ -1,4 +1,4 @@
-import { Type, type Static } from '@sinclair/typebox'
+import { Type } from '@sinclair/typebox'
 
 import { ServerVariableObjectSchema } from './server-variable'
 
@@ -11,5 +11,3 @@ export const ServerObjectSchema = Type.Object({
   /** A map between a variable name and its value. The value is used for substitution in the server's URL template. */
   variables: Type.Optional(Type.Record(Type.String(), ServerVariableObjectSchema)),
 })
-
-export type ServerObject = Static<typeof ServerObjectSchema>

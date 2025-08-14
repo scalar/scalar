@@ -1,4 +1,4 @@
-import { Type, type Static } from '@sinclair/typebox'
+import { Type } from '@sinclair/typebox'
 
 /**
  * When request bodies or response payloads may be one of a number of different schemas, a Discriminator Object gives a hint about the expected schema of the document. This hint can be used to aid in serialization, deserialization, and validation. The Discriminator Object does this by implicitly or explicitly associating the possible values of a named property with alternative schemas.
@@ -11,5 +11,3 @@ export const DiscriminatorObjectSchema = Type.Object({
   /** An object to hold mappings between payload values and schema names or URI references. */
   mapping: Type.Optional(Type.Record(Type.String(), Type.String())),
 })
-
-export type DiscriminatorObject = Static<typeof DiscriminatorObjectSchema>

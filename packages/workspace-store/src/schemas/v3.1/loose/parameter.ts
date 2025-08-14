@@ -1,4 +1,4 @@
-import { Type, type Static } from '@sinclair/typebox'
+import { Type } from '@sinclair/typebox'
 
 import { compose } from '@/schemas/compose'
 
@@ -58,5 +58,3 @@ export const ParameterObjectWithContentSchema = compose(
  * See Appendix E for a detailed examination of percent-encoding concerns, including interactions with the application/x-www-form-urlencoded query string format.
  */
 export const ParameterObjectSchema = Type.Union([ParameterObjectWithSchemaSchema, ParameterObjectWithContentSchema])
-
-export type ParameterObject = Static<typeof ParameterObjectSchema>

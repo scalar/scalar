@@ -1,4 +1,4 @@
-import { Type, type Static } from '@sinclair/typebox'
+import { Type } from '@sinclair/typebox'
 
 /** Contact information for the exposed API. */
 export const ContactObjectSchema = Type.Object({
@@ -9,5 +9,3 @@ export const ContactObjectSchema = Type.Object({
   /** The email address of the contact person/organization. This MUST be in the form of an email address. */
   email: Type.Optional(Type.String()),
 })
-
-export type ContactObject = Static<typeof ContactObjectSchema>

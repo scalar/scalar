@@ -1,4 +1,4 @@
-import { Type, type Static } from '@sinclair/typebox'
+import { Type } from '@sinclair/typebox'
 
 import { ServerObjectSchema } from './server'
 
@@ -23,5 +23,3 @@ export const LinkObjectSchema = Type.Object({
   /** A server object to be used by the target operation. */
   server: Type.Optional(ServerObjectSchema),
 })
-
-export type LinkObject = Static<typeof LinkObjectSchema>

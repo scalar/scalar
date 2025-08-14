@@ -1,4 +1,4 @@
-import { Type, type Static } from '@sinclair/typebox'
+import { Type } from '@sinclair/typebox'
 
 import { compose } from '@/schemas/compose'
 
@@ -29,5 +29,3 @@ export const InfoObjectSchema = compose(
   }),
   XScalarSdkInstallationSchema,
 )
-
-export type InfoObject = Static<typeof InfoObjectSchema>
