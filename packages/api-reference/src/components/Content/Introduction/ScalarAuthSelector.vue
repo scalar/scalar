@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// TODO: Get rid of the API Client store
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import { RequestAuth } from '@scalar/api-client/views/Request/RequestSection/RequestAuth'
 import { getSlugUid } from '@scalar/oas-utils/transforms'

@@ -35,8 +35,9 @@ const clientOptions = computed(() =>
 
     <!-- Introduction -->
     <Introduction
-      :store
+      :document="store.workspace.activeDocument"
       :clientOptions
+      :defaultClient="store.workspace['x-scalar-default-client']"
       :config>
       <template #empty-state>
         <slot name="empty-state" />

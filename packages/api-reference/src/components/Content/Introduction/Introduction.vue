@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { ApiReferenceConfiguration } from '@scalar/types'
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { WorkspaceMeta } from '@scalar/workspace-store/schemas/schemas/workspace'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import ScalarAuthSelector from '@/components/Content/Introduction/ScalarAuthSelector.vue'
@@ -13,10 +14,11 @@ import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block
 import IntroductionSection from './IntroductionSection.vue'
 import ScalarServerSelector from './ScalarServerSelector.vue'
 
-const { config, store } = defineProps<{
+const { config } = defineProps<{
   config?: ApiReferenceConfiguration
   clientOptions: ClientOptionGroup[]
-  store: WorkspaceStore
+  document?: OpenApiDocument
+  defaultClient?: WorkspaceMeta['x-scalar-default-client']
 }>()
 
 const introCardsSlot = computed(() =>
@@ -28,7 +30,7 @@ const { hash } = useNavState()
 <template>
   <!-- Empty State -->
   <slot
-    v-if="!store.workspace.activeDocument"
+    v-if="!document"
     name="empty-state" />
 
   <!-- Introduction -->
@@ -38,7 +40,7 @@ const { hash } = useNavState()
     prev
     :isLazy="Boolean(hash) && !hash.startsWith('description')">
     <IntroductionSection
-      :document="store.workspace.activeDocument"
+      :document="document"
       :config="config">
       <template #[introCardsSlot]>
         <div
@@ -54,8 +56,8 @@ const { hash } = useNavState()
             <ScalarClientSelector
               :config="config"
               :clientOptions="clientOptions"
-              :selectedClient="store.workspace['x-scalar-default-client']"
-              :document="store.workspace.activeDocument" />
+              :selectedClient="defaultClient"
+              :document="document" />
           </ScalarErrorBoundary>
         </div>
       </template>
