@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "aspire.cli": {
+      "version": "9.4.1",
+      "commands": ["aspire"],
+      "rollForward": false
+    }
+  }
+}
