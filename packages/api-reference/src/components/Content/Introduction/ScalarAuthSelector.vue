@@ -6,6 +6,8 @@ import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import { computed } from 'vue'
 
+import IntroductionCardItem from '@/components/Content/Introduction/IntroductionCardItem.vue'
+
 const { config } = defineProps<{
   config?: ApiReferenceConfiguration
 }>()
@@ -47,13 +49,13 @@ const activeServer = computed(() => {
 </script>
 
 <template>
-  <div
+  <IntroductionCardItem
     v-if="
       activeCollection &&
       activeWorkspace &&
       Object.keys(securitySchemes ?? {}).length
     "
-    class="scalar-reference-intro-auth scalar-client introduction-card-item leading-normal">
+    class="scalar-reference-intro-auth scalar-client leading-normal">
     <RequestAuth
       :collection="activeCollection"
       :envVariables="activeEnvVariables"
@@ -66,5 +68,5 @@ const activeServer = computed(() => {
       :server="activeServer"
       title="Authentication"
       :workspace="activeWorkspace" />
-  </div>
+  </IntroductionCardItem>
 </template>

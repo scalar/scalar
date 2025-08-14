@@ -5,6 +5,7 @@ import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import { computed } from 'vue'
 
+import IntroductionCardItem from '@/components/Content/Introduction/IntroductionCardItem.vue'
 import { BaseUrl } from '@/features/base-url'
 
 const { config } = defineProps<{
@@ -43,11 +44,11 @@ const activeServer = computed(() => {
 </script>
 
 <template>
-  <div
+  <IntroductionCardItem
     v-if="activeCollection?.servers?.length"
-    class="scalar-reference-intro-server scalar-client introduction-card-item text-base leading-normal [--scalar-address-bar-height:0px]">
+    class="scalar-reference-intro-server scalar-client text-base leading-normal [--scalar-address-bar-height:0px]">
     <BaseUrl
       :collection="activeCollection"
       :server="activeServer" />
-  </div>
+  </IntroductionCardItem>
 </template>

@@ -5,6 +5,7 @@ import type { AvailableClients } from '@scalar/snippetz'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { computed, useId, useTemplateRef } from 'vue'
 
+import IntroductionCardItem from '@/components/Content/Introduction/IntroductionCardItem.vue'
 import { DEFAULT_CLIENT } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 import { emitCustomEvent } from '@/v2/events/definitions'
@@ -88,9 +89,9 @@ const installationInstructions = computed(() => {
 })
 </script>
 <template>
-  <div
+  <IntroductionCardItem
     v-if="clientOptions.length && document"
-    class="introduction-card-item scalar-reference-intro-clients"
+    class="scalar-reference-intro-clients"
     ref="wrapper">
     <TabGroup
       manual
@@ -158,7 +159,7 @@ const installationInstructions = computed(() => {
         </div>
       </TabPanels>
     </TabGroup>
-  </div>
+  </IntroductionCardItem>
 </template>
 <style scoped>
 .selected-client {
