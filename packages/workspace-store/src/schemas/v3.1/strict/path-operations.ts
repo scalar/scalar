@@ -32,27 +32,25 @@ export const CallbackObjectSchema = Type.Recursive((This) =>
 /** Describes the operations available on a single path. A Path Item MAY be empty, due to ACL constraints. The path itself is still exposed to the documentation viewer but they will not know which operations and parameters are available. */
 export const PathItemObjectSchema = Type.Recursive((This) =>
   pathItemObjectSchemaBuilder(operationObjectSchemaBuilder(callbackObjectSchemaBuilder(This))),
-) satisfies TRecursive<
+) as TRecursive<
   TObject<{
     $ref: TOptional<TString>
     summary: TOptional<TString>
     description: TOptional<TString>
-    get: TOptional<TRecursive<typeof OperationObjectSchema>>
-    put: TOptional<TRecursive<typeof OperationObjectSchema>>
-    post: TOptional<TRecursive<typeof OperationObjectSchema>>
-    delete: TOptional<TRecursive<typeof OperationObjectSchema>>
-    patch: TOptional<TRecursive<typeof OperationObjectSchema>>
-    connect: TOptional<TRecursive<typeof OperationObjectSchema>>
-    options: TOptional<TRecursive<typeof OperationObjectSchema>>
-    head: TOptional<TRecursive<typeof OperationObjectSchema>>
-    trace: TOptional<TRecursive<typeof OperationObjectSchema>>
+    get: TOptional<typeof OperationObjectSchema>
+    put: TOptional<typeof OperationObjectSchema>
+    post: TOptional<typeof OperationObjectSchema>
+    delete: TOptional<typeof OperationObjectSchema>
+    patch: TOptional<typeof OperationObjectSchema>
+    connect: TOptional<typeof OperationObjectSchema>
+    options: TOptional<typeof OperationObjectSchema>
+    head: TOptional<typeof OperationObjectSchema>
+    trace: TOptional<typeof OperationObjectSchema>
     servers: TOptional<TArray<typeof ServerObjectSchema>>
     parameters: TOptional<TArray<TUnion<[typeof ParameterObjectSchema, ReferenceType<typeof ParameterObjectSchema>]>>>
   }>
 >
 
 export type PathItemObject = Static<typeof PathItemObjectSchema>
-
 export type CallbackObject = Static<typeof CallbackObjectSchema>
-
 export type OperationObject = Static<typeof OperationObjectSchema>
