@@ -3,9 +3,12 @@ using Scalar.Aspire;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
+builder.AddDockerComposeEnvironment("dev");
+
 var userService = builder
     .AddPnpmApp("user-service", "../Scalar.Aspire.UserService")
-    .WithHttpEndpoint(env: "PORT");
+    .WithHttpEndpoint(env: "PORT")
+    .PublishAsDockerFile();
 
 var bookService = builder.AddProject<Scalar_Aspire_BookService>("book-service");
 
@@ -18,7 +21,8 @@ var keycloak = builder
 
 var scalar = builder
     .AddScalarApiReference(options => options.WithCdnUrl("https://cdn.jsdelivr.net/npm/@scalar/api-reference"))
-    .WithReference(keycloak);
+    .WithReference(keycloak)
+    .WithExternalHttpEndpoints();
 
 
 scalar
