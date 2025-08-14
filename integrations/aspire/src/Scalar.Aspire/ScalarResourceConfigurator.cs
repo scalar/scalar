@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Aspire.Hosting.ApplicationModel;
@@ -24,12 +25,18 @@ internal static class ScalarResourceConfigurator
         var scalarAnnotations = resource.Annotations.OfType<ScalarAnnotation>();
         var scalarConfigurations = CreateConfigurationsAsync(serviceProvider, scalarAnnotations, cancellationToken);
 
-        var serializedConfigurations = await scalarConfigurations.ToScalarConfigurationsAsync(cancellationToken).SerializeToJsonAsync(JsonSerializerOptions, cancellationToken);
+        var configurations = await scalarConfigurations.ToScalarConfigurationsAsync(cancellationToken).SerializeToJsonAsync(JsonSerializerOptions, cancellationToken);
 
+        // Encode the configurations to Base64 if in publish mode
+        if (context.ExecutionContext.IsPublishMode)
+        {
+            configurations = Convert.ToBase64String(Encoding.UTF8.GetBytes(configurations));
+        }
+        
         var scalarAspireOptions = serviceProvider.GetRequiredService<IOptionsMonitor<ScalarAspireOptions>>().Get(resource.Name);
 
         var environmentVariables = context.EnvironmentVariables;
-        environmentVariables.Add(ApiReferenceConfig, serializedConfigurations);
+        environmentVariables.Add(ApiReferenceConfig, configurations);
         environmentVariables.Add(CdnUrl, scalarAspireOptions.CdnUrl);
         if (scalarAspireOptions.DefaultProxy)
         {
