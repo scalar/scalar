@@ -198,14 +198,6 @@ def get_scalar_api_reference(
             """
         ),
     ] = "https://fastapi.tiangolo.com/img/favicon.png",
-    scalar_theme: Annotated[
-        str,
-        Doc(
-            """
-            Custom CSS theme for Scalar.
-            """
-        ),
-    ] = scalar_theme,
     layout: Annotated[
         Layout,
         Doc(
@@ -326,54 +318,81 @@ def get_scalar_api_reference(
         ),
     ] = Theme.DEFAULT,
 ) -> HTMLResponse:
+    # Build configuration object with only non-default values
+    config = {
+        "url": openapi_url,
+    }
+
+    # Only add options that differ from defaults
+    if scalar_proxy_url:
+        config["proxyUrl"] = scalar_proxy_url
+
+    if layout != Layout.MODERN:
+        config["layout"] = layout.value
+
+    if not show_sidebar:  # Default is True
+        config["showSidebar"] = show_sidebar
+
+    if hide_download_button:  # Default is False
+        config["hideDownloadButton"] = hide_download_button
+
+    if hide_models:  # Default is False
+        config["hideModels"] = hide_models
+
+    if not dark_mode:  # Default is True
+        config["darkMode"] = dark_mode
+
+    if search_hot_key != SearchHotKey.K:  # Default is K
+        config["searchHotKey"] = search_hot_key.value
+
+    if hidden_clients:  # Default is []
+        config["hiddenClients"] = hidden_clients
+
+    if servers:  # Default is []
+        config["servers"] = servers
+
+    if default_open_all_tags:  # Default is False
+        config["defaultOpenAllTags"] = default_open_all_tags
+
+    if authentication:  # Default is {}
+        config["authentication"] = authentication
+
+    if hide_client_button:  # Default is False
+        config["hideClientButton"] = hide_client_button
+
+    if integration:
+        config["_integration"] = integration
+
+    if theme != Theme.DEFAULT:  # Default is DEFAULT
+        config["theme"] = theme.value
+
     html = f"""
-    <!DOCTYPE html>
-    <html>
+<!doctype html>
+<html>
     <head>
-    <title>{title}</title>
-    <!-- needed for adaptive design -->
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="shortcut icon" href="{scalar_favicon_url}">
-    <style>
-      body {{
-        margin: 0;
-        padding: 0;
-      }}
-    </style>
-    <style>
-    {scalar_theme}
-    </style>
+        <title>{title}</title>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="shortcut icon" href="{scalar_favicon_url}">
+        <style>
+            body {{
+                margin: 0;
+                padding: 0;
+            }}
+
+            {scalar_theme if theme.value == Theme.DEFAULT.value else ""}
+        </style>
     </head>
     <body>
-    <noscript>
-        Scalar requires Javascript to function. Please enable it to browse the documentation.
-    </noscript>
-    <script
-      id="api-reference"
-      data-url="{openapi_url}"
-      data-proxy-url="{scalar_proxy_url}"></script>
-    <script>
-      var configuration = {{
-        layout: "{layout.value}",
-        showSidebar: {json.dumps(show_sidebar)},
-        hideDownloadButton: {json.dumps(hide_download_button)},
-        hideModels: {json.dumps(hide_models)},
-        darkMode: {json.dumps(dark_mode)},
-        searchHotKey: "{search_hot_key.value}",
-        hiddenClients: {json.dumps(hidden_clients)},
-        servers: {json.dumps(servers)},
-        defaultOpenAllTags: {json.dumps(default_open_all_tags)},
-        authentication: {json.dumps(authentication)},
-        hideClientButton: {json.dumps(hide_client_button)},
-        _integration: {json.dumps(integration)},
-        theme: "{theme.value}",
-      }}
+        <div id="app"></div>
 
-      document.getElementById('api-reference').dataset.configuration =
-        JSON.stringify(configuration)
-    </script>
-    <script src="{scalar_js_url}"></script>
+        <!-- Load the Script -->
+        <script src="{scalar_js_url}"></script>
+
+        <!-- Initialize the Scalar API Reference -->
+        <script>
+            Scalar.createApiReference("#app", {json.dumps(config)})
+        </script>
     </body>
     </html>
     """
