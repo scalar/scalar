@@ -7,10 +7,10 @@ import { computed } from 'vue'
 import ScalarAuthSelector from '@/components/Content/Introduction/ScalarAuthSelector.vue'
 import { Lazy } from '@/components/Lazy'
 import { useNavState } from '@/hooks/useNavState'
+import { ScalarClientSelector } from '@/v2/blocks/scalar-client-selector'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
 import IntroductionSection from './IntroductionSection.vue'
-import ScalarClientSelector from './ScalarClientSelector.vue'
 import ScalarServerSelector from './ScalarServerSelector.vue'
 
 const { config, store } = defineProps<{
@@ -54,7 +54,8 @@ const { hash } = useNavState()
             <ScalarClientSelector
               :config="config"
               :clientOptions="clientOptions"
-              :store="store" />
+              :selectedClient="store.workspace['x-scalar-default-client']"
+              :document="store.workspace.activeDocument" />
           </ScalarErrorBoundary>
         </div>
       </template>

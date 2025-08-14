@@ -89,7 +89,8 @@ const installationInstructions = computed(() => {
 </script>
 <template>
   <div
-    v-if="clientOptions.length"
+    v-if="clientOptions.length && document"
+    class="introduction-card-item scalar-reference-intro-clients"
     ref="wrapper">
     <TabGroup
       manual

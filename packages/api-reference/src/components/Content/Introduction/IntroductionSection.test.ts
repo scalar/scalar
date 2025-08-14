@@ -1,4 +1,4 @@
-import { DownloadLink } from '@/features/download-links'
+import { DownloadLinks } from '@/features/download-links'
 import { useSidebar } from '@/features/sidebar/hooks/useSidebar'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
@@ -128,7 +128,7 @@ describe('IntroductionSection', () => {
       },
     })
 
-    const downloadLink = wrapper.findComponent(DownloadLink)
+    const downloadLink = wrapper.findComponent(DownloadLinks)
     expect(downloadLink.props('title')).toBe('Hello World API!')
   })
 

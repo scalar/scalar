@@ -1,11 +1,11 @@
-import type { AvailableClients, ClientId, TargetId } from '@scalar/snippetz'
-import { operationToHar } from '@scalar/oas-utils/helpers/operation-to-har'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
-import { isReference, type Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
 import { getSnippet } from '@scalar/api-client/views/Components/CodeSnippet'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { operationToHar } from '@scalar/oas-utils/helpers/operation-to-har'
+import type { AvailableClients, ClientId, TargetId } from '@scalar/snippetz'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
+import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
+import { type Dereference, isReference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 
 type Props = {
   clientId: AvailableClients[number]
@@ -30,6 +30,10 @@ export const generateCodeSnippet = ({
   securitySchemes,
 }: Props): string => {
   if (isReference(operation)) {
+    return ''
+  }
+
+  if (!clientId) {
     return ''
   }
 

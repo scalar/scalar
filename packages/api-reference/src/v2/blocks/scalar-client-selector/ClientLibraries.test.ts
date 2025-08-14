@@ -1,8 +1,8 @@
-import { describe, expect, it } from 'vitest'
-import { mount } from '@vue/test-utils'
 import { DEFAULT_CLIENT } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/schemas/workspace'
+import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 
 import ClientLibraries from './ClientLibraries.vue'
 
@@ -58,12 +58,12 @@ describe('ClientLibraries', () => {
   ]
 
   describe('default client selection', () => {
-    it('uses DEFAULT_CLIENT when no selectedClient is provided', () => {
+    it('uses DEFAULT_CLIENT when no defaultClient is provided', () => {
       const wrapper = mount(ClientLibraries, {
         props: {
           document: mockDocument,
           clientOptions: mockClientOptions,
-          // selectedClient is not provided, should default to DEFAULT_CLIENT
+          // defaultClient is not provided, should default to DEFAULT_CLIENT
         },
         global: {
           stubs: {
@@ -82,14 +82,14 @@ describe('ClientLibraries', () => {
       expect(vm.selectedClientOption?.id).toBe(DEFAULT_CLIENT)
     })
 
-    it('uses provided selectedClient when available', () => {
+    it('uses provided defaultClient when available', () => {
       const customClient = 'node/undici'
 
       const wrapper = mount(ClientLibraries, {
         props: {
           document: mockDocument,
           clientOptions: mockClientOptions,
-          selectedClient: customClient,
+          defaultClient: customClient,
         },
         global: {
           stubs: {
@@ -108,12 +108,12 @@ describe('ClientLibraries', () => {
       expect(vm.selectedClientOption?.id).toBe(customClient)
     })
 
-    it('handles undefined selectedClient gracefully', () => {
+    it('handles undefined defaultClient gracefully', () => {
       const wrapper = mount(ClientLibraries, {
         props: {
           document: mockDocument,
           clientOptions: mockClientOptions,
-          selectedClient: undefined,
+          defaultClient: undefined,
         },
         global: {
           stubs: {
