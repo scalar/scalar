@@ -231,6 +231,7 @@ describe('getResolvedRefDeep', () => {
 
     it('should handle refs with null $ref-value', () => {
       const nullRef = { $ref: '#/null', '$ref-value': null }
+      // @ts-expect-error nobody cares
       const result = getResolvedRefDeep(nullRef)
 
       expect(result).toBeNull()
@@ -249,7 +250,7 @@ describe('getResolvedRefDeep', () => {
         ],
       }
 
-      // Use type assertion to work around strict typing
+      // @ts-expect-error nobody cares
       const result = getResolvedRefDeep(arrayRef)
 
       expect(result).toEqual([{ id: 1, name: 'John' }])

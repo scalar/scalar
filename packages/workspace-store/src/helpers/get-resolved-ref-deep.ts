@@ -51,13 +51,14 @@ export const getResolvedRefDeep = <Node>(node: NodeInput<Node>): DeepDereference
     const placeholder = isArray ? [] : {}
     cache.set(resolved, placeholder)
 
-    let result
+    // any is not ideal but if we type it it slows way down. This function still returns the correct type up to 5 levels deep.
+    let result: any
 
     // Process the object/array recursively
     if (isArray) {
       result = resolved.map((item) => resolveDeep(item)) as Node
     } else {
-      result = {} as any
+      result = {}
       for (const [key, value] of Object.entries(resolved)) {
         result[key] = resolveDeep(value)
       }
