@@ -117,6 +117,13 @@ async function loadDocument(workspaceDocument: WorkspaceDocumentInput) {
   }
 }
 
+/**
+ * Returns the origin (URL) of a workspace document if it was loaded from a URL.
+ * If the document was provided directly as an object, returns undefined.
+ *
+ * @param input - The workspace document input (either UrlDoc or ObjectDoc)
+ * @returns The URL string if present, otherwise undefined
+ */
 const getOrigin = (input: WorkspaceDocumentInput) => {
   if ('url' in input) {
     return input.url
@@ -425,9 +432,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    */
   const overrides: InMemoryWorkspace['overrides'] = {}
   /**
-   * Store extra metadata for each document.
+   * Holds additional metadata for each document in the workspace.
    *
-   * This information needs to be persisted alongside the document.
+   * This metadata should be persisted together with the document itself.
+   * It can include information such as user preferences, UI state, or other
+   * per-document attributes that are not part of the OpenAPI document structure.
    */
   const documentMeta: InMemoryWorkspace['documentMeta'] = {}
 
@@ -517,7 +526,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       documentConfigs[name] = input.config ?? {}
       // Store the overrides for this document, or an empty object if none are provided
       overrides[name] = input.overrides ?? {}
-      // Store the document metadata, including the origin if provided
+      // Store the document metadata for this document, setting the origin if provided
       documentMeta[name] = { origin: input.origin }
     }
 
