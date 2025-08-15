@@ -7,6 +7,7 @@ import { compose } from '@/schemas/compose'
 import { XInternalSchema } from '@/schemas/extensions/document/x-internal'
 import { XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
 import { reference } from '@/schemas/v3.1/strict/reference'
+import { XVariableSchema } from '@/schemas/extensions/schema/x-variable'
 
 /**
  * Builds the recursive schema schema
@@ -221,6 +222,7 @@ export const schemaObjectSchemaBuilder = <S extends TSchema>(schema: S) =>
     }),
     XScalarIgnoreSchema,
     XInternalSchema,
+    XVariableSchema,
   )
 
 export const SchemaObjectSchema = Type.Recursive(schemaObjectSchemaBuilder)
