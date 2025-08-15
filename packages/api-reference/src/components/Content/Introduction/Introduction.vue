@@ -71,6 +71,9 @@ const introCardsSlot = computed(() =>
 
 const el = ref(window.document.body)
 
+// Keep the old store in sync with the new server selector block
+// This is a temporary solution to keep the old store in sync with the new server selector block
+// When we migrate api-client to the new store we can remove this
 onCustomEvent(el, 'scalar-update-selected-server', ({ detail: newServer }) => {
   const collection = activeCollection.value
 
@@ -88,7 +91,6 @@ onCustomEvent(el, 'scalar-update-selected-server', ({ detail: newServer }) => {
   collectionMutators.edit(collection.uid, 'selectedServerUid', server.uid)
 })
 
-// Update the old store with the new server variables
 onCustomEvent(
   el,
   'scalar-update-selected-server-variables',
@@ -97,7 +99,13 @@ onCustomEvent(
 
     const server = activeServer.value
 
-    if (!server) {
+    // If the two stores gets out of sync, we can skip the update since it will create inconsistencies
+    // This can happen if the users switches servers in api-client
+    // In this case, changes are not propagated to the old store
+    if (
+      !server ||
+      server.url !== store.workspace.activeDocument?.['x-scalar-active-server']
+    ) {
       return
     }
 
