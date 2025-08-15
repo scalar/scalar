@@ -24,7 +24,10 @@ const { scrollToOperation } = useSidebar()
 const scrollHandler = async (
   targetOperation: Pick<TraversedOperation, 'id'>,
 ) => {
-  scrollToOperation(targetOperation.id, true)
+  // scrollToOperation(targetOperation.id, true)
+  window.location.href =
+    window.location.pathname + window.location.search + '#' + targetOperation.id
+  window.location.reload()
 }
 
 const pathOrTitle = computed(() => {

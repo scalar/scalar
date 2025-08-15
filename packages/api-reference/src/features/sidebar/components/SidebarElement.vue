@@ -83,6 +83,10 @@ const onAnchorClick = async (ev: Event) => {
     await sleep(100)
     isIntersectionEnabled.value = true
   }
+
+  window.location.href =
+    window.location.pathname + window.location.search + '#' + props.item.id
+  window.location.reload()
 }
 </script>
 <template>
