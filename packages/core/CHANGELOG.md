@@ -1,5 +1,12 @@
 # @scalar/core
 
+## 0.3.13
+
+### Patch Changes
+
+- 5f022b5: feat: use registry.scalar.com URLs as example
+  - @scalar/types@0.2.11
+
 ## 0.3.12
 
 ### Patch Changes

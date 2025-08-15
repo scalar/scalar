@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.5.7
+
+### Patch Changes
+
+- e24ea3f: feat: add response headers to galaxy spec
+
 ## 0.5.6
 
 ### Patch Changes

@@ -9,7 +9,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/aspire"
   },
-  "version": "0.3.3",
+  "version": "0.4.0",
   "private": true,
   "engines": {
     "node": ">=20"

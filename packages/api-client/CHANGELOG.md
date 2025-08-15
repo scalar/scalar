@@ -1,5 +1,37 @@
 # @scalar/api-client
 
+## 2.5.24
+
+### Patch Changes
+
+- 172e397: feat(components): add hotkey component and tooltip support
+- 5f022b5: feat: use registry.scalar.com URLs as example
+- 0804cfc: eat(components): Add ScalarMarkdown summary component
+- Updated dependencies [a1429ca]
+- Updated dependencies [d4adeba]
+- Updated dependencies [172e397]
+- Updated dependencies [5f022b5]
+- Updated dependencies [d8b8a5b]
+- Updated dependencies [c418e92]
+- Updated dependencies [638120c]
+- Updated dependencies [0804cfc]
+  - @scalar/oas-utils@0.4.20
+  - @scalar/openapi-parser@0.20.0
+  - @scalar/components@0.14.25
+  - @scalar/postman-to-openapi@0.3.23
+  - @scalar/import@0.4.18
+  - @scalar/use-codemirror@0.12.26
+  - @scalar/draggable@0.2.0
+  - @scalar/helpers@0.0.7
+  - @scalar/icons@0.4.7
+  - @scalar/object-utils@1.2.3
+  - @scalar/openapi-types@0.3.7
+  - @scalar/snippetz@0.4.4
+  - @scalar/themes@0.13.12
+  - @scalar/types@0.2.11
+  - @scalar/use-hooks@0.2.4
+  - @scalar/use-toasts@0.8.0
+
 ## 2.5.23
 
 ### Patch Changes
