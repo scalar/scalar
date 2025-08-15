@@ -94,7 +94,7 @@ export const Hotkey: Story = {
   args: {
     content: undefined,
     hotkey: 'K',
-    modifier: ['Meta'],
+    modifier: ['Meta', 'Shift'],
   },
   render: (args) => ({
     components: {
@@ -116,7 +116,7 @@ export const Hotkey: Story = {
 export const LabelAndHotkey: Story = {
   args: {
     content: 'Open',
-    hotkey: 'K',
+    hotkey: 'O',
     modifier: ['Meta'],
   },
   render: (args) => ({
