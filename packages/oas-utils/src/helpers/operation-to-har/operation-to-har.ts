@@ -6,13 +6,13 @@ import { processParameters } from './process-parameters'
 import { processBody } from './process-body'
 import { processSecuritySchemes } from './process-security-schemes'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
-import { isReference, type Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 
 export type OperationToHarProps = {
   /** OpenAPI Operation object */
-  operation: Dereference<OperationObject>
+  operation: OperationObject
   /** HTTP method of the operation */
   method: HttpMethod
   /** Path of the operation */
@@ -91,9 +91,11 @@ export const operationToHar = ({
     harRequest.cookies = cookies
   }
 
+  const body = getResolvedRef(operation.requestBody)
+
   // Handle request body
-  if (!isReference(operation.requestBody) && operation.requestBody?.content) {
-    const postData = processBody({ operation, contentType, example })
+  if (body?.content) {
+    const postData = processBody({ content: body.content, contentType, example })
     harRequest.postData = postData
     harRequest.bodySize = postData.text?.length ?? -1
 

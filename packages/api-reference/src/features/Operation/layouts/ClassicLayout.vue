@@ -21,7 +21,6 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
-import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import { computed } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
@@ -47,7 +46,7 @@ const { operation, path, isWebhook } = defineProps<{
   path: string
   clientOptions: ClientOptionGroup[]
   method: HttpMethodType
-  operation: Dereference<OperationObject>
+  operation: OperationObject
   oldOperation: OpenAPIV3_1.OperationObject
   // pathServers: ServerObject[] | undefined
   isWebhook: boolean
@@ -178,6 +177,7 @@ const handleDiscriminatorChange = (type: string) => {
 
       <ExampleResponses
         class="operation-example-card"
+        v-if="operation.responses"
         :responses="operation.responses" />
 
       <!-- New Example Request -->

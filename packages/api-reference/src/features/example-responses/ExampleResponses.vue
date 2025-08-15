@@ -12,10 +12,10 @@ import {
   normalizeMimeTypeObject,
 } from '@scalar/oas-utils/helpers'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/media-header-encoding'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { ResponseObject } from '@scalar/workspace-store/schemas/v3.1/strict/response'
-import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
+import type { ResponsesObject } from '@scalar/workspace-store/schemas/v3.1/strict/responses'
 import { computed, ref, toValue, useId } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
@@ -30,7 +30,7 @@ import ExampleResponseTabList from './ExampleResponseTabList.vue'
  */
 
 const { responses } = defineProps<{
-  responses: Dereference<OperationObject>['responses']
+  responses: ResponsesObject
 }>()
 
 const id = useId()
@@ -49,7 +49,7 @@ const currentResponse = computed(() => {
   const currentStatusCode =
     toValue(orderedStatusCodes)[toValue(selectedResponseIndex)]
 
-  return responses?.[currentStatusCode] as ResponseObject | undefined
+  return getResolvedRef(responses?.[currentStatusCode])
 })
 
 const currentResponseContent = computed<MediaTypeObject | undefined>(() => {

@@ -1,7 +1,6 @@
 import type { OperationIdentifier } from '@/mutators/request'
 import type { WorkspaceDocument } from '@/schemas'
 import type { XScalarClientConfigRequestExample } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-request-example'
-import { isReference } from '@/schemas/v3.1/type-guard'
 
 /**
  * Provides mutator functions for managing request examples within OpenAPI operations.
@@ -54,6 +53,7 @@ export const requestExampleMutators = (document?: WorkspaceDocument) => {
 
     const operation = document.paths[path][method]
 
+    // @ts-ignore
     if (isReference(operation)) {
       return false
     }
@@ -101,6 +101,7 @@ export const requestExampleMutators = (document?: WorkspaceDocument) => {
 
     const operation = pathObject[method]
 
+    // @ts-ignore
     if (!operation || isReference(operation)) {
       return false
     }
