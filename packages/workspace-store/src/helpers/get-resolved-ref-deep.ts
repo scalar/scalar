@@ -22,16 +22,6 @@ export type DeepDereference<T> = Dereference<T> extends T
 export const getResolvedRefDeep = <Node>(node: NodeInput<Node>): DeepDereference<Node> => {
   const cache = new WeakMap<object, DeepDereference<Node>>()
 
-  /** Helper to keep it functional */
-  const resolveObject = (resolved: object) => {
-    const result = {} as Record<string, unknown>
-
-    for (const [key, value] of Object.entries(resolved)) {
-      result[key] = resolveDeep(value)
-    }
-    return result
-  }
-
   const resolveDeep = (currentNode: NodeInput<Node>): DeepDereference<Node> => {
     // First resolve this level
     const resolved = getResolvedRef(currentNode)
@@ -52,14 +42,23 @@ export const getResolvedRefDeep = <Node>(node: NodeInput<Node>): DeepDereference
     const placeholder = (isArray ? [] : {}) as DeepDereference<Node>
     cache.set(resolved, placeholder)
 
-    // Process the object/array recursively
-    const result = isArray ? resolved.map((item) => resolveDeep(item)) : resolveObject(resolved)
+    // Process the object/array recursively and mutate the placeholder
+    if (isArray) {
+      // Mutate the placeholder array instead of creating a new one
+      const placeholderArray = placeholder as unknown[]
+      for (let i = 0; i < resolved.length; i++) {
+        placeholderArray[i] = resolveDeep(resolved[i])
+      }
+    }
+    // Mutate the placeholder object instead of creating a new one
+    else {
+      const placeholderObject = placeholder as Record<string, unknown>
+      for (const [key, value] of Object.entries(resolved)) {
+        placeholderObject[key] = resolveDeep(value)
+      }
+    }
 
-    // Update cache with the final result
-    const typedResult = result as DeepDereference<Node>
-    cache.set(resolved, typedResult)
-
-    return typedResult
+    return placeholder
   }
 
   return resolveDeep(node)
