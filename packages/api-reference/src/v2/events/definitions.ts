@@ -29,6 +29,17 @@ export type ApiReferenceEvents = {
   'scalar-update-selected-example': {
     detail: string
   }
+  /** Controls the selected server URL in our server selector blocks */
+  'scalar-update-selected-server': {
+    detail: string
+  }
+  /** Controls the selected server URL in our server selector blocks */
+  'scalar-update-selected-server-variables': {
+    detail: {
+      key: string
+      value: string
+    }
+  }
 }
 
 export type ApiReferenceEvent = Prettify<keyof ApiReferenceEvents>
