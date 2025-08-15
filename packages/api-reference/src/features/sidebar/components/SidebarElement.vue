@@ -84,6 +84,10 @@ const onAnchorClick = async (ev: Event) => {
     isIntersectionEnabled.value = true
   }
 
+  if ('tag' in props.item) {
+    return
+  }
+
   window.location.href =
     window.location.pathname + window.location.search + '#' + props.item.id
   window.location.reload()

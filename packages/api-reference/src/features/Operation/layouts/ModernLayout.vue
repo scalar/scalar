@@ -13,7 +13,7 @@ import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/stric
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
 import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
-import { computed, useId } from 'vue'
+import { computed, onMounted, useId } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { Badge } from '@/components/Badge'
@@ -65,6 +65,10 @@ const config = useConfig()
 const handleDiscriminatorChange = (type: string) => {
   emit('update:modelValue', type)
 }
+
+onMounted(() => {
+  console.timeEnd('operation loaded')
+})
 </script>
 
 <template>
