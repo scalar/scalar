@@ -6,7 +6,9 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { computed } from 'vue'
 
 import { SectionFlare } from '@/components/SectionFlare'
+import { DEFAULT_INTRODUCTION_SLUG } from '@/features/traverse-schema'
 import { useConfig } from '@/hooks/useConfig'
+import { useNavState } from '@/hooks/useNavState'
 import { ScalarAuthSelector } from '@/v2/blocks/scalar-auth-selector'
 import { ScalarClientSelector } from '@/v2/blocks/scalar-client-selector'
 import { ScalarDocumentInfo } from '@/v2/blocks/scalar-document-info'
@@ -31,7 +33,18 @@ const config = useConfig()
 const clientOptions = computed(() =>
   generateClientOptions(config.value.hiddenClients),
 )
+
+const { getHeadingId } = useNavState()
+
+const id = computed(() =>
+  getHeadingId({
+    slug: DEFAULT_INTRODUCTION_SLUG,
+    depth: 1,
+    value: 'Introduction',
+  }),
+)
 </script>
+
 <template>
   <SectionFlare />
 
@@ -42,7 +55,8 @@ const clientOptions = computed(() =>
     <IntroductionSection :showEmptyState="!store.workspace.activeDocument">
       <ScalarDocumentInfo
         :document="store.workspace.activeDocument"
-        :config>
+        :config
+        :id>
         <template #selectors>
           <ScalarErrorBoundary>
             <ScalarServerSelector :config="config" />

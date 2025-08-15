@@ -10,6 +10,7 @@ import IntroductionLayout from './IntroductionLayout.vue'
 const { config } = defineProps<{
   config?: ApiReferenceConfiguration
   document?: OpenApiDocument
+  id?: string
 }>()
 
 /**
@@ -26,7 +27,8 @@ const introCardsSlot = computed(() =>
   <IntroductionLayout
     v-if="document"
     :document="document"
-    :config="config">
+    :config="config"
+    :id>
     <template #[introCardsSlot]>
       <IntroductionCard :row="config?.layout === 'classic'">
         <slot name="selectors" />

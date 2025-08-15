@@ -14,8 +14,6 @@ import {
 } from '@/components/Section'
 import { DownloadLinks } from '@/features/download-links'
 import { SpecificationExtension } from '@/features/specification-extension'
-import { DEFAULT_INTRODUCTION_SLUG } from '@/features/traverse-schema'
-import { useNavState } from '@/hooks/useNavState'
 
 import InfoDescription from './InfoDescription.vue'
 import InfoLinks from './InfoLinks.vue'
@@ -25,9 +23,8 @@ import OpenApiVersion from './OpenApiVersion.vue'
 const { document, config } = defineProps<{
   document: OpenApiDocument
   config?: ApiReferenceConfiguration
+  id?: string
 }>()
-
-const { getHeadingId } = useNavState()
 
 /** Trigger the onLoaded event when the component is mounted */
 onMounted(() => config?.onLoaded?.())
@@ -38,13 +35,7 @@ onMounted(() => config?.onLoaded?.())
     <!-- If the #after slot is used, we need to add a gap to the section. -->
     <Section
       class="introduction-section z-1 gap-12"
-      :id="
-        getHeadingId({
-          slug: DEFAULT_INTRODUCTION_SLUG,
-          depth: 1,
-          value: 'Introduction',
-        })
-      ">
+      :id>
       <SectionContent
         :loading="
           config?.isLoading ??
