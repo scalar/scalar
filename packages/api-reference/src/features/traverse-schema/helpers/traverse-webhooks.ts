@@ -4,17 +4,16 @@ import type { TagsMap, TraversedWebhook } from '@/features/traverse-schema/types
 import type { UseNavState } from '@/hooks/useNavState'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/tag'
-import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import { getTag } from './get-tag'
 
 /** Handles creating entries for webhooks */
 const createWebhookEntry = (
-  operation: Dereference<OperationObject>,
+  operation: OperationObject,
   method: OpenAPIV3_1.HttpMethods,
   name = 'Unknown',
   titlesMap: Map<string, string>,
   getWebhookId: UseNavState['getWebhookId'],
-  tag?: Dereference<TagObject>,
+  tag?: TagObject,
 ): TraversedWebhook => {
   const title = operation.summary || name
   const id = getWebhookId({ name, method }, tag)
@@ -42,10 +41,7 @@ export const traverseWebhooks = (
 
   // Traverse webhooks
   Object.entries(content.webhooks ?? {}).forEach(([name, pathItemObject]) => {
-    const pathEntries = Object.entries(pathItemObject ?? {}) as [
-      OpenAPIV3_1.HttpMethods,
-      Dereference<OperationObject>,
-    ][]
+    const pathEntries = Object.entries(pathItemObject ?? {}) as [OpenAPIV3_1.HttpMethods, OperationObject][]
 
     pathEntries.forEach(([method, operation]) => {
       // Skip if the operation is internal or scalar-ignore

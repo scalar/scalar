@@ -5,11 +5,10 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 import type { TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/tag'
-import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import type { Ref } from 'vue'
 
 /** Map of tagNames and their entries */
-export type TagsMap = Map<string, { tag: Dereference<TagObject>; entries: TraversedEntry[] }>
+export type TagsMap = Map<string, { tag: TagObject; entries: TraversedEntry[] }>
 
 /** Description entry returned from traversing the document */
 export type TraversedDescription = {
@@ -24,7 +23,7 @@ export type TraversedOperation = {
   title: string
   method: OpenAPIV3_1.HttpMethods
   path: string
-  operation: Dereference<OperationObject>
+  operation: OperationObject
 }
 
 /** Model entry returned from traversing the document */
@@ -32,7 +31,7 @@ export type TraversedSchema = {
   id: string
   title: string
   name: string
-  schema: Dereference<SchemaObject>
+  schema: SchemaObject
 }
 
 /** Tag entry returned from traversing the document, includes tagGroups */
@@ -40,7 +39,7 @@ export type TraversedTag = {
   id: string
   title: string
   children: TraversedEntry[]
-  tag: Dereference<TagObject>
+  tag: TagObject
   isGroup: boolean
   isWebhooks?: boolean
 }
@@ -51,7 +50,7 @@ export type TraversedWebhook = {
   title: string
   method: OpenAPIV3_1.HttpMethods
   name: string
-  webhook: Dereference<OperationObject>
+  webhook: OperationObject
 }
 
 /** Entries returned from traversing the document */

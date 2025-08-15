@@ -4,15 +4,14 @@ import type { UseNavState } from '@/hooks/useNavState'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 import type { TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/tag'
-import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 
 /** Handles creating entries for components.schemas */
 const createSchemaEntry = (
-  schema: Dereference<SchemaObject>,
+  schema: SchemaObject,
   name = 'Unkown',
   titlesMap: Map<string, string>,
   getModelId: UseNavState['getModelId'],
-  tag?: Dereference<TagObject>,
+  tag?: TagObject,
 ): TraversedSchema => {
   const id = getModelId({ name }, tag)
 
@@ -39,7 +38,7 @@ export const traverseSchemas = (
   getModelId: UseNavState['getModelId'],
 ): TraversedSchema[] => {
   // TODO: Once the whole thing is on the new data structure we can remove this cast.
-  const schemas = (content.components?.schemas as Record<string, Dereference<SchemaObject>>) ?? {}
+  const schemas = (content.components?.schemas as Record<string, SchemaObject>) ?? {}
   const untagged: TraversedSchema[] = []
 
   for (const name in schemas) {
