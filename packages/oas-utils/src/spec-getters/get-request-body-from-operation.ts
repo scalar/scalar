@@ -163,7 +163,8 @@ export function getRequestBodyFromOperation(
   // Update the JSON handling section
   if (isJsonLike) {
     const exampleFromSchema = requestBodyObject?.schema
-      ? getExampleFromSchema(requestBodyObject?.schema, {
+      ? // @ts-ignore not on the new store in the client yet
+        getExampleFromSchema(requestBodyObject?.schema, {
           mode: 'write',
           omitEmptyAndOptionalProperties: omitEmptyAndOptionalProperties ?? false,
         })
@@ -180,7 +181,8 @@ export function getRequestBodyFromOperation(
   // XML
   if (mimeType === 'application/xml') {
     const exampleFromSchema = requestBodyObject?.schema
-      ? getExampleFromSchema(requestBodyObject?.schema, {
+      ? // @ts-ignore not on the new store in the client yet
+        getExampleFromSchema(requestBodyObject?.schema, {
           xml: true,
           mode: 'write',
         })
@@ -203,7 +205,8 @@ export function getRequestBodyFromOperation(
   // Plain text
   if (mimeType === 'text/plain') {
     const exampleFromSchema = requestBodyObject?.schema
-      ? getExampleFromSchema(requestBodyObject?.schema, {
+      ? // @ts-ignore not on the new store in the client yet
+        getExampleFromSchema(requestBodyObject?.schema, {
           xml: true,
           mode: 'write',
         })
@@ -218,7 +221,8 @@ export function getRequestBodyFromOperation(
   // URL encoded data
   if (mimeType === 'multipart/form-data' || mimeType === 'application/x-www-form-urlencoded') {
     const exampleFromSchema = requestBodyObject?.schema
-      ? getExampleFromSchema(requestBodyObject?.schema, {
+      ? // @ts-ignore not on the new store in the client yet
+        getExampleFromSchema(requestBodyObject?.schema, {
           xml: true,
           mode: 'write',
         })
