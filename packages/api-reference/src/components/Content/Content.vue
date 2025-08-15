@@ -55,7 +55,8 @@ const id = computed(() =>
     <IntroductionSection :showEmptyState="!store.workspace.activeDocument">
       <ScalarDocumentInfo
         :document="store.workspace.activeDocument"
-        :config
+        :layout="config.layout"
+        :onLoaded="config.onLoaded"
         :id>
         <template #selectors>
           <ScalarErrorBoundary>

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
@@ -7,10 +6,12 @@ import { IntroductionCard } from '@/components/IntroductionCard'
 
 import IntroductionLayout from './IntroductionLayout.vue'
 
-const { config } = defineProps<{
-  config?: ApiReferenceConfiguration
+const { layout } = defineProps<{
+  layout?: 'modern' | 'classic'
   document?: OpenApiDocument
   id?: string
+  isLoading?: boolean
+  onLoaded?: () => void
 }>()
 
 /**
@@ -19,18 +20,19 @@ const { config } = defineProps<{
  * - and the aside slot for other layouts.
  */
 const introCardsSlot = computed(() =>
-  config?.layout === 'classic' ? 'after' : 'aside',
+  layout === 'classic' ? 'after' : 'aside',
 )
 </script>
 
 <template>
   <IntroductionLayout
     v-if="document"
-    :document="document"
-    :config="config"
-    :id>
+    :id
+    :document
+    :onLoaded
+    :isLoading>
     <template #[introCardsSlot]>
-      <IntroductionCard :row="config?.layout === 'classic'">
+      <IntroductionCard :row="layout === 'classic'">
         <slot name="selectors" />
       </IntroductionCard>
     </template>

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { onMounted } from 'vue'
 
@@ -20,14 +19,15 @@ import InfoLinks from './InfoLinks.vue'
 import InfoVersion from './InfoVersion.vue'
 import OpenApiVersion from './OpenApiVersion.vue'
 
-const { document, config } = defineProps<{
+const { document, onLoaded } = defineProps<{
   document: OpenApiDocument
-  config?: ApiReferenceConfiguration
+  isLoading?: boolean
+  onLoaded?: () => void
   id?: string
 }>()
 
 /** Trigger the onLoaded event when the component is mounted */
-onMounted(() => config?.onLoaded?.())
+onMounted(() => onLoaded?.())
 </script>
 
 <template>
@@ -38,8 +38,7 @@ onMounted(() => config?.onLoaded?.())
       :id>
       <SectionContent
         :loading="
-          config?.isLoading ??
-          (!document?.info?.description && !document?.info?.title)
+          isLoading ?? (!document?.info?.description && !document?.info?.title)
         ">
         <div class="flex gap-1.5">
           <InfoVersion :version="document.info?.version" />
