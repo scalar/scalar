@@ -1,14 +1,14 @@
-import { describe, expect, it } from 'vitest'
-import { mount } from '@vue/test-utils'
 import { DEFAULT_CLIENT } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
+import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 
-import ClientLibraries from './ClientLibraries.vue'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import ScalarClientSelector from './ScalarClientSelector.vue'
 
-describe('ClientLibraries', () => {
+describe('ScalarClientSelector', () => {
   // Mock data setup
-  const mockDocument: WorkspaceDocument = {
+  const mockDocument: OpenApiDocument = {
     info: {
       title: 'Test API',
       version: '1.0.0',
@@ -59,7 +59,7 @@ describe('ClientLibraries', () => {
 
   describe('default client selection', () => {
     it('uses DEFAULT_CLIENT when no selectedClient is provided', () => {
-      const wrapper = mount(ClientLibraries, {
+      const wrapper = mount(ScalarClientSelector, {
         props: {
           document: mockDocument,
           clientOptions: mockClientOptions,
@@ -85,7 +85,7 @@ describe('ClientLibraries', () => {
     it('uses provided selectedClient when available', () => {
       const customClient = 'node/undici'
 
-      const wrapper = mount(ClientLibraries, {
+      const wrapper = mount(ScalarClientSelector, {
         props: {
           document: mockDocument,
           clientOptions: mockClientOptions,
@@ -109,7 +109,7 @@ describe('ClientLibraries', () => {
     })
 
     it('handles undefined selectedClient gracefully', () => {
-      const wrapper = mount(ClientLibraries, {
+      const wrapper = mount(ScalarClientSelector, {
         props: {
           document: mockDocument,
           clientOptions: mockClientOptions,
