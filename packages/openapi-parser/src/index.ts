@@ -1,3 +1,4 @@
+// biome-ignore lint/performance/noBarrelFile: <explanation>
 export { dereference } from './utils/dereference'
 export { escapeJsonPointer } from './utils/escape-json-pointer'
 export { filter } from './utils/filter'
@@ -14,5 +15,6 @@ export { upgrade } from './utils/upgrade'
 export { upgradeFromThreeToThreeOne } from './utils/upgrade-from-three-to-three-one'
 export { upgradeFromTwoToThree } from './utils/upgrade-from-two-to-three'
 export { validate } from './utils/validate'
+export { join } from './utils/join'
 export type { LoadResult, Filesystem, AnyObject, ErrorObject } from './types'
 export { openapi } from './utils/openapi/openapi'
