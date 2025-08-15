@@ -217,6 +217,26 @@ onCustomEvent(root, 'scalar-update-selected-server', (event) => {
   }
 })
 
+onCustomEvent(root, 'scalar-update-selected-server-variables', (event) => {
+  const activeDocument = store.workspace.activeDocument
+
+  if (!activeDocument) {
+    return
+  }
+
+  const activeServer = activeDocument['servers']?.find(
+    (it) => it.url === activeDocument['x-scalar-active-server'],
+  )
+
+  if (!activeServer) {
+    return
+  }
+
+  if (activeServer.variables?.[event.detail.key]) {
+    activeServer.variables[event.detail.key].default = event.detail.value
+  }
+})
+
 // Update the workspace store if default client changes
 watch(
   () => selectedConfiguration.value.defaultHttpClient,
