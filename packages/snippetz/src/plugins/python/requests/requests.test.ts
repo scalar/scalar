@@ -258,13 +258,23 @@ describe('pythonRequests', () => {
 )`)
   })
 
-  it('handles special characters in URL', () => {
+  it('handles special characters in URL, square brackets', () => {
     const result = pythonRequests.generate({
       url: 'https://example.com/path with spaces/[brackets]',
     })
 
     expect(result).toBe(`requests.get(
     "https://example.com/path with spaces/[brackets]"
+)`)
+  })
+
+  it('handles special characters in URL, curly brackets', () => {
+    const result = pythonRequests.generate({
+      url: 'https://example.com/path with spaces/{brackets}',
+    })
+
+    expect(result).toBe(`requests.get(
+    "https://example.com/path with spaces/{brackets}"
 )`)
   })
 

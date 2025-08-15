@@ -10,6 +10,7 @@
  */
 import { CodeBuilder } from '../../../helpers/code-builder.js'
 import { escapeForDoubleQuotes } from '../../../helpers/escape.js'
+import { getStringPathnameWithRestoredBrackets } from '@/utils/getPathnameWithRestoredBrackets.js'
 
 export const python3 = {
   info: {
@@ -22,6 +23,9 @@ export const python3 = {
     { uriObj: { path, protocol, host }, postData, allHeaders, method },
     options = {},
   ) => {
+
+    const bracketedPath = getStringPathnameWithRestoredBrackets(path)
+
     const { insecureSkipVerify = false } = options
     const { push, blank, join } = new CodeBuilder()
     // Start Request
@@ -74,13 +78,13 @@ export const python3 = {
     }
     // Make Request
     if (payload && headerCount) {
-      push(`conn.request("${method}", "${path}", payload, headers)`)
+      push(`conn.request("${method}", "${bracketedPath}", payload, headers)`)
     } else if (payload && !headerCount) {
-      push(`conn.request("${method}", "${path}", payload)`)
+      push(`conn.request("${method}", "${bracketedPath}", payload)`)
     } else if (!payload && headerCount) {
-      push(`conn.request("${method}", "${path}", headers=headers)`)
+      push(`conn.request("${method}", "${bracketedPath}", headers=headers)`)
     } else {
-      push(`conn.request("${method}", "${path}")`)
+      push(`conn.request("${method}", "${bracketedPath}")`)
     }
     // Get Response
     blank()

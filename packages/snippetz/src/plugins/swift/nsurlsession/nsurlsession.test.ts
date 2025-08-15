@@ -242,7 +242,7 @@ dataTask.resume()`,
     )
   })
 
-  it('handles special characters in URL', () => {
+  it('handles special characters in URL, square brackets', () => {
     const result = swiftNsurlsession.generate({
       url: 'https://example.com/path with spaces/[brackets]',
     })
@@ -251,6 +251,33 @@ dataTask.resume()`,
       `import Foundation
 
 let request = NSMutableURLRequest(url: NSURL(string: "https://example.com/path%20with%20spaces/[brackets]")! as URL,
+                                        cachePolicy: .useProtocolCachePolicy,
+                                    timeoutInterval: 10.0)
+request.httpMethod = "GET"
+
+let session = URLSession.shared
+let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
+  if (error != nil) {
+    print(error as Any)
+  } else {
+    let httpResponse = response as? HTTPURLResponse
+    print(httpResponse)
+  }
+})
+
+dataTask.resume()`,
+    )
+  })
+
+  it('handles special characters in URL, curly brackets', () => {
+    const result = swiftNsurlsession.generate({
+      url: 'https://example.com/path with spaces/{brackets}',
+    })
+
+    expect(result).toBe(
+      `import Foundation
+
+let request = NSMutableURLRequest(url: NSURL(string: "https://example.com/path%20with%20spaces/{brackets}")! as URL,
                                         cachePolicy: .useProtocolCachePolicy,
                                     timeoutInterval: 10.0)
 request.httpMethod = "GET"

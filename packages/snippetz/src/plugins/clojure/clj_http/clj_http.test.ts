@@ -113,7 +113,7 @@ describe('clojureCljhttp', () => {
     )
   })
 
-  it('handles special characters in URL', () => {
+  it('handles special characters in URL, square brackets', () => {
     const result = clojureCljhttp.generate({
       url: 'https://example.com/path with spaces/[brackets]',
     })
@@ -122,6 +122,18 @@ describe('clojureCljhttp', () => {
       `(require '[clj-http.client :as client])
 
 (client/get "https://example.com/path%20with%20spaces/[brackets]")`,
+    )
+  })
+
+  it('handles special characters in URL, curly brackets', () => {
+    const result = clojureCljhttp.generate({
+      url: 'https://example.com/path with spaces/{brackets}',
+    })
+
+    expect(result).toBe(
+      `(require '[clj-http.client :as client])
+
+(client/get "https://example.com/path%20with%20spaces/{brackets}")`,
     )
   })
 
