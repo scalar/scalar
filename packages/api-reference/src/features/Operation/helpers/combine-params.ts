@@ -1,13 +1,13 @@
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
 import type { OperationObject, PathItemObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
-import { isResolvedRef, type Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 
 /** Combine pathItem and operation parameters into a single, dereferenced parameter array */
 export const combineParams = (
   pathParams: PathItemObject['parameters'] = [],
-  operationParams: Dereference<OperationObject>['parameters'] = [],
+  operationParams: OperationObject['parameters'] = [],
 ): ParameterObject[] => {
-  const allParams = [...pathParams, ...operationParams].filter(isResolvedRef<ParameterObject>)
+  const allParams = [...pathParams, ...operationParams].map((param) => getResolvedRef(param))
 
   // Use a Map to ensure unique in+name combinations
   // Operation parameters take precedence over path parameters

@@ -3,7 +3,6 @@ import { isDereferenced } from '@scalar/openapi-types/helpers'
 
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
-import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import type { ContentSchema } from '../types'
 
 type PropertyObject = {
@@ -66,7 +65,7 @@ function recursiveLogger(obj: ContentSchema): string[] {
 /**
  * Extracts the request body from an operation.
  */
-export function extractRequestBody(operation: Dereference<OperationObject>): string[] | boolean {
+export function extractRequestBody(operation: OperationObject): string[] | boolean {
   try {
     // TODO: Wait… there's more than just 'application/json' (https://github.com/scalar/scalar/issues/6427)
     // @ts-expect-error I think the types are wrong here
@@ -192,7 +191,7 @@ export type ParameterMap = {
  *
  * TODO: Isn't it easier to just stick to the OpenAPI structure, without transforming it?
  */
-export function createParameterMap(operation: Dereference<OperationObject>) {
+export function createParameterMap(operation: OperationObject) {
   const map: ParameterMap = {
     path: [],
     query: [],

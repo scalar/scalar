@@ -1,8 +1,8 @@
 import { getExampleFromSchema } from '@/spec-getters/get-example-from-schema'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/example'
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
-import { isReference, type Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import type { Request as HarRequest } from 'har-format'
 
 type ProcessedParameters = {
@@ -13,12 +13,8 @@ type ProcessedParameters = {
 }
 
 /** Ensures we don't have any references in the parameters */
-export const deReferenceParams = (params: Dereference<OperationObject>['parameters']): ParameterObject[] => {
-  if (isReference(params)) {
-    return []
-  }
-  return (params ?? []).filter((param) => !isReference(param)) as ParameterObject[]
-}
+export const deReferenceParams = (params: OperationObject['parameters']): ParameterObject[] =>
+  (params ?? []).map((param) => getResolvedRef(param))
 
 /**
  * Get the style and explode values for a parameter according to OpenAPI 3.1.1 specification.
@@ -94,7 +90,7 @@ const getParameterValue = (param: ParameterObject, example?: unknown): unknown =
  */
 export const processParameters = (
   harRequest: HarRequest,
-  parameters: Dereference<OperationObject>['parameters'],
+  parameters: OperationObject['parameters'],
   example?: unknown,
 ): ProcessedParameters => {
   // Create copies of the arrays to avoid modifying the input

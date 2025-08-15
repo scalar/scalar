@@ -1,7 +1,6 @@
 import type { AvailableClients, ClientId, TargetId } from '@scalar/snippetz'
 import { operationToHar } from '@scalar/oas-utils/helpers/operation-to-har'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
-import { isReference, type Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
 import { getSnippet } from '@scalar/api-client/views/Components/CodeSnippet'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
@@ -9,7 +8,7 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
 type Props = {
   clientId: AvailableClients[number]
-  operation: Dereference<OperationObject>
+  operation: OperationObject
   example: unknown
   method: HttpMethod
   path: string
@@ -29,10 +28,6 @@ export const generateCodeSnippet = ({
   server,
   securitySchemes,
 }: Props): string => {
-  if (isReference(operation)) {
-    return ''
-  }
-
   const harRequest = operationToHar({
     operation,
     contentType,
