@@ -179,6 +179,11 @@
               "path": "documentation/guides/registry/github-actions.md",
               "type": "page",
               "name": "GitHub Actions"
+            },
+            {
+              "path": "documentation/guides/registry/gitlab-ci.md",
+              "type": "page",
+              "name": "GitLab CI/CD"
             }
           ]
         },
@@ -259,9 +264,30 @@
                 },
                 {
                   "name": ".NET ASP.NET Core",
-                  "slug": "dotnet",
-                  "path": "documentation/integrations/aspnetcore.md",
-                  "type": "page"
+                  "type": "folder",
+                  "defaultOpen": false,
+                  "children": [
+                    {
+                      "name": "Integration",
+                      "path": "documentation/integrations/aspnetcore/integration.md",
+                      "type": "page"
+                    },
+                    {
+                      "name": "Build-Time Generation",
+                      "path": "documentation/integrations/aspnetcore/build-time-generation.md",
+                      "type": "page"
+                    },
+                    {
+                      "name": "OpenAPI Extensions",
+                      "path": "documentation/integrations/aspnetcore/openapi-extensions.md",
+                      "type": "page"
+                    },
+                    {
+                      "name": "Legacy Integration",
+                      "path": "documentation/integrations/aspnetcore/legacy-integration.md",
+                      "type": "page"
+                    }
+                  ]
                 },
                 {
                   "name": "AdonisJS",
