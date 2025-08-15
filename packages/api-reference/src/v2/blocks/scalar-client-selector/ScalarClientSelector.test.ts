@@ -1,14 +1,14 @@
 import { DEFAULT_CLIENT } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/schemas/workspace'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import ScalarClientSelector from './ScalarClientSelector.vue'
 
 describe('ScalarClientSelector', () => {
   // Mock data setup
-  const mockDocument: WorkspaceDocument = {
+  const mockDocument: OpenApiDocument = {
     info: {
       title: 'Test API',
       version: '1.0.0',
