@@ -6,6 +6,8 @@ import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
 import type { OperationObject } from '@/schemas/v3.1/strict/path-operations'
 import type { TraversedOperation } from '@/schemas/navigation'
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { objectKeys } from '@scalar/helpers/object/object-keys'
 
 /**
  * Creates a traversed operation entry from an OpenAPI operation object.
@@ -43,8 +45,6 @@ const createOperationEntry = (
   }
 }
 
-const methods = new Set(['get', 'put', 'post', 'delete', 'patch', 'connect', 'options', 'head', 'trace'])
-
 /**
  * Traverses the paths in an OpenAPI document to build a map of operations organized by tags.
  *
@@ -71,13 +71,13 @@ export const traversePaths = (
   getOperationId: TraverseSpecOptions['getOperationId'],
 ) => {
   // Traverse paths
-  Object.entries(content.paths ?? {}).forEach(([path, pathItem]) => {
-    const pathEntries = Object.entries(pathItem ?? {}).filter((it) => methods.has(it[0])) as [string, OperationObject][]
+  Object.entries(content.paths ?? {}).forEach(([path, pathItemObject]) => {
+    const pathKeys = objectKeys(pathItemObject ?? {}).filter((key) => isHttpMethod(key))
 
-    // Traverse operations
-    pathEntries.forEach(([method, operation]) => {
-      // @ts-ignore
-      if (isReference(operation)) {
+    pathKeys.forEach((method) => {
+      const _operation = pathItemObject?.[method]
+      const operation = getResolvedRef(_operation)
+      if (!operation) {
         return
       }
 

@@ -14,7 +14,6 @@ import {
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/media-header-encoding'
-import type { ResponseObject } from '@scalar/workspace-store/schemas/v3.1/strict/response'
 import type { ResponsesObject } from '@scalar/workspace-store/schemas/v3.1/strict/responses'
 import { computed, ref, toValue, useId } from 'vue'
 
