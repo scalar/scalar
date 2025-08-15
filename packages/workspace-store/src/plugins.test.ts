@@ -733,5 +733,293 @@ describe('plugins', () => {
       expect((input.components.schemas.OnlyUniqueItems as any).type).toBe('array')
       expect((input.components.schemas.OnlyPrefixItems as any).type).toBe('array')
     })
+
+    it('adds type: string to schemas with pattern but no type', async () => {
+      const input = {
+        components: {
+          schemas: {
+            EmailPattern: {
+              pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+            },
+            PhonePattern: {
+              pattern: '^\\+?[1-9]\\d{1,14}$',
+            },
+            AlphanumericPattern: {
+              pattern: '^[a-zA-Z0-9]+$',
+            },
+            ComplexPattern: {
+              pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d@$!%*?&]{8,}$',
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [cleanUp()],
+      })
+
+      expect((input.components.schemas.EmailPattern as any).type).toBe('string')
+      expect((input.components.schemas.PhonePattern as any).type).toBe('string')
+      expect((input.components.schemas.AlphanumericPattern as any).type).toBe('string')
+      expect((input.components.schemas.ComplexPattern as any).type).toBe('string')
+    })
+
+    it('does not modify schemas with pattern that already have a type', async () => {
+      const input = {
+        components: {
+          schemas: {
+            StringWithPattern: {
+              type: 'string',
+              pattern: '^[a-z]+$',
+            },
+            NumberWithPattern: {
+              type: 'number',
+              pattern: '^\\d+$',
+            },
+            ObjectWithPattern: {
+              type: 'object',
+              pattern: '^[a-z]+$',
+            },
+          },
+        },
+      }
+
+      const originalInput = deepClone(input)
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [cleanUp()],
+      })
+
+      expect(input).toEqual(originalInput)
+    })
+
+    it('handles schemas with both pattern and other string-related keywords', async () => {
+      const input = {
+        components: {
+          schemas: {
+            ConstrainedString: {
+              pattern: '^[a-z]+$',
+              minLength: 3,
+              maxLength: 10,
+            },
+            FormattedString: {
+              pattern: '^\\d{4}-\\d{2}-\\d{2}$',
+              format: 'date',
+            },
+            EnumString: {
+              pattern: '^[A-Z]{2,3}$',
+              enum: ['US', 'CA', 'UK'],
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [cleanUp()],
+      })
+
+      expect((input.components.schemas.ConstrainedString as any).type).toBe('string')
+      expect((input.components.schemas.FormattedString as any).type).toBe('string')
+      expect((input.components.schemas.EnumString as any).type).toBe('string')
+
+      // Verify other properties are preserved
+      expect(input.components.schemas.ConstrainedString.minLength).toBe(3)
+      expect(input.components.schemas.ConstrainedString.maxLength).toBe(10)
+      expect(input.components.schemas.FormattedString.format).toBe('date')
+      expect(input.components.schemas.EnumString.enum).toEqual(['US', 'CA', 'UK'])
+    })
+
+    it('handles nested schemas with pattern', async () => {
+      const input = {
+        components: {
+          schemas: {
+            User: {
+              properties: {
+                email: {
+                  pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+                },
+                phone: {
+                  pattern: '^\\+?[1-9]\\d{1,14}$',
+                },
+                profile: {
+                  properties: {
+                    username: {
+                      pattern: '^[a-zA-Z0-9_]+$',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [cleanUp()],
+      })
+
+      expect((input.components.schemas.User as any).type).toBe('object')
+      expect((input.components.schemas.User.properties.email as any).type).toBe('string')
+      expect((input.components.schemas.User.properties.phone as any).type).toBe('string')
+      expect((input.components.schemas.User.properties.profile as any).type).toBe('object')
+      expect((input.components.schemas.User.properties.profile.properties.username as any).type).toBe('string')
+    })
+
+    it('handles pattern in requestBody and responses', async () => {
+      const input = {
+        paths: {
+          '/users': {
+            post: {
+              requestBody: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      properties: {
+                        email: {
+                          pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              responses: {
+                '200': {
+                  content: {
+                    'application/json': {
+                      schema: {
+                        properties: {
+                          id: {
+                            pattern: '^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$',
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [cleanUp()],
+      })
+
+      expect((input.paths['/users'].post.requestBody?.content['application/json'].schema as any).type).toBe('object')
+      expect(
+        (input.paths['/users'].post.requestBody?.content['application/json'].schema.properties.email as any).type,
+      ).toBe('string')
+      expect((input.paths['/users'].post.responses['200']?.content['application/json'].schema as any).type).toBe(
+        'object',
+      )
+      expect(
+        (input.paths['/users'].post.responses['200']?.content['application/json'].schema.properties.id as any).type,
+      ).toBe('string')
+    })
+
+    it('handles pattern in allOf, anyOf, oneOf schemas', async () => {
+      const input = {
+        components: {
+          schemas: {
+            CombinedString: {
+              allOf: [
+                {
+                  pattern: '^[a-z]+$',
+                },
+                {
+                  pattern: '^[a-z]+$',
+                },
+              ],
+            },
+            AlternativeString: {
+              anyOf: [
+                {
+                  pattern: '^\\d+$',
+                },
+                {
+                  pattern: '^[A-Z]+$',
+                },
+              ],
+            },
+            ExclusiveString: {
+              oneOf: [
+                {
+                  pattern: '^[a-z]+$',
+                },
+                {
+                  pattern: '^[A-Z]+$',
+                },
+              ],
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [cleanUp()],
+      })
+
+      expect((input.components.schemas.CombinedString.allOf[0] as any).type).toBe('string')
+      expect((input.components.schemas.CombinedString.allOf[1] as any).type).toBe('string')
+      expect((input.components.schemas.AlternativeString.anyOf[0] as any).type).toBe('string')
+      expect((input.components.schemas.AlternativeString.anyOf[1] as any).type).toBe('string')
+      expect((input.components.schemas.ExclusiveString.oneOf[0] as any).type).toBe('string')
+      expect((input.components.schemas.ExclusiveString.oneOf[1] as any).type).toBe('string')
+    })
+
+    it('handles empty pattern string', async () => {
+      const input = {
+        components: {
+          schemas: {
+            EmptyPattern: {
+              pattern: '',
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [cleanUp()],
+      })
+
+      expect((input.components.schemas.EmptyPattern as any).type).toBe('string')
+      expect(input.components.schemas.EmptyPattern.pattern).toBe('')
+    })
+
+    it('handles pattern with special regex characters', async () => {
+      const input = {
+        components: {
+          schemas: {
+            SpecialPattern: {
+              pattern: '^[\\w\\-\\.]+@[\\w\\-\\.]+\\.[a-zA-Z]{2,}$',
+            },
+            EscapedPattern: {
+              pattern: '^\\$\\d+\\.\\d{2}$',
+            },
+            UnicodePattern: {
+              pattern: '^[\\u4e00-\\u9fa5]+$',
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [cleanUp()],
+      })
+
+      expect((input.components.schemas.SpecialPattern as any).type).toBe('string')
+      expect((input.components.schemas.EscapedPattern as any).type).toBe('string')
+      expect((input.components.schemas.UnicodePattern as any).type).toBe('string')
+    })
   })
 })

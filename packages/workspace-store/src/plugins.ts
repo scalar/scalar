@@ -172,40 +172,40 @@ export const restoreOriginalRefs = (): LifecyclePlugin => {
 }
 
 /**
- * Lifecycle plugin to clean up OpenAPI schema nodes before processing.
+ * Lifecycle plugin to automatically add missing "type" fields to OpenAPI/JSON Schema nodes.
  *
- * This plugin automatically adds missing "type" fields to schema objects for better OpenAPI/JSON Schema compatibility.
+ * This plugin is intended for use as a "lifecycle" plugin during the bundling process.
+ * It ensures that schema objects are explicitly typed, improving compatibility with OpenAPI tools and validators.
  *
- * - If a schema object contains a "properties" field but lacks a "type", it sets "type" to "object".
- *   This ensures that schemas with defined properties are explicitly typed as objects, which is required by many tools and validators.
+ * Behavior:
+ * - If a schema object has a "properties" field but no "type", it sets "type" to "object".
+ *   This is required for schemas that define properties but omit the type.
  *
- * - If a schema object contains array-related keywords ("items", "prefixItems", "minItems", "maxItems", or "uniqueItems") but lacks a "type",
- *   it sets "type" to "array". This helps clarify the intended structure for array schemas that may be missing the explicit type.
+ * - If a schema object contains any array-related keywords ("items", "prefixItems", "minItems", "maxItems", or "uniqueItems")
+ *   and lacks a "type", it sets "type" to "array". This clarifies the intent for array schemas missing an explicit type.
+ *
+ * - If a schema object has a "pattern" field but no "type", it sets "type" to "string".
+ *   This ensures that pattern constraints are only applied to string-typed schemas.
  *
  * Usage:
- *   Use this plugin in the bundling process to automatically fix schemas that omit "type: object" or "type: array"
- *   when defining properties or array-related keywords.
+ *   Add this plugin to the bundler to automatically fix schemas missing "type: object", "type: array", or "type: string"
+ *   when defining properties, array-related keywords, or pattern constraints.
  *
- * Example:
+ * Examples:
  *   // Before:
- *   {
- *     properties: { foo: { type: "string" } }
- *   }
- *   // After plugin:
- *   {
- *     type: "object",
- *     properties: { foo: { type: "string" } }
- *   }
+ *   { properties: { foo: { type: "string" } } }
+ *   // After:
+ *   { type: "object", properties: { foo: { type: "string" } } }
  *
  *   // Before:
- *   {
- *     items: { type: "string" }
- *   }
- *   // After plugin:
- *   {
- *     type: "array",
- *     items: { type: "string" }
- *   }
+ *   { items: { type: "string" } }
+ *   // After:
+ *   { type: "array", items: { type: "string" } }
+ *
+ *   // Before:
+ *   { pattern: "^[a-z]+$" }
+ *   // After:
+ *   { type: "string", pattern: "^[a-z]+$" }
  */
 export const cleanUp = (): LifecyclePlugin => {
   return {
@@ -220,6 +220,11 @@ export const cleanUp = (): LifecyclePlugin => {
       const arrayKeywords = ['items', 'prefixItems', 'minItems', 'maxItems', 'uniqueItems']
       if (arrayKeywords.some((it) => Object.hasOwn(node, it)) && !('type' in node)) {
         node['type'] = 'array'
+      }
+
+      // If the node has "pattern" but no "type", set "type" to "string"
+      if ('pattern' in node && !('type' in node)) {
+        node['type'] = 'string'
       }
     },
   }
