@@ -314,6 +314,97 @@ describe('createMagicProxy', () => {
         },
       })
     })
+
+    it('sets properties on the referenced value #1', () => {
+      const input = {
+        a: {
+          $ref: '#/b',
+        },
+        b: {
+          hello: 'world',
+        },
+      }
+
+      const proxied = createMagicProxy(input)
+
+      proxied.a['$ref-value'] = 'new value'
+
+      expect(proxied).toEqual({
+        a: {
+          $ref: '#/b',
+          '$ref-value': 'new value',
+        },
+        b: 'new value',
+      })
+    })
+
+    it('sets properties on the referenced value #2', () => {
+      const input = {
+        a: {
+          $ref: '#/b/c',
+        },
+        b: {
+          c: {
+            hello: 'world',
+          },
+        },
+      }
+
+      const proxied = createMagicProxy(input)
+
+      proxied.a['$ref-value'] = {
+        message: 'this is the new value',
+      }
+
+      expect(proxied).toEqual({
+        a: {
+          $ref: '#/b/c',
+          '$ref-value': {
+            'message': 'this is the new value',
+          },
+        },
+        'b': {
+          'c': {
+            'message': 'this is the new value',
+          },
+        },
+      })
+    })
+
+    it('throws an error when trying set rewrite a referenced value which is the root of the document', () => {
+      const input = {
+        a: {
+          $ref: '#',
+        },
+      }
+
+      const proxied = createMagicProxy(input)
+
+      expect(() => {
+        proxied.a['$ref-value'] = 'new value'
+      }).toThrowError("'set' on proxy: trap returned falsish for property '$ref-value'")
+    })
+
+    // TODO: might change this behavior in the future
+    // so we allow setting the $ref-value for invalid refs by creating the path
+    it('throws when trying to update an invalid ref where the parent node does not exists', () => {
+      const input = {
+        a: {
+          $ref: '#/non-existent/some-path',
+        },
+        b: {
+          c: {
+            hello: 'world',
+          },
+        },
+      }
+
+      const proxied = createMagicProxy(input)
+
+      expect(() => {
+        proxied.a['$ref-value'] = 'new value'
+      }).toThrowError("'set' on proxy: trap returned falsish for property '$ref-value'")
+    })
   })
 
   describe('has', () => {

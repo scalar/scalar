@@ -10,10 +10,7 @@ import { mergeObjects } from '@/helpers/merge-object'
 import { createNavigation } from '@/navigation'
 import { extensions } from '@/schemas/extensions'
 import { coerceValue } from '@/schemas/typebox-coerce'
-import {
-  OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
-  type OpenApiDocument as OpenApiDocumentStrict,
-} from '@/schemas/v3.1/strict/openapi-document'
+import { OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict } from '@/schemas/v3.1/strict/openapi-document'
 import {
   OpenAPIDocumentSchema as OpenAPIDocumentSchemaLoose,
   type OpenApiDocumentLoose,
@@ -31,6 +28,7 @@ import type { TraverseSpecOptions } from '@/navigation/types'
 import type { PartialDeep, RequiredDeep } from 'type-fest'
 import { Value } from '@sinclair/typebox/value'
 import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
+import type { Record } from '@sinclair/typebox'
 
 type DocumentConfiguration = Config &
   PartialDeep<{
@@ -61,7 +59,7 @@ type WorkspaceDocumentMetaInput = {
   /** Optional configuration options */
   config?: DocumentConfiguration
   /** Overrides for the document */
-  overrides?: PartialDeep<OpenApiDocumentStrict>
+  overrides?: InMemoryWorkspace['overrides'][string]
 }
 
 /**
@@ -117,6 +115,20 @@ async function loadDocument(workspaceDocument: WorkspaceDocumentInput) {
     ok: true as const,
     data: workspaceDocument.document,
   }
+}
+
+/**
+ * Returns the origin (URL) of a workspace document if it was loaded from a URL.
+ * If the document was provided directly as an object, returns undefined.
+ *
+ * @param input - The workspace document input (either UrlDoc or ObjectDoc)
+ * @returns The URL string if present, otherwise undefined
+ */
+const getOrigin = (input: WorkspaceDocumentInput) => {
+  if ('url' in input) {
+    return input.url
+  }
+  return undefined
 }
 
 /**
@@ -418,7 +430,15 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * The key is the document name, and the value is a deep partial
    * OpenAPI document representing the overridden fields.
    */
-  const overrides: Record<string, PartialDeep<OpenApiDocumentStrict>> = {}
+  const overrides: InMemoryWorkspace['overrides'] = {}
+  /**
+   * Holds additional metadata for each document in the workspace.
+   *
+   * This metadata should be persisted together with the document itself.
+   * It can include information such as user preferences, UI state, or other
+   * per-document attributes that are not part of the OpenAPI document structure.
+   */
+  const documentMeta: InMemoryWorkspace['documentMeta'] = {}
 
   // Create a reactive workspace object with proxied documents
   // Each document is wrapped in a proxy to enable reactive updates and reference resolution
@@ -484,7 +504,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   }
 
   // Add a document to the store synchronously from an in-memory OpenAPI document
-  async function addInMemoryDocument(input: ObjectDoc & { initialize?: boolean }) {
+  async function addInMemoryDocument(input: ObjectDoc & { initialize?: boolean; origin?: string }) {
     const { name, meta } = input
     const inputDocument = deepClone(input.document)
 
@@ -506,6 +526,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       documentConfigs[name] = input.config ?? {}
       // Store the overrides for this document, or an empty object if none are provided
       overrides[name] = input.overrides ?? {}
+      // Store the document metadata for this document, setting the origin if provided
+      documentMeta[name] = { origin: input.origin }
     }
 
     const strictDocument = createMagicProxy({ ...looseDocument, ...meta })
@@ -518,6 +540,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         treeShake: false,
         plugins: [fetchUrls(), externalValueResolver(), refsEverywhere()],
         urlMap: true,
+        origin: documentMeta[name]?.origin, // use the document origin (if provided) as the base URL for resolution
       })
 
       // We coerce the values only when the document is not preprocessed by the server-side-store
@@ -584,7 +607,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return
     }
 
-    await addInMemoryDocument({ ...input, document: resolve.data })
+    await addInMemoryDocument({ ...input, document: resolve.data, origin: getOrigin(input) })
   }
 
   // Cache to track visited nodes during reference resolution to prevent bundling the same subtree multiple times
@@ -712,7 +735,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         originalDocuments,
         intermediateDocuments,
         overrides,
-      } as InMemoryWorkspace)
+        documentMeta,
+      } satisfies InMemoryWorkspace)
     },
     loadWorkspace(input: string) {
       const result = coerceValue(InMemoryWorkspaceSchema, JSON.parse(input))
@@ -733,6 +757,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       safeAssign(documentConfigs, result.documentConfigs)
       safeAssign(overrides, result.overrides)
       safeAssign(workspace, result.meta)
+      safeAssign(documentMeta, result.documentMeta)
     },
     importWorkspaceFromSpecification: (specification: WorkspaceSpecification) => {
       const { documents, overrides, info, workspace: workspaceVersion, ...meta } = specification

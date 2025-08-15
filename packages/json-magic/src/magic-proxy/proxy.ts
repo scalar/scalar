@@ -1,5 +1,6 @@
 import { isLocalRef } from '@/bundle/bundle'
 import type { UnknownObject } from '@/types'
+import { getSegmentsFromPath } from '@/utils/get-segments-from-path'
 import { isObject } from '@/utils/is-object'
 import { getValueByPath, parseJsonPointer } from '@/utils/json-path-utils'
 
@@ -83,6 +84,26 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      * This will update the underlying target object.
      */
     set(target, prop, newValue, receiver) {
+      const ref = Reflect.get(target, REF_KEY, receiver)
+
+      if (prop === REF_VALUE && typeof ref === 'string' && isLocalRef(ref)) {
+        const segments = getSegmentsFromPath(ref)
+
+        if (segments.length === 0) {
+          return false // Can not set top level $ref-value
+        }
+
+        const parentNode = getValueByPath(root, segments.slice(0, -1))
+
+        // TODO: Maybe we create the path if it does not exist?
+        // TODO: This can allow for invalid references to not throw errors
+        if (!parentNode || (!isObject(parentNode) && !Array.isArray(parentNode))) {
+          return false // Parent node does not exist, cannot set $ref-value
+        }
+        parentNode[segments.at(-1)] = newValue
+        return true
+      }
+
       return Reflect.set(target, prop, newValue, receiver)
     },
     /**
