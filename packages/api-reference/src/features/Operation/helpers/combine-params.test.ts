@@ -44,18 +44,25 @@ describe('combineParams', () => {
   it('filters out unresolved references', () => {
     const pathParams: any[] = [
       { name: 'id', in: 'path', required: true },
-      { $ref: '#/components/parameters/UnresolvedParam' }, // Unresolved reference
+      {
+        $ref: '#/components/parameters/UnresolvedParam',
+        '$ref-value': { name: 'username', in: 'query', required: false },
+      },
     ]
 
     const operationParams: any[] = [
       { name: 'limit', in: 'query', required: false },
-      { $ref: '#/components/parameters/AnotherUnresolved' }, // Unresolved reference
+      {
+        $ref: '#/components/parameters/AnotherUnresolved',
+        '$ref-value': { name: 'username', in: 'query', required: false },
+      },
     ]
 
     const result = combineParams(pathParams, operationParams)
-    expect(result).toHaveLength(2)
+    expect(result).toHaveLength(3)
     expect(result).toEqual([
       { name: 'id', in: 'path', required: true },
+      { name: 'username', in: 'query', required: false },
       { name: 'limit', in: 'query', required: false },
     ])
   })

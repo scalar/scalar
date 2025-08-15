@@ -106,6 +106,7 @@ describe('openapi', () => {
         parameters: [
           {
             $ref: '#/components/parameters/Limit',
+            // @ts-expect-error nobody cares
             '$ref-value': undefined,
           },
           {
