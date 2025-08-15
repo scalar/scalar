@@ -39,66 +39,67 @@ export const schemaObjectSchemaBuilder = <S extends TSchema>(schema: S) =>
         ]),
       ),
       /** Different subtypes */
-      format: Type.Optional(
-        Type.Union([
-          // Date and time formats
-          Type.Literal('date'),
-          Type.Literal('date-time'),
-          Type.Literal('date-time-local'),
-          Type.Literal('time'),
-          Type.Literal('time-local'),
-          Type.Literal('duration'),
-          Type.Literal('http-date'),
-          // Network formats
-          Type.Literal('email'),
-          Type.Literal('idn-email'),
-          Type.Literal('hostname'),
-          Type.Literal('idn-hostname'),
-          Type.Literal('ipv4'),
-          Type.Literal('ipv6'),
-          Type.Literal('uri'),
-          Type.Literal('uri-reference'),
-          Type.Literal('uri-template'),
-          Type.Literal('iri'),
-          Type.Literal('iri-reference'),
-          Type.Literal('uuid'),
-          // Content formats
-          Type.Literal('binary'),
-          Type.Literal('byte'),
-          Type.Literal('base64url'),
-          Type.Literal('html'),
-          Type.Literal('commonmark'),
-          Type.Literal('password'),
-          Type.Literal('regex'),
-          Type.Literal('json-pointer'),
-          Type.Literal('relative-json-pointer'),
-          Type.Literal('media-range'),
-          // Character formats
-          Type.Literal('char'),
-          // Integer formats
-          Type.Literal('int8'),
-          Type.Literal('int16'),
-          Type.Literal('int32'),
-          Type.Literal('int64'),
-          Type.Literal('uint8'),
-          Type.Literal('uint16'),
-          Type.Literal('uint32'),
-          Type.Literal('uint64'),
-          Type.Literal('double-int'),
-          // Number formats
-          Type.Literal('float'),
-          Type.Literal('double'),
-          Type.Literal('decimal'),
-          Type.Literal('decimal128'),
-          // Structured field string formats
-          Type.Literal('sf-string'),
-          Type.Literal('sf-token'),
-          Type.Literal('sf-binary'),
-          Type.Literal('sf-boolean'),
-          Type.Literal('sf-integer'),
-          Type.Literal('sf-decimal'),
-        ]),
-      ),
+      // This is a big performance hit, so we're not using it
+      format: Type.Optional(Type.String()),
+      //   Type.Union([
+      //     // Date and time formats
+      //     Type.Literal('date'),
+      //     Type.Literal('date-time'),
+      //     Type.Literal('date-time-local'),
+      //     Type.Literal('time'),
+      //     Type.Literal('time-local'),
+      //     Type.Literal('duration'),
+      //     Type.Literal('http-date'),
+      //     // Network formats
+      //     Type.Literal('email'),
+      //     Type.Literal('idn-email'),
+      //     Type.Literal('hostname'),
+      //     Type.Literal('idn-hostname'),
+      //     Type.Literal('ipv4'),
+      //     Type.Literal('ipv6'),
+      //     Type.Literal('uri'),
+      //     Type.Literal('uri-reference'),
+      //     Type.Literal('uri-template'),
+      //     Type.Literal('iri'),
+      //     Type.Literal('iri-reference'),
+      //     Type.Literal('uuid'),
+      //     // Content formats
+      //     Type.Literal('binary'),
+      //     Type.Literal('byte'),
+      //     Type.Literal('base64url'),
+      //     Type.Literal('html'),
+      //     Type.Literal('commonmark'),
+      //     Type.Literal('password'),
+      //     Type.Literal('regex'),
+      //     Type.Literal('json-pointer'),
+      //     Type.Literal('relative-json-pointer'),
+      //     Type.Literal('media-range'),
+      //     // Character formats
+      //     Type.Literal('char'),
+      //     // Integer formats
+      //     Type.Literal('int8'),
+      //     Type.Literal('int16'),
+      //     Type.Literal('int32'),
+      //     Type.Literal('int64'),
+      //     Type.Literal('uint8'),
+      //     Type.Literal('uint16'),
+      //     Type.Literal('uint32'),
+      //     Type.Literal('uint64'),
+      //     Type.Literal('double-int'),
+      //     // Number formats
+      //     Type.Literal('float'),
+      //     Type.Literal('double'),
+      //     Type.Literal('decimal'),
+      //     Type.Literal('decimal128'),
+      //     // Structured field string formats
+      //     Type.Literal('sf-string'),
+      //     Type.Literal('sf-token'),
+      //     Type.Literal('sf-binary'),
+      //     Type.Literal('sf-boolean'),
+      //     Type.Literal('sf-integer'),
+      //     Type.Literal('sf-decimal'),
+      //   ]),
+      // ),
       /** A title for the schema. */
       title: Type.Optional(Type.String()),
       /** A description of the schema. */
@@ -213,6 +214,7 @@ export const schemaObjectSchemaBuilder = <S extends TSchema>(schema: S) =>
     XInternalSchema,
   )
 
-export const SchemaObjectSchema = Type.Recursive(schemaObjectSchemaBuilder)
+// export const SchemaObjectSchema = Type.Recursive(schemaObjectSchemaBuilder)
+export const SchemaObjectSchema = Type.Any()
 
 export type SchemaObject = Static<typeof SchemaObjectSchema>
