@@ -1,3 +1,4 @@
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 
 const MAX_LEVELS_DEEP = 5
@@ -68,7 +69,7 @@ function cache(schema: SchemaObject, result: unknown) {
  * This function takes an OpenAPI schema and generates an example from it
  */
 export const getExampleFromSchema = (
-  schema: SchemaObject,
+  _schema: SchemaObject,
   options?: {
     /**
      * The fallback string for empty string values.
@@ -96,9 +97,11 @@ export const getExampleFromSchema = (
     omitEmptyAndOptionalProperties?: boolean
   },
   level: number = 0,
-  parentSchema?: Record<string, any>,
+  parentSchema?: SchemaObject,
   name?: string,
 ): any => {
+  const schema = getResolvedRef(_schema)
+
   // Check if the result is already cached
   if (resultCache.has(schema)) {
     return resultCache.get(schema)

@@ -16,6 +16,13 @@ import { reference } from '@/schemas/v3.1/strict/reference'
 export const schemaObjectSchemaBuilder = <S extends TSchema>(schema: S) =>
   compose(
     Type.Object({
+      // Meta properties
+      /**
+       * This property is only used to differentiate between a ref and a schema as all schema properties are optional
+       * and any object would pass that check. It just has to be any unique property name
+       */
+      _dereferencedSchema: Type.Boolean({ default: true }),
+
       // Base JSON Schema
       type: Type.Optional(
         Type.Union([

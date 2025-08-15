@@ -82,7 +82,7 @@ export const traverseSchemas = (
     }
     // Add to untagged
     else {
-      untagged.push(createSchemaEntry(ref, name, titlesMap, getModelId, undefined, schemas[name]))
+      untagged.push(createSchemaEntry(ref, name, titlesMap, getModelId, undefined, getResolvedRef(schemas[name])))
     }
   }
 
