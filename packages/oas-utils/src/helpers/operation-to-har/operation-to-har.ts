@@ -8,7 +8,7 @@ import { processSecuritySchemes } from './process-security-schemes'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
 
 export type OperationToHarProps = {
   /** OpenAPI Operation object */
@@ -91,7 +91,7 @@ export const operationToHar = ({
     harRequest.cookies = cookies
   }
 
-  const body = getResolvedRef(operation.requestBody)
+  const body = getResolvedRefDeep(operation.requestBody)
 
   // Handle request body
   if (body?.content) {
