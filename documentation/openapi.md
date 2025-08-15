@@ -1,12 +1,8 @@
-# OpenAPI Specification
+# OpenAPI Extensions
 
 We're expecting the passed OpenAPI document to adhere to [the Swagger 2.0, OpenAPI 3.0 or OpenAPI 3.1 specification](https://github.com/OAI/OpenAPI-Specification).
 
 On top of that, we've added a few things for your convenience:
-
-## Custom Specification Extensions
-
-You can add custom specification extensions (starting with a `x-`) through [our plugin API](configuration.md).
 
 ## x-scalar-environments
 
@@ -306,3 +302,7 @@ info:
     source: |-
       npm install @your-awesome-company/sdk
 ```
+
+## Custom Specification Extensions
+
+You can add custom specification extensions (starting with a `x-`) through [our plugin API](https://guides.scalar.com/scalar/scalar-api-references/configuration).
