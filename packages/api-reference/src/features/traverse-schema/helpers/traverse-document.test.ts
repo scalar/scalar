@@ -10,6 +10,7 @@ describe('traverseDocument', () => {
     hideModels: false,
     hideClientButton: false,
     showSidebar: true,
+    operationTitleSource: 'summary',
     theme: 'default',
     persistAuth: false,
     layout: 'modern',
