@@ -1,13 +1,18 @@
 <script lang="ts" setup>
 import { ScalarCodeBlock } from '@scalar/components'
 import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
+import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
 import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/example'
 import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/media-header-encoding'
+import { computed } from 'vue'
 
-defineProps<{
+const { response } = defineProps<{
   response: MediaTypeObject | undefined
   example: ExampleObject
 }>()
+
+/** We must resolve any refs which may appear in the response */
+const schema = computed(() => getResolvedRefDeep(response?.schema))
 </script>
 <template>
   <!-- Example -->
@@ -19,10 +24,10 @@ defineProps<{
 
   <!-- Schema -->
   <ScalarCodeBlock
-    v-else-if="response?.schema"
+    v-else-if="schema"
     class="bg-b-2 -outline-offset-2"
     :content="
-      getExampleFromSchema(response?.schema, {
+      getExampleFromSchema(schema, {
         emptyString: 'string',
         mode: 'read',
       })
