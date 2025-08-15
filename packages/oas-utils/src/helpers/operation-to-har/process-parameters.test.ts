@@ -3,7 +3,6 @@ import { describe, it, expect } from 'vitest'
 
 import { deReferenceParams, processParameters } from './process-parameters'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
-import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 
 describe('parameter styles', () => {
   const createHarRequest = (url: string): HarRequest => ({
@@ -19,7 +18,7 @@ describe('parameter styles', () => {
 
   describe('matrix style', () => {
     it('should handle matrix style with explode=false and single value', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -48,7 +47,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle matrix style with explode=false and array values', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -78,7 +77,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle matrix style with explode=false and object values', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -112,7 +111,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle matrix style with explode=true and single value', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -141,7 +140,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle matrix style with explode=true and array values', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -171,7 +170,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle matrix style with explode=true and object values', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -207,7 +206,7 @@ describe('parameter styles', () => {
 
   describe('label style', () => {
     it('should handle label style with explode=false and single value', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -236,7 +235,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle label style with explode=false and array values', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -266,7 +265,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle label style with explode=false and object values', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -300,7 +299,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle label style with explode=true and single value', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -329,7 +328,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle label style with explode=true and array values', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -359,7 +358,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle label style with explode=true and object values', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -395,7 +394,7 @@ describe('parameter styles', () => {
 
   describe('simple style', () => {
     it('should handle simple style with explode=false and single value', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -424,7 +423,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle simple style with explode=false and array values', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -454,7 +453,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle simple style with explode=false and object values', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -488,7 +487,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle simple style with explode=true and single value', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -517,7 +516,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle simple style with explode=true and array values', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -547,7 +546,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle simple style with explode=true and object values', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -583,7 +582,7 @@ describe('parameter styles', () => {
 
   describe('form style', () => {
     it('should handle form style with explode=false and single value', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -609,7 +608,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle form style with explode=false and array values', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -636,7 +635,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle form style with explode=false and object values', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -667,7 +666,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle form style with explode=true and single value', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -693,7 +692,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle form style with explode=true and array values', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -724,7 +723,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle form style with explode=true and object values', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -761,7 +760,7 @@ describe('parameter styles', () => {
 
   describe('spaceDelimited style', () => {
     it('should handle spaceDelimited style with explode=false and array values', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -788,7 +787,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle spaceDelimited style with explode=false and object values', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -821,7 +820,7 @@ describe('parameter styles', () => {
 
   describe('pipeDelimited style', () => {
     it('should handle pipeDelimited style with explode=false and array values', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -848,7 +847,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle pipeDelimited style with explode=false and object values', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -881,7 +880,7 @@ describe('parameter styles', () => {
 
   describe('deepObject style', () => {
     it('should handle deepObject style with explode=true and object values', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'color',
@@ -918,7 +917,7 @@ describe('parameter styles', () => {
 
   describe('header parameters', () => {
     it('should handle header parameter with string value', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'Authorization',
@@ -942,7 +941,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle header parameter with simple style and explode=true', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'Accept',
@@ -973,7 +972,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle header parameter with simple style and explode=false', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'Accept',
@@ -1000,7 +999,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle header parameter with object and explode=true', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'X-Custom-Header',
@@ -1030,7 +1029,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle header parameter with object and explode=false', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'X-Custom-Header',
@@ -1060,7 +1059,7 @@ describe('parameter styles', () => {
     })
 
     it('should enforce simple style for headers even if other style is specified', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'Authorization',
@@ -1085,7 +1084,7 @@ describe('parameter styles', () => {
     })
 
     it('should preserve existing headers when adding new ones', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'X-New-Header',
@@ -1117,7 +1116,7 @@ describe('parameter styles', () => {
 
   describe('cookie parameters', () => {
     it('should handle cookie parameter with string value', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'sessionId',
@@ -1141,7 +1140,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with form style and explode=true (default)', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'preferences',
@@ -1172,7 +1171,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with form style and explode=false', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'preferences',
@@ -1199,7 +1198,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with object and explode=true', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'settings',
@@ -1234,7 +1233,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with object and explode=false', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'settings',
@@ -1265,7 +1264,7 @@ describe('parameter styles', () => {
     })
 
     it('should enforce form style for cookies even if other style is specified', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'sessionId',
@@ -1290,7 +1289,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with number value', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'userId',
@@ -1314,7 +1313,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with boolean value', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'premium',
@@ -1338,7 +1337,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle multiple cookie parameters', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'sessionId',
@@ -1373,7 +1372,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with array value', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'preferences',
@@ -1400,7 +1399,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with object value', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'settings',
@@ -1431,7 +1430,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with null value', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'sessionId',
@@ -1456,7 +1455,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with undefined value', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'sessionId',
@@ -1485,7 +1484,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with empty string value', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'sessionId',
@@ -1509,7 +1508,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with special characters', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'auth_token',
@@ -1540,7 +1539,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with URL-encoded characters', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'user_pref',
@@ -1564,7 +1563,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with numeric array', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'scores',
@@ -1591,7 +1590,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with boolean array', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'flags',
@@ -1618,7 +1617,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with mixed array', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'mixed_data',
@@ -1645,7 +1644,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with nested object', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'user_config',
@@ -1695,7 +1694,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with empty array', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'tags',
@@ -1722,7 +1721,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with empty object', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'config',
@@ -1748,7 +1747,7 @@ describe('parameter styles', () => {
     })
 
     it('should preserve existing cookies when adding new ones', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'newCookie',
@@ -1780,7 +1779,7 @@ describe('parameter styles', () => {
 
   describe('query parameters', () => {
     it('should add empty query string if no parameters are present', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'email',
@@ -1803,7 +1802,7 @@ describe('parameter styles', () => {
 
   describe('path parameters', () => {
     it('should add variable name if no value or example is provided', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'username',
@@ -1824,7 +1823,7 @@ describe('parameter styles', () => {
     })
 
     it('should replace the variable with the example value', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'username',
@@ -1846,7 +1845,7 @@ describe('parameter styles', () => {
     })
 
     it('should replace the variable with the upper example value', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'username',
@@ -1868,7 +1867,7 @@ describe('parameter styles', () => {
     })
 
     it('should replace the variable with the example value from examples', () => {
-      const operation: Dereference<OperationObject> = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'username',

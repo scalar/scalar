@@ -1,28 +1,23 @@
 import { describe, it, expect } from 'vitest'
 import { processBody } from './process-body'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
-import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
+import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/request-body'
 
 describe('processBody', () => {
   it('extracts example from simple object schema', () => {
-    const operation: Dereference<OperationObject> = {
-      requestBody: {
-        content: {
-          'application/json': {
-            schema: {
-              type: 'object',
-              properties: {
-                name: { type: 'string', example: 'John Doe' },
-                age: { type: 'number', example: 30 },
-                email: { type: 'string', example: 'john@example.com' },
-              },
-            },
+    const content = {
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {
+            name: { type: 'string', example: 'John Doe' },
+            age: { type: 'number', example: 30 },
+            email: { type: 'string', example: 'john@example.com' },
           },
         },
       },
-    }
+    } as const
 
-    const result = processBody({ operation })
+    const result = processBody({ content })
 
     expect(result).toEqual({
       mimeType: 'application/json',
@@ -35,23 +30,19 @@ describe('processBody', () => {
   })
 
   it('extracts example from schema with examples array', () => {
-    const operation: Dereference<OperationObject> = {
-      requestBody: {
-        content: {
-          'application/json': {
-            schema: {
-              type: 'object',
-              properties: {
-                status: { type: 'string', examples: ['active', 'inactive'] },
-                priority: { type: 'string', examples: ['low', 'medium', 'high'] },
-              },
-            },
+    const content = {
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {
+            status: { type: 'string', examples: ['active', 'inactive'] },
+            priority: { type: 'string', examples: ['low', 'medium', 'high'] },
           },
         },
       },
-    }
+    } satisfies RequestBodyObject['content']
 
-    const result = processBody({ operation })
+    const result = processBody({ content })
 
     expect(result).toEqual({
       mimeType: 'application/json',
@@ -63,24 +54,20 @@ describe('processBody', () => {
   })
 
   it('extracts nested object examples', () => {
-    const operation: Dereference<OperationObject> = {
-      requestBody: {
-        content: {
-          'application/json': {
-            schema: {
+    const content = {
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {
+            user: {
               type: 'object',
               properties: {
-                user: {
+                name: { type: 'string', example: 'Jane Smith' },
+                profile: {
                   type: 'object',
                   properties: {
-                    name: { type: 'string', example: 'Jane Smith' },
-                    profile: {
-                      type: 'object',
-                      properties: {
-                        bio: { type: 'string', example: 'Software developer' },
-                        location: { type: 'string', example: 'San Francisco' },
-                      },
-                    },
+                    bio: { type: 'string', example: 'Software developer' },
+                    location: { type: 'string', example: 'San Francisco' },
                   },
                 },
               },
@@ -88,9 +75,9 @@ describe('processBody', () => {
           },
         },
       },
-    }
+    } satisfies RequestBodyObject['content']
 
-    const result = processBody({ operation })
+    const result = processBody({ content })
 
     expect(result).toEqual({
       mimeType: 'application/json',
@@ -107,38 +94,34 @@ describe('processBody', () => {
   })
 
   it('extracts array examples', () => {
-    const operation: Dereference<OperationObject> = {
-      requestBody: {
-        content: {
-          'application/json': {
-            schema: {
-              type: 'object',
-              properties: {
-                tags: {
-                  type: 'array',
-                  items: {
-                    type: 'string',
-                    example: 'javascript',
-                  },
-                },
-                categories: {
-                  type: 'array',
-                  items: {
-                    type: 'object',
-                    properties: {
-                      id: { type: 'number', example: 1 },
-                      name: { type: 'string', example: 'Technology' },
-                    },
-                  },
+    const content = {
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {
+            tags: {
+              type: 'array',
+              items: {
+                type: 'string',
+                example: 'javascript',
+              },
+            },
+            categories: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'number', example: 1 },
+                  name: { type: 'string', example: 'Technology' },
                 },
               },
             },
           },
         },
       },
-    }
+    } satisfies RequestBodyObject['content']
 
-    const result = processBody({ operation })
+    const result = processBody({ content })
 
     expect(result).toEqual({
       mimeType: 'application/json',
@@ -150,20 +133,16 @@ describe('processBody', () => {
   })
 
   it('extracts primitive type examples', () => {
-    const operation: Dereference<OperationObject> = {
-      requestBody: {
-        content: {
-          'application/json': {
-            schema: {
-              type: 'string',
-              example: 'Hello, World!',
-            },
-          },
+    const content = {
+      'application/json': {
+        schema: {
+          type: 'string',
+          example: 'Hello, World!',
         },
       },
-    }
+    } satisfies RequestBodyObject['content']
 
-    const result = processBody({ operation })
+    const result = processBody({ content })
 
     expect(result).toEqual({
       mimeType: 'application/json',
@@ -172,20 +151,16 @@ describe('processBody', () => {
   })
 
   it('extracts number examples', () => {
-    const operation: Dereference<OperationObject> = {
-      requestBody: {
-        content: {
-          'application/json': {
-            schema: {
-              type: 'number',
-              example: 42,
-            },
-          },
+    const content = {
+      'application/json': {
+        schema: {
+          type: 'number',
+          example: 42,
         },
       },
-    }
+    } satisfies RequestBodyObject['content']
 
-    const result = processBody({ operation })
+    const result = processBody({ content })
 
     expect(result).toEqual({
       mimeType: 'application/json',
@@ -194,20 +169,16 @@ describe('processBody', () => {
   })
 
   it('extracts boolean examples', () => {
-    const operation: Dereference<OperationObject> = {
-      requestBody: {
-        content: {
-          'application/json': {
-            schema: {
-              type: 'boolean',
-              example: true,
-            },
-          },
+    const content = {
+      'application/json': {
+        schema: {
+          type: 'boolean',
+          example: true,
         },
       },
-    }
+    } satisfies RequestBodyObject['content']
 
-    const result = processBody({ operation })
+    const result = processBody({ content })
 
     expect(result).toEqual({
       mimeType: 'application/json',
@@ -216,25 +187,21 @@ describe('processBody', () => {
   })
 
   it('handles mixed example types in object', () => {
-    const operation: Dereference<OperationObject> = {
-      requestBody: {
-        content: {
-          'application/json': {
-            schema: {
-              type: 'object',
-              properties: {
-                stringField: { type: 'string', example: 'test' },
-                numberField: { type: 'number', example: 123 },
-                booleanField: { type: 'boolean', example: false },
-                nullField: { type: 'null', example: null },
-              },
-            },
+    const content = {
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {
+            stringField: { type: 'string', example: 'test' },
+            numberField: { type: 'number', example: 123 },
+            booleanField: { type: 'boolean', example: false },
+            nullField: { type: 'null', example: null },
           },
         },
       },
-    }
+    } satisfies RequestBodyObject['content']
 
-    const result = processBody({ operation })
+    const result = processBody({ content })
 
     expect(result).toEqual({
       mimeType: 'application/json',
@@ -248,31 +215,27 @@ describe('processBody', () => {
   })
 
   it('handles nested arrays with examples', () => {
-    const operation: Dereference<OperationObject> = {
-      requestBody: {
-        content: {
-          'application/json': {
-            schema: {
-              type: 'object',
-              properties: {
-                matrix: {
-                  type: 'array',
-                  items: {
-                    type: 'array',
-                    items: {
-                      type: 'number',
-                      example: 1,
-                    },
-                  },
+    const content = {
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {
+            matrix: {
+              type: 'array',
+              items: {
+                type: 'array',
+                items: {
+                  type: 'number',
+                  example: 1,
                 },
               },
             },
           },
         },
       },
-    }
+    } satisfies RequestBodyObject['content']
 
-    const result = processBody({ operation })
+    const result = processBody({ content })
 
     expect(result).toEqual({
       mimeType: 'application/json',
@@ -283,25 +246,21 @@ describe('processBody', () => {
   })
 
   it('handles object with some properties having examples and others not', () => {
-    const operation: Dereference<OperationObject> = {
-      requestBody: {
-        content: {
-          'application/json': {
-            schema: {
-              type: 'object',
-              properties: {
-                name: { type: 'string', example: 'Alice' },
-                age: { type: 'number' }, // No example
-                email: { type: 'string', example: 'alice@example.com' },
-                address: { type: 'string' }, // No example
-              },
-            },
+    const content = {
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {
+            name: { type: 'string', example: 'Alice' },
+            age: { type: 'number' }, // No example
+            email: { type: 'string', example: 'alice@example.com' },
+            address: { type: 'string' }, // No example
           },
         },
       },
-    }
+    } satisfies RequestBodyObject['content']
 
-    const result = processBody({ operation })
+    const result = processBody({ content })
 
     expect(result).toEqual({
       mimeType: 'application/json',
@@ -315,21 +274,17 @@ describe('processBody', () => {
   })
 
   it('handles custom content type with schema examples', () => {
-    const operation: Dereference<OperationObject> = {
-      requestBody: {
-        content: {
-          'application/xml': {
-            schema: {
-              type: 'string',
-              example: '<user><name>Bob</name></user>',
-            },
-          },
+    const content = {
+      'application/xml': {
+        schema: {
+          type: 'string',
+          example: '<user><name>Bob</name></user>',
         },
       },
-    }
+    } satisfies RequestBodyObject['content']
 
     const result = processBody({
-      operation,
+      content,
       contentType: 'application/xml',
     })
 
@@ -340,8 +295,8 @@ describe('processBody', () => {
   })
 
   it('handles operation without requestBody', () => {
-    const operation: Dereference<OperationObject> = {}
-    const result = processBody({ operation })
+    const content = {}
+    const result = processBody({ content })
 
     expect(result).toEqual({
       mimeType: '',
@@ -350,12 +305,8 @@ describe('processBody', () => {
   })
 
   it('handles operation with empty content', () => {
-    const operation: Dereference<OperationObject> = {
-      requestBody: {
-        content: {},
-      },
-    }
-    const result = processBody({ operation })
+    const content = {}
+    const result = processBody({ content })
 
     expect(result).toEqual({
       mimeType: '',
@@ -364,23 +315,19 @@ describe('processBody', () => {
   })
 
   it('handles schema without examples', () => {
-    const operation: Dereference<OperationObject> = {
-      requestBody: {
-        content: {
-          'application/json': {
-            schema: {
-              type: 'object',
-              properties: {
-                name: { type: 'string' },
-                age: { type: 'number' },
-              },
-            },
+    const content = {
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            age: { type: 'number' },
           },
         },
       },
-    }
+    } satisfies RequestBodyObject['content']
 
-    const result = processBody({ operation })
+    const result = processBody({ content })
 
     expect(result).toEqual({
       mimeType: 'application/json',
@@ -392,24 +339,20 @@ describe('processBody', () => {
   })
 
   it('prioritizes external example over schema examples', () => {
-    const operation: Dereference<OperationObject> = {
-      requestBody: {
-        content: {
-          'application/json': {
-            schema: {
-              type: 'object',
-              properties: {
-                name: { type: 'string', example: 'Schema Example' },
-                age: { type: 'number', example: 25 },
-              },
-            },
+    const content = {
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {
+            name: { type: 'string', example: 'Schema Example' },
+            age: { type: 'number', example: 25 },
           },
         },
       },
-    }
+    } satisfies RequestBodyObject['content']
 
     const externalExample = { name: 'External Example', age: 30 }
-    const result = processBody({ operation, example: externalExample })
+    const result = processBody({ content, example: externalExample })
 
     expect(result).toEqual({
       mimeType: 'application/json',
@@ -419,38 +362,34 @@ describe('processBody', () => {
 
   describe('multipart/form-data', () => {
     it('extracts examples from form data schema', () => {
-      const operation: Dereference<OperationObject> = {
-        requestBody: {
-          content: {
-            'multipart/form-data': {
-              schema: {
-                type: 'object',
-                properties: {
-                  file: {
-                    type: 'string',
-                    format: 'binary',
-                    example: 'SGVsbG8gV29ybGQ=',
-                  },
-                  description: {
-                    type: 'string',
-                    example: 'Test file upload',
-                  },
-                  tags: {
-                    type: 'array',
-                    items: {
-                      type: 'string',
-                      example: 'document',
-                    },
-                  },
+      const content = {
+        'multipart/form-data': {
+          schema: {
+            type: 'object',
+            properties: {
+              file: {
+                type: 'string',
+                format: 'binary',
+                example: 'SGVsbG8gV29ybGQ=',
+              },
+              description: {
+                type: 'string',
+                example: 'Test file upload',
+              },
+              tags: {
+                type: 'array',
+                items: {
+                  type: 'string',
+                  example: 'document',
                 },
               },
             },
           },
         },
-      }
+      } satisfies RequestBodyObject['content']
 
       const result = processBody({
-        operation,
+        content,
         contentType: 'multipart/form-data',
       })
 
@@ -465,30 +404,26 @@ describe('processBody', () => {
     })
 
     it('handles file upload with fileName and contentType', () => {
-      const operation: Dereference<OperationObject> = {
-        requestBody: {
-          content: {
-            'multipart/form-data': {
-              schema: {
-                type: 'object',
-                properties: {
-                  image: {
-                    type: 'string',
-                    format: 'binary',
-                    examples: [
-                      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
-                    ],
-                  },
-                  title: { type: 'string', example: 'My Image' },
-                },
+      const content = {
+        'multipart/form-data': {
+          schema: {
+            type: 'object',
+            properties: {
+              image: {
+                type: 'string',
+                format: 'binary',
+                examples: [
+                  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+                ],
               },
+              title: { type: 'string', example: 'My Image' },
             },
           },
         },
-      }
+      } satisfies RequestBodyObject['content']
 
       const result = processBody({
-        operation,
+        content,
         contentType: 'multipart/form-data',
       })
 
@@ -505,37 +440,33 @@ describe('processBody', () => {
     })
 
     it('handles multiple file uploads with examples', () => {
-      const operation: Dereference<OperationObject> = {
-        requestBody: {
-          content: {
-            'multipart/form-data': {
-              schema: {
+      const content = {
+        'multipart/form-data': {
+          schema: {
+            type: 'object',
+            properties: {
+              files: {
+                type: 'array',
+                items: {
+                  type: 'string',
+                  format: 'binary',
+                  example: 'SGVsbG8gV29ybGQ=',
+                },
+              },
+              metadata: {
                 type: 'object',
                 properties: {
-                  files: {
-                    type: 'array',
-                    items: {
-                      type: 'string',
-                      format: 'binary',
-                      example: 'SGVsbG8gV29ybGQ=',
-                    },
-                  },
-                  metadata: {
-                    type: 'object',
-                    properties: {
-                      uploadDate: { type: 'string', example: '2024-01-01' },
-                      category: { type: 'string', example: 'images' },
-                    },
-                  },
+                  uploadDate: { type: 'string', example: '2024-01-01' },
+                  category: { type: 'string', example: 'images' },
                 },
               },
             },
           },
         },
-      }
+      } satisfies RequestBodyObject['content']
 
       const result = processBody({
-        operation,
+        content,
         contentType: 'multipart/form-data',
       })
 
@@ -550,44 +481,40 @@ describe('processBody', () => {
     })
 
     it('handles multipart form data with mixed content types', () => {
-      const operation: Dereference<OperationObject> = {
-        requestBody: {
-          content: {
-            'multipart/form-data': {
-              schema: {
+      const content = {
+        'multipart/form-data': {
+          schema: {
+            type: 'object',
+            properties: {
+              image: {
+                type: 'string',
+                format: 'binary',
+                example:
+                  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+              },
+              title: { type: 'string', example: 'My Image' },
+              description: { type: 'string', example: 'A beautiful image' },
+              tags: {
+                type: 'array',
+                items: {
+                  type: 'string',
+                  examples: ['photo', 'nature', 'landscape'],
+                },
+              },
+              settings: {
                 type: 'object',
                 properties: {
-                  image: {
-                    type: 'string',
-                    format: 'binary',
-                    example:
-                      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
-                  },
-                  title: { type: 'string', example: 'My Image' },
-                  description: { type: 'string', example: 'A beautiful image' },
-                  tags: {
-                    type: 'array',
-                    items: {
-                      type: 'string',
-                      examples: ['photo', 'nature', 'landscape'],
-                    },
-                  },
-                  settings: {
-                    type: 'object',
-                    properties: {
-                      public: { type: 'boolean', example: true },
-                      quality: { type: 'string', example: 'high' },
-                    },
-                  },
+                  public: { type: 'boolean', example: true },
+                  quality: { type: 'string', example: 'high' },
                 },
               },
             },
           },
         },
-      }
+      } satisfies RequestBodyObject['content']
 
       const result = processBody({
-        operation,
+        content,
         contentType: 'multipart/form-data',
       })
 
@@ -608,24 +535,20 @@ describe('processBody', () => {
     })
 
     it('handles multipart form data without external example', () => {
-      const operation: Dereference<OperationObject> = {
-        requestBody: {
-          content: {
-            'multipart/form-data': {
-              schema: {
-                type: 'object',
-                properties: {
-                  file: { type: 'string', format: 'binary' },
-                  name: { type: 'string' },
-                },
-              },
+      const content = {
+        'multipart/form-data': {
+          schema: {
+            type: 'object',
+            properties: {
+              file: { type: 'string', format: 'binary' },
+              name: { type: 'string' },
             },
           },
         },
-      }
+      } satisfies RequestBodyObject['content']
 
       const result = processBody({
-        operation,
+        content,
         contentType: 'multipart/form-data',
       })
 
@@ -641,37 +564,33 @@ describe('processBody', () => {
     })
 
     it('handles multipart form data with array of files', () => {
-      const operation: Dereference<OperationObject> = {
-        requestBody: {
-          content: {
-            'multipart/form-data': {
-              schema: {
+      const content = {
+        'multipart/form-data': {
+          schema: {
+            type: 'object',
+            properties: {
+              file: {
+                type: 'string',
+                format: 'binary',
+                examples: ['@mars.jpg', '@jupiter.png'],
+                description: 'Mars rover photo',
+              },
+              name: { type: 'string', example: 'Mars Rover Photo' },
+              category: { type: 'string', example: 'space' },
+              metadata: {
                 type: 'object',
                 properties: {
-                  file: {
-                    type: 'string',
-                    format: 'binary',
-                    examples: ['@mars.jpg', '@jupiter.png'],
-                    description: 'Mars rover photo',
-                  },
-                  name: { type: 'string', example: 'Mars Rover Photo' },
-                  category: { type: 'string', example: 'space' },
-                  metadata: {
-                    type: 'object',
-                    properties: {
-                      location: { type: 'string', example: 'Mars' },
-                      date: { type: 'string', example: '2024-01-15' },
-                    },
-                  },
+                  location: { type: 'string', example: 'Mars' },
+                  date: { type: 'string', example: '2024-01-15' },
                 },
               },
             },
           },
         },
-      }
+      } satisfies RequestBodyObject['content']
 
       const result = processBody({
-        operation,
+        content,
         contentType: 'multipart/form-data',
       })
 
@@ -688,21 +607,17 @@ describe('processBody', () => {
     })
 
     it('handles multipart form data with empty object', () => {
-      const operation: Dereference<OperationObject> = {
-        requestBody: {
-          content: {
-            'multipart/form-data': {
-              schema: {
-                type: 'object',
-                properties: {},
-              },
-            },
+      const content = {
+        'multipart/form-data': {
+          schema: {
+            type: 'object',
+            properties: {},
           },
         },
-      }
+      } satisfies RequestBodyObject['content']
 
       const result = processBody({
-        operation,
+        content,
         contentType: 'multipart/form-data',
       })
 
@@ -713,25 +628,21 @@ describe('processBody', () => {
     })
 
     it('handles multipart form data with primitive values', () => {
-      const operation: Dereference<OperationObject> = {
-        requestBody: {
-          content: {
-            'multipart/form-data': {
-              schema: {
-                type: 'object',
-                properties: {
-                  text: { type: 'string', example: 'Simple text' },
-                  number: { type: 'number', example: 42 },
-                  boolean: { type: 'boolean', example: true },
-                },
-              },
+      const content = {
+        'multipart/form-data': {
+          schema: {
+            type: 'object',
+            properties: {
+              text: { type: 'string', example: 'Simple text' },
+              number: { type: 'number', example: 42 },
+              boolean: { type: 'boolean', example: true },
             },
           },
         },
-      }
+      } satisfies RequestBodyObject['content']
 
       const result = processBody({
-        operation,
+        content,
         contentType: 'multipart/form-data',
       })
 
@@ -746,29 +657,25 @@ describe('processBody', () => {
     })
 
     it('handles file upload with comment', () => {
-      const operation: Dereference<OperationObject> = {
-        requestBody: {
-          content: {
-            'multipart/form-data': {
-              schema: {
-                type: 'object',
-                properties: {
-                  document: {
-                    type: 'string',
-                    format: 'binary',
-                    description: 'Quarterly financial report',
-                    examples: ['base64-encoded-content'],
-                  },
-                  notes: { type: 'string', example: 'Important document' },
-                },
+      const content = {
+        'multipart/form-data': {
+          schema: {
+            type: 'object',
+            properties: {
+              document: {
+                type: 'string',
+                format: 'binary',
+                description: 'Quarterly financial report',
+                examples: ['base64-encoded-content'],
               },
+              notes: { type: 'string', example: 'Important document' },
             },
           },
         },
-      }
+      } satisfies RequestBodyObject['content']
 
       const result = processBody({
-        operation,
+        content,
         contentType: 'multipart/form-data',
       })
 
@@ -787,26 +694,22 @@ describe('processBody', () => {
 
   describe('application/x-www-form-urlencoded', () => {
     it('extracts examples from form data schema', () => {
-      const operation: Dereference<OperationObject> = {
-        requestBody: {
-          content: {
-            'application/x-www-form-urlencoded': {
-              schema: {
-                type: 'object',
-                properties: {
-                  username: { type: 'string', example: 'testuser' },
-                  password: { type: 'string', example: 'secret123' },
-                  remember: { type: 'boolean', example: true },
-                  role: { type: 'string', examples: ['user', 'admin'] },
-                },
-              },
+      const content = {
+        'application/x-www-form-urlencoded': {
+          schema: {
+            type: 'object',
+            properties: {
+              username: { type: 'string', example: 'testuser' },
+              password: { type: 'string', example: 'secret123' },
+              remember: { type: 'boolean', example: true },
+              role: { type: 'string', examples: ['user', 'admin'] },
             },
           },
         },
-      }
+      } satisfies RequestBodyObject['content']
 
       const result = processBody({
-        operation,
+        content,
         contentType: 'application/x-www-form-urlencoded',
       })
 
@@ -822,36 +725,32 @@ describe('processBody', () => {
     })
 
     it('handles form data with array examples', () => {
-      const operation: Dereference<OperationObject> = {
-        requestBody: {
-          content: {
-            'application/x-www-form-urlencoded': {
-              schema: {
+      const content = {
+        'application/x-www-form-urlencoded': {
+          schema: {
+            type: 'object',
+            properties: {
+              categories: {
+                type: 'array',
+                items: {
+                  type: 'string',
+                  example: 'electronics',
+                },
+              },
+              preferences: {
                 type: 'object',
                 properties: {
-                  categories: {
-                    type: 'array',
-                    items: {
-                      type: 'string',
-                      example: 'electronics',
-                    },
-                  },
-                  preferences: {
-                    type: 'object',
-                    properties: {
-                      theme: { type: 'string', example: 'dark' },
-                      language: { type: 'string', example: 'en' },
-                    },
-                  },
+                  theme: { type: 'string', example: 'dark' },
+                  language: { type: 'string', example: 'en' },
                 },
               },
             },
           },
         },
-      }
+      } satisfies RequestBodyObject['content']
 
       const result = processBody({
-        operation,
+        content,
         contentType: 'application/x-www-form-urlencoded',
       })
 
@@ -866,36 +765,32 @@ describe('processBody', () => {
     })
 
     it('handles form data with multiple array items', () => {
-      const operation: Dereference<OperationObject> = {
-        requestBody: {
-          content: {
-            'application/x-www-form-urlencoded': {
-              schema: {
-                type: 'object',
-                properties: {
-                  tags: {
-                    type: 'array',
-                    items: {
-                      type: 'string',
-                      examples: ['javascript', 'typescript', 'react'],
-                    },
-                  },
-                  numbers: {
-                    type: 'array',
-                    items: {
-                      type: 'number',
-                      example: 42,
-                    },
-                  },
+      const content = {
+        'application/x-www-form-urlencoded': {
+          schema: {
+            type: 'object',
+            properties: {
+              tags: {
+                type: 'array',
+                items: {
+                  type: 'string',
+                  examples: ['javascript', 'typescript', 'react'],
+                },
+              },
+              numbers: {
+                type: 'array',
+                items: {
+                  type: 'number',
+                  example: 42,
                 },
               },
             },
           },
         },
-      }
+      } satisfies RequestBodyObject['content']
 
       const result = processBody({
-        operation,
+        content,
         contentType: 'application/x-www-form-urlencoded',
       })
 
@@ -909,33 +804,29 @@ describe('processBody', () => {
     })
 
     it('handles deeply nested objects in form data', () => {
-      const operation: Dereference<OperationObject> = {
-        requestBody: {
-          content: {
-            'application/x-www-form-urlencoded': {
-              schema: {
+      const content = {
+        'application/x-www-form-urlencoded': {
+          schema: {
+            type: 'object',
+            properties: {
+              user: {
                 type: 'object',
                 properties: {
-                  user: {
+                  profile: {
                     type: 'object',
                     properties: {
-                      profile: {
+                      personal: {
                         type: 'object',
                         properties: {
-                          personal: {
-                            type: 'object',
-                            properties: {
-                              firstName: { type: 'string', example: 'John' },
-                              lastName: { type: 'string', example: 'Doe' },
-                            },
-                          },
-                          contact: {
-                            type: 'object',
-                            properties: {
-                              email: { type: 'string', example: 'john@example.com' },
-                              phone: { type: 'string', example: '+1234567890' },
-                            },
-                          },
+                          firstName: { type: 'string', example: 'John' },
+                          lastName: { type: 'string', example: 'Doe' },
+                        },
+                      },
+                      contact: {
+                        type: 'object',
+                        properties: {
+                          email: { type: 'string', example: 'john@example.com' },
+                          phone: { type: 'string', example: '+1234567890' },
                         },
                       },
                     },
@@ -945,10 +836,10 @@ describe('processBody', () => {
             },
           },
         },
-      }
+      } satisfies RequestBodyObject['content']
 
       const result = processBody({
-        operation,
+        content,
         contentType: 'application/x-www-form-urlencoded',
       })
 
@@ -964,27 +855,23 @@ describe('processBody', () => {
     })
 
     it('handles form data with mixed primitive types', () => {
-      const operation: Dereference<OperationObject> = {
-        requestBody: {
-          content: {
-            'application/x-www-form-urlencoded': {
-              schema: {
-                type: 'object',
-                properties: {
-                  stringField: { type: 'string', example: 'hello world' },
-                  numberField: { type: 'number', example: 123.45 },
-                  integerField: { type: 'integer', example: 42 },
-                  booleanField: { type: 'boolean', example: false },
-                  nullField: { type: 'null', example: null },
-                },
-              },
+      const content = {
+        'application/x-www-form-urlencoded': {
+          schema: {
+            type: 'object',
+            properties: {
+              stringField: { type: 'string', example: 'hello world' },
+              numberField: { type: 'number', example: 123.45 },
+              integerField: { type: 'integer', example: 42 },
+              booleanField: { type: 'boolean', example: false },
+              nullField: { type: 'null', example: null },
             },
           },
         },
-      }
+      } satisfies RequestBodyObject['content']
 
       const result = processBody({
-        operation,
+        content,
         contentType: 'application/x-www-form-urlencoded',
       })
 
@@ -1000,21 +887,17 @@ describe('processBody', () => {
     })
 
     it('handles form data with external example', () => {
-      const operation: Dereference<OperationObject> = {
-        requestBody: {
-          content: {
-            'application/x-www-form-urlencoded': {
-              schema: {
-                type: 'object',
-                properties: {
-                  name: { type: 'string', example: 'Schema Example' },
-                  age: { type: 'number', example: 25 },
-                },
-              },
+      const content = {
+        'application/x-www-form-urlencoded': {
+          schema: {
+            type: 'object',
+            properties: {
+              name: { type: 'string', example: 'Schema Example' },
+              age: { type: 'number', example: 25 },
             },
           },
         },
-      }
+      } satisfies RequestBodyObject['content']
 
       const externalExample = {
         name: 'External Example',
@@ -1026,7 +909,7 @@ describe('processBody', () => {
       }
 
       const result = processBody({
-        operation,
+        content,
         contentType: 'application/x-www-form-urlencoded',
         example: externalExample,
       })
@@ -1043,21 +926,17 @@ describe('processBody', () => {
     })
 
     it('handles form data with empty object', () => {
-      const operation: Dereference<OperationObject> = {
-        requestBody: {
-          content: {
-            'application/x-www-form-urlencoded': {
-              schema: {
-                type: 'object',
-                properties: {},
-              },
-            },
+      const content = {
+        'application/x-www-form-urlencoded': {
+          schema: {
+            type: 'object',
+            properties: {},
           },
         },
-      }
+      } satisfies RequestBodyObject['content']
 
       const result = processBody({
-        operation,
+        content,
         contentType: 'application/x-www-form-urlencoded',
       })
 
@@ -1068,26 +947,22 @@ describe('processBody', () => {
     })
 
     it('handles form data with properties without examples', () => {
-      const operation: Dereference<OperationObject> = {
-        requestBody: {
-          content: {
-            'application/x-www-form-urlencoded': {
-              schema: {
-                type: 'object',
-                properties: {
-                  name: { type: 'string', example: 'John' },
-                  age: { type: 'number' }, // No example
-                  email: { type: 'string', example: 'john@example.com' },
-                  address: { type: 'string' }, // No example
-                },
-              },
+      const content = {
+        'application/x-www-form-urlencoded': {
+          schema: {
+            type: 'object',
+            properties: {
+              name: { type: 'string', example: 'John' },
+              age: { type: 'number' }, // No example
+              email: { type: 'string', example: 'john@example.com' },
+              address: { type: 'string' }, // No example
             },
           },
         },
-      }
+      } satisfies RequestBodyObject['content']
 
       const result = processBody({
-        operation,
+        content,
         contentType: 'application/x-www-form-urlencoded',
       })
 
@@ -1103,29 +978,25 @@ describe('processBody', () => {
     })
 
     it('handles nested form data', () => {
-      const operation: Dereference<OperationObject> = {
-        requestBody: {
-          content: {
-            'application/x-www-form-urlencoded': {
-              schema: {
+      const content = {
+        'application/x-www-form-urlencoded': {
+          schema: {
+            type: 'object',
+            properties: {
+              user: {
                 type: 'object',
                 properties: {
-                  user: {
-                    type: 'object',
-                    properties: {
-                      firstName: { type: 'string', example: 'John' },
-                      lastName: { type: 'string', example: 'Doe' },
-                    },
-                  },
+                  firstName: { type: 'string', example: 'John' },
+                  lastName: { type: 'string', example: 'Doe' },
                 },
               },
             },
           },
         },
-      }
+      } satisfies RequestBodyObject['content']
 
       const result = processBody({
-        operation,
+        content,
         contentType: 'application/x-www-form-urlencoded',
       })
 
@@ -1141,23 +1012,18 @@ describe('processBody', () => {
 
   describe('binary files', () => {
     it('extracts binary file examples', () => {
-      const operation: Dereference<OperationObject> = {
-        requestBody: {
-          content: {
-            'image/png': {
-              schema: {
-                type: 'string',
-                format: 'binary',
-                example:
-                  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
-              },
-            },
+      const content = {
+        'image/png': {
+          schema: {
+            type: 'string',
+            format: 'binary',
+            example: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
           },
         },
-      }
+      } satisfies RequestBodyObject['content']
 
       const result = processBody({
-        operation,
+        content,
         contentType: 'image/png',
       })
 
@@ -1170,23 +1036,19 @@ describe('processBody', () => {
     })
 
     it('handles PDF file with example', () => {
-      const operation: Dereference<OperationObject> = {
-        requestBody: {
-          content: {
-            'application/pdf': {
-              schema: {
-                type: 'string',
-                format: 'binary',
-                example:
-                  'JVBERi0xLjcKCjEgMCBvYmogICUgZW50cnkgcG9pbnQKPDwKICAvVHlwZSAvQ2F0YWxvZwogIC9QYWdlcyAyIDAgUgo+PgplbmRvYmoKCjIgMCBvYmoKPDwKICAvVHlwZSAvUGFnZXMKICAvTWVkaWFCb3ggWyAwIDAgMjAwIDIwMCBdCiAgL0NvdW50IDEKICAvS2lkcyBbIDMgMCBSIF0KPj4KZW5kb2JqCgozIDAgb2JqCjw8CiAgL1R5cGUgL1BhZ2UKICAvUGFyZW50IDIgMCBSCiAgL1Jlc291cmNlcyA8PAogICAgL0ZvbnQgPDwKICAgICAgL0YxIDQgMCBSIAogICAgPj4KICA+PgogIC9Db250ZW50cyA1IDAgUgo+PgplbmRvYmoKCjQgMCBvYmoKPDwKICAvVHlwZSAvRm9udAogIC9TdWJ0eXBlIC9UeXBlMQogIC9CYXNlRm9udCAvVGltZXMtUm9tYW4KPj4KZW5kb2Jq',
-              },
-            },
+      const content = {
+        'application/pdf': {
+          schema: {
+            type: 'string',
+            format: 'binary',
+            example:
+              'JVBERi0xLjcKCjEgMCBvYmogICUgZW50cnkgcG9pbnQKPDwKICAvVHlwZSAvQ2F0YWxvZwogIC9QYWdlcyAyIDAgUgo+PgplbmRvYmoKCjIgMCBvYmoKPDwKICAvVHlwZSAvUGFnZXMKICAvTWVkaWFCb3ggWyAwIDAgMjAwIDIwMCBdCiAgL0NvdW50IDEKICAvS2lkcyBbIDMgMCBSIF0KPj4KZW5kb2JqCgozIDAgb2JqCjw8CiAgL1R5cGUgL1BhZ2UKICAvUGFyZW50IDIgMCBSCiAgL1Jlc291cmNlcyA8PAogICAgL0ZvbnQgPDwKICAgICAgL0YxIDQgMCBSIAogICAgPj4KICA+PgogIC9Db250ZW50cyA1IDAgUgo+PgplbmRvYmoKCjQgMCBvYmoKPDwKICAvVHlwZSAvRm9udAogIC9TdWJ0eXBlIC9UeXBlMQogIC9CYXNlRm9udCAvVGltZXMtUm9tYW4KPj4KZW5kb2Jq',
           },
         },
-      }
+      } satisfies RequestBodyObject['content']
 
       const result = processBody({
-        operation,
+        content,
         contentType: 'application/pdf',
       })
 
@@ -1201,37 +1063,33 @@ describe('processBody', () => {
 
   describe('complex nested structures', () => {
     it('handles deeply nested objects with examples', () => {
-      const operation: Dereference<OperationObject> = {
-        requestBody: {
-          content: {
-            'application/json': {
-              schema: {
+      const content = {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              company: {
                 type: 'object',
                 properties: {
-                  company: {
-                    type: 'object',
-                    properties: {
-                      name: { type: 'string', example: 'Tech Corp' },
-                      departments: {
-                        type: 'array',
-                        items: {
-                          type: 'object',
-                          properties: {
-                            name: { type: 'string', example: 'Engineering' },
-                            employees: {
-                              type: 'array',
-                              items: {
-                                type: 'object',
-                                properties: {
-                                  id: { type: 'number', example: 1 },
-                                  name: { type: 'string', example: 'John Doe' },
-                                  skills: {
-                                    type: 'array',
-                                    items: {
-                                      type: 'string',
-                                      example: 'JavaScript',
-                                    },
-                                  },
+                  name: { type: 'string', example: 'Tech Corp' },
+                  departments: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        name: { type: 'string', example: 'Engineering' },
+                        employees: {
+                          type: 'array',
+                          items: {
+                            type: 'object',
+                            properties: {
+                              id: { type: 'number', example: 1 },
+                              name: { type: 'string', example: 'John Doe' },
+                              skills: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  example: 'JavaScript',
                                 },
                               },
                             },
@@ -1245,9 +1103,9 @@ describe('processBody', () => {
             },
           },
         },
-      }
+      } satisfies RequestBodyObject['content']
 
-      const result = processBody({ operation })
+      const result = processBody({ content })
 
       expect(result).toEqual({
         mimeType: 'application/json',
@@ -1272,25 +1130,21 @@ describe('processBody', () => {
     })
 
     it('handles mixed example and examples properties', () => {
-      const operation: Dereference<OperationObject> = {
-        requestBody: {
-          content: {
-            'application/json': {
-              schema: {
+      const content = {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              user: {
                 type: 'object',
                 properties: {
-                  user: {
+                  name: { type: 'string', example: 'Alice' },
+                  status: { type: 'string', examples: ['active', 'inactive'] },
+                  preferences: {
                     type: 'object',
                     properties: {
-                      name: { type: 'string', example: 'Alice' },
-                      status: { type: 'string', examples: ['active', 'inactive'] },
-                      preferences: {
-                        type: 'object',
-                        properties: {
-                          theme: { type: 'string', example: 'dark' },
-                          notifications: { type: 'boolean', examples: [true, false] },
-                        },
-                      },
+                      theme: { type: 'string', example: 'dark' },
+                      notifications: { type: 'boolean', examples: [true, false] },
                     },
                   },
                 },
@@ -1298,9 +1152,9 @@ describe('processBody', () => {
             },
           },
         },
-      }
+      } satisfies RequestBodyObject['content']
 
-      const result = processBody({ operation })
+      const result = processBody({ content })
 
       expect(result).toEqual({
         mimeType: 'application/json',
