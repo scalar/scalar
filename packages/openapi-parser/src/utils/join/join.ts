@@ -28,6 +28,22 @@ const getSetIntersection = <T>(a: Set<T>, b: Set<T>): T[] => {
 }
 
 /**
+ * Returns the value if it is not nullish (or, for arrays, not empty), otherwise returns the provided default value.
+ * Useful for handling OpenAPI fields that may be missing or empty.
+ */
+const withDefault = <T, K>(value: T, defaultValue: K): T | K => {
+  if (Array.isArray(value)) {
+    return value.length ? value : defaultValue
+  }
+
+  if (typeof value === 'object' && value !== null) {
+    return Object.keys(value).length ? value : defaultValue
+  }
+
+  return value ?? defaultValue
+}
+
+/**
  * Merges multiple OpenAPI PathsObjects into a single PathsObject.
  * - If a path does not exist in the result, it is added directly.
  * - If a path already exists, its operations (get, post, etc.) are merged.
@@ -315,10 +331,10 @@ export const join = async (inputs: UnknownObject[], config?: { prefixComponents:
       ...result,
       info,
       paths,
-      webhooks,
-      tags,
-      servers,
-      components,
+      webhooks: withDefault(webhooks, undefined),
+      tags: withDefault(tags, undefined),
+      servers: withDefault(servers, undefined),
+      components: withDefault(components, undefined),
     },
   }
 }

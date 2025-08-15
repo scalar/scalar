@@ -35,10 +35,6 @@ describe('join', () => {
           summary: 'Some extra information about the API',
         },
         paths: {},
-        webhooks: {},
-        tags: [],
-        servers: [],
-        components: {},
       },
     })
   })
@@ -89,10 +85,6 @@ describe('join', () => {
             },
           },
         },
-        webhooks: {},
-        tags: [],
-        servers: [],
-        components: {},
       },
     })
   })
@@ -187,9 +179,6 @@ describe('join', () => {
             },
           },
         },
-        tags: [],
-        servers: [],
-        components: {},
       },
     })
   })
@@ -281,7 +270,6 @@ describe('join', () => {
       document: {
         info: {},
         paths: {},
-        webhooks: {},
         tags: [
           {
             description: 'some tag4 description',
@@ -300,8 +288,6 @@ describe('join', () => {
             name: 'tag-2',
           },
         ],
-        servers: [],
-        components: {},
       },
     })
   })
@@ -351,8 +337,6 @@ describe('join', () => {
       document: {
         info: {},
         paths: {},
-        webhooks: {},
-        tags: [],
         servers: [
           {
             description: 'some server4 description',
@@ -371,7 +355,6 @@ describe('join', () => {
             url: 'server-2',
           },
         ],
-        components: {},
       },
     })
   })
@@ -432,9 +415,6 @@ describe('join', () => {
       document: {
         info: {},
         paths: {},
-        webhooks: {},
-        tags: [],
-        servers: [],
         components: {
           schemas: {
             User: { type: 'object', properties: { name: { type: 'string' } } },
@@ -562,9 +542,6 @@ describe('join', () => {
       document: {
         info: {},
         paths: {},
-        webhooks: {},
-        tags: [],
-        servers: [],
         components: {
           schemas: {
             'prefix1-Schema1': {
@@ -669,9 +646,6 @@ describe('join', () => {
             },
           },
         },
-        webhooks: {},
-        tags: [],
-        servers: [],
         components: {
           schemas: {
             'prefix1-Schema1': {
@@ -726,9 +700,6 @@ describe('join', () => {
       document: {
         info: {},
         paths: {},
-        webhooks: {},
-        tags: [],
-        servers: [],
         components: {
           schemas: {
             Schema1: { type: 'object' },
@@ -772,9 +743,6 @@ describe('join', () => {
       document: {
         info: {},
         paths: {},
-        webhooks: {},
-        tags: [],
-        servers: [],
         components: {
           schemas: {
             'prefix1-Schema1': { type: 'object', properties: { prop1: { type: 'string' } } },
@@ -812,9 +780,6 @@ describe('join', () => {
       document: {
         info: {},
         paths: {},
-        webhooks: {},
-        tags: [],
-        servers: [],
         components: {
           schemas: {
             'prefix1-Schema1': { type: 'object', properties: { prop1: { type: 'string' } } },
@@ -851,9 +816,6 @@ describe('join', () => {
       document: {
         info: {},
         paths: {},
-        webhooks: {},
-        tags: [],
-        servers: [],
         components: {
           schemas: {
             Schema1: { type: 'object', properties: { prop1: { type: 'string' } } },
@@ -945,9 +907,7 @@ describe('join', () => {
       document: {
         info: {},
         paths: {},
-        webhooks: {},
-        tags: [],
-        servers: [],
+
         components: {
           schemas: {
             User: {
