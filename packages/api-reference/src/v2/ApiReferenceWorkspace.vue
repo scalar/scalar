@@ -209,6 +209,14 @@ onCustomEvent(root, 'scalar-update-selected-client', (event) => {
   safeLocalStorage().setItem(REFERENCE_LS_KEYS.SELECTED_CLIENT, event.detail)
 })
 
+onCustomEvent(root, 'scalar-update-selected-server', (event) => {
+  const activeDocument = store.workspace.activeDocument
+
+  if (activeDocument) {
+    activeDocument['x-scalar-active-server'] = event.detail
+  }
+})
+
 // Update the workspace store if default client changes
 watch(
   () => selectedConfiguration.value.defaultHttpClient,
