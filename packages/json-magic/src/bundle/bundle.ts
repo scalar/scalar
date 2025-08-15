@@ -449,6 +449,13 @@ type Config = {
   depth?: number
 
   /**
+   * Optional origin path for the bundler.
+   * Used to resolve relative paths in references, especially when the input is a string URL or file path.
+   * If not provided, the bundler will use the input value as the origin.
+   */
+  origin?: string
+
+  /**
    * Optional cache to store promises of resolved references.
    * Helps avoid duplicate fetches/reads of the same resource by storing
    * the resolution promises for reuse.
@@ -651,6 +658,10 @@ export async function bundle(input: UnknownObject | string, config: Config) {
   // For string inputs that are URLs or file paths, uses the input as the origin.
   // For non-string inputs or other string types, returns an empty string.
   const defaultOrigin = () => {
+    if (config.origin) {
+      return config.origin
+    }
+
     if (typeof input !== 'string') {
       return ''
     }
