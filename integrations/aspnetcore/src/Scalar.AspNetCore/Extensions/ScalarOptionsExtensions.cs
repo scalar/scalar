@@ -130,7 +130,7 @@ public static class ScalarOptionsExtensions
     /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
     /// <param name="operationTitleSource">Whether to use the method summary or the method path in the sidebar and search.</param>
     /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
-    public static ScalarOptions WithOperationTitleSource(this ScalarOptions options, TitleSource operationTitleSource)
+    public static ScalarOptions WithOperationTitleSource(this ScalarOptions options, OperationTitleSource operationTitleSource)
     {
         options.OperationTitleSource = operationTitleSource;
         return options;

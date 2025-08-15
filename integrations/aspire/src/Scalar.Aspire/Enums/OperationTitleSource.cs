@@ -4,10 +4,10 @@ using NetEscapades.EnumGenerators;
 namespace Scalar.Aspire;
 
 /// <summary>
-/// Represents the theme modes available in the application.
+/// Which part of the operation description to display as the operation title.
 /// </summary>
 [EnumExtensions]
-public enum TitleSource
+public enum OperationTitleSource
 {
     /// <summary>
     /// Title comes from operation summary.
