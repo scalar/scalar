@@ -47,7 +47,7 @@ public class ScalarOptionsMapperTests
         {
             ProxyUrl = "http://localhost:8080",
             ShowSidebar = false,
-            OperationTitleSource = TitleSource.Path,
+            OperationTitleSource = OperationTitleSource.Path,
             HideModels = true,
             HideTestRequestButton = true,
             DarkMode = false,
