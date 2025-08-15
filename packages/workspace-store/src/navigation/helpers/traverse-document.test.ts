@@ -3,6 +3,8 @@ import { traverseDocument } from './traverse-document'
 import type { TraverseSpecOptions } from '@/navigation/types'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import type { TraversedTag } from '@/schemas/navigation'
+import { SchemaObjectSchema } from '@/schemas/v3.1/strict/schema'
+import { coerceValue } from '@/schemas/typebox-coerce'
 
 describe('traverseDocument', () => {
   const mockOptions: TraverseSpecOptions = {
@@ -116,14 +118,14 @@ describe('traverseDocument', () => {
       },
       components: {
         schemas: {
-          TestModel: {
+          TestModel: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               id: {
                 type: 'string',
               },
             },
-          },
+          }),
         },
       },
     }
@@ -142,14 +144,14 @@ describe('traverseDocument', () => {
       },
       components: {
         schemas: {
-          TestModel: {
+          TestModel: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               id: {
                 type: 'string',
               },
             },
-          },
+          }),
         },
       },
     }
