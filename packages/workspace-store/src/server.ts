@@ -67,7 +67,7 @@ const httpMethods = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 
  *   }
  * }
  */
-export function filterHttpMethodsOnly(paths: PathsObject) {
+export function filterHttpMethodsOnly(paths: PathsObject): Record<string, Record<string, OperationObject>> {
   const result: Record<string, Record<string, OperationObject>> = {}
 
   // Todo: skip extension properties
@@ -101,7 +101,9 @@ export function filterHttpMethodsOnly(paths: PathsObject) {
  * Input: { "/users/{id}": { ... } }
  * Output: { "/users~1{id}": { ... } }
  */
-export function escapePaths(paths: Record<string, Record<string, OperationObject>>) {
+export function escapePaths(
+  paths: Record<string, Record<string, OperationObject>>,
+): Record<string, Record<string, OperationObject>> {
   const result: Record<string, Record<string, OperationObject>> = {}
 
   Object.keys(paths).forEach((path) => {
