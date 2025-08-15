@@ -1,5 +1,22 @@
 # @scalar/oas-utils
 
+## 0.4.20
+
+### Patch Changes
+
+- a1429ca: chore: move to new extensions system for better type safety
+- 5f022b5: feat: use registry.scalar.com URLs as example
+- Updated dependencies [a1429ca]
+- Updated dependencies [5208f06]
+- Updated dependencies [c4bf497]
+- Updated dependencies [0c80ef0]
+  - @scalar/workspace-store@0.14.0
+  - @scalar/helpers@0.0.7
+  - @scalar/object-utils@1.2.3
+  - @scalar/openapi-types@0.3.7
+  - @scalar/themes@0.13.12
+  - @scalar/types@0.2.11
+
 ## 0.4.19
 
 ### Patch Changes

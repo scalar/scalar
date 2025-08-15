@@ -1,5 +1,16 @@
 # @scalar/api-client-react
 
+## 1.3.29
+
+### Patch Changes
+
+- 5f022b5: feat: use registry.scalar.com URLs as example
+- Updated dependencies [172e397]
+- Updated dependencies [5f022b5]
+- Updated dependencies [0804cfc]
+  - @scalar/api-client@2.5.24
+  - @scalar/types@0.2.11
+
 ## 1.3.28
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # @scalar/json-magic
 
+## 0.3.0
+
+### Minor Changes
+
+- c4bf497: fix(workspace-store): correctly propagate documents from one state to the other
+- 0c80ef0: feat(json-magic): change the way we resolve refs
+
+### Patch Changes
+
+- @scalar/helpers@0.0.7
+
 ## 0.2.0
 
 ### Minor Changes

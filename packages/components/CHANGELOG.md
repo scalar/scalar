@@ -1,5 +1,23 @@
 # @scalar/components
 
+## 0.14.25
+
+### Patch Changes
+
+- 172e397: feat(components): add hotkey component and tooltip support
+- d8b8a5b: fix(components): add scalar fonts to storybook
+- 638120c: test(components): add additional component snapshots and functionality
+- 0804cfc: eat(components): Add ScalarMarkdown summary component
+- Updated dependencies [a1429ca]
+- Updated dependencies [5f022b5]
+  - @scalar/oas-utils@0.4.20
+  - @scalar/code-highlight@0.1.9
+  - @scalar/helpers@0.0.7
+  - @scalar/icons@0.4.7
+  - @scalar/themes@0.13.12
+  - @scalar/use-hooks@0.2.4
+  - @scalar/use-toasts@0.8.0
+
 ## 0.14.24
 
 ### Patch Changes

@@ -1,5 +1,20 @@
 # @scalar/openapi-parser
 
+## 0.20.0
+
+### Minor Changes
+
+- c418e92: feat(openapi-parser): join multiple openapi documents
+
+### Patch Changes
+
+- d4adeba: fix: ensure upgrader doesn't lose schema properties
+- 5f022b5: feat: use registry.scalar.com URLs as example
+- Updated dependencies [c4bf497]
+- Updated dependencies [0c80ef0]
+  - @scalar/json-magic@0.3.0
+  - @scalar/openapi-types@0.3.7
+
 ## 0.19.1
 
 ### Patch Changes

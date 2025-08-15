@@ -1,5 +1,27 @@
 # @scalar/workspace-store
 
+## 0.14.0
+
+### Minor Changes
+
+- 5208f06: feat(workspace-store): validate that the bundle produces valid openapi document
+- c4bf497: fix(workspace-store): correctly propagate documents from one state to the other
+- 0c80ef0: feat(json-magic): change the way we resolve refs
+
+### Patch Changes
+
+- a1429ca: chore: move to new extensions system for better type safety
+- Updated dependencies [d4adeba]
+- Updated dependencies [5f022b5]
+- Updated dependencies [c418e92]
+- Updated dependencies [c4bf497]
+- Updated dependencies [0c80ef0]
+  - @scalar/openapi-parser@0.20.0
+  - @scalar/json-magic@0.3.0
+  - @scalar/code-highlight@0.1.9
+  - @scalar/helpers@0.0.7
+  - @scalar/types@0.2.11
+
 ## 0.13.0
 
 ### Minor Changes

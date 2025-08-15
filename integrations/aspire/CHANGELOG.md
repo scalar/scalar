@@ -1,5 +1,25 @@
 # @scalar/aspire
 
+## 0.4.0
+
+### Minor Changes
+
+- 508c04a: feat: use environment callback instead of hooks
+
+### Patch Changes
+
+- 2f05f7d: feat: support multiple scalar resources
+- a995f15: feat: support async configuration
+- Updated dependencies [a1429ca]
+- Updated dependencies [6eb7c4f]
+- Updated dependencies [4e06829]
+- Updated dependencies [5f022b5]
+- Updated dependencies [2b89e6f]
+- Updated dependencies [75d84ed]
+- Updated dependencies [929df42]
+- Updated dependencies [0804cfc]
+  - @scalar/api-reference@1.34.4
+
 ## 0.3.3
 
 ### Patch Changes
