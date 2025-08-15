@@ -603,11 +603,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         return
       }
 
-      return
-    }
-
-    await addInMemoryDocument({ ...input, document: resolve.data, origin: getOrigin(input) })
-      await addInMemoryDocument({ ...input, document: resolve.data })
+      await addInMemoryDocument({ ...input, document: resolve.data, origin: getOrigin(input) })
     })
   }
 
