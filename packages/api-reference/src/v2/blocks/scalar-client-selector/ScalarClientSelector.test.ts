@@ -58,12 +58,12 @@ describe('ScalarClientSelector', () => {
   ]
 
   describe('default client selection', () => {
-    it('uses DEFAULT_CLIENT when no defaultClient is provided', () => {
+    it('uses DEFAULT_CLIENT when no selectedClient is provided', () => {
       const wrapper = mount(ScalarClientSelector, {
         props: {
           document: mockDocument,
           clientOptions: mockClientOptions,
-          // defaultClient is not provided, should default to DEFAULT_CLIENT
+          // selectedClient is not provided, should default to DEFAULT_CLIENT
         },
         global: {
           stubs: {
@@ -82,14 +82,14 @@ describe('ScalarClientSelector', () => {
       expect(vm.selectedClientOption?.id).toBe(DEFAULT_CLIENT)
     })
 
-    it('uses provided defaultClient when available', () => {
+    it('uses provided selectedClient when available', () => {
       const customClient = 'node/undici'
 
       const wrapper = mount(ScalarClientSelector, {
         props: {
           document: mockDocument,
           clientOptions: mockClientOptions,
-          defaultClient: customClient,
+          selectedClient: customClient,
         },
         global: {
           stubs: {
@@ -108,12 +108,12 @@ describe('ScalarClientSelector', () => {
       expect(vm.selectedClientOption?.id).toBe(customClient)
     })
 
-    it('handles undefined defaultClient gracefully', () => {
+    it('handles undefined selectedClient gracefully', () => {
       const wrapper = mount(ScalarClientSelector, {
         props: {
           document: mockDocument,
           clientOptions: mockClientOptions,
-          defaultClient: undefined,
+          selectedClient: undefined,
         },
         global: {
           stubs: {

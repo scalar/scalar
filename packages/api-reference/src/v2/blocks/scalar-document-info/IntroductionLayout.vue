@@ -24,6 +24,7 @@ const { document, onLoaded } = defineProps<{
   isLoading?: boolean
   onLoaded?: () => void
   id?: string
+  oasVersion?: string
 }>()
 
 /** Trigger the onLoaded event when the component is mounted */
@@ -42,7 +43,7 @@ onMounted(() => onLoaded?.())
         ">
         <div class="flex gap-1.5">
           <InfoVersion :version="document.info?.version" />
-          <OpenApiVersion />
+          <OpenApiVersion :oasVersion="oasVersion" />
         </div>
         <SectionHeader
           :loading="!document.info?.title"

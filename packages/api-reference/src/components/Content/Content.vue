@@ -3,9 +3,10 @@ import { ScalarErrorBoundary } from '@scalar/components'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { computed } from 'vue'
+import { computed, inject, type Ref } from 'vue'
 
 import { SectionFlare } from '@/components/SectionFlare'
+import { OPENAPI_VERSION_SYMBOL } from '@/features/download-links'
 import { DEFAULT_INTRODUCTION_SLUG } from '@/features/traverse-schema'
 import { useConfig } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
@@ -43,6 +44,11 @@ const id = computed(() =>
     value: 'Introduction',
   }),
 )
+
+/**
+ * Get the OpenAPI/Swagger specification version from the API definition.
+ */
+const oasVersion = inject<Ref<string | undefined>>(OPENAPI_VERSION_SYMBOL)
 </script>
 
 <template>
@@ -54,10 +60,12 @@ const id = computed(() =>
     <!-- Introduction -->
     <IntroductionSection :showEmptyState="!store.workspace.activeDocument">
       <ScalarDocumentInfo
+        :id
         :document="store.workspace.activeDocument"
         :layout="config.layout"
-        :onLoaded="config.onLoaded"
-        :id>
+        :oasVersion
+        :isLoading="config.isLoading"
+        :onLoaded="config.onLoaded">
         <template #selectors>
           <ScalarErrorBoundary>
             <ScalarServerSelector :config="config" />

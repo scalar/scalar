@@ -12,6 +12,7 @@ const { layout } = defineProps<{
   id?: string
   isLoading?: boolean
   onLoaded?: () => void
+  oasVersion?: string
 }>()
 
 /**
@@ -29,8 +30,9 @@ const introCardsSlot = computed(() =>
     v-if="document"
     :id
     :document
-    :onLoaded
-    :isLoading>
+    :isLoading
+    :oasVersion
+    :onLoaded>
     <template #[introCardsSlot]>
       <IntroductionCard :row="layout === 'classic'">
         <slot name="selectors" />
