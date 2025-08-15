@@ -6,24 +6,31 @@ import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 import { Lazy } from '@/components/Lazy'
-import { BaseUrl } from '@/features/base-url'
 import { useNavState } from '@/hooks/useNavState'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
+import { ServerSelector } from '@/v2/blocks/scalar-server-selector-block'
+import { onCustomEvent } from '@/v2/events'
 
 import { ClientLibraries } from '../ClientLibraries'
 import IntroductionSection from './IntroductionSection.vue'
 
-const { config } = defineProps<{
+const { config, store } = defineProps<{
   document: OpenAPIV3_1.Document
   config?: ApiReferenceConfiguration
   clientOptions: ClientOptionGroup[]
   store: WorkspaceStore
 }>()
 
-const { collections, securitySchemes, servers } = useWorkspace()
+const {
+  collections,
+  securitySchemes,
+  servers,
+  serverMutators,
+  collectionMutators,
+} = useWorkspace()
 const {
   activeCollection: _activeCollection,
   activeEnvVariables,
@@ -62,6 +69,45 @@ const introCardsSlot = computed(() =>
   config?.layout === 'classic' ? 'after' : 'aside',
 )
 
+const el = ref(window.document.body)
+
+onCustomEvent(el, 'scalar-update-selected-server', ({ detail: newServer }) => {
+  const collection = activeCollection.value
+
+  if (!collection) {
+    return
+  }
+
+  const server = Object.values(servers).find((s) => s.url === newServer)
+
+  if (!server) {
+    return
+  }
+
+  // Update the collection with the new server
+  collectionMutators.edit(collection.uid, 'selectedServerUid', server.uid)
+})
+
+// Update the old store with the new server variables
+onCustomEvent(
+  el,
+  'scalar-update-selected-server-variables',
+  ({ detail: { key, value } }) => {
+    console.log('on the receiver', key, value)
+
+    const server = activeServer.value
+
+    if (!server) {
+      return
+    }
+
+    const variables = server.variables || {}
+    variables[key] = { ...variables[key], default: value }
+
+    serverMutators.edit(server.uid, 'variables', variables)
+  },
+)
+
 const { hash } = useNavState()
 </script>
 <template>
@@ -78,11 +124,14 @@ const { hash } = useNavState()
             class="introduction-card"
             :class="{ 'introduction-card-row': config?.layout === 'classic' }">
             <div
-              v-if="activeCollection?.servers?.length"
+              v-if="store.workspace.activeDocument?.servers?.length"
               class="scalar-reference-intro-server scalar-client introduction-card-item text-base leading-normal [--scalar-address-bar-height:0px]">
-              <BaseUrl
-                :collection="activeCollection"
-                :server="activeServer" />
+              <ServerSelector
+                :servers="store.workspace.activeDocument?.servers ?? []"
+                :xSelectedServer="
+                  store.workspace.activeDocument?.['x-scalar-active-server'] ??
+                  ''
+                " />
             </div>
             <div
               v-if="

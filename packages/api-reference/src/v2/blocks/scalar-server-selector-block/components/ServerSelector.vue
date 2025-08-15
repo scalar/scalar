@@ -32,12 +32,7 @@ const id = useId()
 /** Reference to the main container element for event emission */
 const containerRef = ref<HTMLElement>()
 
-const { servers, xSelectedServer } = defineProps<{
-  /** The selected server URL */
-  xSelectedServer?: string
-  /** Available servers */
-  servers: ServerObject[]
-}>()
+const { servers, xSelectedServer } = defineProps<SelectorProps>()
 
 const updateServer = (newServer: string) => {
   if (!containerRef.value) {
@@ -51,11 +46,23 @@ const updateServer = (newServer: string) => {
   )
 }
 
+const updateServerVariable = (key: string, value: string) => {
+  if (!containerRef.value) {
+    return
+  }
+
+  emitCustomEvent(
+    containerRef.value,
+    'scalar-update-selected-server-variables',
+    { key, value },
+  )
+}
+
 const server = computed(() => {
   return servers.find((s) => s.url === xSelectedServer)
 })
 
-// Ensure we always have a selected server
+// Automatically select the first server if none is currently selected
 watch(
   () => servers,
   (newServers) => {
@@ -94,7 +101,8 @@ watch(
   </div>
   <ServerVariablesForm
     :variables="server?.variables"
-    layout="reference" />
+    layout="reference"
+    @update:variable="updateServerVariable" />
 
   <!-- Description -->
   <ScalarMarkdown
