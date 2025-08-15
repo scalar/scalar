@@ -1,3 +1,4 @@
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { getTag } from '@/navigation/helpers/get-tag'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import type { TraversedSchema } from '@/schemas/navigation'
@@ -19,9 +20,10 @@ const createSchemaEntry = (
   titlesMap: Map<string, string>,
   getModelId: TraverseSpecOptions['getModelId'],
   tag?: TagObject,
-  schema?: SchemaObject,
+  _schema?: SchemaObject,
 ): TraversedSchema => {
   const id = getModelId({ name }, tag)
+  const schema = getResolvedRef(_schema)
 
   // Use schema.title if available, otherwise fall back to name
   // @see https://json-schema.org/draft/2020-12/json-schema-core#section-4.3.5

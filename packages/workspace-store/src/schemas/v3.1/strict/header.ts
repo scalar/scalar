@@ -23,7 +23,7 @@ export const HeaderObjectWithSchemaSchema = compose(
     /** The schema defining the type used for the header. */
     schema: Type.Optional(Type.Union([SchemaObjectSchema, reference(SchemaObjectSchema)])),
     /** Example of the header's potential value; see Working With Examples. https://swagger.io/specification/#working-with-examples */
-    example: Type.Any(),
+    example: Type.Optional(Type.Any()),
     /** Examples of the header's potential value; see Working With Examples. https://swagger.io/specification/#working-with-examples */
     examples: Type.Optional(
       Type.Record(Type.String(), Type.Union([ExampleObjectSchema, reference(ExampleObjectSchema)])),

@@ -1,3 +1,5 @@
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
+
 const MAX_LEVELS_DEEP = 5
 /** Sets the max number of properties after the third level to prevent exponential horizontal growth */
 const MAX_PROPERTIES = 10
@@ -40,18 +42,18 @@ const genericExampleValues: Record<string, string> = {
 /**
  * We can use the `format` to generate some random values.
  */
-function guessFromFormat(schema: Record<string, any>, makeUpRandomData: boolean = false, fallback: string = '') {
+function guessFromFormat(schema: SchemaObject, makeUpRandomData: boolean = false, fallback: string = '') {
   if (schema.format === 'binary') {
     return new File([''], 'filename')
   }
-  return makeUpRandomData ? (genericExampleValues[schema.format] ?? fallback) : ''
+  return makeUpRandomData ? (genericExampleValues[schema.format ?? ''] ?? fallback) : ''
 }
 
 /** Map of all the results */
 const resultCache = new WeakMap<Record<string, any>, any>()
 
 /** Store result in the cache, and return the result */
-function cache(schema: Record<string, any>, result: unknown) {
+function cache(schema: SchemaObject, result: unknown) {
   // Avoid unnecessary WeakMap operations for primitive values
   if (typeof result !== 'object' || result === null) {
     return result
@@ -66,7 +68,7 @@ function cache(schema: Record<string, any>, result: unknown) {
  * This function takes an OpenAPI schema and generates an example from it
  */
 export const getExampleFromSchema = (
-  schema: Record<string, any>,
+  schema: SchemaObject,
   options?: {
     /**
      * The fallback string for empty string values.
