@@ -3,28 +3,20 @@ import { isDereferenced } from '@scalar/openapi-types/helpers'
 
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
-import type { ContentSchema } from '../types'
-
-type PropertyObject = {
-  required?: string[]
-  properties: {
-    [key: string]: {
-      type: string
-      description?: string
-    }
-  }
-}
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/media-header-encoding'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 
 /**
  * Formats a property object into a string.
  */
-export function formatProperty(key: string, obj: PropertyObject): string {
+export function formatProperty(key: string, obj: SchemaObject): string {
   let output = key
   const isRequired = obj.required?.includes(key)
   output += isRequired ? ' REQUIRED ' : ' optional '
 
   // Check existence before accessing
-  if (obj.properties[key]) {
+  if (obj.properties?.[key]) {
     output += obj.properties[key].type
     if (obj.properties[key].description) {
       output += ' ' + obj.properties[key].description
@@ -37,7 +29,7 @@ export function formatProperty(key: string, obj: PropertyObject): string {
 /**
  * Recursively logs the properties of an object.
  */
-function recursiveLogger(obj: ContentSchema): string[] {
+function recursiveLogger(obj: MediaTypeObject): string[] {
   const results: string[] = ['Body']
 
   const properties = obj?.schema?.properties
@@ -68,13 +60,12 @@ function recursiveLogger(obj: ContentSchema): string[] {
 export function extractRequestBody(operation: OperationObject): string[] | boolean {
   try {
     // TODO: Wait… there's more than just 'application/json' (https://github.com/scalar/scalar/issues/6427)
-    // @ts-expect-error I think the types are wrong here
-    const body = operation?.requestBody?.content?.['application/json']
-    if (!body) {
+    const media = getResolvedRef(operation?.requestBody)?.content?.['application/json']
+    if (!media) {
       throw new Error('Body not found')
     }
 
-    return recursiveLogger(body)
+    return recursiveLogger(media)
   } catch (_error) {
     return false
   }

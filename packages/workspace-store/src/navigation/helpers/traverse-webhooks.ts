@@ -2,8 +2,10 @@ import type { TraversedWebhook } from '@/schemas/navigation'
 import { getTag } from './get-tag'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
-import type { OperationObject } from '@/schemas/v3.1/strict/path-operations'
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
+import { objectKeys } from '@scalar/helpers/object/object-keys'
 
 /** Creates a traversed webhook entry from an OpenAPI webhook object.
  *
@@ -65,20 +67,21 @@ export const traverseWebhooks = (
 
   // Traverse webhooks
   Object.entries(content.webhooks ?? {}).forEach(([name, pathItemObject]) => {
-    const pathEntries = Object.entries(pathItemObject ?? {}) as [string, OperationObject][]
+    const pathKeys = objectKeys(pathItemObject ?? {}).filter((key) => isHttpMethod(key))
 
-    pathEntries.forEach(([method, operation]) => {
-      // @ts-ignore
-      if (isReference(operation)) {
+    pathKeys.forEach((method) => {
+      const _operation = pathItemObject?.[method]
+      const operation = getResolvedRef(_operation)
+      if (!operation) {
         return
       }
-
-      const ref = `#/webhooks/${name}/${method}`
 
       // Skip if the operation is internal or scalar-ignore
       if (operation['x-internal'] || operation['x-scalar-ignore']) {
         return
       }
+
+      const ref = `#/webhooks/${name}/${method}`
 
       if (operation.tags?.length) {
         operation.tags.forEach((tagName: string) => {

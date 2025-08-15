@@ -1,3 +1,4 @@
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { OperationIdentifier } from '@/mutators/request'
 import type { WorkspaceDocument } from '@/schemas'
 import type { XScalarClientConfigRequestExample } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-request-example'
@@ -51,12 +52,7 @@ export const requestExampleMutators = (document?: WorkspaceDocument) => {
       document.paths[path][method] = {}
     }
 
-    const operation = document.paths[path][method]
-
-    // @ts-ignore
-    if (isReference(operation)) {
-      return false
-    }
+    const operation = getResolvedRef(document.paths[path][method])
 
     // Create a new request example if it doesn't exist
     if (!operation['x-scalar-client-config-request-example']) {
@@ -99,10 +95,9 @@ export const requestExampleMutators = (document?: WorkspaceDocument) => {
       return false
     }
 
-    const operation = pathObject[method]
+    const operation = getResolvedRef(pathObject[method])
 
-    // @ts-ignore
-    if (!operation || isReference(operation)) {
+    if (!operation) {
       return false
     }
 
