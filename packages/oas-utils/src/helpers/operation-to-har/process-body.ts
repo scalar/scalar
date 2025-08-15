@@ -1,5 +1,6 @@
 import type { OperationToHarProps } from './operation-to-har'
 import { getExampleFromSchema } from '@/spec-getters/get-example-from-schema'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/request-body'
 import type { Param, PostData } from 'har-format'
 
@@ -65,7 +66,7 @@ export const processBody = ({ content, contentType, example }: ProcessBodyProps)
   }
 
   // Try to extract examples from the schema
-  const contentSchema = content[_contentType]?.schema
+  const contentSchema = getResolvedRef(content[_contentType]?.schema)
   if (contentSchema) {
     const extractedExample = getExampleFromSchema(contentSchema)
 

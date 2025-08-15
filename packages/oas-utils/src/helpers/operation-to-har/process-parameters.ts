@@ -76,7 +76,7 @@ const getParameterValue = (param: ParameterObject, example?: unknown): unknown =
   // Fall back to schema example if available
   if ('schema' in param && param.schema) {
     const options = param.in === 'path' ? { emptyString: `{${param.name}}` } : {}
-    return getExampleFromSchema(param.schema, options)
+    return getExampleFromSchema(getResolvedRef(param.schema), options)
   }
 
   return undefined
