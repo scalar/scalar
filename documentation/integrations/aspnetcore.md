@@ -334,14 +334,14 @@ app.MapScalarApiReference(options => options
 
         // Alternatively, set body parameters using the property
         flow.AdditionalBodyParameters = new Dictionary<string, string>
-        {   
+        {
              ["audience"] = "https://api.example.com"
         };
 
         // Specify where OAuth2 credentials should be sent: 'Header' or 'Body'
         // This is also available for client credentials and password flows
         flow.WithCredentialsLocation(CredentialsLocation.Header);
-        
+
         // Alternatively, set using the property
         flow.CredentialsLocation = CredentialsLocation.Body;
     })
@@ -530,7 +530,7 @@ export default {
   onDocumentSelect: () => console.log('Document changed'),
 
   // Add any other custom configuration options supported by Scalar
-  // Checkout https://github.com/scalar/scalar/blob/main/documentation/configuration.md)
+  // Checkout https://guides.scalar.com/scalar/scalar-api-references/configuration
 }
 ```
 

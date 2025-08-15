@@ -44,13 +44,11 @@ const config = {
 }
 ```
 
-We wrote a [detailed integration guide for Next.js](/documentation/integrations/nextjs.md).
-
-The Next.js handler takes our universal configuration object, [read more about configuration](https://github.com/scalar/scalar/tree/main/documentation/configuration.md) in the core package README.
+The Next.js handler takes our universal configuration object, [read more about configuration](https://guides.scalar.com/scalar/scalar-api-references/configuration) in the core package README.
 
 ## Themes
 
-By default, we're using a custom Next.js theme and it's beautiful. But you can choose [one of our other themes](https://github.com/scalar/scalar/tree/main/packages/themes), too:
+By default, we're using a custom Next.js theme and it's beautiful. But you can choose [one of our other themes](https://guides.scalar.com/scalar/scalar-api-references/themes), too:
 
 ```ts
 const config = {
