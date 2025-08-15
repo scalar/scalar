@@ -14,12 +14,13 @@ export function formatProperty(key: string, obj: SchemaObject): string {
   let output = key
   const isRequired = obj.required?.includes(key)
   output += isRequired ? ' REQUIRED ' : ' optional '
+  const property = getResolvedRef(obj.properties?.[key])
 
   // Check existence before accessing
-  if (obj.properties?.[key]) {
-    output += obj.properties[key].type
-    if (obj.properties[key].description) {
-      output += ' ' + obj.properties[key].description
+  if (property) {
+    output += property.type
+    if (property.description) {
+      output += ' ' + property.description
     }
   }
 
@@ -31,21 +32,22 @@ export function formatProperty(key: string, obj: SchemaObject): string {
  */
 function recursiveLogger(obj: MediaTypeObject): string[] {
   const results: string[] = ['Body']
+  const schema = getResolvedRef(obj?.schema)
 
-  const properties = obj?.schema?.properties
+  const properties = schema?.properties
   if (properties) {
     Object.keys(properties).forEach((key) => {
       if (!obj.schema) {
         return
       }
 
-      results.push(formatProperty(key, obj.schema))
+      results.push(formatProperty(key, schema))
 
-      const property = properties[key]
-      const isNestedObject = property.type === 'object' && !!property.properties
+      const property = getResolvedRef(properties[key])
+      const isNestedObject = property.type === 'object' && Boolean(property.properties)
       if (isNestedObject && property.properties) {
         Object.keys(property.properties).forEach((subKey) => {
-          results.push(`${subKey} ${property.properties?.[subKey]?.type}`)
+          results.push(`${subKey} ${getResolvedRef(property.properties?.[subKey])?.type}`)
         })
       }
     })

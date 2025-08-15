@@ -445,7 +445,6 @@ export function createExampleFromRequest(request: Request, name: string, server?
   // TODO: we don't even handle path parameters here
   if (request.requestBody || contentTypeHeader?.value) {
     const requestBody = getRequestBodyFromOperation(request)
-
     const contentType = request.requestBody ? requestBody?.mimeType : contentTypeHeader?.value
 
     // Handle JSON and JSON-like mimetypes
