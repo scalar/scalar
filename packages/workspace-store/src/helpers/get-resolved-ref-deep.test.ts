@@ -330,6 +330,7 @@ describe('getResolvedRefDeep', () => {
       expect(result.user.name).toBe('John')
       expect(result.department.id).toBe('eng')
       expect(result.department.name).toBe('Engineering')
+      expect(result.department.manager.department.employees[0]?.department.manager.id).toBe(1)
     })
 
     it('should handle self-referencing objects gracefully', () => {
