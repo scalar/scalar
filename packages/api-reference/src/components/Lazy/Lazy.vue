@@ -57,7 +57,7 @@ lazyBus.emit({ loading: id, save })
 // Fire the event for non-lazy components as well to keep track of loading
 if (isLazy) {
   onIdle(() => {
-    readyToRender.value = true
+    // readyToRender.value = true
 
     if (id) {
       nextTick(() => lazyBus.emit({ loaded: id, save }))

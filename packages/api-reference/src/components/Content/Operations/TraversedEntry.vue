@@ -81,7 +81,7 @@ const isLazy = (entry: TraversedEntry, index: number) => {
   }
 
   // We make the next two siblings not lazy
-  if (index > currentIndex.value + 2) {
+  if (index > currentIndex.value) {
     return 'after'
   }
 
