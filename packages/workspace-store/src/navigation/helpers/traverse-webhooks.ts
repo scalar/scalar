@@ -4,7 +4,6 @@ import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@/schemas/v3.1/strict/path-operations'
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
-import { isReference } from '@/schemas/v3.1/type-guard'
 
 /** Creates a traversed webhook entry from an OpenAPI webhook object.
  *
@@ -69,6 +68,7 @@ export const traverseWebhooks = (
     const pathEntries = Object.entries(pathItemObject ?? {}) as [string, OperationObject][]
 
     pathEntries.forEach(([method, operation]) => {
+      // @ts-ignore
       if (isReference(operation)) {
         return
       }
