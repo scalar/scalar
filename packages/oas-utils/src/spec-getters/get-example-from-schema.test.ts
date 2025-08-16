@@ -621,7 +621,7 @@ describe('getExampleFromSchema', () => {
       getExampleFromSchema(
         coerceValue(SchemaObjectSchema, {
           type: 'number',
-          min: 200,
+          minimum: 200,
         }),
       ),
     ).toBe(200)
@@ -990,12 +990,11 @@ describe('getExampleFromSchema', () => {
   describe('additionalProperties', () => {
     it('allows any additonalProperty', () => {
       expect(
-        getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
-            type: 'object',
-            additionalProperties: {},
-          }),
-        ),
+        getExampleFromSchema({
+          type: 'object',
+          // @ts-expect-error - this is a test
+          additionalProperties: {},
+        }),
       ).toMatchObject({
         'propertyName*': 'anything',
       })

@@ -348,8 +348,7 @@ export const getExampleFromSchema = (
     number: schema.minimum ?? 1,
     array: [],
   }
-
-  if (schema.type === 'string' && exampleValues[schema.type] !== undefined) {
+  if (schema.type && !Array.isArray(schema.type) && exampleValues[schema.type] !== undefined) {
     return cache(schema, exampleValues[schema.type])
   }
 
