@@ -468,7 +468,7 @@ export default {
   onDocumentSelect: () => console.log('Document changed'),
 
   // Add any other custom configuration options supported by Scalar
-  // Checkout https://github.com/scalar/scalar/blob/main/documentation/configuration.md)
+  // Checkout https://guides.scalar.com/scalar/scalar-api-references/configuration
 }
 ```
 
