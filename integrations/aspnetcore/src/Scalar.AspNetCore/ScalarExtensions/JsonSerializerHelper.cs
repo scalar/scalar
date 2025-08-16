@@ -13,6 +13,7 @@ internal static class JsonSerializerHelper
 }
 
 [JsonSerializable(typeof(bool))]
-[JsonSerializable(typeof(string))]
+[JsonSerializable(typeof(List<CodeSample>))]
 [JsonSerializable(typeof(Stability))]
+[JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
 internal sealed partial class ScalarSerializerContext : JsonSerializerContext;

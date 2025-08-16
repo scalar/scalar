@@ -1,11 +1,3 @@
-using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
-#if NET10_0_OR_GREATER
-using Microsoft.OpenApi.Models.References;
-#endif
-
-
 namespace Scalar.AspNetCore;
 
 internal sealed class ExcludeFromApiReferenceOpenApiDocumentTransformer : IOpenApiDocumentTransformer
@@ -17,6 +9,11 @@ internal sealed class ExcludeFromApiReferenceOpenApiDocumentTransformer : IOpenA
         // Group operations by tag
         foreach (var path in document.Paths)
         {
+            if (path.Value.Operations is null)
+            {
+                continue;
+            }
+
             foreach (var (_, operation) in path.Value.Operations)
             {
 #if NET10_0_OR_GREATER
@@ -24,8 +21,14 @@ internal sealed class ExcludeFromApiReferenceOpenApiDocumentTransformer : IOpenA
 #elif NET9_0
                 var tags = operation.Tags ?? [];
 #endif
+
                 foreach (var tagName in tags.Select(tag => tag.Name))
                 {
+                    if (tagName is null)
+                    {
+                        continue;
+                    }
+
                     if (!tagOperations.TryGetValue(tagName, out var operations))
                     {
                         operations = [];
@@ -49,10 +52,12 @@ internal sealed class ExcludeFromApiReferenceOpenApiDocumentTransformer : IOpenA
                 // If the tag is not found, we can't add the ignore extension. So lets keep the ignore extension on the operations
                 continue;
             }
+
+            tagToExclude.Extensions ??= new Dictionary<string, IOpenApiExtension>();
 #if NET10_0_OR_GREATER
-            tagToExclude?.Extensions.TryAdd(ScalarIgnore, new OpenApiAny(TrueNode));
+            tagToExclude.Extensions.TryAdd(ScalarIgnore, new JsonNodeExtension(TrueNode));
 #elif NET9_0
-            tagToExclude?.Extensions.TryAdd(ScalarIgnore, new OpenApiBoolean(true));
+            tagToExclude.Extensions.TryAdd(ScalarIgnore, new OpenApiBoolean(true));
 #endif
 
             // Remove the ignore extension from all operations with this tag
