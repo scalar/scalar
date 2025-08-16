@@ -158,7 +158,11 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
  * const proxy = createMagicProxy({ foo: { $ref: '#/bar' } })
  * const raw = getRaw(proxy) // { foo: { $ref: '#/bar' } }
  */
-export function getRaw<T extends UnknownObject>(obj: T): T {
+export function getRaw<T>(obj: T): T {
+  if (typeof obj !== 'object' || obj === null) {
+    return obj
+  }
+
   if ((obj as T & { [isMagicProxy]: boolean | undefined })[isMagicProxy]) {
     return (obj as T & { [magicProxyTarget]: T })[magicProxyTarget]
   }
