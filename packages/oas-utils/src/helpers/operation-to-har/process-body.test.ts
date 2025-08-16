@@ -1,21 +1,22 @@
 import { describe, it, expect } from 'vitest'
 import { processBody } from './process-body'
-import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/request-body'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 
 describe('processBody', () => {
   it('extracts example from simple object schema', () => {
     const content = {
       'application/json': {
-        schema: {
+        schema: coerceValue(SchemaObjectSchema, {
           type: 'object',
           properties: {
             name: { type: 'string', example: 'John Doe' },
             age: { type: 'number', example: 30 },
             email: { type: 'string', example: 'john@example.com' },
           },
-        },
+        }),
       },
-    } as const
+    }
 
     const result = processBody({ content })
 
@@ -32,15 +33,15 @@ describe('processBody', () => {
   it('extracts example from schema with examples array', () => {
     const content = {
       'application/json': {
-        schema: {
+        schema: coerceValue(SchemaObjectSchema, {
           type: 'object',
           properties: {
             status: { type: 'string', examples: ['active', 'inactive'] },
             priority: { type: 'string', examples: ['low', 'medium', 'high'] },
           },
-        },
+        }),
       },
-    } satisfies RequestBodyObject['content']
+    }
 
     const result = processBody({ content })
 
@@ -56,7 +57,7 @@ describe('processBody', () => {
   it('extracts nested object examples', () => {
     const content = {
       'application/json': {
-        schema: {
+        schema: coerceValue(SchemaObjectSchema, {
           type: 'object',
           properties: {
             user: {
@@ -73,9 +74,9 @@ describe('processBody', () => {
               },
             },
           },
-        },
+        }),
       },
-    } satisfies RequestBodyObject['content']
+    }
 
     const result = processBody({ content })
 
@@ -96,7 +97,7 @@ describe('processBody', () => {
   it('extracts array examples', () => {
     const content = {
       'application/json': {
-        schema: {
+        schema: coerceValue(SchemaObjectSchema, {
           type: 'object',
           properties: {
             tags: {
@@ -117,9 +118,9 @@ describe('processBody', () => {
               },
             },
           },
-        },
+        }),
       },
-    } satisfies RequestBodyObject['content']
+    }
 
     const result = processBody({ content })
 
@@ -135,12 +136,12 @@ describe('processBody', () => {
   it('extracts primitive type examples', () => {
     const content = {
       'application/json': {
-        schema: {
+        schema: coerceValue(SchemaObjectSchema, {
           type: 'string',
           example: 'Hello, World!',
-        },
+        }),
       },
-    } satisfies RequestBodyObject['content']
+    }
 
     const result = processBody({ content })
 
@@ -153,12 +154,12 @@ describe('processBody', () => {
   it('extracts number examples', () => {
     const content = {
       'application/json': {
-        schema: {
+        schema: coerceValue(SchemaObjectSchema, {
           type: 'number',
           example: 42,
-        },
+        }),
       },
-    } satisfies RequestBodyObject['content']
+    }
 
     const result = processBody({ content })
 
@@ -171,12 +172,12 @@ describe('processBody', () => {
   it('extracts boolean examples', () => {
     const content = {
       'application/json': {
-        schema: {
+        schema: coerceValue(SchemaObjectSchema, {
           type: 'boolean',
           example: true,
-        },
+        }),
       },
-    } satisfies RequestBodyObject['content']
+    }
 
     const result = processBody({ content })
 
@@ -189,7 +190,7 @@ describe('processBody', () => {
   it('handles mixed example types in object', () => {
     const content = {
       'application/json': {
-        schema: {
+        schema: coerceValue(SchemaObjectSchema, {
           type: 'object',
           properties: {
             stringField: { type: 'string', example: 'test' },
@@ -197,9 +198,9 @@ describe('processBody', () => {
             booleanField: { type: 'boolean', example: false },
             nullField: { type: 'null', example: null },
           },
-        },
+        }),
       },
-    } satisfies RequestBodyObject['content']
+    }
 
     const result = processBody({ content })
 
@@ -217,7 +218,7 @@ describe('processBody', () => {
   it('handles nested arrays with examples', () => {
     const content = {
       'application/json': {
-        schema: {
+        schema: coerceValue(SchemaObjectSchema, {
           type: 'object',
           properties: {
             matrix: {
@@ -231,9 +232,9 @@ describe('processBody', () => {
               },
             },
           },
-        },
+        }),
       },
-    } satisfies RequestBodyObject['content']
+    }
 
     const result = processBody({ content })
 
@@ -248,7 +249,7 @@ describe('processBody', () => {
   it('handles object with some properties having examples and others not', () => {
     const content = {
       'application/json': {
-        schema: {
+        schema: coerceValue(SchemaObjectSchema, {
           type: 'object',
           properties: {
             name: { type: 'string', example: 'Alice' },
@@ -256,9 +257,9 @@ describe('processBody', () => {
             email: { type: 'string', example: 'alice@example.com' },
             address: { type: 'string' }, // No example
           },
-        },
+        }),
       },
-    } satisfies RequestBodyObject['content']
+    }
 
     const result = processBody({ content })
 
@@ -276,12 +277,12 @@ describe('processBody', () => {
   it('handles custom content type with schema examples', () => {
     const content = {
       'application/xml': {
-        schema: {
+        schema: coerceValue(SchemaObjectSchema, {
           type: 'string',
           example: '<user><name>Bob</name></user>',
-        },
+        }),
       },
-    } satisfies RequestBodyObject['content']
+    }
 
     const result = processBody({
       content,
@@ -317,15 +318,15 @@ describe('processBody', () => {
   it('handles schema without examples', () => {
     const content = {
       'application/json': {
-        schema: {
+        schema: coerceValue(SchemaObjectSchema, {
           type: 'object',
           properties: {
             name: { type: 'string' },
             age: { type: 'number' },
           },
-        },
+        }),
       },
-    } satisfies RequestBodyObject['content']
+    }
 
     const result = processBody({ content })
 
@@ -341,15 +342,15 @@ describe('processBody', () => {
   it('prioritizes external example over schema examples', () => {
     const content = {
       'application/json': {
-        schema: {
+        schema: coerceValue(SchemaObjectSchema, {
           type: 'object',
           properties: {
             name: { type: 'string', example: 'Schema Example' },
             age: { type: 'number', example: 25 },
           },
-        },
+        }),
       },
-    } satisfies RequestBodyObject['content']
+    }
 
     const externalExample = { name: 'External Example', age: 30 }
     const result = processBody({ content, example: externalExample })
@@ -364,7 +365,7 @@ describe('processBody', () => {
     it('extracts examples from form data schema', () => {
       const content = {
         'multipart/form-data': {
-          schema: {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               file: {
@@ -384,9 +385,9 @@ describe('processBody', () => {
                 },
               },
             },
-          },
+          }),
         },
-      } satisfies RequestBodyObject['content']
+      }
 
       const result = processBody({
         content,
@@ -406,7 +407,7 @@ describe('processBody', () => {
     it('handles file upload with fileName and contentType', () => {
       const content = {
         'multipart/form-data': {
-          schema: {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               image: {
@@ -418,9 +419,9 @@ describe('processBody', () => {
               },
               title: { type: 'string', example: 'My Image' },
             },
-          },
+          }),
         },
-      } satisfies RequestBodyObject['content']
+      }
 
       const result = processBody({
         content,
@@ -442,7 +443,7 @@ describe('processBody', () => {
     it('handles multiple file uploads with examples', () => {
       const content = {
         'multipart/form-data': {
-          schema: {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               files: {
@@ -461,9 +462,9 @@ describe('processBody', () => {
                 },
               },
             },
-          },
+          }),
         },
-      } satisfies RequestBodyObject['content']
+      }
 
       const result = processBody({
         content,
@@ -483,7 +484,7 @@ describe('processBody', () => {
     it('handles multipart form data with mixed content types', () => {
       const content = {
         'multipart/form-data': {
-          schema: {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               image: {
@@ -509,9 +510,9 @@ describe('processBody', () => {
                 },
               },
             },
-          },
+          }),
         },
-      } satisfies RequestBodyObject['content']
+      }
 
       const result = processBody({
         content,
@@ -537,15 +538,15 @@ describe('processBody', () => {
     it('handles multipart form data without external example', () => {
       const content = {
         'multipart/form-data': {
-          schema: {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               file: { type: 'string', format: 'binary' },
               name: { type: 'string' },
             },
-          },
+          }),
         },
-      } satisfies RequestBodyObject['content']
+      }
 
       const result = processBody({
         content,
@@ -566,7 +567,7 @@ describe('processBody', () => {
     it('handles multipart form data with array of files', () => {
       const content = {
         'multipart/form-data': {
-          schema: {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               file: {
@@ -585,9 +586,9 @@ describe('processBody', () => {
                 },
               },
             },
-          },
+          }),
         },
-      } satisfies RequestBodyObject['content']
+      }
 
       const result = processBody({
         content,
@@ -609,12 +610,12 @@ describe('processBody', () => {
     it('handles multipart form data with empty object', () => {
       const content = {
         'multipart/form-data': {
-          schema: {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {},
-          },
+          }),
         },
-      } satisfies RequestBodyObject['content']
+      }
 
       const result = processBody({
         content,
@@ -630,16 +631,16 @@ describe('processBody', () => {
     it('handles multipart form data with primitive values', () => {
       const content = {
         'multipart/form-data': {
-          schema: {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               text: { type: 'string', example: 'Simple text' },
               number: { type: 'number', example: 42 },
               boolean: { type: 'boolean', example: true },
             },
-          },
+          }),
         },
-      } satisfies RequestBodyObject['content']
+      }
 
       const result = processBody({
         content,
@@ -659,7 +660,7 @@ describe('processBody', () => {
     it('handles file upload with comment', () => {
       const content = {
         'multipart/form-data': {
-          schema: {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               document: {
@@ -670,9 +671,9 @@ describe('processBody', () => {
               },
               notes: { type: 'string', example: 'Important document' },
             },
-          },
+          }),
         },
-      } satisfies RequestBodyObject['content']
+      }
 
       const result = processBody({
         content,
@@ -696,7 +697,7 @@ describe('processBody', () => {
     it('extracts examples from form data schema', () => {
       const content = {
         'application/x-www-form-urlencoded': {
-          schema: {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               username: { type: 'string', example: 'testuser' },
@@ -704,9 +705,9 @@ describe('processBody', () => {
               remember: { type: 'boolean', example: true },
               role: { type: 'string', examples: ['user', 'admin'] },
             },
-          },
+          }),
         },
-      } satisfies RequestBodyObject['content']
+      }
 
       const result = processBody({
         content,
@@ -727,7 +728,7 @@ describe('processBody', () => {
     it('handles form data with array examples', () => {
       const content = {
         'application/x-www-form-urlencoded': {
-          schema: {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               categories: {
@@ -745,9 +746,9 @@ describe('processBody', () => {
                 },
               },
             },
-          },
+          }),
         },
-      } satisfies RequestBodyObject['content']
+      }
 
       const result = processBody({
         content,
@@ -767,7 +768,7 @@ describe('processBody', () => {
     it('handles form data with multiple array items', () => {
       const content = {
         'application/x-www-form-urlencoded': {
-          schema: {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               tags: {
@@ -785,9 +786,9 @@ describe('processBody', () => {
                 },
               },
             },
-          },
+          }),
         },
-      } satisfies RequestBodyObject['content']
+      }
 
       const result = processBody({
         content,
@@ -806,7 +807,7 @@ describe('processBody', () => {
     it('handles deeply nested objects in form data', () => {
       const content = {
         'application/x-www-form-urlencoded': {
-          schema: {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               user: {
@@ -834,9 +835,9 @@ describe('processBody', () => {
                 },
               },
             },
-          },
+          }),
         },
-      } satisfies RequestBodyObject['content']
+      }
 
       const result = processBody({
         content,
@@ -857,7 +858,7 @@ describe('processBody', () => {
     it('handles form data with mixed primitive types', () => {
       const content = {
         'application/x-www-form-urlencoded': {
-          schema: {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               stringField: { type: 'string', example: 'hello world' },
@@ -866,9 +867,9 @@ describe('processBody', () => {
               booleanField: { type: 'boolean', example: false },
               nullField: { type: 'null', example: null },
             },
-          },
+          }),
         },
-      } satisfies RequestBodyObject['content']
+      }
 
       const result = processBody({
         content,
@@ -889,15 +890,15 @@ describe('processBody', () => {
     it('handles form data with external example', () => {
       const content = {
         'application/x-www-form-urlencoded': {
-          schema: {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               name: { type: 'string', example: 'Schema Example' },
               age: { type: 'number', example: 25 },
             },
-          },
+          }),
         },
-      } satisfies RequestBodyObject['content']
+      }
 
       const externalExample = {
         name: 'External Example',
@@ -928,12 +929,12 @@ describe('processBody', () => {
     it('handles form data with empty object', () => {
       const content = {
         'application/x-www-form-urlencoded': {
-          schema: {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {},
-          },
+          }),
         },
-      } satisfies RequestBodyObject['content']
+      }
 
       const result = processBody({
         content,
@@ -949,7 +950,7 @@ describe('processBody', () => {
     it('handles form data with properties without examples', () => {
       const content = {
         'application/x-www-form-urlencoded': {
-          schema: {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               name: { type: 'string', example: 'John' },
@@ -957,9 +958,9 @@ describe('processBody', () => {
               email: { type: 'string', example: 'john@example.com' },
               address: { type: 'string' }, // No example
             },
-          },
+          }),
         },
-      } satisfies RequestBodyObject['content']
+      }
 
       const result = processBody({
         content,
@@ -980,7 +981,7 @@ describe('processBody', () => {
     it('handles nested form data', () => {
       const content = {
         'application/x-www-form-urlencoded': {
-          schema: {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               user: {
@@ -991,9 +992,9 @@ describe('processBody', () => {
                 },
               },
             },
-          },
+          }),
         },
-      } satisfies RequestBodyObject['content']
+      }
 
       const result = processBody({
         content,
@@ -1014,13 +1015,13 @@ describe('processBody', () => {
     it('extracts binary file examples', () => {
       const content = {
         'image/png': {
-          schema: {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'string',
             format: 'binary',
             example: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
-          },
+          }),
         },
-      } satisfies RequestBodyObject['content']
+      }
 
       const result = processBody({
         content,
@@ -1038,14 +1039,14 @@ describe('processBody', () => {
     it('handles PDF file with example', () => {
       const content = {
         'application/pdf': {
-          schema: {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'string',
             format: 'binary',
             example:
               'JVBERi0xLjcKCjEgMCBvYmogICUgZW50cnkgcG9pbnQKPDwKICAvVHlwZSAvQ2F0YWxvZwogIC9QYWdlcyAyIDAgUgo+PgplbmRvYmoKCjIgMCBvYmoKPDwKICAvVHlwZSAvUGFnZXMKICAvTWVkaWFCb3ggWyAwIDAgMjAwIDIwMCBdCiAgL0NvdW50IDEKICAvS2lkcyBbIDMgMCBSIF0KPj4KZW5kb2JqCgozIDAgb2JqCjw8CiAgL1R5cGUgL1BhZ2UKICAvUGFyZW50IDIgMCBSCiAgL1Jlc291cmNlcyA8PAogICAgL0ZvbnQgPDwKICAgICAgL0YxIDQgMCBSIAogICAgPj4KICA+PgogIC9Db250ZW50cyA1IDAgUgo+PgplbmRvYmoKCjQgMCBvYmoKPDwKICAvVHlwZSAvRm9udAogIC9TdWJ0eXBlIC9UeXBlMQogIC9CYXNlRm9udCAvVGltZXMtUm9tYW4KPj4KZW5kb2Jq',
-          },
+          }),
         },
-      } satisfies RequestBodyObject['content']
+      }
 
       const result = processBody({
         content,
@@ -1065,7 +1066,7 @@ describe('processBody', () => {
     it('handles deeply nested objects with examples', () => {
       const content = {
         'application/json': {
-          schema: {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               company: {
@@ -1101,9 +1102,9 @@ describe('processBody', () => {
                 },
               },
             },
-          },
+          }),
         },
-      } satisfies RequestBodyObject['content']
+      }
 
       const result = processBody({ content })
 
@@ -1132,7 +1133,7 @@ describe('processBody', () => {
     it('handles mixed example and examples properties', () => {
       const content = {
         'application/json': {
-          schema: {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               user: {
@@ -1150,9 +1151,9 @@ describe('processBody', () => {
                 },
               },
             },
-          },
+          }),
         },
-      } satisfies RequestBodyObject['content']
+      }
 
       const result = processBody({ content })
 
