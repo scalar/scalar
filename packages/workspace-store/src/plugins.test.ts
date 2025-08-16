@@ -118,7 +118,7 @@ describe('plugins', () => {
 
   describe('externalValueResolver', () => {
     let server: FastifyInstance
-    const port = 9988
+    const port = 9809
     const url = `http://localhost:${port}`
 
     beforeEach(() => {
