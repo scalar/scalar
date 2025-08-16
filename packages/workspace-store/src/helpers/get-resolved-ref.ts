@@ -1,26 +1,8 @@
-import { getRaw } from '@scalar/json-magic/magic-proxy'
-
-export type RefNode<Node> = Partial<Node> & { $ref: string; '$ref-value': Node | RefNode<Node> }
+export type RefNode<Node> = Partial<Node> & { $ref: string; '$ref-value': Node }
 export type NodeInput<Node> = Node | RefNode<Node>
 
-/**
- * Recursively resolves a RefNode by following its '$ref-value' chain
- * until a non-ref value is reached.
- */
-const defaultTransform = <Node>(node: RefNode<Node>, visited = new WeakSet<RefNode<Node>>()) => {
-  if (visited.has(getRaw(node))) {
-    return undefined // Circular reference detected
-  }
-
-  visited.add(getRaw(node))
-
-  const resolved = node['$ref-value']
-
-  if (typeof resolved === 'object' && resolved !== null && '$ref' in resolved) {
-    return defaultTransform(resolved, visited)
-  }
-
-  return resolved
+const defaultTransform = <Node>(node: RefNode<Node>) => {
+  return node['$ref-value']
 }
 
 /**
@@ -30,7 +12,7 @@ const defaultTransform = <Node>(node: RefNode<Node>, visited = new WeakSet<RefNo
  */
 export const getResolvedRef = <Node>(
   node: NodeInput<Node>,
-  transform: (node: RefNode<Node>) => Node | undefined = defaultTransform,
+  transform: (node: RefNode<Node>) => Node = defaultTransform,
 ) => {
   if (typeof node === 'object' && node !== null && '$ref' in node) {
     return transform(node)

@@ -2,6 +2,8 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
 import ExampleResponses from './ExampleResponses.vue'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 
 const mockCopyToClipboard = vi.fn()
 
@@ -360,7 +362,7 @@ describe('ExampleResponses', () => {
             description: 'OK',
             content: {
               'application/json': {
-                schema: {
+                schema: coerceValue(SchemaObjectSchema, {
                   type: 'object',
                   properties: {
                     message: {
@@ -368,7 +370,7 @@ describe('ExampleResponses', () => {
                       example: 'Foobar',
                     },
                   },
-                },
+                }),
               },
             },
           },

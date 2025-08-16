@@ -1,9 +1,12 @@
 import type { OperationToHarProps } from './operation-to-har'
 import { getExampleFromSchema } from '@/spec-getters/get-example-from-schema'
-import { isReference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/request-body'
 import type { Param, PostData } from 'har-format'
 
-type ProcessBodyProps = Pick<OperationToHarProps, 'contentType' | 'operation' | 'example'>
+type ProcessBodyProps = Pick<OperationToHarProps, 'contentType' | 'example'> & {
+  content: RequestBodyObject['content']
+}
 
 /**
  * Converts an object to an array of form parameters
@@ -42,9 +45,7 @@ const objectToFormParams = (obj: Record<string, unknown>): Param[] => {
 /**
  * Processes the request body and returns the processed data
  */
-export const processBody = ({ operation, contentType, example }: ProcessBodyProps): PostData => {
-  const content = !operation.requestBody || isReference(operation.requestBody) ? {} : operation.requestBody.content
-
+export const processBody = ({ content, contentType, example }: ProcessBodyProps): PostData => {
   const _contentType = (contentType || Object.keys(content)[0]) ?? ''
 
   // Check if this is a form data content type
@@ -65,7 +66,7 @@ export const processBody = ({ operation, contentType, example }: ProcessBodyProp
   }
 
   // Try to extract examples from the schema
-  const contentSchema = content[_contentType]?.schema
+  const contentSchema = getResolvedRef(content[_contentType]?.schema)
   if (contentSchema) {
     const extractedExample = getExampleFromSchema(contentSchema)
 

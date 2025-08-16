@@ -163,6 +163,7 @@ const { content } = defineProps<{
                     <XmlOrJson
                       :xml="mediaType?.toString().includes('xml')"
                       :model-value="
+                        // @ts-ignore not on the new store yet
                         getExampleFromSchema(content.schema, {
                           xml: mediaType?.toString().includes('xml'),
                         })
@@ -199,6 +200,7 @@ const { content } = defineProps<{
                           <XmlOrJson
                             :xml="mediaType?.toString().includes('xml')"
                             :model-value="
+                              // @ts-ignore not on the new store yet
                               getExampleFromSchema(content.schema, {
                                 xml: mediaType?.toString().includes('xml'),
                               })
@@ -304,7 +306,11 @@ const { content } = defineProps<{
             :schema="schema" />
           <p><strong>Example:</strong></p>
           <template v-if="schema.type === 'object'">
-            <XmlOrJson :model-value="getExampleFromSchema(schema)" />
+            <XmlOrJson
+              :model-value="
+                // @ts-ignore not on the new store yet
+                getExampleFromSchema(schema)
+              " />
           </template>
         </section>
       </template>

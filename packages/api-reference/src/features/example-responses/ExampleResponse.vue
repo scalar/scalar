@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ScalarCodeBlock } from '@scalar/components'
 import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/example'
 import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/media-header-encoding'
 
@@ -22,7 +23,7 @@ defineProps<{
     v-else-if="response?.schema"
     class="bg-b-2 -outline-offset-2"
     :content="
-      getExampleFromSchema(response?.schema, {
+      getExampleFromSchema(getResolvedRef(response.schema), {
         emptyString: 'string',
         mode: 'read',
       })

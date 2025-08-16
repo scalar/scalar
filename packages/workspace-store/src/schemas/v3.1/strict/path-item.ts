@@ -16,23 +16,23 @@ export const pathItemObjectSchemaBuilder = <O extends TSchema>(operation: O) =>
     /** An optional string description, intended to apply to all operations in this path. CommonMark syntax MAY be used for rich text representation. */
     description: Type.Optional(Type.String()),
     /** A definition of a GET operation on this path. */
-    get: Type.Optional(operation),
+    get: Type.Optional(Type.Union([operation, reference(operation)])),
     /** A definition of a PUT operation on this path. */
-    put: Type.Optional(operation),
+    put: Type.Optional(Type.Union([operation, reference(operation)])),
     /** A definition of a POST operation on this path. */
-    post: Type.Optional(operation),
+    post: Type.Optional(Type.Union([operation, reference(operation)])),
     /** A definition of a DELETE operation on this path. */
-    delete: Type.Optional(operation),
+    delete: Type.Optional(Type.Union([operation, reference(operation)])),
     /** A definition of a PATCH operation on this path. */
-    patch: Type.Optional(operation),
+    patch: Type.Optional(Type.Union([operation, reference(operation)])),
     /** A definition of a CONNECT operation on this path. */
-    connect: Type.Optional(operation),
+    connect: Type.Optional(Type.Union([operation, reference(operation)])),
     /** A definition of a OPTIONS operation on this path. */
-    options: Type.Optional(operation),
+    options: Type.Optional(Type.Union([operation, reference(operation)])),
     /** A definition of a HEAD operation on this path. */
-    head: Type.Optional(operation),
+    head: Type.Optional(Type.Union([operation, reference(operation)])),
     /** A definition of a TRACE operation on this path. */
-    trace: Type.Optional(operation),
+    trace: Type.Optional(Type.Union([operation, reference(operation)])),
     /** An alternative servers array to service all operations in this path. If a servers array is specified at the OpenAPI Object level, it will be overridden by this value. */
     servers: Type.Optional(Type.Array(ServerObjectSchema)),
     /** A list of parameters that are applicable for all the operations described under this path. These parameters can be overridden at the operation level, but cannot be removed there. The list MUST NOT include duplicated parameters. A unique parameter is defined by a combination of a name and location. The list can use the Reference Object to link to parameters that are defined in the OpenAPI Object's components.parameters. */

@@ -3,32 +3,24 @@ import { isDereferenced } from '@scalar/openapi-types/helpers'
 
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
-import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
-import type { ContentSchema } from '../types'
-
-type PropertyObject = {
-  required?: string[]
-  properties: {
-    [key: string]: {
-      type: string
-      description?: string
-    }
-  }
-}
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/media-header-encoding'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 
 /**
  * Formats a property object into a string.
  */
-export function formatProperty(key: string, obj: PropertyObject): string {
+export function formatProperty(key: string, obj: SchemaObject): string {
   let output = key
   const isRequired = obj.required?.includes(key)
   output += isRequired ? ' REQUIRED ' : ' optional '
+  const property = getResolvedRef(obj.properties?.[key])
 
   // Check existence before accessing
-  if (obj.properties[key]) {
-    output += obj.properties[key].type
-    if (obj.properties[key].description) {
-      output += ' ' + obj.properties[key].description
+  if (property) {
+    output += property.type
+    if (property.description) {
+      output += ' ' + property.description
     }
   }
 
@@ -38,23 +30,24 @@ export function formatProperty(key: string, obj: PropertyObject): string {
 /**
  * Recursively logs the properties of an object.
  */
-function recursiveLogger(obj: ContentSchema): string[] {
+function recursiveLogger(obj: MediaTypeObject): string[] {
   const results: string[] = ['Body']
+  const schema = getResolvedRef(obj?.schema)
 
-  const properties = obj?.schema?.properties
+  const properties = schema?.properties
   if (properties) {
     Object.keys(properties).forEach((key) => {
       if (!obj.schema) {
         return
       }
 
-      results.push(formatProperty(key, obj.schema))
+      results.push(formatProperty(key, schema))
 
-      const property = properties[key]
-      const isNestedObject = property.type === 'object' && !!property.properties
+      const property = getResolvedRef(properties[key])
+      const isNestedObject = property.type === 'object' && Boolean(property.properties)
       if (isNestedObject && property.properties) {
         Object.keys(property.properties).forEach((subKey) => {
-          results.push(`${subKey} ${property.properties?.[subKey]?.type}`)
+          results.push(`${subKey} ${getResolvedRef(property.properties?.[subKey])?.type}`)
         })
       }
     })
@@ -66,16 +59,15 @@ function recursiveLogger(obj: ContentSchema): string[] {
 /**
  * Extracts the request body from an operation.
  */
-export function extractRequestBody(operation: Dereference<OperationObject>): string[] | boolean {
+export function extractRequestBody(operation: OperationObject): string[] | boolean {
   try {
     // TODO: Wait… there's more than just 'application/json' (https://github.com/scalar/scalar/issues/6427)
-    // @ts-expect-error I think the types are wrong here
-    const body = operation?.requestBody?.content?.['application/json']
-    if (!body) {
+    const media = getResolvedRef(operation?.requestBody)?.content?.['application/json']
+    if (!media) {
       throw new Error('Body not found')
     }
 
-    return recursiveLogger(body)
+    return recursiveLogger(media)
   } catch (_error) {
     return false
   }
@@ -192,7 +184,7 @@ export type ParameterMap = {
  *
  * TODO: Isn't it easier to just stick to the OpenAPI structure, without transforming it?
  */
-export function createParameterMap(operation: Dereference<OperationObject>) {
+export function createParameterMap(operation: OperationObject) {
   const map: ParameterMap = {
     path: [],
     query: [],

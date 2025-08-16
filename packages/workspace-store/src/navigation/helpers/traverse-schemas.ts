@@ -1,3 +1,4 @@
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { getTag } from '@/navigation/helpers/get-tag'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import type { TraversedSchema } from '@/schemas/navigation'
@@ -19,9 +20,10 @@ const createSchemaEntry = (
   titlesMap: Map<string, string>,
   getModelId: TraverseSpecOptions['getModelId'],
   tag?: TagObject,
-  schema?: SchemaObject,
+  _schema?: SchemaObject,
 ): TraversedSchema => {
   const id = getModelId({ name }, tag)
+  const schema = getResolvedRef(_schema)
 
   // Use schema.title if available, otherwise fall back to name
   // @see https://json-schema.org/draft/2020-12/json-schema-core#section-4.3.5
@@ -61,23 +63,26 @@ export const traverseSchemas = (
   const schemas = content.components?.schemas ?? {}
   const untagged: TraversedSchema[] = []
 
+  // biome-ignore lint/nursery/useGuardForIn: we do have an if statement after de-ref
   for (const name in schemas) {
-    if (schemas[name]?.['x-internal'] || schemas[name]?.['x-scalar-ignore'] || !Object.hasOwn(schemas, name)) {
+    const schema = getResolvedRef(schemas[name])
+
+    if (schema?.['x-internal'] || schema?.['x-scalar-ignore'] || !Object.hasOwn(schemas, name)) {
       continue
     }
 
     const ref = `#/content/components/schemas/${name}`
 
     // Add to tags
-    if (schemas[name]?.['x-tags']) {
-      schemas[name]['x-tags'].forEach((tagName: string) => {
+    if (schema?.['x-tags']) {
+      schema['x-tags'].forEach((tagName: string) => {
         const { tag } = getTag(tagsMap, tagName)
         tagsMap.get(tagName)?.entries.push(createSchemaEntry(ref, name, titlesMap, getModelId, tag))
       })
     }
     // Add to untagged
     else {
-      untagged.push(createSchemaEntry(ref, name, titlesMap, getModelId, undefined, schemas[name]))
+      untagged.push(createSchemaEntry(ref, name, titlesMap, getModelId, undefined, getResolvedRef(schemas[name])))
     }
   }
 

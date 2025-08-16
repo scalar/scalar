@@ -1,6 +1,5 @@
 import type { AvailableClients } from '@scalar/snippetz'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
-import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest'
 import { generateCodeSnippet } from './generate-code-snippet'
 
@@ -22,7 +21,7 @@ const operationToHar = _operationToHar as Mock
 const getSnippet = _getSnippet as Mock
 
 describe('generate-code-snippet', () => {
-  const mockOperation: Dereference<OperationObject> = {
+  const mockOperation: OperationObject = {
     responses: {
       '200': {
         description: 'OK',

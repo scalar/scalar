@@ -40,7 +40,7 @@ export type RequestExampleProps = {
   /**
    * De-referenced OpenAPI Operation object
    */
-  operation: Dereference<OperationObject>
+  operation: OperationObject
   /**
    * If true and there's no example, we will display a small card with the method and path only
    */
@@ -77,14 +77,11 @@ import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import { type AvailableClients, type TargetId } from '@scalar/snippetz'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/example'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
-import {
-  isReference,
-  type Dereference,
-} from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
@@ -120,11 +117,7 @@ defineSlots<{
 
 /** Grab the examples for the given content type */
 const operationExamples = computed(() => {
-  if (isReference(operation.requestBody)) {
-    return {}
-  }
-
-  const content = operation.requestBody?.content ?? {}
+  const content = getResolvedRef(operation.requestBody)?.content ?? {}
   const contentType = selectedContentType || Object.keys(content)[0]
   const examples = content[contentType]?.examples ?? {}
 

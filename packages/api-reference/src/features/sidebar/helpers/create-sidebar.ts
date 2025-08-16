@@ -6,7 +6,7 @@ import { type Ref, computed, reactive, ref } from 'vue'
 import type { TraverseSpecOptions } from '@/features/traverse-schema'
 import { traverseDocument } from '@/features/traverse-schema'
 import { scrollToId } from '@scalar/helpers/dom/scroll-to-id'
-import { measure } from '@scalar/helpers/testing/measure'
+import { measureSync } from '@scalar/helpers/testing/measure'
 
 /** Track which sidebar items are opened */
 type CollapsedSidebarItems = Record<string, boolean>
@@ -56,7 +56,7 @@ export const createSidebar = (dereferencedDocument: Ref<OpenAPIV3_1.Document>, o
 
   /** Sidebar items */
   const items = computed(() => {
-    const result = measure('traverse-document', () => traverseDocument(dereferencedDocument.value, options))
+    const result = measureSync('traverse-document', () => traverseDocument(dereferencedDocument.value, options))
 
     // Open all tags
     if (options.config.value.defaultOpenAllTags) {
