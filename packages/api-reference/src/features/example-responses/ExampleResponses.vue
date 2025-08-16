@@ -160,7 +160,7 @@ const showSchema = ref(false)
         v-if="showSchema && currentResponseContent?.schema"
         :id="id"
         class="-outline-offset-2"
-        :content="currentResponseContent.schema"
+        :content="getResolvedRef(currentResponseContent?.schema)"
         lang="json" />
 
       <!-- Example -->
