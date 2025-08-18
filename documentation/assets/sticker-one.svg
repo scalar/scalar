@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" width="140" height="179">
+        <defs>
+          <g xmlns="http://www.w3.org/2000/svg" id="numberSticker">
+            <path class="bluenumba" d="M121.543 0c2.423 0 4.387 1.96426 4.387 4.38672V164.484c0 2.423-1.964 4.387-4.387 4.387H41.4943c-2.4225 0-4.3868-1.964-4.3868-4.387V47.1523H4.39464c-3.80102-.0001-5.80262-4.5053-3.25488-7.3261L37.1075.00293V0h84.4355Z"/>
+            <text xml:space="preserve" fill="#fff" font-size="2.74719" font-weight="500" letter-spacing=".01em" style="white-space: pre;">
+              <tspan x="44.8701" y="150.263" textLength="73" style="font-size:2.75px;font-weight:400;letter-spacing:0em;">Scalar embraces open standards and makes it easy</tspan>
+              <tspan x="44.8701" y="153.926" textLength="73" style="font-size:2.75px;font-weight:400;letter-spacing:0em;">for you to embrace them too. Join the open-source</tspan>
+              <tspan x="44.8701" y="157.589" textLength="73" style="font-size:2.75px;font-weight:400;letter-spacing:0em;">community and start building on open foundations.</tspan>
+            </text>
+            <text xml:space="preserve" fill="#fff" stroke="#fff" stroke-width=".091573" font-size="6" font-weight="bold" letter-spacing="-.04em" style="white-space: pre;">
+              <tspan x="90.9688" y="16.3883" textLength="26" style="font-size:6px;font-weight:500;letter-spacing:0em;">ALWAYS</tspan>
+            </text>
+            <text xml:space="preserve" fill="#fff" stroke="#fff" stroke-width=".091573" font-size="6.03466" font-weight="bold" letter-spacing="-.04em" style="white-space: pre;">
+              <tspan x="72.3418" y="22.7984" textLength="45" style="font-size:6px;font-weight:500;letter-spacing:0em;">OPEN-SOURCE</tspan>
+            </text>
+            <text xml:space="preserve" fill="#fff" stroke="#fff" stroke-width=".281617" font-size="24" font-weight="bold" letter-spacing="-.02em" style="white-space: pre;">
+              <tspan x="44.8701" y="141.873" textLength="65" style="white-space:pre;font-size:24px;font-weight:600;letter-spacing:-.1em">Scalar</tspan>
+            </text>
+            <path fill="#fff" d="M115.077 124.169c0-.287.07-.548.21-.785.142-.238.331-.427.567-.567.238-.141.501-.212.788-.212.253 0 .485.054.698.163.212.109.388.258.526.447.14.189.225.403.256.641h-.76c-.031-.155-.115-.28-.251-.376-.136-.098-.293-.147-.469-.147-.153 0-.293.038-.42.114-.125.075-.226.175-.302.303-.075.125-.112.264-.112.417 0 .154.037.295.112.422.076.126.177.226.302.303.127.076.267.114.42.114.176 0 .327-.048.453-.144.125-.098.203-.225.234-.379h.76c-.03.238-.113.451-.248.64-.132.189-.302.338-.509.447-.208.109-.437.164-.69.164-.287 0-.55-.07-.788-.21-.236-.142-.425-.331-.567-.567-.14-.238-.21-.501-.21-.788Zm1.543 2.879c-.396 0-.768-.075-1.117-.224-.347-.149-.654-.355-.919-.618-.263-.266-.471-.572-.621-.919-.149-.347-.223-.72-.221-1.118.002-.398.077-.77.226-1.117.151-.347.358-.653.621-.916.264-.265.569-.473.916-.622.347-.149.719-.223 1.115-.223.398 0 .771.074 1.118.223.349.149.654.357.916.622.263.263.469.569.618.916.149.347.225.719.227 1.117.002.398-.072.771-.221 1.118-.149.347-.355.653-.619.919-.263.263-.57.469-.918.618-.349.149-.723.224-1.121.224Zm0-.815c.286 0 .554-.054.804-.161.251-.107.47-.254.657-.442.189-.189.336-.408.442-.657.107-.25.161-.517.161-.801-.002-.285-.057-.553-.164-.804-.105-.251-.252-.47-.441-.657-.189-.189-.408-.337-.657-.444-.249-.108-.516-.161-.802-.161-.283 0-.549.053-.798.161-.249.107-.468.255-.657.444s-.337.409-.445.66c-.107.249-.161.516-.163.801 0 .282.052.548.158.799.107.249.255.468.444.657s.408.337.657.444c.251.107.519.161.804.161Z"/>
+            <path class="yellownumba" d="M44.8876 45.7865c0-1.5172 1.23-2.7472 2.7472-2.7472h68.6802c1.517 0 2.747 1.23 2.747 2.7472v60.4385c0 1.517-1.23 2.747-2.747 2.747H47.6348c-1.5172 0-2.7472-1.23-2.7472-2.747V45.7865Z"/>
+            <path class="bluenumba" d="M47.6346 48.5337c0-1.5172 1.23-2.7472 2.7472-2.7472h63.1852c1.517 0 2.747 1.23 2.747 2.7472v49.4494c0 1.5173-1.23 2.7469-2.747 2.7469H50.3818c-1.5172 0-2.7472-1.2296-2.7472-2.7469V48.5337Z"/>
+            <path class="yellownumba" d="M44.8701 114.466c0-1.517 1.23-2.747 2.7472-2.747h68.6797c1.517 0 2.747 1.23 2.747 2.747v.916c0 1.517-1.23 2.747-2.747 2.747H47.6173c-1.5172 0-2.7472-1.23-2.7472-2.747v-.916Z"/>
+            <rect class="bluenumba" width="21.9775" height="2.74719" x="90.6738" y="103.478" rx="1.3736"/>
+            <path class="rednumba" d="M100.747 62.2697v-5.4944c0-.5058-.41-.9157-.9156-.9157H76.8273c-.7121 0-1.3964.2765-1.9086.7711l-7.7484 7.4839c-1.054 1.018-1.1235 2.6841-.1579 3.7863l7.884 8.9993c.5216.5954 1.2748.9369 2.0664.9369h10.608c1.5172 0 2.7472 1.2299 2.7472 2.7472 0 1.5172-1.23 2.7472-2.7472 2.7472H64.1179c-.5057 0-.9157.41-.9157.9157v5.4944c0 .5057.41.9157.9157.9157h25.09c.7121 0 1.3964-.2765 1.9086-.7712l7.7484-7.4839c1.054-1.018 1.1235-2.684.1579-3.7863l-7.884-8.9992c-.5217-.5954-1.2748-.9369-2.0664-.9369h-10.608c-1.5173 0-2.7472-1.23-2.7472-2.7472 0-1.5172 1.2299-2.7472 2.7472-2.7472h21.367c.5056 0 .9156-.41.9156-.9157Z"/>
+            <path class="rednumba" fill-rule="evenodd" d="M73.9645 55.6427c.7682-.742 1.7946-1.1567 2.8628-1.1567h23.0041c1.2646 0 2.2896 1.0249 2.2896 2.2893v5.4944c0 1.2643-1.025 2.2893-2.2896 2.2893h-21.367c-.7586 0-1.3736.615-1.3736 1.3736 0 .7586.615 1.3736 1.3736 1.3736h10.608c1.1874 0 2.3171.5122 3.0996 1.4053l7.884 8.9993c1.448 1.6533 1.344 4.1524-.2368 5.6794l-7.7485 7.4839c-.7683.7421-1.7947 1.1568-2.8628 1.1568h-25.09c-1.2643 0-2.2893-1.025-2.2893-2.2893v-5.4944c0-1.2644 1.025-2.2893 2.2893-2.2893h23.4529c.7586 0 1.3736-.615 1.3736-1.3736 0-.7586-.615-1.3736-1.3736-1.3736h-10.608c-1.1874 0-2.3171-.5122-3.0996-1.4054l-7.884-8.9992c-1.4484-1.6534-1.3442-4.1525.2368-5.6795l7.7485-7.4839Zm2.8628 1.5905c-.3561 0-.6982.1382-.9543.3855l-7.7485 7.4839c-.527.509-.5617 1.3421-.0789 1.8932l7.884 8.9992c.2608.2978.6374.4685 1.0332.4685h10.608c2.2759 0 4.1208 1.8449 4.1208 4.1208 0 2.2758-1.845 4.1208-4.1208 4.1208h-22.995v4.5786h24.6321c.3561 0 .6982-.1382.9543-.3856l7.7484-7.4839c.527-.509.5618-1.342.079-1.8931l-7.884-8.9993c-.2608-.2977-.6374-.4684-1.0332-.4684h-10.608c-2.2759 0-4.1208-1.845-4.1208-4.1208 0-2.2759 1.8449-4.1208 4.1208-4.1208h20.9092v-4.5786H76.8273Z" clip-rule="evenodd"/>
+            <text xml:space="preserve" fill="#fff" font-size="2.3" font-weight="500" letter-spacing=".01em" style="white-space: pre;" transform="rotate(-48 46.142303 2.102024)">
+              <tspan x="0" y="3.05558" textLength="38" style="font-size:2.3px;font-weight:400;letter-spacing:0em;">VISIT US AT WWW.SCALAR.COM</tspan>
+            </text>
+            <style>
+    text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Open Sans","Helvetica Neue",sans-serif}
+    .bluenumba {
+      fill: #2A2F98;
+      }
+    .yellownumba {
+      fill: #F5C952;
+    }
+    .rednumba {
+      fill: #D60036;
+    }
+    @media (color-gamut:p3){
+        .bluenumba {
+            fill: color(display-p3 0.164706 0.184314 0.596078 / 1.000000);
+        }
+        .yellownumba {
+            fill: color(display-p3 0.960784 0.788235 0.321569 / 1.000000);
+        }
+        .rednumba {
+            fill: color(display-p3 0.937255 0.0 0.023529 / 1.0);
+        }
+    }
+  </style>
+          </g>
+        </defs>
+        <foreignObject width="100%" height="100%">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="sticker-container" style="left: 4px;top: 5px;">
+            <div class="sticker-main">
+              <div class="sticker-lighting">
+                <svg xmlns="http://www.w3.org/2000/svg" width="130" height="169">
+                  <use href="#numberSticker" x="0" y="0"/>
+                </svg>
+              </div>
+            </div>
+            <div class="shadow">
+              <div class="flap">
+                <svg xmlns="http://www.w3.org/2000/svg" width="130" height="169">
+                  <use href="#numberSticker" x="0" y="0"/>
+                </svg>
+              </div>
+            </div>
+            <div class="flap">
+              <div class="flap-lighting">
+                <svg xmlns="http://www.w3.org/2000/svg" width="130" height="169">
+                  <use href="#numberSticker" x="0" y="0"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </foreignObject>
+      <script xmlns=""/></svg>

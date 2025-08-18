@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 1360 765" width="1360" height="765" preserveAspectRatio="xMidYMid meet">
   <foreignObject width="1360" height="765" class="fo">
     <div xmlns="http://www.w3.org/1999/xhtml" class="transform-rr">
-      <div class="h-animation-ref light-mode rr">
+      <div class="h-animation-ref dark-mode rr">
         <div class="h-animation-ref-safari size">
           <div class="dotted-top"></div>
           <div class="h-animation-ref-safari-left">
@@ -1456,7 +1456,7 @@ svg {
   left: 0;
   width: 100%;
   height: 765px;
-  border: 1px solid #dbdbdb;
+  border: 1px solid rgb(55, 55, 55);
   border-radius: 8px;
   overflow: hidden;
 }

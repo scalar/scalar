@@ -11,7 +11,7 @@
     <a class="t-editor__button">Get Started</a>
     <a class="t-editor__button">Book a Demo</a>
   </div>
-   <div class="stickers">
+  <div class="stickers">
     <div class="draggable sticker-5">
       <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/SiTCkdsfi2287iQBEGzN2.svg"></scalar-icon>
     </div>
@@ -34,16 +34,20 @@
   <button type="button" data-target="#slide-4">SDK's</button>
   <ul class="gallery container-full" id="gallery">
     <li id="slide-1">
-      <img src="/app-docs-animated.svg" />
+      <img class="light-image" src="/app-docs-animated.svg" />
+      <img class="dark-image" src="/app-docs-animated-dark.svg" />
     </li>
     <li id="slide-2">
-      <img src="/app-docs-animated.svg" />
+      <img class="light-image" src="/api-client-animated.svg" />
+      <img class="dark-image" src="/api-client-animated-dark.svg" />
     </li>
     <li id="slide-3">
-      <img src="/app-docs-animated.svg" />
+      <img class="light-image" src="/registry-animated.svg" />
+      <img class="dark-image" src="/registry-animated-dark.svg" />
     </li>
     <li id="slide-4">
-      <img src="/app-docs-animated.svg" />
+      <img class="light-image" src="/sdks-animated.svg" />
+      <img class="dark-image" src="/sdks-animated-dark.svg" />
     </li>
   </ul>
 </div>
@@ -100,13 +104,12 @@
   <div class="product flex">
     <div class="product-image w-1/2">
       <div class="product-image-transform">
-        <img
-          src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/GSJW8rLUyN4wg-ZiwoizK.svg"
-        />
+        <img class="light-image" src="/registry-static.svg" />
+        <img class="dark-image" src="/registry-static-dark.svg" />
       </div>
     </div>
     <div class="product-copy w-1/2 gap-3 flex flex-col">
-      <span class="font-bold text-blue">API Docs</span>
+      <span class="font-bold text-green">API Registry</span>
       <h2>
         A modern documentation platform for your APIs, with first-class OpenAPI
         support
@@ -115,7 +118,7 @@
         Write beautiful documentation with our WYSIWYG or docs-as-code with
         Markdown + MDX + Git Sync & make your OpenAPI documents Interactive
       </p>
-      <div class="flex flex-wrap text-blue gap-y-2">
+      <div class="flex flex-wrap text-green gap-y-2">
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/users"></scalar-icon>
           Collaborate
@@ -141,10 +144,10 @@
           Multi-platform
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="yo">Learn More</a>
+      <a class="mt-3 t-editor__anchor" href="yo">Learn More →</a>
     </div>
-    <div class="draggable sticker-3">
-      <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/HLhbFqJ4vSzo4UDEZX2dq.svg"></scalar-icon>
+    <div class="draggable sticker-4">
+      <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/jgGF_IKsu-T_irS-6MMOy.svg"></scalar-icon>
     </div>
   </div>
   <div class="product flex">
@@ -183,17 +186,113 @@
           Multi-platform
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="yo">Learn More</a>
+      <a class="mt-3 t-editor__anchor" href="yo">Learn More →</a>
     </div>
     <div class="product-image product-image-right w-1/2">
       <div class="product-image-transform">
-        <img
-          src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/5LEykZwnotDf-yTmJblPG.svg"
-        />
+        <img class="light-image" src="/api-client-static.svg"/>
+        <img class="dark-image" src="/api-client-static-dark.svg"/>
       </div>
     </div>
     <div class="draggable sticker-8">
       <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/JXS6tZ4EbKIkeGpjP6QKc.svg"></scalar-icon>
+    </div>
+  </div>
+  <div class="product flex">
+    <div class="product-image w-1/2">
+      <div class="product-image-transform">
+        <img class="light-image" src="/api-docs-static-zoom.svg"/>
+        <img class="dark-image" src="/api-docs-static-zoom-dark.svg"/>
+      </div>
+    </div>
+    <div class="product-copy w-1/2 gap-3 flex flex-col">
+      <span class="font-bold text-blue">API Docs</span>
+      <h2>
+        A modern documentation platform for your APIs, with first-class OpenAPI
+        support
+      </h2>
+      <p>
+        Write beautiful documentation with our WYSIWYG or docs-as-code with
+        Markdown + MDX + Git Sync & make your OpenAPI documents Interactive
+      </p>
+      <div class="flex flex-wrap text-blue gap-y-2">
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/users"></scalar-icon>
+          Collaborate
+        </b>
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/wifi-slash"></scalar-icon>
+          Offline First
+        </b>
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/globe"></scalar-icon>
+          Sync Local API's
+        </b>
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/graph"></scalar-icon>
+          OpenAPI Support
+        </b>
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/lock-simple-open"></scalar-icon>
+          No Vendor Lock In
+        </b>
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/desktop-tower"></scalar-icon>
+          Multi-platform
+        </b>
+      </div>
+      <a class="mt-3 t-editor__anchor" href="yo">Learn More →</a>
+    </div>
+    <div class="draggable sticker-3">
+      <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/HLhbFqJ4vSzo4UDEZX2dq.svg"></scalar-icon>
+    </div>
+  </div>
+  <div class="product flex">
+    <div class="product-copy w-1/2 gap-3 flex flex-col">
+      <span class="font-bold text-purple">SDK Generation</span>
+      <h2 class="c">
+        An offline first API Client built for the OpenAPI™ standard.
+      </h2>
+      <p>
+        Minimal, powerful, fully open-source API Client built on open standards
+        by us + our community
+      </p>
+      <div class="flex flex-wrap text-purple gap-y-2">
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/users"></scalar-icon>
+          Collaborate
+        </b>
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/wifi-slash"></scalar-icon>
+          Offline First
+        </b>
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/globe"></scalar-icon>
+          Sync Local API's
+        </b>
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/graph"></scalar-icon>
+          OpenAPI Support
+        </b>
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/lock-simple-open"></scalar-icon>
+          No Vendor Lock In
+        </b>
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/desktop-tower"></scalar-icon>
+          Multi-platform
+        </b>
+      </div>
+      <a class="mt-3 t-editor__anchor" href="yo">Learn More →</a>
+    </div>
+    <div class="product-image product-image-right w-1/2">
+      <div class="product-image-transform">
+        <img class="light-image" src="/sdks-static.svg" />
+        <img class="dark-image" src="/sdks-static-dark.svg" />
+      </div>
+    </div>
+    <div class="draggable sticker-2">
+      <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/gM-mqYTBYMkqpnexTIr-r.svg"></scalar-icon>
     </div>
   </div>
 </div>
@@ -253,21 +352,20 @@
     <a class="t-editor__button">Get Started</a>
     <a class="t-editor__button">Book a Demo</a>
   </div>
-  <a class="expander-hover-link">Community</a>
-  <a class="expander-hover-link">Contact Us</a>
-  <a class="expander-hover-link">Guides</a>
+  <a class="expander-hover-link">Community →</a>
+  <a class="expander-hover-link">Contact Us →</a>
+  <a class="expander-hover-link">Guides →</a>
 </div>
 <div class="expander-container">
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img
-        src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/5LEykZwnotDf-yTmJblPG.svg"
-      />
+      <img class="light-image" src="/api-client-static.svg" />
+      <img class="dark-image" src="/api-client-static-dark.svg" />
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
-        <object width="156" height="110"
-          data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/Cn9-5Gmtn_wyRH7GjggR1.svg"></object>
+        <object class="sticker-clip-client" width="156" height="110"
+          data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/JXS6tZ4EbKIkeGpjP6QKc.svg"></object>
       </div>
       <div class="expander-hover-title">API Client</div>
       <div class="expander">
@@ -281,14 +379,13 @@
   </div>
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img
-        src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/GSJW8rLUyN4wg-ZiwoizK.svg"
-      />
+      <img class="light-image" src="/sdks-static.svg" />
+      <img class="dark-image" src="/sdks-static-dark.svg" />
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
-        <object width="145" height="145"
-          data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/ZpXJPa8nI8jrhLR0cuLhN.svg"></object>
+        <object class="sticker-clip-sdk" width="145" height="145"
+          data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/gM-mqYTBYMkqpnexTIr-r.svg"></object>
       </div>
       <div class="expander-hover-title">SDKs</div>
       <div class="expander">
@@ -302,12 +399,13 @@
   </div>
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/GSJW8rLUyN4wg-ZiwoizK.svg"/>
+      <img class="light-image" src="/registry-static.svg" />
+      <img class="dark-image" src="/registry-static-dark.svg" />
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
-      <object width="136" height="186"
-          data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/Hq_n1UQS5qrIJtBMahtEq.svg"></object>
+      <object class="sticker-clip-registry" width="136" height="186"
+          data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/jgGF_IKsu-T_irS-6MMOy.svg"></object>
       </div>
       <div class="expander-hover-title">API Registry</div>
       <div class="expander">
@@ -321,11 +419,12 @@
   </div>
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/GSJW8rLUyN4wg-ZiwoizK.svg"/>
+      <img class="light-image" src="/api-docs-static-zoom.svg" />
+      <img class="dark-image" src="/api-docs-static-zoom-dark.svg" />
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
-        <object width="113" height="143" data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/wTuOl1yMXB7mT3YKUvG9t.svg"></object>
+        <object class="sticker-clip-docs" width="113" height="143" data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/HLhbFqJ4vSzo4UDEZX2dq.svg"></object>
       </div>
       <div class="expander-hover-title">API Docs</div>
       <div class="expander">
@@ -380,17 +479,22 @@
   </div>
 </div>
 <div class="sticker-filter-effect">
-  <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/SyJTi2vzOCF5fZFvM6KF-.svg">
+  <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/utn6gGF3Iucolqx4jmXmY.svg">
 </div>
 <style>
   .t-editor__page-title,
   .layout-aside-right,
   .t-editor__page-nav,
+  .notify-container,
   .subheading {
     display: none;
   }
   .t-doc .layout-header {
     z-index: 10000;
+  }
+  .t-editor__button {
+    min-width: 160px;
+    justify-content: center;
   }
   .t-editor .editor-content,
   .t-editor {
@@ -639,9 +743,9 @@
   .expander-hover-preview {
     position: absolute;
     left: -120px;
-    top: -120px;
+    top: -220px;
     width: 1100px;
-    mask-image: radial-gradient(circle at top left, black 25%, transparent 45%);
+    mask-image: radial-gradient(circle at top left, black 25%, transparent 40%);
     pointer-events: none;
     opacity: 0;
     transition: all 0.3s ease-in-out;
@@ -660,6 +764,7 @@
   .expander-hover-preview img {
     margin-left: 0;
     mask-image: linear-gradient(black, transparent);
+    width: 100%;
   }
   .expander-hover-sticker {
     height: 143px;
@@ -670,6 +775,9 @@
     margin-left: -12px;
     transition: transform 0.3s ease-in-out;
     justify-content: flex-start;
+  }
+  .expander-hover-sticker object {
+    pointer-events: none;
   }
   .expander-hover-sticker img {
     max-height: initial;
@@ -716,5 +824,24 @@
   }
   .w-1\/3 {
     width: 33.33%
+  }
+  .light-mode .dark-image {
+    display: none;
+  }
+  .dark-mode .light-image {
+    display: none;
+  }
+  .sticker-clip-client {
+    clip-path: path("M158 91.9102C158 95.8908 154.773 99.1172 150.792 99.1172L147.269 99.1172L147.269 105.78C147.268 107.948 145.511 109.705 143.343 109.705L86.2051 109.705C84.0373 109.705 82.2795 107.948 82.2793 105.78L82.2793 99.1172L7.208 99.1172C3.22741 99.1172 1.10673e-05 95.8908 -4.01752e-06 91.9101L-3.50643e-06 80.2178C-3.47119e-06 79.4117 0.135571 78.6109 0.400387 77.8496L25.7949 4.83984C26.8028 1.94219 29.5346 -5.6154e-06 32.6025 -5.4813e-06L150.792 -3.15072e-07C154.773 -1.41078e-07 158 3.22654 158 7.20703L158 91.9102Z")
+  }
+  .sticker-clip-sdk {
+    clip-path: path("M60.0562 8.61129C65.9233 -1.83053 81.0294 -1.61478 86.5955 8.99068L142.416 115.353C144.543 119.406 141.567 124.259 136.991 124.201L114.679 123.918L114.138 135.797C113.962 139.654 110.761 142.678 106.9 142.634L32.9393 141.782C29.1212 141.738 26.0084 138.707 25.864 134.891L25.406 122.787L6.28841 122.544C1.70363 122.486 -1.1476 117.543 1.09835 113.545L60.0562 8.61129Z")
+  }
+  .sticker-clip-registry {
+    clip-path: path("M71.0986 1.13334C75.8537 -0.596969 81.1116 1.85514 82.8428 6.6099L90.3037 27.1079H98.5059C104.199 27.108 108.814 31.7235 108.814 37.4165V77.9663L121.32 112.329C119.703 112.128 118.003 112.298 116.351 112.899C110.96 114.861 108.12 120.659 110.009 125.848C111.898 131.038 117.8 133.654 123.191 131.692C124.844 131.091 126.254 130.127 127.364 128.933L134.608 148.835C136.339 153.591 133.887 158.849 129.132 160.58L73.3945 180.866C68.6393 182.596 63.3816 180.145 61.6504 175.39L58.958 167.994H2.29102C1.02582 167.994 0 166.968 0 165.703V29.398C0.000538247 28.1333 1.02616 27.1079 2.29102 27.1079H9.8125C10.6721 24.5603 12.6383 22.4116 15.3613 21.4204L71.0986 1.13334Z")
+  }
+  .sticker-clip-docs {
+    overflow: hidden;
+    border-radius: 20px;
   }
 </style>
