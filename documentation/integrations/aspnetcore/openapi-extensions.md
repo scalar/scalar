@@ -122,6 +122,4 @@ public IActionResult GetExperimentalFeature() => Ok();
 **Badge Options:**
 - `name`: The text displayed in the badge (required)
 - `position`: Where the badge appears relative to the operation header
-  - `BadgePosition.Before`: Displays before the operation summary
-  - `BadgePosition.After`: Displays after the operation summary (default)
 - `color`: Badge color in any CSS format (hex, rgb, keywords, etc.)
