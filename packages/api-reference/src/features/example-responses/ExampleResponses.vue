@@ -23,6 +23,7 @@ import { ExamplePicker } from '@/v2/blocks/scalar-request-example-block'
 import ExampleResponse from './ExampleResponse.vue'
 import ExampleResponseTab from './ExampleResponseTab.vue'
 import ExampleResponseTabList from './ExampleResponseTabList.vue'
+import { getResolvedRefDeep } from './helpers/get-resolved-ref-deep'
 
 /**
  * TODO: copyToClipboard isn't using the right content if there are multiple examples
@@ -160,7 +161,7 @@ const showSchema = ref(false)
         v-if="showSchema && currentResponseContent?.schema"
         :id="id"
         class="-outline-offset-2"
-        :content="getResolvedRef(currentResponseContent?.schema)"
+        :content="getResolvedRefDeep(currentResponseContent?.schema)"
         lang="json" />
 
       <!-- Example -->

@@ -220,9 +220,13 @@ export const schemaObjectSchemaBuilder = <S extends TSchema>(schema: S) =>
     XAdditionalPropertiesNameSchema,
   )
 
+/**
+ * This helper is required due to everything being optional on the schema so ANY object is a valid schema. With this
+ * helper we add a phantom property which will exist everywhere the object has been parsed against the schema.
+ */
 export const Helper = Type.Recursive(schemaObjectSchemaBuilder)
 export const SchemaObjectSchema = Type.Recursive(schemaObjectSchemaBuilder) as TIntersect<
-  [typeof Helper, TObject<{ _resolvedRef: TAny }>]
+  [typeof Helper, TObject<{ _resolvedRefSchema: TAny }>]
 >
 
 export type SchemaObject = Static<typeof SchemaObjectSchema>
