@@ -4,17 +4,14 @@ import { upgrade } from '@scalar/openapi-parser'
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 
 import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
-import { deepClone, isObject, safeAssign, type UnknownObject } from '@/helpers/general'
+import { isObject, safeAssign, type UnknownObject } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
 import { createNavigation } from '@/navigation'
 import { extensions } from '@/schemas/extensions'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict } from '@/schemas/v3.1/strict/openapi-document'
-import {
-  OpenAPIDocumentSchema as OpenAPIDocumentSchemaLoose,
-  type OpenApiDocumentLoose,
-} from '@/schemas/v3.1/loose/openapi-document'
+import { OpenAPIDocumentSchema as OpenAPIDocumentSchemaLoose } from '@/schemas/v3.1/loose/openapi-document'
 import { defaultReferenceConfig } from '@/schemas/reference-config'
 import type { Config } from '@/schemas/workspace-specification/config'
 import { InMemoryWorkspaceSchema, type InMemoryWorkspace } from '@/schemas/inmemory-workspace'
@@ -26,9 +23,10 @@ import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
 import { apply, diff, merge, type Difference } from '@scalar/json-magic/diff'
 import type { TraverseSpecOptions } from '@/navigation/types'
 import type { PartialDeep, RequiredDeep } from 'type-fest'
-import { Value } from '@sinclair/typebox/value'
 import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
 import type { Record } from '@sinclair/typebox'
+import { Value } from '@sinclair/typebox/value'
+import { deepClone } from '@/helpers/deep-clone'
 
 type DocumentConfiguration = Config &
   PartialDeep<{
@@ -400,7 +398,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * subsequent mutations in the workspace do not affect the originals.
    * The originals are retained so that we can restore, compare, or sync with the remote registry as needed.
    */
-  const originalDocuments = {} as Record<string, OpenApiDocumentLoose>
+  const originalDocuments = {} as Record<string, UnknownObject>
   /**
    * Stores the intermediate state of documents after local edits but before syncing with the remote registry.
    *
@@ -413,7 +411,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    *   - The latest locally saved version (`intermediateDocuments`)
    *   - The current in-memory (possibly unsaved) workspace document (`workspace.documents`)
    */
-  const intermediateDocuments = {} as Record<string, OpenApiDocumentLoose>
+  const intermediateDocuments = {} as Record<string, UnknownObject>
   /**
    * A map of document configurations keyed by document name.
    * This stores the configuration options for each document in the workspace,
@@ -506,14 +504,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   // Add a document to the store synchronously from an in-memory OpenAPI document
   async function addInMemoryDocument(input: ObjectDoc & { initialize?: boolean; origin?: string }) {
     const { name, meta } = input
-    const inputDocument = deepClone(input.document)
-
-    const looseDocument = coerceValue(OpenAPIDocumentSchemaLoose, upgrade(inputDocument).specification)
+    const inputDocument = upgrade(deepClone(input.document)).specification
 
     if (input.initialize !== false) {
       // Store the original document in the originalDocuments map
       // This is used to track the original state of the document as it was loaded into the workspace
-      originalDocuments[name] = deepClone({ ...looseDocument })
+      originalDocuments[name] = deepClone({ ...inputDocument })
 
       // Store the intermediate document state for local edits
       // This is used to track the last saved state of the document
@@ -521,7 +517,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // This is important for local edits that are not yet synced with the remote registry
       // The intermediate document is used to store the latest saved state of the document
       // This allows us to track changes and revert to the last saved state if needed
-      intermediateDocuments[name] = deepClone({ ...looseDocument })
+      intermediateDocuments[name] = deepClone({ ...inputDocument })
       // Add the document config to the documentConfigs map
       documentConfigs[name] = input.config ?? {}
       // Store the overrides for this document, or an empty object if none are provided
@@ -530,7 +526,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       documentMeta[name] = { origin: input.origin }
     }
 
-    const strictDocument = createMagicProxy({ ...looseDocument, ...meta })
+    const strictDocument: UnknownObject = createMagicProxy({ ...inputDocument, ...meta })
 
     if (strictDocument[extensions.document.navigation] === undefined) {
       // If the document navigation is not already present, bundle the entire document to resolve all references.
@@ -544,10 +540,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       })
 
       // We coerce the values only when the document is not preprocessed by the server-side-store
-      mergeObjects(
-        strictDocument,
-        coerceValue(OpenAPIDocumentSchemaStrict, createMagicProxy({ ...deepClone(getRaw(strictDocument)) })),
-      )
+      mergeObjects(strictDocument, coerceValue(OpenAPIDocumentSchemaStrict, deepClone(strictDocument)))
     }
 
     const isValid = Value.Check(OpenAPIDocumentSchemaStrict, strictDocument)
