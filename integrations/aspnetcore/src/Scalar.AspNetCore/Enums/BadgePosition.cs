@@ -9,15 +9,15 @@ namespace Scalar.AspNetCore;
 [EnumExtensions]
 public enum BadgePosition
 {
-  /// <summary>
-  /// Position the badge after the operation header (default).
-  /// </summary>
-  [Description("after")]
-  After,
+    /// <summary>
+    /// Position the badge after the operation header (default).
+    /// </summary>
+    [Description("after")]
+    After,
 
-  /// <summary>
-  /// Position the badge before the operation header.
-  /// </summary>
-  [Description("before")]
-  Before
+    /// <summary>
+    /// Position the badge before the operation header.
+    /// </summary>
+    [Description("before")]
+    Before
 }

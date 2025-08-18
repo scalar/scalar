@@ -8,37 +8,37 @@ namespace Scalar.AspNetCore.Swashbuckle.Tests;
 
 public class BadgeFilterTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
 {
-  [Fact]
-  public async Task BadgeFilter_ShouldAddBadges()
-  {
-    // Arrange
-    var localFactory = factory.WithWebHostBuilder(builder =>
+    [Fact]
+    public async Task BadgeFilter_ShouldAddBadges()
     {
-      builder.ConfigureTestServices(services => services.AddSwaggerGen(options => options.AddScalarFilters()));
-      builder.Configure(options =>
-          {
-            options.UseRouting();
-            options.UseEndpoints(endpoints =>
+        // Arrange
+        var localFactory = factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureTestServices(services => services.AddSwaggerGen(options => options.AddScalarFilters()));
+            builder.Configure(options =>
+            {
+                options.UseRouting();
+                options.UseEndpoints(endpoints =>
                 {
-                  endpoints.MapSwagger("/openapi/{documentName}.json");
+                    endpoints.MapSwagger("/openapi/{documentName}.json");
 
-                  var group = endpoints.MapGroup("/foo").WithTags("foo").WithBadge("Alpha");
-                  group.MapGet("/simple", Results.NoContent);
-                  group.MapGet("/complex", Results.NoContent)
+                    var group = endpoints.MapGroup("/foo").WithTags("foo").WithBadge("Alpha");
+                    group.MapGet("/simple", Results.NoContent);
+                    group.MapGet("/complex", Results.NoContent)
                         .WithBadge("Beta", BadgePosition.Before)
                         .WithBadge("Gamma", BadgePosition.After, "#ffcc00")
                         .WithBadge("Delta", color: "#00ff00");
                 });
-          });
-    });
+            });
+        });
 
-    var client = localFactory.CreateClient();
+        var client = localFactory.CreateClient();
 
-    // Act
-    var response = await client.GetAsync("/openapi/v1.json", TestContext.Current.CancellationToken);
-    var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        // Act
+        var response = await client.GetAsync("/openapi/v1.json", TestContext.Current.CancellationToken);
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
-    const string expected = """
+        const string expected = """
                                 {
                                   "openapi": *,
                                   "info": {
@@ -97,6 +97,6 @@ public class BadgeFilterTests(WebApplicationFactory<Program> factory) : IClassFi
                                 *
                                 }
                                 """;
-    content.Should().Match(expected);
-  }
+        content.Should().Match(expected);
+    }
 }

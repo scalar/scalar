@@ -8,37 +8,37 @@ namespace Scalar.AspNetCore.Microsoft.Tests;
 
 public class BadgeTransformerTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
 {
-  [Fact]
-  public async Task BadgeTransformer_ShouldAddBadges()
-  {
-    // Arrange
-    var localFactory = factory.WithWebHostBuilder(builder =>
+    [Fact]
+    public async Task BadgeTransformer_ShouldAddBadges()
     {
-      builder.ConfigureTestServices(services => services.AddOpenApi(options => options.AddScalarTransformers()));
-      builder.Configure(options =>
-          {
-          options.UseRouting();
-          options.UseEndpoints(endpoints =>
-              {
-              endpoints.MapOpenApi();
+        // Arrange
+        var localFactory = factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureTestServices(services => services.AddOpenApi(options => options.AddScalarTransformers()));
+            builder.Configure(options =>
+            {
+                options.UseRouting();
+                options.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapOpenApi();
 
-              var group = endpoints.MapGroup("/foo").WithTags("foo").WithBadge("Alpha");
-              group.MapGet("/simple", Results.NoContent);
-              group.MapGet("/complex", Results.NoContent)
-                      .WithBadge("Beta", BadgePosition.Before)
-                      .WithBadge("Gamma", BadgePosition.After, "#ffcc00")
-                      .WithBadge("Delta", color: "#00ff00");
+                    var group = endpoints.MapGroup("/foo").WithTags("foo").WithBadge("Alpha");
+                    group.MapGet("/simple", Results.NoContent);
+                    group.MapGet("/complex", Results.NoContent)
+                        .WithBadge("Beta", BadgePosition.Before)
+                        .WithBadge("Gamma", BadgePosition.After, "#ffcc00")
+                        .WithBadge("Delta", color: "#00ff00");
+                });
             });
         });
-    });
 
-    var client = localFactory.CreateClient();
+        var client = localFactory.CreateClient();
 
-    // Act
-    var response = await client.GetAsync("/openapi/v1.json", TestContext.Current.CancellationToken);
-    var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        // Act
+        var response = await client.GetAsync("/openapi/v1.json", TestContext.Current.CancellationToken);
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
-    const string expected = """
+        const string expected = """
                                 {
                                   "openapi": *,
                                   "info": {
@@ -101,6 +101,6 @@ public class BadgeTransformerTests(WebApplicationFactory<Program> factory) : ICl
                                   ]
                                 }
                                 """;
-    content.Should().Match(expected);
-  }
+        content.Should().Match(expected);
+    }
 }
