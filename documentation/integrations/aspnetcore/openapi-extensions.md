@@ -22,16 +22,6 @@ Add the appropriate transformers/filters during OpenAPI registration:
 using Scalar.AspNetCore;
 
 // Microsoft.AspNetCore.OpenApi
-```shell
-dotnet add package Scalar.AspNetCore.Swashbuckle
-```
-
-Add the appropriate transformers/filters during OpenAPI registration:
-
-```csharp
-using Scalar.AspNetCore;
-
-// Microsoft.AspNetCore.OpenApi
 builder.Services.AddOpenApi(options => options.AddScalarTransformers());
 
 // Swashbuckle.AspNetCore.SwaggerGen
