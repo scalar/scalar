@@ -15,8 +15,8 @@ import { XAdditionalPropertiesNameSchema } from '@/schemas/extensions/schema/x-a
  *
  * We hit the typescript limit if we type this out correctly with the sub schemas (string, number etc)
  */
-export const schemaObjectSchemaBuilder = <S extends TSchema>(schema: S) =>
-  compose(
+export const schemaObjectSchemaBuilder = <S extends TSchema>(schema: S) => {
+  const baseSchema = compose(
     Type.Object({
       // Base JSON Schema
       type: Type.Optional(
@@ -220,13 +220,21 @@ export const schemaObjectSchemaBuilder = <S extends TSchema>(schema: S) =>
     XAdditionalPropertiesNameSchema,
   )
 
-/**
- * This helper is required due to everything being optional on the schema so ANY object is a valid schema. With this
- * helper we add a phantom property which will exist everywhere the object has been parsed against the schema.
- */
-export const Helper = Type.Recursive(schemaObjectSchemaBuilder)
-export const SchemaObjectSchema = Type.Recursive(schemaObjectSchemaBuilder) as TIntersect<
-  [typeof Helper, TObject<{ _resolvedRefSchema: TAny }>]
->
+  /**
+   * _resolvedRefSchema is required due to everything being optional on the schema so ANY object is a valid schema.
+   * With this helper we add a phantom property which will exist everywhere the object has been parsed against the schema.
+   */
+  return baseSchema as unknown as TIntersect<
+    [
+      typeof baseSchema,
+      typeof XScalarIgnoreSchema,
+      typeof XInternalSchema,
+      typeof XVariableSchema,
+      typeof XAdditionalPropertiesNameSchema,
+      TObject<{ _resolvedRefSchema: TAny }>,
+    ]
+  >
+}
 
+export const SchemaObjectSchema = Type.Recursive(schemaObjectSchemaBuilder)
 export type SchemaObject = Static<typeof SchemaObjectSchema>
