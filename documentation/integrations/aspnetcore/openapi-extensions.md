@@ -99,22 +99,22 @@ public IActionResult GetProducts() => Ok();
 
 ### Badges
 
-Add visual badges to operations to use as indicators in documentation. Each operation can have multiple badges, and you can configure their position and color:
+Add visual badges to operations. Each operation can have multiple badges, and you can configure their position and color:
 
 ```csharp
 // Minimal APIs
 app.MapGet("/alpha-feature", GetAlphaFeature)
-    .Badge("Alpha")
-    .Badge("Beta", BadgePosition.Before)
-    .Badge("Internal", BadgePosition.After, "#ff6b35");
+    .WithBadge("Alpha")
+    .WithBadge("Beta", BadgePosition.Before)
+    .WithBadge("Internal", BadgePosition.After, "#ff6b35");
 
 app.MapPost("/orders", CreateOrder)
-    .Badge("New", color: "#28a745")
-    .Badge("Premium", BadgePosition.Before, "#ffc107");
+    .WithBadge("New", color: "#28a745")
+    .WithBadge("Premium", BadgePosition.Before, "#ffc107");
 
 // Controllers
 [HttpGet]
-[Badge("Experimental")]
+[Badge("New")]
 [Badge("V2", BadgePosition.After, "#007bff")]
 public IActionResult GetExperimentalFeature() => Ok();
 ```
