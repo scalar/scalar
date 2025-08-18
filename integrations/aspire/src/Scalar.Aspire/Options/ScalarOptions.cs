@@ -196,4 +196,6 @@ public abstract class ScalarOptions
     /// </summary>
     /// <value>The default value is <c>null</c>.</value>
     public DocumentDownloadType? DocumentDownloadType { get; set; }
+
+    public bool UseHttps { get; set; }
 }

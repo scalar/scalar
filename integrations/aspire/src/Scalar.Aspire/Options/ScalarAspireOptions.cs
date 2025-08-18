@@ -24,4 +24,14 @@ public sealed class ScalarAspireOptions : ScalarOptions
     /// Can be customized to use a different CDN or local assets.
     /// </remarks>
     public string CdnUrl { get; set; } = "standalone.js";
+
+    /// <summary>
+    /// Gets or sets whether to allow self-signed certificates for HTTPS connections.
+    /// </summary>
+    /// <value>The default value is <c>false</c>.</value>
+    /// <remarks>
+    /// When enabled, the application will accept self-signed certificates.
+    /// This should only be used in development environments and never in production.
+    /// </remarks>
+    public bool AllowSelfSignedCertificate { get; set; }
 }

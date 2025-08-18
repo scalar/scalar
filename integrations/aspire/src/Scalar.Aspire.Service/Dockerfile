@@ -13,5 +13,6 @@ COPY --from=publish /app/publish .
 # use non-root user
 USER $APP_UID
 EXPOSE 8080
+EXPOSE 8443
 
 ENTRYPOINT ["dotnet", "Scalar.Aspire.Service.dll"]

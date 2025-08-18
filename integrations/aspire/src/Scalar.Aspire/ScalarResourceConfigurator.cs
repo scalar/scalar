@@ -38,10 +38,8 @@ internal static class ScalarResourceConfigurator
         var environmentVariables = context.EnvironmentVariables;
         environmentVariables.Add(ApiReferenceConfig, configurations);
         environmentVariables.Add(CdnUrl, scalarAspireOptions.CdnUrl);
-        if (scalarAspireOptions.DefaultProxy)
-        {
-            environmentVariables.Add(DefaultProxy, "true");
-        }
+        environmentVariables.Add(AllowSelfSignedCertificate, scalarAspireOptions.AllowSelfSignedCertificate);
+        environmentVariables.Add(DefaultProxy, scalarAspireOptions.DefaultProxy);
     }
 
     private static async IAsyncEnumerable<ScalarOptions> CreateConfigurationsAsync(IServiceProvider serviceProvider, IEnumerable<ScalarAnnotation> annotations, [EnumeratorCancellation] CancellationToken cancellationToken)
@@ -72,7 +70,7 @@ internal static class ScalarResourceConfigurator
 
     private static void ConfigureOpenApiServers(ScalarOptions scalarOptions, string resourceName)
     {
-        var resourceUrl = GetResourceUrl(resourceName);
+        var resourceUrl = GetResourceUrl(resourceName, scalarOptions.UseHttps);
         // Only set OpenAPI servers if not already assigned
         var server = new ScalarServer(resourceUrl, resourceName);
         scalarOptions.Servers ??= [server];
@@ -83,7 +81,7 @@ internal static class ScalarResourceConfigurator
         // Only set the full URL if the OpenAPI route pattern is not a full URL
         if (!RegexHelper.HttpUrlPattern().IsMatch(scalarOptions.OpenApiRoutePattern))
         {
-            var resourceUrl = GetResourceUrl(resourceName);
+            var resourceUrl = GetResourceUrl(resourceName, scalarOptions.UseHttps);
             scalarOptions.OpenApiRoutePattern = $"{resourceUrl}/{scalarOptions.OpenApiRoutePattern.TrimStart('/')}";
         }
     }
@@ -127,7 +125,7 @@ internal static class ScalarResourceConfigurator
         }
     }
 
-    private static string GetResourceUrl(string resourceName) =>
+    private static string GetResourceUrl(string resourceName, bool useHttps) =>
         // Let's make the protocol/endpoint name configurable in the future
-        $"http://{resourceName}";
+        $"{(useHttps ? "https" : "http")}://{resourceName}";
 }

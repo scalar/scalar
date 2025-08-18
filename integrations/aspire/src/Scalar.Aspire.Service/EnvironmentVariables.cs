@@ -7,4 +7,6 @@ internal static class EnvironmentVariables
     public const string CdnUrl = "CDN_URL";
 
     public const string DefaultProxy = "DEFAULT_PROXY";
+
+    public const string AllowSelfSignedCertificate = "ALLOW_SELF_SIGNED_CERTIFICATE";
 }
