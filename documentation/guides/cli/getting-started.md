@@ -43,13 +43,13 @@ pnpm dlx @scalar/cli help
 
 ## Commands
 
-- [scalar](/scalar/scalar-cli/commands#scalar) CLI to work with OpenAPI files, Markdown/MDX, Scalar Platform
-- [auth](/scalar/scalar-cli/commands#auth) Manage authorization on Scalar platform
-- [document](/scalar/scalar-cli/commands#document) Manage local openapi files
-- [project](/scalar/scalar-cli/commands#project) Manage Scalar docs project
-- [registry](/scalar/scalar-cli/commands#registry) Manage your Scalar registry
-- [team](/scalar/scalar-cli/commands#team) Manage user teams
-- [help](/scalar/scalar-cli/commands#help) Display help for command
+- [scalar](https://guides.scalar.com/scalar/scalar-cli/commands#scalar) CLI to work with OpenAPI files, Markdown/MDX, Scalar Platform
+- [auth](https://guides.scalar.com/scalar/scalar-cli/commands#auth) Manage authorization on Scalar platform
+- [document](https://guides.scalar.com/scalar/scalar-cli/commands#document) Manage local openapi files
+- [project](https://guides.scalar.com/scalar/scalar-cli/commands#project) Manage Scalar docs project
+- [registry](https://guides.scalar.com/scalar/scalar-cli/commands#registry) Manage your Scalar registry
+- [team](https://guides.scalar.com/scalar/scalar-cli/commands#team) Manage user teams
+- [help](https://guides.scalar.com/scalar/scalar-cli/commands#help) Display help for command
 
 ## Authentication
 To authenticate with the Scalar platform you can do the following:

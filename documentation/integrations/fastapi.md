@@ -32,7 +32,7 @@ async def scalar_html():
 
 ## Configuration
 
-Currently available [configuration options](https://github.com/scalar/scalar/blob/main/documentation/configuration.md) are listed below.
+Currently available [configuration options](https://guides.scalar.com/scalar/scalar-api-references/configuration) are listed below.
 
 - `layout` (default `Layout.MODERN`)
 - `show_sidebar` (defualt `true`)
@@ -46,6 +46,3 @@ Currently available [configuration options](https://github.com/scalar/scalar/blo
 - `authentication` (default `{}`)
 - `hide_client_button`(default `false`)
 
-## Example
-
-Check out the [playground](./playground/README.md) for a working example.

@@ -1,4 +1,4 @@
-FROM node:22-alpine
+FROM node:22.18.0-alpine
 
 # Enable corepack to use pnpm
 RUN corepack enable
