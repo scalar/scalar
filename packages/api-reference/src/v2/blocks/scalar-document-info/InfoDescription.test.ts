@@ -2,18 +2,18 @@ import { ScalarMarkdown } from '@scalar/components'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import Description from './Description.vue'
+import InfoDescription from './InfoDescription.vue'
 
-describe('Description', () => {
-  it('renders nothing when no value is provided', () => {
-    const wrapper = mount(Description)
+describe('InfoDescription', () => {
+  it('renders nothing when no description is provided', () => {
+    const wrapper = mount(InfoDescription)
     expect(wrapper.find('.introduction-description').exists()).toBe(false)
   })
 
-  it('renders markdown content when value is provided', () => {
-    const wrapper = mount(Description, {
+  it('renders markdown content when description is provided', () => {
+    const wrapper = mount(InfoDescription, {
       props: {
-        value: '# Hello World',
+        description: '# Hello World',
       },
     })
     expect(wrapper.findComponent(ScalarMarkdown).exists()).toBe(true)
@@ -21,9 +21,9 @@ describe('Description', () => {
   })
 
   it('splits content into sections', () => {
-    const wrapper = mount(Description, {
+    const wrapper = mount(InfoDescription, {
       props: {
-        value: '# Heading 1\nContent 1\n# Heading 2\nContent 2',
+        description: '# Heading 1\nContent 1\n# Heading 2\nContent 2',
       },
     })
     const sections = wrapper.findAllComponents(ScalarMarkdown)
@@ -31,9 +31,9 @@ describe('Description', () => {
   })
 
   it('prefixes the heading section id', () => {
-    const wrapper = mount(Description, {
+    const wrapper = mount(InfoDescription, {
       props: {
-        value: '# Test Heading',
+        description: '# Test Heading',
       },
     })
     const observer = wrapper.findComponent({ name: 'IntersectionObserver' })

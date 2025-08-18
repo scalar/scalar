@@ -1,15 +1,23 @@
 <script setup lang="ts">
+import { ScalarErrorBoundary } from '@scalar/components'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { computed } from 'vue'
+import { computed, inject, type Ref } from 'vue'
 
-import { Introduction } from '@/components/Content/Introduction'
-import { Models } from '@/components/Content/Models'
 import { SectionFlare } from '@/components/SectionFlare'
+import { OPENAPI_VERSION_SYMBOL } from '@/features/download-links'
+import { DEFAULT_INTRODUCTION_SLUG } from '@/features/traverse-schema'
 import { useConfig } from '@/hooks/useConfig'
+import { useNavState } from '@/hooks/useNavState'
+import { ScalarAuthSelector } from '@/v2/blocks/scalar-auth-selector'
+import { ScalarClientSelector } from '@/v2/blocks/scalar-client-selector'
+import { ScalarDocumentInfo } from '@/v2/blocks/scalar-document-info'
 import { generateClientOptions } from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
+import { ScalarServerSelector } from '@/v2/blocks/scalar-server-selector'
 
+import IntroductionSection from './IntroductionSection.vue'
+import { Models } from './Models'
 import { TraversedEntryContainer } from './Operations'
 
 defineProps<{
@@ -26,7 +34,23 @@ const config = useConfig()
 const clientOptions = computed(() =>
   generateClientOptions(config.value.hiddenClients),
 )
+
+const { getHeadingId } = useNavState()
+
+const id = computed(() =>
+  getHeadingId({
+    slug: DEFAULT_INTRODUCTION_SLUG,
+    depth: 1,
+    value: 'Introduction',
+  }),
+)
+
+/**
+ * Get the OpenAPI/Swagger specification version from the API definition.
+ */
+const oasVersion = inject<Ref<string | undefined>>(OPENAPI_VERSION_SYMBOL)
 </script>
+
 <template>
   <SectionFlare />
 
@@ -34,17 +58,35 @@ const clientOptions = computed(() =>
     <slot name="start" />
 
     <!-- Introduction -->
-    <Introduction
-      v-if="document?.info?.title || document?.info?.description"
-      :document
-      :store
-      :clientOptions
-      :config />
+    <IntroductionSection :showEmptyState="!store.workspace.activeDocument">
+      <ScalarDocumentInfo
+        :id
+        :document="store.workspace.activeDocument"
+        :layout="config.layout"
+        :oasVersion
+        :isLoading="config.isLoading"
+        :onLoaded="config.onLoaded">
+        <template #selectors>
+          <ScalarErrorBoundary>
+            <ScalarServerSelector :config="config" />
+          </ScalarErrorBoundary>
+          <ScalarErrorBoundary>
+            <ScalarAuthSelector :config="config" />
+          </ScalarErrorBoundary>
+          <ScalarErrorBoundary>
+            <ScalarClientSelector
+              :config="config"
+              :clientOptions="clientOptions"
+              :selectedClient="store.workspace['x-scalar-default-client']"
+              :document="store.workspace.activeDocument" />
+          </ScalarErrorBoundary>
+        </template>
+      </ScalarDocumentInfo>
 
-    <!-- Empty State -->
-    <slot
-      v-else
-      name="empty-state" />
+      <template #empty-state>
+        <slot name="empty-state" />
+      </template>
+    </IntroductionSection>
 
     <!-- Loop on traversed entries -->
     <TraversedEntryContainer

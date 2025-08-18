@@ -1,10 +1,10 @@
-import { DownloadLink } from '@/features/download-link'
+import { DownloadLinks } from '@/features/download-links'
 import { useSidebar } from '@/features/sidebar/hooks/useSidebar'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, reactive, ref } from 'vue'
-import IntroductionSection from './IntroductionSection.vue'
+import IntroductionLayout from './IntroductionLayout.vue'
 
 // Mock the useSidebar hook and SIDEBAR_SYMBOL
 vi.mock('@/features/sidebar/hooks/useSidebar', () => ({
@@ -29,9 +29,9 @@ beforeEach(() => {
   })
 })
 
-describe('IntroductionSection', () => {
+describe('IntroductionLayout', () => {
   it('renders the given information', () => {
-    const example = {
+    const example: OpenApiDocument = {
       openapi: '3.1.1',
       info: {
         title: 'Hello World',
@@ -51,9 +51,9 @@ describe('IntroductionSection', () => {
         description: 'Documentation',
         url: 'https://scalar.com',
       },
-    } satisfies OpenAPIV3_1.Document
+    }
 
-    const wrapper = mount(IntroductionSection, {
+    const wrapper = mount(IntroductionLayout, {
       props: {
         document: example,
       },
@@ -69,7 +69,7 @@ describe('IntroductionSection', () => {
   })
 
   it('renders loading state when info is empty', () => {
-    const example: OpenAPIV3_1.Document = {
+    const example: OpenApiDocument = {
       openapi: '3.1.1',
       info: {
         title: '',
@@ -78,7 +78,7 @@ describe('IntroductionSection', () => {
       },
     }
 
-    const wrapper = mount(IntroductionSection, {
+    const wrapper = mount(IntroductionLayout, {
       props: {
         document: example,
       },
@@ -92,7 +92,7 @@ describe('IntroductionSection', () => {
    * so we need to make sure it's there
    */
   it('exposes the .introduction-section class for theming', () => {
-    const example: OpenAPIV3_1.Document = {
+    const example: OpenApiDocument = {
       openapi: '3.1.1',
       info: {
         title: 'Hello World',
@@ -101,7 +101,7 @@ describe('IntroductionSection', () => {
       },
     }
 
-    const wrapper = mount(IntroductionSection, {
+    const wrapper = mount(IntroductionLayout, {
       props: {
         document: example,
       },
@@ -113,7 +113,7 @@ describe('IntroductionSection', () => {
   })
 
   it('generates filename from title', () => {
-    const example: OpenAPIV3_1.Document = {
+    const example: OpenApiDocument = {
       openapi: '3.1.1',
       info: {
         title: 'Hello World API!',
@@ -122,18 +122,18 @@ describe('IntroductionSection', () => {
       },
     }
 
-    const wrapper = mount(IntroductionSection, {
+    const wrapper = mount(IntroductionLayout, {
       props: {
         document: example,
       },
     })
 
-    const downloadLink = wrapper.findComponent(DownloadLink)
+    const downloadLink = wrapper.findComponent(DownloadLinks)
     expect(downloadLink.props('title')).toBe('Hello World API!')
   })
 
   it('shows version badge when version exists', () => {
-    const example: OpenAPIV3_1.Document = {
+    const example: OpenApiDocument = {
       openapi: '3.1.1',
       info: {
         title: 'Test API',
@@ -142,7 +142,7 @@ describe('IntroductionSection', () => {
       },
     }
 
-    const wrapper = mount(IntroductionSection, {
+    const wrapper = mount(IntroductionLayout, {
       props: {
         document: example,
       },
@@ -152,7 +152,7 @@ describe('IntroductionSection', () => {
   })
 
   it(`doesn't prefix version with v when version is not a number`, () => {
-    const example: OpenAPIV3_1.Document = {
+    const example: OpenApiDocument = {
       openapi: '3.1.1',
       info: {
         title: 'Test API',
@@ -161,7 +161,7 @@ describe('IntroductionSection', () => {
       },
     }
 
-    const wrapper = mount(IntroductionSection, {
+    const wrapper = mount(IntroductionLayout, {
       props: {
         document: example,
       },
@@ -172,7 +172,7 @@ describe('IntroductionSection', () => {
   })
 
   it(`doesn't prefix version with v when version is already prefixed`, () => {
-    const example: OpenAPIV3_1.Document = {
+    const example: OpenApiDocument = {
       openapi: '3.1.1',
       info: {
         title: 'Test API',
@@ -181,7 +181,7 @@ describe('IntroductionSection', () => {
       },
     }
 
-    const wrapper = mount(IntroductionSection, {
+    const wrapper = mount(IntroductionLayout, {
       props: {
         document: example,
       },
@@ -191,7 +191,7 @@ describe('IntroductionSection', () => {
   })
 
   it('prefixes version with v when version is a number', () => {
-    const example: OpenAPIV3_1.Document = {
+    const example: OpenApiDocument = {
       openapi: '3.1.1',
       info: {
         title: 'Test API',
@@ -201,7 +201,7 @@ describe('IntroductionSection', () => {
       },
     }
 
-    const wrapper = mount(IntroductionSection, {
+    const wrapper = mount(IntroductionLayout, {
       props: {
         document: example,
       },
@@ -211,7 +211,7 @@ describe('IntroductionSection', () => {
   })
 
   it(`doesn't output the version if something is wrong with the version`, () => {
-    const example: OpenAPIV3_1.Document = {
+    const example: OpenApiDocument = {
       openapi: '3.1.1',
       info: {
         title: 'Test API',
@@ -221,7 +221,7 @@ describe('IntroductionSection', () => {
       },
     }
 
-    const wrapper = mount(IntroductionSection, {
+    const wrapper = mount(IntroductionLayout, {
       props: {
         document: example,
       },
