@@ -1,4 +1,4 @@
-import { Type, type Static, type TSchema } from '@sinclair/typebox'
+import { Type, type Static, type TAny, type TIntersect, type TObject, type TSchema } from '@sinclair/typebox'
 
 import { DiscriminatorObjectSchema } from './discriminator'
 import { XMLObjectSchema } from './xml'
@@ -220,6 +220,9 @@ export const schemaObjectSchemaBuilder = <S extends TSchema>(schema: S) =>
     XAdditionalPropertiesNameSchema,
   )
 
-export const SchemaObjectSchema = Type.Recursive(schemaObjectSchemaBuilder)
+export const Helper = Type.Recursive(schemaObjectSchemaBuilder)
+export const SchemaObjectSchema = Type.Recursive(schemaObjectSchemaBuilder) as TIntersect<
+  [typeof Helper, TObject<{ _resolvedRef: TAny }>]
+>
 
 export type SchemaObject = Static<typeof SchemaObjectSchema>
