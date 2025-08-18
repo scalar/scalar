@@ -5,7 +5,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Scalar.AspNetCore.Swashbuckle.Filters;
 
-internal sealed class CodeSampleDocumentFilter : IOperationFilter
+internal sealed class CodeSampleOperationFilter : IOperationFilter
 {
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {

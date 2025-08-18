@@ -53,6 +53,20 @@ public static class EndpointConventionBuilderExtensions
         return builder;
     }
 
+    /// <summary>
+    /// Adds a badge to the API endpoint.
+    /// </summary>
+    /// <typeparam name="TBuilder">The type of <see cref="IEndpointConventionBuilder" />.</typeparam>
+    /// <param name="builder">The endpoint convention builder.</param>
+    /// <param name="name">The text that displays in the badge.</param>
+    /// <param name="position">The position of the badge in relation to the header.</param>
+    /// <param name="color">The color of the badge.</param>
+    public static TBuilder WithBadge<TBuilder>(this TBuilder builder, string name, BadgePosition? position = null, string? color = null) where TBuilder : IEndpointConventionBuilder
+    {
+        builder.WithMetadata(new BadgeAttribute(name, position, color));
+        return builder;
+    }
+
     private static TBuilder WithStability<TBuilder>(this TBuilder builder, Stability stability) where TBuilder : IEndpointConventionBuilder
     {
         builder.WithMetadata(new StabilityAttribute(stability));

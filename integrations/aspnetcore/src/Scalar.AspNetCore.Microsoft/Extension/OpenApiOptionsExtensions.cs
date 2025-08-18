@@ -17,6 +17,7 @@ public static class OpenApiOptionsExtensions
         options.AddOperationTransformer<ExcludeFromApiReferenceOpenApiOperationTransformer>();
         options.AddOperationTransformer<StabilityOpenApiOperationTransformer>();
         options.AddOperationTransformer<CodeSampleOpenApiOperationTransformer>();
+        options.AddOperationTransformer<BadgeOpenApiOperationTransformer>();
 
         return options;
     }
