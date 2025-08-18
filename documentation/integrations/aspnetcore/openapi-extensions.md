@@ -96,3 +96,32 @@ app.MapPost("/orders", CreateOrder)
 [CodeSample("fetch('/products').then(r => r.json())", ScalarTarget.JavaScript)]
 public IActionResult GetProducts() => Ok();
 ```
+
+### Badges
+
+Add visual badges to operations to use as indicators in documentation. Each operation can have multiple badges, and you can configure their position and color:
+
+```csharp
+// Minimal APIs
+app.MapGet("/alpha-feature", GetAlphaFeature)
+    .Badge("Alpha")
+    .Badge("Beta", BadgePosition.Before)
+    .Badge("Internal", BadgePosition.After, "#ff6b35");
+
+app.MapPost("/orders", CreateOrder)
+    .Badge("New", color: "#28a745")
+    .Badge("Premium", BadgePosition.Before, "#ffc107");
+
+// Controllers
+[HttpGet]
+[Badge("Experimental")]
+[Badge("V2", BadgePosition.After, "#007bff")]
+public IActionResult GetExperimentalFeature() => Ok();
+```
+
+**Badge Options:**
+- `name`: The text displayed in the badge (required)
+- `position`: Where the badge appears relative to the operation header
+  - `BadgePosition.Before`: Displays before the operation summary
+  - `BadgePosition.After`: Displays after the operation summary (default)
+- `color`: Badge color in any CSS format (hex, rgb, keywords, etc.)

@@ -11,4 +11,6 @@ internal static class ExtensionKeys
     internal const string ScalarStability = "x-scalar-stability";
 
     internal const string CodeSamples = "x-codeSamples";
+
+    internal const string Badges = "x-badges";
 }
