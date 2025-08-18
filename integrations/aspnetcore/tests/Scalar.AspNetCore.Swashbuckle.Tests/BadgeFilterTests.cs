@@ -38,6 +38,7 @@ public class BadgeFilterTests(WebApplicationFactory<Program> factory) : IClassFi
         var response = await client.GetAsync("/openapi/v1.json", TestContext.Current.CancellationToken);
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
+        // Assert
         const string expected = """
                                 {
                                   "openapi": *,
