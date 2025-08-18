@@ -1,5 +1,5 @@
-import { createMagicProxy, getRaw } from './proxy'
-import { describe, expect, it } from 'vitest'
+import { createMagicProxy, getRaw, getCache } from './proxy'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('createMagicProxy', () => {
   describe('get', () => {
@@ -1135,6 +1135,173 @@ describe('createMagicProxy', () => {
       })
 
       expect(getRaw(proxied)).toEqual(input)
+    })
+  })
+
+  describe('cache', () => {
+    it('should cache $ref-value lookups for performance', async () => {
+      // Mock getValueByPath to track how many times it's called
+      const jsonPathUtils = await import('@/utils/json-path-utils')
+      const getValueByPathSpy = vi.spyOn(jsonPathUtils, 'getValueByPath')
+
+      const input = {
+        definitions: {
+          user: {
+            name: 'John',
+            age: 30,
+          },
+        },
+        user1: {
+          $ref: '#/definitions/user',
+        },
+        user2: {
+          $ref: '#/definitions/user',
+        },
+      }
+
+      const proxied = createMagicProxy(input)
+
+      // First access should call getValueByPath and cache the result
+      const user1RefValue = proxied.user1['$ref-value']
+      expect(user1RefValue).toEqual({ name: 'John', age: 30 })
+
+      // Second access to the same reference should use cache
+      const user1RefValueAgain = proxied.user1['$ref-value']
+      expect(user1RefValueAgain).toEqual({ name: 'John', age: 30 })
+
+      // Third access to a different object with the same reference should also use cache
+      const user2RefValue = proxied.user2['$ref-value']
+      expect(user2RefValue).toEqual({ name: 'John', age: 30 })
+
+      // getValueByPath should only be called once since all accesses use the same reference
+      expect(getValueByPathSpy).toHaveBeenCalledTimes(1)
+      expect(getValueByPathSpy).toHaveBeenCalledWith(input, ['definitions', 'user'])
+
+      getValueByPathSpy.mockRestore()
+    })
+
+    it('should return the same cached instance for repeated lookups', () => {
+      const input = {
+        definitions: {
+          user: {
+            name: 'John',
+            age: 30,
+          },
+        },
+        user1: {
+          $ref: '#/definitions/user',
+        },
+      }
+
+      const proxied = createMagicProxy(input)
+
+      // Multiple accesses should return the exact same instance (strict equality)
+      const ref1 = proxied.user1['$ref-value']
+      const ref2 = proxied.user1['$ref-value']
+      const ref3 = proxied.user1['$ref-value']
+
+      expect(ref1).toBe(ref2)
+      expect(ref2).toBe(ref3)
+    })
+
+    it('should invalidate cache when $ref-value is modified', () => {
+      const input = {
+        definitions: {
+          user: {
+            name: 'John',
+            age: 30,
+          },
+        },
+        user1: {
+          $ref: '#/definitions/user',
+        },
+      }
+
+      const proxied = createMagicProxy(input)
+
+      // Access the reference to populate cache
+      const originalRefValue = proxied.user1['$ref-value']
+      expect(originalRefValue.name).toBe('John')
+
+      // Modify the referenced value
+      proxied.user1['$ref-value'] = { name: 'Jane', age: 25 }
+
+      // Next access should get the new value, not the cached one
+      const newRefValue = proxied.user1['$ref-value']
+      expect(newRefValue.name).toBe('Jane')
+      expect(newRefValue.age).toBe(25)
+
+      // Original input should also be updated
+      expect(input.definitions.user.name).toBe('Jane')
+      expect(input.definitions.user.age).toBe(25)
+    })
+
+    it('should allow access to cache via getCache function', () => {
+      const input = {
+        definitions: {
+          user: { name: 'John' },
+        },
+        user1: {
+          $ref: '#/definitions/user',
+        },
+      }
+
+      const proxied = createMagicProxy(input)
+
+      // Initially cache should be empty
+      const cache = getCache(proxied)
+      expect(cache).toBeDefined()
+      expect(cache?.size).toBe(0)
+
+      // Access $ref-value to populate cache
+      proxied.user1['$ref-value']
+
+      // Cache should now contain the reference
+      expect(cache?.size).toBe(1)
+      expect(cache?.has('#/definitions/user')).toBe(true)
+    })
+
+    it('should return undefined for non-proxy objects when getting cache', () => {
+      const regularObject = { name: 'John' }
+      expect(getCache(regularObject)).toBeUndefined()
+      expect(getCache(null)).toBeUndefined()
+      expect(getCache('string')).toBeUndefined()
+      expect(getCache(123)).toBeUndefined()
+    })
+
+    it('should handle nested references with shared cache', () => {
+      const input = {
+        definitions: {
+          address: {
+            street: '123 Main St',
+            city: 'Anytown',
+          },
+          user: {
+            name: 'John',
+            address: {
+              $ref: '#/definitions/address',
+            },
+          },
+        },
+        user1: {
+          $ref: '#/definitions/user',
+        },
+      }
+
+      const proxied = createMagicProxy(input)
+
+      // Access nested reference
+      const userRefValue = proxied.user1['$ref-value']
+      const addressRefValue = userRefValue.address['$ref-value']
+
+      expect(addressRefValue.street).toBe('123 Main St')
+      expect(addressRefValue.city).toBe('Anytown')
+
+      // Cache should contain both references
+      const cache = getCache(proxied)
+      expect(cache?.size).toBe(2)
+      expect(cache?.has('#/definitions/user')).toBe(true)
+      expect(cache?.has('#/definitions/address')).toBe(true)
     })
   })
 })
