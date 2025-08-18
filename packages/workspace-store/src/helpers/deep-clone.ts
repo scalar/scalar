@@ -31,7 +31,7 @@ export const deepClone = <T>(value: T, hash = new WeakMap()): T => {
 
   Object.keys(value).forEach((key) => {
     // @ts-expect-error: Index signature for generic object
-    result[key] = deepClone((value as any)[key], hash)
+    result[key] = deepClone(value[key], hash)
   })
 
   return result as T
