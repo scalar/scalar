@@ -2659,10 +2659,10 @@
         "x-pro-only": true
       }
     },
-    "/etfs/overview": {
+    "/etfs/snapshot": {
       "get": {
         "tags": ["ETFs"],
-        "summary": "Get BTC ETFs and their metrics (aum, price, fees...)",
+        "summary": "Get ETFs and their metrics (aum, flows, fees...)",
         "responses": {
           "200": {
             "description": "successful operation",
@@ -2673,17 +2673,17 @@
                   "items": {
                     "type": "object",
                     "properties": {
+                      "ticker": {
+                        "type": "string",
+                        "description": "ETF ticker symbol"
+                      },
                       "timestamp": {
                         "type": "integer",
                         "description": "Current timestamp"
                       },
-                      "timestamp_as_of": {
-                        "type": "integer",
-                        "description": "Timestamp as of date"
-                      },
-                      "ticker": {
+                      "asset": {
                         "type": "string",
-                        "description": "ETF ticker symbol"
+                        "description": "Asset name"
                       },
                       "issuer": {
                         "type": "string",
@@ -2692,10 +2692,6 @@
                       "etf_name": {
                         "type": "string",
                         "description": "Full ETF name"
-                      },
-                      "etf_type": {
-                        "type": "string",
-                        "description": "Type of ETF (e.g., spot)"
                       },
                       "custodian": {
                         "type": "string",
@@ -2709,57 +2705,35 @@
                         "type": "string",
                         "description": "ETF URL"
                       },
-                      "price": {
+                      "flows": {
                         "type": "number",
-                        "description": "Current price"
-                      },
-                      "volume": {
-                        "type": "number",
-                        "description": "Trading volume"
-                      },
-                      "shares": {
-                        "type": "integer",
-                        "description": "Number of shares"
-                      },
-                      "underlying": {
-                        "type": "number",
-                        "nullable": true,
-                        "description": "Underlying asset amount"
-                      },
-                      "underlying_price": {
-                        "type": "number",
-                        "description": "Underlying asset price"
+                        "description": "Net flows"
                       },
                       "aum": {
                         "type": "number",
                         "description": "Assets under management"
                       },
-                      "flows": {
+                      "volume": {
                         "type": "number",
-                        "description": "Net flows"
+                        "description": "Trading volume"
                       }
                     }
                   }
                 },
                 "example": [
                   {
-                    "timestamp": 1732278611,
-                    "timestamp_as_of": 1732147200,
                     "ticker": "IBIT",
+                    "timestamp": 1755612389,
+                    "asset": "bitcoin",
                     "issuer": "Blackrock",
                     "etf_name": "iShares Bitcoin Trust",
-                    "etf_type": "spot",
                     "custodian": "Coinbase",
                     "pct_fee": 0.25,
                     "url": "https://www.blackrock.com/us/individual/products/333011/ishares-bitcoin-trust",
-                    "price": 55.9,
-                    "volume": 5105037034.5,
-                    "shares": 846080000,
-                    "underlying": null,
-                    "underlying_price": 98855,
-                    "aum": 47313346647,
-                    "flows": 645378400
-                  }
+                    "flows": -68700000,
+                    "aum": 87276718199,
+                    "volume": 453293317.84999996
+                }
                 ]
               }
             }
@@ -2768,10 +2742,10 @@
         "x-pro-only": true
       }
     },
-    "/etfs/overviewEth": {
+    "/etfs/flows": {
       "get": {
         "tags": ["ETFs"],
-        "summary": "Get ETH ETFs",
+        "summary": "Historical Flows at the Asset Level",
         "responses": {
           "200": {
             "description": "successful operation",
@@ -2782,253 +2756,27 @@
                   "items": {
                     "type": "object",
                     "properties": {
-                      "timestamp": {
-                        "type": "integer",
-                        "description": "Current timestamp"
-                      },
-                      "timestamp_as_of": {
-                        "type": "integer",
-                        "description": "Timestamp as of date"
-                      },
-                      "ticker": {
+                      "gecko_id": {
                         "type": "string",
-                        "description": "ETF ticker symbol"
+                        "description": "CoinGecko ID"
                       },
-                      "issuer": {
+                      "day": {
                         "type": "string",
-                        "description": "ETF issuer name"
+                        "description": "Day"
                       },
-                      "etf_name": {
-                        "type": "string",
-                        "description": "Full ETF name"
-                      },
-                      "etf_type": {
-                        "type": "string",
-                        "description": "Type of ETF (e.g., spot)"
-                      },
-                      "custodian": {
-                        "type": "string",
-                        "description": "Custodian name"
-                      },
-                      "pct_fee": {
+                      "total_flow_usd": {
                         "type": "number",
-                        "description": "Percentage fee"
-                      },
-                      "url": {
-                        "type": "string",
-                        "description": "ETF URL"
-                      },
-                      "price": {
-                        "type": "number",
-                        "description": "Current price"
-                      },
-                      "volume": {
-                        "type": "number",
-                        "description": "Trading volume"
-                      },
-                      "shares": {
-                        "type": "integer",
-                        "description": "Number of shares"
-                      },
-                      "underlying": {
-                        "type": "number",
-                        "nullable": true,
-                        "description": "Underlying asset amount"
-                      },
-                      "underlying_price": {
-                        "type": "number",
-                        "description": "Underlying asset price"
-                      },
-                      "aum": {
-                        "type": "number",
-                        "description": "Assets under management"
-                      },
-                      "flows": {
-                        "type": "number",
-                        "description": "Net flows"
+                        "description": "Sum of all USD flows per asset"
                       }
                     }
                   }
                 },
                 "example": [
                   {
-                    "timestamp": 1732278617,
-                    "timestamp_as_of": 1732147200,
-                    "ticker": "ETHE",
-                    "issuer": "Grayscale",
-                    "etf_name": "Grayscale Ethereum Trust",
-                    "etf_type": "spot",
-                    "custodian": "Coinbase",
-                    "pct_fee": 2.5,
-                    "url": "https://etfs.grayscale.com/ethe",
-                    "price": 28.18,
-                    "volume": 182128523.56,
-                    "shares": 180448500,
-                    "underlying": 1517091.9224,
-                    "underlying_price": 3352.05,
-                    "aum": 5089266904.78,
-                    "flows": 0
-                  }
-                ]
-              }
-            }
-          }
-        },
-        "x-pro-only": true
-      }
-    },
-    "/etfs/history": {
-      "get": {
-        "tags": ["ETFs"],
-        "summary": "Historical AUM of all BTC ETFs",
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "timestamp": {
-                        "type": "integer",
-                        "description": "Timestamp"
-                      },
-                      "timestamp_exact": {
-                        "type": "integer",
-                        "description": "Exact timestamp"
-                      },
-                      "ticker": {
-                        "type": "string",
-                        "description": "ETF ticker symbol"
-                      },
-                      "price": {
-                        "type": "number",
-                        "description": "Price at timestamp"
-                      },
-                      "volume": {
-                        "type": "number",
-                        "description": "Volume at timestamp"
-                      },
-                      "aum": {
-                        "type": "number",
-                        "description": "Assets under management at timestamp"
-                      },
-                      "underlying": {
-                        "type": "number",
-                        "nullable": true,
-                        "description": "Underlying asset amount"
-                      },
-                      "shares": {
-                        "type": "number",
-                        "description": "Number of shares"
-                      },
-                      "underlying_price": {
-                        "type": "number",
-                        "description": "Underlying asset price"
-                      },
-                      "flows": {
-                        "type": "number",
-                        "nullable": true,
-                        "description": "Net flows"
-                      }
-                    }
-                  }
-                },
-                "example": [
-                  {
-                    "timestamp": 1704931200,
-                    "timestamp_exact": 1705017598,
-                    "ticker": "ARKB",
-                    "price": 46.76,
-                    "volume": 279749462.16,
-                    "aum": 46855730.4,
-                    "underlying": null,
-                    "shares": 1002047.271171942,
-                    "underlying_price": 46396,
-                    "flows": null
-                  }
-                ]
-              }
-            }
-          }
-        },
-        "x-pro-only": true
-      }
-    },
-    "/etfs/historyEth": {
-      "get": {
-        "tags": ["ETFs"],
-        "summary": "Historical AUM of all BTC ETFs",
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "timestamp": {
-                        "type": "integer",
-                        "description": "Timestamp"
-                      },
-                      "timestamp_exact": {
-                        "type": "integer",
-                        "description": "Exact timestamp"
-                      },
-                      "ticker": {
-                        "type": "string",
-                        "description": "ETF ticker symbol"
-                      },
-                      "price": {
-                        "type": "number",
-                        "description": "Price at timestamp"
-                      },
-                      "volume": {
-                        "type": "number",
-                        "description": "Volume at timestamp"
-                      },
-                      "aum": {
-                        "type": "number",
-                        "description": "Assets under management at timestamp"
-                      },
-                      "underlying": {
-                        "type": "number",
-                        "nullable": true,
-                        "description": "Underlying asset amount"
-                      },
-                      "shares": {
-                        "type": "number",
-                        "description": "Number of shares"
-                      },
-                      "underlying_price": {
-                        "type": "number",
-                        "description": "Underlying asset price"
-                      },
-                      "flows": {
-                        "type": "number",
-                        "nullable": true,
-                        "description": "Net flows"
-                      }
-                    }
-                  }
-                },
-                "example": [
-                  {
-                    "timestamp": 1721779200,
-                    "timestamp_exact": 1721865445,
-                    "ticker": "ETHA",
-                    "price": 25.5,
-                    "volume": 255655477.5,
-                    "aum": 269883322,
-                    "underlying": null,
-                    "shares": 10520000,
-                    "underlying_price": 3336.28,
-                    "flows": 16326800
-                  }
+                    "gecko_id": "bitcoin",
+                    "day": "2024-01-11T00:00:00.000Z",
+                    "total_flow_usd": 655300000
+                }
                 ]
               }
             }
