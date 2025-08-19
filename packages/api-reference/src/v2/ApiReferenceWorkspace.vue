@@ -47,6 +47,7 @@ import { NAV_STATE_SYMBOL } from '@/hooks/useNavState'
 import { isClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import { onCustomEvent } from '@/v2/events'
 import { getDocumentName } from '@/v2/helpers/get-document-name'
+import { mapConfiguration } from '@/v2/helpers/map-configuration'
 import { normalizeContent } from '@/v2/helpers/normalize-content'
 
 const props = defineProps<{
@@ -154,6 +155,7 @@ const addOrUpdateDocument = async (
     return await store.addDocument({
       name,
       document,
+      config: mapConfiguration(config),
     })
   }
 
@@ -164,6 +166,7 @@ const addOrUpdateDocument = async (
         basePath: selectedConfiguration.value.pathRouting?.basePath,
       }),
       fetch: proxy,
+      config: mapConfiguration(config),
     })
   }
 

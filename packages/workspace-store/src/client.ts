@@ -29,7 +29,7 @@ import { Value } from '@sinclair/typebox/value'
 import { deepClone } from '@/helpers/deep-clone'
 import { measureAsync } from '@scalar/helpers/testing/measure'
 
-type DocumentConfiguration = Config &
+export type DocumentConfiguration = Config &
   PartialDeep<{
     'x-scalar-reference-config': {
       tagSort: TraverseSpecOptions['tagsSorter']

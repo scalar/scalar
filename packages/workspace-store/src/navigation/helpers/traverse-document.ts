@@ -52,7 +52,7 @@ export const traverseDocument = (
   // Add untagged webhooks
   if (untaggedWebhooks.length) {
     entries.push({
-      id: getWebhookId(),
+      id: getWebhookId({ name: '' }),
       title: 'Webhooks',
       children: untaggedWebhooks,
       type: 'text',
@@ -65,7 +65,7 @@ export const traverseDocument = (
 
     if (untaggedModels.length) {
       entries.push({
-        id: getModelId(),
+        id: getModelId({}),
         title: 'Models',
         children: untaggedModels,
         type: 'text',
