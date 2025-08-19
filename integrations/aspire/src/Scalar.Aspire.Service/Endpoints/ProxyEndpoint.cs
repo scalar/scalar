@@ -57,31 +57,7 @@ internal static class ProxyEndpoint
 
             logger.LogProxyResponse(context.Response.StatusCode);
 
-            // Check if we got a redirect response and rewrite localhost URLs
-            if (IsRedirectStatusCode(context.Response.StatusCode))
-            {
-                var locationHeader = context.Response.Headers.Location.FirstOrDefault();
-                logger.LogRedirectDetected(locationHeader);
-
-                if (!string.IsNullOrEmpty(locationHeader) && Uri.TryCreate(locationHeader, UriKind.Absolute, out var redirectUri))
-                {
-                    // Check if redirect is to localhost - rewrite it back to proxy
-                    if (IsLocalhostRedirect(redirectUri))
-                    {
-                        var rewrittenLocation = RewriteLocalhostToProxy(context.Request, redirectUri, targetUrl);
-                        logger.LogLocalhostRedirectRewrite(locationHeader, rewrittenLocation);
-                        context.Response.Headers.Location = rewrittenLocation;
-                    }
-                    else
-                    {
-                        logger.LogNonLocalhostRedirect(locationHeader);
-                    }
-                }
-                else
-                {
-                    logger.LogInvalidRedirectLocation(locationHeader);
-                }
-            }
+            HandleRedirectResponse(context, logger, targetUrl);
 
             logger.LogProxyRequestCompleted(targetUrl);
         }
@@ -92,6 +68,32 @@ internal static class ProxyEndpoint
             context.Response.Clear();
             context.Response.StatusCode = StatusCodes.Status500InternalServerError;
             await context.Response.WriteAsync("An unexpected error occurred while processing the proxy request", context.RequestAborted);
+        }
+    }
+
+    private static void HandleRedirectResponse(HttpContext context, ILogger logger, string originalTargetUrl)
+    {
+        if (!IsRedirectStatusCode(context.Response.StatusCode))
+            return;
+
+        var locationHeader = context.Response.Headers.Location.FirstOrDefault();
+        logger.LogRedirectDetected(locationHeader);
+
+        if (string.IsNullOrEmpty(locationHeader) || !Uri.TryCreate(locationHeader, UriKind.Absolute, out var redirectUri))
+        {
+            logger.LogInvalidRedirectLocation(locationHeader);
+            return;
+        }
+
+        if (IsLocalhostRedirect(redirectUri))
+        {
+            var rewrittenLocation = RewriteLocalhostToProxy(context.Request, redirectUri, originalTargetUrl);
+            logger.LogLocalhostRedirectRewrite(locationHeader, rewrittenLocation);
+            context.Response.Headers.Location = rewrittenLocation;
+        }
+        else
+        {
+            logger.LogNonLocalhostRedirect(locationHeader);
         }
     }
 
