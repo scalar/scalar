@@ -432,45 +432,43 @@
     </div>
   </div>
 </div>
-<div class="container-full">
-  <div class="footer">
-    <div class="footer-content flex gap-12">
-        <div class="w-1/2">
-          <span class="text-c-1">
-            <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/qlPkhjY7Ec6E5g3SHMjEp.svg"></scalar-icon>
-          </span>
-          <p class="mt-10 text-c-3 text-sm text-balance">Zoom respectively spaces management inclusion. Prioritize boy don't tent good savvy. Cloud new savvy feature hammer tiger welcome put. Regroup blue.</p>
-          <p class="mt-5 text-c-3 text-sm text-balance">© API Documentation, Inc.</p>
+<div class="footer container-full">
+  <div class="footer-content">
+      <div>
+        <span class="text-c-1">
+          <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/qlPkhjY7Ec6E5g3SHMjEp.svg"></scalar-icon>
+        </span>
+        <p class="mt-10 text-c-3 text-sm text-balance">Zoom respectively spaces management inclusion. Prioritize boy don't tent good savvy. Cloud new savvy feature hammer tiger welcome put. Regroup blue.</p>
+        <p class="mt-5 text-c-3 text-sm text-balance">© API Documentation, Inc.</p>
+      </div>
+      <div class="flex text-sm">
+        <div class="w-1/3 flex flex-col gap-2">
+          <b>Products</b>
+          <a class="text-c-2 hover:text-c-1 font-normal">API References</a>
+          <a class="text-c-2 hover:text-c-1 font-normal">API Client</a>
+          <a class="text-c-2 hover:text-c-1 font-normal">API Docs</a>
+          <a class="text-c-2 hover:text-c-1 font-normal">Swagger Editor</a>
+          <a class="text-c-2 hover:text-c-1 font-normal">Agent Scalar</a>
         </div>
-        <div class="w-1/2 flex text-sm">
-          <div class="w-1/3 flex flex-col gap-2">
-            <b>Products</b>
-            <a class="text-c-2 hover:text-c-1 font-normal">API References</a>
-            <a class="text-c-2 hover:text-c-1 font-normal">API Client</a>
-            <a class="text-c-2 hover:text-c-1 font-normal">API Docs</a>
-            <a class="text-c-2 hover:text-c-1 font-normal">Swagger Editor</a>
-            <a class="text-c-2 hover:text-c-1 font-normal">Agent Scalar</a>
-          </div>
-          <div class="w-1/3 flex flex-col gap-2">
-            <b>Company</b>
-            <a class="text-c-2 hover:text-c-1 font-normal">Support</a>
-            <a class="text-c-2 hover:text-c-1 font-normal">Contact</a>
-            <a class="text-c-2 hover:text-c-1 font-normal">Terms of Service</a>
-            <a class="text-c-2 hover:text-c-1 font-normal">Privacy Policy</a>
-          </div>
-          <div class="w-1/3 flex flex-col gap-2">
-            <b>Socials</b>
-            <a class="text-c-2 hover:text-c-1 font-normal">x (formerly twitter)</a>
-            <a class="text-c-2 hover:text-c-1 font-normal">Github</a>
-            <a class="text-c-2 hover:text-c-1 font-normal">Discord</a>
-            <a class="text-c-2 hover:text-c-1 font-normal">Linkedin</a>
-          </div>
+        <div class="w-1/3 flex flex-col gap-2">
+          <b>Company</b>
+          <a class="text-c-2 hover:text-c-1 font-normal">Support</a>
+          <a class="text-c-2 hover:text-c-1 font-normal">Contact</a>
+          <a class="text-c-2 hover:text-c-1 font-normal">Terms of Service</a>
+          <a class="text-c-2 hover:text-c-1 font-normal">Privacy Policy</a>
         </div>
-    </div>
-    <!-- footer animation -->
-    <div class="footer-animation">
-      <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/v1Pu6_BCmly6VhPAuotVZ.svg"></scalar-icon>
-    </div>
+        <div class="w-1/3 flex flex-col gap-2">
+          <b>Socials</b>
+          <a class="text-c-2 hover:text-c-1 font-normal">x (formerly twitter)</a>
+          <a class="text-c-2 hover:text-c-1 font-normal">Github</a>
+          <a class="text-c-2 hover:text-c-1 font-normal">Discord</a>
+          <a class="text-c-2 hover:text-c-1 font-normal">Linkedin</a>
+        </div>
+      </div>
+  </div>
+  <!-- footer animation -->
+  <div class="footer-animation">
+    <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/v1Pu6_BCmly6VhPAuotVZ.svg"></scalar-icon>
   </div>
 </div>
 <div class="sticker-filter-effect">
@@ -812,9 +810,9 @@
   /* footer */
   .footer {
     position: relative;
-    margin: auto;
     overflow: hidden;
     background: var(--scalar-background-2);
+    padding-inline: 20px;
     padding-bottom: 200px;
     margin-top: 100px;
   }
@@ -823,10 +821,15 @@
     bottom: 0;
   }
   .footer-content {
+    display: flex;
+    gap: 48px;
     max-width: var(--scalar-container-width);
     width: 100%;
     margin: auto;
     padding-top: 92px;
+  }
+  .footer-content > * {
+    flex: 1;
   }
   .footer-content span,
   .footer-content p,
@@ -985,6 +988,12 @@
     }
     .expander .expander-content {
       visibility: visible;
+    }
+    .footer-content {
+      flex-direction: column;
+    }
+    .footer-content > * {
+      flex: initial;
     }
   }
 </style>
