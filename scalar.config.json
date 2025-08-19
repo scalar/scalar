@@ -4,10 +4,8 @@
     "title": "Scalar Documentation",
     "description": "Guides for Scalar, covering your favorite frameworks, languages and use cases."
   },
-  "publishOnMerge": true,
-  "subdomain": "guides",
+  "subdomain": "scalar-landing-preview",
   "assetsDir": "documentation/assets",
-  "customDomain": "guides.scalar.com",
   "theme": "default",
   "guides": [
     {
