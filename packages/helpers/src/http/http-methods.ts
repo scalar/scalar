@@ -5,4 +5,4 @@ export const HTTP_METHODS = ['connect', 'delete', 'get', 'head', 'options', 'pat
 export type HttpMethod = (typeof HTTP_METHODS)[number]
 
 /** Set of all http methods we support */
-export const httpMethods = new Set(HTTP_METHODS)
+export const httpMethods = Object.freeze(new Set(HTTP_METHODS))

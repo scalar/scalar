@@ -1,4 +1,3 @@
-import { measure } from '@scalar/helpers/testing/measure'
 import { fetchDocument, prettyPrintJson } from '@scalar/oas-utils/helpers'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { SpecConfiguration } from '@scalar/types/api-reference'
@@ -49,9 +48,7 @@ const getContent = async ({ url, content }: SpecConfiguration, proxyUrl?: string
   // Fetch from URL only if we do not already have the content
   if (url && !content) {
     try {
-      const result = await measure(`fetch(${url})`, async () => await fetchDocument(url, proxyUrl))
-
-      console.info('size:', Math.round(result.length / 1024), 'kB')
+      const result = await fetchDocument(url, proxyUrl)
 
       return result
     } catch (error) {

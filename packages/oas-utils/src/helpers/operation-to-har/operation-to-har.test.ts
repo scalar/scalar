@@ -4,6 +4,8 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 
 describe('operationToHar', () => {
   describe('basic functionality', () => {
@@ -173,9 +175,9 @@ describe('operationToHar', () => {
             name: 'userId',
             in: 'path',
             required: true,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
-            },
+            }),
           },
         ],
         responses: {
@@ -211,9 +213,9 @@ describe('operationToHar', () => {
           {
             name: 'filter',
             in: 'query',
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
-            },
+            }),
           },
         ],
         responses: {
@@ -251,13 +253,13 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'application/json': {
-              schema: {
+              schema: coerceValue(SchemaObjectSchema, {
                 type: 'object',
                 properties: {
                   name: { type: 'string' },
                   age: { type: 'integer' },
                 },
-              },
+              }),
             },
           },
         },
@@ -290,14 +292,14 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'application/json': {
-              schema: {
+              schema: coerceValue(SchemaObjectSchema, {
                 type: 'object',
                 properties: {
                   name: { type: 'string' },
                   age: { type: 'integer' },
                   isActive: { type: 'boolean' },
                 },
-              },
+              }),
             },
           },
         },
@@ -364,7 +366,7 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'application/json': {
-              schema: {
+              schema: coerceValue(SchemaObjectSchema, {
                 type: 'object',
                 properties: {
                   stringProp: { type: 'string' },
@@ -374,7 +376,7 @@ describe('operationToHar', () => {
                   arrayProp: { type: 'array', items: { type: 'integer' } },
                   objectProp: { type: 'object', properties: { foo: { type: 'string' } } },
                 },
-              },
+              }),
             },
           },
         },
@@ -420,20 +422,20 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'application/json': {
-              schema: {
+              schema: coerceValue(SchemaObjectSchema, {
                 type: 'object',
                 properties: {
                   name: { type: 'string' },
                 },
-              },
+              }),
             },
             'application/xml': {
-              schema: {
+              schema: coerceValue(SchemaObjectSchema, {
                 type: 'object',
                 properties: {
                   name: { type: 'string' },
                 },
-              },
+              }),
             },
           },
         },
@@ -459,20 +461,20 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'application/json': {
-              schema: {
+              schema: coerceValue(SchemaObjectSchema, {
                 type: 'object',
                 properties: {
                   name: { type: 'string' },
                 },
-              },
+              }),
             },
             'application/xml': {
-              schema: {
+              schema: coerceValue(SchemaObjectSchema, {
                 type: 'object',
                 properties: {
                   name: { type: 'string' },
                 },
-              },
+              }),
             },
           },
         },
@@ -499,13 +501,13 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'application/x-www-form-urlencoded': {
-              schema: {
+              schema: coerceValue(SchemaObjectSchema, {
                 type: 'object',
                 properties: {
                   name: { type: 'string' },
                   email: { type: 'string' },
                 },
-              },
+              }),
             },
           },
         },
@@ -541,13 +543,13 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'multipart/form-data': {
-              schema: {
+              schema: coerceValue(SchemaObjectSchema, {
                 type: 'object',
                 properties: {
                   file: { type: 'string', format: 'binary' },
                   description: { type: 'string' },
                 },
-              },
+              }),
             },
           },
         },
@@ -587,9 +589,9 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'text/plain': {
-              schema: {
+              schema: coerceValue(SchemaObjectSchema, {
                 type: 'string',
-              },
+              }),
             },
           },
         },
@@ -616,7 +618,7 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'application/xml': {
-              schema: {
+              schema: coerceValue(SchemaObjectSchema, {
                 type: 'object',
                 properties: {
                   user: {
@@ -627,7 +629,7 @@ describe('operationToHar', () => {
                     },
                   },
                 },
-              },
+              }),
             },
           },
         },
@@ -654,7 +656,7 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'application/vnd.api+json': {
-              schema: {
+              schema: coerceValue(SchemaObjectSchema, {
                 type: 'object',
                 properties: {
                   data: {
@@ -665,7 +667,7 @@ describe('operationToHar', () => {
                     },
                   },
                 },
-              },
+              }),
             },
           },
         },
@@ -732,12 +734,12 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'application/json': {
-              schema: {
+              schema: coerceValue(SchemaObjectSchema, {
                 type: 'object',
                 properties: {
                   name: { type: 'string' },
                 },
-              },
+              }),
             },
           },
         },
@@ -765,12 +767,12 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'application/json': {
-              schema: {
+              schema: coerceValue(SchemaObjectSchema, {
                 type: 'object',
                 properties: {
                   name: { type: 'string' },
                 },
-              },
+              }),
             },
           },
         },
@@ -800,12 +802,12 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'application/xml': {
-              schema: {
+              schema: coerceValue(SchemaObjectSchema, {
                 type: 'object',
                 properties: {
                   name: { type: 'string' },
                 },
-              },
+              }),
             },
           },
         },
@@ -836,20 +838,20 @@ describe('operationToHar', () => {
           {
             name: 'Content-Type',
             in: 'header',
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
-            },
+            }),
           },
         ],
         requestBody: {
           content: {
             'application/json': {
-              schema: {
+              schema: coerceValue(SchemaObjectSchema, {
                 type: 'object',
                 properties: {
                   name: { type: 'string' },
                 },
-              },
+              }),
             },
           },
         },
@@ -896,12 +898,12 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'multipart/form-data': {
-              schema: {
+              schema: coerceValue(SchemaObjectSchema, {
                 type: 'object',
                 properties: {
                   file: { type: 'string', format: 'binary' },
                 },
-              },
+              }),
             },
           },
         },
@@ -931,9 +933,9 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'text/plain': {
-              schema: {
+              schema: coerceValue(SchemaObjectSchema, {
                 type: 'string',
-              },
+              }),
             },
           },
         },

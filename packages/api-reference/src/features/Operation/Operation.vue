@@ -5,7 +5,7 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { isReference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { computed } from 'vue'
 
 import { combineParams } from '@/features/Operation/helpers/combine-params'
@@ -52,9 +52,9 @@ const pathItem = computed(() => {
  * Also adds in params from the pathItemObject
  */
 const operation = computed(() => {
-  const entity = pathItem.value?.[method]
+  const entity = getResolvedRef(pathItem.value?.[method])
 
-  if (!entity || isReference(entity)) {
+  if (!entity) {
     return null
   }
 

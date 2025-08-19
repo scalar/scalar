@@ -27,6 +27,7 @@ import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRe
 import type { Record } from '@sinclair/typebox'
 import { Value } from '@sinclair/typebox/value'
 import { deepClone } from '@/helpers/deep-clone'
+import { measureAsync } from '@scalar/helpers/testing/measure'
 
 type DocumentConfiguration = Config &
   PartialDeep<{
@@ -568,39 +569,42 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   async function addDocument(input: WorkspaceDocumentInput) {
     const { name, meta } = input
 
-    const resolve = await loadDocument(input)
+    const resolve = await measureAsync('loadDocument', async () => await loadDocument(input))
 
-    if (!resolve.ok) {
-      console.error(`Failed to fetch document '${name}': request was not successful`)
+    // Log the time taken to add a document
+    await measureAsync('addDocument', async () => {
+      if (!resolve.ok) {
+        console.error(`Failed to fetch document '${name}': request was not successful`)
 
-      workspace.documents[name] = {
-        ...meta,
-        openapi: '3.1.0',
-        info: {
-          title: `Document '${name}' could not be loaded`,
-          version: 'unknown',
-        },
+        workspace.documents[name] = {
+          ...meta,
+          openapi: '3.1.0',
+          info: {
+            title: `Document '${name}' could not be loaded`,
+            version: 'unknown',
+          },
+        }
+
+        return
       }
 
-      return
-    }
+      if (!isObject(resolve.data)) {
+        console.error(`Failed to load document '${name}': response data is not a valid object`)
 
-    if (!isObject(resolve.data)) {
-      console.error(`Failed to load document '${name}': response data is not a valid object`)
+        workspace.documents[name] = {
+          ...meta,
+          openapi: '3.1.0',
+          info: {
+            title: `Document '${name}' could not be loaded`,
+            version: 'unknown',
+          },
+        }
 
-      workspace.documents[name] = {
-        ...meta,
-        openapi: '3.1.0',
-        info: {
-          title: `Document '${name}' could not be loaded`,
-          version: 'unknown',
-        },
+        return
       }
 
-      return
-    }
-
-    await addInMemoryDocument({ ...input, document: resolve.data, origin: getOrigin(input) })
+      await addInMemoryDocument({ ...input, document: resolve.data, origin: getOrigin(input) })
+    })
   }
 
   // Cache to track visited nodes during reference resolution to prevent bundling the same subtree multiple times
