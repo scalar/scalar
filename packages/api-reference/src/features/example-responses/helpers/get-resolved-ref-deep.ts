@@ -11,7 +11,7 @@ export type NodeInput<Node> = Node | RefNode<Node>
  * Handles circular references gracefully by detecting them and returning '[circular]'
  * to prevent infinite loops.
  */
-export const getResolvedRefDeep = <Node>(node: NodeInput<Node>): any => {
+export const getResolvedRefDeep = <Node>(node: NodeInput<Node>): Node | '[circular]' => {
   const visited = new WeakSet()
 
   const resolveNode = (current: any): any => {

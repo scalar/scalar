@@ -1237,7 +1237,7 @@ describe('getExampleFromSchema', () => {
       })
     })
 
-    it('falls back to propertyName* when x-additionalPropertiesName is not a string', () => {
+    it('coerces the type when x-additionalPropertiesName is not a string', () => {
       expect(
         getExampleFromSchema(
           coerceValue(SchemaObjectSchema, {
@@ -1249,7 +1249,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        'propertyName*': '',
+        '123*': '',
       })
 
       expect(
