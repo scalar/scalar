@@ -53,22 +53,22 @@
 </div>
 <div class="logowall">
   <div class="logowall-item">
-    <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/gCZbA2K1IZP5fWXI_G0t4.svg"></scalar-icon>
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-tr.svg"></scalar-icon>
   </div>
   <div class="logowall-item">
-    <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/bCONBXoizEluvNla7JwdX.svg"></scalar-icon>
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-maersk.svg"></scalar-icon>
   </div>
   <div class="logowall-item">
-    <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/TQAZqR4tg_zFjTy43z6Vy.svg"></scalar-icon>
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-tailscale.svg"></scalar-icon>
   </div>
   <div class="logowall-item">
-    <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/P9uW9Uv2U4AHrxbeU5XSc.svg"></scalar-icon>
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-supabase.svg"></scalar-icon>
   </div>
   <div class="logowall-item">
-    <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/GnB-NAGvk8SkbmPD5EhAy.svg"></scalar-icon>
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-flyio.svg"></scalar-icon>
   </div>
   <div class="logowall-item">
-    <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/2FNlMXRPYsuWiuBYfkn_x.svg"></scalar-icon>
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-sfcompute.svg"></scalar-icon>
   </div>
 </div>
 <div class="quotes">
@@ -655,13 +655,14 @@
     row-gap: 12px;
   }
   /* logos */
-  .logowall {
-    margin-top: 48px !important;
-    display: flex;
+  .logowall.logowall {
+    margin-top: 48px;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    align-items: center;
     gap: 40px;
   }
   .logowall-item {
-    width: calc((1 / 6) * 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -889,6 +890,20 @@
     }
     .gallery li {
       width: calc(100dvw - 60px);
+    }
+    .logowall.logowall {
+      grid-template-columns: repeat(3, 1fr);
+      column-gap: 20px;
+      row-gap: 40px;
+    }
+    .logowall-item {
+      justify-content: start;
+    }
+    .logowall-item svg {
+      width: auto;
+      max-width: 100%;
+      height: 100%;
+      max-height: 20px;
     }
   }
 </style>
