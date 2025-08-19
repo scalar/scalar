@@ -607,6 +607,15 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     })
   }
 
+  // Returns the effective document configuration for a given document name,
+  // merging (in order of increasing priority): the default config, workspace-level config, and document-specific config.
+  const getDocumentConfiguration = (name: string) => {
+    return mergeObjects<typeof defaultConfig>(
+      mergeObjects(defaultConfig, workspaceProps?.config ?? {}),
+      documentConfigs[name] ?? {},
+    )
+  }
+
   // Cache to track visited nodes during reference resolution to prevent bundling the same subtree multiple times
   // This is needed because we are doing partial bundle operations
   const visitedNodesCache = new Set()
@@ -678,10 +687,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     },
     addDocument,
     get config() {
-      return mergeObjects<typeof defaultConfig>(
-        mergeObjects(defaultConfig, workspaceProps?.config ?? {}),
-        documentConfigs[getActiveDocumentName()] ?? {},
-      )
+      return getDocumentConfiguration(getActiveDocumentName())
     },
     exportDocument: (documentName: string, format: 'json' | 'yaml') => {
       const intermediateDocument = intermediateDocuments[documentName]
