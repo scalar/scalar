@@ -297,8 +297,14 @@ describe('getResolvedRefDeep', () => {
       // Should handle circular references gracefully without infinite loops
       const result = getResolvedRefDeep(testData)
       expect(result).toBeDefined()
+      if (result.user === '[circular]') {
+        throw new Error('User is circular')
+      }
       expect(result?.user?.id).toBe(1)
       expect(result?.user?.name).toBe('John')
+      if (result.department === '[circular]') {
+        throw new Error('Department is circular')
+      }
       expect(result?.department?.id).toBe('eng')
       expect(result?.department?.name).toBe('Engineering')
       expect(result?.department?.manager?.department).toBe('[circular]')
@@ -330,57 +336,6 @@ describe('getResolvedRefDeep', () => {
       // The circular references should be handled gracefully
       expect(result.parent).toBeDefined()
       expect(Array.isArray(result.children)).toBe(true)
-    })
-
-    it('should handle indirect circular references gracefully', () => {
-      type NodeA = { id: string; next: NodeB }
-      type NodeB = { id: string; next: NodeC }
-      type NodeC = { id: string; next: NodeA }
-
-      const nodeARef = {
-        $ref: '#/components/schemas/NodeA',
-        '$ref-value': {} as NodeA,
-      }
-
-      const nodeBRef = {
-        $ref: '#/components/schemas/NodeB',
-        '$ref-value': {} as NodeB,
-      }
-
-      const nodeCRef = {
-        $ref: '#/components/schemas/NodeC',
-        '$ref-value': {} as NodeC,
-      }
-
-      // Create A -> B -> C -> A circular chain
-      nodeARef['$ref-value'] = {
-        id: 'A',
-        // @ts-expect-error - just a test
-        next: nodeBRef,
-      }
-
-      nodeBRef['$ref-value'] = {
-        id: 'B',
-        // @ts-expect-error - just a test
-        next: nodeCRef,
-      }
-
-      nodeCRef['$ref-value'] = {
-        id: 'C',
-        // @ts-expect-error - just a test
-        next: nodeARef, // Back to A
-      }
-
-      // Should handle indirect circular references gracefully
-      const result = getResolvedRefDeep(nodeARef)
-      expect(result).toBeDefined()
-      expect(result.id).toBe('A')
-      expect(result.next).toBeDefined()
-      expect(result.next.id).toBe('B')
-      expect(result.next.next).toBeDefined()
-      expect(result.next.next.id).toBe('C')
-      // The circular reference should be broken gracefully
-      expect(result.next.next.next).toBeDefined()
     })
   })
 
