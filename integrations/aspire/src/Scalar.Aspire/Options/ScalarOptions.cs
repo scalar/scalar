@@ -197,5 +197,12 @@ public abstract class ScalarOptions
     /// <value>The default value is <c>null</c>.</value>
     public DocumentDownloadType? DocumentDownloadType { get; set; }
 
-    public bool UseHttps { get; set; }
+    /// <summary>
+    /// Gets or sets whether HTTPS should be preferred over HTTP when both are available.
+    /// </summary>
+    /// <value>The default value is <c>false</c>.</value>
+    /// <remarks>
+    /// When set to <c>true</c>, HTTPS URLs will be prioritized when multiple server URLs are available.
+    /// </remarks>
+    public bool PreferHttps { get; set; }
 }

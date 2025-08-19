@@ -24,6 +24,7 @@ var scalar = builder
     {
         options.WithCdnUrl("https://cdn.jsdelivr.net/npm/@scalar/api-reference");
         options.AllowSelfSignedCertificate = true;
+        options.PreferHttps = true;
     })
     .WithReference(keycloak)
     .WithExternalHttpEndpoints();
@@ -41,7 +42,12 @@ scalar
             {
                 flow.WithClientId("admin-cli");
             });
-        // options.UseHttps = true;
+    })
+    .WithApiReference(userService, options =>
+    {
+        options.WithTheme(ScalarTheme.Mars);
+        options.WithDefaultHttpClient(ScalarTarget.JavaScript, ScalarClient.Fetch);
+        options.AddDocument("external");
     });
 
 
