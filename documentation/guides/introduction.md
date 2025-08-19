@@ -111,37 +111,35 @@
     <div class="product-copy w-1/2 gap-3 flex flex-col">
       <span class="font-bold text-green">API Registry</span>
       <h2>
-        A modern documentation platform for your APIs, with first-class OpenAPI
-        support
+        A centralized repository for your APIs
       </h2>
       <p>
-        Write beautiful documentation with our WYSIWYG or docs-as-code with
-        Markdown + MDX + Git Sync & make your OpenAPI documents Interactive
+        Managing & versioning OpenAPI Documents, JSON Schema, Spectral Rules as your source of truth with a deep Git integration.
       </p>
       <div class="flex flex-wrap text-green gap-y-2">
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/users"></scalar-icon>
-          Collaborate
+          <scalar-icon src="phosphor/bold/git-branch"></scalar-icon>
+          Single Source of Truth
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/wifi-slash"></scalar-icon>
-          Offline First
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/globe"></scalar-icon>
-          Sync Local API's
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/graph"></scalar-icon>
+          <scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon>
           OpenAPI Support
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/lock-simple-open"></scalar-icon>
-          No Vendor Lock In
+          <scalar-icon src="phosphor/bold/brackets-curly"></scalar-icon>
+          JSON Schema Support
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/desktop-tower"></scalar-icon>
-          Multi-platform
+          <scalar-icon src="phosphor/bold/warning-octagon"></scalar-icon>
+          Spectral Rules
+        </b>
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/arrows-clockwise"></scalar-icon>
+          Bi-directional Git
+        </b>
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/lock-simple"></scalar-icon>
+          Private or Public
         </b>
       </div>
       <a class="mt-3 t-editor__anchor" href="yo">Learn More →</a>
@@ -208,37 +206,35 @@
     <div class="product-copy w-1/2 gap-3 flex flex-col">
       <span class="font-bold text-blue">API Docs</span>
       <h2>
-        A modern documentation platform for your APIs, with first-class OpenAPI
-        support
+        Modern Documentation platform for your APIs, with first-class OpenAPI support
       </h2>
       <p>
-        Write beautiful documentation with our WYSIWYG or docs-as-code with
-        Markdown + MDX + Git Sync & make your OpenAPI documents Interactive
+        Write beautiful documentation with our WYSIWYG or docs-as-code with Markdown + MDX + Git Sync & make your OpenAPI documents Interactive
       </p>
       <div class="flex flex-wrap text-blue gap-y-2">
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/users"></scalar-icon>
-          Collaborate
+          <scalar-icon src="phosphor/bold/palette"></scalar-icon>
+          Fully Brand-able
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/wifi-slash"></scalar-icon>
-          Offline First
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/globe"></scalar-icon>
-          Sync Local API's
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/graph"></scalar-icon>
+          <scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon>
           OpenAPI Support
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/lock-simple-open"></scalar-icon>
-          No Vendor Lock In
+          <scalar-icon src="phosphor/bold/brackets-angle"></scalar-icon>
+          MDX Support
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/desktop-tower"></scalar-icon>
-          Multi-platform
+          <scalar-icon src="phosphor/bold/brackets-curly"></scalar-icon>
+          Custom HTML/CSS/JS
+        </b>
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/github-logo"></scalar-icon>
+          Sync with Git
+        </b>
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/users"></scalar-icon>
+          Access Groups
         </b>
       </div>
       <a class="mt-3 t-editor__anchor" href="yo">Learn More →</a>
@@ -251,36 +247,35 @@
     <div class="product-copy w-1/2 gap-3 flex flex-col">
       <span class="font-bold text-purple">SDK Generation</span>
       <h2 class="c">
-        An offline first API Client built for the OpenAPI™ standard.
+        Create World-Class SDKs for your APIs
       </h2>
       <p>
-        Minimal, powerful, fully open-source API Client built on open standards
-        by us + our community
+        Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python, Golang, PHP, Java and Ruby.
       </p>
       <div class="flex flex-wrap text-purple gap-y-2">
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/users"></scalar-icon>
-          Collaborate
+          <scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon>
+          OpenAPI First
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/wifi-slash"></scalar-icon>
-          Offline First
+          <scalar-icon src="phosphor/bold/brackets-square"></scalar-icon>
+          Custom-code
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/globe"></scalar-icon>
-          Sync Local API's
+          <scalar-icon src="phosphor/bold/code"></scalar-icon>
+          Code Samples
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/graph"></scalar-icon>
-          OpenAPI Support
+          <scalar-icon src="phosphor/bold/fingerprint"></scalar-icon>
+          OpenAPI Auth support
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/lock-simple-open"></scalar-icon>
-          No Vendor Lock In
+          <scalar-icon src="phosphor/bold/cloud-check"></scalar-icon>
+          Syncs with Docs
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/desktop-tower"></scalar-icon>
-          Multi-platform
+          <scalar-icon src="phosphor/bold/file-cloud"></scalar-icon>
+          File Streaming
         </b>
       </div>
       <a class="mt-3 t-editor__anchor" href="yo">Learn More →</a>
