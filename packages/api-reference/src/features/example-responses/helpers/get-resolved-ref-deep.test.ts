@@ -232,7 +232,7 @@ describe('getResolvedRefDeep', () => {
 
     it('should handle refs with null $ref-value', () => {
       const nullRef = { $ref: '#/null', '$ref-value': null }
-      // @ts-expect-error nobody cares
+      // @ts-expect-error - just a test
       const result = getResolvedRefDeep(nullRef)
 
       expect(result).toBeNull()
@@ -251,7 +251,7 @@ describe('getResolvedRefDeep', () => {
         ],
       }
 
-      // @ts-expect-error nobody cares
+      // @ts-expect-error - just a test
       const result = getResolvedRefDeep(arrayRef)
 
       expect(result).toEqual([{ id: 1, name: 'John' }])
@@ -276,16 +276,16 @@ describe('getResolvedRefDeep', () => {
       userRef['$ref-value'] = {
         id: 1,
         name: 'John',
-        // @ts-expect-error nobody cares
+        // @ts-expect-error - just a test
         department: departmentRef,
       }
 
       departmentRef['$ref-value'] = {
         id: 'eng',
         name: 'Engineering',
-        // @ts-expect-error nobody cares
+        // @ts-expect-error - just a test
         manager: userRef,
-        // @ts-expect-error nobody cares
+        // @ts-expect-error - just a test
         employees: [userRef],
       }
 
@@ -316,9 +316,9 @@ describe('getResolvedRefDeep', () => {
       selfRef['$ref-value'] = {
         id: 'root',
         value: 'test',
-        // @ts-expect-error nobody cares
+        // @ts-expect-error - just a test
         parent: selfRef,
-        // @ts-expect-error nobody cares
+        // @ts-expect-error - just a test
         children: [selfRef],
       }
 
@@ -355,19 +355,19 @@ describe('getResolvedRefDeep', () => {
       // Create A -> B -> C -> A circular chain
       nodeARef['$ref-value'] = {
         id: 'A',
-        // @ts-expect-error nobody cares
+        // @ts-expect-error - just a test
         next: nodeBRef,
       }
 
       nodeBRef['$ref-value'] = {
         id: 'B',
-        // @ts-expect-error nobody cares
+        // @ts-expect-error - just a test
         next: nodeCRef,
       }
 
       nodeCRef['$ref-value'] = {
         id: 'C',
-        // @ts-expect-error nobody cares
+        // @ts-expect-error - just a test
         next: nodeARef, // Back to A
       }
 
