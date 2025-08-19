@@ -11,8 +11,8 @@
   "theme": "default",
   "guides": [
     {
-      "name": "Scalar",
-      "slug": "scalar",
+      "name": "Guide",
+      "slug": "guide",
       "sidebar": [
         {
           "name": "Introduction",
@@ -481,8 +481,8 @@
   "references": [
     {
       "liveLink": "https://registry.scalar.com/@scalar/apis/access-service/latest",
-      "name": "Scalar API",
-      "slug": "scalar-api"
+      "name": "Reference",
+      "slug": "reference"
     }
   ],
   "header": [
