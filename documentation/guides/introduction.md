@@ -971,5 +971,20 @@
       padding: 40px 40px 60px 40px;
       margin-inline: -10px;
     }
+    .expander-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      row-gap: 0;
+    }
+    .expander-hover {
+      width: auto;
+    }
+    .expander-hover .expander {
+      grid-template-rows: 1fr;
+      opacity: 1;
+    }
+    .expander .expander-content {
+      visibility: visible;
+    }
   }
 </style>
