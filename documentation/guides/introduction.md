@@ -101,14 +101,8 @@
   </div>
 </div>
 <div>
-  <div class="product flex">
-    <div class="product-image w-1/2">
-      <div class="product-image-transform">
-        <img class="light-image" src="/registry-static.svg" />
-        <img class="dark-image" src="/registry-static-dark.svg" />
-      </div>
-    </div>
-    <div class="product-copy w-1/2 gap-3 flex flex-col">
+  <div class="product product-reversed">
+    <div class="product-copy">
       <span class="font-bold text-green">API Registry</span>
       <h2>
         A centralized repository for your APIs
@@ -144,12 +138,18 @@
       </div>
       <a class="mt-3 t-editor__anchor" href="yo">Learn More →</a>
     </div>
+    <div class="product-image">
+      <div class="product-image-transform">
+        <img class="light-image" src="/registry-static.svg" />
+        <img class="dark-image" src="/registry-static-dark.svg" />
+      </div>
+    </div>
     <div class="draggable sticker-4">
       <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/jgGF_IKsu-T_irS-6MMOy.svg"></scalar-icon>
     </div>
   </div>
-  <div class="product flex">
-    <div class="product-copy w-1/2 gap-3 flex flex-col">
+  <div class="product">
+    <div class="product-copy">
       <span class="font-bold text-orange">API Client</span>
       <h2 class="c">
         An offline first API Client built for the OpenAPI™ standard.
@@ -186,7 +186,7 @@
       </div>
       <a class="mt-3 t-editor__anchor" href="yo">Learn More →</a>
     </div>
-    <div class="product-image product-image-right w-1/2">
+    <div class="product-image">
       <div class="product-image-transform">
         <img class="light-image" src="/api-client-static.svg"/>
         <img class="dark-image" src="/api-client-static-dark.svg"/>
@@ -196,14 +196,8 @@
       <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/JXS6tZ4EbKIkeGpjP6QKc.svg"></scalar-icon>
     </div>
   </div>
-  <div class="product flex">
-    <div class="product-image w-1/2">
-      <div class="product-image-transform">
-        <img class="light-image" src="/api-docs-static-zoom.svg"/>
-        <img class="dark-image" src="/api-docs-static-zoom-dark.svg"/>
-      </div>
-    </div>
-    <div class="product-copy w-1/2 gap-3 flex flex-col">
+  <div class="product product-reversed">
+    <div class="product-copy">
       <span class="font-bold text-blue">API Docs</span>
       <h2>
         Modern Documentation platform for your APIs, with first-class OpenAPI support
@@ -239,12 +233,18 @@
       </div>
       <a class="mt-3 t-editor__anchor" href="yo">Learn More →</a>
     </div>
+    <div class="product-image">
+      <div class="product-image-transform">
+        <img class="light-image" src="/api-docs-static-zoom.svg"/>
+        <img class="dark-image" src="/api-docs-static-zoom-dark.svg"/>
+      </div>
+    </div>
     <div class="draggable sticker-3">
       <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/HLhbFqJ4vSzo4UDEZX2dq.svg"></scalar-icon>
     </div>
   </div>
-  <div class="product flex">
-    <div class="product-copy w-1/2 gap-3 flex flex-col">
+  <div class="product">
+    <div class="product-copy">
       <span class="font-bold text-purple">SDK Generation</span>
       <h2 class="c">
         Create World-Class SDKs for your APIs
@@ -280,7 +280,7 @@
       </div>
       <a class="mt-3 t-editor__anchor" href="yo">Learn More →</a>
     </div>
-    <div class="product-image product-image-right w-1/2">
+    <div class="product-image">
       <div class="product-image-transform">
         <img class="light-image" src="/sdks-static.svg" />
         <img class="dark-image" src="/sdks-static-dark.svg" />
@@ -598,31 +598,40 @@
   }
   /* product */
   .product {
+    display: flex;
     position: relative;
     border-top: var(--scalar-border-width) solid var(--scalar-border-color);
     gap: 44px;
     padding: 80px 0;
   }
+  .product > * {
+    flex: 1;
+  }
+  .product-reversed {
+    flex-direction: row-reverse;
+  }
   .product:last-of-type {
     border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
   }
   .product-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
     padding: 100px 0;
     position: relative;
   }
   .product-image {
     position: relative;
     border-radius: var(--scalar-radius-lg);
-    position: relative;
     pointer-events: none;
   }
   .product-image-transform {
     position: absolute;
-    left: -76px;
     mask-image: linear-gradient(to bottom, black 65%, transparent 100%);
-  }
-  .product-image-right .product-image-transform {
     left: 0;
+  }
+  .product-reversed .product-image-transform {
+    left: -76px;
   }
   .product-image img {
     all: unset;
@@ -866,6 +875,19 @@
       top: -140px;
       left: -280px;
     }
+    .sticker-2 {
+      left: 220px;
+      bottom: 80px;
+    }
+    .sticker-3 {
+      left: 90px;
+      bottom: 20px;
+    }
+    .sticker-4 {
+      left: 60px;
+      bottom: 20px;
+      --sticker-rotate: 15deg;
+    }
     .sticker-5 {
       top: -220px;
       left: -440px;
@@ -878,6 +900,10 @@
     .sticker-7 {
         top: -220px;
         left: -100px;
+    }
+    .sticker-8 {
+        top: 840px;
+        left: 260px;
     }
     .container-full {
       --scalar-container-sidebar-gap: 30px;
@@ -904,6 +930,32 @@
       max-width: 100%;
       height: 100%;
       max-height: 20px;
+    }
+    .quotes-item {
+      flex: 0 0 calc(100% - 22px);
+    }
+    .product,
+    .product-reversed {
+      flex-direction: column;
+      gap: 60px;
+    }
+    .product > * {
+      flex: initial;
+    }
+    .product-copy {
+      padding-block: 0;
+    }
+    .product-image {
+      height: 500px;
+    }
+    .product-image-transform.product-image-transform {
+      inset: 0;
+      mask-image: none;
+    }
+    .product-image img {
+      height: 100%;
+      width: auto;
+      mask-image: linear-gradient(to right, black 40%, transparent 60%);
     }
   }
 </style>
