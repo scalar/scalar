@@ -20,10 +20,9 @@ export default {}
 <script lang="ts" setup>
 import { ServerVariablesForm } from '@scalar/api-client/components/Server'
 import { ScalarMarkdown } from '@scalar/components'
+import { emitCustomEvent } from '@scalar/workspace-store/events'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
 import { computed, ref, useId, watch } from 'vue'
-
-import { emitCustomEvent } from '@/v2/events'
 
 import Selector from './Selector.vue'
 
@@ -39,11 +38,9 @@ const updateServer = (newServer: string) => {
     return
   }
 
-  emitCustomEvent(
-    containerRef.value,
-    'scalar-update-selected-server',
-    newServer,
-  )
+  emitCustomEvent(containerRef.value, 'scalar-update-selected-server', {
+    value: newServer,
+  })
 }
 
 const updateServerVariable = (key: string, value: string) => {

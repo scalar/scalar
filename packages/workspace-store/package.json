@@ -34,6 +34,11 @@
   },
   "type": "module",
   "exports": {
+    "./events": {
+      "import": "./dist/events/index.js",
+      "types": "./dist/events/index.d.ts",
+      "default": "./dist/events/index.js"
+    },
     "./client": {
       "import": "./dist/client.js",
       "types": "./dist/client.d.ts",
@@ -84,6 +89,7 @@
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
+    "@scalar/snippetz": "workspace:*",
     "@scalar/types": "workspace:*",
     "@sinclair/typebox": "catalog:*",
     "github-slugger": "^2.0.0",

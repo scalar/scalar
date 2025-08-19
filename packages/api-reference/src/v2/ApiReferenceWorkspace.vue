@@ -26,6 +26,7 @@ import type {
 } from '@scalar/types'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { type WorkspaceStore } from '@scalar/workspace-store/client'
+import { onCustomEvent } from '@scalar/workspace-store/events'
 import { useSeoMeta } from '@unhead/vue'
 import { useFavicon } from '@vueuse/core'
 import {
@@ -45,7 +46,6 @@ import {
 } from '@/features/multiple-documents'
 import { NAV_STATE_SYMBOL } from '@/hooks/useNavState'
 import { isClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
-import { onCustomEvent } from '@/v2/events'
 import { getDocumentName } from '@/v2/helpers/get-document-name'
 import { normalizeContent } from '@/v2/helpers/normalize-content'
 
@@ -213,7 +213,7 @@ onCustomEvent(root, 'scalar-update-selected-server', (event) => {
   const activeDocument = store.workspace.activeDocument
 
   if (activeDocument) {
-    activeDocument['x-scalar-active-server'] = event.detail
+    activeDocument['x-scalar-active-server'] = event.detail.value
   }
 })
 

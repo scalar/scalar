@@ -3,6 +3,7 @@ import { Tab } from '@headlessui/vue'
 import { ScalarCombobox, ScalarIcon } from '@scalar/components'
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type { AvailableClients, TargetId } from '@scalar/types/snippetz'
+import { emitCustomEvent } from '@scalar/workspace-store/events'
 import { computed, ref } from 'vue'
 
 import { findClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
@@ -10,7 +11,6 @@ import type {
   ClientOption,
   ClientOptionGroup,
 } from '@/v2/blocks/scalar-request-example-block/types'
-import { emitCustomEvent } from '@/v2/events/definitions'
 
 import { isFeaturedClient } from './featured-clients'
 

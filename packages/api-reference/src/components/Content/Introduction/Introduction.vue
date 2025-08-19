@@ -6,13 +6,13 @@ import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { onCustomEvent } from '@scalar/workspace-store/events'
 import { computed, ref } from 'vue'
 
 import { Lazy } from '@/components/Lazy'
 import { useNavState } from '@/hooks/useNavState'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 import { ServerSelector } from '@/v2/blocks/scalar-server-selector-block'
-import { onCustomEvent } from '@/v2/events'
 
 import { ClientLibraries } from '../ClientLibraries'
 import IntroductionSection from './IntroductionSection.vue'
@@ -74,28 +74,40 @@ const el = ref(window.document.body)
 // Keep the old store in sync with the new server selector block
 // This is a temporary solution to keep the old store in sync with the new server selector block
 // When we migrate api-client to the new store we can remove this
-onCustomEvent(el, 'scalar-update-selected-server', ({ detail: newServer }) => {
-  const collection = activeCollection.value
+onCustomEvent(
+  el,
+  'scalar-update-selected-server',
+  ({ detail: { value, options } }) => {
+    // Do not update old store
+    if (options?.disableOldStoreUpdate === true) {
+      return
+    }
 
-  if (!collection) {
-    return
-  }
+    const collection = activeCollection.value
 
-  const server = Object.values(servers).find((s) => s.url === newServer)
+    if (!collection) {
+      return
+    }
 
-  if (!server) {
-    return
-  }
+    const server = Object.values(servers).find((s) => s.url === value)
 
-  // Update the collection with the new server
-  collectionMutators.edit(collection.uid, 'selectedServerUid', server.uid)
-})
+    if (!server) {
+      return
+    }
+
+    // Update the collection with the new server
+    collectionMutators.edit(collection.uid, 'selectedServerUid', server.uid)
+  },
+)
 
 onCustomEvent(
   el,
   'scalar-update-selected-server-variables',
-  ({ detail: { key, value } }) => {
-    console.log('on the receiver', key, value)
+  ({ detail: { key, value, options } }) => {
+    // Do not update old store
+    if (options?.disableOldStoreUpdate === true) {
+      return
+    }
 
     const server = activeServer.value
 

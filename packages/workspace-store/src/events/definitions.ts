@@ -31,13 +31,31 @@ export type ApiReferenceEvents = {
   }
   /** Controls the selected server URL in our server selector blocks */
   'scalar-update-selected-server': {
-    detail: string
+    detail: {
+      value: string
+      options?: {
+        /**
+         * Update only new store
+         *
+         * Do not update the old store since it will be handled manually
+         */
+        disableOldStoreUpdate: boolean
+      }
+    }
   }
   /** Controls the selected server URL in our server selector blocks */
   'scalar-update-selected-server-variables': {
     detail: {
       key: string
       value: string
+      options?: {
+        /**
+         * Update only new store
+         *
+         * Do not update the old store since it will be handled manually
+         */
+        disableOldStoreUpdate: boolean
+      }
     }
   }
 }
