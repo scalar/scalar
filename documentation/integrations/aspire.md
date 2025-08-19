@@ -1,30 +1,47 @@
 # Scalar API Reference for .NET Aspire
 
-The `Scalar.Aspire` package provides a simple way to integrate the Scalar API Reference into your .NET Aspire applications, creating a unified API Reference for all your services.
+The `Scalar.Aspire` package seamlessly integrates Scalar API Reference into your .NET Aspire applications, providing a unified documentation interface for all your microservices.
 
-## Basic Setup
+## Overview
+
+With Scalar for Aspire, you can:
+
+- **Unify API Documentation**: View documentation for all microservices in a single, cohesive interface
+- **Simplify Service Discovery**: Automatically discover and configure API endpoints from your Aspire services
+- **Support Multiple Documents**: Each service can expose multiple OpenAPI specifications
+- **Eliminate CORS Issues**: Built-in proxy (enabled by default) handles API requests without requiring CORS configuration
+- **Automatic Endpoint Configuration**: OpenAPI documents and servers are automatically configured to work with service discovery
+- **Work with HTTPS**: Full support for both HTTP and HTTPS endpoints with automatic handling
+
+## Prerequisites
 
 :::scalar-callout{ type=info }
 The Scalar Aspire integration requires a container solution such as **Docker** or **Podman** to be installed on your machine.
 :::
 
-1. **Install the package**
+### Service Requirements
+
+Each service you want to include in the API Reference must:
+
+- Expose OpenAPI documents over HTTP or HTTPS endpoints
+- Implement the `IResourceWithServiceDiscovery` interface
+- Define an endpoint named **"http"** or **"https"**
+
+## Quick Start
+
+### 1. Install the Package
 
 ```shell
 dotnet add package Scalar.Aspire
 ```
 
-2. **Add the using directive**
+### 2. Basic Configuration
+
+Add the integration to your AppHost `Program.cs`:
 
 ```csharp
 using Scalar.Aspire;
-```
 
-3. **Configure your Aspire application**
-
-Add the following to your AppHost `Program.cs`:
-
-```csharp
 var builder = DistributedApplication.CreateBuilder(args);
 
 // Add your services
@@ -34,76 +51,186 @@ var userService = builder
 
 var bookService = builder.AddProject<Projects.BookService>("book-service");
 
-// Add Scalar API Reference for all services
-var scalar = builder.AddScalarApiReference(options =>
-{
-    // Configure global options. They will apply to all services
-    options.WithTheme(ScalarTheme.Purple);
-});
+// Add Scalar API Reference
+var scalar = builder.AddScalarApiReference();
 
-// Configure API References for specific services
+// Register services with the API Reference
 scalar
-    .WithApiReference(userService, options => options.AddDocument("internal", routePattern: "/api-documentation/{documentName}.json"))
-    .WithApiReference(bookService, options => options.WithOpenApiRoutePattern("/api-documentation/{documentName}.json"));
+    .WithApiReference(userService)
+    .WithApiReference(bookService);
 
 builder.Build().Run();
 ```
 
-You're all set! 🎉 The Aspire dashboard will show a Scalar API Reference resource that provides a unified API documentation for all your configured services.
+That's it! 🎉 The Aspire dashboard will display a Scalar API Reference resource with unified documentation for all your services.
 
-## Key Features
+## Configuration
 
-- **Unified API Reference**: View documentation for all your microservices in a single interface
-- **Service Discovery**: Automatically discovers and configures API endpoints from your Aspire services
-- **Multi-Document Support**: Each service can expose multiple OpenAPI documents
-- **Built-in Proxy**: Provides a built-in proxy to handle API requests, eliminating the need for CORS configuration in your services
-- **Familiar Configuration**: Uses familiar configuration options consistent with the `Scalar.AspNetCore` integration
+### Global Configuration
 
-## Service Requirements
-
-To integrate with Scalar for Aspire, each service must expose OpenAPI documents over an HTTP endpoint. Ensure that your service makes its OpenAPI documentation available at a reachable URL.
-
-Currently, only HTTP-based services are supported; HTTPS is not yet supported.
-
-Additionally, any resource you want to include in the API Reference must implement the `IResourceWithServiceDiscovery` interface and define an endpoint named **"http"**.
-
-## Configuration Options
-
-The `AddScalarApiReference` method accepts an optional `options` parameter, which you can use to customize Scalar using the fluent API.
+Configure global settings that apply to all services:
 
 ```csharp
 var scalar = builder.AddScalarApiReference(options =>
 {
-    // Fluent API
-    options
-        .WithTheme(ScalarTheme.Purple)
-        .WithSidebar(false);
+    options.WithTheme(ScalarTheme.Purple);
 });
 ```
 
-### Service-Specific Configuration
+### Service Registration
 
-Each service must be registered using the `WithApiReference` method. The options parameter is optional and allows you to customize the configuration for each service:
+Register each service individually to include it in the API Reference:
+
+```csharp
+// Basic registration with default settings
+scalar.WithApiReference(weatherService);
+
+// Custom configuration for specific services
+scalar.WithApiReference(bookService, options =>
+{
+    options
+        .AddDocument("v1", "Book Management API")
+        .WithOpenApiRoutePattern("/api-documentation/{documentName}.json")
+        .WithTheme(ScalarTheme.Purple);
+});
+```
+
+### Multiple OpenAPI Documents
+
+Services can expose multiple OpenAPI specifications:
+
+```csharp
+scalar.WithApiReference(catalogService, options =>
+{
+    // Add individual documents with custom titles
+    options
+        .AddDocument("v1", "Catalog API v1")
+        .AddDocument("v2", "Catalog API v2")
+        .AddDocument("admin", "Admin API", routePattern: "/admin/{documentName}.json");
+});
+
+// Or add multiple documents at once
+scalar.WithApiReference(userService, options =>
+{
+    options.AddDocuments("public", "internal", "admin");
+});
+```
+
+## HTTPS Support
+
+Scalar supports HTTPS endpoints.
+
+### Basic HTTPS Configuration
+
+```csharp
+var scalar = builder.AddScalarApiReference(options =>
+{
+    options
+        .PreferHttps() // Use HTTPS endpoints when available
+        .AllowSelfSignedCertificates(); // For development environments
+});
+```
+
+:::scalar-callout{ type=warning }
+The `AllowSelfSignedCertificates()` method should only be used in development environments, never in production.
+:::
+
+### How HTTPS Works
+
+- **Protocol Selection**: HTTP is used by default. Use `PreferHttps()` to prioritize HTTPS when available
+- **Automatic Redirects**: HTTP to HTTPS redirects are handled automatically with proper header rewriting (localhost only)
+- **Certificate Validation**: Self-signed certificates can be trusted in development using `AllowSelfSignedCertificates()`
+- **Fallback Behavior**: If HTTPS is preferred but unavailable, HTTP endpoints are used as fallback
+
+:::scalar-callout{ type=info }
+Currently, the Scalar API Reference interface is hosted over HTTP, even when communicating with HTTPS services. Support for hosting the Scalar interface under HTTPS will be added in a future release.
+:::
+
+## Proxy Configuration
+
+Scalar for Aspire includes a built-in proxy that is **enabled by default** to provide seamless integration with your services.
+
+### How the Proxy Works
+
+When the proxy is enabled (default behavior):
+
+- **Eliminates CORS Issues**: All API requests are routed through the Scalar proxy, avoiding CORS restrictions
+- **Service Discovery Integration**: OpenAPI servers and document routes are configured to use service discovery endpoints through the proxy
+
+### Disabling the Proxy
+
+You can disable the default proxy if you prefer direct service communication:
+
+```csharp
+var scalar = builder.AddScalarApiReference(options =>
+{
+    options.DisableDefaultProxy();
+});
+```
+
+When the proxy is disabled:
+
+- **Direct Service Communication**: OpenAPI documents and servers point directly to the actual service endpoints
+- **CORS Configuration Required**: You'll need to configure CORS on your services to allow requests from the Scalar interface
+
+## Authentication
+
+Configure authentication globally or per service to secure your API documentation.
+
+### Global Authentication
+
+Apply authentication settings to all services:
+
+```csharp
+var scalar = builder.AddScalarApiReference(options =>
+{
+    options
+        .AddPreferredSecuritySchemes("OAuth2", "ApiKey")
+        .AddAuthorizationCodeFlow("OAuth2", flow =>
+        {
+            flow
+                .WithClientId("aspire-client")
+                .WithAuthorizationUrl("https://auth.example.com/oauth2/authorize")
+                .WithTokenUrl("https://auth.example.com/oauth2/token");
+        })
+        .AddApiKeyAuthentication("ApiKey", apiKey =>
+        {
+            apiKey.WithValue("your-development-api-key");
+        });
+});
+```
+
+### Service-Specific Authentication
+
+Configure different authentication for individual services:
 
 ```csharp
 scalar
-    .WithApiReference(weatherService) // Basic registration with default settings
+    .WithApiReference(weatherService, options =>
+    {
+        options
+            .AddPreferredSecuritySchemes("WeatherApiKey")
+            .AddApiKeyAuthentication("WeatherApiKey", apiKey =>
+            {
+                apiKey.WithValue("weather-service-key");
+            });
+    })
     .WithApiReference(bookService, options =>
     {
-        // Custom configuration for this service
-        options.AddDocument("v1", "Book Management API");
-        options.WithOpenApiRoutePattern("/api-documentation/{documentName}.json");
-    })
-    .WithApiReference(catalogService, options =>
-    {
-        // Configure multiple documents
-        options.AddDocuments("v1", "v2", "beta");
+        options
+            .AddPreferredSecuritySchemes("BookOAuth")
+            .AddAuthorizationCodeFlow("BookOAuth", flow =>
+            {
+                flow
+                    .WithClientId("book-service-client")
+                    .WithSelectedScopes("books:read", "books:write");
+            });
     });
 ```
 
-#### Async Service-Specific Configuration
+### Asynchronous Configuration
 
-Use the async overload of `WithApiReference` when you need to perform asynchronous work (for example, fetching secrets or remote configuration):
+Use async configuration when you need to fetch secrets or perform other asynchronous operations:
 
 ```csharp
 scalar.WithApiReference(bookService, async (options, cancellationToken) =>
@@ -112,7 +239,7 @@ scalar.WithApiReference(bookService, async (options, cancellationToken) =>
         .AddDocument("v1", "Book Management API")
         .WithOpenApiRoutePattern("/api-documentation/{documentName}.json");
 
-    // Example: load a dev API key asynchronously
+    // Fetch API key from secure storage
     var apiKey = await secretProvider.GetValueAsync("BOOKS_API_KEY", cancellationToken);
 
     options
@@ -121,123 +248,6 @@ scalar.WithApiReference(bookService, async (options, cancellationToken) =>
 });
 ```
 
-### Multiple OpenAPI Documents per Service
+## Additional Resources
 
-Each service can expose multiple OpenAPI documents:
-
-```csharp
-scalar.WithApiReference(catalogService, options =>
-{
-    options
-        .AddDocument("v1", "Catalog API v1")
-        .AddDocument("v2", "Catalog API v2")
-        .AddDocument("admin", routePattern: "/admin/{documentName}.json");
-});
-
-// Or using AddDocuments with default patterns
-scalar.WithApiReference(userService, options =>
-{
-    options.AddDocuments("public", "internal", "admin");
-});
-```
-
-### Authentication Configuration
-
-Authentication can be configured globally or per service:
-
-#### Global Authentication
-
-```csharp
-var scalar = builder.AddScalarApiReference(options =>
-{
-  options
-    .AddPreferredSecuritySchemes("OAuth2", "ApiKey")
-    .AddAuthorizationCodeFlow("OAuth2", flow =>
-    {
-      flow
-        .WithClientId("aspire-client")
-        .WithAuthorizationUrl("https://auth.example.com/oauth2/authorize")
-        .WithTokenUrl("https://auth.example.com/oauth2/token");
-    })
-    .AddApiKeyAuthentication("ApiKey", apiKey =>
-    {
-      apiKey.WithValue("your-development-api-key");
-    });
-});
-```
-
-#### Service-Specific Authentication
-
-```csharp
-scalar
-  .WithApiReference(weatherService, options =>
-  {
-    options
-      .AddPreferredSecuritySchemes("WeatherApiKey")
-      .AddApiKeyAuthentication("WeatherApiKey", apiKey =>
-      {
-        apiKey.WithValue("weather-service-key");
-      });
-  })
-  .WithApiReference(bookService, options =>
-  {
-    options
-      .AddPreferredSecuritySchemes("BookOAuth")
-      .AddAuthorizationCodeFlow("BookOAuth", flow =>
-      {
-        flow
-          .WithClientId("book-service-client")
-          .WithSelectedScopes("books:read", "books:write");
-      });
-  });
-```
-
-### Theme and Appearance
-
-Customize the appearance of your unified API reference:
-
-```csharp
-var scalar = builder.AddScalarApiReference(options =>
-{
-    options
-        .WithTheme(ScalarTheme.Purple)
-        .WithTitle("My Microservices API")
-        .WithSidebar(true)
-        .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
-});
-```
-
-### Example Service Configuration
-
-Here's how to configure a service to work with Scalar Aspire:
-
-```csharp
-// In your service's Program.cs
-var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddOpenApi();
-
-var app = builder.Build();
-
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi(); // Exposes document at /openapi/{documentName}.json
-}
-
-app.Run();
-```
-
-## Troubleshooting
-
-**Services not appearing in API reference**:
-- Ensure services are properly exposing OpenAPI documents
-- Check that the `OpenApiRoutePattern` matches your service's actual route
-- Verify services are running and accessible
-
-**Authentication not working**:
-- Confirm security schemes are defined in each service's OpenAPI document
-- Check that scheme names match between service and Scalar configuration
-- Ensure that URLs such as `AuthorizationUrl` or `TokenUrl` in your authentication flows are correct and reachable from the Aspire container
-
-
-For more configuration options and advanced scenarios, refer to the base [.NET ASP.NET Core documentation](https://guides.scalar.com/scalar/scalar-api-references/integrations/net-aspnet-core#configuration-options), as most configuration options are shared between the `Scalar.AspNetCore` and `Scalar.Aspire` integration.
+For more advanced configuration options and detailed API reference, see the [.NET ASP.NET Core documentation](https://guides.scalar.com/scalar/scalar-api-references/integrations/net-aspnet-core#configuration-options). Most configuration options are shared between `Scalar.AspNetCore` and `Scalar.Aspire` integrations.
