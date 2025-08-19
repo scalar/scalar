@@ -113,7 +113,7 @@
       <div class="flex flex-wrap text-green gap-y-2">
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/git-branch"></scalar-icon>
-          Single Source of Truth
+          <span class="lg-only">Single </span>Source of Truth
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon>
@@ -121,7 +121,7 @@
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/brackets-curly"></scalar-icon>
-          JSON Schema Support
+          JSON Schema<span class="lg-only"> Support</span>
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/warning-octagon"></scalar-icon>
@@ -220,7 +220,7 @@
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/brackets-curly"></scalar-icon>
-          Custom HTML/CSS/JS
+          <span class="lg-only">Custom </span>HTML/CSS/JS
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/github-logo"></scalar-icon>
@@ -267,7 +267,7 @@
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/fingerprint"></scalar-icon>
-          OpenAPI Auth support
+          <span class="lg-only">OpenAPI </span>Auth support
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/cloud-check"></scalar-icon>
@@ -951,6 +951,9 @@
     }
     .product-copy {
       padding-block: 0;
+    }
+    .product-copy .lg-only {
+      display: none;
     }
     .product-image {
       height: 500px;
