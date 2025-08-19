@@ -6,13 +6,13 @@ import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { onCustomEvent } from '@scalar/workspace-store/events'
 import { computed, ref } from 'vue'
 
 import { Lazy } from '@/components/Lazy'
 import { useNavState } from '@/hooks/useNavState'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 import { ServerSelector } from '@/v2/blocks/scalar-server-selector-block'
+import { useLegacyStoreEvents } from '@/v2/hooks/use-legacy-store-events'
 
 import { ClientLibraries } from '../ClientLibraries'
 import IntroductionSection from './IntroductionSection.vue'
@@ -24,13 +24,7 @@ const { config, store } = defineProps<{
   store: WorkspaceStore
 }>()
 
-const {
-  collections,
-  securitySchemes,
-  servers,
-  serverMutators,
-  collectionMutators,
-} = useWorkspace()
+const { collections, securitySchemes, servers } = useWorkspace()
 const {
   activeCollection: _activeCollection,
   activeEnvVariables,
@@ -69,64 +63,10 @@ const introCardsSlot = computed(() =>
   config?.layout === 'classic' ? 'after' : 'aside',
 )
 
-const el = ref(window.document.body)
+const root = ref(window.document.body)
 
-// Keep the old store in sync with the new server selector block
-// This is a temporary solution to keep the old store in sync with the new server selector block
-// When we migrate api-client to the new store we can remove this
-onCustomEvent(
-  el,
-  'scalar-update-selected-server',
-  ({ detail: { value, options } }) => {
-    // Do not update old store
-    if (options?.disableOldStoreUpdate === true) {
-      return
-    }
-
-    const collection = activeCollection.value
-
-    if (!collection) {
-      return
-    }
-
-    const server = Object.values(servers).find((s) => s.url === value)
-
-    if (!server) {
-      return
-    }
-
-    // Update the collection with the new server
-    collectionMutators.edit(collection.uid, 'selectedServerUid', server.uid)
-  },
-)
-
-onCustomEvent(
-  el,
-  'scalar-update-selected-server-variables',
-  ({ detail: { key, value, options } }) => {
-    // Do not update old store
-    if (options?.disableOldStoreUpdate === true) {
-      return
-    }
-
-    const server = activeServer.value
-
-    // If the two stores gets out of sync, we can skip the update since it will create inconsistencies
-    // This can happen if the users switches servers in api-client
-    // In this case, changes are not propagated to the old store
-    if (
-      !server ||
-      server.url !== store.workspace.activeDocument?.['x-scalar-active-server']
-    ) {
-      return
-    }
-
-    const variables = server.variables || {}
-    variables[key] = { ...variables[key], default: value }
-
-    serverMutators.edit(server.uid, 'variables', variables)
-  },
-)
+//** Listen to events to update old store to keep it in sync with the new store */
+useLegacyStoreEvents(store, root)
 
 const { hash } = useNavState()
 </script>

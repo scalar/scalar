@@ -26,7 +26,6 @@ import type {
 } from '@scalar/types'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { type WorkspaceStore } from '@scalar/workspace-store/client'
-import { onCustomEvent } from '@scalar/workspace-store/events'
 import { useSeoMeta } from '@unhead/vue'
 import { useFavicon } from '@vueuse/core'
 import {
@@ -48,6 +47,7 @@ import { NAV_STATE_SYMBOL } from '@/hooks/useNavState'
 import { isClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import { getDocumentName } from '@/v2/helpers/get-document-name'
 import { normalizeContent } from '@/v2/helpers/normalize-content'
+import { useWorkspaceStoreEvents } from '@/v2/hooks/use-workspace-store-events'
 
 const props = defineProps<{
   configuration?: AnyApiReferenceConfiguration
@@ -192,50 +192,8 @@ watch(
   { immediate: true },
 )
 
-// onCustomEvent(root, 'scalar-update-sidebar', (event) => {
-//   console.log('scalar-update-sidebar', event)
-// })
-
-onCustomEvent(root, 'scalar-update-dark-mode', (event) => {
-  store.update('x-scalar-dark-mode', event.detail.value)
-})
-
-onCustomEvent(root, 'scalar-update-active-document', (event) => {
-  store.update('x-scalar-active-document', event.detail.value)
-})
-
-onCustomEvent(root, 'scalar-update-selected-client', (event) => {
-  store.update('x-scalar-default-client', event.detail)
-  safeLocalStorage().setItem(REFERENCE_LS_KEYS.SELECTED_CLIENT, event.detail)
-})
-
-onCustomEvent(root, 'scalar-update-selected-server', (event) => {
-  const activeDocument = store.workspace.activeDocument
-
-  if (activeDocument) {
-    activeDocument['x-scalar-active-server'] = event.detail.value
-  }
-})
-
-onCustomEvent(root, 'scalar-update-selected-server-variables', (event) => {
-  const activeDocument = store.workspace.activeDocument
-
-  if (!activeDocument) {
-    return
-  }
-
-  const activeServer = activeDocument['servers']?.find(
-    (it) => it.url === activeDocument['x-scalar-active-server'],
-  )
-
-  if (!activeServer) {
-    return
-  }
-
-  if (activeServer.variables?.[event.detail.key]) {
-    activeServer.variables[event.detail.key].default = event.detail.value
-  }
-})
+/** Set up event listeners for client store events */
+useWorkspaceStoreEvents(store, root)
 
 // Update the workspace store if default client changes
 watch(
