@@ -1,17 +1,16 @@
 # Scalar API Reference for .NET Aspire
 
-The `Scalar.Aspire` package seamlessly integrates Scalar API Reference into your .NET Aspire applications, providing a unified documentation interface for all your microservices.
+The `Scalar.Aspire` package seamlessly integrates Scalar API Reference into your .NET Aspire applications, providing a unified documentation interface for all your services.
 
 ## Overview
 
-With Scalar for Aspire, you can:
+Scalar for Aspire provides:
 
-- **Unify API Documentation**: View documentation for all microservices in a single, cohesive interface
-- **Simplify Service Discovery**: Automatically discover and configure API endpoints from your Aspire services
-- **Support Multiple Documents**: Each service can expose multiple OpenAPI specifications
-- **Eliminate CORS Issues**: Built-in proxy (enabled by default) handles API requests without requiring CORS configuration
-- **Automatic Endpoint Configuration**: OpenAPI documents and servers are automatically configured to work with service discovery
-- **Work with HTTPS**: Full support for both HTTP and HTTPS endpoints with automatic handling
+- **Unified API Documentation**: View documentation for all services in a single, cohesive interface
+- **Simplified Service Discovery**: Automatically discover and configure API endpoints from your Aspire services
+- **Multiple Document Support**: Each service can expose multiple OpenAPI specifications
+- **CORS Issue Elimination**: Built-in proxy (enabled by default) handles API requests without requiring CORS configuration
+- **Full HTTPS Support**: Complete support for both HTTP and HTTPS endpoints with automatic handling
 
 ## Prerequisites
 
