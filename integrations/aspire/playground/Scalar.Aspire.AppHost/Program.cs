@@ -22,9 +22,10 @@ var keycloak = builder
 var scalar = builder
     .AddScalarApiReference(options =>
     {
-        options.WithCdnUrl("https://cdn.jsdelivr.net/npm/@scalar/api-reference");
-        options.AllowSelfSignedCertificate = true;
-        options.PreferHttps = true;
+        options
+            .WithCdnUrl("https://cdn.jsdelivr.net/npm/@scalar/api-reference")
+            .PreferHttps()
+            .AllowSelfSignedCertificates();
     })
     .WithReference(keycloak)
     .WithExternalHttpEndpoints();

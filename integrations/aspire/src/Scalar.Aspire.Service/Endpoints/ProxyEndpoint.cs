@@ -11,7 +11,7 @@ internal static class ProxyEndpoint
     internal static void MapScalarProxy(this IEndpointRouteBuilder endpoints)
     {
         var configuration = endpoints.ServiceProvider.GetRequiredService<IConfiguration>();
-        var shouldAllowAllCertificates = configuration.GetValue<bool>(AllowSelfSignedCertificate);
+        var shouldAllowAllCertificates = configuration.GetValue<bool>(AllowSelfSignedCertificates);
         var factory = endpoints.ServiceProvider.GetRequiredService<IForwarderHttpClientFactory>();
         _client = factory.CreateClient(new ForwarderHttpClientContext
         {

@@ -38,7 +38,7 @@ internal static class ScalarResourceConfigurator
         var environmentVariables = context.EnvironmentVariables;
         environmentVariables.Add(ApiReferenceConfig, configurations);
         environmentVariables.Add(CdnUrl, scalarAspireOptions.CdnUrl);
-        environmentVariables.Add(AllowSelfSignedCertificate, scalarAspireOptions.AllowSelfSignedCertificate);
+        environmentVariables.Add(AllowSelfSignedCertificates, scalarAspireOptions.AllowSelfSignedCertificates);
         environmentVariables.Add(DefaultProxy, scalarAspireOptions.DefaultProxy);
     }
 
@@ -60,10 +60,14 @@ internal static class ScalarResourceConfigurator
                 ConfigureProxyUrl(scalarAspireOptions);
             }
 
-            var endpoints = scalarAnnotation.Resource.Annotations.OfType<EndpointAnnotation>();
-            var shouldUseHttps = scalarAspireOptions.PreferHttps && endpoints.Any(endpoint => endpoint.UriScheme == "https");
+            var endpoints = scalarAnnotation.Resource.Annotations.OfType<EndpointAnnotation>().ToArray();
+            if (endpoints.Length == 0)
+            {
+                throw new InvalidOperationException($"No endpoints found for resource '{resourceName}'. Ensure that the resource has at least one endpoint.");
+            }
 
-            var resourceUrl = GetResourceUrl(resourceName, shouldUseHttps);
+            var shouldUseHttps = scalarAspireOptions.PreferHttps && endpoints.Any(endpoint => endpoint.UriScheme == "https");
+            var resourceUrl = GetResourceUrl(resourceName, shouldUseHttps, scalarAspireOptions.DefaultProxy, endpoints);
 
             ConfigureOpenApiServers(scalarAspireOptions, resourceName, resourceUrl);
             ConfigureOpenApiRoutePattern(scalarAspireOptions, resourceUrl);
@@ -128,6 +132,16 @@ internal static class ScalarResourceConfigurator
         }
     }
 
-    private static string GetResourceUrl(string resourceName, bool useHttps) =>
-        $"{(useHttps ? "https" : "http")}://{resourceName}";
+    private static string GetResourceUrl(string resourceName, bool useHttps, bool useProxy, EndpointAnnotation[] endpoints)
+    {
+        var scheme = useHttps ? "https" : "http";
+
+        if (useProxy)
+        {
+            return $"{scheme}://{resourceName}";
+        }
+
+        var endpoint = endpoints.FirstOrDefault(e => e.UriScheme == scheme) ?? throw new InvalidOperationException($"No endpoint found for resource '{resourceName}' with URI scheme '{scheme}'.");
+        return $"{scheme}://{endpoint.TargetHost}:{endpoint.TargetPort ?? endpoint.Port}";
+    }
 }

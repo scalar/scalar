@@ -18,7 +18,7 @@ public static class ScalarAspireOptionsExtensions
     }
 
     /// <summary>
-    /// Disables the default proxy configuration.
+    /// Disables the default proxy.
     /// By default, all requests will be proxied to prevent CORS issues.
     /// </summary>
     /// <param name="options">The <see cref="ScalarAspireOptions" /> to configure.</param>
@@ -28,4 +28,20 @@ public static class ScalarAspireOptionsExtensions
         options.DefaultProxy = false;
         return options;
     }
+
+    /// <summary>
+    /// Allows self-signed certificates for HTTPS connections.
+    /// </summary>
+    /// <param name="options">The <see cref="ScalarAspireOptions" /> to configure.</param>
+    /// <returns>The <see cref="ScalarAspireOptions" /> so that additional calls can be chained.</returns>
+    /// <remarks>
+    /// When enabled, the scalar proxy will accept self-signed certificates.
+    /// This should only be used in development environments and never in production.
+    /// </remarks>
+    public static ScalarAspireOptions AllowSelfSignedCertificates(this ScalarAspireOptions options)
+    {
+        options.AllowSelfSignedCertificates = true;
+        return options;
+    }
+    
 }

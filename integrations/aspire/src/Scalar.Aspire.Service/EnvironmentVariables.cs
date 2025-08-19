@@ -8,5 +8,5 @@ internal static class EnvironmentVariables
 
     public const string DefaultProxy = "DEFAULT_PROXY";
 
-    public const string AllowSelfSignedCertificate = "ALLOW_SELF_SIGNED_CERTIFICATE";
+    public const string AllowSelfSignedCertificates = "ALLOW_SELF_SIGNED_CERTIFICATES";
 }
