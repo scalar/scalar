@@ -1,10 +1,12 @@
 using Scalar.Aspire.Service.Endpoints;
+using Scalar.Aspire.Service.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHealthChecks();
 builder.Services.AddHttpForwarderWithServiceDiscovery();
 builder.Services.AddServiceDiscovery();
+builder.Services.AddScalarLogger();
 
 var app = builder.Build();
 

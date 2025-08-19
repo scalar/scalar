@@ -23,43 +23,75 @@ internal static class ProxyEndpoint
         endpoints.Map(RouteDefaults.ProxyEndpoint, HandleProxy);
     }
 
-    private static async Task HandleProxy(HttpContext context, IHttpForwarder forwarder, IForwarderHttpClientFactory factory, [FromQuery(Name = "scalar_url")] string targetUrl)
+    private static async Task HandleProxy(HttpContext context, ILogger logger, IHttpForwarder forwarder, IForwarderHttpClientFactory factory, [FromQuery(Name = "scalar_url")] string targetUrl)
     {
-        // Parse the target URL to get host information
-        if (!Uri.TryCreate(targetUrl, UriKind.Absolute, out var targetUri))
+        try
         {
-            context.Response.StatusCode = StatusCodes.Status400BadRequest;
-            await context.Response.WriteAsync("The 'scalar_url' parameter must be a valid URL", context.RequestAborted);
-            return;
-        }
+            logger.LogInformation("Proxy request received for target URL: {TargetUrl}", targetUrl);
 
-        var targetHost = $"{targetUri.Scheme}://{targetUri.Authority}";
-        var error = await forwarder.SendAsync(context, targetHost, _client, (_, proxyRequest) =>
-        {
-            proxyRequest.RequestUri = targetUri;
-            return ValueTask.CompletedTask;
-        });
-
-        if (error != ForwarderError.None)
-        {
-            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            await context.Response.WriteAsync($"Proxy error: {error}", context.RequestAborted);
-            return;
-        }
-
-        // Check if we got a redirect response and rewrite localhost URLs
-        if (IsRedirectStatusCode(context.Response.StatusCode))
-        {
-            var locationHeader = context.Response.Headers.Location.FirstOrDefault();
-            if (!string.IsNullOrEmpty(locationHeader) && Uri.TryCreate(locationHeader, UriKind.Absolute, out var redirectUri))
+            // Parse the target URL to get host information
+            if (!Uri.TryCreate(targetUrl, UriKind.Absolute, out var targetUri))
             {
-                // Check if redirect is to localhost - rewrite it back to proxy
-                if (IsLocalhostRedirect(redirectUri))
+                logger.LogWarning("Invalid target URL provided: {TargetUrl}", targetUrl);
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                await context.Response.WriteAsync("The 'scalar_url' parameter must be a valid URL", context.RequestAborted);
+                return;
+            }
+
+            var targetHost = $"{targetUri.Scheme}://{targetUri.Authority}";
+            logger.LogDebug("Forwarding request to target host: {TargetHost}, URI: {TargetUri}", targetHost, targetUri);
+
+            var error = await forwarder.SendAsync(context, targetHost, _client, (_, proxyRequest) =>
+            {
+                proxyRequest.RequestUri = targetUri;
+                return ValueTask.CompletedTask;
+            });
+
+            if (error != ForwarderError.None)
+            {
+                logger.LogError("Proxy error occurred: {Error} for target URL: {TargetUrl}", error, targetUrl);
+                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                await context.Response.WriteAsync($"Proxy error: {error}", context.RequestAborted);
+                return;
+            }
+
+            logger.LogDebug("Proxy response received with status code: {StatusCode}", context.Response.StatusCode);
+
+            // Check if we got a redirect response and rewrite localhost URLs
+            if (IsRedirectStatusCode(context.Response.StatusCode))
+            {
+                var locationHeader = context.Response.Headers.Location.FirstOrDefault();
+                logger.LogDebug("Redirect response detected with location: {Location}", locationHeader);
+
+                if (!string.IsNullOrEmpty(locationHeader) && Uri.TryCreate(locationHeader, UriKind.Absolute, out var redirectUri))
                 {
-                    var rewrittenLocation = RewriteLocalhostToProxy(context.Request, redirectUri, targetUrl);
-                    context.Response.Headers.Location = rewrittenLocation;
+                    // Check if redirect is to localhost - rewrite it back to proxy
+                    if (IsLocalhostRedirect(redirectUri))
+                    {
+                        var rewrittenLocation = RewriteLocalhostToProxy(context.Request, redirectUri, targetUrl);
+                        logger.LogInformation("Rewriting localhost redirect from {OriginalLocation} to {RewrittenLocation}", locationHeader, rewrittenLocation);
+                        context.Response.Headers.Location = rewrittenLocation;
+                    }
+                    else
+                    {
+                        logger.LogDebug("Redirect to non-localhost URL, keeping original location: {Location}", locationHeader);
+                    }
+                }
+                else
+                {
+                    logger.LogWarning("Invalid or missing location header in redirect response: {Location}", locationHeader);
                 }
             }
+
+            logger.LogInformation("Proxy request completed successfully for target URL: {TargetUrl}", targetUrl);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error occurred while proxying request to {TargetUrl}", targetUrl);
+
+            context.Response.Clear();
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            await context.Response.WriteAsync("An unexpected error occurred while processing the proxy request", context.RequestAborted);
         }
     }
 
