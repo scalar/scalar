@@ -27,7 +27,7 @@ import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRe
 import type { Record } from '@sinclair/typebox'
 import { Value } from '@sinclair/typebox/value'
 import { deepClone } from '@/helpers/deep-clone'
-import { measureAsync } from '@scalar/helpers/testing/measure'
+import { measureAsync, measureSync } from '@scalar/helpers/testing/measure'
 
 export type DocumentConfiguration = Config &
   PartialDeep<{
@@ -531,12 +531,14 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   // Add a document to the store synchronously from an in-memory OpenAPI document
   async function addInMemoryDocument(input: ObjectDoc & { initialize?: boolean; documentSource?: string }) {
     const { name, meta } = input
-    const inputDocument = upgrade(deepClone(input.document)).specification
+    const cloned = measureSync('deepClone', () => deepClone(input.document))
+    const inputDocument = measureSync('upgrade', () => upgrade(cloned).specification)
 
-    if (input.initialize !== false) {
-      // Store the original document in the originalDocuments map
-      // This is used to track the original state of the document as it was loaded into the workspace
-      originalDocuments[name] = deepClone({ ...inputDocument })
+    measureSync('initialize', () => {
+      if (input.initialize !== false) {
+        // Store the original document in the originalDocuments map
+        // This is used to track the original state of the document as it was loaded into the workspace
+        originalDocuments[name] = deepClone({ ...inputDocument })
 
       // Store the intermediate document state for local edits
       // This is used to track the last saved state of the document
@@ -555,7 +557,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       extraDocumentConfigurations[name] = { fetch: input.fetch }
     }
 
-    const strictDocument: UnknownObject = createMagicProxy({ ...inputDocument, ...meta })
+    const strictDocument: UnknownObject = measureSync('createMagicProxy', () =>
+      createMagicProxy({ ...inputDocument, ...meta }),
+    )
 
     if (strictDocument[extensions.document.navigation] === undefined) {
       // If the document navigation is not already present, bundle the entire document to resolve all references.
@@ -595,7 +599,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     }
 
     // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map
-    workspace.documents[name] = createOverridesProxy(strictDocument, input.overrides)
+    workspace.documents[name] = measureSync('createOverridesProxy', () =>
+      createOverridesProxy(strictDocument, input.overrides),
+    )
   }
 
   // Asynchronously adds a new document to the workspace by loading and validating the input.
