@@ -1,5 +1,5 @@
 <h1>Scalar - The OpenAPI Company</h1>
-<div class="flex flex-col gap-3 small-test">
+<div class="flex flex-col gap-3 hero small-test">
   <h2 class="text-balance">
     A modern API platform built for the OpenAPI™ standard.
   </h2>
@@ -337,7 +337,7 @@
     <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/jSSY0fRlk7g_HdR7i7BIu.svg"></scalar-icon>
   </div>
 </div>
-<div class="cta small-test flex flex-col gap-3 small-test">
+<div class="cta flex flex-col gap-3 small-test">
   <h2 class="text-balance">What are you waiting for?</h2>
   <p>
     We're committed to enabling developers and companies to practice the highest
@@ -504,10 +504,13 @@
     --scalar-container-width: 960px;
     --scalar-toc-width: 0;
   }
+  .hero.hero {
+    margin-top: 80px;
+  }
   .small-test {
     max-width: 440px;
     text-wrap: balance;
-    margin-top: 88px !important;
+    margin-top: 88px;
     position: relative;
   }
   .t-editor .editor-static .page-node {
@@ -531,6 +534,7 @@
     margin-left: min(-1 * var(--scalar-container-sidebar-gap), -50px);
   }
   .gallery {
+    --scalar-gallery-item-offset: 140px;
     padding: 0;
     display: grid;
     grid-template-columns: repeat(
@@ -538,7 +542,8 @@
       calc(
         100dvw - var(--scalar-sidebar-width) -
           var(--scalar-container-sidebar-gap) -
-          var(--scalar-container-sidebar-gap) + 140px
+          var(--scalar-container-sidebar-gap) +
+          var(--scalar-gallery-item-offset)
       )
     );
     grid-template-rows: 1fr;
@@ -838,5 +843,52 @@
   .sticker-clip-docs {
     overflow: hidden;
     border-radius: 20px;
+  }
+  @media screen and (max-width: 1000px) {
+    .t-doc {
+      --scalar-sidebar-width: 0px;
+    }
+    .hero.hero {
+      margin-top: 188px;
+    }
+    .sticker-1,
+    .sticker-2,
+    .sticker-3,
+    .sticker-4,
+    .sticker-5,
+    .sticker-6,
+    .sticker-7,
+    .sticker-8 {
+      transform: scale(0.8);
+    }
+    .sticker-1 {
+      top: -140px;
+      left: -280px;
+    }
+    .sticker-5 {
+      top: -220px;
+      left: -440px;
+    }
+    .sticker-6 {
+        top: 160px;
+        left: -30px;
+        --sticker-rotate: -10deg;
+    }
+    .sticker-7 {
+        top: -220px;
+        left: -100px;
+    }
+    .container-full {
+      --scalar-container-sidebar-gap: 30px;
+      padding-inline: 30px;
+      margin-inline: -30px;
+    }
+    .gallery {
+      --scalar-gallery-item-offset: 10px;
+      margin-top: 24px;
+    }
+    .gallery li {
+      width: calc(100dvw - 60px);
+    }
   }
 </style>
