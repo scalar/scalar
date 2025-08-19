@@ -122,6 +122,7 @@ describe('ApiReferenceWorkspace', () => {
       expect(mockStore.addDocument).toHaveBeenCalledWith({
         name: 'test-api',
         document: mockConfiguration.content,
+        config: expect.anything(),
       })
     })
 
@@ -145,6 +146,7 @@ describe('ApiReferenceWorkspace', () => {
         name: 'test-api',
         url: 'https://example.com/api/spec.json',
         fetch: expect.any(Function),
+        config: expect.anything(),
       })
     })
 

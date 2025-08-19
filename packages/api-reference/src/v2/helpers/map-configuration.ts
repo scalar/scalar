@@ -1,4 +1,4 @@
-import type { ApiReferenceConfigurationWithSources } from '@scalar/types'
+import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { DocumentConfiguration } from '@scalar/workspace-store/client'
 
 /**
@@ -9,18 +9,11 @@ import type { DocumentConfiguration } from '@scalar/workspace-store/client'
  * @param config - Partial configuration object for the API Reference
  * @returns DocumentConfiguration object with mapped settings
  */
-export const mapConfiguration = (config: Partial<ApiReferenceConfigurationWithSources>) => {
+export const mapConfiguration = (config: Partial<ApiReferenceConfiguration>) => {
   return {
     'x-scalar-reference-config': {
       title: config.title,
       slug: config.slug,
-      getOperationId: config.generateOperationSlug,
-      getHeadingId: config.generateHeadingSlug,
-      getTagId: config.generateTagSlug,
-      getModelId: config.generateModelSlug,
-      getWebhookId: config.generateWebhookSlug,
-      tagSort: config.tagsSorter,
-      operationsSorter: config.operationsSorter,
       features: {
         // Feature toggles for UI elements and behaviors
         showModels: !config.hideModels,
@@ -50,7 +43,18 @@ export const mapConfiguration = (config: Partial<ApiReferenceConfigurationWithSo
         // Miscellaneous settings
         proxyUrl: config.proxyUrl,
         searchKey: config.searchHotKey,
+        baseServerUrl: config.baseServerURL,
+        servers: config.servers,
       },
+      meta: config.metaData,
+      // In memory configuration
+      tagSort: config.tagsSorter,
+      operationsSorter: config.operationsSorter,
+      generateHeadingSlug: config.generateHeadingSlug,
+      generateModelSlug: config.generateModelSlug,
+      generateOperationSlug: config.generateOperationSlug,
+      generateTagSlug: config.generateTagSlug,
+      generateWebhookSlug: config.generateWebhookSlug,
     },
   } satisfies DocumentConfiguration
 }
