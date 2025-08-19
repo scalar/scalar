@@ -27,19 +27,19 @@ internal static class ProxyEndpoint
     {
         try
         {
-            logger.LogInformation("Proxy request received for target URL: {TargetUrl}", targetUrl);
+            logger.LogProxyRequestReceived(targetUrl);
 
             // Parse the target URL to get host information
             if (!Uri.TryCreate(targetUrl, UriKind.Absolute, out var targetUri))
             {
-                logger.LogWarning("Invalid target URL provided: {TargetUrl}", targetUrl);
+                logger.LogInvalidTargetUrl(targetUrl);
                 context.Response.StatusCode = StatusCodes.Status400BadRequest;
                 await context.Response.WriteAsync("The 'scalar_url' parameter must be a valid URL", context.RequestAborted);
                 return;
             }
 
             var targetHost = $"{targetUri.Scheme}://{targetUri.Authority}";
-            logger.LogDebug("Forwarding request to target host: {TargetHost}, URI: {TargetUri}", targetHost, targetUri);
+            logger.LogForwardingRequest(targetHost, targetUri);
 
             var error = await forwarder.SendAsync(context, targetHost, _client, (_, proxyRequest) =>
             {
@@ -49,19 +49,19 @@ internal static class ProxyEndpoint
 
             if (error != ForwarderError.None)
             {
-                logger.LogError("Proxy error occurred: {Error} for target URL: {TargetUrl}", error, targetUrl);
+                logger.LogProxyError(error, targetUrl);
                 context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                 await context.Response.WriteAsync($"Proxy error: {error}", context.RequestAborted);
                 return;
             }
 
-            logger.LogDebug("Proxy response received with status code: {StatusCode}", context.Response.StatusCode);
+            logger.LogProxyResponse(context.Response.StatusCode);
 
             // Check if we got a redirect response and rewrite localhost URLs
             if (IsRedirectStatusCode(context.Response.StatusCode))
             {
                 var locationHeader = context.Response.Headers.Location.FirstOrDefault();
-                logger.LogDebug("Redirect response detected with location: {Location}", locationHeader);
+                logger.LogRedirectDetected(locationHeader);
 
                 if (!string.IsNullOrEmpty(locationHeader) && Uri.TryCreate(locationHeader, UriKind.Absolute, out var redirectUri))
                 {
@@ -69,25 +69,25 @@ internal static class ProxyEndpoint
                     if (IsLocalhostRedirect(redirectUri))
                     {
                         var rewrittenLocation = RewriteLocalhostToProxy(context.Request, redirectUri, targetUrl);
-                        logger.LogInformation("Rewriting localhost redirect from {OriginalLocation} to {RewrittenLocation}", locationHeader, rewrittenLocation);
+                        logger.LogLocalhostRedirectRewrite(locationHeader, rewrittenLocation);
                         context.Response.Headers.Location = rewrittenLocation;
                     }
                     else
                     {
-                        logger.LogDebug("Redirect to non-localhost URL, keeping original location: {Location}", locationHeader);
+                        logger.LogNonLocalhostRedirect(locationHeader);
                     }
                 }
                 else
                 {
-                    logger.LogWarning("Invalid or missing location header in redirect response: {Location}", locationHeader);
+                    logger.LogInvalidRedirectLocation(locationHeader);
                 }
             }
 
-            logger.LogInformation("Proxy request completed successfully for target URL: {TargetUrl}", targetUrl);
+            logger.LogProxyRequestCompleted(targetUrl);
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            logger.LogError(ex, "Unexpected error occurred while proxying request to {TargetUrl}", targetUrl);
+            logger.LogUnexpectedProxyError(exception, targetUrl);
 
             context.Response.Clear();
             context.Response.StatusCode = StatusCodes.Status500InternalServerError;
