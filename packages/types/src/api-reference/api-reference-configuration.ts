@@ -342,6 +342,16 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
      */
     pathRouting: pathRoutingSchema.optional(),
     /**
+     * Whether to only show a single endpoint per page
+     * @default false
+     */
+    singlePageOperations: z.boolean().optional().default(false).catch(false),
+    /**
+     * Whether to only show a single tag per page
+     * @default false
+     */
+    singlePageTags: z.boolean().optional().default(false).catch(false),
+    /**
      * Customize the heading portion of the hash
      * @param heading - The heading object
      * @returns A string ID used to generate the URL hash

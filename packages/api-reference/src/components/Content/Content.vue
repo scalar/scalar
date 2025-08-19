@@ -7,6 +7,7 @@ import { computed } from 'vue'
 import { Introduction } from '@/components/Content/Introduction'
 import { Models } from '@/components/Content/Models'
 import { SectionFlare } from '@/components/SectionFlare'
+import { SinglePage } from '@/features/single-page'
 import { useConfig } from '@/hooks/useConfig'
 import { generateClientOptions } from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
 
@@ -33,31 +34,39 @@ const clientOptions = computed(() =>
   <div class="narrow-references-container">
     <slot name="start" />
 
-    <!-- Introduction -->
-    <Introduction
-      v-if="document?.info?.title || document?.info?.description"
-      :document
-      :store
-      :clientOptions
+    <!-- Single page operations/tags/models -->
+    <SinglePage
+      v-if="config.singlePageOperations || config.singlePageTags"
+      :document="store.workspace.activeDocument"
       :config />
 
-    <!-- Empty State -->
-    <slot
-      v-else
-      name="empty-state" />
+    <template v-else>
+      <!-- Introduction -->
+      <Introduction
+        v-if="document?.info?.title || document?.info?.description"
+        :document
+        :store
+        :clientOptions
+        :config />
 
-    <!-- Loop on traversed entries -->
-    <TraversedEntryContainer
-      :document
-      :config
-      :clientOptions
-      :store />
+      <!-- Empty State -->
+      <slot
+        v-else
+        name="empty-state" />
 
-    <!-- Models -->
-    <Models
-      v-if="!config?.hideModels"
-      :document
-      :config />
+      <!-- Loop on traversed entries -->
+      <TraversedEntryContainer
+        :document
+        :config
+        :clientOptions
+        :store />
+
+      <!-- Models -->
+      <Models
+        v-if="!config?.hideModels"
+        :document
+        :config />
+    </template>
 
     <slot name="end" />
   </div>
