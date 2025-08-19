@@ -401,6 +401,15 @@ describe('ApiReferenceWorkspace', () => {
         name: 'test-api',
         url: 'https://example.com/api/spec.json',
         fetch: expect.any(Function),
+        config: {
+          'x-scalar-reference-config': expect.objectContaining({
+            'slug': 'test-api',
+            'title': 'Test API',
+            settings: {
+              'proxyUrl': 'https://proxy.example.com',
+            },
+          }),
+        },
       })
 
       // Get the fetch function that was passed to addDocument
