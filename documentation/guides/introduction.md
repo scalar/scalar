@@ -292,7 +292,7 @@
   </div>
 </div>
 <div class="founder-quote border rounded-lg p-12 relative">
-  <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/qlPkhjY7Ec6E5g3SHMjEp.svg"></scalar-icon>
+  <scalar-icon src="https://cdn.scalar.com/marketing/landing/scalar-logomark.svg?cache=1234"></scalar-icon>
   <br />
   <br />
   <p>Marc from Scalar here,</p>
@@ -594,7 +594,9 @@
   }
   .founder-quote {
     padding: 80px 160px 260px 160px;
-    margin-top: 120px !important;
+  }
+  .founder-quote.founder-quote {
+    margin-top: 120px;
   }
   /* product */
   .product {
@@ -868,7 +870,8 @@
     .sticker-5,
     .sticker-6,
     .sticker-7,
-    .sticker-8 {
+    .sticker-8,
+    .sticker-9 {
       transform: scale(0.8);
     }
     .sticker-1 {
@@ -893,17 +896,21 @@
       left: -440px;
     }
     .sticker-6 {
-        top: 160px;
-        left: -30px;
-        --sticker-rotate: -10deg;
+      top: 160px;
+      left: -30px;
+      --sticker-rotate: -10deg;
     }
     .sticker-7 {
-        top: -220px;
-        left: -100px;
+      top: -220px;
+      left: -100px;
     }
     .sticker-8 {
-        top: 840px;
-        left: 260px;
+      top: 840px;
+      left: 260px;
+    }
+    .sticker-9 {
+      bottom: 70px;
+      right: 30px;
     }
     .container-full {
       --scalar-container-sidebar-gap: 30px;
@@ -956,6 +963,10 @@
       height: 100%;
       width: auto;
       mask-image: linear-gradient(to right, black 40%, transparent 60%);
+    }
+    .founder-quote {
+      padding: 40px 40px 60px 40px;
+      margin-inline: -10px;
     }
   }
 </style>
