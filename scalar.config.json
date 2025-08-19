@@ -486,11 +486,11 @@
   "header": [
     {
       "type": "guide",
-      "slug": "scalar"
+      "slug": "guide"
     },
     {
       "type": "reference",
-      "slug": "scalar-api"
+      "slug": "reference"
     },
     {
       "type": "spacer"
