@@ -30,24 +30,24 @@
 <div class="slider">
   <button class="active" type="button" data-target="#slide-1">API Docs</button>
   <button type="button" data-target="#slide-2">API Registry</button>
-  <button type="button" data-target="#slide-3">API Client</button>
-  <button type="button" data-target="#slide-4">SDK's</button>
+  <button type="button" data-target="#slide-3">SDK's</button>
+  <button type="button" data-target="#slide-4">API Client</button>
   <ul class="gallery container-full" id="gallery">
     <li id="slide-1">
       <img class="light-image" src="/app-docs-animated.svg" />
       <img class="dark-image" src="/app-docs-animated-dark.svg" />
     </li>
     <li id="slide-2">
-      <img class="light-image" src="/api-client-animated.svg" />
-      <img class="dark-image" src="/api-client-animated-dark.svg" />
-    </li>
-    <li id="slide-3">
       <img class="light-image" src="/registry-animated.svg" />
       <img class="dark-image" src="/registry-animated-dark.svg" />
     </li>
-    <li id="slide-4">
+    <li id="slide-3">
       <img class="light-image" src="/sdks-animated.svg" />
       <img class="dark-image" src="/sdks-animated-dark.svg" />
+    </li>
+    <li id="slide-4">
+      <img class="light-image" src="/api-client-animated.svg" />
+      <img class="dark-image" src="/api-client-animated-dark.svg" />
     </li>
   </ul>
 </div>
