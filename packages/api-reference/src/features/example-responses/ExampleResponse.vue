@@ -5,9 +5,11 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/example'
 import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/media-header-encoding'
 
-defineProps<{
+import { getResolvedRefDeep } from './helpers/get-resolved-ref-deep'
+
+const { example, response } = defineProps<{
   response: MediaTypeObject | undefined
-  example: ExampleObject
+  example: ExampleObject | undefined
 }>()
 </script>
 <template>
@@ -15,7 +17,7 @@ defineProps<{
   <ScalarCodeBlock
     v-if="example !== undefined"
     class="bg-b-2 -outline-offset-2"
-    :content="example?.value"
+    :content="getResolvedRefDeep(example)?.value"
     lang="json" />
 
   <!-- Schema -->

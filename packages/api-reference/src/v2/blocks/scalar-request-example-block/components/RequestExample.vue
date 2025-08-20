@@ -78,13 +78,15 @@ import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-met
 import { ScalarIconCaretDown } from '@scalar/icons'
 import { type AvailableClients, type TargetId } from '@scalar/snippetz'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/example'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { ExampleObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/example'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
 import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
+import { getResolvedRefDeep } from '@/features/example-responses/helpers/get-resolved-ref-deep'
 import { findClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import { generateCustomId } from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
 import { generateCodeSnippet } from '@/v2/blocks/scalar-request-example-block/helpers/generate-code-snippet'
@@ -199,10 +201,12 @@ const generatedCode = computed<string>(() => {
       )
     }
 
-    const selectedExample =
-      operationExamples.value[selectedExampleKey.value || '']
-    const example =
-      (selectedExample as ExampleObject)?.value ?? selectedExample?.summary
+    const selectedExample = coerceValue(
+      ExampleObjectSchema,
+      operationExamples.value[selectedExampleKey.value || ''],
+    )
+    const resolvedExample = getResolvedRefDeep(selectedExample)
+    const example = resolvedExample?.value ?? resolvedExample?.summary
 
     return generateCodeSnippet({
       clientId: localSelectedClient.value?.id as AvailableClients[number],
