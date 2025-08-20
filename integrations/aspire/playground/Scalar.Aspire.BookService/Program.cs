@@ -46,6 +46,8 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+app.UseHttpsRedirection();
+
 app.MapOpenApi("/swagger/{documentName}.json");
 
 app.UseAuthentication();

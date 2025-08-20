@@ -1,12 +1,12 @@
 using Scalar.Aspire.Service.Endpoints;
+using Scalar.Aspire.Service.Extensions;
 
-var builder = WebApplication.CreateSlimBuilder(args);
-// Required for .MapStaticAssets
-builder.WebHost.UseStaticWebAssets();
+var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHealthChecks();
 builder.Services.AddHttpForwarderWithServiceDiscovery();
 builder.Services.AddServiceDiscovery();
+builder.Services.AddScalarLogger();
 
 var app = builder.Build();
 
@@ -15,7 +15,7 @@ app.MapHealthChecks(HealthCheckEndpoint);
 app.MapApiReference();
 app.MapStaticAssets();
 
-if (!string.IsNullOrEmpty(app.Configuration.GetValue<string>(DefaultProxy)))
+if (app.Configuration.GetValue<bool>(DefaultProxy))
 {
     app.MapScalarProxy();
 }
