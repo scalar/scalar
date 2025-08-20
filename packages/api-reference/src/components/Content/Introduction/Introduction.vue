@@ -6,13 +6,12 @@ import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
 import { Lazy } from '@/components/Lazy'
 import { useNavState } from '@/hooks/useNavState'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 import { ServerSelector } from '@/v2/blocks/scalar-server-selector-block'
-import { useLegacyStoreEvents } from '@/v2/hooks/use-legacy-store-events'
 
 import { ClientLibraries } from '../ClientLibraries'
 import IntroductionSection from './IntroductionSection.vue'
@@ -62,11 +61,6 @@ const activeServer = computed(() => {
 const introCardsSlot = computed(() =>
   config?.layout === 'classic' ? 'after' : 'aside',
 )
-
-const root = ref(window.document.body)
-
-//** Listen to events to update old store to keep it in sync with the new store */
-useLegacyStoreEvents(store, root)
 
 const { hash } = useNavState()
 </script>

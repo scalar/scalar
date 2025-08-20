@@ -54,6 +54,7 @@ import type {
   ReferenceLayoutSlot,
   ReferenceSlotProps,
 } from '@/types'
+import { useLegacyStoreEvents } from '@/v2/hooks/use-legacy-store-events'
 
 const {
   rawSpec,
@@ -299,6 +300,11 @@ watch(hash, (newHash, oldHash) => {
     isSidebarOpen.value = false
   }
 })
+
+const root = ref(window.document.body)
+
+/** Update the old store to keep it in sync with the new store */
+useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, root)
 
 // ---------------------------------------------------------------------------
 </script>

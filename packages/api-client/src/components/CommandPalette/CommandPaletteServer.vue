@@ -86,6 +86,9 @@ const handleSubmit = () => {
   }).then(() => {
     emitCustomEvent(wrapper.value?.$el!, 'scalar-update-selected-server', {
       value: url.value,
+      options: {
+        disableOldStoreUpdate: true,
+      },
     })
   })
 

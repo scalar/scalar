@@ -1,7 +1,8 @@
-import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
+import type { WorkspaceStore as Legacy } from '@scalar/api-client/store'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { onCustomEvent } from '@scalar/workspace-store/events'
 import type { Ref } from 'vue'
+import type { createActiveEntitiesStore } from '@scalar/api-client/store'
 
 /**
  * Keep the old store in sync with the new server selector block.
@@ -11,9 +12,14 @@ import type { Ref } from 'vue'
  *
  * @todo Remove this hook when api-client is fully migrated to the new store
  */
-export const useLegacyStoreEvents = (store: WorkspaceStore, root: Ref<HTMLElement | null>) => {
-  const { servers, serverMutators, collectionMutators } = useWorkspace()
-  const { activeCollection, activeServer } = useActiveEntities()
+export const useLegacyStoreEvents = (
+  store: WorkspaceStore,
+  legacyStore: Legacy,
+  activeEntities: ReturnType<typeof createActiveEntitiesStore>,
+  root: Ref<HTMLElement | null>,
+) => {
+  const { servers, serverMutators, collectionMutators } = legacyStore
+  const { activeCollection, activeServer } = activeEntities
 
   onCustomEvent(root, 'scalar-replace-servers', ({ detail: { servers, options } }) => {
     if (options?.disableOldStoreUpdate === true) {
