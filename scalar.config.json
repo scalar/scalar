@@ -10,7 +10,7 @@
   "guides": [
     {
       "name": "Guide",
-      "slug": "guide",
+      "slug": "scalar",
       "sidebar": [
         {
           "name": "Introduction",
@@ -480,17 +480,17 @@
     {
       "liveLink": "https://registry.scalar.com/@scalar/apis/access-service/latest",
       "name": "Reference",
-      "slug": "reference"
+      "slug": "scalar-api"
     }
   ],
   "header": [
     {
       "type": "guide",
-      "slug": "guide"
+      "slug": "scalar"
     },
     {
       "type": "reference",
-      "slug": "reference"
+      "slug": "scalar-api"
     }
   ],
   "siteConfig": {
