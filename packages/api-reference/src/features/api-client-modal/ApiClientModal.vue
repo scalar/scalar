@@ -129,10 +129,9 @@ watchDebounced(
 
         emitCustomEvent(el.value!, 'scalar-replace-servers', {
           servers: newServers,
-        }).then(() => {
-          emitCustomEvent(el.value!, 'scalar-update-selected-server', {
-            value: newServers.at(-1)?.url ?? '',
-          })
+          options: {
+            disableOldStoreUpdate: true,
+          },
         })
       }
     }

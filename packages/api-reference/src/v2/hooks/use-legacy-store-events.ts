@@ -21,7 +21,7 @@ export const useLegacyStoreEvents = (
   const { servers, serverMutators, collectionMutators } = legacyStore
   const { activeCollection, activeServer } = activeEntities
 
-  onCustomEvent(root, 'scalar-replace-servers', ({ detail: { servers, options } }) => {
+  onCustomEvent(root, 'scalar-replace-servers', ({ detail: { servers: inputServers, options } }) => {
     if (options?.disableOldStoreUpdate === true) {
       return
     }
@@ -36,9 +36,15 @@ export const useLegacyStoreEvents = (
       serverMutators.delete(serverUid, collection.uid)
     })
 
-    servers.forEach((server) => {
-      serverMutators.add(server, collection.uid)
+    inputServers.forEach((server) => {
+      const result = Object.values(servers).find((s) => s.url === server.url)
+      if (result) {
+        serverMutators.add(result, collection.uid)
+      }
     })
+
+    const lastServer = Object.values(servers).find((s) => s.url === inputServers.at(-1)?.url)
+    collectionMutators.edit(collection.uid, 'selectedServerUid', lastServer?.uid)
   })
 
   onCustomEvent(root, 'scalar-update-selected-server', ({ detail: { value, options } }) => {

@@ -44,6 +44,9 @@ export const useWorkspaceStoreEvents = (store: WorkspaceStore, root: Ref<HTMLEle
 
     // Replace the servers in the active document
     activeDocument.servers = event.detail.servers
+
+    // Set active server
+    activeDocument['x-scalar-active-server'] = event.detail.servers.at(-1)?.url
   })
 
   onCustomEvent(root, 'scalar-update-selected-server', (event) => {
@@ -74,6 +77,12 @@ export const useWorkspaceStoreEvents = (store: WorkspaceStore, root: Ref<HTMLEle
 
   onCustomEvent(root, 'scalar-add-server', (event) => {
     mutators.active().serverMutators.addServer(event.detail.server)
+
+    const activeDocument = store.workspace.activeDocument
+
+    if (activeDocument) {
+      activeDocument['x-scalar-active-server'] = event.detail.server.url
+    }
   })
 
   onCustomEvent(root, 'scalar-delete-server', (event) => {
