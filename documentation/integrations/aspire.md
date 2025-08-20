@@ -130,7 +130,7 @@ The `AllowSelfSignedCertificates()` method should only be used in development en
 - **Automatic Configuration**: When HTTPS is preferred, both OpenAPI document routes and server URLs are automatically configured to use HTTPS endpoints
 - **Automatic Redirects**: HTTP to HTTPS redirects are handled automatically with proper header rewriting (localhost only)
 - **Certificate Validation**: Self-signed certificates can be trusted in development using `AllowSelfSignedCertificates()`
-- **Fallback Behavior**: If HTTPS is preferred but unavailable, HTTP endpoints are used as fallback
+- **Fallback Behavior**: If HTTPS is preferred but unavailable, HTTP endpoints are used as fallback. Conversely, if no HTTP endpoint is available, HTTPS endpoints are automatically used
 
 :::scalar-callout{ type=info }
 Currently, the Scalar API Reference interface is hosted over HTTP, even when communicating with HTTPS services. Support for hosting the Scalar interface under HTTPS will be added in a future release.
