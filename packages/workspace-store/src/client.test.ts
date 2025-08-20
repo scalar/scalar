@@ -1066,6 +1066,161 @@ describe('create-workspace-store', () => {
     )
   })
 
+  it('uses the fetcher to resolve external refs', async () => {
+    const fn = vi.fn()
+
+    server.get('/', () => {
+      return {
+        paths: {
+          '/users': {
+            get: {
+              $ref: '/path',
+            },
+          },
+        },
+      }
+    })
+
+    server.get('/path', () => {
+      return {
+        summary: 'User path',
+      }
+    })
+
+    await server.listen({ port })
+
+    const customFetch = async (input: string | URL | globalThis.Request, init?: RequestInit) => {
+      fn(input, init)
+      return fetch(input, init)
+    }
+
+    const client = createWorkspaceStore()
+
+    await client.addDocument({
+      name: 'default',
+      url: url,
+      fetch: customFetch,
+    })
+
+    expect(client.workspace.documents['default']).toEqual({
+      'info': {
+        'title': '',
+        'version': '',
+      },
+      'openapi': '',
+      'paths': {
+        '/users': {
+          'get': {
+            '$ref': '#/x-ext/a327830',
+            '$ref-value': {
+              'summary': 'User path',
+            },
+          },
+        },
+      },
+      'x-ext': {
+        'a327830': {
+          'summary': 'User path',
+        },
+      },
+      'x-ext-urls': {
+        'a327830': 'http://localhost:9988/path',
+      },
+      'x-scalar-navigation': [
+        {
+          'id': 'User path',
+          'method': 'get',
+          'path': '/users',
+          'ref': '#/paths/~1users/get',
+          'title': 'User path',
+          'type': 'operation',
+        },
+      ],
+    })
+
+    expect(fn).toBeCalledTimes(2)
+    expect(fn).toHaveBeenNthCalledWith(1, url, { headers: undefined })
+    expect(fn).toHaveBeenNthCalledWith(2, `${url}/path`, { headers: undefined })
+  })
+
+  it('uses workspace fetcher to resolve documents if not specified per document', async () => {
+    const fn = vi.fn()
+
+    server.get('/', () => {
+      return {
+        paths: {
+          '/users': {
+            get: {
+              $ref: '/path',
+            },
+          },
+        },
+      }
+    })
+
+    server.get('/path', () => {
+      return {
+        summary: 'User path',
+      }
+    })
+
+    await server.listen({ port })
+
+    const customFetch = async (input: string | URL | globalThis.Request, init?: RequestInit) => {
+      fn(input, init)
+      return fetch(input, init)
+    }
+
+    const client = createWorkspaceStore({
+      fetch: customFetch,
+    })
+
+    await client.addDocument({
+      name: 'default',
+      url: url,
+    })
+
+    expect(client.workspace.documents['default']).toEqual({
+      'info': {
+        'title': '',
+        'version': '',
+      },
+      'openapi': '',
+      'paths': {
+        '/users': {
+          'get': {
+            '$ref': '#/x-ext/a327830',
+            '$ref-value': {
+              'summary': 'User path',
+            },
+          },
+        },
+      },
+      'x-ext': {
+        'a327830': {
+          'summary': 'User path',
+        },
+      },
+      'x-ext-urls': {
+        'a327830': 'http://localhost:9988/path',
+      },
+      'x-scalar-navigation': [
+        {
+          'id': 'User path',
+          'method': 'get',
+          'path': '/users',
+          'ref': '#/paths/~1users/get',
+          'title': 'User path',
+          'type': 'operation',
+        },
+      ],
+    })
+
+    expect(fn).toBeCalledTimes(2)
+    expect(fn).toHaveBeenNthCalledWith(1, url, { headers: undefined })
+    expect(fn).toHaveBeenNthCalledWith(2, `${url}/path`, { headers: undefined })
+  })
+
   describe('download original document', () => {
     it('gets the original document from the store json', async () => {
       const store = createWorkspaceStore()
