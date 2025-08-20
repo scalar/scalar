@@ -52,6 +52,13 @@ export type DocumentConfiguration = Config &
     }
   }>
 
+type ExtraDocumentConfigurations = Record<
+  string,
+  {
+    fetch: WorkspaceDocumentMetaInput['fetch']
+  }
+>
+
 const defaultConfig: RequiredDeep<Config> = {
   'x-scalar-reference-config': defaultReferenceConfig,
 }
@@ -69,6 +76,8 @@ type WorkspaceDocumentMetaInput = {
   config?: DocumentConfiguration
   /** Overrides for the document */
   overrides?: InMemoryWorkspace['overrides'][string]
+  /** Optional custom fetch implementation to use when retrieving the document. By default the global fetch implementation will be used */
+  fetch?: (input: string | URL | globalThis.Request, init?: RequestInit) => Promise<Response>
 }
 
 /**
@@ -78,8 +87,6 @@ type WorkspaceDocumentMetaInput = {
 export type UrlDoc = {
   /** URL to fetch the OpenAPI document from */
   url: string
-  /** Optional custom fetch implementation to use when retrieving the document. By default the global fetch implementation will be used */
-  fetch?: (input: string | URL | globalThis.Request, init?: RequestInit) => Promise<Response>
 } & WorkspaceDocumentMetaInput
 
 /** Represents a document that is provided directly as an object rather than loaded from a URL */
@@ -149,6 +156,8 @@ type WorkspaceProps = {
   meta?: WorkspaceMeta
   /** Workspace configuration */
   config?: Config
+  /** Fetch function for retrieving documents */
+  fetch?: WorkspaceDocumentInput['fetch']
 }
 
 /**
@@ -449,6 +458,13 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    */
   const documentMeta: InMemoryWorkspace['documentMeta'] = {}
 
+  /**
+   * Holds additional configuration options for each document in the workspace.
+   *
+   * This can include settings that can not be persisted between sessions (not JSON serializable)
+   */
+  const extraDocumentConfigurations: ExtraDocumentConfigurations = {}
+
   // Create a reactive workspace object with proxied documents
   // Each document is wrapped in a proxy to enable reactive updates and reference resolution
   const workspace = reactive<Workspace>({
@@ -535,6 +551,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       overrides[name] = input.overrides ?? {}
       // Store the document metadata for this document, setting the origin if provided
       documentMeta[name] = { documentSource: input.documentSource }
+      // Store extra document configurations that can not be persisted
+      extraDocumentConfigurations[name] = { fetch: input.fetch }
     }
 
     const strictDocument: UnknownObject = createMagicProxy({ ...inputDocument, ...meta })
@@ -545,7 +563,13 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // We need to bundle document first before we validate, so we can also validate the external references
       await bundle(getRaw(strictDocument), {
         treeShake: false,
-        plugins: [fetchUrls(), externalValueResolver(), refsEverywhere()],
+        plugins: [
+          fetchUrls({
+            fetch: extraDocumentConfigurations[name]?.fetch ?? workspaceProps?.fetch,
+          }),
+          externalValueResolver(),
+          refsEverywhere(),
+        ],
         urlMap: true,
         origin: documentMeta[name]?.documentSource, // use the document origin (if provided) as the base URL for resolution
       })
