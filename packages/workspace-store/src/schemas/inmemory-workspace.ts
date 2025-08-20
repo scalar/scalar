@@ -16,7 +16,7 @@ export const InMemoryWorkspaceSchema = Type.Object({
     Type.String(),
     Type.Partial(
       Type.Object({
-        origin: Type.Optional(Type.String()),
+        documentSource: Type.Optional(Type.String()),
       }),
     ),
   ),
