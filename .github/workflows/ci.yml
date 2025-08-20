@@ -86,7 +86,7 @@ jobs:
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Build Docker image
-        uses: useblacksmith/build-push-action@574eb0ee0b59c6a687ace24192f0727dfb65d6d7 # v1
+        uses: useblacksmith/build-push-action@4af38cd11563732a1d67e9e9e01299346c955825 # v2
         with:
           context: integrations/docker
           file: integrations/docker/Dockerfile
@@ -117,7 +117,7 @@ jobs:
 
       - if: startsWith(github.event.head_commit.message, 'RELEASING:') && steps.changed-files.outputs.api_reference_docker_version_any_changed == 'true'
         name: Build and Push Docker image
-        uses: useblacksmith/build-push-action@574eb0ee0b59c6a687ace24192f0727dfb65d6d7 # v1
+        uses: useblacksmith/build-push-action@4af38cd11563732a1d67e9e9e01299346c955825 # v2
         with:
           context: integrations/docker
           file: integrations/docker/Dockerfile
@@ -1075,7 +1075,7 @@ jobs:
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Build and push Aspire Docker image
-        uses: useblacksmith/build-push-action@574eb0ee0b59c6a687ace24192f0727dfb65d6d7 # v1
+        uses: useblacksmith/build-push-action@4af38cd11563732a1d67e9e9e01299346c955825 # v2
         with:
           context: integrations/aspire
           file: integrations/aspire/src/Scalar.Aspire.Service/Dockerfile
