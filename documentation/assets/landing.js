@@ -71,7 +71,7 @@ function initDraggableElements() {
   })
   console.log(`Initialized ${draggables.length} draggable elements`, draggables)
 }
-setTimeout(initDraggableElements, 50)
+setTimeout(initDraggableElements, 300)
 /* Slide Gallery */
 function initGallery() {
   const buttons = document.querySelectorAll('button[data-target^="#slide-"]')
@@ -111,4 +111,4 @@ function initGallery() {
   slides.forEach((slide) => observer.observe(slide))
   console.log(`Initialized ${slides.length} gallery elements`, buttons, slides, gallery)
 }
-setTimeout(initGallery, 50)
+setTimeout(initGallery, 300)
