@@ -1,3 +1,4 @@
+import type { ServerObject } from '@/schemas/v3.1/strict/server'
 import type { AvailableClients } from '@scalar/snippetz'
 
 /**
@@ -58,6 +59,20 @@ export type ApiReferenceEvents = {
       }
     }
   }
+  /** Replace all document servers */
+  'scalar-replace-servers': {
+    detail: {
+      servers: ServerObject[]
+      options?: {
+        /**
+         * Update only new store
+         *
+         * Do not update the old store since it will be handled manually
+         */
+        disableOldStoreUpdate: boolean
+      }
+    }
+  }
 }
 
 export type ApiReferenceEvent = Prettify<keyof ApiReferenceEvents>
@@ -72,9 +87,18 @@ export function emitCustomEvent<E extends ApiReferenceEvent>(
   event: E,
   detail: ApiReferenceEvents[E]['detail'],
 ) {
-  const instance = new CustomEvent(event, { detail, bubbles: true, composed: true, cancelable: true })
+  return new Promise((resolve) => {
+    const customDetail = typeof detail === 'object' ? { ...detail, callback: resolve } : detail
 
-  target.dispatchEvent(instance)
+    const instance = new CustomEvent(event, {
+      detail: customDetail,
+      bubbles: true,
+      composed: true,
+      cancelable: true,
+    })
+
+    target.dispatchEvent(instance)
+  })
 }
 
 /** Type helper for expanding complex types */
