@@ -1,9 +1,11 @@
 import { REFERENCE_LS_KEYS, safeLocalStorage } from '@scalar/helpers/object/local-storage'
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { generateClientMutators, type WorkspaceStore } from '@scalar/workspace-store/client'
 import { onCustomEvent } from '@scalar/workspace-store/events'
 import type { Ref } from 'vue'
 
 export const useWorkspaceStoreEvents = (store: WorkspaceStore, root: Ref<HTMLElement | null>) => {
+  const mutators = generateClientMutators(store)
+
   //------------------------------------------------------------------------------------
   // TODO
   //------------------------------------------------------------------------------------
@@ -68,5 +70,13 @@ export const useWorkspaceStoreEvents = (store: WorkspaceStore, root: Ref<HTMLEle
     if (activeServer.variables?.[event.detail.key]) {
       activeServer.variables[event.detail.key].default = event.detail.value
     }
+  })
+
+  onCustomEvent(root, 'scalar-add-server', (event) => {
+    mutators.active().serverMutators.addServer(event.detail.server)
+  })
+
+  onCustomEvent(root, 'scalar-delete-server', (event) => {
+    mutators.active().serverMutators.deleteServer(event.detail.url)
   })
 }

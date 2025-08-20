@@ -73,6 +73,34 @@ export type ApiReferenceEvents = {
       }
     }
   }
+  /** Add a new server to the active document */
+  'scalar-add-server': {
+    detail: {
+      server: ServerObject
+      options?: {
+        /**
+         * Update only new store
+         *
+         * Do not update the old store since it will be handled manually
+         */
+        disableOldStoreUpdate: boolean
+      }
+    }
+  }
+  /** Add a new server to the active document */
+  'scalar-delete-server': {
+    detail: {
+      url: string
+      options?: {
+        /**
+         * Update only new store
+         *
+         * Do not update the old store since it will be handled manually
+         */
+        disableOldStoreUpdate: boolean
+      }
+    }
+  }
 }
 
 export type ApiReferenceEvent = Prettify<keyof ApiReferenceEvents>
