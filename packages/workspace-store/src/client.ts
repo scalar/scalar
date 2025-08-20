@@ -10,7 +10,10 @@ import { mergeObjects } from '@/helpers/merge-object'
 import { createNavigation } from '@/navigation'
 import { extensions } from '@/schemas/extensions'
 import { coerceValue } from '@/schemas/typebox-coerce'
-import { OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict } from '@/schemas/v3.1/strict/openapi-document'
+import {
+  OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
+  type OpenApiDocument,
+} from '@/schemas/v3.1/strict/openapi-document'
 import { OpenAPIDocumentSchema as OpenAPIDocumentSchemaLoose } from '@/schemas/v3.1/loose/openapi-document'
 import { defaultReferenceConfig } from '@/schemas/reference-config'
 import type { Config } from '@/schemas/workspace-specification/config'
@@ -28,6 +31,7 @@ import type { Record } from '@sinclair/typebox'
 import { Value } from '@sinclair/typebox/value'
 import { deepClone } from '@/helpers/deep-clone'
 import { measureAsync } from '@scalar/helpers/testing/measure'
+import { getServersFromDocument } from '@scalar/oas-utils/helpers'
 
 export type DocumentConfiguration = Config &
   PartialDeep<{
@@ -512,6 +516,20 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     return excludedDiffs
   }
 
+  const processDocument = (input: OpenApiDocument, options: Config & { documentSource?: string }): OpenApiDocument => {
+    // Get the servers from the document or the config and perform some mutations on them
+    const servers = getServersFromDocument(options['x-scalar-reference-config']?.settings?.servers ?? input.servers, {
+      baseServerURL: options['x-scalar-reference-config']?.settings?.baseServerUrl,
+      documentUrl: options.documentSource,
+    })
+
+    if (servers.length) {
+      input.servers = servers.map((it) => ({ url: it.url, description: it.description, variables: it.variables }))
+    }
+
+    return input
+  }
+
   // Add a document to the store synchronously from an in-memory OpenAPI document
   async function addInMemoryDocument(input: ObjectDoc & { initialize?: boolean; documentSource?: string }) {
     const { name, meta } = input
@@ -568,6 +586,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         ...(input.config?.['x-scalar-reference-config'] ?? {}),
         hideModels: showModels === undefined ? undefined : !showModels,
       }).entries
+
+      // Do some document processing
+      processDocument(getRaw(strictDocument), { ...input.config, documentSource: input.documentSource })
     }
 
     // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map
