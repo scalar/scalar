@@ -94,6 +94,9 @@ jobs:
         with:
           context: integrations/docker
           file: integrations/docker/Dockerfile
+          platforms: |
+            linux/amd64
+            linux/arm64
           load: true
           tags: |
             scalarapi/api-reference:latest
