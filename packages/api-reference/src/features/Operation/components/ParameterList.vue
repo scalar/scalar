@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import ParameterListItem from './ParameterListItem.vue'
 
@@ -10,7 +9,6 @@ withDefaults(
     showChildren?: boolean
     collapsableItems?: boolean
     withExamples?: boolean
-    schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
     breadcrumb?: string[]
   }>(),
   {
@@ -34,7 +32,6 @@ withDefaults(
         :breadcrumb="breadcrumb"
         :collapsableItems="collapsableItems"
         :parameter="item"
-        :schemas="schemas"
         :showChildren="showChildren"
         :withExamples="withExamples" />
     </ul>

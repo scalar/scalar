@@ -1,117 +1,94 @@
-import type { UnknownObject } from '@scalar/types/utils'
-import { mergeAllOfSchemas } from './merge-all-of-schemas'
-import type { CompositionKeyword } from './schema-composition'
-
-export const compositions: CompositionKeyword[] = ['oneOf', 'anyOf', 'allOf', 'not']
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { compositions } from './schema-composition'
+import { SchemaObjectSchema, type SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 
 /**
- * Optimize the value by removing nulls from compositions.
+ * Optimize the value by removing nulls from compositions and merging root properties.
+ *
+ * TODO: figure out what this does
  */
-export function optimizeValueForDisplay(value: UnknownObject | undefined): Record<string, any> | undefined {
+export function optimizeValueForDisplay(value: SchemaObject | undefined): SchemaObject | undefined {
   if (!value || typeof value !== 'object') {
     return value
   }
 
-  // Clone the value to avoid mutating the original value
-  let newValue = { ...value }
+  // Find the composition keyword early to avoid unnecessary work
+  const composition = compositions.find((keyword) => keyword in value && keyword !== 'not')
 
-  // Find the composition keyword
-  const composition = compositions.find((keyword) => newValue?.[keyword])
-
-  // If there's no composition keyword, return the original value
+  // If there's no relevant composition keyword, return a shallow copy
   if (!composition) {
-    return newValue
+    return { ...value }
   }
 
-  // Ignore the 'not' composition keyword
-  if (composition === 'not') {
-    return newValue
-  }
-
-  // Get the schemas for the composition keyword
-  const schemas = newValue?.[composition]
-
+  const schemas = value[composition]
   if (!Array.isArray(schemas)) {
-    return newValue
+    return { ...value }
   }
 
-  // Check if there are any root properties that should be merged into composition schemas
-  const rootProperties = { ...newValue }
-  delete rootProperties[composition]
-  delete rootProperties.nullable
-
+  // Extract root properties efficiently (excluding composition and nullable)
+  const { [composition]: _, nullable: originalNullable, ...rootProperties } = value
   const hasRootProperties = Object.keys(rootProperties).length > 0
+
+  // Check for null schemas and filter them out in one pass
+  const { filteredSchemas, hasNullSchema } = schemas.reduce(
+    (acc: { filteredSchemas: SchemaObject[]; hasNullSchema: boolean }, _schema) => {
+      const schema = getResolvedRef(_schema)
+
+      if (schema?.type === 'null') {
+        acc.hasNullSchema = true
+      } else {
+        acc.filteredSchemas.push(schema)
+      }
+      return acc
+    },
+    { filteredSchemas: [] as SchemaObject[], hasNullSchema: false },
+  )
+
+  // Determine if nullable should be set
+  const shouldBeNullable = hasNullSchema || originalNullable === true
+
+  // If only one schema remains after filtering, merge with root properties
+  if (filteredSchemas.length === 1) {
+    const mergedSchema = { ...rootProperties, ...filteredSchemas[0] }
+    if (shouldBeNullable) {
+      mergedSchema.nullable = true
+    }
+    return mergedSchema
+  }
+
+  // Check if root properties should be merged into schemas
   const shouldMergeRootProperties =
     (composition === 'oneOf' || composition === 'anyOf') &&
-    (schemas.some((schema: any) => schema.allOf) || hasRootProperties)
+    (hasRootProperties || filteredSchemas.some((schema: SchemaObject) => schema.allOf))
 
-  // Process schemas to merge allOf and handle nulls
-  const processedSchemas = schemas.map((schema: any) => {
-    // If this schema has allOf, merge it
-    if (schema.allOf && Array.isArray(schema.allOf)) {
-      let mergedSchema = mergeAllOfSchemas(schema.allOf)
-
-      // If we need to merge root properties, do it here
-      if (shouldMergeRootProperties) {
-        mergedSchema = mergeAllOfSchemas(schema.allOf, rootProperties)
-      }
-
-      // Preserve all non-composition properties from the original schema
-      Object.keys(schema).forEach((key) => {
-        if (!compositions.includes(key as CompositionKeyword) && !(key in mergedSchema)) {
-          mergedSchema[key] = schema[key]
-        }
-      })
-
-      return mergedSchema
-    }
-
-    // If we need to merge root properties and this schema doesn't have allOf,
-    // merge the root properties directly
-    if (shouldMergeRootProperties && !schema.allOf) {
-      return { ...rootProperties, ...schema }
-    }
-
-    return schema
-  })
-
-  // If there's an object with type 'null' in the anyOf, oneOf, allOf, mark the property as nullable
-  if (processedSchemas.some((schema: any) => schema.type === 'null')) {
-    newValue.nullable = true
-  }
-
-  // Remove objects with type 'null' from the schemas
-  const newSchemas = processedSchemas.filter((schema: any) => !(schema.type === 'null'))
-
-  // If there's only one schema, overwrite the original value with the schema
-  // Skip it for arrays for now, need to handle that specifically.
-  if (newSchemas.length === 1 && newValue?.[composition]) {
-    newValue = { ...newValue, ...newSchemas[0] }
-
-    // Delete the original composition keyword
-    delete newValue?.[composition]
-
-    return newValue
-  }
-
-  // If we merged root properties, return the new structure
   if (shouldMergeRootProperties) {
-    newValue = {
-      [composition]: newSchemas,
-    }
+    const mergedSchemas = filteredSchemas.map((_schema: SchemaObject) => {
+      const schema = getResolvedRef(_schema)
 
-    // Preserve nullable if it was set
-    if (newValue.nullable) {
-      newValue.nullable = true
-    }
+      // Flatten single-item allOf and merge with root properties
+      if (schema.allOf?.length === 1) {
+        const { allOf, ...otherProps } = schema
+        return { ...rootProperties, ...otherProps, ...getResolvedRef(allOf[0]) }
+      }
+      return { ...rootProperties, ...schema }
+    })
 
-    return newValue
+    const result = coerceValue(SchemaObjectSchema, { [composition]: mergedSchemas })
+    if (shouldBeNullable) {
+      result.nullable = true
+    }
+    return result
   }
 
-  // Overwrite the original schemas with the new schemas
-  if (Array.isArray(newValue?.[composition]) && newValue?.[composition]?.length > 1) {
-    newValue[composition] = newSchemas
+  // Return with filtered schemas if any nulls were removed
+  if (filteredSchemas.length !== schemas.length) {
+    const result: SchemaObject = { ...value, [composition]: filteredSchemas }
+    if (shouldBeNullable) {
+      result.nullable = true
+    }
+    return result
   }
 
-  return newValue
+  return { ...value }
 }

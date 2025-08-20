@@ -1,5 +1,4 @@
 import { collectionSchema, serverSchema } from '@scalar/oas-utils/entities/spec'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { apiReferenceConfigurationSchema } from '@scalar/types'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { mount } from '@vue/test-utils'
@@ -38,8 +37,8 @@ vi.mock('@scalar/api-client/store', () => ({
 }))
 
 describe('TraversedEntry', async () => {
-  const mockDocument: OpenAPIV3_1.Document = {
-    openapi: '3.1.0',
+  const mockDocument = {
+    openapi: '3.1.0' as const,
     info: {
       title: 'Test API',
       version: '1.0.0',

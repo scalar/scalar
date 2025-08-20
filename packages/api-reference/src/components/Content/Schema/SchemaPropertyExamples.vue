@@ -5,7 +5,7 @@ import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { formatExample } from './helpers/format-example'
 
 defineProps<{
-  examples?: Record<string, unknown>
+  examples?: unknown
   example?: unknown
 }>()
 

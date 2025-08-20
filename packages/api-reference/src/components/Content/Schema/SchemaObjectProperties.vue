@@ -1,27 +1,19 @@
 <script setup lang="ts">
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { DiscriminatorObject } from '@scalar/workspace-store/schemas/v3.1/strict/discriminator'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 import { computed } from 'vue'
-
-import type { Schemas } from '@/features/Operation/types/schemas'
 
 import SchemaProperty from './SchemaProperty.vue'
 
-const { schema } = defineProps<{
-  schema: OpenAPIV3_1.SchemaObject
+const { schema, discriminator } = defineProps<{
+  schema: SchemaObject
+  discriminator?: DiscriminatorObject
   compact?: boolean
   hideHeading?: boolean
   level?: number
   hideModelNames?: boolean
-  schemas?: Schemas
-  discriminator?: string
-  discriminatorMapping?: Record<string, string>
-  discriminatorPropertyName?: string
-  hasDiscriminator?: boolean
   breadcrumb?: string[]
-}>()
-
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: string): void
 }>()
 
 /**
@@ -37,10 +29,21 @@ const sortedProperties = computed(() => {
   const requiredPropertiesSet = new Set(schema.required || [])
 
   return propertyNames.sort((a, b) => {
+    // TODO: fill this in
+    const aDiscriminator = a === discriminator?.propertyName
+    const bDiscriminator = b === discriminator?.propertyName
     const aRequired = requiredPropertiesSet.has(a)
     const bRequired = requiredPropertiesSet.has(b)
 
-    // If one is required and the other isn't, required comes first
+    // Discriminator comes first
+    if (aDiscriminator && !bDiscriminator) {
+      return -1
+    }
+    if (!aDiscriminator && bDiscriminator) {
+      return 1
+    }
+
+    // If both are discriminator or both are not discriminator, sort by required status
     if (aRequired && !bRequired) {
       return -1
     }
@@ -54,21 +57,15 @@ const sortedProperties = computed(() => {
 })
 
 /**
- * Handles discriminator type changes from child SchemaProperty components.
- * Propagates the change up to the parent component.
- */
-const handleDiscriminatorChange = (type: string) => {
-  emit('update:modelValue', type)
-}
-
-/**
  * Get the display name for additional properties.
  *
  * Uses x-additionalPropertiesName extension if available, otherwise falls back to a default name.
  */
 const getAdditionalPropertiesName = (
-  additionalProperties: OpenAPIV3_1.SchemaObject | boolean,
+  _additionalProperties: SchemaObject['additionalProperties'],
 ) => {
+  const additionalProperties = getResolvedRef(_additionalProperties)
+
   if (
     typeof additionalProperties === 'object' &&
     typeof additionalProperties['x-additionalPropertiesName'] === 'string' &&
@@ -86,8 +83,8 @@ const getAdditionalPropertiesName = (
  * When additionalProperties is true or an empty object, it should render as { type: 'anything' }.
  */
 const getAdditionalPropertiesValue = (
-  additionalProperties: OpenAPIV3_1.SchemaObject | boolean,
-) => {
+  additionalProperties: SchemaObject['additionalProperties'],
+): SchemaObject => {
   if (
     additionalProperties === true ||
     (typeof additionalProperties === 'object' &&
@@ -96,6 +93,7 @@ const getAdditionalPropertiesValue = (
     !('type' in additionalProperties)
   ) {
     return {
+      // @ts-expect-error - ask hans
       type: 'anything',
       ...(typeof additionalProperties === 'object' ? additionalProperties : {}),
     }
@@ -111,83 +109,44 @@ const getAdditionalPropertiesValue = (
     <SchemaProperty
       v-for="property in sortedProperties"
       :key="property"
-      :breadcrumb="breadcrumb"
-      :compact="compact"
-      :hideHeading="hideHeading"
-      :level="level"
+      :breadcrumb
+      :compact
+      :discriminator
+      :hideHeading
+      :level
       :name="property"
-      :hideModelNames="hideModelNames"
-      :required="
-        schema.required?.includes(property) ||
-        schema.properties[property]?.required === true
-      "
-      :schemas="schemas"
-      :resolvedSchema="schema.properties[property]"
-      :value="{
-        ...schema.properties[property],
-        parent: schema,
-        isDiscriminator:
-          property === discriminatorPropertyName ||
-          schema.discriminator?.propertyName === property,
-      }"
-      :discriminatorMapping="
-        schema.discriminator?.mapping || discriminatorMapping
-      "
-      :discriminatorPropertyName="
-        schema.discriminator?.propertyName || discriminatorPropertyName
-      "
-      :isDiscriminator="
-        property ===
-        (schema.discriminator?.propertyName || discriminatorPropertyName)
-      "
-      :modelValue="discriminator"
-      @update:modelValue="handleDiscriminatorChange" />
+      :hideModelNames
+      :required="schema.required?.includes(property)"
+      :value="getResolvedRef(schema.properties[property])" />
   </template>
 
   <!-- patternProperties -->
   <template v-if="schema.patternProperties">
     <SchemaProperty
-      :breadcrumb="breadcrumb"
-      v-for="property in Object.keys(schema.patternProperties)"
-      :key="property"
-      variant="patternProperties"
-      :compact="compact"
-      :hideHeading="hideHeading"
-      :level="level"
-      :name="property"
+      v-for="[key, property] in Object.entries(schema.patternProperties)"
+      :key="key"
+      :breadcrumb
+      :compact
+      :discriminator
+      :hideHeading
+      :level
+      :name="key"
       :hideModelNames="hideModelNames"
-      :schemas="schemas"
-      :resolvedSchema="schema.patternProperties[property]"
-      :value="{
-        ...schema.patternProperties[property],
-      }"
-      :discriminatorMapping="discriminatorMapping"
-      :discriminatorPropertyName="discriminatorPropertyName"
-      :isDiscriminator="false"
-      :modelValue="discriminator"
-      @update:modelValue="handleDiscriminatorChange" />
+      :value="getResolvedRef(property)" />
   </template>
 
   <!-- additionalProperties -->
   <template v-if="schema.additionalProperties">
     <SchemaProperty
-      :breadcrumb="breadcrumb"
       variant="additionalProperties"
-      :compact="compact"
-      :hideHeading="hideHeading"
-      :level="level"
+      :breadcrumb
+      :compact
+      :discriminator
+      :hideHeading
+      :level
       :name="getAdditionalPropertiesName(schema.additionalProperties)"
-      :hideModelNames="hideModelNames"
-      :schemas="schemas"
-      :resolvedSchema="
-        getAdditionalPropertiesValue(schema.additionalProperties)
-      "
+      :hideModelNames
       :value="getAdditionalPropertiesValue(schema.additionalProperties)"
-      :discriminatorMapping="discriminatorMapping"
-      :discriminatorPropertyName="discriminatorPropertyName"
-      :isDiscriminator="false"
-      :modelValue="discriminator"
-      noncollapsible
-      @update:modelValue="handleDiscriminatorChange" />
+      noncollapsible />
   </template>
 </template>

@@ -1,12 +1,9 @@
 <script lang="ts" setup>
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 import { computed } from 'vue'
 
 const { value } = defineProps<{
-  value:
-    | OpenAPIV3_1.SchemaObject
-    | OpenAPIV3_1.ArraySchemaObject
-    | OpenAPIV3_1.NonArraySchemaObject
+  value: SchemaObject
   name?: string
 }>()
 
@@ -20,7 +17,7 @@ const failsafeType = computed(() => {
     return 'enum'
   }
 
-  if ('items' in value && value.items === 'object') {
+  if (value.items) {
     return 'array'
   }
 

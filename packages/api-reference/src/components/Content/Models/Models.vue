@@ -1,33 +1,52 @@
 <script setup lang="ts">
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import { Lazy } from '@/components/Lazy'
 import { useNavState } from '@/hooks/useNavState'
-import { getModels } from '@/libs/openapi'
 
 import ClassicLayout from './ClassicLayout.vue'
 import ModernLayout from './ModernLayout.vue'
 
 const { document } = defineProps<{
-  document: OpenAPIV3_1.Document
+  document: OpenApiDocument
   config: ApiReferenceConfiguration
 }>()
 
 const { hash } = useNavState()
 
-/** Returns the model schemas from the document */
-const schemas = computed(() => getModels(document))
+/** Array of the name and value of all component schemas */
+const schemas = computed(() => {
+  const _schemas = document.components?.schemas
+
+  if (!_schemas) {
+    return []
+  }
+
+  const entries = Object.entries(_schemas)
+
+  /** Remove any internal or ignored schemas */
+  return entries.flatMap(([name, _schema]) => {
+    const schema = getResolvedRef(_schema)
+    if (schema['x-internal'] || schema['x-scalar-ignore']) {
+      return []
+    }
+
+    // Need the type assertion because of the typescript limitation
+    return [{ name, schema }]
+  })
+})
 </script>
 <template>
   <Lazy
-    id="models"
     v-if="schemas && Object.keys(schemas).length > 0"
+    id="models"
     :isLazy="Boolean(hash) && !hash.startsWith('model')">
     <ClassicLayout
       v-if="config?.layout === 'classic'"
-      :schemas="schemas" />
+      :models="schemas" />
     <ModernLayout
       v-else
       :config="config"

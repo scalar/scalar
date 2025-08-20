@@ -15,10 +15,11 @@ import {
   getOperationStabilityColor,
   isOperationDeprecated,
 } from '@scalar/oas-utils/helpers'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
@@ -35,7 +36,6 @@ import { ExternalDocs } from '@/features/external-docs'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
-import type { Schemas } from '@/features/Operation/types/schemas'
 import { TestRequestButton } from '@/features/test-request-button'
 import { XBadges } from '@/features/x-badges'
 import { RequestExample } from '@/v2/blocks/scalar-request-example-block'
@@ -48,26 +48,16 @@ const { operation, path, config, isWebhook } = defineProps<{
   method: HttpMethodType
   config: ApiReferenceConfiguration
   operation: OperationObject
-  oldOperation: OpenAPIV3_1.OperationObject
   // pathServers: ServerObject[] | undefined
   isWebhook: boolean
   server: ServerObject | undefined
   securitySchemes: SecuritySchemeObject[]
-  schemas?: Schemas
   store: WorkspaceStore
 }>()
 
 const operationTitle = computed(() => operation.summary || path || '')
 
 const { copyToClipboard } = useClipboard()
-
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: string): void
-}>()
-
-const handleDiscriminatorChange = (type: string) => {
-  emit('update:modelValue', type)
-}
 </script>
 <template>
   <SectionAccordion
@@ -95,8 +85,8 @@ const handleDiscriminatorChange = (type: string) => {
               </div>
               <!-- Stability badge -->
               <Badge
-                class="capitalize"
                 v-if="getOperationStability(operation)"
+                class="capitalize"
                 :class="getOperationStabilityColor(operation)">
                 {{ getOperationStability(operation) }}
               </Badge>
@@ -141,26 +131,26 @@ const handleDiscriminatorChange = (type: string) => {
       v-if="operation.description"
       #description>
       <ScalarMarkdown
-        :value="operation.description"
-        withImages
-        withAnchors
+        :anchorPrefix="id"
         transformType="heading"
-        :anchorPrefix="id" />
+        :value="operation.description"
+        withAnchors
+        withImages />
     </template>
     <div class="endpoint-content">
       <div class="operation-details-card">
         <div class="operation-details-card-item">
           <OperationParameters
-            :requestBody="oldOperation.requestBody"
-            :parameters="operation.parameters"
-            :schemas
-            @update:modelValue="handleDiscriminatorChange" />
+            :parameters="
+              // These have been resolved in the Operation.vue component
+              operation.parameters as ParameterObject[]
+            "
+            :requestBody="getResolvedRef(operation.requestBody)" />
         </div>
         <div class="operation-details-card-item">
           <OperationResponses
             :collapsableItems="false"
-            :responses="oldOperation.responses"
-            :schemas="schemas" />
+            :responses="operation.responses" />
         </div>
 
         <!-- Callbacks -->
@@ -168,16 +158,15 @@ const handleDiscriminatorChange = (type: string) => {
           v-if="operation?.callbacks"
           class="operation-details-card-item">
           <Callbacks
-            :method="method"
-            :path="path"
             :callbacks="operation.callbacks"
-            :schemas="schemas" />
+            :method="method"
+            :path="path" />
         </div>
       </div>
 
       <ExampleResponses
-        class="operation-example-card"
         v-if="operation.responses"
+        class="operation-example-card"
         :responses="operation.responses" />
 
       <!-- New Example Request -->
@@ -190,15 +179,14 @@ const handleDiscriminatorChange = (type: string) => {
         <ScalarErrorBoundary>
           <RequestExample
             class="operation-example-card"
-            :method="method"
-            :selectedServer="server"
             :clientOptions="clientOptions"
-            :selectedClient="store.workspace['x-scalar-default-client']"
-            :securitySchemes="securitySchemes"
-            :path="path"
             fallback
+            :method="method"
             :operation="operation"
-            @update:modelValue="handleDiscriminatorChange" />
+            :path="path"
+            :securitySchemes="securitySchemes"
+            :selectedClient="store.workspace['x-scalar-default-client']"
+            :selectedServer="server" />
         </ScalarErrorBoundary>
       </div>
     </div>
