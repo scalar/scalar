@@ -496,6 +496,9 @@
       "type": "spacer"
     },
     {
+      "type": "version-selector"
+    },
+    {
       "type": "link",
       "link": "https://dashboard.scalar.com/login",
       "title": "Log in"
@@ -503,6 +506,7 @@
     {
       "type": "link",
       "link": "https://dashboard.scalar.com/register",
+      "isButton": true,
       "title": "Register"
     }
   ],
