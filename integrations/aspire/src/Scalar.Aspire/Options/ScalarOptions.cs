@@ -202,7 +202,7 @@ public abstract class ScalarOptions
     /// </summary>
     /// <value>The default value is <c>false</c>.</value>
     /// <remarks>
-    /// When set to <c>true</c>, HTTPS URLs will be prioritized when multiple server URLs are available.
+    /// When set to <c>true</c>, HTTPS URLs will be prioritized when multiple endpoints are available.
     /// </remarks>
-    public bool PreferHttps { get; set; }
+    public bool PreferHttpsEndpoint { get; set; }
 }

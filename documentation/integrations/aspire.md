@@ -115,7 +115,7 @@ Scalar supports HTTPS endpoints.
 var scalar = builder.AddScalarApiReference(options =>
 {
     options
-        .PreferHttps() // Use HTTPS endpoints when available
+        .PreferHttpsEndpoint() // Use HTTPS endpoints when available
         .AllowSelfSignedCertificates(); // Trust self-signed certificates
 });
 ```
@@ -126,7 +126,7 @@ The `AllowSelfSignedCertificates()` method should only be used in development en
 
 ### How HTTPS Support Works
 
-- **Protocol Selection**: HTTP is used by default. Use `PreferHttps()` to prioritize HTTPS when available
+- **Protocol Selection**: HTTP is used by default. Use `PreferHttpsEndpoint()` to prioritize HTTPS when available
 - **Automatic Configuration**: When HTTPS is preferred, both OpenAPI document routes and server URLs are automatically configured to use HTTPS endpoints
 - **Automatic Redirects**: HTTP to HTTPS redirects are handled automatically with proper header rewriting (localhost only)
 - **Certificate Validation**: Self-signed certificates can be trusted in development using `AllowSelfSignedCertificates()`
