@@ -91,7 +91,7 @@ function createRequestFromCurl({ collectionUid }: { collectionUid: string }) {
         collection.uid,
       ).uid
 
-      emitCustomEvent(wrapper.value?.$el, 'scalar-add-server', {
+      emitCustomEvent(wrapper.value?.$el!, 'scalar-add-server', {
         server: { url: metaData.parsedCurl.servers[0] ?? '/' },
         options: {
           disableOldStoreUpdate: true,
