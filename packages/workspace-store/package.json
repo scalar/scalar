@@ -96,7 +96,6 @@
     "type-fest": "catalog:*",
     "vue": "catalog:*",
     "yaml": "catalog:*"
-
   },
   "devDependencies": {
     "@google-cloud/storage": "catalog:*",
