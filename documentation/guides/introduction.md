@@ -348,7 +348,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
   </div>
   <a class="expander-hover-link" href="https://discord.gg/scalar" target="_blank">Community →</a>
   <a class="expander-hover-link" href="https://github.com/scalar/scalar" target="_blank">GitHub →</a>
-  <a class="expander-hover-link" href="support@scalar.com" target="_blank">Contact Us →</a>
+  <a class="expander-hover-link" href="mailto:support@scalar.com" target="_blank">Contact Us →</a>
 </div>
 <div class="expander-container">
   <div class="expander-hover">
@@ -439,25 +439,25 @@ They are open source. So I can get in on free features and stay with Scalar no m
       <div class="flex text-sm">
         <div class="w-1/3 flex flex-col gap-2">
           <b>Products</b>
-          <a class="text-c-2 hover:text-c-1 font-normal">API References</a>
-          <a class="text-c-2 hover:text-c-1 font-normal">API Client</a>
-          <a class="text-c-2 hover:text-c-1 font-normal">API Docs</a>
-          <a class="text-c-2 hover:text-c-1 font-normal">Swagger Editor</a>
-          <a class="text-c-2 hover:text-c-1 font-normal">Agent Scalar</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://" target="_blank">API References</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://client.scalar.com/" target="_blank">API Client</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://docs.scalar.com/" target="_blank">API Docs</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://editor.scalar.com/" target="_blank">Swagger Editor</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://agent.scalar.com/" target="_blank">Agent Scalar</a>
         </div>
         <div class="w-1/3 flex flex-col gap-2">
           <b>Company</b>
-          <a class="text-c-2 hover:text-c-1 font-normal">Support</a>
-          <a class="text-c-2 hover:text-c-1 font-normal">Contact</a>
-          <a class="text-c-2 hover:text-c-1 font-normal">Terms of Service</a>
-          <a class="text-c-2 hover:text-c-1 font-normal">Privacy Policy</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="mailto:support@scalar.com" target="_blank">Support</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://scalar.com/changelog" target="_blank">Changelog</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://scalar.com/terms-and-conditions" target="_blank">Terms of Service</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://scalar.com/privacy-policy" target="_blank">Privacy Policy</a>
         </div>
         <div class="w-1/3 flex flex-col gap-2">
           <b>Socials</b>
-          <a class="text-c-2 hover:text-c-1 font-normal">x (formerly twitter)</a>
-          <a class="text-c-2 hover:text-c-1 font-normal">Github</a>
-          <a class="text-c-2 hover:text-c-1 font-normal">Discord</a>
-          <a class="text-c-2 hover:text-c-1 font-normal">Linkedin</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://twitter.com/scalar" target="_blank">x (formerly twitter)</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://github.com/scalar/scalar" target="_blank">Github</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://discord.gg/scalar" target="_blank">Discord</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://www.linkedin.com/company/scalar-org" target="_blank">Linkedin</a>
         </div>
       </div>
   </div>
