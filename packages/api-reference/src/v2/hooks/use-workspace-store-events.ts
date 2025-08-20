@@ -33,6 +33,17 @@ export const useWorkspaceStoreEvents = (store: WorkspaceStore, root: Ref<HTMLEle
   //------------------------------------------------------------------------------------
   // Server Related Event Handlers
   //------------------------------------------------------------------------------------
+  onCustomEvent(root, 'scalar-replace-servers', (event) => {
+    const activeDocument = store.workspace.activeDocument
+
+    if (!activeDocument) {
+      return
+    }
+
+    // Replace the servers in the active document
+    activeDocument.servers = event.detail.servers
+  })
+
   onCustomEvent(root, 'scalar-update-selected-server', (event) => {
     const activeDocument = store.workspace.activeDocument
 

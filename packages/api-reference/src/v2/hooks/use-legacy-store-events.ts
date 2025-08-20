@@ -1,16 +1,40 @@
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-// import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { onCustomEvent } from '@scalar/workspace-store/events'
 import type { Ref } from 'vue'
 
+/**
+ * Keep the old store in sync with the new server selector block.
+ *
+ * This is a temporary solution to maintain consistency between the legacy
+ * api-client store and the new workspace store during the migration period.
+ *
+ * @todo Remove this hook when api-client is fully migrated to the new store
+ */
 export const useLegacyStoreEvents = (store: WorkspaceStore, root: Ref<HTMLElement | null>) => {
   const { servers, serverMutators, collectionMutators } = useWorkspace()
   const { activeCollection, activeServer } = useActiveEntities()
 
-  // Keep the old store in sync with the new server selector block
-  // This is a temporary solution to keep the old store in sync with the new server selector block
-  // When we migrate api-client to the new store we can remove this
+  onCustomEvent(root, 'scalar-replace-servers', ({ detail: { servers, options } }) => {
+    if (options?.disableOldStoreUpdate === true) {
+      return
+    }
+
+    const collection = activeCollection.value
+
+    if (!collection) {
+      return console.warn('No active collection found')
+    }
+
+    collection.servers.forEach((serverUid) => {
+      serverMutators.delete(serverUid, collection.uid)
+    })
+
+    servers.forEach((server) => {
+      serverMutators.add(server, collection.uid)
+    })
+  })
+
   onCustomEvent(root, 'scalar-update-selected-server', ({ detail: { value, options } }) => {
     // Do not update old store
     if (options?.disableOldStoreUpdate === true) {

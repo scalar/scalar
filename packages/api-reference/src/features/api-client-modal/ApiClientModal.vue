@@ -8,6 +8,7 @@ import type {
   ApiClientConfiguration,
   ApiReferenceConfiguration,
 } from '@scalar/types/api-reference'
+import { emitCustomEvent } from '@scalar/workspace-store/events'
 import { watchDebounced } from '@vueuse/core'
 import microdiff from 'microdiff'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
@@ -93,7 +94,6 @@ watchDebounced(
     if (!oldConfig || !activeEntities.activeCollection.value) {
       return
     }
-    const collection = activeEntities.activeCollection.value
 
     const diff = microdiff(oldConfig, newConfig)
     const documentSourceHasChanged = diff.some(
@@ -119,11 +119,6 @@ watchDebounced(
 
       // Servers
       if (newConfig.servers || oldConfig.servers) {
-        // Delete all the old servers first
-        collection.servers.forEach((serverUid) => {
-          store.serverMutators.delete(serverUid, collection.uid)
-        })
-
         // Now we either use the new servers or restore the ones from the spec
         const newServers = getServersFromDocument(
           newConfig.servers ?? dereferencedDocument.servers,
@@ -132,19 +127,13 @@ watchDebounced(
           },
         )
 
-        // Add the new ones
-        newServers.forEach((server) => {
-          store.serverMutators.add(server, collection.uid)
+        emitCustomEvent(el.value!, 'scalar-replace-servers', {
+          servers: newServers,
+        }).then(() => {
+          emitCustomEvent(el.value!, 'scalar-update-selected-server', {
+            value: newServers.at(-1)?.url ?? '',
+          })
         })
-
-        // Select the last server
-        if (newServers.length) {
-          store.collectionMutators.edit(
-            collection.uid,
-            'selectedServerUid',
-            newServers[newServers.length - 1].uid,
-          )
-        }
       }
     }
 
