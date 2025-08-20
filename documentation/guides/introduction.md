@@ -8,8 +8,8 @@
     deserve
   </p>
   <div class="flex gap-2">
-    <a class="t-editor__button">Get Started</a>
-    <a class="t-editor__button">Book a Demo</a>
+    <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
+    <a class="t-editor__button" href="https://cal.com/scalar/30min" target="_blank">Book a Demo</a>
   </div>
   <div class="stickers">
     <div class="draggable sticker-5">
@@ -110,7 +110,9 @@ They are open source. So I can get in on free features and stay with Scalar no m
       <div class="flex flex-wrap text-green gap-y-2">
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/git-branch"></scalar-icon>
-          <span class="lg-only">Single </span>Source of Truth
+          <span>
+            <span class="lg-only">Single </span>Source of Truth
+          <span>
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon>
@@ -118,7 +120,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/brackets-curly"></scalar-icon>
-          JSON Schema<span class="lg-only"> Support</span>
+          <span>JSON Schema<span class="lg-only"> Support</span></span>
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/warning-octagon"></scalar-icon>
@@ -133,7 +135,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
           Private or Public
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="yo">Learn More →</a>
+      <a class="mt-3 t-editor__anchor" href="/guide/scalar-registry/getting-started">Learn More →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
@@ -181,7 +183,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
           Multi-platform
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="yo">Learn More →</a>
+      <a class="mt-3 t-editor__anchor" href="https://client.scalar.com/">Try It Out →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
@@ -228,7 +230,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
           Access Groups
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="yo">Learn More →</a>
+      <a class="mt-3 t-editor__anchor" href="/guide/scalar-docs/getting-started">Learn More →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
@@ -275,7 +277,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
           File Streaming
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="yo">Learn More →</a>
+      <a class="mt-3 t-editor__anchor" href="/guide/scalar-sdks/getting-started">Learn More →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
@@ -341,12 +343,12 @@ They are open source. So I can get in on free features and stay with Scalar no m
     of API industry standards.
   </p>
   <div class="flex gap-2 mb-11">
-    <a class="t-editor__button">Get Started</a>
-    <a class="t-editor__button">Book a Demo</a>
+    <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
+    <a class="t-editor__button" href="https://cal.com/scalar/30min" target="_blank">Book a Demo</a>
   </div>
-  <a class="expander-hover-link">Community →</a>
-  <a class="expander-hover-link">Contact Us →</a>
-  <a class="expander-hover-link">Guides →</a>
+  <a class="expander-hover-link" href="https://discord.gg/scalar" target="_blank">Community →</a>
+  <a class="expander-hover-link" href="https://github.com/scalar/scalar" target="_blank">GitHub →</a>
+  <a class="expander-hover-link" href="support@scalar.com" target="_blank">Contact Us →</a>
 </div>
 <div class="expander-container">
   <div class="expander-hover">
@@ -362,8 +364,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
       <div class="expander-hover-title">API Client</div>
       <div class="expander">
         <div class="expander-content">
-          Bring your brand easily to Scalar Docs, we don't want your docs to
-          look like everyone elses
+          Minimal, powerful, fully open-source API Client built on open standards by us + our community.
         </div>
       </div>
       <a class="expander-hover-link">Learn More</a>
@@ -382,8 +383,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
       <div class="expander-hover-title">SDKs</div>
       <div class="expander">
         <div class="expander-content">
-          Bring your brand easily to Scalar Docs, we don't want your docs to
-          look like everyone elses
+          Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python and more.
         </div>
       </div>
       <a class="expander-hover-link">Learn More</a>
@@ -402,8 +402,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
       <div class="expander-hover-title">API Registry</div>
       <div class="expander">
         <div class="expander-content">
-          Bring your brand easily to Scalar Docs, we don't want your docs to
-          look like everyone elses
+          Managing & versioning OpenAPI Documents with a deep Git integration.
         </div>
       </div>
       <a class="expander-hover-link">Learn More</a>
@@ -421,8 +420,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
       <div class="expander-hover-title">API Docs</div>
       <div class="expander">
         <div class="expander-content">
-          Bring your brand easily to Scalar Docs, we don't want your docs to
-          look like everyone elses
+          Write beautiful documentation with Markdown + MDX + Git Sync.
         </div>
       </div>
       <a class="expander-hover-link">Learn More</a>
@@ -435,7 +433,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
         <span class="text-c-1">
           <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/qlPkhjY7Ec6E5g3SHMjEp.svg"></scalar-icon>
         </span>
-        <p class="mt-10 text-c-3 text-sm text-balance">Zoom respectively spaces management inclusion. Prioritize boy don't tent good savvy. Cloud new savvy feature hammer tiger welcome put. Regroup blue.</p>
+        <p class="mt-10 text-c-3 text-sm text-balance">The Open API company.</p>
         <p class="mt-5 text-c-3 text-sm text-balance">© API Documentation, Inc.</p>
       </div>
       <div class="flex text-sm">

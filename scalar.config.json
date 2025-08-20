@@ -491,23 +491,6 @@
     {
       "type": "reference",
       "slug": "reference"
-    },
-    {
-      "type": "spacer"
-    },
-    {
-      "type": "version-selector"
-    },
-    {
-      "type": "link",
-      "link": "https://dashboard.scalar.com/login",
-      "title": "Log in"
-    },
-    {
-      "type": "link",
-      "link": "https://dashboard.scalar.com/register",
-      "isButton": true,
-      "title": "Register"
     }
   ],
   "siteConfig": {
@@ -516,6 +499,7 @@
       "darkMode": "https://scalar.com/logo-light.svg",
       "lightMode": "https://scalar.com/logo-dark.svg"
     },
+    "cssFiles": ["documentation/assets/styles.css"],
     "footer": ""
   }
 }
