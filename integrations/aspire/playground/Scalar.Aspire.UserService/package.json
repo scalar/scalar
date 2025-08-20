@@ -10,9 +10,5 @@
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "start": "node index.js"
-  },
-  "dependencies": {
-    "@fastify/swagger": "catalog:*",
-    "fastify": "^4.26.2"
   }
 }

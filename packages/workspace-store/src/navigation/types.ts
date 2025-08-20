@@ -48,7 +48,7 @@ export type TraverseSpecOptions = {
 
   /** Function to generate unique IDs for webhooks */
   getWebhookId: (
-    webhook?: {
+    webhook: {
       name: string
       method?: string
     },
@@ -57,8 +57,8 @@ export type TraverseSpecOptions = {
 
   /** Function to generate unique IDs for models/schemas */
   getModelId: (
-    model?: {
-      name: string
+    model: {
+      name?: string
     },
     parentTag?: TagObject,
   ) => string

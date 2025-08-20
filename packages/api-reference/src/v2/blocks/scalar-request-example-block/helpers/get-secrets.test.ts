@@ -297,16 +297,16 @@ describe('getSecrets', () => {
         {
           type: 'http',
           scheme: 'basic',
-          'x-scalar-secret-token': null,
-          'x-scalar-secret-username': null,
-          'x-scalar-secret-password': null,
+          'x-scalar-secret-token': undefined,
+          'x-scalar-secret-username': undefined,
+          'x-scalar-secret-password': undefined,
         },
       ]
 
       const result = getSecrets(securitySchemes)
 
       expect(result).toEqual([
-        'bnVsbDpudWxs', // base64 encoded "null:null"
+        'dW5kZWZpbmVkOnVuZGVmaW5lZA==', // base64 encoded "undefined:undefined"
       ])
     })
 

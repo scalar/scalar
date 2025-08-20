@@ -1,84 +1,99 @@
-import fastifySwagger from '@fastify/swagger'
-import Fastify from 'fastify'
+import { createServer } from 'node:http'
+import { URL } from 'node:url'
 
 const port = process.env.PORT || 3000
 
-const app = Fastify({
-  logger: true,
-})
-
-await app.register(fastifySwagger, {
-  openapi: {
-    openapi: '3.0.0',
-    info: {
-      title: 'User Service API',
-      description: 'A simple API to manage users',
-      version: '1.0.0',
-      contact: {
-        name: 'API Support',
-        email: 'support@example.com',
-      },
-    },
-    servers: [
-      {
-        url: `http://localhost:${port}`,
-        description: 'Development server',
-      },
-    ],
-    tags: [{ name: 'users', description: 'User related operations' }],
-  },
-})
-
-// Schema definitions for reuse
-const userSchema = {
-  type: 'object',
-  properties: {
-    id: { type: 'integer' },
-    name: { type: 'string' },
-    email: { type: 'string', format: 'email' },
-    createdAt: { type: 'string', format: 'date-time' },
-  },
-  required: ['id', 'name', 'email'],
-}
-
-const errorSchema = {
-  type: 'object',
-  properties: {
-    error: { type: 'string' },
-    message: { type: 'string' },
-  },
-}
-
-// Get all users
-app.get(
-  '/api/users',
-  {
-    schema: {
-      tags: ['users'],
-      summary: 'Get all users',
-      description: 'Retrieve a list of all users',
-      querystring: {
-        type: 'object',
-        properties: {
-          limit: { type: 'integer', minimum: 1, maximum: 10, default: 5 },
-        },
-      },
-      response: {
-        200: {
-          description: 'Successfully retrieved users',
-          type: 'array',
-          items: userSchema,
-        },
-        500: {
-          description: 'Internal server error',
-          ...errorSchema,
-        },
-      },
+// Static OpenAPI document
+const openApiDocument = {
+  openapi: '3.0.0',
+  info: {
+    title: 'User Service API',
+    description: 'A simple API to manage users',
+    version: '1.0.0',
+    contact: {
+      name: 'API Support',
+      email: 'support@example.com',
     },
   },
-  async (request) => {
-    const { limit = 10 } = request.query
+  servers: [
+    {
+      url: `http://localhost:${port}`,
+      description: 'Development server',
+    },
+  ],
+  tags: [{ name: 'users', description: 'User related operations' }],
+  paths: {
+    '/api/users': {
+      get: {
+        tags: ['users'],
+        summary: 'Get all users',
+        description: 'Retrieve a list of all users',
+        parameters: [
+          {
+            name: 'limit',
+            in: 'query',
+            schema: {
+              type: 'integer',
+              minimum: 1,
+              maximum: 10,
+              default: 5,
+            },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Successfully retrieved users',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'integer' },
+                      name: { type: 'string' },
+                      email: { type: 'string', format: 'email' },
+                      createdAt: { type: 'string', format: 'date-time' },
+                    },
+                    required: ['id', 'name', 'email'],
+                  },
+                },
+              },
+            },
+          },
+          '500': {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    error: { type: 'string' },
+                    message: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+}
 
+const server = createServer((req, res) => {
+  const url = new URL(req.url, `http://localhost:${port}`)
+
+  res.setHeader('Content-Type', 'application/json')
+
+  if (req.method === 'GET' && url.pathname === '/openapi/external.json') {
+    res.writeHead(200)
+    res.end(JSON.stringify(openApiDocument, null, 2))
+    return
+  }
+
+  if (req.method === 'GET' && url.pathname === '/api/users') {
+    const limit = Number.parseInt(url.searchParams.get('limit')) || 10
     const users = [
       { id: 1, name: 'John Doe', email: 'john@example.com', createdAt: '2025-01-01T00:00:00Z' },
       { id: 2, name: 'Jane Smith', email: 'jane@example.com', createdAt: '2025-01-02T00:00:00Z' },
@@ -91,34 +106,17 @@ app.get(
       { id: 9, name: 'George Martinez', email: 'george@example.com', createdAt: '2025-01-09T00:00:00Z' },
       { id: 10, name: 'Helen Rodriguez', email: 'helen@example.com', createdAt: '2025-01-10T00:00:00Z' },
     ]
-
-    return users.slice(0, limit)
-  },
-)
-
-// OpenAPI JSON endpoint
-app.get(
-  '/openapi/external.json',
-  {
-    schema: {
-      hide: true,
-    },
-  },
-  async (_request, reply) => {
-    reply.type('application/json')
-    return app.swagger()
-  },
-)
-
-// Start the server
-const start = () => {
-  try {
-    app.listen({ port: port })
-    console.log(`📋 OpenAPI JSON: http://localhost:${port}/openapi.json`)
-  } catch (err) {
-    app.log.error(err)
-    process.exit(1)
+    res.writeHead(200)
+    res.end(JSON.stringify(users.slice(0, limit), null, 2))
+    return
   }
-}
 
-start()
+  // 404 for all other routes
+  res.writeHead(404)
+  res.end(JSON.stringify({ error: 'Not Found' }))
+})
+
+server.listen(port, () => {
+  console.log(`📋 OpenAPI JSON: http://localhost:${port}/openapi/external.json`)
+  console.log(`🚀 Server running on http://localhost:${port}`)
+})

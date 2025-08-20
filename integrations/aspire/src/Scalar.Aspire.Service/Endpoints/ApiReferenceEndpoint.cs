@@ -1,3 +1,6 @@
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
+
 namespace Scalar.Aspire.Service.Endpoints;
 
 internal static class ApiReferenceEndpoint
@@ -9,13 +12,16 @@ internal static class ApiReferenceEndpoint
 
     private static IResult HandleApiReference(IConfiguration configuration)
     {
-        var referenceConfiguration = configuration.GetValue<string>(ApiReferenceConfig);
-        if (string.IsNullOrEmpty(referenceConfiguration))
+        var rawReferenceConfiguration = configuration.GetValue<string>(ApiReferenceConfig);
+        if (string.IsNullOrEmpty(rawReferenceConfiguration))
         {
             return Results.Content(
                 $"API Reference configuration is not provided. Please set the {ApiReferenceConfig} environment variable.",
                 "text/plain", statusCode: StatusCodes.Status500InternalServerError);
         }
+
+        // Decode the configuration if it's Base64 encoded
+        var configurationToUse = TryDecodeBase64(rawReferenceConfiguration, out var decodedConfig) ? decodedConfig : rawReferenceConfiguration;
 
         var cdnUrl = configuration.GetValue<string>(CdnUrl);
         return Results.Content(
@@ -32,11 +38,27 @@ internal static class ApiReferenceEndpoint
                  <div id="app"></div>
                  <script src="{cdnUrl}"></script>
                  <script>
-                   const configuration = {referenceConfiguration}
+                   const configuration = {configurationToUse}
                    Scalar.createApiReference('#app', configuration)
                  </script>
                </body>
              </html>
              """, "text/html");
+    }
+
+    private static bool TryDecodeBase64(string input, [NotNullWhen(true)] out string? decoded)
+    {
+        decoded = null;
+
+        try
+        {
+            var bytes = Convert.FromBase64String(input);
+            decoded = Encoding.UTF8.GetString(bytes);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

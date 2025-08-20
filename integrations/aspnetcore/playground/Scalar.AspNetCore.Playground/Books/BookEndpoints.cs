@@ -57,6 +57,7 @@ internal static class BookEndpoints
                 return deleted ? Results.NoContent() : Results.NotFound();
             })
             .Produces(StatusCodes.Status204NoContent)
-            .Produces(StatusCodes.Status404NotFound);
+            .Produces(StatusCodes.Status404NotFound)
+            .WithBadge("Caution", BadgePosition.Before, "#ffc2c2");
     }
 }

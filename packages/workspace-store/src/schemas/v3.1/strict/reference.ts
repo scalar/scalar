@@ -1,5 +1,4 @@
 import { compose } from '@/schemas/compose'
-import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
 import { Type, type Static, type TIntersect, type TObject, type TSchema } from '@sinclair/typebox'
 
 export const ReferenceObjectExtensionsSchema = Type.Object({
@@ -25,12 +24,12 @@ export const ReferenceObjectSchema = compose(
     description: Type.Optional(Type.String()),
   }),
   ReferenceObjectExtensionsSchema,
-  ExtensionsSchema,
 )
 
 export type ReferenceObject = Static<typeof ReferenceObjectSchema>
 
-export const reference = (schema: TSchema) => compose(ReferenceObjectSchema, Type.Object({ '$ref-value': schema }))
+export const reference = <T extends TSchema>(schema: T): ReferenceType<T> =>
+  compose(ReferenceObjectSchema, Type.Object({ '$ref-value': schema }))
 
 export type ReferenceType<Schema extends TSchema> = TIntersect<
   [

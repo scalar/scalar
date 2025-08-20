@@ -18,14 +18,11 @@ public static class ResourceBuilderExtensions
     public static IResourceBuilder<ScalarResource> WithApiReference(
         this IResourceBuilder<ScalarResource> builder,
         IResourceBuilder<IResourceWithServiceDiscovery> resourceBuilder,
-        Action<ScalarOptions>? configureOptions = null) =>
-        builder
-            .WithReference(resourceBuilder)
-            .WithAnnotation(new ScalarAnnotation(resourceBuilder.Resource, (options, _) =>
-            {
-                configureOptions?.Invoke(options);
-                return Task.CompletedTask;
-            }));
+        Action<ScalarOptions>? configureOptions = null) => builder.WithApiReference(resourceBuilder, (options, _) =>
+    {
+        configureOptions?.Invoke(options);
+        return Task.CompletedTask;
+    });
 
 
     /// <summary>

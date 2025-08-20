@@ -46,9 +46,14 @@ describe('filterSecurityRequirements', () => {
     expect(result).toEqual([])
   })
 
-  it('should return empty array when no security schemes are selected', () => {
+  it('should return the first security scheme when no security schemes are selected', () => {
     const result = filterSecurityRequirements([{ bearerAuth: [] }], [], mockSecuritySchemes)
-    expect(result).toEqual([])
+    expect(result).toEqual([mockSecuritySchemes.bearerAuthUid])
+  })
+
+  it('should return the first non-optional security scheme when no security schemes are selected', () => {
+    const result = filterSecurityRequirements([{}, { bearerAuth: [] }], [], mockSecuritySchemes)
+    expect(result).toEqual([mockSecuritySchemes.bearerAuthUid])
   })
 
   it('should filter single security requirement correctly', () => {

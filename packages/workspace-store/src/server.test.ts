@@ -12,6 +12,8 @@ import { allFilesMatch } from '../test/helpers'
 import { fastify, type FastifyInstance } from 'fastify'
 import { randomUUID } from 'node:crypto'
 import { setTimeout } from 'node:timers/promises'
+import { SchemaObjectSchema } from '@/schemas/v3.1/strict/schema'
+import { coerceValue } from '@/schemas/typebox-coerce'
 
 describe('create-server-store', () => {
   const exampleDocument = () => ({
@@ -462,6 +464,7 @@ describe('filter-http-methods-only', () => {
     const result = filterHttpMethodsOnly({
       '/path': {
         get: { description: 'some description' },
+        // @ts-expect-error - this is a test
         'x-scalar-test': 'test',
         servers: [],
         parameters: [{ name: 'name', in: 'path' }],
@@ -502,7 +505,7 @@ describe('externalize-component-references', () => {
         openapi: '',
         components: {
           schemas: {
-            'User': {
+            'User': coerceValue(SchemaObjectSchema, {
               'type': 'object',
               'required': ['id', 'name', 'email'],
               'properties': {
@@ -512,7 +515,7 @@ describe('externalize-component-references', () => {
                   'example': '123e4567-e89b-12d3-a456-426614174000',
                 },
               },
-            },
+            }),
           },
         },
       },
@@ -538,7 +541,7 @@ describe('externalize-component-references', () => {
         openapi: '',
         components: {
           schemas: {
-            'User': {
+            'User': coerceValue(SchemaObjectSchema, {
               'type': 'object',
               'required': ['id', 'name', 'email'],
               'properties': {
@@ -548,7 +551,7 @@ describe('externalize-component-references', () => {
                   'example': '123e4567-e89b-12d3-a456-426614174000',
                 },
               },
-            },
+            }),
           },
         },
       },

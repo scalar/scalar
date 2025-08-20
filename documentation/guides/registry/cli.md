@@ -2,7 +2,7 @@
 This guide will help you interact with our registry with our CLI, programmatically. If you want to also work with the registry with our dashboard you can.
 
 ### Generate Token
-If you choose to interface with our registry with our [CLI](/scalar/scalar-cli/getting-started) or our API you will need to generate an API key.
+If you choose to interface with our registry with our [CLI](https://guides.scalar.com/scalar/scalar-cli/getting-started) or our API you will need to generate an API key.
 
 Go to https://dashboard.scalar.com and navigate to User > API Keys:
 
@@ -120,6 +120,6 @@ scalar registry publish ./apis/order-api/openapi.json --namespace myteam --slug 
 ```
 
 ## Integration with CI/CD
-For automated publishing, you can integrate the CLI with GitHub Actions or other CI/CD systems. See our [GitHub Actions guide](/scalar/scalar-registry/github-actions) for detailed examples.
+For automated publishing, you can integrate the CLI with GitHub Actions or other CI/CD systems. See our [GitHub Actions guide](https://guides.scalar.com/scalar/scalar-registry/github-actions) for detailed examples.
 
 The CLI supports environment variables and can be easily integrated into automated workflows for continuous deployment of your API documentation.

@@ -28,7 +28,7 @@ catalogs:
       specifier: 1.54.0
       version: 1.54.0
     '@sinclair/typebox':
-      specifier: 0.34.38
+      specifier: https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build/target/remote/sinclair-typebox-0.34.38.tgz
       version: 0.34.38
     '@tailwindcss/vite':
       specifier: ^4.1.7
@@ -764,14 +764,7 @@ importers:
         specifier: ^0.4.0
         version: 0.4.0
 
-  integrations/aspire/playground/Scalar.Aspire.UserService:
-    dependencies:
-      '@fastify/swagger':
-        specifier: catalog:*
-        version: 8.14.0
-      fastify:
-        specifier: ^4.26.2
-        version: 4.28.0
+  integrations/aspire/playground/Scalar.Aspire.UserService: {}
 
   integrations/aspnetcore:
     dependencies:
@@ -1324,6 +1317,9 @@ importers:
       '@scalar/icons':
         specifier: workspace:*
         version: link:../icons
+      '@scalar/json-magic':
+        specifier: workspace:*
+        version: link:../json-magic
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
@@ -2042,6 +2038,9 @@ importers:
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../helpers
+      '@scalar/json-magic':
+        specifier: workspace:*
+        version: link:../json-magic
       '@scalar/object-utils':
         specifier: workspace:*
         version: link:../object-utils
@@ -2125,6 +2124,9 @@ importers:
 
   packages/openapi-parser:
     dependencies:
+      '@scalar/json-magic':
+        specifier: workspace:*
+        version: link:../json-magic
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
@@ -2612,7 +2614,7 @@ importers:
         version: link:../types
       '@sinclair/typebox':
         specifier: catalog:*
-        version: 0.34.38
+        version: https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build/target/remote/sinclair-typebox-0.34.38.tgz
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
@@ -8343,8 +8345,9 @@ packages:
   '@sinclair/typebox@0.27.8':
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
 
-  '@sinclair/typebox@0.34.38':
-    resolution: {integrity: sha512-HpkxMmc2XmZKhvaKIZZThlHmx1L0I/V1hWK1NubtlFnr6ZqdiOpV72TKudZUNQjZNsyDBay72qFEhEvb+bcwcA==}
+  '@sinclair/typebox@https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build/target/remote/sinclair-typebox-0.34.38.tgz':
+    resolution: {tarball: https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build/target/remote/sinclair-typebox-0.34.38.tgz}
+    version: 0.34.38
 
   '@sindresorhus/is@0.14.0':
     resolution: {integrity: sha512-9NET910DNaIPngYnLLPeg+Ogzqsi9uM4mSboU5y6p8S5DzMTVEsJZrawi+BoDNUVBa2DhJqQYUFvMDfgU062LQ==}
@@ -27989,7 +27992,7 @@ snapshots:
 
   '@sinclair/typebox@0.27.8': {}
 
-  '@sinclair/typebox@0.34.38': {}
+  '@sinclair/typebox@https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build/target/remote/sinclair-typebox-0.34.38.tgz': {}
 
   '@sindresorhus/is@0.14.0': {}
 

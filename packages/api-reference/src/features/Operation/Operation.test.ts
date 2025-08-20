@@ -5,10 +5,12 @@ import { createMockSidebar, createMockStore } from '@/helpers/test-utils'
 
 import Operation from './Operation.vue'
 import { collectionSchema } from '@scalar/oas-utils/entities/spec'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/schemas/workspace'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { enableConsoleError, enableConsoleWarn } from '@scalar/helpers/testing/console-spies'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
+import { OpenAPIDocumentSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 
 // Mock the workspace store
 vi.mock('@scalar/api-client/store', () => ({
@@ -54,45 +56,46 @@ describe('Operation', () => {
 
   const mockCollection = collectionSchema.parse({})
 
-  const createMockDocument = (): WorkspaceDocument => ({
-    openapi: '3.1.0',
-    info: {
-      title: 'Test API',
-      version: '1.0.0',
-    },
-    paths: {
-      '/users/{userId}': {
-        parameters: [
-          {
-            in: 'path',
-            name: 'userId',
-            schema: {
-              type: 'string',
-            },
-            required: true,
-            deprecated: false,
-          },
-        ],
-        get: {
-          summary: 'Get user by ID',
+  const createMockDocument = (): WorkspaceDocument =>
+    coerceValue(OpenAPIDocumentSchema, {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/users/{userId}': {
           parameters: [
             {
-              in: 'query',
-              name: 'include',
+              in: 'path',
+              name: 'userId',
               schema: {
                 type: 'string',
               },
-              required: false,
+              required: true,
               deprecated: false,
             },
           ],
+          get: {
+            summary: 'Get user by ID',
+            parameters: [
+              {
+                in: 'query',
+                name: 'include',
+                schema: {
+                  type: 'string',
+                },
+                required: false,
+                deprecated: false,
+              },
+            ],
+          },
         },
       },
-    },
-    components: {
-      schemas: {},
-    },
-  })
+      components: {
+        schemas: {},
+      },
+    })
 
   it('renders path parameters from pathItem parameters', () => {
     const wrapper = mount(Operation, {

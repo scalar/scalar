@@ -4,6 +4,8 @@ Tabs create interactive tabbed interfaces that organize content into multiple pa
 
 ## Properties
 
+Properties outside of `id`, `title`, and `default` will be ignored, however they can be useful. In the example below some ignored properties have been added to aid with reability, eg. `javascript-end`.
+
 ### id
 `string` _required_
 
@@ -23,46 +25,77 @@ The ID of the tab that should be active by default. If not specified, the first 
 
 ### Basic Tabs
 
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
-
-<scalar-tabs>
+<scalar-tabs outer>
+<scalar-tab title="Custom HTML" customHtml>
+<!--The actual tabs, rendered-->
+<scalar-tabs nested>
   <scalar-tab title="JavaScript">
+```javascript
+function greet(name) {
+  return `Hello, ${name}!`;
+}
 
-  ```javascript
-  function greet(name) {
-    return `Hello, ${name}!`;
-  }
-  
-  console.log(greet('World'));
-  ```
-  </scalar-tab>
-  
+console.log(greet('World'));
+```
+  </scalar-tab javascript-end>
+
   <scalar-tab title="TypeScript">
+```typescript
+function greet(name: string): string {
+  return `Hello, ${name}!`;
+}
 
-  ```typescript
-  function greet(name: string): string {
-    return `Hello, ${name}!`;
-  }
-  
-  console.log(greet('World'));
-  ```
-  </scalar-tab>
-  
+console.log(greet('World'));
+```
+  </scalar-tab typescript-end>
+
   <scalar-tab title="Python">
+```python
+def greet(name):
+  return f"Hello, {name}!"
 
-  ```python
-  def greet(name):
-      return f"Hello, {name}!"
-  
-  print(greet("World"))
-  ```
-  </scalar-tab>
-</scalar-tabs>
-</scalar-tab>
+print(greet("World"))
+```
+  </scalar-tab python-end>
+</scalar-tabs nested>
 
-<scalar-tab title="Directive">
+<!--The tabs as raw markdown for display -->
+````markdown
+<scalar-tabs nested>
+  <scalar-tab title="JavaScript">
+```javascript
+function greet(name) {
+  return `Hello, ${name}!`;
+}
 
+console.log(greet('World'));
+```
+  </scalar-tab javascript-end>
+
+  <scalar-tab title="TypeScript">
+```typescript
+function greet(name: string): string {
+  return `Hello, ${name}!`;
+}
+
+console.log(greet('World'));
+```
+  </scalar-tab typescript-end>
+
+  <scalar-tab title="Python">
+```python
+def greet(name):
+  return f"Hello, {name}!"
+
+print(greet("World"))
+```
+  </scalar-tab python-end>
+</scalar-tabs nested>
+````
+</scalar-tab customHtml>
+
+<scalar-tab title="Directive" directive>
+<!--The actual tabs, rendered-->
 ::::scalar-tabs
 :::scalar-tab{ title="Rust" }
 
@@ -76,7 +109,6 @@ fn main() {
 }
 ```
 :::
-  
 :::scalar-tab{ title="Go" }
 
 ```go
@@ -95,7 +127,6 @@ func main() {
 }
 ```
 :::
-  
 :::scalar-tab{ title="C++" }
 
 ```cpp
@@ -113,11 +144,9 @@ int main() {
 ```
 :::
 ::::
-</scalar-tab>
-</scalar-tabs>
 
-
-````html
+<!--The tabs as raw markdown for display -->
+````markdown
 ::::scalar-tabs
 :::scalar-tab{ title="Rust" }
 
@@ -131,7 +160,6 @@ fn main() {
 }
 ```
 :::
-  
 :::scalar-tab{ title="Go" }
 
 ```go
@@ -150,7 +178,6 @@ func main() {
 }
 ```
 :::
-  
 :::scalar-tab{ title="C++" }
 
 ```cpp
@@ -169,6 +196,8 @@ int main() {
 :::
 ::::
 ````
+</scalar-tab directive>
+</scalar-tabs outer>
 
 ### Tabs with Default Selection
 <scalar-tabs>

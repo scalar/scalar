@@ -282,7 +282,7 @@ If you like to run your own, check out our [example proxy written in Go](https:/
 
 ### plugins?: ApiReferencePlugin[]
 
-Pass an array of custom plugins that you want. [Read more about plugins here.](./plugins.md)
+Pass an array of custom plugins that you want. [Read more about plugins here.](https://guides.scalar.com/scalar/scalar-api-references/plugins)
 
 ```js
 {

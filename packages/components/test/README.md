@@ -15,6 +15,16 @@ The testing setup uses Playwright to capture visual snapshots of Storybook stori
 
 ## Running Tests
 
+### Building Storybook
+
+If you're not running the components dev server Playwright will automatically start serving the built Storybook files from `storybook-static`. This means **before running tests you have to run**,
+
+```bash
+pnpm build:storybook
+```
+
+It's recommend to run the tests against the built Storybook files rather than the dev server because that's what's used in CI and will yield the most accurate snapshots.
+
 ### Local Development
 
 The Playwright browser is run in a Docker container to have consistent results with CI. In order to run the test locally or update snapshots you **must** have Docker set up on your system. 

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { CallbackObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
-import { isReference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 
 import type { Schemas } from '@/features/Operation/types/schemas'
 
@@ -31,24 +31,21 @@ const {
     <template
       v-for="(pathItem, name) in callbacks"
       :key="name">
-      <!-- Make sure its not a ref -->
-      <template v-if="!isReference(pathItem)">
-        <!-- Loop over methods -->
-        <template v-for="(methods, url) in pathItem">
-          <!-- Only HTTP Methods -->
-          <template
-            v-for="(callback, method) in methods"
-            :key="method">
-            <Callback
-              v-if="isHttpMethod(method)"
-              :callback="callback"
-              :method="method"
-              :operationMethod="operationMethod"
-              :name="name"
-              :path="path"
-              :schemas="schemas"
-              :url="url" />
-          </template>
+      <!-- Loop over methods -->
+      <template v-for="(methods, url) in getResolvedRef(pathItem)">
+        <!-- Only HTTP Methods -->
+        <template
+          v-for="(callback, method) in methods"
+          :key="method">
+          <Callback
+            v-if="isHttpMethod(method)"
+            :callback="callback"
+            :method="method"
+            :operationMethod="operationMethod"
+            :name="name"
+            :path="path"
+            :schemas="schemas"
+            :url="url" />
         </template>
       </template>
     </template>

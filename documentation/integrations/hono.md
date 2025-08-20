@@ -34,7 +34,7 @@ app.get('/scalar', Scalar((c) => {
 export default app
 ```
 
-The Hono middleware takes our universal configuration object, [read more about configuration](https://github.com/scalar/scalar/blob/main/documentation/configuration.md) in the core package README.
+The Hono middleware takes our universal configuration object, [read more about configuration](https://guides.scalar.com/scalar/scalar-api-references/configuration) in the core package README.
 
 ### Themes
 

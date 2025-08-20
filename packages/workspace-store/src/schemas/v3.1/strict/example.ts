@@ -1,5 +1,3 @@
-import { compose } from '@/schemas/compose'
-import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
 import { Type, type Static } from '@sinclair/typebox'
 
 /**
@@ -7,18 +5,15 @@ import { Type, type Static } from '@sinclair/typebox'
  *
  * Examples allow demonstration of the usage of properties, parameters and objects within OpenAPI.
  */
-export const ExampleObjectSchema = compose(
-  Type.Object({
-    /** Short description for the example. */
-    summary: Type.Optional(Type.String()),
-    /** Long description for the example. CommonMark syntax MAY be used for rich text representation. */
-    description: Type.Optional(Type.String()),
-    /** Embedded literal example. The value field and externalValue field are mutually exclusive. To represent examples of media types that cannot naturally represented in JSON or YAML, use a string value to contain the example, escaping where necessary. */
-    value: Type.Optional(Type.Any()),
-    /** A URI that identifies the literal example. This provides the capability to reference examples that cannot easily be included in JSON or YAML documents. The value field and externalValue field are mutually exclusive. See the rules for resolving Relative References. */
-    externalValue: Type.Optional(Type.String()),
-  }),
-  ExtensionsSchema,
-)
+export const ExampleObjectSchema = Type.Object({
+  /** Short description for the example. */
+  summary: Type.Optional(Type.String()),
+  /** Long description for the example. CommonMark syntax MAY be used for rich text representation. */
+  description: Type.Optional(Type.String()),
+  /** Embedded literal example. The value field and externalValue field are mutually exclusive. To represent examples of media types that cannot naturally represented in JSON or YAML, use a string value to contain the example, escaping where necessary. */
+  value: Type.Optional(Type.Any()),
+  /** A URI that identifies the literal example. This provides the capability to reference examples that cannot easily be included in JSON or YAML documents. The value field and externalValue field are mutually exclusive. See the rules for resolving Relative References. */
+  externalValue: Type.Optional(Type.String()),
+})
 
 export type ExampleObject = Static<typeof ExampleObjectSchema>

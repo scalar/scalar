@@ -1,7 +1,7 @@
 import { Type, type Static } from '@sinclair/typebox'
 import { ContactObjectSchema } from './contact'
 import { LicenseObjectSchema } from './license'
-import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
+import { XScalarSdkInstallationSchema } from '@/schemas/extensions/document/x-scalar-sdk-installation'
 import { compose } from '@/schemas/compose'
 
 /**
@@ -24,7 +24,7 @@ export const InfoObjectSchema = compose(
     /** REQUIRED. The version of the OpenAPI Document (which is distinct from the OpenAPI Specification version or the version of the API being described or the version of the OpenAPI Description). */
     version: Type.String(),
   }),
-  ExtensionsSchema,
+  XScalarSdkInstallationSchema,
 )
 
 export type InfoObject = Static<typeof InfoObjectSchema>

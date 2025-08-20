@@ -27,7 +27,7 @@ catalogs:
     '@headlessui/tailwindcss': ^0.2.2
     '@headlessui/vue': ^1.7.23
     '@playwright/test': 1.54.0
-    '@sinclair/typebox': 0.34.38
+    '@sinclair/typebox': https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build/target/remote/sinclair-typebox-0.34.38.tgz
     '@tailwindcss/vite': ^4.1.7
     '@types/express': 5.0.3
     '@types/node': ^22.9.0

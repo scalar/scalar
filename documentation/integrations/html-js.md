@@ -36,7 +36,7 @@ This renders our `@scalar/galaxy` OpenAPI example, using the latest version of `
 
 ## Configuration
 
-Check out the [Configuration](../configuration.md) page to learn more about customizing your API reference.
+Check out the [Configuration](https://guides.scalar.com/scalar/scalar-api-references/configuration) page to learn more about customizing your API reference.
 
 ## Version
 

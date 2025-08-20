@@ -5,7 +5,7 @@ This guide will help you get started with generating world-class SDKs on scalar.
 SDK generation is part of our paid plans and costs $100 per month per language. Keep this in mind when selecting which languages you'd like to generate SDKs for.
 :::
 
-Make sure you have created a Scalar Account & are logged in ([see create account guide](/scalar/scalar-registry/getting-started#create-your-scalar-account))
+Make sure you have created a Scalar Account & are logged in ([see create account guide](https://guides.scalar.com/scalar/scalar-registry/getting-started#create-your-scalar-account))
 
 ## Generating your first SDK
 From the [dashboard](https://dashboard.scalar.com) left-most sidebar under Products > SDKs, then click Create new SDK.

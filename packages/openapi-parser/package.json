@@ -58,6 +58,7 @@
   "module": "./dist/index.js",
   "sideEffects": false,
   "dependencies": {
+    "@scalar/json-magic": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "ajv": "^8.17.1",
     "ajv-draft-04": "^1.0.0",

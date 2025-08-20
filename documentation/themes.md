@@ -146,7 +146,7 @@ Or get more advanced by styling our sidebar!
 
 We've migrated our `--theme-*` CSS variables to `--scalar-*` to avoid conflicts with other CSS variables in
 applications consuming the Scalar references or themes.
-If you're injecting your custom CSS through the [`customCss`](/documentation/configuration.md) configuration option we will automatically
+If you're injecting your custom CSS through the [`customCss`](https://guides.scalar.com/scalar/scalar-api-references/configuration) configuration option we will automatically
 migrate your variable prefixes but display a warning in the console.
 
 We recommend updating your theme variables as soon as possible:

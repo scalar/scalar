@@ -1,11 +1,11 @@
-import { Type, type Static } from '@sinclair/typebox'
+import { Type } from '@sinclair/typebox'
 
 import { compose } from '@/schemas/compose'
 
 import { ContactObjectSchema } from './contact'
 import { LicenseObjectSchema } from './license'
-import { ExtensionsSchema } from './extensions'
 import { ReferenceObjectSchema } from './reference'
+import { XScalarSdkInstallationSchema } from '@/schemas/extensions/document/x-scalar-sdk-installation'
 
 /**
  * The object provides metadata about the API. The metadata MAY be used by the clients if needed, and MAY be presented in editing or documentation generation tools for convenience.
@@ -27,7 +27,5 @@ export const InfoObjectSchema = compose(
     /** The license information for the exposed API. */
     license: Type.Optional(Type.Union([LicenseObjectSchema, ReferenceObjectSchema])),
   }),
-  ExtensionsSchema,
+  XScalarSdkInstallationSchema,
 )
-
-export type InfoObject = Static<typeof InfoObjectSchema>

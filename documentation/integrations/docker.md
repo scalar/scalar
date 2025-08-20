@@ -27,7 +27,7 @@ services:
             {
               "url": "https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json"
             }
-          ]
+          ],
           "theme": "purple"
         }
 ```
@@ -60,7 +60,7 @@ The container includes a health check endpoint at `/health` that returns `OK` wi
 
 ## Configuration Options
 
-For detailed configuration options, refer to the [main Scalar documentation](https://github.com/scalar/scalar/blob/main/documentation/configuration.md).
+For detailed configuration options, refer to the [main Scalar documentation](https://guides.scalar.com/scalar/scalar-api-references/configuration).
 
 ## Building from Source
 

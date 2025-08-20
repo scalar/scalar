@@ -1,28 +1,29 @@
 <script setup lang="ts">
 import { htmlFromMarkdown } from '@scalar/code-highlight'
-import { cx } from '@scalar/use-hooks/useBindCx'
-import { computed } from 'vue'
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
+import { computed, useTemplateRef } from 'vue'
 
-const props = withDefaults(
-  defineProps<{
-    value?: string
-    withImages?: boolean
-    transform?: (node: Record<string, any>) => Record<string, any>
-    transformType?: string
-    clamp?: string | boolean
-    class?: string
-    withAnchors?: boolean
-    anchorPrefix?: string
-  }>(),
-  {
-    withImages: false,
-    withAnchors: false,
-  },
-)
+import type { ScalarMarkdownProps } from './types'
+
+const {
+  value,
+  transform,
+  transformType,
+  withImages = false,
+  withAnchors = false,
+  anchorPrefix,
+} = defineProps<ScalarMarkdownProps>()
+
+const { cx } = useBindCx()
+defineOptions({ inheritAttrs: false })
+
+// Expose the element ref to the parent component
+const templateRef = useTemplateRef('div')
+defineExpose({ el: templateRef })
 
 const transformHeading = (node: Record<string, any>) => {
-  if (!props.withAnchors) {
-    return props.transform?.(node) || node
+  if (!withAnchors) {
+    return transform?.(node) || node
   }
 
   const headingText = node.children?.[0]?.value || ''
@@ -31,9 +32,7 @@ const transformHeading = (node: Record<string, any>) => {
   const slug = headingText.toLowerCase().replace(/\s+/g, '-')
 
   /** Return adding anchor prefix if present or just the slug */
-  const id = props.anchorPrefix
-    ? `${props.anchorPrefix}/description/${slug}`
-    : slug
+  const id = anchorPrefix ? `${anchorPrefix}/description/${slug}` : slug
 
   // Add the id to the heading
   node.data = {
@@ -42,32 +41,27 @@ const transformHeading = (node: Record<string, any>) => {
     },
   }
 
-  if (props.transform) {
-    return props.transform(node)
+  if (transform) {
+    return transform(node)
   }
 
   return node
 }
 
 const html = computed(() => {
-  return htmlFromMarkdown(props.value ?? '', {
-    removeTags: props.withImages ? [] : ['img', 'picture'],
+  return htmlFromMarkdown(value ?? '', {
+    removeTags: withImages ? [] : ['img', 'picture'],
     transform:
-      props.withAnchors && props.transformType === 'heading'
-        ? transformHeading
-        : props.transform,
-    transformType: props.transformType,
+      withAnchors && transformType === 'heading' ? transformHeading : transform,
+    transformType,
   })
 })
 </script>
 <template>
   <div
-    :class="
-      cx('markdown text-ellipsis', { 'line-clamp-4': clamp }, props.class)
-    "
-    :style="{
-      '-webkit-line-clamp': typeof clamp === 'string' ? clamp : undefined,
-    }"
+    ref="div"
+    v-bind="cx('markdown', { 'line-clamp-(--markdown-clamp)': !!clamp })"
+    :style="{ '--markdown-clamp': clamp }"
     v-html="html" />
 </template>
 <style>
