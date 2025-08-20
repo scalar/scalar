@@ -930,7 +930,8 @@
             "description": "Chain which you want to get the block from",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "ethereum"
             }
           },
           {
@@ -939,7 +940,8 @@
             "description": "UNIX timestamp of the block you are searching for",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "integer",
+              "example": 1603964988
             }
           }
         ],
