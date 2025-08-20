@@ -17,15 +17,14 @@ import ClientDropdown from './ClientDropdown.vue'
 
 const {
   clientOptions,
-  xSelectedClient: selectedClient = DEFAULT_CLIENT,
   xScalarSdkInstallation,
+  xSelectedClient = DEFAULT_CLIENT,
 } = defineProps<{
+  xScalarSdkInstallation?: XScalarSdkInstallation['x-scalar-sdk-installation']
   /** Computed list of all available Http Client options */
   clientOptions: ClientOptionGroup[]
   /** The currently selected Http Client */
   xSelectedClient?: AvailableClients[number]
-  /** The */
-  xScalarSdkInstallation?: XScalarSdkInstallation
 }>()
 
 const headingId = useId()
@@ -36,7 +35,7 @@ const selectedClientOption = computed(
   () =>
     clientOptions.flatMap(
       (option) =>
-        option.options.find((option) => option.id === selectedClient) ?? [],
+        option.options.find((option) => option.id === xSelectedClient) ?? [],
     )[0],
 )
 
@@ -46,7 +45,7 @@ const featuredClients = computed(() => getFeaturedClients(clientOptions))
 /** Currently selected tab index */
 const tabIndex = computed(() =>
   featuredClients.value.findIndex(
-    (featuredClient) => selectedClient === featuredClient.id,
+    (featuredClient) => xSelectedClient === featuredClient.id,
   ),
 )
 
@@ -74,7 +73,7 @@ const installationInstructions = computed(() => {
 
   // Find the instructions for the current language
   const instruction = xScalarSdkInstallation.find((instruction) => {
-    const targetKey = selectedClient?.split('/')[0]?.toLowerCase()
+    const targetKey = xSelectedClient?.split('/')[0]?.toLowerCase()
     return instruction.lang.toLowerCase() === targetKey
   })
 
@@ -112,7 +111,7 @@ defineExpose({
         <ClientDropdown
           :clientOptions
           :featuredClients
-          :selectedClient
+          :xSelectedClient
           :morePanel />
       </TabList>
 
@@ -143,7 +142,7 @@ defineExpose({
               class="rounded-t-none rounded-b-lg px-3 py-2 -outline-offset-1 has-focus:outline" />
           </div>
         </template>
-        <template v-else-if="isFeaturedClient(selectedClient)">
+        <template v-else-if="isFeaturedClient(xSelectedClient)">
           <TabPanel
             v-for="client in featuredClients"
             :key="client.id"

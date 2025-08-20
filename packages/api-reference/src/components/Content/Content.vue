@@ -8,6 +8,7 @@ import { Introduction } from '@/components/Content/Introduction'
 import { Models } from '@/components/Content/Models'
 import { SectionFlare } from '@/components/SectionFlare'
 import { useConfig } from '@/hooks/useConfig'
+import ClientSelector from '@/v2/blocks/scalar-client-selector-block/components/ClientSelector.vue'
 import { generateClientOptions } from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
 import ServerSelector from '@/v2/blocks/scalar-server-selector-block/components/ServerSelector.vue'
 
@@ -39,7 +40,6 @@ const clientOptions = computed(() =>
       v-if="document?.info?.title || document?.info?.description"
       :document
       :store
-      :clientOptions
       :config>
       <template #serverSelector>
         <div
@@ -51,6 +51,16 @@ const clientOptions = computed(() =>
               store.workspace.activeDocument?.['x-scalar-active-server']
             " />
         </div>
+      </template>
+      <template #clientSelector>
+        <ClientSelector
+          v-if="config?.hiddenClients !== true && clientOptions.length"
+          :clientOptions
+          :xScalarSdkInstallation="
+            store.workspace.activeDocument?.info?.['x-scalar-sdk-installation']
+          "
+          :xSelectedClient="store.workspace['x-scalar-default-client']"
+          class="introduction-card-item scalar-reference-intro-clients" />
       </template>
     </Introduction>
 

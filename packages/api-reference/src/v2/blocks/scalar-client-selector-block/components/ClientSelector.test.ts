@@ -92,7 +92,7 @@ describe('ClientLibraries', () => {
 
       // The selectedClientOption computed property should resolve to the custom client
       const vm = wrapper.vm
-      expect(vm.selectedClientOption.id).toBe(customClient)
+      expect(vm.selectedClientOption?.id).toBe(customClient)
     })
 
     it('handles undefined selectedClient gracefully', () => {
@@ -115,7 +115,7 @@ describe('ClientLibraries', () => {
 
       // The selectedClientOption computed property should resolve to the default client
       const vm = wrapper.vm
-      expect(vm.selectedClientOption.id).toBe(DEFAULT_CLIENT)
+      expect(vm.selectedClientOption?.id).toBe(DEFAULT_CLIENT)
     })
   })
 })
