@@ -2609,9 +2609,6 @@ importers:
       '@scalar/json-magic':
         specifier: workspace:*
         version: link:../json-magic
-      '@scalar/oas-utils':
-        specifier: workspace:*
-        version: link:../oas-utils
       '@scalar/openapi-parser':
         specifier: workspace:*
         version: link:../openapi-parser
