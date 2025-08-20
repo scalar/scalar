@@ -9,7 +9,7 @@ internal static class JsonSerializerHelper
     internal static readonly JsonNode TrueNode = SerializeToNode(true);
 
     internal static JsonNode SerializeToNode<T>(T value) where T : notnull =>
-        JsonSerializer.SerializeToNode(value, typeof(T), ScalarSerializerContext.Default) ?? throw new InvalidOperationException($"Failed to get node for value '{value}'.");
+        JsonSerializer.SerializeToNode(value, typeof(T), ScalarExtensionsSerializerContext.Default) ?? throw new InvalidOperationException($"Failed to get node for value '{value}'.");
 }
 
 [JsonSerializable(typeof(bool))]
@@ -17,4 +17,4 @@ internal static class JsonSerializerHelper
 [JsonSerializable(typeof(IEnumerable<Badge>))]
 [JsonSerializable(typeof(Stability))]
 [JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
-internal sealed partial class ScalarSerializerContext : JsonSerializerContext;
+internal sealed partial class ScalarExtensionsSerializerContext : JsonSerializerContext;
