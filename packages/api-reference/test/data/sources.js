@@ -68,6 +68,7 @@ export default [
   {
     title: 'Zoom',
     url: 'https://developers.zoom.us/api-hub/meetings/methods/endpoints.json',
+    operationsSorter: 'alpha',
   },
   {
     title: 'Cloudinary',
