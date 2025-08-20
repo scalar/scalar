@@ -816,6 +816,9 @@
     padding-bottom: 200px;
     margin-top: 100px;
   }
+  .footer-animation {
+    margin-inline: -30px;
+  }
   .footer-animation svg {
     position: absolute;
     bottom: 0;
