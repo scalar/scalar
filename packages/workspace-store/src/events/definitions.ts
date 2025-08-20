@@ -129,18 +129,14 @@ export function emitCustomEvent<E extends ApiReferenceEvent>(
   event: E,
   detail: ApiReferenceEvents[E]['detail'],
 ) {
-  return new Promise((resolve) => {
-    const customDetail = typeof detail === 'object' ? { ...detail, callback: resolve } : detail
-
-    const instance = new CustomEvent(event, {
-      detail: customDetail,
-      bubbles: true,
-      composed: true,
-      cancelable: true,
-    })
-
-    target.dispatchEvent(instance)
+  const instance = new CustomEvent(event, {
+    detail: detail,
+    bubbles: true,
+    composed: true,
+    cancelable: true,
   })
+
+  target.dispatchEvent(instance)
 }
 
 /** Type helper for expanding complex types */

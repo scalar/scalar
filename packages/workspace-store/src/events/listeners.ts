@@ -1,8 +1,6 @@
 import type { ApiReferenceEvent, ApiReferenceEvents } from './definitions'
 import { onBeforeUnmount, type Ref, watch } from 'vue'
 
-type EventDetail<T> = T extends object ? T & { callback: () => void } : T
-
 /**
  * Vue wrapper for attaching and removing event listeners
  *
@@ -12,14 +10,6 @@ export function onCustomEvent<E extends ApiReferenceEvent>(
   event: E,
   handler: (event: CustomEvent<ApiReferenceEvents[E]['detail']>) => void,
 ) {
-  const listener = (event: CustomEvent<EventDetail<ApiReferenceEvents[E]['detail']>>) => {
-    handler(event)
-
-    if (typeof event.detail === 'object') {
-      event.detail.callback()
-    }
-  }
-
   // Any time the element reference changes, we need to add the event listener
   watch(
     () => el.value,
@@ -28,7 +18,7 @@ export function onCustomEvent<E extends ApiReferenceEvent>(
         return
       }
 
-      element.addEventListener(event, listener as any)
+      element.addEventListener(event, handler as any)
     },
     { immediate: true },
   )
@@ -38,6 +28,6 @@ export function onCustomEvent<E extends ApiReferenceEvent>(
       return
     }
 
-    el.value.removeEventListener(event, listener as any)
+    el.value.removeEventListener(event, handler as any)
   })
 }
