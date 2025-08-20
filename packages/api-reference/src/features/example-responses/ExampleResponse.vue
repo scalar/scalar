@@ -9,7 +9,7 @@ import { getResolvedRefDeep } from './helpers/get-resolved-ref-deep'
 
 const { example, response } = defineProps<{
   response: MediaTypeObject | undefined
-  example: ExampleObject
+  example: ExampleObject | undefined
 }>()
 </script>
 <template>

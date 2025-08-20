@@ -79,10 +79,7 @@ import { ScalarIconCaretDown } from '@scalar/icons'
 import { type AvailableClients, type TargetId } from '@scalar/snippetz'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import {
-  ExampleObjectSchema,
-  type ExampleObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/example'
+import { ExampleObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/example'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
