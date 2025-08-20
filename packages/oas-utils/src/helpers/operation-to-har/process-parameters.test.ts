@@ -1,9 +1,9 @@
 import type { Request as HarRequest } from 'har-format'
 import { describe, it, expect } from 'vitest'
 
-import { deReferenceParams, processParameters } from './process-parameters'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
-import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
+import { processParameters } from './process-parameters'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 
 describe('parameter styles', () => {
   const createHarRequest = (url: string): HarRequest => ({
@@ -19,26 +19,19 @@ describe('parameter styles', () => {
 
   describe('matrix style', () => {
     it('should handle matrix style with explode=false and single value', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users{;color}'),
+        [
           {
             name: 'color',
             in: 'path',
             style: 'matrix',
             explode: false,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
-        },
-      }
-
-      const result = processParameters(
-        createHarRequest('/api/users{;color}'),
-        deReferenceParams(operation.parameters),
         {
           color: 'blue',
         },
@@ -48,27 +41,20 @@ describe('parameter styles', () => {
     })
 
     it('should handle matrix style with explode=false and array values', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users{;color}'),
+        [
           {
             name: 'color',
             in: 'path',
             style: 'matrix',
             explode: false,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'array',
               items: { type: 'string' },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
-        },
-      }
-
-      const result = processParameters(
-        createHarRequest('/api/users{;color}'),
-        deReferenceParams(operation.parameters),
         {
           color: ['blue', 'black', 'brown'],
         },
@@ -78,31 +64,24 @@ describe('parameter styles', () => {
     })
 
     it('should handle matrix style with explode=false and object values', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users{;color}'),
+        [
           {
             name: 'color',
             in: 'path',
             style: 'matrix',
             explode: false,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'object',
               properties: {
                 R: { type: 'integer' },
                 G: { type: 'integer' },
                 B: { type: 'integer' },
               },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
-        },
-      }
-
-      const result = processParameters(
-        createHarRequest('/api/users{;color}'),
-        deReferenceParams(operation.parameters),
         {
           color: { R: 100, G: 200, B: 150 },
         },
@@ -112,26 +91,19 @@ describe('parameter styles', () => {
     })
 
     it('should handle matrix style with explode=true and single value', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users{;color}'),
+        [
           {
             name: 'color',
             in: 'path',
             style: 'matrix',
             explode: true,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
-        },
-      }
-
-      const result = processParameters(
-        createHarRequest('/api/users{;color}'),
-        deReferenceParams(operation.parameters),
         {
           color: 'blue',
         },
@@ -141,27 +113,20 @@ describe('parameter styles', () => {
     })
 
     it('should handle matrix style with explode=true and array values', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users{;color}'),
+        [
           {
             name: 'color',
             in: 'path',
             style: 'matrix',
             explode: true,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'array',
               items: { type: 'string' },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
-        },
-      }
-
-      const result = processParameters(
-        createHarRequest('/api/users{;color}'),
-        deReferenceParams(operation.parameters),
         {
           color: ['blue', 'black', 'brown'],
         },
@@ -171,31 +136,24 @@ describe('parameter styles', () => {
     })
 
     it('should handle matrix style with explode=true and object values', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users{;color}'),
+        [
           {
             name: 'color',
             in: 'path',
             style: 'matrix',
             explode: true,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'object',
               properties: {
                 R: { type: 'integer' },
                 G: { type: 'integer' },
                 B: { type: 'integer' },
               },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
-        },
-      }
-
-      const result = processParameters(
-        createHarRequest('/api/users{;color}'),
-        deReferenceParams(operation.parameters),
         {
           color: { R: 100, G: 200, B: 150 },
         },
@@ -207,26 +165,19 @@ describe('parameter styles', () => {
 
   describe('label style', () => {
     it('should handle label style with explode=false and single value', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users{.color}'),
+        [
           {
             name: 'color',
             in: 'path',
             style: 'label',
             explode: false,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
-        },
-      }
-
-      const result = processParameters(
-        createHarRequest('/api/users{.color}'),
-        deReferenceParams(operation.parameters),
         {
           color: 'blue',
         },
@@ -236,27 +187,20 @@ describe('parameter styles', () => {
     })
 
     it('should handle label style with explode=false and array values', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users{.color}'),
+        [
           {
             name: 'color',
             in: 'path',
             style: 'label',
             explode: false,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'array',
               items: { type: 'string' },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
-        },
-      }
-
-      const result = processParameters(
-        createHarRequest('/api/users{.color}'),
-        deReferenceParams(operation.parameters),
         {
           color: ['blue', 'black', 'brown'],
         },
@@ -266,31 +210,24 @@ describe('parameter styles', () => {
     })
 
     it('should handle label style with explode=false and object values', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users{.color}'),
+        [
           {
             name: 'color',
             in: 'path',
             style: 'label',
             explode: false,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'object',
               properties: {
                 R: { type: 'integer' },
                 G: { type: 'integer' },
                 B: { type: 'integer' },
               },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
-        },
-      }
-
-      const result = processParameters(
-        createHarRequest('/api/users{.color}'),
-        deReferenceParams(operation.parameters),
         {
           color: { R: 100, G: 200, B: 150 },
         },
@@ -300,26 +237,19 @@ describe('parameter styles', () => {
     })
 
     it('should handle label style with explode=true and single value', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users{.color}'),
+        [
           {
             name: 'color',
             in: 'path',
             style: 'label',
             explode: true,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
-        },
-      }
-
-      const result = processParameters(
-        createHarRequest('/api/users{.color}'),
-        deReferenceParams(operation.parameters),
         {
           color: 'blue',
         },
@@ -329,27 +259,20 @@ describe('parameter styles', () => {
     })
 
     it('should handle label style with explode=true and array values', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users{.color}'),
+        [
           {
             name: 'color',
             in: 'path',
             style: 'label',
             explode: true,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'array',
               items: { type: 'string' },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
-        },
-      }
-
-      const result = processParameters(
-        createHarRequest('/api/users{.color}'),
-        deReferenceParams(operation.parameters),
         {
           color: ['blue', 'black', 'brown'],
         },
@@ -359,31 +282,24 @@ describe('parameter styles', () => {
     })
 
     it('should handle label style with explode=true and object values', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users{.color}'),
+        [
           {
             name: 'color',
             in: 'path',
             style: 'label',
             explode: true,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'object',
               properties: {
                 R: { type: 'integer' },
                 G: { type: 'integer' },
                 B: { type: 'integer' },
               },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
-        },
-      }
-
-      const result = processParameters(
-        createHarRequest('/api/users{.color}'),
-        deReferenceParams(operation.parameters),
         {
           color: { R: 100, G: 200, B: 150 },
         },
@@ -395,26 +311,19 @@ describe('parameter styles', () => {
 
   describe('simple style', () => {
     it('should handle simple style with explode=false and single value', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users/{color}'),
+        [
           {
             name: 'color',
             in: 'path',
             style: 'simple',
             explode: false,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
-        },
-      }
-
-      const result = processParameters(
-        createHarRequest('/api/users/{color}'),
-        deReferenceParams(operation.parameters),
         {
           color: 'blue',
         },
@@ -424,27 +333,20 @@ describe('parameter styles', () => {
     })
 
     it('should handle simple style with explode=false and array values', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users/{color}'),
+        [
           {
             name: 'color',
             in: 'path',
             style: 'simple',
             explode: false,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'array',
               items: { type: 'string' },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
-        },
-      }
-
-      const result = processParameters(
-        createHarRequest('/api/users/{color}'),
-        deReferenceParams(operation.parameters),
         {
           color: ['blue', 'black', 'brown'],
         },
@@ -454,31 +356,24 @@ describe('parameter styles', () => {
     })
 
     it('should handle simple style with explode=false and object values', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users/{color}'),
+        [
           {
             name: 'color',
             in: 'path',
             style: 'simple',
             explode: false,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'object',
               properties: {
                 R: { type: 'integer' },
                 G: { type: 'integer' },
                 B: { type: 'integer' },
               },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
-        },
-      }
-
-      const result = processParameters(
-        createHarRequest('/api/users/{color}'),
-        deReferenceParams(operation.parameters),
         {
           color: { R: 100, G: 200, B: 150 },
         },
@@ -488,26 +383,19 @@ describe('parameter styles', () => {
     })
 
     it('should handle simple style with explode=true and single value', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users/{color}'),
+        [
           {
             name: 'color',
             in: 'path',
             style: 'simple',
             explode: true,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
-        },
-      }
-
-      const result = processParameters(
-        createHarRequest('/api/users/{color}'),
-        deReferenceParams(operation.parameters),
         {
           color: 'blue',
         },
@@ -517,27 +405,20 @@ describe('parameter styles', () => {
     })
 
     it('should handle simple style with explode=true and array values', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users/{color}'),
+        [
           {
             name: 'color',
             in: 'path',
             style: 'simple',
             explode: true,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'array',
               items: { type: 'string' },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
-        },
-      }
-
-      const result = processParameters(
-        createHarRequest('/api/users/{color}'),
-        deReferenceParams(operation.parameters),
         {
           color: ['blue', 'black', 'brown'],
         },
@@ -547,31 +428,24 @@ describe('parameter styles', () => {
     })
 
     it('should handle simple style with explode=true and object values', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users/{color}'),
+        [
           {
             name: 'color',
             in: 'path',
             style: 'simple',
             explode: true,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'object',
               properties: {
                 R: { type: 'integer' },
                 G: { type: 'integer' },
                 B: { type: 'integer' },
               },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
-        },
-      }
-
-      const result = processParameters(
-        createHarRequest('/api/users/{color}'),
-        deReferenceParams(operation.parameters),
         {
           color: { R: 100, G: 200, B: 150 },
         },
@@ -583,137 +457,122 @@ describe('parameter styles', () => {
 
   describe('form style', () => {
     it('should handle form style with explode=false and single value', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'color',
             in: 'query',
             style: 'form',
             explode: false,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          color: 'blue',
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        color: 'blue',
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.queryString).toEqual([{ name: 'color', value: 'blue' }])
     })
 
     it('should handle form style with explode=false and array values', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'color',
             in: 'query',
             style: 'form',
             explode: false,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'array',
               items: { type: 'string' },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          color: ['blue', 'black', 'brown'],
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        color: ['blue', 'black', 'brown'],
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.queryString).toEqual([{ name: 'color', value: 'blue,black,brown' }])
     })
 
     it('should handle form style with explode=false and object values', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'color',
             in: 'query',
             style: 'form',
             explode: false,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'object',
               properties: {
                 R: { type: 'integer' },
                 G: { type: 'integer' },
                 B: { type: 'integer' },
               },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          color: { R: 100, G: 200, B: 150 },
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        color: { R: 100, G: 200, B: 150 },
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.queryString).toEqual([{ name: 'color', value: 'R,100,G,200,B,150' }])
     })
 
     it('should handle form style with explode=true and single value', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'color',
             in: 'query',
             style: 'form',
             explode: true,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          color: 'blue',
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        color: 'blue',
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.queryString).toEqual([{ name: 'color', value: 'blue' }])
     })
 
     it('should handle form style with explode=true and array values', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'color',
             in: 'query',
             style: 'form',
             explode: true,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'array',
               items: { type: 'string' },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          color: ['blue', 'black', 'brown'],
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        color: ['blue', 'black', 'brown'],
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.queryString).toEqual([
@@ -724,31 +583,28 @@ describe('parameter styles', () => {
     })
 
     it('should handle form style with explode=true and object values', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'color',
             in: 'query',
             style: 'form',
             explode: true,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'object',
               properties: {
                 R: { type: 'integer' },
                 G: { type: 'integer' },
                 B: { type: 'integer' },
               },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          color: { R: 100, G: 200, B: 150 },
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        color: { R: 100, G: 200, B: 150 },
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.queryString).toEqual([
@@ -761,58 +617,52 @@ describe('parameter styles', () => {
 
   describe('spaceDelimited style', () => {
     it('should handle spaceDelimited style with explode=false and array values', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'color',
             in: 'query',
             style: 'spaceDelimited',
             explode: false,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'array',
               items: { type: 'string' },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          color: ['blue', 'black', 'brown'],
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        color: ['blue', 'black', 'brown'],
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.queryString).toEqual([{ name: 'color', value: 'blue black brown' }])
     })
 
     it('should handle spaceDelimited style with explode=false and object values', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'color',
             in: 'query',
             style: 'spaceDelimited',
             explode: false,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'object',
               properties: {
                 R: { type: 'integer' },
                 G: { type: 'integer' },
                 B: { type: 'integer' },
               },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          color: { R: 100, G: 200, B: 150 },
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        color: { R: 100, G: 200, B: 150 },
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.queryString).toEqual([{ name: 'color', value: 'R 100 G 200 B 150' }])
@@ -821,58 +671,52 @@ describe('parameter styles', () => {
 
   describe('pipeDelimited style', () => {
     it('should handle pipeDelimited style with explode=false and array values', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'color',
             in: 'query',
             style: 'pipeDelimited',
             explode: false,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'array',
               items: { type: 'string' },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          color: ['blue', 'black', 'brown'],
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        color: ['blue', 'black', 'brown'],
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.queryString).toEqual([{ name: 'color', value: 'blue|black|brown' }])
     })
 
     it('should handle pipeDelimited style with explode=false and object values', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'color',
             in: 'query',
             style: 'pipeDelimited',
             explode: false,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'object',
               properties: {
                 R: { type: 'integer' },
                 G: { type: 'integer' },
                 B: { type: 'integer' },
               },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          color: { R: 100, G: 200, B: 150 },
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        color: { R: 100, G: 200, B: 150 },
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.queryString).toEqual([{ name: 'color', value: 'R|100|G|200|B|150' }])
@@ -881,31 +725,28 @@ describe('parameter styles', () => {
 
   describe('deepObject style', () => {
     it('should handle deepObject style with explode=true and object values', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'color',
             in: 'query',
             style: 'deepObject',
             explode: true,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'object',
               properties: {
                 R: { type: 'integer' },
                 G: { type: 'integer' },
                 B: { type: 'integer' },
               },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          color: { R: 100, G: 200, B: 150 },
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        color: { R: 100, G: 200, B: 150 },
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.queryString).toEqual([
@@ -918,51 +759,45 @@ describe('parameter styles', () => {
 
   describe('header parameters', () => {
     it('should handle header parameter with string value', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'Authorization',
             in: 'header',
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          Authorization: 'Bearer token123',
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        Authorization: 'Bearer token123',
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.headers).toEqual([{ name: 'Authorization', value: 'Bearer token123' }])
     })
 
     it('should handle header parameter with simple style and explode=true', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'Accept',
             in: 'header',
             style: 'simple',
             explode: true,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'array',
               items: { type: 'string' },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          Accept: ['application/json', 'application/xml', 'text/plain'],
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        Accept: ['application/json', 'application/xml', 'text/plain'],
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.headers).toEqual([
@@ -973,139 +808,124 @@ describe('parameter styles', () => {
     })
 
     it('should handle header parameter with simple style and explode=false', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'Accept',
             in: 'header',
             style: 'simple',
             explode: false,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'array',
               items: { type: 'string' },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          Accept: ['application/json', 'application/xml', 'text/plain'],
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        Accept: ['application/json', 'application/xml', 'text/plain'],
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.headers).toEqual([{ name: 'Accept', value: 'application/json,application/xml,text/plain' }])
     })
 
     it('should handle header parameter with object and explode=true', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'X-Custom-Header',
             in: 'header',
             style: 'simple',
             explode: true,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'object',
               properties: {
                 version: { type: 'string' },
                 client: { type: 'string' },
               },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          'X-Custom-Header': { version: '1.0', client: 'web' },
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        'X-Custom-Header': { version: '1.0', client: 'web' },
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.headers).toEqual([{ name: 'X-Custom-Header', value: 'version=1.0,client=web' }])
     })
 
     it('should handle header parameter with object and explode=false', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'X-Custom-Header',
             in: 'header',
             style: 'simple',
             explode: false,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'object',
               properties: {
                 version: { type: 'string' },
                 client: { type: 'string' },
               },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          'X-Custom-Header': { version: '1.0', client: 'web' },
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        'X-Custom-Header': { version: '1.0', client: 'web' },
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.headers).toEqual([{ name: 'X-Custom-Header', value: 'version,1.0,client,web' }])
     })
 
     it('should enforce simple style for headers even if other style is specified', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'Authorization',
             in: 'header',
             style: 'form', // This should be ignored and default to 'simple'
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          Authorization: 'Bearer token123',
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        Authorization: 'Bearer token123',
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.headers).toEqual([{ name: 'Authorization', value: 'Bearer token123' }])
     })
 
     it('should preserve existing headers when adding new ones', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
-          {
-            name: 'X-New-Header',
-            in: 'header',
-            schema: {
-              type: 'string',
-            },
-          },
-        ],
-        responses: {
-          '200': { description: 'OK' },
-        },
-      }
-
       const harRequest = createHarRequest('/api/users')
       harRequest.headers = [{ name: 'X-Existing-Header', value: 'existingValue' }]
 
-      const result = processParameters(harRequest, deReferenceParams(operation.parameters), {
-        'X-New-Header': 'newValue',
-      })
+      const result = processParameters(
+        harRequest,
+        [
+          {
+            name: 'X-New-Header',
+            in: 'header',
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'string',
+            }),
+          },
+        ],
+        {
+          'X-New-Header': 'newValue',
+        },
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.headers).toEqual([
@@ -1117,51 +937,45 @@ describe('parameter styles', () => {
 
   describe('cookie parameters', () => {
     it('should handle cookie parameter with string value', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'sessionId',
             in: 'cookie',
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          sessionId: 'abc123',
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        sessionId: 'abc123',
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.cookies).toEqual([{ name: 'sessionId', value: 'abc123' }])
     })
 
     it('should handle cookie parameter with form style and explode=true (default)', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'preferences',
             in: 'cookie',
             style: 'form',
             explode: true,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'array',
               items: { type: 'string' },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          preferences: ['dark', 'compact', 'notifications'],
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        preferences: ['dark', 'compact', 'notifications'],
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.cookies).toEqual([
@@ -1172,58 +986,52 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with form style and explode=false', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'preferences',
             in: 'cookie',
             style: 'form',
             explode: false,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'array',
               items: { type: 'string' },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          preferences: ['dark', 'compact', 'notifications'],
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        preferences: ['dark', 'compact', 'notifications'],
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.cookies).toEqual([{ name: 'preferences', value: 'dark,compact,notifications' }])
     })
 
     it('should handle cookie parameter with object and explode=true', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'settings',
             in: 'cookie',
             style: 'form',
             explode: true,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'object',
               properties: {
                 theme: { type: 'string' },
                 language: { type: 'string' },
                 timezone: { type: 'string' },
               },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          settings: { theme: 'dark', language: 'en', timezone: 'UTC' },
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        settings: { theme: 'dark', language: 'en', timezone: 'UTC' },
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.cookies).toEqual([
@@ -1234,136 +1042,121 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with object and explode=false', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'settings',
             in: 'cookie',
             style: 'form',
             explode: false,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'object',
               properties: {
                 theme: { type: 'string' },
                 language: { type: 'string' },
                 timezone: { type: 'string' },
               },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          settings: { theme: 'dark', language: 'en', timezone: 'UTC' },
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        settings: { theme: 'dark', language: 'en', timezone: 'UTC' },
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.cookies).toEqual([{ name: 'settings', value: 'theme,dark,language,en,timezone,UTC' }])
     })
 
     it('should enforce form style for cookies even if other style is specified', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'sessionId',
             in: 'cookie',
             style: 'simple', // This should be ignored and default to 'form'
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          sessionId: 'abc123',
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        sessionId: 'abc123',
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.cookies).toEqual([{ name: 'sessionId', value: 'abc123' }])
     })
 
     it('should handle cookie parameter with number value', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'userId',
             in: 'cookie',
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'integer',
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          userId: 12345,
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        userId: 12345,
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.cookies).toEqual([{ name: 'userId', value: '12345' }])
     })
 
     it('should handle cookie parameter with boolean value', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'premium',
             in: 'cookie',
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'boolean',
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          premium: true,
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        premium: true,
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.cookies).toEqual([{ name: 'premium', value: 'true' }])
     })
 
     it('should handle multiple cookie parameters', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'sessionId',
             in: 'cookie',
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
-            },
+            }),
           },
           {
             name: 'theme',
             in: 'cookie',
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          sessionId: 'abc123',
+          theme: 'dark',
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        sessionId: 'abc123',
-        theme: 'dark',
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.cookies).toEqual([
@@ -1373,107 +1166,95 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with array value', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'preferences',
             in: 'cookie',
             style: 'form',
             explode: false,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'array',
               items: { type: 'string' },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          preferences: ['dark', 'compact', 'notifications'],
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        preferences: ['dark', 'compact', 'notifications'],
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.cookies).toEqual([{ name: 'preferences', value: 'dark,compact,notifications' }])
     })
 
     it('should handle cookie parameter with object value', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'settings',
             in: 'cookie',
             style: 'form',
             explode: false,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'object',
               properties: {
                 theme: { type: 'string' },
                 language: { type: 'string' },
                 timezone: { type: 'string' },
               },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          settings: { theme: 'dark', language: 'en', timezone: 'UTC' },
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        settings: { theme: 'dark', language: 'en', timezone: 'UTC' },
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.cookies).toEqual([{ name: 'settings', value: 'theme,dark,language,en,timezone,UTC' }])
     })
 
     it('should handle cookie parameter with null value', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'sessionId',
             in: 'cookie',
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
               nullable: true,
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          sessionId: null,
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        sessionId: null,
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.cookies).toEqual([{ name: 'sessionId', value: 'null' }])
     })
 
     it('should handle cookie parameter with undefined value', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'sessionId',
             in: 'cookie',
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          sessionId: undefined,
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        sessionId: undefined,
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.cookies).toEqual([
@@ -1485,49 +1266,43 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with empty string value', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'sessionId',
             in: 'cookie',
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          sessionId: '',
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        sessionId: '',
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.cookies).toEqual([{ name: 'sessionId', value: '' }])
     })
 
     it('should handle cookie parameter with special characters', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'auth_token',
             in: 'cookie',
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          auth_token:
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        auth_token:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.cookies).toEqual([
@@ -1540,119 +1315,108 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with URL-encoded characters', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'user_pref',
             in: 'cookie',
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          user_pref: 'name=John Doe&email=john@example.com',
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        user_pref: 'name=John Doe&email=john@example.com',
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.cookies).toEqual([{ name: 'user_pref', value: 'name=John Doe&email=john@example.com' }])
     })
 
     it('should handle cookie parameter with numeric array', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'scores',
             in: 'cookie',
             style: 'form',
             explode: false,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'array',
               items: { type: 'integer' },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          scores: [85, 92, 78, 96],
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        scores: [85, 92, 78, 96],
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.cookies).toEqual([{ name: 'scores', value: '85,92,78,96' }])
     })
 
     it('should handle cookie parameter with boolean array', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'flags',
             in: 'cookie',
             style: 'form',
             explode: false,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'array',
               items: { type: 'boolean' },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          flags: [true, false, true, true],
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        flags: [true, false, true, true],
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.cookies).toEqual([{ name: 'flags', value: 'true,false,true,true' }])
     })
 
     it('should handle cookie parameter with mixed array', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'mixed_data',
             in: 'cookie',
             style: 'form',
             explode: false,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'array',
               items: {},
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          mixed_data: ['string', 123, true, null],
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        mixed_data: ['string', 123, true, null],
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.cookies).toEqual([{ name: 'mixed_data', value: 'string,123,true,null' }])
     })
 
     it('should handle cookie parameter with nested object', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'user_config',
             in: 'cookie',
             style: 'form',
             explode: false,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'object',
               properties: {
                 preferences: {
@@ -1670,20 +1434,16 @@ describe('parameter styles', () => {
                   },
                 },
               },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          user_config: {
+            preferences: { theme: 'dark', notifications: true },
+            metadata: { version: '1.0.0', timestamp: '2023-01-01T00:00:00Z' },
+          },
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        user_config: {
-          preferences: { theme: 'dark', notifications: true },
-          metadata: { version: '1.0.0', timestamp: '2023-01-01T00:00:00Z' },
-        },
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.cookies).toEqual([
@@ -1695,80 +1455,71 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with empty array', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'tags',
             in: 'cookie',
             style: 'form',
             explode: false,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'array',
               items: { type: 'string' },
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          tags: [],
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        tags: [],
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.cookies).toEqual([{ name: 'tags', value: '' }])
     })
 
     it('should handle cookie parameter with empty object', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
+      const result = processParameters(
+        createHarRequest('/api/users'),
+        [
           {
             name: 'config',
             in: 'cookie',
             style: 'form',
             explode: false,
-            schema: {
+            schema: coerceValue(SchemaObjectSchema, {
               type: 'object',
-            },
+            }),
           },
         ],
-        responses: {
-          '200': { description: 'OK' },
+        {
+          config: {},
         },
-      }
-
-      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
-        config: {},
-      })
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.cookies).toEqual([{ name: 'config', value: '' }])
     })
 
     it('should preserve existing cookies when adding new ones', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
-          {
-            name: 'newCookie',
-            in: 'cookie',
-            schema: {
-              type: 'string',
-            },
-          },
-        ],
-        responses: {
-          '200': { description: 'OK' },
-        },
-      }
-
       const harRequest = createHarRequest('/api/users')
       harRequest.cookies = [{ name: 'existingCookie', value: 'existingValue' }]
 
-      const result = processParameters(harRequest, deReferenceParams(operation.parameters), {
-        newCookie: 'newValue',
-      })
+      const result = processParameters(
+        harRequest,
+        [
+          {
+            name: 'newCookie',
+            in: 'cookie',
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'string',
+            }),
+          },
+        ],
+        {
+          newCookie: 'newValue',
+        },
+      )
 
       expect(result.url).toBe('/api/users')
       expect(result.cookies).toEqual([
@@ -1780,22 +1531,16 @@ describe('parameter styles', () => {
 
   describe('query parameters', () => {
     it('should add empty query string if no parameters are present', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
-          {
-            name: 'email',
-            in: 'query',
-            schema: {
-              type: 'string',
-            },
-          },
-        ],
-        responses: {
-          '200': { description: 'OK' },
-        },
-      }
       const harRequest = createHarRequest('/api/users')
-      const result = processParameters(harRequest, deReferenceParams(operation.parameters))
+      const result = processParameters(harRequest, [
+        {
+          name: 'email',
+          in: 'query',
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'string',
+          }),
+        },
+      ])
 
       expect(result.queryString).toEqual([{ name: 'email', value: '' }])
     })
@@ -1803,92 +1548,68 @@ describe('parameter styles', () => {
 
   describe('path parameters', () => {
     it('should add variable name if no value or example is provided', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
-          {
-            name: 'username',
-            in: 'path',
-            schema: {
-              type: 'string',
-            },
-          },
-        ],
-        responses: {
-          '200': { description: 'OK' },
-        },
-      }
       const harRequest = createHarRequest('/api/users/{username}')
-      const result = processParameters(harRequest, deReferenceParams(operation.parameters))
+      const result = processParameters(harRequest, [
+        {
+          name: 'username',
+          in: 'path',
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'string',
+          }),
+        },
+      ])
 
       expect(result.url).toEqual('/api/users/{username}')
     })
 
     it('should replace the variable with the example value', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
-          {
-            name: 'username',
-            in: 'path',
-            schema: {
-              type: 'string',
-              example: 'scalarUser',
-            },
-          },
-        ],
-        responses: {
-          '200': { description: 'OK' },
-        },
-      }
       const harRequest = createHarRequest('/api/users/{username}')
-      const result = processParameters(harRequest, deReferenceParams(operation.parameters))
+      const result = processParameters(harRequest, [
+        {
+          name: 'username',
+          in: 'path',
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'string',
+            example: 'scalarUser',
+          }),
+        },
+      ])
 
       expect(result.url).toEqual('/api/users/scalarUser')
     })
 
     it('should replace the variable with the upper example value', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
-          {
-            name: 'username',
-            in: 'path',
-            example: 'scalarUser',
-            schema: {
-              type: 'string',
-            },
-          },
-        ],
-        responses: {
-          '200': { description: 'OK' },
-        },
-      }
       const harRequest = createHarRequest('/api/users/{username}')
-      const result = processParameters(harRequest, deReferenceParams(operation.parameters))
+      const result = processParameters(harRequest, [
+        {
+          name: 'username',
+          in: 'path',
+          example: 'scalarUser',
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'string',
+          }),
+        },
+      ])
 
       expect(result.url).toEqual('/api/users/scalarUser')
     })
 
     it('should replace the variable with the example value from examples', () => {
-      const operation: Dereference<OperationObject> = {
-        parameters: [
-          {
-            name: 'username',
-            in: 'path',
-            schema: {
-              type: 'string',
-            },
-            examples: {
-              'example1': {
-                value: 'scalarUser',
-              },
+      const harRequest = createHarRequest('/api/users/{username}')
+      const result = processParameters(harRequest, [
+        {
+          name: 'username',
+          in: 'path',
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'string',
+          }),
+          examples: {
+            'example1': {
+              value: 'scalarUser',
             },
           },
-        ],
-        responses: {
-          '200': { description: 'OK' },
         },
-      }
-      const harRequest = createHarRequest('/api/users/{username}')
-      const result = processParameters(harRequest, deReferenceParams(operation.parameters))
+      ])
 
       expect(result.url).toEqual('/api/users/scalarUser')
     })

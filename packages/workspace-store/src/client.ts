@@ -4,17 +4,14 @@ import { upgrade } from '@scalar/openapi-parser'
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 
 import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
-import { deepClone, isObject, safeAssign, type UnknownObject } from '@/helpers/general'
+import { isObject, safeAssign, type UnknownObject } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
 import { createNavigation } from '@/navigation'
 import { extensions } from '@/schemas/extensions'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict } from '@/schemas/v3.1/strict/openapi-document'
-import {
-  OpenAPIDocumentSchema as OpenAPIDocumentSchemaLoose,
-  type OpenApiDocumentLoose,
-} from '@/schemas/v3.1/loose/openapi-document'
+import { OpenAPIDocumentSchema as OpenAPIDocumentSchemaLoose } from '@/schemas/v3.1/loose/openapi-document'
 import { defaultReferenceConfig } from '@/schemas/reference-config'
 import type { Config } from '@/schemas/workspace-specification/config'
 import { InMemoryWorkspaceSchema, type InMemoryWorkspace } from '@/schemas/inmemory-workspace'
@@ -26,11 +23,13 @@ import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
 import { apply, diff, merge, type Difference } from '@scalar/json-magic/diff'
 import type { TraverseSpecOptions } from '@/navigation/types'
 import type { PartialDeep, RequiredDeep } from 'type-fest'
-import { Value } from '@sinclair/typebox/value'
 import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
 import type { Record } from '@sinclair/typebox'
+import { Value } from '@sinclair/typebox/value'
+import { deepClone } from '@/helpers/deep-clone'
+import { measureAsync } from '@scalar/helpers/testing/measure'
 
-type DocumentConfiguration = Config &
+export type DocumentConfiguration = Config &
   PartialDeep<{
     'x-scalar-reference-config': {
       tagSort: TraverseSpecOptions['tagsSorter']
@@ -40,6 +39,16 @@ type DocumentConfiguration = Config &
       getWebhookId: TraverseSpecOptions['getWebhookId']
       getModelId: TraverseSpecOptions['getModelId']
       getTagId: TraverseSpecOptions['getTagId']
+      generateOperationSlug?: (details: {
+        path: string
+        operationId?: string
+        method: string
+        summary?: string
+      }) => string
+      generateHeadingSlug?: (details: { slug?: string }) => string
+      generateTagSlug?: (details: { name?: string }) => string
+      generateModelSlug?: (details: { name?: string }) => string
+      generateWebhookSlug?: (details: { name: string; method: string }) => string
     }
   }>
 
@@ -124,7 +133,7 @@ async function loadDocument(workspaceDocument: WorkspaceDocumentInput) {
  * @param input - The workspace document input (either UrlDoc or ObjectDoc)
  * @returns The URL string if present, otherwise undefined
  */
-const getOrigin = (input: WorkspaceDocumentInput) => {
+const getDocumentSource = (input: WorkspaceDocumentInput) => {
   if ('url' in input) {
     return input.url
   }
@@ -400,7 +409,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * subsequent mutations in the workspace do not affect the originals.
    * The originals are retained so that we can restore, compare, or sync with the remote registry as needed.
    */
-  const originalDocuments = {} as Record<string, OpenApiDocumentLoose>
+  const originalDocuments = {} as Record<string, UnknownObject>
   /**
    * Stores the intermediate state of documents after local edits but before syncing with the remote registry.
    *
@@ -413,7 +422,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    *   - The latest locally saved version (`intermediateDocuments`)
    *   - The current in-memory (possibly unsaved) workspace document (`workspace.documents`)
    */
-  const intermediateDocuments = {} as Record<string, OpenApiDocumentLoose>
+  const intermediateDocuments = {} as Record<string, UnknownObject>
   /**
    * A map of document configurations keyed by document name.
    * This stores the configuration options for each document in the workspace,
@@ -504,16 +513,14 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   }
 
   // Add a document to the store synchronously from an in-memory OpenAPI document
-  async function addInMemoryDocument(input: ObjectDoc & { initialize?: boolean; origin?: string }) {
+  async function addInMemoryDocument(input: ObjectDoc & { initialize?: boolean; documentSource?: string }) {
     const { name, meta } = input
-    const inputDocument = deepClone(input.document)
-
-    const looseDocument = coerceValue(OpenAPIDocumentSchemaLoose, upgrade(inputDocument).specification)
+    const inputDocument = upgrade(deepClone(input.document)).specification
 
     if (input.initialize !== false) {
       // Store the original document in the originalDocuments map
       // This is used to track the original state of the document as it was loaded into the workspace
-      originalDocuments[name] = deepClone({ ...looseDocument })
+      originalDocuments[name] = deepClone({ ...inputDocument })
 
       // Store the intermediate document state for local edits
       // This is used to track the last saved state of the document
@@ -521,16 +528,16 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // This is important for local edits that are not yet synced with the remote registry
       // The intermediate document is used to store the latest saved state of the document
       // This allows us to track changes and revert to the last saved state if needed
-      intermediateDocuments[name] = deepClone({ ...looseDocument })
+      intermediateDocuments[name] = deepClone({ ...inputDocument })
       // Add the document config to the documentConfigs map
       documentConfigs[name] = input.config ?? {}
       // Store the overrides for this document, or an empty object if none are provided
       overrides[name] = input.overrides ?? {}
       // Store the document metadata for this document, setting the origin if provided
-      documentMeta[name] = { origin: input.origin }
+      documentMeta[name] = { documentSource: input.documentSource }
     }
 
-    const strictDocument = createMagicProxy({ ...looseDocument, ...meta })
+    const strictDocument: UnknownObject = createMagicProxy({ ...inputDocument, ...meta })
 
     if (strictDocument[extensions.document.navigation] === undefined) {
       // If the document navigation is not already present, bundle the entire document to resolve all references.
@@ -540,14 +547,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         treeShake: false,
         plugins: [fetchUrls(), externalValueResolver(), refsEverywhere()],
         urlMap: true,
-        origin: documentMeta[name]?.origin, // use the document origin (if provided) as the base URL for resolution
+        origin: documentMeta[name]?.documentSource, // use the document origin (if provided) as the base URL for resolution
       })
 
       // We coerce the values only when the document is not preprocessed by the server-side-store
-      mergeObjects(
-        strictDocument,
-        coerceValue(OpenAPIDocumentSchemaStrict, createMagicProxy({ ...deepClone(getRaw(strictDocument)) })),
-      )
+      mergeObjects(strictDocument, coerceValue(OpenAPIDocumentSchemaStrict, deepClone(strictDocument)))
     }
 
     const isValid = Value.Check(OpenAPIDocumentSchemaStrict, strictDocument)
@@ -575,39 +579,51 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   async function addDocument(input: WorkspaceDocumentInput) {
     const { name, meta } = input
 
-    const resolve = await loadDocument(input)
+    const resolve = await measureAsync('loadDocument', async () => await loadDocument(input))
 
-    if (!resolve.ok) {
-      console.error(`Failed to fetch document '${name}': request was not successful`)
+    // Log the time taken to add a document
+    await measureAsync('addDocument', async () => {
+      if (!resolve.ok) {
+        console.error(`Failed to fetch document '${name}': request was not successful`)
 
-      workspace.documents[name] = {
-        ...meta,
-        openapi: '3.1.0',
-        info: {
-          title: `Document '${name}' could not be loaded`,
-          version: 'unknown',
-        },
+        workspace.documents[name] = {
+          ...meta,
+          openapi: '3.1.0',
+          info: {
+            title: `Document '${name}' could not be loaded`,
+            version: 'unknown',
+          },
+        }
+
+        return
       }
 
-      return
-    }
+      if (!isObject(resolve.data)) {
+        console.error(`Failed to load document '${name}': response data is not a valid object`)
 
-    if (!isObject(resolve.data)) {
-      console.error(`Failed to load document '${name}': response data is not a valid object`)
+        workspace.documents[name] = {
+          ...meta,
+          openapi: '3.1.0',
+          info: {
+            title: `Document '${name}' could not be loaded`,
+            version: 'unknown',
+          },
+        }
 
-      workspace.documents[name] = {
-        ...meta,
-        openapi: '3.1.0',
-        info: {
-          title: `Document '${name}' could not be loaded`,
-          version: 'unknown',
-        },
+        return
       }
 
-      return
-    }
+      await addInMemoryDocument({ ...input, document: resolve.data, documentSource: getDocumentSource(input) })
+    })
+  }
 
-    await addInMemoryDocument({ ...input, document: resolve.data, origin: getOrigin(input) })
+  // Returns the effective document configuration for a given document name,
+  // merging (in order of increasing priority): the default config, workspace-level config, and document-specific config.
+  const getDocumentConfiguration = (name: string) => {
+    return mergeObjects<typeof defaultConfig>(
+      mergeObjects(defaultConfig, workspaceProps?.config ?? {}),
+      documentConfigs[name] ?? {},
+    )
   }
 
   // Cache to track visited nodes during reference resolution to prevent bundling the same subtree multiple times
@@ -681,10 +697,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     },
     addDocument,
     get config() {
-      return mergeObjects<typeof defaultConfig>(
-        mergeObjects(defaultConfig, workspaceProps?.config ?? {}),
-        documentConfigs[getActiveDocumentName()] ?? {},
-      )
+      return getDocumentConfiguration(getActiveDocumentName())
     },
     exportDocument: (documentName: string, format: 'json' | 'yaml') => {
       const intermediateDocument = intermediateDocuments[documentName]

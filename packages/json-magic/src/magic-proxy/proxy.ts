@@ -43,6 +43,7 @@ const REF_KEY = '$ref'
 export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S extends UnknownObject>(
   target: T,
   root: S | T = target,
+  cache = new Map<string, unknown>(),
 ) => {
   if (!isObject(target) && !Array.isArray(target)) {
     return target
@@ -71,12 +72,23 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
 
       // If accessing "$ref-value" and $ref is a local reference, resolve and return the referenced value
       if (prop === REF_VALUE && typeof ref === 'string' && isLocalRef(ref)) {
-        return createMagicProxy(getValueByPath(root, parseJsonPointer(ref)), root)
+        // Check cache first for performance optimization
+        if (cache.has(ref)) {
+          return cache.get(ref)
+        }
+
+        // Resolve the reference and create a new magic proxy
+        const resolvedValue = getValueByPath(root, parseJsonPointer(ref))
+        const proxiedValue = createMagicProxy(resolvedValue, root, cache)
+
+        // Store in cache for future lookups
+        cache.set(ref, proxiedValue)
+        return proxiedValue
       }
 
       // For all other properties, recursively wrap the value in a magic proxy
       const value = Reflect.get(target, prop, receiver)
-      return createMagicProxy(value, root)
+      return createMagicProxy(value, root, cache)
     },
     /**
      * Proxy "set" trap for magic proxy.

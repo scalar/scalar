@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { createMagicProxy } from '@scalar/json-magic/magic-proxy'
 
 import { getRequestBodyFromOperation } from './get-request-body-from-operation'
 
@@ -62,24 +63,34 @@ describe('getRequestBodyFromOperation', () => {
   })
 
   it('uses example', () => {
-    const body = getRequestBodyFromOperation({
-      requestBody: {
-        description: 'Sample request body',
-        required: false,
-        content: {
-          'application/json': {
-            example: {
-              someObject: {
-                someAttribute: 'attribute1',
+    const body = getRequestBodyFromOperation(
+      createMagicProxy({
+        requestBody: {
+          description: 'Sample request body',
+          required: false,
+          content: {
+            'application/json': {
+              example: {
+                someObject: {
+                  someAttribute: 'attribute1',
+                },
               },
-            },
-            schema: {
-              $ref: '#/components/schemas/PutDocumentRequest',
+              schema: {
+                type: 'object',
+                properties: {
+                  someObject: {
+                    type: 'object',
+                    properties: {
+                      someAttribute: { type: 'string' },
+                    },
+                  },
+                },
+              },
             },
           },
         },
-      },
-    })
+      }),
+    )
 
     const expectedResult = {
       someObject: {

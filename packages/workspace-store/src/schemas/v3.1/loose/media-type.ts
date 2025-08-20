@@ -6,7 +6,7 @@ import { SchemaObjectSchema } from './schema'
 export const mediaTypeObjectSchemaBuilder = <E extends TSchema>(encoding: E) =>
   Type.Object({
     /** The schema defining the content of the request, response, parameter, or header. */
-    schema: Type.Optional(SchemaObjectSchema),
+    schema: Type.Optional(Type.Union([SchemaObjectSchema, ReferenceObjectSchema])),
     /** Example of the media type */
     example: Type.Optional(Type.Any()),
     /** Examples of the media type */

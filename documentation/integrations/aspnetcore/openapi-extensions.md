@@ -22,16 +22,6 @@ Add the appropriate transformers/filters during OpenAPI registration:
 using Scalar.AspNetCore;
 
 // Microsoft.AspNetCore.OpenApi
-```shell
-dotnet add package Scalar.AspNetCore.Swashbuckle
-```
-
-Add the appropriate transformers/filters during OpenAPI registration:
-
-```csharp
-using Scalar.AspNetCore;
-
-// Microsoft.AspNetCore.OpenApi
 builder.Services.AddOpenApi(options => options.AddScalarTransformers());
 
 // Swashbuckle.AspNetCore.SwaggerGen
@@ -96,3 +86,30 @@ app.MapPost("/orders", CreateOrder)
 [CodeSample("fetch('/products').then(r => r.json())", ScalarTarget.JavaScript)]
 public IActionResult GetProducts() => Ok();
 ```
+
+### Badges
+
+Add visual badges to operations. Each operation can have multiple badges, and you can configure their position and color:
+
+```csharp
+// Minimal APIs
+app.MapGet("/alpha-feature", GetAlphaFeature)
+    .WithBadge("Alpha")
+    .WithBadge("Beta", BadgePosition.Before)
+    .WithBadge("Internal", BadgePosition.After, "#ff6b35");
+
+app.MapPost("/orders", CreateOrder)
+    .WithBadge("New", color: "#28a745")
+    .WithBadge("Premium", BadgePosition.Before, "#ffc107");
+
+// Controllers
+[HttpGet]
+[Badge("New")]
+[Badge("V2", BadgePosition.After, "#007bff")]
+public IActionResult GetExperimentalFeature() => Ok();
+```
+
+**Badge Options:**
+- `name`: The text displayed in the badge (required)
+- `position`: Where the badge appears relative to the operation header
+- `color`: Badge color in any CSS format (hex, rgb, keywords, etc.)

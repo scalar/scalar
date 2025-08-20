@@ -1,5 +1,6 @@
 import { json2xml } from '@scalar/helpers/file/json2xml'
 import type { ContentType } from '@scalar/types/legacy'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 
 import type { Operation } from '@/entities/spec'
 import { normalizeMimeTypeObject } from '@/helpers/normalize-mime-type-object'
@@ -163,7 +164,7 @@ export function getRequestBodyFromOperation(
   // Update the JSON handling section
   if (isJsonLike) {
     const exampleFromSchema = requestBodyObject?.schema
-      ? getExampleFromSchema(requestBodyObject?.schema, {
+      ? getExampleFromSchema(getResolvedRef(requestBodyObject?.schema), {
           mode: 'write',
           omitEmptyAndOptionalProperties: omitEmptyAndOptionalProperties ?? false,
         })
@@ -180,7 +181,7 @@ export function getRequestBodyFromOperation(
   // XML
   if (mimeType === 'application/xml') {
     const exampleFromSchema = requestBodyObject?.schema
-      ? getExampleFromSchema(requestBodyObject?.schema, {
+      ? getExampleFromSchema(getResolvedRef(requestBodyObject?.schema), {
           xml: true,
           mode: 'write',
         })
@@ -203,7 +204,7 @@ export function getRequestBodyFromOperation(
   // Plain text
   if (mimeType === 'text/plain') {
     const exampleFromSchema = requestBodyObject?.schema
-      ? getExampleFromSchema(requestBodyObject?.schema, {
+      ? getExampleFromSchema(getResolvedRef(requestBodyObject?.schema), {
           xml: true,
           mode: 'write',
         })
@@ -218,7 +219,7 @@ export function getRequestBodyFromOperation(
   // URL encoded data
   if (mimeType === 'multipart/form-data' || mimeType === 'application/x-www-form-urlencoded') {
     const exampleFromSchema = requestBodyObject?.schema
-      ? getExampleFromSchema(requestBodyObject?.schema, {
+      ? getExampleFromSchema(getResolvedRef(requestBodyObject?.schema), {
           xml: true,
           mode: 'write',
         })

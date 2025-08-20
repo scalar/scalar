@@ -304,7 +304,11 @@ const { content } = defineProps<{
             :schema="schema" />
           <p><strong>Example:</strong></p>
           <template v-if="schema.type === 'object'">
-            <XmlOrJson :model-value="getExampleFromSchema(schema)" />
+            <XmlOrJson
+              :model-value="
+                // @ts-expect-error not on the new store yet
+                getExampleFromSchema(schema)
+              " />
           </template>
         </section>
       </template>

@@ -12,10 +12,9 @@ import {
   normalizeMimeTypeObject,
 } from '@scalar/oas-utils/helpers'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/media-header-encoding'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
-import type { ResponseObject } from '@scalar/workspace-store/schemas/v3.1/strict/response'
-import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
+import type { ResponsesObject } from '@scalar/workspace-store/schemas/v3.1/strict/responses'
 import { computed, ref, toValue, useId } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
@@ -24,13 +23,14 @@ import { ExamplePicker } from '@/v2/blocks/scalar-request-example-block'
 import ExampleResponse from './ExampleResponse.vue'
 import ExampleResponseTab from './ExampleResponseTab.vue'
 import ExampleResponseTabList from './ExampleResponseTabList.vue'
+import { getResolvedRefDeep } from './helpers/get-resolved-ref-deep'
 
 /**
  * TODO: copyToClipboard isn't using the right content if there are multiple examples
  */
 
 const { responses } = defineProps<{
-  responses: Dereference<OperationObject>['responses']
+  responses: ResponsesObject
 }>()
 
 const id = useId()
@@ -49,7 +49,7 @@ const currentResponse = computed(() => {
   const currentStatusCode =
     toValue(orderedStatusCodes)[toValue(selectedResponseIndex)]
 
-  return responses?.[currentStatusCode] as ResponseObject | undefined
+  return getResolvedRef(responses?.[currentStatusCode])
 })
 
 const currentResponseContent = computed<MediaTypeObject | undefined>(() => {
@@ -161,7 +161,7 @@ const showSchema = ref(false)
         v-if="showSchema && currentResponseContent?.schema"
         :id="id"
         class="-outline-offset-2"
-        :content="currentResponseContent.schema"
+        :content="getResolvedRefDeep(currentResponseContent?.schema)"
         lang="json" />
 
       <!-- Example -->

@@ -237,7 +237,7 @@ describe('plugins', () => {
 
   describe('restoreOriginalRefs', async () => {
     let server: FastifyInstance
-    const port = 9988
+    const port = 9088
     const url = `http://localhost:${port}`
 
     beforeEach(() => {
@@ -277,12 +277,12 @@ describe('plugins', () => {
       expect(input).toEqual({
         ...originalInput,
         'x-ext': {
-          'c766ed8': {
+          '261215d': {
             'description': 'Some resolved value',
           },
         },
         'x-ext-urls': {
-          'c766ed8': 'http://localhost:9988',
+          '261215d': 'http://localhost:9088',
         },
       })
     })

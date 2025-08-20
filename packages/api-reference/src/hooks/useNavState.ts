@@ -4,7 +4,6 @@ import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { Heading, OpenAPIV3_1 } from '@scalar/types/legacy'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/tag'
-import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import { slug } from 'github-slugger'
 import { type InjectionKey, type Ref, inject, ref } from 'vue'
 
@@ -149,8 +148,8 @@ export const useNavState = (_config?: Ref<ApiReferenceConfiguration>) => {
     operation: {
       path: string
       method: OpenAPIV3_1.HttpMethods
-    } & Dereference<OperationObject>,
-    parentTag: Dereference<TagObject>,
+    } & OperationObject,
+    parentTag: TagObject,
   ) => {
     if (typeof config.value.generateOperationSlug === 'function') {
       return `${getTagId(parentTag)}/${config.value.generateOperationSlug({

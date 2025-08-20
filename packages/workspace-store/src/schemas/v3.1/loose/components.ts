@@ -20,7 +20,7 @@ import { CallbackObjectSchema, PathItemObjectSchema } from './path-operations'
  */
 export type ComponentsObjectSchemaType = TObject<{
   /** Schema Objects that define input and output data types. These can be objects, primitives, and arrays, and are a superset of JSON Schema Specification Draft 2020-12. */
-  schemas: TOptional<TRecord<TString, typeof SchemaObjectSchema>>
+  schemas: TOptional<TRecord<TString, TUnion<[typeof SchemaObjectSchema, typeof ReferenceObjectSchema]>>>
   /** Response Objects that describe a single response from an API operation, including headers, content, and links. */
   responses: TOptional<TRecord<TString, TUnion<[typeof ResponseObjectSchema, typeof ReferenceObjectSchema]>>>
   /** Parameter Objects that describe a single operation parameter with a unique combination of name and location (query, header, path, or cookie). */
@@ -46,7 +46,7 @@ export type ComponentsObjectSchemaType = TObject<{
 /** Holds a set of reusable objects for different aspects of the OAS. All objects defined within the Components Object will have no effect on the API unless they are explicitly referenced from outside the Components Object. */
 export const ComponentsObjectSchema: ComponentsObjectSchemaType = Type.Object({
   /** An object to hold reusable Schema Objects. */
-  schemas: Type.Optional(Type.Record(Type.String(), SchemaObjectSchema)),
+  schemas: Type.Optional(Type.Record(Type.String(), Type.Union([SchemaObjectSchema, ReferenceObjectSchema]))),
   /** An object to hold reusable Response Objects. */
   responses: Type.Optional(Type.Record(Type.String(), Type.Union([ResponseObjectSchema, ReferenceObjectSchema]))),
   /** An object to hold reusable Parameter Objects. */

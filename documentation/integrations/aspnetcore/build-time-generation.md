@@ -66,10 +66,7 @@ Add the following target to your `.csproj` file to automatically generate the Op
 
 ```xml
 <Target Name="GenerateOpenApiDocument" AfterTargets="Build" Condition="'$(Configuration)'=='Release'">
-  <Exec Command="dotnet swagger tofile --output ./openapi.json $(OutputPath)$(AssemblyName).dll v1" 
-        ContinueOnError="false" 
-        IgnoreExitCode="false" />
-  <Message Text="OpenAPI document generated: ./openapi.json" Importance="high" />
+  <Exec Command="dotnet swagger tofile --output ./openapi.json $(OutputPath)$(AssemblyName).dll v1" />
 </Target>
 ```
 
@@ -170,4 +167,4 @@ publish_to_scalar:
     - validate_openapi
 ```
 
-For more details on publishing to the registry, see our [Scalar Registry Guide](/guides/registry/upload).
+For more details on publishing to the registry, see our [Scalar Registry Guide](https://guides.scalar.com/scalar/scalar-registry/getting-started).
