@@ -11,7 +11,6 @@ import { computed } from 'vue'
 import { Lazy } from '@/components/Lazy'
 import { useNavState } from '@/hooks/useNavState'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
-import { ServerSelector } from '@/v2/blocks/scalar-server-selector-block'
 
 import { ClientLibraries } from '../ClientLibraries'
 import IntroductionSection from './IntroductionSection.vue'
@@ -77,16 +76,7 @@ const { hash } = useNavState()
           <div
             class="introduction-card"
             :class="{ 'introduction-card-row': config?.layout === 'classic' }">
-            <div
-              v-if="store.workspace.activeDocument?.servers?.length"
-              class="scalar-reference-intro-server scalar-client introduction-card-item text-base leading-normal [--scalar-address-bar-height:0px]">
-              <ServerSelector
-                :servers="store.workspace.activeDocument?.servers ?? []"
-                :xSelectedServer="
-                  store.workspace.activeDocument?.['x-scalar-active-server'] ??
-                  ''
-                " />
-            </div>
+            <slot name="serverSelector"></slot>
             <div
               v-if="
                 activeCollection &&

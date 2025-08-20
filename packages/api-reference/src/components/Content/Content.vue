@@ -9,6 +9,7 @@ import { Models } from '@/components/Content/Models'
 import { SectionFlare } from '@/components/SectionFlare'
 import { useConfig } from '@/hooks/useConfig'
 import { generateClientOptions } from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
+import ServerSelector from '@/v2/blocks/scalar-server-selector-block/components/ServerSelector.vue'
 
 import { TraversedEntryContainer } from './Operations'
 
@@ -39,7 +40,19 @@ const clientOptions = computed(() =>
       :document
       :store
       :clientOptions
-      :config />
+      :config>
+      <template #serverSelector>
+        <div
+          v-if="store.workspace.activeDocument?.servers?.length"
+          class="scalar-reference-intro-server scalar-client introduction-card-item text-base leading-normal [--scalar-address-bar-height:0px]">
+          <ServerSelector
+            :servers="store.workspace.activeDocument?.servers ?? []"
+            :xSelectedServer="
+              store.workspace.activeDocument?.['x-scalar-active-server']
+            " />
+        </div>
+      </template>
+    </Introduction>
 
     <!-- Empty State -->
     <slot
@@ -67,5 +80,12 @@ const clientOptions = computed(() =>
 .narrow-references-container {
   container-name: narrow-references-container;
   container-type: inline-size;
+}
+
+.introduction-card-item {
+  display: flex;
+  margin-bottom: 12px;
+  flex-direction: column;
+  justify-content: start;
 }
 </style>
