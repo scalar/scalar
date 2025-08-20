@@ -2,12 +2,11 @@
 * @hanspagel @amritk @geoffgscott @marclave
 
 # Root level code owners
-/.github @hanspagel @geoffgscott
-/.github/renovate.json @hanspagel @xC0dex
+/.github @hanspagel @geoffgscott @xC0dex
 /*.md @hanspagel @marclave
 
 # Documentation
-/documentation/* @hanspagel @marclave
+/documentation/* @hanspagel @marclave @xC0dex
 
 # Changesets
 /.changeset/*
@@ -37,6 +36,7 @@
 /integrations/nestjs @marclave
 /integrations/aspire @marclave @hanspagel @xC0dex
 /integrations/aspnetcore @marclave @hanspagel @xC0dex
+/integrations/docker @marclave @hanspagel @xC0dex
 /packages/use-hooks @hwkr @hanspagel @marclave
 # /packages/use-toasts
 /packages/api-client-react @amritk @marclave
