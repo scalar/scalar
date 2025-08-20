@@ -49,6 +49,15 @@ const selectedServer = computed({
     }
   },
 })
+
+// For testing
+defineExpose({
+  server,
+  servers,
+  serverUrlWithoutTrailingSlash,
+  serverOptions,
+  selectedServer,
+})
 </script>
 <template>
   <ScalarListbox
