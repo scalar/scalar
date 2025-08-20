@@ -603,7 +603,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   async function addDocument(input: WorkspaceDocumentInput) {
     const { name, meta } = input
 
-    const resolve = await measureAsync('loadDocument', async () => await loadDocument(input))
+    const resolve = await measureAsync(
+      'loadDocument',
+      async () => await loadDocument({ ...input, fetch: input.fetch ?? workspaceProps?.fetch }),
+    )
 
     // Log the time taken to add a document
     await measureAsync('addDocument', async () => {
