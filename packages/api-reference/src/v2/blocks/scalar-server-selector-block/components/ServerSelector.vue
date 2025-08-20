@@ -22,15 +22,12 @@ import { ServerVariablesForm } from '@scalar/api-client/components/Server'
 import { ScalarMarkdown } from '@scalar/components'
 import { emitCustomEvent } from '@scalar/workspace-store/events'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
-import { computed, ref, useId, watch } from 'vue'
+import { templateRef } from '@vueuse/core'
+import { computed, nextTick, useId, watch } from 'vue'
 
 import Selector from './Selector.vue'
 
 const id = useId()
-
-/** Reference to the main container element for event emission */
-const containerRef = ref<HTMLElement>()
-
 const { servers, xSelectedServer } = defineProps<SelectorProps>()
 
 const updateServer = (newServer: string) => {
@@ -71,10 +68,16 @@ watch(
       return
     }
 
-    updateServer(newServers[0].url)
+    // Wait for next tick to ensure containerRef is available
+    nextTick(() => {
+      updateServer(newServers[0].url)
+    })
   },
   { immediate: true },
 )
+
+/** Reference to the main container element for event emission */
+const containerRef = templateRef('containerRef')
 </script>
 
 <template>
