@@ -76,27 +76,24 @@
   <div class="flex flex-wrap quotes-container">
     <div class="quotes-item">
       <p>
-        "I have a client that's moving from monolith to micro services as the
-        needs of their platform grow. I came up with the initial design from 20
-        APIs.
+        "After years of helping enterprises implement API strategies at SmartBear, I can confidently say Scalar is what the industry has been waiting for. The strict OpenAPI compliance, robust CLI/API registry, and seamless CI/CD integration solve the exact pain points I watched customers struggle with daily. This is the modern API platform developers deserve."
       </p>
-      <p class="mt-3 text-c-3">Tom - Myspace</p>
+      <p class="mt-3 text-c-3">Michael - Former Solutions Architect @ Smartbear</p>
     </div>
     <div class="quotes-item">
       <p>
-        " I have a client that's moving from monolith to micro services as the
-        needs of their platform grow. I came up with the initial design from 20
-        APIs. I needed to share that with them somehow.
+        "One of my most recent favorites is a in-browser ad hoc testing UI called Scalar. 
+One of the things that I really love about Scalar, it's got this modern UI experience, and it provides built-in test generation code for a variety of targets, from cURL to HttpClient in C#."
       </p>
-      <p class="mt-3 text-c-3">Tom - Myspace</p>
+      <p class="mt-3 text-c-3">Captain Safia - Engineer @ Microsoft ASP.NET</p>
     </div>
     <div class="quotes-item">
       <p>
-        " I have a client that's moving from monolith to micro services as the
-        needs of their platform grow. I came up with the initial design from 20
-        APIs. I needed to share that with them somehow.
+        "Scalar's "golden ticket" is... Scalar!
+They are (in my own words) building a product ecosystem for API design, docs, testing, and governance- with offerings at every price point.
+They are open source. So I can get in on free features and stay with Scalar no matter how big my API needs blow up."
       </p>
-      <p class="mt-3 text-c-3">Tom - Myspace</p>
+      <p class="mt-3 text-c-3">Eron - Documentation Engineer @ Qrvey</p>
     </div>
   </div>
 </div>
