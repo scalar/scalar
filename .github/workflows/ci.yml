@@ -91,6 +91,10 @@ jobs:
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Setup Docker Builder
         uses: useblacksmith/setup-docker-builder@0b434dfbb431f4e3a2bcee7a773a56bd363184c5 # v1
+        with:
+          platforms: |
+            linux/amd64
+            linux/arm64
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Build Docker image
