@@ -1118,6 +1118,13 @@ describe('create-workspace-store', () => {
           },
         },
       },
+      'servers': [
+        {
+          'description': undefined,
+          'url': 'http://localhost:9988',
+          'variables': undefined,
+        },
+      ],
       'x-ext': {
         'a327830': {
           'summary': 'User path',
@@ -1196,6 +1203,13 @@ describe('create-workspace-store', () => {
           },
         },
       },
+      'servers': [
+        {
+          'description': undefined,
+          'url': 'http://localhost:9988',
+          'variables': undefined,
+        },
+      ],
       'x-ext': {
         'a327830': {
           'summary': 'User path',
