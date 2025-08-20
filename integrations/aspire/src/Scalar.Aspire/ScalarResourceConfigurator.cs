@@ -66,7 +66,14 @@ internal static class ScalarResourceConfigurator
                 throw new InvalidOperationException($"No endpoints found for resource '{resourceName}'. Ensure that the resource has at least one endpoint.");
             }
 
-            var shouldUseHttps = scalarAspireOptions.PreferHttps && endpoints.Any(endpoint => endpoint.UriScheme == "https");
+            var httpAvailable = endpoints.Any(endpoint => endpoint.UriScheme == "http");
+            var httpsAvailable = endpoints.Any(endpoint => endpoint.UriScheme == "https");
+            if (!httpAvailable && !httpsAvailable)
+            {
+                throw new InvalidOperationException($"No HTTP or HTTPS endpoints found for resource '{resourceName}'. Ensure that the resource has at least one HTTP or HTTPS endpoint.");
+            }
+
+            var shouldUseHttps = (!httpAvailable || scalarAspireOptions.PreferHttps) && httpsAvailable;
             var resourceUrl = GetResourceUrl(resourceName, shouldUseHttps, scalarAspireOptions.DefaultProxy, endpoints);
 
             ConfigureOpenApiServers(scalarAspireOptions, resourceName, resourceUrl);

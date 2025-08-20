@@ -595,7 +595,7 @@ public static class ScalarOptionsExtensions
     /// </summary>
     /// <param name="options">The <see cref="ScalarAspireOptions" /> to configure.</param>
     /// <returns>The <see cref="ScalarAspireOptions" /> so that additional calls can be chained.</returns>
-    public static TOptions PreferHttps<TOptions>(this TOptions options) where TOptions : ScalarOptions
+    public static TOptions PreferHttpsEndpoint<TOptions>(this TOptions options) where TOptions : ScalarOptions
     {
         options.PreferHttps = true;
         return options;
