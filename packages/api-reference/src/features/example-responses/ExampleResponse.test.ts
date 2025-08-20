@@ -67,7 +67,6 @@ describe('ExampleResponse', () => {
       const wrapper = mount(ExampleResponse, {
         props: {
           response,
-          // @ts-expect-error - example is optional
           example: undefined,
         },
       })
@@ -98,7 +97,6 @@ describe('ExampleResponse', () => {
       const wrapper = mount(ExampleResponse, {
         props: {
           response,
-          // @ts-expect-error - example is optional
           example: undefined,
         },
       })
