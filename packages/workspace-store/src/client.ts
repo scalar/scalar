@@ -31,7 +31,7 @@ import type { Record } from '@sinclair/typebox'
 import { Value } from '@sinclair/typebox/value'
 import { deepClone } from '@/helpers/deep-clone'
 import { measureAsync } from '@scalar/helpers/testing/measure'
-import { getServersFromDocument } from '@scalar/oas-utils/helpers'
+import { getServersFromDocument } from '@/preprocessing/server'
 
 export type DocumentConfiguration = Config &
   PartialDeep<{
@@ -519,7 +519,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   const processDocument = (input: OpenApiDocument, options: Config & { documentSource?: string }): OpenApiDocument => {
     // Get the servers from the document or the config and perform some mutations on them
     const servers = getServersFromDocument(options['x-scalar-reference-config']?.settings?.servers ?? input.servers, {
-      baseServerURL: options['x-scalar-reference-config']?.settings?.baseServerUrl,
+      baseServerUrl: options['x-scalar-reference-config']?.settings?.baseServerUrl,
       documentUrl: options.documentSource,
     })
 

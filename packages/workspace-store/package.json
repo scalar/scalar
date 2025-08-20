@@ -95,8 +95,7 @@
     "github-slugger": "^2.0.0",
     "type-fest": "catalog:*",
     "vue": "catalog:*",
-    "yaml": "catalog:*",
-    "@scalar/oas-utils": "workspace:*"
+    "yaml": "catalog:*"
 
   },
   "devDependencies": {
