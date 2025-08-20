@@ -87,6 +87,10 @@ jobs:
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Setup Docker Builder
         uses: useblacksmith/setup-docker-builder@0b434dfbb431f4e3a2bcee7a773a56bd363184c5 # v1
+        with:
+          platforms: |
+            linux/amd64
+            linux/arm64
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Build Docker image
@@ -116,14 +120,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           # https://app.docker.com/settings/personal-access-tokens
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - if: startsWith(github.event.head_commit.message, 'RELEASING:') && steps.changed-files.outputs.api_reference_docker_version_any_changed == 'true'
-        name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@0b434dfbb431f4e3a2bcee7a773a56bd363184c5 # v1
-        with:
-          platforms: |
-            linux/amd64
-            linux/arm64
 
       - if: startsWith(github.event.head_commit.message, 'RELEASING:') && steps.changed-files.outputs.api_reference_docker_version_any_changed == 'true'
         name: Build and Push Docker image
