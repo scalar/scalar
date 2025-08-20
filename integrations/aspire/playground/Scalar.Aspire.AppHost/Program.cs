@@ -24,7 +24,7 @@ var scalar = builder
     {
         options
             .WithCdnUrl("https://cdn.jsdelivr.net/npm/@scalar/api-reference")
-            .PreferHttps()
+            .PreferHttpsEndpoint()
             .AllowSelfSignedCertificates();
     })
     .WithReference(keycloak)
