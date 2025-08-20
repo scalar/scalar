@@ -10,13 +10,11 @@ Scalar for Aspire provides:
 - **Simplified Service Discovery**: Automatically discover and configure API endpoints from your Aspire services
 - **Multiple Document Support**: Each service can expose multiple OpenAPI specifications
 - **CORS Issue Elimination**: Built-in proxy (enabled by default) handles API requests without requiring CORS configuration
-- **Full HTTPS Support**: Complete support for both HTTP and HTTPS endpoints with automatic handling
+- **HTTPS Support**: Complete support for both HTTP and HTTPS endpoints with automatic handling
 
 ## Prerequisites
 
-:::scalar-callout{ type=info }
 The Scalar Aspire integration requires a container solution such as **Docker** or **Podman** to be installed on your machine.
-:::
 
 ### Service Requirements
 
@@ -24,7 +22,6 @@ Each service you want to include in the API Reference must:
 
 - Expose OpenAPI documents over HTTP or HTTPS endpoints
 - Implement the `IResourceWithServiceDiscovery` interface
-- Define an endpoint named **"http"** or **"https"**
 
 ## Quick Start
 
@@ -36,7 +33,7 @@ dotnet add package Scalar.Aspire
 
 ### 2. Basic Configuration
 
-Add the integration to your AppHost `Program.cs`:
+Add the integration to your AppHost:
 
 ```csharp
 using Scalar.Aspire;
@@ -44,10 +41,7 @@ using Scalar.Aspire;
 var builder = DistributedApplication.CreateBuilder(args);
 
 // Add your services
-var userService = builder
-    .AddNpmApp("user-service", "../MyUserService")
-    .WithHttpEndpoint(env: "PORT");
-
+var userService = builder.AddNpmApp("user-service", "../MyUserService");
 var bookService = builder.AddProject<Projects.BookService>("book-service");
 
 // Add Scalar API Reference
@@ -76,21 +70,17 @@ var scalar = builder.AddScalarApiReference(options =>
 });
 ```
 
-### Service Registration
+### Service Configuration
 
-Register each service individually to include it in the API Reference:
+Register services with custom configuration options:
 
 ```csharp
-// Basic registration with default settings
-scalar.WithApiReference(weatherService);
-
-// Custom configuration for specific services
 scalar.WithApiReference(bookService, options =>
 {
     options
         .AddDocument("v1", "Book Management API")
         .WithOpenApiRoutePattern("/api-documentation/{documentName}.json")
-        .WithTheme(ScalarTheme.Purple);
+        .WithTheme(ScalarTheme.Mars);
 });
 ```
 
@@ -126,7 +116,7 @@ var scalar = builder.AddScalarApiReference(options =>
 {
     options
         .PreferHttps() // Use HTTPS endpoints when available
-        .AllowSelfSignedCertificates(); // For development environments
+        .AllowSelfSignedCertificates(); // Trust self-signed certificates
 });
 ```
 
@@ -134,9 +124,10 @@ var scalar = builder.AddScalarApiReference(options =>
 The `AllowSelfSignedCertificates()` method should only be used in development environments, never in production.
 :::
 
-### How HTTPS Works
+### How HTTPS Support Works
 
 - **Protocol Selection**: HTTP is used by default. Use `PreferHttps()` to prioritize HTTPS when available
+- **Automatic Configuration**: When HTTPS is preferred, both OpenAPI document routes and server URLs are automatically configured to use HTTPS endpoints
 - **Automatic Redirects**: HTTP to HTTPS redirects are handled automatically with proper header rewriting (localhost only)
 - **Certificate Validation**: Self-signed certificates can be trusted in development using `AllowSelfSignedCertificates()`
 - **Fallback Behavior**: If HTTPS is preferred but unavailable, HTTP endpoints are used as fallback
@@ -151,7 +142,7 @@ Scalar for Aspire includes a built-in proxy that is **enabled by default** to pr
 
 ### How the Proxy Works
 
-When the proxy is enabled (default behavior):
+When the proxy is enabled:
 
 - **Eliminates CORS Issues**: All API requests are routed through the Scalar proxy, avoiding CORS restrictions
 - **Service Discovery Integration**: OpenAPI servers and document routes are configured to use service discovery endpoints through the proxy
@@ -198,6 +189,10 @@ var scalar = builder.AddScalarApiReference(options =>
         });
 });
 ```
+
+:::scalar-callout{ type=info }
+When the proxy is enabled, OAuth token requests are automatically proxied through the Scalar proxy to avoid CORS issues. However, interactive authorization requests are not proxied since they occur directly in the browser, so authorization URLs must be correctly configured and accessible. See the [Aspire playground on GitHub](https://github.com/scalar/scalar/blob/4d509fb6a074b7c779fad9ed17148a9c52db3eb9/integrations/aspire/playground/Scalar.Aspire.BookService/Program.cs#L15-L21).
+:::
 
 ### Service-Specific Authentication
 
@@ -249,4 +244,4 @@ scalar.WithApiReference(bookService, async (options, cancellationToken) =>
 
 ## Additional Resources
 
-For more advanced configuration options and detailed API reference, see the [.NET ASP.NET Core documentation](https://guides.scalar.com/scalar/scalar-api-references/integrations/net-aspnet-core#configuration-options). Most configuration options are shared between `Scalar.AspNetCore` and `Scalar.Aspire` integrations.
+For more advanced configuration options see the [.NET ASP.NET Core documentation](https://guides.scalar.com/scalar/scalar-api-references/integrations/net-aspnet-core#configuration-options). Many configuration options are similar between `Scalar.AspNetCore` and `Scalar.Aspire` integrations.
