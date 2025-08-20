@@ -69,6 +69,20 @@ export const useLegacyStoreEvents = (
     collectionMutators.edit(collection.uid, 'selectedServerUid', server.uid)
   })
 
+  onCustomEvent(root, 'store-update-selected-server-properties', ({ detail: { key, value, options } }) => {
+    if (options?.disableOldStoreUpdate) {
+      return
+    }
+
+    const server = activeServer.value
+
+    if (!server) {
+      return
+    }
+
+    serverMutators.edit(server.uid, key, value)
+  })
+
   onCustomEvent(root, 'scalar-update-selected-server-variables', ({ detail: { key, value, options } }) => {
     // Do not update old store
     if (options?.disableOldStoreUpdate === true) {

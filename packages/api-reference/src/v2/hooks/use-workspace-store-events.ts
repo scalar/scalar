@@ -57,6 +57,23 @@ export const useWorkspaceStoreEvents = (store: WorkspaceStore, root: Ref<HTMLEle
     }
   })
 
+  onCustomEvent(root, 'store-update-selected-server-properties', (event) => {
+    const activeDocument = store.workspace.activeDocument
+
+    if (!activeDocument) {
+      return
+    }
+
+    const activeServer = activeDocument['servers']?.find((it) => it.url === activeDocument['x-scalar-active-server'])
+
+    if (!activeServer) {
+      return
+    }
+
+    // @ts-expect-error We know this will be the correct type
+    activeServer[event.detail.key] = event.detail.value
+  })
+
   onCustomEvent(root, 'scalar-update-selected-server-variables', (event) => {
     const activeDocument = store.workspace.activeDocument
 

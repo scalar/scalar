@@ -6,7 +6,7 @@ import type { AvailableClients } from '@scalar/snippetz'
  *
  * Events can have a typed payload using the `data` property.
  */
-export type ApiReferenceEvents = {
+export type ApiReferenceEvents<T extends keyof ServerObject = keyof ServerObject> = {
   'scalar-update-sidebar': {
     detail: {
       value: boolean
@@ -33,7 +33,7 @@ export type ApiReferenceEvents = {
   /** Controls the selected server URL in our server selector blocks */
   'scalar-update-selected-server': {
     detail: {
-      value: string
+      value?: string
       options?: {
         /**
          * Update only new store
@@ -49,6 +49,20 @@ export type ApiReferenceEvents = {
     detail: {
       key: string
       value: string
+      options?: {
+        /**
+         * Update only new store
+         *
+         * Do not update the old store since it will be handled manually
+         */
+        disableOldStoreUpdate: boolean
+      }
+    }
+  }
+  'store-update-selected-server-properties': {
+    detail: {
+      key: T
+      value: ServerObject[T]
       options?: {
         /**
          * Update only new store
