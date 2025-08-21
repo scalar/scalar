@@ -2,7 +2,8 @@ import { defineConfig, type PlaywrightTestConfig } from '@playwright/test'
 
 type WebServer = PlaywrightTestConfig['webServer']
 
-const CI = !!process.env.CI
+const CI = Boolean(process.env.CI)
+const isLinux = process.platform === 'linux' && !CI
 
 /**
  * Playwright Test Server
@@ -12,7 +13,7 @@ const CI = !!process.env.CI
  */
 const playwrightServer: WebServer = {
   name: 'Playwright',
-  command: 'pnpm test:e2e:playwright',
+  command: isLinux ? 'pnpm test:e2e:playwright:linux' : 'pnpm test:e2e:playwright',
   url: 'http://localhost:5001',
   timeout: 120 * 1000,
   reuseExistingServer: !CI,
@@ -20,7 +21,7 @@ const playwrightServer: WebServer = {
     signal: 'SIGINT',
     timeout: 10 * 1000,
   },
-} as const
+}
 
 /**
  * Vite Dev Server
@@ -54,7 +55,7 @@ export default defineConfig({
   webServer: CI ? [devServer] : [playwrightServer, devServer],
   use: {
     /** The base URL is on the docker host where we're running Vite */
-    baseURL: CI ? 'http://localhost:5173/' : 'http://host.docker.internal:5173/',
+    baseURL: CI || isLinux ? 'http://localhost:5173/' : 'http://host.docker.internal:5173/',
     /** Save a screenshot on failure */
     screenshot: { mode: 'on' },
   },
