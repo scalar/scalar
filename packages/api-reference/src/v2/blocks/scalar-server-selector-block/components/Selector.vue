@@ -25,16 +25,11 @@ const serverOptions = computed(() =>
   })),
 )
 
-const server = computed(() => {
-  return servers.find((s) => s.url === xSelectedServer)
-})
+const server = computed(() => servers.find((s) => s.url === xSelectedServer))
 
-const serverUrlWithoutTrailingSlash = computed(() => {
-  if (server.value?.url.endsWith('/')) {
-    return server.value?.url.slice(0, -1)
-  }
-  return server.value?.url || ''
-})
+const serverUrlWithoutTrailingSlash = computed(
+  () => server.value?.url?.replace(/\/$/, '') || '',
+)
 
 const selectedServer = computed({
   get: () => {

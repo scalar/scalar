@@ -49,7 +49,7 @@ const updateSelectedServer = (serverUid: Server['uid'], event?: Event) => {
         undefined,
       )
 
-      emitCustomEvent(wrapper.value!, 'scalar-update-selected-server', {
+      emitCustomEvent(wrapper.value, 'scalar-update-selected-server', {
         value: undefined,
         options: { disableOldStoreUpdate: true },
       })
@@ -71,7 +71,7 @@ const updateSelectedServer = (serverUid: Server['uid'], event?: Event) => {
       serverUid,
     )
 
-    emitCustomEvent(wrapper.value!, 'scalar-update-selected-server', {
+    emitCustomEvent(wrapper.value, 'scalar-update-selected-server', {
       value: servers[serverUid]?.url,
       options: { disableOldStoreUpdate: true },
     })

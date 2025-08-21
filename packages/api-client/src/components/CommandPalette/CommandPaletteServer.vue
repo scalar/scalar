@@ -78,7 +78,7 @@ const handleSubmit = () => {
   // Select the server
   collectionMutators.edit(collection.uid, 'selectedServerUid', server.uid)
 
-  emitCustomEvent(wrapper.value?.$el!, 'scalar-add-server', {
+  emitCustomEvent(wrapper.value?.$el, 'scalar-add-server', {
     server: { url: url.value },
     options: {
       disableOldStoreUpdate: true,

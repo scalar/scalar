@@ -31,10 +31,6 @@ const id = useId()
 const { servers, xSelectedServer } = defineProps<SelectorProps>()
 
 const updateServer = (newServer: string) => {
-  if (!containerRef.value) {
-    return
-  }
-
   emitCustomEvent(containerRef.value, 'scalar-update-selected-server', {
     value: newServer,
   })

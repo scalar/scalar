@@ -1,5 +1,6 @@
 import type { ServerObject } from '@/schemas/v3.1/strict/server'
 import type { AvailableClients } from '@scalar/snippetz'
+import type { Simplify } from 'type-fest'
 
 /**
  * Event definitions for scalar blocks
@@ -117,7 +118,7 @@ export type ApiReferenceEvents<T extends keyof ServerObject = keyof ServerObject
   }
 }
 
-export type ApiReferenceEvent = Prettify<keyof ApiReferenceEvents>
+export type ApiReferenceEvent = Simplify<keyof ApiReferenceEvents>
 
 /**
  * Scalar blocks will use vanilla events to allow more flexibility in integrations
@@ -125,7 +126,7 @@ export type ApiReferenceEvent = Prettify<keyof ApiReferenceEvents>
  * Event can include typed payloads using the `data` property. A target for the dispatch must be provided.
  */
 export function emitCustomEvent<E extends ApiReferenceEvent>(
-  target: HTMLElement,
+  target: HTMLElement | null | undefined,
   event: E,
   detail: ApiReferenceEvents[E]['detail'],
 ) {
@@ -136,10 +137,5 @@ export function emitCustomEvent<E extends ApiReferenceEvent>(
     cancelable: true,
   })
 
-  target.dispatchEvent(instance)
+  target?.dispatchEvent(instance)
 }
-
-/** Type helper for expanding complex types */
-type Prettify<T> = {
-  [K in keyof T]: T[K]
-} & {}

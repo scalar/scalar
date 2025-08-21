@@ -88,7 +88,7 @@ watch(
 
     serverMutators.edit(activeServer.value.uid, 'variables', variables)
 
-    emitCustomEvent(wrapper.value!, 'store-update-selected-server-properties', {
+    emitCustomEvent(wrapper.value, 'store-update-selected-server-properties', {
       key: 'variables',
       value: variables,
       options: {
@@ -106,7 +106,7 @@ const updateServer = (key: string, value: string) => {
   serverMutators.edit(activeServer.value.uid, key as keyof Server, value)
 
   if (key === 'url' || key === 'description') {
-    emitCustomEvent(wrapper.value!, 'store-update-selected-server-properties', {
+    emitCustomEvent(wrapper.value, 'store-update-selected-server-properties', {
       key: key,
       value: value,
       options: {
@@ -126,7 +126,7 @@ const updateServerVariable = (key: string, value: string) => {
 
   serverMutators.edit(activeServer.value.uid, 'variables', variables)
 
-  emitCustomEvent(wrapper.value!, 'store-update-selected-server-properties', {
+  emitCustomEvent(wrapper.value, 'store-update-selected-server-properties', {
     key: 'variables',
     value: variables,
     options: {

@@ -45,7 +45,7 @@ const handleDeleteServer = () => {
   }
 
   serverMutators.delete(selectedServerUid.value, activeCollection.value.uid)
-  emitCustomEvent(wrapper.value!, 'scalar-delete-server', {
+  emitCustomEvent(wrapper.value, 'scalar-delete-server', {
     url: servers[selectedServerUid.value]?.url ?? '',
   })
   deleteModal.hide()
