@@ -4,6 +4,7 @@ services:
     container_name: playwright-references
     ports:
       - 5001:5001
+    network_mode: ${NETWORK:-bridge}
     init: true
     working_dir: /home/pwuser
     user: pwuser
@@ -12,3 +13,5 @@ services:
     image: mcr.microsoft.com/playwright:v1.54.0-noble
     command: /bin/sh -c "npx -y playwright@1.54.0 run-server --port 5001 --host
       0.0.0.0"
+    environment:
+      - NETWORK

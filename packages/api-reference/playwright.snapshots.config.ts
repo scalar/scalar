@@ -5,6 +5,9 @@ type WebServer = PlaywrightTestConfig['webServer']
 const CI = Boolean(process.env.CI)
 const isLinux = process.platform === 'linux' && !CI
 
+/** Linux uses the host network to connect to the dev server */
+const network = isLinux ? 'host' : 'bridge'
+
 /**
  * Playwright Test Server
  *
@@ -13,7 +16,7 @@ const isLinux = process.platform === 'linux' && !CI
  */
 const playwrightServer: WebServer = {
   name: 'Playwright',
-  command: isLinux ? 'pnpm test:e2e:playwright:linux' : 'pnpm test:e2e:playwright',
+  command: `NETWORK=${network} pnpm test:e2e:playwright`,
   url: 'http://localhost:5001',
   timeout: 120 * 1000,
   reuseExistingServer: !CI,
