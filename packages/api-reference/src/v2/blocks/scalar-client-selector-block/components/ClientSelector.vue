@@ -20,6 +20,7 @@ const {
   xScalarSdkInstallation,
   xSelectedClient = DEFAULT_CLIENT,
 } = defineProps<{
+  /** Selected SDK installation instructions */
   xScalarSdkInstallation?: XScalarSdkInstallation['x-scalar-sdk-installation']
   /** Computed list of all available Http Client options */
   clientOptions: ClientOptionGroup[]
