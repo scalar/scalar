@@ -50,7 +50,7 @@ export const processSecuritySchemes = (securitySchemes: SecuritySchemeObject[]):
         const password = scheme['x-scalar-secret-password'] || ''
 
         const value = `${username}:${password}`
-        const auth = value === ':' ? 'username:password' : Buffer.from(value).toString('base64')
+        const auth = value === ':' ? 'username:password' : btoa(value)
 
         result.headers.push({
           name: 'Authorization',

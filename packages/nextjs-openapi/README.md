@@ -31,5 +31,5 @@ You just need to drop this file into the `app/api/openapi/[[...openapi]]` folder
 // app/api/openapi/[[...slug]]/route.ts
 import { OpenAPI } from '@scalar/nextjs-openapi'
 
-export const GET = OpenAPI()
+export const GET = OpenAPI().GET
 ```

@@ -301,10 +301,8 @@ watch(hash, (newHash, oldHash) => {
   }
 })
 
-const root = ref(window.document.body)
-
 /** Update the old store to keep it in sync with the new store */
-useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, root)
+useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
 
 // ---------------------------------------------------------------------------
 </script>

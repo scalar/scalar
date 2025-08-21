@@ -30,7 +30,7 @@ import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRe
 import type { Record } from '@sinclair/typebox'
 import { Value } from '@sinclair/typebox/value'
 import { deepClone } from '@/helpers/deep-clone'
-import { measureAsync } from '@scalar/helpers/testing/measure'
+import { measureAsync, measureSync } from '@scalar/helpers/testing/measure'
 import { getServersFromDocument } from '@/preprocessing/server'
 
 export type DocumentConfiguration = Config &
@@ -549,29 +549,32 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   // Add a document to the store synchronously from an in-memory OpenAPI document
   async function addInMemoryDocument(input: ObjectDoc & { initialize?: boolean; documentSource?: string }) {
     const { name, meta } = input
-    const inputDocument = upgrade(deepClone(input.document)).specification
+    const cloned = measureSync('deepClone', () => deepClone(input.document))
+    const inputDocument = measureSync('upgrade', () => upgrade(cloned).specification)
 
-    if (input.initialize !== false) {
-      // Store the original document in the originalDocuments map
-      // This is used to track the original state of the document as it was loaded into the workspace
-      originalDocuments[name] = deepClone({ ...inputDocument })
+    measureSync('initialize', () => {
+      if (input.initialize !== false) {
+        // Store the original document in the originalDocuments map
+        // This is used to track the original state of the document as it was loaded into the workspace
+        originalDocuments[name] = deepClone({ ...inputDocument })
 
-      // Store the intermediate document state for local edits
-      // This is used to track the last saved state of the document
-      // It allows us to differentiate between the original document and the latest saved version
-      // This is important for local edits that are not yet synced with the remote registry
-      // The intermediate document is used to store the latest saved state of the document
-      // This allows us to track changes and revert to the last saved state if needed
-      intermediateDocuments[name] = deepClone({ ...inputDocument })
-      // Add the document config to the documentConfigs map
-      documentConfigs[name] = input.config ?? {}
-      // Store the overrides for this document, or an empty object if none are provided
-      overrides[name] = input.overrides ?? {}
-      // Store the document metadata for this document, setting the origin if provided
-      documentMeta[name] = { documentSource: input.documentSource }
-      // Store extra document configurations that can not be persisted
-      extraDocumentConfigurations[name] = { fetch: input.fetch }
-    }
+        // Store the intermediate document state for local edits
+        // This is used to track the last saved state of the document
+        // It allows us to differentiate between the original document and the latest saved version
+        // This is important for local edits that are not yet synced with the remote registry
+        // The intermediate document is used to store the latest saved state of the document
+        // This allows us to track changes and revert to the last saved state if needed
+        intermediateDocuments[name] = deepClone({ ...inputDocument })
+        // Add the document config to the documentConfigs map
+        documentConfigs[name] = input.config ?? {}
+        // Store the overrides for this document, or an empty object if none are provided
+        overrides[name] = input.overrides ?? {}
+        // Store the document metadata for this document, setting the origin if provided
+        documentMeta[name] = { documentSource: input.documentSource }
+        // Store extra document configurations that can not be persisted
+        extraDocumentConfigurations[name] = { fetch: input.fetch }
+      }
+    })
 
     const strictDocument: UnknownObject = createMagicProxy({ ...inputDocument, ...meta })
 
@@ -579,21 +582,30 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // If the document navigation is not already present, bundle the entire document to resolve all references.
       // This typically applies when the document is not preprocessed by the server and needs local reference resolution.
       // We need to bundle document first before we validate, so we can also validate the external references
-      await bundle(getRaw(strictDocument), {
-        treeShake: false,
-        plugins: [
-          fetchUrls({
-            fetch: extraDocumentConfigurations[name]?.fetch ?? workspaceProps?.fetch,
+      await measureAsync(
+        'bundle',
+        async () =>
+          await bundle(getRaw(strictDocument), {
+            treeShake: false,
+            plugins: [
+              fetchUrls({
+                fetch: extraDocumentConfigurations[name]?.fetch ?? workspaceProps?.fetch,
+              }),
+              externalValueResolver(),
+              refsEverywhere(),
+              // TODO: investigate problems with type: {} properties
+              // cleanUp(),
+            ],
+            urlMap: true,
+            origin: documentMeta[name]?.documentSource, // use the document origin (if provided) as the base URL for resolution
           }),
-          externalValueResolver(),
-          refsEverywhere(),
-        ],
-        urlMap: true,
-        origin: documentMeta[name]?.documentSource, // use the document origin (if provided) as the base URL for resolution
-      })
+      )
 
       // We coerce the values only when the document is not preprocessed by the server-side-store
-      mergeObjects(strictDocument, coerceValue(OpenAPIDocumentSchemaStrict, deepClone(strictDocument)))
+      const coerced = measureSync('coerceValue', () =>
+        coerceValue(OpenAPIDocumentSchemaStrict, deepClone(strictDocument)),
+      )
+      measureAsync('mergeObjects', async () => mergeObjects(strictDocument, coerced))
     }
 
     const isValid = Value.Check(OpenAPIDocumentSchemaStrict, strictDocument)

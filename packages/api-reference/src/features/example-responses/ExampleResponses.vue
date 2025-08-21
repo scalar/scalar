@@ -13,6 +13,7 @@ import {
 } from '@scalar/oas-utils/helpers'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/example'
 import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/media-header-encoding'
 import type { ResponsesObject } from '@scalar/workspace-store/schemas/v3.1/strict/responses'
 import { computed, ref, toValue, useId } from 'vue'
@@ -87,7 +88,7 @@ const selectedExampleKey = ref<string>(
  * Gets the first example response if there are multiple example responses
  * or the only example if there is only one example response.
  */
-const getFirstResponseExample = () => {
+const getFirstResponseExample = (): ExampleObject | undefined => {
   const response = toValue(currentResponseContent)
 
   if (!response) {
@@ -104,11 +105,11 @@ const getFirstResponseExample = () => {
   return firstExample
 }
 
-const currentExample = computed(() => {
-  return hasMultipleExamples.value && selectedExampleKey.value
+const currentExample = computed(() =>
+  hasMultipleExamples.value && selectedExampleKey.value
     ? currentResponseContent.value?.examples?.[selectedExampleKey.value]
-    : getFirstResponseExample()
-})
+    : getFirstResponseExample(),
+)
 
 const changeTab = (index: number) => {
   selectedResponseIndex.value = index

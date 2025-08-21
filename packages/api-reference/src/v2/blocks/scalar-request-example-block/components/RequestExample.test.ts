@@ -399,6 +399,38 @@ describe('RequestExample', () => {
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
     })
+
+    it('handles $ref values in examples', () => {
+      const wrapper = mount(RequestExample, {
+        props: {
+          ...defaultProps,
+          operation: {
+            summary: 'Referenced operation',
+            requestBody: {
+              content: {
+                'application/json': {
+                  examples: {
+                    example1: {
+                      $ref: '#/components/examples/example1',
+                      '$ref-value': {
+                        summary: 'Example 1',
+                        value: { test: 'This is the greatest test of all' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          selectedExample: 'example1',
+        },
+      })
+
+      const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
+      expect(codeBlock.exists()).toBe(true)
+      expect(codeBlock.props('content')).toBeTruthy()
+      expect(codeBlock.props('content')).toContain('This is the greatest test of all')
+    })
   })
 
   describe('Security and Secrets', () => {

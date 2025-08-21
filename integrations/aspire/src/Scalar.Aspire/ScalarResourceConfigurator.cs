@@ -23,7 +23,7 @@ internal static class ScalarResourceConfigurator
         var serviceProvider = context.ExecutionContext.ServiceProvider;
         var cancellationToken = context.CancellationToken;
         var scalarAnnotations = resource.Annotations.OfType<ScalarAnnotation>();
-        var scalarConfigurations = CreateConfigurationsAsync(serviceProvider, scalarAnnotations, cancellationToken);
+        var scalarConfigurations = CreateConfigurationsAsync(resource.Name, serviceProvider, scalarAnnotations, cancellationToken);
 
         var configurations = await scalarConfigurations.ToScalarConfigurationsAsync(cancellationToken).SerializeToJsonAsync(JsonSerializerOptions, cancellationToken);
 
@@ -38,20 +38,18 @@ internal static class ScalarResourceConfigurator
         var environmentVariables = context.EnvironmentVariables;
         environmentVariables.Add(ApiReferenceConfig, configurations);
         environmentVariables.Add(CdnUrl, scalarAspireOptions.CdnUrl);
-        if (scalarAspireOptions.DefaultProxy)
-        {
-            environmentVariables.Add(DefaultProxy, "true");
-        }
+        environmentVariables.Add(AllowSelfSignedCertificates, scalarAspireOptions.AllowSelfSignedCertificates);
+        environmentVariables.Add(DefaultProxy, scalarAspireOptions.DefaultProxy);
     }
 
-    private static async IAsyncEnumerable<ScalarOptions> CreateConfigurationsAsync(IServiceProvider serviceProvider, IEnumerable<ScalarAnnotation> annotations, [EnumeratorCancellation] CancellationToken cancellationToken)
+    private static async IAsyncEnumerable<ScalarOptions> CreateConfigurationsAsync(string scalarResourceName, IServiceProvider serviceProvider, IEnumerable<ScalarAnnotation> annotations, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         foreach (var scalarAnnotation in annotations)
         {
             var resourceName = scalarAnnotation.Resource.Name;
 
             using var scope = serviceProvider.CreateScope();
-            var scalarAspireOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<ScalarAspireOptions>>().Get(resourceName);
+            var scalarAspireOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<ScalarAspireOptions>>().Get(scalarResourceName);
             if (scalarAnnotation.ConfigureOptions is not null)
             {
                 await scalarAnnotation.ConfigureOptions.Invoke(scalarAspireOptions, cancellationToken);
@@ -62,28 +60,42 @@ internal static class ScalarResourceConfigurator
                 ConfigureProxyUrl(scalarAspireOptions);
             }
 
-            ConfigureOpenApiServers(scalarAspireOptions, resourceName);
-            ConfigureOpenApiRoutePattern(scalarAspireOptions, resourceName);
+            var endpoints = scalarAnnotation.Resource.Annotations.OfType<EndpointAnnotation>().ToArray();
+            if (endpoints.Length == 0)
+            {
+                throw new InvalidOperationException($"No endpoints found for resource '{resourceName}'. Ensure that the resource has at least one endpoint.");
+            }
+
+            var httpAvailable = endpoints.Any(endpoint => endpoint.UriScheme == "http");
+            var httpsAvailable = endpoints.Any(endpoint => endpoint.UriScheme == "https");
+            if (!httpAvailable && !httpsAvailable)
+            {
+                throw new InvalidOperationException($"No HTTP or HTTPS endpoints found for resource '{resourceName}'. Ensure that the resource has at least one HTTP or HTTPS endpoint.");
+            }
+
+            var shouldUseHttps = (!httpAvailable || scalarAspireOptions.PreferHttpsEndpoint) && httpsAvailable;
+            var resourceUrl = GetResourceUrl(resourceName, shouldUseHttps, scalarAspireOptions.DefaultProxy, endpoints);
+
+            ConfigureOpenApiServers(scalarAspireOptions, resourceName, resourceUrl);
+            ConfigureOpenApiRoutePattern(scalarAspireOptions, resourceUrl);
             ConfigureDocuments(scalarAspireOptions, resourceName);
 
             yield return scalarAspireOptions;
         }
     }
 
-    private static void ConfigureOpenApiServers(ScalarOptions scalarOptions, string resourceName)
+    private static void ConfigureOpenApiServers(ScalarOptions scalarOptions, string resourceName, string resourceUrl)
     {
-        var resourceUrl = GetResourceUrl(resourceName);
         // Only set OpenAPI servers if not already assigned
         var server = new ScalarServer(resourceUrl, resourceName);
         scalarOptions.Servers ??= [server];
     }
 
-    private static void ConfigureOpenApiRoutePattern(ScalarOptions scalarOptions, string resourceName)
+    private static void ConfigureOpenApiRoutePattern(ScalarOptions scalarOptions, string resourceUrl)
     {
         // Only set the full URL if the OpenAPI route pattern is not a full URL
         if (!RegexHelper.HttpUrlPattern().IsMatch(scalarOptions.OpenApiRoutePattern))
         {
-            var resourceUrl = GetResourceUrl(resourceName);
             scalarOptions.OpenApiRoutePattern = $"{resourceUrl}/{scalarOptions.OpenApiRoutePattern.TrimStart('/')}";
         }
     }
@@ -127,7 +139,16 @@ internal static class ScalarResourceConfigurator
         }
     }
 
-    private static string GetResourceUrl(string resourceName) =>
-        // Let's make the protocol/endpoint name configurable in the future
-        $"http://{resourceName}";
+    private static string GetResourceUrl(string resourceName, bool useHttps, bool useProxy, EndpointAnnotation[] endpoints)
+    {
+        var scheme = useHttps ? "https" : "http";
+
+        if (useProxy)
+        {
+            return $"{scheme}://{resourceName}";
+        }
+
+        var endpoint = endpoints.FirstOrDefault(e => e.UriScheme == scheme) ?? throw new InvalidOperationException($"No endpoint found for resource '{resourceName}' with URI scheme '{scheme}'.");
+        return $"{scheme}://{endpoint.TargetHost}:{endpoint.TargetPort ?? endpoint.Port}";
+    }
 }

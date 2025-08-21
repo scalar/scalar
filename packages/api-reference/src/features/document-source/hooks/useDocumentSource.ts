@@ -1,5 +1,5 @@
 import { createActiveEntitiesStore, createWorkspaceStore } from '@scalar/api-client/store'
-import { measureAsync, measureSync } from '@scalar/helpers/testing/measure'
+import { measureAsync } from '@scalar/helpers/testing/measure'
 import { dereference, normalize, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
 import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
@@ -86,11 +86,7 @@ export function useDocumentSource({
 
       const upgraded = outdatedVersion
         ? // Upgrade needed
-          measureSync('upgrade', () => {
-            const { specification } = upgrade(content)
-
-            return specification
-          })
+          upgrade(content).specification
         : // Skip the upgrade
           content
 
