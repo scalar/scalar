@@ -4,13 +4,14 @@
     "title": "Scalar Documentation",
     "description": "Guides for Scalar, covering your favorite frameworks, languages and use cases."
   },
-  "subdomain": "scalar-landing-preview",
+  "publishOnMerge": true,
+  "subdomain": "guides",
+  "customDomain": "guides.scalar.com",
   "assetsDir": "documentation/assets",
   "theme": "default",
   "guides": [
     {
-      "name": "Guide",
-      "slug": "scalar",
+      "name": "Scalar",
       "sidebar": [
         {
           "name": "Introduction",
@@ -479,18 +480,7 @@
   "references": [
     {
       "liveLink": "https://registry.scalar.com/@scalar/apis/access-service/latest",
-      "name": "Reference",
-      "slug": "scalar-api"
-    }
-  ],
-  "header": [
-    {
-      "type": "guide",
-      "slug": "scalar"
-    },
-    {
-      "type": "reference",
-      "slug": "scalar-api"
+      "name": "Scalar API"
     }
   ],
   "siteConfig": {
