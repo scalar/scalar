@@ -56,6 +56,6 @@ export default defineConfig({
     /** The base URL is on the docker host where we're running Vite */
     baseURL: CI ? 'http://localhost:5173/' : 'http://host.docker.internal:5173/',
     /** Save a screenshot on failure */
-    screenshot: { mode: 'only-on-failure' },
+    screenshot: { mode: 'on' },
   },
 })
