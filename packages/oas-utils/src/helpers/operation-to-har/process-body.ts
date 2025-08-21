@@ -68,7 +68,7 @@ export const processBody = ({ content, contentType, example }: ProcessBodyProps)
   // Try to extract examples from the schema
   const contentSchema = getResolvedRef(content[_contentType]?.schema)
   if (contentSchema) {
-    const extractedExample = getExampleFromSchema(contentSchema)
+    const extractedExample = getExampleFromSchema(contentSchema, { mode: 'write' })
 
     if (extractedExample !== undefined) {
       if (isFormData && typeof extractedExample === 'object' && extractedExample !== null) {
