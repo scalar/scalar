@@ -1,0 +1,4 @@
+:root {
+  /* Match the Dashboard header height */
+  --scalar-header-height: 48px;
+}
