@@ -8,7 +8,7 @@ import { Introduction } from '@/components/Content/Introduction'
 import { Models } from '@/components/Content/Models'
 import { SectionFlare } from '@/components/SectionFlare'
 import { useConfig } from '@/hooks/useConfig'
-import ClientSelector from '@/v2/blocks/scalar-client-selector-block/components/ClientSelector.vue'
+import { ClientSelector } from '@/v2/blocks/scalar-client-selector-block'
 import { generateClientOptions } from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
 import ServerSelector from '@/v2/blocks/scalar-server-selector-block/components/ServerSelector.vue'
 
