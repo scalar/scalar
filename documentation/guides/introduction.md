@@ -135,7 +135,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
           Private or Public
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/guide/scalar-registry/getting-started">Learn More →</a>
+      <a class="mt-3 t-editor__anchor" href="/scalar/scalar-registry/getting-started">Learn More →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
@@ -230,7 +230,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
           Access Groups
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/guide/scalar-docs/getting-started">Learn More →</a>
+      <a class="mt-3 t-editor__anchor" href="/scalar/scalar-docs/getting-started">Learn More →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
@@ -277,7 +277,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
           File Streaming
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/guide/scalar-sdks/getting-started">Learn More →</a>
+      <a class="mt-3 t-editor__anchor" href="/scalar/scalar-sdks/getting-started">Learn More →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
