@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import sources from '../test/data/sources.js'
+import sources from '../test/data/sources'
 
 sources.forEach(({ title, slug }) => {
   test(`Diff with CDN - ${title}`, async ({ page }) => {
