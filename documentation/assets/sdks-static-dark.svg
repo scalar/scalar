@@ -1,0 +1,587 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 1360 765" width="1360" height="765" preserveAspectRatio="xMidYMid meet">
+  <foreignObject width="1360" height="765" class="fo">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="transform-rr">
+      <div class="h-animation-ref dark-mode rr">        
+      <div class="popup">
+        <div class="popup-content">
+          
+          <div class="popup-body">
+            <div class="popup-body-2">
+              <div class="popup-body-header">
+                <span class="active">Go</span>
+                <span>Typescript</span>
+                <span>Python</span>
+                <span>C#</span>
+                <span>Java</span>
+                <span>Ruby</span>
+                <span>PHP</span>
+              </div>
+              <div class="popup-body-2-body">
+                <div class="h-animation-endpoint-code-body">
+                                    <div class="h-animation-endpoint-code-body">
+                    <div><span>1</span><span class="h-purple">package </span>main</div>
+                    <div class="body-second">
+                      <span>2</span>
+                    </div>
+                    <div>
+                      <span>3</span><span class="h-purple">import</span>(</div>
+                    <div class="body-second">
+                      <span>4</span><span class="h-blue">"context"</span></div>
+                    <div class="body-second">
+                      <span>5</span><span class="h-black">accessservicego </span><span class="h-blue">"access-service-go"</span></div>
+                    <div class="body-second">
+                      <span>6</span><span class="h-blue">"access-service-go/pkg/models/shared"</span></div>
+                    <div class="body-second">
+                      <span>7</span><span class="h-blue">"log"</span></div>
+                    <div>
+                      <span>8</span>)</div>
+                    <div class="body-second">
+                      <span>9</span>
+                    </div>
+                    <div>
+                      <span>10</span><span class="h-purple">func </span>main() {</div>
+                    <div class="body-second">
+                      <span>11</span><span class="h-black">ctx := context.Background()</span></div>
+                    <div>
+                      <span>12</span>
+                    </div>
+                    <div class="body-second">
+                      <span>13</span><span class="h-black">s := accessservicego.New(</span></div>
+                    <div class="body-third">
+                      <span>14</span><span class="h-black">accessservicego.WithSecurity(shared.Security{</span></div>
+                    <div class="body-fourth">
+                      <span>15</span><span class="h-black">BearerAuth: </span><span class="h-blue">"&lt;YOUR_BEARER_TOKEN_HERE&gt;"</span>,</div>
+                    <div class="body-third">
+                      <span>16</span><span class="h-black">})</span></div>
+                    <div class="body-second">
+                      <span>17</span><span class="h-black">)</span></div>
+                    <div class="body-second">
+                      <span>18</span>
+                    </div>
+                    <div class="body-second">
+                      <span>19</span><span class="h-black">res, err := s.APIDocs.Getv1ApisNamespace(ctx, </span><span class="h-blue">"&lt;value&gt;"</span><span class="h-black">)</span></div>
+                    <div class="body-second">
+                      <span>20</span><span class="h-black">if err != nil {</span></div>
+                    <div class="body-third">
+                      <span>21</span><span class="h-black">log.Fatal(err)</span></div>
+                    <div class="body-second">
+                      <span>22</span><span class="h-black">}</span></div>
+                    <div class="body-second">
+                      <span>23</span><span class="h-black">if res.ResponseBodies != nil {</span></div>
+                    <div class="body-third">
+                      <span>24</span><span class="h-black">// handle response</span></div>
+                    <div class="body-second">
+                      <span>25</span><span class="h-black">}</span></div>
+                  </div>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+    <style>
+      * {
+        padding: 0;
+        box-sizing: border-box;
+        margin: 0;
+        -webkit-font-smoothing: antialiased
+      }
+      :root {
+        
+    --app-header-height: 48px;
+    --scalar-border-width: 1px;
+    --scalar-radius: 3px;
+    --scalar-radius-lg: 6px;
+    --scalar-radius-xl: 8px;
+    --scalar-header-height: 50px;
+    --scalar-sidebar-width: 280px;
+    --scalar-toc-width: 280px;
+    --scalar-card-icon-width: 40px;
+    --scalar-card-icon-height: 40px;
+    --scalar-card-icon-diameter: 20px;
+    --scalar-card-padding: 16px;
+    --scalar-card-inter-element-gap: 4px;
+    --scalar-row-gap: 16px;
+    --system-fonts: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    --scalar-font: "Inter", var(--system-fonts);
+    --scalar-font-code: Monaco, Menlo, monospace;
+    --scalar-heading-1: 24px;
+    --scalar-page-description: 16px;
+    --scalar-heading-2: 20px;
+    --scalar-heading-3: 20px;
+    --scalar-heading-4: 16px;
+    --scalar-heading-5: 16px;
+    --scalar-heading-6: 16px;
+    --scalar-paragraph: 16px;
+    --scalar-small: 14px;
+    --scalar-mini: 13px;
+    --scalar-micro: 12px;
+    --scalar-extra-bold: 700;
+    --scalar-bold: 600;
+    --scalar-semibold: 500;
+    --scalar-regular: 400;
+    --scalar-font-size-1: 24px;
+    --scalar-font-size-2: 16px;
+    --scalar-font-size-3: 14px;
+    --scalar-font-size-4: 13px;
+    --scalar-font-size-5: 12px;
+    --scalar-line-height-1: 32px;
+    --scalar-line-height-2: 24px;
+    --scalar-line-height-3: 20px;
+    --scalar-line-height-4: 18px;
+    --scalar-line-height-5: 16px;
+    --scalar-heading-spacing: 44px;
+    --scalar-block-spacing: 12px;
+      }
+      .light-mode {
+        --scalar-sidebar-width: 280px;
+        --scalar-color-1: #000;
+        --scalar-color-2: #666666;
+        --scalar-color-3: #8e8e8e;
+        --scalar-color-disabled: #b4b1b1;
+        --scalar-color-ghost: #a7a7a7;
+        --scalar-color-accent: #0099ff;
+        --scalar-background-1: #fff;
+        --scalar-background-2: #f6f6f6;
+        --scalar-background-3: #e7e7e7;
+        --scalar-background-4: rgba(0, 0, 0, 0.06);
+        --scalar-background-accent: #8ab4f81f;
+        --scalar-border-color: rgba(0, 0, 0, 0.05);
+        --scalar-scrollbar-color: rgba(0, 0, 0, 0.18);
+        --scalar-scrollbar-color-active: rgba(0, 0, 0, 0.36);
+        --scalar-lifted-brightness: 1;
+        --scalar-backdrop-brightness: 1;
+        --scalar-shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.11);
+        --scalar-shadow-2: rgba(0, 0, 0, 0.08) 0px 13px 20px 0px,
+          rgba(0, 0, 0, 0.08) 0px 3px 8px 0px, #eeeeed 0px 0 0 1px;
+        --scalar-button-1: rgb(49 53 56);
+        --scalar-button-1-color: #fff;
+        --scalar-button-1-hover: rgb(28 31 33);
+        --scalar-color-green: #00a67d;
+        --scalar-color-red: #ef0006;
+        --scalar-color-yellow: #f9c514;
+        --scalar-color-blue: #579dfb;
+        --scalar-color-orange: #fc8528;
+        --scalar-color-purple: #5203d1;
+        font-family: var(--scalar-font);
+        color: var(--scalar-color-1);
+      }
+      .dark-mode {
+        font-family: var(--scalar-font);
+        color-scheme: dark;
+  --scalar-color-1: rgba(255, 255, 255, 0.9);
+  --scalar-color-2: rgba(255, 255, 255, 0.62);
+  --scalar-color-3: rgba(255, 255, 255, 0.44);
+  --scalar-color-disabled: rgba(255, 255, 255, 0.34);
+  --scalar-color-ghost: rgba(255, 255, 255, 0.26);
+  --scalar-color-accent: #8ab4f8;
+  --scalar-background-1: #0f0f0f;
+  --scalar-background-2: #1a1a1a;
+  --scalar-background-3: #272727;
+  --scalar-background-4: rgba(255, 255, 255, 0.06);
+  --scalar-background-accent: #8ab4f81f;
+
+  --scalar-border-color: rgba(255, 255, 255, 0.1);
+  --scalar-scrollbar-color: rgba(255, 255, 255, 0.24);
+  --scalar-scrollbar-color-active: rgba(255, 255, 255, 0.48);
+  --scalar-lifted-brightness: 1.45;
+  --scalar-backdrop-brightness: 0.5;
+
+  --scalar-shadow-1: 0 1px 3px 0 rgb(0, 0, 0, 0.1);
+  --scalar-shadow-2: rgba(15, 15, 15, 0.2) 0px 3px 6px, rgba(15, 15, 15, 0.4)
+    0px 9px 24px, 0 0 0 1px rgba(255, 255, 255, 0.1);
+
+  --scalar-button-1: #f6f6f6;
+  --scalar-button-1-color: #000;
+  --scalar-button-1-hover: #e7e7e7;
+
+  --scalar-color-green: #00b848;
+  --scalar-color-red: #fe1d2c;
+  --scalar-color-yellow: #fbca25;
+  --scalar-color-blue: #76aedf;
+  --scalar-color-orange: #dd922f;
+  --scalar-color-purple: #b090f8;
+  color: var(--scalar-color-1);
+
+  /* Misc Scalar Branding */
+  --scalar-brand: #8b7256;
+      }
+      .h-animation-ref {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    background: var(--scalar-background-1);
+    min-width: 1280px;
+    min-height: 720px;
+}
+.h-animation-ref {
+    display: flex;
+}
+.h-animation-content {
+    flex: 1;
+}
+@keyframes scrollupdown {
+    0%,
+    10%,
+    100%,
+    80% {
+        transform: translate3d(0, 0, 0);
+    }
+    18%,
+    72% {
+        transform: translate3d(0, -380px, 0);
+    }
+}
+.h-animation-header {
+    font-size: var(--font-size, var(--scalar-heading-2));
+    font-weight: var(--font-weight, var(--scalar-bold));
+    color: var(--scalar-color-1);
+    word-wrap: break-word;
+    line-height: 1.45;
+}
+.h-purple {
+    color: var(--scalar-color-purple);
+}
+.h-blue {
+    color: var(--scalar-color-blue);
+}
+.h-animation-endpoint {
+    width: 65%;
+    display: flex;
+    padding: 24px 0;
+}
+.h-animation-14 {
+    width: 12px;
+    height: 12px;
+    stroke-width: 2;
+}
+@supports (color: color(display-p3 1 1 1)) {
+    .light-mode {
+        --scalar-color-accent: var(--scalar-color-1);
+        --scalar-color-green: color(display-p3 0.023529 0.564706 0.380392 / 1);
+        --scalar-color-red: color(display-p3 0.937255 0 0.023529 / 1);
+        --scalar-color-yellow: color(display-p3 0.929412 0.745098 0.12549 / 1);
+        --scalar-color-blue: color(display-p3 0 0.509804 0.815686 / 1);
+        --scalar-color-orange: color(display-p3 0.984314 0.537255 0.172549 / 1);
+        --scalar-color-purple: color(display-p3 0.321569 0.011765 0.819608 / 1);
+    }
+    .dark-mode {
+        --scalar-color-accent: var(--scalar-color-1);
+        --scalar-color-green: color(display-p3 0 0.713725 0.282353 / 1);
+        --scalar-color-red: color(display-p3 0.862745 0.105882 0.098039 / 1);
+        --scalar-color-yellow: color(display-p3 1 0.788235 0.05098 / 1);
+        --scalar-color-blue: color(display-p3 0.305882 0.701961 0.92549 / 1);
+        --scalar-color-orange: color(display-p3 1 0.552941 0.301961 / 1);
+        --scalar-color-purple: color(display-p3 0.694118 0.568627 0.976471 / 1);
+    }
+}
+@keyframes fadein {
+    0%,
+    100%,
+    40%,
+    70% {
+        opacity: 0;
+    }
+    45%,
+    68.5% {
+        opacity: 1;
+    }
+}
+@keyframes popupcontent {
+    0%,
+    100%,
+    43%,
+    68% {
+        opacity: 0;
+        transform: scale(0.99) translate3d(0, 10px, 0);
+    }
+    47%,
+    66% {
+        opacity: 1;
+        transform: scale(1) translate3d(0, 0, 0);
+    }
+}
+.h-animation-14 {
+    width: 16px;
+    height: 16px;
+}
+.h-10 {
+    height: 40px;
+}
+@supports (color: color(display-p3 1 1 1)) {
+    .light-mode {
+        --scalar-color-accent: var(--scalar-color-1);
+        --scalar-color-green: color(display-p3 0.023529 0.564706 0.380392 / 1);
+        --scalar-color-red: color(display-p3 0.937255 0 0.023529 / 1);
+        --scalar-color-yellow: color(display-p3 0.929412 0.745098 0.12549 / 1);
+        --scalar-color-blue: color(display-p3 0 0.509804 0.815686 / 1);
+        --scalar-color-orange: color(display-p3 0.984314 0.537255 0.172549 / 1);
+        --scalar-color-purple: color(display-p3 0.321569 0.011765 0.819608 / 1);
+    }
+    .dark-mode {
+        --scalar-color-accent: var(--scalar-color-1);
+        --scalar-color-green: color(display-p3 0 0.713725 0.282353 / 1);
+        --scalar-color-red: color(display-p3 0.862745 0.105882 0.098039 / 1);
+        --scalar-color-yellow: color(display-p3 1 0.788235 0.05098 / 1);
+        --scalar-color-blue: color(display-p3 0.305882 0.701961 0.92549 / 1);
+        --scalar-color-orange: color(display-p3 1 0.552941 0.301961 / 1);
+        --scalar-color-purple: color(display-p3 0.694118 0.568627 0.976471 / 1);
+    }
+}
+.h-animation-ref {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 765px;
+    border: 1px solid rgb(55, 55, 55);
+    border-radius: 8px;
+    overflow: hidden;
+}
+@supports (hanging-punctuation: first) and (font: -apple-system-body) and (-webkit-appearance: none) {
+    .transform-rr {
+        --var: 1;
+        --varcalcx: calc(var(--var) * 1360px);
+        --xcalc: calc((100dvw - var(--varcalcx)) / 2);
+        --varcalcy: calc(var(--var) * 765px);
+        --ycalc: calc((100dvh - var(--varcalcy)) / 2);
+        transform: translate3d(var(--xcalc), var(--ycalc), 0);
+    }
+    * {
+        animation: none !important;
+    }
+    .h-animation-tag-wrap {
+        display: none;
+    }
+    .h-animation-endpoint {
+        border-top: none;
+    }
+    .h-animation-sidebar-endpoint span {
+        font-weight: 500;
+    }
+    .h-animation-popup {
+        display: none;
+    }
+    @media only screen and (max-width: 1360px) {
+        .transform-rr {
+            --var: 0.95;
+        }
+        .rr {
+            transform: scale(var(--var));
+            transform-origin: top left;
+            position: relative;
+            overflow: hidden;
+        }
+    }
+    @media only screen and (max-width: 1292px) {
+        .transform-rr {
+            --var: 0.9;
+        }
+    }
+    @media only screen and (max-width: 1224px) {
+        .transform-rr {
+            --var: 0.85;
+        }
+    }
+    @media only screen and (max-width: 1156px) {
+        .transform-rr {
+            --var: 0.8;
+        }
+    }
+    @media only screen and (max-width: 1088px) {
+        .transform-rr {
+            --var: 0.75;
+        }
+    }
+    @media only screen and (max-width: 1020px) {
+        .transform-rr {
+            --var: 0.7;
+        }
+    }
+    @media only screen and (max-width: 952px) {
+        .transform-rr {
+            --var: 0.65;
+        }
+    }
+    @media only screen and (max-width: 884px) {
+        .transform-rr {
+            --var: 0.6;
+        }
+    }
+    @media only screen and (max-width: 816px) {
+        .transform-rr {
+            --var: 0.55;
+        }
+    }
+    @media only screen and (max-width: 748px) {
+        .transform-rr {
+            --var: 0.5;
+        }
+    }
+    @media only screen and (max-width: 680px) {
+        .transform-rr {
+            --var: 0.45;
+        }
+    }
+    @media only screen and (max-width: 612px) {
+        .transform-rr {
+            --var: 0.4;
+        }
+    }
+    @media only screen and (max-width: 544px) {
+        .transform-rr {
+            --var: 0.35;
+        }
+    }
+    @media only screen and (max-width: 476px) {
+        .transform-rr {
+            --var: 0.3;
+        }
+    }
+    @media only screen and (max-width: 408px) {
+        .transform-rr {
+            --var: 0.25;
+        }
+    }
+    @media only screen and (max-width: 340px) {
+        .transform-rr {
+            --var: 0.2;
+        }
+    }
+    @media only screen and (max-width: 272px) {
+        .transform-rr {
+            --var: 0.15;
+        }
+    }
+}
+.h-animation-header-2 {
+    font-size: 14px;
+    color: var(--scalar-color-1);
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+.popup-body {
+    position: relative;
+}
+.popup-body,
+.popup-header {
+    height: 765px;
+    width: 1360px;
+    overflow: hidden;
+    font-size: 14px;
+}
+.popup-header h3 {
+    line-height: 32px;
+    font-weight: 600;
+    font-size: 18px;
+}
+.popup-body {
+    background: color-mix(in srgb, var(--scalar-background-2), transparent);
+    border-radius: 4px;
+    font-size: 14px;
+}
+.popup-body-header {
+    border-bottom: 1px solid var(--scalar-border-color);
+    padding: 0 12px;
+    display: flex;
+    gap: 18px;
+}
+.popup-body-header span {
+    height: 32px;
+    line-height: 32px;
+    display: inline-block;
+    color: var(--scalar-color-3);
+    white-space: nowrap;
+}
+.popup-body-header .active {
+    border-bottom: 1px solid currentColor;
+    font-weight: 500;
+    color: var(--scalar-color-1);
+}
+.popup-body-1-body,
+.popup-body-2-body {
+    padding: 6px;
+}
+.popup-body-2 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+.h-3\.5 {
+    height: 0.875rem;
+}
+.h-3 {
+    height: 0.75rem;
+}
+.h-blue {
+    color: var(--scalar-color-blue);
+}
+.h-purple {
+    color: var(--scalar-color-purple);
+}
+.h-black {
+    color: var(--scalar-color-2);
+}
+.h-animation-endpoint-code-body {
+    font-family: "SF Mono", Monaco, Inconsolata, "Fira Mono", "Droid Sans Mono", "Source Code Pro", monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: nowrap;
+    color: var(--scalar-color-2);
+}
+.h-animation-endpoint-code-body span:first-of-type {
+    color: var(--scalar-color-3);
+    margin-right: 4px;
+    width: 18px;
+    display: inline-block;
+}
+.body-second span:first-of-type {
+    margin-right: 28px;
+}
+.body-third span:first-of-type {
+    margin-right: 54px;
+}
+.body-fourth span:first-of-type {
+    margin-right: 80px;
+}
+@keyframes language-activation {
+    0%,
+    49.9% {
+        background-color: color-mix(in srgb, var(--scalar-background-2), transparent);
+    }
+    100%,
+    50% {
+        background-color: var(--scalar-background-1);
+    }
+}
+@keyframes switch-toggle {
+    0%,
+    100%,
+    47% {
+        transform: translateX(0);
+    }
+    50%,
+    97% {
+        transform: translateX(10px);
+    }
+}
+@keyframes switch-toggle-bg {
+    0%,
+    100%,
+    47%,
+    97% {
+        background-color: var(--scalar-background-3);
+    }
+    47%,
+    97% {
+        background-color: var(--scalar-color-blue);
+    }
+}
+
+</style>
+</foreignObject>
+<script xmlns=""/></svg>
