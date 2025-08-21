@@ -20,18 +20,18 @@ var keycloak = builder
     .WithEnvironment("KC_BOOTSTRAP_ADMIN_PASSWORD", "admin");
 
 var scalar = builder
-    .AddScalarApiReference(options => options.WithCdnUrl("https://cdn.jsdelivr.net/npm/@scalar/api-reference"))
+    .AddScalarApiReference(options =>
+    {
+        options
+            .WithCdnUrl("https://cdn.jsdelivr.net/npm/@scalar/api-reference")
+            .PreferHttpsEndpoint()
+            .AllowSelfSignedCertificates();
+    })
     .WithReference(keycloak)
     .WithExternalHttpEndpoints();
 
 
 scalar
-    .WithApiReference(userService, options =>
-    {
-        options.WithTheme(ScalarTheme.Mars);
-        options.WithDefaultHttpClient(ScalarTarget.JavaScript, ScalarClient.Fetch);
-        options.AddDocument("external");
-    })
     .WithApiReference(bookService, options =>
     {
         options
@@ -43,6 +43,12 @@ scalar
             {
                 flow.WithClientId("admin-cli");
             });
+    })
+    .WithApiReference(userService, options =>
+    {
+        options.WithTheme(ScalarTheme.Mars);
+        options.WithDefaultHttpClient(ScalarTarget.JavaScript, ScalarClient.Fetch);
+        options.AddDocument("external");
     });
 
 
