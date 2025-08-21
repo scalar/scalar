@@ -23,7 +23,7 @@ import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
 import { apply, diff, merge, type Difference } from '@scalar/json-magic/diff'
 import type { TraverseSpecOptions } from '@/navigation/types'
 import type { PartialDeep, RequiredDeep } from 'type-fest'
-import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
+import { cleanUp, externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
 import type { Record } from '@sinclair/typebox'
 import { Value } from '@sinclair/typebox/value'
 import { deepClone } from '@/helpers/deep-clone'
@@ -575,6 +575,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               }),
               externalValueResolver(),
               refsEverywhere(),
+              cleanUp(),
             ],
             urlMap: true,
             origin: documentMeta[name]?.documentSource, // use the document origin (if provided) as the base URL for resolution

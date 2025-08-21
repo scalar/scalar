@@ -1017,8 +1017,51 @@ describe('create-workspace-store', () => {
         },
       },
     })
-    expect(store.exportDocument('default', 'json')).toBe(
-      '{"openapi":"3.1.1","info":{"title":"API with Circular Dependencies","version":"1.0.0"},"components":{"schemas":{"Base":{"required":["Type"],"type":"object","anyOf":[{"$ref":"#/components/schemas/Derived1"},{"$ref":"#/components/schemas/Derived2"}],"discriminator":{"propertyName":"Type","mapping":{"Value1":"#/components/schemas/Derived1","Value2":"#/components/schemas/Derived2"}}},"Derived1":{"properties":{"Type":{"enum":["Value1"],"type":"string"}}},"Derived2":{"required":["Ref"],"properties":{"Type":{"enum":["Value2"],"type":"string"},"Ref":{"$ref":"#/components/schemas/Base"}}}}}}',
+    expect(JSON.stringify(getRaw(store.workspace.activeDocument))).toBe(
+      '{"openapi":"3.1.1","info":{"title":"API with Circular Dependencies","version":"1.0.0"},"components":{"schemas":{"Base":{"required":["Type"],"type":"object","anyOf":[{"$ref":"#/components/schemas/Derived1"},{"$ref":"#/components/schemas/Derived2"}],"discriminator":{"propertyName":"Type","mapping":{"Value1":"#/components/schemas/Derived1","Value2":"#/components/schemas/Derived2"}}},"Derived1":{"properties":{"Type":{"enum":["Value1"],"type":"string"}},"type":"object"},"Derived2":{"required":["Ref"],"properties":{"Type":{"enum":["Value2"],"type":"string"},"Ref":{"$ref":"#/components/schemas/Base"}},"type":"object"}}},"x-ext-urls":{},"x-scalar-navigation":[{"id":"","title":"Models","children":[{"id":"Base","title":"Base","name":"Base","ref":"#/content/components/schemas/Base","type":"model"},{"id":"Derived1","title":"Derived1","name":"Derived1","ref":"#/content/components/schemas/Derived1","type":"model"},{"id":"Derived2","title":"Derived2","name":"Derived2","ref":"#/content/components/schemas/Derived2","type":"model"}],"type":"text"}]}',
+    )
+  })
+
+  it('clean up the document to support non-compliant documents', async () => {
+    const store = createWorkspaceStore()
+
+    await store.addDocument({
+      name: 'default',
+      document: {
+        openapi: '3.1.1',
+        info: {
+          title: 'Missing Object Type Example',
+          version: '1.0.0',
+        },
+        paths: {
+          '/user': {
+            get: {
+              summary: 'Get user info',
+              responses: {
+                200: {
+                  description: 'User object without explicit type: object',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        items: {
+                          properties: {
+                            id: { type: 'string' },
+                            name: { type: 'string' },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(JSON.stringify(getRaw(store.workspace.activeDocument))).toEqual(
+      '{"openapi":"3.1.1","info":{"title":"Missing Object Type Example","version":"1.0.0"},"paths":{"/user":{"get":{"summary":"Get user info","responses":{"200":{"description":"User object without explicit type: object","content":{"application/json":{"schema":{"items":{"properties":{"id":{"type":"string"},"name":{"type":"string"}},"type":"object"},"type":"array"}}}}}}}},"x-ext-urls":{},"x-scalar-navigation":[{"id":"Get user info","title":"Get user info","path":"/user","method":"get","ref":"#/paths/~1user/get","type":"operation"}]}',
     )
   })
 
