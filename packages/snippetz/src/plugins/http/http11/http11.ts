@@ -1,4 +1,5 @@
 import type { Plugin } from '@scalar/types/snippetz'
+import { getUrlPathnameWithRestoredBrackets } from '@/utils/getPathnameWithRestoredBrackets'
 
 /**
  * http/http1.1
@@ -24,7 +25,8 @@ export const httpHttp11: Plugin = {
     let path
     try {
       url = new URL(normalizedRequest.url || 'http://')
-      path = url.pathname + (url.search || '')
+      const pathname = getUrlPathnameWithRestoredBrackets(url)
+      path = pathname + (url.search || '')
     } catch (_error) {
       // Oops, got an invalid URL, use the provided URL directly.
       path = normalizedRequest.url || '/'

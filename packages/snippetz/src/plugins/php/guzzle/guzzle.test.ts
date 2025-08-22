@@ -380,7 +380,7 @@ $response = $client->request('GET', 'https://example.com', [
 ]);`)
   })
 
-  it('handles special characters in URL', () => {
+  it('handles special characters in URL, square brackets', () => {
     const result = phpGuzzle.generate({
       url: 'https://example.com/path with spaces/[brackets]',
     })
@@ -388,6 +388,16 @@ $response = $client->request('GET', 'https://example.com', [
     expect(result).toBe(`$client = new GuzzleHttp\\Client();
 
 $response = $client->request('GET', 'https://example.com/path with spaces/[brackets]');`)
+  })
+
+  it('handles special characters in URL, curly brackets', () => {
+    const result = phpGuzzle.generate({
+      url: 'https://example.com/path with spaces/{brackets}',
+    })
+
+    expect(result).toBe(`$client = new GuzzleHttp\\Client();
+
+$response = $client->request('GET', 'https://example.com/path with spaces/{brackets}');`)
   })
 
   it('handles special characters in query parameters', () => {

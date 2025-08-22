@@ -91,12 +91,20 @@ describe('shellHttpie', () => {
   http POST https://example.com`)
   })
 
-  it('handles special characters in URL', () => {
+  it('handles special characters in URL, square brackets', () => {
     const result = shellHttpie.generate({
       url: 'https://example.com/path with spaces/[brackets]',
     })
 
     expect(result).toBe(`http GET 'https://example.com/path%20with%20spaces/[brackets]'`)
+  })
+
+  it('handles special characters in URL, curly brackets', () => {
+    const result = shellHttpie.generate({
+      url: 'https://example.com/path with spaces/{brackets}',
+    })
+
+    expect(result).toBe(`http GET 'https://example.com/path%20with%20spaces/{brackets}'`)
   })
 
   it('handles multiple headers with same name', () => {
