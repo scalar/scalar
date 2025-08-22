@@ -567,7 +567,7 @@ jobs:
       - if: ${{ !cancelled() }} && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
         name: Deploy Playwright Report to Netlify
         run: |
-          pnpx netlify deploy --dir "./packages/components/playwright-report" \
+          pnpx netlify deploy --dir "./packages/api-reference/playwright-report" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
             --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
@@ -580,7 +580,7 @@ jobs:
         with:
           comment-title: 'Scalar CDN Snapshot Diff Results'
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
-          report-file: packages/components/playwright-results.json
+          report-file: packages/api-reference/playwright-results.json
           custom-info: |
             > [!Note]
             > These tests detect visual differences between the current PR and the latest CDN build which means they can be affected by other changes in `main` that haven't been released yet.  
