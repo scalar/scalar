@@ -562,7 +562,7 @@ jobs:
         id: playwright-version
         run: echo "PLAYWRIGHT_VERSION=$(npx playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
       - name: Run snapshot tests (@scalar/api-reference)
-        run: pnpm --filter components test:e2e:snapshots
+        run: pnpm --filter api-reference test:e2e:snapshots
         # Only when the tests failed and the PR is from the same repository
       - if: ${{ !cancelled() }} && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
         name: Deploy Playwright Report to Netlify
