@@ -581,10 +581,10 @@ jobs:
           comment-title: 'Scalar CDN Snapshot Diff Results'
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
           report-file: packages/api-reference/playwright-results.json
-          custom-info: |
+          custom-info: These tests are **non-blocking** and will not prevent merging of your PR.
+          footer: |
             > [!Note]
-            > These tests detect visual differences between the current PR and the latest CDN build which means they can be affected by other changes in `main` that haven't been released yet.  
-            > As such these tests are non-blocking and will not prevent merging of your PR.
+            > These tests detect visual differences between the current PR and the latest CDN build which means they can be affected by other changes in `main` that haven't been released yet.
 
   npm-publish:
     if: github.ref == 'refs/heads/main'
