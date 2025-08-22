@@ -50,7 +50,7 @@ internal sealed class ScalarConfiguration
 
     public required ScalarTheme? Theme { get; init; }
 
-    public ScalarLayout? Layout { get; init; }
+    public required ScalarLayout? Layout { get; init; }
 
     public required string? Favicon { get; init; }
 
