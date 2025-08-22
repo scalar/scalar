@@ -31,6 +31,6 @@ public sealed class PasswordFlow : OAuthFlow
     /// Gets or sets the location where authentication credentials should be placed in HTTP requests.
     /// </summary>
     [JsonPropertyName("x-scalar-credentials-location")]
-    [JsonConverter(typeof(CredentialsLocationConverter))]
+    [JsonConverter(typeof(CredentialsLocationJsonConverter))]
     public CredentialsLocation? CredentialsLocation { get; set; }
 }

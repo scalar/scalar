@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Text.Json.Serialization;
 using NetEscapades.EnumGenerators;
 
 namespace Scalar.AspNetCore;
@@ -7,6 +8,7 @@ namespace Scalar.AspNetCore;
 /// Represents the position of a badge in relation to the operation header.
 /// </summary>
 [EnumExtensions]
+[JsonConverter(typeof(BadgePositionJsonConverter))]
 public enum BadgePosition
 {
     /// <summary>
