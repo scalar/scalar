@@ -8,6 +8,7 @@ import {
   isOperationDeprecated,
 } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
@@ -34,24 +35,25 @@ import OperationResponses from '@/features/Operation/components/OperationRespons
 import type { Schemas } from '@/features/Operation/types/schemas'
 import { TestRequestButton } from '@/features/test-request-button'
 import { XBadges } from '@/features/x-badges'
-import { useConfig } from '@/hooks/useConfig'
 import { RequestExample } from '@/v2/blocks/scalar-request-example-block'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
-const { path, operation, method, isWebhook, oldOperation } = defineProps<{
-  id: string
-  path: string
-  clientOptions: ClientOptionGroup[]
-  method: HttpMethodType
-  operation: OperationObject
-  oldOperation: OpenAPIV3_1.OperationObject
-  // pathServers: ServerObject[] | undefined
-  isWebhook: boolean
-  securitySchemes: SecuritySchemeObject[]
-  server: ServerObject | undefined
-  schemas?: Schemas
-  store: WorkspaceStore
-}>()
+const { path, config, operation, method, isWebhook, oldOperation } =
+  defineProps<{
+    id: string
+    path: string
+    clientOptions: ClientOptionGroup[]
+    method: HttpMethodType
+    config: ApiReferenceConfiguration
+    operation: OperationObject
+    oldOperation: OpenAPIV3_1.OperationObject
+    // pathServers: ServerObject[] | undefined
+    isWebhook: boolean
+    securitySchemes: SecuritySchemeObject[]
+    server: ServerObject | undefined
+    schemas?: Schemas
+    store: WorkspaceStore
+  }>()
 
 const operationTitle = computed(() => operation.summary || path || '')
 
@@ -60,7 +62,6 @@ const emit = defineEmits<{
 }>()
 
 const labelId = useId()
-const config = useConfig()
 
 const handleDiscriminatorChange = (type: string) => {
   emit('update:modelValue', type)
@@ -132,6 +133,7 @@ const handleDiscriminatorChange = (type: string) => {
             </OperationParameters>
             <OperationResponses
               :breadcrumb="[id]"
+              :collapsableItems="!config.expandAllResponses"
               :responses="oldOperation.responses"
               :schemas="schemas" />
 

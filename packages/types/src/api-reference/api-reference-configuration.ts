@@ -446,8 +446,27 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
      * @default true
      */
     withDefaultFonts: z.boolean().optional().default(true).catch(true),
-    /** Whether to expand all tags by default */
-    defaultOpenAllTags: z.boolean().optional(),
+    /**
+     * Whether to expand all tags by default
+     *
+     * Warning this can cause performance issues on big documents
+     * @default false
+     */
+    defaultOpenAllTags: z.boolean().optional().default(false).catch(false),
+    /**
+     * Whether to expand all models by default
+     *
+     * Warning this can cause performance issues on big documents
+     * @default false
+     */
+    expandAllModelSections: z.boolean().optional().default(false).catch(false),
+    /**
+     * Whether to expand all responses by default
+     *
+     * Warning this can cause performance issues on big documents
+     * @default false
+     */
+    expandAllResponses: z.boolean().optional().default(false).catch(false),
     /**
      * Function to sort tags
      * @default 'alpha' for alphabetical sorting

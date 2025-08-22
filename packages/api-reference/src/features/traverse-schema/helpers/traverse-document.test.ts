@@ -2,29 +2,31 @@ import { describe, expect, it } from 'vitest'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { traverseDocument } from './traverse-document'
 import type { TraversedTag, TraverseSpecOptions } from '@/features/traverse-schema/types'
-import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import { apiReferenceConfigurationSchema, type ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { ref } from 'vue'
 
 describe('traverseDocument', () => {
-  const mockConfig = ref<ApiReferenceConfiguration>({
-    hideModels: false,
-    hideClientButton: false,
-    showSidebar: true,
-    theme: 'default',
-    persistAuth: false,
-    layout: 'modern',
-    isEditable: false,
-    isLoading: false,
-    hideTestRequestButton: false,
-    hideSearch: false,
-    hideDarkModeToggle: false,
-    tagsSorter: 'alpha',
-    operationsSorter: 'alpha',
-    withDefaultFonts: true,
-    defaultOpenAllTags: false,
-    documentDownloadType: 'both',
-    hideDownloadButton: false,
-  })
+  const mockConfig = ref(
+    apiReferenceConfigurationSchema.parse({
+      hideModels: false,
+      hideClientButton: false,
+      showSidebar: true,
+      theme: 'default',
+      persistAuth: false,
+      layout: 'modern',
+      isEditable: false,
+      isLoading: false,
+      hideTestRequestButton: false,
+      hideSearch: false,
+      hideDarkModeToggle: false,
+      tagsSorter: 'alpha',
+      operationsSorter: 'alpha',
+      withDefaultFonts: true,
+      defaultOpenAllTags: false,
+      documentDownloadType: 'both',
+      hideDownloadButton: false,
+    }),
+  )
 
   const mockOptions: TraverseSpecOptions = {
     config: mockConfig,

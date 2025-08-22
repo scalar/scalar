@@ -922,6 +922,28 @@ By default we only open the relevant tag based on the url, however if you want a
 }
 ```
 
+
+### expandAllModelSections?: boolean
+
+By default the models are all closed in the model section at the bottom, this flag will open them all by default!
+
+```js
+{
+  expandAllModelSections: true
+}
+```
+
+
+### expandAllResponses?: boolean
+
+By default response sections are closed in the operations. This flag will open them by default!
+
+```js
+{
+  expandAllResponses: true
+}
+```
+
 ### tagsSorter?: 'alpha' | (a: Tag, b: Tag) => number
 
 Sort tags alphanumerically (`'alpha'`):

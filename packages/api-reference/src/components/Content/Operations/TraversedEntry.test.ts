@@ -626,7 +626,6 @@ describe('TraversedEntry', async () => {
       expect(operationComponent.props('path')).toBe('/users')
       expect(operationComponent.props('method')).toBe('get')
       expect(operationComponent.props('id')).toBe('operation-1')
-      expect(operationComponent.props('layout')).toBe('modern')
       expect(operationComponent.props('store')).toStrictEqual(mockStore)
       expect(operationComponent.props('server')).toStrictEqual(mockServer)
     })
@@ -650,7 +649,6 @@ describe('TraversedEntry', async () => {
 
       const tagComponent = wrapper.findComponent({ name: 'Tag' })
       expect(tagComponent.props('tag')).toEqual(tag)
-      expect(tagComponent.props('layout')).toBe('modern')
       expect(tagComponent.props('moreThanOneTag')).toBe(false)
     })
   })
