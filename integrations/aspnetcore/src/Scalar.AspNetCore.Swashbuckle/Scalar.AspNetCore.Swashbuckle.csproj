@@ -7,7 +7,7 @@
 
   <PropertyGroup>
     <Title>Scalar.AspNetCore.Swashbuckle</Title>
-    <Description>Provides Swashbuckle filters for Scalar.AspNetCore extensions.</Description>
+    <Description>Provides OpenAPI filters for Swashbuckle.AspNetCore.SwaggerGen that enable Scalar-specific extensions in your OpenAPI document.</Description>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,6 +17,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Scalar.AspNetCore\Scalar.AspNetCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
