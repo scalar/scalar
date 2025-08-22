@@ -19,8 +19,8 @@ const open = ref(defaultOpen)
 
 watch(
   hash,
-  async (id) => {
-    if (id === id && !open.value) {
+  async (newHash) => {
+    if (id === newHash && !open.value) {
       open.value = true
       await nextTick()
       scrollToId(id)
@@ -40,9 +40,9 @@ watch(
       type="button"
       @click="open = !open">
       <ScalarIconCaretRight
-        weight="bold"
         class="size-3 transition-transform duration-100"
-        :class="{ 'rotate-90': open }" />
+        :class="{ 'rotate-90': open }"
+        weight="bold" />
       <Anchor
         :id="id"
         class="collapsible-section-header">
