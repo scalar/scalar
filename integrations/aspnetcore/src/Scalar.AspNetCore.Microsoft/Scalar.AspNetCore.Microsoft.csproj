@@ -6,7 +6,7 @@
 
   <PropertyGroup>
     <Title>Scalar.AspNetCore.Microsoft</Title>
-    <Description>Provides Microsoft.AspNetCore.OpenApi transformers for Scalar.AspNetCore extensions.</Description>
+    <Description>Provides OpenAPI transformers for Microsoft.AspNetCore.OpenApi that enable Scalar-specific extensions in your OpenAPI document.</Description>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
@@ -20,6 +20,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Scalar.AspNetCore\Scalar.AspNetCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

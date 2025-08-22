@@ -29,6 +29,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Include compressed files for Release -->
     <!-- Import .gz files without extension so the original filename is used "scalar.js.gz" -> "scalar.js" -->
     <EmbeddedResource Include="StaticAssets/*.gz" Condition="'$(Configuration)' == 'Release'">
