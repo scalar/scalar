@@ -1,5 +1,40 @@
 # @scalar/workspace-store
 
+## 0.14.0
+
+### Minor Changes
+
+- b93e1fe: feat(workspace-store): support relative external references
+- 5208f06: feat(workspace-store): validate that the bundle produces valid openapi document
+- 4d509fb: feat(workspace-store): use the configuration fetcher to bundle the document
+- 9be6eec: feat(workspace-store): preprocess documents to make them compliant
+- c4bf497: fix(workspace-store): correctly propagate documents from one state to the other
+- d8adbed: feat(workspace-store): resolve multi level refs
+- 0c80ef0: feat(json-magic): change the way we resolve refs
+
+### Patch Changes
+
+- bbef120: fix: remove extra coerces and cleanUp plugin from bundler
+- a1429ca: chore: move to new extensions system for better type safety
+- 66b18fc: feat: update the references to handle $refs from the magic proxy
+- 0fcd446: feat(workspace-store): performance improvements
+- c838a3f: chore: added measurements to workspace store
+- Updated dependencies [b93e1fe]
+- Updated dependencies [d4adeba]
+- Updated dependencies [66b18fc]
+- Updated dependencies [5f022b5]
+- Updated dependencies [0fcd446]
+- Updated dependencies [6a88108]
+- Updated dependencies [c418e92]
+- Updated dependencies [c4bf497]
+- Updated dependencies [d8adbed]
+- Updated dependencies [0c80ef0]
+  - @scalar/json-magic@0.3.0
+  - @scalar/openapi-parser@0.20.0
+  - @scalar/helpers@0.0.8
+  - @scalar/types@0.2.12
+  - @scalar/code-highlight@0.1.9
+
 ## 0.13.0
 
 ### Minor Changes
