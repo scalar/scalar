@@ -84,23 +84,20 @@ internal static class ScalarOptionsMapper
         }
     }
 
-    private static Dictionary<string, IEnumerable<string>>? GetHiddenClients(ScalarOptions options)
+    private static Dictionary<ScalarTarget, ScalarClient[]>? GetHiddenClients(ScalarOptions options)
     {
         if (options.EnabledTargets.Length == 0 && options.EnabledClients.Length == 0)
         {
             return null;
         }
 
-        var hiddenClients = new Dictionary<string, IEnumerable<string>>(ClientOptions.Count);
+        var hiddenClients = new Dictionary<ScalarTarget, ScalarClient[]>(ClientOptions.Count);
 
-        foreach (var item in ClientOptions)
+        foreach (var (scalarTarget, scalarClients) in ClientOptions)
         {
-            if (options.EnabledTargets.Length > 0 && !options.EnabledTargets.Contains(item.Key))
+            if (options.EnabledTargets.Length > 0 && !options.EnabledTargets.Contains(scalarTarget))
             {
-                var targetKey = item.Key.ToStringFast(true);
-                var values = item.Value.Select(x => x.ToStringFast(true));
-
-                hiddenClients[targetKey] = values;
+                hiddenClients[scalarTarget] = scalarClients;
                 continue;
             }
 
@@ -109,10 +106,7 @@ internal static class ScalarOptionsMapper
                 continue;
             }
 
-
-            var clients = item.Value
-                .Where(x => !options.EnabledClients.Contains(x))
-                .Select(x => x.ToStringFast(true)).ToArray();
+            var clients = scalarClients.Where(x => !options.EnabledClients.Contains(x)).ToArray();
 
             // Only add to hidden clients if there are actually clients to hide
             if (clients.Length == 0)
@@ -120,8 +114,7 @@ internal static class ScalarOptionsMapper
                 continue;
             }
 
-            var key = item.Key.ToStringFast(true);
-            hiddenClients[key] = clients;
+            hiddenClients[scalarTarget] = clients;
         }
 
         return hiddenClients.Count > 0 ? hiddenClients : null;
