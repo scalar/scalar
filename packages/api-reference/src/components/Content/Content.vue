@@ -12,6 +12,7 @@ import IntroductionSection from '@/components/Content/IntroductionSection.vue'
 import { Models } from '@/components/Content/Models'
 import { SectionFlare } from '@/components/SectionFlare'
 import { OPENAPI_VERSION_SYMBOL } from '@/features/download-link'
+import { getXKeysFromObject } from '@/features/specification-extension'
 import { DEFAULT_INTRODUCTION_SLUG } from '@/features/traverse-schema'
 import { useNavState } from '@/hooks/useNavState'
 import { ClientSelector } from '@/v2/blocks/scalar-client-selector-block'
@@ -22,7 +23,7 @@ import { ServerSelector } from '@/v2/blocks/scalar-server-selector-block'
 
 import { TraversedEntryContainer } from './Operations'
 
-const { config } = defineProps<{
+const { store, config } = defineProps<{
   document: OpenAPIV3_1.Document
   config: ApiReferenceConfiguration
   store: WorkspaceStore
@@ -43,6 +44,16 @@ const id = computed(() =>
     depth: 1,
     value: 'Introduction',
   }),
+)
+
+// Computed property to get all OpenAPI extension fields from the root document object
+const documentExtensions = computed(() =>
+  getXKeysFromObject(store.workspace.activeDocument),
+)
+
+// Computed property to get all OpenAPI extension fields from the document's info object
+const infoExtensions = computed(() =>
+  getXKeysFromObject(store.workspace.activeDocument?.info),
 )
 
 /**
@@ -97,8 +108,12 @@ const activeServer = computed(() => {
     <!-- Introduction -->
     <IntroductionSection :showEmptyState="!store.workspace.activeDocument">
       <InfoBlock
+        v-if="store.workspace.activeDocument"
         :id
-        :document="store.workspace.activeDocument"
+        :info="store.workspace.activeDocument.info"
+        :externalDocs="store.workspace.activeDocument.externalDocs"
+        :documentExtensions
+        :infoExtensions
         :layout="config.layout"
         :oasVersion
         :isLoading="config.isLoading"

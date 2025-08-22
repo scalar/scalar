@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ExternalDocumentationObject } from '@scalar/workspace-store/schemas/v3.1/strict/external-documentation'
+import type { InfoObject } from '@scalar/workspace-store/schemas/v3.1/strict/info'
 import { onMounted } from 'vue'
 
 import {
@@ -19,8 +20,11 @@ import InfoLinks from './InfoLinks.vue'
 import InfoVersion from './InfoVersion.vue'
 import OpenApiVersion from './OpenApiVersion.vue'
 
-const { document, onLoaded } = defineProps<{
-  document: OpenApiDocument
+const { onLoaded } = defineProps<{
+  info: InfoObject
+  externalDocs?: ExternalDocumentationObject
+  documentExtensions?: Record<string, unknown>
+  infoExtensions?: Record<string, unknown>
   isLoading?: boolean
   onLoaded?: () => void
   id?: string
@@ -38,29 +42,27 @@ onMounted(() => onLoaded?.())
       class="introduction-section z-1 gap-12"
       :id>
       <SectionContent
-        :loading="
-          isLoading ?? (!document?.info?.description && !document?.info?.title)
-        ">
+        :loading="isLoading ?? (!info?.description && !info?.title)">
         <div class="flex gap-1.5">
-          <InfoVersion :version="document.info?.version" />
+          <InfoVersion :version="info?.version" />
           <OpenApiVersion :oasVersion="oasVersion" />
         </div>
         <SectionHeader
-          :loading="!document.info?.title"
+          :loading="!info?.title"
           tight>
           <SectionHeaderTag :level="1">
-            {{ document.info?.title }}
+            {{ info?.title }}
           </SectionHeaderTag>
           <template #links>
             <InfoLinks
-              :info="document.info"
-              :externalDocs="document.externalDocs" />
+              :info="info"
+              :externalDocs="externalDocs" />
           </template>
         </SectionHeader>
         <SectionColumns>
           <SectionColumn>
-            <DownloadLink :title="document.info?.title" />
-            <InfoDescription :description="document.info?.description" />
+            <DownloadLink :title="info?.title" />
+            <InfoDescription :description="info?.description" />
           </SectionColumn>
           <SectionColumn v-if="$slots.aside">
             <div class="sticky-cards">
@@ -68,8 +70,8 @@ onMounted(() => onLoaded?.())
             </div>
           </SectionColumn>
         </SectionColumns>
-        <SpecificationExtension :value="document" />
-        <SpecificationExtension :value="document.info" />
+        <SpecificationExtension :value="documentExtensions" />
+        <SpecificationExtension :value="infoExtensions" />
       </SectionContent>
       <slot name="after" />
     </Section>

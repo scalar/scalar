@@ -1,17 +1,30 @@
 <script setup lang="ts">
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ExternalDocumentationObject } from '@scalar/workspace-store/schemas/v3.1/strict/external-documentation'
+import type { InfoObject } from '@scalar/workspace-store/schemas/v3.1/strict/info'
 import { computed } from 'vue'
 
 import IntroductionCard from './IntroductionCard.vue'
 import IntroductionLayout from './IntroductionLayout.vue'
 
 const { layout } = defineProps<{
-  layout?: 'modern' | 'classic'
-  document?: OpenApiDocument
+  /** Optional unique identifier for the info block. */
   id?: string
-  isLoading?: boolean
-  onLoaded?: () => void
+  /** Determines the layout style for the info block ('modern' or 'classic'). */
+  layout?: 'modern' | 'classic'
+  /** The OpenAPI version of the document. */
   oasVersion?: string
+  /** The Info object from the OpenAPI document. */
+  info: InfoObject
+  /** The external documentation object from the OpenAPI document, if present. */
+  externalDocs?: ExternalDocumentationObject
+  /** OpenAPI extension fields at the document level. */
+  documentExtensions?: Record<string, unknown>
+  /** OpenAPI extension fields at the info object level. */
+  infoExtensions?: Record<string, unknown>
+  /** Indicates if the info block is in a loading state. */
+  isLoading?: boolean
+  /** Optional callback invoked when the component has finished loading. */
+  onLoaded?: () => void
 }>()
 
 /**
@@ -26,9 +39,11 @@ const introCardsSlot = computed(() =>
 
 <template>
   <IntroductionLayout
-    v-if="document"
     :id
-    :document
+    :info
+    :externalDocs
+    :documentExtensions
+    :infoExtensions
     :isLoading
     :oasVersion
     :onLoaded>
