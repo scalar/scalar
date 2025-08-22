@@ -26,7 +26,6 @@ public sealed class AuthorizationCodeFlow : OAuthFlow
     /// Gets or sets whether to use PKCE (Proof Key for Code Exchange) for the authorization code flow.
     /// </summary>
     [JsonPropertyName("x-usePkce")]
-    [JsonConverter(typeof(PkceJsonConverter))]
     public Pkce? Pkce { get; set; }
 
     /// <summary>
@@ -39,6 +38,5 @@ public sealed class AuthorizationCodeFlow : OAuthFlow
     /// Gets or sets the location where authentication credentials should be placed in HTTP requests.
     /// </summary>
     [JsonPropertyName("x-scalar-credentials-location")]
-    [JsonConverter(typeof(CredentialsLocationJsonConverter))]
     public CredentialsLocation? CredentialsLocation { get; set; }
 }
