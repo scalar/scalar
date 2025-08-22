@@ -55,7 +55,8 @@ describe('IntroductionLayout', () => {
 
     const wrapper = mount(IntroductionLayout, {
       props: {
-        document: example,
+        info: example.info,
+        externalDocs: example.externalDocs,
       },
     })
 
@@ -80,7 +81,8 @@ describe('IntroductionLayout', () => {
 
     const wrapper = mount(IntroductionLayout, {
       props: {
-        document: example,
+        info: example.info,
+        externalDocs: example.externalDocs,
       },
     })
 
@@ -103,7 +105,8 @@ describe('IntroductionLayout', () => {
 
     const wrapper = mount(IntroductionLayout, {
       props: {
-        document: example,
+        info: example.info,
+        externalDocs: example.externalDocs,
       },
     })
 
@@ -124,7 +127,8 @@ describe('IntroductionLayout', () => {
 
     const wrapper = mount(IntroductionLayout, {
       props: {
-        document: example,
+        info: example.info,
+        externalDocs: example.externalDocs,
       },
     })
 
@@ -144,7 +148,8 @@ describe('IntroductionLayout', () => {
 
     const wrapper = mount(IntroductionLayout, {
       props: {
-        document: example,
+        info: example.info,
+        externalDocs: example.externalDocs,
       },
     })
 
@@ -163,7 +168,8 @@ describe('IntroductionLayout', () => {
 
     const wrapper = mount(IntroductionLayout, {
       props: {
-        document: example,
+        info: example.info,
+        externalDocs: example.externalDocs,
       },
     })
 
@@ -183,7 +189,8 @@ describe('IntroductionLayout', () => {
 
     const wrapper = mount(IntroductionLayout, {
       props: {
-        document: example,
+        info: example.info,
+        externalDocs: example.externalDocs,
       },
     })
 
@@ -203,7 +210,8 @@ describe('IntroductionLayout', () => {
 
     const wrapper = mount(IntroductionLayout, {
       props: {
-        document: example,
+        info: example.info,
+        externalDocs: example.externalDocs,
       },
     })
 
@@ -223,7 +231,8 @@ describe('IntroductionLayout', () => {
 
     const wrapper = mount(IntroductionLayout, {
       props: {
-        document: example,
+        info: example.info,
+        externalDocs: example.externalDocs,
       },
     })
 
