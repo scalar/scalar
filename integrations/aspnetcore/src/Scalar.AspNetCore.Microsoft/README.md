@@ -1,4 +1,4 @@
-# Scalar API Reference for .NET ASP.NET Core - Microsoft Extensions
+# Scalar.AspNetCore.Microsoft - OpenAPI Extensions
 
 [![Version](https://img.shields.io/nuget/v/Scalar.AspNetCore.Microsoft)](https://www.nuget.org/packages/Scalar.AspNetCore.Microsoft)
 [![Downloads](https://img.shields.io/nuget/dt/Scalar.AspNetCore.Microsoft)](https://www.nuget.org/packages/Scalar.AspNetCore.Microsoft)

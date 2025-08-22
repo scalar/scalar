@@ -1,4 +1,4 @@
-# Scalar API Reference for .NET ASP.NET Core - Swashbuckle Extensions
+# Scalar.AspNetCore.Swashbuckle - OpenAPI Extensions
 
 [![Version](https://img.shields.io/nuget/v/Scalar.AspNetCore.Swashbuckle)](https://www.nuget.org/packages/Scalar.AspNetCore.Swashbuckle)
 [![Downloads](https://img.shields.io/nuget/dt/Scalar.AspNetCore.Swashbuckle)](https://www.nuget.org/packages/Scalar.AspNetCore.Swashbuckle)
