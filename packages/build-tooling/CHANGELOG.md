@@ -1,5 +1,11 @@
 # @scalar/build-tooling
 
+## 0.2.6
+
+### Patch Changes
+
+- 1f52b45: Outputs the time it took to build types when running tsc/vue-tsc
+
 ## 0.2.5
 
 ### Patch Changes

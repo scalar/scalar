@@ -1,5 +1,62 @@
 # @scalar/api-reference
 
+## 1.34.4
+
+### Patch Changes
+
+- bbef120: fix: remove extra coerces and cleanUp plugin from bundler
+- 24883ab: feat(api-reference): map reference configuration to the new store configuration
+- a1429ca: chore: move to new extensions system for better type safety
+- e499aee: fix: typo in model opening
+- 845e850: fix: deep resolve response examples
+- 66b18fc: feat: update the references to handle $refs from the magic proxy
+- 6eb7c4f: fix: search does not match when the query has a single character word
+- 4e06829: fix: horizontal scrollbars in a VS Code webview
+- 5f022b5: feat: use registry.scalar.com URLs as example
+- 2b89e6f: feat: x-badges
+- 6a88108: feat: add option to expandAllResponses and expandAllModelSections
+- c838a3f: chore: added measurements to workspace store
+- 75d84ed: fix: does not load document when the url/content stays the same
+- 929df42: fix: sidebar links are prefixed with the path
+- 0804cfc: eat(components): Add ScalarMarkdown summary component
+- Updated dependencies [bbef120]
+- Updated dependencies [b93e1fe]
+- Updated dependencies [a1429ca]
+- Updated dependencies [d4adeba]
+- Updated dependencies [5208f06]
+- Updated dependencies [172e397]
+- Updated dependencies [4d509fb]
+- Updated dependencies [66b18fc]
+- Updated dependencies [5f022b5]
+- Updated dependencies [0fcd446]
+- Updated dependencies [d8b8a5b]
+- Updated dependencies [6c24be9]
+- Updated dependencies [6a88108]
+- Updated dependencies [c838a3f]
+- Updated dependencies [c418e92]
+- Updated dependencies [9be6eec]
+- Updated dependencies [c4bf497]
+- Updated dependencies [638120c]
+- Updated dependencies [d8adbed]
+- Updated dependencies [0804cfc]
+- Updated dependencies [0c80ef0]
+  - @scalar/workspace-store@0.14.0
+  - @scalar/oas-utils@0.4.20
+  - @scalar/json-magic@0.3.0
+  - @scalar/openapi-parser@0.20.0
+  - @scalar/api-client@2.5.24
+  - @scalar/components@0.14.25
+  - @scalar/helpers@0.0.8
+  - @scalar/themes@0.13.13
+  - @scalar/types@0.2.12
+  - @scalar/code-highlight@0.1.9
+  - @scalar/icons@0.4.7
+  - @scalar/object-utils@1.2.4
+  - @scalar/openapi-types@0.3.7
+  - @scalar/snippetz@0.4.5
+  - @scalar/use-hooks@0.2.4
+  - @scalar/use-toasts@0.8.0
+
 ## 1.34.3
 
 ### Patch Changes

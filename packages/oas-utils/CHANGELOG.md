@@ -1,5 +1,35 @@
 # @scalar/oas-utils
 
+## 0.4.20
+
+### Patch Changes
+
+- bbef120: fix: remove extra coerces and cleanUp plugin from bundler
+- a1429ca: chore: move to new extensions system for better type safety
+- 66b18fc: feat: update the references to handle $refs from the magic proxy
+- 5f022b5: feat: use registry.scalar.com URLs as example
+- Updated dependencies [bbef120]
+- Updated dependencies [b93e1fe]
+- Updated dependencies [a1429ca]
+- Updated dependencies [5208f06]
+- Updated dependencies [4d509fb]
+- Updated dependencies [66b18fc]
+- Updated dependencies [0fcd446]
+- Updated dependencies [6c24be9]
+- Updated dependencies [6a88108]
+- Updated dependencies [c838a3f]
+- Updated dependencies [9be6eec]
+- Updated dependencies [c4bf497]
+- Updated dependencies [d8adbed]
+- Updated dependencies [0c80ef0]
+  - @scalar/workspace-store@0.14.0
+  - @scalar/json-magic@0.3.0
+  - @scalar/helpers@0.0.8
+  - @scalar/themes@0.13.13
+  - @scalar/types@0.2.12
+  - @scalar/object-utils@1.2.4
+  - @scalar/openapi-types@0.3.7
+
 ## 0.4.19
 
 ### Patch Changes

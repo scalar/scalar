@@ -1,5 +1,13 @@
 # @scalar/nestjs-api-reference
 
+## 0.5.13
+
+### Patch Changes
+
+- 5f022b5: feat: use registry.scalar.com URLs as example
+- Updated dependencies [6a88108]
+  - @scalar/types@0.2.12
+
 ## 0.5.12
 
 ### Patch Changes
