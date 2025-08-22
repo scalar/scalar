@@ -7,21 +7,23 @@ import { Anchor } from '@/components/Anchor'
 import { Section } from '@/components/Section'
 import { useNavState } from '@/hooks/useNavState'
 
-const props = defineProps<{
+const { id, defaultOpen = false } = defineProps<{
   id: string
   label?: string
+  /** Control the initial open state of the section */
+  defaultOpen?: boolean
 }>()
 const { hash } = useNavState()
 
-const open = ref(false)
+const open = ref(defaultOpen)
 
 watch(
   hash,
   async (id) => {
-    if (id === props.id && !open.value) {
+    if (id === id && !open.value) {
       open.value = true
       await nextTick()
-      scrollToId(props.id)
+      scrollToId(id)
     }
   },
   { immediate: true },

@@ -30,6 +30,7 @@ const schemas = computed(() => getModels(document))
       :schemas="schemas" />
     <ModernLayout
       v-else
+      :config="config"
       :schemas="schemas" />
   </Lazy>
 </template>

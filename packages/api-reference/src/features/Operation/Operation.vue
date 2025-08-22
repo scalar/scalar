@@ -4,6 +4,7 @@ import { filterSecurityRequirements } from '@scalar/api-client/views/Request/Req
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { computed } from 'vue'
@@ -16,29 +17,21 @@ import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block
 import ClassicLayout from './layouts/ClassicLayout.vue'
 import ModernLayout from './layouts/ModernLayout.vue'
 
-const {
-  layout = 'modern',
-  document,
-  server,
-  isWebhook,
-  collection,
-  path,
-  method,
-  store,
-} = defineProps<{
-  path: string
-  method: HttpMethod
-  clientOptions: ClientOptionGroup[]
-  isWebhook: boolean
-  layout?: 'modern' | 'classic'
-  id: string
-  server: Server | undefined
-  store: WorkspaceStore
-  /** @deprecated Use `document` instead, we just need the selected security scheme uids for now */
-  collection: Collection
-  /** @deprecated Use the new workspace store instead*/
-  document?: OpenAPIV3_1.Document
-}>()
+const { document, config, server, isWebhook, collection, path, method, store } =
+  defineProps<{
+    path: string
+    method: HttpMethod
+    clientOptions: ClientOptionGroup[]
+    isWebhook: boolean
+    id: string
+    config: ApiReferenceConfiguration
+    server: Server | undefined
+    store: WorkspaceStore
+    /** @deprecated Use `document` instead, we just need the selected security scheme uids for now */
+    collection: Collection
+    /** @deprecated Use the new workspace store instead*/
+    document?: OpenAPIV3_1.Document
+  }>()
 
 /** Grab the pathItem from either webhooks or paths */
 const pathItem = computed(() => {
@@ -99,13 +92,14 @@ const selectedSecuritySchemes = computed(() =>
 
 <template>
   <template v-if="operation && oldOperation">
-    <template v-if="layout === 'classic'">
+    <template v-if="config.layout === 'classic'">
       <ClassicLayout
         :id="id"
         :isWebhook
         :method="method"
         :operation="operation"
         :oldOperation="oldOperation"
+        :config="config"
         :clientOptions="clientOptions"
         :securitySchemes="selectedSecuritySchemes"
         :store="store"
@@ -119,6 +113,7 @@ const selectedSecuritySchemes = computed(() =>
         :id="id"
         :isWebhook="isWebhook"
         :method="method"
+        :config="config"
         :clientOptions="clientOptions"
         :oldOperation="oldOperation"
         :securitySchemes="selectedSecuritySchemes"
