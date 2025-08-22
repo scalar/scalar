@@ -473,7 +473,7 @@ describe('Operation', () => {
     expect(wrapper.html()).toBe('<!--v-if-->')
   })
 
-  it.only('passes expandAllResponses config to OperationResponses component', () => {
+  it('passes expandAllResponses config to OperationResponses component', () => {
     const documentWithResponses = coerceValue(OpenAPIDocumentSchema, {
       openapi: '3.1.0',
       info: {
