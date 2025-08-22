@@ -1,33 +1,92 @@
 <script setup lang="ts">
+import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
+import { RequestAuth } from '@scalar/api-client/views/Request/RequestSection/RequestAuth'
+import { ScalarErrorBoundary } from '@scalar/components'
+import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { computed } from 'vue'
+import { computed, inject, type Ref } from 'vue'
 
-import { Introduction } from '@/components/Content/Introduction'
+import IntroductionSection from '@/components/Content/IntroductionSection.vue'
 import { Models } from '@/components/Content/Models'
 import { SectionFlare } from '@/components/SectionFlare'
-import { useConfig } from '@/hooks/useConfig'
+import { OPENAPI_VERSION_SYMBOL } from '@/features/download-link'
+import { DEFAULT_INTRODUCTION_SLUG } from '@/features/traverse-schema'
+import { useNavState } from '@/hooks/useNavState'
 import { ClientSelector } from '@/v2/blocks/scalar-client-selector-block'
+import { InfoBlock } from '@/v2/blocks/scalar-info-block'
+import { IntroductionCardItem } from '@/v2/blocks/scalar-info-block/'
 import { generateClientOptions } from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
-import ServerSelector from '@/v2/blocks/scalar-server-selector-block/components/ServerSelector.vue'
+import { ServerSelector } from '@/v2/blocks/scalar-server-selector-block'
 
 import { TraversedEntryContainer } from './Operations'
 
-defineProps<{
+const { config } = defineProps<{
   document: OpenAPIV3_1.Document
   config: ApiReferenceConfiguration
   store: WorkspaceStore
 }>()
 
-const config = useConfig()
-
 /**
  * Generate all client options so that it can be shared between the top client picker and the operations
  */
 const clientOptions = computed(() =>
-  generateClientOptions(config.value.hiddenClients),
+  generateClientOptions(config.hiddenClients),
 )
+
+const { getHeadingId } = useNavState()
+
+const id = computed(() =>
+  getHeadingId({
+    slug: DEFAULT_INTRODUCTION_SLUG,
+    depth: 1,
+    value: 'Introduction',
+  }),
+)
+
+/**
+ * Get the OpenAPI/Swagger specification version from the API definition.
+ */
+const oasVersion = inject<Ref<string | undefined>>(OPENAPI_VERSION_SYMBOL)
+
+/**
+ * Should be removed after we migrate auth selector
+ */
+const { collections, securitySchemes, servers } = useWorkspace()
+const {
+  activeCollection: _activeCollection,
+  activeEnvVariables,
+  activeEnvironment,
+  activeWorkspace,
+} = useActiveEntities()
+
+/** Match the collection by slug if provided */
+const activeCollection = computed(() => {
+  if (config.slug) {
+    const collection = collections[getSlugUid(config.slug)]
+    if (collection) {
+      return collection
+    }
+  }
+  return _activeCollection.value
+})
+
+/** Ensure the server is the one selected in the collection */
+const activeServer = computed(() => {
+  if (!activeCollection.value) {
+    return undefined
+  }
+
+  if (activeCollection.value.selectedServerUid) {
+    const server = servers[activeCollection.value.selectedServerUid]
+    if (server) {
+      return server
+    }
+  }
+
+  return servers[activeCollection.value.servers[0]]
+})
 </script>
 <template>
   <SectionFlare />
@@ -36,38 +95,70 @@ const clientOptions = computed(() =>
     <slot name="start" />
 
     <!-- Introduction -->
-    <Introduction
-      v-if="document?.info?.title || document?.info?.description"
-      :document
-      :store
-      :config>
-      <template #serverSelector>
-        <div
-          v-if="store.workspace.activeDocument?.servers?.length"
-          class="scalar-reference-intro-server scalar-client introduction-card-item text-base leading-normal [--scalar-address-bar-height:0px]">
-          <ServerSelector
-            :servers="store.workspace.activeDocument?.servers ?? []"
-            :xSelectedServer="
-              store.workspace.activeDocument?.['x-scalar-active-server']
-            " />
-        </div>
-      </template>
-      <template #clientSelector>
-        <ClientSelector
-          v-if="config?.hiddenClients !== true && clientOptions.length"
-          :clientOptions
-          :xScalarSdkInstallation="
-            store.workspace.activeDocument?.info?.['x-scalar-sdk-installation']
-          "
-          :xSelectedClient="store.workspace['x-scalar-default-client']"
-          class="introduction-card-item scalar-reference-intro-clients" />
-      </template>
-    </Introduction>
+    <IntroductionSection :showEmptyState="!store.workspace.activeDocument">
+      <InfoBlock
+        :id
+        :document="store.workspace.activeDocument"
+        :layout="config.layout"
+        :oasVersion
+        :isLoading="config.isLoading"
+        :onLoaded="config.onLoaded">
+        <template #selectors>
+          <ScalarErrorBoundary>
+            <IntroductionCardItem
+              v-if="store.workspace.activeDocument?.servers?.length"
+              class="scalar-reference-intro-server scalar-client introduction-card-item text-base leading-normal [--scalar-address-bar-height:0px]">
+              <ServerSelector
+                :servers="store.workspace.activeDocument?.servers ?? []"
+                :xSelectedServer="
+                  store.workspace.activeDocument?.['x-scalar-active-server']
+                " />
+            </IntroductionCardItem>
+          </ScalarErrorBoundary>
+          <ScalarErrorBoundary>
+            <IntroductionCardItem
+              v-if="
+                activeCollection &&
+                activeWorkspace &&
+                Object.keys(securitySchemes ?? {}).length
+              "
+              class="scalar-reference-intro-auth scalar-client introduction-card-item leading-normal">
+              <RequestAuth
+                :collection="activeCollection"
+                :envVariables="activeEnvVariables"
+                :environment="activeEnvironment"
+                layout="reference"
+                :persistAuth="config?.persistAuth"
+                :selectedSecuritySchemeUids="
+                  activeCollection?.selectedSecuritySchemeUids ?? []
+                "
+                :server="activeServer"
+                title="Authentication"
+                :workspace="activeWorkspace" />
+            </IntroductionCardItem>
+          </ScalarErrorBoundary>
+          <ScalarErrorBoundary>
+            <IntroductionCardItem
+              v-if="config?.hiddenClients !== true && clientOptions.length"
+              class="introduction-card-item scalar-reference-intro-clients">
+              <ClientSelector
+                :clientOptions
+                :xScalarSdkInstallation="
+                  store.workspace.activeDocument?.info?.[
+                    'x-scalar-sdk-installation'
+                  ]
+                "
+                :xSelectedClient="store.workspace['x-scalar-default-client']"
+                class="introduction-card-item scalar-reference-intro-clients" />
+            </IntroductionCardItem>
+          </ScalarErrorBoundary>
+        </template>
+      </InfoBlock>
 
-    <!-- Empty State -->
-    <slot
-      v-else
-      name="empty-state" />
+      <template #empty-state>
+        <slot name="empty-state" />
+      </template>
+    </IntroductionSection>
 
     <!-- Loop on traversed entries -->
     <TraversedEntryContainer
