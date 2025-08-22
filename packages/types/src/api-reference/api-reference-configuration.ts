@@ -479,6 +479,13 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
     operationsSorter: z
       .union([z.literal('alpha'), z.literal('method'), z.function().args(z.any(), z.any()).returns(z.number())])
       .optional(),
+    /**
+     * Whether to enable lazy loading of Operations
+     *
+     * Only disable this if you know what you are doing, mostly used for testing.
+     * @default true
+     */
+    lazyLoad: z.boolean().optional().default(true).catch(true),
   }),
 )
 
