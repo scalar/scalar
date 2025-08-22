@@ -480,7 +480,7 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
       .union([z.literal('alpha'), z.literal('method'), z.function().args(z.any(), z.any()).returns(z.number())])
       .optional(),
     /**
-     * Whether to enable lazy loading of Operations
+     * Whether to enable lazy loading of the API reference
      *
      * Only disable this if you know what you are doing, mostly used for testing.
      * @default true
