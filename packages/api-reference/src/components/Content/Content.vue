@@ -39,7 +39,6 @@ const clientOptions = computed(() =>
     <Introduction
       v-if="document?.info?.title || document?.info?.description"
       :document
-      :store
       :config>
       <template #serverSelector>
         <div
