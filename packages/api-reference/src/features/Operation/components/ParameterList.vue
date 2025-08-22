@@ -1,61 +1,35 @@
 <script setup lang="ts">
-import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
+import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
 
 import ParameterListItem from './ParameterListItem.vue'
 
-withDefaults(
-  defineProps<{
-    parameters?: RequestEntity['parameters'] | RequestEntity['responses']
-    showChildren?: boolean
-    collapsableItems?: boolean
-    withExamples?: boolean
-    breadcrumb?: string[]
-  }>(),
-  {
-    showChildren: false,
-    collapsableItems: false,
-    withExamples: true,
-  },
-)
+const {
+  parameters,
+  collapsableItems = false,
+  withExamples = true,
+} = defineProps<{
+  parameters: ParameterObject[]
+  collapsableItems?: boolean
+  withExamples?: boolean
+  breadcrumb?: string[]
+}>()
 </script>
 <template>
   <div
     v-if="parameters?.length"
-    class="parameter-list">
-    <div class="parameter-list-title">
+    class="mt-6">
+    <div class="text-c-1 mt-3 mb-3 text-base leading-[1.45] font-semibold">
       <slot name="title" />
     </div>
-    <ul class="parameter-list-items">
+    <ul class="m-0 mb-3 list-none p-0 text-sm">
       <ParameterListItem
         v-for="item in parameters"
         :key="item.name"
         :breadcrumb="breadcrumb"
         :collapsableItems="collapsableItems"
+        :name="item.name"
         :parameter="item"
-        :showChildren="showChildren"
         :withExamples="withExamples" />
     </ul>
   </div>
 </template>
-
-<style scoped>
-.parameter-list {
-  margin-top: 24px;
-}
-.parameter-list-title {
-  font-size: var(--scalar-font-size-2);
-  font-weight: var(--scalar-semibold);
-  color: var(--scalar-color-1);
-  line-height: 1.45;
-  margin-top: 12px;
-  margin-bottom: 12px;
-}
-
-.parameter-list-items {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  font-size: var(--scalar-small);
-  margin-bottom: 12px;
-}
-</style>

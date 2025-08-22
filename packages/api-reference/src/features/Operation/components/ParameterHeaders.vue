@@ -42,9 +42,9 @@ const parametersWithSchema = computed(() =>
         </DisclosureButton>
         <DisclosurePanel>
           <SchemaProperty
-            :breadcrumb="breadcrumb ? [...breadcrumb, 'headers'] : undefined"
             v-for="(header, key) in parametersWithSchema"
             :key="key"
+            :breadcrumb="breadcrumb ? [...breadcrumb, 'headers'] : undefined"
             :description="header.description"
             :name="`${key}`"
             :value="getResolvedRef(header.schema)" />

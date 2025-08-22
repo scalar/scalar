@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 
-import { useResponses } from '../hooks/useResponses'
-import ParameterList from './ParameterList.vue'
+import ParameterListItem from './ParameterListItem.vue'
 
-const props = withDefaults(
+const { responses, collapsableItems } = withDefaults(
   defineProps<{
-    responses: OpenAPIV3_1.ResponseObject | undefined
+    responses: OperationObject['responses']
     collapsableItems?: boolean
     breadcrumb?: string[]
   }>(),
@@ -14,14 +14,23 @@ const props = withDefaults(
     collapsableItems: true,
   },
 )
-
-const { responses } = useResponses(props.responses)
 </script>
 <template>
-  <ParameterList
-    :collapsableItems="collapsableItems"
-    :parameters="responses"
-    :withExamples="false">
-    <template #title>Responses</template>
-  </ParameterList>
+  <div
+    v-if="Object.keys(responses ?? {}).length"
+    class="mt-6">
+    <div class="text-c-1 mt-3 mb-3 text-base leading-[1.45] font-semibold">
+      Responses
+    </div>
+    <ul class="m-0 mb-3 list-none p-0 text-sm">
+      <ParameterListItem
+        v-for="(response, status) in responses"
+        :key="status"
+        :breadcrumb="breadcrumb"
+        :collapsableItems="collapsableItems"
+        :name="status"
+        :parameter="getResolvedRef(response)"
+        :withExamples="false" />
+    </ul>
+  </div>
 </template>

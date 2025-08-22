@@ -2,8 +2,9 @@
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarMarkdown } from '@scalar/components'
 import { ScalarIconCaretRight } from '@scalar/icons'
-import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 import { isDefined } from '@scalar/oas-utils/helpers'
+import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
+import type { ResponseObject } from '@scalar/workspace-store/schemas/v3.1/strict/response'
 import { computed, ref } from 'vue'
 
 import { SchemaProperty } from '@/components/Content/Schema'
@@ -11,22 +12,19 @@ import { SchemaProperty } from '@/components/Content/Schema'
 import ContentTypeSelect from './ContentTypeSelect.vue'
 import ParameterHeaders from './ParameterHeaders.vue'
 
-const props = withDefaults(
-  defineProps<{
-    parameter:
-      | NonNullable<RequestEntity['parameters']>[number]
-      | NonNullable<RequestEntity['responses']>[number]
-    showChildren?: boolean
-    collapsableItems?: boolean
-    withExamples?: boolean
-    breadcrumb?: string[]
-  }>(),
-  {
-    showChildren: false,
-    collapsableItems: false,
-    withExamples: true,
-  },
-)
+const {
+  collapsableItems = false,
+  withExamples = true,
+  name,
+  parameter,
+  breadcrumb,
+} = defineProps<{
+  parameter: ParameterObject | ResponseObject
+  name: string
+  collapsableItems?: boolean
+  withExamples?: boolean
+  breadcrumb?: string[]
+}>()
 
 const contentTypes = computed(() => {
   if (props.parameter.content) {
@@ -72,10 +70,10 @@ const shouldShowParameter = computed(() => {
         :class="{ 'parameter-item-trigger-open': open }">
         <span class="parameter-item-name">
           <ScalarIconCaretRight
-            weight="bold"
             class="parameter-item-icon size-3 transition-transform duration-100"
-            :class="{ 'rotate-90': open }" />
-          <span>{{ parameter.name }}</span>
+            :class="{ 'rotate-90': open }"
+            weight="bold" />
+          <span>{{ name }}</span>
         </span>
         <span class="parameter-item-type">
           <ScalarMarkdown
@@ -93,8 +91,8 @@ const shouldShowParameter = computed(() => {
           :headers="parameter.headers" />
         <SchemaProperty
           is="div"
-          compact
           :breadcrumb="breadcrumb"
+          compact
           :description="shouldCollapse ? '' : parameter.description"
           :name="shouldCollapse ? '' : parameter.name"
           :noncollapsible="true"
