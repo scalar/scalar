@@ -452,7 +452,7 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
      * Warning this can cause performance issues on big documents
      * @default false
      */
-    defaultOpenAllTags: z.boolean().optional().default(true).catch(true),
+    defaultOpenAllTags: z.boolean().optional().default(false).catch(false),
     /**
      * Whether to expand all models by default
      *
