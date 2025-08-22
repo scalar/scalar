@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Text.Json.Serialization;
 using NetEscapades.EnumGenerators;
 
 namespace Scalar.AspNetCore;
@@ -7,6 +8,7 @@ namespace Scalar.AspNetCore;
 /// Specifies the available download formats for API documentation.
 /// </summary>
 [EnumExtensions]
+[JsonConverter(typeof(DocumentDownloadTypeJsonConverter))]
 public enum DocumentDownloadType
 {
     /// <summary>

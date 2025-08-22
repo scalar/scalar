@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Text.Json.Serialization;
 using NetEscapades.EnumGenerators;
 
 namespace Scalar.AspNetCore;
@@ -7,6 +8,7 @@ namespace Scalar.AspNetCore;
 /// Represents the different themes available in Scalar.
 /// </summary>
 [EnumExtensions]
+[JsonConverter(typeof(ScalarThemeJsonConverter))]
 public enum ScalarTheme
 {
     /// <summary>
