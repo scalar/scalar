@@ -1,7 +1,6 @@
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { compositions } from './schema-composition'
-import { SchemaObjectSchema, type SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 
 /**
  * Optimize the value by removing nulls from compositions and merging root properties.
@@ -74,7 +73,8 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
       return { ...rootProperties, ...schema }
     })
 
-    const result = coerceValue(SchemaObjectSchema, { [composition]: mergedSchemas })
+    // @ts-expect-error - We avoid using coerceValue here as it may be dangerous, so we type cast
+    const result = { [composition]: mergedSchemas } as SchemaObject
     if (shouldBeNullable) {
       result.nullable = true
     }
