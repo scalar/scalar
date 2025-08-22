@@ -4,7 +4,7 @@ import type { HeaderObject } from '@scalar/workspace-store/schemas/v3.1/strict/m
 
 import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
 
-const { header, breadcrumb } = defineProps<{
+const { name, header, breadcrumb } = defineProps<{
   header: HeaderObject
   name: string
   breadcrumb?: string[]

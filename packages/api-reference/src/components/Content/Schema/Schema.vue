@@ -81,12 +81,6 @@ const schemaDescription = computed(() => {
     return null
   }
 
-  // Merged allOf schemas at level 0 should not show individual descriptions
-  // to prevent duplicates with the request body description
-  if (props.level === 0) {
-    return null
-  }
-
   // Return the schema's own description
   return schema.value.description
 })
@@ -179,12 +173,12 @@ const handleClick = (e: MouseEvent) =>
           <SchemaObjectProperties
             v-if="isTypeObject(schema)"
             :breadcrumb="breadcrumb"
-            :discriminator
-            :schema="schema"
             :compact="compact"
+            :discriminator
             :hideHeading="hideHeading"
+            :hideModelNames="hideModelNames"
             :level="level + 1"
-            :hideModelNames="hideModelNames" />
+            :schema="schema" />
 
           <!-- Not an object -->
           <template v-else>
