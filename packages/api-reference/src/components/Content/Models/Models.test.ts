@@ -196,8 +196,32 @@ describe('Models', () => {
         expect(section.props('defaultOpen')).toBe(true)
       })
 
-      expect(compactSections[0].text()).toContain('User')
-      expect(compactSections[1].text()).toContain('Pet')
+      expect(compactSections[0].text()).toContain('nameType')
+      expect(compactSections[1].text()).toContain('nameType')
+    })
+
+    it('ensures all model sections are closed when expandAllModelSections is false', () => {
+      const configWithExpandAll: ApiReferenceConfiguration = {
+        layout: 'modern',
+      } as ApiReferenceConfiguration
+
+      const wrapper = mount(Models, {
+        props: {
+          document: mockDocument,
+          config: configWithExpandAll,
+        },
+      })
+
+      // Find all CompactSection components and verify they have defaultOpen set to true
+      const compactSections = wrapper.findAllComponents({ name: 'CompactSection' })
+      expect(compactSections.length).toBeGreaterThan(0)
+
+      compactSections.forEach((section) => {
+        expect(section.props('defaultOpen')).toBe(false)
+      })
+
+      expect(compactSections[0].text()).not.toContain('nameType')
+      expect(compactSections[1].text()).not.toContain('nameType')
     })
   })
 
