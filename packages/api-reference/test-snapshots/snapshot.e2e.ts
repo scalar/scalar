@@ -8,6 +8,7 @@ sources.forEach(({ title, slug }) => {
 
     // Capture screenshot of CDN
     await page.goto(`cdn?api=${slug}`, { waitUntil: 'networkidle' })
+    await page.waitForTimeout(5000)
     await page.screenshot({ path, fullPage: true })
 
     // Compare with local
