@@ -8,6 +8,7 @@ import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/s
 import { computed, ref } from 'vue'
 
 import { getSchemaType } from './helpers/get-schema-type'
+import { mergeAllOfSchemas } from './helpers/merge-all-of-schemas'
 import { type CompositionKeyword } from './helpers/schema-composition'
 import Schema from './Schema.vue'
 
@@ -80,42 +81,56 @@ const selectedComposition = computed(
 
 <template>
   <div class="property-rule">
-    <!-- Composition selector and panel for nested compositions -->
-    <ScalarListbox
-      v-model="selectedOption"
-      :options="listboxOptions"
-      resize>
-      <button
-        class="composition-selector bg-b-1.5 hover:bg-b-2 flex w-full cursor-pointer items-center gap-1 rounded-t-lg border border-b-0 px-2 py-1.25 pr-3 text-left"
-        type="button">
-        <span class="text-c-2">{{ humanizeType(props.composition) }}</span>
-        <span
-          class="composition-selector-label text-c-1"
-          :class="{
-            'line-through': selectedComposition?.deprecated,
-          }">
-          {{ selectedOption?.label || 'Schema' }}
-        </span>
-        <div
-          v-if="selectedComposition?.deprecated"
-          class="text-red">
-          deprecated
-        </div>
-        <ScalarIconCaretDown />
-      </button>
-    </ScalarListbox>
+    <!-- We merge allOf schemas into a single schema -->
+    <Schema
+      v-if="props.composition === 'allOf'"
+      :breadcrumb="breadcrumb"
+      :compact="compact"
+      :discriminator="discriminator"
+      :hideHeading="hideHeading"
+      :level="level"
+      :name="name"
+      :noncollapsible="true"
+      :value="mergeAllOfSchemas(props.value)" />
 
-    <div class="composition-panel">
-      <!-- Render the selected schema if it has content to display -->
-      <Schema
-        :breadcrumb="breadcrumb"
-        :discriminator="discriminator"
-        :compact="compact"
-        :level="level + 1"
-        :hide-heading="hideHeading"
-        :name="name"
-        :noncollapsible="true"
-        :value="selectedComposition" />
-    </div>
+    <template v-else>
+      <!-- Composition selector and panel for nested compositions -->
+      <ScalarListbox
+        v-model="selectedOption"
+        :options="listboxOptions"
+        resize>
+        <button
+          class="composition-selector bg-b-1.5 hover:bg-b-2 flex w-full cursor-pointer items-center gap-1 rounded-t-lg border border-b-0 px-2 py-1.25 pr-3 text-left"
+          type="button">
+          <span class="text-c-2">{{ humanizeType(props.composition) }}</span>
+          <span
+            class="composition-selector-label text-c-1"
+            :class="{
+              'line-through': selectedComposition?.deprecated,
+            }">
+            {{ selectedOption?.label || 'Schema' }}
+          </span>
+          <div
+            v-if="selectedComposition?.deprecated"
+            class="text-red">
+            deprecated
+          </div>
+          <ScalarIconCaretDown />
+        </button>
+      </ScalarListbox>
+
+      <div class="composition-panel">
+        <!-- Render the selected schema if it has content to display -->
+        <Schema
+          :breadcrumb="breadcrumb"
+          :compact="compact"
+          :discriminator="discriminator"
+          :hideHeading="hideHeading"
+          :level="level + 1"
+          :name="name"
+          :noncollapsible="true"
+          :value="selectedComposition" />
+      </div>
+    </template>
   </div>
 </template>
