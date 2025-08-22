@@ -532,6 +532,60 @@ jobs:
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
           report-file: packages/components/playwright-results.json
 
+  test-cdn-snapshots:
+    if: github.event_name == 'pull_request'
+    needs: [build]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    permissions:
+      contents: read
+      pull-requests: write
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        node-version: [22]
+    container:
+      image: mcr.microsoft.com/playwright:v1.54.0-noble
+      options: --user root
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+      - name: Generate new DEPLOY_ID
+        run: echo "DEPLOY_ID=$(npx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
+      - name: Build
+        uses: ./.github/actions/build-blacksmith
+        with:
+          node-version: ${{ matrix.node-version }}
+          packages: './packages/**'
+        env:
+          DEPLOY_ID: ${{ env.DEPLOY_ID }}
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "PLAYWRIGHT_VERSION=$(npx playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
+      - name: Run snapshot tests (@scalar/api-reference)
+        run: pnpm --filter components test:e2e:snapshots
+        # Only when the tests failed and the PR is from the same repository
+      - if: ${{ !cancelled() }} && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
+        name: Deploy Playwright Report to Netlify
+        run: |
+          pnpx netlify deploy --dir "./packages/components/playwright-report" \
+            --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
+            --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
+            --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
+            --filter @scalar/components \
+            --alias=${{env.DEPLOY_ID}}
+        # Only when the tests failed and the PR is from the same repository
+      - if: ${{ !cancelled() }} && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
+        name: Add Netlify Playwright Report URL to the PR
+        uses: daun/playwright-report-summary@93883773b4f4f0951d8bcdb780c6443ca51eaf7b # v3
+        with:
+          comment-title: 'Scalar CDN Snapshot Diff Results'
+          report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
+          report-file: packages/components/playwright-results.json
+          custom-info: |
+            > [!Note]
+            > These tests detect visual differences between the current PR and the latest CDN build which means they can be affected by other changes in `main` that haven't been released yet.  
+            > As such these tests are non-blocking and will not prevent merging of your PR.
+
   npm-publish:
     if: github.ref == 'refs/heads/main'
     runs-on: beefcake
