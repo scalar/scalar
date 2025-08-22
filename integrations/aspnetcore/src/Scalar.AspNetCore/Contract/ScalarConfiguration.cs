@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Scalar.AspNetCore;
 
@@ -11,6 +11,8 @@ internal sealed class ScalarConfiguration
     public required string? ProxyUrl { get; init; }
 
     public required bool? ShowSidebar { get; init; }
+
+    public required string? OperationTitleSource { get; init; }
 
     public required bool? HideModels { get; init; }
 

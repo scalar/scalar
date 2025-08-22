@@ -32,6 +32,18 @@ const { getFullHash, isIntersectionEnabled, replaceUrlState } = useNavState()
 
 const config = useConfig()
 
+const getPathOrTitle = (item: TraversedEntry): string => {
+  const itemPath = 'path' in item ? item.path : item.title
+  const escapedItemPath = itemPath
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\//g, '&#47;<wbr>') // add a line break opportunity after every forward-slash
+  return escapedItemPath
+}
+
 // We disable intersection observer on click
 const handleClick = async () => {
   // wait for a short delay before enabling intersection observer
@@ -128,7 +140,14 @@ const onAnchorClick = async (ev: Event) => {
         :tabindex="hasChildren ? -1 : 0"
         @click="onAnchorClick">
         <p class="sidebar-heading-link-title">
-          {{ item.title }}
+          <span
+            v-if="config.operationTitleSource === 'path'"
+            class="hanging-indent"
+            v-html="getPathOrTitle(item)">
+          </span>
+          <span v-else>
+            {{ item.title }}
+          </span>
         </p>
         <p
           v-if="'method' in item && !hasChildren"
@@ -186,6 +205,14 @@ const onAnchorClick = async (ev: Event) => {
 .sidebar-heading-link-title {
   margin: 0;
 }
+
+.sidebar-heading-link-title .hanging-indent {
+  padding-left: 0.7em;
+  text-indent: -0.7em;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
 .sidebar-heading:hover {
   background: var(
     --scalar-sidebar-item-hover-background,
