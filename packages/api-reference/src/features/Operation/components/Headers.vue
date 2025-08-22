@@ -2,22 +2,14 @@
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import {
-  isParameterWithSchema,
-  type ParameterObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
-import { computed } from 'vue'
+import type { HeaderObject } from '@scalar/workspace-store/schemas/v3.1/strict/media-header-encoding'
 
-import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
+import Header from './Header.vue'
 
-const { headers } = defineProps<{
-  headers: ParameterObject[]
+const { headers, breadcrumb } = defineProps<{
+  headers: Record<string, HeaderObject>
   breadcrumb?: string[]
 }>()
-
-const parametersWithSchema = computed(() =>
-  headers.filter(isParameterWithSchema),
-)
 </script>
 <template>
   <Disclosure v-slot="{ open }">
@@ -41,13 +33,14 @@ const parametersWithSchema = computed(() =>
           <template v-else> Show Headers </template>
         </DisclosureButton>
         <DisclosurePanel>
-          <SchemaProperty
-            v-for="(header, key) in parametersWithSchema"
-            :key="key"
-            :breadcrumb="breadcrumb ? [...breadcrumb, 'headers'] : undefined"
-            :description="header.description"
-            :name="`${key}`"
-            :value="getResolvedRef(header.schema)" />
+          <template
+            v-for="(header, key) in headers"
+            :key="key">
+            <Header
+              :breadcrumb="breadcrumb ? [...breadcrumb, 'headers'] : undefined"
+              :header="getResolvedRef(header)"
+              :name="key" />
+          </template>
         </DisclosurePanel>
       </div>
     </div>

@@ -8,15 +8,15 @@ import { Schema } from '@/components/Content/Schema'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 
-/**
- * The maximum number of properties to show in the request body schema.
- */
-const MAX_VISIBLE_PROPERTIES = 12
-
 const { requestBody } = defineProps<{
   breadcrumb?: string[]
   requestBody?: RequestBodyObject
 }>()
+
+/**
+ * The maximum number of properties to show in the request body schema.
+ */
+const MAX_VISIBLE_PROPERTIES = 12
 
 const availableContentTypes = computed(() =>
   Object.keys(requestBody?.content ?? {}),
@@ -86,11 +86,8 @@ const partitionedSchema = computed(() => {
         </div>
       </span>
       <ContentTypeSelect
-        :defaultValue="selectedContentType"
-        :requestBody="requestBody"
-        @selectContentType="
-          ({ contentType }) => (selectedContentType = contentType)
-        " />
+        v-model="selectedContentType"
+        :content="requestBody.content" />
       <div
         v-if="requestBody.description"
         class="request-body-description">
@@ -103,17 +100,17 @@ const partitionedSchema = computed(() => {
       v-if="partitionedSchema"
       class="request-body-schema">
       <Schema
+        :breadcrumb
         compact
         name="Request Body"
         noncollapsible
-        :breadcrumb
         :value="partitionedSchema.visibleProperties" />
 
       <Schema
         additionalProperties
+        :breadcrumb
         compact
         name="Request Body"
-        :breadcrumb
         :value="partitionedSchema.collapsedProperties" />
     </div>
 
