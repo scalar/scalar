@@ -34,15 +34,15 @@ internal static class ScalarOptionsMapper
         return new ScalarConfiguration
         {
             ProxyUrl = options.ProxyUrl,
-            Theme = options.Theme.ToStringFast(true),
-            Layout = options.Layout.ToStringFast(true),
+            Theme = options.Theme,
+            Layout = options.Layout,
             Favicon = options.Favicon,
             DarkMode = options.DarkMode,
             HideModels = options.HideModels,
             HideDarkModeToggle = options.HideDarkModeToggle,
             HideTestRequestButton = options.HideTestRequestButton,
             DefaultOpenAllTags = options.DefaultOpenAllTags,
-            ForceDarkModeState = options.ForceThemeMode?.ToStringFast(true),
+            ForceDarkModeState = options.ForceThemeMode,
             ShowSidebar = options.ShowSidebar,
             WithDefaultFonts = options.DefaultFonts,
             CustomCss = options.CustomCss,
@@ -50,13 +50,13 @@ internal static class ScalarOptionsMapper
             Servers = options.Servers,
             MetaData = options.Metadata,
             Authentication = options.Authentication,
-            TagsSorter = options.TagSorter?.ToStringFast(true),
-            OperationsSorter = options.OperationSorter?.ToStringFast(true),
+            TagSorter = options.TagSorter,
+            OperationsSorter = options.OperationSorter,
             HiddenClients = options.HiddenClients ? options.HiddenClients : GetHiddenClients(options),
             DefaultHttpClient = new DefaultHttpClient
             {
-                ClientKey = options.DefaultHttpClient.Value.ToStringFast(true),
-                TargetKey = options.DefaultHttpClient.Key.ToStringFast(true)
+                ClientKey = options.DefaultHttpClient.Value,
+                TargetKey = options.DefaultHttpClient.Key
             },
             Integration = options.DotNetFlag ? "dotnet" : null,
             HideClientButton = options.HideClientButton,
@@ -64,7 +64,7 @@ internal static class ScalarOptionsMapper
             BaseServerUrl = options.BaseServerUrl,
             PersistAuth = options.PersistentAuthentication,
 #pragma warning disable CS0618 // Type or member is obsolete
-            DocumentDownloadType = options.HideDownloadButton ? DocumentDownloadType.None.ToStringFast(true) : options.DocumentDownloadType?.ToStringFast(true)
+            DocumentDownloadType = options.HideDownloadButton ? DocumentDownloadType.None : options.DocumentDownloadType
 #pragma warning restore CS0618 // Type or member is obsolete
         };
     }

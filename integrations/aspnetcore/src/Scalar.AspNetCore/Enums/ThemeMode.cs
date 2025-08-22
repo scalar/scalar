@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Text.Json.Serialization;
 using NetEscapades.EnumGenerators;
 
 namespace Scalar.AspNetCore;
@@ -7,6 +8,7 @@ namespace Scalar.AspNetCore;
 /// Represents the theme modes available in the application.
 /// </summary>
 [EnumExtensions]
+[JsonConverter(typeof(ThemeModeJsonConverter))]
 public enum ThemeMode
 {
     /// <summary>
