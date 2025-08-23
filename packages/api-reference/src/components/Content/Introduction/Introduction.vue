@@ -9,14 +9,13 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { computed } from 'vue'
 
 import { Lazy } from '@/components/Lazy'
-import { BaseUrl } from '@/features/base-url'
 import { useNavState } from '@/hooks/useNavState'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
 import { ClientLibraries } from '../ClientLibraries'
 import IntroductionSection from './IntroductionSection.vue'
 
-const { config } = defineProps<{
+const { config, store } = defineProps<{
   document: OpenAPIV3_1.Document
   config?: ApiReferenceConfiguration
   clientOptions: ClientOptionGroup[]
@@ -77,13 +76,7 @@ const { hash } = useNavState()
           <div
             class="introduction-card"
             :class="{ 'introduction-card-row': config?.layout === 'classic' }">
-            <div
-              v-if="activeCollection?.servers?.length"
-              class="scalar-reference-intro-server scalar-client introduction-card-item text-base leading-normal [--scalar-address-bar-height:0px]">
-              <BaseUrl
-                :collection="activeCollection"
-                :server="activeServer" />
-            </div>
+            <slot name="serverSelector"></slot>
             <div
               v-if="
                 activeCollection &&

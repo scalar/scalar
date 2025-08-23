@@ -218,6 +218,7 @@
     "@scalar/use-codemirror": "workspace:*",
     "@scalar/use-hooks": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
+    "@scalar/workspace-store": "workspace:*",
     "@types/har-format": "^1.2.15",
     "@vueuse/core": "catalog:*",
     "@vueuse/integrations": "catalog:*",

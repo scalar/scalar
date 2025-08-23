@@ -8,7 +8,7 @@ import { onBeforeUnmount, type Ref, watch } from 'vue'
 export function onCustomEvent<E extends ApiReferenceEvent>(
   el: Ref<HTMLElement | null>,
   event: E,
-  handler: (event: ApiReferenceEvents[E]) => void,
+  handler: (event: CustomEvent<ApiReferenceEvents[E]['detail']>) => void,
 ) {
   // Any time the element reference changes, we need to add the event listener
   watch(
@@ -18,7 +18,7 @@ export function onCustomEvent<E extends ApiReferenceEvent>(
         return
       }
 
-      element.addEventListener(event as keyof HTMLElementEventMap, handler as any)
+      element.addEventListener(event, handler as any)
     },
     { immediate: true },
   )
@@ -28,6 +28,6 @@ export function onCustomEvent<E extends ApiReferenceEvent>(
       return
     }
 
-    el.value.removeEventListener(event as keyof HTMLElementEventMap, handler as any)
+    el.value.removeEventListener(event, handler as any)
   })
 }

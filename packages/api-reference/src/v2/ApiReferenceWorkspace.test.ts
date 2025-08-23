@@ -14,7 +14,7 @@ vi.mock('@unhead/vue', () => ({
   useSeoMeta: vi.fn(),
 }))
 
-vi.mock('@/v2/events')
+vi.mock('@scalar/workspace-store/events')
 
 vi.mock('@vueuse/core', async () => ({
   ...(await import('@vueuse/core')),
@@ -193,7 +193,7 @@ describe('ApiReferenceWorkspace', () => {
     })
 
     it('handles dark mode toggle event', async () => {
-      const { onCustomEvent } = await import('@/v2/events')
+      const { onCustomEvent } = await import('@scalar/workspace-store/events')
       const mockOnCustomEvent = vi.mocked(onCustomEvent)
 
       wrapper = mount(ApiReferenceWorkspace, {
@@ -208,8 +208,10 @@ describe('ApiReferenceWorkspace', () => {
       // Simulate the event handler being called
       const eventHandler = mockOnCustomEvent.mock.calls.find((call) => call[1] === 'scalar-update-dark-mode')?.[2]
 
+      const expected = { detail: { value: true } }
+
       if (eventHandler) {
-        eventHandler({ detail: { value: true } })
+        eventHandler(expected as CustomEvent<(typeof expected)['detail']>)
         expect(mockStore.update).toHaveBeenCalledWith('x-scalar-dark-mode', true)
       }
     })
@@ -247,7 +249,7 @@ describe('ApiReferenceWorkspace', () => {
     })
 
     it('handles client selection event', async () => {
-      const { onCustomEvent } = await import('@/v2/events')
+      const { onCustomEvent } = await import('@scalar/workspace-store/events')
       const mockOnCustomEvent = vi.mocked(onCustomEvent)
 
       wrapper = mount(ApiReferenceWorkspace, {
@@ -262,7 +264,8 @@ describe('ApiReferenceWorkspace', () => {
       const eventHandler = mockOnCustomEvent.mock.calls.find((call) => call[1] === 'scalar-update-selected-client')?.[2]
 
       if (eventHandler) {
-        eventHandler({ detail: 'new-client' })
+        const expected = { detail: 'new-client' }
+        eventHandler(expected as CustomEvent<(typeof expected)['detail']>)
         expect(mockStore.update).toHaveBeenCalledWith('x-scalar-default-client', 'new-client')
         expect(localStorage.setItem).toHaveBeenCalledWith(REFERENCE_LS_KEYS.SELECTED_CLIENT, 'new-client')
       }
@@ -271,7 +274,7 @@ describe('ApiReferenceWorkspace', () => {
 
   describe('document selection', () => {
     it('handles active document update event', async () => {
-      const { onCustomEvent } = await import('@/v2/events')
+      const { onCustomEvent } = await import('@scalar/workspace-store/events')
       const mockOnCustomEvent = vi.mocked(onCustomEvent)
 
       wrapper = mount(ApiReferenceWorkspace, {
@@ -285,8 +288,9 @@ describe('ApiReferenceWorkspace', () => {
       // Simulate the event handler being called
       const eventHandler = mockOnCustomEvent.mock.calls.find((call) => call[1] === 'scalar-update-active-document')?.[2]
 
+      const expected = { detail: { value: 'new-document' } }
       if (eventHandler) {
-        eventHandler({ detail: { value: 'new-document' } })
+        eventHandler(expected as CustomEvent<(typeof expected)['detail']>)
         expect(mockStore.update).toHaveBeenCalledWith('x-scalar-active-document', 'new-document')
       }
     })
