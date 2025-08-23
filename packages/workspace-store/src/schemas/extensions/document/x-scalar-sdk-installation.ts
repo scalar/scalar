@@ -1,4 +1,5 @@
 import { Type } from '@sinclair/typebox'
+import type { Static } from '@sinclair/typebox'
 
 export const XScalarSdkInstallationSchema = Type.Object({
   'x-scalar-sdk-installation': Type.Optional(
@@ -11,3 +12,5 @@ export const XScalarSdkInstallationSchema = Type.Object({
     ),
   ),
 })
+
+export type XScalarSdkInstallation = Static<typeof XScalarSdkInstallationSchema>

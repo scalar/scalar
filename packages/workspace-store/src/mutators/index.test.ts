@@ -340,7 +340,7 @@ describe('generateClientMutators', () => {
         },
       ])
 
-      expect(mutators.workspace().serverMutators.deleteServer(0)).toBe(true)
+      expect(mutators.workspace().serverMutators.deleteServer('https://api.example.com')).toBe(true)
       expect(store.workspace['x-scalar-client-config-servers']).toEqual([])
     })
 
@@ -366,7 +366,7 @@ describe('generateClientMutators', () => {
         },
       ])
 
-      expect(mutators.doc('test-doc').serverMutators.deleteServer(0)).toBe(true)
+      expect(mutators.doc('test-doc').serverMutators.deleteServer('https://api.test-doc.example.com')).toBe(true)
 
       expect(store.workspace.documents['test-doc']?.servers).toEqual([])
 

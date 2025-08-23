@@ -11,7 +11,8 @@ import type {
   Request as Operation,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import { computed, watch } from 'vue'
+import { emitCustomEvent } from '@scalar/workspace-store/events'
+import { computed, useTemplateRef, watch } from 'vue'
 
 import { useLayout } from '@/hooks/useLayout'
 import { useWorkspace } from '@/store/store'
@@ -91,10 +92,20 @@ const updateServerVariable = (key: string, value: string) => {
   variables[key] = { ...variables[key], default: value }
 
   serverMutators.edit(server.uid, 'variables', variables)
+
+  // Emit event to keep the new store in sync
+  emitCustomEvent(
+    wrapper.value?.$el,
+    'scalar-update-selected-server-variables',
+    { key, value },
+  )
 }
+
+const wrapper = useTemplateRef('wrapper')
 </script>
 <template>
   <ScalarPopover
+    ref="wrapper"
     class="max-h-[inherit] p-0 text-base"
     focus
     :offset="0"
