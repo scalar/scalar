@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarMarkdown } from '@scalar/components'
+import { isDefined } from '@scalar/helpers/array/is-defined'
 import { ScalarIconCaretRight } from '@scalar/icons'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
 import type { ResponseObject } from '@scalar/workspace-store/schemas/v3.1/strict/response'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 import { computed, ref } from 'vue'
+
+import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 import Headers from './Headers.vue'
@@ -43,6 +46,35 @@ const selectedContentType = ref<string>(Object.keys(content.value || {})[0])
 const headers = computed<ResponseObject['headers'] | null>(() =>
   'headers' in parameter && parameter.headers ? parameter.headers : null,
 )
+
+/** Computed value from the combined schema param and content param */
+const value = computed(() => {
+  const baseSchema = content.value
+    ? content.value?.[selectedContentType.value]?.schema
+    : schema.value
+
+  const deprecated =
+    'deprecated' in parameter ? parameter.deprecated : schema.value?.deprecated
+
+  // Convert examples to schema examples which is an array
+  const paramExamples = 'examples' in parameter ? parameter.examples : {}
+  const arrayExamples = schema.value?.examples ?? []
+  const recordExamples = Object.values({
+    ...paramExamples,
+    ...content.value?.[selectedContentType.value]?.examples,
+  })
+
+  /** Combine param examples with content ones */
+  const examples = [...recordExamples, ...arrayExamples]
+
+  return {
+    ...getResolvedRef(baseSchema),
+    deprecated: deprecated,
+    ...('example' in parameter &&
+      isDefined(parameter.example) && { example: parameter.example }),
+    examples,
+  } as SchemaObject
+})
 
 /**
  * Determines whether this parameter item should be rendered as a collapsible disclosure.
@@ -84,28 +116,16 @@ const shouldCollapse = computed<boolean>(() =>
           :headers="headers" />
 
         <!-- Schema -->
-        <!-- <SchemaProperty
+        <SchemaProperty
           is="div"
           :breadcrumb="breadcrumb"
           compact
           :description="shouldCollapse ? '' : parameter.description"
-          :name="shouldCollapse ? '' : parameter.name"
+          :name="shouldCollapse ? '' : name"
           :noncollapsible="true"
-          :required="parameter.required"
-          :value="{
-            ...(parameter.content
-              ? parameter.content?.[selectedContentType]?.schema
-              : parameter.schema),
-            deprecated: parameter.deprecated,
-            ...(isDefined(parameter.example) && { example: parameter.example }),
-            examples: parameter.content
-              ? {
-                  ...parameter.examples,
-                  ...parameter.content?.[selectedContentType]?.examples,
-                }
-              : parameter.examples || parameter.schema?.examples,
-          }"
-          :withExamples="withExamples" /> -->
+          :required="'required' in parameter && parameter.required"
+          :value="value"
+          :withExamples="withExamples" />
       </DisclosurePanel>
     </Disclosure>
 

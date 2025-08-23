@@ -35,7 +35,6 @@ const props = withDefaults(
     compact?: boolean
     discriminator?: DiscriminatorObject
     description?: string
-    withExamples?: boolean
     hideModelNames?: boolean
     hideHeading?: boolean
     variant?: 'additionalProperties' | 'patternProperties'
@@ -45,7 +44,6 @@ const props = withDefaults(
     level: 0,
     required: false,
     compact: false,
-    withExamples: true,
     hideModelNames: false,
   },
 )
@@ -251,11 +249,11 @@ const compositionsToRender = computed(() => {
     <SchemaPropertyHeading
       v-if="displayPropertyHeading(optimizedValue, name, required)"
       class="group"
-      :isDiscriminator="discriminator && discriminator.propertyName === name"
       :enum="getEnumFromValue(optimizedValue).length > 0"
-      :value="optimizedValue"
+      :hideModelNames
+      :isDiscriminator="discriminator && discriminator.propertyName === name"
       :required
-      :hideModelNames>
+      :value="optimizedValue">
       <template
         v-if="name"
         #name>
@@ -315,8 +313,8 @@ const compositionsToRender = computed(() => {
       v-if="shouldRenderObjectProperties"
       class="children">
       <Schema
-        :compact="compact"
         :breadcrumb="breadcrumb && name ? [...breadcrumb, name] : undefined"
+        :compact="compact"
         :level="level + 1"
         :name="name"
         :noncollapsible="noncollapsible"

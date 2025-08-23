@@ -259,14 +259,15 @@ const flattenedDefaultValue = computed(() => {
         :code="property.code"
         :truncate="property.truncate">
         <ScreenReader v-if="property.key === 'format'">Format:</ScreenReader>
-        <ScreenReader v-else-if="property.key === 'pattern'"
-          >Pattern:</ScreenReader
-        >
+        <ScreenReader v-else-if="property.key === 'pattern'">
+          Pattern:
+        </ScreenReader>
         <template
           v-if="property.prefix"
-          #prefix
-          >{{ property.prefix }}</template
-        >{{ property.value }}
+          #prefix>
+          {{ property.prefix }}
+        </template>
+        {{ property.value }}
       </SchemaPropertyDetail>
 
       <!-- Enum indicator -->
@@ -325,10 +326,10 @@ const flattenedDefaultValue = computed(() => {
     <!-- examples -->
     <SchemaPropertyExamples
       v-if="props.withExamples"
-      :examples="props.value?.examples"
       :example="
         props.value?.example || getResolvedRef(props.value?.items)?.example
-      " />
+      "
+      :examples="props.value?.examples" />
   </div>
 </template>
 <style scoped>
