@@ -529,6 +529,7 @@ jobs:
         uses: daun/playwright-report-summary@93883773b4f4f0951d8bcdb780c6443ca51eaf7b # v3
         with:
           comment-title: 'Scalar Components Snapshot Test Results'
+          report-tag: test-components-snapshots
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
           report-file: packages/components/playwright-results.json
 
@@ -581,6 +582,7 @@ jobs:
           comment-title: 'Scalar CDN Snapshot Diff Results'
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
           report-file: packages/api-reference/playwright-results.json
+          report-tag: test-cdn-snapshots
           custom-info: These tests are **non-blocking** and will not prevent merging of your PR.
           footer: |
             > [!IMPORTANT]
