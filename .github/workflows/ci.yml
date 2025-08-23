@@ -583,8 +583,10 @@ jobs:
           report-file: packages/api-reference/playwright-results.json
           custom-info: These tests are **non-blocking** and will not prevent merging of your PR.
           footer: |
-            > [!Note]
-            > These tests detect visual differences between the current PR and the latest CDN build which means they can be affected by other changes in `main` that haven't been released yet.
+            > [!IMPORTANT]
+            > These tests detect visual differences between the current PR and the latest CDN build which means they can be affected by other changes in `main` that haven't been released yet.  
+            > They can help determine if the changes in the PR are causing any unexpected visual regressions but may be less helpful in isolating the exact cause.
+            > For more details see the [readme](https://github.com/scalar/scalar/blob/main/packages/api-reference/test-snapshots/README.md).
 
   npm-publish:
     if: github.ref == 'refs/heads/main'
