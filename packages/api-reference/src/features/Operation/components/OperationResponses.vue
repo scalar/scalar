@@ -4,16 +4,11 @@ import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/stric
 
 import ParameterListItem from './ParameterListItem.vue'
 
-const { responses, collapsableItems } = withDefaults(
-  defineProps<{
-    responses: OperationObject['responses']
-    collapsableItems?: boolean
-    breadcrumb?: string[]
-  }>(),
-  {
-    collapsableItems: true,
-  },
-)
+const { responses, collapsableItems = true } = defineProps<{
+  responses: OperationObject['responses']
+  collapsableItems?: boolean
+  breadcrumb?: string[]
+}>()
 </script>
 <template>
   <div
