@@ -21,6 +21,13 @@
           "type": "page"
         },
         {
+          "name": "Pricing",
+          "defaultOpen": false,
+          "icon": "phosphor/regular/coin-vertical",
+          "path": "documentation/guides/pricing.md",
+          "type": "page"
+        },
+        {
           "name": "Scalar Docs",
           "type": "folder",
           "defaultOpen": false,
