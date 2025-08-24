@@ -49,6 +49,10 @@ export type RequestExampleProps = {
    * A method to generate the label of the block, should return an html string
    */
   generateLabel?: () => string
+  /**
+   * If true, render this as a webhook request example
+   */
+  isWebhook?: boolean
 }
 
 /**
@@ -76,6 +80,7 @@ import {
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { ScalarIconCaretDown } from '@scalar/icons'
+import { operationToHar } from '@scalar/oas-utils/helpers/operation-to-har'
 import { type AvailableClients, type TargetId } from '@scalar/snippetz'
 import { emitCustomEvent } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -107,6 +112,7 @@ const {
   method,
   path,
   operation,
+  isWebhook,
   generateLabel,
 } = defineProps<RequestExampleProps>()
 
@@ -204,6 +210,11 @@ const generatedCode = computed<string>(() => {
     const resolvedExample = getResolvedRefDeep(selectedExample)
     const example = resolvedExample?.value ?? resolvedExample?.summary
 
+    if (isWebhook) {
+      const har = operationToHar({ operation, method, path, example })
+      return har.postData?.text ?? ''
+    }
+
     return generateCodeSnippet({
       clientId: localSelectedClient.value?.id as AvailableClients[number],
       operation,
@@ -262,12 +273,12 @@ const id = useId()
         v-if="generateLabel"
         v-html="generateLabel()" />
       <slot
-        v-else
+        v-else-if="!isWebhook"
         name="header" />
       <!-- Client picker -->
       <template
         #actions
-        v-if="clients.length">
+        v-if="!isWebhook && clients.length">
         <ScalarCombobox
           class="max-h-80"
           :modelValue="localSelectedClient"
@@ -300,7 +311,7 @@ const id = useId()
           class="bg-b-2 !min-h-full -outline-offset-2"
           :content="generatedCode"
           :hideCredentials="secretCredentials"
-          :lang="localSelectedClient?.lang"
+          :lang="isWebhook ? 'json' : localSelectedClient?.lang"
           lineNumbers />
       </div>
     </ScalarCardSection>

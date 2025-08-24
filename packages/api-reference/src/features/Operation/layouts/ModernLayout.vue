@@ -167,6 +167,7 @@ const handleDiscriminatorChange = (type: string) => {
                 :path="path"
                 fallback
                 :operation="operation"
+                :isWebhook="isWebhook"
                 @update:modelValue="handleDiscriminatorChange">
                 <template #header>
                   <OperationPath
