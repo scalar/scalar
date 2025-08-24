@@ -19,7 +19,7 @@ const configuration = {
 
 ### Specification Extensions
 
-The OpenAPI specification allows to **[extend the format**](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#specification-extensions).
+The OpenAPI specification allows to [**extend the format**](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#specification-extensions).
 You can add custom properties. They are always prefixed with a `x-`, here is an example:
 
 ```diff
