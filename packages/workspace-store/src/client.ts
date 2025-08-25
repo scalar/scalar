@@ -614,10 +614,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       }))
     }
 
-    // Create a cleaned document that follows the strict schema
-    const strictDocument = isValid
-      ? temporaryDocument
-      : Value.Cast(OpenAPIDocumentSchemaStrict, Value.Default(OpenAPIDocumentSchemaStrict, temporaryDocument))
+    // Type-cast and just try to render, even if the document is (partially) invalid
+    const strictDocument = isValid ? temporaryDocument : (temporaryDocument as WorkspaceDocument)
 
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (strictDocument[extensions.document.navigation] === undefined) {
