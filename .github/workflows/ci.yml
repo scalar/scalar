@@ -54,6 +54,7 @@ jobs:
     name: Build and Tag Docker Image
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
+    needs: [build]
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -75,21 +76,16 @@ jobs:
         run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Build @scalar/api-reference
-        uses: ./.github/actions/build-blacksmith
+        name: Download standalone.js artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
-          node-version: 22
-          packages: '@scalar/api-reference...'
-
-      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Copy JavaScript asset from @scalar/api-reference
-        working-directory: integrations/docker
-        run: pnpm copy:standalone
+          name: standalone-js
+          path: integrations/docker/assets
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Compress static assets
-        working-directory: integrations/docker
-        run: pnpm compress
+        working-directory: integrations/docker/assets
+        run: gzip --keep --verbose --force standalone.js
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Setup Docker Builder
