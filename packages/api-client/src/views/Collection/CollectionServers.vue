@@ -56,12 +56,12 @@ const openDeleteModal = (serverUid: Server['uid']) => {
   deleteModal.show()
 }
 
-const wrapper = useTemplateRef('wrapper')
+const wrapper = useTemplateRef('wrapper-ref')
 </script>
 
 <template>
   <div
-    ref="wrapper"
+    ref="wrapper-ref"
     class="flex h-full w-full flex-col gap-12 px-1.5 pt-8">
     <div class="flex flex-col gap-4">
       <div class="flex items-start justify-between gap-2">
