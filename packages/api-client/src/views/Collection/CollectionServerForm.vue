@@ -3,8 +3,6 @@ import type { Server } from '@scalar/oas-utils/entities/spec'
 import { REGEX } from '@scalar/oas-utils/helpers'
 import { emitCustomEvent } from '@scalar/workspace-store/events'
 import { computed, useTemplateRef, watch } from 'vue'
-import { emitCustomEvent } from '@scalar/workspace-store/events'
-import { computed, useTemplateRef, watch } from 'vue'
 
 import Form from '@/components/Form/Form.vue'
 import ServerVariablesForm from '@/components/Server/ServerVariablesForm.vue'

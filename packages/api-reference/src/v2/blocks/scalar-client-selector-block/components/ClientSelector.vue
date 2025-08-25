@@ -50,17 +50,17 @@ const tabIndex = computed(() =>
   ),
 )
 
-const wrapperRef = useTemplateRef('wrapper-ref')
+const wrapper = useTemplateRef('wrapper-ref')
 
 /** Emit the selected client event on tab */
 const onTabSelect = (i: number) => {
   const client = featuredClients.value[i]
 
-  if (!client || !wrapperRef.value) {
+  if (!client || !wrapper.value) {
     return
   }
 
-  emitCustomEvent(wrapperRef.value, 'scalar-update-selected-client', client.id)
+  emitCustomEvent(wrapper.value, 'scalar-update-selected-client', client.id)
 }
 
 const installationInstructions = computed(() => {

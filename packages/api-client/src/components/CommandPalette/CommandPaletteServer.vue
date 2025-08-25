@@ -3,8 +3,6 @@ import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import { useToasts } from '@scalar/use-toasts'
 import { emitCustomEvent } from '@scalar/workspace-store/events'
 import { computed, ref, useTemplateRef } from 'vue'
-import { emitCustomEvent } from '@scalar/workspace-store/events'
-import { computed, ref, useTemplateRef } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { PathId } from '@/router'
