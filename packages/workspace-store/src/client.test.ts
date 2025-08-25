@@ -1,12 +1,12 @@
+import assert from 'node:assert'
 import { setTimeout } from 'node:timers/promises'
 import { createWorkspaceStore } from '@/client'
 import { defaultReferenceConfig } from '@/schemas/reference-config'
 import { createServerWorkspaceStore } from '@/server'
 import { consoleErrorSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
+import { getRaw } from '@scalar/json-magic/magic-proxy'
 import fastify, { type FastifyInstance } from 'fastify'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import assert from 'node:assert'
-import { getRaw } from '@scalar/json-magic/magic-proxy'
 
 // Test document
 const getDocument = (version?: string) => ({
@@ -182,6 +182,35 @@ describe('create-workspace-store', () => {
       info: {
         title: 'My API',
         version: '',
+      },
+      openapi: '3.1.1',
+      'x-scalar-navigation': [],
+      'x-ext-urls': {},
+    })
+  })
+
+  it.only('omits invalid parts', async () => {
+    const store = createWorkspaceStore()
+
+    await store.addDocument({
+      document: {
+        openapi: '3.0.0',
+        info: {
+          title: 'My API',
+          // Something invalid
+          contact: true,
+        },
+      },
+      name: 'default',
+    })
+
+    store.update('x-scalar-active-document', 'default')
+    expect(store.workspace.activeDocument).toEqual({
+      info: {
+        title: 'My API',
+        version: '',
+        // Becomes an empty object, which is valid
+        contact: {},
       },
       openapi: '3.1.1',
       'x-scalar-navigation': [],
