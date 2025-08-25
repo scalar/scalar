@@ -1,5 +1,17 @@
 # @scalar/workspace-store
 
+## 0.14.2
+
+### Patch Changes
+
+- 443c507: feat: make required: null an empty array
+- Updated dependencies [88385b1]
+- Updated dependencies [50032be]
+  - @scalar/json-magic@0.3.1
+  - @scalar/types@0.2.13
+  - @scalar/openapi-parser@0.20.1
+  - @scalar/code-highlight@0.1.9
+
 ## 0.14.1
 
 ### Patch Changes
