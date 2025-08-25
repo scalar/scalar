@@ -1,10 +1,10 @@
 <h1>Scalar - The OpenAPI Company</h1>
 <div class="flex flex-col gap-3 hero small-test">
   <h2 class="text-balance">
-    One platform for all your API needs
+    Pricing
   </h2>
   <p>
- Docs, SDKs, Governance & API Client all based on the OpenAPI™ standard. 
+ One platform for all your API needs: Docs, SDKs, Governance & API Client all based on OpenAPI™. 
   </p>
 </div>
 
@@ -25,6 +25,7 @@
               <div class="pricing-table-column">
                 <b class="text-sm">Free</b>
                 <p class="text-xl font-bold ">$0</p>
+                <p class=" text-c-2 text-sm font-normal">* Perfect for individuals getting started with our Platform</p>
                 <a href="https://dashboard.scalar.com/register" class="pricing-cta">Try For Free</a>
               </div>
               <div class="pricing-table-column">
@@ -36,9 +37,9 @@
               </div>
               <div class="pricing-table-column">
                 <b class="text-sm">Enterprise</b>
-                <p class="text-xl font-bold ">$500 / month*</p>
-                <p class=" text-c-2 text-sm font-normal">* Additional fees per member or based on usage & services</p>
-                <a href="https://cal.com/scalar/30min" class="pricing-cta">Request a Demo</a>
+                <p class="text-xl font-bold ">Custom Pricing</p>
+                <p class=" text-c-2 text-sm font-normal">* Custom pricing tailored to your API & business needs</p>
+                <a href="https://cal.com/scalar/30min" class="pricing-cta">Contact Sales</a>
               </div>
             </div>
           </header>
