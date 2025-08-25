@@ -12,6 +12,8 @@ import type {
 import { REGEX } from '@scalar/oas-utils/helpers'
 import { emitCustomEvent } from '@scalar/workspace-store/events'
 import { computed, ref, useTemplateRef } from 'vue'
+import { emitCustomEvent } from '@scalar/workspace-store/events'
+import { computed, ref, useTemplateRef } from 'vue'
 import { useRouter } from 'vue-router'
 
 import CommandActionForm from '@/components/CommandPalette/CommandActionForm.vue'

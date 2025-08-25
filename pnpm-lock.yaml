@@ -28,8 +28,8 @@ catalogs:
       specifier: 1.54.0
       version: 1.54.0
     '@sinclair/typebox':
-      specifier: https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build/target/remote/sinclair-typebox-0.34.38.tgz
-      version: 0.34.38
+      specifier: https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build-2/target/sinclair-typebox-0.34.40.tgz
+      version: 0.34.40
     '@tailwindcss/vite':
       specifier: ^4.1.7
       version: 4.1.8
@@ -155,6 +155,9 @@ importers:
       '@changesets/cli':
         specifier: ^2.27.10
         version: 2.27.10
+      '@eslint/js':
+        specifier: ^9.33.0
+        version: 9.33.0
       '@ianvs/prettier-plugin-sort-imports':
         specifier: ^4.4.0
         version: 4.4.1(@vue/compiler-sfc@3.5.17)(prettier@3.5.3)
@@ -2620,7 +2623,7 @@ importers:
         version: link:../types
       '@sinclair/typebox':
         specifier: catalog:*
-        version: https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build/target/remote/sinclair-typebox-0.34.38.tgz
+        version: https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build-2/target/sinclair-typebox-0.34.40.tgz
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
@@ -5971,6 +5974,10 @@ packages:
     resolution: {integrity: sha512-iZA07H9io9Wn836aVTytRaNqh00Sad+EamwOVJT12GTLw1VGMFV/4JaME+JjLtr9fiGaoWgYnS54wrfWsSs4oQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
+  '@eslint/js@9.33.0':
+    resolution: {integrity: sha512-5K1/mKhWaMfreBGJTwval43JJmkip0RmM+3+IuqupeSKNC/Th2Kc7ucaq5ovTSra/OOKB9c58CGSz3QMVbWt0A==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
   '@eslint/object-schema@2.1.6':
     resolution: {integrity: sha512-RBMg5FRL0I0gs51M/guSAj5/e14VQ4tpZnQNWwuDT66P14I43ItmPfIZRhO9fUVIPOAQXU47atlywZ/czoqFPA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
@@ -8351,9 +8358,9 @@ packages:
   '@sinclair/typebox@0.27.8':
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
 
-  '@sinclair/typebox@https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build/target/remote/sinclair-typebox-0.34.38.tgz':
-    resolution: {tarball: https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build/target/remote/sinclair-typebox-0.34.38.tgz}
-    version: 0.34.38
+  '@sinclair/typebox@https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build-2/target/sinclair-typebox-0.34.40.tgz':
+    resolution: {tarball: https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build-2/target/sinclair-typebox-0.34.40.tgz}
+    version: 0.34.40
 
   '@sindresorhus/is@0.14.0':
     resolution: {integrity: sha512-9NET910DNaIPngYnLLPeg+Ogzqsi9uM4mSboU5y6p8S5DzMTVEsJZrawi+BoDNUVBa2DhJqQYUFvMDfgU062LQ==}
@@ -20237,8 +20244,8 @@ packages:
   vue-component-type-helpers@3.0.4:
     resolution: {integrity: sha512-WtR3kPk8vqKYfCK/HGyT47lK/T3FaVyWxaCNuosaHYE8h9/k0lYRZ/PI/+T/z2wP+uuNKmL6z30rOcBboOu/YA==}
 
-  vue-component-type-helpers@3.0.5:
-    resolution: {integrity: sha512-uoNZaJ+a1/zppa/Vgmi8zIOP2PHXDN2rT8NyF+zQRK6ZG94lNB9prcV0GdLJbY9i9lrD47JOVIH92SaiA7oJ1A==}
+  vue-component-type-helpers@3.0.6:
+    resolution: {integrity: sha512-6CRM8X7EJqWCJOiKPvSLQG+hJPb/Oy2gyJx3pLjUEhY7PuaCthQu3e0zAGI1lqUBobrrk9IT0K8sG2GsCluxoQ==}
 
   vue-demi@0.14.10:
     resolution: {integrity: sha512-nMZBOwuzabUO0nLgIcc6rycZEebF6eeUfaiQx9+WSk8e29IbLvPU9feI6tqW4kTo3hvoYAJkMh8n8D0fuISphg==}
@@ -24808,6 +24815,8 @@ snapshots:
 
   '@eslint/js@9.20.0': {}
 
+  '@eslint/js@9.33.0': {}
+
   '@eslint/object-schema@2.1.6': {}
 
   '@eslint/plugin-kit@0.2.5':
@@ -27998,7 +28007,7 @@ snapshots:
 
   '@sinclair/typebox@0.27.8': {}
 
-  '@sinclair/typebox@https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build/target/remote/sinclair-typebox-0.34.38.tgz': {}
+  '@sinclair/typebox@https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build-2/target/sinclair-typebox-0.34.40.tgz': {}
 
   '@sindresorhus/is@0.14.0': {}
 
@@ -28640,7 +28649,7 @@ snapshots:
       ts-dedent: 2.2.0
       type-fest: 2.19.0
       vue: 3.5.17(typescript@5.6.2)
-      vue-component-type-helpers: 3.0.5
+      vue-component-type-helpers: 3.0.6
     transitivePeerDependencies:
       - encoding
       - prettier
@@ -43667,7 +43676,7 @@ snapshots:
 
   vue-component-type-helpers@3.0.4: {}
 
-  vue-component-type-helpers@3.0.5: {}
+  vue-component-type-helpers@3.0.6: {}
 
   vue-demi@0.14.10(vue@3.5.17(typescript@5.6.2)):
     dependencies:

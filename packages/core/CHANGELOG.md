@@ -1,5 +1,20 @@
 # @scalar/core
 
+## 0.3.14
+
+### Patch Changes
+
+- Updated dependencies [50032be]
+  - @scalar/types@0.2.13
+
+## 0.3.13
+
+### Patch Changes
+
+- 5f022b5: feat: use registry.scalar.com URLs as example
+- Updated dependencies [6a88108]
+  - @scalar/types@0.2.12
+
 ## 0.3.12
 
 ### Patch Changes

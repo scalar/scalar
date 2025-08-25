@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Text.Json.Serialization;
 using NetEscapades.EnumGenerators;
 
 namespace Scalar.AspNetCore;
@@ -7,6 +8,7 @@ namespace Scalar.AspNetCore;
 /// Specifies the sorting options for tags in the Scalar API reference.
 /// </summary>
 [EnumExtensions]
+[JsonConverter(typeof(TagSorterJsonConverter))]
 public enum TagSorter
 {
     /// <summary>

@@ -922,6 +922,28 @@ By default we only open the relevant tag based on the url, however if you want a
 }
 ```
 
+
+### expandAllModelSections?: boolean
+
+By default the models are all closed in the model section at the bottom, this flag will open them all by default!
+
+```js
+{
+  expandAllModelSections: true
+}
+```
+
+
+### expandAllResponses?: boolean
+
+By default response sections are closed in the operations. This flag will open them by default!
+
+```js
+{
+  expandAllResponses: true
+}
+```
+
 ### tagsSorter?: 'alpha' | (a: Tag, b: Tag) => number
 
 Sort tags alphanumerically (`'alpha'`):
@@ -974,6 +996,34 @@ Or specify a custom function to sort the operations.
 ```
 
 > Note: `method` is the HTTP method of the operation, represented as a lowercase string.
+
+### orderRequiredPropertiesFirst?: boolean
+
+Whether to order required properties first in schema objects. When enabled, required properties will be displayed before optional properties in model definitions.
+
+@default true
+
+```js
+{
+  orderRequiredPropertiesFirst: true
+}
+```
+
+### orderSchemaPropertiesBy?: 'alpha' | 'preserve'
+
+Control how schema properties are ordered in model definitions. Can be set to:
+
+- `'alpha'`: Sort properties alphabetically by name
+- `'required'`: Preserve the order from the OpenAPI Document
+
+@default 'alpha'
+
+```js
+// Alphabetical ordering
+{
+  orderSchemaPropertiesBy: 'preserve'
+}
+```
 
 ### theme?: string
 

@@ -98,6 +98,7 @@
   --color-backdrop: rgba(0, 0, 0, 0.22);
   --color-backdrop-dark: rgba(0, 0, 0, 0.45);
   --color-border: var(--scalar-border-color);
+  --color-border-tooltip: color-mix(in srgb, var(--scalar-tooltip-color), var(--scalar-tooltip-background));
   --color-brand: var(--scalar-brand);
 
   /* - Hardcoded Colors */

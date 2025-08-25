@@ -13,6 +13,8 @@ import type {
 } from '@scalar/oas-utils/entities/spec'
 import { emitCustomEvent } from '@scalar/workspace-store/events'
 import { computed, useTemplateRef, watch } from 'vue'
+import { emitCustomEvent } from '@scalar/workspace-store/events'
+import { computed, useTemplateRef, watch } from 'vue'
 
 import { useLayout } from '@/hooks/useLayout'
 import { useWorkspace } from '@/store/store'

@@ -1,8 +1,3 @@
-using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Interfaces;
-using Microsoft.OpenApi.Models;
-
 namespace Scalar.AspNetCore;
 
 internal sealed class BadgeOpenApiOperationTransformer : IOpenApiOperationTransformer
@@ -17,6 +12,17 @@ internal sealed class BadgeOpenApiOperationTransformer : IOpenApiOperationTransf
         }
 
         operation.Extensions ??= new Dictionary<string, IOpenApiExtension>();
+#if NET10_0_OR_GREATER
+        var badges = badgeAttributes.Select(badgeAttribute => new Badge
+        {
+            Name = badgeAttribute.Name,
+            Position = badgeAttribute.Position,
+            Color = badgeAttribute.Color
+        });
+
+        var node = SerializeToNode(badges);
+        operation.Extensions.TryAdd(Badges, new JsonNodeExtension(node));
+#elif NET9_0
         var badges = new OpenApiArray();
 
         foreach (var badgeAttribute in badgeAttributes)
@@ -40,6 +46,7 @@ internal sealed class BadgeOpenApiOperationTransformer : IOpenApiOperationTransf
         }
 
         operation.Extensions.TryAdd(Badges, badges);
+#endif
 
         return Task.CompletedTask;
     }

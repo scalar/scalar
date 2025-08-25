@@ -6,6 +6,7 @@ import { computed, inject } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
 import type { Schemas } from '@/features/Operation/types/schemas'
+import { useConfig } from '@/hooks/useConfig'
 import { DISCRIMINATOR_CONTEXT } from '@/hooks/useDiscriminator'
 
 import { isTypeObject } from './helpers/is-type-object'
@@ -55,6 +56,8 @@ const props = withDefaults(
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
 }>()
+
+const config = useConfig()
 
 // Inject the discriminator context
 const discriminatorContext = inject(DISCRIMINATOR_CONTEXT, null)
@@ -260,16 +263,18 @@ const handleDiscriminatorChange = (type: string) => {
           <SchemaObjectProperties
             v-if="isTypeObject(schema)"
             :breadcrumb="breadcrumb"
-            :schema="schema"
             :compact="compact"
-            :hideHeading="hideHeading"
-            :level="level + 1"
-            :hideModelNames="hideModelNames"
-            :schemas="schemas"
             :discriminator="discriminator"
             :discriminatorMapping="discriminatorMapping"
             :discriminatorPropertyName="discriminatorPropertyName"
             :hasDiscriminator="hasDiscriminator"
+            :hideHeading="hideHeading"
+            :hideModelNames="hideModelNames"
+            :level="level + 1"
+            :orderRequiredPropertiesFirst="config.orderRequiredPropertiesFirst"
+            :orderSchemaPropertiesBy="config.orderSchemaPropertiesBy"
+            :schema="schema"
+            :schemas="schemas"
             @update:modelValue="handleDiscriminatorChange" />
 
           <!-- Not an object -->
@@ -278,17 +283,17 @@ const handleDiscriminatorChange = (type: string) => {
               v-if="schema"
               :breadcrumb="breadcrumb"
               :compact="compact"
+              :discriminatorMapping="discriminatorMapping"
+              :discriminatorPropertyName="discriminatorPropertyName"
               :hideHeading="hideHeading"
               :hideModelNames="hideModelNames"
               :level="level"
+              :modelValue="discriminator"
               :name="(schema as OpenAPIV3_1.SchemaObject).name"
               :schemas="schemas"
               :value="
                 value.discriminator?.propertyName === name ? value : schema
               "
-              :discriminatorMapping="discriminatorMapping"
-              :discriminatorPropertyName="discriminatorPropertyName"
-              :modelValue="discriminator"
               @update:modelValue="handleDiscriminatorChange" />
           </template>
         </DisclosurePanel>

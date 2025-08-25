@@ -1,25 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFrameworks>net9.0;net10.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
     <Title>Scalar.AspNetCore.Microsoft</Title>
-    <Description>Provides Microsoft.AspNetCore.OpenApi transformers for Scalar.AspNetCore extensions.</Description>
+    <Description>Provides OpenAPI transformers for Microsoft.AspNetCore.OpenApi that enable Scalar-specific extensions in your OpenAPI document.</Description>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
-    <!--Only allow compatible version. There will be a breaking change in 10.x.x-->
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="[9.0.0,10.0.0)" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0-preview.3.25172.1" NoWarn="NU5104" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0-preview.7.25380.108" NoWarn="NU5104" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Scalar.AspNetCore\Scalar.AspNetCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Text.Json.Serialization;
 using NetEscapades.EnumGenerators;
 
 namespace Scalar.AspNetCore;
@@ -7,6 +8,7 @@ namespace Scalar.AspNetCore;
 /// Represents the layout for the Scalar API reference.
 /// </summary>
 [EnumExtensions]
+[JsonConverter(typeof(ScalarLayoutJsonConverter))]
 public enum ScalarLayout
 {
     /// <summary>

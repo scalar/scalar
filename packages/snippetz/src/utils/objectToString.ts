@@ -18,6 +18,10 @@ export function objectToString(obj: Record<string, any>, indent = 0): string {
   const indentation = ' '.repeat(indent)
   const innerIndentation = ' '.repeat(indent + 2)
 
+  if (Object.keys(obj).length === 0) {
+    return '{}'
+  }
+
   for (const [key, value] of Object.entries(obj)) {
     const formattedKey = needsQuotes(key) ? `'${key}'` : key
 
@@ -39,18 +43,23 @@ export function objectToString(obj: Record<string, any>, indent = 0): string {
 
       parts.push(`${innerIndentation}${formattedKey}: ${formattedValue}`)
     } else if (Array.isArray(value)) {
-      const arrayString = value
-        .map((item) => {
-          if (typeof item === 'string') {
-            return `'${item}'`
-          }
-          if (item && typeof item === 'object') {
-            return objectToString(item, indent + 2)
-          }
-          return item
-        })
-        .join(`, ${innerIndentation}`)
-      parts.push(`${innerIndentation}${formattedKey}: [${arrayString}]`)
+      const items = value.map((item) => {
+        if (typeof item === 'string') {
+          return `'${item}'`
+        }
+        if (item && typeof item === 'object') {
+          return objectToString(item)
+        }
+        return JSON.stringify(item)
+      })
+
+      if (items.some((item) => item.includes('\n'))) {
+        // format vertically if any array element contains a newline
+        const arrayString = items.map((item) => indentString(item, indent + 4)).join(`,\n`)
+        parts.push(`${innerIndentation}${formattedKey}: [\n${arrayString}\n${innerIndentation}]`)
+      } else {
+        parts.push(`${innerIndentation}${formattedKey}: [${items.join(', ')}]`)
+      }
     } else if (value && typeof value === 'object') {
       parts.push(`${innerIndentation}${formattedKey}: ${objectToString(value, indent + 2)}`)
     } else if (typeof value === 'string') {
@@ -63,4 +72,12 @@ export function objectToString(obj: Record<string, any>, indent = 0): string {
   }
 
   return `{\n${parts.join(',\n')}\n${indentation}}`
+}
+
+function indentString(str: string, indent: number) {
+  const indentation = ' '.repeat(indent)
+  return str
+    .split('\n')
+    .map((line) => `${indentation}${line}`)
+    .join('\n')
 }

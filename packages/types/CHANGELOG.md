@@ -1,5 +1,18 @@
 # @scalar/types
 
+## 0.2.13
+
+### Patch Changes
+
+- 50032be: feat: added config options for sorting schema properties
+
+## 0.2.12
+
+### Patch Changes
+
+- 6a88108: feat: add option to expandAllResponses and expandAllModelSections
+  - @scalar/openapi-types@0.3.7
+
 ## 0.2.11
 
 ### Patch Changes

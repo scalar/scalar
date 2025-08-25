@@ -7,6 +7,8 @@ import type {
 } from '@scalar/oas-utils/entities/spec'
 import { emitCustomEvent } from '@scalar/workspace-store/events'
 import { computed, useId, useTemplateRef } from 'vue'
+import { emitCustomEvent } from '@scalar/workspace-store/events'
+import { computed, useId, useTemplateRef } from 'vue'
 
 import ServerVariablesForm from '@/components/Server/ServerVariablesForm.vue'
 import type { ServerVariables } from '@/components/Server/types'

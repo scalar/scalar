@@ -18,7 +18,7 @@ internal sealed class ScalarConfiguration
 
     public required bool? DarkMode { get; init; }
 
-    public required string? ForceDarkModeState { get; init; }
+    public required ThemeMode? ForceDarkModeState { get; init; }
 
     public required bool? HideDarkModeToggle { get; init; }
 
@@ -43,13 +43,14 @@ internal sealed class ScalarConfiguration
 
     public required bool? DefaultOpenAllTags { get; init; }
 
-    public required string? TagsSorter { get; init; }
+    [JsonPropertyName("tagsSorter")]
+    public required TagSorter? TagSorter { get; init; }
 
-    public required string? OperationsSorter { get; init; }
+    public required OperationSorter? OperationsSorter { get; init; }
 
-    public required string? Theme { get; init; }
+    public required ScalarTheme? Theme { get; init; }
 
-    public required string? Layout { get; init; }
+    public required ScalarLayout? Layout { get; init; }
 
     public required string? Favicon { get; init; }
 
@@ -66,10 +67,10 @@ internal sealed class ScalarConfiguration
 
     public required bool PersistAuth { get; init; }
 
-    public required string? DocumentDownloadType { get; init; }
+    public required DocumentDownloadType? DocumentDownloadType { get; init; }
 }
 
 [JsonSerializable(typeof(ScalarConfiguration))]
-[JsonSerializable(typeof(Dictionary<string, IEnumerable<string>>))] // Type of hidden clients
+[JsonSerializable(typeof(Dictionary<ScalarTarget, ScalarClient[]>))] // Type of hidden clients
 [JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
 internal sealed partial class ScalarConfigurationSerializerContext : JsonSerializerContext;

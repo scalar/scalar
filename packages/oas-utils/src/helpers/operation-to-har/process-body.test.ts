@@ -274,6 +274,29 @@ describe('processBody', () => {
     })
   })
 
+  it('skips readOnly properties', () => {
+    const content = {
+      'application/json': {
+        schema: coerceValue(SchemaObjectSchema, {
+          type: 'object',
+          properties: {
+            name: { type: 'string', example: 'Alice' },
+            age: { type: 'number', readOnly: true },
+          },
+        }),
+      },
+    }
+
+    const result = processBody({ content })
+
+    expect(result).toEqual({
+      mimeType: 'application/json',
+      text: JSON.stringify({
+        name: 'Alice',
+      }),
+    })
+  })
+
   it('handles custom content type with schema examples', () => {
     const content = {
       'application/xml': {

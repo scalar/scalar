@@ -1,9 +1,4 @@
-﻿using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Interfaces;
-using Microsoft.OpenApi.Models;
-
-namespace Scalar.AspNetCore;
+﻿namespace Scalar.AspNetCore;
 
 internal sealed class CodeSampleOpenApiOperationTransformer : IOpenApiOperationTransformer
 {
@@ -17,6 +12,17 @@ internal sealed class CodeSampleOpenApiOperationTransformer : IOpenApiOperationT
         }
 
         operation.Extensions ??= new Dictionary<string, IOpenApiExtension>();
+#if NET10_0_OR_GREATER
+        var samples = codeSampleAttributes.Select(codeSampleAttribute => new CodeSample
+        {
+            Source = codeSampleAttribute.Sample,
+            Label = codeSampleAttribute.Label,
+            Language = codeSampleAttribute.Language
+        });
+
+        var node = SerializeToNode(samples);
+        operation.Extensions.TryAdd(CodeSamples, new JsonNodeExtension(node));
+#elif NET9_0
         var samples = new OpenApiArray();
         foreach (var codeSampleAttribute in codeSampleAttributes)
         {
@@ -39,6 +45,7 @@ internal sealed class CodeSampleOpenApiOperationTransformer : IOpenApiOperationT
         }
 
         operation.Extensions.TryAdd(CodeSamples, samples);
+#endif
 
 
         return Task.CompletedTask;

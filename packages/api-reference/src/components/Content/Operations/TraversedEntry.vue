@@ -110,7 +110,7 @@ defineExpose({
           :document
           :collection="activeCollection"
           :clientOptions
-          :layout="config.layout"
+          :config="config"
           :store
           :server="activeServer"
           :isWebhook="isWebhook(entry)" />

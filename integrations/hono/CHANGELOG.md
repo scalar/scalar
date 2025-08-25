@@ -1,5 +1,19 @@
 # @scalar/hono-api-reference
 
+## 0.9.16
+
+### Patch Changes
+
+- @scalar/core@0.3.14
+
+## 0.9.15
+
+### Patch Changes
+
+- 5f022b5: feat: use registry.scalar.com URLs as example
+- Updated dependencies [5f022b5]
+  - @scalar/core@0.3.13
+
 ## 0.9.14
 
 ### Patch Changes

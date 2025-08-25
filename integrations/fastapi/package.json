@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/fastapi"
   },
-  "version": "1.2.3",
+  "version": "1.3.0",
   "private": true,
   "engines": {
     "node": ">=20"

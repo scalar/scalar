@@ -1,5 +1,26 @@
 # @scalar/json-magic
 
+## 0.3.1
+
+### Patch Changes
+
+- 88385b1: fix: external ref linking when starting with a /
+
+## 0.3.0
+
+### Minor Changes
+
+- b93e1fe: feat(workspace-store): support relative external references
+- c4bf497: fix(workspace-store): correctly propagate documents from one state to the other
+- d8adbed: feat(workspace-store): resolve multi level refs
+- 0c80ef0: feat(json-magic): change the way we resolve refs
+
+### Patch Changes
+
+- 0fcd446: feat(workspace-store): performance improvements
+- Updated dependencies [66b18fc]
+  - @scalar/helpers@0.0.8
+
 ## 0.2.0
 
 ### Minor Changes

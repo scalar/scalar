@@ -10,6 +10,8 @@ import { ScalarIconTrash } from '@scalar/icons'
 import type { Server } from '@scalar/oas-utils/entities/spec'
 import { emitCustomEvent } from '@scalar/workspace-store/events'
 import { computed, ref, useTemplateRef } from 'vue'
+import { emitCustomEvent } from '@scalar/workspace-store/events'
+import { computed, ref, useTemplateRef } from 'vue'
 
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import { useWorkspace } from '@/store'

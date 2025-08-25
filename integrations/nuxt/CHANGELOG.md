@@ -1,5 +1,61 @@
 # @scalar/nuxt
 
+## 0.5.6
+
+### Patch Changes
+
+- Updated dependencies [443c507]
+- Updated dependencies [50032be]
+- Updated dependencies [88385b1]
+  - @scalar/workspace-store@0.14.2
+  - @scalar/api-reference@1.34.6
+  - @scalar/types@0.2.13
+  - @scalar/api-client@2.5.26
+
+## 0.5.5
+
+### Patch Changes
+
+- Updated dependencies [86d29c1]
+- Updated dependencies [b8776fc]
+  - @scalar/api-reference@1.34.5
+  - @scalar/workspace-store@0.14.1
+  - @scalar/api-client@2.5.25
+
+## 0.5.4
+
+### Patch Changes
+
+- Updated dependencies [bbef120]
+- Updated dependencies [b93e1fe]
+- Updated dependencies [24883ab]
+- Updated dependencies [a1429ca]
+- Updated dependencies [5208f06]
+- Updated dependencies [172e397]
+- Updated dependencies [4d509fb]
+- Updated dependencies [e499aee]
+- Updated dependencies [845e850]
+- Updated dependencies [66b18fc]
+- Updated dependencies [6eb7c4f]
+- Updated dependencies [4e06829]
+- Updated dependencies [5f022b5]
+- Updated dependencies [0fcd446]
+- Updated dependencies [2b89e6f]
+- Updated dependencies [6a88108]
+- Updated dependencies [c838a3f]
+- Updated dependencies [75d84ed]
+- Updated dependencies [9be6eec]
+- Updated dependencies [c4bf497]
+- Updated dependencies [929df42]
+- Updated dependencies [d8adbed]
+- Updated dependencies [0804cfc]
+- Updated dependencies [0c80ef0]
+  - @scalar/workspace-store@0.14.0
+  - @scalar/api-reference@1.34.4
+  - @scalar/api-client@2.5.24
+  - @scalar/types@0.2.12
+  - @scalar/use-hooks@0.2.4
+
 ## 0.5.3
 
 ### Patch Changes
