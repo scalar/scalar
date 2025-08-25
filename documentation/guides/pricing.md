@@ -4,30 +4,10 @@
     One platform for all your API needs
   </h2>
   <p>
- Docs, SDKs, Governance & API Client all based on OpenAPI™️
+ Docs, SDKs, Governance & API Client all based on the OpenAPI™ standard. 
   </p>
 </div>
 
-<div class="logowall">
-  <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-tr.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-maersk.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-tailscale.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-supabase.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-flyio.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-sfcompute.svg"></scalar-icon>
-  </div>
-</div>
 
 <div class="mobiletabs">
   <div class="mobiletabs-container">
@@ -241,7 +221,7 @@
                <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
              </div>
              <div class="pricing-table-row">
-               <div class="pricing-table-column">All Platforms (Web, MacOS, Linux, Windows)</div>
+               <div class="pricing-table-column">Web, MacOS, Linux, Windows</div>
                <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
                <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
                <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
@@ -316,43 +296,73 @@
           </header>
           <div class="pricing-table-group">
             <div class="pricing-table-row">
-              <div class="pricing-table-column">choose from 7 languages (TypeScript, Python, Go, Java, C#)</div>
-              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
-              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
-              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+              <div class="pricing-table-column">TypeScript SDK</div>
+              <div class="pricing-table-column"></div>
+              <div class="pricing-table-column">+ $100</div>
+              <div class="pricing-table-column">+ $100</div>
+            </div>
+            <div class="pricing-table-row">
+              <div class="pricing-table-column">Python SDK</div>
+              <div class="pricing-table-column"></div>
+              <div class="pricing-table-column">+ $100</div>
+              <div class="pricing-table-column">+ $100</div>
+            </div>
+            <div class="pricing-table-row">
+              <div class="pricing-table-column">C# SDK</div>
+              <div class="pricing-table-column"></div>
+              <div class="pricing-table-column">+ $100</div>
+              <div class="pricing-table-column">+ $100</div>
+            </div>
+            <div class="pricing-table-row">
+              <div class="pricing-table-column">Java SDK</div>
+              <div class="pricing-table-column"></div>
+              <div class="pricing-table-column">+ $100</div>
+              <div class="pricing-table-column">+ $100</div>
+            </div>
+            <div class="pricing-table-row">
+              <div class="pricing-table-column">PHP SDK</div>
+              <div class="pricing-table-column"></div>
+              <div class="pricing-table-column">+ $100</div>
+              <div class="pricing-table-column">+ $100</div>
+            </div>
+            <div class="pricing-table-row">
+              <div class="pricing-table-column">GO SDK</div>
+              <div class="pricing-table-column"></div>
+              <div class="pricing-table-column">+ $100</div>
+              <div class="pricing-table-column">+ $100</div>
             </div>
             <div class="pricing-table-row">
               <div class="pricing-table-column">automated github workflow</div>
-              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+              <div class="pricing-table-column"></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
             </div>
             <div class="pricing-table-row">
               <div class="pricing-table-column">Custom-code</div>
-              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+              <div class="pricing-table-column"></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
             </div>
             <div class="pricing-table-row">
               <div class="pricing-table-column">Code Samples</div>
-              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+              <div class="pricing-table-column"></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
             </div>
             <div class="pricing-table-row">
               <div class="pricing-table-column">Full OpenAPI Auth support</div>
-              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+              <div class="pricing-table-column"></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
             </div>
             <div class="pricing-table-row">
               <div class="pricing-table-column">File Streaming</div>
-              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+              <div class="pricing-table-column"></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
             </div>
             <div class="pricing-table-row">
-              <div class="pricing-table-column">Full language publishing registry support</div>
+              <div class="pricing-table-column">Full language publishing registry</div>
               <div class="pricing-table-column"></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
@@ -647,7 +657,7 @@
 }
 .pricing-table {
     border: var(--scalar-border-width) solid var(--scalar-border-color);
-    border-radius: 12px;
+    border-radius: var(--scalar-radius);
     contain: paint;
 }
 h4.t-editor__heading {
@@ -697,7 +707,7 @@ h4.t-editor__heading {
     color: var(--scalar-button-1-color)
 }
 .pricing {
-    padding-top: 40px
+    padding-top: 20px
 }
 .pricing-table-column { 
     width: 25%;
@@ -705,7 +715,13 @@ h4.t-editor__heading {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    font-size: var(--scalar-font-size-4);
     gap: 12px;
+   font-weight: var(--scalar-font-medium);
+   color: var(--pricing-table-bg)
+}
+.pricing-table-column:first-child {
+  color: var(--scalar-color-1)
 }
 /* ##   header */
 .pricing-table-group_header{
@@ -808,12 +824,11 @@ h4.t-editor__heading {
     --scalar-toc-width: 0;
   }
   .hero.hero {
-    margin-top: 88px;
+    margin-top: 80px;
   }
   .small-test {
     max-width: 440px;
-    text-wrap: balance;
-    margin-top: 88px;
+    margin-top: 80px;
     position: relative;
   }
   .t-editor .editor-static .page-node {
@@ -1054,23 +1069,5 @@ h4.t-editor__heading {
     .mobile-hide {
       display: none;
     }
-  }
-  /* logos */
-  .logowall.logowall {
-    margin-top: 48px;
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    align-items: center;
-    gap: 40px;
-  }
-  .logowall-item {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .logowall-item svg {
-    width: 100%;
-    height: auto;
-    max-height: 24px;
   }
 </style>
