@@ -95,13 +95,16 @@ ofetch('https://example.com', {
     expect(result).toBe(`import { ofetch } from 'ofetch'
 
 ofetch('https://example.com', {
-  query: [{
-    name: 'foo',
-    value: 'bar'
-  },   {
-    name: 'bar',
-    value: 'foo'
-  }]
+  query: [
+    {
+      name: 'foo',
+      value: 'bar'
+    },
+    {
+      name: 'bar',
+      value: 'foo'
+    }
+  ]
 })`)
   })
 

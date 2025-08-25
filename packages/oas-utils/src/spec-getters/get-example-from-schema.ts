@@ -162,6 +162,11 @@ export const getExampleFromSchema = (
     return cache(schema, schema.default)
   }
 
+  // Use a const value, if there's one
+  if (schema.const !== undefined) {
+    return cache(schema, schema.const)
+  }
+
   // enum: [ 'available', 'pending', 'sold' ]
   if (Array.isArray(schema.enum) && schema.enum.length > 0) {
     return cache(schema, schema.enum[0])
