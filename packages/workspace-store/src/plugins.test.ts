@@ -1021,5 +1021,29 @@ describe('plugins', () => {
       expect((input.components.schemas.EscapedPattern as any).type).toBe('string')
       expect((input.components.schemas.UnicodePattern as any).type).toBe('string')
     })
+
+    it('converts required: null to required: [] for object schemas', async () => {
+      const input = {
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                email: { type: 'string' },
+              },
+              required: null,
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [cleanUp()],
+      })
+
+      expect(input.components.schemas.User.required).toEqual([])
+    })
   })
 })
