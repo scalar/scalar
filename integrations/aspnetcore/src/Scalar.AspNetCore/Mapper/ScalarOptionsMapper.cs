@@ -34,15 +34,15 @@ internal static class ScalarOptionsMapper
         return new ScalarConfiguration
         {
             ProxyUrl = options.ProxyUrl,
-            Theme = options.Theme.ToStringFast(true),
-            Layout = options.Layout.ToStringFast(true),
+            Theme = options.Theme,
+            Layout = options.Layout,
             Favicon = options.Favicon,
             DarkMode = options.DarkMode,
             HideModels = options.HideModels,
             HideDarkModeToggle = options.HideDarkModeToggle,
             HideTestRequestButton = options.HideTestRequestButton,
             DefaultOpenAllTags = options.DefaultOpenAllTags,
-            ForceDarkModeState = options.ForceThemeMode?.ToStringFast(true),
+            ForceDarkModeState = options.ForceThemeMode,
             ShowSidebar = options.ShowSidebar,
             WithDefaultFonts = options.DefaultFonts,
             CustomCss = options.CustomCss,
@@ -50,13 +50,13 @@ internal static class ScalarOptionsMapper
             Servers = options.Servers,
             MetaData = options.Metadata,
             Authentication = options.Authentication,
-            TagsSorter = options.TagSorter?.ToStringFast(true),
-            OperationsSorter = options.OperationSorter?.ToStringFast(true),
+            TagSorter = options.TagSorter,
+            OperationsSorter = options.OperationSorter,
             HiddenClients = options.HiddenClients ? options.HiddenClients : GetHiddenClients(options),
             DefaultHttpClient = new DefaultHttpClient
             {
-                ClientKey = options.DefaultHttpClient.Value.ToStringFast(true),
-                TargetKey = options.DefaultHttpClient.Key.ToStringFast(true)
+                ClientKey = options.DefaultHttpClient.Value,
+                TargetKey = options.DefaultHttpClient.Key
             },
             Integration = options.DotNetFlag ? "dotnet" : null,
             HideClientButton = options.HideClientButton,
@@ -64,7 +64,7 @@ internal static class ScalarOptionsMapper
             BaseServerUrl = options.BaseServerUrl,
             PersistAuth = options.PersistentAuthentication,
 #pragma warning disable CS0618 // Type or member is obsolete
-            DocumentDownloadType = options.HideDownloadButton ? DocumentDownloadType.None.ToStringFast(true) : options.DocumentDownloadType?.ToStringFast(true)
+            DocumentDownloadType = options.HideDownloadButton ? DocumentDownloadType.None : options.DocumentDownloadType
 #pragma warning restore CS0618 // Type or member is obsolete
         };
     }
@@ -84,23 +84,20 @@ internal static class ScalarOptionsMapper
         }
     }
 
-    private static Dictionary<string, IEnumerable<string>>? GetHiddenClients(ScalarOptions options)
+    private static Dictionary<ScalarTarget, ScalarClient[]>? GetHiddenClients(ScalarOptions options)
     {
         if (options.EnabledTargets.Length == 0 && options.EnabledClients.Length == 0)
         {
             return null;
         }
 
-        var hiddenClients = new Dictionary<string, IEnumerable<string>>(ClientOptions.Count);
+        var hiddenClients = new Dictionary<ScalarTarget, ScalarClient[]>(ClientOptions.Count);
 
-        foreach (var item in ClientOptions)
+        foreach (var (scalarTarget, scalarClients) in ClientOptions)
         {
-            if (options.EnabledTargets.Length > 0 && !options.EnabledTargets.Contains(item.Key))
+            if (options.EnabledTargets.Length > 0 && !options.EnabledTargets.Contains(scalarTarget))
             {
-                var targetKey = item.Key.ToStringFast(true);
-                var values = item.Value.Select(x => x.ToStringFast(true));
-
-                hiddenClients[targetKey] = values;
+                hiddenClients[scalarTarget] = scalarClients;
                 continue;
             }
 
@@ -109,10 +106,7 @@ internal static class ScalarOptionsMapper
                 continue;
             }
 
-
-            var clients = item.Value
-                .Where(x => !options.EnabledClients.Contains(x))
-                .Select(x => x.ToStringFast(true)).ToArray();
+            var clients = scalarClients.Where(x => !options.EnabledClients.Contains(x)).ToArray();
 
             // Only add to hidden clients if there are actually clients to hide
             if (clients.Length == 0)
@@ -120,8 +114,7 @@ internal static class ScalarOptionsMapper
                 continue;
             }
 
-            var key = item.Key.ToStringFast(true);
-            hiddenClients[key] = clients;
+            hiddenClients[scalarTarget] = clients;
         }
 
         return hiddenClients.Count > 0 ? hiddenClients : null;

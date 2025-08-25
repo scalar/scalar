@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Text.Json.Serialization;
 using NetEscapades.EnumGenerators;
 
 namespace Scalar.AspNetCore;
@@ -7,6 +8,7 @@ namespace Scalar.AspNetCore;
 /// Specifies the location where authentication credentials should be placed in HTTP requests.
 /// </summary>
 [EnumExtensions]
+[JsonConverter(typeof(CredentialsLocationJsonConverter))]
 public enum CredentialsLocation
 {
     /// <summary>
