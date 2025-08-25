@@ -110,6 +110,61 @@ export default [
     url: 'https://developer.spotify.com/reference/web-api/open-api-schema.yaml',
   },
   {
+    title: 'Circular',
+    slug: 'circular',
+    content: {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      components: {
+        schemas: {
+          JsonObject: {
+            additionalProperties: {
+              $ref: '#/components/schemas/JsonValue',
+            },
+            type: 'object',
+          },
+          JsonValue: {
+            anyOf: [
+              {
+                type: 'string',
+              },
+              {
+                type: 'number',
+                format: 'double',
+              },
+              {
+                type: 'boolean',
+              },
+              {
+                $ref: '#/components/schemas/JsonObject',
+              },
+            ],
+          },
+        },
+      },
+      paths: {
+        '/get': {
+          get: {
+            responses: {
+              '200': {
+                content: {
+                  'application/json': {
+                    schema: {
+                      $ref: '#/components/schemas/JsonObject',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  {
     title: 'Galaxy Live',
     slug: 'galaxy-live',
     url: 'http://localhost:8080/3.1.yaml',

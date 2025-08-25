@@ -28,8 +28,8 @@ catalogs:
       specifier: 1.54.0
       version: 1.54.0
     '@sinclair/typebox':
-      specifier: https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build/target/remote/sinclair-typebox-0.34.38.tgz
-      version: 0.34.38
+      specifier: https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build-2/target/sinclair-typebox-0.34.40.tgz
+      version: 0.34.40
     '@tailwindcss/vite':
       specifier: ^4.1.7
       version: 4.1.8
@@ -2617,7 +2617,7 @@ importers:
         version: link:../types
       '@sinclair/typebox':
         specifier: catalog:*
-        version: https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build/target/remote/sinclair-typebox-0.34.38.tgz
+        version: https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build-2/target/sinclair-typebox-0.34.40.tgz
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
@@ -8352,9 +8352,9 @@ packages:
   '@sinclair/typebox@0.27.8':
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
 
-  '@sinclair/typebox@https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build/target/remote/sinclair-typebox-0.34.38.tgz':
-    resolution: {tarball: https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build/target/remote/sinclair-typebox-0.34.38.tgz}
-    version: 0.34.38
+  '@sinclair/typebox@https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build-2/target/sinclair-typebox-0.34.40.tgz':
+    resolution: {tarball: https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build-2/target/sinclair-typebox-0.34.40.tgz}
+    version: 0.34.40
 
   '@sindresorhus/is@0.14.0':
     resolution: {integrity: sha512-9NET910DNaIPngYnLLPeg+Ogzqsi9uM4mSboU5y6p8S5DzMTVEsJZrawi+BoDNUVBa2DhJqQYUFvMDfgU062LQ==}
@@ -28001,7 +28001,7 @@ snapshots:
 
   '@sinclair/typebox@0.27.8': {}
 
-  '@sinclair/typebox@https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build/target/remote/sinclair-typebox-0.34.38.tgz': {}
+  '@sinclair/typebox@https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build-2/target/sinclair-typebox-0.34.40.tgz': {}
 
   '@sindresorhus/is@0.14.0': {}
 
