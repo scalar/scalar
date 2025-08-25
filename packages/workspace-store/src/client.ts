@@ -31,6 +31,8 @@ import { Value } from '@sinclair/typebox/value'
 import { deepClone } from '@/helpers/deep-clone'
 import { measureAsync, measureSync } from '@scalar/helpers/testing/measure'
 import { getServersFromDocument } from '@/preprocessing/server'
+import type { PartialDeep } from 'type-fest/source/partial-deep'
+import type { RequiredDeep } from 'type-fest/source/required-deep'
 
 export type DocumentConfiguration = Config &
   PartialDeep<{
