@@ -710,7 +710,6 @@ They are open source. So I can get in on free features and stay with Scalar no m
   }
   .expander-hover {
     height: 370px;
-    width: calc(20% - 35.2px);
     cursor: pointer;
     position: relative;
   }

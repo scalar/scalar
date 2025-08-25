@@ -21,6 +21,13 @@
           "type": "page"
         },
         {
+          "name": "Pricing",
+          "defaultOpen": false,
+          "icon": "phosphor/regular/coin-vertical",
+          "path": "documentation/guides/pricing.md",
+          "type": "page"
+        },
+        {
           "name": "Scalar Docs",
           "type": "folder",
           "defaultOpen": false,
@@ -486,8 +493,8 @@
   "siteConfig": {
     "headScript": "const script=document.createElement('script');(script.src='https:\/\/cdn.jsdelivr.net\/npm\/@tailwindcss\/browser@4'),(script.onload=()=>{console.log('Tailwind CSS script loaded successfully')}),(script.onerror=()=>{console.error('Failed to load Tailwind CSS script')}),document.head.appendChild(script);function addFathomAnalytics(){const t=document.createElement('script');(t.src='https:\/\/cdn.usefathom.com\/script.js'),t.setAttribute('data-spa','auto'),t.setAttribute('data-site','RSYAEMNM'),(t.defer=!0),document.head.appendChild(t)}'loading'===document.readyState?document.addEventListener('DOMContentLoaded',addFathomAnalytics):addFathomAnalytics();function addLandingScript(){const t=document.createElement('script');(t.src='\/landing.js'),(t.defer=!0),document.head.appendChild(t)}'loading'===document.readyState?document.addEventListener('DOMContentLoaded',addLandingScript):addLandingScript();",
     "logo": {
-      "darkMode": "https://scalar.com/logo-light.svg",
-      "lightMode": "https://scalar.com/logo-dark.svg"
+      "darkMode": "https://api.scalar.com/cdn/images/_RAUKDd0usvIYjVirvAe5/lpaJKmdWRHJ7MdvxLt6gB.svg",
+      "lightMode": "https://api.scalar.com/cdn/images/_RAUKDd0usvIYjVirvAe5/7YqT5xN4ZkcPdBVbam2d3.svg"
     },
     "cssFiles": ["documentation/assets/styles.css"],
     "footer": ""
