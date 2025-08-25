@@ -25,20 +25,20 @@
               <div class="pricing-table-column">
                 <b class="text-sm">Free</b>
                 <p class="text-xl font-bold ">$0</p>
-                <a class="pricing-cta">Try For Free</a>
+                <a href="https://dashboard.scalar.com/register" class="pricing-cta">Try For Free</a>
               </div>
               <div class="pricing-table-column">
                 <b class="text-sm">Pro</b>
                 <p class="text-xl font-bold ">$24 / month*</p>
                 <p class=" text-c-2 text-sm font-normal">* Additional fees per member or based on usage & services</p>
                 <p></p>
-                <a class="pricing-cta pricing-cta-main">Try For Free</a>
+                <a href="https://dashboard.scalar.com/register" class="pricing-cta pricing-cta-main">Try For Free</a>
               </div>
               <div class="pricing-table-column">
                 <b class="text-sm">Enterprise</b>
                 <p class="text-xl font-bold ">$500 / month*</p>
                 <p class=" text-c-2 text-sm font-normal">* Additional fees per member or based on usage & services</p>
-                <a class="pricing-cta">Contact Us</a>
+                <a href="https://cal.com/scalar/30min" class="pricing-cta">Request a Demo</a>
               </div>
             </div>
           </header>
