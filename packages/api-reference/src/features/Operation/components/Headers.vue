@@ -1,20 +1,15 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { HeaderObject } from '@scalar/workspace-store/schemas/v3.1/strict/media-header-encoding'
 
-import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
+import Header from './Header.vue'
 
-defineProps<{
-  headers: { [key: string]: OpenAPIV3_1.HeaderObject }
+const { headers, breadcrumb } = defineProps<{
+  headers: Record<string, HeaderObject>
   breadcrumb?: string[]
 }>()
-
-function hasSchema(
-  header: OpenAPIV3_1.HeaderObject,
-): header is OpenAPIV3_1.HeaderObject {
-  return (header as OpenAPIV3_1.HeaderObject).schema !== undefined
-}
 </script>
 <template>
   <Disclosure v-slot="{ open }">
@@ -38,13 +33,14 @@ function hasSchema(
           <template v-else> Show Headers </template>
         </DisclosureButton>
         <DisclosurePanel>
-          <SchemaProperty
-            :breadcrumb="breadcrumb ? [...breadcrumb, 'headers'] : undefined"
+          <template
             v-for="(header, key) in headers"
-            :key="key"
-            :description="header.description"
-            :name="`${key}`"
-            :value="hasSchema(header) ? header.schema : undefined" />
+            :key="key">
+            <Header
+              :breadcrumb="breadcrumb ? [...breadcrumb, 'headers'] : undefined"
+              :header="getResolvedRef(header)"
+              :name="key" />
+          </template>
         </DisclosurePanel>
       </div>
     </div>

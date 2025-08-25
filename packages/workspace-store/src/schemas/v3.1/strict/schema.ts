@@ -9,6 +9,8 @@ import { XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-igno
 import { reference } from '@/schemas/v3.1/strict/reference'
 import { XVariableSchema } from '@/schemas/extensions/schema/x-variable'
 import { XAdditionalPropertiesNameSchema } from '@/schemas/extensions/schema/x-additional-properties-name'
+import { XEnumDescriptionsSchema } from '@/schemas/extensions/schema/x-enum-descriptions'
+import { XEnumVarNamesSchema } from '@/schemas/extensions/schema/x-enum-varnames'
 
 /**
  * Builds the recursive schema schema
@@ -218,6 +220,8 @@ export const schemaObjectSchemaBuilder = <S extends TSchema>(schema: S) => {
     XInternalSchema,
     XVariableSchema,
     XAdditionalPropertiesNameSchema,
+    XEnumDescriptionsSchema,
+    XEnumVarNamesSchema,
   )
 
   /**
@@ -231,6 +235,8 @@ export const schemaObjectSchemaBuilder = <S extends TSchema>(schema: S) => {
       typeof XInternalSchema,
       typeof XVariableSchema,
       typeof XAdditionalPropertiesNameSchema,
+      typeof XEnumDescriptionsSchema,
+      typeof XEnumVarNamesSchema,
       TObject<{ _resolvedRefSchema: TAny }>,
     ]
   >

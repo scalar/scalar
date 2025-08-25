@@ -4,20 +4,16 @@ import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { CallbackObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 
-import type { Schemas } from '@/features/Operation/types/schemas'
-
 import Callback from './Callback.vue'
 
 const {
   path,
   method: operationMethod,
   callbacks,
-  schemas,
 } = defineProps<{
   path: string
   method: HttpMethod
   callbacks: CallbackObject
-  schemas?: Schemas
 }>()
 </script>
 
@@ -44,7 +40,6 @@ const {
             :operationMethod="operationMethod"
             :name="name"
             :path="path"
-            :schemas="schemas"
             :url="url" />
         </template>
       </template>

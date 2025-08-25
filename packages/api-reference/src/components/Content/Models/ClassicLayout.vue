@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { computed } from 'vue'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 
 import { Anchor } from '@/components/Anchor'
 import {
@@ -13,26 +13,15 @@ import { useNavState } from '@/hooks/useNavState'
 
 import { SchemaHeading, SchemaProperty } from '../Schema'
 
-const props = defineProps<{
-  schemas?: Record<string, OpenAPIV3_1.SchemaObject> | undefined
+defineProps<{
+  models: { name: string; schema: SchemaObject }[]
 }>()
-
-const models = computed(() => {
-  if (!props.schemas) {
-    return []
-  }
-
-  return Object.entries(props.schemas).map(([name, schema]) => ({
-    name,
-    schema,
-  }))
-})
 
 const { getModelId } = useNavState()
 </script>
 <template>
   <SectionContainerAccordion
-    v-if="props.schemas"
+    v-if="models.length"
     class="reference-models">
     <template #title>
       <SectionHeader :level="2">Models</SectionHeader>
@@ -62,11 +51,8 @@ const { getModelId } = useNavState()
           v-for="[property, value] in Object.entries(schema.properties)"
           :key="property"
           :name="property"
-          :required="
-            schema.required?.includes(property) ||
-            schema.properties?.[property]?.required === true
-          "
-          :value="value as Record<string, any>" />
+          :required="schema.required?.includes(property)"
+          :value="getResolvedRef(value)" />
       </div>
       <div v-else>
         <SchemaProperty :value="schema" />
