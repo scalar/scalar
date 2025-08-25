@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.2.13
+
+### Patch Changes
+
+- 50032be: feat: added config options for sorting schema properties
+
 ## 0.2.12
 
 ### Patch Changes
