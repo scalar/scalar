@@ -997,6 +997,34 @@ Or specify a custom function to sort the operations.
 
 > Note: `method` is the HTTP method of the operation, represented as a lowercase string.
 
+### orderRequiredPropertiesFirst?: boolean
+
+Whether to order required properties first in schema objects. When enabled, required properties will be displayed before optional properties in model definitions.
+
+@default true
+
+```js
+{
+  orderRequiredPropertiesFirst: true
+}
+```
+
+### orderSchemaPropertiesBy?: 'alpha' | 'preserve'
+
+Control how schema properties are ordered in model definitions. Can be set to:
+
+- `'alpha'`: Sort properties alphabetically by name
+- `'required'`: Preserve the order from the OpenAPI Document
+
+@default 'alpha'
+
+```js
+// Alphabetical ordering
+{
+  orderSchemaPropertiesBy: 'preserve'
+}
+```
+
 ### theme?: string
 
 You don't like the color scheme? We've prepared some themes for you:
