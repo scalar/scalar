@@ -203,4 +203,63 @@ describe('SchemaObjectProperties', () => {
     expect(props[2].attributes('data-name')).toBe('alpha')
     expect(props[3].attributes('data-name')).toBe('beta')
   })
+
+  it('sorts properties alphabetically when orderRequiredPropertiesFirst is false', () => {
+    const schema: OpenAPIV3_1.SchemaObject = {
+      type: 'object',
+      properties: {
+        zebra: { type: 'string' },
+        alpha: { type: 'number' },
+        beta: { type: 'boolean' },
+        gamma: { type: 'object' },
+      },
+      required: ['zebra', 'gamma'],
+    }
+
+    const wrapper = mount(SchemaObjectProperties, {
+      props: {
+        schema,
+        orderRequiredPropertiesFirst: false,
+      },
+    })
+
+    const props = wrapper.findAll('.schema-property')
+    expect(props).toHaveLength(4)
+    // When orderRequiredPropertiesFirst is false, all properties should be sorted alphabetically
+    // regardless of required status
+    expect(props[0].attributes('data-name')).toBe('alpha')
+    expect(props[1].attributes('data-name')).toBe('beta')
+    expect(props[2].attributes('data-name')).toBe('gamma')
+    expect(props[3].attributes('data-name')).toBe('zebra')
+  })
+
+  it('preserves original property order when orderSchemaPropertiesBy is preserve', () => {
+    const schema: OpenAPIV3_1.SchemaObject = {
+      type: 'object',
+      properties: {
+        zebra: { type: 'string' },
+        alpha: { type: 'number' },
+        beta: { type: 'boolean' },
+        gamma: { type: 'object' },
+      },
+      required: ['zebra', 'gamma'],
+    }
+
+    const wrapper = mount(SchemaObjectProperties, {
+      props: {
+        schema,
+        orderSchemaPropertiesBy: 'preserve',
+        orderRequiredPropertiesFirst: false,
+      },
+    })
+
+    const props = wrapper.findAll('.schema-property')
+    expect(props).toHaveLength(4)
+    // When orderSchemaPropertiesBy is 'preserve', properties should maintain their original order
+    // from the schema definition, regardless of required status or alphabetical order
+    expect(props[0].attributes('data-name')).toBe('zebra')
+    expect(props[1].attributes('data-name')).toBe('alpha')
+    expect(props[2].attributes('data-name')).toBe('beta')
+    expect(props[3].attributes('data-name')).toBe('gamma')
+  })
 })
