@@ -1022,6 +1022,158 @@ describe('create-workspace-store', () => {
     )
   })
 
+  it('another circular reference', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'default',
+      document: {
+        openapi: '3.1.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        components: {
+          schemas: {
+            JsonObject: {
+              additionalProperties: {
+                $ref: '#/components/schemas/JsonValue',
+              },
+              type: 'object',
+            },
+            JsonValue: {
+              anyOf: [
+                {
+                  type: 'string',
+                },
+                {
+                  type: 'number',
+                  format: 'double',
+                },
+                {
+                  type: 'boolean',
+                },
+                {
+                  $ref: '#/components/schemas/JsonObject',
+                },
+              ],
+            },
+          },
+        },
+        paths: {
+          '/get': {
+            get: {
+              responses: {
+                '200': {
+                  content: {
+                    'application/json': {
+                      schema: {
+                        $ref: '#/components/schemas/JsonObject',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    expect(JSON.stringify(getRaw(store.workspace.activeDocument))).toBe(
+      '{"openapi":"3.1.0","info":{"title":"Hello World","version":"1.0.0"},"components":{"schemas":{"JsonObject":{"additionalProperties":{"$ref":"#/components/schemas/JsonValue"},"type":"object"},"JsonValue":{"anyOf":[{"type":"string"},{"type":"number","format":"double"},{"type":"boolean"},{"$ref":"#/components/schemas/JsonObject"}]}}},"paths":{"/get":{"get":{"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/JsonObject"}}},"description":""}}}}},"x-ext-urls":{},"x-scalar-navigation":[{"id":"","title":"/get","path":"/get","method":"get","ref":"#/paths/~1get/get","type":"operation"},{"id":"","title":"Models","children":[{"id":"JsonObject","title":"JsonObject","name":"JsonObject","ref":"#/content/components/schemas/JsonObject","type":"model"},{"id":"JsonValue","title":"JsonValue","name":"JsonValue","ref":"#/content/components/schemas/JsonValue","type":"model"}],"type":"text"}]}',
+    )
+  })
+
+  it('a third circular reference', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'default',
+      document: {
+        openapi: '3.1.0',
+        paths: {
+          '/test': {
+            post: {
+              operationId: 'post',
+              parameters: [
+                {
+                  name: '',
+                  required: true,
+                  in: 'query',
+                  schema: {
+                    $ref: '#/components/schemas/FilterSet',
+                  },
+                },
+              ],
+              responses: null,
+            },
+          },
+        },
+        info: {
+          title: 'API Reference',
+          description: 'API Reference',
+          version: '1.0.0',
+          contact: {},
+        },
+        tags: [],
+        servers: [],
+        components: {
+          schemas: {
+            FilterSet: {
+              $schema: 'https://json-schema.org/draft/2020-12/schema',
+              id: 'FilterSet',
+              type: 'object',
+              properties: {
+                type: {
+                  type: 'string',
+                  const: 'nested',
+                },
+                conjunction: {
+                  type: 'string',
+                  enum: ['and', 'or'],
+                },
+                conditions: {
+                  type: 'array',
+                  items: {
+                    anyOf: [
+                      {
+                        anyOf: [
+                          {
+                            type: 'object',
+                            properties: {
+                              type: {
+                                type: 'string',
+                                const: 'single',
+                              },
+                              field: {
+                                type: 'string',
+                              },
+                              operator: {
+                                type: 'string',
+                                enum: ['eq', 'ne', 'gt', 'lt', 'gte', 'lte', 'like', 'nlike'],
+                              },
+                              value: {
+                                type: 'string',
+                              },
+                            },
+                          },
+                        ],
+                      },
+                      {
+                        $ref: '#/components/schemas/FilterSet',
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    expect(JSON.stringify(getRaw(store.workspace.activeDocument))).toBe(
+      '{"openapi":"3.1.0","paths":{"/test":{"post":{"operationId":"post","parameters":[{"name":"","required":true,"in":"query","schema":{"$ref":"#/components/schemas/FilterSet"}}],"responses":{}}}},"info":{"title":"API Reference","description":"API Reference","version":"1.0.0","contact":{}},"tags":[],"servers":[],"components":{"schemas":{"FilterSet":{"$schema":"https://json-schema.org/draft/2020-12/schema","id":"FilterSet","type":"object","properties":{"type":{"type":"string","const":"nested"},"conjunction":{"type":"string","enum":["and","or"]},"conditions":{"type":"array","items":{"anyOf":[{"anyOf":[{"type":"object","properties":{"type":{"type":"string","const":"single"},"field":{"type":"string"},"operator":{"type":"string","enum":["eq","ne","gt","lt","gte","lte","like","nlike"]},"value":{"type":"string"}}}]},{"$ref":"#/components/schemas/FilterSet"}]}}}}}},"x-ext-urls":{},"x-scalar-navigation":[{"id":"Introduction","title":"Introduction","type":"text"},{"id":"","title":"/test","path":"/test","method":"post","ref":"#/paths/~1test/post","type":"operation"},{"id":"","title":"Models","children":[{"id":"FilterSet","title":"FilterSet","name":"FilterSet","ref":"#/content/components/schemas/FilterSet","type":"model"}],"type":"text"}]}',
+    )
+  })
+
   it.skip('clean up the document to support non-compliant documents', async () => {
     const store = createWorkspaceStore()
 
