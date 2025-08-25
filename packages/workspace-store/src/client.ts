@@ -568,16 +568,16 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       }
     })
 
-    const strictDocument: UnknownObject = createMagicProxy({ ...inputDocument, ...meta })
+    const temporaryDocument: UnknownObject = createMagicProxy({ ...inputDocument, ...meta })
 
-    if (strictDocument[extensions.document.navigation] === undefined) {
+    if (temporaryDocument[extensions.document.navigation] === undefined) {
       // If the document navigation is not already present, bundle the entire document to resolve all references.
       // This typically applies when the document is not preprocessed by the server and needs local reference resolution.
       // We need to bundle document first before we validate, so we can also validate the external references
       await measureAsync(
         'bundle',
         async () =>
-          await bundle(getRaw(strictDocument), {
+          await bundle(getRaw(temporaryDocument), {
             treeShake: false,
             plugins: [
               fetchUrls({
@@ -595,16 +595,16 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       // We coerce the values only when the document is not preprocessed by the server-side-store
       const coerced = measureSync('coerceValue', () =>
-        coerceValue(OpenAPIDocumentSchemaStrict, deepClone(strictDocument)),
+        coerceValue(OpenAPIDocumentSchemaStrict, deepClone(temporaryDocument)),
       )
-      measureAsync('mergeObjects', async () => mergeObjects(strictDocument, coerced))
+      measureAsync('mergeObjects', async () => mergeObjects(temporaryDocument, coerced))
     }
 
-    const isValid = Value.Check(OpenAPIDocumentSchemaStrict, strictDocument)
+    const isValid = Value.Check(OpenAPIDocumentSchemaStrict, temporaryDocument)
     let errors: ValidationError[] | null = null
 
     if (!isValid) {
-      const validationErrors = Array.from(Value.Errors(OpenAPIDocumentSchemaStrict, strictDocument))
+      const validationErrors = Array.from(Value.Errors(OpenAPIDocumentSchemaStrict, temporaryDocument))
 
       errors = validationErrors.map((error) => ({
         message: error.message,
@@ -615,22 +615,22 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     }
 
     // Create a cleaned document that follows the strict schema
-    const validDocument = isValid
-      ? strictDocument
-      : Value.Cast(OpenAPIDocumentSchemaStrict, Value.Default(OpenAPIDocumentSchemaStrict, strictDocument))
+    const strictDocument = isValid
+      ? temporaryDocument
+      : Value.Cast(OpenAPIDocumentSchemaStrict, Value.Default(OpenAPIDocumentSchemaStrict, temporaryDocument))
 
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (strictDocument[extensions.document.navigation] === undefined) {
       const showModels = input.config?.['x-scalar-reference-config']?.features?.showModels
 
-      strictDocument[extensions.document.navigation] = createNavigation(validDocument, {
+      strictDocument[extensions.document.navigation] = createNavigation(strictDocument, {
         ...(input.config?.['x-scalar-reference-config'] ?? {}),
         hideModels: showModels === undefined ? undefined : !showModels,
       }).entries
     }
 
     // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map
-    workspace.documents[name] = createOverridesProxy(validDocument, input.overrides)
+    workspace.documents[name] = createOverridesProxy(strictDocument, input.overrides)
 
     // Always return success with the processed document and any validation errors
     return {
@@ -681,7 +681,15 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         return
       }
 
-      await addInMemoryDocument({ ...input, document: resolve.data, documentSource: getDocumentSource(input) })
+      const { errors } = await addInMemoryDocument({
+        ...input,
+        document: resolve.data,
+        documentSource: getDocumentSource(input),
+      })
+
+      if (errors) {
+        console.warn('OpenAPI Document Validation Errors', errors)
+      }
     })
   }
 
@@ -730,7 +738,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       }
 
       // Replace the whole document
-      await addInMemoryDocument({
+      const { errors } = await addInMemoryDocument({
         name: documentName,
         document: input,
         // Preserve the current metadata
@@ -740,6 +748,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         },
         initialize: false,
       })
+
+      if (errors) {
+        console.warn('OpenAPI Document Validation Errors', errors)
+      }
     },
     resolve: async (path: string[]) => {
       const activeDocument = workspace.activeDocument
@@ -789,11 +801,15 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         return
       }
 
-      await addInMemoryDocument({
+      const { errors } = await addInMemoryDocument({
         name: documentName,
         document: intermediate,
         initialize: false,
       })
+
+      if (errors) {
+        console.warn('OpenAPI Document Validation Errors', errors)
+      }
     },
     commitDocument(documentName: string) {
       // TODO: Implement commit logic
