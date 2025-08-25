@@ -39,7 +39,15 @@ const devServer: WebServer = {
 // https://playwright.dev/docs/test-configuration
 export default defineConfig({
   testMatch: 'test-snapshots/**/*.e2e.ts',
-  reporter: [['list'], ['html', { open: 'on-failure' }]],
+
+  reporter: CI
+    ? [
+        ['list'],
+        ['html', { open: 'never' }],
+        ['json', { outputFile: 'playwright-results.json' }],
+        ['./test-snapshots/ci-reporter.ts'],
+      ]
+    : [['list'], ['html', { open: 'always' }]],
 
   snapshotPathTemplate: './test-snapshots/.snapshots/{arg}{ext}',
 
