@@ -13,4 +13,25 @@ describe('objectToString', () => {
   baz: 'qux'
 }`)
   })
+
+  it('formats object with nested objects', () => {
+    expect(objectToString({ foo: { bar: 'baz', qux: [{}, { foo: 'qux' }] } })).toBe(`{
+  foo: {
+    bar: 'baz',
+    qux: [
+      {},
+      {
+        foo: 'qux'
+      }
+    ]
+  }
+}`)
+  })
+
+  it('formats object with array values', () => {
+    expect(objectToString({ foo: [1, 2, 3], bar: ['qux', 'quux'] })).toBe(`{
+  foo: [1, 2, 3],
+  bar: ['qux', 'quux']
+}`)
+  })
 })
