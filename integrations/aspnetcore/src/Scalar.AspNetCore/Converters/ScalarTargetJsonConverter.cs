@@ -13,4 +13,10 @@ internal sealed class ScalarTargetJsonConverter : JsonConverter<ScalarTarget>
     {
         writer.WriteStringValue(value.ToStringFast(true));
     }
+
+    public override void WriteAsPropertyName(Utf8JsonWriter writer, ScalarTarget value, JsonSerializerOptions options)
+    {
+        // This method is used to write the ScalarTarget as a property name in the JSON.
+        writer.WritePropertyName(value.ToStringFast(true));
+    }
 }
