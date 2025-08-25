@@ -593,7 +593,20 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     const isValid = Value.Check(OpenAPIDocumentSchemaStrict, strictDocument)
 
     if (!isValid) {
-      throw 'Invalid document provided! Please check your input document. It has some invalid refs.'
+      const errors = Array.from(Value.Errors(OpenAPIDocumentSchemaStrict, strictDocument))
+
+      console.group(`🔴 OpenAPI Document Validation Failed for '${name}'`)
+      errors.forEach((error, index) => {
+        console.error(`Error #${index + 1}:`, {
+          message: error.message,
+          path: error.path,
+          schema: error.schema,
+          value: error.value,
+        })
+      })
+      console.groupEnd()
+
+      throw 'Invalid document provided! Please check your input document.'
     }
 
     // Skip navigation generation if the document already has a server-side generated navigation structure
