@@ -55,7 +55,7 @@
     "@vitejs/plugin-vue": "catalog:*",
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",
-    "vite-plugin-static-copy": "^2.2.0",
+    "vite-plugin-static-copy": "^2.3.2",
     "vitest": "catalog:*"
   }
 }
