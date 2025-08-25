@@ -1,33 +1,36 @@
-import YAML from 'yaml'
-import { reactive } from 'vue'
-import { upgrade } from '@scalar/openapi-parser'
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
+import { upgrade } from '@scalar/openapi-parser'
+import { reactive } from 'vue'
+import YAML from 'yaml'
 
 import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
-import { isObject, safeAssign, type UnknownObject } from '@/helpers/general'
+import { deepClone } from '@/helpers/deep-clone'
+import { type UnknownObject, isObject, safeAssign } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
-import { createNavigation } from '@/navigation'
-import { extensions } from '@/schemas/extensions'
-import { coerceValue } from '@/schemas/typebox-coerce'
-import { OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict } from '@/schemas/v3.1/strict/openapi-document'
-import { OpenAPIDocumentSchema as OpenAPIDocumentSchemaLoose } from '@/schemas/v3.1/loose/openapi-document'
-import { defaultReferenceConfig } from '@/schemas/reference-config'
-import type { Config } from '@/schemas/workspace-specification/config'
-import { InMemoryWorkspaceSchema, type InMemoryWorkspace } from '@/schemas/inmemory-workspace'
-import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
 import { createOverridesProxy } from '@/helpers/overrides-proxy'
+import { createNavigation } from '@/navigation'
+import type { TraverseSpecOptions } from '@/navigation/types'
+import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
+import { extensions } from '@/schemas/extensions'
+import { type InMemoryWorkspace, InMemoryWorkspaceSchema } from '@/schemas/inmemory-workspace'
+import { defaultReferenceConfig } from '@/schemas/reference-config'
+import { coerceValue } from '@/schemas/typebox-coerce'
+import { OpenAPIDocumentSchema as OpenAPIDocumentSchemaLoose } from '@/schemas/v3.1/loose/openapi-document'
+import {
+  OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
+  type OpenApiDocument,
+} from '@/schemas/v3.1/strict/openapi-document'
 import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from '@/schemas/workspace'
+import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
+import type { Config } from '@/schemas/workspace-specification/config'
+import { measureAsync, measureSync } from '@scalar/helpers/testing/measure'
 import { bundle } from '@scalar/json-magic/bundle'
 import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
-import { apply, diff, merge, type Difference } from '@scalar/json-magic/diff'
-import type { TraverseSpecOptions } from '@/navigation/types'
-import type { PartialDeep, RequiredDeep } from 'type-fest'
-import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
+import { type Difference, apply, diff, merge } from '@scalar/json-magic/diff'
 import type { Record } from '@sinclair/typebox'
 import { Value } from '@sinclair/typebox/value'
-import { deepClone } from '@/helpers/deep-clone'
-import { measureAsync, measureSync } from '@scalar/helpers/testing/measure'
+import type { PartialDeep, RequiredDeep } from 'type-fest'
 
 export type DocumentConfiguration = Config &
   PartialDeep<{
@@ -615,7 +618,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     }
 
     // Type-cast and just try to render, even if the document is (partially) invalid
-    const strictDocument = isValid ? temporaryDocument : (temporaryDocument as WorkspaceDocument)
+    const strictDocument = isValid ? temporaryDocument : (temporaryDocument as OpenApiDocument)
 
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (strictDocument[extensions.document.navigation] === undefined) {
