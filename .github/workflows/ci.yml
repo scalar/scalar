@@ -85,15 +85,21 @@ jobs:
         run: pnpm compress
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
+        name: Setup Docker Builder
+        uses: useblacksmith/setup-docker-builder@0b434dfbb431f4e3a2bcee7a773a56bd363184c5 # v1
+        with:
+          platforms: |
+            linux/amd64
+            linux/arm64
+
+      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Build Docker image
-        uses: useblacksmith/build-push-action@574eb0ee0b59c6a687ace24192f0727dfb65d6d7 # v1
+        uses: useblacksmith/build-push-action@4af38cd11563732a1d67e9e9e01299346c955825 # v2
         with:
           context: integrations/docker
           file: integrations/docker/Dockerfile
           load: true
-          tags: |
-            scalarapi/api-reference:latest
-            scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
+          tags: scalarapi/api-reference:latest
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Scan for vulnerabilities
@@ -117,12 +123,11 @@ jobs:
 
       - if: startsWith(github.event.head_commit.message, 'RELEASING:') && steps.changed-files.outputs.api_reference_docker_version_any_changed == 'true'
         name: Build and Push Docker image
-        uses: useblacksmith/build-push-action@574eb0ee0b59c6a687ace24192f0727dfb65d6d7 # v1
+        uses: useblacksmith/build-push-action@4af38cd11563732a1d67e9e9e01299346c955825 # v2
         with:
           context: integrations/docker
           file: integrations/docker/Dockerfile
           push: true
-          # With ARM
           platforms: |
             linux/amd64
             linux/arm64
@@ -1073,13 +1078,20 @@ jobs:
         uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
+        name: Setup Docker Builder
+        uses: useblacksmith/setup-docker-builder@0b434dfbb431f4e3a2bcee7a773a56bd363184c5 # v1
+        with:
+          platforms: |
+            linux/amd64
+            linux/arm64
+
+      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Build and push Aspire Docker image
-        uses: useblacksmith/build-push-action@574eb0ee0b59c6a687ace24192f0727dfb65d6d7 # v1
+        uses: useblacksmith/build-push-action@4af38cd11563732a1d67e9e9e01299346c955825 # v2
         with:
           context: integrations/aspire
           file: integrations/aspire/src/Scalar.Aspire.Service/Dockerfile
           push: true
-          # With ARM
           platforms: |
             linux/amd64
             linux/arm64
