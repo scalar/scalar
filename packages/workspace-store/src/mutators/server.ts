@@ -25,11 +25,13 @@ export const serverMutators = (target?: ServerObject[]) => {
    * @param index - The index of the server to delete.
    * @returns true if the server was deleted, false if target is undefined.
    */
-  const deleteServer = (index: number): boolean => {
+  const deleteServer = (url: string): boolean => {
     if (!target) {
       return false
     }
-    target.splice(index, 1)
+    const newTarget = [...target.filter((it) => it.url !== url)]
+    target.splice(0, target.length)
+    target.push(...newTarget)
     return true
   }
 

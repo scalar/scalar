@@ -77,6 +77,7 @@ import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import { type AvailableClients, type TargetId } from '@scalar/snippetz'
+import { emitCustomEvent } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
@@ -93,7 +94,6 @@ import type {
   ClientOption,
   ClientOptionGroup,
 } from '@/v2/blocks/scalar-request-example-block/types'
-import { emitCustomEvent } from '@/v2/events'
 
 import ExamplePicker from './ExamplePicker.vue'
 

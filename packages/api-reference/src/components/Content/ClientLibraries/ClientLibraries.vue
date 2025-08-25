@@ -2,12 +2,12 @@
 import { TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
 import { ScalarCodeBlock, ScalarMarkdown } from '@scalar/components'
 import type { AvailableClients } from '@scalar/snippetz'
+import { emitCustomEvent } from '@scalar/workspace-store/events'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { computed, useId, useTemplateRef } from 'vue'
 
 import { DEFAULT_CLIENT } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
-import { emitCustomEvent } from '@/v2/events/definitions'
 
 import ClientSelector from './ClientSelector.vue'
 import { getFeaturedClients, isFeaturedClient } from './featured-clients'
