@@ -8,6 +8,7 @@ const entries = [
   './src/schemas/*.ts',
   './src/schemas/v3.1/*.ts',
   './src/schemas/v3.1/strict/*.ts',
+  './src/events/index.ts',
 ]
 
 await build({

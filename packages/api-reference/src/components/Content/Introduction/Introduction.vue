@@ -5,22 +5,16 @@ import { ScalarErrorBoundary } from '@scalar/components'
 import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { computed } from 'vue'
 
 import { Lazy } from '@/components/Lazy'
-import { BaseUrl } from '@/features/base-url'
 import { useNavState } from '@/hooks/useNavState'
-import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
-import { ClientLibraries } from '../ClientLibraries'
 import IntroductionSection from './IntroductionSection.vue'
 
 const { config } = defineProps<{
   document: OpenAPIV3_1.Document
   config?: ApiReferenceConfiguration
-  clientOptions: ClientOptionGroup[]
-  store: WorkspaceStore
 }>()
 
 const { collections, securitySchemes, servers } = useWorkspace()
@@ -77,13 +71,7 @@ const { hash } = useNavState()
           <div
             class="introduction-card"
             :class="{ 'introduction-card-row': config?.layout === 'classic' }">
-            <div
-              v-if="activeCollection?.servers?.length"
-              class="scalar-reference-intro-server scalar-client introduction-card-item text-base leading-normal [--scalar-address-bar-height:0px]">
-              <BaseUrl
-                :collection="activeCollection"
-                :server="activeServer" />
-            </div>
+            <slot name="serverSelector"></slot>
             <div
               v-if="
                 activeCollection &&
@@ -104,16 +92,7 @@ const { hash } = useNavState()
                 title="Authentication"
                 :workspace="activeWorkspace" />
             </div>
-            <ClientLibraries
-              v-if="
-                config?.hiddenClients !== true &&
-                clientOptions.length &&
-                store.workspace.activeDocument
-              "
-              :clientOptions
-              :document="store.workspace.activeDocument"
-              :selectedClient="store.workspace['x-scalar-default-client']"
-              class="introduction-card-item scalar-reference-intro-clients" />
+            <slot name="clientSelector"></slot>
           </div>
         </ScalarErrorBoundary>
       </template>

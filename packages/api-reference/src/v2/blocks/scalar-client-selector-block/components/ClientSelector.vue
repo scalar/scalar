@@ -3,26 +3,29 @@ import { TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
 import { ScalarCodeBlock, ScalarMarkdown } from '@scalar/components'
 import type { AvailableClients } from '@scalar/snippetz'
 import { emitCustomEvent } from '@scalar/workspace-store/events'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
+import type { XScalarSdkInstallation } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-sdk-installation'
 import { computed, useId, useTemplateRef } from 'vue'
 
+import {
+  getFeaturedClients,
+  isFeaturedClient,
+} from '@/v2/blocks/scalar-client-selector-block/helpers/featured-clients'
 import { DEFAULT_CLIENT } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
-import ClientSelector from './ClientSelector.vue'
-import { getFeaturedClients, isFeaturedClient } from './featured-clients'
+import ClientDropdown from './ClientDropdown.vue'
 
 const {
   clientOptions,
-  document,
-  selectedClient = DEFAULT_CLIENT,
+  xScalarSdkInstallation,
+  xSelectedClient = DEFAULT_CLIENT,
 } = defineProps<{
-  /** Current document from the store */
-  document: WorkspaceDocument
+  /** Selected SDK installation instructions */
+  xScalarSdkInstallation?: XScalarSdkInstallation['x-scalar-sdk-installation']
   /** Computed list of all available Http Client options */
   clientOptions: ClientOptionGroup[]
   /** The currently selected Http Client */
-  selectedClient?: AvailableClients[number]
+  xSelectedClient?: AvailableClients[number]
 }>()
 
 const headingId = useId()
@@ -33,7 +36,7 @@ const selectedClientOption = computed(
   () =>
     clientOptions.flatMap(
       (option) =>
-        option.options.find((option) => option.id === selectedClient) ?? [],
+        option.options.find((option) => option.id === xSelectedClient) ?? [],
     )[0],
 )
 
@@ -43,7 +46,7 @@ const featuredClients = computed(() => getFeaturedClients(clientOptions))
 /** Currently selected tab index */
 const tabIndex = computed(() =>
   featuredClients.value.findIndex(
-    (featuredClient) => selectedClient === featuredClient.id,
+    (featuredClient) => xSelectedClient === featuredClient.id,
   ),
 )
 
@@ -61,20 +64,17 @@ const onTabSelect = (i: number) => {
 }
 
 const installationInstructions = computed(() => {
-  // Get instructions (if we have any)
-  const XScalarSdkInstallation = document.info['x-scalar-sdk-installation']
-
   // Check whether we have instructions at all
   if (
-    !Array.isArray(XScalarSdkInstallation) ||
-    !XScalarSdkInstallation?.length
+    !Array.isArray(xScalarSdkInstallation) ||
+    !xScalarSdkInstallation?.length
   ) {
     return undefined
   }
 
   // Find the instructions for the current language
-  const instruction = XScalarSdkInstallation.find((instruction) => {
-    const targetKey = selectedClient?.split('/')[0]?.toLowerCase()
+  const instruction = xScalarSdkInstallation.find((instruction) => {
+    const targetKey = xSelectedClient?.split('/')[0]?.toLowerCase()
     return instruction.lang.toLowerCase() === targetKey
   })
 
@@ -85,6 +85,10 @@ const installationInstructions = computed(() => {
 
   // Got it!
   return instruction
+})
+
+defineExpose({
+  selectedClientOption,
 })
 </script>
 <template>
@@ -105,10 +109,10 @@ const installationInstructions = computed(() => {
       <TabList
         :aria-labelledby="headingId"
         class="client-libraries-list">
-        <ClientSelector
+        <ClientDropdown
           :clientOptions
           :featuredClients
-          :selectedClient
+          :xSelectedClient
           :morePanel />
       </TabList>
 
@@ -139,7 +143,7 @@ const installationInstructions = computed(() => {
               class="rounded-t-none rounded-b-lg px-3 py-2 -outline-offset-1 has-focus:outline" />
           </div>
         </template>
-        <template v-else-if="isFeaturedClient(selectedClient)">
+        <template v-else-if="isFeaturedClient(xSelectedClient)">
           <TabPanel
             v-for="client in featuredClients"
             :key="client.id"

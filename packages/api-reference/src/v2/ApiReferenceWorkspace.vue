@@ -45,10 +45,10 @@ import {
 } from '@/features/multiple-documents'
 import { NAV_STATE_SYMBOL } from '@/hooks/useNavState'
 import { isClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
-import { onCustomEvent } from '@/v2/events'
 import { getDocumentName } from '@/v2/helpers/get-document-name'
 import { mapConfiguration } from '@/v2/helpers/map-configuration'
 import { normalizeContent } from '@/v2/helpers/normalize-content'
+import { useWorkspaceStoreEvents } from '@/v2/hooks/use-workspace-store-events'
 
 const props = defineProps<{
   configuration?: AnyApiReferenceConfiguration
@@ -188,22 +188,8 @@ watch(
   { immediate: true },
 )
 
-// onCustomEvent(root, 'scalar-update-sidebar', (event) => {
-//   console.log('scalar-update-sidebar', event)
-// })
-
-onCustomEvent(root, 'scalar-update-dark-mode', (event) => {
-  store.update('x-scalar-dark-mode', event.detail.value)
-})
-
-onCustomEvent(root, 'scalar-update-active-document', (event) => {
-  store.update('x-scalar-active-document', event.detail.value)
-})
-
-onCustomEvent(root, 'scalar-update-selected-client', (event) => {
-  store.update('x-scalar-default-client', event.detail)
-  safeLocalStorage().setItem(REFERENCE_LS_KEYS.SELECTED_CLIENT, event.detail)
-})
+/** Set up event listeners for client store events */
+useWorkspaceStoreEvents(store, root)
 
 // Update the workspace store if default client changes
 watch(

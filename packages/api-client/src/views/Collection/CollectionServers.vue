@@ -8,7 +8,8 @@ import {
 } from '@scalar/components'
 import { ScalarIconTrash } from '@scalar/icons'
 import type { Server } from '@scalar/oas-utils/entities/spec'
-import { computed, ref } from 'vue'
+import { emitCustomEvent } from '@scalar/workspace-store/events'
+import { computed, ref, useTemplateRef } from 'vue'
 
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import { useWorkspace } from '@/store'
@@ -44,6 +45,9 @@ const handleDeleteServer = () => {
   }
 
   serverMutators.delete(selectedServerUid.value, activeCollection.value.uid)
+  emitCustomEvent(wrapper.value, 'scalar-delete-server', {
+    url: servers[selectedServerUid.value]?.url ?? '',
+  })
   deleteModal.hide()
 }
 
@@ -51,10 +55,14 @@ const openDeleteModal = (serverUid: Server['uid']) => {
   selectedServerUid.value = serverUid
   deleteModal.show()
 }
+
+const wrapper = useTemplateRef('wrapper-ref')
 </script>
 
 <template>
-  <div class="flex h-full w-full flex-col gap-12 px-1.5 pt-8">
+  <div
+    ref="wrapper-ref"
+    class="flex h-full w-full flex-col gap-12 px-1.5 pt-8">
     <div class="flex flex-col gap-4">
       <div class="flex items-start justify-between gap-2">
         <div class="flex flex-col gap-2">

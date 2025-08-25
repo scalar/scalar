@@ -6,19 +6,18 @@ import type { AvailableClients, TargetId } from '@scalar/types/snippetz'
 import { emitCustomEvent } from '@scalar/workspace-store/events'
 import { computed, ref } from 'vue'
 
+import { isFeaturedClient } from '@/v2/blocks/scalar-client-selector-block/helpers/featured-clients'
 import { findClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import type {
   ClientOption,
   ClientOptionGroup,
 } from '@/v2/blocks/scalar-request-example-block/types'
 
-import { isFeaturedClient } from './featured-clients'
-
-const { selectedClient } = defineProps<{
+const { xSelectedClient } = defineProps<{
   /** Client options */
   clientOptions: ClientOptionGroup[]
   /** The currently selected Http Client */
-  selectedClient?: AvailableClients[number]
+  xSelectedClient?: AvailableClients[number]
   /** List of featured clients */
   featuredClients: ClientOption[]
   /** The id of the tab panel that contains for the non featured clients */
@@ -56,7 +55,7 @@ const selectClient = (option: ClientOption) => {
 
 /** Calculates the targetKey from the selected client id */
 const selectedTargetKey = computed(
-  () => selectedClient?.split('/')[0] as TargetId | undefined,
+  () => xSelectedClient?.split('/')[0] as TargetId | undefined,
 )
 </script>
 <template>
@@ -68,7 +67,7 @@ const selectedTargetKey = computed(
       :key="featuredClient.clientKey"
       class="client-libraries rendered-code-sdks"
       :class="{
-        'client-libraries__active': featuredClient.id === selectedClient,
+        'client-libraries__active': featuredClient.id === xSelectedClient,
       }">
       <div :class="`client-libraries-icon__${featuredClient.targetKey}`">
         <ScalarIcon
@@ -83,7 +82,7 @@ const selectedTargetKey = computed(
     <!-- Client Dropdown -->
     <ScalarCombobox
       :options="clientOptions"
-      :modelValue="findClient(clientOptions, selectedClient)"
+      :modelValue="findClient(clientOptions, xSelectedClient)"
       @update:modelValue="selectClient($event as ClientOption)"
       placement="bottom-end"
       teleport>
@@ -91,12 +90,13 @@ const selectedTargetKey = computed(
         class="client-libraries client-libraries__select"
         :class="{
           'client-libraries__active':
-            selectedClient && !isFeaturedClient(selectedClient),
+            xSelectedClient && !isFeaturedClient(xSelectedClient),
         }">
         <div
           aria-hidden="true"
           class="client-libraries-icon__more">
-          <template v-if="selectedClient && !isFeaturedClient(selectedClient)">
+          <template
+            v-if="xSelectedClient && !isFeaturedClient(xSelectedClient)">
             <div :class="`client-libraries-icon__${selectedTargetKey}`">
               <ScalarIcon
                 class="client-libraries-icon"

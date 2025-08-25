@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import { useToasts } from '@scalar/use-toasts'
-import { computed, ref } from 'vue'
+import { emitCustomEvent } from '@scalar/workspace-store/events'
+import { computed, ref, useTemplateRef } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { PathId } from '@/router'
@@ -77,6 +78,13 @@ const handleSubmit = () => {
   // Select the server
   collectionMutators.edit(collection.uid, 'selectedServerUid', server.uid)
 
+  emitCustomEvent(wrapper.value?.$el, 'scalar-add-server', {
+    server: { url: url.value },
+    options: {
+      disableOldStoreUpdate: true,
+    },
+  })
+
   // Redirect to the server
   router.push({
     name: 'collection.servers.edit',
@@ -92,9 +100,12 @@ const handleSubmit = () => {
 const redirectToCreateCollection = () => {
   events.commandPalette.emit({ commandName: 'Create Collection' })
 }
+
+const wrapper = useTemplateRef('wrapper-ref')
 </script>
 <template>
   <CommandActionForm
+    ref="wrapper-ref"
     :disabled="!url.trim() || !selectedCollection"
     @submit="handleSubmit">
     <CommandActionInput

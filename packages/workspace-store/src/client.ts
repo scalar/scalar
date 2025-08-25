@@ -4,7 +4,6 @@ import { reactive } from 'vue'
 import YAML from 'yaml'
 
 import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
-import { deepClone } from '@/helpers/deep-clone'
 import { type UnknownObject, isObject, safeAssign } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
@@ -24,12 +23,14 @@ import {
 import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from '@/schemas/workspace'
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
 import type { Config } from '@/schemas/workspace-specification/config'
-import { measureAsync, measureSync } from '@scalar/helpers/testing/measure'
 import { bundle } from '@scalar/json-magic/bundle'
 import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
 import { type Difference, apply, diff, merge } from '@scalar/json-magic/diff'
 import type { Record } from '@sinclair/typebox'
 import { Value } from '@sinclair/typebox/value'
+import { deepClone } from '@/helpers/deep-clone'
+import { measureAsync, measureSync } from '@scalar/helpers/testing/measure'
+import { getServersFromDocument } from '@/preprocessing/server'
 import type { PartialDeep, RequiredDeep } from 'type-fest'
 
 export type DocumentConfiguration = Config &
@@ -538,6 +539,20 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     return excludedDiffs
   }
 
+  const processDocument = (input: OpenApiDocument, options: Config & { documentSource?: string }): OpenApiDocument => {
+    // Get the servers from the document or the config and perform some mutations on them
+    const servers = getServersFromDocument(options['x-scalar-reference-config']?.settings?.servers ?? input.servers, {
+      baseServerUrl: options['x-scalar-reference-config']?.settings?.baseServerUrl,
+      documentUrl: options.documentSource,
+    })
+
+    if (servers.length) {
+      input.servers = servers.map((it) => ({ url: it.url, description: it.description, variables: it.variables }))
+    }
+
+    return input
+  }
+
   // Add a document to the store synchronously from an in-memory OpenAPI document
   async function addInMemoryDocument(input: ObjectDoc & { initialize?: boolean; documentSource?: string }): Promise<{
     errors: ValidationError[] | null
@@ -628,6 +643,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         ...(input.config?.['x-scalar-reference-config'] ?? {}),
         hideModels: showModels === undefined ? undefined : !showModels,
       }).entries
+
+      // Do some document processing
+      processDocument(getRaw(strictDocument), { ...input.config, documentSource: input.documentSource })
     }
 
     // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map

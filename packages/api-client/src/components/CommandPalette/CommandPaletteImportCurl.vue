@@ -10,7 +10,8 @@ import type {
   RequestPayload,
 } from '@scalar/oas-utils/entities/spec'
 import { REGEX } from '@scalar/oas-utils/helpers'
-import { computed, ref } from 'vue'
+import { emitCustomEvent } from '@scalar/workspace-store/events'
+import { computed, ref, useTemplateRef } from 'vue'
 import { useRouter } from 'vue-router'
 
 import CommandActionForm from '@/components/CommandPalette/CommandActionForm.vue'
@@ -89,6 +90,13 @@ function createRequestFromCurl({ collectionUid }: { collectionUid: string }) {
         { url: metaData.parsedCurl.servers[0] ?? '/' },
         collection.uid,
       ).uid
+
+      emitCustomEvent(wrapper.value?.$el, 'scalar-add-server', {
+        server: { url: metaData.parsedCurl.servers[0] ?? '/' },
+        options: {
+          disableOldStoreUpdate: true,
+        },
+      })
     }
   }
 
@@ -126,10 +134,13 @@ const handleImportClick = () => {
     collectionUid: selectedCollection.value?.id ?? '',
   })
 }
+
+const wrapper = useTemplateRef('wrapper-ref')
 </script>
 <template>
   <div class="text-c-2 flex-center py-1.5 text-sm">Import cURL</div>
   <CommandActionForm
+    ref="wrapper-ref"
     class="mt-1.5 min-h-fit"
     @submit="handleImportClick">
     <div

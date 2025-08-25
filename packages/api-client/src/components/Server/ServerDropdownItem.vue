@@ -5,7 +5,8 @@ import type {
   Request as Operation,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import { computed, useId } from 'vue'
+import { emitCustomEvent } from '@scalar/workspace-store/events'
+import { computed, useId, useTemplateRef } from 'vue'
 
 import ServerVariablesForm from '@/components/Server/ServerVariablesForm.vue'
 import type { ServerVariables } from '@/components/Server/types'
@@ -47,6 +48,11 @@ const updateSelectedServer = (serverUid: Server['uid'], event?: Event) => {
         'selectedServerUid',
         undefined,
       )
+
+      emitCustomEvent(wrapper.value, 'scalar-update-selected-server', {
+        value: undefined,
+        options: { disableOldStoreUpdate: true },
+      })
     } else if (props.type === 'request' && props.operation) {
       requestMutators.edit(props.operation.uid, 'selectedServerUid', null)
     }
@@ -64,6 +70,11 @@ const updateSelectedServer = (serverUid: Server['uid'], event?: Event) => {
       'selectedServerUid',
       serverUid,
     )
+
+    emitCustomEvent(wrapper.value, 'scalar-update-selected-server', {
+      value: servers[serverUid]?.url,
+      options: { disableOldStoreUpdate: true },
+    })
   }
   // Set on the operation
   else if (props.type === 'request' && props.operation) {
@@ -105,9 +116,12 @@ const isExpanded = computed(
 const updateServerVariable = (key: string, value: string) => {
   emit('update:variable', key, value)
 }
+
+const wrapper = useTemplateRef('wrapper-ref')
 </script>
 <template>
   <div
+    ref="wrapper-ref"
     class="group/item flex min-h-fit flex-col rounded border"
     :class="{ 'border-transparent': !isSelectedServer }">
     <button
