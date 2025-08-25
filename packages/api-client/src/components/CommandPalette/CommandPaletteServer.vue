@@ -101,11 +101,11 @@ const redirectToCreateCollection = () => {
   events.commandPalette.emit({ commandName: 'Create Collection' })
 }
 
-const wrapper = useTemplateRef('wrapper')
+const wrapper = useTemplateRef('wrapper-ref')
 </script>
 <template>
   <CommandActionForm
-    ref="wrapper"
+    ref="wrapper-ref"
     :disabled="!url.trim() || !selectedCollection"
     @submit="handleSubmit">
     <CommandActionInput
