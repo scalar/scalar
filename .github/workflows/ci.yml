@@ -870,7 +870,7 @@ jobs:
           name: standalone-js
           path: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
 
-      - name: Rename standalone.js to scalar.js
+      - name: Rename standalone.js to scalar.js # Lets get rid of this
         working-directory: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
         run: mv standalone.js scalar.js
 
@@ -980,21 +980,21 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
-        name: Build @scalar/api-reference
-        uses: ./.github/actions/build-blacksmith
+        name: Download standalone.js artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
-          node-version: 22
-          packages: '@scalar/api-reference...'
+          name: standalone-js
+          path: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
-        name: Copy JavaScript asset from @scalar/api-reference
-        working-directory: integrations/aspnetcore
-        run: pnpm copy:standalone
+        name: Rename standalone.js to scalar.js # Lets get rid of this
+        working-directory: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
+        run: mv standalone.js scalar.js
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Compress static assets
-        working-directory: integrations/aspnetcore
-        run: pnpm compress
+        working-directory: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
+        run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Setup .NET
