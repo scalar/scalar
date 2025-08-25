@@ -267,10 +267,12 @@ const handleDiscriminatorChange = (type: string) => {
             :discriminator="discriminator"
             :discriminatorMapping="discriminatorMapping"
             :discriminatorPropertyName="discriminatorPropertyName"
-            :hideHeading="hideHeading"
             :hasDiscriminator="hasDiscriminator"
+            :hideHeading="hideHeading"
             :hideModelNames="hideModelNames"
             :level="level + 1"
+            :orderRequiredPropertiesFirst="config.orderRequiredPropertiesFirst"
+            :orderSchemaPropertiesBy="config.orderSchemaPropertiesBy"
             :schema="schema"
             :schemas="schemas"
             @update:modelValue="handleDiscriminatorChange" />
