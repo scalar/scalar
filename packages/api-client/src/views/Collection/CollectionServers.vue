@@ -58,12 +58,12 @@ const openDeleteModal = (serverUid: Server['uid']) => {
   deleteModal.show()
 }
 
-const wrapper = useTemplateRef('wrapper')
+const wrapper = useTemplateRef('wrapper-ref')
 </script>
 
 <template>
   <div
-    ref="wrapper"
+    ref="wrapper-ref"
     class="flex h-full w-full flex-col gap-12 px-1.5 pt-8">
     <div class="flex flex-col gap-4">
       <div class="flex items-start justify-between gap-2">
@@ -86,11 +86,11 @@ const wrapper = useTemplateRef('wrapper')
             class="bg-b-2 flex items-start justify-between rounded-t-lg py-1 pr-1 pl-3 text-sm">
             <ScalarMarkdown
               v-if="server.description"
-              :value="server.description"
-              class="self-center" />
-            <span
               class="self-center"
+              :value="server.description" />
+            <span
               v-else
+              class="self-center"
               >Server {{ index + 1 }}</span
             >
             <ScalarButton

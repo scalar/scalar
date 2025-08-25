@@ -119,11 +119,11 @@ const updateServerVariable = (key: string, value: string) => {
   emit('update:variable', key, value)
 }
 
-const wrapper = useTemplateRef('wrapper')
+const wrapper = useTemplateRef('wrapper-ref')
 </script>
 <template>
   <div
-    ref="wrapper"
+    ref="wrapper-ref"
     class="group/item flex min-h-fit flex-col rounded border"
     :class="{ 'border-transparent': !isSelectedServer }">
     <button

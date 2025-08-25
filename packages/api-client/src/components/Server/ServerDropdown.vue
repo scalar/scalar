@@ -103,11 +103,11 @@ const updateServerVariable = (key: string, value: string) => {
   )
 }
 
-const wrapper = useTemplateRef('wrapper')
+const wrapper = useTemplateRef('wrapper-ref')
 </script>
 <template>
   <ScalarPopover
-    ref="wrapper"
+    ref="wrapper-ref"
     class="max-h-[inherit] p-0 text-base"
     focus
     :offset="0"
