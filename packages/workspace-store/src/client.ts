@@ -59,6 +59,13 @@ type ExtraDocumentConfigurations = Record<
   }
 >
 
+export type ValidationError = {
+  message: string
+  path: string
+  schema: unknown
+  value: unknown
+}
+
 const defaultConfig: RequiredDeep<Config> = {
   'x-scalar-reference-config': defaultReferenceConfig,
 }
@@ -529,7 +536,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   }
 
   // Add a document to the store synchronously from an in-memory OpenAPI document
-  async function addInMemoryDocument(input: ObjectDoc & { initialize?: boolean; documentSource?: string }) {
+  async function addInMemoryDocument(input: ObjectDoc & { initialize?: boolean; documentSource?: string }): Promise<{
+    errors: ValidationError[] | null
+    document: unknown
+  }> {
     const { name, meta } = input
     const cloned = measureSync('deepClone', () => deepClone(input.document))
     const inputDocument = measureSync('upgrade', () => upgrade(cloned).specification)
@@ -591,36 +601,42 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     }
 
     const isValid = Value.Check(OpenAPIDocumentSchemaStrict, strictDocument)
+    let errors: ValidationError[] | null = null
 
     if (!isValid) {
-      const errors = Array.from(Value.Errors(OpenAPIDocumentSchemaStrict, strictDocument))
+      const validationErrors = Array.from(Value.Errors(OpenAPIDocumentSchemaStrict, strictDocument))
 
-      console.group(`🔴 OpenAPI Document Validation Failed for '${name}'`)
-      errors.forEach((error, index) => {
-        console.error(`Error #${index + 1}:`, {
-          message: error.message,
-          path: error.path,
-          schema: error.schema,
-          value: error.value,
-        })
-      })
-      console.groupEnd()
-
-      throw 'Invalid document provided! Please check your input document.'
+      errors = validationErrors.map((error) => ({
+        message: error.message,
+        path: error.path,
+        schema: error.schema,
+        value: error.value,
+      }))
     }
+
+    // Create a cleaned document that follows the strict schema
+    const validDocument = isValid
+      ? strictDocument
+      : Value.Cast(OpenAPIDocumentSchemaStrict, Value.Default(OpenAPIDocumentSchemaStrict, strictDocument))
 
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (strictDocument[extensions.document.navigation] === undefined) {
       const showModels = input.config?.['x-scalar-reference-config']?.features?.showModels
 
-      strictDocument[extensions.document.navigation] = createNavigation(strictDocument, {
+      strictDocument[extensions.document.navigation] = createNavigation(validDocument, {
         ...(input.config?.['x-scalar-reference-config'] ?? {}),
         hideModels: showModels === undefined ? undefined : !showModels,
       }).entries
     }
 
     // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map
-    workspace.documents[name] = createOverridesProxy(strictDocument, input.overrides)
+    workspace.documents[name] = createOverridesProxy(validDocument, input.overrides)
+
+    // Always return success with the processed document and any validation errors
+    return {
+      errors,
+      document: workspace.documents[name],
+    }
   }
 
   // Asynchronously adds a new document to the workspace by loading and validating the input.
