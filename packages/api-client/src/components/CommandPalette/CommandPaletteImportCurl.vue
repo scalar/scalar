@@ -135,12 +135,12 @@ const handleImportClick = () => {
   })
 }
 
-const wrapper = useTemplateRef('wrapper')
+const wrapper = useTemplateRef('wrapper-ref')
 </script>
 <template>
   <div class="text-c-2 flex-center py-1.5 text-sm">Import cURL</div>
   <CommandActionForm
-    ref="wrapper"
+    ref="wrapper-ref"
     class="mt-1.5 min-h-fit"
     @submit="handleImportClick">
     <div
