@@ -226,6 +226,11 @@ export const cleanUp = (): LifecyclePlugin => {
       if ('pattern' in node && !('type' in node)) {
         node['type'] = 'string'
       }
+
+      // Convert required: null to required: [] for object schemas
+      if ('required' in node && node.required === null && 'properties' in node) {
+        node.required = []
+      }
     },
   }
 }
