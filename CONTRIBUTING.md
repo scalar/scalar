@@ -34,6 +34,19 @@ These scripts use [`turbo`](https://turbo.build/) to build all the dependencies 
 
 \* Hot module replacement and file watching only works for the main package being worked on, e.g. changes to `@scalar/api-client` if you're running `pnpm dev:client:app` or `@scalar/api-reference` if you're running `pnpm dev:reference`
 
+## GitHub Codespaces & Devcontainers
+
+We support development using [GitHub Codespaces](https://github.com/features/codespaces) and [devcontainers](https://containers.dev/). This allows you to get started quickly in a cloud-based or local containerized environment without the need to install dependencies locally.
+
+To set up a Codespace, click the green "Code" button on the repository page and select "Create codespace on main".
+
+To work with devcontainers in VS Code, open the repository folder and select "Reopen in Container" from the command palette (requires the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) to be installed).
+
+**Note:** Codespaces may incur costs depending on your usage and GitHub plan.  
+**Current limitation:** Only the Node.js stack is supported in our devcontainer setup.
+
+For more details, see the `.devcontainer` folder in the repository.
+
 ## Tests
 
 Most packages have a bunch of tests, mostly for all the helper functions we use.
