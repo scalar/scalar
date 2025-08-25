@@ -32,15 +32,18 @@ const selectedExample = computed<ScalarListboxOption | undefined>({
 
 <template>
   <ScalarListbox
+    class="w-fit min-w-32"
     v-model="selectedExample"
     :options="exampleOptions"
     placement="bottom-start">
     <ScalarButton
       data-testid="example-picker"
-      class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-1.5 py-0.75 text-base font-normal"
+      class="text-c-2 hover:text-c-1 flex h-full w-fit min-w-0 gap-1.5 px-1.5 py-0.75 text-base font-normal"
       fullWidth
       variant="ghost">
-      <span>{{ selectedExample?.label ?? 'Select an example' }}</span>
+      <div class="min-w-0 flex-1 truncate">
+        {{ selectedExample?.label ?? 'Select an example' }}
+      </div>
       <ScalarIconCaretDown
         weight="bold"
         class="ui-open:rotate-180 mt-0.25 size-3 transition-transform duration-100" />
