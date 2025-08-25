@@ -1,5 +1,13 @@
 # @scalar/aspnetcore
 
+## 2.7.1
+
+### Patch Changes
+
+- 0210cc7: feat: use json converters for enums
+- Updated dependencies [86d29c1]
+  - @scalar/api-reference@1.34.5
+
 ## 2.7.0
 
 ### Minor Changes

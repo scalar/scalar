@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.4.6
+
+### Patch Changes
+
+- 86d29c1: feat(snippetz): improve indentation handling in objectToString
+
 ## 0.4.5
 
 ### Patch Changes

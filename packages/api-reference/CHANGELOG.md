@@ -1,5 +1,20 @@
 # @scalar/api-reference
 
+## 1.34.5
+
+### Patch Changes
+
+- 86d29c1: feat(snippetz): improve indentation handling in objectToString
+- Updated dependencies [86d29c1]
+- Updated dependencies [e2272a1]
+- Updated dependencies [b6f4b60]
+- Updated dependencies [b8776fc]
+  - @scalar/snippetz@0.4.6
+  - @scalar/oas-utils@0.4.21
+  - @scalar/workspace-store@0.14.1
+  - @scalar/api-client@2.5.25
+  - @scalar/components@0.14.26
+
 ## 1.34.4
 
 ### Patch Changes

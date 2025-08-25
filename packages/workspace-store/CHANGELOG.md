@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.14.1
+
+### Patch Changes
+
+- b8776fc: feat: output validation errors in the console
+
 ## 0.14.0
 
 ### Minor Changes
