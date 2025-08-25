@@ -54,7 +54,7 @@ const { cx } = useBindCx()
         <ScalarDropdownMenu
           :is="MenuItems"
           :style="{ width }"
-          v-bind="cx('max-h-[inherit]')">
+          v-bind="cx('max-h-[inherit] max-w-[inherit]')">
           <slot
             name="items"
             :open="open" />

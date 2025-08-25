@@ -81,14 +81,14 @@ const { floatingStyles, middlewareData } = useFloating(targetRef, floatingRef, {
   middleware: computed(() => [
     offsetMiddleware(offset),
     flip(),
-    shift(),
+    shift({ padding: 10 }),
     size({
       apply({ availableWidth, availableHeight, elements }) {
         // Assign the max width and height to the floating element
         // @see https://floating-ui.com/docs/size
         Object.assign(elements.floating.style, {
-          maxWidth: `${Math.max(0, availableWidth) - 25}px`,
-          maxHeight: `${Math.max(0, availableHeight) - 25}px`,
+          maxWidth: `${Math.max(0, availableWidth) - 20}px`,
+          maxHeight: `${Math.max(0, availableHeight) - 20}px`,
         })
       },
     }),
