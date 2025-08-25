@@ -18,6 +18,10 @@ export function objectToString(obj: Record<string, any>, indent = 0): string {
   const indentation = ' '.repeat(indent)
   const innerIndentation = ' '.repeat(indent + 2)
 
+  if (Object.keys(obj).length === 0) {
+    return '{}'
+  }
+
   for (const [key, value] of Object.entries(obj)) {
     const formattedKey = needsQuotes(key) ? `'${key}'` : key
 
