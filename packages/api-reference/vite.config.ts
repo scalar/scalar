@@ -15,6 +15,7 @@ export default defineConfig({
     // Enable host binding in dev containers for proper port forwarding
     // See: https://vite.dev/guide/troubleshooting.html#dev-containers-vs-code-port-forwarding
     ...(process.env.REMOTE_CONTAINERS && { host: '127.0.0.1' }),
+    allowedHosts: ['localhost', 'host.docker.internal'],
   },
   resolve: {
     alias: {

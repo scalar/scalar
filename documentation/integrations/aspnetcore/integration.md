@@ -498,4 +498,6 @@ The `MapScalarApiReference` method returns an `IEndpointConventionBuilder`, allo
 app.MapScalarApiReference().AllowAnonymous();
 ```
 
+Scalar for ASP.NET Core aligns with the [official Microsoft .NET support policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core).
+
 For all available configuration properties and their default values, check out the [`ScalarOptions`](https://github.com/scalar/scalar/blob/main/integrations/aspnetcore/src/Scalar.AspNetCore/Options/ScalarOptions.cs) and [`ScalarOptionsExtensions`](https://github.com/scalar/scalar/blob/main/integrations/aspnetcore/src/Scalar.AspNetCore/Extensions/ScalarOptionsExtensions.cs).

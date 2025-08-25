@@ -206,6 +206,12 @@ function resolveReferencePath(base: string, relativePath: string) {
   if (isRemoteUrl(base)) {
     const url = new URL(base)
 
+    // If the url stars with a / we want it to resolve from the origin so we replace the pathname
+    if (relativePath.startsWith('/')) {
+      url.pathname = relativePath
+      return url.toString()
+    }
+
     const mergedPath = path.join(path.dirname(url.pathname), relativePath)
     return new URL(mergedPath, base).toString()
   }

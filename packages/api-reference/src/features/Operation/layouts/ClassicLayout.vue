@@ -16,6 +16,7 @@ import {
   isOperationDeprecated,
 } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { ApiReferenceConfiguration } from '@scalar/types'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
@@ -37,15 +38,15 @@ import OperationResponses from '@/features/Operation/components/OperationRespons
 import type { Schemas } from '@/features/Operation/types/schemas'
 import { TestRequestButton } from '@/features/test-request-button'
 import { XBadges } from '@/features/x-badges'
-import { useConfig } from '@/hooks/useConfig'
 import { RequestExample } from '@/v2/blocks/scalar-request-example-block'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
-const { operation, path, isWebhook } = defineProps<{
+const { operation, path, config, isWebhook } = defineProps<{
   id: string
   path: string
   clientOptions: ClientOptionGroup[]
   method: HttpMethodType
+  config: ApiReferenceConfiguration
   operation: OperationObject
   oldOperation: OpenAPIV3_1.OperationObject
   // pathServers: ServerObject[] | undefined
@@ -59,7 +60,6 @@ const { operation, path, isWebhook } = defineProps<{
 const operationTitle = computed(() => operation.summary || path || '')
 
 const { copyToClipboard } = useClipboard()
-const config = useConfig()
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void

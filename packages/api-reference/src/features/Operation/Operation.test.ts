@@ -1,6 +1,5 @@
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { createMockSidebar, createMockStore } from '@/helpers/test-utils'
 
 import Operation from './Operation.vue'
@@ -11,6 +10,7 @@ import { enableConsoleError, enableConsoleWarn } from '@scalar/helpers/testing/c
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 import { OpenAPIDocumentSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 
 // Mock the workspace store
 vi.mock('@scalar/api-client/store', () => ({
@@ -104,8 +104,8 @@ describe('Operation', () => {
         path: '/users/{userId}',
         method: 'get',
         clientOptions,
+        config: apiReferenceConfigurationSchema.parse({}),
         isWebhook: false,
-        layout: 'modern',
         server: undefined,
         store: createMockStore(createMockDocument()),
         collection: mockCollection,
@@ -176,7 +176,7 @@ describe('Operation', () => {
         method: 'get',
         clientOptions,
         isWebhook: false,
-        layout: 'modern',
+        config: apiReferenceConfigurationSchema.parse({}),
         server: undefined,
         store: storeWithOnlyOperationParams,
         collection: mockCollection,
@@ -229,7 +229,7 @@ describe('Operation', () => {
         method: 'post',
         clientOptions,
         isWebhook: true,
-        layout: 'modern',
+        config: apiReferenceConfigurationSchema.parse({}),
         server: undefined,
         store: storeWithWebhooks,
         collection: mockCollection,
@@ -285,7 +285,7 @@ describe('Operation', () => {
         method: 'get',
         clientOptions,
         isWebhook: false,
-        layout: 'modern',
+        config: apiReferenceConfigurationSchema.parse({}),
         server: undefined,
         store: storeWithRefs,
         collection: mockCollection,
@@ -377,7 +377,7 @@ describe('Operation', () => {
         method: 'get',
         clientOptions,
         isWebhook: false,
-        layout: 'modern',
+        config: apiReferenceConfigurationSchema.parse({}),
         server: undefined,
         store: storeWithOverridingParams,
         collection: mockCollection,
@@ -414,7 +414,9 @@ describe('Operation', () => {
         method: 'get',
         clientOptions,
         isWebhook: false,
-        layout: 'classic',
+        config: apiReferenceConfigurationSchema.parse({
+          layout: 'classic',
+        }),
         server: undefined,
         store: createMockStore(createMockDocument() as WorkspaceDocument),
         collection: mockCollection,
@@ -439,37 +441,18 @@ describe('Operation', () => {
   })
 
   it('does not render when operation is not available', () => {
-    const storeWithoutOperation: WorkspaceStore = {
-      workspace: {
-        documents: {},
-        activeDocument: {
-          openapi: '3.1.0',
-          info: {
-            title: 'Test API',
-            version: '1.0.0',
-          },
-          paths: {
-            '/users/{userId}': {
-              // No get operation
-            },
-          },
+    const storeWithoutOperation = createMockStore({
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/users/{userId}': {
+          // No get operation
         },
       },
-      update: vi.fn(),
-      updateDocument: vi.fn(),
-      resolve: vi.fn(),
-      addDocument: vi.fn(),
-      config: {} as any,
-      exportDocument: vi.fn(),
-      saveDocument: vi.fn(),
-      revertDocumentChanges: vi.fn(),
-      commitDocument: vi.fn(),
-      exportWorkspace: vi.fn(),
-      loadWorkspace: vi.fn(),
-      importWorkspaceFromSpecification: vi.fn(),
-      replaceDocument: vi.fn(),
-      rebaseDocument: vi.fn(),
-    }
+    })
 
     const wrapper = mount(Operation, {
       props: {
@@ -478,7 +461,7 @@ describe('Operation', () => {
         method: 'get',
         clientOptions,
         isWebhook: false,
-        layout: 'modern',
+        config: apiReferenceConfigurationSchema.parse({}),
         server: undefined,
         store: storeWithoutOperation,
         collection: mockCollection,
@@ -488,5 +471,65 @@ describe('Operation', () => {
 
     // Should not render anything when operation is not available
     expect(wrapper.html()).toBe('<!--v-if-->')
+  })
+
+  it('passes expandAllResponses config to OperationResponses component', () => {
+    const documentWithResponses = coerceValue(OpenAPIDocumentSchema, {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/users/{userId}': {
+          get: {
+            summary: 'Get user by ID',
+            responses: {
+              '200': {
+                description: 'Successful response',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'string',
+                      default: 'This is the testing string',
+                    },
+                  },
+                },
+              },
+              '404': {
+                description: 'User not found',
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const storeWithResponses = createMockStore(documentWithResponses)
+
+    const wrapper = mount(Operation, {
+      props: {
+        id: 'test-operation',
+        path: '/users/{userId}',
+        method: 'get',
+        clientOptions,
+        isWebhook: false,
+        config: apiReferenceConfigurationSchema.parse({
+          expandAllResponses: true,
+          layout: 'modern',
+        }),
+        server: undefined,
+        store: storeWithResponses,
+        collection: mockCollection,
+        document: documentWithResponses as OpenAPIV3_1.Document,
+      },
+    })
+
+    const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
+    expect(modernLayout.exists()).toBe(true)
+
+    // Find the OperationResponses component within ModernLayout
+    const operationResponses = modernLayout.findComponent({ name: 'OperationResponses' })
+    expect(operationResponses.text()).toContain('This is the testing string')
   })
 })

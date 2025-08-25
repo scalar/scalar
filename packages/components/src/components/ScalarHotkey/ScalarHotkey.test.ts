@@ -11,8 +11,9 @@ describe('ScalarHotkey', () => {
         },
       })
 
-      const visualText = wrapper.find('[aria-hidden="true"]')
-      expect(visualText.text()).toBe('^ K')
+      const visualText = wrapper.findAll('[aria-hidden="true"]')
+      const visualTextContent = visualText.map((el) => el.text()).join(' ')
+      expect(visualTextContent).toBe('ctrl K')
     })
 
     it('renders with custom modifier', () => {
@@ -23,8 +24,9 @@ describe('ScalarHotkey', () => {
         },
       })
 
-      const visualText = wrapper.find('[aria-hidden="true"]')
-      expect(visualText.text()).toBe('⇧ K')
+      const visualText = wrapper.findAll('[aria-hidden="true"]')
+      const visualTextContent = visualText.map((el) => el.text()).join(' ')
+      expect(visualTextContent).toBe('⇧ K')
     })
 
     it('renders multiple modifiers', () => {
@@ -35,8 +37,9 @@ describe('ScalarHotkey', () => {
         },
       })
 
-      const visualText = wrapper.find('[aria-hidden="true"]')
-      expect(visualText.text()).toBe('^+⇧ K')
+      const visualText = wrapper.findAll('[aria-hidden="true"]')
+      const visualTextContent = visualText.map((el) => el.text()).join(' ')
+      expect(visualTextContent).toBe('ctrl ⇧ K')
     })
   })
 
@@ -55,9 +58,9 @@ describe('ScalarHotkey', () => {
           modifier: ['Meta'],
         },
       })
-
-      const visualText = wrapper.find('[aria-hidden="true"]')
-      expect(visualText.text()).toBe('⌘ K')
+      const visualText = wrapper.findAll('[aria-hidden="true"]')
+      const visualTextContent = visualText.map((el) => el.text()).join(' ')
+      expect(visualTextContent).toBe('⌘ K')
 
       Object.defineProperty(global, 'navigator', {
         value: { userAgentData: { platform: oldUserAgent } },
@@ -72,8 +75,9 @@ describe('ScalarHotkey', () => {
         },
       })
 
-      const visualText = wrapper.find('[aria-hidden="true"]')
-      expect(visualText.text()).toBe('^ K')
+      const visualText = wrapper.findAll('[aria-hidden="true"]')
+      const visualTextContent = visualText.map((el) => el.text()).join(' ')
+      expect(visualTextContent).toBe('ctrl K')
     })
   })
 
@@ -86,8 +90,9 @@ describe('ScalarHotkey', () => {
         },
       })
 
-      const srElement = wrapper.find('.sr-only')
-      expect(srElement.text()).toBe('Control K')
+      const srContent = wrapper.findAll('.sr-only')
+      const srContentText = srContent.map((el) => el.text()).join(' ')
+      expect(srContentText).toBe('Control K')
     })
 
     it('provides correct screen reader text for special keys', () => {
@@ -98,8 +103,9 @@ describe('ScalarHotkey', () => {
         },
       })
 
-      const srElement = wrapper.find('.sr-only')
-      expect(srElement.text()).toBe('Control Enter')
+      const srContent = wrapper.findAll('.sr-only')
+      const srContentText = srContent.map((el) => el.text()).join(' ')
+      expect(srContentText).toBe('Control Enter')
     })
 
     it('provides correct screen reader text for multiple modifiers', () => {
@@ -110,8 +116,9 @@ describe('ScalarHotkey', () => {
         },
       })
 
-      const srElement = wrapper.find('.sr-only')
-      expect(srElement.text()).toBe('Control+Shift K')
+      const srContent = wrapper.findAll('.sr-only')
+      const srContentText = srContent.map((el) => el.text()).join(' ')
+      expect(srContentText).toBe('Control Shift K')
     })
   })
 
@@ -124,10 +131,13 @@ describe('ScalarHotkey', () => {
         },
       })
 
-      const visualText = wrapper.find('[aria-hidden="true"]')
-      const srElement = wrapper.find('.sr-only')
-      expect(visualText.text()).toBe('^ $')
-      expect(srElement.text()).toBe('Control $')
+      const visualText = wrapper.findAll('[aria-hidden="true"]')
+      const visualTextContent = visualText.map((el) => el.text()).join(' ')
+      expect(visualTextContent).toBe('ctrl $')
+
+      const srContent = wrapper.findAll('.sr-only')
+      const srContentText = srContent.map((el) => el.text()).join(' ')
+      expect(srContentText).toBe('Control $')
     })
 
     it('handles empty modifier array', () => {
@@ -138,10 +148,13 @@ describe('ScalarHotkey', () => {
         },
       })
 
-      const srElement = wrapper.find('.sr-only')
-      const visualText = wrapper.find('[aria-hidden="true"]')
-      expect(visualText.text()).toBe('K')
-      expect(srElement.text()).toBe('K')
+      const visualText = wrapper.findAll('[aria-hidden="true"]')
+      const visualTextContent = visualText.map((el) => el.text()).join(' ')
+      expect(visualTextContent).toBe('K')
+
+      const srContent = wrapper.findAll('.sr-only')
+      const srContentText = srContent.map((el) => el.text()).join(' ')
+      expect(srContentText).toBe('K')
     })
   })
 })

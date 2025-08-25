@@ -1,2 +1,4 @@
 /coverage
 /test-results
+/playwright-report
+/test-snapshots/.snapshots

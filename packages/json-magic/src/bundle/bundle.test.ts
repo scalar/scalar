@@ -1151,7 +1151,7 @@ describe('bundle', () => {
           [await getHash(`${url}/external/document.json`)]: {
             external: 'external',
             someChunk: {
-              $ref: `#/x-ext/${await getHash(`${url}/external/chunk3`)}`,
+              $ref: `#/x-ext/${await getHash(`${url}/chunk3`)}`,
               $global: true,
             },
           },
@@ -1167,14 +1167,14 @@ describe('bundle', () => {
               $ref: '#/c',
             },
           },
-          [await getHash(`${url}/external/chunk3`)]: {
+          [await getHash(`${url}/chunk3`)]: {
             chunk3: 'chunk3',
           },
         },
         'x-ext-urls': {
           [await getHash(`${url}/chunk1`)]: `${url}/chunk1`,
           [await getHash(`${url}/chunk2`)]: `${url}/chunk2`,
-          [await getHash(`${url}/external/chunk3`)]: `${url}/external/chunk3`,
+          [await getHash(`${url}/chunk3`)]: `${url}/chunk3`,
           [await getHash(`${url}/external/document.json`)]: `${url}/external/document.json`,
         },
       })
@@ -1309,7 +1309,7 @@ describe('bundle', () => {
           $ref: '/d#',
         },
       }))
-      server.get('/a/b/d', () => ({
+      server.get('/d', () => ({
         message: 'some resolved external reference',
       }))
       await server.listen({ port: port })
@@ -1321,14 +1321,8 @@ describe('bundle', () => {
       })
 
       expect(result).toEqual({
-        'a': {
-          '$ref': '#/x-ext/fb30100',
-        },
-        'x-ext': {
-          'fb30100': {
-            'message': 'some resolved external reference',
-          },
-        },
+        a: { '$ref': '#/x-ext/e53b62c' },
+        'x-ext': { e53b62c: { message: 'some resolved external reference' } },
       })
     })
   })

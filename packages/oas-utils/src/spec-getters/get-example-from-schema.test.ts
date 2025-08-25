@@ -606,6 +606,15 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema)).toBe('BAD_REQUEST_EXCEPTION')
   })
 
+  it('uses the const value', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'string',
+      const: 'BAD_REQUEST_EXCEPTION',
+    })
+
+    expect(getExampleFromSchema(schema)).toBe('BAD_REQUEST_EXCEPTION')
+  })
+
   it('uses 1 as the default for a number', () => {
     expect(
       getExampleFromSchema(

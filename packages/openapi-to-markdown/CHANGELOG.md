@@ -1,5 +1,51 @@
 # @scalar/openapi-to-markdown
 
+## 0.2.30
+
+### Patch Changes
+
+- Updated dependencies [50032be]
+  - @scalar/types@0.2.13
+  - @scalar/oas-utils@0.4.22
+  - @scalar/openapi-parser@0.20.1
+  - @scalar/snippetz@0.4.7
+  - @scalar/components@0.14.27
+
+## 0.2.29
+
+### Patch Changes
+
+- Updated dependencies [86d29c1]
+- Updated dependencies [e2272a1]
+- Updated dependencies [b6f4b60]
+  - @scalar/snippetz@0.4.6
+  - @scalar/oas-utils@0.4.21
+  - @scalar/components@0.14.26
+
+## 0.2.28
+
+### Patch Changes
+
+- 66b18fc: feat: update the references to handle $refs from the magic proxy
+- Updated dependencies [bbef120]
+- Updated dependencies [a1429ca]
+- Updated dependencies [d4adeba]
+- Updated dependencies [172e397]
+- Updated dependencies [66b18fc]
+- Updated dependencies [5f022b5]
+- Updated dependencies [d8b8a5b]
+- Updated dependencies [6c24be9]
+- Updated dependencies [6a88108]
+- Updated dependencies [c418e92]
+- Updated dependencies [638120c]
+- Updated dependencies [0804cfc]
+  - @scalar/oas-utils@0.4.20
+  - @scalar/openapi-parser@0.20.0
+  - @scalar/components@0.14.25
+  - @scalar/types@0.2.12
+  - @scalar/openapi-types@0.3.7
+  - @scalar/snippetz@0.4.5
+
 ## 0.2.27
 
 ### Patch Changes

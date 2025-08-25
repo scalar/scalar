@@ -1,5 +1,20 @@
 # @scalar/themes
 
+## 0.13.14
+
+### Patch Changes
+
+- Updated dependencies [50032be]
+  - @scalar/types@0.2.13
+
+## 0.13.13
+
+### Patch Changes
+
+- 6c24be9: feat(components): update scalar hotkey design
+- Updated dependencies [6a88108]
+  - @scalar/types@0.2.12
+
 ## 0.13.12
 
 ### Patch Changes

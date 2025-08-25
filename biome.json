@@ -32,7 +32,8 @@
       "**/obj/**",
       "**/bin/**",
       "packages/openapi-parser/src/schemas/**/*.ts",
-      ".github/renovate.json"
+      ".github/renovate.json",
+      "**/webjars/**/*.js"
     ]
   },
   "organizeImports": {

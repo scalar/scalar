@@ -1,5 +1,11 @@
 # @scalar/helpers
 
+## 0.0.8
+
+### Patch Changes
+
+- 66b18fc: feat: update the references to handle $refs from the magic proxy
+
 ## 0.0.7
 
 ### Patch Changes

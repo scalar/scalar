@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { ApiReferenceConfiguration } from '@scalar/types'
 import { computed, useId } from 'vue'
 
 import {
@@ -16,7 +17,8 @@ import { useNavState } from '@/hooks/useNavState'
 
 import { Schema, SchemaHeading } from '../Schema'
 
-const props = defineProps<{
+const { config, schemas } = defineProps<{
+  config: ApiReferenceConfiguration
   schemas?: Record<string, OpenAPIV3_1.SchemaObject>
 }>()
 
@@ -29,12 +31,13 @@ const { getModelId } = useNavState()
 
 const showAllModels = computed(
   () =>
-    Object.keys(props.schemas ?? {}).length <= MAX_MODELS_INITIALLY_SHOWN ||
+    config.expandAllModelSections ||
+    Object.keys(schemas ?? {}).length <= MAX_MODELS_INITIALLY_SHOWN ||
     collapsedSidebarItems[getModelId()],
 )
 
 const models = computed(() => {
-  const allModels = Object.keys(props.schemas ?? {})
+  const allModels = Object.keys(schemas ?? {})
 
   if (showAllModels.value) {
     return allModels
@@ -64,7 +67,8 @@ const models = computed(() => {
           :key="name"
           :id="getModelId({ name })"
           class="models-list-item"
-          :label="name">
+          :label="name"
+          :defaultOpen="config.expandAllModelSections">
           <template #heading>
             <SectionHeaderTag :level="3">
               <SchemaHeading

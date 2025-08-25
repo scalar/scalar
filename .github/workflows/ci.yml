@@ -20,7 +20,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout code
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Ensure all Actions are pinned to a Commit SHA
         uses: zgosalvez/github-actions-ensure-sha-pinned-actions@fc87bb5b5a97953d987372e74478de634726b3e5
 
@@ -36,20 +36,28 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build
         uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
           packages: './{packages,integrations}/**'
+      - if: matrix.node-version == 22
+        name: Upload standalone.js artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: standalone-js
+          path: packages/api-reference/dist/browser/standalone.js
+          retention-days: 3
 
   docker:
     name: Build and Tag Docker Image
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
+    needs: [build]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
       - name: Check whether the Dockerfile or any of its contents were modified
         id: changed-files
@@ -68,32 +76,33 @@ jobs:
         run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Build @scalar/api-reference
-        uses: ./.github/actions/build-blacksmith
+        name: Download standalone.js artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
-          node-version: 22
-          packages: '@scalar/api-reference...'
-
-      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Copy JavaScript asset from @scalar/api-reference
-        working-directory: integrations/docker
-        run: pnpm copy:standalone
+          name: standalone-js
+          path: integrations/docker/assets
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Compress static assets
-        working-directory: integrations/docker
-        run: pnpm compress
+        working-directory: integrations/docker/assets
+        run: gzip --keep --verbose --force standalone.js
+
+      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
+        name: Setup Docker Builder
+        uses: useblacksmith/setup-docker-builder@0b434dfbb431f4e3a2bcee7a773a56bd363184c5 # v1
+        with:
+          platforms: |
+            linux/amd64
+            linux/arm64
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Build Docker image
-        uses: useblacksmith/build-push-action@574eb0ee0b59c6a687ace24192f0727dfb65d6d7 # v1
+        uses: useblacksmith/build-push-action@4af38cd11563732a1d67e9e9e01299346c955825 # v2
         with:
           context: integrations/docker
           file: integrations/docker/Dockerfile
           load: true
-          tags: |
-            scalarapi/api-reference:latest
-            scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
+          tags: scalarapi/api-reference:latest
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Scan for vulnerabilities
@@ -117,12 +126,11 @@ jobs:
 
       - if: startsWith(github.event.head_commit.message, 'RELEASING:') && steps.changed-files.outputs.api_reference_docker_version_any_changed == 'true'
         name: Build and Push Docker image
-        uses: useblacksmith/build-push-action@574eb0ee0b59c6a687ace24192f0727dfb65d6d7 # v1
+        uses: useblacksmith/build-push-action@4af38cd11563732a1d67e9e9e01299346c955825 # v2
         with:
           context: integrations/docker
           file: integrations/docker/Dockerfile
           push: true
-          # With ARM
           platforms: |
             linux/amd64
             linux/arm64
@@ -138,7 +146,7 @@ jobs:
         node-version: [22]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4
       - name: Use Node.js ${{ matrix.node-version }}
         uses: useblacksmith/setup-node@65c6ca86fdeb0ab3d85e78f57e4f6a7e4780b391 # v5
@@ -167,7 +175,7 @@ jobs:
         node-version: [22]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build
         uses: ./.github/actions/build-blacksmith
         with:
@@ -183,7 +191,7 @@ jobs:
         node-version: [22]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build
         uses: ./.github/actions/build-blacksmith
         with:
@@ -201,7 +209,7 @@ jobs:
         node-version: [20, 22]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build packages
         uses: ./.github/actions/build-blacksmith
         with:
@@ -223,7 +231,7 @@ jobs:
         node-version: [20, 22]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build packages
         uses: ./.github/actions/build-blacksmith
         with:
@@ -242,7 +250,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Setup Go
         uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5
         with:
@@ -258,7 +266,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build @scalar/api-reference
         uses: ./.github/actions/build-blacksmith
         with:
@@ -289,7 +297,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Check for new Webjar version
         id: changed-files
         uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
@@ -335,6 +343,8 @@ jobs:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
   stats:
+    # Skip for forks and bot PRs
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
@@ -343,7 +353,7 @@ jobs:
         node-version: [22]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build @scalar/api-reference
         uses: ./.github/actions/build-blacksmith
         with:
@@ -368,7 +378,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build packages
         uses: ./.github/actions/build-blacksmith
         with:
@@ -401,7 +411,7 @@ jobs:
         node-version: [22]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build packages
         uses: ./.github/actions/build-blacksmith
         with:
@@ -428,7 +438,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build packages
         uses: ./.github/actions/build-blacksmith
         with:
@@ -496,7 +506,7 @@ jobs:
       options: --user root
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(npx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Build
@@ -529,8 +539,66 @@ jobs:
         uses: daun/playwright-report-summary@93883773b4f4f0951d8bcdb780c6443ca51eaf7b # v3
         with:
           comment-title: 'Scalar Components Snapshot Test Results'
+          report-tag: test-components-snapshots
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
           report-file: packages/components/playwright-results.json
+
+  test-cdn-snapshots:
+    if: github.event_name == 'pull_request'
+    needs: [build]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    permissions:
+      contents: read
+      pull-requests: write
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        node-version: [22]
+    container:
+      image: mcr.microsoft.com/playwright:v1.54.0-noble
+      options: --user root
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+      - name: Generate new DEPLOY_ID
+        run: echo "DEPLOY_ID=$(npx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
+      - name: Build
+        uses: ./.github/actions/build-blacksmith
+        with:
+          node-version: ${{ matrix.node-version }}
+          packages: './packages/**'
+        env:
+          DEPLOY_ID: ${{ env.DEPLOY_ID }}
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "PLAYWRIGHT_VERSION=$(npx playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
+      - name: Run snapshot tests (@scalar/api-reference)
+        run: pnpm --filter api-reference test:e2e:snapshots:ci
+        # Only when the tests failed and the PR is from the same repository
+      - if: ${{ !cancelled() }} && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
+        name: Deploy Playwright Report to Netlify
+        run: |
+          pnpx netlify deploy --dir "./packages/api-reference/playwright-report" \
+            --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
+            --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
+            --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
+            --filter @scalar/components \
+            --alias=${{env.DEPLOY_ID}}
+        # Only when the tests failed and the PR is from the same repository
+      - if: ${{ !cancelled() }} && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
+        name: Add Netlify Playwright Report URL to the PR
+        uses: daun/playwright-report-summary@93883773b4f4f0951d8bcdb780c6443ca51eaf7b # v3
+        with:
+          comment-title: 'Scalar CDN Snapshot Diff Results'
+          report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
+          report-file: packages/api-reference/playwright-results.json
+          report-tag: test-cdn-snapshots
+          custom-info: These tests are **non-blocking** and will not prevent merging of your PR.
+          footer: |
+            > [!IMPORTANT]
+            > These tests detect visual differences between the current PR and the latest CDN build which means **they may be affected by other changes in `main` that haven't been released yet**.
+            > 
+            > They can help determine if the changes in the PR are causing any unexpected visual regressions but may be less helpful in isolating the exact cause. For more details see the [readme](https://github.com/scalar/scalar/blob/main/packages/api-reference/test-snapshots/README.md).
 
   npm-publish:
     if: github.ref == 'refs/heads/main'
@@ -553,7 +621,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build
         uses: ./.github/actions/build
         with:
@@ -607,7 +675,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build
         uses: ./.github/actions/build-blacksmith
         with:
@@ -648,7 +716,7 @@ jobs:
         node-version: [22]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Check which files were touched
         id: changed-files
         uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
@@ -722,7 +790,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Build @scalar/galaxy
         uses: ./.github/actions/build-blacksmith
         with:
@@ -764,7 +832,7 @@ jobs:
         node-version: [22]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Build
@@ -805,7 +873,7 @@ jobs:
         node-version: [22]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
@@ -848,26 +916,27 @@ jobs:
     needs: [build]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
-      - name: Build @scalar/api-reference
-        uses: ./.github/actions/build-blacksmith
+      - name: Download standalone.js artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
-          node-version: 22
-          packages: '@scalar/api-reference...'
+          name: standalone-js
+          path: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
 
-      - name: Copy JavaScript asset from @scalar/api-reference
-        working-directory: integrations/aspnetcore
-        run: pnpm copy:standalone
+      - name: Rename standalone.js to scalar.js # Lets get rid of this
+        working-directory: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
+        run: mv standalone.js scalar.js
 
       - name: Compress static assets
-        working-directory: integrations/aspnetcore
-        run: pnpm compress
+        working-directory: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
+        run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js
 
       - name: Setup .NET
         uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
         with:
           dotnet-version: |
+            10.x
             9.x
             8.x
 
@@ -889,17 +958,13 @@ jobs:
     needs: [build]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
-      - name: Build @scalar/api-reference
-        uses: ./.github/actions/build-blacksmith
+      - name: Download standalone.js artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
-          node-version: 22
-          packages: '@scalar/api-reference...'
-
-      - name: Copy JavaScript asset from @scalar/api-reference
-        working-directory: integrations/aspire
-        run: pnpm copy:standalone
+          name: standalone-js
+          path: integrations/aspire/src/Scalar.Aspire.Service/wwwroot
 
       - name: Setup .NET
         uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
@@ -941,7 +1006,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
       - name: Git Status
         run: git status
@@ -965,29 +1030,27 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
-        name: Build @scalar/api-reference
-        uses: ./.github/actions/build-blacksmith
+        name: Download standalone.js artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
-          node-version: 22
-          packages: '@scalar/api-reference...'
+          name: standalone-js
+          path: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
-        name: Copy JavaScript asset from @scalar/api-reference
-        working-directory: integrations/aspnetcore
-        run: pnpm copy:standalone
+        name: Rename standalone.js to scalar.js # Lets get rid of this
+        working-directory: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
+        run: mv standalone.js scalar.js
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Compress static assets
-        working-directory: integrations/aspnetcore
-        run: pnpm compress
+        working-directory: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
+        run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Setup .NET
         uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
         with:
-          dotnet-version: |
-            9.x
-            8.x
+          dotnet-version: 10.x
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Restore dependencies
@@ -1027,7 +1090,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
       - name: Git Status
         run: git status
@@ -1051,16 +1114,11 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
-        name: Build @scalar/api-reference
-        uses: ./.github/actions/build-blacksmith
+        name: Download standalone.js artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
-          node-version: 22
-          packages: '@scalar/api-reference...'
-
-      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
-        name: Copy JavaScript asset from @scalar/api-reference
-        working-directory: integrations/aspire
-        run: pnpm copy:standalone
+          name: standalone-js
+          path: integrations/aspire/src/Scalar.Aspire.Service/wwwroot
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Log in to DockerHub
@@ -1074,13 +1132,20 @@ jobs:
         uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
+        name: Setup Docker Builder
+        uses: useblacksmith/setup-docker-builder@0b434dfbb431f4e3a2bcee7a773a56bd363184c5 # v1
+        with:
+          platforms: |
+            linux/amd64
+            linux/arm64
+
+      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Build and push Aspire Docker image
-        uses: useblacksmith/build-push-action@574eb0ee0b59c6a687ace24192f0727dfb65d6d7 # v1
+        uses: useblacksmith/build-push-action@4af38cd11563732a1d67e9e9e01299346c955825 # v2
         with:
           context: integrations/aspire
           file: integrations/aspire/src/Scalar.Aspire.Service/Dockerfile
           push: true
-          # With ARM
           platforms: |
             linux/amd64
             linux/arm64
@@ -1123,7 +1188,7 @@ jobs:
     needs: [build]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
       - name: Setup Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
@@ -1164,7 +1229,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
       - name: Check for FastAPI integration changes
         id: changed-files
