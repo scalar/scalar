@@ -76,21 +76,21 @@
   <div class="flex flex-wrap quotes-container">
     <div class="quotes-item">
       <p>
-        "After years of helping enterprises implement API strategies at SmartBear, I can confidently say Scalar is what the industry has been waiting for. The strict OpenAPI compliance, robust CLI/API registry, and seamless CI/CD integration solve the exact pain points I watched customers struggle with daily. This is the modern API platform developers deserve."
+        <b>"After years of helping enterprises implement API strategies at SmartBear, I can confidently say Scalar is what the industry has been waiting for.</b> The strict OpenAPI compliance, robust CLI/API registry, and seamless CI/CD integration solve the exact pain points I watched customers struggle with daily. This is the modern API platform developers deserve."
       </p>
       <p class="mt-3 text-c-3">Michael - Former Solutions Architect @ Smartbear</p>
     </div>
     <div class="quotes-item">
       <p>
         "One of my most recent favorites is a in-browser ad hoc testing UI called Scalar. 
-One of the things that I really love about Scalar, it's got this modern UI experience, and it provides built-in test generation code for a variety of targets, from cURL to HttpClient in C#."
+One of the things that I really love about Scalar, it's got this modern UI experience, and it provides <b>built-in test generation code for a variety of targets, from cURL to HttpClient in C#.</b>"
       </p>
       <p class="mt-3 text-c-3">Captain Safia - Engineer @ Microsoft ASP.NET</p>
     </div>
     <div class="quotes-item">
       <p>
         "Scalar's "golden ticket" is... Scalar!
-They are (in my own words) building a product ecosystem for API design, docs, testing, and governance- with offerings at every price point.
+<b>They are (in my own words) building a product ecosystem for API design, docs, testing, and governance-</b> with offerings at every price point.
 They are open source. So I can get in on free features and stay with Scalar no matter how big my API needs blow up."
       </p>
       <p class="mt-3 text-c-3">Eron - Documentation Engineer @ Qrvey</p>
@@ -105,7 +105,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
         A centralized repository for your APIs
       </h2>
       <p>
-        Managing & versioning OpenAPI Documents, JSON Schema, Spectral Rules as your source of truth with a deep Git integration.
+        Managing & versioning OpenAPI Documents, JSON Schema, Spectral Rules as your single source of truth with a deep Git integration or custom worfklows.
       </p>
       <div class="flex flex-wrap text-green gap-y-2">
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
@@ -135,7 +135,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
           Private or Public
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/scalar/scalar-registry/getting-started">Learn More →</a>
+      <a class="mt-3 t-editor__anchor" href="/scalar/scalar-registry/getting-started">Get Started For Free →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
@@ -183,7 +183,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
           Multi-platform
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="https://client.scalar.com/">Try It Out →</a>
+      <a class="mt-3 t-editor__anchor" href="https://client.scalar.com/">Try It Out For Free →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
@@ -219,7 +219,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/brackets-curly"></scalar-icon>
-          <span class="lg-only">Custom </span>HTML/CSS/JS
+          <span><span class="lg-only">Custom </span>HTML/CSS/JS</span>
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/github-logo"></scalar-icon>
@@ -249,7 +249,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
         Create World-Class SDKs for your APIs
       </h2>
       <p>
-        Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python, Golang, PHP, Java and Ruby.
+        Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python, Golang, PHP, Java and Ruby with more languages coming soon.
       </p>
       <div class="flex flex-wrap text-purple gap-y-2">
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
@@ -266,7 +266,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/fingerprint"></scalar-icon>
-          <span class="lg-only">OpenAPI </span>Auth support
+          <span><span class="lg-only">OpenAPI </span>Auth support</span>
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/cloud-check"></scalar-icon>
