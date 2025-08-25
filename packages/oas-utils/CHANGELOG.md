@@ -1,5 +1,14 @@
 # @scalar/oas-utils
 
+## 0.4.21
+
+### Patch Changes
+
+- e2272a1: fix(oas-utils): use const value as example
+- b6f4b60: fix: skip readOnly properties in request examples
+- Updated dependencies [b8776fc]
+  - @scalar/workspace-store@0.14.1
+
 ## 0.4.20
 
 ### Patch Changes
