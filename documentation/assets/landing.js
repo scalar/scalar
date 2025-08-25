@@ -1,6 +1,19 @@
+/* Debounce helper */
+function debounce(func, timeout = 300) {
+  let timer
+  return (...args) => {
+    clearTimeout(timer)
+    timer = setTimeout(() => {
+      func.apply(this, args)
+    }, timeout)
+  }
+}
+
 /* Draggable Elements */
-function initDraggableElements() {
+const initDraggableElements = debounce(() => {
   const draggables = document.querySelectorAll('.draggable')
+  if (!draggables.length) return
+
   let isDragging = !1,
     currentDraggable = null,
     dragOffsetX = 0,
@@ -69,14 +82,16 @@ function initDraggableElements() {
       a = this
     })
   })
-  console.log(`Initialized ${draggables.length} draggable elements`, draggables)
-}
-setTimeout(initDraggableElements, 300)
+  console.log(`Initialized ${draggables.length} draggable elements`)
+})
+
 /* Slide Gallery */
-function initGallery() {
+const initGallery = debounce(() => {
   const buttons = document.querySelectorAll('button[data-target^="#slide-"]')
   const slides = document.querySelectorAll('[id^="slide-"]')
   const gallery = document.querySelector('#gallery')
+  if (!buttons.length || !slides.length || !gallery) return
+
   buttons.forEach((button) => {
     button.addEventListener('click', function () {
       const target = document.querySelector(this.getAttribute('data-target'))
@@ -109,6 +124,17 @@ function initGallery() {
     },
   )
   slides.forEach((slide) => observer.observe(slide))
-  console.log(`Initialized ${slides.length} gallery elements`, buttons, slides, gallery)
-}
-setTimeout(initGallery, 300)
+  console.log(`Initialized ${slides.length} gallery elements`)
+})
+
+initDraggableElements()
+initGallery()
+
+const observer = new MutationObserver((records) => {
+  if (!records.some((r) => r.addedNodes.length)) return
+
+  initDraggableElements()
+  initGallery()
+})
+
+observer.observe(document.documentElement || document.body, { childList: true, subtree: true })
