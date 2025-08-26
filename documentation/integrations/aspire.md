@@ -146,6 +146,7 @@ When the proxy is enabled:
 
 - **Eliminates CORS Issues**: All API requests are routed through the Scalar proxy, avoiding CORS restrictions
 - **Service Discovery Integration**: OpenAPI servers and document routes are configured to use service discovery endpoints through the proxy
+- **Default Endpoint**: The proxy is served at `/scalar-proxy`
 
 ### Disabling the Proxy
 
@@ -239,6 +240,44 @@ scalar.WithApiReference(bookService, async (options, cancellationToken) =>
     options
         .AddPreferredSecuritySchemes("BookApiKey")
         .AddApiKeyAuthentication("ApiKey", schema => schema.WithValue(apiKey));
+});
+```
+
+## Common Pitfalls
+
+### YARP Integration Issues
+
+When using YARP (`Aspire.Hosting.Yarp`), you may encounter proxy routing conflicts. Here are two solutions:
+
+#### Solution 1: Configure Proxy URL for YARP Routes
+
+Match the proxy URL to your YARP route pattern:
+
+```csharp
+var scalar = builder
+    .AddScalarApiReference(options =>
+    {
+        options.WithProxyUrl("/api-documentation/scalar-proxy");
+    });
+
+builder
+    .AddYarp("my-proxy")
+    .WithConfiguration(yarp =>
+    {
+        yarp
+            .AddRoute("/api-documentation/{**catch-all}", scalar)
+            .WithTransformPathRemovePrefix("/api-documentation");
+    });
+```
+
+#### Solution 2: Disable the Proxy
+
+Alternatively, disable the proxy entirely, but you'll need to handle CORS configuration yourself:
+
+```csharp
+var scalar = builder.AddScalarApiReference(options =>
+{
+    options.DisableDefaultProxy();
 });
 ```
 

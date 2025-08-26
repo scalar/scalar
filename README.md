@@ -126,7 +126,7 @@ And there's an ever-growing list of plugins and integrations:
 ### Integrations
 
 - [HTML/JS API](documentation/integrations/html-js.md) (works everywhere)
-- [.NET ASP.NET Core](documentation/integrations/aspnetcore.md)
+- [.NET ASP.NET Core](documentation/integrations/aspnetcore/integration.md)
 - [.NET Aspire](documentation/integrations/aspire.md)
 - [AdonisJS](documentation/integrations/adonisjs.md)
 - [Django Ninja](documentation/integrations/django-ninja.md)
