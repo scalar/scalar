@@ -288,7 +288,7 @@ export type WorkspaceStore = {
    * // Export a document as YAML
    * const yamlString = store.exportDocument('api', 'yaml')
    */
-  exportDocument(documentName: string, format: 'json' | 'yaml'): string | undefined
+  exportDocument(documentName: 'active' | (string & {}), format: 'json' | 'yaml'): string | undefined
   /**
    * Saves the current state of the specified document to the intermediate documents map.
    *
@@ -799,8 +799,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     get config() {
       return getDocumentConfiguration(getActiveDocumentName())
     },
-    exportDocument: (documentName: string, format: 'json' | 'yaml') => {
-      const intermediateDocument = intermediateDocuments[documentName]
+    exportDocument: (documentName, format) => {
+      const intermediateDocument =
+        intermediateDocuments[documentName === 'active' ? getActiveDocumentName() : documentName]
 
       if (!intermediateDocument) {
         return

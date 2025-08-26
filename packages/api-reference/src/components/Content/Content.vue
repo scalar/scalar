@@ -6,12 +6,11 @@ import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { computed, inject, type Ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import IntroductionSection from '@/components/Content/IntroductionSection.vue'
 import { Models } from '@/components/Content/Models'
 import { SectionFlare } from '@/components/SectionFlare'
-import { OPENAPI_VERSION_SYMBOL } from '@/features/download-link'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import { DEFAULT_INTRODUCTION_SLUG } from '@/features/traverse-schema'
 import { useNavState } from '@/hooks/useNavState'
@@ -57,11 +56,6 @@ const infoExtensions = computed(() =>
 )
 
 /**
- * Get the OpenAPI/Swagger specification version from the API definition.
- */
-const oasVersion = inject<Ref<string | undefined>>(OPENAPI_VERSION_SYMBOL)
-
-/**
  * Should be removed after we migrate auth selector
  */
 const { collections, securitySchemes, servers } = useWorkspace()
@@ -98,6 +92,15 @@ const activeServer = computed(() => {
 
   return servers[activeCollection.value.servers[0]]
 })
+
+const originalContent = ref<string>('{}')
+
+watch(
+  () => store.workspace.activeDocument,
+  () => {
+    originalContent.value = store.exportDocument('active', 'json') ?? '{}'
+  },
+)
 </script>
 <template>
   <SectionFlare />
@@ -110,14 +113,14 @@ const activeServer = computed(() => {
       <InfoBlock
         v-if="store.workspace.activeDocument"
         :id
-        :info="store.workspace.activeDocument.info"
-        :externalDocs="store.workspace.activeDocument.externalDocs"
         :documentExtensions
+        :externalDocs="store.workspace.activeDocument.externalDocs"
+        :info="store.workspace.activeDocument.info"
         :infoExtensions
-        :layout="config.layout"
-        :oasVersion
         :isLoading="config.isLoading"
-        :onLoaded="config.onLoaded">
+        :layout="config.layout"
+        :onLoaded="config.onLoaded"
+        :originalContent="originalContent">
         <template #selectors>
           <ScalarErrorBoundary>
             <IntroductionCardItem
@@ -157,14 +160,14 @@ const activeServer = computed(() => {
               v-if="config?.hiddenClients !== true && clientOptions.length"
               class="introduction-card-item scalar-reference-intro-clients">
               <ClientSelector
+                class="introduction-card-item scalar-reference-intro-clients"
                 :clientOptions
                 :xScalarSdkInstallation="
                   store.workspace.activeDocument?.info?.[
                     'x-scalar-sdk-installation'
                   ]
                 "
-                :xSelectedClient="store.workspace['x-scalar-default-client']"
-                class="introduction-card-item scalar-reference-intro-clients" />
+                :xSelectedClient="store.workspace['x-scalar-default-client']" />
             </IntroductionCardItem>
           </ScalarErrorBoundary>
         </template>
@@ -177,16 +180,16 @@ const activeServer = computed(() => {
 
     <!-- Loop on traversed entries -->
     <TraversedEntryContainer
-      :document
-      :config
       :clientOptions
+      :config
+      :document
       :store />
 
     <!-- Models -->
     <Models
       v-if="!config?.hideModels"
-      :document
-      :config />
+      :config
+      :document />
 
     <slot name="end" />
   </div>

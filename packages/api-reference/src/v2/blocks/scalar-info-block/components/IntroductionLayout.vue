@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ExternalDocumentationObject } from '@scalar/workspace-store/schemas/v3.1/strict/external-documentation'
 import type { InfoObject } from '@scalar/workspace-store/schemas/v3.1/strict/info'
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 
 import {
   Section,
@@ -12,24 +12,26 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
-import { DownloadLink } from '@/features/download-link'
 import { SpecificationExtension } from '@/features/specification-extension'
 
+import DownloadLink from './DownloadLink.vue'
 import InfoDescription from './InfoDescription.vue'
 import InfoLinks from './InfoLinks.vue'
 import InfoVersion from './InfoVersion.vue'
 import OpenApiVersion from './OpenApiVersion.vue'
 
-const { onLoaded } = defineProps<{
+const { onLoaded, originalContent } = defineProps<{
   info: InfoObject
+  originalContent: string
   externalDocs?: ExternalDocumentationObject
   documentExtensions?: Record<string, unknown>
   infoExtensions?: Record<string, unknown>
   isLoading?: boolean
   onLoaded?: () => void
   id?: string
-  oasVersion?: string
 }>()
+
+const oasVersion = computed(() => JSON.parse(originalContent).openapi)
 
 /** Trigger the onLoaded event when the component is mounted */
 onMounted(() => onLoaded?.())
@@ -61,7 +63,9 @@ onMounted(() => onLoaded?.())
         </SectionHeader>
         <SectionColumns>
           <SectionColumn>
-            <DownloadLink :title="info?.title" />
+            <DownloadLink
+              :content="originalContent"
+              :title="info?.title" />
             <InfoDescription :description="info?.description" />
           </SectionColumn>
           <SectionColumn v-if="$slots.aside">
