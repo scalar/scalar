@@ -260,8 +260,8 @@ const id = useId()
 <template>
   <ScalarCard
     v-if="generatedCode"
-    class="request-card dark-mode"
-    ref="elem">
+    ref="elem"
+    class="request-card dark-mode">
     <!-- Header -->
     <ScalarCardHeader class="pr-2.5">
       <span class="sr-only">Request Example for</span>
@@ -277,26 +277,26 @@ const id = useId()
         name="header" />
       <!-- Client picker -->
       <template
-        #actions
-        v-if="!isWebhook && clients.length">
+        v-if="!isWebhook && clients.length"
+        #actions>
         <ScalarCombobox
           class="max-h-80"
           :modelValue="localSelectedClient"
           :options="clients"
-          teleport
           placement="bottom-end"
+          teleport
           @update:modelValue="selectClient($event as ClientOption)">
           <ScalarButton
-            data-testid="client-picker"
             class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-0.5"
+            data-testid="client-picker"
             fullWidth
             variant="ghost">
             <span class="text-base font-normal">{{
               localSelectedClient.title
             }}</span>
             <ScalarIconCaretDown
-              weight="bold"
-              class="ui-open:rotate-180 mt-0.25 size-3 transition-transform duration-100" />
+              class="ui-open:rotate-180 mt-0.25 size-3 transition-transform duration-100"
+              weight="bold" />
           </ScalarButton>
         </ScalarCombobox>
       </template>
@@ -325,8 +325,8 @@ const id = useId()
         v-if="Object.keys(operationExamples).length"
         class="request-card-footer-addon">
         <ExamplePicker
-          :examples="operationExamples"
           v-model="selectedExampleKey"
+          :examples="operationExamples"
           @update:modelValue="
             emitCustomEvent(elem?.$el, 'scalar-update-selected-example', $event)
           " />
