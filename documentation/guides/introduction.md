@@ -34,21 +34,21 @@
   <button type="button" data-target="#slide-4">API Client</button>
   <ul class="gallery container-full" id="gallery">
     <li id="slide-1">
-      <img class="light-image" src="/app-docs-animated.svg" />
-      <img class="dark-image" src="/app-docs-animated-dark.svg" />
-    </li>
-    <li id="slide-2">
-      <img class="light-image" src="/registry-animated.svg" />
-      <img class="dark-image" src="/registry-animated-dark.svg" />
-    </li>
-    <li id="slide-3">
-      <img class="light-image" src="/sdks-animated.svg" />
-      <img class="dark-image" src="/sdks-animated-dark.svg" />
-    </li>
-    <li id="slide-4">
-      <img class="light-image" src="/api-client-animated.svg" />
-      <img class="dark-image" src="/api-client-animated-dark.svg" />
-    </li>
+ 
+::scalar-image{src="/app-docs-animated.svg" darkModeSrc="/app-docs-animated-dark.svg"}
+    
+<li id="slide-2">
+
+::scalar-image{src="/registry-animated.svg" darkModeSrc="/registry-animated-dark.svg"}
+
+<li id="slide-3">
+
+::scalar-image{src="/sdks-animated.svg" darkModeSrc="/sdks-animated-dark.svg"}
+
+<li id="slide-4">
+
+::scalar-image{src="/api-client-animated.svg" darkModeSrc="/api-client-animated-dark.svg"}
+
   </ul>
 </div>
 <div class="logowall">
@@ -139,13 +139,15 @@ They are open source. So I can get in on free features and stay with Scalar no m
     </div>
     <div class="product-image">
       <div class="product-image-transform">
-        <img class="light-image" src="/registry-static.svg" />
-        <img class="dark-image" src="/registry-static-dark.svg" />
-      </div>
-    </div>
-    <div class="draggable sticker-4">
-      <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/jgGF_IKsu-T_irS-6MMOy.svg"></scalar-icon>
-    </div>
+
+::scalar-image{src="/registry-static.svg" darkModeSrc="/registry-static-dark.svg"}
+
+</div>
+</div>
+<div class="draggable sticker-4">
+<scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/jgGF_IKsu-T_irS-6MMOy.svg"></scalar-icon>
+</div>
+
   </div>
   <div class="product">
     <div class="product-copy">
@@ -187,13 +189,15 @@ They are open source. So I can get in on free features and stay with Scalar no m
     </div>
     <div class="product-image">
       <div class="product-image-transform">
-        <img class="light-image" src="/api-client-static.svg"/>
-        <img class="dark-image" src="/api-client-static-dark.svg"/>
-      </div>
-    </div>
-    <div class="draggable sticker-8">
-      <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/JXS6tZ4EbKIkeGpjP6QKc.svg"></scalar-icon>
-    </div>
+
+::scalar-image{src="/api-client-static.svg" darkModeSrc="/api-client-static-dark.svg"}
+
+</div>
+</div>
+<div class="draggable sticker-8">
+<scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/JXS6tZ4EbKIkeGpjP6QKc.svg"></scalar-icon>
+</div>
+
   </div>
   <div class="product product-reversed">
     <div class="product-copy">
@@ -234,13 +238,15 @@ They are open source. So I can get in on free features and stay with Scalar no m
     </div>
     <div class="product-image">
       <div class="product-image-transform">
-        <img class="light-image" src="/api-docs-static-zoom.svg"/>
-        <img class="dark-image" src="/api-docs-static-zoom-dark.svg"/>
-      </div>
-    </div>
-    <div class="draggable sticker-3">
-      <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/HLhbFqJ4vSzo4UDEZX2dq.svg"></scalar-icon>
-    </div>
+
+::scalar-image{src="/api-docs-static-zoom.svg" darkModeSrc="/api-docs-static-zoom-dark.svg"}
+
+</div>
+</div>
+<div class="draggable sticker-3">
+<scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/HLhbFqJ4vSzo4UDEZX2dq.svg"></scalar-icon>
+</div>
+
   </div>
   <div class="product">
     <div class="product-copy">
@@ -281,13 +287,15 @@ They are open source. So I can get in on free features and stay with Scalar no m
     </div>
     <div class="product-image">
       <div class="product-image-transform">
-        <img class="light-image" src="/sdks-static.svg" />
-        <img class="dark-image" src="/sdks-static-dark.svg" />
-      </div>
-    </div>
-    <div class="draggable sticker-2">
-      <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/gM-mqYTBYMkqpnexTIr-r.svg"></scalar-icon>
-    </div>
+
+::scalar-image{src="/sdks-static.svg" darkModeSrc="/sdks-static-dark.svg"}
+
+</div>
+</div>
+<div class="draggable sticker-2">
+<scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/gM-mqYTBYMkqpnexTIr-r.svg"></scalar-icon>
+</div>
+
   </div>
 </div>
 <div class="founder-quote border rounded-lg p-12 relative">
@@ -353,78 +361,86 @@ They are open source. So I can get in on free features and stay with Scalar no m
 <div class="expander-container">
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img class="light-image" src="/api-client-static.svg" />
-      <img class="dark-image" src="/api-client-static-dark.svg" />
-    </div>
-    <div class="relative">
-      <div class="expander-hover-sticker">
-        <object class="sticker-clip-client" width="156" height="110"
+
+::scalar-image{src="/api-client-static.svg" darkModeSrc="/api-client-static-dark.svg"}
+
+</div>
+<div class="relative">
+<div class="expander-hover-sticker">
+<object class="sticker-clip-client" width="156" height="110"
           data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/JXS6tZ4EbKIkeGpjP6QKc.svg"></object>
-      </div>
-      <div class="expander-hover-title">API Client</div>
-      <div class="expander">
-        <div class="expander-content">
-          Minimal, powerful, fully open-source API Client built on open standards by us + our community.
-        </div>
-      </div>
-      <a class="expander-hover-link">Learn More</a>
-    </div>
+</div>
+<div class="expander-hover-title">API Client</div>
+<div class="expander">
+<div class="expander-content">
+Minimal, powerful, fully open-source API Client built on open standards by us + our community.
+</div>
+</div>
+<a class="expander-hover-link">Learn More</a>
+</div>
+
   </div>
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img class="light-image" src="/sdks-static.svg" />
-      <img class="dark-image" src="/sdks-static-dark.svg" />
-    </div>
-    <div class="relative">
-      <div class="expander-hover-sticker">
-        <object class="sticker-clip-sdk" width="145" height="145"
+
+::scalar-image{src="/sdks-static.svg" darkModeSrc="/sdks-static-dark.svg"}
+
+</div>
+<div class="relative">
+<div class="expander-hover-sticker">
+<object class="sticker-clip-sdk" width="145" height="145"
           data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/gM-mqYTBYMkqpnexTIr-r.svg"></object>
-      </div>
-      <div class="expander-hover-title">SDKs</div>
-      <div class="expander">
-        <div class="expander-content">
-          Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python and more.
-        </div>
-      </div>
-      <a class="expander-hover-link">Learn More</a>
-    </div>
+</div>
+<div class="expander-hover-title">SDKs</div>
+<div class="expander">
+<div class="expander-content">
+Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python and more.
+</div>
+</div>
+<a class="expander-hover-link">Learn More</a>
+</div>
+
   </div>
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img class="light-image" src="/registry-static.svg" />
-      <img class="dark-image" src="/registry-static-dark.svg" />
-    </div>
-    <div class="relative">
-      <div class="expander-hover-sticker">
-      <object class="sticker-clip-registry" width="136" height="186"
+
+::scalar-image{src="/registry-static.svg" darkModeSrc="/registry-static-dark.svg"}
+
+</div>
+<div class="relative">
+<div class="expander-hover-sticker">
+<object class="sticker-clip-registry" width="136" height="186"
           data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/jgGF_IKsu-T_irS-6MMOy.svg"></object>
-      </div>
-      <div class="expander-hover-title">API Registry</div>
-      <div class="expander">
-        <div class="expander-content">
-          Managing & versioning OpenAPI Documents with a deep Git integration.
-        </div>
-      </div>
-      <a class="expander-hover-link">Learn More</a>
-    </div>
+</div>
+<div class="expander-hover-title">API Registry</div>
+<div class="expander">
+<div class="expander-content">
+Managing & versioning OpenAPI Documents with a deep Git integration.
+</div>
+</div>
+<a class="expander-hover-link">Learn More</a>
+</div>
+
   </div>
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img class="light-image" src="/api-docs-static-zoom.svg" />
-      <img class="dark-image" src="/api-docs-static-zoom-dark.svg" />
-    </div>
-    <div class="relative">
-      <div class="expander-hover-sticker">
-        <object class="sticker-clip-docs" width="113" height="143" data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/HLhbFqJ4vSzo4UDEZX2dq.svg"></object>
-      </div>
-      <div class="expander-hover-title">API Docs</div>
-      <div class="expander">
-        <div class="expander-content">
-          Write beautiful documentation with Markdown + MDX + Git Sync.
-        </div>
-      </div>
-      <a class="expander-hover-link">Learn More</a>
-    </div>
+
+::scalar-image{src="/api-docs-static-zoom.svg" darkModeSrc="/api-docs-static-zoom-dark.svg"}
+
+</div>
+<div class="relative">
+<div class="expander-hover-sticker">
+<object class="sticker-clip-docs" width="113" height="143" data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/HLhbFqJ4vSzo4UDEZX2dq.svg"></object>
+</div>
+<div class="expander-hover-title">API Docs</div>
+<div class="expander">
+<div class="expander-content">
+Write beautiful documentation with Markdown + MDX + Git Sync.
+</div>
+</div>
+<a class="expander-hover-link">Learn More</a>
+</div>
+
   </div>
 </div>
 <div class="footer container-full">
