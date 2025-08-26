@@ -11,8 +11,10 @@ const { layout } = defineProps<{
   id?: string
   /** Determines the layout style for the info block ('modern' or 'classic'). */
   layout?: 'modern' | 'classic'
+  /** Original openapi version of the input document */
+  oasVersion?: string
   /** The original document content. */
-  originalContent: string
+  getOriginalDocument: () => string
   /** The Info object from the OpenAPI document. */
   info: InfoObject
   /** The external documentation object from the OpenAPI document, if present. */
@@ -42,11 +44,12 @@ const introCardsSlot = computed(() =>
     :id
     :documentExtensions
     :externalDocs
+    :getOriginalDocument
     :info
     :infoExtensions
     :isLoading
-    :onLoaded
-    :originalContent="originalContent">
+    :oasVersion
+    :onLoaded>
     <template #[introCardsSlot]>
       <IntroductionCard :row="layout === 'classic'">
         <slot name="selectors" />

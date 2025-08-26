@@ -6,7 +6,7 @@ import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { computed, ref, watch } from 'vue'
+import { computed } from 'vue'
 
 import IntroductionSection from '@/components/Content/IntroductionSection.vue'
 import { Models } from '@/components/Content/Models'
@@ -93,14 +93,7 @@ const activeServer = computed(() => {
   return servers[activeCollection.value.servers[0]]
 })
 
-const originalContent = ref<string>('{}')
-
-watch(
-  () => store.workspace.activeDocument,
-  () => {
-    originalContent.value = store.exportDocument('active', 'json') ?? '{}'
-  },
-)
+const getOriginalDocument = () => store.exportDocument('active', 'json') ?? '{}'
 </script>
 <template>
   <SectionFlare />
@@ -115,12 +108,13 @@ watch(
         :id
         :documentExtensions
         :externalDocs="store.workspace.activeDocument.externalDocs"
+        :getOriginalDocument
         :info="store.workspace.activeDocument.info"
         :infoExtensions
         :isLoading="config.isLoading"
         :layout="config.layout"
-        :onLoaded="config.onLoaded"
-        :originalContent="originalContent">
+        :oasVersion="store.workspace.activeDocument['x-original-version']"
+        :onLoaded="config.onLoaded">
         <template #selectors>
           <ScalarErrorBoundary>
             <IntroductionCardItem

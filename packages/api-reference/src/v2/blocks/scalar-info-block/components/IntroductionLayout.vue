@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ExternalDocumentationObject } from '@scalar/workspace-store/schemas/v3.1/strict/external-documentation'
 import type { InfoObject } from '@scalar/workspace-store/schemas/v3.1/strict/info'
-import { computed, onMounted } from 'vue'
+import { onMounted } from 'vue'
 
 import {
   Section,
@@ -20,18 +20,17 @@ import InfoLinks from './InfoLinks.vue'
 import InfoVersion from './InfoVersion.vue'
 import OpenApiVersion from './OpenApiVersion.vue'
 
-const { onLoaded, originalContent } = defineProps<{
+const { onLoaded } = defineProps<{
+  oasVersion?: string
   info: InfoObject
-  originalContent: string
   externalDocs?: ExternalDocumentationObject
   documentExtensions?: Record<string, unknown>
   infoExtensions?: Record<string, unknown>
   isLoading?: boolean
+  getOriginalDocument: () => string
   onLoaded?: () => void
   id?: string
 }>()
-
-const oasVersion = computed(() => JSON.parse(originalContent).openapi)
 
 /** Trigger the onLoaded event when the component is mounted */
 onMounted(() => onLoaded?.())
@@ -64,7 +63,7 @@ onMounted(() => onLoaded?.())
         <SectionColumns>
           <SectionColumn>
             <DownloadLink
-              :content="originalContent"
+              :getOriginalDocument
               :title="info?.title" />
             <InfoDescription :description="info?.description" />
           </SectionColumn>

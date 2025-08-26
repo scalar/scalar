@@ -589,6 +589,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     const temporaryDocument: UnknownObject = createMagicProxy({ ...inputDocument, ...meta })
 
+    // Set the original document version
+    temporaryDocument['x-original-version'] = input.document.openapi
+
     if (temporaryDocument[extensions.document.navigation] === undefined) {
       // If the document navigation is not already present, bundle the entire document to resolve all references.
       // This typically applies when the document is not preprocessed by the server and needs local reference resolution.

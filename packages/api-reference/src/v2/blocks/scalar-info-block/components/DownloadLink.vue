@@ -6,9 +6,9 @@ import Badge from '@/components/Badge/Badge.vue'
 import { useConfig } from '@/hooks/useConfig'
 import { downloadDocument } from '@/libs/download'
 
-const { title, content } = defineProps<{
+const { title, getOriginalDocument } = defineProps<{
   title?: string
-  content: string
+  getOriginalDocument: () => string
 }>()
 
 const config = useConfig()
@@ -19,7 +19,7 @@ const filename = computed(() => slugger.slug(title ?? ''))
 
 // The id is retrieved at the layout level.
 const handleDownloadClick = (format: 'json' | 'yaml') => {
-  downloadDocument(content, filename.value, format)
+  downloadDocument(getOriginalDocument(), filename.value, format)
 }
 </script>
 <template>
