@@ -161,9 +161,9 @@ const handleDiscriminatorChange = (type: string) => {
               <RequestExample
                 :clientOptions="clientOptions"
                 fallback
+                :isWebhook="isWebhook"
                 :method="method"
                 :operation="operation"
-                :isWebhook="isWebhook"
                 :path="path"
                 :securitySchemes="securitySchemes"
                 :selectedClient="store.workspace['x-scalar-default-client']"
