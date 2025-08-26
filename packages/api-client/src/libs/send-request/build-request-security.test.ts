@@ -82,6 +82,13 @@ describe('buildRequestSecurity', () => {
       expect(result.headers['Authorization']).toBe('Basic username:password')
     })
 
+    it('should handle basic auth with Unicode characters', () => {
+      basic.username = 'żółć'
+      basic.password = 'тест'
+      const result = buildRequestSecurity([basic])
+      expect(result.headers['Authorization']).toBe(`Basic ${encode('żółć:тест')}`)
+    })
+
     it('should handle bearer auth', () => {
       basic.scheme = 'bearer'
       basic.token = 'test-token'
