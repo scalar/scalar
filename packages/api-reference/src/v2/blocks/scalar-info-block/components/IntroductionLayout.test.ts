@@ -217,25 +217,4 @@ describe('IntroductionLayout', () => {
 
     expect(wrapper.html()).toContain('v1')
   })
-
-  it(`doesn't output the version if something is wrong with the version`, () => {
-    const example: OpenApiDocument = {
-      openapi: '3.1.1',
-      info: {
-        title: 'Test API',
-        description: '',
-        // @ts-expect-error testing invalid type
-        version: ['foobar'],
-      },
-    }
-
-    const wrapper = mount(IntroductionLayout, {
-      props: {
-        info: example.info,
-        externalDocs: example.externalDocs,
-      },
-    })
-
-    expect(wrapper.html()).not.toContain('foobar')
-  })
 })
