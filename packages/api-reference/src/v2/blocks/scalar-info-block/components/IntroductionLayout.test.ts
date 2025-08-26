@@ -1,10 +1,10 @@
-import { DownloadLink } from '@/features/download-link'
 import { useSidebar } from '@/features/sidebar/hooks/useSidebar'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, reactive, ref } from 'vue'
 import IntroductionLayout from './IntroductionLayout.vue'
+import DownloadLink from '@/v2/blocks/scalar-info-block/components/DownloadLink.vue'
 
 // Mock the useSidebar hook and SIDEBAR_SYMBOL
 vi.mock('@/features/sidebar/hooks/useSidebar', () => ({
@@ -57,6 +57,7 @@ describe('IntroductionLayout', () => {
       props: {
         info: example.info,
         externalDocs: example.externalDocs,
+        originalContent: '{}',
       },
     })
 
@@ -83,6 +84,7 @@ describe('IntroductionLayout', () => {
       props: {
         info: example.info,
         externalDocs: example.externalDocs,
+        originalContent: '{}',
       },
     })
 
@@ -107,6 +109,7 @@ describe('IntroductionLayout', () => {
       props: {
         info: example.info,
         externalDocs: example.externalDocs,
+        originalContent: '{}',
       },
     })
 
@@ -129,6 +132,7 @@ describe('IntroductionLayout', () => {
       props: {
         info: example.info,
         externalDocs: example.externalDocs,
+        originalContent: '{}',
       },
     })
 
@@ -150,6 +154,7 @@ describe('IntroductionLayout', () => {
       props: {
         info: example.info,
         externalDocs: example.externalDocs,
+        originalContent: '{}',
       },
     })
 
@@ -170,6 +175,7 @@ describe('IntroductionLayout', () => {
       props: {
         info: example.info,
         externalDocs: example.externalDocs,
+        originalContent: '{}',
       },
     })
 
@@ -191,6 +197,7 @@ describe('IntroductionLayout', () => {
       props: {
         info: example.info,
         externalDocs: example.externalDocs,
+        originalContent: '{}',
       },
     })
 
@@ -212,6 +219,7 @@ describe('IntroductionLayout', () => {
       props: {
         info: example.info,
         externalDocs: example.externalDocs,
+        originalContent: '{}',
       },
     })
 

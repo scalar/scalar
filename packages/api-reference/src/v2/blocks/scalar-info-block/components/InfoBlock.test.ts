@@ -40,6 +40,7 @@ describe('InfoBlock', () => {
       props: {
         info: mockInfo,
         layout: 'classic',
+        originalContent: '{}',
       },
       slots: {
         selectors: '<div data-testid="selectors">Selectors Content</div>',
@@ -54,6 +55,7 @@ describe('InfoBlock', () => {
       props: {
         info: mockInfo,
         layout: 'modern',
+        originalContent: '{}',
       },
       slots: {
         selectors: '<div data-testid="selectors">Selectors Content</div>',
