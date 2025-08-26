@@ -22,6 +22,7 @@ const generateCodeVerifier = (): string => {
   const buffer = new Uint8Array(32)
   crypto.getRandomValues(buffer)
 
+  // Base64URL encode the bytes
   return fromUint8Array(buffer, true)
 }
 
@@ -39,10 +40,7 @@ export const generateCodeChallenge = async (verifier: string, encoding: 'SHA-256
   const digest = await crypto.subtle.digest('SHA-256', data)
 
   // Base64URL encode the bytes
-  return btoa(String.fromCharCode(...new Uint8Array(digest)))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '')
+  return fromUint8Array(new Uint8Array(digest), true)
 }
 
 /**
