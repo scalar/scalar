@@ -231,6 +231,21 @@ const generatedCode = computed<string>(() => {
   }
 })
 
+/** The language for the code block, used for syntax highlighting */
+const codeBlockLanguage = computed(() => {
+  if (isWebhook) {
+    return webhookLanguage.value
+  }
+
+  return localSelectedClient.value?.lang
+})
+
+/** Determine the language for webhook content based on MIME type */
+const webhookLanguage = computed<string>(() => {
+  // TODO: Implement this
+  return 'json'
+})
+
 /**  Block secrets from being shown in the code block */
 const secretCredentials = computed(() => getSecrets(securitySchemes))
 
@@ -311,7 +326,7 @@ const id = useId()
           class="bg-b-2 !min-h-full -outline-offset-2"
           :content="generatedCode"
           :hideCredentials="secretCredentials"
-          :lang="isWebhook ? 'json' : localSelectedClient?.lang"
+          :lang="codeBlockLanguage"
           lineNumbers />
       </div>
     </ScalarCardSection>
