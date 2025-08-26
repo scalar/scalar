@@ -195,9 +195,9 @@
           ]
         },
         {
-          "name": "Access",
+          "name": "Access Control",
           "icon": "phosphor/regular/lock-simple",
-          "path": "documentation/guides/access.md",
+          "path": "documentation/guides/access-control.md",
           "type": "page"
         },
         {
@@ -497,6 +497,14 @@
       "lightMode": "https://api.scalar.com/cdn/images/_RAUKDd0usvIYjVirvAe5/7YqT5xN4ZkcPdBVbam2d3.svg"
     },
     "cssFiles": ["documentation/assets/styles.css"],
-    "footer": ""
+    "footer": "",
+    "routing": {
+      "redirects": [
+        {
+          "from": "/scalar/access",
+          "to": "/scalar/access-control"
+        }
+      ]
+    }
   }
 }
