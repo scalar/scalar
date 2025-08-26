@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("ScalarProperties")
@@ -27,7 +29,7 @@ class ScalarPropertiesTest {
         @DisplayName("should have correct default URL")
         void shouldHaveCorrectDefaultUrl() {
             assertThat(properties.getUrl())
-                .isEqualTo("https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json");
+                    .isEqualTo("https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json");
         }
 
         @Test
@@ -138,6 +140,39 @@ class ScalarPropertiesTest {
 
             // Then
             assertThat(properties.isEnabled()).isEqualTo(enabled);
+        }
+    }
+
+    @Nested
+    @DisplayName("Sources property")
+    class SourcesProperty {
+
+        @Test
+        @DisplayName("should set and get custom sources")
+        void shouldSetAndGetCustomSources() {
+            // Given
+            final List<ScalarProperties.ScalarSource> sources = List.of(
+                    new ScalarProperties.ScalarSource(
+                            "url", "title", "slug", true
+                    ),
+                    new ScalarProperties.ScalarSource()
+            );
+
+            // When
+            properties.setSources(sources);
+
+            // Then
+            assertThat(properties.getSources()).isEqualTo(sources);
+        }
+
+        @Test
+        @DisplayName("should handle null sources")
+        void shouldHandleNullSources() {
+            // When
+            properties.setSources(null);
+
+            // Then
+            assertThat(properties.getSources()).isNull();
         }
     }
 
@@ -486,8 +521,13 @@ class ScalarPropertiesTest {
         @Test
         @DisplayName("should maintain property independence")
         void shouldMaintainPropertyIndependence() {
+            final ScalarProperties.ScalarSource source = new ScalarProperties.ScalarSource();
+            source.setUrl("https://example.com/openapi.json");
+            final List<ScalarProperties.ScalarSource> sources = List.of(source);
+
             // Given - set initial values
             properties.setUrl("https://initial.com");
+            properties.setSources(sources);
             properties.setEnabled(false);
             properties.setPath("/initial");
             properties.setShowSidebar(false);
@@ -500,6 +540,7 @@ class ScalarPropertiesTest {
 
             // Then - only URL should change, others should remain
             assertThat(properties.getUrl()).isEqualTo("https://changed.com");
+            assertThat(properties.getSources()).isEqualTo(sources);
             assertThat(properties.isEnabled()).isFalse();
             assertThat(properties.getPath()).isEqualTo("/initial");
             assertThat(properties.isShowSidebar()).isFalse();

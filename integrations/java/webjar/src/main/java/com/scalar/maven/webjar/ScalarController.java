@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for serving the Scalar API Reference interface.
@@ -64,8 +66,8 @@ public class ScalarController {
         // Replace the placeholders with actual values
         String cdnUrl = buildJsBundleUrl();
         String injectedHtml = html
-            .replace("__JS_BUNDLE_URL__", cdnUrl)
-            .replace("__CONFIGURATION__", buildConfigurationJson());
+                .replace("__JS_BUNDLE_URL__", cdnUrl)
+                .replace("__CONFIGURATION__", buildConfigurationJson());
 
         return ResponseEntity.ok()
                 .contentType(MediaType.TEXT_HTML)
@@ -113,6 +115,64 @@ public class ScalarController {
     }
 
     /**
+     * Builds the JSON for the OpenAPI reference sources
+     *
+     * @param sources list of OpenAPI reference sources
+     * @return the sources as a JSON string
+     */
+    private String buildSourcesJsonArray(List<ScalarProperties.ScalarSource> sources) {
+        final StringBuilder builder = new StringBuilder("[");
+
+        // Filter out sources with invalid urls
+        final List<ScalarProperties.ScalarSource> filteredSources = sources.stream()
+                .filter(source -> isNotNullOrBlank(source.getUrl()))
+                .collect(Collectors.toList());
+
+        // Append each source to json array
+        for (int i = 0; i < filteredSources.size(); i++) {
+            final ScalarProperties.ScalarSource source = filteredSources.get(i);
+
+            final String sourceJson = buildSourceJson(source);
+            builder.append("\n").append(sourceJson);
+
+            if (i != filteredSources.size() - 1) {
+                builder.append(",");
+            }
+        }
+
+        builder.append("\n]");
+        return builder.toString();
+    }
+
+    /**
+     * Builds the JSON for an OpenAPI reference source
+     *
+     * @param source the OpenAPI reference source
+     * @return the source as a JSON string
+     */
+    private String buildSourceJson(ScalarProperties.ScalarSource source) {
+        final StringBuilder builder = new StringBuilder("{");
+
+        builder.append("\n  url: \"").append(escapeJson(source.getUrl())).append("\"");
+
+
+        if (isNotNullOrBlank(source.getTitle())) {
+            builder.append(",\n  title: \"").append(escapeJson(source.getTitle())).append("\"");
+        }
+
+        if (isNotNullOrBlank(source.getSlug())) {
+            builder.append(",\n  slug: \"").append(escapeJson(source.getSlug())).append("\"");
+        }
+
+        if (source.isDefault() != null) {
+            builder.append(",\n  default: ").append(source.isDefault());
+        }
+
+        builder.append("\n}");
+        return builder.toString();
+    }
+
+    /**
      * Builds the configuration JSON for the Scalar API Reference.
      *
      * @return the configuration JSON as a string
@@ -123,6 +183,13 @@ public class ScalarController {
 
         // Add URL
         config.append("\n  url: \"").append(escapeJson(properties.getUrl())).append("\"");
+
+        // Add sources
+        if (properties.getSources() != null && !properties.getSources().isEmpty()) {
+            config.append(",\n  sources: ").append(buildSourcesJsonArray(properties.getSources()));
+        }
+
+        // Add specification reference sources
 
         // Add showSidebar
         if (!properties.isShowSidebar()) {
@@ -189,9 +256,19 @@ public class ScalarController {
             return "";
         }
         return input.replace("\\", "\\\\")
-                   .replace("\"", "\\\"")
-                   .replace("\n", "\\n")
-                   .replace("\r", "\\r")
-                   .replace("\t", "\\t");
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t");
+    }
+
+    /**
+     * Returns whether a String is not null or blank
+     *
+     * @param input the string
+     * @return whether the string is not null or blank
+     */
+    private boolean isNotNullOrBlank(String input) {
+        return input != null && !input.isBlank();
     }
 }
