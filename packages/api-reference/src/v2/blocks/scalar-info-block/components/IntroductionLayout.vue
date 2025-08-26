@@ -39,8 +39,8 @@ onMounted(() => onLoaded?.())
   <SectionContainer>
     <!-- If the #after slot is used, we need to add a gap to the section. -->
     <Section
-      class="introduction-section z-1 gap-12"
-      :id>
+      :id
+      class="introduction-section z-1 gap-12">
       <SectionContent
         :loading="isLoading ?? (!info?.description && !info?.title)">
         <div class="flex gap-1.5">
@@ -55,8 +55,8 @@ onMounted(() => onLoaded?.())
           </SectionHeaderTag>
           <template #links>
             <InfoLinks
-              :info="info"
-              :externalDocs="externalDocs" />
+              :externalDocs="externalDocs"
+              :info="info" />
           </template>
         </SectionHeader>
         <SectionColumns>

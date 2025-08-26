@@ -40,9 +40,9 @@ const introCardsSlot = computed(() =>
 <template>
   <IntroductionLayout
     :id
-    :info
-    :externalDocs
     :documentExtensions
+    :externalDocs
+    :info
     :infoExtensions
     :isLoading
     :oasVersion
