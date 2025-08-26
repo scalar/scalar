@@ -1189,6 +1189,9 @@ importers:
       fuse.js:
         specifier: catalog:*
         version: 7.1.0
+      js-base64:
+        specifier: ^3.7.8
+        version: 3.7.8
       microdiff:
         specifier: catalog:*
         version: 1.5.0
@@ -14265,6 +14268,9 @@ packages:
     resolution: {integrity: sha512-34wB/Y7MW7bzjKRjUKTa46I2Z7eV62Rkhva+KkopW7Qvv/OSWBqvkSY7vusOPrNuZcUG3tApvdVgNB8POj3SPw==}
     engines: {node: '>=10'}
 
+  js-base64@3.7.8:
+    resolution: {integrity: sha512-hNngCeKxIUQiEUN3GPJOkz4wF/YvdUdbNL9hsBcMQTkKzboD7T/q3OYOuuPZLUE6dBxSGpwhk5mwuDud7JVAow==}
+
   js-beautify@1.15.1:
     resolution: {integrity: sha512-ESjNzSlt/sWE8sciZH8kBF8BPlwXPwhR6pWKAw8bw4Bwj+iZcnKW6ONWUutJ7eObuBZQpiIb8S7OYspWrKt7rA==}
     engines: {node: '>=14'}
@@ -20003,12 +20009,6 @@ packages:
     peerDependenciesMeta:
       '@nuxt/kit':
         optional: true
-
-  vite-plugin-static-copy@2.3.1:
-    resolution: {integrity: sha512-EfsPcBm3ewg3UMG8RJaC0ADq6/qnUZnokXx4By4+2cAcipjT9i0Y0owIJGqmZI7d6nxk4qB1q5aXOwNuSyPdyA==}
-    engines: {node: ^18.0.0 || >=20.0.0}
-    peerDependencies:
-      vite: ^5.0.0 || ^6.0.0
 
   vite-plugin-static-copy@2.3.2:
     resolution: {integrity: sha512-iwrrf+JupY4b9stBttRWzGHzZbeMjAHBhkrn67MNACXJVjEMRpCI10Q3AkxdBkl45IHaTfw/CNVevzQhP7yTwg==}
@@ -26521,7 +26521,7 @@ snapshots:
       '@eslint/js': 9.20.0
       '@nuxt/eslint-plugin': 0.7.6(eslint@9.20.1(jiti@2.4.2))(typescript@5.8.3)
       '@stylistic/eslint-plugin': 3.1.0(eslint@9.20.1(jiti@2.4.2))(typescript@5.8.3)
-      '@typescript-eslint/eslint-plugin': 8.24.0(@typescript-eslint/parser@8.24.0(eslint@9.20.1(jiti@2.4.2))(typescript@5.8.3))(eslint@9.20.1(jiti@2.4.2))(typescript@5.8.3)
+      '@typescript-eslint/eslint-plugin': 8.24.0(@typescript-eslint/parser@8.24.0(eslint@9.20.1(jiti@2.4.2))(typescript@5.6.2))(eslint@9.20.1(jiti@2.4.2))(typescript@5.8.3)
       '@typescript-eslint/parser': 8.24.0(eslint@9.20.1(jiti@2.4.2))(typescript@5.8.3)
       eslint: 9.20.1(jiti@2.4.2)
       eslint-config-flat-gitignore: 0.2.0(eslint@9.20.1(jiti@2.4.2))
@@ -29669,23 +29669,6 @@ snapshots:
     dependencies:
       '@eslint-community/regexpp': 4.12.1
       '@typescript-eslint/parser': 8.24.0(eslint@9.20.1(jiti@2.4.2))(typescript@5.6.2)
-      '@typescript-eslint/scope-manager': 8.24.0
-      '@typescript-eslint/type-utils': 8.24.0(eslint@9.20.1(jiti@2.4.2))(typescript@5.8.3)
-      '@typescript-eslint/utils': 8.24.0(eslint@9.20.1(jiti@2.4.2))(typescript@5.8.3)
-      '@typescript-eslint/visitor-keys': 8.24.0
-      eslint: 9.20.1(jiti@2.4.2)
-      graphemer: 1.4.0
-      ignore: 5.3.1
-      natural-compare: 1.4.0
-      ts-api-utils: 2.0.1(typescript@5.8.3)
-      typescript: 5.8.3
-    transitivePeerDependencies:
-      - supports-color
-
-  '@typescript-eslint/eslint-plugin@8.24.0(@typescript-eslint/parser@8.24.0(eslint@9.20.1(jiti@2.4.2))(typescript@5.8.3))(eslint@9.20.1(jiti@2.4.2))(typescript@5.8.3)':
-    dependencies:
-      '@eslint-community/regexpp': 4.12.1
-      '@typescript-eslint/parser': 8.24.0(eslint@9.20.1(jiti@2.4.2))(typescript@5.8.3)
       '@typescript-eslint/scope-manager': 8.24.0
       '@typescript-eslint/type-utils': 8.24.0(eslint@9.20.1(jiti@2.4.2))(typescript@5.8.3)
       '@typescript-eslint/utils': 8.24.0(eslint@9.20.1(jiti@2.4.2))(typescript@5.8.3)
@@ -36357,6 +36340,8 @@ snapshots:
   join-component@1.1.0: {}
 
   joycon@3.1.1: {}
+
+  js-base64@3.7.8: {}
 
   js-beautify@1.15.1:
     dependencies:
@@ -43418,15 +43403,6 @@ snapshots:
       '@nuxt/kit': 3.17.7(magicast@0.3.5)
     transitivePeerDependencies:
       - supports-color
-
-  vite-plugin-static-copy@2.3.1(vite@6.1.6(@types/node@22.15.3)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)):
-    dependencies:
-      chokidar: 3.6.0
-      fast-glob: 3.3.3
-      fs-extra: 11.2.0
-      p-map: 7.0.3
-      picocolors: 1.1.1
-      vite: 6.1.6(@types/node@22.15.3)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
 
   vite-plugin-static-copy@2.3.2(vite@6.1.6(@types/node@22.15.3)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)):
     dependencies:
