@@ -7,7 +7,7 @@
 /*.md @hanspagel @marclave
 
 # Documentation
-/documentation/* @hanspagel @marclave
+/documentation/* @hanspagel @marclave @hwkr @cameronrohani
 
 # Changesets
 /.changeset/*
