@@ -55,11 +55,11 @@ const { path, config, operation, method, isWebhook, oldOperation } =
     store: WorkspaceStore
   }>()
 
-const operationTitle = computed(() => operation.summary || path || '')
-
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
 }>()
+
+const operationTitle = computed(() => operation.summary || path || '')
 
 const labelId = useId()
 
@@ -80,8 +80,8 @@ const handleDiscriminatorChange = (type: string) => {
         <div class="flex gap-1">
           <!-- Stability badge -->
           <Badge
-            class="capitalize"
             v-if="getOperationStability(operation)"
+            class="capitalize"
             :class="getOperationStabilityColor(operation)">
             {{ getOperationStability(operation) }}
           </Badge>
@@ -119,11 +119,11 @@ const handleDiscriminatorChange = (type: string) => {
         <SectionColumn>
           <div class="operation-details">
             <ScalarMarkdown
-              :value="operation.description"
-              withImages
-              withAnchors
+              :anchorPrefix="id"
               transformType="heading"
-              :anchorPrefix="id" />
+              :value="operation.description"
+              withAnchors
+              withImages />
             <OperationParameters
               :breadcrumb="[id]"
               :parameters="operation.parameters"
@@ -140,11 +140,11 @@ const handleDiscriminatorChange = (type: string) => {
             <!-- Callbacks -->
             <ScalarErrorBoundary>
               <Callbacks
-                class="mt-6"
                 v-if="operation.callbacks"
-                :path="path"
                 :callbacks="operation.callbacks"
+                class="mt-6"
                 :method="method"
+                :path="path"
                 :schemas="schemas" />
             </ScalarErrorBoundary>
           </div>
@@ -159,14 +159,14 @@ const handleDiscriminatorChange = (type: string) => {
             <!-- New Example Request -->
             <ScalarErrorBoundary>
               <RequestExample
-                :method="method"
-                :selectedServer="server"
                 :clientOptions="clientOptions"
+                fallback
+                :method="method"
+                :operation="operation"
+                :path="path"
                 :securitySchemes="securitySchemes"
                 :selectedClient="store.workspace['x-scalar-default-client']"
-                :path="path"
-                fallback
-                :operation="operation"
+                :selectedServer="server"
                 @update:modelValue="handleDiscriminatorChange">
                 <template #header>
                   <OperationPath
@@ -175,8 +175,8 @@ const handleDiscriminatorChange = (type: string) => {
                     :path="path" />
                 </template>
                 <template
-                  #footer
-                  v-if="!isWebhook">
+                  v-if="!isWebhook"
+                  #footer>
                   <TestRequestButton
                     :method="method"
                     :path="path" />

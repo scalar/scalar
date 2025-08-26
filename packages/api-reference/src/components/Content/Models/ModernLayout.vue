@@ -64,11 +64,11 @@ const models = computed(() => {
         :class="{ 'models-list-truncated': !showAllModels }">
         <CompactSection
           v-for="name in models"
-          :key="name"
           :id="getModelId({ name })"
+          :key="name"
           class="models-list-item"
-          :label="name"
-          :defaultOpen="config.expandAllModelSections">
+          :defaultOpen="config.expandAllModelSections"
+          :label="name">
           <template #heading>
             <SectionHeaderTag :level="3">
               <SchemaHeading
@@ -78,11 +78,11 @@ const models = computed(() => {
           </template>
           <ScalarErrorBoundary>
             <Schema
-              noncollapsible
               :hideHeading="true"
               :hideModelNames="true"
-              :schemas="schemas"
               :level="1"
+              noncollapsible
+              :schemas="schemas"
               :value="schemas[name]" />
           </ScalarErrorBoundary>
         </CompactSection>
