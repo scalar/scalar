@@ -189,8 +189,6 @@ public class ScalarController {
             config.append(",\n  sources: ").append(buildSourcesJsonArray(properties.getSources()));
         }
 
-        // Add specification reference sources
-
         // Add showSidebar
         if (!properties.isShowSidebar()) {
             config.append(",\n  showSidebar: false");
