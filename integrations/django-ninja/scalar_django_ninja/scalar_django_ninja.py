@@ -5,7 +5,7 @@ from typing_extensions import Annotated, Doc
 scalar_theme = """
 /* basic theme */
 .light-mode {
-  --scalar-color-1: #2a2f45;
+  --scalar-color-1: #1b1b1b;
   --scalar-color-2: #757575;
   --scalar-color-3: #8e8e8e;
   --scalar-color-accent: #009485;
