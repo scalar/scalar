@@ -481,12 +481,6 @@
               ]
             }
           ]
-        },
-        {
-          "name": "Scalar Access API",
-          "icon": "phosphor/regular/key",
-          "url": "../scalar-api",
-          "type": "link"
         }
       ]
     }
@@ -509,17 +503,6 @@
     },
     {
       "type": "spacer"
-    },
-    { 
-      "title": "Log in",
-      "type": "link",
-      "link": "https://dashboard.scalar.com/login"
-    },
-    { 
-      "title": "Register",
-      "type": "link",
-      "isButton": true,
-      "link": "https://dashboard.scalar.com/register"
     }
   ],
   "siteConfig": {
