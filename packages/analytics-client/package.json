@@ -1,0 +1,46 @@
+{
+  "name": "@scalar/analytics-client",
+  "description": "Event and metric tracking across Scalar",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "packages/analytics-client"
+  },
+  "keywords": [],
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "scalar-build-esbuild",
+    "lint:check": "biome lint --diagnostic-level=error",
+    "lint:fix": "biome lint --write",
+    "types:build": "scalar-types-build",
+    "types:check": "scalar-types-check"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "module": "dist/index.js",
+  "dependencies": {
+    "zod": "catalog:*"
+  },
+  "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
+    "@types/node": "catalog:*",
+    "vite": "catalog:*"
+  }
+}
