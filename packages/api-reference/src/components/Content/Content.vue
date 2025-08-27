@@ -113,7 +113,7 @@ const getOriginalDocument = () => store.exportActiveDocument('json') ?? '{}'
         :infoExtensions
         :isLoading="config.isLoading"
         :layout="config.layout"
-        :oasVersion="store.workspace.activeDocument['x-original-version']"
+        :oasVersion="store.workspace.activeDocument?.['x-original-oas-version']"
         :onLoaded="config.onLoaded">
         <template #selectors>
           <ScalarErrorBoundary>
