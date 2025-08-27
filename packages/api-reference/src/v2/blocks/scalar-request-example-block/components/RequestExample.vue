@@ -49,6 +49,10 @@ export type RequestExampleProps = {
    * A method to generate the label of the block, should return an html string
    */
   generateLabel?: () => string
+  /**
+   * If true, render this as a webhook request example
+   */
+  isWebhook?: boolean
 }
 
 /**
@@ -76,6 +80,7 @@ import {
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { ScalarIconCaretDown } from '@scalar/icons'
+import { operationToHar } from '@scalar/oas-utils/helpers/operation-to-har'
 import { type AvailableClients, type TargetId } from '@scalar/snippetz'
 import { emitCustomEvent } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -107,6 +112,7 @@ const {
   method,
   path,
   operation,
+  isWebhook,
   generateLabel,
 } = defineProps<RequestExampleProps>()
 
@@ -186,6 +192,23 @@ watch(
   },
 )
 
+/** Generate HAR data for webhook requests */
+const webhookHar = computed(() => {
+  if (!isWebhook) return null
+
+  try {
+    const selectedExample =
+      operationExamples.value[selectedExampleKey.value || '']
+    const resolvedExample = getResolvedRefDeep(selectedExample)
+    const example = resolvedExample?.value ?? resolvedExample?.summary
+
+    return operationToHar({ operation, method, path, example })
+  } catch (error) {
+    console.error('[webhookHar]', error)
+    return null
+  }
+})
+
 /** Generate the code snippet for the selected example */
 const generatedCode = computed<string>(() => {
   try {
@@ -204,6 +227,10 @@ const generatedCode = computed<string>(() => {
     const resolvedExample = getResolvedRefDeep(selectedExample)
     const example = resolvedExample?.value ?? resolvedExample?.summary
 
+    if (isWebhook) {
+      return webhookHar.value?.postData?.text ?? ''
+    }
+
     return generateCodeSnippet({
       clientId: localSelectedClient.value?.id as AvailableClients[number],
       operation,
@@ -218,6 +245,29 @@ const generatedCode = computed<string>(() => {
     console.error('[generateSnippet]', error)
     return ''
   }
+})
+
+/** The language for the code block, used for syntax highlighting */
+const codeBlockLanguage = computed(() => {
+  if (isWebhook) {
+    return webhookLanguage.value
+  }
+
+  return localSelectedClient.value?.lang
+})
+
+/** Determine the language for webhook content based on MIME type */
+const webhookLanguage = computed<string>(() => {
+  if (!webhookHar.value?.postData) return 'json'
+
+  const contentType = webhookHar.value.postData.mimeType
+  if (contentType?.includes('json')) return 'json'
+  if (contentType?.includes('xml')) return 'xml'
+  if (contentType?.includes('yaml') || contentType?.includes('yml'))
+    return 'yaml'
+  if (contentType?.includes('text/plain')) return 'text'
+
+  return 'json'
 })
 
 /**  Block secrets from being shown in the code block */
@@ -249,8 +299,8 @@ const id = useId()
 <template>
   <ScalarCard
     v-if="generatedCode"
-    class="request-card dark-mode"
-    ref="elem">
+    ref="elem"
+    class="request-card dark-mode">
     <!-- Header -->
     <ScalarCardHeader class="pr-2.5">
       <span class="sr-only">Request Example for</span>
@@ -262,30 +312,30 @@ const id = useId()
         v-if="generateLabel"
         v-html="generateLabel()" />
       <slot
-        v-else
+        v-else-if="!isWebhook"
         name="header" />
       <!-- Client picker -->
       <template
-        #actions
-        v-if="clients.length">
+        v-if="!isWebhook && clients.length"
+        #actions>
         <ScalarCombobox
           class="max-h-80"
           :modelValue="localSelectedClient"
           :options="clients"
-          teleport
           placement="bottom-end"
+          teleport
           @update:modelValue="selectClient($event as ClientOption)">
           <ScalarButton
-            data-testid="client-picker"
             class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-0.5"
+            data-testid="client-picker"
             fullWidth
             variant="ghost">
             <span class="text-base font-normal">{{
               localSelectedClient.title
             }}</span>
             <ScalarIconCaretDown
-              weight="bold"
-              class="ui-open:rotate-180 mt-0.25 size-3 transition-transform duration-100" />
+              class="ui-open:rotate-180 mt-0.25 size-3 transition-transform duration-100"
+              weight="bold" />
           </ScalarButton>
         </ScalarCombobox>
       </template>
@@ -300,7 +350,7 @@ const id = useId()
           class="bg-b-2 !min-h-full -outline-offset-2"
           :content="generatedCode"
           :hideCredentials="secretCredentials"
-          :lang="localSelectedClient?.lang"
+          :lang="codeBlockLanguage"
           lineNumbers />
       </div>
     </ScalarCardSection>
@@ -314,8 +364,8 @@ const id = useId()
         v-if="Object.keys(operationExamples).length"
         class="request-card-footer-addon">
         <ExamplePicker
-          :examples="operationExamples"
           v-model="selectedExampleKey"
+          :examples="operationExamples"
           @update:modelValue="
             emitCustomEvent(elem?.$el, 'scalar-update-selected-example', $event)
           " />
