@@ -2,6 +2,7 @@ import type { Context } from 'hono'
 import { getCookie } from 'hono/cookie'
 
 import { getBody } from './getBody'
+import { decode } from 'js-base64'
 
 /**
  * Collect all the data from a request
@@ -21,7 +22,7 @@ export async function getRequestData(c: Context) {
           authentication: {
             type: 'http.basic',
             token,
-            value: atob(token),
+            value: decode(token),
           },
         }
       }

@@ -87,6 +87,9 @@ catalogs:
     fuse.js:
       specifier: ^7.1.0
       version: 7.1.0
+    js-base64:
+      specifier: ^3.7.8
+      version: 3.7.8
     microdiff:
       specifier: ^1.5.0
       version: 1.5.0
@@ -1189,6 +1192,9 @@ importers:
       fuse.js:
         specifier: catalog:*
         version: 7.1.0
+      js-base64:
+        specifier: catalog:*
+        version: 3.7.8
       microdiff:
         specifier: catalog:*
         version: 1.5.0
@@ -1371,6 +1377,9 @@ importers:
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
+      js-base64:
+        specifier: catalog:*
+        version: 3.7.8
       microdiff:
         specifier: catalog:*
         version: 1.5.0
@@ -2068,6 +2077,9 @@ importers:
       flatted:
         specifier: catalog:*
         version: 3.3.3
+      js-base64:
+        specifier: catalog:*
+        version: 3.7.8
       microdiff:
         specifier: catalog:*
         version: 1.5.0
@@ -2590,6 +2602,9 @@ importers:
       hono:
         specifier: ^4.6.5
         version: 4.6.5
+      js-base64:
+        specifier: catalog:*
+        version: 3.7.8
       object-to-xml:
         specifier: ^2.0.0
         version: 2.0.0
@@ -14265,6 +14280,9 @@ packages:
     resolution: {integrity: sha512-34wB/Y7MW7bzjKRjUKTa46I2Z7eV62Rkhva+KkopW7Qvv/OSWBqvkSY7vusOPrNuZcUG3tApvdVgNB8POj3SPw==}
     engines: {node: '>=10'}
 
+  js-base64@3.7.8:
+    resolution: {integrity: sha512-hNngCeKxIUQiEUN3GPJOkz4wF/YvdUdbNL9hsBcMQTkKzboD7T/q3OYOuuPZLUE6dBxSGpwhk5mwuDud7JVAow==}
+
   js-beautify@1.15.1:
     resolution: {integrity: sha512-ESjNzSlt/sWE8sciZH8kBF8BPlwXPwhR6pWKAw8bw4Bwj+iZcnKW6ONWUutJ7eObuBZQpiIb8S7OYspWrKt7rA==}
     engines: {node: '>=14'}
@@ -20003,12 +20021,6 @@ packages:
     peerDependenciesMeta:
       '@nuxt/kit':
         optional: true
-
-  vite-plugin-static-copy@2.3.1:
-    resolution: {integrity: sha512-EfsPcBm3ewg3UMG8RJaC0ADq6/qnUZnokXx4By4+2cAcipjT9i0Y0owIJGqmZI7d6nxk4qB1q5aXOwNuSyPdyA==}
-    engines: {node: ^18.0.0 || >=20.0.0}
-    peerDependencies:
-      vite: ^5.0.0 || ^6.0.0
 
   vite-plugin-static-copy@2.3.2:
     resolution: {integrity: sha512-iwrrf+JupY4b9stBttRWzGHzZbeMjAHBhkrn67MNACXJVjEMRpCI10Q3AkxdBkl45IHaTfw/CNVevzQhP7yTwg==}
@@ -36358,6 +36370,8 @@ snapshots:
 
   joycon@3.1.1: {}
 
+  js-base64@3.7.8: {}
+
   js-beautify@1.15.1:
     dependencies:
       config-chain: 1.1.13
@@ -43418,15 +43432,6 @@ snapshots:
       '@nuxt/kit': 3.17.7(magicast@0.3.5)
     transitivePeerDependencies:
       - supports-color
-
-  vite-plugin-static-copy@2.3.1(vite@6.1.6(@types/node@22.15.3)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)):
-    dependencies:
-      chokidar: 3.6.0
-      fast-glob: 3.3.3
-      fs-extra: 11.2.0
-      p-map: 7.0.3
-      picocolors: 1.1.1
-      vite: 6.1.6(@types/node@22.15.3)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
 
   vite-plugin-static-copy@2.3.2(vite@6.1.6(@types/node@22.15.3)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)):
     dependencies:

@@ -8,6 +8,7 @@ import type {
 } from '@scalar/oas-utils/entities/spec'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import type { ClientId, TargetId } from '@scalar/snippetz'
+import { encode } from 'js-base64'
 import { computed } from 'vue'
 
 import type { EnvVariables } from '@/libs/env-helpers'
@@ -41,7 +42,7 @@ const secretCredentials = computed(() =>
       return [
         scheme.token,
         scheme.password,
-        btoa(`${scheme.username}:${scheme.password}`),
+        encode(`${scheme.username}:${scheme.password}`),
       ]
     }
     if (scheme.type === 'oauth2') {

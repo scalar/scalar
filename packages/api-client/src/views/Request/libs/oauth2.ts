@@ -1,6 +1,7 @@
 import type { ErrorResponse } from '@/libs/errors'
 import type { Oauth2Flow, Server } from '@scalar/oas-utils/entities/spec'
 import { shouldUseProxy } from '@scalar/oas-utils/helpers'
+import { encode, fromUint8Array } from 'js-base64'
 
 /** Oauth2 security schemes which are not implicit */
 type NonImplicitFlow = Exclude<Oauth2Flow, { type: 'implicit' }>
@@ -22,10 +23,7 @@ const generateCodeVerifier = (): string => {
   crypto.getRandomValues(buffer)
 
   // Base64URL encode the bytes
-  return btoa(String.fromCharCode(...buffer))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=/g, '')
+  return fromUint8Array(buffer, true)
 }
 
 /**
@@ -42,10 +40,7 @@ export const generateCodeChallenge = async (verifier: string, encoding: 'SHA-256
   const digest = await crypto.subtle.digest('SHA-256', data)
 
   // Base64URL encode the bytes
-  return btoa(String.fromCharCode(...new Uint8Array(digest)))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '')
+  return fromUint8Array(new Uint8Array(digest), true)
 }
 
 /**
@@ -301,7 +296,7 @@ export const authorizeServers = async (
 
     // Add client id + secret to headers
     if (shouldAddSecretToHeader) {
-      headers.Authorization = `Basic ${btoa(`${flow['x-scalar-client-id']}:${flow.clientSecret}`)}`
+      headers.Authorization = `Basic ${encode(`${flow['x-scalar-client-id']}:${flow.clientSecret}`)}`
     }
 
     // Check if we should use the proxy
