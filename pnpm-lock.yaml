@@ -28,7 +28,7 @@ catalogs:
       specifier: 1.54.0
       version: 1.54.0
     '@sinclair/typebox':
-      specifier: https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build-2/target/sinclair-typebox-0.34.40.tgz
+      specifier: https://github.com/DemonHa/typebox/raw/c68bffb2e646570b5de9071764a9dae124f3a66c/target/sinclair-typebox-0.34.40.tgz
       version: 0.34.40
     '@tailwindcss/vite':
       specifier: ^4.1.7
@@ -2638,7 +2638,7 @@ importers:
         version: link:../types
       '@sinclair/typebox':
         specifier: catalog:*
-        version: https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build-2/target/sinclair-typebox-0.34.40.tgz
+        version: https://raw.githubusercontent.com/DemonHa/typebox/c68bffb2e646570b5de9071764a9dae124f3a66c/target/sinclair-typebox-0.34.40.tgz
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
@@ -8373,8 +8373,8 @@ packages:
   '@sinclair/typebox@0.27.8':
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
 
-  '@sinclair/typebox@https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build-2/target/sinclair-typebox-0.34.40.tgz':
-    resolution: {tarball: https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build-2/target/sinclair-typebox-0.34.40.tgz}
+  '@sinclair/typebox@https://raw.githubusercontent.com/DemonHa/typebox/c68bffb2e646570b5de9071764a9dae124f3a66c/target/sinclair-typebox-0.34.40.tgz':
+    resolution: {tarball: https://raw.githubusercontent.com/DemonHa/typebox/c68bffb2e646570b5de9071764a9dae124f3a66c/target/sinclair-typebox-0.34.40.tgz}
     version: 0.34.40
 
   '@sindresorhus/is@0.14.0':
@@ -28026,7 +28026,7 @@ snapshots:
 
   '@sinclair/typebox@0.27.8': {}
 
-  '@sinclair/typebox@https://raw.githubusercontent.com/DemonHa/typebox/refs/heads/amrit/build-2/target/sinclair-typebox-0.34.40.tgz': {}
+  '@sinclair/typebox@https://raw.githubusercontent.com/DemonHa/typebox/c68bffb2e646570b5de9071764a9dae124f3a66c/target/sinclair-typebox-0.34.40.tgz': {}
 
   '@sindresorhus/is@0.14.0': {}
 
