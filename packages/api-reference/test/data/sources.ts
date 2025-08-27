@@ -4,7 +4,7 @@ export default [
   {
     title: 'Scalar Galaxy', // optional, would fallback to 'API #1'
     slug: 'scalar-galaxy', // optional, would be auto-generated from the title or the index
-    url: 'https://gist.githubusercontent.com/amritk/27a446170403395375a0c559531a6426/raw/95f969da4f34ba228f738b6b36f1f0789fec5c75/http',
+    url: 'https://galaxy.scalar.com/openapi.yaml',
   },
   {
     title: 'Scalar Galaxy Registry',
