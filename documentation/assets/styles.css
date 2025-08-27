@@ -2,3 +2,32 @@
   /* Match the Dashboard header height */
   --scalar-header-height: 48px;
 }
+
+/** Share all text styles */
+.t-doc__header .header-item-link,
+.t-doc__header .header-group-label,
+.t-doc__header .header-version-button {
+  font-size: var(--scalar-small);
+  font-weight: normal;
+}
+
+.t-doc__header .header-item-link:hover,
+.t-doc__header .header-group-label:hover {
+  color: var(--scalar-sidebar-color-1, var(--scalar-color-1));
+}
+
+/** __cta styles are for when we display the item as a button */
+.t-doc__header .header-item-link.header-item-link__cta {
+  background: var(--scalar-button-1);
+  padding: 6px 9px;
+  margin-left: 5px;
+  margin-right: 0;
+  font-size: var(--scalar-mini);
+  font-weight: var(--scalar-semibold);
+  border: 1px solid var(--scalar-button-1);
+}
+
+.t-doc__header .header-item-link.header-item-link__cta:hover {
+  opacity: 0.85;
+  color: var(--scalar-header-background-1, var(--scalar-background-1));
+}
