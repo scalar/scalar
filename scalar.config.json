@@ -12,6 +12,7 @@
   "guides": [
     {
       "name": "Scalar",
+      "slug": "scalar",
       "sidebar": [
         {
           "name": "Introduction",
@@ -480,6 +481,12 @@
               ]
             }
           ]
+        },
+        {
+          "name": "Scalar Access API",
+          "icon": "phosphor/regular/key",
+          "url": "../scalar-api",
+          "type": "link"
         }
       ]
     }
@@ -487,14 +494,39 @@
   "references": [
     {
       "liveLink": "https://registry.scalar.com/@scalar/apis/access-service/latest",
-      "name": "Scalar API"
+      "name": "Scalar API",
+      "slug": "scalar-api"
+    }
+  ],
+  "header": [
+    {
+      "type": "guide",
+      "slug": "scalar"
+    },
+    {
+      "type": "reference",
+      "slug": "scalar-api"
+    },
+    {
+      "type": "spacer"
+    },
+    { 
+      "title": "Log in",
+      "type": "link",
+      "link": "https://dashboard.scalar.com/login"
+    },
+    { 
+      "title": "Register",
+      "type": "link",
+      "isButton": true,
+      "link": "https://dashboard.scalar.com/register"
     }
   ],
   "siteConfig": {
     "headScript": "const script=document.createElement('script');(script.src='https:\/\/cdn.jsdelivr.net\/npm\/@tailwindcss\/browser@4'),(script.onload=()=>{console.log('Tailwind CSS script loaded successfully')}),(script.onerror=()=>{console.error('Failed to load Tailwind CSS script')}),document.head.appendChild(script);function addFathomAnalytics(){const t=document.createElement('script');(t.src='https:\/\/cdn.usefathom.com\/script.js'),t.setAttribute('data-spa','auto'),t.setAttribute('data-site','RSYAEMNM'),(t.defer=!0),document.head.appendChild(t)}'loading'===document.readyState?document.addEventListener('DOMContentLoaded',addFathomAnalytics):addFathomAnalytics();function addLandingScript(){const t=document.createElement('script');(t.src='\/landing.js'),(t.defer=!0),document.head.appendChild(t)}'loading'===document.readyState?document.addEventListener('DOMContentLoaded',addLandingScript):addLandingScript();",
     "logo": {
-      "darkMode": "https://api.scalar.com/cdn/images/_RAUKDd0usvIYjVirvAe5/lpaJKmdWRHJ7MdvxLt6gB.svg",
-      "lightMode": "https://api.scalar.com/cdn/images/_RAUKDd0usvIYjVirvAe5/7YqT5xN4ZkcPdBVbam2d3.svg"
+      "darkMode": "https://cdn.scalar.com/marketing/landing/logo-dark.svg",
+      "lightMode": "https://cdn.scalar.com/marketing/landing/logo-light.svg"
     },
     "cssFiles": ["documentation/assets/styles.css"],
     "footer": ""
