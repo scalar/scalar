@@ -481,12 +481,6 @@
               ]
             }
           ]
-        },
-        {
-          "name": "Scalar Access API",
-          "icon": "phosphor/regular/key",
-          "url": "../scalar-api",
-          "type": "link"
         }
       ]
     }
