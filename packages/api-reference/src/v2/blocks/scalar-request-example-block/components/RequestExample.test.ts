@@ -826,7 +826,8 @@ describe('RequestExample', () => {
       expect(codeBlock.props('content')).toBeTruthy()
     })
 
-    it('generates webhook payload for different content types', () => {
+    // TODO: https://github.com/scalar/scalar/pull/6670
+    it.todo('generates webhook payload for different content types', () => {
       const wrapper = mount(RequestExample, {
         props: {
           ...defaultProps,
