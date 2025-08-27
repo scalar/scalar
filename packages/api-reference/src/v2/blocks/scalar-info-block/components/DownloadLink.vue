@@ -4,10 +4,11 @@ import { computed } from 'vue'
 
 import Badge from '@/components/Badge/Badge.vue'
 import { useConfig } from '@/hooks/useConfig'
-import { downloadEventBus } from '@/libs/download'
+import { downloadDocument } from '@/libs/download'
 
-const { title } = defineProps<{
+const { title, getOriginalDocument } = defineProps<{
   title?: string
+  getOriginalDocument: () => string
 }>()
 
 const config = useConfig()
@@ -18,40 +19,40 @@ const filename = computed(() => slugger.slug(title ?? ''))
 
 // The id is retrieved at the layout level.
 const handleDownloadClick = (format: 'json' | 'yaml') => {
-  downloadEventBus.emit({ id: '', filename: filename.value, format })
+  downloadDocument(getOriginalDocument(), filename.value, format)
 }
 </script>
 <template>
   <div
     v-if="config?.documentDownloadType !== 'none'"
+    class="download-container group"
     :class="{
       'download-both': config?.documentDownloadType === 'both',
-    }"
-    class="download-container group">
+    }">
     <!-- JSON  -->
     <button
-      type="button"
-      class="download-button"
       v-if="
         config?.documentDownloadType === 'json' ||
         config?.documentDownloadType === 'both'
       "
-      @click.prevent="handleDownloadClick('json')"
-      variant="ghost">
+      class="download-button"
+      type="button"
+      variant="ghost"
+      @click.prevent="handleDownloadClick('json')">
       <span> Download OpenAPI Document </span>
       <Badge class="extension hidden group-hover:flex">json</Badge>
     </button>
 
     <!-- YAML -->
     <button
-      type="button"
-      class="download-button"
       v-if="
         config?.documentDownloadType === 'yaml' ||
         config?.documentDownloadType === 'both'
       "
-      @click.prevent="handleDownloadClick('yaml')"
-      variant="ghost">
+      class="download-button"
+      type="button"
+      variant="ghost"
+      @click.prevent="handleDownloadClick('yaml')">
       <span> Download OpenAPI Document </span>
       <Badge class="extension hidden group-hover:flex">yaml</Badge>
     </button>

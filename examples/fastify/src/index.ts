@@ -3,7 +3,7 @@ import Fastify from 'fastify'
 
 // Init Fastify
 const fastify = Fastify({
-  logger: false,
+  logger: true,
   // ignoreTrailingSlash: true,
 })
 

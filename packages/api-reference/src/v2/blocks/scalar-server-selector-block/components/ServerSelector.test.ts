@@ -3,6 +3,7 @@ import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import ServerSelector from './ServerSelector.vue'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
 
 describe('ServerSelector', () => {
   const mockServers: ServerObject[] = [
@@ -278,6 +279,51 @@ describe('ServerSelector', () => {
       },
     })
     expect(variablesForm.props('layout')).toBe('reference')
+  })
+
+  it('reactively updates the store when the variables are updated', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test',
+      document: {
+        openapi: '3.1.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        'servers': [
+          {
+            'url': 'https://galaxy.scalar.com',
+          },
+          {
+            'url': '{protocol}://void.scalar.com/{path}',
+            'description': 'Responds with your request data',
+            'variables': {
+              'protocol': {
+                'enum': ['abcd', '1234'],
+                'default': 'abcd',
+              },
+              'path': {
+                'default': '',
+              },
+            },
+          },
+        ],
+      },
+    })
+
+    const wrapper = mount(ServerSelector, {
+      props: {
+        servers: store.workspace.activeDocument!.servers!,
+        xSelectedServer: '{protocol}://void.scalar.com/{path}',
+      },
+    })
+
+    const variables = wrapper.findComponent({ name: 'ServerVariablesForm' })
+    expect(variables.text()).toContain('abcd')
+    store.workspace.activeDocument!.servers![1].variables!.protocol.default = '1234'
+    await nextTick()
+    expect(variables.text()).toContain('1234')
   })
 
   it('renders with multiple servers and complex configuration', () => {

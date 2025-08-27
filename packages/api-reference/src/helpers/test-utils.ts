@@ -72,6 +72,7 @@ export const createMockStore = (activeDocument: WorkspaceDocument): WorkspaceSto
     'x-scalar-reference-config': {} as any,
   },
   exportDocument: vi.fn(),
+  exportActiveDocument: vi.fn(),
   saveDocument: vi.fn(),
   revertDocumentChanges: vi.fn(),
   commitDocument: vi.fn(),

@@ -31,7 +31,8 @@ import { Value } from '@sinclair/typebox/value'
 import { deepClone } from '@/helpers/deep-clone'
 import { measureAsync, measureSync } from '@scalar/helpers/testing/measure'
 import { getServersFromDocument } from '@/preprocessing/server'
-import type { PartialDeep, RequiredDeep } from 'type-fest'
+import type { PartialDeep } from 'type-fest/source/partial-deep'
+import type { RequiredDeep } from 'type-fest/source/required-deep'
 
 export type DocumentConfiguration = Config &
   PartialDeep<{
@@ -289,6 +290,25 @@ export type WorkspaceStore = {
    */
   exportDocument(documentName: string, format: 'json' | 'yaml'): string | undefined
   /**
+   * Exports the currently active document in the requested format.
+   *
+   * This is a convenience method that exports the active document (determined by the workspace's
+   * activeDocument extension) without requiring the caller to specify the document name.
+   * The exported document reflects the last locally saved state, including any edits that have
+   * been saved but not yet synced to a remote registry.
+   *
+   * @param format - The output format: 'json' for a JSON string, or 'yaml' for a YAML string.
+   * @returns The active document as a string in the requested format, or undefined if no active document exists.
+   *
+   * @example
+   * // Export the active document as JSON
+   * const jsonString = store.exportActiveDocument('json')
+   *
+   * // Export the active document as YAML
+   * const yamlString = store.exportActiveDocument('yaml')
+   */
+  exportActiveDocument(format: 'json' | 'yaml'): string | undefined
+  /**
    * Saves the current state of the specified document to the intermediate documents map.
    *
    * This function captures the latest (reactive) state of the document from the workspace and
@@ -506,6 +526,20 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     return workspace[extensions.workspace.activeDocument] ?? Object.keys(workspace.documents)[0] ?? ''
   }
 
+  function exportDocument(documentName: string, format: 'json' | 'yaml') {
+    const intermediateDocument = intermediateDocuments[documentName]
+
+    if (!intermediateDocument) {
+      return
+    }
+
+    if (format === 'json') {
+      return JSON.stringify(intermediateDocument)
+    }
+
+    return YAML.stringify(intermediateDocument)
+  }
+
   // Save the current state of the specified document to the intermediate documents map.
   // This function captures the latest (reactive) state of the document from the workspace and
   // applies its changes to the corresponding entry in the `intermediateDocuments` map.
@@ -584,6 +618,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     })
 
     const strictDocument: UnknownObject = createMagicProxy({ ...inputDocument, ...meta })
+
+    strictDocument['x-original-oas-version'] = input.document.openapi ?? input.document.swagger
 
     if (strictDocument[extensions.document.navigation] === undefined) {
       // If the document navigation is not already present, bundle the entire document to resolve all references.
@@ -781,19 +817,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     get config() {
       return getDocumentConfiguration(getActiveDocumentName())
     },
-    exportDocument: (documentName: string, format: 'json' | 'yaml') => {
-      const intermediateDocument = intermediateDocuments[documentName]
-
-      if (!intermediateDocument) {
-        return
-      }
-
-      if (format === 'json') {
-        return JSON.stringify(intermediateDocument)
-      }
-
-      return YAML.stringify(intermediateDocument)
-    },
+    exportDocument,
+    exportActiveDocument: (format) => exportDocument(getActiveDocumentName(), format),
     saveDocument,
     async revertDocumentChanges(documentName: string) {
       const workspaceDocument = workspace.documents[documentName]

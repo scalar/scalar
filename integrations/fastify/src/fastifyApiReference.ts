@@ -91,13 +91,14 @@ const fastifyApiReference = fp<
         }
       }
 
-      if (fastify.hasPlugin('@fastify/swagger')) {
+      // Even if @fastify/swagger is loaded, when the `decorator` option is set, the `swagger` function is not available.
+      if (fastify.hasPlugin('@fastify/swagger') && typeof fastify.swagger === 'function') {
         return {
           type: 'swagger' as const,
-          // @ts-ignore We know that @fastify/swagger is loaded.
-          get: () => fastify.swagger() as OpenAPI.Document,
+          get: () => fastify.swagger(),
         }
       }
+
       return void 0
     })()
 
