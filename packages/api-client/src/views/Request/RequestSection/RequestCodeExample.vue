@@ -180,7 +180,11 @@ const selectedClient = computed(
 )
 
 /** Update the selection when a new client is picked */
-const selectClient = ({ id }: ScalarComboboxOption) => {
+const selectClient = (value: ScalarComboboxOption | undefined) => {
+  if (!value) {
+    return
+  }
+  const { id } = value
   const [target, client] = id.split(',')
 
   if (!target || !client) {
