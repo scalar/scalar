@@ -384,19 +384,8 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           packages: './packages/**'
-      - name: Get Playwright version
-        id: playwright-version
-        run: echo "PLAYWRIGHT_VERSION=$(npx playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
-      - name: Playwright binary cache
-        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
-        with:
-          path: |
-            ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.PLAYWRIGHT_VERSION }}
-      - name: Install Playwright browsers
-        run: npx playwright install
-      - name: Install Playwright dependencies
-        run: npx playwright install-deps
+      - name: Install playwright
+        uses: ./.github/actions/install-playwright
       - name: Run e2e tests (@scalar/api-reference)
         run: CI=1 pnpm test:e2e:api-reference
 
@@ -449,19 +438,8 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           packages: './projects/scalar-app'
-      - name: Get Playwright version
-        id: playwright-version
-        run: echo "PLAYWRIGHT_VERSION=$(npx playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
-      - name: Playwright binary cache
-        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
-        with:
-          path: |
-            ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.PLAYWRIGHT_VERSION }}
-      - name: Install Playwright browsers (chromium only)
-        run: npx playwright install chromium
-      - name: Install Playwright dependencies
-        run: npx playwright install-deps
+      - name: Install playwright
+        uses: ./.github/actions/install-playwright
       - name: Check whether the appFiles are there
         run: ls -R ./projects/scalar-app/dist
       - name: Start Xvfb
@@ -493,7 +471,7 @@ jobs:
   test-component-snapshots:
     if: github.event_name == 'pull_request'
     needs: [build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: blacksmith-8vcpu-ubuntu-2204
     permissions:
       contents: read
       pull-requests: write
@@ -501,9 +479,6 @@ jobs:
     strategy:
       matrix:
         node-version: [22]
-    container:
-      image: mcr.microsoft.com/playwright:v1.54.0-noble
-      options: --user root
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -516,9 +491,8 @@ jobs:
           packages: './packages/**'
         env:
           DEPLOY_ID: ${{ env.DEPLOY_ID }}
-      - name: Get Playwright version
-        id: playwright-version
-        run: echo "PLAYWRIGHT_VERSION=$(npx playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
+      - name: Install playwright
+        uses: ./.github/actions/install-playwright
       - name: Build storybook
         run: pnpm --filter components build:storybook
       - name: Run e2e tests (@scalar/components)
@@ -546,7 +520,7 @@ jobs:
   test-cdn-snapshots:
     if: github.event_name == 'pull_request'
     needs: [build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: blacksmith-8vcpu-ubuntu-2204
     permissions:
       contents: read
       pull-requests: write
@@ -554,9 +528,6 @@ jobs:
     strategy:
       matrix:
         node-version: [22]
-    container:
-      image: mcr.microsoft.com/playwright:v1.54.0-noble
-      options: --user root
     steps:
       - name: Checkout repository
         uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
@@ -569,9 +540,8 @@ jobs:
           packages: './packages/**'
         env:
           DEPLOY_ID: ${{ env.DEPLOY_ID }}
-      - name: Get Playwright version
-        id: playwright-version
-        run: echo "PLAYWRIGHT_VERSION=$(npx playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
+      - name: Install playwright
+        uses: ./.github/actions/install-playwright
       - name: Run snapshot tests (@scalar/api-reference)
         run: pnpm --filter api-reference test:e2e:snapshots:ci
         # Only when the PR is from the same repository

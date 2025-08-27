@@ -2,13 +2,14 @@ name: scalar-components-playwright
 services:
   playwright:
     container_name: playwright
+    network_mode: ${NETWORK:-bridge}
     ports:
       - 5001:5001
     init: true
-    working_dir: /home/pwuser
-    user: pwuser
     stop_signal: SIGINT
     stop_grace_period: 10s
-    image: mcr.microsoft.com/playwright:v1.54.0-noble
-    command: /bin/sh -c "npx -y playwright@1.54.0 run-server --port 5001 --host
+    image: scalarapi/playwright:1.55.0
+    command: /bin/sh -c "npx -y playwright@1.55.0 run-server --port 5001 --host
       0.0.0.0"
+    environment:
+      - NETWORK
