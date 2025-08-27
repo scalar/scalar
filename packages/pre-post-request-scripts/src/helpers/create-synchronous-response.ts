@@ -27,6 +27,8 @@ export async function createSynchronousResponse(response: Response): Promise<Syn
         throw new Error('Response is not valid JSON')
       }
     },
+    // Minimal implementation to satisfy modern Response API shape
+    bytes: async () => new TextEncoder().encode(responseText),
     clone: () => {
       throw new Error('Not implemented')
     },

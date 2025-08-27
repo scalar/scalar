@@ -24,7 +24,6 @@
     "@types/node": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "cross-env": "^7.0.3",
-    "vite": "catalog:*",
-    "vue-tsc": "^2.1.10"
+    "vite": "catalog:*"
   }
 }
