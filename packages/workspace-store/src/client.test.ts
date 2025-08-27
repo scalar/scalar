@@ -1174,7 +1174,7 @@ describe('create-workspace-store', () => {
     )
   })
 
-  it.skip('clean up the document to support non-compliant documents', async () => {
+  it('clean up the document to support non-compliant documents', async () => {
     const store = createWorkspaceStore()
 
     await store.addDocument({

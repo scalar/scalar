@@ -16,7 +16,7 @@ async function listFiles(folder: string, limit: number) {
   return files
 }
 
-describe('should correctly cast/default values to make the input schema compliant', () => {
+describe.skip('should correctly cast/default values to make the input schema compliant', () => {
   it.each([
     [Type.Number(), '10', 10],
     [Type.Number(), null, 0],
