@@ -279,6 +279,13 @@ export const getExampleFromSchema = (
       )
     }
 
+    // Check if we need to wrap the result in an XML root element name
+    if (options?.xml && schema.xml?.name && level === 0) {
+      const wrappedResponse: Record<string, any> = {}
+      wrappedResponse[schema.xml.name] = response
+      return cache(schema, wrappedResponse)
+    }
+
     return cache(schema, response)
   }
 

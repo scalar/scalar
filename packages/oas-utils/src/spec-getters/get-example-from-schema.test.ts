@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
-import { getExampleFromSchema } from './get-example-from-schema'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
+import { getExampleFromSchema } from './get-example-from-schema'
 
 describe('getExampleFromSchema', () => {
   it('sets example values', () => {
@@ -758,6 +758,34 @@ describe('getExampleFromSchema', () => {
       ),
     ).toMatchObject({
       foo: 1,
+    })
+  })
+
+  it('uses the xml.name for the root element if present', () => {
+    expect(
+      getExampleFromSchema(
+        coerceValue(SchemaObjectSchema, {
+          type: 'object',
+          xml: {
+            name: 'foobar',
+          },
+          properties: {
+            id: {
+              example: 1,
+              xml: {
+                name: 'foo',
+              },
+            },
+          },
+        }),
+        {
+          xml: true,
+        },
+      ),
+    ).toMatchObject({
+      foobar: {
+        foo: 1,
+      },
     })
   })
 
