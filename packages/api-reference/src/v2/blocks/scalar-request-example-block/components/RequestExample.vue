@@ -192,6 +192,23 @@ watch(
   },
 )
 
+/** Generate HAR data for webhook requests */
+const webhookHar = computed(() => {
+  if (!isWebhook) return null
+
+  try {
+    const selectedExample =
+      operationExamples.value[selectedExampleKey.value || '']
+    const resolvedExample = getResolvedRefDeep(selectedExample)
+    const example = resolvedExample?.value ?? resolvedExample?.summary
+
+    return operationToHar({ operation, method, path, example })
+  } catch (error) {
+    console.error('[webhookHar]', error)
+    return null
+  }
+})
+
 /** Generate the code snippet for the selected example */
 const generatedCode = computed<string>(() => {
   try {
@@ -211,8 +228,7 @@ const generatedCode = computed<string>(() => {
     const example = resolvedExample?.value ?? resolvedExample?.summary
 
     if (isWebhook) {
-      const har = operationToHar({ operation, method, path, example })
-      return har.postData?.text ?? ''
+      return webhookHar.value?.postData?.text ?? ''
     }
 
     return generateCodeSnippet({
@@ -242,7 +258,15 @@ const codeBlockLanguage = computed(() => {
 
 /** Determine the language for webhook content based on MIME type */
 const webhookLanguage = computed<string>(() => {
-  // TODO: Implement this
+  if (!webhookHar.value?.postData) return 'json'
+
+  const contentType = webhookHar.value.postData.mimeType
+  if (contentType?.includes('json')) return 'json'
+  if (contentType?.includes('xml')) return 'xml'
+  if (contentType?.includes('yaml') || contentType?.includes('yml'))
+    return 'yaml'
+  if (contentType?.includes('text/plain')) return 'text'
+
   return 'json'
 })
 
