@@ -192,6 +192,7 @@ const handleDiscriminatorChange = (type: string) => {
             class="operation-example-card"
             :clientOptions="clientOptions"
             fallback
+            :isWebhook
             :method="method"
             :operation="operation"
             :path="path"
