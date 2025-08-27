@@ -46,9 +46,9 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
+    "@scalar/helpers": "workspace:*",
     "@hono/node-server": "^1.11.0",
-    "hono": "^4.6.5",
-    "object-to-xml": "^2.0.0"
+    "hono": "^4.6.5"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",

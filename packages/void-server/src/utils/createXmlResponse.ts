@@ -1,6 +1,5 @@
+import { json2xml } from '@scalar/helpers/file/json2xml'
 import type { Context } from 'hono'
-// @ts-expect-error Doesn't come with types
-import objectToXML from 'object-to-xml'
 
 /**
  * Transform an object into an XML response
@@ -13,7 +12,7 @@ export function createXmlResponse(c: Context, data: Record<string, any>) {
     ...data,
   }
 
-  return c.text(objectToXML(obj), 200, {
+  return c.text(json2xml(obj), 200, {
     'Content-Type': 'application/xml; charset=UTF-8',
   })
 }

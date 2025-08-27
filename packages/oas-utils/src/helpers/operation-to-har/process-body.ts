@@ -67,7 +67,7 @@ export const processBody = ({ content, contentType, example }: ProcessBodyProps)
     if (isXml && typeof example === 'object' && example !== null) {
       return {
         mimeType: _contentType,
-        text: `<?xml version="1.0" encoding="UTF-8"?>${json2xml(example as Record<string, unknown>)}`,
+        text: json2xml(example as Record<string, unknown>),
       }
     }
 
@@ -93,7 +93,7 @@ export const processBody = ({ content, contentType, example }: ProcessBodyProps)
       if (isXml && typeof extractedExample === 'object' && extractedExample !== null) {
         return {
           mimeType: _contentType,
-          text: `<?xml version="1.0" encoding="UTF-8"?>${json2xml(extractedExample as Record<string, unknown>)}`,
+          text: json2xml(extractedExample as Record<string, unknown>),
         }
       }
 
