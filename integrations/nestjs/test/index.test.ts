@@ -27,7 +27,7 @@ describe('apiReference middleware (express)', () => {
     expect(res.type).toBe('text/html')
     expect(res.text).toContain('<title>Scalar API Reference</title>')
     expect(res.text).toContain('Test API')
-    expect(res.text).toContain('--scalar-color-1: #2a2f45;')
+    expect(res.text).toContain('--scalar-color-1: #1b1b1b;')
   })
 
   it('should not include default theme CSS when a theme is provided', async () => {
@@ -47,7 +47,7 @@ describe('apiReference middleware (express)', () => {
     expect(res.text).toContain('<title>Scalar API Reference</title>')
     expect(res.text).toContain('https://cdn.example.com')
     expect(res.text).toContain('Test API')
-    expect(res.text).not.toContain('--scalar-color-1: #2a2f45;')
+    expect(res.text).not.toContain('--scalar-color-1: #1b1b1b;')
   })
 
   it('should handle missing spec content gracefully', async () => {
