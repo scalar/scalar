@@ -15,7 +15,7 @@ To test the Spring Boot integration:
 
 ```bash
 cd integrations/java/springboot
-mvn spring-boot:run
+mvn clean spring-boot:run
 ```
 
 Then visit `http://localhost:8080/scalar` to see the API reference.
