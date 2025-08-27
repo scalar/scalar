@@ -110,6 +110,7 @@
     "@scalar/workspace-store": "workspace:*",
     "@types/har-format": "^1.2.15",
     "flatted": "catalog:*",
+    "js-base64": "catalog:*",
     "microdiff": "catalog:*",
     "nanoid": "catalog:*",
     "type-fest": "catalog:*",

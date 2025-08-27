@@ -1377,6 +1377,9 @@ importers:
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
+      js-base64:
+        specifier: catalog:*
+        version: 3.7.8
       microdiff:
         specifier: catalog:*
         version: 1.5.0
@@ -2074,6 +2077,9 @@ importers:
       flatted:
         specifier: catalog:*
         version: 3.3.3
+      js-base64:
+        specifier: catalog:*
+        version: 3.7.8
       microdiff:
         specifier: catalog:*
         version: 1.5.0
