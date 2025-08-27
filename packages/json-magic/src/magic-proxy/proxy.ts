@@ -44,8 +44,8 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
   target: T,
   root: S | T = target,
   cache = new Map<string, unknown>(),
-  proxyCache = new WeakMap<object, unknown>(),
-): any => {
+  proxyCache = new WeakMap<object, T>(),
+) => {
   if (!isObject(target) && !Array.isArray(target)) {
     return target
   }
@@ -94,7 +94,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
 
       // For all other properties, recursively wrap the value in a magic proxy
       const value = Reflect.get(target, prop, receiver)
-      return createMagicProxy(value, root, cache, proxyCache)
+      return createMagicProxy(value as T, root, cache, proxyCache)
     },
     /**
      * Proxy "set" trap for magic proxy.
