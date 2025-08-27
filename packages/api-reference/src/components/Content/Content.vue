@@ -194,11 +194,4 @@ const getOriginalDocument = () => store.exportActiveDocument('json') ?? '{}'
   container-name: narrow-references-container;
   container-type: inline-size;
 }
-
-.introduction-card-item {
-  display: flex;
-  margin-bottom: 12px;
-  flex-direction: column;
-  justify-content: start;
-}
 </style>
