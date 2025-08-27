@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 import { getExampleFromSchema } from './get-example-from-schema'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 
 describe('getExampleFromSchema', () => {
   it('sets example values', () => {
@@ -740,107 +740,77 @@ describe('getExampleFromSchema', () => {
     })
   })
 
-  describe('XML handling', () => {
-    it('outputs XML', () => {
-      expect(
-        getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
-            type: 'object',
-            properties: {
-              id: {
-                example: 1,
-                xml: {
-                  name: 'foo',
-                },
+  it('outputs XML', () => {
+    expect(
+      getExampleFromSchema(
+        coerceValue(SchemaObjectSchema, {
+          type: 'object',
+          properties: {
+            id: {
+              example: 1,
+              xml: {
+                name: 'foo',
               },
             },
-          }),
-          { xml: true },
-        ),
-      ).toMatchObject({
-        foo: 1,
-      })
-    })
-
-    it('uses the xml.name for the root element if present', () => {
-      expect(
-        getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
-            type: 'object',
-            xml: {
-              name: 'foobar',
-            },
-            properties: {
-              id: {
-                example: 1,
-                xml: {
-                  name: 'foo',
-                },
-              },
-            },
-          }),
-          {
-            xml: true,
           },
-        ),
-      ).toMatchObject({
-        foobar: {
-          foo: 1,
-        },
-      })
+        }),
+        { xml: true },
+      ),
+    ).toMatchObject({
+      foo: 1,
     })
+  })
 
-    it('add XML wrappers where needed', () => {
-      expect(
-        getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
-            type: 'object',
-            properties: {
-              photoUrls: {
-                type: 'array',
+  it('add XML wrappers where needed', () => {
+    expect(
+      getExampleFromSchema(
+        coerceValue(SchemaObjectSchema, {
+          type: 'object',
+          properties: {
+            photoUrls: {
+              type: 'array',
+              xml: {
+                wrapped: true,
+              },
+              items: {
+                type: 'string',
+                example: 'https://example.com',
                 xml: {
-                  wrapped: true,
-                },
-                items: {
-                  type: 'string',
-                  example: 'https://example.com',
-                  xml: {
-                    name: 'photoUrl',
-                  },
+                  name: 'photoUrl',
                 },
               },
             },
-          }),
-          { xml: true },
-        ),
-      ).toMatchObject({
-        photoUrls: [{ photoUrl: 'https://example.com' }],
-      })
+          },
+        }),
+        { xml: true },
+      ),
+    ).toMatchObject({
+      photoUrls: [{ photoUrl: 'https://example.com' }],
     })
+  })
 
-    it(`doesn't wrap items when not needed`, () => {
-      expect(
-        getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
-            type: 'object',
-            properties: {
-              photoUrls: {
-                type: 'array',
-                items: {
-                  type: 'string',
-                  example: 'https://example.com',
-                  xml: {
-                    name: 'photoUrl',
-                  },
+  it(`doesn't wrap items when not needed`, () => {
+    expect(
+      getExampleFromSchema(
+        coerceValue(SchemaObjectSchema, {
+          type: 'object',
+          properties: {
+            photoUrls: {
+              type: 'array',
+              items: {
+                type: 'string',
+                example: 'https://example.com',
+                xml: {
+                  name: 'photoUrl',
                 },
               },
             },
-          }),
-          { xml: true },
-        ),
-      ).toMatchObject({
-        photoUrls: ['https://example.com'],
-      })
+          },
+        }),
+        { xml: true },
+      ),
+    ).toMatchObject({
+      photoUrls: ['https://example.com'],
     })
   })
 

@@ -3,10 +3,11 @@ import type { OpenAPI } from '@scalar/openapi-types'
 import type { Context } from 'hono'
 import { accepts } from 'hono/accepts'
 import type { StatusCode } from 'hono/utils/http-status'
+// @ts-expect-error Doesn't come with types
+import objectToXML from 'object-to-xml'
 
 import type { MockServerOptions } from '@/types'
 import { findPreferredResponseKey } from '@/utils/findPreferredResponseKey'
-import { json2xml } from '@scalar/helpers/file/json2xml'
 
 /**
  * Mock any response
@@ -78,7 +79,7 @@ export function mockAnyResponse(c: Context, operation: OpenAPI.Operation, option
     typeof body === 'object'
       ? // XML
         acceptedContentType?.includes('xml')
-        ? json2xml(body)
+        ? `<?xml version="1.0" encoding="UTF-8"?>${objectToXML(body)}`
         : // JSON
           JSON.stringify(body, null, 2)
       : // String
