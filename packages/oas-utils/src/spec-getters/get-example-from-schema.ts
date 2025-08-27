@@ -70,7 +70,7 @@ function cache(schema: SchemaObject, result: unknown) {
  * This function takes an OpenAPI schema and generates an example from it
  */
 export const getExampleFromSchema = (
-  _schema: SchemaObject | undefined,
+  _schema: SchemaObject,
   options?: {
     /**
      * The fallback string for empty string values.
