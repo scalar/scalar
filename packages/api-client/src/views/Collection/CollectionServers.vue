@@ -84,11 +84,11 @@ const wrapper = useTemplateRef('wrapper-ref')
             class="bg-b-2 flex items-start justify-between rounded-t-lg py-1 pr-1 pl-3 text-sm">
             <ScalarMarkdown
               v-if="server.description"
-              :value="server.description"
-              class="self-center" />
-            <span
               class="self-center"
+              :value="server.description" />
+            <span
               v-else
+              class="self-center"
               >Server {{ index + 1 }}</span
             >
             <ScalarButton

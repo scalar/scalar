@@ -50,17 +50,17 @@ const tabIndex = computed(() =>
   ),
 )
 
-const wrapperRef = useTemplateRef('wrapper')
+const wrapper = useTemplateRef('wrapper-ref')
 
 /** Emit the selected client event on tab */
 const onTabSelect = (i: number) => {
   const client = featuredClients.value[i]
 
-  if (!client || !wrapperRef.value) {
+  if (!client || !wrapper.value) {
     return
   }
 
-  emitCustomEvent(wrapperRef.value, 'scalar-update-selected-client', client.id)
+  emitCustomEvent(wrapper.value, 'scalar-update-selected-client', client.id)
 }
 
 const installationInstructions = computed(() => {
@@ -94,7 +94,7 @@ defineExpose({
 <template>
   <div
     v-if="clientOptions.length"
-    ref="wrapper">
+    ref="wrapper-ref">
     <TabGroup
       manual
       :selectedIndex="tabIndex"
@@ -112,8 +112,8 @@ defineExpose({
         <ClientDropdown
           :clientOptions
           :featuredClients
-          :xSelectedClient
-          :morePanel />
+          :morePanel
+          :xSelectedClient />
       </TabList>
 
       <!-- Content -->
@@ -137,10 +137,10 @@ defineExpose({
             role="tabpanel"
             tabindex="1">
             <ScalarCodeBlock
-              lang="shell"
+              class="rounded-t-none rounded-b-lg px-3 py-2 -outline-offset-1 has-focus:outline"
               :content="installationInstructions.source"
               :copy="true"
-              class="rounded-t-none rounded-b-lg px-3 py-2 -outline-offset-1 has-focus:outline" />
+              lang="shell" />
           </div>
         </template>
         <template v-else-if="isFeaturedClient(xSelectedClient)">

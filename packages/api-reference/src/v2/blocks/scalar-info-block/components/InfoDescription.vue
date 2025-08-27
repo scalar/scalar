@@ -7,9 +7,9 @@ import { computed } from 'vue'
 import IntersectionObserver from '@/components/IntersectionObserver.vue'
 import { useNavState } from '@/hooks/useNavState'
 
-const props = defineProps<{
+const { description } = defineProps<{
   /** Markdown document */
-  value?: string
+  description?: string
 }>()
 
 /**
@@ -17,13 +17,13 @@ const props = defineProps<{
  * We need this to wrap the headings in IntersectionObserver components.
  */
 const sections = computed(() => {
-  if (!props.value) {
+  if (!description) {
     return []
   }
 
   const slugger = new GitHubSlugger()
 
-  const items = splitContent(props.value).map((markdown) => {
+  const items = splitContent(description).map((markdown) => {
     // Get “first” (and only) heading, if available
     const [heading] = getHeadings(markdown)
 
@@ -75,7 +75,7 @@ const transformHeading = (node: Record<string, any>) => {
 
 <template>
   <div
-    v-if="value"
+    v-if="description"
     class="introduction-description">
     <template
       v-for="section in sections"

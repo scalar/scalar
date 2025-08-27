@@ -1,10 +1,6 @@
 import { isJsonString } from '@scalar/oas-utils/helpers'
-import { type EventBusKey, useEventBus } from '@vueuse/core'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import { normalize, toJson, toYaml } from '@scalar/openapi-parser'
-
-const downloadEventBusKey: EventBusKey<{ id: string; filename?: string; format?: 'json' | 'yaml' }> = Symbol('download')
-export const downloadEventBus = useEventBus(downloadEventBusKey)
 
 /**
  * Format content based on desired format and current content type

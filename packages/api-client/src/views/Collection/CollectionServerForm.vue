@@ -140,9 +140,9 @@ const wrapper = useTemplateRef('wrapper-ref')
 
 <template>
   <div
+    ref="wrapper-ref"
     class="divide-0.5 flex w-full flex-col divide-y rounded-b-lg text-sm"
-    :class="activeServer?.variables && 'bg-b-1'"
-    ref="wrapper-ref">
+    :class="activeServer?.variables && 'bg-b-1'">
     <template v-if="activeServer">
       <Form
         :data="activeServer"

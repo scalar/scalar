@@ -30,7 +30,6 @@ import {
   onUnmounted,
   provide,
   ref,
-  toValue,
   useId,
   watch,
 } from 'vue'
@@ -42,12 +41,10 @@ import { hasLazyLoaded } from '@/components/Lazy/lazyBus'
 import MobileHeader from '@/components/MobileHeader.vue'
 import { ApiClientModal } from '@/features/api-client-modal'
 import { useDocumentSource } from '@/features/document-source'
-import { OPENAPI_VERSION_SYMBOL } from '@/features/download-link'
 import { SearchButton } from '@/features/Search'
 import { Sidebar, useSidebar } from '@/features/sidebar'
 import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
-import { downloadDocument, downloadEventBus } from '@/libs/download'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import type {
   ReferenceLayoutProps,
@@ -57,7 +54,6 @@ import type {
 import { useLegacyStoreEvents } from '@/v2/hooks/use-legacy-store-events'
 
 const {
-  rawSpec,
   configuration: providedConfiguration,
   originalDocument: providedOriginalDocument,
   dereferencedDocument: providedDereferencedDocument,
@@ -84,19 +80,13 @@ defineOptions({
   inheritAttrs: false,
 })
 
-const {
-  originalDocument,
-  originalOpenApiVersion,
-  dereferencedDocument,
-  workspaceStore,
-  activeEntitiesStore,
-} = useDocumentSource({
-  configuration,
-  dereferencedDocument: providedDereferencedDocument,
-  originalDocument: providedOriginalDocument,
-})
+const { dereferencedDocument, workspaceStore, activeEntitiesStore } =
+  useDocumentSource({
+    configuration,
+    dereferencedDocument: providedDereferencedDocument,
+    originalDocument: providedOriginalDocument,
+  })
 
-provide(OPENAPI_VERSION_SYMBOL, originalOpenApiVersion)
 provide(WORKSPACE_SYMBOL, workspaceStore)
 provide(ACTIVE_ENTITIES_SYMBOL, activeEntitiesStore)
 
@@ -238,21 +228,9 @@ const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
   breadcrumb: items.value?.titles.get(hash.value) ?? '',
 }))
 
-// Download documents
-onMounted(() =>
-  downloadEventBus.on(({ filename, format }) => {
-    downloadDocument(
-      toValue(originalDocument) || toValue(rawSpec) || '',
-      filename,
-      format,
-    )
-  }),
-)
-
 onUnmounted(() => {
   // Remove window scroll listener
   window.removeEventListener('scroll', debouncedScroll)
-  downloadEventBus.reset()
 })
 
 /**
@@ -329,11 +307,11 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
     <!-- Header -->
     <div class="references-header">
       <MobileHeader
-        :breadcrumb="referenceSlotProps.breadcrumb"
         v-if="
           configuration.layout === 'modern' &&
           (configuration.showSidebar ?? true)
-        " />
+        "
+        :breadcrumb="referenceSlotProps.breadcrumb" />
       <slot
         v-bind="referenceSlotProps"
         name="header" />
@@ -359,8 +337,8 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
                 v-if="!configuration.hideSearch"
                 class="scalar-api-references-standalone-search">
                 <SearchButton
-                  :searchHotKey="configuration?.searchHotKey"
-                  :hideModels="configuration?.hideModels" />
+                  :hideModels="configuration?.hideModels"
+                  :searchHotKey="configuration?.searchHotKey" />
               </div>
               <!-- Sidebar Start -->
               <slot
@@ -409,8 +387,8 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
         :aria-label="`Open API Documentation for ${dereferencedDocument?.info?.title}`"
         class="references-rendered">
         <Content
-          :document="dereferencedDocument"
           :config="configuration"
+          :document="dereferencedDocument"
           :store="store">
           <template #start>
             <slot
@@ -425,8 +403,8 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
                 <SearchButton
                   v-if="!configuration.hideSearch"
                   class="t-doc__sidebar max-w-64"
-                  :searchHotKey="configuration.searchHotKey"
-                  :hideModels="configuration?.hideModels" />
+                  :hideModels="configuration?.hideModels"
+                  :searchHotKey="configuration.searchHotKey" />
                 <template #dark-mode-toggle>
                   <ScalarColorModeToggleIcon
                     v-if="!configuration.hideDarkModeToggle"
