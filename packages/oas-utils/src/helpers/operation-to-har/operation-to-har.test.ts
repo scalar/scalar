@@ -1,11 +1,11 @@
-import { describe, it, expect } from 'vitest'
-import { operationToHar } from './operation-to-har'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
+import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
+import { describe, expect, it } from 'vitest'
+import { operationToHar } from './operation-to-har'
 
 describe('operationToHar', () => {
   describe('basic functionality', () => {
@@ -648,7 +648,9 @@ describe('operationToHar', () => {
       })
 
       expect(result.postData?.mimeType).toBe('application/xml')
-      expect(result.postData?.text).toBe(JSON.stringify({ user: { name: 'John Doe', email: 'john@example.com' } }))
+      expect(result.postData?.text).toBe(
+        `<?xml version="1.0" encoding="UTF-8"?><user><name>John Doe</name><email>john@example.com</email></user>`,
+      )
     })
 
     it('should handle custom content types', () => {
@@ -759,7 +761,7 @@ describe('operationToHar', () => {
       })
 
       expect(result.postData?.mimeType).toBe('application/xml')
-      expect(result.postData?.text).toBe(JSON.stringify({ name: 'John Doe' }))
+      expect(result.postData?.text).toBe(`<?xml version="1.0" encoding="UTF-8"?><name>John Doe</name>`)
     })
 
     it('should set Content-Type header when request body is present', () => {

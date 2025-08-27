@@ -189,7 +189,7 @@ export function getRequestBodyFromOperation(
 
     return {
       mimeType,
-      text: example ?? json2xml(exampleFromSchema, '  '),
+      text: example ?? json2xml(exampleFromSchema),
     }
   }
 
