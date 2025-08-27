@@ -2,7 +2,9 @@ import { z } from 'zod'
 
 export const analyticsEventData = {
   'page-view': z.object({
-    path: z.string(),
+    to: z.string(),
+    from: z.string(),
+    hostname: z.string(),
   }),
 } as const
 
