@@ -1,5 +1,6 @@
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import type { Request as HarRequest } from 'har-format'
+import { encode } from 'js-base64'
 
 type ProcessedSecuritySchemesReturn = {
   headers: HarRequest['headers']
@@ -50,7 +51,7 @@ export const processSecuritySchemes = (securitySchemes: SecuritySchemeObject[]):
         const password = scheme['x-scalar-secret-password'] || ''
 
         const value = `${username}:${password}`
-        const auth = value === ':' ? 'username:password' : btoa(value)
+        const auth = value === ':' ? 'username:password' : encode(value)
 
         result.headers.push({
           name: 'Authorization',

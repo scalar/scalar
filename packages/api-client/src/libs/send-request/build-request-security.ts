@@ -2,6 +2,7 @@ import { replaceTemplateVariables } from '@/libs/string-template'
 import { cookieSchema, type Cookie } from '@scalar/oas-utils/entities/cookie'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
 import { isDefined } from '@scalar/oas-utils/helpers'
+import { encode } from 'js-base64'
 
 /**
  * Generates the headers, cookies and query params for selected security schemes
@@ -46,7 +47,7 @@ export const buildRequestSecurity = (
         const password = replaceTemplateVariables(scheme.password, env)
         const value = `${username}:${password}`
 
-        headers['Authorization'] = `Basic ${value === ':' ? 'username:password' : btoa(value)}`
+        headers['Authorization'] = `Basic ${value === ':' ? 'username:password' : encode(value)}`
       } else {
         const value = replaceTemplateVariables(scheme.token, env)
         headers['Authorization'] = `Bearer ${value || emptyTokenPlaceholder}`

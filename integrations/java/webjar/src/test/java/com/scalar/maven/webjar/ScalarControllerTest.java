@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -43,19 +45,19 @@ class ScalarControllerTest {
 
             // Then
             assertThat(response)
-                .isNotNull()
-                .satisfies(resp -> {
-                    assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
-                    assertThat(resp.getHeaders().getContentType()).isEqualTo(MediaType.TEXT_HTML);
-                });
+                    .isNotNull()
+                    .satisfies(resp -> {
+                        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
+                        assertThat(resp.getHeaders().getContentType()).isEqualTo(MediaType.TEXT_HTML);
+                    });
 
             String html = response.getBody();
             assertThat(html)
-                .isNotNull()
-                .contains("<!doctype html>")
-                .contains("<title>Scalar API Reference</title>")
-                .contains("Scalar.createApiReference('#app',")
-                .contains("url: \"https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json\"");
+                    .isNotNull()
+                    .contains("<!doctype html>")
+                    .contains("<title>Scalar API Reference</title>")
+                    .contains("Scalar.createApiReference('#app',")
+                    .contains("url: \"https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json\"");
         }
 
         @Test
@@ -70,16 +72,16 @@ class ScalarControllerTest {
 
             // Then
             assertThat(response)
-                .isNotNull()
-                .satisfies(resp -> {
-                    assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
-                    assertThat(resp.getHeaders().getContentType()).isEqualTo(MediaType.TEXT_HTML);
-                });
+                    .isNotNull()
+                    .satisfies(resp -> {
+                        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
+                        assertThat(resp.getHeaders().getContentType()).isEqualTo(MediaType.TEXT_HTML);
+                    });
 
             String html = response.getBody();
             assertThat(html)
-                .isNotNull()
-                .contains("url: \"https://example.com/api/openapi.json\"");
+                    .isNotNull()
+                    .contains("url: \"https://example.com/api/openapi.json\"");
         }
 
         @Test
@@ -94,13 +96,13 @@ class ScalarControllerTest {
 
             // Then
             assertThat(response)
-                .isNotNull()
-                .satisfies(resp -> assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK));
+                    .isNotNull()
+                    .satisfies(resp -> assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK));
 
             String html = response.getBody();
             assertThat(html)
-                .isNotNull()
-                .contains("url: \"https://api.example.com/v1/docs?format=json&version=2.0\"");
+                    .isNotNull()
+                    .contains("url: \"https://api.example.com/v1/docs?format=json&version=2.0\"");
         }
 
         @Test
@@ -114,13 +116,13 @@ class ScalarControllerTest {
 
             // Then
             assertThat(response)
-                .isNotNull()
-                .satisfies(resp -> assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK));
+                    .isNotNull()
+                    .satisfies(resp -> assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK));
 
             String html = response.getBody();
             assertThat(html)
-                .isNotNull()
-                .contains("url: \"\"");
+                    .isNotNull()
+                    .contains("url: \"\"");
         }
 
         @Test
@@ -134,13 +136,125 @@ class ScalarControllerTest {
 
             // Then
             assertThat(response)
-                .isNotNull()
-                .satisfies(resp -> assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK));
+                    .isNotNull()
+                    .satisfies(resp -> assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK));
 
             String html = response.getBody();
             assertThat(html)
-                .isNotNull()
-                .contains("url: \"\"");
+                    .isNotNull()
+                    .contains("url: \"\"");
+        }
+
+        @Test
+        @DisplayName("should return HTML with custom sources configuration")
+        void shouldReturnHtmlWithCustomSources() throws Exception {
+            // Given
+            final ScalarProperties.ScalarSource source = new ScalarProperties.ScalarSource();
+            source.setUrl("https://example.com/api/openapi.json");
+
+            final List<ScalarProperties.ScalarSource> sources = List.of(
+                    source,
+                    new ScalarProperties.ScalarSource(
+                            "https://anotherexample.com/api.json",
+                            "API 2",
+                            "another-example",
+                            true
+                    )
+            );
+            when(properties.getSources()).thenReturn(sources);
+
+            // When
+            ResponseEntity<String> response = controller.getDocs();
+
+            // Then
+            assertThat(response)
+                    .isNotNull()
+                    .satisfies(resp -> {
+                        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
+                        assertThat(resp.getHeaders().getContentType()).isEqualTo(MediaType.TEXT_HTML);
+                    });
+
+            String html = response.getBody();
+            assertThat(html)
+                    .isNotNull()
+                    .containsIgnoringWhitespaces("""
+                            sources: [
+                                {
+                                  url: "https://example.com/api/openapi.json"
+                                },
+                                {
+                                  url: "https://anotherexample.com/api.json",
+                                  title: "API 2",
+                                  slug: "another-example",
+                                  default: true
+                                }
+                            ]
+                            """);
+        }
+
+        @Test
+        @DisplayName("should return HTML with custom sources configuration")
+        void shouldIgnoreInvalidSources() throws Exception {
+            // Given
+            final ScalarProperties.ScalarSource source = new ScalarProperties.ScalarSource();
+            source.setUrl("https://example.com/api/openapi.json");
+
+            final List<ScalarProperties.ScalarSource> sources = List.of(
+                    source,
+                    // this source has an invalid url and should be ignored
+                    new ScalarProperties.ScalarSource(
+                            " ", // invalid url
+                            "API 2",
+                            "another-example",
+                            true
+                    )
+            );
+            when(properties.getSources()).thenReturn(sources);
+
+            // When
+            ResponseEntity<String> response = controller.getDocs();
+
+            // Then
+            assertThat(response)
+                    .isNotNull()
+                    .satisfies(resp -> {
+                        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
+                        assertThat(resp.getHeaders().getContentType()).isEqualTo(MediaType.TEXT_HTML);
+                    });
+
+            String html = response.getBody();
+            assertThat(html)
+                    .isNotNull()
+                    .containsIgnoringWhitespaces("""
+                            sources: [
+                            {
+                              url: "https://example.com/api/openapi.json"
+                            }
+                            ]
+                            """);
+        }
+
+        @Test
+        @DisplayName("should handle no sources provided")
+        void shouldHandleNoSources() throws Exception {
+            // Given
+            when(properties.getSources()).thenReturn(List.of());
+
+            // When
+            ResponseEntity<String> response = controller.getDocs();
+
+            // Then
+            assertThat(response)
+                    .isNotNull()
+                    .satisfies(resp -> {
+                        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
+                        assertThat(resp.getHeaders().getContentType()).isEqualTo(MediaType.TEXT_HTML);
+                    });
+
+            String html = response.getBody();
+            assertThat(html)
+                    .isNotNull()
+                    .doesNotContain("sources:");
         }
 
         @Test
@@ -156,8 +270,8 @@ class ScalarControllerTest {
             // Then
             String html = response.getBody();
             assertThat(html)
-                .isNotNull()
-                .contains("showSidebar: false");
+                    .isNotNull()
+                    .contains("showSidebar: false");
         }
 
         @Test
@@ -173,8 +287,8 @@ class ScalarControllerTest {
             // Then
             String html = response.getBody();
             assertThat(html)
-                .isNotNull()
-                .contains("hideModels: true");
+                    .isNotNull()
+                    .contains("hideModels: true");
         }
 
         @Test
@@ -190,8 +304,8 @@ class ScalarControllerTest {
             // Then
             String html = response.getBody();
             assertThat(html)
-                .isNotNull()
-                .contains("hideTestRequestButton: true");
+                    .isNotNull()
+                    .contains("hideTestRequestButton: true");
         }
 
         @Test
@@ -207,8 +321,8 @@ class ScalarControllerTest {
             // Then
             String html = response.getBody();
             assertThat(html)
-                .isNotNull()
-                .contains("darkMode: true");
+                    .isNotNull()
+                    .contains("darkMode: true");
         }
 
         @Test
@@ -224,8 +338,8 @@ class ScalarControllerTest {
             // Then
             String html = response.getBody();
             assertThat(html)
-                .isNotNull()
-                .contains("hideDarkModeToggle: true");
+                    .isNotNull()
+                    .contains("hideDarkModeToggle: true");
         }
 
         @Test
@@ -241,8 +355,8 @@ class ScalarControllerTest {
             // Then
             String html = response.getBody();
             assertThat(html)
-                .isNotNull()
-                .contains("customCss: \"body { background-color: #BADA55; }\"");
+                    .isNotNull()
+                    .contains("customCss: \"body { background-color: #BADA55; }\"");
         }
 
         @Test
@@ -258,8 +372,8 @@ class ScalarControllerTest {
             // Then
             String html = response.getBody();
             assertThat(html)
-                .isNotNull()
-                .contains("theme: \"mars\"");
+                    .isNotNull()
+                    .contains("theme: \"mars\"");
         }
 
         @Test
@@ -275,8 +389,8 @@ class ScalarControllerTest {
             // Then
             String html = response.getBody();
             assertThat(html)
-                .isNotNull()
-                .contains("layout: \"classic\"");
+                    .isNotNull()
+                    .contains("layout: \"classic\"");
         }
 
         @Test
@@ -292,8 +406,8 @@ class ScalarControllerTest {
             // Then
             String html = response.getBody();
             assertThat(html)
-                .isNotNull()
-                .contains("hideSearch: true");
+                    .isNotNull()
+                    .contains("hideSearch: true");
         }
 
         @Test
@@ -309,8 +423,8 @@ class ScalarControllerTest {
             // Then
             String html = response.getBody();
             assertThat(html)
-                .isNotNull()
-                .contains("documentDownloadType: \"json\"");
+                    .isNotNull()
+                    .contains("documentDownloadType: \"json\"");
         }
 
         @Test
@@ -330,13 +444,13 @@ class ScalarControllerTest {
             // Then
             String html = response.getBody();
             assertThat(html)
-                .isNotNull()
-                .contains("url: \"https://example.com/api.json\"")
-                .contains("showSidebar: false")
-                .contains("hideModels: true")
-                .contains("darkMode: true")
-                .contains("theme: \"mars\"")
-                .contains("customCss: \"body { background-color: #BADA55; }\"");
+                    .isNotNull()
+                    .contains("url: \"https://example.com/api.json\"")
+                    .contains("showSidebar: false")
+                    .contains("hideModels: true")
+                    .contains("darkMode: true")
+                    .contains("theme: \"mars\"")
+                    .contains("customCss: \"body { background-color: #BADA55; }\"");
         }
 
         @Test
@@ -352,8 +466,8 @@ class ScalarControllerTest {
             // Then
             String html = response.getBody();
             assertThat(html)
-                .isNotNull()
-                .contains("customCss: \"body { content: \\\"quoted text\\\"; }\"");
+                    .isNotNull()
+                    .contains("customCss: \"body { content: \\\"quoted text\\\"; }\"");
         }
     }
 
@@ -375,11 +489,11 @@ class ScalarControllerTest {
             // Then
             String html = response.getBody();
             assertThat(html)
-                .isNotNull()
-                .contains("<title>Scalar API Reference</title>")
-                .contains("<div id=\"app\"></div>")
-                .contains("<script src=\"/scalar/scalar.js\"></script>")
-                .contains("Scalar.createApiReference('#app',");
+                    .isNotNull()
+                    .contains("<title>Scalar API Reference</title>")
+                    .contains("<div id=\"app\"></div>")
+                    .contains("<script src=\"/scalar/scalar.js\"></script>")
+                    .contains("Scalar.createApiReference('#app',");
         }
 
         @Test
@@ -391,9 +505,9 @@ class ScalarControllerTest {
             // Then
             String html = response.getBody();
             assertThat(html)
-                .isNotNull()
-                .doesNotContain("__CONFIGURATION__")
-                .contains("url: \"https://example.com/api.json\"");
+                    .isNotNull()
+                    .doesNotContain("__CONFIGURATION__")
+                    .contains("url: \"https://example.com/api.json\"");
         }
     }
 

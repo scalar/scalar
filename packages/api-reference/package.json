@@ -89,6 +89,7 @@
     "flatted": "catalog:*",
     "fuse.js": "catalog:*",
     "github-slugger": "^2.0.0",
+    "js-base64": "catalog:*",
     "microdiff": "catalog:*",
     "nanoid": "catalog:*",
     "vue": "catalog:*",

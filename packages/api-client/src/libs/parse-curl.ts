@@ -1,5 +1,6 @@
 import type { RequestMethod } from '@scalar/oas-utils/entities/spec'
 import { parse as parseShellCommand } from 'shell-quote'
+import { encode } from 'js-base64'
 
 /** Parse and normalize a curl command */
 export function parseCurlCommand(curlCommand: string) {
@@ -140,7 +141,7 @@ function parseAuth(iterator: Iterator<string>, result: any) {
   const auth = iterator.next().value
 
   try {
-    const encodedAuth = btoa(auth)
+    const encodedAuth = encode(auth)
 
     result.headers = result.headers || {}
 

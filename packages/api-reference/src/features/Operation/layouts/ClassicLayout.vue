@@ -57,13 +57,13 @@ const { operation, path, config, isWebhook } = defineProps<{
   store: WorkspaceStore
 }>()
 
-const operationTitle = computed(() => operation.summary || path || '')
-
-const { copyToClipboard } = useClipboard()
-
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
 }>()
+
+const operationTitle = computed(() => operation.summary || path || '')
+
+const { copyToClipboard } = useClipboard()
 
 const handleDiscriminatorChange = (type: string) => {
   emit('update:modelValue', type)
@@ -95,8 +95,8 @@ const handleDiscriminatorChange = (type: string) => {
               </div>
               <!-- Stability badge -->
               <Badge
-                class="capitalize"
                 v-if="getOperationStability(operation)"
+                class="capitalize"
                 :class="getOperationStabilityColor(operation)">
                 {{ getOperationStability(operation) }}
               </Badge>
@@ -141,18 +141,18 @@ const handleDiscriminatorChange = (type: string) => {
       v-if="operation.description"
       #description>
       <ScalarMarkdown
-        :value="operation.description"
-        withImages
-        withAnchors
+        :anchorPrefix="id"
         transformType="heading"
-        :anchorPrefix="id" />
+        :value="operation.description"
+        withAnchors
+        withImages />
     </template>
     <div class="endpoint-content">
       <div class="operation-details-card">
         <div class="operation-details-card-item">
           <OperationParameters
-            :requestBody="oldOperation.requestBody"
             :parameters="operation.parameters"
+            :requestBody="oldOperation.requestBody"
             :schemas
             @update:modelValue="handleDiscriminatorChange" />
         </div>
@@ -168,16 +168,16 @@ const handleDiscriminatorChange = (type: string) => {
           v-if="operation?.callbacks"
           class="operation-details-card-item">
           <Callbacks
+            :callbacks="operation.callbacks"
             :method="method"
             :path="path"
-            :callbacks="operation.callbacks"
             :schemas="schemas" />
         </div>
       </div>
 
       <ExampleResponses
-        class="operation-example-card"
         v-if="operation.responses"
+        class="operation-example-card"
         :responses="operation.responses" />
 
       <!-- New Example Request -->
@@ -190,14 +190,15 @@ const handleDiscriminatorChange = (type: string) => {
         <ScalarErrorBoundary>
           <RequestExample
             class="operation-example-card"
-            :method="method"
-            :selectedServer="server"
             :clientOptions="clientOptions"
-            :selectedClient="store.workspace['x-scalar-default-client']"
-            :securitySchemes="securitySchemes"
-            :path="path"
             fallback
+            :isWebhook
+            :method="method"
             :operation="operation"
+            :path="path"
+            :securitySchemes="securitySchemes"
+            :selectedClient="store.workspace['x-scalar-default-client']"
+            :selectedServer="server"
             @update:modelValue="handleDiscriminatorChange" />
         </ScalarErrorBoundary>
       </div>

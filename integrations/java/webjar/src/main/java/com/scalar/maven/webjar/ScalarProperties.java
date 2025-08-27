@@ -2,6 +2,8 @@ package com.scalar.maven.webjar;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.List;
+
 /**
  * Configuration properties for the Scalar API Reference integration.
  *
@@ -30,6 +32,11 @@ public class ScalarProperties {
      * Defaults to a sample specification from the Scalar Galaxy CDN.
      */
     private String url = "https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json";
+
+    /**
+     * List of OpenAPI reference sources, allowing to set multiple OpenAPI references (replaces {@link #url})
+     */
+    private List<ScalarSource> sources;
 
     /**
      * Whether the Scalar API Reference is enabled.
@@ -105,6 +112,24 @@ public class ScalarProperties {
      * Defaults to "both".
      */
     private String documentDownloadType = "both";
+
+    /**
+     * Gets the list of OpenAPI specification sources
+     *
+     * @return list of OpenAPI specification sources
+     */
+    public List<ScalarSource> getSources() {
+        return sources;
+    }
+
+    /**
+     * Sets the list of OpenAPI specification sources
+     *
+     * @param sources list of OpenAPI specification sources
+     */
+    public void setSources(List<ScalarSource> sources) {
+        this.sources = sources;
+    }
 
     /**
      * Gets the URL of the OpenAPI specification.
@@ -338,5 +363,128 @@ public class ScalarProperties {
      */
     public void setDocumentDownloadType(String documentDownloadType) {
         this.documentDownloadType = documentDownloadType;
+    }
+
+    /**
+     * Defines an OpenAPI reference source
+     */
+    public static class ScalarSource {
+
+        /**
+         * The URL of the OpenAPI specification to display in the API reference.
+         */
+        private String url;
+
+        /**
+         * The display title of the OpenAPI specification
+         * optional
+         */
+        private String title;
+
+        /**
+         * The url slug of the OpenAPI specification
+         * optional, would be auto-generated from the title or the index
+         */
+        private String slug;
+
+        /**
+         * Whether this is the default source
+         * optional
+         */
+        private Boolean isDefault;
+
+        /**
+         * Creates an OpenAPI reference source
+         * {@link #url} must be set
+         */
+        public ScalarSource() {
+        }
+
+        /**
+         * Creates an OpenAPI reference source
+         *
+         * @param url the url of the OpenAPI specification
+         * @param title the display title of the OpenAPI specification
+         * @param slug the url slug of the OpenAPI specification
+         * @param isDefault whether this is the default source
+         */
+        public ScalarSource(String url, String title, String slug, Boolean isDefault) {
+            this.url = url;
+            this.title = title;
+            this.slug = slug;
+            this.isDefault = isDefault;
+        }
+
+        /**
+         * Gets the URL of the OpenAPI specification
+         *
+         * @return the url
+         */
+        public String getUrl() {
+            return url;
+        }
+
+        /**
+         * Sets the URL of the OpenAPI specification
+         *
+         * @param url the url
+         */
+        public void setUrl(String url) {
+            this.url = url;
+        }
+
+        /**
+         * Gets the display title of the OpenAPI specification
+         *
+         * @return the display title or null
+         */
+        public String getTitle() {
+            return title;
+        }
+
+        /**
+         * Sets the display title of the OpenAPI specification
+         *
+         * @param title the display title
+         */
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        /**
+         * Gets the url slug of the OpenAPI specification
+         *
+         * @return the url slug or null
+         */
+        public String getSlug() {
+            return slug;
+        }
+
+        /**
+         * Sets the url slug of the OpenAPI specification
+         *
+         * @param slug the url slug
+         */
+        public void setSlug(String slug) {
+            this.slug = slug;
+        }
+
+        /**
+         * Gets whether this is the default source
+         *
+         * @return whether this is the default source or null
+         */
+        public Boolean isDefault() {
+            return isDefault;
+        }
+
+        /**
+         * Sets whether this is the default source
+         *
+         * @param isDefault whether this is the default source
+         */
+        public void setDefault(Boolean isDefault) {
+            this.isDefault = isDefault;
+        }
     }
 }

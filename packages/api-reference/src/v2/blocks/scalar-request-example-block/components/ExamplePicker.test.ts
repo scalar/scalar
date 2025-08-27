@@ -87,7 +87,7 @@ describe('ExamplePicker', () => {
     })
 
     // Test with null key
-    expect(wrapper.vm.getLabel(null)).toBe('Select an example')
+    expect(wrapper.find('button').text()).toBe('Select an example')
   })
 
   it('updates selected example when model value changes', async () => {
@@ -122,7 +122,7 @@ describe('ExamplePicker', () => {
     })
 
     // Initially no example selected
-    expect(wrapper.vm.selectedExampleKey).toBe('')
+    expect(wrapper.props().modelValue).toBe('')
 
     // Update the model value directly
     await wrapper.setProps({
@@ -132,37 +132,8 @@ describe('ExamplePicker', () => {
 
     await nextTick()
 
-    // Verify the selectedExampleKey was updated
-    expect(wrapper.vm.selectedExampleKey).toBe('example-2')
-  })
-
-  it('handles examples with special characters in keys', () => {
-    const specialExamples: Record<string, ExampleObject> = {
-      'example-with-dashes': {
-        summary: 'Dashed Example',
-        value: { test: 'data' },
-      },
-      'example_with_underscores': {
-        summary: 'Underscore Example',
-        value: { test: 'data' },
-      },
-      'example.with.dots': {
-        summary: 'Dotted Example',
-        value: { test: 'data' },
-      },
-    }
-
-    const wrapper = mount(ExamplePicker, {
-      props: {
-        examples: specialExamples,
-        modelValue: '',
-      },
-    })
-
-    // Test that getLabel works with special characters
-    expect(wrapper.vm.getLabel('example-with-dashes')).toBe('Dashed Example')
-    expect(wrapper.vm.getLabel('example_with_underscores')).toBe('Underscore Example')
-    expect(wrapper.vm.getLabel('example.with.dots')).toBe('Dotted Example')
+    // Verify the modelValue was updated
+    expect(wrapper.props().modelValue).toBe('example-2')
   })
 
   it('shows correct label for selected example', () => {
@@ -188,7 +159,7 @@ describe('ExamplePicker', () => {
     expect(wrapper2.text()).toContain('example-3')
   })
 
-  it('handles examples with null or undefined values', () => {
+  it('handles examples with null or undefined values', async () => {
     const problematicExamples: Record<string, ExampleObject> = {
       'null-example': null as any,
       'undefined-example': undefined as any,
@@ -201,22 +172,12 @@ describe('ExamplePicker', () => {
       },
     })
 
-    // Should handle null/undefined gracefully in getLabel
-    expect(wrapper.vm.getLabel('null-example')).toBe('null-example')
-    expect(wrapper.vm.getLabel('undefined-example')).toBe('undefined-example')
-  })
+    await wrapper.find('button[aria-expanded=false]').trigger('click')
 
-  it('generates correct labels for all examples', () => {
-    const wrapper = mount(ExamplePicker, {
-      props: {
-        examples: mockExamples,
-        modelValue: '',
-      },
-    })
+    const items = wrapper.findAll('li')
 
-    // Test that getLabel generates correct labels for all examples
-    expect(wrapper.vm.getLabel('example-1')).toBe('First Example')
-    expect(wrapper.vm.getLabel('example-2')).toBe('Second Example')
-    expect(wrapper.vm.getLabel('example-3')).toBe('example-3') // Falls back to key when no summary
+    expect(items.length).toBe(2)
+    expect(items[0].text()).toBe('null-example')
+    expect(items[1].text()).toBe('undefined-example')
   })
 })

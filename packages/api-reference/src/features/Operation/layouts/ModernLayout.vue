@@ -159,12 +159,13 @@ const handleDiscriminatorChange = (type: string) => {
             <!-- New Example Request -->
             <ScalarErrorBoundary>
               <RequestExample
-                :clientOptions="clientOptions"
+                :clientOptions
                 fallback
-                :method="method"
-                :operation="operation"
-                :path="path"
-                :securitySchemes="securitySchemes"
+                :isWebhook
+                :method
+                :operation
+                :path
+                :securitySchemes
                 :selectedClient="store.workspace['x-scalar-default-client']"
                 :selectedServer="server"
                 @update:modelValue="handleDiscriminatorChange">

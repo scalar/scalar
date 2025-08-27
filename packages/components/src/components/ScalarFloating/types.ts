@@ -19,6 +19,8 @@ export type FloatingOptions = {
   /**
    * Whether or not track the reference element's width
    * If enabled it will set `width` slot prop of the floating slot
+   *
+   * To match the width / height or the content try adding the `w-fit` to the class
    */
   resize?: boolean
   /**

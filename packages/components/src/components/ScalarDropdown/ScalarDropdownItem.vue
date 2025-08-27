@@ -31,7 +31,7 @@ defineEmits<{
     <ScalarDropdownButton
       :active="active"
       :disabled="disabled"
-      @click="($event) => $emit('click', $event)">
+      @click="(e: MouseEvent) => $emit('click', e)">
       <slot />
     </ScalarDropdownButton>
   </MenuItem>

@@ -73,7 +73,11 @@ const { cx } = useBindCx()
         <div
           v-if="open"
           :style="{ width }"
-          v-bind="cx('relative flex max-h-[inherit] w-40 rounded text-sm')">
+          v-bind="
+            cx(
+              'relative flex max-h-[inherit] w-40 max-w-[inherit] rounded text-sm',
+            )
+          ">
           <!-- Scroll container -->
           <div class="custom-scroll min-h-0 flex-1">
             <!-- Options list -->

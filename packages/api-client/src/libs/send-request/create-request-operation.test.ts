@@ -13,6 +13,7 @@ import type { z } from 'zod'
 import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
 import * as electron from '../electron'
 import { createRequestOperation } from './create-request-operation'
+import { encode } from 'js-base64'
 
 const PROXY_PORT = 5051
 const VOID_PORT = 5052
@@ -967,7 +968,7 @@ describe('create-request-operation', () => {
         throw new Error('No data')
       }
       expect(JSON.parse(result?.response.data as string).headers).toMatchObject({
-        authorization: `Basic ${btoa('user:pass')}`,
+        authorization: `Basic ${encode('user:pass')}`,
       })
     })
 
