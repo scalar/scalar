@@ -1,5 +1,5 @@
 import type { OpenAPI } from '@scalar/openapi-types'
-import type { FastifyBaseLogger, FastifyTypeProviderDefault, RawServerDefault } from 'fastify'
+import type { FastifyBaseLogger, FastifyTypeProvider, RawServerDefault } from 'fastify'
 import fp from 'fastify-plugin'
 import { slug } from 'github-slugger'
 
@@ -56,12 +56,7 @@ const DEFAULT_CONFIGURATION: Partial<ApiReferenceConfiguration> = {
   _integration: 'fastify',
 }
 
-const fastifyApiReference = fp<
-  FastifyApiReferenceOptions,
-  RawServerDefault,
-  FastifyTypeProviderDefault,
-  FastifyBaseLogger
->(
+const fastifyApiReference = fp<FastifyApiReferenceOptions, RawServerDefault, FastifyTypeProvider, FastifyBaseLogger>(
   async (fastify, options) => {
     const { configuration: givenConfiguration } = options
 

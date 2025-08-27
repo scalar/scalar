@@ -64,7 +64,7 @@
     "@fastify/swagger": "catalog:*",
     "@scalar/api-reference": "workspace:*",
     "@scalar/build-tooling": "workspace:*",
-    "fastify": "^5.5.0",
+    "fastify": "catalog:*",
     "rollup-plugin-node-externals": "^8.1.0",
     "shx": "^0.4.0",
     "terser": "^5.30.0",
