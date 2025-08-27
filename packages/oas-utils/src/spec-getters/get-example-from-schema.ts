@@ -103,6 +103,10 @@ export const getExampleFromSchema = (
 ): any => {
   const schema = getResolvedRef(_schema)
 
+  if (!isDefined(schema)) {
+    return undefined
+  }
+
   // Check if the result is already cached
   if (resultCache.has(schema)) {
     return resultCache.get(schema)
