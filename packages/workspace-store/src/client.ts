@@ -600,8 +600,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               }),
               externalValueResolver(),
               refsEverywhere(),
-              // TODO: investigate problems with type: {} properties
-              // cleanUp(),
             ],
             urlMap: true,
             origin: documentMeta[name]?.documentSource, // use the document origin (if provided) as the base URL for resolution
