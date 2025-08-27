@@ -532,7 +532,7 @@
           Minimal, powerful, fully open-source API Client built on open standards by us + our community.
         </div>
       </div>
-      <a class="expander-hover-link">Learn More</a>
+      <a class="expander-hover-link" href="https://client.scalar.com/" target="_blank">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
@@ -551,7 +551,7 @@
           Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python and more.
         </div>
       </div>
-      <a class="expander-hover-link">Learn More</a>
+      <a class="expander-hover-link" href="/scalar/scalar-sdks/getting-started">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
@@ -570,7 +570,7 @@
           Managing & versioning OpenAPI Documents with a deep Git integration.
         </div>
       </div>
-      <a class="expander-hover-link">Learn More</a>
+      <a class="expander-hover-link" href="/scalar/scalar-registry/getting-started">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
@@ -588,7 +588,7 @@
           Write beautiful documentation with Markdown + MDX + Git Sync.
         </div>
       </div>
-      <a class="expander-hover-link">Learn More</a>
+      <a class="expander-hover-link" href="/scalar/scalar-docs/getting-started">Learn More</a>
     </div>
   </div>
 </div>
@@ -875,7 +875,6 @@ h4.t-editor__heading {
   .expander-hover {
     height: 370px;
     width: 25%;
-    cursor: pointer;
     position: relative;
   }
   .expander-hover:hover .expander {
