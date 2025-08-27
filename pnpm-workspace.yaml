@@ -20,7 +20,7 @@ onlyBuiltDependencies:
   - vue-demi
 catalogs:
   '*':
-    '@fastify/swagger': ^8.10.1
+    '@fastify/swagger': ^9.5.1
     '@floating-ui/utils': ^0.2.2
     '@floating-ui/vue': ^1.1.7
     '@google-cloud/storage': 7.16.0
@@ -46,7 +46,7 @@ catalogs:
     concurrently: 9.1.2
     esbuild: 0.25.6
     express: 5.1.0
-    fastify: ^5.3.3
+    fastify: ^5.5.0
     flatted: ^3.3.3
     fuse.js: ^7.1.0
     js-base64: ^3.7.8
