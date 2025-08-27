@@ -37,7 +37,7 @@ const OpenApiExtensionsSchema = Type.Partial(
     'x-scalar-client-config-icon': Type.String(),
     'x-scalar-client-config-environments': xScalarClientConfigEnvironmentsSchema,
     'x-scalar-client-config-cookies': xScalarClientConfigCookiesSchema,
-    'x-original-version': Type.String(),
+    'x-original-oas-version': Type.String(),
     [extensions.document.navigation]: Type.Array(TraversedEntrySchema),
   }),
 )

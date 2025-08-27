@@ -93,7 +93,7 @@ const activeServer = computed(() => {
   return servers[activeCollection.value.servers[0]]
 })
 
-const getOriginalDocument = () => store.exportDocument('active', 'json') ?? '{}'
+const getOriginalDocument = () => store.exportActiveDocument('json') ?? '{}'
 </script>
 <template>
   <SectionFlare />
