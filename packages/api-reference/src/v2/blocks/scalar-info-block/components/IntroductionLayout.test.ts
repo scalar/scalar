@@ -57,7 +57,7 @@ describe('IntroductionLayout', () => {
       props: {
         info: example.info,
         externalDocs: example.externalDocs,
-        originalContent: '{}',
+        getOriginalDocument: () => '{}',
       },
     })
 
@@ -84,7 +84,7 @@ describe('IntroductionLayout', () => {
       props: {
         info: example.info,
         externalDocs: example.externalDocs,
-        originalContent: '{}',
+        getOriginalDocument: () => '{}',
       },
     })
 
@@ -109,7 +109,7 @@ describe('IntroductionLayout', () => {
       props: {
         info: example.info,
         externalDocs: example.externalDocs,
-        originalContent: '{}',
+        getOriginalDocument: () => '{}',
       },
     })
 
@@ -132,7 +132,7 @@ describe('IntroductionLayout', () => {
       props: {
         info: example.info,
         externalDocs: example.externalDocs,
-        originalContent: '{}',
+        getOriginalDocument: () => '{}',
       },
     })
 
@@ -154,7 +154,7 @@ describe('IntroductionLayout', () => {
       props: {
         info: example.info,
         externalDocs: example.externalDocs,
-        originalContent: '{}',
+        getOriginalDocument: () => '{}',
       },
     })
 
@@ -175,7 +175,7 @@ describe('IntroductionLayout', () => {
       props: {
         info: example.info,
         externalDocs: example.externalDocs,
-        originalContent: '{}',
+        getOriginalDocument: () => '{}',
       },
     })
 
@@ -197,7 +197,7 @@ describe('IntroductionLayout', () => {
       props: {
         info: example.info,
         externalDocs: example.externalDocs,
-        originalContent: '{}',
+        getOriginalDocument: () => '{}',
       },
     })
 
@@ -219,7 +219,7 @@ describe('IntroductionLayout', () => {
       props: {
         info: example.info,
         externalDocs: example.externalDocs,
-        originalContent: '{}',
+        getOriginalDocument: () => '{}',
       },
     })
 
