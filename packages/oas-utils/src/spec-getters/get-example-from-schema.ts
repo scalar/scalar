@@ -1,6 +1,6 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
+import { isString, type SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 
 const MAX_LEVELS_DEEP = 5
 /** Sets the max number of properties after the third level to prevent exponential horizontal growth */
@@ -45,6 +45,10 @@ const genericExampleValues: Record<string, string> = {
  * We can use the `format` to generate some random values.
  */
 function guessFromFormat(schema: SchemaObject, makeUpRandomData: boolean = false, fallback: string = '') {
+  if (!isString(schema)) {
+    return ''
+  }
+
   if (schema.format === 'binary') {
     return new File([''], 'filename')
   }
@@ -68,9 +72,12 @@ function cache(schema: SchemaObject, result: unknown) {
 
 /**
  * This function takes an OpenAPI schema and generates an example from it
+ *
+ * TODO: once we fully move to the new store we should be able to type this
+ * TODO: function correctly and remove the any from the schema
  */
 export const getExampleFromSchema = (
-  _schema: SchemaObject,
+  _schema: any,
   options?: {
     /**
      * The fallback string for empty string values.
@@ -185,10 +192,10 @@ export const getExampleFromSchema = (
     !!schema.oneOf?.at?.(0)
   if (!isObjectOrArray && options?.omitEmptyAndOptionalProperties === true) {
     const isRequired =
-      // @ts-expect-error - I suppose old schema used to allow `required: true` remove when moving to new store
       schema.required === true ||
       // @ts-expect-error - I suppose old schema used to allow `required: true` remove when moving to new store
       parentSchema?.required === true ||
+      // @ts-expect-error - I suppose old schema used to allow `required: true` remove when moving to new store
       parentSchema?.required?.includes(name ?? schema.title ?? '')
 
     if (!isRequired) {
@@ -279,7 +286,7 @@ export const getExampleFromSchema = (
         response,
         ...schema.allOf
           .filter(isDefined)
-          .map((item) => getExampleFromSchema(getResolvedRef(item), options, level + 1, schema)),
+          .map((item: any) => getExampleFromSchema(getResolvedRef(item), options, level + 1, schema)),
       )
     }
 
@@ -303,7 +310,7 @@ export const getExampleFromSchema = (
         const allOf = items.allOf.filter(isDefined)
         const firstItem = getResolvedRef(allOf[0])
 
-        // IfirstItemem is an object type, merge all schemas
+        // If first is an object type, merge all schemas
         if (firstItem?.type === 'object') {
           const combined = { type: 'object', allOf } as SchemaObject
 
@@ -313,7 +320,7 @@ export const getExampleFromSchema = (
         }
         // For non-objects (like strings), collect all examples
         const examples = allOf
-          .map((item) => getExampleFromSchema(getResolvedRef(item), options, level + 1, schema))
+          .map((item: any) => getExampleFromSchema(getResolvedRef(item), options, level + 1, schema))
           .filter(isDefined)
 
         return cache(schema, wrapItems ? examples.map((example: any) => ({ [itemsXmlTagName]: example })) : examples)
@@ -328,7 +335,7 @@ export const getExampleFromSchema = (
 
         const schemas = items[rule].slice(0, 1)
         const exampleFromRule = schemas
-          .map((item) => getExampleFromSchema(getResolvedRef(item), options, level + 1, schema))
+          .map((item: any) => getExampleFromSchema(getResolvedRef(item), options, level + 1, schema))
           .filter(isDefined)
 
         return cache(schema, wrapItems ? [{ [itemsXmlTagName]: exampleFromRule }] : exampleFromRule)
@@ -380,7 +387,7 @@ export const getExampleFromSchema = (
     let example: any = null
 
     // Loop through all `allOf` schemas
-    schema.allOf.forEach((allOfItem) => {
+    schema.allOf.forEach((allOfItem: any) => {
       // Return an example from the schema
       const newExample = getExampleFromSchema(getResolvedRef(allOfItem), options, level + 1)
 

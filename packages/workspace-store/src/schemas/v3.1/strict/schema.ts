@@ -14,6 +14,7 @@ import {
   type TUnion,
   type TUnknown,
   Type,
+  type TAny,
 } from '@sinclair/typebox'
 import { DiscriminatorObjectSchema } from './discriminator'
 import { XMLObjectSchema } from './xml'
@@ -247,46 +248,44 @@ export const schemaObjectSchemaBuilder = <S extends TSchema>(schema: S) => {
   ])
 }
 
+type Base = TObject<{
+  title: TOptional<TString>
+  description: TOptional<TString>
+  default: TOptional<TUnknown>
+  enum: TOptional<TArray<TUnknown>>
+  const: TOptional<TUnknown>
+  contentMediaType: TOptional<TString>
+  contentEncoding: TOptional<TString>
+  contentSchema: TOptional<any>
+  deprecated: TOptional<TBoolean>
+  discriminator: TOptional<typeof DiscriminatorObjectSchema>
+  readOnly: TOptional<TBoolean>
+  writeOnly: TOptional<TBoolean>
+  xml: TOptional<typeof XMLObjectSchema>
+  externalDocs: TOptional<typeof ExternalDocumentationObjectSchema>
+  example: TOptional<TUnknown>
+  examples: TOptional<TArray<TUnknown>>
+  'x-tags': TOptional<TArray<TString>>
+  'x-variable': TOptional<TAny>
+}>
+
+type Compositions = TObject<{
+  _: TString
+  allOf: TOptional<TArray<any>>
+  oneOf: TOptional<TArray<any>>
+  anyOf: TOptional<TArray<any>>
+  not: TOptional<any>
+}>
+
 type SchemaObjectSchemaType = TRecursive<
-  TIntersect<
+  TUnion<
     [
-      TObject<{
-        title: TOptional<TString>
-        description: TOptional<TString>
-        default: TOptional<TUnknown>
-        enum: TOptional<TArray<TUnknown>>
-        const: TOptional<TUnknown>
-        allOf: TOptional<TArray<any>>
-        oneOf: TOptional<TArray<any>>
-        anyOf: TOptional<TArray<any>>
-        not: TOptional<any>
-        contentMediaType: TOptional<TString>
-        contentEncoding: TOptional<TString>
-        contentSchema: TOptional<any>
-        deprecated: TOptional<TBoolean>
-        discriminator: TOptional<typeof DiscriminatorObjectSchema>
-        readOnly: TOptional<TBoolean>
-        writeOnly: TOptional<TBoolean>
-        xml: TOptional<typeof XMLObjectSchema>
-        externalDocs: TOptional<typeof ExternalDocumentationObjectSchema>
-        example: TOptional<TUnknown>
-        examples: TOptional<TArray<TUnknown>>
-        'x-tags': TOptional<TArray<TString>>
-      }>,
-      TUnion<
+      TIntersect<[Base, typeof OtherTypes]>,
+      TIntersect<[Base, typeof NumericProperties]>,
+      TIntersect<[Base, typeof StringValidationProperties]>,
+      TIntersect<
         [
-          typeof OtherTypes,
-          typeof NumericProperties,
-          typeof StringValidationProperties,
-          TObject<{
-            type: TLiteral<'object'>
-            maxProperties: TOptional<TInteger>
-            minProperties: TOptional<TInteger>
-            required: TOptional<TArray<TString>>
-            properties: TOptional<TRecord<TString, any>>
-            additionalProperties: TOptional<TUnion<[TBoolean, any]>>
-            patternProperties: TOptional<TRecord<TString, any>>
-          }>,
+          Base,
           TObject<{
             type: TLiteral<'array'>
             maxItems: TOptional<TInteger>
@@ -297,6 +296,21 @@ type SchemaObjectSchemaType = TRecursive<
           }>,
         ]
       >,
+      TIntersect<
+        [
+          Base,
+          TObject<{
+            type: TLiteral<'object'>
+            maxProperties: TOptional<TInteger>
+            minProperties: TOptional<TInteger>
+            required: TOptional<TArray<TString>>
+            properties: TOptional<TRecord<TString, any>>
+            additionalProperties: TOptional<TUnion<[TBoolean, any]>>
+            patternProperties: TOptional<TRecord<TString, any>>
+          }>,
+        ]
+      >,
+      Compositions,
     ]
   >
 >
@@ -304,3 +318,23 @@ type SchemaObjectSchemaType = TRecursive<
 export const SchemaObjectSchema: any = Type.Recursive((This) => schemaObjectSchemaBuilder(This))
 
 export type SchemaObject = Static<SchemaObjectSchemaType>
+
+export const isNumber = <T extends SchemaObject>(schema: T): schema is Extract<T, { type: 'number' | 'integer' }> => {
+  return 'type' in schema && schema.type === 'number'
+}
+
+export const isString = <T extends SchemaObject>(schema: T): schema is Extract<T, { type: 'string' }> => {
+  return 'type' in schema && schema.type === 'string'
+}
+
+export const isObject = <T extends SchemaObject>(schema: T): schema is Extract<T, { type: 'object' }> => {
+  return 'type' in schema && schema.type === 'object'
+}
+
+export const isArray = <T extends SchemaObject>(schema: T): schema is Extract<T, { type: 'array' }> => {
+  return 'type' in schema && schema.type === 'array'
+}
+
+export const isComposition = <T extends SchemaObject>(schema: T): schema is Extract<T, { _: string }> => {
+  return 'allOf' in schema || 'oneOf' in schema || 'anyOf' in schema || 'not' in schema
+}
