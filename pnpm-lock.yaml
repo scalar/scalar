@@ -2602,6 +2602,9 @@ importers:
       hono:
         specifier: ^4.6.5
         version: 4.6.5
+      js-base64:
+        specifier: catalog:*
+        version: 3.7.8
       object-to-xml:
         specifier: ^2.0.0
         version: 2.0.0

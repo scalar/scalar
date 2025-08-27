@@ -48,6 +48,7 @@
   "dependencies": {
     "@hono/node-server": "^1.11.0",
     "hono": "^4.6.5",
+    "js-base64": "catalog:*",
     "object-to-xml": "^2.0.0"
   },
   "devDependencies": {
