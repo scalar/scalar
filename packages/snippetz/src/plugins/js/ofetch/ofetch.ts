@@ -24,7 +24,9 @@ export const jsOfetch: Plugin = {
     }
 
     // Query
-    options.query = normalizedRequest.queryString
+    if (normalizedRequest.queryString?.length) {
+      options.query = Object.fromEntries(normalizedRequest.queryString.map((q) => [q.name, q.value]))
+    }
 
     // Headers
     if (normalizedRequest.headers?.length) {
