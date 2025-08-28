@@ -9,6 +9,7 @@ import type { ScalarFloatingOptions } from '../ScalarFloating'
 import ComboboxOptions from './ScalarComboboxOptions.vue'
 import ComboboxPopover from './ScalarComboboxPopover.vue'
 import type {
+  ComboboxEmits,
   ComboboxSlots,
   Option,
   OptionGroup,
@@ -24,7 +25,9 @@ defineProps<
 
 const model = defineModel<O[]>({ default: [] })
 
-defineSlots<ComboboxSlots<O, G>>()
+const emit = defineEmits<ComboboxEmits>()
+
+const slots = defineSlots<ComboboxSlots<O, G>>()
 
 /** Propagate up the popover ref */
 const comboboxPopoverRef = ref<typeof ComboboxPopover | null>(null)
@@ -50,7 +53,8 @@ defineExpose({ comboboxPopoverRef })
         multiselect
         :open
         :options
-        :placeholder>
+        :placeholder
+        @add="emit('add')">
         <!-- Pass through the combobox slots -->
         <template
           v-if="$slots.before"
@@ -75,6 +79,13 @@ defineExpose({ comboboxPopoverRef })
           v-if="$slots.after"
           #after>
           <slot name="after" />
+        </template>
+        <template
+          v-if="$slots.add"
+          #add="props">
+          <slot
+            name="add"
+            v-bind="props" />
         </template>
       </ComboboxOptions>
     </template>

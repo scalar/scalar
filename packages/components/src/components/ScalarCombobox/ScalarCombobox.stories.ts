@@ -239,6 +239,42 @@ export const WithSlots: Story = {
   }),
 }
 
+export const WithAddNewOption: Story = {
+  args: { options: [] },
+  render: (args) => ({
+    components: {
+      ScalarCombobox: ScalarCombobox as ComponentExposed<typeof ScalarCombobox>,
+      ScalarButton,
+      ScalarDropdownButton,
+      ScalarListboxCheckbox,
+    },
+    setup() {
+      const selected = ref<Option>()
+      const opts = ref<Option[]>([...options])
+      const counter = ref<number>(1)
+      const add = () =>
+        (opts.value = [...opts.value, { label: `New Option ${counter.value}`, id: `new-option-${counter.value++}` }])
+      return { args, selected, add, opts }
+    },
+    template: `
+<div class="flex justify-center w-full min-h-96">
+  <ScalarCombobox v-model="selected" v-bind="args" :options="opts" @add="add">
+    <ScalarButton class="w-48 px-3" variant="outlined">
+      <div class="flex flex-1 items-center min-w-0">
+        <span class="inline-block truncate flex-1 min-w-0 text-left">
+          {{ selected?.label ?? 'Select an option' }}
+        </span>
+      </div>
+    </ScalarButton>
+    <template #add>
+      Add a new option
+    </template>
+  </ScalarCombobox>
+</div>
+`,
+  }),
+}
+
 /**
  * Applies a custom class to the combobox popover
  */
