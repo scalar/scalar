@@ -1,4 +1,4 @@
-import { Type, type Static } from '@sinclair/typebox'
+import { Type, type Static } from '@scalar/typebox'
 
 export const exampleBodyMime = [
   'application/json',

@@ -1,4 +1,4 @@
-import { Type, type Static } from '@sinclair/typebox'
+import { Type, type Static } from '@scalar/typebox'
 import { MediaTypeObjectSchema } from '@/schemas/v3.1/strict/media-header-encoding'
 
 /** Describes a single request body. */

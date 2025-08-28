@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { ResponsesObjectSchema } from './responses'
-import { Value } from '@sinclair/typebox/value'
+import { Value } from '@scalar/typebox/value'
 import { coerceValue } from '@/schemas/typebox-coerce'
 
 describe('ResponsesObjectSchema', () => {

@@ -1,4 +1,4 @@
-import { Type, type Static } from '@sinclair/typebox'
+import { Type, type Static } from '@scalar/typebox'
 
 /** Allows referencing an external resource for extended documentation. */
 export const ExternalDocumentationObjectSchema = Type.Object({

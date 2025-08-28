@@ -27,9 +27,9 @@ catalogs:
     '@playwright/test':
       specifier: 1.54.0
       version: 1.54.0
-    '@sinclair/typebox':
-      specifier: https://github.com/DemonHa/typebox/raw/c68bffb2e646570b5de9071764a9dae124f3a66c/target/sinclair-typebox-0.34.40.tgz
-      version: 0.34.40
+    '@scalar/typebox':
+      specifier: 0.1.0
+      version: 0.1.0
     '@tailwindcss/vite':
       specifier: ^4.1.7
       version: 4.1.8
@@ -2649,12 +2649,12 @@ importers:
       '@scalar/snippetz':
         specifier: workspace:*
         version: link:../snippetz
+      '@scalar/typebox':
+        specifier: catalog:*
+        version: 0.1.0
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
-      '@sinclair/typebox':
-        specifier: catalog:*
-        version: https://raw.githubusercontent.com/DemonHa/typebox/c68bffb2e646570b5de9071764a9dae124f3a66c/target/sinclair-typebox-0.34.40.tgz
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
@@ -7763,6 +7763,9 @@ packages:
   '@rushstack/ts-command-line@4.23.2':
     resolution: {integrity: sha512-JJ7XZX5K3ThBBva38aomgsPv1L7FV6XmSOcR6HtM7HDFZJkepqT65imw26h9ggGqMjsY0R9jcl30tzKcVj9aOQ==}
 
+  '@scalar/typebox@0.1.0':
+    resolution: {integrity: sha512-stgEhiqCvQ5gLsiEHMkzIwNECw1aQyrPgN6Z9OqlTZkz5J4M2F7CbS55ojfu5hl6QdX8UsqjDQihsqjZcskYfQ==}
+
   '@segment/loosely-validate-event@2.0.0':
     resolution: {integrity: sha512-ZMCSfztDBqwotkl848ODgVcAmN4OItEWDCkshcKz0/W6gGSQayuuCtWV/MlodFivAZD793d6UgANd6wCXUfrIw==}
 
@@ -7803,10 +7806,6 @@ packages:
 
   '@sinclair/typebox@0.27.8':
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
-
-  '@sinclair/typebox@https://raw.githubusercontent.com/DemonHa/typebox/c68bffb2e646570b5de9071764a9dae124f3a66c/target/sinclair-typebox-0.34.40.tgz':
-    resolution: {tarball: https://raw.githubusercontent.com/DemonHa/typebox/c68bffb2e646570b5de9071764a9dae124f3a66c/target/sinclair-typebox-0.34.40.tgz}
-    version: 0.34.40
 
   '@sindresorhus/is@0.14.0':
     resolution: {integrity: sha512-9NET910DNaIPngYnLLPeg+Ogzqsi9uM4mSboU5y6p8S5DzMTVEsJZrawi+BoDNUVBa2DhJqQYUFvMDfgU062LQ==}
@@ -25654,6 +25653,8 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
+  '@scalar/typebox@0.1.0': {}
+
   '@segment/loosely-validate-event@2.0.0':
     dependencies:
       component-type: 1.2.2
@@ -25732,8 +25733,6 @@ snapshots:
   '@sideway/pinpoint@2.0.0': {}
 
   '@sinclair/typebox@0.27.8': {}
-
-  '@sinclair/typebox@https://raw.githubusercontent.com/DemonHa/typebox/c68bffb2e646570b5de9071764a9dae124f3a66c/target/sinclair-typebox-0.34.40.tgz': {}
 
   '@sindresorhus/is@0.14.0': {}
 

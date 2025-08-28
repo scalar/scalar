@@ -1,4 +1,4 @@
-import { Type, type Static } from '@sinclair/typebox'
+import { Type, type Static } from '@scalar/typebox'
 
 /** An object representing a Server Variable for server URL template substitution. */
 export const ServerVariableObjectSchema = Type.Object({

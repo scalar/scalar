@@ -1,4 +1,4 @@
-import { Type } from '@sinclair/typebox'
+import { Type } from '@scalar/typebox'
 
 /**
  * A metadata object that allows for more fine-tuned XML model definitions.

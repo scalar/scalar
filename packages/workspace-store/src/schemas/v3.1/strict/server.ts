@@ -1,4 +1,4 @@
-import { Type, type Static } from '@sinclair/typebox'
+import { Type, type Static } from '@scalar/typebox'
 import { ServerVariableObjectSchema } from './server-variable'
 
 /** An object representing a Server. */

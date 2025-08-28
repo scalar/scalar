@@ -1,4 +1,4 @@
-import { Type } from '@sinclair/typebox'
+import { Type } from '@scalar/typebox'
 
 /**
  * An OpenAPI extension to specify a custom token name for OAuth2 flows

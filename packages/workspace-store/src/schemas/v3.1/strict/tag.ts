@@ -1,4 +1,4 @@
-import { Type, type Static } from '@sinclair/typebox'
+import { Type, type Static } from '@scalar/typebox'
 import { ExternalDocumentationObjectSchema } from './external-documentation'
 import { compose } from '@/schemas/compose'
 import { XDisplayNameSchema } from '@/schemas/extensions/tag/x-display-name'

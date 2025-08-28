@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { XScalarRedirectUriSchema } from './x-scalar-redirect-uri'
-import { Value } from '@sinclair/typebox/value'
+import { Value } from '@scalar/typebox/value'
 
 describe('XScalarRedirectUri', () => {
   it('accepts a valid URI string', () => {

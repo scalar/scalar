@@ -1,4 +1,4 @@
-import { Type, type Static } from '@sinclair/typebox'
+import { Type, type Static } from '@scalar/typebox'
 import { reference } from './reference'
 import { LinkObjectSchema } from './link'
 import { HeaderObjectSchema, MediaTypeObjectSchema } from '@/schemas/v3.1/strict/media-header-encoding'

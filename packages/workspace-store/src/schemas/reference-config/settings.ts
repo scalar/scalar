@@ -1,5 +1,5 @@
 import { ServerObjectSchema } from '@/schemas/v3.1/strict/server'
-import { Type, type Static } from '@sinclair/typebox'
+import { Type, type Static } from '@scalar/typebox'
 import type { RequiredDeep } from 'type-fest'
 
 export const SettingsSchema = Type.Partial(

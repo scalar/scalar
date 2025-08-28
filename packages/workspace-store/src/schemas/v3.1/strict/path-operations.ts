@@ -14,7 +14,7 @@ import {
   type TRecursive,
   type TString,
   type TUnion,
-} from '@sinclair/typebox'
+} from '@scalar/typebox'
 
 export const OperationObjectSchema = Type.Recursive((This) =>
   operationObjectSchemaBuilder(callbackObjectSchemaBuilder(pathItemObjectSchemaBuilder(This))),

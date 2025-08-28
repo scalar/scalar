@@ -55,6 +55,7 @@
   "module": "dist/index.js",
   "dependencies": {
     "@scalar/components": "workspace:*",
+    "@scalar/helpers": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
@@ -68,7 +69,6 @@
     "remark-gfm": "^4.0.0",
     "remark-stringify": "^11.0.0",
     "unified": "^11.0.4",
-    "@scalar/helpers": "workspace:*",
     "vue": "catalog:*"
   },
   "devDependencies": {

@@ -1,4 +1,4 @@
-import { Type } from '@sinclair/typebox'
+import { Type } from '@scalar/typebox'
 
 import { MediaTypeObjectSchema } from './media-header-encoding'
 

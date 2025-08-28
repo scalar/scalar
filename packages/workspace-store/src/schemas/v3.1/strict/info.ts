@@ -1,4 +1,4 @@
-import { Type, type Static } from '@sinclair/typebox'
+import { Type, type Static } from '@scalar/typebox'
 import { ContactObjectSchema } from './contact'
 import { LicenseObjectSchema } from './license'
 import { XScalarSdkInstallationSchema } from '@/schemas/extensions/document/x-scalar-sdk-installation'

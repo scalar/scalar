@@ -1,7 +1,7 @@
 import { encodingObjectSchemaBuilder } from '@/schemas/v3.1/strict/encoding'
 import { headerObjectSchemaBuilder } from '@/schemas/v3.1/strict/header'
 import { mediaTypeObjectSchemaBuilder } from '@/schemas/v3.1/strict/media-type'
-import { Type, type Static } from '@sinclair/typebox'
+import { Type, type Static } from '@scalar/typebox'
 
 /**
  * A single encoding definition applied to a single schema property. See Appendix B for a discussion of converting values of various types to string representations.

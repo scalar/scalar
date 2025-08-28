@@ -1,4 +1,4 @@
-import { Type } from '@sinclair/typebox'
+import { Type } from '@scalar/typebox'
 
 /** The license information for the exposed API. */
 export const LicenseObjectSchema = Type.Object({

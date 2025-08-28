@@ -1,4 +1,4 @@
-import { Type, type Static, type TRecord, type TString } from '@sinclair/typebox'
+import { Type, type Static, type TRecord, type TString } from '@scalar/typebox'
 import { PathItemObjectSchema } from '@/schemas/v3.1/strict/path-operations'
 
 /**

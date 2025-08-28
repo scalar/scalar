@@ -1,4 +1,4 @@
-import { Type } from '@sinclair/typebox'
+import { Type } from '@scalar/typebox'
 
 /**
  * An OpenAPI extension to specify where OAuth2 credentials should be sent

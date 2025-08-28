@@ -1,4 +1,4 @@
-import { Type, type TSchema } from '@sinclair/typebox'
+import { Type, type TSchema } from '@scalar/typebox'
 import { ExampleObjectSchema } from '@/schemas/v3.1/strict/example'
 import { reference } from '@/schemas/v3.1/strict/reference'
 import { SchemaObjectSchema } from '@/schemas/v3.1/strict/schema'

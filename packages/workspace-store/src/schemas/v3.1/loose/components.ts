@@ -1,4 +1,4 @@
-import { Type, type TObject, type TOptional, type TRecord, type TString, type TUnion } from '@sinclair/typebox'
+import { Type, type TObject, type TOptional, type TRecord, type TString, type TUnion } from '@scalar/typebox'
 
 import { SchemaObjectSchema } from './schema'
 import { ResponseObjectSchema } from './response'

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { BadgeSchema, XBadgesSchema } from './x-badge'
-import { Value } from '@sinclair/typebox/value'
+import { Value } from '@scalar/typebox/value'
 
 describe('x-badge', () => {
   it('validates minimal badge with only required name', () => {

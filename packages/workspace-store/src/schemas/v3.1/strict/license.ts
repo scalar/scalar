@@ -1,4 +1,4 @@
-import { Type, type Static } from '@sinclair/typebox'
+import { Type, type Static } from '@scalar/typebox'
 
 /** The license information for the exposed API. */
 export const LicenseObjectSchema = Type.Object({
