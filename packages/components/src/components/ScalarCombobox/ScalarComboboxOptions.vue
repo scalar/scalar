@@ -3,13 +3,14 @@
   setup
   lang="ts"
   generic="O extends Option = Option, G extends OptionGroup<O> = OptionGroup<O>">
-import { ScalarIconMagnifyingGlass } from '@scalar/icons'
+import { ScalarIconMagnifyingGlass, ScalarIconPlus } from '@scalar/icons'
 import { computed, onMounted, ref, useId, watch } from 'vue'
 
 import { ScalarListboxCheckbox } from '../ScalarListbox'
 import ComboboxOption from './ScalarComboboxOption.vue'
 import ComboboxOptionGroup from './ScalarComboboxOptionGroup.vue'
 import {
+  type ComboboxEmits,
   type ComboboxSlots,
   type Option,
   type OptionGroup,
@@ -25,12 +26,17 @@ const props = defineProps<{
 
 const model = defineModel<O[]>({ default: [] })
 
-defineSlots<Omit<ComboboxSlots<O, G>, 'default'>>()
+const emit = defineEmits<ComboboxEmits>()
+
+const slots = defineSlots<Omit<ComboboxSlots<O, G>, 'default'>>()
 
 defineOptions({ inheritAttrs: false })
 
 /** A unique ID for the combobox */
 const id = `scalar-combobox-items-${useId()}`
+
+/** A static option entry for the "Add a new option" option */
+const addOption: Option = { id: `${useId()}-add`, label: 'Add a new option' }
 
 /** Generate a unique ID for an option */
 function getOptionId(option: Option) {
@@ -86,9 +92,10 @@ onMounted(async () => {
 // Set the top option as active when searching
 watch(
   () => query.value,
-  () => (active.value = filtered.value[0]),
+  () => (active.value = withAdd.value[0]),
 )
 
+/** The filtered list of options */
 const filtered = computed<O[]>(() =>
   query.value === ''
     ? options.value
@@ -97,8 +104,18 @@ const filtered = computed<O[]>(() =>
       }),
 )
 
+/** The list of filtered options with the "Add a new option" option */
+const withAdd = computed<Option[]>(() =>
+  slots.add ? [...filtered.value, addOption] : filtered.value,
+)
+
 function toggleSelected(option: Option | undefined) {
   if (!option) {
+    return
+  }
+
+  if (option.id === addOption.id) {
+    addNew()
     return
   }
 
@@ -121,13 +138,14 @@ function toggleSelected(option: Option | undefined) {
 }
 
 function moveActive(dir: 1 | -1) {
-  const list = filtered.value
+  const list = withAdd.value
 
   // Find active index
   const activeIdx = list.findIndex((option) => option.id === active.value?.id)
 
   // Calculate next index and exit if it's out of bounds
   const nextIdx = activeIdx + dir
+
   if (nextIdx < 0 || nextIdx > list.length - 1) {
     return
   }
@@ -145,6 +163,11 @@ function moveActive(dir: 1 | -1) {
   })
 }
 
+function addNew() {
+  emit('add')
+  query.value = ''
+}
+
 // Manual autofocus for the input
 const input = ref<HTMLInputElement | null>(null)
 
@@ -154,7 +177,7 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
 <template>
   <div class="relative flex">
     <ScalarIconMagnifyingGlass
-      class="pointer-events-none absolute left-2.5 search-icon text-c-3 size-4" />
+      class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-c-3 size-4" />
     <input
       v-model="query"
       ref="input"
@@ -172,13 +195,12 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
       @keydown.up.prevent="moveActive(-1)" />
   </div>
   <ul
-    v-show="filtered.length || $slots.before || $slots.after"
+    v-show="filtered.length || slots.add"
     :id="id"
     :aria-multiselectable="multiselect"
     class="border-t p-0.75 custom-scroll overscroll-contain flex-1 min-h-0"
     role="listbox"
     tabindex="-1">
-    <slot name="before" />
     <ComboboxOptionGroup
       v-for="(group, i) in groups"
       :id="`${id}-group-${i}`"
@@ -227,12 +249,18 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
         </ComboboxOption>
       </template>
     </ComboboxOptionGroup>
-    <slot name="after" />
+    <ComboboxOption
+      v-if="slots.add"
+      :id="getOptionId(addOption)"
+      :active="active?.id === addOption.id"
+      @click="addNew"
+      @mousedown.prevent
+      @mouseenter="active = addOption"
+      v-slot="{ active }">
+      <ScalarIconPlus class="size-4 p-px" />
+      <slot
+        name="add"
+        :active />
+    </ComboboxOption>
   </ul>
 </template>
-<style scoped>
-.search-icon {
-  top: 50%;
-  transform: translateY(-50%);
-}
-</style>
