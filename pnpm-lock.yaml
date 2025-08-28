@@ -39,6 +39,9 @@ catalogs:
     '@types/node':
       specifier: ^22.9.0
       version: 22.15.3
+    '@types/picomatch':
+      specifier: 3.0.1
+      version: 3.0.1
     '@types/react':
       specifier: ^19.1.8
       version: 19.1.8
@@ -2830,6 +2833,9 @@ importers:
         specifier: catalog:*
         version: 3.24.1
     devDependencies:
+      '@types/picomatch':
+        specifier: catalog:*
+        version: 3.0.1
       '@types/semver':
         specifier: ^7.5.8
         version: 7.5.8
@@ -8675,6 +8681,9 @@ packages:
 
   '@types/picomatch@2.3.3':
     resolution: {integrity: sha512-Yll76ZHikRFCyz/pffKGjrCwe/le2CDwOP5F210KQo27kpRE46U2rDnzikNlVn6/ezH3Mhn46bJMTfeVTtcYMg==}
+
+  '@types/picomatch@3.0.1':
+    resolution: {integrity: sha512-1MRgzpzY0hOp9pW/kLRxeQhUWwil6gnrUYd3oEpeYBqp/FexhaCPv3F8LsYr47gtUU45fO2cm1dbwkSrHEo8Uw==}
 
   '@types/pretty-hrtime@1.0.3':
     resolution: {integrity: sha512-nj39q0wAIdhwn7DGUyT9irmsKK1tV0bd5WFEhgpqNTMFZ8cE+jieuTphCW0tfdm47S2zVT5mr09B28b1chmQMA==}
@@ -27154,6 +27163,8 @@ snapshots:
       pg-types: 2.2.0
 
   '@types/picomatch@2.3.3': {}
+
+  '@types/picomatch@3.0.1': {}
 
   '@types/pretty-hrtime@1.0.3': {}
 

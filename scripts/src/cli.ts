@@ -5,6 +5,7 @@ import { updateTestSnapshots } from '@/commands/update-snapshots'
 import { wait } from '@/commands/wait'
 import { Command } from 'commander'
 import { version } from '../package.json'
+import { updatePlaywrightDocker } from '@/commands/playwright-docker/push-container'
 
 const program = new Command()
 
@@ -18,4 +19,5 @@ program.addCommand(wait)
 program.addCommand(updateTestSnapshots)
 program.addCommand(cat)
 program.addCommand(run)
+program.addCommand(updatePlaywrightDocker)
 program.parse()

@@ -8,6 +8,7 @@ import { format } from 'prettier'
 import { Command } from 'commander'
 import { getWorkspaceRoot } from '@/helpers'
 import semver, { type ReleaseType } from 'semver'
+import { latestVersion } from '@/helpers/npm-version'
 
 export const outdated = new Command('outdated')
   .description('Check for outdated packages')
@@ -63,20 +64,6 @@ export const pnpmWorkspaceSchema = z.object({
 })
 
 type PackageUpdates = Record<string, { current: string; latest: string; error: string }>
-
-/** Get the latest npm version of a package. Fallbacks to the current version if the fetch fails */
-async function latestVersion(packageName: string, current: string) {
-  return fetch(`https://registry.npmjs.org/${packageName}/latest`)
-    .then((res: any) => res.json())
-    .then((data: any) => ({
-      error: '',
-      version: data.version,
-    }))
-    .catch((err: any) => ({
-      error: `Failed to fetch latest version for ${packageName}: ${err.message}`,
-      version: current,
-    }))
-}
 
 /** Load the pnpm workspace file */
 function loadWorkspace() {
