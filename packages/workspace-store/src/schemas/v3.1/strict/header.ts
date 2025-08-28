@@ -2,7 +2,7 @@ import { compose } from '@/schemas/compose'
 import { ExampleObjectSchema } from '@/schemas/v3.1/strict/example'
 import { reference } from '@/schemas/v3.1/strict/reference'
 import { SchemaObjectSchema } from '@/schemas/v3.1/strict/schema'
-import { Type, type TSchema } from '@sinclair/typebox'
+import { Type, type TSchema } from '@scalar/typebox'
 
 export const HeaderObjectSchemaBase = Type.Object({
   /** A brief description of the header. This could contain examples of use. CommonMark syntax MAY be used for rich text representation. */

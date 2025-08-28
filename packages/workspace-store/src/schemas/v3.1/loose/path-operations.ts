@@ -7,7 +7,7 @@ import {
   type TRecursive,
   type TString,
   type TUnion,
-} from '@sinclair/typebox'
+} from '@scalar/typebox'
 
 import { callbackObjectSchemaBuilder } from './callback'
 import { operationObjectSchemaBuilder } from './operation'

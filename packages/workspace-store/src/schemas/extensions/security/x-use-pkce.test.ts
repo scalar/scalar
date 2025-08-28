@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { XusePkceSchema } from './x-use-pkce'
-import { Value } from '@sinclair/typebox/value'
+import { Value } from '@scalar/typebox/value'
 
 describe('XusePkce', () => {
   it('allows SHA-256 value', () => {

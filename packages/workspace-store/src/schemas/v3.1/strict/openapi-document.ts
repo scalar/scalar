@@ -7,7 +7,7 @@ import {
   type TOptional,
   type TRecord,
   type TString,
-} from '@sinclair/typebox'
+} from '@scalar/typebox'
 import { InfoObjectSchema } from './info'
 import { ServerObjectSchema } from './server'
 import { PathsObjectSchema } from './paths'

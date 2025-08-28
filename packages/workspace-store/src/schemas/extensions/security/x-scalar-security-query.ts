@@ -1,4 +1,4 @@
-import { Type } from '@sinclair/typebox'
+import { Type } from '@scalar/typebox'
 
 /**
  * An OpenAPI extension set any query parameters for the OAuth authorize request

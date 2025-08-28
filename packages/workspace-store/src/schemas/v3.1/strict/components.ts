@@ -6,7 +6,7 @@ import {
   type TRecord,
   type TString,
   type TUnion,
-} from '@sinclair/typebox'
+} from '@scalar/typebox'
 import { SchemaObjectSchema } from './schema'
 import { ResponseObjectSchema } from './response'
 import { reference, type ReferenceType } from './reference'

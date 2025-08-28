@@ -3,7 +3,7 @@ import { MediaTypeObjectSchema } from '@/schemas/v3.1/strict/media-header-encodi
 import { ExampleObjectSchema } from '@/schemas/v3.1/strict/example'
 import { reference } from '@/schemas/v3.1/strict/reference'
 import { SchemaObjectSchema } from '@/schemas/v3.1/strict/schema'
-import { Type, type Static } from '@sinclair/typebox'
+import { Type, type Static } from '@scalar/typebox'
 
 export const ParameterObjectBaseSchema = Type.Object({
   /** REQUIRED. The name of the parameter. Parameter names are case sensitive.

@@ -1,5 +1,5 @@
 import { compose } from '@/schemas/compose'
-import { Type, type Static, type TIntersect, type TObject, type TSchema } from '@sinclair/typebox'
+import { Type, type Static, type TIntersect, type TObject, type TSchema } from '@scalar/typebox'
 
 export const ReferenceObjectExtensionsSchema = Type.Object({
   /** Indicates the current status of the reference resolution. Can be either 'loading' while fetching the reference or 'error' if the resolution failed. */

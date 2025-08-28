@@ -1,5 +1,5 @@
 import { ReferenceConfigSchema } from '@/schemas/reference-config'
-import { Type, type Static } from '@sinclair/typebox'
+import { Type, type Static } from '@scalar/typebox'
 
 export const ConfigSchema = Type.Partial(
   Type.Object({

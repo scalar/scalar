@@ -12,7 +12,7 @@ import {
   type TPartial,
   type TProperties,
   type Evaluate,
-} from '@sinclair/typebox'
+} from '@scalar/typebox'
 
 // -------------------------------------------------------------------------------------
 // TPartialDeepProperties

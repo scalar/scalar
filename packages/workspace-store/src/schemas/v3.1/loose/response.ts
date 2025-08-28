@@ -1,4 +1,4 @@
-import { Type } from '@sinclair/typebox'
+import { Type } from '@scalar/typebox'
 
 import { ReferenceObjectSchema } from './reference'
 import { LinkObjectSchema } from './link'

@@ -1,4 +1,4 @@
-import { Type } from '@sinclair/typebox'
+import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
 import { XScalarSecretTokenSchema } from '@/schemas/extensions/security/x-scalar-security-secrets'

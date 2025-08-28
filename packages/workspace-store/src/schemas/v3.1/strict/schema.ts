@@ -1,4 +1,4 @@
-import { Type, type Static, type TAny, type TIntersect, type TObject, type TSchema } from '@sinclair/typebox'
+import { Type, type Static, type TAny, type TIntersect, type TObject, type TSchema } from '@scalar/typebox'
 
 import { DiscriminatorObjectSchema } from './discriminator'
 import { XMLObjectSchema } from './xml'

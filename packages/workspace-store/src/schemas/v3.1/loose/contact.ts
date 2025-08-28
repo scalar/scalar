@@ -1,4 +1,4 @@
-import { Type } from '@sinclair/typebox'
+import { Type } from '@scalar/typebox'
 
 /** Contact information for the exposed API. */
 export const ContactObjectSchema = Type.Object({

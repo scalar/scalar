@@ -8,7 +8,7 @@ import {
   type TRecord,
   type TString,
   type TUnion,
-} from '@sinclair/typebox'
+} from '@scalar/typebox'
 
 import { extensions } from '@/schemas/extensions'
 import { TraversedEntrySchema } from '@/schemas/navigation'

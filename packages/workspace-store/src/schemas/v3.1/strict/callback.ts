@@ -1,4 +1,4 @@
-import { Type, type TSchema } from '@sinclair/typebox'
+import { Type, type TSchema } from '@scalar/typebox'
 import { reference } from '@/schemas/v3.1/strict/reference'
 
 export const callbackObjectSchemaBuilder = <P extends TSchema>(pathItem: P) =>

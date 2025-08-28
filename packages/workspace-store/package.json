@@ -91,7 +91,7 @@
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/snippetz": "workspace:*",
     "@scalar/types": "workspace:*",
-    "@sinclair/typebox": "catalog:*",
+    "@scalar/typebox": "catalog:*",
     "github-slugger": "^2.0.0",
     "type-fest": "catalog:*",
     "vue": "catalog:*",
