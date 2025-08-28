@@ -1178,7 +1178,7 @@ describe('create-workspace-store', () => {
     )
   })
 
-  it.skip('clean up the document to support non-compliant documents', async () => {
+  it('clean up the document to support non-compliant documents', async () => {
     const store = createWorkspaceStore()
 
     await store.addDocument({
@@ -1217,7 +1217,7 @@ describe('create-workspace-store', () => {
     })
 
     expect(JSON.stringify(getRaw(store.workspace.activeDocument))).toEqual(
-      '{"openapi":"3.1.1","info":{"title":"Missing Object Type Example","version":"1.0.0"},"paths":{"/user":{"get":{"summary":"Get user info","responses":{"200":{"description":"User object without explicit type: object","content":{"application/json":{"schema":{"items":{"properties":{"id":{"type":"string"},"name":{"type":"string"}},"type":"object"},"type":"array"}}}}}}}},"x-ext-urls":{},"x-scalar-navigation":[{"id":"Get user info","title":"Get user info","path":"/user","method":"get","ref":"#/paths/~1user/get","type":"operation"}]}',
+      '{"openapi":"3.1.1","info":{"title":"Missing Object Type Example","version":"1.0.0"},"paths":{"/user":{"get":{"summary":"Get user info","responses":{"200":{"description":"User object without explicit type: object","content":{"application/json":{"schema":{"items":{"properties":{"id":{"type":"string"},"name":{"type":"string"}},"type":"object"},"type":"array"}}}}}}}},"x-original-oas-version":"3.1.1","x-ext-urls":{},"x-scalar-navigation":[{"id":"Get user info","title":"Get user info","path":"/user","method":"get","ref":"#/paths/~1user/get","type":"operation"}]}',
     )
   })
 

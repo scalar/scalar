@@ -5,12 +5,11 @@ import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/stric
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/media-header-encoding'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 
 /**
  * Formats a property object into a string.
  */
-export function formatProperty(key: string, obj: SchemaObject): string {
+export function formatProperty(key: string, obj: OpenAPIV3_1.SchemaObject): string {
   let output = key
   const isRequired = obj.required?.includes(key)
   output += isRequired ? ' REQUIRED ' : ' optional '
