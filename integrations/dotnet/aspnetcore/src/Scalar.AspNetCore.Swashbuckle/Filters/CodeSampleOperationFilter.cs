@@ -1,9 +1,4 @@
-﻿using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Interfaces;
-using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.SwaggerGen;
-
-namespace Scalar.AspNetCore.Swashbuckle.Filters;
+﻿namespace Scalar.AspNetCore.Swashbuckle.Filters;
 
 internal sealed class CodeSampleOperationFilter : IOperationFilter
 {
@@ -17,27 +12,14 @@ internal sealed class CodeSampleOperationFilter : IOperationFilter
         }
 
         operation.Extensions ??= new Dictionary<string, IOpenApiExtension>();
-        var samples = new OpenApiArray();
-        foreach (var codeSampleAttribute in codeSampleAttributes)
+        var samples = codeSampleAttributes.Select(codeSampleAttribute => new CodeSample
         {
-            var sample = new OpenApiObject
-            {
-                ["source"] = new OpenApiString(codeSampleAttribute.Sample)
-            };
+            Source = codeSampleAttribute.Sample,
+            Label = codeSampleAttribute.Label,
+            Language = codeSampleAttribute.Language
+        });
 
-            if (codeSampleAttribute.Language.HasValue)
-            {
-                sample["lang"] = new OpenApiString(codeSampleAttribute.Language.Value.ToStringFast(true));
-            }
-
-            if (codeSampleAttribute.Label is not null)
-            {
-                sample["label"] = new OpenApiString(codeSampleAttribute.Label);
-            }
-
-            samples.Add(sample);
-        }
-
-        operation.Extensions.TryAdd(CodeSamples, samples);
+        var node = SerializeToNode(samples);
+        operation.Extensions.TryAdd(CodeSamples, new JsonNodeExtension(node));
     }
 }
