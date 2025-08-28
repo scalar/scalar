@@ -47,8 +47,8 @@ const { content } = defineProps<{
     </header>
 
     <ScalarMarkdown
-      :value="content?.info?.description"
-      v-if="content?.info?.description" />
+      v-if="content?.info?.description"
+      :value="content?.info?.description" />
 
     <section v-if="content?.servers?.length">
       <h2>Servers</h2>
@@ -74,9 +74,8 @@ const { content } = defineProps<{
                       :key="name">
                       <li>
                         <code>{{ name }}</code> (default:
-                        <code>{{ variable.default }}</code
-                        >)<template v-if="variable.description"
-                          >: {{ variable.description }}
+                        <code>{{ variable.default }}</code>)<template v-if="variable.description">
+                          : {{ variable.description }}
                         </template>
                       </li>
                     </template>
@@ -161,12 +160,12 @@ const { content } = defineProps<{
                     <Schema :schema="content.schema" />
                     <p><strong>Example:</strong></p>
                     <XmlOrJson
-                      :xml="mediaType?.toString().includes('xml')"
-                      :model-value="
+                      :modelValue="
                         getExampleFromSchema(content.schema, {
                           xml: mediaType?.toString().includes('xml'),
                         })
-                      " />
+                      "
+                      :xml="mediaType?.toString().includes('xml')" />
                   </template>
                 </template>
               </section>
@@ -197,12 +196,12 @@ const { content } = defineProps<{
                           <Schema :schema="content.schema" />
                           <p><strong>Example:</strong></p>
                           <XmlOrJson
-                            :xml="mediaType?.toString().includes('xml')"
-                            :model-value="
+                            :modelValue="
                               getExampleFromSchema(content.schema, {
                                 xml: mediaType?.toString().includes('xml'),
                               })
-                            " />
+                            "
+                            :xml="mediaType?.toString().includes('xml')" />
                         </template>
                       </section>
                     </template>
@@ -304,11 +303,7 @@ const { content } = defineProps<{
             :schema="schema" />
           <p><strong>Example:</strong></p>
           <template v-if="schema.type === 'object'">
-            <XmlOrJson
-              :model-value="
-                // @ts-expect-error not on the new store yet
-                getExampleFromSchema(schema)
-              " />
+            <XmlOrJson :modelValue="getExampleFromSchema(schema)" />
           </template>
         </section>
       </template>
