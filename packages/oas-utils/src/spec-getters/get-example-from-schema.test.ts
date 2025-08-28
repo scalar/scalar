@@ -1001,7 +1001,6 @@ describe('getExampleFromSchema', () => {
       expect(
         getExampleFromSchema({
           type: 'object',
-          // @ts-expect-error - this is a test
           additionalProperties: {},
         }),
       ).toMatchObject({
