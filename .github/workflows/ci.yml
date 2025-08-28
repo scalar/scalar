@@ -523,8 +523,8 @@ jobs:
         run: pnpm --filter components build:storybook
       - name: Run e2e tests (@scalar/components)
         run: pnpm --filter components test:e2e:ci
-        # Only when the tests failed and the PR is from the same repository
-      - if: ${{ !cancelled() }} && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
+        # Only when the PR is from the same repository
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Deploy Playwright Report to Netlify
         run: |
           pnpx netlify deploy --dir "./packages/components/playwright-report" \
@@ -533,8 +533,8 @@ jobs:
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
             --filter @scalar/components \
             --alias=${{env.DEPLOY_ID}}
-        # Only when the tests failed and the PR is from the same repository
-      - if: ${{ !cancelled() }} && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
+        # Only when the PR is from the same repository
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Add Netlify Playwright Report URL to the PR
         uses: daun/playwright-report-summary@93883773b4f4f0951d8bcdb780c6443ca51eaf7b # v3
         with:
@@ -574,8 +574,8 @@ jobs:
         run: echo "PLAYWRIGHT_VERSION=$(npx playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
       - name: Run snapshot tests (@scalar/api-reference)
         run: pnpm --filter api-reference test:e2e:snapshots:ci
-        # Only when the tests failed and the PR is from the same repository
-      - if: ${{ !cancelled() }} && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
+        # Only when the PR is from the same repository
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Deploy Playwright Report to Netlify
         run: |
           pnpx netlify deploy --dir "./packages/api-reference/playwright-report" \
@@ -584,8 +584,8 @@ jobs:
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
             --filter @scalar/components \
             --alias=${{env.DEPLOY_ID}}
-        # Only when the tests failed and the PR is from the same repository
-      - if: ${{ !cancelled() }} && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
+        # Only when the PR is from the same repository
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Add Netlify Playwright Report URL to the PR
         uses: daun/playwright-report-summary@93883773b4f4f0951d8bcdb780c6443ca51eaf7b # v3
         with:
@@ -597,7 +597,7 @@ jobs:
           footer: |
             > [!IMPORTANT]
             > These tests detect visual differences between the current PR and the latest CDN build which means **they may be affected by other changes in `main` that haven't been released yet**.
-            > 
+            >
             > They can help determine if the changes in the PR are causing any unexpected visual regressions but may be less helpful in isolating the exact cause. For more details see the [readme](https://github.com/scalar/scalar/blob/main/packages/api-reference/test-snapshots/README.md).
 
   npm-publish:
