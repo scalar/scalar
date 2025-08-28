@@ -74,7 +74,8 @@ const { content } = defineProps<{
                       :key="name">
                       <li>
                         <code>{{ name }}</code> (default:
-                        <code>{{ variable.default }}</code>)<template v-if="variable.description">
+                        <code>{{ variable.default }}</code
+                        >)<template v-if="variable.description">
                           : {{ variable.description }}
                         </template>
                       </li>
