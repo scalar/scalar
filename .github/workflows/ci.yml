@@ -471,7 +471,7 @@ jobs:
   test-component-snapshots:
     if: github.event_name == 'pull_request'
     needs: [build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: blacksmith-4vcpu-ubuntu-2204
     permissions:
       contents: read
       pull-requests: write
@@ -493,6 +493,8 @@ jobs:
           DEPLOY_ID: ${{ env.DEPLOY_ID }}
       - name: Install playwright
         uses: ./.github/actions/install-playwright
+        with:
+          with-deps: 'false'
       - name: Build storybook
         run: pnpm --filter components build:storybook
       - name: Run e2e tests (@scalar/components)
@@ -520,7 +522,7 @@ jobs:
   test-cdn-snapshots:
     if: github.event_name == 'pull_request'
     needs: [build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: blacksmith-8vcpu-ubuntu-2204
     permissions:
       contents: read
       pull-requests: write
@@ -542,6 +544,8 @@ jobs:
           DEPLOY_ID: ${{ env.DEPLOY_ID }}
       - name: Install playwright
         uses: ./.github/actions/install-playwright
+        with:
+          with-deps: 'false'
       - name: Run snapshot tests (@scalar/api-reference)
         run: pnpm --filter api-reference test:e2e:snapshots:ci
         # Only when the PR is from the same repository

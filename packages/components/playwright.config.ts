@@ -64,6 +64,7 @@ export default defineConfig({
    * @see https://playwright.dev/docs/ci#via-containers
    */
   webServer: CI ? [storybookServer] : [playwrightServer, storybookServer],
+  workers: '100%',
   use: {
     /** The base URL is on the docker host where we're running Vite */
     baseURL: CI || isLinux ? 'http://localhost:5100/' : 'http://host.docker.internal:5100/',

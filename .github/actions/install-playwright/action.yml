@@ -1,5 +1,10 @@
 name: 'Install Playwright'
 description: 'Install Playwright browsers and dependencies'
+inputs:
+  with-deps:
+    description: 'Option to install Playwright dependencies'
+    required: false
+    default: 'true'
 runs:
   using: 'composite'
   steps:
@@ -17,5 +22,6 @@ runs:
       shell: bash
       run: npx playwright install
     - name: Install Playwright dependencies
+      if: ${{ inputs.with-deps == 'true' }}
       shell: bash
       run: npx playwright install-deps
