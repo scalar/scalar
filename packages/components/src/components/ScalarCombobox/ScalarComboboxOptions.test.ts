@@ -266,6 +266,88 @@ describe('ScalarComboboxOptions', () => {
     })
   })
 
+  describe('add slot', () => {
+    it('focuses the add option when no results and add slot exists', async () => {
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: { options: singleOptions },
+        slots: {
+          add: `
+            <template #add="{ active }">
+              <div data-test="add-slot">Add Item - Active: {{ active }}</div>
+            </template>
+          `,
+        },
+      })
+
+      const input = wrapper.find('input[type="text"]')
+      await input.setValue('no-matches-here')
+      await nextTick()
+
+      // The add option should be the active descendant
+      const addEl = wrapper.find('[data-test="add-slot"]').element
+      const addLi = addEl.closest('li') as HTMLLIElement | null
+      const ariaId = input.attributes('aria-activedescendant')
+
+      expect(addLi).toBeTruthy()
+      expect(ariaId).toBe(addLi?.id)
+    })
+
+    it('includes add option in arrow key navigation and Enter triggers add', async () => {
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: { options: singleOptions },
+        slots: {
+          add: `
+            <template #add>
+              <div data-test="add-slot">Create new</div>
+            </template>
+          `,
+        },
+      })
+
+      const input = wrapper.find('input[type="text"]')
+      // Move active to the last item (including the add option)
+      // There are 3 options + 1 add option => 4 downs from initial state should focus add
+      await input.trigger('keydown.down')
+      await input.trigger('keydown.down')
+      await input.trigger('keydown.down')
+      await input.trigger('keydown.down')
+
+      const addEl = wrapper.find('[data-test="add-slot"]').element
+      const addLi = addEl.closest('li') as HTMLLIElement | null
+      const ariaId = input.attributes('aria-activedescendant')
+
+      expect(addLi).toBeTruthy()
+      expect(ariaId).toBe(addLi?.id)
+
+      // Press Enter to activate the add option
+      await input.trigger('keydown.enter')
+      expect(wrapper.emitted('add')).toBeTruthy()
+    })
+
+    it('emits add and clears query when add option is clicked', async () => {
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: { options: singleOptions },
+        slots: {
+          add: `
+            <template #add>
+              <div data-test="add-slot">Create new</div>
+            </template>
+          `,
+        },
+      })
+
+      const input = wrapper.find('input[type="text"]')
+      await input.setValue('something')
+      await nextTick()
+
+      await wrapper.getComponent(ScalarComboboxOption).trigger('click')
+
+      expect(wrapper.emitted('add')).toBeTruthy()
+      // Query should be cleared after clicking add
+      expect((input.element as HTMLInputElement).value).toBe('')
+    })
+  })
+
   describe('edge cases', () => {
     it('handles empty options array gracefully', async () => {
       const wrapper = mount(ScalarComboboxOptions, {

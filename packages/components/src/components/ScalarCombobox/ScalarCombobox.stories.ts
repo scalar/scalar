@@ -194,26 +194,31 @@ export const WithAddNew: Story = {
   args: { options: [] },
   render: (args) => ({
     components: {
-      ScalarCombobox: ScalarCombobox as ComponentExposed<typeof ScalarCombobox>,
+      ScalarComboboxMultiselect: ScalarComboboxMultiselect as any,
       ScalarButton,
       ScalarDropdownButton,
       ScalarListboxCheckbox,
     },
     setup() {
-      const selected = ref<Option>()
-      const opts = ref<Option[]>([...options])
+      const selected = ref<Option[]>([])
+      const opts = ref<Option[]>([])
       const counter = ref<number>(1)
-      const add = () =>
-        (opts.value = [...opts.value, { label: `New Option ${counter.value}`, id: `new-option-${counter.value++}` }])
+      function add() {
+        const newOpt = { label: `Option ${counter.value}`, id: `${counter.value++}` }
+        opts.value = [...opts.value, newOpt]
+        selected.value = [...selected.value, newOpt]
+      }
+      add(), add(), add()
+
       return { args, selected, add, opts }
     },
     template: `
 <div class="flex justify-center w-full min-h-96">
-  <ScalarCombobox v-model="selected" v-bind="args" :options="opts" @add="add">
+  <ScalarComboboxMultiselect v-model="selected" v-bind="args" :options="opts" @add="add">
     <ScalarButton class="w-48 px-3" variant="outlined">
       <div class="flex flex-1 items-center min-w-0">
         <span class="inline-block truncate flex-1 min-w-0 text-left">
-          {{ selected?.label ?? 'Select an option' }}
+          {{ selected.length }} of {{ opts.length }} options selected
         </span>
       </div>
     </ScalarButton>

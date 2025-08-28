@@ -34,11 +34,9 @@ defineOptions({ inheritAttrs: false })
 
 /** A unique ID for the combobox */
 const id = `scalar-combobox-items-${useId()}`
-/** A unique ID for the "Add a new option" option */
-const addId = `${useId()}-add`
 
 /** A static option entry for the "Add a new option" option */
-const addOption: Option = { id: addId, label: 'Add a new option' }
+const addOption: Option = { id: `${useId()}-add`, label: 'Add a new option' }
 
 /** Generate a unique ID for an option */
 function getOptionId(option: Option) {
@@ -116,7 +114,7 @@ function toggleSelected(option: Option | undefined) {
     return
   }
 
-  if (option.id === addId) {
+  if (option.id === addOption.id) {
     addNew()
     return
   }
@@ -253,8 +251,8 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
     </ComboboxOptionGroup>
     <ComboboxOption
       v-if="slots.add"
-      :id="addId"
-      :active="active?.id === addId"
+      :id="getOptionId(addOption)"
+      :active="active?.id === addOption.id"
       @click="addNew"
       @mousedown.prevent
       @mouseenter="active = addOption"

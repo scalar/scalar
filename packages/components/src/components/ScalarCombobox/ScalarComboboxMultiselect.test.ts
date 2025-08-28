@@ -115,4 +115,90 @@ describe('ScalarComboboxMultiselect', () => {
       expect(selectedOptions[1]?.text()).toBe('false') // Second option should not be selected
     })
   })
+
+  describe('add slot', () => {
+    it('renders add slot when provided', async () => {
+      const wrapper = mount(ScalarComboboxMultiselect, {
+        props: { options: singleOptions },
+        slots: {
+          default: '<button>Toggle</button>',
+          add: `
+            <template #add>
+              <div data-test="add-slot">Create</div>
+            </template>
+          `,
+        },
+      })
+
+      await wrapper.find('button').trigger('click')
+      await nextTick()
+      expect(wrapper.find('[data-test="add-slot"]').exists()).toBe(true)
+    })
+
+    it('focuses add option when no results and keeps popover open on add', async () => {
+      const wrapper = mount(ScalarComboboxMultiselect, {
+        props: { options: singleOptions, modelValue: [] },
+        slots: {
+          default: '<button>Toggle</button>',
+          add: `
+            <template #add>
+              <div data-test="add-slot">Create</div>
+            </template>
+          `,
+        },
+      })
+
+      await wrapper.find('button').trigger('click')
+      await nextTick()
+
+      const input = wrapper.find('input[type="text"]')
+      await input.setValue('not-present')
+      await nextTick()
+
+      const addEl = wrapper.find('[data-test="add-slot"]').element
+      const addLi = addEl.closest('li') as HTMLLIElement | null
+      const ariaId = input.attributes('aria-activedescendant')
+      expect(addLi).toBeTruthy()
+      expect(ariaId).toBe(addLi?.id)
+
+      // Clicking add should emit add but the popover stays open in multiselect
+      await wrapper.get('[data-test="add-slot"]').trigger('click')
+      expect(wrapper.emitted('add')).toBeTruthy()
+      expect(wrapper.find('ul[role="listbox"]').exists()).toBe(true)
+    })
+
+    it('navigates to add via arrow keys and Enter emits add (open remains)', async () => {
+      const wrapper = mount(ScalarComboboxMultiselect, {
+        props: { options: singleOptions, modelValue: [] },
+        slots: {
+          default: '<button>Toggle</button>',
+          add: `
+            <template #add>
+              <div data-test="add-slot">Create</div>
+            </template>
+          `,
+        },
+      })
+
+      await wrapper.find('button').trigger('click')
+      await nextTick()
+
+      const input = wrapper.find('input[type="text"]')
+      await input.trigger('keydown.down')
+      await input.trigger('keydown.down')
+      await input.trigger('keydown.down')
+      await input.trigger('keydown.down')
+
+      const addEl = wrapper.find('[data-test="add-slot"]').element
+      const addLi = addEl.closest('li') as HTMLLIElement | null
+      const ariaId = input.attributes('aria-activedescendant')
+      expect(addLi).toBeTruthy()
+      expect(ariaId).toBe(addLi?.id)
+
+      await input.trigger('keydown.enter')
+      expect(wrapper.emitted('add')).toBeTruthy()
+      // Multiselect does not close on add
+      expect(wrapper.find('ul[role="listbox"]').exists()).toBe(true)
+    })
+  })
 })

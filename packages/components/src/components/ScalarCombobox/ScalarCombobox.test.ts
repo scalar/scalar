@@ -262,6 +262,97 @@ describe('ScalarCombobox', () => {
     })
   })
 
+  describe('add slot', () => {
+    it('renders add slot when provided', async () => {
+      const wrapper = mount(ScalarCombobox, {
+        props: { options: singleOptions },
+        slots: {
+          default: '<button>Toggle</button>',
+          add: `
+            <template #add>
+              <div data-test="add-slot">Add New</div>
+            </template>
+          `,
+        },
+      })
+
+      await wrapper.find('button').trigger('click')
+      await nextTick()
+
+      expect(wrapper.find('[data-test="add-slot"]').exists()).toBe(true)
+
+      // Click the add option
+      await wrapper.get('[data-test="add-slot"]').trigger('click')
+      expect(wrapper.emitted('add')).toBeTruthy()
+
+      // Popover should be closed after add (single-select closes on add)
+      await nextTick()
+      expect(wrapper.find('ul[role="listbox"]').exists()).toBe(false)
+    })
+
+    it('focuses add option when there are no query results', async () => {
+      const wrapper = mount(ScalarCombobox, {
+        props: { options: singleOptions },
+        slots: {
+          default: '<button>Toggle</button>',
+          add: `
+            <template #add>
+              <div data-test="add-slot">Create</div>
+            </template>
+          `,
+        },
+      })
+
+      await wrapper.find('button').trigger('click')
+      await nextTick()
+
+      const input = wrapper.find('input[type="text"]')
+      await input.setValue('not-present')
+      await nextTick()
+
+      const addEl = wrapper.find('[data-test="add-slot"]').element
+      const addLi = addEl.closest('li') as HTMLLIElement | null
+      const ariaId = input.attributes('aria-activedescendant')
+
+      expect(addLi).toBeTruthy()
+      expect(ariaId).toBe(addLi?.id)
+    })
+
+    it('includes add in arrow key navigation and Enter triggers add', async () => {
+      const wrapper = mount(ScalarCombobox, {
+        props: { options: singleOptions },
+        slots: {
+          default: '<button>Toggle</button>',
+          add: `
+            <template #add>
+              <div data-test="add-slot">Create</div>
+            </template>
+          `,
+        },
+      })
+
+      await wrapper.find('button').trigger('click')
+      await nextTick()
+
+      const input = wrapper.find('input[type="text"]')
+      await input.trigger('keydown.down')
+      await input.trigger('keydown.down')
+      await input.trigger('keydown.down')
+      await input.trigger('keydown.down')
+
+      const addEl = wrapper.find('[data-test="add-slot"]').element
+      const addLi = addEl.closest('li') as HTMLLIElement | null
+      const ariaId = input.attributes('aria-activedescendant')
+      expect(addLi).toBeTruthy()
+      expect(ariaId).toBe(addLi?.id)
+
+      await input.trigger('keydown.enter')
+      expect(wrapper.emitted('add')).toBeTruthy()
+      await nextTick()
+      expect(wrapper.find('ul[role="listbox"]').exists()).toBe(false)
+    })
+  })
+
   describe('edge cases and error handling', () => {
     it('handles malformed option objects gracefully', async () => {
       const malformedOptions = [
