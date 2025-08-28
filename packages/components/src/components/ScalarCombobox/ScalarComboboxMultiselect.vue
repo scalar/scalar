@@ -57,11 +57,6 @@ defineExpose({ comboboxPopoverRef })
         @add="emit('add')">
         <!-- Pass through the combobox slots -->
         <template
-          v-if="$slots.before"
-          #before>
-          <slot name="before" />
-        </template>
-        <template
           v-if="$slots.option"
           #option="props">
           <slot
@@ -74,11 +69,6 @@ defineExpose({ comboboxPopoverRef })
           <slot
             name="group"
             v-bind="props" />
-        </template>
-        <template
-          v-if="$slots.after"
-          #after>
-          <slot name="after" />
         </template>
         <template
           v-if="$slots.add"

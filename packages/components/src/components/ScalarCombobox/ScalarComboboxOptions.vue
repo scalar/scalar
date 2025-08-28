@@ -197,13 +197,12 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
       @keydown.up.prevent="moveActive(-1)" />
   </div>
   <ul
-    v-show="filtered.length || $slots.before || $slots.after || $slots.add"
+    v-show="filtered.length || slots.add"
     :id="id"
     :aria-multiselectable="multiselect"
     class="border-t p-0.75 custom-scroll overscroll-contain flex-1 min-h-0"
     role="listbox"
     tabindex="-1">
-    <slot name="before" />
     <ComboboxOptionGroup
       v-for="(group, i) in groups"
       :id="`${id}-group-${i}`"
@@ -265,6 +264,5 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
         name="add"
         :active />
     </ComboboxOption>
-    <slot name="after" />
   </ul>
 </template>

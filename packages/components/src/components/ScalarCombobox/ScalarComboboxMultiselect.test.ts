@@ -88,23 +88,6 @@ describe('ScalarComboboxMultiselect', () => {
   })
 
   describe('slot functionality', () => {
-    it('renders before and after slots in multiselect mode', async () => {
-      const wrapper = mount(ScalarComboboxMultiselect, {
-        props: { options: singleOptions },
-        slots: {
-          default: '<button>Toggle</button>',
-          before: '<div data-test="before-multiselect">Before multiselect</div>',
-          after: '<div data-test="after-multiselect">After multiselect</div>',
-        },
-      })
-
-      await wrapper.find('button').trigger('click')
-      await nextTick()
-
-      expect(wrapper.find('[data-test="before-multiselect"]').exists()).toBe(true)
-      expect(wrapper.find('[data-test="after-multiselect"]').exists()).toBe(true)
-    })
-
     it('renders custom option slot with selection state in multiselect', async () => {
       const wrapper = mount(ScalarComboboxMultiselect, {
         props: {

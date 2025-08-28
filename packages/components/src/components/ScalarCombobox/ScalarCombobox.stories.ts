@@ -190,56 +190,7 @@ export const MultiselectGroups: Story = {
   }),
 }
 
-export const WithSlots: Story = {
-  args: { options: groups, resize: true },
-  render: (args) => ({
-    components: {
-      ScalarCombobox: ScalarCombobox as ComponentExposed<typeof ScalarCombobox>,
-      ScalarButton,
-      ScalarDropdownButton,
-      ScalarListboxCheckbox,
-    },
-    setup() {
-      const selected = ref<Option>()
-      return { args, selected }
-    },
-    template: `
-<div class="flex justify-center w-full min-h-96">
-  <ScalarCombobox v-model="selected" placeholder="Select a city..." v-bind="args">
-    <ScalarButton class="w-48 px-3" variant="outlined">
-      <div class="flex flex-1 items-center min-w-0">
-        <span class="inline-block truncate flex-1 min-w-0 text-left">
-          {{ selected?.label ?? 'Select a city' }}
-        </span>
-      </div>
-    </ScalarButton>
-    <template #option="{ option, selected }">
-      <ScalarListboxCheckbox
-        :selected />
-      <div class="flex-1 min-w-0 truncate">
-        {{ option.label }}
-      </div>
-      <div class="text-c-3">
-        GMT{{ option.timezone }}
-      </div>
-    </template>
-    <template #group="{ group }">
-      {{ group.flag }}
-      {{ group.label }}
-    </template>
-    <template #before>
-      <div class="placeholder">Before</div>
-    </template>
-    <template #after>
-      <div class="placeholder">After</div>
-    </template>
-  </ScalarCombobox>
-</div>
-`,
-  }),
-}
-
-export const WithAddNewOption: Story = {
+export const WithAddNew: Story = {
   args: { options: [] },
   render: (args) => ({
     components: {

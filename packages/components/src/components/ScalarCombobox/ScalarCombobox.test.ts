@@ -155,25 +155,6 @@ describe('ScalarCombobox', () => {
   })
 
   describe('slot functionality', () => {
-    it('renders before and after slots', async () => {
-      const wrapper = mount(ScalarCombobox, {
-        props: { options: singleOptions },
-        slots: {
-          default: '<button>Toggle</button>',
-          before: '<div data-test="before-content">Before content</div>',
-          after: '<div data-test="after-content">After content</div>',
-        },
-      })
-
-      await wrapper.find('button').trigger('click')
-      await nextTick()
-
-      expect(wrapper.find('[data-test="before-content"]').exists()).toBe(true)
-      expect(wrapper.find('[data-test="before-content"]').text()).toBe('Before content')
-      expect(wrapper.find('[data-test="after-content"]').exists()).toBe(true)
-      expect(wrapper.find('[data-test="after-content"]').text()).toBe('After content')
-    })
-
     it('renders custom option slot with correct props', async () => {
       const wrapper = mount(ScalarCombobox, {
         props: { options: extendedOptions },
@@ -239,8 +220,6 @@ describe('ScalarCombobox', () => {
         props: { options: extendedGroups },
         slots: {
           default: '<button>Toggle</button>',
-          before: '<div data-test="before">Before content</div>',
-          after: '<div data-test="after">After content</div>',
           option: `
             <template #option="{ option }">
               <div data-test="custom-option">{{ option.label }}</div>
@@ -258,8 +237,6 @@ describe('ScalarCombobox', () => {
       await nextTick()
 
       // All slots should be present
-      expect(wrapper.find('[data-test="before"]').exists()).toBe(true)
-      expect(wrapper.find('[data-test="after"]').exists()).toBe(true)
       expect(wrapper.find('[data-test="custom-option"]').exists()).toBe(true)
       expect(wrapper.find('[data-test="custom-group"]').exists()).toBe(true)
     })
@@ -282,28 +259,6 @@ describe('ScalarCombobox', () => {
       // Should not have custom slot content
       expect(wrapper.find('[data-test="custom-option"]').exists()).toBe(false)
       expect(wrapper.find('[data-test="custom-group"]').exists()).toBe(false)
-    })
-
-    it('shows/hides slots based on content availability', async () => {
-      const wrapper = mount(ScalarCombobox, {
-        props: { options: [] }, // Empty options
-        slots: {
-          default: '<button>Toggle</button>',
-          before: '<div data-test="before-empty">Before empty</div>',
-          after: '<div data-test="after-empty">After empty</div>',
-        },
-      })
-
-      await wrapper.find('button').trigger('click')
-      await nextTick()
-
-      // Before/after slots should still be visible even with empty options
-      expect(wrapper.find('[data-test="before-empty"]').exists()).toBe(true)
-      expect(wrapper.find('[data-test="after-empty"]').exists()).toBe(true)
-
-      // Options list should exist but have no options
-      const optionsList = wrapper.find('ul[role="listbox"]')
-      expect(optionsList.exists()).toBe(true)
     })
   })
 

@@ -39,8 +39,4 @@ export type ComboboxSlots<O extends Option = Option, G extends OptionGroup<O> = 
   group?(props: { group: G }): unknown
   /** Creates an "Add a new option" button after the options list*/
   add?(props: { active: boolean }): unknown
-  /** A slot for contents before the combobox options */
-  before?(): unknown
-  /** A slot for contents after the combobox options */
-  after?(): unknown
 }
