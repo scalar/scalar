@@ -244,6 +244,7 @@ const fastifyApiReference = fp<FastifyApiReferenceOptions, RawServerDefault, Fas
   },
   {
     name: '@scalar/fastify-api-reference',
+    fastify: '4.x || 5.x',
   },
 )
 

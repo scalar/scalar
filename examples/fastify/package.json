@@ -33,9 +33,9 @@
     }
   },
   "dependencies": {
-    "@fastify/swagger": "catalog:*",
+    "@fastify/swagger": "8.15.0",
     "@scalar/fastify-api-reference": "workspace:*",
-    "fastify": "catalog:*"
+    "fastify": "4.29.1"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",

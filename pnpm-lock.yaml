@@ -342,14 +342,14 @@ importers:
   examples/fastify:
     dependencies:
       '@fastify/swagger':
-        specifier: catalog:*
-        version: 9.5.1
+        specifier: 8.15.0
+        version: 8.15.0
       '@scalar/fastify-api-reference':
         specifier: workspace:*
         version: link:../../integrations/fastify
       fastify:
-        specifier: catalog:*
-        version: 5.5.0
+        specifier: 4.29.1
+        version: 4.29.1
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
@@ -874,8 +874,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/openapi-types
       fastify-plugin:
-        specifier: ^5.0.1
-        version: 5.0.1
+        specifier: ^4.0.0
+        version: 4.5.1
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
@@ -6077,6 +6077,9 @@ packages:
 
   '@fastify/static@8.2.0':
     resolution: {integrity: sha512-PejC/DtT7p1yo3p+W7LiUtLMsV8fEvxAK15sozHy9t8kwo5r0uLYmhV/inURmGz1SkHZFz/8CNtHLPyhKcx4SQ==}
+
+  '@fastify/swagger@8.15.0':
+    resolution: {integrity: sha512-zy+HEEKFqPMS2sFUsQU5X0MHplhKJvWeohBwTCkBAJA/GDYGLGUWQaETEhptiqxK7Hs0fQB9B4MDb3pbwIiCwA==}
 
   '@fastify/swagger@9.5.1':
     resolution: {integrity: sha512-EGjYLA7vDmCPK7XViAYMF6y4+K3XUy5soVTVxsyXolNe/Svb4nFQxvtuQvvoQb2Gzc9pxiF3+ZQN/iZDHhKtTg==}
@@ -12611,6 +12614,9 @@ packages:
   fastify@4.27.0:
     resolution: {integrity: sha512-ci9IXzbigB8dyi0mSy3faa3Bsj0xWAPb9JeT4KRzubdSb6pNhcADRUaXCBml6V1Ss/a05kbtQls5LBmhHydoTA==}
 
+  fastify@4.29.1:
+    resolution: {integrity: sha512-m2kMNHIG92tSNWv+Z3UeTR9AWLLuo7KctC7mlFPtMEVrfjIhmQhkQnT9v15qA/BfVq3vvj134Y0jl9SBje3jXQ==}
+
   fastify@5.5.0:
     resolution: {integrity: sha512-ZWSWlzj3K/DcULCnCjEiC2zn2FBPdlZsSA/pnPa/dbUfLvxkD/Nqmb0XXMXLrWkeM4uQPUvjdJpwtXmTfriXqw==}
 
@@ -14417,6 +14423,10 @@ packages:
 
   json-schema-ref-resolver@2.0.1:
     resolution: {integrity: sha512-HG0SIB9X4J8bwbxCbnd5FfPEbcXAJYTi1pBJeP/QPON+w8ovSME8iRG+ElHNxZNX2Qh6eYn1GdzJFS4cDFfx0Q==}
+
+  json-schema-resolver@2.0.0:
+    resolution: {integrity: sha512-pJ4XLQP4Q9HTxl6RVDLJ8Cyh1uitSs0CzDBAz1uoJ4sRD/Bk7cFSXL1FUXDW3zJ7YnfliJx6eu8Jn283bpZ4Yg==}
+    engines: {node: '>=10'}
 
   json-schema-resolver@3.0.0:
     resolution: {integrity: sha512-HqMnbz0tz2DaEJ3ntsqtx3ezzZyDE7G56A/pPY/NGmrPu76UzsWquOpHFRAf5beTNXoH2LU5cQePVvRli1nchA==}
@@ -25033,6 +25043,16 @@ snapshots:
       fastq: 1.17.1
       glob: 11.0.3
 
+  '@fastify/swagger@8.15.0':
+    dependencies:
+      fastify-plugin: 4.5.1
+      json-schema-resolver: 2.0.0
+      openapi-types: 12.1.3
+      rfdc: 1.4.1
+      yaml: 2.8.0
+    transitivePeerDependencies:
+      - supports-color
+
   '@fastify/swagger@9.5.1':
     dependencies:
       fastify-plugin: 5.0.1
@@ -34117,6 +34137,25 @@ snapshots:
       semver: 7.7.2
       toad-cache: 3.7.0
 
+  fastify@4.29.1:
+    dependencies:
+      '@fastify/ajv-compiler': 3.5.0
+      '@fastify/error': 3.4.1
+      '@fastify/fast-json-stringify-compiler': 4.3.0
+      abstract-logging: 2.0.1
+      avvio: 8.3.2
+      fast-content-type-parse: 1.1.0
+      fast-json-stringify: 5.16.0
+      find-my-way: 8.2.0
+      light-my-request: 5.13.0
+      pino: 9.2.0
+      process-warning: 3.0.0
+      proxy-addr: 2.0.7
+      rfdc: 1.4.1
+      secure-json-parse: 2.7.0
+      semver: 7.7.2
+      toad-cache: 3.7.0
+
   fastify@5.5.0:
     dependencies:
       '@fastify/ajv-compiler': 4.0.2
@@ -36612,6 +36651,14 @@ snapshots:
   json-schema-ref-resolver@2.0.1:
     dependencies:
       dequal: 2.0.3
+
+  json-schema-resolver@2.0.0:
+    dependencies:
+      debug: 4.4.1(supports-color@9.4.0)
+      rfdc: 1.4.1
+      uri-js: 4.4.1
+    transitivePeerDependencies:
+      - supports-color
 
   json-schema-resolver@3.0.0:
     dependencies:
