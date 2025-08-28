@@ -82,7 +82,7 @@
     </div>
     <div class="quotes-item">
       <p>
-        "One of my most recent favorites is a in-browser ad hoc testing UI called Scalar. 
+        "One of my most recent favorites is a in-browser ad hoc testing UI called Scalar.
 One of the things that I really love about Scalar, it's got this modern UI experience, and it provides <b>built-in test generation code for a variety of targets, from cURL to HttpClient in C#.</b>"
       </p>
       <p class="mt-3 text-c-3">Captain Safia - Engineer @ Microsoft ASP.NET</p>
@@ -439,7 +439,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
       <div class="flex text-sm">
         <div class="w-1/3 flex flex-col gap-2">
           <b>Products</b>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://" target="_blank">API References</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://guides.scalar.com/scalar/scalar-api-references/getting-started" target="_blank">API References</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://client.scalar.com/" target="_blank">API Client</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://docs.scalar.com/" target="_blank">API Docs</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://editor.scalar.com/" target="_blank">Swagger Editor</a>
