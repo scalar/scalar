@@ -198,10 +198,8 @@ const fastifyApiReference = fp<FastifyApiReferenceOptions, RawServerDefault, Fas
       ...(options.logLevel && { logLevel: options.logLevel }),
       handler(_, reply) {
         // Redirect if it's the route without a slash
-        const currentUrl = new URL(_.url, `${_.protocol}://${_.hostname}`)
-
-        if (!currentUrl.pathname.endsWith('/')) {
-          return reply.redirect(`${currentUrl.pathname}/`, 301)
+        if (!_.url.endsWith('/')) {
+          return reply.redirect(`${_.url}/`, 301)
         }
 
         /**
