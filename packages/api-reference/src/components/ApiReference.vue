@@ -27,6 +27,6 @@ if (typeof window !== 'undefined') {
 
 <template>
   <ApiReferenceWorkspace
-    :store="workspaceStore"
-    :configuration="configuration" />
+    :configuration="configuration"
+    :store="workspaceStore" />
 </template>
