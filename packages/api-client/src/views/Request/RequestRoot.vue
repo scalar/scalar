@@ -12,6 +12,7 @@ import { useSidebar } from '@/hooks/useSidebar'
 import { ERRORS } from '@/libs'
 import { createRequestOperation } from '@/libs/send-request'
 import type { SendRequestResult } from '@/libs/send-request/create-request-operation'
+import { shareHeaderValues } from '@/libs/share-header-values'
 import { validateParameters } from '@/libs/validate-parameters'
 import { usePluginManager } from '@/plugins'
 import { useWorkspace } from '@/store'
@@ -127,6 +128,9 @@ const executeRequest = async () => {
     // We need to deep clone the result because it's a ref and updates will break the history
     requestHistory.push(cloneRequestResult(result))
   }
+
+  const allExamples = Object.entries(workspaceContext.requestExamples)
+  shareHeaderValues(activeExample.value, allExamples)
 }
 
 /** Cancel a live request */
