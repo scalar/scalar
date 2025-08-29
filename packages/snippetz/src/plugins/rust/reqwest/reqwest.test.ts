@@ -361,7 +361,7 @@ let request = client
 let response = request.send().await?;`)
   })
 
-  it('handles special characters in URL', () => {
+  it('handles special characters in URL, square brackets', () => {
     const result = rustReqwest.generate({
       url: 'https://example.com/path with spaces/[brackets]',
     })
@@ -369,6 +369,18 @@ let response = request.send().await?;`)
     expect(result).toBe(`let client = reqwest::Client::new();
 
 let request = client.get("https://example.com/path with spaces/[brackets]");
+
+let response = request.send().await?;`)
+  })
+
+  it('handles special characters in URL, curly brackets', () => {
+    const result = rustReqwest.generate({
+      url: 'https://example.com/path with spaces/{brackets}',
+    })
+
+    expect(result).toBe(`let client = reqwest::Client::new();
+
+let request = client.get("https://example.com/path with spaces/{brackets}");
 
 let response = request.send().await?;`)
   })

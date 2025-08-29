@@ -112,7 +112,7 @@ val request = Request.Builder()
 val response = client.newCall(request).execute()`)
   })
 
-  it('handles special characters in URL', () => {
+  it('handles special characters in URL, square brackets', () => {
     const result = kotlinOkhttp.generate({
       url: 'https://example.com/path with spaces/[brackets]',
     })
@@ -121,6 +121,21 @@ val response = client.newCall(request).execute()`)
 
 val request = Request.Builder()
   .url("https://example.com/path%20with%20spaces/[brackets]")
+  .get()
+  .build()
+
+val response = client.newCall(request).execute()`)
+  })
+
+  it('handles special characters in URL, curly brackets', () => {
+    const result = kotlinOkhttp.generate({
+      url: 'https://example.com/path with spaces/{brackets}',
+    })
+
+    expect(result).toBe(`val client = OkHttpClient()
+
+val request = Request.Builder()
+  .url("https://example.com/path%20with%20spaces/{brackets}")
   .get()
   .build()
 
