@@ -9,6 +9,9 @@ export { createApiReference } from '@/standalone/lib/html-api'
 
 export { useSidebar, Sidebar } from '@/features/sidebar'
 
+// TODO: Remove this export. Needed during store migration
+export { useWorkspaceStoreEvents } from '@/v2/hooks/use-workspace-store-events'
+
 // TODO: Ideally, we'd remove those exports or at least not export them through the root index.
 export { createEmptySpecification } from '@/libs/openapi'
 export { useNavState } from '@/hooks/useNavState'
