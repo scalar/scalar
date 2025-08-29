@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.13.15
+
+### Patch Changes
+
+- 2b22eab: feat(themes): convert default color 1 to grey scale
+
 ## 0.13.14
 
 ### Patch Changes

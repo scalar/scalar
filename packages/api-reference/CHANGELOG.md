@@ -1,5 +1,40 @@
 # @scalar/api-reference
 
+## 1.35.0
+
+### Minor Changes
+
+- 697f1d0: feat(api-reference): info block
+
+### Patch Changes
+
+- 714b197: feat: support base64 unicode characters
+- f918582: feat(api-reference, components): update scalar floating components contraints
+- 549eb02: feat(api-reference): export workspace store hooks
+- 94e4762: fix: padding on intro block
+- d5c1d0c: feat(api-reference): custom display for webhook request examples
+- Updated dependencies [ba27329]
+- Updated dependencies [714b197]
+- Updated dependencies [40e79b9]
+- Updated dependencies [06a46f0]
+- Updated dependencies [98c55d0]
+- Updated dependencies [f918582]
+- Updated dependencies [cededd8]
+- Updated dependencies [422cb2b]
+- Updated dependencies [ee605d8]
+- Updated dependencies [2b22eab]
+  - @scalar/workspace-store@0.14.3
+  - @scalar/api-client@2.5.27
+  - @scalar/oas-utils@0.4.23
+  - @scalar/snippetz@0.4.8
+  - @scalar/json-magic@0.3.2
+  - @scalar/helpers@0.0.9
+  - @scalar/components@0.14.28
+  - @scalar/themes@0.13.15
+  - @scalar/openapi-parser@0.20.2
+  - @scalar/object-utils@1.2.5
+  - @scalar/code-highlight@0.1.9
+
 ## 1.34.6
 
 ### Patch Changes

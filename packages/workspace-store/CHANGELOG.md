@@ -1,5 +1,19 @@
 # @scalar/workspace-store
 
+## 0.14.3
+
+### Patch Changes
+
+- ba27329: chore: switch to the new version of typebox
+- Updated dependencies [40e79b9]
+- Updated dependencies [06a46f0]
+- Updated dependencies [98c55d0]
+  - @scalar/snippetz@0.4.8
+  - @scalar/json-magic@0.3.2
+  - @scalar/helpers@0.0.9
+  - @scalar/openapi-parser@0.20.2
+  - @scalar/code-highlight@0.1.9
+
 ## 0.14.2
 
 ### Patch Changes

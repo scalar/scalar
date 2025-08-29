@@ -1,5 +1,11 @@
 # scalar-fastapi
 
+## 1.3.1
+
+### Patch Changes
+
+- 1c411d4: Export objects from scalar_fastapi package root
+
 ## 1.3.0
 
 ### Minor Changes

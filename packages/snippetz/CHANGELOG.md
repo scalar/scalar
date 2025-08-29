@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.4.8
+
+### Patch Changes
+
+- 40e79b9: fix(snippetz): use correct query format in ofetch snippets
+
 ## 0.4.7
 
 ### Patch Changes

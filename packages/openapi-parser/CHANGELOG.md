@@ -1,5 +1,12 @@
 # @scalar/openapi-parser
 
+## 0.20.2
+
+### Patch Changes
+
+- Updated dependencies [06a46f0]
+  - @scalar/json-magic@0.3.2
+
 ## 0.20.1
 
 ### Patch Changes

@@ -1,5 +1,22 @@
 # @scalar/openapi-to-markdown
 
+## 0.2.31
+
+### Patch Changes
+
+- 98c55d0: feat: better xml rendering
+- Updated dependencies [714b197]
+- Updated dependencies [40e79b9]
+- Updated dependencies [98c55d0]
+- Updated dependencies [f918582]
+- Updated dependencies [cededd8]
+- Updated dependencies [422cb2b]
+  - @scalar/oas-utils@0.4.23
+  - @scalar/snippetz@0.4.8
+  - @scalar/helpers@0.0.9
+  - @scalar/components@0.14.28
+  - @scalar/openapi-parser@0.20.2
+
 ## 0.2.30
 
 ### Patch Changes
