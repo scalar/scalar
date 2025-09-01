@@ -268,7 +268,7 @@ jobs:
         id: benchmark
         working-directory: packages/api-reference
         run: |
-          RESULTS=$(pnpm test:benchmark:format)
+          RESULTS=$(pnpm test:benchmark:format | tail -n +4)
           echo "$RESULTS"
           {
             echo 'results<<EOF'
@@ -279,8 +279,8 @@ jobs:
         uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
         with:
           message: |
-            ## Benchmark References
-            ### Script load time 
+            ## Benchmarks
+            ### References script load time 
             ${{ steps.benchmark.outputs.results }}
           comment-tag: 'benchmark-references'
 
