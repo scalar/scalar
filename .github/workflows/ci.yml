@@ -261,16 +261,21 @@ jobs:
           node-version: ${{ matrix.node-version }}
           packages: './packages/**'
       - name: Run tests
-        id: benchmark
+        id: benchmark-run
         run: |
           cd packages/api-reference 
           pnpm test:benchmark:save
       - name: Format benchmark results
+        id: benchmark
+        working-directory: packages/api-reference
         run: |
-          RESULTS=$(pnpm test:benchmark:format)
+          RESULTS=$(pnpm -w exec vite-node test/scripts/format-benchmark-results.ts | tail -n +4)
           echo "$RESULTS"
-          # Set the result as an output of this step
-          echo "results=$RESULTS" >> $GITHUB_OUTPUT
+          {
+            echo 'results<<EOF'
+            echo "$RESULTS"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
       - name: Add benchmark comparison to the PR
         uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
         with:
