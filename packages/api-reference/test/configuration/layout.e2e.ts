@@ -23,11 +23,8 @@ test.describe('layout', () => {
 
     await page.goto(example)
 
-    await expect(page.getByRole('region', { name: 'user-tag (Collapsed)', exact: true })).toBeVisible()
-    await expect(page.getByRole('region', { name: 'user-tag (Collapsed)', exact: true })).toHaveAttribute(
-      'layout',
-      'modern',
-    )
+    await expect(page.getByRole('region', { name: 'user-tag', exact: true })).toBeVisible()
+    await expect(page.getByRole('region', { name: 'user-tag', exact: true })).toHaveAttribute('layout', 'modern')
   })
 
   test('renders classic layout when set to classic', async ({ page }) => {
