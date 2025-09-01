@@ -13,9 +13,10 @@ describe('standalone', () => {
 
       // We want to import in here so we include the import time in the benchmark
       const { createApiReference } = await import('@/standalone/lib/html-api')
-
       createApiReference(mountPoint, { content: galaxy })
 
+      // We wait for the first operation to be rendered
+      // TODO: we should option in disabling lazy loading
       await waitFor(() => mountPoint.textContent?.includes('Time to create a user account, eh?') ?? false)
     },
     { iterations: 1, warmupIterations: 1 },
