@@ -199,13 +199,13 @@ Ready? [Create your account on scalar.com](https://scalar.com).
 
 ### Documentation
 
-| Topic                                           | Description                          |
-| ----------------------------------------------- | ------------------------------------ |
-| [Themes](documentation/themes.md)               | Predefined themes, layouts & styling |
-| [Configuration](documentation/configuration.md) | The universal configuration object   |
-| [Plugins](documentation/plugins.md)             | Extend the functionality             |
-| [OpenAPI](documentation/openapi.md)             | OpenAPI and our extensions to it     |
-| [Markdown](documentation/markdown.md)           | The supported Markdown syntax        |
+| Topic                                                                                 | Description                          |
+| ------------------------------------------------------------------------------------- | ------------------------------------ |
+| [Themes](https://guides.scalar.com/scalar/scalar-api-references/themes)               | Predefined themes, layouts & styling |
+| [Configuration](https://guides.scalar.com/scalar/scalar-api-references/configuration) | The universal configuration object   |
+| [Plugins](https://guides.scalar.com/scalar/scalar-api-references/plugins)             | Extend the functionality             |
+| [OpenAPI](https://guides.scalar.com/scalar/scalar-api-references/openapi)             | OpenAPI and our extensions to it     |
+| [Markdown](https://guides.scalar.com/scalar/scalar-api-references/markdown)           | The supported Markdown syntax        |
 
 <br>
 
