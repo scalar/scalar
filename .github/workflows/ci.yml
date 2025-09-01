@@ -263,7 +263,8 @@ jobs:
       - name: Run tests
         id: benchmark
         run: |
-          cd packages/api-reference && pnpm test:benchmark:compare > "$GITHUB_OUTPUT"
+          cd packages/api-reference ;
+          pnpm test:benchmark:compare > "$GITHUB_OUTPUT"
       - name: Add benchmark comparison to the PR
         uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
         with:
