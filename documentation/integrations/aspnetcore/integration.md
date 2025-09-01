@@ -205,7 +205,7 @@ app.MapScalarApiReference(options => options.AddDocument("galaxy",
 app.MapScalarApiReference(options =>
 {
     options.AddDocument("v1", "Production API", "api/v1/openapi.json")
-           .AddDocument("v2-beta", "Beta API", "api/v2-beta/openapi.json")
+           .AddDocument("v2-beta", "Beta API", "api/v2-beta/openapi.json", isDefault: true)
            .AddDocument("internal", "Internal API", "internal/openapi.json");
 });
 
@@ -217,13 +217,15 @@ app.MapScalarApiReference(options => options.AddDocuments(versions));
 var documents = new[]
 {
     new ScalarDocument("v1", "Production API", "api/v1/openapi.json"),
-    new ScalarDocument("v2-beta", "Beta API", "api/v2-beta/openapi.json"),
+    new ScalarDocument("v2-beta", "Beta API", "api/v2-beta/openapi.json", true),
     new ScalarDocument("galaxy", "Galaxy API", "https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json")
 };
 app.MapScalarApiReference(options => options.AddDocuments(documents));
 ```
 
 The `routePattern` parameter in `AddDocument` allows you to customize the URL path where the OpenAPI document is served. If not specified, it uses the global `OpenApiRoutePattern` from the options. The pattern can include the `{documentName}` placeholder which will be replaced with the document name.
+
+The `isDefault` parameter allows you to specify which document should be selected by default when the API Reference loads. If no document is marked as default, the first document in the list will be used.
 
 ### Authentication
 
