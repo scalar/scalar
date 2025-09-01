@@ -261,7 +261,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
           packages: './packages/**'
       - name: Run tests
-        id: benchmark-run
         run: |
           cd packages/api-reference 
           pnpm test:benchmark:save
@@ -269,7 +268,7 @@ jobs:
         id: benchmark
         working-directory: packages/api-reference
         run: |
-          RESULTS=$(pnpm -w exec vite-node test/scripts/format-benchmark-results.ts | tail -n +4)
+          RESULTS=$(pnpm test:benchmark:format)
           echo "$RESULTS"
           {
             echo 'results<<EOF'
