@@ -1,0 +1,40 @@
+# This workflow is used to update the benchmark baseline on the main branch.
+# It is triggered when a pull request is merged into the main branch.
+# It copies the branch.json file to the main.json file.
+# It then commits and pushes the changes to the main branch.
+# This is used to ensure that the benchmark results are consistent across runs.
+
+name: Update Benchmark Baseline
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: write
+
+jobs:
+  update-baseline:
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository at merge commit
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+      - name: Update main benchmark baseline
+        run: |
+          set -euo pipefail
+          if [ ! -f packages/api-reference/test/results/branch.json ]; then
+            echo "branch.json not found; nothing to update"
+            exit 0
+          fi
+          cp packages/api-reference/test/results/branch.json packages/api-reference/test/results/main.json
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git add packages/api-reference/test/results/main.json
+          if git diff --cached --quiet; then
+            echo "No benchmark baseline changes to commit"
+            exit 0
+          fi
+          git commit -m "chore(benchmarks): update baseline main.json"
+          git push

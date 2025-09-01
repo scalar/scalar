@@ -245,6 +245,7 @@ jobs:
       - name: Run tests for the proxy server (Go)
         run: cd projects/proxy-scalar-com && go test -v
 
+  # Runs the benchmark tests and formats the results into a comment on the PR
   benchmark-references:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
