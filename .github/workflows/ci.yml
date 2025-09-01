@@ -245,6 +245,32 @@ jobs:
       - name: Run tests for the proxy server (Go)
         run: cd projects/proxy-scalar-com && go test -v
 
+  benchmark-references:
+    needs: [build]
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        node-version: [22]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - name: Build packages
+        uses: ./.github/actions/build-blacksmith
+        with:
+          node-version: ${{ matrix.node-version }}
+          packages: './packages/**'
+      - name: Run tests
+        id: benchmark
+        run: cd packages/api-reference && pnpm test:benchmark:compare
+
+      - name: Add benchmark comparison to the PR
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
+        with:
+          message: |
+            ${{ steps.benchmark.outputs }}
+          comment-tag: 'benchmark-references'
+
   java-webjar-test:
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
