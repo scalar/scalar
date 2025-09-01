@@ -211,15 +211,23 @@ watch(dereferencedDocument, (newDoc) => {
       setCollapsedSidebarItem(hashSectionId, true)
     }
   }
-  // Open the first tag
-  else {
+  // Open the first tag if there are tags defined
+  else if (newDoc.tags?.length) {
     const firstTag = newDoc.tags?.[0]
 
     if (firstTag) {
       setCollapsedSidebarItem(getTagId(firstTag), true)
     }
   }
+  // If there's no tags defined on the document, grab the first tag entry
+  else {
+    const firstTag = items.value.entries.find((item) => 'tag' in item)
+    if (firstTag) {
+      setCollapsedSidebarItem(firstTag.id, true)
+    }
+  }
 
+  // Open the sidebar
   sidebarOpened.value = true
 })
 
