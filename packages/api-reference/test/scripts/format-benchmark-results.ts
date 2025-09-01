@@ -1,6 +1,7 @@
 /**
  * Formats and prints a Markdown table comparing benchmark results
- * between the current branch and main.
+ * between the current branch and main. This benchmark is only run on the CI
+ * as some files don't exist locally.
  *
  * Why: reviewers and maintainers can quickly gauge performance impact
  * without digging through raw JSON output.
