@@ -12,8 +12,9 @@ npm install @scalar/api-reference-react
 
 The API Reference package is written in Vue. That shouldn't stop you from using it in React, though. We have created a client side wrapper in React:
 
-> [!WARNING]\
-> This is untested on SSR/SSG!
+:::scalar-callout{ type=warning }
+This is untested on SSR/SSG!
+:::
 
 ```ts
 import { ApiReferenceReact } from '@scalar/api-reference-react'
