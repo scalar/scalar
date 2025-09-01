@@ -125,36 +125,36 @@ And there's an ever-growing list of plugins and integrations:
 
 ### Integrations
 
-- [HTML/JS API](documentation/integrations/html-js.md) (works everywhere)
-- [.NET ASP.NET Core](documentation/integrations/aspnetcore/integration.md)
-- [.NET Aspire](documentation/integrations/aspire.md)
-- [AdonisJS](documentation/integrations/adonisjs.md)
-- [Django Ninja](documentation/integrations/django-ninja.md)
-- [Django](documentation/integrations/django.md)
-- [Docker](documentation/integrations/docker.md)
-- [Docusaurus](documentation/integrations/docusaurus.md)
-- [Elixir](documentation/integrations/elixir.md)
-- [Express](documentation/integrations/express.md)
-- [FastAPI](documentation/integrations/fastapi.md)
-- [Fastify](documentation/integrations/fastify.md)
-- [Flask](documentation/integrations/flask.md)
-- [Go](documentation/integrations/go.md)
-- [Hapi](documentation/integrations/hapi.md)
-- [Hono](documentation/integrations/hono.md)
-- [Laravel Scribe](documentation/integrations/laravel-scribe.md)
-- [Laravel](documentation/integrations/laravel.md)
-- [Micronaut](documentation/integrations/micronaut.md)
-- [NestJS](documentation/integrations/nestjs.md)
-- [Next.js](documentation/integrations/nextjs.md)
-- [Nuxt](documentation/integrations/nuxt.md)
-- [Python](documentation/integrations/python.md)
-- [React](documentation/integrations/react.md)
-- [Ruby on Rails](documentation/integrations/ruby-on-rails.md)
-- [Rust](documentation/integrations/rust.md)
-- [Spring Boot](documentation/integrations/spring-boot.md)
-- [SvelteKit](documentation/integrations/sveltekit.md)
-- [Ts.ED](documentation/integrations/tsed.md)
-- [Vue.js](documentation/integrations/vue.md)
+- [HTML/JS API](https://guides.scalar.com/scalar/scalar-api-references/integrations/htmljs) (works everywhere)
+- [.NET ASP.NET Core](https://guides.scalar.com/scalar/scalar-api-references/integrations/net-aspnet-core/integration)
+- [.NET Aspire](https://guides.scalar.com/scalar/scalar-api-references/integrations/net-aspire)
+- [AdonisJS](https://guides.scalar.com/scalar/scalar-api-references/integrations/adonisjs)
+- [Django Ninja](https://guides.scalar.com/scalar/scalar-api-references/integrations/django-ninja)
+- [Django](https://guides.scalar.com/scalar/scalar-api-references/integrations/django)
+- [Docker](https://guides.scalar.com/scalar/scalar-api-references/integrations/docker)
+- [Docusaurus](https://guides.scalar.com/scalar/scalar-api-references/integrations/docusaurus)
+- [Elixir](https://guides.scalar.com/scalar/scalar-api-references/integrations/elixir)
+- [Express](https://guides.scalar.com/scalar/scalar-api-references/integrations/express)
+- [FastAPI](https://guides.scalar.com/scalar/scalar-api-references/integrations/fastapi)
+- [Fastify](https://guides.scalar.com/scalar/scalar-api-references/integrations/fastify)
+- [Flask](https://guides.scalar.com/scalar/scalar-api-references/integrations/flask)
+- [Go](https://guides.scalar.com/scalar/scalar-api-references/integrations/go)
+- [Hapi](https://guides.scalar.com/scalar/scalar-api-references/integrations/hapi)
+- [Hono](https://guides.scalar.com/scalar/scalar-api-references/integrations/hono)
+- [Laravel Scribe](https://guides.scalar.com/scalar/scalar-api-references/integrations/laravel-scribe)
+- [Laravel](https://guides.scalar.com/scalar/scalar-api-references/integrations/laravel)
+- [Micronaut](https://guides.scalar.com/scalar/scalar-api-references/integrations/micronaut)
+- [NestJS](https://guides.scalar.com/scalar/scalar-api-references/integrations/nestjs)
+- [Next.js](https://guides.scalar.com/scalar/scalar-api-references/integrations/nextjs)
+- [Nuxt](https://guides.scalar.com/scalar/scalar-api-references/integrations/nuxt)
+- [Python](https://guides.scalar.com/scalar/scalar-api-references/integrations/python)
+- [React](https://guides.scalar.com/scalar/scalar-api-references/integrations/react)
+- [Ruby on Rails](https://guides.scalar.com/scalar/scalar-api-references/integrations/ruby-on-rails)
+- [Rust](https://guides.scalar.com/scalar/scalar-api-references/integrations/rust)
+- [Spring Boot](https://guides.scalar.com/scalar/scalar-api-references/integrations/spring-boot)
+- [SvelteKit](https://guides.scalar.com/scalar/scalar-api-references/integrations/sveltekit)
+- [Ts.ED](https://guides.scalar.com/scalar/scalar-api-references/integrations/tsed)
+- [Vue.js](https://guides.scalar.com/scalar/scalar-api-references/integrations/vuejs)
 
 ### Built-in Support
 
@@ -199,13 +199,13 @@ Ready? [Create your account on scalar.com](https://scalar.com).
 
 ### Documentation
 
-| Topic                                           | Description                          |
-| ----------------------------------------------- | ------------------------------------ |
-| [Themes](documentation/themes.md)               | Predefined themes, layouts & styling |
-| [Configuration](documentation/configuration.md) | The universal configuration object   |
-| [Plugins](documentation/plugins.md)             | Extend the functionality             |
-| [OpenAPI](documentation/openapi.md)             | OpenAPI and our extensions to it     |
-| [Markdown](documentation/markdown.md)           | The supported Markdown syntax        |
+| Topic                                                                                 | Description                          |
+| ------------------------------------------------------------------------------------- | ------------------------------------ |
+| [Themes](https://guides.scalar.com/scalar/scalar-api-references/themes)               | Predefined themes, layouts & styling |
+| [Configuration](https://guides.scalar.com/scalar/scalar-api-references/configuration) | The universal configuration object   |
+| [Plugins](https://guides.scalar.com/scalar/scalar-api-references/plugins)             | Extend the functionality             |
+| [OpenAPI](https://guides.scalar.com/scalar/scalar-api-references/openapi)             | OpenAPI and our extensions to it     |
+| [Markdown](https://guides.scalar.com/scalar/scalar-api-references/markdown)           | The supported Markdown syntax        |
 
 <br>
 
