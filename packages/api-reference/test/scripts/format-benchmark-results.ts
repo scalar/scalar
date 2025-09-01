@@ -12,6 +12,7 @@
  * Output: three rows (this PR, main, delta) for Total Time and hz.
  */
 import main from '../results/main.json' with { type: 'json' }
+// @ts-expect-error - this file only exists on the CI
 import branch from '../results/branch.json' with { type: 'json' }
 
 type Benchmark = {
