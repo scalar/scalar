@@ -4,7 +4,7 @@ import { bench, describe, vi } from 'vitest'
 
 describe('standalone', () => {
   bench(
-    'time until first operation is rendered',
+    'first operation is rendered',
     async () => {
       // We need the reset modules here otherwise they get cached, for some reason doesn't work in the beforeEach
       vi.resetModules()

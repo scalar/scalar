@@ -8,7 +8,7 @@
           "benchmarks": [
             {
               "id": "-1671919141_0_0",
-              "name": "time until first operation is rendered",
+              "name": "first operation is rendered",
               "rank": 1,
               "rme": 0,
               "samples": [],
