@@ -52,7 +52,7 @@ catalogs:
     js-base64: ^3.7.8
     microdiff: ^1.5.0
     nanoid: 5.1.5
-    next: ^15.3.3
+    next: ^15.4.7
     picomatch: 4.0.2
     postcss: ^8.4.38
     prettier: 3.5.3
