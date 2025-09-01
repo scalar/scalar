@@ -52,14 +52,14 @@
     "@types/react": "catalog:*",
     "@types/react-dom": "catalog:*",
     "@vitejs/plugin-react": "^4.3.4",
-    "next": "^15.3.3",
+    "next": "^15.4.7",
     "react": "catalog:*",
     "react-dom": "catalog:*",
     "vite": "catalog:*",
     "vite-plugin-dts": "^4.3.0"
   },
   "peerDependencies": {
-    "next": "^15.3.3",
+    "next": "^15.4.7",
     "react": "^19.0.0"
   }
 }
