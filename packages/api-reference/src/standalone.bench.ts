@@ -1,13 +1,19 @@
-import { bench, describe, expect, vi } from 'vitest'
+import galaxy from '@scalar/galaxy/3.1.json'
+import { waitFor } from '@test/utils/wait-for'
+import { bench, describe, vi } from 'vitest'
 
 describe('standalone', () => {
   bench(
-    'createApiReference load time',
+    'time until first operation is rendered',
     async () => {
-      // This needs to be here not in a beforeEach for some reason or it doesn't reset
       vi.resetModules()
+      const mountPoint = document.createElement('div')
+      document.body.appendChild(mountPoint)
       const { createApiReference } = await import('@/standalone/lib/html-api')
-      expect(createApiReference).toBeDefined()
+
+      createApiReference(mountPoint, { content: galaxy })
+
+      await waitFor(() => mountPoint.textContent?.includes('Time to create a user account, eh?') ?? false)
     },
     { iterations: 1, warmupIterations: 1 },
   )
