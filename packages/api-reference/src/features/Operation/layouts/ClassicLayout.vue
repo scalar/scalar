@@ -126,6 +126,11 @@ const handleDiscriminatorChange = (type: string) => {
         v-if="active && !isWebhook"
         :method="method"
         :path="path" />
+      <span
+        v-if="operation.operationId"
+        class="font-code text-sm">
+        {{ operation.operationId }}
+      </span>
       <ScalarIconPlay
         v-else-if="!config?.hideTestRequestButton"
         class="endpoint-try-hint size-4.5" />

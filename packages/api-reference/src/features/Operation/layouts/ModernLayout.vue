@@ -78,6 +78,10 @@ const handleDiscriminatorChange = (type: string) => {
       <div class="flex flex-row justify-between gap-1">
         <!-- Left -->
         <div class="flex gap-1">
+          <!-- Operation ID -->
+          <Badge v-if="operation.operationId">
+            {{ operation.operationId }}
+          </Badge>
           <!-- Stability badge -->
           <Badge
             v-if="getOperationStability(operation)"
