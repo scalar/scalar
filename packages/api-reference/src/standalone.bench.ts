@@ -9,6 +9,6 @@ describe('standalone', () => {
       const { createApiReference } = await import('@/standalone/lib/html-api')
       expect(createApiReference).toBeDefined()
     },
-    { iterations: 1 },
+    { iterations: 1, warmupIterations: 1 },
   )
 })
