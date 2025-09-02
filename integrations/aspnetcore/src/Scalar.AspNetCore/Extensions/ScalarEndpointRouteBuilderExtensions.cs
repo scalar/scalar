@@ -215,26 +215,30 @@ public static class ScalarEndpointRouteBuilderExtensions
         httpContext.Response.Headers.Append(HeaderNames.Vary, HeaderNames.AcceptEncoding);
 
         var etag = $"\"{resourceFile.LastModified.Ticks}\"";
-
         var ifNoneMatch = httpContext.Request.Headers.IfNoneMatch.ToString();
         if (ifNoneMatch == etag)
         {
             return Results.StatusCode(StatusCodes.Status304NotModified);
         }
 
+        var stream = CreateResourceStream(resourceFile, httpContext);
+        return Results.Stream(stream, contentType, entityTag: new EntityTagHeaderValue(etag));
+    }
+
+    private static Stream CreateResourceStream(IFileInfo resourceFile, HttpContext httpContext)
+    {
 #if RELEASE
         if (httpContext.Request.IsGzipAccepted())
         {
             httpContext.Response.Headers.ContentEncoding = "gzip";
-            return Results.Stream(resourceFile.CreateReadStream(), contentType, entityTag: new EntityTagHeaderValue(etag));
+            return resourceFile.CreateReadStream();
         }
 
-        var stream = new GZipStream(resourceFile.CreateReadStream(), CompressionMode.Decompress);
+        return new GZipStream(resourceFile.CreateReadStream(), CompressionMode.Decompress);
 #else
-        var stream = resourceFile.CreateReadStream();
+        // We don't have pre-compress files in Debug builds
+        return resourceFile.CreateReadStream();
 #endif
-
-        return Results.Stream(stream, contentType, entityTag: new EntityTagHeaderValue(etag));
     }
 
     private static bool ShouldRedirectToTrailingSlash(HttpContext httpContext, string? documentName, [NotNullWhen(true)] out string? redirectUrl)
