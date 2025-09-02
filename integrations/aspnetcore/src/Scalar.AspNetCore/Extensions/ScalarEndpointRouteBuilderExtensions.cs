@@ -226,7 +226,7 @@ public static class ScalarEndpointRouteBuilderExtensions
         if (httpContext.Request.IsGzipAccepted())
         {
             httpContext.Response.Headers.ContentEncoding = "gzip";
-            return Results.Stream(resourceFile.CreateReadStream(), MediaTypeNames.Text.JavaScript, entityTag: new EntityTagHeaderValue(etag));
+            return Results.Stream(resourceFile.CreateReadStream(), contentType, entityTag: new EntityTagHeaderValue(etag));
         }
 
         var stream = new GZipStream(resourceFile.CreateReadStream(), CompressionMode.Decompress);
