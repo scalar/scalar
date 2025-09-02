@@ -308,13 +308,13 @@ Whether the sidebar display text and search should use the operation summary or 
 
 ```js
 {
-  operationTitleSource: 'summary' // Use method summary (default)
+  operationTitleSource: 'summary' // Use operation summary (default)
 }
 ```
 
 ```js
 {
-  operationTitleSource: 'path' // Use method path
+  operationTitleSource: 'path' // Use operation path
 }
 ```
 
