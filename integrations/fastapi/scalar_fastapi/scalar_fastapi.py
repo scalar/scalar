@@ -206,10 +206,11 @@ def get_scalar_api_reference(
         ),
     ] = None,
     title: Annotated[
-        str,
+        str | None,
         Doc(
             """
             The HTML `<title>` content, normally shown in the browser tab.
+            Defaults to "Scalar" if not provided.
             """
         ),
     ],
@@ -589,7 +590,7 @@ def get_scalar_api_reference(
 <!doctype html>
 <html>
     <head>
-        <title>{title}</title>
+        {f'<title>{title if title else "Scalar"}</title>'}
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="shortcut icon" href="{scalar_favicon_url}">

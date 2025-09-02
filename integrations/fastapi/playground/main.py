@@ -18,7 +18,6 @@ def read_root():
 async def scalar_html():
     return get_scalar_api_reference(
         openapi_url=app.openapi_url,
-        title=app.title + " - Scalar",
         theme=Theme.KEPLER,
     )
 
