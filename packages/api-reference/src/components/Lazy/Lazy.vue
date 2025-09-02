@@ -55,9 +55,7 @@ if (isLazy) {
     readyToRender.value = true
 
     if (id) {
-      nextTick(() => {
-        lazyBus.emit({ loaded: id, save })
-      })
+      nextTick(() => lazyBus.emit({ loaded: id, save }))
     }
   })
 } else if (id) {
