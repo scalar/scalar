@@ -28,8 +28,8 @@ catalogs:
       specifier: 1.55.0
       version: 1.55.0
     '@scalar/typebox':
-      specifier: 0.1.0
-      version: 0.1.0
+      specifier: 0.1.1
+      version: 0.1.1
     '@tailwindcss/vite':
       specifier: ^4.1.7
       version: 4.1.8
@@ -2654,7 +2654,7 @@ importers:
         version: link:../snippetz
       '@scalar/typebox':
         specifier: catalog:*
-        version: 0.1.0
+        version: 0.1.1
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
@@ -7769,8 +7769,8 @@ packages:
   '@rushstack/ts-command-line@4.23.2':
     resolution: {integrity: sha512-JJ7XZX5K3ThBBva38aomgsPv1L7FV6XmSOcR6HtM7HDFZJkepqT65imw26h9ggGqMjsY0R9jcl30tzKcVj9aOQ==}
 
-  '@scalar/typebox@0.1.0':
-    resolution: {integrity: sha512-stgEhiqCvQ5gLsiEHMkzIwNECw1aQyrPgN6Z9OqlTZkz5J4M2F7CbS55ojfu5hl6QdX8UsqjDQihsqjZcskYfQ==}
+  '@scalar/typebox@0.1.1':
+    resolution: {integrity: sha512-Mhhubu4zj1PiXhtgvNbz34zniedtO6PYdD80haMkIjOJwV9aWejxXILr2elHGBMsLfdhH3s9qxux6TL6X8Q6/Q==}
 
   '@segment/loosely-validate-event@2.0.0':
     resolution: {integrity: sha512-ZMCSfztDBqwotkl848ODgVcAmN4OItEWDCkshcKz0/W6gGSQayuuCtWV/MlodFivAZD793d6UgANd6wCXUfrIw==}
@@ -25662,7 +25662,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@scalar/typebox@0.1.0': {}
+  '@scalar/typebox@0.1.1': {}
 
   '@segment/loosely-validate-event@2.0.0':
     dependencies:
