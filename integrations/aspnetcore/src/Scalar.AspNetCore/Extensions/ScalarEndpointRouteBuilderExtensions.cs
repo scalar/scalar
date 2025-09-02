@@ -131,7 +131,7 @@ public static class ScalarEndpointRouteBuilderExtensions
         var scalarEndpointGroup = endpoints.MapGroup(endpointPrefix).ExcludeFromDescription();
 
         // Handle static assets
-        scalarEndpointGroup.MapStaticAssetsEndpoint();
+        scalarEndpointGroup.MapStaticAssetsEndpoints();
 
         scalarEndpointGroup.MapGet("/{documentName?}", (HttpContext httpContext, IOptionsSnapshot<ScalarOptions> optionsSnapshot, string? documentName) =>
         {
@@ -195,7 +195,7 @@ public static class ScalarEndpointRouteBuilderExtensions
     /// <summary>
     /// Maps the endpoints for serving static assets required by the Scalar API reference.
     /// </summary>
-    private static void MapStaticAssetsEndpoint(this IEndpointRouteBuilder endpoints)
+    private static void MapStaticAssetsEndpoints(this IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(ScalarJavaScriptFile, static (HttpContext httpContext) => HandleStaticAsset(ScalarJavaScriptFile, httpContext, MediaTypeNames.Text.JavaScript)).AllowAnonymous();
         endpoints.MapGet(ScalarJavaScriptHelperFile, static (HttpContext httpContext) => HandleStaticAsset(ScalarJavaScriptHelperFile, httpContext, MediaTypeNames.Text.JavaScript)).AllowAnonymous();
