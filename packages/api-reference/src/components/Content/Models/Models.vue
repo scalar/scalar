@@ -22,9 +22,9 @@ const schemas = computed(() => getModels(document))
 </script>
 <template>
   <Lazy
-    id="models"
     v-if="schemas && Object.keys(schemas).length > 0"
-    :isLazy="Boolean(hash) && !hash.startsWith('model')">
+    id="models"
+    :isLazy="!hash.startsWith('model')">
     <ClassicLayout
       v-if="config?.layout === 'classic'"
       :schemas="schemas" />

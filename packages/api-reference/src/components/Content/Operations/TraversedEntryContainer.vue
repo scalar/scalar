@@ -5,11 +5,13 @@ import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { computed, ref } from 'vue'
+import { useDebounceFn } from '@vueuse/core'
+import { computed, ref, watch } from 'vue'
 
 import { getCurrentIndex } from '@/components/Content/Operations/get-current-index'
 import { hasLazyLoaded, lazyBus } from '@/components/Lazy/lazyBus'
 import { useSidebar } from '@/features/sidebar'
+import { isDescription } from '@/features/traverse-schema/types'
 import { useNavState } from '@/hooks/useNavState'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
@@ -69,22 +71,29 @@ const activeServer = computed(() => {
 const { items } = useSidebar()
 const { hash, isIntersectionEnabled } = useNavState()
 
+/** We remove the description entries but keep the rest */
+const traversedEntries = computed(() =>
+  items.value.entries.filter((entry) => !isDescription(entry)),
+)
+
 /** Tries to freeze the scroll position of the element */
+
 const unfreeze = freezeAtTop(hash.value)
 
-/** Resume scrolling */
-const resume = () => {
+/** Resume scrolling on a debounce in case elements are still loading in */
+const debouncedResume = useDebounceFn(() => {
   unfreeze?.()
   hasLazyLoaded.value = true
   isIntersectionEnabled.value = true
-}
+  emit('allEntriesLoaded', true)
+}, 500)
 
 /** IDs for all lazy elements above the current entry */
 const lazyIds = ref<Set<string>>(new Set())
 
 /** The index of the root entry */
 const rootIndex = computed(() =>
-  getCurrentIndex(hash.value, items.value.entries),
+  getCurrentIndex(hash.value, traversedEntries.value),
 )
 
 // Use the lazybus to handle [un]freezing elements
@@ -105,25 +114,24 @@ lazyBus.on(({ loading, loaded, save }) => {
 
   // We are empty! Unfreeze the page
   if (lazyIds.value.size === 0) {
-    emit('allEntriesLoaded', true)
-    setTimeout(() => resume(), 300)
+    debouncedResume()
   }
 })
 
 // Resume scrolling after 5 seconds as a failsafe
-setTimeout(() => resume(), 5000)
+setTimeout(debouncedResume, 4500)
 </script>
 
 <template>
-  <div v-if="items.entries.length && activeCollection">
+  <div v-if="traversedEntries.length && activeCollection">
     <!-- Use recursive component for cleaner rendering -->
     <TraversedEntry
-      :entries="items.entries"
       :activeCollection
       :activeServer
       :clientOptions
       :config
       :document
+      :entries="traversedEntries"
       :rootIndex
       :store />
   </div>
