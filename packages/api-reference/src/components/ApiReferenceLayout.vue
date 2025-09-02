@@ -39,6 +39,7 @@ import { Content } from '@/components/Content'
 import GettingStarted from '@/components/GettingStarted.vue'
 import { hasLazyLoaded } from '@/components/Lazy/lazyBus'
 import MobileHeader from '@/components/MobileHeader.vue'
+import AgentButton from '@/features/agent/AgentButton.vue'
 import { ApiClientModal } from '@/features/api-client-modal'
 import { useDocumentSource } from '@/features/document-source'
 import { SearchButton } from '@/features/Search'
@@ -66,6 +67,7 @@ defineEmits<{
   (e: 'loadSwaggerFile'): void
   (e: 'linkSwaggerFile'): void
   (e: 'toggleDarkMode'): void
+  (e: 'showAgent'): void
 }>()
 
 const configuration = computed(() =>
@@ -312,6 +314,10 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
     :style="{
       '--scalar-y-offset': `var(--scalar-custom-header-height, ${yPosition}px)`,
     }">
+    <!-- Agent -->
+    <slot
+      breadcrumb="agent"
+      name="agent" />
     <!-- Header -->
     <div class="references-header">
       <MobileHeader
@@ -358,6 +364,9 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
                 v-bind="referenceSlotProps"
                 name="sidebar-end">
                 <ScalarSidebarFooter class="darklight-reference">
+                  <AgentButton
+                    v-if="$slots.agent"
+                    @click="$emit('showAgent')" />
                   <OpenApiClientButton
                     v-if="!configuration.hideClientButton"
                     buttonSource="sidebar"
