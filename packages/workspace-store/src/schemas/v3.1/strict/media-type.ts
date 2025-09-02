@@ -3,6 +3,11 @@ import { ExampleObjectSchema } from '@/schemas/v3.1/strict/example'
 import { reference } from '@/schemas/v3.1/strict/reference'
 import { SchemaObjectSchema } from '@/schemas/v3.1/strict/schema'
 
+/**
+ * Each Media Type Object provides schema and examples for the media type identified by its key.
+ *
+ * When example or examples are provided, the example SHOULD match the specified schema and be in the correct format as specified by the media type and its encoding. The example and examples fields are mutually exclusive, and if either is present it SHALL override any example in the schema. See Working With Examples for further guidance regarding the different ways of specifying examples, including non-JSON/YAML values.
+ */
 export const MediaTypeObjectSchema = Type.Object({
   /** The schema defining the content of the request, response, parameter, or header. */
   schema: Type.Optional(Type.Union([SchemaObjectSchema, reference(SchemaObjectSchema)])),
