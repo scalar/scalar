@@ -98,6 +98,7 @@ const onAnchorClick = async (ev: Event) => {
         'deprecated':
           'operation' in item &&
           isOperationDeprecated(
+            // @ts-expect-error
             item.operation as OpenAPIV3_1.OperationObject<{
               'x-scalar-stability': XScalarStability
             }>,
@@ -136,16 +137,16 @@ const onAnchorClick = async (ev: Event) => {
           &hairsp;
           <span class="sr-only">HTTP Method:&nbsp;</span>
           <SidebarHttpBadge
-            class="min-w-9.75 justify-end text-right"
             :active="isActive"
+            class="min-w-9.75 justify-end text-right"
             :method="item.method">
             <template #default>
               <ScalarIconWebhooksLogo
-                weight="bold"
                 v-if="'webhook' in item"
                 :style="{
                   color: getHttpMethodInfo(item.method).colorVar,
-                }" />
+                }"
+                weight="bold" />
             </template>
           </SidebarHttpBadge>
         </p>

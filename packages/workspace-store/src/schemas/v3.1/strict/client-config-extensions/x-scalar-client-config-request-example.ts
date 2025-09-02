@@ -1,4 +1,4 @@
-import { Type, type Static } from '@scalar/typebox'
+import { Type, type Static, type TLiteral } from '@scalar/typebox'
 
 export const exampleBodyMime = [
   'application/json',
@@ -26,7 +26,9 @@ const xScalarFileValueSchema = Type.Union([
 export type XScalarFileValue = Static<typeof xScalarFileValueSchema>
 
 const xScalarExampleBodySchema = Type.Object({
-  encoding: Type.Union(exampleBodyMime.map((it) => Type.Literal(it))),
+  encoding: Type.Union(exampleBodyMime.map((it) => Type.Literal(it))) as unknown as TLiteral<
+    (typeof exampleBodyMime)[number]
+  >,
   content: Type.Union([Type.Record(Type.String(), Type.Any()), Type.String()]),
   file: Type.Optional(xScalarFileValueSchema),
 })
