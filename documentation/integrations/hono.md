@@ -2,7 +2,7 @@
 
 This middleware provides an easy way to render a beautiful API reference based on an OpenAPI/Swagger document with Hono.
 
-![Screenshot of the Hono integration](hono.png)
+![Screenshot of the Hono integration](/screenshots/hono.png)
 
 ## Installation
 

@@ -2,7 +2,7 @@
 
 This middleware provides an easy way to render a beautiful API reference based on an OpenAPI/Swagger file with Express.
 
-![Screenshot of the Express integration](express.png)
+![Screenshot of the Express integration](/screenshots/express.png)
 
 ## Installation
 
