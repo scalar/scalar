@@ -54,6 +54,7 @@ export const requestExampleMutators = (document?: WorkspaceDocument) => {
 
     const operation = getResolvedRef(document.paths[path][method])
 
+    // Create a new request example if it doesn't exist
     if (!operation['x-scalar-client-config-request-example']) {
       operation['x-scalar-client-config-request-example'] = {}
     }
