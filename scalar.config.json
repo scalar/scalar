@@ -563,6 +563,12 @@
       "lightMode": "https://cdn.scalar.com/marketing/landing/logo-light.svg"
     },
     "cssFiles": ["documentation/assets/styles.css"],
-    "footer": ""
+    "footer": "",
+    "routing": {
+      "redirect": [{
+        "from": "/scalar/scalar-registry/github-workflows",
+        "to": "/scalar/scalar-registry/github-actions"
+      }]
+    }
   }
 }
