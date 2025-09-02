@@ -79,13 +79,14 @@ internal static class ScalarOptionsMapper
     {
         var trimmedOpenApiRoutePattern = options.OpenApiRoutePattern.TrimStart('/');
 
-        foreach (var (name, title, routePattern) in options.Documents)
+        foreach (var (name, title, routePattern, isDefault) in options.Documents)
         {
             var openApiRoutePattern = routePattern is null ? trimmedOpenApiRoutePattern : routePattern.TrimStart('/');
             yield return new ScalarSource
             {
                 Title = title ?? name,
-                Url = openApiRoutePattern.Replace(DocumentName, name)
+                Url = openApiRoutePattern.Replace(DocumentName, name),
+                Default = isDefault
             };
         }
     }
