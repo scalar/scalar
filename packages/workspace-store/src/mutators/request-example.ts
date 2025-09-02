@@ -2,6 +2,8 @@ import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { OperationIdentifier } from '@/mutators/request'
 import type { WorkspaceDocument } from '@/schemas'
 import type { XScalarClientConfigRequestExample } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-request-example'
+import type { OperationObjectSchema } from '@/schemas/v3.1/strict/operation'
+import type { Static } from '@scalar/typebox'
 
 /**
  * Provides mutator functions for managing request examples within OpenAPI operations.
@@ -54,7 +56,6 @@ export const requestExampleMutators = (document?: WorkspaceDocument) => {
 
     const operation = getResolvedRef(document.paths[path][method])
 
-    // Create a new request example if it doesn't exist
     if (!operation['x-scalar-client-config-request-example']) {
       operation['x-scalar-client-config-request-example'] = {}
     }
@@ -95,7 +96,8 @@ export const requestExampleMutators = (document?: WorkspaceDocument) => {
       return false
     }
 
-    const operation = getResolvedRef(pathObject[method])
+    // TODO: remove type casting when Module.Import types work correctly with Type.Intersect
+    const operation = getResolvedRef(pathObject[method]) as Static<typeof OperationObjectSchema>
 
     if (!operation) {
       return false

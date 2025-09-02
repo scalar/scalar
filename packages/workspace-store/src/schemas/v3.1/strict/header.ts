@@ -2,7 +2,7 @@ import { compose } from '@/schemas/compose'
 import { ExampleObjectSchema } from '@/schemas/v3.1/strict/example'
 import { reference } from '@/schemas/v3.1/strict/reference'
 import { SchemaObjectSchema } from '@/schemas/v3.1/strict/schema'
-import { Type, type TSchema } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 
 export const HeaderObjectSchemaBase = Type.Object({
   /** A brief description of the header. This could contain examples of use. CommonMark syntax MAY be used for rich text representation. */
@@ -31,13 +31,12 @@ export const HeaderObjectWithSchemaSchema = compose(
   }),
 )
 
-export const headerObjectSchemaBuilder = <T extends TSchema>(mediaType: T) =>
-  Type.Union([
-    HeaderObjectWithSchemaSchema,
-    compose(
-      HeaderObjectSchemaBase,
-      Type.Object({
-        content: Type.Optional(Type.Record(Type.String(), mediaType)),
-      }),
-    ),
-  ])
+export const HeaderObjectSchema = Type.Union([
+  HeaderObjectWithSchemaSchema,
+  compose(
+    HeaderObjectSchemaBase,
+    Type.Object({
+      content: Type.Optional(Type.Record(Type.String(), Type.Ref('MediaType'))),
+    }),
+  ),
+])
