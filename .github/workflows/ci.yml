@@ -254,7 +254,7 @@ jobs:
       matrix:
         node-version: [22]
     permissions:
-      contents: read
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
