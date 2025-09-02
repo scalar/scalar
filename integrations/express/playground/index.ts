@@ -1,6 +1,6 @@
-import { apiReference } from '@scalar/express-api-reference'
 import Express from 'express'
 import swaggerJsdoc from 'swagger-jsdoc'
+import { apiReference } from '../src/index'
 
 // Initialize Express
 const app = Express()
