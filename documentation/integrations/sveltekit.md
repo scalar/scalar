@@ -2,6 +2,8 @@
 
 A SvelteKit integration for the Scalar API Reference
 
+![Screenshot of the SvelteKit integration](sveltekit.png)
+
 ## Installation
 
 ```bash
