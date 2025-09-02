@@ -27,7 +27,6 @@ Action<ScalarOptions> configureOptions = options =>
     options
         .WithJavaScriptConfiguration("./scalar/config.js")
         .WithCdnUrl("https://cdn.jsdelivr.net/npm/@scalar/api-reference")
-        .WithFavicon("/favicon.png")
         .AddApiKeyAuthentication(AuthConstants.ApiKeyScheme, scheme => scheme.Value = "my-api-key")
         .AddPreferredSecuritySchemes(AuthConstants.ApiKeyScheme)
         .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);

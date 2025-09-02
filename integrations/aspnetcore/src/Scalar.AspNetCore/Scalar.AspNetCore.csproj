@@ -43,7 +43,7 @@
     </EmbeddedResource>
 
     <!-- Include uncompressed files for Debug -->
-    <EmbeddedResource Include="StaticAssets/*.js" Exclude="StaticAssets/*test.js" Condition="'$(Configuration)' == 'Debug'">
+    <EmbeddedResource Include="StaticAssets/*.js;StaticAssets/*.svg" Exclude="StaticAssets/*test.js" Condition="'$(Configuration)' == 'Debug'">
       <LogicalName>$(StaticAssetsLogicalNamePrefix).%(Filename)%(Extension)</LogicalName>
     </EmbeddedResource>
   </ItemGroup>

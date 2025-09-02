@@ -24,6 +24,7 @@ public static class ScalarEndpointRouteBuilderExtensions
     private const string DefaultEndpointPrefix = "/scalar";
     internal const string ScalarJavaScriptFile = "scalar.js";
     private const string ScalarJavaScriptHelperFile = "scalar.aspnetcore.js";
+    private const string ScalarFavicon = "favicon.svg";
 
     private static readonly EmbeddedFileProvider FileProvider = new(typeof(ScalarEndpointRouteBuilderExtensions).Assembly, "ScalarStaticAssets");
 
@@ -196,11 +197,12 @@ public static class ScalarEndpointRouteBuilderExtensions
     /// </summary>
     private static void MapStaticAssetsEndpoint(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapGet(ScalarJavaScriptFile, static (HttpContext httpContext) => HandleStaticAsset(ScalarJavaScriptFile, httpContext)).AllowAnonymous();
-        endpoints.MapGet(ScalarJavaScriptHelperFile, static (HttpContext httpContext) => HandleStaticAsset(ScalarJavaScriptHelperFile, httpContext)).AllowAnonymous();
+        endpoints.MapGet(ScalarJavaScriptFile, static (HttpContext httpContext) => HandleStaticAsset(ScalarJavaScriptFile, httpContext, MediaTypeNames.Text.JavaScript)).AllowAnonymous();
+        endpoints.MapGet(ScalarJavaScriptHelperFile, static (HttpContext httpContext) => HandleStaticAsset(ScalarJavaScriptHelperFile, httpContext, MediaTypeNames.Text.JavaScript)).AllowAnonymous();
+        endpoints.MapGet(ScalarFavicon, static (HttpContext httpContext) => HandleStaticAsset(ScalarFavicon, httpContext, MediaTypeNames.Image.Svg)).AllowAnonymous();
     }
 
-    private static IResult HandleStaticAsset(string file, HttpContext httpContext)
+    private static IResult HandleStaticAsset(string file, HttpContext httpContext, string contentType)
     {
         httpContext.Response.Headers.CacheControl = "no-cache";
         var resourceFile = FileProvider.GetFileInfo(file);
@@ -232,7 +234,7 @@ public static class ScalarEndpointRouteBuilderExtensions
         var stream = resourceFile.CreateReadStream();
 #endif
 
-        return Results.Stream(stream, MediaTypeNames.Text.JavaScript, entityTag: new EntityTagHeaderValue(etag));
+        return Results.Stream(stream, contentType, entityTag: new EntityTagHeaderValue(etag));
     }
 
     private static bool ShouldRedirectToTrailingSlash(HttpContext httpContext, string? documentName, [NotNullWhen(true)] out string? redirectUrl)
