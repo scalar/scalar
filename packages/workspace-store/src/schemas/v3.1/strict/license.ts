@@ -1,4 +1,4 @@
-import { Type, type Static } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 
 /** The license information for the exposed API. */
 export const LicenseObjectSchemaDefinition = Type.Object({
@@ -9,5 +9,3 @@ export const LicenseObjectSchemaDefinition = Type.Object({
   /** A URI for the license used for the API. This MUST be in the form of a URI. The url field is mutually exclusive of the identifier field. */
   url: Type.Optional(Type.String()),
 })
-
-export type LicenseObject = Static<typeof LicenseObjectSchemaDefinition>

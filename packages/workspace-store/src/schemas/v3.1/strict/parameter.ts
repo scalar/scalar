@@ -1,6 +1,6 @@
 import { compose } from '@/schemas/compose'
 import { reference } from '@/schemas/v3.1/strict/reference'
-import { Type, type Static } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 import { ExampleObjectRef, MediaTypeObjectRef, SchemaObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 
 export const ParameterObjectBaseSchema = Type.Object({
@@ -55,5 +55,3 @@ export const ParameterObjectSchemaDefinition = Type.Union([
   ParameterObjectWithSchemaSchema,
   ParameterObjectWithContentSchema,
 ])
-
-export type ParameterObject = Static<typeof ParameterObjectSchemaDefinition>

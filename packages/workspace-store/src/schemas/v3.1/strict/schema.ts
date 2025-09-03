@@ -1,4 +1,4 @@
-import { Type, type Static, type TAny, type TIntersect, type TObject } from '@scalar/typebox'
+import { Type, type TAny, type TIntersect, type TObject } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
 import { XInternalSchema } from '@/schemas/extensions/document/x-internal'
@@ -235,5 +235,3 @@ export const SchemaObjectSchemaDefinition = SchemaBase as unknown as TIntersect<
     TObject<{ _resolvedRefSchema: TAny }>,
   ]
 >
-
-export type SchemaObject = Static<typeof SchemaObjectSchemaDefinition>

@@ -1,9 +1,8 @@
 import type { TraversedWebhook } from '@/schemas/navigation'
 import { getTag } from './get-tag'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
-import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
-import type { TagObject } from '@/schemas/v3.1/strict/tag'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
 

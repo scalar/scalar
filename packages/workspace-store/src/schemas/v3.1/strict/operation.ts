@@ -1,4 +1,4 @@
-import { Type, type Static } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 import { reference } from './reference'
 import { compose } from '@/schemas/compose'
 import { xScalarClientConfigRequestExampleSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-request-example'
@@ -57,5 +57,3 @@ export const OperationObjectSchemaDefinition = compose(
   XCodeSamplesSchema,
   XScalarStabilitySchema,
 )
-
-export type OperationObject = Static<typeof OperationObjectSchemaDefinition>

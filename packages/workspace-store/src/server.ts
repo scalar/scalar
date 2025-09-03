@@ -5,13 +5,18 @@ import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
 import { createNavigation, type createNavigationOptions } from '@/navigation'
 import { extensions } from '@/schemas/extensions'
-import { OpenAPIDocumentSchema, type OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
-import type { PathsObject } from '@/schemas/v3.1/strict/paths'
+import {
+  OpenAPIDocumentSchema,
+  type ComponentsObject,
+  type OpenApiDocument,
+  type OperationObject,
+  type PathsObject,
+} from '@/schemas/v3.1/strict/openapi-document'
+
 import { keyOf } from '@/helpers/general'
-import type { OperationObject } from '@/schemas/v3.1/strict/path-operations'
 import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { coerceValue } from '@/schemas/typebox-coerce'
-import type { ComponentsObject } from '@/schemas/v3.1/strict/components'
+
 import type { TraversedEntry } from '@/schemas/navigation'
 
 const DEFAULT_ASSETS_FOLDER = 'assets'

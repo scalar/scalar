@@ -1,4 +1,4 @@
-import { Type, type Static } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 import { reference } from './reference'
 import { HeaderObjectRef, LinkObjectRef, MediaTypeObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 
@@ -12,5 +12,3 @@ export const ResponseObjectSchemaDefinition = Type.Object({
   /** A map of operations links that can be followed from the response. The key of the map is a short name for the link, following the naming constraints of the names for Component Objects. */
   links: Type.Optional(Type.Record(Type.String(), Type.Union([LinkObjectRef, reference(LinkObjectRef)]))),
 })
-
-export type ResponseObject = Static<typeof ResponseObjectSchemaDefinition>

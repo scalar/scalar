@@ -1,4 +1,4 @@
-import { Type, type Static } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 import { compose } from '@/schemas/compose'
 import { XDisplayNameSchema } from '@/schemas/extensions/tag/x-display-name'
 import { XInternalSchema } from '@/schemas/extensions/document/x-internal'
@@ -19,5 +19,3 @@ export const TagObjectSchemaDefinition = compose(
   XInternalSchema,
   XScalarIgnoreSchema,
 )
-
-export type TagObject = Static<typeof TagObjectSchemaDefinition>

@@ -1,5 +1,5 @@
 import { ServerVariableObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
-import { Type, type Static } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 
 /** An object representing a Server. */
 export const ServerObjectSchemaDefinition = Type.Object({
@@ -10,5 +10,3 @@ export const ServerObjectSchemaDefinition = Type.Object({
   /** A map between a variable name and its value. The value is used for substitution in the server's URL template. */
   variables: Type.Optional(Type.Record(Type.String(), ServerVariableObjectRef)),
 })
-
-export type ServerObject = Static<typeof ServerObjectSchemaDefinition>

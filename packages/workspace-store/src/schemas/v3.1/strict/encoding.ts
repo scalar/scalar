@@ -1,4 +1,4 @@
-import { Type, type Static } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 import { reference } from './reference'
 import { HeaderObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 
@@ -15,5 +15,3 @@ export const EncodingObjectSchemaDefinition = Type.Object({
   /** A map allowing additional information to be provided as headers. Content-Type is described separately and SHALL be ignored in this section. This field SHALL be ignored if the request body media type is not a multipart. */
   headers: Type.Optional(Type.Record(Type.String(), Type.Union([HeaderObjectRef, reference(HeaderObjectRef)]))),
 })
-
-export type EncodingObject = Static<typeof EncodingObjectSchemaDefinition>

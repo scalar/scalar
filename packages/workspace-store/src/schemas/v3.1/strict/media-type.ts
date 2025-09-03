@@ -1,4 +1,4 @@
-import { Type, type Static } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 import { reference } from '@/schemas/v3.1/strict/reference'
 import { EncodingObjectRef, ExampleObjectRef, SchemaObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 
@@ -17,5 +17,3 @@ export const MediaTypeObjectSchemaDefinition = Type.Object({
   /** A map between a property name and its encoding information. The key, being the property name, MUST exist in the schema as a property. The encoding field SHALL only apply to Request Body Objects, and only when the media type is multipart or application/x-www-form-urlencoded. If no Encoding Object is provided for a property, the behavior is determined by the default values documented for the Encoding Object. */
   encoding: Type.Optional(Type.Record(Type.String(), EncodingObjectRef)),
 })
-
-export type MediaTypeObject = Static<typeof MediaTypeObjectSchemaDefinition>

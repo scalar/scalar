@@ -1,4 +1,4 @@
-import { Type, type Static } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 import { reference } from './reference'
 import { ResponseObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 
@@ -15,5 +15,3 @@ export const ResponsesObjectSchemaDefinition = Type.Record(
   Type.String(),
   Type.Union([ResponseObjectRef, reference(ResponseObjectRef)]),
 )
-
-export type ResponsesObject = Static<typeof ResponsesObjectSchemaDefinition>

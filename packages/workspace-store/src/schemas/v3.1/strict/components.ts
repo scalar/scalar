@@ -1,12 +1,4 @@
-import {
-  Type,
-  type Static,
-  type TObject,
-  type TOptional,
-  type TRecord,
-  type TString,
-  type TUnion,
-} from '@scalar/typebox'
+import { Type, type TObject, type TOptional, type TRecord, type TString, type TUnion } from '@scalar/typebox'
 import { reference, type ReferenceType } from './reference'
 import {
   CallbackObjectRef,
@@ -84,5 +76,3 @@ export const ComponentsObjectSchemaDefinition: ComponentsObjectSchemaType = Type
   /** An object to hold reusable Path Item Objects. */
   pathItems: Type.Optional(Type.Record(Type.String(), PathItemObjectRef)),
 })
-
-export type ComponentsObject = Static<typeof ComponentsObjectSchemaDefinition>

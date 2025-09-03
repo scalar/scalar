@@ -1,7 +1,7 @@
 import { compose } from '@/schemas/compose'
 import { ExampleObjectRef, MediaTypeObjectRef, SchemaObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 import { reference } from '@/schemas/v3.1/strict/reference'
-import { Type, type Static } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 
 export const HeaderObjectSchemaBase = Type.Object({
   /** A brief description of the header. This could contain examples of use. CommonMark syntax MAY be used for rich text representation. */
@@ -46,5 +46,3 @@ export const HeaderObjectSchemaDefinition = Type.Union([
     }),
   ),
 ])
-
-export type HeaderObject = Static<typeof HeaderObjectSchemaDefinition>

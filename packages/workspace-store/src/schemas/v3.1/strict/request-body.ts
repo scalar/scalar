@@ -1,5 +1,5 @@
 import { MediaTypeObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
-import { Type, type Static } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 
 /** Describes a single request body. */
 export const RequestBodyObjectSchemaDefinition = Type.Object({
@@ -10,5 +10,3 @@ export const RequestBodyObjectSchemaDefinition = Type.Object({
   /** Determines if the request body is required in the request. Defaults to false. */
   required: Type.Optional(Type.Boolean()),
 })
-
-export type RequestBodyObject = Static<typeof RequestBodyObjectSchemaDefinition>

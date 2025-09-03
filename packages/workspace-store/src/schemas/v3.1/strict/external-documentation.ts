@@ -1,4 +1,4 @@
-import { Type, type Static } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 
 /** Allows referencing an external resource for extended documentation. */
 export const ExternalDocumentationObjectSchemaDefinition = Type.Object({
@@ -7,5 +7,3 @@ export const ExternalDocumentationObjectSchemaDefinition = Type.Object({
   /** REQUIRED. The URI for the target documentation. This MUST be in the form of a URI. */
   url: Type.String(),
 })
-
-export type ExternalDocumentationObject = Static<typeof ExternalDocumentationObjectSchemaDefinition>

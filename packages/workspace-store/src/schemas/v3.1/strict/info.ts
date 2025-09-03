@@ -1,4 +1,4 @@
-import { Type, type Static } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 import { compose } from '@/schemas/compose'
 import { XScalarSdkInstallationSchema } from '@/schemas/extensions/document/x-scalar-sdk-installation'
 import { ContactObjectRef, LicenseObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
@@ -25,5 +25,3 @@ export const InfoObjectSchemaDefinition = compose(
   }),
   XScalarSdkInstallationSchema,
 )
-
-export type InfoObject = Static<typeof InfoObjectSchemaDefinition>

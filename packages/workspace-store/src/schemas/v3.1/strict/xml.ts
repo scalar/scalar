@@ -1,4 +1,4 @@
-import { Type, type Static } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 
 /**
  * A metadata object that allows for more fine-tuned XML model definitions.
@@ -17,5 +17,3 @@ export const XMLObjectSchemaDefinition = Type.Object({
   /** MAY be used only for an array definition. Signifies whether the array is wrapped (for example, <books><book/><book/></books>) or unwrapped (<book/><book/>). Default value is false. The definition takes effect only when defined alongside type being "array" (outside the items). */
   wrapped: Type.Optional(Type.Boolean()),
 })
-
-export type XMLObject = Static<typeof XMLObjectSchemaDefinition>

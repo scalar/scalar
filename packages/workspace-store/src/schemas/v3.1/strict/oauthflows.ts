@@ -1,4 +1,4 @@
-import { Type, type Static } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 import {
   OAuthFlowImplicitSchema,
   OAuthFlowPasswordSchema,
@@ -19,5 +19,3 @@ export const OAuthFlowsObjectSchemaDefinition = Type.Object({
   /** Configuration for the OAuth Authorization Code flow. Previously called accessCode in OpenAPI 2.0. */
   authorizationCode: Type.Optional(OAuthFlowAuthorizationCodeSchema),
 })
-
-export type OAuthFlowsObject = Static<typeof OAuthFlowsObjectSchemaDefinition>
