@@ -10,13 +10,6 @@ import { nextTick, ref } from 'vue'
 
 import { lazyBus } from './lazyBus'
 
-/**
- * The default timeout for lazy loading
- *
- * Note: For browsers *without* requestIdleCallback support only.
- */
-const DEFAULT_LAZY_TIMEOUT = 300
-
 const {
   id,
   isLazy = true,
@@ -32,6 +25,13 @@ const {
   // Whether the element is a previous sibling of the current entry
   prev?: boolean
 }>()
+
+/**
+ * The default timeout for lazy loading
+ *
+ * Note: For browsers *without* requestIdleCallback support only.
+ */
+const DEFAULT_LAZY_TIMEOUT = 300
 
 /** We save to our lazyId list if it's a previous sibling or if it's not lazy */
 const save = prev || !isLazy
