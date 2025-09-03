@@ -25,6 +25,8 @@ type LazyLoadingState = {
   onEveryIdle?: () => void
   /** Whether idle detection has been set up */
   idleDetectionSetup: boolean
+  /** Callback to execute when all IDs are loaded */
+  onAllIdsLoaded?: () => void
 }
 
 /**
@@ -119,6 +121,46 @@ export function isIdRegistered(id: string): boolean {
 }
 
 /**
+ * Sets up a callback to be triggered when all registered IDs are loaded.
+ * The callback will be called immediately if all IDs are already loaded,
+ * or when the last ID gets loaded.
+ *
+ * @param callback - Function to execute when all IDs are loaded
+ */
+export function onAllIdsLoaded(callback: () => void): void {
+  globalState.onAllIdsLoaded = callback
+
+  // Check if all IDs are already loaded
+  if (areAllIdsLoaded()) {
+    callback()
+  }
+}
+
+/**
+ * Checks if all registered IDs have been loaded.
+ * An ID is considered loaded when its load control flag is set to true.
+ *
+ * @returns true if all IDs are loaded, false otherwise
+ */
+export function areAllIdsLoaded(): boolean {
+  if (globalState.registeredIds.size === 0) {
+    return true // No IDs registered means all are "loaded"
+  }
+
+  return Array.from(globalState.loadControlFlags.values()).every(Boolean)
+}
+
+/**
+ * Internal function to check and trigger the all-ids-loaded callback.
+ * Called whenever an ID's load state changes.
+ */
+function checkAndTriggerAllIdsLoaded(): void {
+  if (globalState.onAllIdsLoaded && areAllIdsLoaded()) {
+    globalState.onAllIdsLoaded()
+  }
+}
+
+/**
  * Sets the load control flag for a specific ID.
  * Controls whether the ID should be loaded immediately or wait.
  *
@@ -133,6 +175,10 @@ export function setLoadControlFlag(id: string, shouldLoad: boolean): boolean {
   }
 
   globalState.loadControlFlags.set(id, shouldLoad)
+
+  // Check if all IDs are now loaded
+  checkAndTriggerAllIdsLoaded()
+
   console.log(`[LazyLoading] Set load flag for ID "${id}": ${shouldLoad}`)
   return true
 }
@@ -291,6 +337,9 @@ function handleEveryIdle(): void {
     const nextId = globalState.pendingIds.shift()!
     globalState.loadControlFlags.set(nextId, true)
     console.log(`[LazyLoading] Load "${nextId}" (idle)`)
+
+    // Check if all IDs are now loaded
+    checkAndTriggerAllIdsLoaded()
   }
 
   if (globalState.onEveryIdle) {
@@ -354,6 +403,7 @@ export function resetState(): void {
   globalState.loadControlFlags.clear()
   globalState.pendingIds = []
   globalState.idleDetectionSetup = false
+  globalState.onAllIdsLoaded = undefined
   console.log('[LazyLoading] Global state reset')
 }
 

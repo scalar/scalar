@@ -22,12 +22,11 @@ import {
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 import { ScalarToasts, useToasts } from '@scalar/use-toasts'
-import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
+import { useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {
   computed,
   onBeforeMount,
   onMounted,
-  onUnmounted,
   provide,
   ref,
   useId,
@@ -37,7 +36,6 @@ import {
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import { Content } from '@/components/Content'
 import GettingStarted from '@/components/GettingStarted.vue'
-import { hasLazyLoaded } from '@/components/Lazy/lazyBus'
 import MobileHeader from '@/components/MobileHeader.vue'
 import { ApiClientModal } from '@/features/api-client-modal'
 import { useDocumentSource } from '@/features/document-source'
@@ -124,7 +122,6 @@ const {
   hash,
   isIntersectionEnabled,
   updateHash,
-  replaceUrlState,
 } = navState
 
 // Front-end redirect
@@ -148,6 +145,7 @@ onBeforeMount(() => {
 
 // Disables intersection observer and scrolls to section once it has been opened
 const scrollToSection = async (id?: string) => {
+  console.log('scrollToSection', id)
   isIntersectionEnabled.value = false
   updateHash()
 
@@ -179,49 +177,16 @@ onMounted(() => {
   window.onpopstate = () =>
     configuration.value.pathRouting &&
     scrollToSection(getPathRoutingId(window.location.pathname))
-
-  // Add window scroll listener
-  window.addEventListener('scroll', debouncedScroll, { passive: true })
 })
 
 const showRenderedContent = computed(
   () => isLargeScreen.value || !configuration.value.isEditable,
 )
 
-// To clear hash when scrolled to the top
-const debouncedScroll = useDebounceFn(() => {
-  if (window.scrollY < 50 && hasLazyLoaded.value) {
-    replaceUrlState('')
-  }
-})
-
 const sidebarOpened = ref(false)
 
 // Open a sidebar tag
-watch(dereferencedDocument, (newDoc) => {
-  // Scroll to given hash
-  if (hash.value) {
-    const hashSectionId = getSectionId(hash.value)
-    if (hashSectionId) {
-      setCollapsedSidebarItem(hashSectionId, true)
-    }
-  }
-  // Open the first tag if there are tags defined
-  else if (newDoc.tags?.length) {
-    const firstTag = newDoc.tags?.[0]
-
-    if (firstTag) {
-      setCollapsedSidebarItem(getTagId(firstTag), true)
-    }
-  }
-  // If there's no tags defined on the document, grab the first tag entry
-  else {
-    const firstTag = items.value.entries.find((item) => 'tag' in item)
-    if (firstTag) {
-      setCollapsedSidebarItem(firstTag.id, true)
-    }
-  }
-
+watch(dereferencedDocument, () => {
   // Open the sidebar
   sidebarOpened.value = true
 })
@@ -230,11 +195,6 @@ watch(dereferencedDocument, (newDoc) => {
 const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
   breadcrumb: items.value?.titles.get(hash.value) ?? '',
 }))
-
-onUnmounted(() => {
-  // Remove window scroll listener
-  window.removeEventListener('scroll', debouncedScroll)
-})
 
 /**
  * Due to a bug in headless UI, we need to set an ID here that can be shared across server/client

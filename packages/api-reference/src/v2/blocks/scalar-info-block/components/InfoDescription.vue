@@ -52,6 +52,12 @@ function handleScroll(headingId = '') {
     return
   }
 
+  // When we reach the top of the description, we clear the hash.
+  if (headingId === 'top') {
+    replaceUrlState('')
+    return
+  }
+
   replaceUrlState(headingId)
 }
 
@@ -94,9 +100,14 @@ const transformHeading = (node: Record<string, any>) => {
       </template>
       <!-- Everything else -->
       <template v-else>
-        <ScalarMarkdown
-          :value="section.content"
-          withImages />
+        <IntersectionObserver
+          id="top"
+          class="introduction-description-heading"
+          @intersecting="() => handleScroll('top')">
+          <ScalarMarkdown
+            :value="section.content"
+            withImages />
+        </IntersectionObserver>
       </template>
     </template>
   </div>

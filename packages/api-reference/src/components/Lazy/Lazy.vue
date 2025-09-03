@@ -9,8 +9,11 @@
 
 import { computed, onUnmounted } from 'vue'
 
+import { useNavState } from '@/hooks/useNavState'
+
 import {
   hasBeenIdle,
+  onAllIdsLoaded,
   registerId,
   shouldLoadId,
   unregisterId,
@@ -42,6 +45,13 @@ onUnmounted(() => {
   if (id) {
     unregisterId(id)
   }
+})
+
+const { isIntersectionEnabled } = useNavState()
+
+onAllIdsLoaded(() => {
+  console.log('[LazyLoading] Done.')
+  isIntersectionEnabled.value = true
 })
 </script>
 

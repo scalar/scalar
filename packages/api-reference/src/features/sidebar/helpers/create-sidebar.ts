@@ -13,6 +13,10 @@ type CollapsedSidebarItems = Record<string, boolean>
 /** Sidebar initialization options */
 export type SidebarOptions = TraverseSpecOptions
 
+const isTagGroup = (entry: TraversedEntry): entry is TraversedTag => 'isGroup' in entry && entry.isGroup
+
+const isTag = (entry: TraversedEntry): entry is TraversedTag => 'tag' in entry && !isTagGroup(entry)
+
 /**
  * Creating sidebar with only one traversal of the spec
  *
@@ -60,6 +64,23 @@ export const createSidebar = (dereferencedDocument: Ref<OpenAPIV3_1.Document>, o
     // Open all tags
     if (options.config.value.defaultOpenAllTags) {
       result.entries.forEach((entry) => setCollapsedSidebarItem(entry.id, true))
+    }
+    // Open a specific tag
+    else if (typeof window !== 'undefined') {
+      // Open the current tag (depends on the hash in the URL)
+      const currentHash = window.location.hash.replace('#', '')
+      const currentTag = result.entries.find((entry) => currentHash.startsWith(entry.id))
+      if (currentTag?.id) {
+        setCollapsedSidebarItem(currentTag.id, true)
+      }
+      // Open first tag
+      else {
+        const firstTag = result.entries.find((entry) => isTag(entry))
+
+        if (firstTag?.id) {
+          setCollapsedSidebarItem(firstTag.id, true)
+        }
+      }
     }
 
     return result
