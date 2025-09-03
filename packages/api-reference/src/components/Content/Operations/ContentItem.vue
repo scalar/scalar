@@ -21,12 +21,12 @@ import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block
 
 const {
   level = 0,
-  entries,
-  rootIndex,
+  items,
+  rootLazyIndex,
 } = defineProps<{
   level?: number
-  rootIndex: number
-  entries: TraversedEntry[]
+  rootLazyIndex: number
+  items: TraversedEntry[]
   document: OpenAPIV3_1.Document
   config: ApiReferenceConfiguration
   clientOptions: ClientOptionGroup[]
@@ -59,15 +59,15 @@ const { hash } = useNavState()
 /** The index of the current entry */
 const currentIndex = computed(() => {
   if (isRootLevel.value) {
-    return rootIndex
+    return rootLazyIndex
   }
 
-  return getCurrentIndex(hash.value, entries)
+  return getCurrentIndex(hash.value, items)
 })
 
 /**
  * Check if the entry should be lazy loaded
- * We care more about the previous entries so we track those
+ * We care more about the previous items so we track those
  */
 const isLazy = (entry: TraversedEntry, index: number) => {
   // Don't be lazy if we are a tag group
@@ -75,7 +75,7 @@ const isLazy = (entry: TraversedEntry, index: number) => {
     return null
   }
 
-  // Make all previous entries lazy
+  // Make all previous items lazy
   if (index < currentIndex.value) {
     return 'prev'
   }
@@ -95,44 +95,44 @@ defineExpose({
 
 <template>
   <Lazy
-    v-for="(entry, index) in entries"
-    :key="entry.id"
+    v-for="(entry, index) in items"
     :id="entry.id"
-    :prev="isLazy(entry, index) === 'prev'"
-    :isLazy="Boolean(isLazy(entry, index))">
+    :key="entry.id"
+    :isLazy="Boolean(isLazy(entry, index))"
+    :prev="isLazy(entry, index) === 'prev'">
     <template v-if="isOperation(entry) || isWebhook(entry)">
       <!-- Operation or Webhook -->
       <SectionContainer :omit="!isRootLevel">
         <Operation
-          :path="isWebhook(entry) ? entry.name : entry.path"
-          :method="entry.method"
           :id="entry.id"
-          :document
-          :collection="activeCollection"
           :clientOptions
+          :collection="activeCollection"
           :config="config"
-          :store
+          :document
+          :isWebhook="isWebhook(entry)"
+          :method="entry.method"
+          :path="isWebhook(entry) ? entry.name : entry.path"
           :server="activeServer"
-          :isWebhook="isWebhook(entry)" />
+          :store />
       </SectionContainer>
     </template>
 
     <!-- Webhook Group or Tag -->
     <template v-else-if="isWebhookGroup(entry) || isTag(entry)">
       <Tag
-        :tag="entry"
         :layout="config.layout"
-        :moreThanOneTag="entries.filter(isTag).length > 1">
+        :moreThanOneTag="items.filter(isTag).length > 1"
+        :tag="entry">
         <template v-if="'children' in entry && entry.children?.length">
-          <TraversedEntry
-            :level="level + 1"
-            :entries="entry.children"
+          <ContentItem
             :activeCollection
             :activeServer
             :clientOptions
-            :rootIndex
             :config
             :document
+            :items="entry.children"
+            :level="level + 1"
+            :rootLazyIndex
             :store />
         </template>
       </Tag>
@@ -140,15 +140,15 @@ defineExpose({
 
     <template v-else-if="isTagGroup(entry)">
       <!-- Tag Group -->
-      <TraversedEntry
-        :level="level + 1"
-        :rootIndex
-        :entries="entry.children || []"
+      <ContentItem
         :activeCollection
         :activeServer
         :clientOptions
         :config
         :document
+        :items="entry.children || []"
+        :level="level + 1"
+        :rootLazyIndex
         :store />
     </template>
   </Lazy>
