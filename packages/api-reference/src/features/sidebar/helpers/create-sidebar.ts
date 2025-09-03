@@ -6,6 +6,7 @@ import { type Ref, computed, reactive, ref } from 'vue'
 import type { TraverseSpecOptions } from '@/features/traverse-schema'
 import { traverseDocument } from '@/features/traverse-schema'
 import { scrollToId } from '@scalar/helpers/dom/scroll-to-id'
+import { isDescription } from '@/features/traverse-schema/types'
 
 /** Track which sidebar items are opened */
 type CollapsedSidebarItems = Record<string, boolean>
@@ -53,7 +54,7 @@ export const createSidebar = (dereferencedDocument: Ref<OpenAPIV3_1.Document>, o
     }
   }
 
-  /** Sidebar items */
+  /** Sidebar items, used directly in the sidebar */
   const items = computed(() => {
     const result = traverseDocument(dereferencedDocument.value, options)
 
@@ -65,8 +66,12 @@ export const createSidebar = (dereferencedDocument: Ref<OpenAPIV3_1.Document>, o
     return result
   })
 
+  /** Content items, we remove the intro items here and use this to generate our content */
+  const contentItems = computed(() => items.value.entries.filter((entry) => !isDescription(entry)))
+
   return {
     collapsedSidebarItems,
+    contentItems,
     isSidebarOpen,
     items,
     scrollToOperation,

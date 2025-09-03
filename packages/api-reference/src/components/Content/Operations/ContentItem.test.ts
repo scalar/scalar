@@ -8,7 +8,7 @@ import { describe, expect, it, vi } from 'vitest'
 import type { TraversedEntry, TraversedOperation, TraversedTag } from '@/features/traverse-schema'
 import type { TraversedWebhook } from '@/features/traverse-schema/types'
 
-import TraversedEntryComponent from './TraversedEntry.vue'
+import ContentItem from './ContentItem.vue'
 import { createMockNavState, createMockPluginManager, createMockSidebar } from '@/helpers/test-utils'
 import { useNavState } from '@/hooks/useNavState'
 
@@ -37,7 +37,7 @@ vi.mock('@scalar/api-client/store', () => ({
   }),
 }))
 
-describe('TraversedEntry', async () => {
+describe('ContentItem', async () => {
   const mockDocument: OpenAPIV3_1.Document = {
     openapi: '3.1.0',
     info: {
@@ -196,13 +196,13 @@ describe('TraversedEntry', async () => {
   describe('operation rendering', () => {
     it('renders a single operation correctly', () => {
       const operation = createMockOperation()
-      const entries: TraversedEntry[] = [operation]
+      const items: TraversedEntry[] = [operation]
 
-      const wrapper = mount(TraversedEntryComponent, {
+      const wrapper = mount(ContentItem, {
         props: {
-          rootIndex: 0,
+          rootLazyIndex: 0,
           clientOptions: [],
-          entries,
+          items,
           document: mockDocument,
           config: mockConfig,
           activeCollection: mockCollection,
@@ -222,11 +222,11 @@ describe('TraversedEntry', async () => {
         createMockOperation({ id: 'op-2', title: 'Create User', path: '/users', method: 'post' }),
       ]
 
-      const wrapper = mount(TraversedEntryComponent, {
+      const wrapper = mount(ContentItem, {
         props: {
-          rootIndex: 0,
+          rootLazyIndex: 0,
           clientOptions: [],
-          entries: operations,
+          items: operations,
           document: mockDocument,
           config: mockConfig,
           activeCollection: mockCollection,
@@ -245,13 +245,13 @@ describe('TraversedEntry', async () => {
   describe('webhook rendering', () => {
     it('renders a single webhook correctly', () => {
       const webhook = createMockWebhook()
-      const entries: TraversedEntry[] = [webhook]
+      const items: TraversedEntry[] = [webhook]
 
-      const wrapper = mount(TraversedEntryComponent, {
+      const wrapper = mount(ContentItem, {
         props: {
-          rootIndex: 0,
+          rootLazyIndex: 0,
           clientOptions: [],
-          entries,
+          items,
           document: mockDocument,
           config: mockConfig,
           activeCollection: mockCollection,
@@ -271,11 +271,11 @@ describe('TraversedEntry', async () => {
         createMockWebhook({ id: 'webhook-2', name: 'user.updated', method: 'put' }),
       ]
 
-      const wrapper = mount(TraversedEntryComponent, {
+      const wrapper = mount(ContentItem, {
         props: {
-          rootIndex: 0,
+          rootLazyIndex: 0,
           clientOptions: [],
-          entries: webhooks,
+          items: webhooks,
           document: mockDocument,
           config: mockConfig,
           activeCollection: mockCollection,
@@ -294,13 +294,13 @@ describe('TraversedEntry', async () => {
   describe('tag rendering', () => {
     it('renders a regular tag correctly', () => {
       const tag = createMockTag()
-      const entries: TraversedEntry[] = [tag]
+      const items: TraversedEntry[] = [tag]
 
-      const wrapper = mount(TraversedEntryComponent, {
+      const wrapper = mount(ContentItem, {
         props: {
-          rootIndex: 0,
+          rootLazyIndex: 0,
           clientOptions: [],
-          entries,
+          items,
           document: mockDocument,
           config: mockConfig,
           activeCollection: mockCollection,
@@ -318,13 +318,13 @@ describe('TraversedEntry', async () => {
       const tag = createMockTag({
         children: [createMockOperation({ id: 'child-op-1', title: 'Get Users', path: '/users', method: 'get' })],
       })
-      const entries: TraversedEntry[] = [tag]
+      const items: TraversedEntry[] = [tag]
 
-      const wrapper = mount(TraversedEntryComponent, {
+      const wrapper = mount(ContentItem, {
         props: {
-          rootIndex: 0,
+          rootLazyIndex: 0,
           clientOptions: [],
-          entries,
+          items,
           document: mockDocument,
           config: mockConfig,
           activeCollection: mockCollection,
@@ -340,13 +340,13 @@ describe('TraversedEntry', async () => {
 
     it('does not render tag when it has no children', () => {
       const tag = createMockTag({ children: [] })
-      const entries: TraversedEntry[] = [tag]
+      const items: TraversedEntry[] = [tag]
 
-      const wrapper = mount(TraversedEntryComponent, {
+      const wrapper = mount(ContentItem, {
         props: {
-          rootIndex: 0,
+          rootLazyIndex: 0,
           clientOptions: [],
-          entries,
+          items,
           document: mockDocument,
           config: mockConfig,
           activeCollection: mockCollection,
@@ -365,13 +365,13 @@ describe('TraversedEntry', async () => {
       const tagGroup = createMockTagGroup({
         children: [createMockOperation({ id: 'group-op-1', title: 'Get Users', path: '/users', method: 'get' })],
       })
-      const entries: TraversedEntry[] = [tagGroup]
+      const items: TraversedEntry[] = [tagGroup]
 
-      const wrapper = mount(TraversedEntryComponent, {
+      const wrapper = mount(ContentItem, {
         props: {
-          rootIndex: 0,
+          rootLazyIndex: 0,
           clientOptions: [],
-          entries,
+          items,
           document: mockDocument,
           config: mockConfig,
           activeCollection: mockCollection,
@@ -387,13 +387,13 @@ describe('TraversedEntry', async () => {
 
     it('renders empty tag group correctly', () => {
       const tagGroup = createMockTagGroup({ children: [] })
-      const entries: TraversedEntry[] = [tagGroup]
+      const items: TraversedEntry[] = [tagGroup]
 
-      const wrapper = mount(TraversedEntryComponent, {
+      const wrapper = mount(ContentItem, {
         props: {
-          rootIndex: 0,
+          rootLazyIndex: 0,
           clientOptions: [],
-          entries,
+          items,
           document: mockDocument,
           config: mockConfig,
           activeCollection: mockCollection,
@@ -412,13 +412,13 @@ describe('TraversedEntry', async () => {
       const webhookGroup = createMockWebhookGroup({
         children: [createMockWebhook({ id: 'group-webhook-1', name: 'user.created', method: 'post' })],
       })
-      const entries: TraversedEntry[] = [webhookGroup]
+      const items: TraversedEntry[] = [webhookGroup]
 
-      const wrapper = mount(TraversedEntryComponent, {
+      const wrapper = mount(ContentItem, {
         props: {
-          rootIndex: 0,
+          rootLazyIndex: 0,
           clientOptions: [],
-          entries,
+          items,
           document: mockDocument,
           config: mockConfig,
           activeCollection: mockCollection,
@@ -434,13 +434,13 @@ describe('TraversedEntry', async () => {
 
     it('renders empty webhook group correctly', () => {
       const webhookGroup = createMockWebhookGroup({ children: [] })
-      const entries: TraversedEntry[] = [webhookGroup]
+      const items: TraversedEntry[] = [webhookGroup]
 
-      const wrapper = mount(TraversedEntryComponent, {
+      const wrapper = mount(ContentItem, {
         props: {
-          rootIndex: 0,
+          rootLazyIndex: 0,
           clientOptions: [],
-          entries,
+          items,
           document: mockDocument,
           config: mockConfig,
           activeCollection: mockCollection,
@@ -456,7 +456,7 @@ describe('TraversedEntry', async () => {
 
   describe('mixed entry types', () => {
     it('renders mixed entry types correctly', () => {
-      const entries: TraversedEntry[] = [
+      const items: TraversedEntry[] = [
         createMockOperation({ id: 'op-1', title: 'Get Users', path: '/users', method: 'get' }),
         createMockWebhook({ id: 'webhook-1', name: 'user.created', method: 'post' }),
         createMockTag({
@@ -466,11 +466,11 @@ describe('TraversedEntry', async () => {
         }),
       ]
 
-      const wrapper = mount(TraversedEntryComponent, {
+      const wrapper = mount(ContentItem, {
         props: {
-          rootIndex: 0,
+          rootLazyIndex: 0,
           clientOptions: [],
-          entries,
+          items,
           document: mockDocument,
           config: mockConfig,
           activeCollection: mockCollection,
@@ -492,16 +492,16 @@ describe('TraversedEntry', async () => {
 
   describe('moreThanOneTag prop', () => {
     it('passes moreThanOneTag as true when multiple tags exist', () => {
-      const entries: TraversedEntry[] = [
+      const items: TraversedEntry[] = [
         createMockTag({ id: 'tag-1', title: 'Users' }),
         createMockTag({ id: 'tag-2', title: 'Posts' }),
       ]
 
-      const wrapper = mount(TraversedEntryComponent, {
+      const wrapper = mount(ContentItem, {
         props: {
-          rootIndex: 0,
+          rootLazyIndex: 0,
           clientOptions: [],
-          entries,
+          items,
           document: mockDocument,
           config: mockConfig,
           activeCollection: mockCollection,
@@ -520,13 +520,13 @@ describe('TraversedEntry', async () => {
     })
 
     it('passes moreThanOneTag as false when only one tag exists', () => {
-      const entries: TraversedEntry[] = [createMockTag({ id: 'tag-1', title: 'Users' })]
+      const items: TraversedEntry[] = [createMockTag({ id: 'tag-1', title: 'Users' })]
 
-      const wrapper = mount(TraversedEntryComponent, {
+      const wrapper = mount(ContentItem, {
         props: {
-          rootIndex: 0,
+          rootLazyIndex: 0,
           clientOptions: [],
-          entries,
+          items,
           document: mockDocument,
           config: mockConfig,
           activeCollection: mockCollection,
@@ -542,14 +542,14 @@ describe('TraversedEntry', async () => {
   })
 
   describe('edge cases', () => {
-    it('handles empty entries array', () => {
-      const entries: TraversedEntry[] = []
+    it('handles empty items array', () => {
+      const items: TraversedEntry[] = []
 
-      const wrapper = mount(TraversedEntryComponent, {
+      const wrapper = mount(ContentItem, {
         props: {
-          rootIndex: 0,
+          rootLazyIndex: 0,
           clientOptions: [],
-          entries,
+          items,
           document: mockDocument,
           config: mockConfig,
           activeCollection: mockCollection,
@@ -564,13 +564,13 @@ describe('TraversedEntry', async () => {
 
     it('handles undefined children in tag', () => {
       const tag = createMockTag({ children: undefined as any })
-      const entries: TraversedEntry[] = [tag]
+      const items: TraversedEntry[] = [tag]
 
-      const wrapper = mount(TraversedEntryComponent, {
+      const wrapper = mount(ContentItem, {
         props: {
-          rootIndex: 0,
+          rootLazyIndex: 0,
           clientOptions: [],
-          entries,
+          items,
           document: mockDocument,
           config: mockConfig,
           activeCollection: mockCollection,
@@ -585,13 +585,13 @@ describe('TraversedEntry', async () => {
 
     it('handles undefined children in tag group', () => {
       const tagGroup = createMockTagGroup({ children: undefined as any })
-      const entries: TraversedEntry[] = [tagGroup]
+      const items: TraversedEntry[] = [tagGroup]
 
-      const wrapper = mount(TraversedEntryComponent, {
+      const wrapper = mount(ContentItem, {
         props: {
-          rootIndex: 0,
+          rootLazyIndex: 0,
           clientOptions: [],
-          entries,
+          items,
           document: mockDocument,
           config: mockConfig,
           activeCollection: mockCollection,
@@ -607,13 +607,13 @@ describe('TraversedEntry', async () => {
   describe('props passing', () => {
     it('passes correct props to Operation component', () => {
       const operation = createMockOperation()
-      const entries: TraversedEntry[] = [operation]
+      const items: TraversedEntry[] = [operation]
 
-      const wrapper = mount(TraversedEntryComponent, {
+      const wrapper = mount(ContentItem, {
         props: {
-          rootIndex: 0,
+          rootLazyIndex: 0,
           clientOptions: [],
-          entries,
+          items,
           document: mockDocument,
           config: mockConfig,
           activeCollection: mockCollection,
@@ -632,13 +632,13 @@ describe('TraversedEntry', async () => {
 
     it('passes correct props to Tag component', () => {
       const tag = createMockTag()
-      const entries: TraversedEntry[] = [tag]
+      const items: TraversedEntry[] = [tag]
 
-      const wrapper = mount(TraversedEntryComponent, {
+      const wrapper = mount(ContentItem, {
         props: {
-          rootIndex: 0,
+          rootLazyIndex: 0,
           clientOptions: [],
-          entries,
+          items,
           document: mockDocument,
           config: mockConfig,
           activeCollection: mockCollection,
@@ -658,7 +658,7 @@ describe('TraversedEntry', async () => {
       // Mock useNavState to return hash matching the first operation
       vi.mocked(useNavState).mockReturnValue(createMockNavState('tag/users/get/users'))
 
-      const entries = [
+      const items = [
         createMockTag({
           id: 'tag/users',
           title: 'Users',
@@ -699,11 +699,11 @@ describe('TraversedEntry', async () => {
         }),
       ]
 
-      const wrapper = mount(TraversedEntryComponent, {
+      const wrapper = mount(ContentItem, {
         props: {
-          rootIndex: 0,
+          rootLazyIndex: 0,
           clientOptions: [],
-          entries,
+          items,
           document: mockDocument,
           config: mockConfig,
           activeCollection: mockCollection,
@@ -721,16 +721,16 @@ describe('TraversedEntry', async () => {
       // Mock useNavState to return hash matching a webhook
       vi.mocked(useNavState).mockReturnValue(createMockNavState('webhook/POST/user.created'))
 
-      const entries = [
+      const items = [
         createMockWebhook({ id: 'webhook-1', name: 'user.created', method: 'post' }),
         createMockWebhook({ id: 'webhook-2', name: 'user.updated', method: 'put' }),
       ]
 
-      const wrapper = mount(TraversedEntryComponent, {
+      const wrapper = mount(ContentItem, {
         props: {
-          rootIndex: 0,
+          rootLazyIndex: 0,
           clientOptions: [],
-          entries,
+          items,
           document: mockDocument,
           config: mockConfig,
           activeCollection: mockCollection,
@@ -740,21 +740,21 @@ describe('TraversedEntry', async () => {
       })
 
       const component = wrapper.vm as any
-      expect(component.isLazy(entries[0], 0)).toBe(null)
-      expect(component.isLazy(entries[1], 1)).toBe(null)
+      expect(component.isLazy(items[0], 0)).toBe(null)
+      expect(component.isLazy(items[1], 1)).toBe(null)
     })
 
     it('returns null for current and nearby indices when hash matches tag', () => {
       // Mock useNavState to return hash matching a tag
       vi.mocked(useNavState).mockReturnValue(createMockNavState('tag/users'))
 
-      const entries = [createMockTag({ id: 'tag-1', title: 'Users' }), createMockTag({ id: 'tag-2', title: 'Posts' })]
+      const items = [createMockTag({ id: 'tag-1', title: 'Users' }), createMockTag({ id: 'tag-2', title: 'Posts' })]
 
-      const wrapper = mount(TraversedEntryComponent, {
+      const wrapper = mount(ContentItem, {
         props: {
-          rootIndex: 0,
+          rootLazyIndex: 0,
           clientOptions: [],
-          entries,
+          items,
           document: mockDocument,
           config: mockConfig,
           activeCollection: mockCollection,
@@ -764,15 +764,15 @@ describe('TraversedEntry', async () => {
       })
 
       const component = wrapper.vm as any
-      expect(component.isLazy(entries[0], 0)).toBe(null)
-      expect(component.isLazy(entries[1], 1)).toBe(null)
+      expect(component.isLazy(items[0], 0)).toBe(null)
+      expect(component.isLazy(items[1], 1)).toBe(null)
     })
 
     it('returns correct lazy values for different positions relative to current index', () => {
       // Mock useNavState to return hash matching the second entry
       vi.mocked(useNavState).mockReturnValue(createMockNavState('operation-2'))
 
-      const entries = [
+      const items = [
         createMockOperation({ id: 'operation-1', title: 'Get Users' }),
         createMockOperation({ id: 'operation-2', title: 'Create User' }),
         createMockOperation({ id: 'operation-3', title: 'Update User' }),
@@ -780,11 +780,11 @@ describe('TraversedEntry', async () => {
         createMockOperation({ id: 'operation-5', title: 'List Users' }),
       ]
 
-      const wrapper = mount(TraversedEntryComponent, {
+      const wrapper = mount(ContentItem, {
         props: {
-          rootIndex: 1, // Current index is 1 (operation-2)
+          rootLazyIndex: 1, // Current index is 1 (operation-2)
           clientOptions: [],
-          entries,
+          items,
           document: mockDocument,
           config: mockConfig,
           activeCollection: mockCollection,
@@ -795,15 +795,15 @@ describe('TraversedEntry', async () => {
 
       const component = wrapper.vm as any
       // Index 0 is before current index (1)
-      expect(component.isLazy(entries[0], 0)).toBe('prev')
+      expect(component.isLazy(items[0], 0)).toBe('prev')
       // Index 1 is current index
-      expect(component.isLazy(entries[1], 1)).toBe(null)
+      expect(component.isLazy(items[1], 1)).toBe(null)
       // Index 2 is current + 1
-      expect(component.isLazy(entries[2], 2)).toBe(null)
+      expect(component.isLazy(items[2], 2)).toBe(null)
       // Index 3 is current + 2
-      expect(component.isLazy(entries[3], 3)).toBe(null)
+      expect(component.isLazy(items[3], 3)).toBe(null)
       // Index 4 is current + 3 (after the 2 sibling limit)
-      expect(component.isLazy(entries[4], 4)).toBe('after')
+      expect(component.isLazy(items[4], 4)).toBe('after')
     })
   })
 })

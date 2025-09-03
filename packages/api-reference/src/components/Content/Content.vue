@@ -10,7 +10,9 @@ import { computed } from 'vue'
 
 import IntroductionSection from '@/components/Content/IntroductionSection.vue'
 import { Models } from '@/components/Content/Models'
+import { useLazyLoading } from '@/components/Lazy/useLazyLoading'
 import { SectionFlare } from '@/components/SectionFlare'
+import { useSidebar } from '@/features/sidebar'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import { DEFAULT_INTRODUCTION_SLUG } from '@/features/traverse-schema'
 import { useNavState } from '@/hooks/useNavState'
@@ -20,7 +22,7 @@ import { IntroductionCardItem } from '@/v2/blocks/scalar-info-block/'
 import { generateClientOptions } from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
 import { ServerSelector } from '@/v2/blocks/scalar-server-selector-block'
 
-import { TraversedEntryContainer } from './Operations'
+import { ContentItem } from './Operations'
 
 const { store, config } = defineProps<{
   document: OpenAPIV3_1.Document
@@ -36,6 +38,8 @@ const clientOptions = computed(() =>
 )
 
 const { getHeadingId } = useNavState()
+const { contentItems } = useSidebar()
+const { rootLazyIndex } = useLazyLoading()
 
 const id = computed(() =>
   getHeadingId({
@@ -172,11 +176,16 @@ const getOriginalDocument = () => store.exportActiveDocument('json') ?? '{}'
       </template>
     </IntroductionSection>
 
-    <!-- Loop on traversed entries -->
-    <TraversedEntryContainer
+    <!-- Recursive component switcher for our content -->
+    <ContentItem
+      v-if="contentItems.length && activeCollection"
+      :activeCollection
+      :activeServer
       :clientOptions
       :config
       :document
+      :items="contentItems"
+      :rootLazyIndex
       :store />
 
     <!-- Models -->
