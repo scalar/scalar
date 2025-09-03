@@ -66,9 +66,12 @@ describe('SidebarElement', () => {
     ...overrides,
   })
 
-  const createMockTraversedEntry = (overrides: Partial<TraversedEntry> = {}): TraversedEntry => ({
+  const createMockTraversedEntry = (overrides: Partial<TraversedEntry> = {}): TraversedOperation => ({
     id: 'test-entry',
     title: 'Test Entry',
+    method: 'get',
+    path: '/test',
+    operation: {},
     ...overrides,
   })
 

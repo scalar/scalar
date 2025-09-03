@@ -22,9 +22,12 @@ describe('traverseTags', () => {
   })
 
   // Helper function to create a mock sidebar entry
-  const createMockEntry = (title: string, method?: HttpMethod): TraversedEntry => ({
+  const createMockEntry = (title: string, method?: HttpMethod): TraversedOperation => ({
     id: `entry-${title}`,
     title,
+    path: '',
+    operation: {},
+    method: method ?? 'get',
     ...(method && { method }),
   })
 

@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
 import type { TraversedEntry } from '@/features/traverse-schema/types'
+import { describe, expect, it } from 'vitest'
 import { getCurrentIndex } from './get-current-index'
 
 // Mock data for testing
@@ -151,7 +151,7 @@ describe('getCurrentIndex', () => {
         {
           id: 'operation-get-pets',
           title: 'Get Pets Duplicate',
-          method: 'get',
+          method: 'get' as const,
           path: '/pets',
           operation: {} as any,
         },
