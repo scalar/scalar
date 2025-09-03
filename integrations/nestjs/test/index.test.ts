@@ -110,7 +110,7 @@ describe('apiReference middleware (express)', () => {
     expect(res.text).toContain('Function API')
   })
 
-  it('should preserves function properties in configuration', async () => {
+  it('preserves function properties in configuration', async () => {
     app.use(
       '/reference',
       apiReference({
