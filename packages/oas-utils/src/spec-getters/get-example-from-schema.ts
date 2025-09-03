@@ -1,6 +1,6 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 const MAX_LEVELS_DEEP = 5
 /** Sets the max number of properties after the third level to prevent exponential horizontal growth */

@@ -1,7 +1,6 @@
 import { iterateTitle } from '@scalar/helpers/string/iterate-title'
 import type { ObjectDoc, UrlDoc } from '@scalar/workspace-store/client'
-import type { InfoObject } from '@scalar/workspace-store/schemas/v3.1/strict/info'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument, InfoObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 /**
  * Calculate a default name for the document to make the workspace store name parameter optional

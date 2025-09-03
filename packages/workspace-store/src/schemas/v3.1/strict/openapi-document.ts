@@ -128,16 +128,25 @@ const module = Type.Module({
 
 //  ----- Schemas ----
 export const OpenAPIDocumentSchema = module.Import('OpenApiDocument')
+
 export const ComponentsObjectSchema = module.Import('ComponentsObject')
 export const SecurityRequirementObjectSchema = module.Import('SecurityRequirementObject')
 export const TagObjectSchema = module.Import('TagObject')
+
 export const CallbackObjectSchema = module.Import('CallbackObject')
 export const PathItemObjectSchema = module.Import('PathItemObject')
-export const OperationObjectSchema = module.Import('OperationObject')
-export const SchemaObjectSchema = module.Import('SchemaObject')
-export const ServerObjectSchema = module.Import('ServerObject')
 export const PathsObjectSchema = module.Import('PathsObject')
+export const OperationObjectSchema = module.Import('OperationObject')
+
+export const SchemaObjectSchema = module.Import('SchemaObject')
+
+export const EncodingObjectSchema = module.Import('EncodingObject')
+export const MediaTypeObjectSchema = module.Import('MediaTypeObject')
+export const HeaderObjectSchema = module.Import('HeaderObject')
+
+export const ServerObjectSchema = module.Import('ServerObject')
 export const ExternalDocumentationObjectSchema = module.Import('ExternalDocumentationObject')
+
 export const InfoObjectSchema = module.Import('InfoObject')
 export const ContactObjectSchema = module.Import('ContactObject')
 export const LicenseObjectSchema = module.Import('LicenseObject')
@@ -154,17 +163,26 @@ export const OAuthFlowsObjectSchema = module.Import('OAuthFlowsObject')
 export const ServerVariableObjectSchema = module.Import('ServerVariableObject')
 
 // ----- Type Definitions ----
-export type OpenAPIDocument = Static<typeof OpenAPIDocumentSchema>
+export type OpenApiDocument = Static<typeof OpenAPIDocumentSchema>
+
 export type ComponentsObject = Static<typeof ComponentsObjectSchema>
 export type SecurityRequirementObject = Static<typeof SecurityRequirementObjectSchema>
 export type TagObject = Static<typeof TagObjectSchema>
+
 export type CallbackObject = Static<typeof CallbackObjectSchema>
 export type PathItemObject = Static<typeof PathItemObjectSchema>
-export type OperationObject = Static<typeof OperationObjectSchema>
-export type SchemaObject = Static<typeof SchemaObjectSchema>
-export type ServerObject = Static<typeof ServerObjectSchema>
 export type PathsObject = Static<typeof PathsObjectSchema>
+export type OperationObject = Static<typeof OperationObjectSchema>
+
+export type SchemaObject = Static<typeof SchemaObjectSchema>
+
+export type EncodingObject = Static<typeof EncodingObjectSchema>
+export type MediaTypeObject = Static<typeof MediaTypeObjectSchema>
+export type HeaderObject = Static<typeof HeaderObjectSchema>
+
+export type ServerObject = Static<typeof ServerObjectSchema>
 export type ExternalDocumentationObject = Static<typeof ExternalDocumentationObjectSchema>
+
 export type InfoObject = Static<typeof InfoObjectSchema>
 export type ContactObject = Static<typeof ContactObjectSchema>
 export type LicenseObject = Static<typeof LicenseObjectSchema>
@@ -179,5 +197,3 @@ export type XMLObject = Static<typeof XMLObjectSchema>
 export type DiscriminatorObject = Static<typeof DiscriminatorObjectSchema>
 export type OAuthFlowsObject = Static<typeof OAuthFlowsObjectSchema>
 export type ServerVariableObject = Static<typeof ServerVariableObjectSchema>
-
-export type OpenApiDocument = Static<typeof OpenAPIDocumentSchema>

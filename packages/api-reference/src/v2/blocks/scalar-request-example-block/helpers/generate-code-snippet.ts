@@ -1,10 +1,12 @@
 import type { AvailableClients, ClientId, TargetId } from '@scalar/snippetz'
 import { operationToHar } from '@scalar/oas-utils/helpers/operation-to-har'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
 import { getSnippet } from '@scalar/api-client/views/Components/CodeSnippet'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import type {
+  ServerObject,
+  OperationObject,
+  SecuritySchemeObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 type Props = {
   clientId: AvailableClients[number]

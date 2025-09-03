@@ -1,8 +1,10 @@
 import { getExampleFromSchema } from '@/spec-getters/get-example-from-schema'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/example'
-import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
+import type {
+  OperationObject,
+  ExampleObject,
+  ParameterObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { Request as HarRequest } from 'har-format'
 
 type ProcessedParameters = {
