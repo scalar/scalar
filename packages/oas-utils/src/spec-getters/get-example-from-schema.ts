@@ -9,11 +9,16 @@ const MAX_PROPERTIES = 10
 /** The default name for additional properties. */
 const DEFAULT_ADDITIONAL_PROPERTIES_NAME = 'propertyName*'
 
+/** Pre-computed values to avoid expensive date operations */
+const currentISOString = new Date().toISOString()
+const currentDateString = currentISOString.split('T')[0]!
+const currentTimeString = currentISOString.split('T')[1]!.split('.')[0]!
+
 const genericExampleValues: Record<string, string> = {
   // 'date-time': '1970-01-01T00:00:00Z',
-  'date-time': new Date().toISOString(),
+  'date-time': currentISOString,
   // 'date': '1970-01-01',
-  'date': new Date().toISOString().split('T')[0]!,
+  'date': currentDateString,
   'email': 'hello@example.com',
   'hostname': 'example.com',
   // https://tools.ietf.org/html/rfc6531#section-3.3
@@ -32,7 +37,7 @@ const genericExampleValues: Record<string, string> = {
   'relative-json-pointer': '1/nested/objects',
   // full-time in https://tools.ietf.org/html/rfc3339#section-5.6
   // 'time': '00:00:00Z',
-  'time': new Date().toISOString().split('T')[1]!.split('.')[0]!,
+  'time': currentTimeString,
   // either a URI or relative-reference https://tools.ietf.org/html/rfc3986#section-4.1
   'uri-reference': '../folder',
   'uri-template': 'https://example.com/{id}',
@@ -53,6 +58,9 @@ function guessFromFormat(schema: SchemaObject, makeUpRandomData: boolean = false
 
 /** Map of all the results */
 const resultCache = new WeakMap<Record<string, any>, any>()
+
+/** Set to track schemas being processed to detect circular references */
+const processingSchemas = new WeakSet<Record<string, any>>()
 
 /** Store result in the cache, and return the result */
 function cache(schema: SchemaObject, result: unknown) {
@@ -112,27 +120,33 @@ export const getExampleFromSchema = (
     return resultCache.get(schema)
   }
 
-  // Check whether it's a circular reference
-  if (level === MAX_LEVELS_DEEP + 1) {
-    try {
-      // Fails if it contains a circular reference
-      JSON.stringify(schema)
-    } catch {
-      return '[Circular Reference]'
-    }
+  // Fast circular reference detection using WeakSet, but only after some depth
+  if (level > MAX_LEVELS_DEEP && processingSchemas.has(schema)) {
+    return '[Circular Reference]'
   }
+
+  // Check depth limit
+  if (level > MAX_LEVELS_DEEP) {
+    return '[Max Depth Exceeded]'
+  }
+
+  // Add to processing set
+  processingSchemas.add(schema)
 
   // Sometimes, we just want the structure and no values.
   // But if `emptyString` is  set, we do want to see some values.
   const makeUpRandomData = !!options?.emptyString
 
+  // Early exits for simple cases
   // If the property is deprecated anyway, we don't want to show it.
   if (schema.deprecated) {
+    processingSchemas.delete(schema)
     return undefined
   }
 
   // Check if the property is read-only/write-only
   if ((options?.mode === 'write' && schema.readOnly) || (options?.mode === 'read' && schema.writeOnly)) {
+    processingSchemas.delete(schema)
     return undefined
   }
 
@@ -142,6 +156,7 @@ export const getExampleFromSchema = (
 
     // Return the value if it's defined
     if (value !== undefined) {
+      processingSchemas.delete(schema)
       // Type-casting
       if (schema.type === 'number' || schema.type === 'integer') {
         return Number.parseInt(value, 10)
@@ -153,26 +168,31 @@ export const getExampleFromSchema = (
 
   // Use the first example, if there's an array
   if (Array.isArray(schema.examples) && schema.examples.length > 0) {
+    processingSchemas.delete(schema)
     return cache(schema, schema.examples[0])
   }
 
   // Use an example, if there's one
   if (schema.example !== undefined) {
+    processingSchemas.delete(schema)
     return cache(schema, schema.example)
   }
 
   // Use a default value, if there's one
   if (schema.default !== undefined) {
+    processingSchemas.delete(schema)
     return cache(schema, schema.default)
   }
 
   // Use a const value, if there's one
   if (schema.const !== undefined) {
+    processingSchemas.delete(schema)
     return cache(schema, schema.const)
   }
 
   // enum: [ 'available', 'pending', 'sold' ]
   if (Array.isArray(schema.enum) && schema.enum.length > 0) {
+    processingSchemas.delete(schema)
     return cache(schema, schema.enum[0])
   }
 
@@ -201,46 +221,43 @@ export const getExampleFromSchema = (
     const response: Record<string, any> = {}
     let propertyCount = 0
 
-    // Regular properties
+    // Regular properties - optimized iteration
     if (schema.properties !== undefined) {
-      for (const propertyName in schema.properties) {
-        if (Object.prototype.hasOwnProperty.call(schema.properties, propertyName)) {
-          // Only apply property limit for nested levels (level > 0)
-          if (level > 3 && propertyCount >= MAX_PROPERTIES) {
-            response['...'] = '[Additional Properties Truncated]'
-            break
-          }
+      const propertyNames = Object.keys(schema.properties)
+      const maxProps = level > 3 ? MAX_PROPERTIES : propertyNames.length
 
-          const property = getResolvedRef(schema.properties[propertyName])
-          const propertyXmlTagName = options?.xml ? property?.xml?.name : undefined
-          if (!property) {
-            continue
-          }
+      for (const propertyName of propertyNames.slice(0, maxProps)) {
+        const property = getResolvedRef(schema.properties[propertyName])
 
-          const value = getExampleFromSchema(property, options, level + 1, schema, propertyName)
-
-          if (typeof value !== 'undefined') {
-            response[propertyXmlTagName ?? propertyName] = value
-            propertyCount++
-          }
+        if (!property) {
+          continue
         }
+
+        const propertyXmlTagName = options?.xml ? property?.xml?.name : undefined
+        const value = getExampleFromSchema(property, options, level + 1, schema, propertyName)
+
+        if (typeof value !== 'undefined') {
+          response[propertyXmlTagName ?? propertyName] = value
+          propertyCount++
+        }
+      }
+
+      // Add truncation indicator if we hit the limit
+      if (level > 3 && propertyCount >= MAX_PROPERTIES && propertyNames.length > MAX_PROPERTIES) {
+        response['...'] = '[Additional Properties Truncated]'
       }
     }
 
-    // Pattern properties (regex)
+    // Pattern properties (regex) - optimized iteration
     if (schema.patternProperties !== undefined) {
-      for (const pattern in schema.patternProperties) {
-        if (Object.prototype.hasOwnProperty.call(schema.patternProperties, pattern)) {
-          const property = getResolvedRef(schema.patternProperties[pattern])
-          if (!property) {
-            continue
-          }
-
-          // Use the regex pattern as an example key
-          const exampleKey = pattern
-
-          response[exampleKey] = getExampleFromSchema(property, options, level + 1, schema, exampleKey)
+      for (const pattern of Object.keys(schema.patternProperties)) {
+        const property = getResolvedRef(schema.patternProperties[pattern])
+        if (!property) {
+          continue
         }
+
+        // Use the regex pattern as an example key
+        response[pattern] = getExampleFromSchema(property, options, level + 1, schema, pattern)
       }
     }
 
@@ -283,6 +300,9 @@ export const getExampleFromSchema = (
       )
     }
 
+    // Clean up processing set before returning
+    processingSchemas.delete(schema)
+
     // Check if we need to wrap the result in an XML root element name
     if (options?.xml && schema.xml?.name && level === 0) {
       const wrappedResponse: Record<string, any> = {}
@@ -300,6 +320,7 @@ export const getExampleFromSchema = (
     const wrapItems = !!(options?.xml && schema.xml?.wrapped && itemsXmlTagName)
 
     if (schema.example !== undefined) {
+      processingSchemas.delete(schema)
       return cache(schema, wrapItems ? { [itemsXmlTagName]: schema.example } : schema.example)
     }
 
@@ -310,12 +331,12 @@ export const getExampleFromSchema = (
         const allOf = items.allOf.filter(isDefined)
         const firstItem = getResolvedRef(allOf[0])
 
-        // IfirstItemem is an object type, merge all schemas
+        // If first item is an object type, merge all schemas
         if (firstItem?.type === 'object') {
           const combined = { type: 'object', allOf } as SchemaObject
 
           const mergedExample = getExampleFromSchema(combined, options, level + 1, schema)
-
+          processingSchemas.delete(schema)
           return cache(schema, wrapItems ? [{ [itemsXmlTagName]: mergedExample }] : [mergedExample])
         }
         // For non-objects (like strings), collect all examples
@@ -323,22 +344,22 @@ export const getExampleFromSchema = (
           .map((item) => getExampleFromSchema(getResolvedRef(item), options, level + 1, schema))
           .filter(isDefined)
 
+        processingSchemas.delete(schema)
         return cache(schema, wrapItems ? examples.map((example: any) => ({ [itemsXmlTagName]: example })) : examples)
       }
 
-      // Handle other rules (anyOf, oneOf)
-      const rules = ['anyOf', 'oneOf'] as const
-      for (const rule of rules) {
-        if (!items[rule]) {
-          continue
+      // Handle other rules (anyOf, oneOf) - optimized
+      if (items.anyOf || items.oneOf) {
+        const ruleItems = items.anyOf || items.oneOf
+        if (ruleItems && ruleItems.length > 0) {
+          const firstItem = ruleItems[0]
+          if (firstItem) {
+            const exampleFromRule = getExampleFromSchema(getResolvedRef(firstItem), options, level + 1, schema)
+
+            processingSchemas.delete(schema)
+            return cache(schema, wrapItems ? [{ [itemsXmlTagName]: exampleFromRule }] : [exampleFromRule])
+          }
         }
-
-        const schemas = items[rule].slice(0, 1)
-        const exampleFromRule = schemas
-          .map((item) => getExampleFromSchema(getResolvedRef(item), options, level + 1, schema))
-          .filter(isDefined)
-
-        return cache(schema, wrapItems ? [{ [itemsXmlTagName]: exampleFromRule }] : exampleFromRule)
       }
     }
 
@@ -349,11 +370,12 @@ export const getExampleFromSchema = (
 
     if (items?.type || isObject || isArray) {
       const exampleFromSchema = getExampleFromSchema(items, options, level + 1)
-
-      return wrapItems ? [{ [itemsXmlTagName]: exampleFromSchema }] : [exampleFromSchema]
+      processingSchemas.delete(schema)
+      return cache(schema, wrapItems ? [{ [itemsXmlTagName]: exampleFromSchema }] : [exampleFromSchema])
     }
 
-    return []
+    processingSchemas.delete(schema)
+    return cache(schema, [])
   }
 
   const exampleValues: Record<any, any> = {
@@ -364,6 +386,7 @@ export const getExampleFromSchema = (
     array: [],
   }
   if (schema.type && !Array.isArray(schema.type) && exampleValues[schema.type] !== undefined) {
+    processingSchemas.delete(schema)
     return cache(schema, exampleValues[schema.type])
   }
 
@@ -375,10 +398,13 @@ export const getExampleFromSchema = (
 
     if (firstNonNullItem) {
       // Return an example for the first non-null item
-      return getExampleFromSchema(firstNonNullItem, options, level + 1)
+      const result = getExampleFromSchema(firstNonNullItem, options, level + 1)
+      processingSchemas.delete(schema)
+      return result
     }
 
     // If all items are null, return null
+    processingSchemas.delete(schema)
     return null
   }
 
@@ -403,11 +429,13 @@ export const getExampleFromSchema = (
             : newExample
     })
 
+    processingSchemas.delete(schema)
     return cache(schema, example)
   }
 
   // Check if schema is a union type
   if (Array.isArray(schema.type)) {
+    processingSchemas.delete(schema)
     // Return null if the type is nullable
     if (schema.type.includes('null')) {
       return null
@@ -418,6 +446,9 @@ export const getExampleFromSchema = (
       return cache(schema, exampleValue)
     }
   }
+
+  // Clean up processing set before final return
+  processingSchemas.delete(schema)
 
   // Warn if the type is unknown …
   // console.warn(`[getExampleFromSchema] Unknown property type "${schema.type}".`)
