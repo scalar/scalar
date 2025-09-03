@@ -1,10 +1,10 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import { ExampleObjectSchema, type ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/example'
 import {
+  ExampleObjectSchema,
   MediaTypeObjectSchema,
-  type MediaTypeObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/media-header-encoding'
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ExampleObject, MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import ExampleResponse from './ExampleResponse.vue'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'

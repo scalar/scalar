@@ -1,4 +1,4 @@
-import type { InfoObject } from '@scalar/workspace-store/schemas/v3.1/strict/info'
+import type { InfoObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import InfoBlock from './InfoBlock.vue'

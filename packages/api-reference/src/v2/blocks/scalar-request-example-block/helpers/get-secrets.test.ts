@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
+import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { getSecrets } from './get-secrets'
 import { decode } from 'js-base64'

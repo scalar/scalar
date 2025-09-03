@@ -1,5 +1,5 @@
 import type { TraversedEntry } from '@/features/traverse-schema/types'
-import type { TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/tag'
+import type { TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 import { getTag } from './get-tag'
 

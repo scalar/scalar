@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import ExamplePicker from './ExamplePicker.vue'
-import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/example'
+import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 describe('ExamplePicker', () => {
   const mockExamples: Record<string, ExampleObject> = {
