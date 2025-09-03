@@ -122,6 +122,7 @@ const {
   hash,
   isIntersectionEnabled,
   updateHash,
+  getReferenceId,
 } = navState
 
 // Front-end redirect
@@ -171,6 +172,10 @@ onMounted(() => {
   if (pbcr && bcr) {
     const difference = bcr.top - pbcr.top
     yPosition.value = difference < 2 ? 0 : difference
+  }
+  // This is what updates the hash ref from hash changes
+  window.onhashchange = () => {
+    scrollToSection(getReferenceId())
   }
 
   // Handle back for path routing
