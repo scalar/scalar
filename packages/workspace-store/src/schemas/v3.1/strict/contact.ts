@@ -1,7 +1,7 @@
 import { Type, type Static } from '@scalar/typebox'
 
 /** Contact information for the exposed API. */
-export const ContactObjectSchema = Type.Object({
+export const ContactObjectSchemaDefinition = Type.Object({
   /** The identifying name of the contact person/organization. */
   name: Type.Optional(Type.String()),
   /** The URI for the contact information. This MUST be in the form of a URI. */
@@ -10,4 +10,4 @@ export const ContactObjectSchema = Type.Object({
   email: Type.Optional(Type.String()),
 })
 
-export type ContactObject = Static<typeof ContactObjectSchema>
+export type ContactObject = Static<typeof ContactObjectSchemaDefinition>

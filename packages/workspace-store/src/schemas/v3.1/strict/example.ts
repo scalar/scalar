@@ -5,7 +5,7 @@ import { Type, type Static } from '@scalar/typebox'
  *
  * Examples allow demonstration of the usage of properties, parameters and objects within OpenAPI.
  */
-export const ExampleObjectSchema = Type.Object({
+export const ExampleObjectSchemaDefinition = Type.Object({
   /** Short description for the example. */
   summary: Type.Optional(Type.String()),
   /** Long description for the example. CommonMark syntax MAY be used for rich text representation. */
@@ -16,4 +16,4 @@ export const ExampleObjectSchema = Type.Object({
   externalValue: Type.Optional(Type.String()),
 })
 
-export type ExampleObject = Static<typeof ExampleObjectSchema>
+export type ExampleObject = Static<typeof ExampleObjectSchemaDefinition>

@@ -9,7 +9,7 @@ import {
 /**
  * Allows configuration of the supported OAuth Flows.
  */
-export const OAuthFlowsObjectSchema = Type.Object({
+export const OAuthFlowsObjectSchemaDefinition = Type.Object({
   /** Configuration for the OAuth Implicit flow */
   implicit: Type.Optional(OAuthFlowImplicitSchema),
   /** Configuration for the OAuth Resource Owner Password flow */
@@ -20,4 +20,4 @@ export const OAuthFlowsObjectSchema = Type.Object({
   authorizationCode: Type.Optional(OAuthFlowAuthorizationCodeSchema),
 })
 
-export type OAuthFlowsObject = Static<typeof OAuthFlowsObjectSchema>
+export type OAuthFlowsObject = Static<typeof OAuthFlowsObjectSchemaDefinition>

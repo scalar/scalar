@@ -1,10 +1,10 @@
 import { Type, type Static } from '@scalar/typebox'
-import { OAuthFlowsObjectSchema } from './oauthflows'
 import { compose } from '@/schemas/compose'
 import {
   XScalarSecretHTTPSchema,
   XScalarSecretTokenSchema,
 } from '@/schemas/extensions/security/x-scalar-security-secrets'
+import { OAuthFlowsObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 
 export const DescriptionSchema = Type.Object({
   /** A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
@@ -44,7 +44,7 @@ export const OAuth2 = compose(
     /** REQUIRED. The type of the security scheme. Valid values are "apiKey", "http", "mutualTLS", "oauth2", "openIdConnect". */
     type: Type.Literal('oauth2'),
     /** REQUIRED. An object containing configuration information for the flow types supported. */
-    flows: OAuthFlowsObjectSchema,
+    flows: OAuthFlowsObjectRef,
   }),
 )
 
@@ -63,6 +63,6 @@ export const OpenIdConnect = compose(
  *
  * Supported schemes are HTTP authentication, an API key (either as a header, a cookie parameter or as a query parameter), mutual TLS (use of a client certificate), OAuth2's common flows (implicit, password, client credentials and authorization code) as defined in RFC6749, and [[OpenID-Connect-Core]]. Please note that as of 2020, the implicit flow is about to be deprecated by OAuth 2.0 Security Best Current Practice. Recommended for most use cases is Authorization Code Grant flow with PKCE.
  */
-export const SecuritySchemeObjectSchema = Type.Union([ApiKeySchema, HttpSchema, OAuth2, OpenIdConnect])
+export const SecuritySchemeObjectSchemaDefinition = Type.Union([ApiKeySchema, HttpSchema, OAuth2, OpenIdConnect])
 
-export type SecuritySchemeObject = Static<typeof SecuritySchemeObjectSchema>
+export type SecuritySchemeObject = Static<typeof SecuritySchemeObjectSchemaDefinition>

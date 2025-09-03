@@ -5,7 +5,7 @@ import { Type, type Static } from '@scalar/typebox'
  *
  * When using arrays, XML element names are not inferred (for singular/plural forms) and the name field SHOULD be used to add that information. See examples for expected behavior.
  */
-export const XMLObjectSchema = Type.Object({
+export const XMLObjectSchemaDefinition = Type.Object({
   /** Replaces the name of the element/attribute used for the described schema property. When defined within items, it will affect the name of the individual XML elements within the list. When defined alongside type being "array" (outside the items), it will affect the wrapping element if and only if wrapped is true. If wrapped is false, it will be ignored. */
   name: Type.Optional(Type.String()),
   /** The URI of the namespace definition. Value MUST be in the form of a non-relative URI. */
@@ -18,4 +18,4 @@ export const XMLObjectSchema = Type.Object({
   wrapped: Type.Optional(Type.Boolean()),
 })
 
-export type XMLObject = Static<typeof XMLObjectSchema>
+export type XMLObject = Static<typeof XMLObjectSchemaDefinition>

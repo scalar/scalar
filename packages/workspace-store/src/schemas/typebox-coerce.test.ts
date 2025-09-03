@@ -4,8 +4,7 @@ import { Type } from '@scalar/typebox'
 import { describe, expect, it } from 'vitest'
 import { Storage } from '@google-cloud/storage'
 import { Value } from '@scalar/typebox/value'
-import { OpenAPIDocumentSchema } from '@/schemas/v3.1/strict/openapi-document'
-import { SecuritySchemeObjectSchema } from '@/schemas/v3.1/strict/security-scheme'
+import { OpenAPIDocumentSchema, SecuritySchemeObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
 import { ReferenceObjectSchema } from '@/schemas/v3.1/strict/reference'
 
 const storage = new Storage()
