@@ -214,10 +214,6 @@
       "additionalBranchPrefix": "docusaurus"
     },
     {
-      "matchFileNames": ["integrations/express/**", "examples/express/**"],
-      "additionalBranchPrefix": "express"
-    },
-    {
       "matchFileNames": ["integrations/fastapi/**"],
       "additionalBranchPrefix": "fastapi"
     },
