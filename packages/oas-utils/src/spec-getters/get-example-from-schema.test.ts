@@ -1509,17 +1509,7 @@ describe('getExampleFromSchema', () => {
 
       // 10 levels deep, that's enough. It should return null then.
       expect(getExampleFromSchema(schema)).toStrictEqual({
-        foobar: {
-          foobar: {
-            foobar: {
-              foobar: {
-                foobar: {
-                  foobar: '[Circular Reference]',
-                },
-              },
-            },
-          },
-        },
+        foobar: '[Circular Reference]',
       })
     })
 
