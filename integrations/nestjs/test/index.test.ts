@@ -109,6 +109,19 @@ describe('apiReference middleware (express)', () => {
 
     expect(res.text).toContain('Function API')
   })
+
+  it('preserves function properties in configuration', async () => {
+    app.use(
+      '/reference',
+      apiReference({
+        operationsSorter: (a, b) => a.path.localeCompare(b.path),
+      }),
+    )
+
+    const res = await request(app.getHttpServer()).get('/reference')
+
+    expect(res.text).toContain('"operationsSorter": (a, b) => a.path.localeCompare(b.path)')
+  })
 })
 
 describe('apiReference middleware (fastify)', () => {
