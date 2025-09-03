@@ -85,6 +85,18 @@ public static class ScalarOptionsExtensions
     }
 
     /// <summary>
+    /// Sets whether the sidebar link texts should display the method summary (<c>false</c>) or the method path (<c>true</c>).
+    /// </summary>
+    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
+    /// <param name="operationTitleSource">Whether to use the method summary or the method path in the sidebar and search.</param>
+    /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
+    public static TOptions WithOperationTitleSource<TOptions>(this TOptions options, OperationTitleSource operationTitleSource) where TOptions : ScalarOptions
+    {
+        options.OperationTitleSource = operationTitleSource;
+        return options;
+    }
+
+    /// <summary>
     /// Sets whether models should be shown in the sidebar, search, and content.
     /// </summary>
     /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>

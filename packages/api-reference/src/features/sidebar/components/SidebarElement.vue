@@ -32,6 +32,14 @@ const { getFullHash, isIntersectionEnabled, replaceUrlState } = useNavState()
 
 const config = useConfig()
 
+const getPathOrTitle = (item: TraversedEntry): string => {
+  if ('path' in item) {
+    // Insert zero-width space after every slash, to give line-break opportunity.
+    return item.path.replace(/\//g, '/\u200B')
+  }
+  return item.title
+}
+
 // We disable intersection observer on click
 const handleClick = async () => {
   // wait for a short delay before enabling intersection observer
@@ -129,7 +137,14 @@ const onAnchorClick = async (ev: Event) => {
         :tabindex="hasChildren ? -1 : 0"
         @click="onAnchorClick">
         <p class="sidebar-heading-link-title">
-          {{ item.title }}
+          <span
+            v-if="config.operationTitleSource === 'path'"
+            class="hanging-indent">
+            {{ getPathOrTitle(item) }}
+          </span>
+          <span v-else>
+            {{ item.title }}
+          </span>
         </p>
         <p
           v-if="'method' in item && !hasChildren"
@@ -187,6 +202,14 @@ const onAnchorClick = async (ev: Event) => {
 .sidebar-heading-link-title {
   margin: 0;
 }
+
+.sidebar-heading-link-title .hanging-indent {
+  padding-left: 0.7em;
+  text-indent: -0.7em;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
 .sidebar-heading:hover {
   background: var(
     --scalar-sidebar-item-hover-background,
