@@ -2,7 +2,7 @@ import { compose } from '@/schemas/compose'
 import { ExampleObjectSchema } from '@/schemas/v3.1/strict/example'
 import { reference } from '@/schemas/v3.1/strict/reference'
 import { SchemaObjectSchema } from '@/schemas/v3.1/strict/schema'
-import { Type, type TSchema } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 
 export const HeaderObjectSchemaBase = Type.Object({
   /** A brief description of the header. This could contain examples of use. CommonMark syntax MAY be used for rich text representation. */
@@ -31,13 +31,21 @@ export const HeaderObjectWithSchemaSchema = compose(
   }),
 )
 
-export const headerObjectSchemaBuilder = <T extends TSchema>(mediaType: T) =>
-  Type.Union([
-    HeaderObjectWithSchemaSchema,
-    compose(
-      HeaderObjectSchemaBase,
-      Type.Object({
-        content: Type.Optional(Type.Record(Type.String(), mediaType)),
-      }),
-    ),
-  ])
+/**
+ * Describes a single header for HTTP responses and for individual parts in multipart representations; see the relevant Response Object and Encoding Object documentation for restrictions on which headers can be described.
+ *
+ * The Header Object follows the structure of the Parameter Object, including determining its serialization strategy based on whether schema or content is present, with the following changes:
+ *
+ *    - name MUST NOT be specified, it is given in the corresponding headers map.
+ *    - in MUST NOT be specified, it is implicitly in header.
+ *    - All traits that are affected by the location MUST be applicable to a location of header (for example, style). This means that allowEmptyValue and allowReserved MUST NOT be used, and style, if used, MUST be limited to "simple".
+ */
+export const HeaderObjectSchema = Type.Union([
+  HeaderObjectWithSchemaSchema,
+  compose(
+    HeaderObjectSchemaBase,
+    Type.Object({
+      content: Type.Optional(Type.Record(Type.String(), Type.Ref('MediaType'))),
+    }),
+  ),
+])

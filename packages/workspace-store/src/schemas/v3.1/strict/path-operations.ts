@@ -1,58 +1,28 @@
-import { callbackObjectSchemaBuilder } from '@/schemas/v3.1/strict/callback'
-import { operationObjectSchemaBuilder } from '@/schemas/v3.1/strict/operation'
-import type { ParameterObjectSchema } from '@/schemas/v3.1/strict/parameter'
-import { pathItemObjectSchemaBuilder } from '@/schemas/v3.1/strict/path-item'
-import type { ReferenceType } from '@/schemas/v3.1/strict/reference'
-import type { ServerObjectSchema } from '@/schemas/v3.1/strict/server'
-import {
-  Type,
-  type Static,
-  type TArray,
-  type TObject,
-  type TOptional,
-  type TRecord,
-  type TRecursive,
-  type TString,
-  type TUnion,
-} from '@scalar/typebox'
+import { CallbackObjectSchema as C } from '@/schemas/v3.1/strict/callback'
+import { OperationObjectSchema as O } from '@/schemas/v3.1/strict/operation'
+import { PathItemObjectSchema as P } from '@/schemas/v3.1/strict/path-item'
+import { Type, type Static } from '@scalar/typebox'
 
-export const OperationObjectSchema = Type.Recursive((This) =>
-  operationObjectSchemaBuilder(callbackObjectSchemaBuilder(pathItemObjectSchemaBuilder(This))),
-)
+const Module = Type.Module({
+  PathItem: P,
+  Operation: O,
+  Callback: C,
+})
 
 /**
- * A map of possible out-of band callbacks related to the parent operation. Each value in the map is a Path Item Object that describes a set of requests that may be initiated by the API provider and the expected responses. The key value used to identify the Path Item Object is an expression, evaluated at runtime, that identifies a URL to use for the callback operation.
- *
- * To describe incoming requests from the API provider independent from another API call, use the webhooks field.
+ * Schema for OpenAPI v3.1 Operation objects
  */
-export const CallbackObjectSchema = Type.Recursive((This) =>
-  callbackObjectSchemaBuilder(pathItemObjectSchemaBuilder(operationObjectSchemaBuilder(This))),
-) as TRecursive<TRecord<TString, TUnion<[typeof PathItemObjectSchema, ReferenceType<typeof PathItemObjectSchema>]>>>
+export const OperationObjectSchema = Module.Import('Operation')
+export type OperationObject = Static<typeof OperationObjectSchema>
 
-/** Describes the operations available on a single path. A Path Item MAY be empty, due to ACL constraints. The path itself is still exposed to the documentation viewer but they will not know which operations and parameters are available. */
-export const PathItemObjectSchema = Type.Recursive((This) =>
-  pathItemObjectSchemaBuilder(operationObjectSchemaBuilder(callbackObjectSchemaBuilder(This))),
-) as TRecursive<
-  TObject<{
-    $ref: TOptional<TString>
-    summary: TOptional<TString>
-    description: TOptional<TString>
-    get: TOptional<typeof OperationObjectSchema>
-    put: TOptional<typeof OperationObjectSchema>
-    post: TOptional<typeof OperationObjectSchema>
-    delete: TOptional<typeof OperationObjectSchema>
-    patch: TOptional<typeof OperationObjectSchema>
-    connect: TOptional<typeof OperationObjectSchema>
-    options: TOptional<typeof OperationObjectSchema>
-    head: TOptional<typeof OperationObjectSchema>
-    trace: TOptional<typeof OperationObjectSchema>
-    servers: TOptional<TArray<typeof ServerObjectSchema>>
-    parameters: TOptional<TArray<TUnion<[typeof ParameterObjectSchema, ReferenceType<typeof ParameterObjectSchema>]>>>
-  }>
->
-
-export type PathItemObject = Static<typeof PathItemObjectSchema>
-
+/**
+ * Schema for OpenAPI v3.1 Callback objects
+ */
+export const CallbackObjectSchema = Module.Import('Callback')
 export type CallbackObject = Static<typeof CallbackObjectSchema>
 
-export type OperationObject = Static<typeof OperationObjectSchema>
+/**
+ * Schema for OpenAPI v3.1 PathItem objects
+ */
+export const PathItemObjectSchema = Module.Import('PathItem')
+export type PathItemObject = Static<typeof PathItemObjectSchema>

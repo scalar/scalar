@@ -302,6 +302,22 @@ Whether the sidebar should be shown.
 }
 ```
 
+### operationTitleSource?: 'summary' | 'path'
+
+Whether the sidebar display text and search should use the operation summary or the operation path.
+
+```js
+{
+  operationTitleSource: 'summary' // Use operation summary (default)
+}
+```
+
+```js
+{
+  operationTitleSource: 'path' // Use operation path
+}
+```
+
 ### hideModels?: boolean
 
 Whether models (`components.schemas` or `definitions`) should be shown in the sidebar, search and content.
