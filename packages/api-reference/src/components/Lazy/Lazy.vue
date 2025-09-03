@@ -84,7 +84,7 @@ if (isLazy) {
   padding-top: 30px;
   position: relative;
   margin-bottom: 10px;
-  min-height: 400px;
+  min-height: 200px;
 }
 
 .lazy-loading-container::before {

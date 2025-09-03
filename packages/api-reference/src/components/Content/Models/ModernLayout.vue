@@ -4,6 +4,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import { computed, useId } from 'vue'
 
+import { Lazy } from '@/components/Lazy'
 import {
   CompactSection,
   Section,
@@ -62,30 +63,36 @@ const models = computed(() => {
       <div
         class="models-list"
         :class="{ 'models-list-truncated': !showAllModels }">
-        <CompactSection
+        <template
           v-for="name in models"
-          :id="getModelId({ name })"
-          :key="name"
-          class="models-list-item"
-          :defaultOpen="config.expandAllModelSections"
-          :label="name">
-          <template #heading>
-            <SectionHeaderTag :level="3">
-              <SchemaHeading
-                :name="schemas[name].title ?? name"
-                :value="schemas[name]" />
-            </SectionHeaderTag>
-          </template>
-          <ScalarErrorBoundary>
-            <Schema
-              :hideHeading="true"
-              :hideModelNames="true"
-              :level="1"
-              noncollapsible
-              :schemas="schemas"
-              :value="schemas[name]" />
-          </ScalarErrorBoundary>
-        </CompactSection>
+          :key="name">
+          <Lazy
+            :id="getModelId({ name })"
+            :isLazy="true">
+            <CompactSection
+              :id="getModelId({ name })"
+              class="models-list-item"
+              :defaultOpen="config.expandAllModelSections"
+              :label="name">
+              <template #heading>
+                <SectionHeaderTag :level="3">
+                  <SchemaHeading
+                    :name="schemas[name].title ?? name"
+                    :value="schemas[name]" />
+                </SectionHeaderTag>
+              </template>
+              <ScalarErrorBoundary>
+                <Schema
+                  :hideHeading="true"
+                  :hideModelNames="true"
+                  :level="1"
+                  noncollapsible
+                  :schemas="schemas"
+                  :value="schemas[name]" />
+              </ScalarErrorBoundary>
+            </CompactSection>
+          </Lazy>
+        </template>
       </div>
       <ShowMoreButton
         v-if="!showAllModels"
