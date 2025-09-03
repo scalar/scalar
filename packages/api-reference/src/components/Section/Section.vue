@@ -19,11 +19,10 @@ function handleScroll() {
 
   if (id) {
     // Open parent section
-    setCollapsedSidebarItem(getSectionId(id), true)
-
+    // setCollapsedSidebarItem(getSectionId(id), true)
     // Update the hash in the URL
+    console.log('replaceHistoryStateWithHash', id)
     replaceHistoryStateWithHash(id)
-
     // TODO: Does this open webhooks and models?
   }
 }

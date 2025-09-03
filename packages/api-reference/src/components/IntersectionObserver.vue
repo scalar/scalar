@@ -37,6 +37,7 @@ onMounted(() => {
       intersectionObserverRef,
       ([{ isIntersecting }]) => {
         if (isIntersecting && id) {
+          console.log('INTERSECTING', id)
           emit('intersecting')
         }
       },
