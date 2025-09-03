@@ -17,7 +17,8 @@ const { id } = defineProps<{
 const button = ref()
 const isHovered = useElementHover(button)
 
-const { getSectionId, isIntersectionEnabled, replaceUrlState } = useNavState()
+const { getSectionId, isIntersectionEnabled, replaceHistoryStateWithHash } =
+  useNavState()
 const { setCollapsedSidebarItem } = useSidebar()
 
 /** On scroll over this section */
@@ -26,7 +27,7 @@ const handleScroll = () => {
     return
   }
 
-  replaceUrlState(id)
+  replaceHistoryStateWithHash(id)
 
   // Open models and webhooks on scroll
   if (id?.startsWith('model') || id?.startsWith('webhook')) {

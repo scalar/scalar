@@ -70,24 +70,43 @@ export const useNavState = (_config?: Ref<ApiReferenceConfiguration>) => {
         decodeURIComponent(window.location.hash.replace(/^#/, '')).slice(hashPrefix.value.length)
 
   // Update the reactive hash state
-  const updateHash = () => (hash.value = getReferenceId())
+  const updateHash = () => {
+    console.log('updateHash', getReferenceId())
 
-  const replaceUrlState = (replacementHash: string, url = window.location.href) => {
+    hash.value = getReferenceId()
+
+    return hash.value
+  }
+
+  /**
+   * Replaces the given hash with the new hash,
+   * without creating a new history state.
+   */
+  const replaceHistoryStateWithHash = (newHash: string) => {
+    const url = window.location.href
+
     const newUrl = new URL(url)
 
     // If we are pathrouting, set path instead of hash
     if (config.value.pathRouting) {
-      newUrl.pathname = combineUrlAndPath(config.value.pathRouting.basePath, replacementHash)
+      newUrl.pathname = combineUrlAndPath(config.value.pathRouting.basePath, newHash)
     } else {
-      newUrl.hash = hashPrefix.value + replacementHash
+      newUrl.hash = hashPrefix.value + newHash
     }
 
     // Update the hash ref
-    hash.value = replacementHash
+    hash.value = newHash
 
     // We use replaceState so we don't trigger the url hash watcher and trigger a scroll
     // this is why we set the hash value directly
     window.history.replaceState({}, '', newUrl)
+  }
+
+  /**
+   * Remove the hash from the URL
+   */
+  const resetHistoryState = () => {
+    replaceHistoryStateWithHash('')
   }
 
   const getHashedUrl = (replacementHash: string, url = window.location.href, search = window.location.search) => {
@@ -200,7 +219,8 @@ export const useNavState = (_config?: Ref<ApiReferenceConfiguration>) => {
      * Replaces the URL state with the new url and hash
      * Replacement is used so that hash changes don't trigger the url hash watcher and cause a scroll
      */
-    replaceUrlState,
+    replaceHistoryStateWithHash,
+    resetHistoryState,
     getReferenceId,
     getWebhookId,
     getModelId,

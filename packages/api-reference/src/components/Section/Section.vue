@@ -3,24 +3,28 @@ import IntersectionObserver from '@/components/IntersectionObserver.vue'
 import { useSidebar } from '@/features/sidebar'
 import { useNavState } from '@/hooks/useNavState'
 
-const props = defineProps<{
+const { id, label } = defineProps<{
   id?: string
   label?: string
 }>()
 
-const { getSectionId, isIntersectionEnabled, replaceUrlState } = useNavState()
+const { getSectionId, isIntersectionEnabled, replaceHistoryStateWithHash } =
+  useNavState()
 const { setCollapsedSidebarItem } = useSidebar()
 
 function handleScroll() {
-  if (!props.label || !isIntersectionEnabled.value) {
+  if (!label || !isIntersectionEnabled.value) {
     return
   }
 
-  replaceUrlState(props.id ?? '')
+  if (id) {
+    // Open parent section
+    setCollapsedSidebarItem(getSectionId(id), true)
 
-  // Open models and webhooks on scroll
-  if (props.id?.startsWith('model') || props.id?.startsWith('webhook')) {
-    setCollapsedSidebarItem(getSectionId(props.id), true)
+    // Update the hash in the URL
+    replaceHistoryStateWithHash(id)
+
+    // TODO: Does this open webhooks and models?
   }
 }
 </script>

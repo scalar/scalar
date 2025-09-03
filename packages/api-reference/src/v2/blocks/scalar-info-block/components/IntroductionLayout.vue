@@ -3,6 +3,7 @@ import type { ExternalDocumentationObject } from '@scalar/workspace-store/schema
 import type { InfoObject } from '@scalar/workspace-store/schemas/v3.1/strict/info'
 import { onMounted } from 'vue'
 
+import IntersectionObserver from '@/components/IntersectionObserver.vue'
 import {
   Section,
   SectionColumn,
@@ -13,6 +14,7 @@ import {
   SectionHeaderTag,
 } from '@/components/Section'
 import { SpecificationExtension } from '@/features/specification-extension'
+import { useNavState } from '@/hooks/useNavState'
 
 import DownloadLink from './DownloadLink.vue'
 import InfoDescription from './InfoDescription.vue'
@@ -32,6 +34,8 @@ const { onLoaded } = defineProps<{
   id?: string
 }>()
 
+const { resetHistoryState } = useNavState()
+
 /** Trigger the onLoaded event when the component is mounted */
 onMounted(() => onLoaded?.())
 </script>
@@ -44,22 +48,27 @@ onMounted(() => onLoaded?.())
       class="introduction-section z-1 gap-12">
       <SectionContent
         :loading="isLoading ?? (!info?.description && !info?.title)">
-        <div class="flex gap-1.5">
-          <InfoVersion :version="info?.version" />
-          <OpenApiVersion :oasVersion="oasVersion" />
-        </div>
-        <SectionHeader
-          :loading="!info?.title"
-          tight>
-          <SectionHeaderTag :level="1">
-            {{ info?.title }}
-          </SectionHeaderTag>
-          <template #links>
-            <InfoLinks
-              :externalDocs="externalDocs"
-              :info="info" />
-          </template>
-        </SectionHeader>
+        <IntersectionObserver
+          id="top"
+          @intersecting="() => resetHistoryState()">
+          <div class="flex gap-1.5">
+            <InfoVersion :version="info?.version" />
+            <OpenApiVersion :oasVersion="oasVersion" />
+          </div>
+          <SectionHeader
+            :loading="!info?.title"
+            tight>
+            <SectionHeaderTag :level="1">
+              {{ info?.title }}
+            </SectionHeaderTag>
+            <template #links>
+              <InfoLinks
+                :externalDocs="externalDocs"
+                :info="info" />
+            </template>
+          </SectionHeader>
+        </IntersectionObserver>
+
         <SectionColumns>
           <SectionColumn>
             <DownloadLink

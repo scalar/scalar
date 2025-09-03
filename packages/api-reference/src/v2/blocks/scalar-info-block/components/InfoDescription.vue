@@ -44,21 +44,19 @@ const sections = computed(() => {
   return items
 })
 
-const { getHeadingId, getFullHash, isIntersectionEnabled, replaceUrlState } =
-  useNavState()
+const {
+  getHeadingId,
+  getFullHash,
+  isIntersectionEnabled,
+  replaceHistoryStateWithHash,
+} = useNavState()
 
 function handleScroll(headingId = '') {
   if (!isIntersectionEnabled.value) {
     return
   }
 
-  // When we reach the top of the description, we clear the hash.
-  if (headingId === 'top') {
-    replaceUrlState('')
-    return
-  }
-
-  replaceUrlState(headingId)
+  replaceHistoryStateWithHash(headingId)
 }
 
 const slugger = new GitHubSlugger()
@@ -100,14 +98,9 @@ const transformHeading = (node: Record<string, any>) => {
       </template>
       <!-- Everything else -->
       <template v-else>
-        <IntersectionObserver
-          id="top"
-          class="introduction-description-heading"
-          @intersecting="() => handleScroll('top')">
-          <ScalarMarkdown
-            :value="section.content"
-            withImages />
-        </IntersectionObserver>
+        <ScalarMarkdown
+          :value="section.content"
+          withImages />
       </template>
     </template>
   </div>

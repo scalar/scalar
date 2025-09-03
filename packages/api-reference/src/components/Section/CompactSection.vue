@@ -23,7 +23,7 @@ watch(
     if (id === newHash && !open.value) {
       open.value = true
       await nextTick()
-      scrollToId(id)
+      // scrollToId(id)
     }
   },
   { immediate: true },

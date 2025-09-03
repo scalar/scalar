@@ -1,4 +1,4 @@
-import { traverseDocument, type TraversedEntry } from '@/features/traverse-schema'
+import { type TraversedEntry, traverseDocument } from '@/features/traverse-schema'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { apiReferenceConfigurationSchema } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
@@ -47,7 +47,7 @@ export const createMockNavState = (hash = '') => ({
   setHashPrefix: vi.fn(),
   getFullHash: vi.fn(),
   getHashedUrl: vi.fn(),
-  replaceUrlState: vi.fn(),
+  replaceHistoryStateWithHash: vi.fn(),
   getReferenceId: vi.fn(),
   getWebhookId: vi.fn(),
   getModelId: vi.fn(),

@@ -28,7 +28,8 @@ const emit = defineEmits<{
   (e: 'toggleOpen'): void
 }>()
 
-const { getFullHash, isIntersectionEnabled, replaceUrlState } = useNavState()
+const { getFullHash, isIntersectionEnabled, replaceHistoryStateWithHash } =
+  useNavState()
 
 const config = useConfig()
 
@@ -83,14 +84,14 @@ const onAnchorClick = async (ev: Event) => {
     // Make sure to open the section
     emit('toggleOpen')
 
-    // Disable intersection observer before we scroll
-    isIntersectionEnabled.value = false
+    // // Disable intersection observer before we scroll
+    // isIntersectionEnabled.value = false
 
-    replaceUrlState(props.item.id)
-    scrollToId(props.item.id)
+    // replaceHistoryStateWithHash(props.item.id)
+    // scrollToId(props.item.id)
 
-    await sleep(100)
-    isIntersectionEnabled.value = true
+    // await sleep(100)
+    // isIntersectionEnabled.value = true
   }
 }
 </script>

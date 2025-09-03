@@ -12,7 +12,8 @@ const { breadcrumb } = defineProps<{
 }>()
 
 const { copyToClipboard } = useClipboard()
-const { getHashedUrl, isIntersectionEnabled, replaceUrlState } = useNavState()
+const { getHashedUrl, isIntersectionEnabled, replaceHistoryStateWithHash } =
+  useNavState()
 
 const id = computed(() => breadcrumb?.join('.'))
 
@@ -27,24 +28,24 @@ const handleButtonClick = async () => {
   // Copy
   copyToClipboard(getHashedUrl(id.value))
 
-  // Disable intersection observer before we scroll
-  isIntersectionEnabled.value = false
+  // // Disable intersection observer before we scroll
+  // isIntersectionEnabled.value = false
 
-  replaceUrlState(id.value)
-  scrollToId(id.value, true)
+  // replaceHistoryStateWithHash(id.value)
+  // scrollToId(id.value, true)
 
-  await sleep(100)
+  // await sleep(100)
 
-  // Re-enable intersection observer
-  isIntersectionEnabled.value = true
+  // // Re-enable intersection observer
+  // isIntersectionEnabled.value = true
 }
 </script>
 
 <template>
   <template v-if="breadcrumb">
     <div
-      class="relative scroll-mt-24"
-      :id="id">
+      :id="id"
+      class="relative scroll-mt-24">
       <!-- Content -->
       <slot />
       <button
