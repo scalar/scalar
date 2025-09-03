@@ -29,7 +29,6 @@ import type { EntryType, FuseData } from '../types'
 
 const props = defineProps<{
   modalState: ModalState
-  hideModels: boolean
 }>()
 
 /** Base id for the search form */
