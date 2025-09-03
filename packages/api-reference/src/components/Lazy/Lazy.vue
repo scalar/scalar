@@ -7,13 +7,13 @@
  * @link https://medium.com/js-dojo/lazy-rendering-in-vue-to-improve-performance-dcccd445d5f
  */
 
-import { computed } from 'vue'
+import { computed, onUnmounted } from 'vue'
 
 import {
-  globalState,
   hasBeenIdle,
   registerId,
   shouldLoadId,
+  unregisterId,
 } from './lib/lazy-loading'
 
 const { id } = defineProps<{
@@ -36,16 +36,23 @@ const readyToRender = computed(() => {
 if (id) {
   registerId(id)
 }
+
+// Unregister the ID when the component unmounts to prevent memory leaks
+onUnmounted(() => {
+  if (id) {
+    unregisterId(id)
+  }
+})
 </script>
 
 <template>
-  <!-- <div
+  <div
     :id="id"
     class="lazy-loading-container"
-    :data-id="`#${id} ⌛`"> -->
-  <!-- {{ readyToRender }} -->
-  <slot v-if="readyToRender" />
-  <!-- </div> -->
+    :data-id="`#${id}`">
+    <!-- {{ readyToRender }} -->
+    <slot v-if="readyToRender" />
+  </div>
 </template>
 
 <style scoped>
