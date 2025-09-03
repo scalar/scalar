@@ -124,6 +124,7 @@ const hasChildren = (
   'children' in item && (item.children?.length ?? 0) > 0
 </script>
 <template>
+  hash: #{{ hash }}
   <div class="sidebar">
     <slot name="sidebar-start" />
     <nav
