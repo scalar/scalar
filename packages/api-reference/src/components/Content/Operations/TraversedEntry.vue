@@ -5,7 +5,6 @@ import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { computed } from 'vue'
 
-import { getCurrentIndex } from '@/components/Content/Operations/get-current-index'
 import { Tag } from '@/components/Content/Tags'
 import { Lazy } from '@/components/Lazy'
 import { SectionContainer } from '@/components/Section'
@@ -16,16 +15,10 @@ import {
   type TraversedTag,
 } from '@/features/traverse-schema'
 import type { TraversedWebhook } from '@/features/traverse-schema/types'
-import { useNavState } from '@/hooks/useNavState'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
-const {
-  level = 0,
-  entries,
-  rootIndex,
-} = defineProps<{
+const { level = 0, entries } = defineProps<{
   level?: number
-  rootIndex: number
   entries: TraversedEntry[]
   document: OpenAPIV3_1.Document
   config: ApiReferenceConfiguration
@@ -54,60 +47,16 @@ const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
   'isWebhooks' in entry && Boolean(entry.isWebhooks)
 
 const isRootLevel = computed(() => level === 0)
-const { hash } = useNavState()
-
-/** The index of the current entry */
-const currentIndex = computed(() => {
-  if (isRootLevel.value) {
-    return rootIndex
-  }
-
-  return getCurrentIndex(hash.value, entries)
-})
-
-/**
- * Check if the entry should be lazy loaded
- * We care more about the previous entries so we track those
- */
-const isLazy = (entry: TraversedEntry, index: number) => {
-  // // // Don't be lazy if we are a tag group
-  // // if (isTagGroup(entry)) {
-  // //   return null
-  // // }
-
-  // // // Make all previous entries lazy
-  // // if (index < currentIndex.value) {
-  // //   return false
-  // // }
-
-  // // Load the current entry immediately
-  // if (hash.value === entry.id) {
-  //   return false
-  // }
-
-  // // We make the next two siblings not lazy
-  // if (index > currentIndex.value + 2) {
-  //   return false
-  // }
-
-  return true
-}
-
-defineExpose({
-  currentIndex,
-})
 </script>
 
 <template>
   <template
-    v-for="(entry, index) in entries"
+    v-for="entry in entries"
     :key="entry.id">
     <template v-if="isOperation(entry) || isWebhook(entry)">
       <!-- Operation or Webhook -->
       <SectionContainer :omit="!isRootLevel">
-        <Lazy
-          :id="entry.id"
-          :isLazy="isLazy(entry, index)">
+        <Lazy :id="entry.id">
           <Operation
             :id="entry.id"
             :clientOptions
@@ -138,7 +87,6 @@ defineExpose({
             :document
             :entries="entry.children"
             :level="level + 1"
-            :rootIndex
             :store />
         </template>
       </Tag>
@@ -154,7 +102,6 @@ defineExpose({
         :document
         :entries="entry.children || []"
         :level="level + 1"
-        :rootIndex
         :store />
     </template>
   </template>

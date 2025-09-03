@@ -7,7 +7,6 @@ import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { computed, ref } from 'vue'
 
-import { getCurrentIndex } from '@/components/Content/Operations/get-current-index'
 import { hasLazyLoaded, lazyBus } from '@/components/Lazy/lazyBus'
 import { useSidebar } from '@/features/sidebar'
 import { useNavState } from '@/hooks/useNavState'
@@ -82,11 +81,6 @@ const resume = () => {
 /** IDs for all lazy elements above the current entry */
 const lazyIds = ref<Set<string>>(new Set())
 
-/** The index of the root entry */
-const rootIndex = computed(() =>
-  getCurrentIndex(hash.value, items.value.entries),
-)
-
 // Use the lazybus to handle [un]freezing elements
 lazyBus.on(({ loading, loaded, save }) => {
   if (hasLazyLoaded.value) {
@@ -118,13 +112,12 @@ setTimeout(() => resume(), 5000)
   <div v-if="items.entries.length && activeCollection">
     <!-- Use recursive component for cleaner rendering -->
     <TraversedEntry
-      :entries="items.entries"
       :activeCollection
       :activeServer
       :clientOptions
       :config
       :document
-      :rootIndex
+      :entries="items.entries"
       :store />
   </div>
 </template>

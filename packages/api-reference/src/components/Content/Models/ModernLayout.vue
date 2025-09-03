@@ -66,9 +66,7 @@ const models = computed(() => {
         <template
           v-for="name in models"
           :key="name">
-          <Lazy
-            :id="getModelId({ name })"
-            :isLazy="true">
+          <Lazy :id="getModelId({ name })">
             <CompactSection
               :id="getModelId({ name })"
               class="models-list-item"
