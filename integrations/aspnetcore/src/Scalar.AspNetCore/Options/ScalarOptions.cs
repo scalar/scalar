@@ -20,8 +20,8 @@ public sealed class ScalarOptions
     /// <summary>
     /// Gets or sets the path or URL to a favicon to be used for the documentation.
     /// </summary>
-    /// <value>The default value is <c>null</c>.</value>
-    public string? Favicon { get; set; }
+    /// <value>The default value is <c>favicon.svg</c>.</value>
+    public string? Favicon { get; set; } = "favicon.svg";
 
     /// <summary>
     /// Gets or sets the path prefix to access the documentation.

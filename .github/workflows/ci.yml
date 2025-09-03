@@ -904,7 +904,7 @@ jobs:
 
       - name: Compress static assets
         working-directory: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
-        run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js
+        run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js favicon.svg
 
       - name: Setup .NET
         uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
@@ -1018,7 +1018,7 @@ jobs:
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Compress static assets
         working-directory: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
-        run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js
+        run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js favicon.svg
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Setup .NET
