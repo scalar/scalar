@@ -2,7 +2,7 @@
 import { useIntersectionObserver } from '@vueuse/core'
 import { onMounted, ref } from 'vue'
 
-const props = defineProps<{
+const { id } = defineProps<{
   id?: string
   is?: string
 }>()
@@ -36,7 +36,7 @@ onMounted(() => {
     useIntersectionObserver(
       intersectionObserverRef,
       ([{ isIntersecting }]) => {
-        if (isIntersecting && props.id) {
+        if (isIntersecting && id) {
           emit('intersecting')
         }
       },
