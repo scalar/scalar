@@ -12,6 +12,14 @@ defineProps<{
   configuration?: AnyApiReferenceConfiguration
 }>()
 
+/** These slots render in their respective slots in the underlying ApiReferenceWorkspace component */
+defineSlots<{
+  footer?(): unknown
+  'content-end'?(): unknown
+  'sidebar-start'?(): unknown
+  'sidebar-end'?(): unknown
+}>()
+
 /**
  * Initializes the new client workspace store.
  *
