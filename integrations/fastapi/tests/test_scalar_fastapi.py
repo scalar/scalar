@@ -424,7 +424,7 @@ class TestEdgeCases:
         assert isinstance(response, HTMLResponse)
         html_content = response.body.decode()
         assert '"url": ""' in html_content
-        assert "<title></title>" in html_content
+        assert "<title>Scalar</title>" in html_content
 
     def test_special_characters_in_title(self):
         """Test with special characters in title"""
