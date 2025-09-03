@@ -27,6 +27,19 @@ if (typeof window !== 'undefined') {
 
 <template>
   <ApiReferenceWorkspace
-    :store="workspaceStore"
-    :configuration="configuration" />
+    :configuration="configuration"
+    :store="workspaceStore">
+    <template #footer>
+      <slot name="footer" />
+    </template>
+    <template #content-end>
+      <slot name="content-end" />
+    </template>
+    <template #sidebar-start>
+      <slot name="sidebar-start" />
+    </template>
+    <template #sidebar-end>
+      <slot name="sidebar-end" />
+    </template>
+  </ApiReferenceWorkspace>
 </template>
