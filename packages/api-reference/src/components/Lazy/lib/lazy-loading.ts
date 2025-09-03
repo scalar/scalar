@@ -50,7 +50,7 @@ function ensureIdleDetectionSetup(): void {
   }
 
   globalState.idleDetectionSetup = true
-  setupContinuousIdleDetection()
+  setupFirstIdleDetection()
   console.log('[LazyLoading] Idle detection set up automatically')
 }
 
@@ -81,7 +81,7 @@ export function registerId(id: string, shouldLoad: boolean = false): boolean {
     ensureIdleDetectionSetup()
   }
 
-  console.log(`[LazyLoading] Registered new ID: "${id}"`)
+  console.log(`[LazyLoading] New ID: "${id}"`)
   return true
 }
 
@@ -290,7 +290,7 @@ function handleEveryIdle(): void {
   if (globalState.pendingIds.length > 0) {
     const nextId = globalState.pendingIds.shift()!
     globalState.loadControlFlags.set(nextId, true)
-    console.log(`[LazyLoading] Set next pending ID "${nextId}" to true during idle`)
+    console.log(`[LazyLoading] Load "${nextId}" (idle)`)
   }
 
   if (globalState.onEveryIdle) {
@@ -310,6 +310,9 @@ function handleFirstIdle(): void {
     if (globalState.onFirstIdle) {
       globalState.onFirstIdle()
     }
+
+    // Set up continuous idle detection for subsequent idle events
+    setupContinuousIdleDetection()
   }
 }
 
