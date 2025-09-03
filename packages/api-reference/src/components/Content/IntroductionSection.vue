@@ -1,11 +1,7 @@
 <script setup lang="ts">
-import { Lazy } from '@/components/Lazy'
-import { useNavState } from '@/hooks/useNavState'
-
 defineProps<{
   showEmptyState: boolean
 }>()
-const { hash } = useNavState()
 </script>
 <template>
   <!-- Empty State -->
@@ -14,11 +10,7 @@ const { hash } = useNavState()
     name="empty-state" />
 
   <!-- Introduction -->
-  <Lazy
+  <slot
     v-else
-    id="introduction-card"
-    prev
-    :isLazy="Boolean(hash) && !hash.startsWith('description')">
-    <slot name="default" />
-  </Lazy>
+    name="default" />
 </template>
