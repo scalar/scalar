@@ -68,5 +68,34 @@ if (isLazy) {
 }
 </script>
 <template>
-  <slot v-if="readyToRender" />
+  <div
+    :id="id"
+    class="lazy-loading-container"
+    :data-id="`#${id} ${isLazy ? '⌛' : '⚡'}`">
+    <!-- <slot v-if="readyToRender" /> -->
+  </div>
 </template>
+
+<style scoped>
+.lazy-loading-container {
+  outline: 1px solid #1c7ed6;
+  border-radius: 4px;
+  padding: 10px;
+  padding-top: 30px;
+  position: relative;
+  margin-bottom: 10px;
+  min-height: 400px;
+}
+
+.lazy-loading-container::before {
+  content: attr(data-id);
+  color: white;
+  background-color: #1c7ed6;
+  position: absolute;
+  left: 10px;
+  top: 0;
+  border-radius: 0 0 4px 4px;
+  padding: 4px 10px;
+  font-size: 12px;
+}
+</style>
