@@ -2,7 +2,7 @@
 
 The easiest way to render a modern and beautiful API reference based on your Django Ninja OpenAPI document.
 
-![django-ninja](ninja.png)
+![Screenshot of the Django Ninja integration](/screenshots/django-ninja.png)
 
 ## Installation
 

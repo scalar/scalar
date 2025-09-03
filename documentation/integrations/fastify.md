@@ -2,7 +2,7 @@
 
 The easiest way to render a beautiful API reference with Fastify. All based on your OpenAPI/Swagger document.
 
-[![Screenshot of an API Reference](https://github.com/scalar/scalar/assets/6201407/d8beb5e1-bf64-4589-8cb0-992ba79215a8)](https://docs.scalar.com/swagger-editor)
+![Screenshot of the Fastify integration](/screenshots/fastify.png)
 
 ## Installation
 

@@ -1,5 +1,7 @@
 # Scalar API Reference Plugin for FastAPI
 
+![Screenshot of the FastAPI integration](/screenshots/fastapi.png)
+
 ## Installation
 
 ```bash
