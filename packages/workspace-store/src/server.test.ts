@@ -12,8 +12,8 @@ import { allFilesMatch } from '../test/helpers'
 import { fastify, type FastifyInstance } from 'fastify'
 import { randomUUID } from 'node:crypto'
 import { setTimeout } from 'node:timers/promises'
-import { SchemaObjectSchema } from '@/schemas/v3.1/strict/schema'
 import { coerceValue } from '@/schemas/typebox-coerce'
+import { SchemaObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
 
 describe('create-server-store', () => {
   const exampleDocument = () => ({

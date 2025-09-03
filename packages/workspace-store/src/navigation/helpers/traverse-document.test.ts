@@ -1,9 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { traverseDocument } from './traverse-document'
 import type { TraverseSpecOptions } from '@/navigation/types'
-import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
+import { SchemaObjectSchema, type OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import type { TraversedTag } from '@/schemas/navigation'
-import { SchemaObjectSchema } from '@/schemas/v3.1/strict/schema'
 import { coerceValue } from '@/schemas/typebox-coerce'
 
 describe('traverseDocument', () => {
