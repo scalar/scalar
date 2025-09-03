@@ -7,6 +7,7 @@
  * @link https://medium.com/js-dojo/lazy-rendering-in-vue-to-improve-performance-dcccd445d5f
  */
 
+import { freezeAtTop } from '@scalar/helpers/dom/freeze-at-top'
 import { computed, onUnmounted } from 'vue'
 
 import { useNavState } from '@/hooks/useNavState'
@@ -47,12 +48,14 @@ onUnmounted(() => {
   }
 })
 
-const { isIntersectionEnabled } = useNavState()
+const { isIntersectionEnabled, hash } = useNavState()
 
 onAllIdsLoaded(() => {
-  console.log('[LazyLoading] Done.')
   isIntersectionEnabled.value = true
 })
+
+// Stick to the initial element, while everything around it loads
+freezeAtTop(hash.value)
 </script>
 
 <template>

@@ -1,6 +1,20 @@
 import { useRafFn } from '@vueuse/core'
 import { reactive } from 'vue'
 
+const ENABLE_LOGGING = false
+
+/**
+ * Helper function to log messages only when ENABLE_LOGGING is true.
+ * This prevents console.log statements from executing in production.
+ */
+function log(message: string): void {
+  if (!ENABLE_LOGGING) {
+    return
+  }
+
+  console.log(message)
+}
+
 /**
  * Global state for lazy loading management.
  * Tracks registered IDs, idle state, and loading control flags across the application.
@@ -61,7 +75,7 @@ function ensureIdleDetectionSetup(): void {
 
   globalState.idleDetectionSetup = true
   setupIdleDetection()
-  console.log('[LazyLoading] Idle detection set up automatically')
+  log('[LazyLoading] Idle detection set up automatically')
 }
 
 /**
@@ -74,7 +88,7 @@ function ensureIdleDetectionSetup(): void {
  */
 export function registerId(id: string, shouldLoad: boolean = false): boolean {
   if (globalState.registeredIds.has(id)) {
-    console.log(`[LazyLoading] ID "${id}" already registered`)
+    log(`[LazyLoading] ID "${id}" already registered`)
     return false
   }
 
@@ -84,14 +98,15 @@ export function registerId(id: string, shouldLoad: boolean = false): boolean {
   // Add to pending IDs if it should wait
   if (!shouldLoad) {
     globalState.pendingIds.push(id)
-  }
 
-  // Set up idle detection automatically when first ID is registered
-  if (!shouldLoad) {
+    // Set up idle detection automatically when first ID is registered
     ensureIdleDetectionSetup()
+
+    // Resume idle detection when new IDs are added
+    resumeIdleDetection()
   }
 
-  console.log(`[LazyLoading] New ID: "${id}"`)
+  log(`[LazyLoading] New ID: "${id}"`)
   return true
 }
 
@@ -113,7 +128,7 @@ export function unregisterId(id: string): boolean {
       globalState.pendingIds.splice(pendingIndex, 1)
     }
 
-    console.log(`[LazyLoading] Unregistered ID: "${id}"`)
+    log(`[LazyLoading] Unregistered ID: "${id}"`)
   }
   return wasRegistered
 }
@@ -140,6 +155,7 @@ export function onAllIdsLoaded(callback: () => void): void {
 
   // Check if all IDs are already loaded
   if (areAllIdsLoaded()) {
+    log('[LazyLoading] Done.')
     callback()
   }
 }
@@ -178,7 +194,7 @@ function checkAndTriggerAllIdsLoaded(): void {
  */
 export function setLoadControlFlag(id: string, shouldLoad: boolean): boolean {
   if (!globalState.registeredIds.has(id)) {
-    console.log(`[LazyLoading] Cannot set load flag for unregistered ID: "${id}"`)
+    log(`[LazyLoading] Cannot set load flag for unregistered ID: "${id}"`)
     return false
   }
 
@@ -187,7 +203,7 @@ export function setLoadControlFlag(id: string, shouldLoad: boolean): boolean {
   // Check if all IDs are now loaded
   checkAndTriggerAllIdsLoaded()
 
-  console.log(`[LazyLoading] Set load flag for ID "${id}": ${shouldLoad}`)
+  log(`[LazyLoading] Set load flag for ID "${id}": ${shouldLoad}`)
   return true
 }
 
@@ -330,7 +346,7 @@ function handleIdleDetection(): void {
   if (!globalState.hasBeenIdle && shouldBeIdle) {
     globalState.hasBeenIdle = true
     isCurrentlyIdle = true
-    console.log('[LazyLoading] Browser is idle for the first time')
+    log('[LazyLoading] Browser is idle for the first time')
 
     if (globalState.onFirstIdle) {
       globalState.onFirstIdle()
@@ -340,7 +356,7 @@ function handleIdleDetection(): void {
   // Handle continuous idle events
   if (shouldBeIdle && !isCurrentlyIdle) {
     isCurrentlyIdle = true
-    console.log('[LazyLoading] Browser became idle again')
+    log('[LazyLoading] Browser became idle again')
   }
 
   // Process pending IDs when idle
@@ -348,7 +364,7 @@ function handleIdleDetection(): void {
     // Process one ID per idle cycle to avoid overwhelming the browser
     const nextId = globalState.pendingIds.shift()!
     globalState.loadControlFlags.set(nextId, true)
-    console.log(`[LazyLoading] Load "${nextId}" (idle)`)
+    log(`[LazyLoading] Load "${nextId}" (idle)`)
 
     // Check if all IDs are now loaded
     checkAndTriggerAllIdsLoaded()
@@ -362,7 +378,7 @@ function handleIdleDetection(): void {
   // Reset idle state if activity detected
   if (!shouldBeIdle && isCurrentlyIdle) {
     isCurrentlyIdle = false
-    console.log('[LazyLoading] Browser activity detected')
+    log('[LazyLoading] Browser activity detected')
   }
 }
 
@@ -424,7 +440,7 @@ export function resetState(): void {
   lastActivityTime = 0
   isCurrentlyIdle = false
 
-  console.log('[LazyLoading] Global state reset')
+  log('[LazyLoading] Global state reset')
 }
 
 /**
