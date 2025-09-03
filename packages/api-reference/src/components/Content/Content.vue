@@ -104,12 +104,11 @@ const getOriginalDocument = () => store.exportActiveDocument('json') ?? '{}'
     <!-- Introduction -->
     <IntroductionSection :showEmptyState="!store.workspace.activeDocument">
       <InfoBlock
-        v-if="store.workspace.activeDocument"
         :id
         :documentExtensions
-        :externalDocs="store.workspace.activeDocument.externalDocs"
+        :externalDocs="store.workspace.activeDocument?.externalDocs"
         :getOriginalDocument
-        :info="store.workspace.activeDocument.info"
+        :info="store.workspace.activeDocument?.info"
         :infoExtensions
         :isLoading="config.isLoading"
         :layout="config.layout"
