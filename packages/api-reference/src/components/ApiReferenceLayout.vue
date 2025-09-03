@@ -118,7 +118,6 @@ const { isSidebarOpen, setCollapsedSidebarItem, scrollToOperation, items } =
   })
 
 const {
-  getReferenceId,
   getPathRoutingId,
   getSectionId,
   getTagId,
@@ -176,10 +175,6 @@ onMounted(() => {
     yPosition.value = difference < 2 ? 0 : difference
   }
 
-  // This is what updates the hash ref from hash changes
-  window.onhashchange = () => {
-    scrollToSection(getReferenceId())
-  }
   // Handle back for path routing
   window.onpopstate = () =>
     configuration.value.pathRouting &&
