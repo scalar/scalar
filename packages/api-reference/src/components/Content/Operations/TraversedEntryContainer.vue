@@ -6,7 +6,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { useDebounceFn } from '@vueuse/core'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 
 import { getCurrentIndex } from '@/components/Content/Operations/get-current-index'
 import { hasLazyLoaded, lazyBus } from '@/components/Lazy/lazyBus'
