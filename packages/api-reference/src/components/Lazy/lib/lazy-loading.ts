@@ -1,10 +1,5 @@
+import { useRafFn } from '@vueuse/core'
 import { reactive } from 'vue'
-
-/**
- * The default timeout for lazy loading,
- * if requestIdleCallback is not available.
- */
-const DEFAULT_LAZY_LOADING_TIMEOUT = 300
 
 /**
  * Global state for lazy loading management.
@@ -43,6 +38,19 @@ export const globalState = reactive<LazyLoadingState>({
 })
 
 /**
+ * RAF function for handling idle detection and pending ID processing.
+ * Uses VueUse's useRafFn for better performance and control.
+ */
+let rafHandler: ReturnType<typeof useRafFn> | null = null
+
+/**
+ * Idle detection state
+ */
+let lastActivityTime = 0
+const idleTimeout = 100 // 100ms of no activity = idle
+let isCurrentlyIdle = false
+
+/**
  * Sets up idle detection automatically when needed.
  * Only sets up once to avoid multiple listeners.
  */
@@ -52,7 +60,7 @@ function ensureIdleDetectionSetup(): void {
   }
 
   globalState.idleDetectionSetup = true
-  setupFirstIdleDetection()
+  setupIdleDetection()
   console.log('[LazyLoading] Idle detection set up automatically')
 }
 
@@ -262,7 +270,7 @@ export function getWaitCount(): number {
 }
 
 /**
- * Sets up idle detection using the browser's requestIdleCallback API.
+ * Sets up idle detection using VueUse's useRafFn.
  * Triggers the callback every time the browser becomes idle.
  *
  * @param callback - Function to execute when browser becomes idle
@@ -272,68 +280,72 @@ export function onIdle(callback: () => void, everyIdle: boolean = false): void {
   if (everyIdle) {
     // Store the callback for every idle event
     globalState.onEveryIdle = callback
-
-    // Set up continuous idle detection
-    setupContinuousIdleDetection()
   } else {
     // Store the callback for first idle only (backward compatibility)
     globalState.onFirstIdle = callback
+  }
 
-    // Only set up idle detection if we haven't been idle yet
-    if (!globalState.hasBeenIdle) {
-      setupFirstIdleDetection()
+  // Set up idle detection if not already set up
+  if (!globalState.idleDetectionSetup) {
+    setupIdleDetection()
+  }
+}
+
+/**
+ * Sets up idle detection using RAF with proper idle timing.
+ * Uses VueUse's useRafFn but with idle detection logic.
+ */
+function setupIdleDetection(): void {
+  if (rafHandler) {
+    // If RAF handler already exists, resume it
+    rafHandler.resume()
+    return
+  }
+
+  // Initialize activity tracking
+  lastActivityTime = Date.now()
+  isCurrentlyIdle = false
+
+  // Create new RAF handler for idle detection
+  rafHandler = useRafFn(
+    () => {
+      handleIdleDetection()
+    },
+    { immediate: true },
+  )
+}
+
+/**
+ * Internal function to handle idle detection.
+ * Checks if enough time has passed since last activity to consider the browser idle.
+ */
+function handleIdleDetection(): void {
+  const now = Date.now()
+  const timeSinceLastActivity = now - lastActivityTime
+
+  // Check if we should be idle
+  const shouldBeIdle = timeSinceLastActivity >= idleTimeout
+
+  // Handle first idle event
+  if (!globalState.hasBeenIdle && shouldBeIdle) {
+    globalState.hasBeenIdle = true
+    isCurrentlyIdle = true
+    console.log('[LazyLoading] Browser is idle for the first time')
+
+    if (globalState.onFirstIdle) {
+      globalState.onFirstIdle()
     }
   }
-}
 
-/**
- * Sets up continuous idle detection that triggers on every idle event.
- */
-function setupContinuousIdleDetection(): void {
-  if ('requestIdleCallback' in window) {
-    // Use native requestIdleCallback with a wrapper to continue listening
-    const scheduleNextIdle = () => {
-      window.requestIdleCallback(() => {
-        handleEveryIdle()
-        // Schedule the next idle callback
-        scheduleNextIdle()
-      })
-    }
-    scheduleNextIdle()
-  } else {
-    // Fallback for browsers that don't support requestIdleCallback
-    // Use setInterval to simulate idle detection
-    setInterval(() => {
-      handleEveryIdle()
-    }, 1000)
+  // Handle continuous idle events
+  if (shouldBeIdle && !isCurrentlyIdle) {
+    isCurrentlyIdle = true
+    console.log('[LazyLoading] Browser became idle again')
   }
-}
 
-/**
- * Sets up idle detection for the first idle event only.
- */
-function setupFirstIdleDetection(): void {
-  if ('requestIdleCallback' in window) {
-    // Use native requestIdleCallback
-    window.requestIdleCallback(() => {
-      handleFirstIdle()
-    })
-  } else {
-    // Fallback for browsers that don't support requestIdleCallback
-    // Use setTimeout with a reasonable delay
-    setTimeout(() => {
-      handleFirstIdle()
-    }, DEFAULT_LAZY_LOADING_TIMEOUT)
-  }
-}
-
-/**
- * Internal function to handle every idle event.
- * Sets the next pending ID to true and executes the callback.
- */
-function handleEveryIdle(): void {
-  // Set the next pending ID to true if there are any
-  if (globalState.pendingIds.length > 0) {
+  // Process pending IDs when idle
+  if (shouldBeIdle && globalState.pendingIds.length > 0) {
+    // Process one ID per idle cycle to avoid overwhelming the browser
     const nextId = globalState.pendingIds.shift()!
     globalState.loadControlFlags.set(nextId, true)
     console.log(`[LazyLoading] Load "${nextId}" (idle)`)
@@ -342,27 +354,24 @@ function handleEveryIdle(): void {
     checkAndTriggerAllIdsLoaded()
   }
 
-  if (globalState.onEveryIdle) {
+  // Execute the every idle callback when we become idle
+  if (shouldBeIdle && globalState.onEveryIdle) {
     globalState.onEveryIdle()
+  }
+
+  // Reset idle state if activity detected
+  if (!shouldBeIdle && isCurrentlyIdle) {
+    isCurrentlyIdle = false
+    console.log('[LazyLoading] Browser activity detected')
   }
 }
 
 /**
- * Internal function to handle the first idle event.
- * Marks the state as idle and executes the callback.
+ * Updates the last activity time to reset idle detection.
+ * Call this when user activity is detected.
  */
-function handleFirstIdle(): void {
-  if (!globalState.hasBeenIdle) {
-    globalState.hasBeenIdle = true
-    console.log('[LazyLoading] Browser is idle for the first time')
-
-    if (globalState.onFirstIdle) {
-      globalState.onFirstIdle()
-    }
-
-    // Set up continuous idle detection for subsequent idle events
-    setupContinuousIdleDetection()
-  }
+export function updateActivityTime(): void {
+  lastActivityTime = Date.now()
 }
 
 /**
@@ -404,6 +413,17 @@ export function resetState(): void {
   globalState.pendingIds = []
   globalState.idleDetectionSetup = false
   globalState.onAllIdsLoaded = undefined
+
+  // Stop and clean up RAF handler
+  if (rafHandler) {
+    rafHandler.pause()
+    rafHandler = null
+  }
+
+  // Reset idle detection state
+  lastActivityTime = 0
+  isCurrentlyIdle = false
+
   console.log('[LazyLoading] Global state reset')
 }
 
@@ -414,4 +434,24 @@ export function resetState(): void {
  */
 export function hasBeenIdle(): boolean {
   return globalState.hasBeenIdle
+}
+
+/**
+ * Pauses the RAF-based idle detection.
+ * Useful for temporarily stopping lazy loading processing.
+ */
+export function pauseIdleDetection(): void {
+  if (rafHandler) {
+    rafHandler.pause()
+  }
+}
+
+/**
+ * Resumes the RAF-based idle detection.
+ * Useful for resuming lazy loading processing after pausing.
+ */
+export function resumeIdleDetection(): void {
+  if (rafHandler) {
+    rafHandler.resume()
+  }
 }
