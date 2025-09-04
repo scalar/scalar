@@ -229,6 +229,12 @@ export const apiClientConfigurationSchema = z.object({
 
 export type ApiClientConfiguration = z.infer<typeof apiClientConfigurationSchema>
 
+export const FetchLike = z
+  .function()
+  .args(z.union([z.string(), z.instanceof(URL), z.instanceof(Request)]), z.any().optional())
+  .returns(z.promise(z.instanceof(Response)))
+  .optional()
+
 /** Configuration for the Api Client without the transform since it cannot be merged */
 const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
   z.object({
@@ -242,6 +248,12 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
      * @deprecated Use proxyUrl instead
      */
     proxy: z.string().optional(),
+    /**
+     * Custom fetch function for custom logic
+     *
+     * Can be used to add custom headers, handle auth, etc.
+     */
+    fetch: FetchLike,
     /**
      * Plugins for the API reference
      */

@@ -204,4 +204,35 @@ describe('useDocumentFetcher', () => {
 
     expect(originalDocument.value).toBe('')
   })
+
+  it('handles custom fetcher', async () => {
+    const fn = vi.fn()
+    const input = JSON.stringify({ openapi: '3.1.0', info: { title: 'Custom Fetcher' }, paths: {} }, undefined, 2)
+
+    const { originalDocument } = useDocumentFetcher({
+      configuration: {
+        url: 'https://example.com/openapi.json',
+        fetch: async (...args) => {
+          fn(...args)
+          return new Response(input, { headers: { 'Content-Type': 'application/json' }, status: 200 })
+        },
+      },
+    })
+
+    await nextTick()
+
+    await new Promise((resolve) => {
+      watch(originalDocument, (value) => {
+        if (!value) {
+          return
+        }
+
+        expect(value).toBe(input)
+        resolve(null)
+      })
+    })
+
+    expect(fn).toHaveBeenCalledOnce()
+    expect(fn).toHaveBeenCalledWith('https://example.com/openapi.json', undefined)
+  })
 })
