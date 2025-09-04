@@ -17,7 +17,6 @@ namespace Scalar.AspNetCore;
 
 /// <summary>
 /// Represents the different clients available in Scalar.
-/// This enum is auto-generated from TypeScript clients configuration.
 /// </summary>
 [EnumExtensions]
 [JsonConverter(typeof(ScalarClientJsonConverter))]
