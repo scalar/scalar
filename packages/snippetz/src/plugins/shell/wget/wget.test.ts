@@ -109,7 +109,7 @@ describe('shellWget', () => {
   - https://example.com`)
   })
 
-  it('handles special characters in URL', () => {
+  it('handles special characters in URL, square brackets', () => {
     const result = shellWget.generate({
       url: 'https://example.com/path with spaces/[brackets]',
     })
@@ -118,6 +118,17 @@ describe('shellWget', () => {
   --method GET \\
   --output-document \\
   - 'https://example.com/path%20with%20spaces/[brackets]'`)
+  })
+
+  it('handles special characters in URL, curly brackets', () => {
+    const result = shellWget.generate({
+      url: 'https://example.com/path with spaces/{brackets}',
+    })
+
+    expect(result).toBe(`wget --quiet \\
+  --method GET \\
+  --output-document \\
+  - 'https://example.com/path%20with%20spaces/{brackets}'`)
   })
 
   it('handles multiple headers with same name', () => {

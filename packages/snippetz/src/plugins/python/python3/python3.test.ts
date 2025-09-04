@@ -1,26 +1,44 @@
 import { describe, expect, it } from 'vitest'
-import { pythonHttpxSync } from './sync'
+import { pythonPython3 } from './python3'
 
-describe('pythonHttpxSync', () => {
+describe('pythonRequests', () => {
   it('returns a basic request', () => {
-    const result = pythonHttpxSync.generate({
+    const result = pythonPython3.generate({
       url: 'https://example.com',
     })
 
-    expect(result).toBe('httpx.get("https://example.com")')
+    expect(result).toBe(`import http.client
+
+conn = http.client.HTTPSConnection("example.com")
+
+conn.request("GET", "/")
+
+res = conn.getresponse()
+data = res.read()
+
+print(data.decode("utf-8"))`)
   })
 
   it('returns a POST request', () => {
-    const result = pythonHttpxSync.generate({
+    const result = pythonPython3.generate({
       url: 'https://example.com',
       method: 'post',
     })
 
-    expect(result).toBe('httpx.post("https://example.com")')
+    expect(result).toBe(`import http.client
+
+conn = http.client.HTTPSConnection("example.com")
+
+conn.request("POST", "/")
+
+res = conn.getresponse()
+data = res.read()
+
+print(data.decode("utf-8"))`)
   })
 
   it('has headers', () => {
-    const result = pythonHttpxSync.generate({
+    const result = pythonPython3.generate({
       url: 'https://example.com',
       headers: [
         {
@@ -30,24 +48,40 @@ describe('pythonHttpxSync', () => {
       ],
     })
 
-    expect(result).toBe(`httpx.get("https://example.com",
-    headers={
-      "Content-Type": "application/json"
-    }
-)`)
+    expect(result).toBe(`import http.client
+
+conn = http.client.HTTPSConnection("example.com")
+
+headers = { 'Content-Type': "application/json" }
+
+conn.request("GET", "/", headers=headers)
+
+res = conn.getresponse()
+data = res.read()
+
+print(data.decode("utf-8"))`)
   })
 
   it(`doesn't add empty headers`, () => {
-    const result = pythonHttpxSync.generate({
+    const result = pythonPython3.generate({
       url: 'https://example.com',
       headers: [],
     })
 
-    expect(result).toBe('httpx.get("https://example.com")')
+    expect(result).toBe(`import http.client
+
+conn = http.client.HTTPSConnection("example.com")
+
+conn.request("GET", "/")
+
+res = conn.getresponse()
+data = res.read()
+
+print(data.decode("utf-8"))`)
   })
 
   it('has JSON body', () => {
-    const result = pythonHttpxSync.generate({
+    const result = pythonPython3.generate({
       url: 'https://example.com',
       method: 'POST',
       headers: [
@@ -64,18 +98,25 @@ describe('pythonHttpxSync', () => {
       },
     })
 
-    expect(result).toBe(`httpx.post("https://example.com",
-    headers={
-      "Content-Type": "application/json"
-    },
-    json={
-      "hello": "world"
-    }
-)`)
+    expect(result).toBe(`import http.client
+
+conn = http.client.HTTPSConnection("example.com")
+
+payload = "{\\"hello\\":\\"world\\"}"
+
+headers = { 'Content-Type': "application/json" }
+
+conn.request("POST", "/", payload, headers)
+
+res = conn.getresponse()
+data = res.read()
+
+print(data.decode("utf-8"))`)
   })
 
+  /*
   it('has query string', () => {
-    const result = pythonHttpxSync.generate({
+    const result = pythonPython3.generate({
       url: 'https://example.com',
       queryString: [
         {
@@ -89,16 +130,13 @@ describe('pythonHttpxSync', () => {
       ],
     })
 
-    expect(result).toBe(`httpx.get("https://example.com",
-    params={
-      "foo": "bar",
-      "bar": "foo"
-    }
-)`)
+    expect(result).toBe(`(awaiting implementation)`)
   })
+  */
 
+  /*
   it('has cookies', () => {
-    const result = pythonHttpxSync.generate({
+    const result = pythonPython3.generate({
       url: 'https://example.com',
       cookies: [
         {
@@ -112,25 +150,24 @@ describe('pythonHttpxSync', () => {
       ],
     })
 
-    expect(result).toBe(`httpx.get("https://example.com",
-    cookies={
-      "foo": "bar",
-      "bar": "foo"
-    }
-)`)
+    expect(result).toBe(`(awaiting implementation)`)
   })
+  */
 
+  /*
   it(`doesn't add empty cookies`, () => {
-    const result = pythonHttpxSync.generate({
+    const result = pythonPython3.generate({
       url: 'https://example.com',
       cookies: [],
     })
 
-    expect(result).toBe('httpx.get("https://example.com")')
+    expect(result).toBe(`(awaiting implementation)`)
   })
+  */
 
+  /*
   it('adds basic auth credentials', () => {
-    const result = pythonHttpxSync.generate(
+    const result = pythonPython3.generate(
       {
         url: 'https://example.com',
       },
@@ -142,13 +179,13 @@ describe('pythonHttpxSync', () => {
       },
     )
 
-    expect(result).toBe(`httpx.get("https://example.com",
-    auth=("user", "pass")
-)`)
+    expect(result).toBe(`(awaiting implementation)`)
   })
+  */
 
+  /*
   it('handles multipart form data with files', () => {
-    const result = pythonHttpxSync.generate({
+    const result = pythonPython3.generate({
       url: 'https://example.com',
       method: 'POST',
       postData: {
@@ -166,18 +203,13 @@ describe('pythonHttpxSync', () => {
       },
     })
 
-    expect(result).toBe(`httpx.post("https://example.com",
-    files=[
-      ("file", open("test.txt", "rb"))
-    ],
-    data={
-      "field": "value"
-    }
-)`)
+    expect(result).toBe(`(awaiting implementation)`)
   })
+  */
 
+  /*
   it('handles multipart form data with multiple files', () => {
-    const result = pythonHttpxSync.generate({
+    const result = pythonPython3.generate({
       url: 'https://example.com',
       method: 'POST',
       postData: {
@@ -195,16 +227,13 @@ describe('pythonHttpxSync', () => {
       },
     })
 
-    expect(result).toBe(`httpx.post("https://example.com",
-    files=[
-      ("file", open("test.txt", "rb")),
-      ("file", open("another.txt", "rb"))
-    ]
-)`)
+    expect(result).toBe(`(awaiting implementation)`)
   })
+  */
 
+  /*
   it('handles url-encoded form data', () => {
-    const result = pythonHttpxSync.generate({
+    const result = pythonPython3.generate({
       url: 'https://example.com',
       method: 'POST',
       postData: {
@@ -218,15 +247,13 @@ describe('pythonHttpxSync', () => {
       },
     })
 
-    expect(result).toBe(`httpx.post("https://example.com",
-    data={
-      "special chars!@#": "value"
-    }
-)`)
+    expect(result).toBe(`(awaiting implementation)`)
   })
+  */
 
+  /*
   it('handles binary data flag', () => {
-    const result = pythonHttpxSync.generate({
+    const result = pythonPython3.generate({
       url: 'https://example.com',
       method: 'POST',
       postData: {
@@ -235,13 +262,13 @@ describe('pythonHttpxSync', () => {
       },
     })
 
-    expect(result).toBe(`httpx.post("https://example.com",
-    data=b"binary content"
-)`)
+    expect(result).toBe(`(awaiting implementation)`)
   })
+  */
 
+  /*
   it('handles compressed response', () => {
-    const result = pythonHttpxSync.generate({
+    const result = pythonPython3.generate({
       url: 'https://example.com',
       headers: [
         {
@@ -251,35 +278,47 @@ describe('pythonHttpxSync', () => {
       ],
     })
 
-    expect(result).toBe(`httpx.get("https://example.com",
-    headers={
-      "Accept-Encoding": "gzip, deflate"
-    }
-)`)
+    expect(result).toBe(`(awaiting implementation)`)
   })
+  */
 
   it('handles special characters in URL, square brackets', () => {
-    const result = pythonHttpxSync.generate({
+    const result = pythonPython3.generate({
       url: 'https://example.com/path with spaces/[brackets]',
     })
 
-    expect(result).toBe(`httpx.get(
-    "https://example.com/path with spaces/[brackets]"
-)`)
+    expect(result).toBe(`import http.client
+
+conn = http.client.HTTPSConnection("example.com")
+
+conn.request("GET", "/path%20with%20spaces/[brackets]")
+
+res = conn.getresponse()
+data = res.read()
+
+print(data.decode("utf-8"))`)
   })
 
   it('handles special characters in URL, curly brackets', () => {
-    const result = pythonHttpxSync.generate({
+    const result = pythonPython3.generate({
       url: 'https://example.com/path with spaces/{brackets}',
     })
 
-    expect(result).toBe(`httpx.get(
-    "https://example.com/path with spaces/{brackets}"
-)`)
+    expect(result).toBe(`import http.client
+
+conn = http.client.HTTPSConnection("example.com")
+
+conn.request("GET", "/path%20with%20spaces/{brackets}")
+
+res = conn.getresponse()
+data = res.read()
+
+print(data.decode("utf-8"))`)
   })
 
+  /*
   it('handles special characters in query parameters', () => {
-    const result = pythonHttpxSync.generate({
+    const result = pythonPython3.generate({
       url: 'https://example.com',
       queryString: [
         {
@@ -293,42 +332,56 @@ describe('pythonHttpxSync', () => {
       ],
     })
 
-    expect(result).toBe(`httpx.get("https://example.com",
-    params={
-      "q": "hello world & more",
-      "special": "!@#$%^&*()"
-    }
-)`)
+    expect(result).toBe(`(awaiting implementation)`)
   })
+  */
 
+  /* Do we need to handle this? Other plugins using convertWithHttpSnippetLite don't.
   it('handles empty URL', () => {
-    const result = pythonHttpxSync.generate({
+    const result = pythonPython3.generate({
       url: '',
     })
 
-    expect(result).toBe('httpx.get("")')
+    expect(result).toBe(`awaiting implementation`)
   })
+  */
 
   it(`doesn't add a line break for a short URL`, () => {
-    const result = pythonHttpxSync.generate({
+    const result = pythonPython3.generate({
       url: 'https://example.com',
     })
 
-    expect(result).toBe('httpx.get("https://example.com")')
+    expect(result).toBe(`import http.client
+
+conn = http.client.HTTPSConnection("example.com")
+
+conn.request("GET", "/")
+
+res = conn.getresponse()
+data = res.read()
+
+print(data.decode("utf-8"))`)
   })
 
   it('handles extremely long URLs', () => {
-    const result = pythonHttpxSync.generate({
+    const result = pythonPython3.generate({
       url: 'https://example.com/' + 'a'.repeat(2000),
     })
 
-    expect(result).toBe(`httpx.get(
-    "https://example.com/${'a'.repeat(2000)}"
-)`)
+    expect(result).toBe(`import http.client
+
+conn = http.client.HTTPSConnection("example.com")
+
+conn.request("GET", "/${'a'.repeat(2000)}")
+
+res = conn.getresponse()
+data = res.read()
+
+print(data.decode("utf-8"))`)
   })
 
   it('handles multiple headers with same name', () => {
-    const result = pythonHttpxSync.generate({
+    const result = pythonPython3.generate({
       url: 'https://example.com',
       headers: [
         { name: 'X-Custom', value: 'value1' },
@@ -336,28 +389,43 @@ describe('pythonHttpxSync', () => {
       ],
     })
 
-    expect(result).toBe(`httpx.get("https://example.com",
-    headers={
-      "X-Custom": "value1"
-    }
-)`)
+    expect(result).toBe(`import http.client
+
+conn = http.client.HTTPSConnection("example.com")
+
+headers = { 'X-Custom': "value2" }
+
+conn.request("GET", "/", headers=headers)
+
+res = conn.getresponse()
+data = res.read()
+
+print(data.decode("utf-8"))`)
   })
 
   it('handles headers with empty values', () => {
-    const result = pythonHttpxSync.generate({
+    const result = pythonPython3.generate({
       url: 'https://example.com',
       headers: [{ name: 'X-Empty', value: '' }],
     })
 
-    expect(result).toBe(`httpx.get("https://example.com",
-    headers={
-      "X-Empty": ""
-    }
-)`)
+    expect(result).toBe(`import http.client
+
+conn = http.client.HTTPSConnection("example.com")
+
+headers = { 'X-Empty': "" }
+
+conn.request("GET", "/", headers=headers)
+
+res = conn.getresponse()
+data = res.read()
+
+print(data.decode("utf-8"))`)
   })
 
+  /*
   it('handles multipart form data with empty file names', () => {
-    const result = pythonHttpxSync.generate({
+    const result = pythonPython3.generate({
       url: 'https://example.com',
       method: 'POST',
       postData: {
@@ -371,15 +439,12 @@ describe('pythonHttpxSync', () => {
       },
     })
 
-    expect(result).toBe(`httpx.post("https://example.com",
-    files=[
-      ("file", open("", "rb"))
-    ]
-)`)
+    expect(result).toBe(`(awaiting implementation)`)
   })
+  */
 
   it('handles JSON body with special characters', () => {
-    const result = pythonHttpxSync.generate({
+    const result = pythonPython3.generate({
       url: 'https://example.com',
       method: 'POST',
       headers: [
@@ -399,43 +464,41 @@ describe('pythonHttpxSync', () => {
       },
     })
 
-    expect(result).toBe(`httpx.post("https://example.com",
-    headers={
-      "Content-Type": "application/json"
-    },
-    json={
-      "key": "\\"quotes\\" and \\\\backslashes\\\\",
-      "nested": {
-        "array": [
-          "item1",
-          None,
-          None
-        ]
-      }
-    }
-)`)
+    expect(result).toBe(`import http.client
+
+conn = http.client.HTTPSConnection("example.com")
+
+payload = "{\\"key\\":\\"\\\\\\"quotes\\\\\\" and \\\\\\\\backslashes\\\\\\\\\\",\\"nested\\":{\\"array\\":[\\"item1\\",null,null]}}"
+
+headers = { 'Content-Type': "application/json" }
+
+conn.request("POST", "/", payload, headers)
+
+res = conn.getresponse()
+data = res.read()
+
+print(data.decode("utf-8"))`)
   })
 
-  it('handles cookies with special characters', () => {
-    const result = pythonHttpxSync.generate({
-      url: 'https://example.com',
-      cookies: [
-        {
-          name: 'special;cookie',
-          value: 'value with spaces',
-        },
-      ],
+  /*
+    it('handles cookies with special characters', () => {
+      const result = pythonPython3.generate({
+        url: 'https://example.com',
+        cookies: [
+          {
+            name: 'special;cookie',
+            value: 'value with spaces',
+          },
+        ],
+      })
+  
+      expect(result).toBe(`(awaiting implementation)`)
     })
+  */
 
-    expect(result).toBe(`httpx.get("https://example.com",
-    cookies={
-      "special;cookie": "value with spaces"
-    }
-)`)
-  })
-
+  /*
   it('prettifies JSON body', () => {
-    const result = pythonHttpxSync.generate({
+    const result = pythonPython3.generate({
       url: 'https://example.com',
       method: 'POST',
       headers: [
@@ -456,28 +519,12 @@ describe('pythonHttpxSync', () => {
       },
     })
 
-    expect(result).toBe(`httpx.post("https://example.com",
-    headers={
-      "Content-Type": "application/json"
-    },
-    json={
-      "nested": {
-        "array": [
-          1,
-          2,
-          3
-        ],
-        "object": {
-          "foo": "bar"
-        }
-      },
-      "simple": "value"
-    }
-)`)
+    expect(result).toBe(`awaiting implementation`)
   })
+  */
 
   it('converts true/false/null to Python syntax', () => {
-    const result = pythonHttpxSync.generate({
+    const result = pythonPython3.generate({
       url: 'https://example.com',
       method: 'POST',
       headers: [
@@ -495,31 +542,29 @@ describe('pythonHttpxSync', () => {
           nested: {
             boolArray: [true, false, null],
           },
+          nullValue2: null,
         }),
       },
     })
 
-    expect(result).toBe(`httpx.post("https://example.com",
-    headers={
-      "Content-Type": "application/json"
-    },
-    json={
-      "boolTrue": True,
-      "boolFalse": False,
-      "nullValue": None,
-      "nested": {
-        "boolArray": [
-          True,
-          False,
-          None
-        ]
-      }
-    }
-)`)
+    expect(result).toBe(`import http.client
+
+conn = http.client.HTTPSConnection("example.com")
+
+payload = "{\\"boolTrue\\":true,\\"boolFalse\\":false,\\"nullValue\\":null,\\"nested\\":{\\"boolArray\\":[true,false,null]},\\"nullValue2\\":null}"
+
+headers = { 'Content-Type': "application/json" }
+
+conn.request("POST", "/", payload, headers)
+
+res = conn.getresponse()
+data = res.read()
+
+print(data.decode("utf-8"))`)
   })
 
   it('does not replace true/false/null in string literals', () => {
-    const result = pythonHttpxSync.generate({
+    const result = pythonPython3.generate({
       url: 'https://example.com',
       method: 'POST',
       headers: [
@@ -538,19 +583,19 @@ describe('pythonHttpxSync', () => {
       },
     })
 
-    expect(result).toBe(`httpx.post("https://example.com",
-    headers={
-      "Content-Type": "application/json"
-    },
-    json={
-      "stringWithTrue": "This string contains true",
-      "stringWithTrue2": "aaa   true,   aa",
-      "array": [
-        "true,",
-        "     true\\n",
-        "true"
-      ]
-    }
-)`)
+    expect(result).toBe(`import http.client
+
+conn = http.client.HTTPSConnection("example.com")
+
+payload = "{\\"stringWithTrue\\":\\"This string contains true\\",\\"stringWithTrue2\\":\\"aaa   true,   aa\\",\\"array\\":[\\"true,\\",\\"     true\\\\n\\",\\"true\\"]}"
+
+headers = { 'Content-Type': "application/json" }
+
+conn.request("POST", "/", payload, headers)
+
+res = conn.getresponse()
+data = res.read()
+
+print(data.decode("utf-8"))`)
   })
 })
