@@ -112,7 +112,7 @@ export const getExampleFromSchema = (
     return undefined
   }
 
-  // Check if the result is already cached
+  // Check if we have a cached result for this schema
   if (resultCache.has(schema)) {
     return resultCache.get(schema)
   }
@@ -375,7 +375,7 @@ export const getExampleFromSchema = (
     }
 
     // If all items are null, return null
-    return null
+    return cache(schema, null)
   }
 
   // Check if schema has the `allOf` key
@@ -406,7 +406,7 @@ export const getExampleFromSchema = (
   if (Array.isArray(schema.type)) {
     // Return null if the type is nullable
     if (schema.type.includes('null')) {
-      return null
+      return cache(schema, null)
     }
     // Return an example for the first type in the union
     const exampleValue = exampleValues[schema.type[0] ?? '']
@@ -419,5 +419,5 @@ export const getExampleFromSchema = (
   // console.warn(`[getExampleFromSchema] Unknown property type "${schema.type}".`)
 
   // … and just return null for now.
-  return null
+  return cache(schema, null)
 }
