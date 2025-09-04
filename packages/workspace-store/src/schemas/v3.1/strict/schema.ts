@@ -232,7 +232,7 @@ export const SchemaObjectSchemaDefinition = Type.Intersect([
     compose(CorePropertiesWithSchema, StringValidationProperties),
     compose(CorePropertiesWithSchema, ObjectValidationPropertiesWithSchema),
     compose(CorePropertiesWithSchema, ArrayValidationPropertiesWithSchema),
-    compose(Compositions),
+    compose(CorePropertiesWithSchema, Compositions),
   ]),
   XScalarIgnoreSchema,
   XInternalSchema,

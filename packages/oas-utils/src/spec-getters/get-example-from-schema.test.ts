@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { getExampleFromSchema } from './get-example-from-schema'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 describe('getExampleFromSchema', () => {
   it('sets example values', () => {
@@ -1496,12 +1497,12 @@ describe('getExampleFromSchema', () => {
 
   describe('circular references', () => {
     it('deals with circular references', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = {
         type: 'object',
         properties: {
           foobar: {},
         },
-      })
+      } satisfies OpenAPIV3_1.SchemaObject
 
       // Create a circular reference
       schema.properties!.foobar = schema
@@ -1533,7 +1534,7 @@ describe('getExampleFromSchema', () => {
     })
 
     it('deals with circular references that expand horizontally', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = {
         type: 'object',
         properties: {
           a: {},
@@ -1563,7 +1564,7 @@ describe('getExampleFromSchema', () => {
           y: {},
           z: {},
         },
-      })
+      } satisfies OpenAPIV3_1.SchemaObject
 
       // Create a circular reference for each property
       schema.properties!.a = schema
