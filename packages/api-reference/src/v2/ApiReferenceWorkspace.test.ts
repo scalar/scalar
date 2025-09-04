@@ -436,6 +436,39 @@ describe('ApiReferenceWorkspace', () => {
     })
   })
 
+  describe.only('custom fetch functionality', async () => {
+    it('use the provided fetch function to fetch the documents', async () => {
+      const fn = vi.fn()
+      wrapper = mount(ApiReferenceWorkspace, {
+        props: {
+          configuration: {
+            title: 'Test API',
+            url: 'https://example.com/api/spec.json',
+            fetch: async (...args) => {
+              fn(...args)
+              // Simple mock fetch function that returns a fixed response
+              return new Response(JSON.stringify({ openapi: '3.0.0', info: { title: 'Test API' }, paths: {} }), {
+                headers: { 'Content-Type': 'application/json' },
+                status: 200,
+              })
+            },
+          },
+          store: mockStore,
+        },
+      })
+
+      await flushPromises()
+
+      expect(wrapper.exists()).toBe(true)
+      expect(wrapper.findComponent({ name: 'ApiReferenceLayout' }).exists()).toBe(true)
+      expect(wrapper.text()).toContain('Test API')
+
+      // Expect the custom fetch function to have been called
+      expect(fn).toHaveBeenCalledOnce()
+      expect(fn).toHaveBeenCalledWith('https://example.com/api/spec.json', undefined)
+    })
+  })
+
   describe('slot rendering', () => {
     it('renders footer slot', () => {
       wrapper = mount(ApiReferenceWorkspace, {
