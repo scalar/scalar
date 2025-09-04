@@ -1,5 +1,5 @@
-import type { TSchema } from '@sinclair/typebox'
-import { Value } from '@sinclair/typebox/value'
+import type { TSchema } from '@scalar/typebox'
+import { Value } from '@scalar/typebox/value'
 
 /**
  * Coerces a value to match the provided TypeBox schema by first converting and then casting the value.

@@ -44,6 +44,7 @@ internal static class ScalarOptionsMapper
             DefaultOpenAllTags = options.DefaultOpenAllTags,
             ForceDarkModeState = options.ForceThemeMode,
             ShowSidebar = options.ShowSidebar,
+            OperationTitleSource = options.OperationTitleSource,
             WithDefaultFonts = options.DefaultFonts,
             CustomCss = options.CustomCss,
             SearchHotKey = options.SearchHotKey,
@@ -73,13 +74,14 @@ internal static class ScalarOptionsMapper
     {
         var trimmedOpenApiRoutePattern = options.OpenApiRoutePattern.TrimStart('/');
 
-        foreach (var (name, title, routePattern) in options.Documents)
+        foreach (var (name, title, routePattern, isDefault) in options.Documents)
         {
             var openApiRoutePattern = routePattern is null ? trimmedOpenApiRoutePattern : routePattern.TrimStart('/');
             yield return new ScalarSource
             {
                 Title = title ?? name,
-                Url = openApiRoutePattern.Replace(DocumentName, name)
+                Url = openApiRoutePattern.Replace(DocumentName, name),
+                Default = isDefault
             };
         }
     }

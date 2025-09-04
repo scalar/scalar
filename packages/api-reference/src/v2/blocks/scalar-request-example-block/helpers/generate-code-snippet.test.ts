@@ -1,5 +1,5 @@
 import type { AvailableClients } from '@scalar/snippetz'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest'
 import { generateCodeSnippet } from './generate-code-snippet'
 

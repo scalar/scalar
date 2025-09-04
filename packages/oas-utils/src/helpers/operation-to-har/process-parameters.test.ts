@@ -2,7 +2,7 @@ import type { Request as HarRequest } from 'har-format'
 import { describe, it, expect } from 'vitest'
 
 import { processParameters } from './process-parameters'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 
 describe('parameter styles', () => {

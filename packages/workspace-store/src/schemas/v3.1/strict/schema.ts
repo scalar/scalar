@@ -1,26 +1,18 @@
-import {
-  type Static,
-  type TArray,
-  type TBoolean,
-  type TIntersect,
-  type TInteger,
-  type TLiteral,
-  type TObject,
-  type TOptional,
-  type TRecord,
-  type TRecursive,
-  type TSchema,
-  type TString,
-  type TUnion,
-  type TUnknown,
-  Type,
-  type TAny,
-} from '@sinclair/typebox'
-import { DiscriminatorObjectSchema } from './discriminator'
-import { XMLObjectSchema } from './xml'
-import { ExternalDocumentationObjectSchema } from './external-documentation'
+import { Type } from '@scalar/typebox'
+import { XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
+import { XInternalSchema } from '@/schemas/extensions/document/x-internal'
+import { XVariableSchema } from '@/schemas/extensions/schema/x-variable'
+import { XAdditionalPropertiesNameSchema } from '@/schemas/extensions/schema/x-additional-properties-name'
 import { compose } from '@/schemas/compose'
 import { reference } from '@/schemas/v3.1/strict/reference'
+import {
+  DiscriminatorObjectRef,
+  ExternalDocumentationObjectRef,
+  SchemaObjectRef,
+  XMLObjectRef,
+} from '@/schemas/v3.1/strict/ref-definitions'
+
+const schemaOrReference = Type.Union([SchemaObjectRef, reference(SchemaObjectRef)])
 
 /**
  * Primitive types that don't have additional validation properties.
@@ -144,197 +136,128 @@ const StringValidationProperties = Type.Object({
   pattern: Type.Optional(Type.String()),
 })
 
+const Compositions = Type.Object({
+  _: Type.String(),
+  // Composition
+  /** All schemas must be valid. */
+  allOf: Type.Optional(Type.Array(schemaOrReference)),
+  /** Exactly one schema must be valid. */
+  oneOf: Type.Optional(Type.Array(schemaOrReference)),
+  /** At least one schema must be valid. */
+  anyOf: Type.Optional(Type.Array(schemaOrReference)),
+  /** Schema must not be valid. */
+  not: Type.Optional(schemaOrReference),
+})
+
+const CorePropertiesWithSchema = Type.Object({
+  /** A title for the schema. */
+  title: Type.Optional(Type.String()),
+  /** A description of the schema. */
+  description: Type.Optional(Type.String()),
+  /** Default value for the schema. */
+  // default: Type.Optional(Type.Unknown()),
+  /** Array of allowed values. */
+  enum: Type.Optional(Type.Array(Type.Unknown())),
+  /** Constant value that must match exactly. */
+  // const: Type.Optional(Type.Unknown()),
+
+  // OpenAPI 3.1
+  /** Media type for content validation. */
+  contentMediaType: Type.Optional(Type.String()),
+  /** Content encoding. */
+  contentEncoding: Type.Optional(Type.String()),
+  /** Schema for content validation. */
+  contentSchema: Type.Optional(schemaOrReference),
+  /** Whether the schema is deprecated. */
+  deprecated: Type.Optional(Type.Boolean()),
+  /** Adds support for polymorphism. The discriminator is used to determine which of a set of schemas a payload is expected to satisfy. See Composition and Inheritance for more details. */
+  discriminator: Type.Optional(DiscriminatorObjectRef),
+  /** Whether the schema is read-only. */
+  readOnly: Type.Optional(Type.Boolean()),
+  /** Whether the schema is write-only. */
+  writeOnly: Type.Optional(Type.Boolean()),
+  /** This MAY be used only on property schemas. It has no effect on root schemas. Adds additional metadata to describe the XML representation of this property. */
+  xml: Type.Optional(XMLObjectRef),
+  /** Additional external documentation for this schema. */
+  externalDocs: Type.Optional(ExternalDocumentationObjectRef),
+  /**
+   * A free-form field to include an example of an instance for this schema. To represent examples that cannot be naturally represented in JSON or YAML, a string value can be used to contain the example with escaping where necessary.
+   *
+   * @deprecated The example field has been deprecated in favor of the JSON Schema examples keyword. Use of example is discouraged, and later versions of this specification may remove it.
+   */
+  // example: Type.Optional(Type.Unknown()),
+  /**
+   * An array of examples of valid instances for this schema. This keyword follows the JSON Schema Draft 2020-12 specification.
+   * Each example should be a valid instance of the schema.
+   */
+  examples: Type.Optional(Type.Array(Type.Unknown())),
+
+  // OpenAPI Extensions
+  'x-tags': Type.Optional(Type.Array(Type.String())),
+})
+
+const ArrayValidationPropertiesWithSchema = Type.Object({
+  type: Type.Literal('array'),
+  /** Maximum number of items in array. */
+  maxItems: Type.Optional(Type.Integer({ minimum: 0 })),
+  /** Minimum number of items in array. */
+  minItems: Type.Optional(Type.Integer({ minimum: 0 })),
+  /** Whether array items must be unique. */
+  uniqueItems: Type.Optional(Type.Boolean()),
+  /** Schema for array items. */
+  items: Type.Optional(schemaOrReference),
+  /** Schema for tuple validation. */
+  prefixItems: Type.Optional(Type.Array(schemaOrReference)),
+})
+
+const ObjectValidationPropertiesWithSchema = Type.Object({
+  type: Type.Literal('object'),
+  /** Maximum number of properties. */
+  maxProperties: Type.Optional(Type.Integer({ minimum: 0 })),
+  /** Minimum number of properties. */
+  minProperties: Type.Optional(Type.Integer({ minimum: 0 })),
+  /** Array of required property names. */
+  required: Type.Optional(Type.Array(Type.String())),
+  /** Object property definitions. */
+  properties: Type.Optional(Type.Record(Type.String(), schemaOrReference)),
+  /** Schema for additional properties. */
+  additionalProperties: Type.Optional(Type.Union([Type.Boolean(), schemaOrReference])),
+  /** Properties matching regex patterns. */
+  patternProperties: Type.Optional(Type.Record(Type.String(), schemaOrReference)),
+})
+
 /** Builds the recursive schema schema */
-export const schemaObjectSchemaBuilder = <S extends TSchema>(schema: S) => {
-  const schemaOrReference = Type.Union([schema, reference(schema)])
-
-  const Compositions = Type.Object({
-    _: Type.String(),
-    // Composition
-    /** All schemas must be valid. */
-    allOf: Type.Optional(Type.Array(schemaOrReference)),
-    /** Exactly one schema must be valid. */
-    oneOf: Type.Optional(Type.Array(schemaOrReference)),
-    /** At least one schema must be valid. */
-    anyOf: Type.Optional(Type.Array(schemaOrReference)),
-    /** Schema must not be valid. */
-    not: Type.Optional(schemaOrReference),
-  })
-
-  const CorePropertiesWithSchema = Type.Object({
-    /** A title for the schema. */
-    title: Type.Optional(Type.String()),
-    /** A description of the schema. */
-    description: Type.Optional(Type.String()),
-    /** Default value for the schema. */
-    // default: Type.Optional(Type.Unknown()),
-    /** Array of allowed values. */
-    enum: Type.Optional(Type.Array(Type.Unknown())),
-    /** Constant value that must match exactly. */
-    // const: Type.Optional(Type.Unknown()),
-
-    // OpenAPI 3.1
-    /** Media type for content validation. */
-    contentMediaType: Type.Optional(Type.String()),
-    /** Content encoding. */
-    contentEncoding: Type.Optional(Type.String()),
-    /** Schema for content validation. */
-    contentSchema: Type.Optional(schemaOrReference),
-    /** Whether the schema is deprecated. */
-    deprecated: Type.Optional(Type.Boolean()),
-    /** Adds support for polymorphism. The discriminator is used to determine which of a set of schemas a payload is expected to satisfy. See Composition and Inheritance for more details. */
-    discriminator: Type.Optional(DiscriminatorObjectSchema),
-    /** Whether the schema is read-only. */
-    readOnly: Type.Optional(Type.Boolean()),
-    /** Whether the schema is write-only. */
-    writeOnly: Type.Optional(Type.Boolean()),
-    /** This MAY be used only on property schemas. It has no effect on root schemas. Adds additional metadata to describe the XML representation of this property. */
-    xml: Type.Optional(XMLObjectSchema),
-    /** Additional external documentation for this schema. */
-    externalDocs: Type.Optional(ExternalDocumentationObjectSchema),
-    /**
-     * A free-form field to include an example of an instance for this schema. To represent examples that cannot be naturally represented in JSON or YAML, a string value can be used to contain the example with escaping where necessary.
-     *
-     * @deprecated The example field has been deprecated in favor of the JSON Schema examples keyword. Use of example is discouraged, and later versions of this specification may remove it.
-     */
-    // example: Type.Optional(Type.Unknown()),
-    /**
-     * An array of examples of valid instances for this schema. This keyword follows the JSON Schema Draft 2020-12 specification.
-     * Each example should be a valid instance of the schema.
-     */
-    examples: Type.Optional(Type.Array(Type.Unknown())),
-
-    // OpenAPI Extensions
-    'x-tags': Type.Optional(Type.Array(Type.String())),
-  })
-
-  const ArrayValidationPropertiesWithSchema = Type.Object({
-    type: Type.Literal('array'),
-    /** Maximum number of items in array. */
-    maxItems: Type.Optional(Type.Integer({ minimum: 0 })),
-    /** Minimum number of items in array. */
-    minItems: Type.Optional(Type.Integer({ minimum: 0 })),
-    /** Whether array items must be unique. */
-    uniqueItems: Type.Optional(Type.Boolean()),
-    /** Schema for array items. */
-    items: Type.Optional(schemaOrReference),
-    /** Schema for tuple validation. */
-    prefixItems: Type.Optional(Type.Array(schemaOrReference)),
-  })
-
-  const ObjectValidationPropertiesWithSchema = Type.Object({
-    type: Type.Literal('object'),
-    /** Maximum number of properties. */
-    maxProperties: Type.Optional(Type.Integer({ minimum: 0 })),
-    /** Minimum number of properties. */
-    minProperties: Type.Optional(Type.Integer({ minimum: 0 })),
-    /** Array of required property names. */
-    required: Type.Optional(Type.Array(Type.String())),
-    /** Object property definitions. */
-    properties: Type.Optional(Type.Record(Type.String(), schemaOrReference)),
-    /** Schema for additional properties. */
-    additionalProperties: Type.Optional(Type.Union([Type.Boolean(), schemaOrReference])),
-    /** Properties matching regex patterns. */
-    patternProperties: Type.Optional(Type.Record(Type.String(), schemaOrReference)),
-  })
-
-  return Type.Union([
+export const SchemaObjectSchemaDefinition = Type.Intersect([
+  Type.Union([
     compose(CorePropertiesWithSchema, OtherTypes),
     compose(CorePropertiesWithSchema, NumericProperties),
     compose(CorePropertiesWithSchema, StringValidationProperties),
     compose(CorePropertiesWithSchema, ObjectValidationPropertiesWithSchema),
     compose(CorePropertiesWithSchema, ArrayValidationPropertiesWithSchema),
     compose(Compositions),
-  ])
-}
+  ]),
+  XScalarIgnoreSchema,
+  XInternalSchema,
+  XVariableSchema,
+  XAdditionalPropertiesNameSchema,
+])
 
-type Base = TObject<{
-  title: TOptional<TString>
-  description: TOptional<TString>
-  default: TOptional<TUnknown>
-  enum: TOptional<TArray<TUnknown>>
-  const: TOptional<TUnknown>
-  contentMediaType: TOptional<TString>
-  contentEncoding: TOptional<TString>
-  contentSchema: TOptional<any>
-  deprecated: TOptional<TBoolean>
-  discriminator: TOptional<typeof DiscriminatorObjectSchema>
-  readOnly: TOptional<TBoolean>
-  writeOnly: TOptional<TBoolean>
-  xml: TOptional<typeof XMLObjectSchema>
-  externalDocs: TOptional<typeof ExternalDocumentationObjectSchema>
-  example: TOptional<TUnknown>
-  examples: TOptional<TArray<TUnknown>>
-  'x-tags': TOptional<TArray<TString>>
-  'x-variable': TOptional<TAny>
-}>
+// export const isNumber = <T extends SchemaObject>(schema: T): schema is Extract<T, { type: 'number' | 'integer' }> => {
+//   return 'type' in schema && schema.type === 'number'
+// }
 
-type Compositions = TObject<{
-  _: TString
-  allOf: TOptional<TArray<any>>
-  oneOf: TOptional<TArray<any>>
-  anyOf: TOptional<TArray<any>>
-  not: TOptional<any>
-}>
+// export const isString = <T extends SchemaObject>(schema: T): schema is Extract<T, { type: 'string' }> => {
+//   return 'type' in schema && schema.type === 'string'
+// }
 
-type SchemaObjectSchemaType = TRecursive<
-  TUnion<
-    [
-      TIntersect<[Base, typeof OtherTypes]>,
-      TIntersect<[Base, typeof NumericProperties]>,
-      TIntersect<[Base, typeof StringValidationProperties]>,
-      TIntersect<
-        [
-          Base,
-          TObject<{
-            type: TLiteral<'array'>
-            maxItems: TOptional<TInteger>
-            minItems: TOptional<TInteger>
-            uniqueItems: TOptional<TBoolean>
-            items: TOptional<any>
-            prefixItems: TOptional<TArray<any>>
-          }>,
-        ]
-      >,
-      TIntersect<
-        [
-          Base,
-          TObject<{
-            type: TLiteral<'object'>
-            maxProperties: TOptional<TInteger>
-            minProperties: TOptional<TInteger>
-            required: TOptional<TArray<TString>>
-            properties: TOptional<TRecord<TString, any>>
-            additionalProperties: TOptional<TUnion<[TBoolean, any]>>
-            patternProperties: TOptional<TRecord<TString, any>>
-          }>,
-        ]
-      >,
-      Compositions,
-    ]
-  >
->
+// export const isObject = <T extends SchemaObject>(schema: T): schema is Extract<T, { type: 'object' }> => {
+//   return 'type' in schema && schema.type === 'object'
+// }
 
-export const SchemaObjectSchema: any = Type.Recursive((This) => schemaObjectSchemaBuilder(This))
+// export const isArray = <T extends SchemaObject>(schema: T): schema is Extract<T, { type: 'array' }> => {
+//   return 'type' in schema && schema.type === 'array'
+// }
 
-export type SchemaObject = Static<SchemaObjectSchemaType>
-
-export const isNumber = <T extends SchemaObject>(schema: T): schema is Extract<T, { type: 'number' | 'integer' }> => {
-  return 'type' in schema && schema.type === 'number'
-}
-
-export const isString = <T extends SchemaObject>(schema: T): schema is Extract<T, { type: 'string' }> => {
-  return 'type' in schema && schema.type === 'string'
-}
-
-export const isObject = <T extends SchemaObject>(schema: T): schema is Extract<T, { type: 'object' }> => {
-  return 'type' in schema && schema.type === 'object'
-}
-
-export const isArray = <T extends SchemaObject>(schema: T): schema is Extract<T, { type: 'array' }> => {
-  return 'type' in schema && schema.type === 'array'
-}
-
-export const isComposition = <T extends SchemaObject>(schema: T): schema is Extract<T, { _: string }> => {
-  return 'allOf' in schema || 'oneOf' in schema || 'anyOf' in schema || 'not' in schema
-}
+// export const isComposition = <T extends SchemaObject>(schema: T): schema is Extract<T, { _: string }> => {
+//   return 'allOf' in schema || 'oneOf' in schema || 'anyOf' in schema || 'not' in schema
+// }

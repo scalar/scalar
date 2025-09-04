@@ -71,6 +71,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
 
     [Theory]
     [InlineData("/scalar/scalar.aspnetcore.js", "getBasePath")]
+    [InlineData("/scalar/favicon.svg", "svg")]
 #if RELEASE
     [InlineData($"/scalar/{ScalarEndpointRouteBuilderExtensions.ScalarJavaScriptFile}", "@scalar/api-reference")]
 #endif

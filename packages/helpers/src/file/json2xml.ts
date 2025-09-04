@@ -1,53 +1,83 @@
 /**
  * This function converts an object to XML.
  */
-export function json2xml(data: Record<string, any>, tab?: string) {
-  const toXml = (value: any, key: string, indentation: string) => {
+export function json2xml(
+  data: Record<string, any>,
+  options: {
+    indent?: string
+    format?: boolean
+    xmlDeclaration?: boolean
+  } = {},
+) {
+  const { indent = '  ', format = true, xmlDeclaration = true } = options
+
+  const toXml = (value: any, key: string, currentIndent: string): string => {
     let xml = ''
 
     if (Array.isArray(value)) {
       for (let i = 0, n = value.length; i < n; i++) {
-        xml += indentation + toXml(value[i], key, indentation + '\t') + '\n'
+        xml += toXml(value[i], key, currentIndent)
       }
-    } else if (typeof value === 'object') {
+    } else if (typeof value === 'object' && value !== null) {
       let hasChild = false
-      xml += indentation + '<' + key
+      let attributes = ''
+      let children = ''
 
-      for (const m in value) {
-        if (m.charAt(0) === '@') {
-          xml += ' ' + m.substr(1) + '="' + value[m].toString() + '"'
-        } else {
-          hasChild = true
+      // Handle attributes (keys starting with @)
+      for (const attr in value) {
+        if (attr.charAt(0) === '@') {
+          attributes += ' ' + attr.substr(1) + '="' + value[attr].toString() + '"'
         }
       }
 
-      xml += hasChild ? '>' : '/>'
+      // Handle children and special content
+      for (const child in value) {
+        if (child === '#text') {
+          children += value[child]
+        } else if (child === '#cdata') {
+          children += '<![CDATA[' + value[child] + ']]>'
+        } else if (child.charAt(0) !== '@') {
+          hasChild = true
+          children += toXml(value[child], child, currentIndent + indent)
+        }
+      }
 
       if (hasChild) {
-        for (const m in value) {
-          if (m === '#text') {
-            xml += value[m]
-          } else if (m === '#cdata') {
-            xml += '<![CDATA[' + value[m] + ']]>'
-          } else if (m.charAt(0) !== '@') {
-            xml += toXml(value[m], m, indentation + '\t')
-          }
-        }
-        xml += (xml.charAt(xml.length - 1) === '\n' ? indentation : '') + '</' + key + '>'
+        xml += currentIndent + '<' + key + attributes + '>\n'
+        xml += children
+        xml += currentIndent + '</' + key + '>\n'
+      } else {
+        xml += currentIndent + '<' + key + attributes + '/>\n'
       }
     } else {
-      xml += indentation + '<' + key + '>' + value.toString() + '</' + key + '>'
+      xml += currentIndent + '<' + key + '>' + (value?.toString() || '') + '</' + key + '>\n'
     }
+
     return xml
   }
 
   let xml = ''
 
+  // Add XML declaration if requested
+  if (xmlDeclaration) {
+    xml += '<?xml version="1.0" encoding="UTF-8"?>'
+    if (format) {
+      xml += '\n'
+    }
+  }
+
+  // Convert data to XML
   for (const key in data) {
     if (Object.hasOwn(data, key)) {
       xml += toXml(data[key], key, '')
     }
   }
 
-  return tab ? xml.replace(/\t/g, tab) : xml.replace(/\t|\n/g, '')
+  // Format or compact the output
+  if (format) {
+    return xml.trim()
+  }
+
+  // Remove all newlines and extra spaces, but keep the XML declaration clean
+  return xml.replace(/\n/g, '').replace(/>\s+</g, '><').trim()
 }

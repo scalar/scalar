@@ -284,6 +284,9 @@ useFavicon(favicon)
       <template #sidebar-start>
         <slot name="sidebar-start" />
       </template>
+      <template #sidebar-end>
+        <slot name="sidebar-end" />
+      </template>
     </ApiReferenceLayout>
   </div>
 </template>

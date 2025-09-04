@@ -1,5 +1,5 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
+import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { encode } from 'js-base64'
 
 /** Extract secrets from security schemes */

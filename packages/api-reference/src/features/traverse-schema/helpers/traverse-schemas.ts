@@ -2,8 +2,7 @@ import { getTag } from '@/features/traverse-schema/helpers/get-tag'
 import type { TagsMap, TraversedSchema } from '@/features/traverse-schema/types'
 import type { UseNavState } from '@/hooks/useNavState'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
-import type { TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/tag'
+import type { SchemaObject, TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 /** Handles creating entries for components.schemas */
 const createSchemaEntry = (

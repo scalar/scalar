@@ -49,18 +49,20 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
-    "@scalar/types": "workspace:*"
+    "@scalar/core": "workspace:*"
   },
   "devDependencies": {
-    "@nestjs/common": "^10.0.0",
-    "@nestjs/platform-fastify": "^10.3.8",
-    "@nestjs/testing": "^10.0.0",
+    "@nestjs/common": "^11.1.6",
+    "@nestjs/core": "^11.1.6",
+    "@nestjs/platform-express": "^10.3.8",
+    "@nestjs/platform-fastify": "^11.1.6",
+    "@nestjs/testing": "^11.1.6",
     "@scalar/api-reference": "workspace:*",
     "@types/express": "catalog:*",
     "@types/supertest": "^2.0.12",
     "express": "catalog:*",
-    "fastify": "^4.26.2",
-    "supertest": "^6.3.3",
+    "fastify": "^5.4.0",
+    "supertest": "^7.1.4",
     "tsup": "^8.3.5",
     "vite": "catalog:*",
     "vitest": "catalog:*"

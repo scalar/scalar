@@ -1,13 +1,12 @@
-import { Type, type Static } from '@sinclair/typebox'
-import { ContactObjectSchema } from './contact'
-import { LicenseObjectSchema } from './license'
-import { XScalarSdkInstallationSchema } from '@/schemas/extensions/document/x-scalar-sdk-installation'
+import { Type } from '@scalar/typebox'
 import { compose } from '@/schemas/compose'
+import { XScalarSdkInstallationSchema } from '@/schemas/extensions/document/x-scalar-sdk-installation'
+import { ContactObjectRef, LicenseObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 
 /**
  * The object provides metadata about the API. The metadata MAY be used by the clients if needed, and MAY be presented in editing or documentation generation tools for convenience.
  */
-export const InfoObjectSchema = compose(
+export const InfoObjectSchemaDefinition = compose(
   Type.Object({
     /** REQUIRED. The title of the API. */
     title: Type.String(),
@@ -18,13 +17,11 @@ export const InfoObjectSchema = compose(
     /** A URI for the Terms of Service for the API. This MUST be in the form of a URI. */
     termsOfService: Type.Optional(Type.String()),
     /** The contact information for the exposed API. */
-    contact: Type.Optional(ContactObjectSchema),
+    contact: Type.Optional(ContactObjectRef),
     /** The license information for the exposed API. */
-    license: Type.Optional(LicenseObjectSchema),
+    license: Type.Optional(LicenseObjectRef),
     /** REQUIRED. The version of the OpenAPI Document (which is distinct from the OpenAPI Specification version or the version of the API being described or the version of the OpenAPI Description). */
     version: Type.String(),
   }),
   XScalarSdkInstallationSchema,
 )
-
-export type InfoObject = Static<typeof InfoObjectSchema>

@@ -39,7 +39,7 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:e2e": "playwright test",
-    "test:e2e:playwright": "docker-compose -f test-snapshots/compose.yml up",
+    "test:e2e:playwright": "docker run --network=host -e PORT=5001 -p 5001:5001 scalarapi/playwright:1.55.0",
     "test:e2e:report": "playwright show-report",
     "test:e2e:snapshots": "PW_TEST_CONNECT_WS_ENDPOINT=ws://127.0.0.1:5001/ playwright test -c playwright.snapshots.config.ts",
     "test:e2e:snapshots:ci": "playwright test -c playwright.snapshots.config.ts",

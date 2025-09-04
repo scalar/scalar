@@ -1,4 +1,4 @@
-import { Type, type Static } from '@sinclair/typebox'
+import { Type, type Static } from '@scalar/typebox'
 import { AVAILABLE_CLIENTS } from '@scalar/types/snippetz'
 import { defaultMeta, MetaSchema } from '@/schemas/reference-config/meta'
 import { defaultFeatures, FeaturesSchema } from '@/schemas/reference-config/features'

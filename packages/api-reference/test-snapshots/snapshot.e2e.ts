@@ -30,6 +30,8 @@ async function waitForStableAriaSnapshot(page: Page, options?: { matches?: numbe
   }
 }
 
+test.describe.configure({ mode: 'parallel', timeout: 45000 })
+
 sources.forEach(({ title, slug }) => {
   test(`Diff with CDN - ${title}`, async ({ page }) => {
     const filename = `snapshot-${slug}.png`

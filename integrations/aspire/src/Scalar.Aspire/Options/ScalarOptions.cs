@@ -32,6 +32,12 @@ public abstract class ScalarOptions
     public bool ShowSidebar { get; set; } = true;
 
     /// <summary>
+    /// Gets or sets whether the sidebar and search should use the operation <i>summary</i> or the operation <i>path</i>.
+    /// </summary>
+    /// <value>The default value is <i>summary</i>.</value>
+    public OperationTitleSource? OperationTitleSource { get; set; }
+
+    /// <summary>
     /// Gets or sets whether models (components.schemas or definitions) should be hidden from the sidebar, search, and content.
     /// </summary>
     /// <value>The default value is <c>false</c>.</value>

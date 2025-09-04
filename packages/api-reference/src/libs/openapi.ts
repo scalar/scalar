@@ -1,10 +1,8 @@
 import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
 import { isDereferenced } from '@scalar/openapi-types/helpers'
 
-import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
+import type { ParameterObject, OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/media-header-encoding'
 
 /**
  * Formats a property object into a string.
@@ -29,7 +27,7 @@ export function formatProperty(key: string, obj: OpenAPIV3_1.SchemaObject): stri
 /**
  * Recursively logs the properties of an object.
  */
-function recursiveLogger(obj: MediaTypeObject): string[] {
+function recursiveLogger(obj: OpenAPIV3_1.MediaTypeObject): string[] {
   const results: string[] = ['Body']
   const schema = getResolvedRef(obj?.schema)
 

@@ -1,9 +1,8 @@
 import { compose } from '@/schemas/compose'
-import { OpenAPIDocumentSchema } from '@/schemas/v3.1/strict/openapi-document'
 import { WorkspaceMetaSchema } from '@/schemas/workspace'
 import { ConfigSchema } from '@/schemas/workspace-specification/config'
 import { InfoSchema } from '@/schemas/workspace-specification/info'
-import { Type, type Static } from '@sinclair/typebox'
+import { Type, type Static } from '@scalar/typebox'
 
 export const WorkspaceSpecificationSchema = compose(
   Type.Object({
@@ -17,7 +16,7 @@ export const WorkspaceSpecificationSchema = compose(
         }),
       ),
     ),
-    overrides: Type.Optional(Type.Record(Type.String(), compose(Type.Partial(OpenAPIDocumentSchema), ConfigSchema))),
+    overrides: Type.Optional(Type.Record(Type.String(), Type.Any())),
   }),
   ConfigSchema,
   WorkspaceMetaSchema,

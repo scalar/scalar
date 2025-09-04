@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { combineParams } from './combine-params'
-import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
+import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 describe('combineParams', () => {
   it('combines path and operation parameters', () => {

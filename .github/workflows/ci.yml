@@ -106,7 +106,7 @@ jobs:
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Scan for vulnerabilities
-        uses: aquasecurity/trivy-action@dc5a429b52fcf669ce959baa2c2dd26090d2a6c4 # 0.32.0
+        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
         with:
           scan-type: 'image'
           image-ref: 'scalarapi/api-reference:latest'
@@ -117,7 +117,7 @@ jobs:
 
       - if: startsWith(github.event.head_commit.message, 'RELEASING:') && steps.changed-files.outputs.api_reference_docker_version_any_changed == 'true'
         name: Log in to DockerHub
-        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3
+        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3
         with:
           # Username of your Docker account
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -168,7 +168,7 @@ jobs:
 
   build-examples:
     needs: [build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
     strategy:
       matrix:
@@ -278,7 +278,7 @@ jobs:
         run: |
           ls -la integrations/java/webjar/src/main/resources/META-INF/resources/webjars/scalar/scalar.js || exit 1
       - name: Setup Java
-        uses: actions/setup-java@17f84c3641ba7b8f6deff6309fc4c864478f5d62 # v3
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5
         with:
           distribution: 'temurin'
           java-version: '17'
@@ -316,7 +316,7 @@ jobs:
         run: pnpm --filter @scalar/webjar copy:standalone
       - if: steps.changed-files.outputs.java_webjar_package_any_changed == 'true'
         name: Setup Java
-        uses: actions/setup-java@17f84c3641ba7b8f6deff6309fc4c864478f5d62 # v3
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5
         with:
           distribution: 'temurin'
           java-version: '17'
@@ -368,7 +368,7 @@ jobs:
 
   test-e2e-api-reference:
     needs: [build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: blacksmith-4vcpu-ubuntu-2204
     permissions:
       contents: read
     timeout-minutes: 15
@@ -384,19 +384,8 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           packages: './packages/**'
-      - name: Get Playwright version
-        id: playwright-version
-        run: echo "PLAYWRIGHT_VERSION=$(npx playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
-      - name: Playwright binary cache
-        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
-        with:
-          path: |
-            ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.PLAYWRIGHT_VERSION }}
-      - name: Install Playwright browsers
-        run: npx playwright install
-      - name: Install Playwright dependencies
-        run: npx playwright install-deps
+      - name: Install playwright
+        uses: ./.github/actions/install-playwright
       - name: Run e2e tests (@scalar/api-reference)
         run: CI=1 pnpm test:e2e:api-reference
 
@@ -449,19 +438,8 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           packages: './projects/scalar-app'
-      - name: Get Playwright version
-        id: playwright-version
-        run: echo "PLAYWRIGHT_VERSION=$(npx playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
-      - name: Playwright binary cache
-        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
-        with:
-          path: |
-            ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.PLAYWRIGHT_VERSION }}
-      - name: Install Playwright browsers (chromium only)
-        run: npx playwright install chromium
-      - name: Install Playwright dependencies
-        run: npx playwright install-deps
+      - name: Install playwright
+        uses: ./.github/actions/install-playwright
       - name: Check whether the appFiles are there
         run: ls -R ./projects/scalar-app/dist
       - name: Start Xvfb
@@ -493,7 +471,7 @@ jobs:
   test-component-snapshots:
     if: github.event_name == 'pull_request'
     needs: [build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: blacksmith-4vcpu-ubuntu-2204
     permissions:
       contents: read
       pull-requests: write
@@ -501,9 +479,6 @@ jobs:
     strategy:
       matrix:
         node-version: [22]
-    container:
-      image: mcr.microsoft.com/playwright:v1.54.0-noble
-      options: --user root
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -513,18 +488,19 @@ jobs:
         uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
-          packages: './packages/**'
+          packages: '@scalar/components...'
         env:
           DEPLOY_ID: ${{ env.DEPLOY_ID }}
-      - name: Get Playwright version
-        id: playwright-version
-        run: echo "PLAYWRIGHT_VERSION=$(npx playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
+      - name: Install playwright
+        uses: ./.github/actions/install-playwright
+        with:
+          with-deps: 'false'
       - name: Build storybook
         run: pnpm --filter components build:storybook
       - name: Run e2e tests (@scalar/components)
         run: pnpm --filter components test:e2e:ci
-        # Only when the tests failed and the PR is from the same repository
-      - if: ${{ !cancelled() }} && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
+        # Only when the PR is from the same repository
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Deploy Playwright Report to Netlify
         run: |
           pnpx netlify deploy --dir "./packages/components/playwright-report" \
@@ -533,8 +509,8 @@ jobs:
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
             --filter @scalar/components \
             --alias=${{env.DEPLOY_ID}}
-        # Only when the tests failed and the PR is from the same repository
-      - if: ${{ !cancelled() }} && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
+        # Only when the PR is from the same repository
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Add Netlify Playwright Report URL to the PR
         uses: daun/playwright-report-summary@93883773b4f4f0951d8bcdb780c6443ca51eaf7b # v3
         with:
@@ -546,7 +522,7 @@ jobs:
   test-cdn-snapshots:
     if: github.event_name == 'pull_request'
     needs: [build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: blacksmith-8vcpu-ubuntu-2204
     permissions:
       contents: read
       pull-requests: write
@@ -554,28 +530,26 @@ jobs:
     strategy:
       matrix:
         node-version: [22]
-    container:
-      image: mcr.microsoft.com/playwright:v1.54.0-noble
-      options: --user root
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(npx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Build
         uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
-          packages: './packages/**'
+          packages: '@scalar/api-reference...'
         env:
           DEPLOY_ID: ${{ env.DEPLOY_ID }}
-      - name: Get Playwright version
-        id: playwright-version
-        run: echo "PLAYWRIGHT_VERSION=$(npx playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
+      - name: Install playwright
+        uses: ./.github/actions/install-playwright
+        with:
+          with-deps: 'false'
       - name: Run snapshot tests (@scalar/api-reference)
         run: pnpm --filter api-reference test:e2e:snapshots:ci
-        # Only when the tests failed and the PR is from the same repository
-      - if: ${{ !cancelled() }} && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
+        # Only when the PR is from the same repository
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Deploy Playwright Report to Netlify
         run: |
           pnpx netlify deploy --dir "./packages/api-reference/playwright-report" \
@@ -584,8 +558,8 @@ jobs:
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
             --filter @scalar/components \
             --alias=${{env.DEPLOY_ID}}
-        # Only when the tests failed and the PR is from the same repository
-      - if: ${{ !cancelled() }} && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
+        # Only when the PR is from the same repository
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Add Netlify Playwright Report URL to the PR
         uses: daun/playwright-report-summary@93883773b4f4f0951d8bcdb780c6443ca51eaf7b # v3
         with:
@@ -597,7 +571,7 @@ jobs:
           footer: |
             > [!IMPORTANT]
             > These tests detect visual differences between the current PR and the latest CDN build which means **they may be affected by other changes in `main` that haven't been released yet**.
-            > 
+            >
             > They can help determine if the changes in the PR are causing any unexpected visual regressions but may be less helpful in isolating the exact cause. For more details see the [readme](https://github.com/scalar/scalar/blob/main/packages/api-reference/test-snapshots/README.md).
 
   npm-publish:
@@ -930,10 +904,10 @@ jobs:
 
       - name: Compress static assets
         working-directory: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
-        run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js
+        run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js favicon.svg
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5
         with:
           dotnet-version: |
             10.x
@@ -967,7 +941,7 @@ jobs:
           path: integrations/aspire/src/Scalar.Aspire.Service/wwwroot
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5
         with:
           dotnet-version: |
             9.x
@@ -1044,11 +1018,11 @@ jobs:
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Compress static assets
         working-directory: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
-        run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js
+        run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js favicon.svg
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Setup .NET
-        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5
         with:
           dotnet-version: 10.x
 
@@ -1122,7 +1096,7 @@ jobs:
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Log in to DockerHub
-        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3
+        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -1162,7 +1136,7 @@ jobs:
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Setup .NET
-        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5
         with:
           dotnet-version: |
             9.x

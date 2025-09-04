@@ -1,0 +1,27 @@
+name: 'Install Playwright'
+description: 'Install Playwright browsers and dependencies'
+inputs:
+  with-deps:
+    description: 'Option to install Playwright dependencies'
+    required: false
+    default: 'true'
+runs:
+  using: 'composite'
+  steps:
+    - name: Get Playwright version
+      id: playwright-version
+      shell: bash
+      run: echo "PLAYWRIGHT_VERSION=$(npx playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
+    - name: Playwright binary cache
+      uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+      with:
+        path: |
+          ~/.cache/ms-playwright
+        key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.PLAYWRIGHT_VERSION }}
+    - name: Install Playwright browsers
+      shell: bash
+      run: npx playwright install
+    - name: Install Playwright dependencies
+      if: ${{ inputs.with-deps == 'true' }}
+      shell: bash
+      run: npx playwright install-deps

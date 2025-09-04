@@ -20,8 +20,8 @@ public sealed class ScalarOptions
     /// <summary>
     /// Gets or sets the path or URL to a favicon to be used for the documentation.
     /// </summary>
-    /// <value>The default value is <c>null</c>.</value>
-    public string? Favicon { get; set; }
+    /// <value>The default value is <c>favicon.svg</c>.</value>
+    public string? Favicon { get; set; } = "favicon.svg";
 
     /// <summary>
     /// Gets or sets the path prefix to access the documentation.
@@ -53,6 +53,12 @@ public sealed class ScalarOptions
     /// </summary>
     /// <value>The default value is <c>true</c>.</value>
     public bool ShowSidebar { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets whether the sidebar and search should use the operation <i>summary</i> or the operation <i>path</i>.
+    /// </summary>
+    /// <value>The default value is <i>summary</i>.</value>
+    public OperationTitleSource? OperationTitleSource { get; set; }
 
     /// <summary>
     /// Gets or sets whether models (components.schemas or definitions) should be hidden from the sidebar, search, and content.

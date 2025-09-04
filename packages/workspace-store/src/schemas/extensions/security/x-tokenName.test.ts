@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { XTokenName } from './x-tokenName'
-import { Value } from '@sinclair/typebox/value'
+import { Value } from '@scalar/typebox/value'
 
 describe('XTokenName', () => {
   it('allows string value', () => {

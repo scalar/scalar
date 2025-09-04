@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { XInternalSchema } from './x-internal'
-import { Value } from '@sinclair/typebox/value'
+import { Value } from '@scalar/typebox/value'
 
 describe('XInternalSchema', () => {
   it('allows true', () => {

@@ -1,7 +1,6 @@
-import { PartialDeep } from '@/schemas/typebox-types'
 import { WorkspaceDocumentSchema, WorkspaceMetaSchema } from '@/schemas/workspace'
 import { ConfigSchema } from '@/schemas/workspace-specification/config'
-import { Type, type Static } from '@sinclair/typebox'
+import { Type, type Static } from '@scalar/typebox'
 
 const UnknownObjectSchema = Type.Record(Type.String(), Type.Unknown())
 
@@ -11,7 +10,7 @@ export const InMemoryWorkspaceSchema = Type.Object({
   documents: Type.Record(Type.String(), WorkspaceDocumentSchema),
   originalDocuments: Type.Record(Type.String(), UnknownObjectSchema),
   intermediateDocuments: Type.Record(Type.String(), UnknownObjectSchema),
-  overrides: Type.Record(Type.String(), PartialDeep(WorkspaceDocumentSchema)),
+  overrides: Type.Record(Type.String(), Type.Any()),
   documentMeta: Type.Record(
     Type.String(),
     Type.Partial(

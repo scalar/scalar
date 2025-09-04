@@ -1,4 +1,4 @@
-import { Type } from '@sinclair/typebox'
+import { Type } from '@scalar/typebox'
 
 /**
  * An OpenAPI extension to set any additional body parameters for the OAuth token request

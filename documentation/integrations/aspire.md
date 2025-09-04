@@ -103,6 +103,15 @@ scalar.WithApiReference(userService, options =>
 {
     options.AddDocuments("public", "internal", "admin");
 });
+
+// Set a specific document as default
+scalar.WithApiReference(bookService, options =>
+{
+    options
+        .AddDocument("v1", "Book API v1")
+        .AddDocument("v2", "Book API v2", isDefault: true)
+        .AddDocument("beta", "Book API Beta", "/beta/{documentName}.json");
+});
 ```
 
 ## HTTPS Support

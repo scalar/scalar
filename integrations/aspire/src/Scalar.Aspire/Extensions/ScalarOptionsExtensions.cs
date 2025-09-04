@@ -14,15 +14,16 @@ public static class ScalarOptionsExtensions
     /// <param name="documentName">The name identifier for the OpenAPI document. This value will be used to replace the '{documentName}' placeholder in the <see cref="ScalarOptions.OpenApiRoutePattern"/>.</param>
     /// <param name="title">Optional display title for the document. If not provided, the document name will be used as the title.</param>
     /// <param name="routePattern">Optional route pattern for the OpenAPI document. If not provided, the <see cref="ScalarOptions.OpenApiRoutePattern"/> will be used. The pattern can include the '{documentName}' placeholder which will be replaced with the document name.</param>
+    /// <param name="isDefault">Indicates whether this document should be the default selection when multiple documents are available. Only one document should be marked as default.</param>
     /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
     /// <remarks>
     /// When multiple documents are added, they will be displayed as selectable options in a dropdown menu.
     /// If no documents are explicitly added, a default document named 'v1' will be used.
     /// The '{documentName}' placeholder in the route pattern will be replaced with the provided document name.
     /// </remarks>
-    public static TOptions AddDocument<TOptions>(this TOptions options, string documentName, string? title = null, string? routePattern = null) where TOptions : ScalarOptions
+    public static TOptions AddDocument<TOptions>(this TOptions options, string documentName, string? title = null, string? routePattern = null, bool isDefault = false) where TOptions : ScalarOptions
     {
-        options.Documents.Add(new ScalarDocument(documentName, title, routePattern));
+        options.Documents.Add(new ScalarDocument(documentName, title, routePattern, isDefault));
         return options;
     }
 
@@ -80,6 +81,18 @@ public static class ScalarOptionsExtensions
     public static TOptions WithSidebar<TOptions>(this TOptions options, bool showSidebar = true) where TOptions : ScalarOptions
     {
         options.ShowSidebar = showSidebar;
+        return options;
+    }
+
+    /// <summary>
+    /// Sets whether the sidebar link texts should display the method summary (<c>false</c>) or the method path (<c>true</c>).
+    /// </summary>
+    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
+    /// <param name="operationTitleSource">Whether to use the method summary or the method path in the sidebar and search.</param>
+    /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
+    public static TOptions WithOperationTitleSource<TOptions>(this TOptions options, OperationTitleSource operationTitleSource) where TOptions : ScalarOptions
+    {
+        options.OperationTitleSource = operationTitleSource;
         return options;
     }
 

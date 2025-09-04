@@ -1,6 +1,6 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import { isString, type SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 
 const MAX_LEVELS_DEEP = 5
 /** Sets the max number of properties after the third level to prevent exponential horizontal growth */
@@ -44,11 +44,7 @@ const genericExampleValues: Record<string, string> = {
 /**
  * We can use the `format` to generate some random values.
  */
-function guessFromFormat(schema: SchemaObject, makeUpRandomData: boolean = false, fallback: string = '') {
-  if (!isString(schema)) {
-    return ''
-  }
-
+function guessFromFormat(schema: OpenAPIV3_1.SchemaObject, makeUpRandomData: boolean = false, fallback: string = '') {
   if (schema.format === 'binary') {
     return new File([''], 'filename')
   }
@@ -59,7 +55,7 @@ function guessFromFormat(schema: SchemaObject, makeUpRandomData: boolean = false
 const resultCache = new WeakMap<Record<string, any>, any>()
 
 /** Store result in the cache, and return the result */
-function cache(schema: SchemaObject, result: unknown) {
+function cache(schema: OpenAPIV3_1.SchemaObject, result: unknown) {
   // Avoid unnecessary WeakMap operations for primitive values
   if (typeof result !== 'object' || result === null) {
     return result
@@ -72,12 +68,9 @@ function cache(schema: SchemaObject, result: unknown) {
 
 /**
  * This function takes an OpenAPI schema and generates an example from it
- *
- * TODO: once we fully move to the new store we should be able to type this
- * TODO: function correctly and remove the any from the schema
  */
 export const getExampleFromSchema = (
-  _schema: any,
+  _schema: OpenAPIV3_1.SchemaObject,
   options?: {
     /**
      * The fallback string for empty string values.
@@ -105,7 +98,7 @@ export const getExampleFromSchema = (
     omitEmptyAndOptionalProperties?: boolean
   },
   level: number = 0,
-  parentSchema?: SchemaObject,
+  parentSchema?: OpenAPIV3_1.SchemaObject,
   name?: string,
 ): any => {
   const schema = getResolvedRef(_schema)
@@ -193,9 +186,7 @@ export const getExampleFromSchema = (
   if (!isObjectOrArray && options?.omitEmptyAndOptionalProperties === true) {
     const isRequired =
       schema.required === true ||
-      // @ts-expect-error - I suppose old schema used to allow `required: true` remove when moving to new store
       parentSchema?.required === true ||
-      // @ts-expect-error - I suppose old schema used to allow `required: true` remove when moving to new store
       parentSchema?.required?.includes(name ?? schema.title ?? '')
 
     if (!isRequired) {
@@ -290,6 +281,13 @@ export const getExampleFromSchema = (
       )
     }
 
+    // Check if we need to wrap the result in an XML root element name
+    if (options?.xml && schema.xml?.name && level === 0) {
+      const wrappedResponse: Record<string, any> = {}
+      wrappedResponse[schema.xml.name] = response
+      return cache(schema, wrappedResponse)
+    }
+
     return cache(schema, response)
   }
 
@@ -310,9 +308,9 @@ export const getExampleFromSchema = (
         const allOf = items.allOf.filter(isDefined)
         const firstItem = getResolvedRef(allOf[0])
 
-        // If first is an object type, merge all schemas
+        // first item is an object type, merge all schemas
         if (firstItem?.type === 'object') {
-          const combined = { type: 'object', allOf } as SchemaObject
+          const combined = { type: 'object', allOf } as OpenAPIV3_1.SchemaObject
 
           const mergedExample = getExampleFromSchema(combined, options, level + 1, schema)
 
@@ -387,7 +385,7 @@ export const getExampleFromSchema = (
     let example: any = null
 
     // Loop through all `allOf` schemas
-    schema.allOf.forEach((allOfItem: any) => {
+    schema.allOf.forEach((allOfItem) => {
       // Return an example from the schema
       const newExample = getExampleFromSchema(getResolvedRef(allOfItem), options, level + 1)
 

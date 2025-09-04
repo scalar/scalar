@@ -155,25 +155,6 @@ describe('ScalarCombobox', () => {
   })
 
   describe('slot functionality', () => {
-    it('renders before and after slots', async () => {
-      const wrapper = mount(ScalarCombobox, {
-        props: { options: singleOptions },
-        slots: {
-          default: '<button>Toggle</button>',
-          before: '<div data-test="before-content">Before content</div>',
-          after: '<div data-test="after-content">After content</div>',
-        },
-      })
-
-      await wrapper.find('button').trigger('click')
-      await nextTick()
-
-      expect(wrapper.find('[data-test="before-content"]').exists()).toBe(true)
-      expect(wrapper.find('[data-test="before-content"]').text()).toBe('Before content')
-      expect(wrapper.find('[data-test="after-content"]').exists()).toBe(true)
-      expect(wrapper.find('[data-test="after-content"]').text()).toBe('After content')
-    })
-
     it('renders custom option slot with correct props', async () => {
       const wrapper = mount(ScalarCombobox, {
         props: { options: extendedOptions },
@@ -239,8 +220,6 @@ describe('ScalarCombobox', () => {
         props: { options: extendedGroups },
         slots: {
           default: '<button>Toggle</button>',
-          before: '<div data-test="before">Before content</div>',
-          after: '<div data-test="after">After content</div>',
           option: `
             <template #option="{ option }">
               <div data-test="custom-option">{{ option.label }}</div>
@@ -258,8 +237,6 @@ describe('ScalarCombobox', () => {
       await nextTick()
 
       // All slots should be present
-      expect(wrapper.find('[data-test="before"]').exists()).toBe(true)
-      expect(wrapper.find('[data-test="after"]').exists()).toBe(true)
       expect(wrapper.find('[data-test="custom-option"]').exists()).toBe(true)
       expect(wrapper.find('[data-test="custom-group"]').exists()).toBe(true)
     })
@@ -283,27 +260,96 @@ describe('ScalarCombobox', () => {
       expect(wrapper.find('[data-test="custom-option"]').exists()).toBe(false)
       expect(wrapper.find('[data-test="custom-group"]').exists()).toBe(false)
     })
+  })
 
-    it('shows/hides slots based on content availability', async () => {
+  describe('add slot', () => {
+    it('renders add slot when provided', async () => {
       const wrapper = mount(ScalarCombobox, {
-        props: { options: [] }, // Empty options
+        props: { options: singleOptions },
         slots: {
           default: '<button>Toggle</button>',
-          before: '<div data-test="before-empty">Before empty</div>',
-          after: '<div data-test="after-empty">After empty</div>',
+          add: `
+            <template #add>
+              <div data-test="add-slot">Add New</div>
+            </template>
+          `,
         },
       })
 
       await wrapper.find('button').trigger('click')
       await nextTick()
 
-      // Before/after slots should still be visible even with empty options
-      expect(wrapper.find('[data-test="before-empty"]').exists()).toBe(true)
-      expect(wrapper.find('[data-test="after-empty"]').exists()).toBe(true)
+      expect(wrapper.find('[data-test="add-slot"]').exists()).toBe(true)
 
-      // Options list should exist but have no options
-      const optionsList = wrapper.find('ul[role="listbox"]')
-      expect(optionsList.exists()).toBe(true)
+      // Click the add option
+      await wrapper.get('[data-test="add-slot"]').trigger('click')
+      expect(wrapper.emitted('add')).toBeTruthy()
+
+      // Popover should be closed after add (single-select closes on add)
+      await nextTick()
+      expect(wrapper.find('ul[role="listbox"]').exists()).toBe(false)
+    })
+
+    it('focuses add option when there are no query results', async () => {
+      const wrapper = mount(ScalarCombobox, {
+        props: { options: singleOptions },
+        slots: {
+          default: '<button>Toggle</button>',
+          add: `
+            <template #add>
+              <div data-test="add-slot">Create</div>
+            </template>
+          `,
+        },
+      })
+
+      await wrapper.find('button').trigger('click')
+      await nextTick()
+
+      const input = wrapper.find('input[type="text"]')
+      await input.setValue('not-present')
+      await nextTick()
+
+      const addEl = wrapper.find('[data-test="add-slot"]').element
+      const addLi = addEl.closest('li') as HTMLLIElement | null
+      const ariaId = input.attributes('aria-activedescendant')
+
+      expect(addLi).toBeTruthy()
+      expect(ariaId).toBe(addLi?.id)
+    })
+
+    it('includes add in arrow key navigation and Enter triggers add', async () => {
+      const wrapper = mount(ScalarCombobox, {
+        props: { options: singleOptions },
+        slots: {
+          default: '<button>Toggle</button>',
+          add: `
+            <template #add>
+              <div data-test="add-slot">Create</div>
+            </template>
+          `,
+        },
+      })
+
+      await wrapper.find('button').trigger('click')
+      await nextTick()
+
+      const input = wrapper.find('input[type="text"]')
+      await input.trigger('keydown.down')
+      await input.trigger('keydown.down')
+      await input.trigger('keydown.down')
+      await input.trigger('keydown.down')
+
+      const addEl = wrapper.find('[data-test="add-slot"]').element
+      const addLi = addEl.closest('li') as HTMLLIElement | null
+      const ariaId = input.attributes('aria-activedescendant')
+      expect(addLi).toBeTruthy()
+      expect(ariaId).toBe(addLi?.id)
+
+      await input.trigger('keydown.enter')
+      expect(wrapper.emitted('add')).toBeTruthy()
+      await nextTick()
+      expect(wrapper.find('ul[role="listbox"]').exists()).toBe(false)
     })
   })
 

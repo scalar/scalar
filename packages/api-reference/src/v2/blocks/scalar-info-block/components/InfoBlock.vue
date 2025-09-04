@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import type { ExternalDocumentationObject } from '@scalar/workspace-store/schemas/v3.1/strict/external-documentation'
-import type { InfoObject } from '@scalar/workspace-store/schemas/v3.1/strict/info'
+import type {
+  ExternalDocumentationObject,
+  InfoObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import IntroductionCard from './IntroductionCard.vue'

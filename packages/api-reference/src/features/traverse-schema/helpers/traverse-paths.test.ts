@@ -1,7 +1,7 @@
 import type { TraversedEntry, TraversedOperation } from '@/features/traverse-schema/types'
 import type { UseNavState } from '@/hooks/useNavState'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/tag'
+import type { TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 import { traversePaths } from './traverse-paths'
 

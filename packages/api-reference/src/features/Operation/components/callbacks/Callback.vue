@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { ScalarIconCaretRight } from '@scalar/icons'
-import { type OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
+import { type OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { HttpMethod } from '@/components/HttpMethod'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
@@ -43,8 +43,8 @@ const { method, name, schemas, url } = defineProps<{
     <!-- Body -->
     <div class="callback-operation-container flex flex-col gap-2">
       <OperationParameters
-        :requestBody="callback.requestBody"
         :parameters="callback.parameters"
+        :requestBody="callback.requestBody"
         :schemas="schemas" />
 
       <!-- Responses -->

@@ -24,7 +24,7 @@ internal static class ServiceCollectionExtensions
         string[] versions = ["v1", "v2"];
         foreach (var version in versions)
         {
-            services.Configure<ScalarOptions>(options => options.AddDocument(version, $"Version {version}"));
+            services.Configure<ScalarOptions>(options => options.AddDocument(version, $"Version {version}", isDefault: version == "v2"));
             services.AddOpenApi(version, options =>
             {
                 options.AddDocumentTransformer((document, _, _) =>

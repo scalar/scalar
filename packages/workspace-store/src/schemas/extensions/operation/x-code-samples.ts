@@ -1,4 +1,4 @@
-import { Type } from '@sinclair/typebox'
+import { Type } from '@scalar/typebox'
 
 export const XCodeSampleSchema = Type.Object({
   lang: Type.Optional(Type.String()),
