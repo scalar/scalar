@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 
 import { processSecuritySchemes } from './process-security-schemes'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
+import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 describe('process-security-schemes', () => {
   describe('apiKey security scheme', () => {
