@@ -279,7 +279,6 @@ function generateScalarClientEnum(clients: Array<{ target: string; client: strin
 
   return `${header}
 
-using System;
 using System.ComponentModel;
 using System.Text.Json.Serialization;
 using NetEscapades.EnumGenerators;
@@ -318,6 +317,7 @@ function generateClientOptionsMapping(targets: ImportedTarget[]): string {
 
   return `${header}
 
+#pragma warning disable CS0618 // Type or member is obsolete 
 namespace Scalar.AspNetCore;
 
 /// <summary>
