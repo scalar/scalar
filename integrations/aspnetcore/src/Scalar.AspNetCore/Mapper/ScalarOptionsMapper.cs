@@ -3,7 +3,7 @@ namespace Scalar.AspNetCore;
 internal static partial class ScalarOptionsMapper
 {
     private const string DocumentName = "{documentName}";
-    
+
     /// <summary>
     /// Mapping of targets to their available clients.
     /// This dictionary is auto-generated from TypeScript clients configuration.
