@@ -6,10 +6,10 @@ import { ref } from 'vue'
 
 const CHECK_INTERVAL = 25
 const CHECK_TIMEOUT = 500
-const FAILOVER_TIMEOUT = 5000
 
 /**
  * Freezes the scroll position of the element until all lazy loaded elements have loaded.
+ * Unfreezes immediately when the user scrolls.
  */
 export const useFreezing = () => {
   const { hash, isIntersectionEnabled } = useNavState()
@@ -45,7 +45,6 @@ export const useFreezing = () => {
 
     // We are empty! Unfreeze the page
     if (lazyIds.value.size === 0) {
-      let timeoutId: NodeJS.Timeout | undefined
       let lastCheckTime = Date.now()
 
       const checkAndResume = () => {
@@ -63,17 +62,11 @@ export const useFreezing = () => {
         }
 
         // Continue checking
-        timeoutId = setTimeout(checkAndResume, CHECK_INTERVAL)
+        setTimeout(checkAndResume, CHECK_INTERVAL)
       }
 
       // Start the checking loop
       checkAndResume()
     }
   })
-
-  // Resume scrolling after a failsafe timeout
-  // setTimeout(() => {
-  //   console.log('❌ FAILOVER', lazyIds.value.size)
-  //   resume()
-  // }, FAILOVER_TIMEOUT)
 }
