@@ -196,7 +196,7 @@ function parseTargetDefinition(
     return null
   }
 
-  const clientImportNames = RegExp(PATTERNS.CLIENT_IMPORT_NAMES).exec(clientsStr) || []
+  const clientImportNames = clientsStr.match(PATTERNS.CLIENT_IMPORT_NAMES) || []
   const targetClients: Array<{ target: string; client: string; title: string }> = []
 
   for (const importName of clientImportNames) {
