@@ -52,7 +52,6 @@ export const useFreezing = () => {
         if (lazyIds.value.size === 0) {
           // If we've been at size 0 for CHECK_TIMEOUT, resume
           if (now - lastCheckTime >= CHECK_TIMEOUT) {
-            // console.log('▶️ RESUME', lazyIds.value.size)
             resume()
             return
           }

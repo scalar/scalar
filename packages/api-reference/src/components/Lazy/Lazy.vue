@@ -60,7 +60,6 @@ if (isLazy) {
     readyToRender.value = true
 
     if (id) {
-      // console.log('✅ LOADED', id)
       nextTick(() => lazyBus.emit({ loaded: id, save }))
     }
   })
