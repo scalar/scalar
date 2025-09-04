@@ -210,9 +210,23 @@ public enum ScalarClient
     Httpie,
 
     /// <summary>
-    /// NSUrlSession client.
+    /// Use NSUrlSession instead.
     /// </summary>
     [Obsolete("Use NSUrlSession instead.")]
     [Description("nsurlsession")]
     Nsurlsession,
+
+    /// <summary>
+    /// This client is no longer supported.
+    /// </summary>
+    [Obsolete("This client is no longer supported.")]
+    [Description("http1")]
+    Http1,
+
+    /// <summary>
+    /// This client is no longer supported.
+    /// </summary>
+    [Obsolete("This client is no longer supported.")]
+    [Description("http2")]
+    Http2,
 }

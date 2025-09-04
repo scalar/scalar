@@ -49,8 +49,17 @@ const OBSOLETE_CLIENT_ENTRIES = [
   {
     name: 'Nsurlsession',
     description: 'nsurlsession',
-    replacement: 'NSUrlSession',
     reason: 'Use NSUrlSession instead.',
+  },
+  {
+    name: 'Http1',
+    description: 'http1',
+    reason: 'This client is no longer supported.',
+  },
+  {
+    name: 'Http2',
+    description: 'http2',
+    reason: 'This client is no longer supported.',
   },
 ]
 
@@ -374,7 +383,7 @@ function createObsoleteClientEntries(): string {
 
   return OBSOLETE_CLIENT_ENTRIES.map(
     (entry) => `    /// <summary>
-    /// ${entry.replacement} client.
+    /// ${entry.reason}
     /// </summary>
     [Obsolete("${entry.reason}")]
     [Description("${entry.description}")]
