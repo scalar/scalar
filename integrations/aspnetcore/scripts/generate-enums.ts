@@ -334,14 +334,12 @@ namespace Scalar.AspNetCore;
 /// </summary>
 internal static partial class ScalarOptionsMapper
 {
-    /// <summary>
-    /// Mapping of targets to their available clients.
-    /// This dictionary is auto-generated from TypeScript clients configuration.
-    /// </summary>
-    internal static readonly Dictionary<ScalarTarget, ScalarClient[]> ClientOptions = new()
+    private static readonly Dictionary<ScalarTarget, ScalarClient[]> _targetToClientsMap = new()
     {
 ${mappingEntries}
     };
+
+    internal static partial Dictionary<ScalarTarget, ScalarClient[]> AvailableClientsByTarget => _targetToClientsMap;
 }`
 }
 
@@ -350,9 +348,15 @@ function createMappingEntry(target: ImportedTarget): string {
   const clientEnums = target.clients.map((client) => `ScalarClient.${toPascalCase(client.client)}`)
 
   // Add obsolete entries for backward compatibility
-  const obsoleteClientEnums = OBSOLETE_CLIENT_ENTRIES.filter((obsolete) =>
-    target.clients.some((client) => client.client === obsolete.description),
-  ).map((obsolete) => `ScalarClient.${obsolete.name}`)
+  const obsoleteClientEnums = OBSOLETE_CLIENT_ENTRIES.filter((obsolete) => {
+    // Special case for Nsurlsession - add it to targets that have NSUrlSession
+    if (obsolete.name === 'Nsurlsession') {
+      return target.clients.some((client) => client.client === 'nsurlsession')
+    }
+
+    // For other obsolete clients, check if the target has the original client
+    return target.clients.some((client) => client.client === obsolete.description)
+  }).map((obsolete) => `ScalarClient.${obsolete.name}`)
 
   const allClientEnums = [...clientEnums, ...obsoleteClientEnums].join(', ')
 

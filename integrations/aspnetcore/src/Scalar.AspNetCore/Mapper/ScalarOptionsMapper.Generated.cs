@@ -18,11 +18,7 @@ namespace Scalar.AspNetCore;
 /// </summary>
 internal static partial class ScalarOptionsMapper
 {
-    /// <summary>
-    /// Mapping of targets to their available clients.
-    /// This dictionary is auto-generated from TypeScript clients configuration.
-    /// </summary>
-    internal static readonly Dictionary<ScalarTarget, ScalarClient[]> ClientOptions = new()
+    private static readonly Dictionary<ScalarTarget, ScalarClient[]> _targetToClientsMap = new()
     {
         { ScalarTarget.C, [ScalarClient.Libcurl] },
         { ScalarTarget.CSharp, [ScalarClient.HttpClient, ScalarClient.RestSharp] },
@@ -45,4 +41,6 @@ internal static partial class ScalarOptionsMapper
         { ScalarTarget.Shell, [ScalarClient.Curl, ScalarClient.Wget, ScalarClient.Httpie] },
         { ScalarTarget.Swift, [ScalarClient.NSUrlSession, ScalarClient.Nsurlsession] },
     };
+
+    internal static partial Dictionary<ScalarTarget, ScalarClient[]> AvailableClientsByTarget => _targetToClientsMap;
 }

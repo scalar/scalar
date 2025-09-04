@@ -3,6 +3,12 @@ namespace Scalar.AspNetCore;
 internal static partial class ScalarOptionsMapper
 {
     private const string DocumentName = "{documentName}";
+    
+    /// <summary>
+    /// Mapping of targets to their available clients.
+    /// This dictionary is auto-generated from TypeScript clients configuration.
+    /// </summary>
+    internal static partial Dictionary<ScalarTarget, ScalarClient[]> AvailableClientsByTarget { get; }
 
     internal static ScalarConfiguration ToScalarConfiguration(this ScalarOptions options)
     {
@@ -69,9 +75,9 @@ internal static partial class ScalarOptionsMapper
             return null;
         }
 
-        var hiddenClients = new Dictionary<ScalarTarget, ScalarClient[]>(ClientOptions.Count);
+        var hiddenClients = new Dictionary<ScalarTarget, ScalarClient[]>(AvailableClientsByTarget.Count);
 
-        foreach (var (scalarTarget, scalarClients) in ClientOptions)
+        foreach (var (scalarTarget, scalarClients) in AvailableClientsByTarget)
         {
             if (options.EnabledTargets.Length > 0 && !options.EnabledTargets.Contains(scalarTarget))
             {
