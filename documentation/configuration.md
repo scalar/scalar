@@ -280,6 +280,18 @@ You can use our hosted proxy:
 
 If you like to run your own, check out our [example proxy written in Go](https://github.com/scalar/scalar/tree/main/projects/proxy-scalar-com).
 
+### fetch?: fetch(input: string | URL | globalThis.Request, init?: RequestInit): Promise<Response>
+
+Custom [fetch function](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) to fetch documents with a custom logic. Can be used to add custom headers, handle auth, etc.
+
+```ts
+{
+  fetch: (input: string | URL | globalThis.Request, init?: RequestInit) => {
+    return window.fetch(input, init)
+  }
+}
+```
+
 ### plugins?: ApiReferencePlugin[]
 
 Pass an array of custom plugins that you want. [Read more about plugins here.](https://guides.scalar.com/scalar/scalar-api-references/plugins)
