@@ -1,5 +1,11 @@
 import { Type } from '@scalar/typebox'
 
+/**
+ * Reference definitions for OpenAPI 3.1 objects.
+ * These can be used with Type.Ref to create references to these objects in other schemas.
+ *
+ * Referencing them this way helps avoid circular dependencies in TypeBox schemas while keeping the overhead performance lower.
+ */
 export const REF_DEFINITIONS = {
   ComponentsObject: 'ComponentsObject',
   SecurityRequirementObject: 'SecurityRequirementObject',
@@ -30,6 +36,7 @@ export const REF_DEFINITIONS = {
   ServerVariableObject: 'ServerVariableObject',
 } as const
 
+// Type alias for schema definitions
 export const ComponentsObjectRef = Type.Ref(REF_DEFINITIONS.ComponentsObject)
 export const SecurityRequirementObjectRef = Type.Ref(REF_DEFINITIONS.SecurityRequirementObject)
 export const TagObjectRef = Type.Ref(REF_DEFINITIONS.TagObject)

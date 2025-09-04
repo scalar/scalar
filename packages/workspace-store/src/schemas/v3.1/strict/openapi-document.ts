@@ -1,4 +1,4 @@
-import { Type, type Static } from '@scalar/typebox'
+import { Type, type Static, type TSchema } from '@scalar/typebox'
 import { compose } from '@/schemas/compose'
 import { xScalarClientConfigEnvironmentsSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-environments'
 import { xScalarClientConfigCookiesSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-cookies'
@@ -63,7 +63,7 @@ const OpenApiExtensionsSchema = Type.Partial(
   }),
 )
 
-const OpenAPIDocumentSchemaDefinition = compose(
+const OpenApiDocumentSchemaDefinition = compose(
   Type.Object({
     /** REQUIRED. This string MUST be the version number of the OpenAPI Specification that the OpenAPI Document uses. The openapi field SHOULD be used by tooling to interpret the OpenAPI Document. This is not related to the API info.version string. */
     openapi: Type.String(),
@@ -123,8 +123,9 @@ const module = Type.Module({
   [REF_DEFINITIONS.DiscriminatorObject]: DiscriminatorObjectSchemaDefinition,
   [REF_DEFINITIONS.OAuthFlowsObject]: OAuthFlowsObjectSchemaDefinition,
   [REF_DEFINITIONS.ServerVariableObject]: ServerVariableObjectSchemaDefinition,
-  OpenApiDocument: OpenAPIDocumentSchemaDefinition,
-})
+  OpenApiDocument: OpenApiDocumentSchemaDefinition,
+  // Enforces that all references are included in the module
+} satisfies Record<keyof typeof REF_DEFINITIONS, TSchema> & Record<'OpenApiDocument', TSchema>)
 
 //  ----- Schemas ----
 export const OpenAPIDocumentSchema = module.Import('OpenApiDocument')

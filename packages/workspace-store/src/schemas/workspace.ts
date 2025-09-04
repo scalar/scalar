@@ -15,6 +15,7 @@ export const WorkspaceDocumentMetaSchema = Type.Partial(
 
 export type WorkspaceDocumentMeta = Static<typeof WorkspaceDocumentMetaSchema>
 
+// Note: use Type.Intersect to combine schemas here because Type.Compose does not work as expected with Modules
 export const WorkspaceDocumentSchema = Type.Intersect([WorkspaceDocumentMetaSchema, OpenAPIDocumentSchema])
 
 export type WorkspaceDocument = Static<typeof WorkspaceDocumentSchema>
