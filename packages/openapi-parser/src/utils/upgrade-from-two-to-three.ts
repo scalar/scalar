@@ -87,15 +87,35 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
     return schema
   })
 
+  if (Object.hasOwn(specification, 'parameters')) {
+    specification.components ??= {}
+
+    const params = {}
+    for (const [name, param] of Object.entries(specification.parameters ?? {})) {
+      if (param.in === 'body' || param.in === 'formData') {
+        continue
+      }
+
+      params[name] = transformParameterObject(param)
+    }
+    ;(specification.components as UnknownObject).parameters = params
+  }
+
   // Paths
   if (typeof specification.paths === 'object') {
     for (const path in specification.paths) {
       if (Object.hasOwn(specification.paths, path)) {
         const pathItem = specification.paths[path]
 
-        for (const method in pathItem) {
-          if (Object.hasOwn(pathItem, method)) {
-            const operationItem = pathItem[method]
+        for (const methodOrParameters in pathItem) {
+          if (methodOrParameters === 'parameters' && Object.hasOwn(pathItem, methodOrParameters)) {
+            pathItem.parameters = pathItem.parameters
+              .filter((parameter) => !(parameter.in === 'body' || parameter.in === 'formData'))
+              .map((parameter) => transformParameterObject(parameter))
+          }
+
+          if (Object.hasOwn(pathItem, methodOrParameters)) {
+            const operationItem = pathItem[methodOrParameters]
 
             // Request bodies
             if (operationItem.parameters) {

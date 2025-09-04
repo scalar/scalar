@@ -873,4 +873,57 @@ describe('upgradeFromTwoToThree', () => {
       },
     ])
   })
+
+  it('upgrades parameters defined globally or path wide', async () => {
+    const result = upgradeFromTwoToThree({
+      swagger: '2.0',
+      produces: ['application/json'],
+      parameters: {
+        globalHeader: {
+          description: 'a global defined header',
+          in: 'header',
+          name: 'global header',
+          required: false,
+          type: 'string',
+        },
+      },
+      paths: {
+        '/planets/{planetId}': {
+          parameters: [
+            {
+              description: 'planet id',
+              in: 'path',
+              name: 'planetId',
+              required: true,
+              type: 'number',
+            },
+          ],
+        },
+      },
+    })
+
+    expect(result.paths['/planets/{planetId}'].parameters).toStrictEqual([
+      {
+        description: 'planet id',
+        in: 'path',
+        name: 'planetId',
+        required: true,
+        schema: {
+          type: 'number',
+        },
+      },
+    ])
+    // @ts-ignore
+    expect(result.components.parameters).toMatchObject({
+      globalHeader: {
+        description: 'a global defined header',
+        in: 'header',
+        name: 'global header',
+        required: false,
+        schema: {
+          type: 'string',
+        },
+      },
+    })
+  })
 })
