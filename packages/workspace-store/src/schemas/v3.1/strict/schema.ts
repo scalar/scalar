@@ -3,6 +3,7 @@ import { XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-igno
 import { XInternalSchema } from '@/schemas/extensions/document/x-internal'
 import { XVariableSchema } from '@/schemas/extensions/schema/x-variable'
 import { XAdditionalPropertiesNameSchema } from '@/schemas/extensions/schema/x-additional-properties-name'
+import { XTags } from '@/schemas/extensions/document/x-tags'
 import { compose } from '@/schemas/compose'
 import { reference } from '@/schemas/v3.1/strict/reference'
 import {
@@ -191,9 +192,6 @@ const CorePropertiesWithSchema = Type.Object({
    * Each example should be a valid instance of the schema.
    */
   examples: Type.Optional(Type.Array(Type.Unknown())),
-
-  // OpenAPI Extensions
-  'x-tags': Type.Optional(Type.Array(Type.String())),
 })
 
 const ArrayValidationPropertiesWithSchema = Type.Object({
@@ -240,4 +238,5 @@ export const SchemaObjectSchemaDefinition = Type.Intersect([
   XInternalSchema,
   XVariableSchema,
   XAdditionalPropertiesNameSchema,
+  XTags,
 ])
