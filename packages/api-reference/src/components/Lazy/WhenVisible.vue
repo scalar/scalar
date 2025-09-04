@@ -1,16 +1,51 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 
 const isVisible = ref(false)
+const placeholderRef = ref<HTMLDivElement>()
+
+let observer: IntersectionObserver | undefined
+
+onMounted(() => {
+  // Create intersection observer to detect when placeholder enters viewport
+  observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          isVisible.value = true
+          // Disconnect observer once content is visible
+          observer?.disconnect()
+        }
+      })
+    },
+    {
+      // Trigger when placeholder is 10% visible
+      threshold: 0.1,
+      // Start observing before the element enters viewport
+      rootMargin: '300px',
+    },
+  )
+
+  // Start observing the placeholder element
+  if (placeholderRef.value) {
+    observer.observe(placeholderRef.value)
+  }
+})
+
+onUnmounted(() => {
+  // Clean up observer when component is destroyed
+  if (observer) {
+    observer.disconnect()
+  }
+})
 </script>
+
 <template>
-  <input
-    v-model="isVisible"
-    type="checkbox" />
   <slot v-if="isVisible"></slot>
-  <template v-else>
-    <div class="placeholder"></div>
-  </template>
+  <div
+    v-else
+    ref="placeholderRef"
+    class="placeholder"></div>
 </template>
 
 <style scoped>
