@@ -59,9 +59,6 @@ function guessFromFormat(schema: SchemaObject, makeUpRandomData: boolean = false
 /** Map of all the results */
 const resultCache = new WeakMap<Record<string, any>, any>()
 
-/** Set to track schemas being processed to detect circular references */
-const processingSchemas = new WeakSet<Record<string, any>>()
-
 /** Store result in the cache, and return the result */
 function cache(schema: SchemaObject, result: unknown) {
   // Avoid unnecessary WeakMap operations for primitive values
@@ -120,18 +117,10 @@ export const getExampleFromSchema = (
     return resultCache.get(schema)
   }
 
-  // Fast circular reference detection using WeakSet, but only after some depth
-  if (processingSchemas.has(schema)) {
-    return '[Circular Reference]'
-  }
-
   // Check depth limit
   if (level > MAX_LEVELS_DEEP) {
     return '[Max Depth Exceeded]'
   }
-
-  // Add to processing set
-  processingSchemas.add(schema)
 
   // Sometimes, we just want the structure and no values.
   // But if `emptyString` is  set, we do want to see some values.
@@ -140,13 +129,11 @@ export const getExampleFromSchema = (
   // Early exits for simple cases
   // If the property is deprecated anyway, we don't want to show it.
   if (schema.deprecated) {
-    processingSchemas.delete(schema)
     return undefined
   }
 
   // Check if the property is read-only/write-only
   if ((options?.mode === 'write' && schema.readOnly) || (options?.mode === 'read' && schema.writeOnly)) {
-    processingSchemas.delete(schema)
     return undefined
   }
 
@@ -156,10 +143,10 @@ export const getExampleFromSchema = (
 
     // Return the value if it's defined
     if (value !== undefined) {
-      processingSchemas.delete(schema)
       // Type-casting
       if (schema.type === 'number' || schema.type === 'integer') {
-        return Number.parseInt(value, 10)
+        const numValue = Number.parseInt(value, 10)
+        return cache(schema, numValue)
       }
 
       return cache(schema, value)
@@ -168,31 +155,26 @@ export const getExampleFromSchema = (
 
   // Use the first example, if there's an array
   if (Array.isArray(schema.examples) && schema.examples.length > 0) {
-    processingSchemas.delete(schema)
     return cache(schema, schema.examples[0])
   }
 
   // Use an example, if there's one
   if (schema.example !== undefined) {
-    processingSchemas.delete(schema)
     return cache(schema, schema.example)
   }
 
   // Use a default value, if there's one
   if (schema.default !== undefined) {
-    processingSchemas.delete(schema)
     return cache(schema, schema.default)
   }
 
   // Use a const value, if there's one
   if (schema.const !== undefined) {
-    processingSchemas.delete(schema)
     return cache(schema, schema.const)
   }
 
   // enum: [ 'available', 'pending', 'sold' ]
   if (Array.isArray(schema.enum) && schema.enum.length > 0) {
-    processingSchemas.delete(schema)
     return cache(schema, schema.enum[0])
   }
 
@@ -300,9 +282,6 @@ export const getExampleFromSchema = (
       )
     }
 
-    // Clean up processing set before returning
-    processingSchemas.delete(schema)
-
     // Check if we need to wrap the result in an XML root element name
     if (options?.xml && schema.xml?.name && level === 0) {
       const wrappedResponse: Record<string, any> = {}
@@ -320,7 +299,6 @@ export const getExampleFromSchema = (
     const wrapItems = !!(options?.xml && schema.xml?.wrapped && itemsXmlTagName)
 
     if (schema.example !== undefined) {
-      processingSchemas.delete(schema)
       return cache(schema, wrapItems ? { [itemsXmlTagName]: schema.example } : schema.example)
     }
 
@@ -336,7 +314,6 @@ export const getExampleFromSchema = (
           const combined = { type: 'object', allOf } as SchemaObject
 
           const mergedExample = getExampleFromSchema(combined, options, level + 1, schema)
-          processingSchemas.delete(schema)
           return cache(schema, wrapItems ? [{ [itemsXmlTagName]: mergedExample }] : [mergedExample])
         }
         // For non-objects (like strings), collect all examples
@@ -344,7 +321,6 @@ export const getExampleFromSchema = (
           .map((item) => getExampleFromSchema(getResolvedRef(item), options, level + 1, schema))
           .filter(isDefined)
 
-        processingSchemas.delete(schema)
         return cache(schema, wrapItems ? examples.map((example: any) => ({ [itemsXmlTagName]: example })) : examples)
       }
 
@@ -356,7 +332,6 @@ export const getExampleFromSchema = (
           if (firstItem) {
             const exampleFromRule = getExampleFromSchema(getResolvedRef(firstItem), options, level + 1, schema)
 
-            processingSchemas.delete(schema)
             return cache(schema, wrapItems ? [{ [itemsXmlTagName]: exampleFromRule }] : [exampleFromRule])
           }
         }
@@ -370,11 +345,9 @@ export const getExampleFromSchema = (
 
     if (items?.type || isObject || isArray) {
       const exampleFromSchema = getExampleFromSchema(items, options, level + 1)
-      processingSchemas.delete(schema)
       return cache(schema, wrapItems ? [{ [itemsXmlTagName]: exampleFromSchema }] : [exampleFromSchema])
     }
 
-    processingSchemas.delete(schema)
     return cache(schema, [])
   }
 
@@ -386,7 +359,6 @@ export const getExampleFromSchema = (
     array: [],
   }
   if (schema.type && !Array.isArray(schema.type) && exampleValues[schema.type] !== undefined) {
-    processingSchemas.delete(schema)
     return cache(schema, exampleValues[schema.type])
   }
 
@@ -399,12 +371,10 @@ export const getExampleFromSchema = (
     if (firstNonNullItem) {
       // Return an example for the first non-null item
       const result = getExampleFromSchema(firstNonNullItem, options, level + 1)
-      processingSchemas.delete(schema)
-      return result
+      return cache(schema, result)
     }
 
     // If all items are null, return null
-    processingSchemas.delete(schema)
     return null
   }
 
@@ -429,13 +399,11 @@ export const getExampleFromSchema = (
             : newExample
     })
 
-    processingSchemas.delete(schema)
     return cache(schema, example)
   }
 
   // Check if schema is a union type
   if (Array.isArray(schema.type)) {
-    processingSchemas.delete(schema)
     // Return null if the type is nullable
     if (schema.type.includes('null')) {
       return null
@@ -446,9 +414,6 @@ export const getExampleFromSchema = (
       return cache(schema, exampleValue)
     }
   }
-
-  // Clean up processing set before final return
-  processingSchemas.delete(schema)
 
   // Warn if the type is unknown …
   // console.warn(`[getExampleFromSchema] Unknown property type "${schema.type}".`)
