@@ -31,6 +31,7 @@ const CUSTOM_PASCAL_CASE_MAPPINGS: Record<string, string> = {
   'reqwest': 'Reqwest',
 
   // Targets - Professional naming for languages/platforms
+  'js': 'JavaScript',
   'csharp': 'CSharp',
   'objc': 'ObjC',
   'ocaml': 'OCaml',
