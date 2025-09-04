@@ -38,6 +38,8 @@ export const freezeAtTop = (id: string) => {
 
   // Return function to stop maintaining position
   return () => {
+    console.trace('▶️ UNFREEZING')
+
     if (rafId !== null) {
       cancelAnimationFrame(rafId)
     }
