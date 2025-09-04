@@ -1507,14 +1507,24 @@ describe('getExampleFromSchema', () => {
       // Create a circular reference
       schema.properties!.foobar = schema
 
-      // 10 levels deep, that's enough. It should return null then.
+      // 10 levels deep, that's enough. It should hit the max depth limit and return '[Max Depth Exceeded]'
       expect(getExampleFromSchema(schema)).toStrictEqual({
         foobar: {
           foobar: {
             foobar: {
               foobar: {
                 foobar: {
-                  foobar: '[Circular Reference]',
+                  foobar: {
+                    foobar: {
+                      foobar: {
+                        foobar: {
+                          foobar: {
+                            foobar: '[Max Depth Exceeded]',
+                          },
+                        },
+                      },
+                    },
+                  },
                 },
               },
             },
