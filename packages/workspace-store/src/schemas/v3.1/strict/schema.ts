@@ -241,23 +241,3 @@ export const SchemaObjectSchemaDefinition = Type.Intersect([
   XVariableSchema,
   XAdditionalPropertiesNameSchema,
 ])
-
-// export const isNumber = <T extends SchemaObject>(schema: T): schema is Extract<T, { type: 'number' | 'integer' }> => {
-//   return 'type' in schema && schema.type === 'number'
-// }
-
-// export const isString = <T extends SchemaObject>(schema: T): schema is Extract<T, { type: 'string' }> => {
-//   return 'type' in schema && schema.type === 'string'
-// }
-
-// export const isObject = <T extends SchemaObject>(schema: T): schema is Extract<T, { type: 'object' }> => {
-//   return 'type' in schema && schema.type === 'object'
-// }
-
-// export const isArray = <T extends SchemaObject>(schema: T): schema is Extract<T, { type: 'array' }> => {
-//   return 'type' in schema && schema.type === 'array'
-// }
-
-// export const isComposition = <T extends SchemaObject>(schema: T): schema is Extract<T, { _: string }> => {
-//   return 'allOf' in schema || 'oneOf' in schema || 'anyOf' in schema || 'not' in schema
-// }
