@@ -1,5 +1,4 @@
-import type { ComponentsObject } from '@/schemas/v3.1/strict/components'
-import type { SecuritySchemeObject } from '@/schemas/v3.1/strict/security-scheme'
+import type { ComponentsObject, SecuritySchemeObject } from '@/schemas/v3.1/strict/openapi-document'
 
 /**
  * Mutator utilities for managing security schemes in an OpenAPI document.

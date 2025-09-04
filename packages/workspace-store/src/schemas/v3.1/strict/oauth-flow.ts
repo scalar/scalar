@@ -53,14 +53,13 @@ export const OAuthFlowAuthorizationCodeSchema = compose(
 )
 
 /** Union of all OAuth flow schemas */
-export const OAuthFlowObjectSchema = Type.Union([
+export const OAuthFlowObjectSchemaDefinition = Type.Union([
   OAuthFlowImplicitSchema,
   OAuthFlowPasswordSchema,
   OAuthFlowClientCredentialsSchema,
   OAuthFlowAuthorizationCodeSchema,
 ])
 
-export type OAuthFlowObject = Static<typeof OAuthFlowObjectSchema>
 export type OAuthFlowImplicit = Static<typeof OAuthFlowImplicitSchema>
 export type OAuthFlowPassword = Static<typeof OAuthFlowPasswordSchema>
 export type OAuthFlowClientCredentials = Static<typeof OAuthFlowClientCredentialsSchema>

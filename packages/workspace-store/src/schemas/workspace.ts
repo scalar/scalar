@@ -1,11 +1,9 @@
 import { type Static, Type } from '@scalar/typebox'
-import { OpenAPIDocumentSchema } from './v3.1/strict/openapi-document'
+import { OpenAPIDocumentSchema, SecuritySchemeObjectSchema, ServerObjectSchema } from './v3.1/strict/openapi-document'
 import { extensions } from '@/schemas/extensions'
 import { compose } from '@/schemas/compose'
 import { xScalarClientConfigEnvironmentsSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-environments'
 import { xScalarClientConfigCookiesSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-cookies'
-import { ServerObjectSchema } from '@/schemas/v3.1/strict/server'
-import { SecuritySchemeObjectSchema } from '@/schemas/v3.1/strict/security-scheme'
 import { AVAILABLE_CLIENTS } from '@scalar/types/snippetz'
 
 export const WorkspaceDocumentMetaSchema = Type.Partial(
@@ -17,7 +15,8 @@ export const WorkspaceDocumentMetaSchema = Type.Partial(
 
 export type WorkspaceDocumentMeta = Static<typeof WorkspaceDocumentMetaSchema>
 
-export const WorkspaceDocumentSchema = compose(WorkspaceDocumentMetaSchema, OpenAPIDocumentSchema)
+// Note: use Type.Intersect to combine schemas here because Type.Compose does not work as expected with Modules
+export const WorkspaceDocumentSchema = Type.Intersect([WorkspaceDocumentMetaSchema, OpenAPIDocumentSchema])
 
 export type WorkspaceDocument = Static<typeof WorkspaceDocumentSchema>
 

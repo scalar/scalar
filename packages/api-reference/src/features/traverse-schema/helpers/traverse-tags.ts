@@ -4,7 +4,7 @@ import type { TagGroup } from '@scalar/types/legacy'
 
 import type { TagsMap, TraversedEntry, TraversedTag } from '@/features/traverse-schema/types'
 import type { UseNavState } from '@/hooks/useNavState'
-import type { TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/tag'
+import type { TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { getTag } from './get-tag'
 
 type Options = Pick<UseNavState, 'getTagId'> & Pick<ApiReferenceConfiguration, 'tagsSorter' | 'operationsSorter'>

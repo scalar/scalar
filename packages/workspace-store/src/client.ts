@@ -86,7 +86,7 @@ type WorkspaceDocumentMetaInput = {
   /** Optional configuration options */
   config?: DocumentConfiguration
   /** Overrides for the document */
-  overrides?: InMemoryWorkspace['overrides'][string]
+  overrides?: PartialDeep<OpenApiDocument>
   /** Optional custom fetch implementation to use when retrieving the document. By default the global fetch implementation will be used */
   fetch?: (input: string | URL | globalThis.Request, init?: RequestInit) => Promise<Response>
 }

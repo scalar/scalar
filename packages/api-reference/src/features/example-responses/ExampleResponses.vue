@@ -13,9 +13,11 @@ import {
 } from '@scalar/oas-utils/helpers'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/example'
-import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/media-header-encoding'
-import type { ResponsesObject } from '@scalar/workspace-store/schemas/v3.1/strict/responses'
+import type {
+  ExampleObject,
+  MediaTypeObject,
+  ResponsesObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref, toValue, useId } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
@@ -122,8 +124,8 @@ const showSchema = ref(false)
   <ScalarCard
     v-if="orderedStatusCodes.length"
     aria-label="Example Responses"
-    role="region"
-    class="response-card">
+    class="response-card"
+    role="region">
     <ExampleResponseTabList @change="changeTab">
       <ExampleResponseTab
         v-for="statusCode in orderedStatusCodes"
@@ -169,8 +171,8 @@ const showSchema = ref(false)
       <ExampleResponse
         v-else
         :id="id"
-        :response="currentResponseContent"
-        :example="currentExample" />
+        :example="currentExample"
+        :response="currentResponseContent" />
     </ScalarCardSection>
     <ScalarCardFooter
       v-if="currentResponse?.description || hasMultipleExamples"
@@ -184,9 +186,9 @@ const showSchema = ref(false)
       </div>
       <ExamplePicker
         v-if="hasMultipleExamples"
+        v-model="selectedExampleKey"
         class="response-example-selector"
-        :examples="currentResponseContent?.examples"
-        v-model="selectedExampleKey" />
+        :examples="currentResponseContent?.examples" />
     </ScalarCardFooter>
   </ScalarCard>
 </template>

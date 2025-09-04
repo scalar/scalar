@@ -1,16 +1,17 @@
-import { Type, type Static, type TAny, type TIntersect, type TObject } from '@scalar/typebox'
+import { Type, type TAny, type TIntersect, type TObject } from '@scalar/typebox'
 
-import { DiscriminatorObjectSchema } from './discriminator'
-import { XMLObjectSchema } from './xml'
-import { ExternalDocumentationObjectSchema } from './external-documentation'
 import { compose } from '@/schemas/compose'
 import { XInternalSchema } from '@/schemas/extensions/document/x-internal'
 import { XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
 import { reference } from '@/schemas/v3.1/strict/reference'
 import { XVariableSchema } from '@/schemas/extensions/schema/x-variable'
 import { XAdditionalPropertiesNameSchema } from '@/schemas/extensions/schema/x-additional-properties-name'
-
-const schemaRef = Type.Ref('Schema')
+import {
+  DiscriminatorObjectRef,
+  ExternalDocumentationObjectRef,
+  SchemaObjectRef,
+  XMLObjectRef,
+} from '@/schemas/v3.1/strict/ref-definitions'
 
 const SchemaBase = compose(
   Type.Object({
@@ -113,13 +114,13 @@ const SchemaBase = compose(
 
     // Composition
     /** All schemas must be valid. */
-    allOf: Type.Optional(Type.Array(Type.Union([schemaRef, reference(schemaRef)]))),
+    allOf: Type.Optional(Type.Array(Type.Union([SchemaObjectRef, reference(SchemaObjectRef)]))),
     /** Exactly one schema must be valid. */
-    oneOf: Type.Optional(Type.Array(Type.Union([schemaRef, reference(schemaRef)]))),
+    oneOf: Type.Optional(Type.Array(Type.Union([SchemaObjectRef, reference(SchemaObjectRef)]))),
     /** At least one schema must be valid. */
-    anyOf: Type.Optional(Type.Array(Type.Union([schemaRef, reference(schemaRef)]))),
+    anyOf: Type.Optional(Type.Array(Type.Union([SchemaObjectRef, reference(SchemaObjectRef)]))),
     /** Schema must not be valid. */
-    not: Type.Optional(Type.Union([schemaRef, reference(schemaRef)])),
+    not: Type.Optional(Type.Union([SchemaObjectRef, reference(SchemaObjectRef)])),
 
     // OpenAPI 3.0
     /**
@@ -136,19 +137,19 @@ const SchemaBase = compose(
     /** Content encoding. */
     contentEncoding: Type.Optional(Type.String()),
     /** Schema for content validation. */
-    contentSchema: Type.Optional(Type.Union([schemaRef, reference(schemaRef)])),
+    contentSchema: Type.Optional(Type.Union([SchemaObjectRef, reference(SchemaObjectRef)])),
     /** Whether the schema is deprecated. */
     deprecated: Type.Optional(Type.Boolean()),
     /** Adds support for polymorphism. The discriminator is used to determine which of a set of schemas a payload is expected to satisfy. See Composition and Inheritance for more details. */
-    discriminator: Type.Optional(DiscriminatorObjectSchema),
+    discriminator: Type.Optional(DiscriminatorObjectRef),
     /** Whether the schema is read-only. */
     readOnly: Type.Optional(Type.Boolean()),
     /** Whether the schema is write-only. */
     writeOnly: Type.Optional(Type.Boolean()),
     /** This MAY be used only on property schemas. It has no effect on root schemas. Adds additional metadata to describe the XML representation of this property. */
-    xml: Type.Optional(XMLObjectSchema),
+    xml: Type.Optional(XMLObjectRef),
     /** Additional external documentation for this schema. */
-    externalDocs: Type.Optional(ExternalDocumentationObjectSchema),
+    externalDocs: Type.Optional(ExternalDocumentationObjectRef),
     /**
      * A free-form field to include an example of an instance for this schema. To represent examples that cannot be naturally represented in JSON or YAML, a string value can be used to contain the example with escaping where necessary.
      *
@@ -172,9 +173,9 @@ const SchemaBase = compose(
     /** Whether array items must be unique. */
     uniqueItems: Type.Optional(Type.Boolean()),
     /** Schema for array items. */
-    items: Type.Optional(Type.Union([schemaRef, reference(schemaRef)])),
+    items: Type.Optional(Type.Union([SchemaObjectRef, reference(SchemaObjectRef)])),
     /** Schema for tuple validation. */
-    prefixItems: Type.Optional(Type.Array(Type.Union([schemaRef, reference(schemaRef)]))),
+    prefixItems: Type.Optional(Type.Array(Type.Union([SchemaObjectRef, reference(SchemaObjectRef)]))),
 
     // Object
     /** Maximum number of properties. */
@@ -184,11 +185,15 @@ const SchemaBase = compose(
     /** Array of required property names. */
     required: Type.Optional(Type.Array(Type.String())),
     /** Object property definitions. */
-    properties: Type.Optional(Type.Record(Type.String(), Type.Union([schemaRef, reference(schemaRef)]))),
+    properties: Type.Optional(Type.Record(Type.String(), Type.Union([SchemaObjectRef, reference(SchemaObjectRef)]))),
     /** Schema for additional properties. */
-    additionalProperties: Type.Optional(Type.Union([Type.Boolean(), Type.Union([schemaRef, reference(schemaRef)])])),
+    additionalProperties: Type.Optional(
+      Type.Union([Type.Boolean(), Type.Union([SchemaObjectRef, reference(SchemaObjectRef)])]),
+    ),
     /** Properties matching regex patterns. */
-    patternProperties: Type.Optional(Type.Record(Type.String(), Type.Union([schemaRef, reference(schemaRef)]))),
+    patternProperties: Type.Optional(
+      Type.Record(Type.String(), Type.Union([SchemaObjectRef, reference(SchemaObjectRef)])),
+    ),
 
     // String
     /** Maximum string length. */
@@ -220,7 +225,7 @@ const SchemaBase = compose(
  * _resolvedRefSchema is required due to everything being optional on the schema so ANY object is a valid schema.
  * With this helper we add a phantom property which will exist everywhere the object has been parsed against the schema.
  */
-const Schema = SchemaBase as unknown as TIntersect<
+export const SchemaObjectSchemaDefinition = SchemaBase as unknown as TIntersect<
   [
     typeof SchemaBase,
     typeof XScalarIgnoreSchema,
@@ -230,11 +235,3 @@ const Schema = SchemaBase as unknown as TIntersect<
     TObject<{ _resolvedRefSchema: TAny }>,
   ]
 >
-
-export const Module = Type.Module({
-  Schema,
-})
-
-export const SchemaObjectSchema = Module.Import('Schema')
-
-export type SchemaObject = Static<typeof SchemaObjectSchema>

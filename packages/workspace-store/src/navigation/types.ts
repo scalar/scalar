@@ -1,7 +1,5 @@
 import type { TraversedEntry } from '@/schemas/navigation'
-import type { OperationObject } from '@/schemas/v3.1/strict/path-operations'
-import type { TagObject } from '@/schemas/v3.1/strict/tag'
-
+import type { OperationObject, TagObject } from '@/schemas/v3.1/strict/openapi-document'
 /** Map of tagNames and their entries */
 export type TagsMap = Map<string, { tag: TagObject; entries: TraversedEntry[] }>
 

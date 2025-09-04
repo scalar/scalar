@@ -4,9 +4,7 @@ import { Type } from '@scalar/typebox'
 import { describe, expect, it } from 'vitest'
 import { Storage } from '@google-cloud/storage'
 import { Value } from '@scalar/typebox/value'
-import { OpenAPIDocumentSchema } from '@/schemas/v3.1/strict/openapi-document'
-import { SecuritySchemeObjectSchema } from '@/schemas/v3.1/strict/security-scheme'
-import { ReferenceObjectSchema } from '@/schemas/v3.1/strict/reference'
+import { ComponentsObjectSchema, OpenAPIDocumentSchema } from '@/schemas/v3.1/strict/openapi-document'
 
 const storage = new Storage()
 const bucket = storage.bucket('scalar-test-fixtures')
@@ -154,84 +152,92 @@ describe('should correctly cast/default values to make the input schema complian
 
   it('should correctly handle union types', () => {
     const input = {
-      'type': 'oauth2',
-      'description': 'OAuth 2.0 authentication',
-      'flows': {
-        'authorizationCode': {
-          'authorizationUrl': 'https://galaxy.scalar.com/oauth/authorize',
-          'scopes': {
-            'read:account': 'read your account information',
-            'write:planets': 'modify planets in your account',
-            'read:planets': 'read your planets',
-          },
-        },
-        'clientCredentials': {
-          'tokenUrl': 'https://galaxy.scalar.com/oauth/token',
-          'scopes': {
-            'read:account': 'read your account information',
-            'write:planets': 'modify planets in your account',
-            'read:planets': 'read your planets',
-          },
-        },
-        'implicit': {
-          'authorizationUrl': 'https://galaxy.scalar.com/oauth/authorize',
-          'scopes': {
-            'read:account': 'read your account information',
-            'write:planets': 'modify planets in your account',
-            'read:planets': 'read your planets',
-          },
-        },
-        'password': {
-          'tokenUrl': 'https://galaxy.scalar.com/oauth/token',
-          'scopes': {
-            'read:account': 'read your account information',
-            'write:planets': 'modify planets in your account',
-            'read:planets': 'read your planets',
+      securitySchemes: {
+        someName: {
+          'type': 'oauth2',
+          'description': 'OAuth 2.0 authentication',
+          'flows': {
+            'authorizationCode': {
+              'authorizationUrl': 'https://galaxy.scalar.com/oauth/authorize',
+              'scopes': {
+                'read:account': 'read your account information',
+                'write:planets': 'modify planets in your account',
+                'read:planets': 'read your planets',
+              },
+            },
+            'clientCredentials': {
+              'tokenUrl': 'https://galaxy.scalar.com/oauth/token',
+              'scopes': {
+                'read:account': 'read your account information',
+                'write:planets': 'modify planets in your account',
+                'read:planets': 'read your planets',
+              },
+            },
+            'implicit': {
+              'authorizationUrl': 'https://galaxy.scalar.com/oauth/authorize',
+              'scopes': {
+                'read:account': 'read your account information',
+                'write:planets': 'modify planets in your account',
+                'read:planets': 'read your planets',
+              },
+            },
+            'password': {
+              'tokenUrl': 'https://galaxy.scalar.com/oauth/token',
+              'scopes': {
+                'read:account': 'read your account information',
+                'write:planets': 'modify planets in your account',
+                'read:planets': 'read your planets',
+              },
+            },
           },
         },
       },
     }
 
-    const result = coerceValue(Type.Union([SecuritySchemeObjectSchema, ReferenceObjectSchema]), input)
+    const result = coerceValue(ComponentsObjectSchema, input)
 
     expect(result).toEqual({
-      'description': 'OAuth 2.0 authentication',
-      'flows': {
-        'authorizationCode': {
-          'authorizationUrl': 'https://galaxy.scalar.com/oauth/authorize',
-          'scopes': {
-            'read:account': 'read your account information',
-            'read:planets': 'read your planets',
-            'write:planets': 'modify planets in your account',
+      securitySchemes: {
+        someName: {
+          'type': 'oauth2',
+          'description': 'OAuth 2.0 authentication',
+          'flows': {
+            'authorizationCode': {
+              'authorizationUrl': 'https://galaxy.scalar.com/oauth/authorize',
+              'scopes': {
+                'read:account': 'read your account information',
+                'read:planets': 'read your planets',
+                'write:planets': 'modify planets in your account',
+              },
+              'tokenUrl': '',
+            },
+            'clientCredentials': {
+              'scopes': {
+                'read:account': 'read your account information',
+                'read:planets': 'read your planets',
+                'write:planets': 'modify planets in your account',
+              },
+              'tokenUrl': 'https://galaxy.scalar.com/oauth/token',
+            },
+            'implicit': {
+              'authorizationUrl': 'https://galaxy.scalar.com/oauth/authorize',
+              'scopes': {
+                'read:account': 'read your account information',
+                'read:planets': 'read your planets',
+                'write:planets': 'modify planets in your account',
+              },
+            },
+            'password': {
+              'scopes': {
+                'read:account': 'read your account information',
+                'read:planets': 'read your planets',
+                'write:planets': 'modify planets in your account',
+              },
+              'tokenUrl': 'https://galaxy.scalar.com/oauth/token',
+            },
           },
-          'tokenUrl': '',
-        },
-        'clientCredentials': {
-          'scopes': {
-            'read:account': 'read your account information',
-            'read:planets': 'read your planets',
-            'write:planets': 'modify planets in your account',
-          },
-          'tokenUrl': 'https://galaxy.scalar.com/oauth/token',
-        },
-        'implicit': {
-          'authorizationUrl': 'https://galaxy.scalar.com/oauth/authorize',
-          'scopes': {
-            'read:account': 'read your account information',
-            'read:planets': 'read your planets',
-            'write:planets': 'modify planets in your account',
-          },
-        },
-        'password': {
-          'scopes': {
-            'read:account': 'read your account information',
-            'read:planets': 'read your planets',
-            'write:planets': 'modify planets in your account',
-          },
-          'tokenUrl': 'https://galaxy.scalar.com/oauth/token',
         },
       },
-      'type': 'oauth2',
     })
   })
 

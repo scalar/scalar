@@ -3,8 +3,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { TraversedEntry, TraversedOperation } from '@/features/traverse-schema/types'
 import type { UseNavState } from '@/hooks/useNavState'
 import { httpMethods } from '@scalar/helpers/http/http-methods'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
-import type { TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/tag'
+import type { OperationObject, TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { getTag } from './get-tag'
 
 const createOperationEntry = (

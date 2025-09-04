@@ -21,15 +21,14 @@ export default {}
 import { ServerVariablesForm } from '@scalar/api-client/components/Server'
 import { ScalarMarkdown } from '@scalar/components'
 import { emitCustomEvent } from '@scalar/workspace-store/events'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { templateRef } from '@vueuse/core'
 import { computed, nextTick, useId, watch } from 'vue'
 
 import Selector from './Selector.vue'
 
-const id = useId()
 const { servers, xSelectedServer } = defineProps<SelectorProps>()
-
+const id = useId()
 const updateServer = (newServer: string) => {
   emitCustomEvent(containerRef.value, 'scalar-update-selected-server', {
     value: newServer,
@@ -82,8 +81,8 @@ const containerRef = templateRef('containerRef')
     Server
   </label>
   <div
-    ref="containerRef"
     :id="id"
+    ref="containerRef"
     class="border"
     :class="{
       'rounded-b-lg': !server?.description && !server?.variables,
@@ -91,13 +90,13 @@ const containerRef = templateRef('containerRef')
     <Selector
       v-if="servers.length"
       :servers="servers"
-      :xSelectedServer="xSelectedServer"
       :target="id"
+      :xSelectedServer="xSelectedServer"
       @update:modelValue="updateServer" />
   </div>
   <ServerVariablesForm
-    :variables="server?.variables"
     layout="reference"
+    :variables="server?.variables"
     @update:variable="updateServerVariable" />
 
   <!-- Description -->

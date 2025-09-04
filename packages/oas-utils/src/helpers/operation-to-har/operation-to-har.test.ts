@@ -1,9 +1,11 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
+import type {
+  SecuritySchemeObject,
+  ServerObject,
+  OperationObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 import { operationToHar } from './operation-to-har'
 

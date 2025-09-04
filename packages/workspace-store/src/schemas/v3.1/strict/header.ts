@@ -1,7 +1,6 @@
 import { compose } from '@/schemas/compose'
-import { ExampleObjectSchema } from '@/schemas/v3.1/strict/example'
+import { ExampleObjectRef, MediaTypeObjectRef, SchemaObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 import { reference } from '@/schemas/v3.1/strict/reference'
-import { SchemaObjectSchema } from '@/schemas/v3.1/strict/schema'
 import { Type } from '@scalar/typebox'
 
 export const HeaderObjectSchemaBase = Type.Object({
@@ -21,13 +20,11 @@ export const HeaderObjectWithSchemaSchema = compose(
     /** When this is true, header values of type array or object generate a single header whose value is a comma-separated list of the array items or key-value pairs of the map, see Style Examples. For other data types this field has no effect. The default value is false. */
     explode: Type.Optional(Type.Boolean()),
     /** The schema defining the type used for the header. */
-    schema: Type.Optional(Type.Union([SchemaObjectSchema, reference(SchemaObjectSchema)])),
+    schema: Type.Optional(Type.Union([SchemaObjectRef, reference(SchemaObjectRef)])),
     /** Example of the header's potential value; see Working With Examples. https://swagger.io/specification/#working-with-examples */
     example: Type.Optional(Type.Any()),
     /** Examples of the header's potential value; see Working With Examples. https://swagger.io/specification/#working-with-examples */
-    examples: Type.Optional(
-      Type.Record(Type.String(), Type.Union([ExampleObjectSchema, reference(ExampleObjectSchema)])),
-    ),
+    examples: Type.Optional(Type.Record(Type.String(), Type.Union([ExampleObjectRef, reference(ExampleObjectRef)]))),
   }),
 )
 
@@ -40,12 +37,12 @@ export const HeaderObjectWithSchemaSchema = compose(
  *    - in MUST NOT be specified, it is implicitly in header.
  *    - All traits that are affected by the location MUST be applicable to a location of header (for example, style). This means that allowEmptyValue and allowReserved MUST NOT be used, and style, if used, MUST be limited to "simple".
  */
-export const HeaderObjectSchema = Type.Union([
+export const HeaderObjectSchemaDefinition = Type.Union([
   HeaderObjectWithSchemaSchema,
   compose(
     HeaderObjectSchemaBase,
     Type.Object({
-      content: Type.Optional(Type.Record(Type.String(), Type.Ref('MediaType'))),
+      content: Type.Optional(Type.Record(Type.String(), MediaTypeObjectRef)),
     }),
   ),
 ])

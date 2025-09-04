@@ -106,7 +106,6 @@ const onAnchorClick = async (ev: Event) => {
         'deprecated':
           'operation' in item &&
           isOperationDeprecated(
-            // @ts-expect-error
             item.operation as OpenAPIV3_1.OperationObject<{
               'x-scalar-stability': XScalarStability
             }>,

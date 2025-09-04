@@ -1,7 +1,10 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
-import type { OperationObject, PathItemObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
+import type {
+  OperationObject,
+  PathItemObject,
+  ParameterObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 /** Combine pathItem and operation parameters into a single, dereferenced parameter array */
 export const combineParams = (

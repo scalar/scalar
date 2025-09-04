@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { processBody } from './process-body'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 describe('processBody', () => {
   it('extracts example from simple object schema', () => {

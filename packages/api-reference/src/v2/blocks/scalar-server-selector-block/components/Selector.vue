@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarListbox } from '@scalar/components'
 import { ScalarIconCaretDown } from '@scalar/icons'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 const { target, servers, xSelectedServer } = defineProps<{
@@ -56,22 +56,22 @@ defineExpose({
 </script>
 <template>
   <ScalarListbox
-    ref="elem"
     v-if="serverOptions.length > 1"
+    ref="elem"
     v-model="selectedServer"
+    class="group"
     :options="serverOptions"
     placement="bottom-start"
     resize
-    :target="target"
-    class="group">
+    :target="target">
     <ScalarButton
       class="bg-b-1 text-c-1 h-auto w-full justify-start gap-1.5 overflow-x-auto rounded-t-none rounded-b-lg px-3 py-1.5 text-base font-normal whitespace-nowrap -outline-offset-1"
       variant="ghost">
       <span class="sr-only">Server:</span>
       <span class="overflow-x-auto">{{ serverUrlWithoutTrailingSlash }}</span>
       <ScalarIconCaretDown
-        weight="bold"
-        class="text-c-2 ui-open:rotate-180 mt-0.25 size-3 transition-transform duration-100" />
+        class="text-c-2 ui-open:rotate-180 mt-0.25 size-3 transition-transform duration-100"
+        weight="bold" />
     </ScalarButton>
   </ScalarListbox>
   <div

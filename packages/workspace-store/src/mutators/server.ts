@@ -1,4 +1,4 @@
-import type { ServerObject } from '@/schemas/v3.1/strict/server'
+import type { ServerObject } from '@/schemas/v3.1/strict/openapi-document'
 
 /**
  * Provides mutator functions for managing an array of OpenAPI ServerObject entries.
