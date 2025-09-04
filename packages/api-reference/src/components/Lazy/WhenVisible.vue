@@ -22,7 +22,7 @@ onMounted(() => {
       // Trigger when placeholder is 10% visible
       threshold: 0.1,
       // Start observing before the element enters viewport
-      rootMargin: '300px',
+      rootMargin: '500px',
     },
   )
 
@@ -52,7 +52,6 @@ onUnmounted(() => {
 .placeholder {
   height: 100%;
   width: 100%;
-  background-color: var(--scalar-background-3);
   min-height: 50px;
 }
 </style>
