@@ -17,7 +17,7 @@ export const useFreezing = () => {
   const lazyIds = ref<Set<string>>(new Set())
 
   /** Tries to freeze the scroll position of the element */
-  console.log('⏸️ FREEZING', hash.value)
+  // console.log('⏸️ FREEZING', hash.value)
   const unfreeze = freezeAtTop(hash.value)
 
   /** Resume scrolling */
@@ -52,7 +52,7 @@ export const useFreezing = () => {
         if (lazyIds.value.size === 0) {
           // If we've been at size 0 for CHECK_TIMEOUT, resume
           if (now - lastCheckTime >= CHECK_TIMEOUT) {
-            console.log('RESUME', lazyIds.value.size)
+            // console.log('▶️ RESUME', lazyIds.value.size)
             resume()
             return
           }
