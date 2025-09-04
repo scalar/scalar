@@ -436,7 +436,7 @@ describe('ApiReferenceWorkspace', () => {
     })
   })
 
-  describe.only('custom fetch functionality', async () => {
+  describe('custom fetch functionality', async () => {
     it('use the provided fetch function to fetch the documents', async () => {
       const fn = vi.fn()
       wrapper = mount(ApiReferenceWorkspace, {
