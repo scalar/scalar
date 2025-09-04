@@ -127,9 +127,10 @@ describe('upgradeFromTwoToThree', () => {
         },
       },
     })
-    expect(result.paths['/planets'].get.responses['200'].content['application/json'].schema.$ref).toBe(
-      '#/components/schemas/Planet',
-    )
+    expect(
+      result.paths['/planets'].get.responses['200'].content['application/json']
+        .schema.$ref,
+    ).toBe('#/components/schemas/Planet')
   })
 
   it('transforms responses', async () => {
@@ -138,7 +139,8 @@ describe('upgradeFromTwoToThree', () => {
       paths: {
         '/planets': {
           get: {
-            description: 'Returns all planets from the system that the user has access to',
+            description:
+              'Returns all planets from the system that the user has access to',
             produces: ['application/json', 'application/xml'],
             responses: {
               '200': {
@@ -159,7 +161,8 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.paths).toStrictEqual({
       '/planets': {
         get: {
-          description: 'Returns all planets from the system that the user has access to',
+          description:
+            'Returns all planets from the system that the user has access to',
           responses: {
             '200': {
               description: 'A list of planets.',
@@ -197,7 +200,8 @@ describe('upgradeFromTwoToThree', () => {
       paths: {
         '/planets': {
           get: {
-            description: 'Returns all planets from the system that the user has access to',
+            description:
+              'Returns all planets from the system that the user has access to',
             responses: {
               '200': {
                 description: 'A list of planets.',
@@ -217,7 +221,8 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.paths).toStrictEqual({
       '/planets': {
         get: {
-          description: 'Returns all planets from the system that the user has access to',
+          description:
+            'Returns all planets from the system that the user has access to',
           responses: {
             '200': {
               description: 'A list of planets.',
@@ -255,13 +260,15 @@ describe('upgradeFromTwoToThree', () => {
       paths: {
         '/planets': {
           get: {
-            description: 'Returns all planets from the system that the user has access to',
+            description:
+              'Returns all planets from the system that the user has access to',
             consumes: ['application/json', 'application/xml'],
             parameters: [
               {
                 in: 'body',
                 name: 'body',
-                description: 'Planet object that needs to be added to the store',
+                description:
+                  'Planet object that needs to be added to the store',
                 required: true,
                 schema: {
                   $ref: '#/definitions/Planet',
@@ -276,7 +283,8 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.paths).toStrictEqual({
       '/planets': {
         get: {
-          description: 'Returns all planets from the system that the user has access to',
+          description:
+            'Returns all planets from the system that the user has access to',
           requestBody: {
             description: 'Planet object that needs to be added to the store',
             content: {
@@ -307,13 +315,15 @@ describe('upgradeFromTwoToThree', () => {
       paths: {
         '/planets': {
           get: {
-            description: 'Returns all planets from the system that the user has access to',
+            description:
+              'Returns all planets from the system that the user has access to',
             consumes: ['application/json', 'application/xml'],
             parameters: [
               {
                 in: 'body',
                 name: 'body',
-                description: 'Planet object that needs to be added to the store',
+                description:
+                  'Planet object that needs to be added to the store',
                 required: true,
                 schema: {
                   $ref: '#/definitions/Planet',
@@ -328,7 +338,8 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.paths).toStrictEqual({
       '/planets': {
         get: {
-          description: 'Returns all planets from the system that the user has access to',
+          description:
+            'Returns all planets from the system that the user has access to',
           requestBody: {
             description: 'Planet object that needs to be added to the store',
             content: {
@@ -358,7 +369,8 @@ describe('upgradeFromTwoToThree', () => {
       paths: {
         '/planets': {
           get: {
-            description: 'Returns all planets from the system that the user has access to',
+            description:
+              'Returns all planets from the system that the user has access to',
             parameters: [
               {
                 name: 'additionalMetadata',
@@ -376,7 +388,8 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.paths).toStrictEqual({
       '/planets': {
         get: {
-          description: 'Returns all planets from the system that the user has access to',
+          description:
+            'Returns all planets from the system that the user has access to',
           requestBody: {
             content: {
               'application/x-www-form-urlencoded': {
@@ -517,7 +530,8 @@ describe('upgradeFromTwoToThree', () => {
       paths: {
         '/planets': {
           get: {
-            description: 'Returns all planets from the system that the user has access to',
+            description:
+              'Returns all planets from the system that the user has access to',
             consumes: ['application/json', 'application/xml'],
             parameters: [
               {
@@ -630,7 +644,8 @@ describe('upgradeFromTwoToThree', () => {
       paths: {
         '/planets': {
           get: {
-            description: 'Get all planets from the system that the user has access to.',
+            description:
+              'Get all planets from the system that the user has access to.',
             consumes: ['application/json'],
             responses: {
               '200': {
@@ -686,7 +701,8 @@ describe('upgradeFromTwoToThree', () => {
       paths: {
         '/planets': {
           get: {
-            description: 'Get all planets from the system that the user has access to.',
+            description:
+              'Get all planets from the system that the user has access to.',
             consumes: ['application/json'],
             parameters: [
               {
@@ -766,7 +782,8 @@ describe('upgradeFromTwoToThree', () => {
       paths: {
         '/planets/{id}': {
           get: {
-            description: 'Get all planets from the system that the user has access to.',
+            description:
+              'Get all planets from the system that the user has access to.',
             consumes: ['application/json'],
             parameters: [
               {
@@ -824,7 +841,8 @@ describe('upgradeFromTwoToThree', () => {
       paths: {
         '/planets': {
           get: {
-            description: 'Get all planets from the system that the user has access to.',
+            description:
+              'Get all planets from the system that the user has access to.',
             consumes: ['application/json'],
             parameters: [
               {
@@ -872,5 +890,58 @@ describe('upgradeFromTwoToThree', () => {
         },
       },
     ])
+  })
+
+  it('upgrades parameters defined globally or path wide', async () => {
+    const result = upgradeFromTwoToThree({
+      swagger: '2.0',
+      produces: ['application/json'],
+      parameters: {
+        globalHeader: {
+          description: 'a global defined header',
+          in: 'header',
+          name: 'global header',
+          required: false,
+          type: 'string',
+        },
+      },
+      paths: {
+        '/planets/{planetId}': {
+          parameters: [
+            {
+              description: 'planet id',
+              in: 'path',
+              name: 'planetId',
+              required: true,
+              type: 'number',
+            },
+          ],
+        },
+      },
+    })
+
+    expect(result.paths['/planets/{planetId}'].parameters).toStrictEqual([
+      {
+        description: 'planet id',
+        in: 'path',
+        name: 'planetId',
+        required: true,
+        schema: {
+          type: 'number',
+        },
+      },
+    ])
+    // @ts-ignore
+    expect(result.components.parameters).toMatchObject({
+      globalHeader: {
+        description: 'a global defined header',
+        in: 'header',
+        name: 'global header',
+        required: false,
+        schema: {
+          type: 'string',
+        },
+      },
+    })
   })
 })
