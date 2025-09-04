@@ -15,7 +15,7 @@ export const WorkspaceDocumentMetaSchema = Type.Partial(
 
 export type WorkspaceDocumentMeta = Static<typeof WorkspaceDocumentMetaSchema>
 
-export const WorkspaceDocumentSchema = compose(WorkspaceDocumentMetaSchema, OpenAPIDocumentSchema)
+export const WorkspaceDocumentSchema = Type.Intersect([WorkspaceDocumentMetaSchema, OpenAPIDocumentSchema])
 
 export type WorkspaceDocument = Static<typeof WorkspaceDocumentSchema>
 
