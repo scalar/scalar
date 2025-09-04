@@ -90,6 +90,7 @@ import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/s
 import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
+import WhenVisible from '@/components/Lazy/WhenVisible.vue'
 import { getResolvedRefDeep } from '@/features/example-responses/helpers/get-resolved-ref-deep'
 import { findClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import { generateCustomId } from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
@@ -297,100 +298,106 @@ const selectClient = (option: ClientOption) => {
 const id = useId()
 </script>
 <template>
-  <ScalarCard
-    v-if="generatedCode"
-    ref="elem"
-    class="request-card dark-mode">
-    <!-- Header -->
-    <ScalarCardHeader class="pr-2.5">
-      <span class="sr-only">Request Example for</span>
-      <HttpMethod
-        as="span"
-        class="request-method"
-        :method="method" />
-      <span
-        v-if="generateLabel"
-        v-html="generateLabel()" />
-      <slot
-        v-else-if="!isWebhook"
-        name="header" />
-      <!-- Client picker -->
-      <template
-        v-if="!isWebhook && clients.length"
-        #actions>
-        <ScalarCombobox
-          class="max-h-80"
-          :modelValue="localSelectedClient"
-          :options="clients"
-          placement="bottom-end"
-          teleport
-          @update:modelValue="selectClient($event as ClientOption)">
-          <ScalarButton
-            class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-0.5"
-            data-testid="client-picker"
-            fullWidth
-            variant="ghost">
-            <span class="text-base font-normal">{{
-              localSelectedClient.title
-            }}</span>
-            <ScalarIconCaretDown
-              class="ui-open:rotate-180 mt-0.25 size-3 transition-transform duration-100"
-              weight="bold" />
-          </ScalarButton>
-        </ScalarCombobox>
-      </template>
-    </ScalarCardHeader>
-
-    <!-- Code snippet -->
-    <ScalarCardSection class="request-editor-section custom-scroll p-0">
-      <div
-        :id="`${id}-example`"
-        class="code-snippet">
-        <ScalarCodeBlock
-          class="bg-b-2 !min-h-full -outline-offset-2"
-          :content="generatedCode"
-          :hideCredentials="secretCredentials"
-          :lang="codeBlockLanguage"
-          lineNumbers />
-      </div>
-    </ScalarCardSection>
-
-    <!-- Footer -->
-    <ScalarCardFooter
-      v-if="Object.keys(operationExamples).length || $slots.footer"
-      class="request-card-footer bg-b-3">
-      <!-- Example picker -->
-      <div
-        v-if="Object.keys(operationExamples).length"
-        class="request-card-footer-addon">
-        <ExamplePicker
-          v-model="selectedExampleKey"
-          :examples="operationExamples"
-          @update:modelValue="
-            emitCustomEvent(elem?.$el, 'scalar-update-selected-example', $event)
-          " />
-      </div>
-
-      <!-- Footer -->
-      <slot name="footer" />
-    </ScalarCardFooter>
-  </ScalarCard>
-
-  <!-- Fallback card with just method and path in the case of no examples -->
-  <ScalarCard
-    v-else-if="fallback"
-    class="request-card dark-mode">
-    <ScalarCardSection class="request-card-simple">
-      <div class="request-header">
+  <WhenVisible>
+    <ScalarCard
+      v-if="generatedCode"
+      ref="elem"
+      class="request-card dark-mode">
+      <!-- Header -->
+      <ScalarCardHeader class="pr-2.5">
+        <span class="sr-only">Request Example for</span>
         <HttpMethod
           as="span"
           class="request-method"
           :method="method" />
-        <slot name="header" />
-      </div>
-      <slot name="footer" />
-    </ScalarCardSection>
-  </ScalarCard>
+        <span
+          v-if="generateLabel"
+          v-html="generateLabel()" />
+        <slot
+          v-else-if="!isWebhook"
+          name="header" />
+        <!-- Client picker -->
+        <template
+          v-if="!isWebhook && clients.length"
+          #actions>
+          <ScalarCombobox
+            class="max-h-80"
+            :modelValue="localSelectedClient"
+            :options="clients"
+            placement="bottom-end"
+            teleport
+            @update:modelValue="selectClient($event as ClientOption)">
+            <ScalarButton
+              class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-0.5"
+              data-testid="client-picker"
+              fullWidth
+              variant="ghost">
+              <span class="text-base font-normal">{{
+                localSelectedClient.title
+              }}</span>
+              <ScalarIconCaretDown
+                class="ui-open:rotate-180 mt-0.25 size-3 transition-transform duration-100"
+                weight="bold" />
+            </ScalarButton>
+          </ScalarCombobox>
+        </template>
+      </ScalarCardHeader>
+
+      <!-- Code snippet -->
+      <ScalarCardSection class="request-editor-section custom-scroll p-0">
+        <div
+          :id="`${id}-example`"
+          class="code-snippet">
+          <ScalarCodeBlock
+            class="bg-b-2 !min-h-full -outline-offset-2"
+            :content="generatedCode"
+            :hideCredentials="secretCredentials"
+            :lang="codeBlockLanguage"
+            lineNumbers />
+        </div>
+      </ScalarCardSection>
+
+      <!-- Footer -->
+      <ScalarCardFooter
+        v-if="Object.keys(operationExamples).length || $slots.footer"
+        class="request-card-footer bg-b-3">
+        <!-- Example picker -->
+        <div
+          v-if="Object.keys(operationExamples).length"
+          class="request-card-footer-addon">
+          <ExamplePicker
+            v-model="selectedExampleKey"
+            :examples="operationExamples"
+            @update:modelValue="
+              emitCustomEvent(
+                elem?.$el,
+                'scalar-update-selected-example',
+                $event,
+              )
+            " />
+        </div>
+
+        <!-- Footer -->
+        <slot name="footer" />
+      </ScalarCardFooter>
+    </ScalarCard>
+
+    <!-- Fallback card with just method and path in the case of no examples -->
+    <ScalarCard
+      v-else-if="fallback"
+      class="request-card dark-mode">
+      <ScalarCardSection class="request-card-simple">
+        <div class="request-header">
+          <HttpMethod
+            as="span"
+            class="request-method"
+            :method="method" />
+          <slot name="header" />
+        </div>
+        <slot name="footer" />
+      </ScalarCardSection>
+    </ScalarCard>
+  </WhenVisible>
 </template>
 <style scoped>
 .request-card {

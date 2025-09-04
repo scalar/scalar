@@ -5,6 +5,8 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/example'
 import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/media-header-encoding'
 
+import WhenVisible from '@/components/Lazy/WhenVisible.vue'
+
 import { getResolvedRefDeep } from './helpers/get-resolved-ref-deep'
 
 const { example, response } = defineProps<{
@@ -20,17 +22,20 @@ const { example, response } = defineProps<{
     :content="getResolvedRefDeep(example)?.value"
     lang="json" />
 
-  <!-- Schema -->
-  <ScalarCodeBlock
-    v-else-if="response?.schema"
-    class="bg-b-2 -outline-offset-2"
-    :content="
-      getExampleFromSchema(getResolvedRef(response.schema), {
-        emptyString: 'string',
-        mode: 'read',
-      })
-    "
-    lang="json" />
+  <!-- Generate an example from the schema -->
+  <template v-if="response?.schema">
+    <WhenVisible>
+      <ScalarCodeBlock
+        class="bg-b-2 -outline-offset-2"
+        :content="
+          getExampleFromSchema(getResolvedRef(response.schema), {
+            emptyString: 'string',
+            mode: 'read',
+          })
+        "
+        lang="json" />
+    </WhenVisible>
+  </template>
 
   <div
     v-else

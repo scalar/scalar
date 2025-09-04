@@ -122,8 +122,8 @@ const showSchema = ref(false)
   <ScalarCard
     v-if="orderedStatusCodes.length"
     aria-label="Example Responses"
-    role="region"
-    class="response-card">
+    class="response-card"
+    role="region">
     <ExampleResponseTabList @change="changeTab">
       <ExampleResponseTab
         v-for="statusCode in orderedStatusCodes"
@@ -169,8 +169,8 @@ const showSchema = ref(false)
       <ExampleResponse
         v-else
         :id="id"
-        :response="currentResponseContent"
-        :example="currentExample" />
+        :example="currentExample"
+        :response="currentResponseContent" />
     </ScalarCardSection>
     <ScalarCardFooter
       v-if="currentResponse?.description || hasMultipleExamples"
@@ -184,9 +184,9 @@ const showSchema = ref(false)
       </div>
       <ExamplePicker
         v-if="hasMultipleExamples"
+        v-model="selectedExampleKey"
         class="response-example-selector"
-        :examples="currentResponseContent?.examples"
-        v-model="selectedExampleKey" />
+        :examples="currentResponseContent?.examples" />
     </ScalarCardFooter>
   </ScalarCard>
 </template>
