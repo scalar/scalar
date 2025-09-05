@@ -25,7 +25,7 @@ const createSchemaEntry = (
 
   // Use schema.title if available, otherwise fall back to name
   // @see https://json-schema.org/draft/2020-12/json-schema-core#section-4.3.5
-  const title = (schema?.title as string) || name
+  const title = (schema && 'title' in schema && (schema.title as string)) || name
 
   titlesMap.set(id, title)
 

@@ -37,7 +37,7 @@ export const traverseSchemas = (
   getModelId: UseNavState['getModelId'],
 ): TraversedSchema[] => {
   // TODO: Once the whole thing is on the new data structure we can remove this cast.
-  const schemas = (content.components?.schemas as Record<string, SchemaObject>) ?? {}
+  const schemas = (content.components?.schemas as Record<string, any>) ?? {}
   const untagged: TraversedSchema[] = []
 
   for (const name in schemas) {
