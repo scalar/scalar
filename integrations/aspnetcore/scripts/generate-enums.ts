@@ -27,10 +27,8 @@ const CUSTOM_PASCAL_CASE_MAPPINGS: Record<string, string> = {
   'cohttp': 'CoHttp',
   'webrequest': 'WebRequest',
   'restmethod': 'RestMethod',
-  'python3': 'Python3',
   'httpx_sync': 'HttpxSync',
   'httpx_async': 'HttpxAsync',
-  'reqwest': 'Reqwest',
 
   // Targets - Professional naming for languages/platforms
   'js': 'JavaScript',
