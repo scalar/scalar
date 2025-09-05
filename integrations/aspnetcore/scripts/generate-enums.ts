@@ -63,8 +63,6 @@ const OBSOLETE_CLIENT_ENTRIES = [
   },
 ]
 
-// We'll use the imported clients array directly with proper types
-
 /**
  * Helper function to convert a string to PascalCase for C# enum values.
  * Uses the custom mappings defined at the top of the file for better naming conventions.
