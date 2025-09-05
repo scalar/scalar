@@ -1,5 +1,14 @@
 # @scalar/json-magic
 
+## 0.3.2
+
+### Patch Changes
+
+- 06a46f0: fix: add proxy cache to fix reactivity issues
+- Updated dependencies [98c55d0]
+- Updated dependencies [0e747c7]
+  - @scalar/helpers@0.0.9
+
 ## 0.3.1
 
 ### Patch Changes
