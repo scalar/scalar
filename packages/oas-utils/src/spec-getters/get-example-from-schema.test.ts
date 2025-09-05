@@ -1288,7 +1288,7 @@ describe('getExampleFromSchema', () => {
           }),
         ),
       ).toMatchObject({
-        '123*': '',
+        'propertyName*': '',
       })
 
       expect(
