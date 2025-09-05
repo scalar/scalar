@@ -762,6 +762,9 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../../packages/build-tooling
+      '@scalar/snippetz':
+        specifier: workspace:*
+        version: link:../../packages/snippetz
       shx:
         specifier: ^0.4.0
         version: 0.4.0

@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
+    "@scalar/snippetz": "workspace:*",
     "shx": "^0.4.0",
     "vite-node": "^3.2.4"
   }
