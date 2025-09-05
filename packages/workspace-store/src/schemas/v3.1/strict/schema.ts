@@ -1,9 +1,4 @@
 import { Type } from '@scalar/typebox'
-import { XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
-import { XInternalSchema } from '@/schemas/extensions/document/x-internal'
-import { XVariableSchema } from '@/schemas/extensions/schema/x-variable'
-import { XAdditionalPropertiesNameSchema } from '@/schemas/extensions/schema/x-additional-properties-name'
-import { XTags } from '@/schemas/extensions/document/x-tags'
 import { compose } from '@/schemas/compose'
 import { reference } from '@/schemas/v3.1/strict/reference'
 import {
@@ -12,6 +7,11 @@ import {
   SchemaObjectRef,
   XMLObjectRef,
 } from '@/schemas/v3.1/strict/ref-definitions'
+import { XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
+import { XInternalSchema } from '@/schemas/extensions/document/x-internal'
+import { XVariableSchema } from '@/schemas/extensions/schema/x-variable'
+import { XAdditionalPropertiesNameSchema } from '@/schemas/extensions/schema/x-additional-properties-name'
+import { XTags } from '@/schemas/extensions/document/x-tags'
 
 const schemaOrReference = Type.Union([SchemaObjectRef, reference(SchemaObjectRef)])
 
@@ -224,19 +224,20 @@ const ObjectValidationPropertiesWithSchema = Type.Object({
   patternProperties: Type.Optional(Type.Record(Type.String(), schemaOrReference)),
 })
 
-/** Builds the recursive schema schema */
-export const SchemaObjectSchemaDefinition = Type.Intersect([
-  Type.Union([
-    compose(CorePropertiesWithSchema, OtherTypes),
-    compose(CorePropertiesWithSchema, NumericProperties),
-    compose(CorePropertiesWithSchema, StringValidationProperties),
-    compose(CorePropertiesWithSchema, ObjectValidationPropertiesWithSchema),
-    compose(CorePropertiesWithSchema, ArrayValidationPropertiesWithSchema),
-    compose(CorePropertiesWithSchema, Compositions),
-  ]),
+const Extensions = compose(
   XScalarIgnoreSchema,
   XInternalSchema,
   XVariableSchema,
   XAdditionalPropertiesNameSchema,
   XTags,
+)
+
+/** Builds the recursive schema schema */
+export const SchemaObjectSchemaDefinition = Type.Union([
+  compose(CorePropertiesWithSchema, Extensions, OtherTypes),
+  compose(CorePropertiesWithSchema, Extensions, NumericProperties),
+  compose(CorePropertiesWithSchema, Extensions, StringValidationProperties),
+  compose(CorePropertiesWithSchema, Extensions, ObjectValidationPropertiesWithSchema),
+  compose(CorePropertiesWithSchema, Extensions, ArrayValidationPropertiesWithSchema),
+  compose(CorePropertiesWithSchema, Extensions, Compositions),
 ])
