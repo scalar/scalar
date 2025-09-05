@@ -1,5 +1,23 @@
 # @scalar/components
 
+## 0.14.28
+
+### Patch Changes
+
+- f918582: feat(api-reference, components): update scalar floating components contraints
+- 422cb2b: feat(components)!: add "Add new option" slot to combobox
+- Updated dependencies [714b197]
+- Updated dependencies [98c55d0]
+- Updated dependencies [cededd8]
+- Updated dependencies [a6ae22a]
+- Updated dependencies [2b22eab]
+- Updated dependencies [0e747c7]
+- Updated dependencies [976366f]
+  - @scalar/oas-utils@0.4.23
+  - @scalar/helpers@0.0.9
+  - @scalar/themes@0.13.15
+  - @scalar/code-highlight@0.1.9
+
 ## 0.14.27
 
 ### Patch Changes

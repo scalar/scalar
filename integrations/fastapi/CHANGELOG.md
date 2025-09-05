@@ -1,5 +1,17 @@
 # scalar-fastapi
 
+## 1.4.0
+
+### Minor Changes
+
+- 961abc8: feat: cover more configuration options
+
+### Patch Changes
+
+- 6657e7c: fix: title is required
+- 1c411d4: Export objects from scalar_fastapi package root
+- 3473e08: fix: performance issues on script load
+
 ## 1.3.0
 
 ### Minor Changes
