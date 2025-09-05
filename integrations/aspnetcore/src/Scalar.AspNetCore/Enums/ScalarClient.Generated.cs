@@ -23,76 +23,10 @@ namespace Scalar.AspNetCore;
 public enum ScalarClient
 {
     /// <summary>
-    /// Libcurl client.
-    /// </summary>
-    [Description("libcurl")]
-    Libcurl,
-
-    /// <summary>
-    /// HttpClient client.
-    /// </summary>
-    [Description("httpclient")]
-    HttpClient,
-
-    /// <summary>
-    /// RestSharp client.
-    /// </summary>
-    [Description("restsharp")]
-    RestSharp,
-
-    /// <summary>
-    /// clj-http client.
-    /// </summary>
-    [Description("clj_http")]
-    CljHttp,
-
-    /// <summary>
-    /// Http client.
-    /// </summary>
-    [Description("http")]
-    Http,
-
-    /// <summary>
-    /// net::http client.
-    /// </summary>
-    [Description("native")]
-    Native,
-
-    /// <summary>
-    /// HTTP/1.1 client.
-    /// </summary>
-    [Description("http1.1")]
-    Http11,
-
-    /// <summary>
     /// AsyncHttp client.
     /// </summary>
     [Description("asynchttp")]
     AsyncHttp,
-
-    /// <summary>
-    /// java.net.http client.
-    /// </summary>
-    [Description("nethttp")]
-    NetHttp,
-
-    /// <summary>
-    /// OkHttp client.
-    /// </summary>
-    [Description("okhttp")]
-    OkHttp,
-
-    /// <summary>
-    /// Unirest client.
-    /// </summary>
-    [Description("unirest")]
-    Unirest,
-
-    /// <summary>
-    /// Fetch client.
-    /// </summary>
-    [Description("fetch")]
-    Fetch,
 
     /// <summary>
     /// Axios client.
@@ -101,34 +35,10 @@ public enum ScalarClient
     Axios,
 
     /// <summary>
-    /// ofetch client.
+    /// clj-http client.
     /// </summary>
-    [Description("ofetch")]
-    OFetch,
-
-    /// <summary>
-    /// jQuery client.
-    /// </summary>
-    [Description("jquery")]
-    JQuery,
-
-    /// <summary>
-    /// XHR client.
-    /// </summary>
-    [Description("xhr")]
-    Xhr,
-
-    /// <summary>
-    /// undici client.
-    /// </summary>
-    [Description("undici")]
-    Undici,
-
-    /// <summary>
-    /// NSURLSession client.
-    /// </summary>
-    [Description("nsurlsession")]
-    NSUrlSession,
+    [Description("clj_http")]
+    CljHttp,
 
     /// <summary>
     /// Cohttp client.
@@ -143,22 +53,100 @@ public enum ScalarClient
     Curl,
 
     /// <summary>
+    /// Fetch client.
+    /// </summary>
+    [Description("fetch")]
+    Fetch,
+
+    /// <summary>
     /// Guzzle client.
     /// </summary>
     [Description("guzzle")]
     Guzzle,
 
     /// <summary>
-    /// Invoke-WebRequest client.
+    /// Http client.
     /// </summary>
-    [Description("webrequest")]
-    WebRequest,
+    [Description("http")]
+    Http,
 
     /// <summary>
-    /// Invoke-RestMethod client.
+    /// HTTP/1.1 client.
     /// </summary>
-    [Description("restmethod")]
-    RestMethod,
+    [Description("http1.1")]
+    Http11,
+
+    /// <summary>
+    /// HttpClient client.
+    /// </summary>
+    [Description("httpclient")]
+    HttpClient,
+
+    /// <summary>
+    /// HTTPie client.
+    /// </summary>
+    [Description("httpie")]
+    Httpie,
+
+    /// <summary>
+    /// HTTPX (Async) client.
+    /// </summary>
+    [Description("httpx_async")]
+    HttpxAsync,
+
+    /// <summary>
+    /// HTTPX (Sync) client.
+    /// </summary>
+    [Description("httpx_sync")]
+    HttpxSync,
+
+    /// <summary>
+    /// httr client.
+    /// </summary>
+    [Description("httr")]
+    Httr,
+
+    /// <summary>
+    /// jQuery client.
+    /// </summary>
+    [Description("jquery")]
+    JQuery,
+
+    /// <summary>
+    /// Libcurl client.
+    /// </summary>
+    [Description("libcurl")]
+    Libcurl,
+
+    /// <summary>
+    /// net::http client.
+    /// </summary>
+    [Description("native")]
+    Native,
+
+    /// <summary>
+    /// java.net.http client.
+    /// </summary>
+    [Description("nethttp")]
+    NetHttp,
+
+    /// <summary>
+    /// NSURLSession client.
+    /// </summary>
+    [Description("nsurlsession")]
+    NSUrlSession,
+
+    /// <summary>
+    /// ofetch client.
+    /// </summary>
+    [Description("ofetch")]
+    OFetch,
+
+    /// <summary>
+    /// OkHttp client.
+    /// </summary>
+    [Description("okhttp")]
+    OkHttp,
 
     /// <summary>
     /// http.client client.
@@ -173,28 +161,40 @@ public enum ScalarClient
     Requests,
 
     /// <summary>
-    /// HTTPX (Sync) client.
-    /// </summary>
-    [Description("httpx_sync")]
-    HttpxSync,
-
-    /// <summary>
-    /// HTTPX (Async) client.
-    /// </summary>
-    [Description("httpx_async")]
-    HttpxAsync,
-
-    /// <summary>
-    /// httr client.
-    /// </summary>
-    [Description("httr")]
-    Httr,
-
-    /// <summary>
     /// reqwest client.
     /// </summary>
     [Description("reqwest")]
     Reqwest,
+
+    /// <summary>
+    /// Invoke-RestMethod client.
+    /// </summary>
+    [Description("restmethod")]
+    RestMethod,
+
+    /// <summary>
+    /// RestSharp client.
+    /// </summary>
+    [Description("restsharp")]
+    RestSharp,
+
+    /// <summary>
+    /// undici client.
+    /// </summary>
+    [Description("undici")]
+    Undici,
+
+    /// <summary>
+    /// Unirest client.
+    /// </summary>
+    [Description("unirest")]
+    Unirest,
+
+    /// <summary>
+    /// Invoke-WebRequest client.
+    /// </summary>
+    [Description("webrequest")]
+    WebRequest,
 
     /// <summary>
     /// Wget client.
@@ -203,10 +203,10 @@ public enum ScalarClient
     Wget,
 
     /// <summary>
-    /// HTTPie client.
+    /// XHR client.
     /// </summary>
-    [Description("httpie")]
-    Httpie,
+    [Description("xhr")]
+    Xhr,
 
     /// <summary>
     /// Use NSUrlSession instead.
