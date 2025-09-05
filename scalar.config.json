@@ -507,12 +507,12 @@
     {
       "type": "version-selector"
     },
-    { 
+    {
       "title": "Log in",
       "type": "link",
       "link": "https://dashboard.scalar.com/login"
     },
-    { 
+    {
       "title": "Register",
       "type": "link",
       "isButton": true,
@@ -526,6 +526,12 @@
       "lightMode": "https://cdn.scalar.com/marketing/landing/logo-light.svg"
     },
     "cssFiles": ["documentation/assets/styles.css"],
-    "footer": ""
+    "footer": "",
+    "routing": {
+      "redirect": [{
+        "from": "/scalar/scalar-registry/github-workflows",
+        "to": "/scalar/scalar-registry/github-actions"
+      }]
+    }
   }
 }
