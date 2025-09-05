@@ -156,11 +156,11 @@ const CorePropertiesWithSchema = Type.Object({
   /** A description of the schema. */
   description: Type.Optional(Type.String()),
   /** Default value for the schema. */
-  // default: Type.Optional(Type.Unknown()),
+  default: Type.Optional(Type.Unknown()),
   /** Array of allowed values. */
   enum: Type.Optional(Type.Array(Type.Unknown())),
   /** Constant value that must match exactly. */
-  // const: Type.Optional(Type.Unknown()),
+  const: Type.Optional(Type.Unknown()),
 
   // OpenAPI 3.1
   /** Media type for content validation. */
@@ -186,7 +186,7 @@ const CorePropertiesWithSchema = Type.Object({
    *
    * @deprecated The example field has been deprecated in favor of the JSON Schema examples keyword. Use of example is discouraged, and later versions of this specification may remove it.
    */
-  // example: Type.Optional(Type.Unknown()),
+  example: Type.Optional(Type.Unknown()),
   /**
    * An array of examples of valid instances for this schema. This keyword follows the JSON Schema Draft 2020-12 specification.
    * Each example should be a valid instance of the schema.
@@ -234,10 +234,11 @@ const Extensions = compose(
 
 /** Builds the recursive schema schema */
 export const SchemaObjectSchemaDefinition = Type.Union([
+  // Keep compositions first so they get priority when union is evaluated
+  compose(CorePropertiesWithSchema, Extensions, Compositions),
   compose(CorePropertiesWithSchema, Extensions, OtherTypes),
   compose(CorePropertiesWithSchema, Extensions, NumericProperties),
   compose(CorePropertiesWithSchema, Extensions, StringValidationProperties),
   compose(CorePropertiesWithSchema, Extensions, ObjectValidationPropertiesWithSchema),
   compose(CorePropertiesWithSchema, Extensions, ArrayValidationPropertiesWithSchema),
-  compose(CorePropertiesWithSchema, Extensions, Compositions),
 ])
