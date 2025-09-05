@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import ParameterListItem from './ParameterListItem.vue'
 

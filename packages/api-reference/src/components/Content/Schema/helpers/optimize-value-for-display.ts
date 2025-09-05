@@ -1,6 +1,6 @@
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { compositions } from './schema-composition'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 
 /**
  * Optimize the value by removing nulls from compositions and merging root properties.

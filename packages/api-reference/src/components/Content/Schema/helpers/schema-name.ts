@@ -1,12 +1,13 @@
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { getRefName } from './get-ref-name'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 
 /**
  * Extract schema name from various schema formats
  *
  * Handles $ref, title, name, type, and schema dictionary lookup
  */
-export const getModelNameFromSchema = (schema: OpenAPIV3_1.SchemaObject): string | null => {
+export const getModelNameFromSchema = (schema: SchemaObject): string | null => {
   if (!schema) {
     return null
   }
@@ -14,10 +15,6 @@ export const getModelNameFromSchema = (schema: OpenAPIV3_1.SchemaObject): string
   // Direct title/name properties - use direct property access for better performance
   if (schema.title) {
     return schema.title
-  }
-
-  if (schema.name) {
-    return schema.name
   }
 
   // Grab the name of the schema from the ref path
@@ -32,14 +29,14 @@ export const getModelNameFromSchema = (schema: OpenAPIV3_1.SchemaObject): string
 /**
  * Format the type and model name for display
  */
-export const formatTypeWithModel = (type: string, modelName: string): string =>
+export const formatTypeWithModel = (type: SchemaObject['type'], modelName: string): string =>
   `${type} ${modelName}${type === 'array' ? '[]' : ''}`
 
 /**
  * Get the model name for a schema property
  * e.g. User | Admin | array of User | array of Admin
  */
-export const getModelName = (value: Record<string, any>, hideModelNames = false): string | null => {
+export const getModelName = (value: SchemaObject, hideModelNames = false): string | null => {
   if (!value?.type || hideModelNames) {
     return null
   }
@@ -48,16 +45,16 @@ export const getModelName = (value: Record<string, any>, hideModelNames = false)
 
   // First check if the entire schema matches a component schema
   const modelName = getModelNameFromSchema(value)
-  if (modelName && (value.title || value.name)) {
+  if (modelName && value.title) {
     return valueType === 'array' ? `array ${modelName}[]` : modelName
   }
 
   // Handle array types with item references only if no full schema match was found
   if (valueType === 'array' && value.items) {
-    const items = value.items
+    const items = getResolvedRef(value.items)
 
     // Handle title/name
-    const itemName = items.title || items.name
+    const itemName = items.title
     if (itemName) {
       return formatTypeWithModel(valueType, itemName)
     }
@@ -70,7 +67,7 @@ export const getModelName = (value: Record<string, any>, hideModelNames = false)
 
     // Use the type
     if (items.type) {
-      return formatTypeWithModel(valueType, items.type)
+      return formatTypeWithModel(valueType, Array.isArray(items.type) ? items.type.join(' | ') : items.type)
     }
 
     return formatTypeWithModel(valueType, 'object')

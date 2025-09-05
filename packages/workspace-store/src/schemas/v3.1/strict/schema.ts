@@ -12,6 +12,8 @@ import {
   SchemaObjectRef,
   XMLObjectRef,
 } from '@/schemas/v3.1/strict/ref-definitions'
+import { XEnumDescriptionsSchema } from '@/schemas/extensions/schema/x-enum-descriptions'
+import { XEnumVarNamesSchema } from '@/schemas/extensions/schema/x-enum-varnames'
 
 const SchemaBase = compose(
   Type.Object({
@@ -218,7 +220,9 @@ const SchemaBase = compose(
   XScalarIgnoreSchema,
   XInternalSchema,
   XVariableSchema,
+  XEnumDescriptionsSchema,
   XAdditionalPropertiesNameSchema,
+  XEnumVarNamesSchema,
 )
 
 /**
@@ -232,6 +236,8 @@ export const SchemaObjectSchemaDefinition = SchemaBase as unknown as TIntersect<
     typeof XInternalSchema,
     typeof XVariableSchema,
     typeof XAdditionalPropertiesNameSchema,
+    typeof XEnumDescriptionsSchema,
+    typeof XEnumVarNamesSchema,
     TObject<{ _resolvedRefSchema: TAny }>,
   ]
 >

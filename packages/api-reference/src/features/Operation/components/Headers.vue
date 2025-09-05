@@ -2,7 +2,7 @@
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { HeaderObject } from '@scalar/workspace-store/schemas/v3.1/strict/media-header-encoding'
+import type { HeaderObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import Header from './Header.vue'
 

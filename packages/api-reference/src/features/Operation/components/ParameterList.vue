@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
+import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import ParameterListItem from './ParameterListItem.vue'
 

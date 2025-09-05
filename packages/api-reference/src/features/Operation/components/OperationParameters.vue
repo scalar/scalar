@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
-import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/request-body'
+import type {
+  ParameterObject,
+  RequestBodyObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import ParameterList from './ParameterList.vue'
 import RequestBody from './RequestBody.vue'

@@ -4,9 +4,11 @@ import { ScalarMarkdown } from '@scalar/components'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { ScalarIconCaretRight } from '@scalar/icons'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
-import type { ResponseObject } from '@scalar/workspace-store/schemas/v3.1/strict/response'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
+import type {
+  ParameterObject,
+  ResponseObject,
+  SchemaObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref } from 'vue'
 
 import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'

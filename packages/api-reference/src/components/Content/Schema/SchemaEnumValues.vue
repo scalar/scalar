@@ -2,19 +2,19 @@
 import { ScalarButton } from '@scalar/components'
 import { ScalarIconPlus } from '@scalar/icons'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref } from 'vue'
 
 import SchemaEnumPropertyItem from './SchemaEnumPropertyItem.vue'
-
-const ENUM_DISPLAY_THRESHOLD = 9
-const INITIAL_VISIBLE_COUNT = 5
-const THIN_SPACE = '\u2009'
 
 const { value } = defineProps<{
   /** The schema object containing enum values and metadata */
   value: SchemaObject | undefined
 }>()
+
+const ENUM_DISPLAY_THRESHOLD = 9
+const INITIAL_VISIBLE_COUNT = 5
+const THIN_SPACE = '\u2009'
 
 /**
  * Extracts enum values from the schema object.
@@ -99,26 +99,26 @@ const toggleExpanded = () => {
 
 <template>
   <div
-    class="property-enum"
-    v-if="enumValues.length > 0">
+    v-if="enumValues.length > 0"
+    class="property-enum">
     <ul class="property-enum-values">
       <!-- Visible enum values -->
       <SchemaEnumPropertyItem
         v-for="(enumValue, index) in visibleEnumValues"
         :key="String(enumValue)"
-        :label="formatEnumValueWithName(enumValue, index)"
-        :description="getEnumValueDescription(enumValue, index)" />
+        :description="getEnumValueDescription(enumValue, index)"
+        :label="formatEnumValueWithName(enumValue, index)" />
 
       <!-- Hidden enum values (when expanded) -->
       <template v-if="shouldUseLongListDisplay && isExpanded">
         <SchemaEnumPropertyItem
           v-for="(enumValue, index) in hiddenEnumValues"
           :key="String(enumValue)"
-          :label="
-            formatEnumValueWithName(enumValue, initialVisibleCount + index)
-          "
           :description="
             getEnumValueDescription(enumValue, initialVisibleCount + index)
+          "
+          :label="
+            formatEnumValueWithName(enumValue, initialVisibleCount + index)
           " />
       </template>
 
@@ -129,8 +129,8 @@ const toggleExpanded = () => {
           variant="ghost"
           @click="toggleExpanded">
           <ScalarIconPlus
-            weight="bold"
-            :class="{ 'rotate-45': isExpanded }" />
+            :class="{ 'rotate-45': isExpanded }"
+            weight="bold" />
           {{ isExpanded ? 'Hide values' : 'Show all values' }}
         </ScalarButton>
       </li>
