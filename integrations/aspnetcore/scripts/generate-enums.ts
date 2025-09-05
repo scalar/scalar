@@ -99,7 +99,10 @@ function parseClientsFromImport(): {
   for (const target of clients) {
     const targetClients: Array<{ target: string; client: string; title: string }> = []
 
-    for (const client of target.clients) {
+    // Sort clients within each target for consistent order
+    const sortedClients = [...target.clients].sort((a, b) => a.client.localeCompare(b.client))
+
+    for (const client of sortedClients) {
       const clientInfo = {
         target: target.key,
         client: client.client,
@@ -110,11 +113,19 @@ function parseClientsFromImport(): {
       allClientsMap.set(client.client, clientInfo)
     }
 
-    // The target is already in the correct format, so we can use it directly
-    targets.push(target)
+    // Create a new target object with sorted clients
+    const sortedTarget = {
+      ...target,
+      clients: sortedClients,
+    }
+    targets.push(sortedTarget)
   }
 
-  const allClients = Array.from(allClientsMap.values())
+  const allClients = Array.from(allClientsMap.values()).sort((a, b) => a.client.localeCompare(b.client))
+
+  // Sort targets by key for consistent enum order
+  targets.sort((a, b) => a.key.localeCompare(b.key))
+
   console.log(`Processed ${targets.length} targets from import`)
   console.log(`Found ${allClients.length} unique clients`)
 

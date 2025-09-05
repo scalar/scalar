@@ -29,16 +29,16 @@ public enum ScalarTarget
     C,
 
     /// <summary>
-    /// C#.
-    /// </summary>
-    [Description("csharp")]
-    CSharp,
-
-    /// <summary>
     /// Clojure.
     /// </summary>
     [Description("clojure")]
     Clojure,
+
+    /// <summary>
+    /// C#.
+    /// </summary>
+    [Description("csharp")]
+    CSharp,
 
     /// <summary>
     /// Dart.
