@@ -23,121 +23,121 @@ namespace Scalar.AspNetCore;
 public enum ScalarTarget
 {
     /// <summary>
-    /// C programming language.
+    /// C.
     /// </summary>
     [Description("c")]
     C,
 
     /// <summary>
-    /// C# programming language.
+    /// C#.
     /// </summary>
     [Description("csharp")]
     CSharp,
 
     /// <summary>
-    /// Clojure programming language.
+    /// Clojure.
     /// </summary>
     [Description("clojure")]
     Clojure,
 
     /// <summary>
-    /// Dart programming language.
+    /// Dart.
     /// </summary>
     [Description("dart")]
     Dart,
 
     /// <summary>
-    /// Go programming language.
+    /// Go.
     /// </summary>
     [Description("go")]
     Go,
 
     /// <summary>
-    /// HTTP programming language.
+    /// HTTP.
     /// </summary>
     [Description("http")]
     Http,
 
     /// <summary>
-    /// Java programming language.
+    /// Java.
     /// </summary>
     [Description("java")]
     Java,
 
     /// <summary>
-    /// JavaScript programming language.
+    /// JavaScript.
     /// </summary>
     [Description("js")]
     JavaScript,
 
     /// <summary>
-    /// Kotlin programming language.
+    /// Kotlin.
     /// </summary>
     [Description("kotlin")]
     Kotlin,
 
     /// <summary>
-    /// Node.js programming language.
+    /// Node.js.
     /// </summary>
     [Description("node")]
     Node,
 
     /// <summary>
-    /// Objective-C programming language.
+    /// Objective-C.
     /// </summary>
     [Description("objc")]
     ObjC,
 
     /// <summary>
-    /// OCaml programming language.
+    /// OCaml.
     /// </summary>
     [Description("ocaml")]
     OCaml,
 
     /// <summary>
-    /// PHP programming language.
+    /// PHP.
     /// </summary>
     [Description("php")]
     Php,
 
     /// <summary>
-    /// Powershell programming language.
+    /// PowerShell.
     /// </summary>
     [Description("powershell")]
     PowerShell,
 
     /// <summary>
-    /// Python programming language.
+    /// Python.
     /// </summary>
     [Description("python")]
     Python,
 
     /// <summary>
-    /// R programming language.
+    /// R.
     /// </summary>
     [Description("r")]
     R,
 
     /// <summary>
-    /// Ruby programming language.
+    /// Ruby.
     /// </summary>
     [Description("ruby")]
     Ruby,
 
     /// <summary>
-    /// Rust programming language.
+    /// Rust.
     /// </summary>
     [Description("rust")]
     Rust,
 
     /// <summary>
-    /// Shell programming language.
+    /// Shell.
     /// </summary>
     [Description("shell")]
     Shell,
 
     /// <summary>
-    /// Swift programming language.
+    /// Swift.
     /// </summary>
     [Description("swift")]
     Swift,

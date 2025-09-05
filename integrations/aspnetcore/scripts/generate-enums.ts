@@ -269,7 +269,7 @@ ${enumValues}
 
 function createTargetEnumValue(target: ImportedTarget): string {
   const pascalCaseKey = toPascalCase(target.key)
-  const description = `${target.title} programming language.`
+  const description = `${target.title}.`
 
   return `    /// <summary>
     /// ${description}
