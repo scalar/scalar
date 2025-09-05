@@ -137,19 +137,6 @@ const StringValidationProperties = Type.Object({
   pattern: Type.Optional(Type.String()),
 })
 
-const Compositions = Type.Object({
-  _: Type.String(),
-  // Composition
-  /** All schemas must be valid. */
-  allOf: Type.Optional(Type.Array(schemaOrReference)),
-  /** Exactly one schema must be valid. */
-  oneOf: Type.Optional(Type.Array(schemaOrReference)),
-  /** At least one schema must be valid. */
-  anyOf: Type.Optional(Type.Array(schemaOrReference)),
-  /** Schema must not be valid. */
-  not: Type.Optional(schemaOrReference),
-})
-
 const CorePropertiesWithSchema = Type.Object({
   /** A title for the schema. */
   title: Type.Optional(Type.String()),
@@ -192,6 +179,15 @@ const CorePropertiesWithSchema = Type.Object({
    * Each example should be a valid instance of the schema.
    */
   examples: Type.Optional(Type.Array(Type.Unknown())),
+
+  /** All schemas must be valid. */
+  allOf: Type.Optional(Type.Array(schemaOrReference)),
+  /** Exactly one schema must be valid. */
+  oneOf: Type.Optional(Type.Array(schemaOrReference)),
+  /** At least one schema must be valid. */
+  anyOf: Type.Optional(Type.Array(schemaOrReference)),
+  /** Schema must not be valid. */
+  not: Type.Optional(schemaOrReference),
 })
 
 const ArrayValidationPropertiesWithSchema = Type.Object({
@@ -235,10 +231,13 @@ const Extensions = compose(
 /** Builds the recursive schema schema */
 export const SchemaObjectSchemaDefinition = Type.Union([
   // Keep compositions first so they get priority when union is evaluated
-  compose(CorePropertiesWithSchema, Extensions, Compositions),
-  compose(CorePropertiesWithSchema, Extensions, OtherTypes),
-  compose(CorePropertiesWithSchema, Extensions, NumericProperties),
-  compose(CorePropertiesWithSchema, Extensions, StringValidationProperties),
-  compose(CorePropertiesWithSchema, Extensions, ObjectValidationPropertiesWithSchema),
-  compose(CorePropertiesWithSchema, Extensions, ArrayValidationPropertiesWithSchema),
+  // Make sure there is always a required field so not all properties are optional
+  // When all properties are optional (1) typescript will not throw any warnings/error and accepts anything
+  // even a non resolved ref and (2) it will match any schema so it will not validate the refs correctly
+  compose(Type.Object({ _: Type.String() }), CorePropertiesWithSchema, Extensions),
+  compose(OtherTypes, CorePropertiesWithSchema, Extensions),
+  compose(NumericProperties, CorePropertiesWithSchema, Extensions),
+  compose(StringValidationProperties, CorePropertiesWithSchema, Extensions),
+  compose(ObjectValidationPropertiesWithSchema, CorePropertiesWithSchema, Extensions),
+  compose(ArrayValidationPropertiesWithSchema, CorePropertiesWithSchema, Extensions),
 ])
