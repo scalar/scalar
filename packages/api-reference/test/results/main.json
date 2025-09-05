@@ -1,0 +1,39 @@
+{
+  "files": [
+    {
+      "filepath": "/home/amritk/apps/scalar/scalar/packages/api-reference/src/standalone.bench.ts",
+      "groups": [
+        {
+          "fullName": "src/standalone.bench.ts > standalone",
+          "benchmarks": [
+            {
+              "id": "-1671919141_0_0",
+              "name": "first operation is rendered",
+              "rank": 1,
+              "rme": 0,
+              "samples": [],
+              "totalTime": 2281.530677999999,
+              "min": 2281.530677999999,
+              "max": 2281.530677999999,
+              "hz": 0.4383022370212461,
+              "period": 2281.530677999999,
+              "mean": 2281.530677999999,
+              "variance": 0,
+              "sd": 0,
+              "sem": 0,
+              "df": 0,
+              "critical": 12.71,
+              "moe": 0,
+              "p75": 2281.530677999999,
+              "p99": 2281.530677999999,
+              "p995": 2281.530677999999,
+              "p999": 2281.530677999999,
+              "sampleCount": 1,
+              "median": 2281.530677999999
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
