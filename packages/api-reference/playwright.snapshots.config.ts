@@ -1,5 +1,4 @@
 import { defineConfig, type PlaywrightTestConfig } from '@playwright/test'
-
 type WebServer = PlaywrightTestConfig['webServer']
 
 const CI = Boolean(process.env.CI)
@@ -39,7 +38,7 @@ const devServer: WebServer = {
 // https://playwright.dev/docs/test-configuration
 export default defineConfig({
   testMatch: 'test-snapshots/**/*.e2e.ts',
-
+  workers: '100%',
   reporter: CI
     ? [
         ['list'],

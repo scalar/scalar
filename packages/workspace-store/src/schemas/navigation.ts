@@ -1,5 +1,5 @@
 import { compose } from '@/schemas/compose'
-import { Type, type Static, type TSchema } from '@sinclair/typebox'
+import { Type, type Static } from '@scalar/typebox'
 
 export const NavigationBaseSchema = Type.Object({
   type: Type.Union([
@@ -58,32 +58,34 @@ export const TraversedWebhookSchema = compose(
 
 export type TraversedWebhook = Static<typeof TraversedWebhookSchema>
 
-// Recursive schemas for traversed tags and entries
-const traversedTagSchemaBuilder = <T extends TSchema>(traversedEntrySchema: T) =>
-  compose(
-    NavigationBaseSchema,
-    Type.Object({
-      type: Type.Literal('tag'),
-      name: Type.String(),
-      children: Type.Optional(Type.Array(traversedEntrySchema)),
-      isGroup: Type.Boolean(),
-    }),
-  )
+const TraversedEntryRef = Type.Ref('TraversedEntrySchema')
+const TraversedTagRef = Type.Ref('TraversedTagSchema')
 
-const traversedEntrySchemaBuilder = <T extends TSchema>(traversedTagSchema: T) =>
-  Type.Union([
-    TraversedDescriptionSchema,
-    TraversedOperationSchema,
-    TraversedSchemaSchema,
-    traversedTagSchema,
-    TraversedWebhookSchema,
-  ])
-
-export const TraversedTagSchema = Type.Recursive((This) => traversedTagSchemaBuilder(traversedEntrySchemaBuilder(This)))
-
-export const TraversedEntrySchema = Type.Recursive((This) =>
-  traversedEntrySchemaBuilder(traversedTagSchemaBuilder(This)),
+const TraversedTagSchemaDefinition = compose(
+  NavigationBaseSchema,
+  Type.Object({
+    type: Type.Literal('tag'),
+    name: Type.String(),
+    children: Type.Optional(Type.Array(TraversedEntryRef)),
+    isGroup: Type.Boolean(),
+  }),
 )
+
+const TraversedEntrySchemaDefinition = Type.Union([
+  TraversedTagRef,
+  TraversedDescriptionSchema,
+  TraversedOperationSchema,
+  TraversedSchemaSchema,
+  TraversedWebhookSchema,
+])
+
+const module = Type.Module({
+  TraversedTagSchema: TraversedTagSchemaDefinition,
+  TraversedEntrySchema: TraversedEntrySchemaDefinition,
+})
+
+export const TraversedTagSchema = module.Import('TraversedTagSchema')
+export const TraversedEntrySchema = module.Import('TraversedEntrySchema')
 
 export type TraversedTag = Static<typeof TraversedTagSchema>
 export type TraversedEntry = Static<typeof TraversedEntrySchema>

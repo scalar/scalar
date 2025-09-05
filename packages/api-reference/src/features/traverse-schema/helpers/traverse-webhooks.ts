@@ -2,8 +2,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { TagsMap, TraversedWebhook } from '@/features/traverse-schema/types'
 import type { UseNavState } from '@/hooks/useNavState'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
-import type { TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/tag'
+import type { OperationObject, TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { getTag } from './get-tag'
 
 /** Handles creating entries for webhooks */

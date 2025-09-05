@@ -11,14 +11,19 @@ const NEW_PROXY_URL = 'https://proxy.scalar.com'
  *
  * @throws an error if the fetch fails
  */
-export async function fetchDocument(url: string, proxyUrl?: string, prettyPrint = true): Promise<string> {
+export async function fetchDocument(
+  url: string,
+  proxyUrl?: string,
+  fetcher?: (input: string | URL | globalThis.Request, init?: RequestInit) => Promise<Response>,
+  prettyPrint = true,
+): Promise<string> {
   // This replaces the OLD_PROXY_URL with the NEW_PROXY_URL on the fly.
   if (proxyUrl === OLD_PROXY_URL) {
     // biome-ignore lint/style/noParameterAssign: It's ok, let's make an exception here.
     proxyUrl = NEW_PROXY_URL
   }
 
-  const response = await fetch(redirectToProxy(proxyUrl, url))
+  const response = await (fetcher ? fetcher(url, undefined) : fetch(redirectToProxy(proxyUrl, url)))
 
   // Looks like the request failed
   if (response.status !== 200) {

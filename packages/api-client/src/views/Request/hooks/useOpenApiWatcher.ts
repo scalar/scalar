@@ -89,7 +89,7 @@ export const useOpenApiWatcher = () => {
 
     try {
       // Grab the new spec
-      const spec = await fetchDocument(url, activeWorkspace.value?.proxyUrl, false)
+      const spec = await fetchDocument(url, activeWorkspace.value?.proxyUrl, undefined, false)
       const hash = createHash(spec)
 
       collectionMutators.edit(activeCollection.value.uid, 'watchModeStatus', 'WATCHING')

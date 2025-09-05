@@ -1,19 +1,24 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
-const MAX_LEVELS_DEEP = 5
+const MAX_LEVELS_DEEP = 10
 /** Sets the max number of properties after the third level to prevent exponential horizontal growth */
 const MAX_PROPERTIES = 10
 
 /** The default name for additional properties. */
 const DEFAULT_ADDITIONAL_PROPERTIES_NAME = 'propertyName*'
 
+/** Pre-computed values to avoid expensive date operations */
+const currentISOString = new Date().toISOString()
+const currentDateString = currentISOString.split('T')[0]!
+const currentTimeString = currentISOString.split('T')[1]!.split('.')[0]!
+
 const genericExampleValues: Record<string, string> = {
   // 'date-time': '1970-01-01T00:00:00Z',
-  'date-time': new Date().toISOString(),
+  'date-time': currentISOString,
   // 'date': '1970-01-01',
-  'date': new Date().toISOString().split('T')[0]!,
+  'date': currentDateString,
   'email': 'hello@example.com',
   'hostname': 'example.com',
   // https://tools.ietf.org/html/rfc6531#section-3.3
@@ -32,7 +37,7 @@ const genericExampleValues: Record<string, string> = {
   'relative-json-pointer': '1/nested/objects',
   // full-time in https://tools.ietf.org/html/rfc3339#section-5.6
   // 'time': '00:00:00Z',
-  'time': new Date().toISOString().split('T')[1]!.split('.')[0]!,
+  'time': currentTimeString,
   // either a URI or relative-reference https://tools.ietf.org/html/rfc3986#section-4.1
   'uri-reference': '../folder',
   'uri-template': 'https://example.com/{id}',
@@ -107,25 +112,21 @@ export const getExampleFromSchema = (
     return undefined
   }
 
-  // Check if the result is already cached
+  // Check if we have a cached result for this schema
   if (resultCache.has(schema)) {
     return resultCache.get(schema)
   }
 
-  // Check whether it's a circular reference
-  if (level === MAX_LEVELS_DEEP + 1) {
-    try {
-      // Fails if it contains a circular reference
-      JSON.stringify(schema)
-    } catch {
-      return '[Circular Reference]'
-    }
+  // Check depth limit
+  if (level > MAX_LEVELS_DEEP) {
+    return '[Max Depth Exceeded]'
   }
 
   // Sometimes, we just want the structure and no values.
   // But if `emptyString` is  set, we do want to see some values.
   const makeUpRandomData = !!options?.emptyString
 
+  // Early exits for simple cases
   // If the property is deprecated anyway, we don't want to show it.
   if (schema.deprecated) {
     return undefined
@@ -144,7 +145,8 @@ export const getExampleFromSchema = (
     if (value !== undefined) {
       // Type-casting
       if (schema.type === 'number' || schema.type === 'integer') {
-        return Number.parseInt(value, 10)
+        const numValue = Number.parseInt(value, 10)
+        return cache(schema, numValue)
       }
 
       return cache(schema, value)
@@ -201,46 +203,43 @@ export const getExampleFromSchema = (
     const response: Record<string, any> = {}
     let propertyCount = 0
 
-    // Regular properties
+    // Regular properties - optimized iteration
     if (schema.properties !== undefined) {
-      for (const propertyName in schema.properties) {
-        if (Object.prototype.hasOwnProperty.call(schema.properties, propertyName)) {
-          // Only apply property limit for nested levels (level > 0)
-          if (level > 3 && propertyCount >= MAX_PROPERTIES) {
-            response['...'] = '[Additional Properties Truncated]'
-            break
-          }
+      const propertyNames = Object.keys(schema.properties)
+      const maxProps = level > 3 ? MAX_PROPERTIES : propertyNames.length
 
-          const property = getResolvedRef(schema.properties[propertyName])
-          const propertyXmlTagName = options?.xml ? property?.xml?.name : undefined
-          if (!property) {
-            continue
-          }
+      for (const propertyName of propertyNames.slice(0, maxProps)) {
+        const property = getResolvedRef(schema.properties[propertyName])
 
-          const value = getExampleFromSchema(property, options, level + 1, schema, propertyName)
-
-          if (typeof value !== 'undefined') {
-            response[propertyXmlTagName ?? propertyName] = value
-            propertyCount++
-          }
+        if (!property) {
+          continue
         }
+
+        const propertyXmlTagName = options?.xml ? property?.xml?.name : undefined
+        const value = getExampleFromSchema(property, options, level + 1, schema, propertyName)
+
+        if (typeof value !== 'undefined') {
+          response[propertyXmlTagName ?? propertyName] = value
+          propertyCount++
+        }
+      }
+
+      // Add truncation indicator if we hit the limit
+      if (level > 3 && propertyCount >= MAX_PROPERTIES && propertyNames.length > MAX_PROPERTIES) {
+        response['...'] = '[Additional Properties Truncated]'
       }
     }
 
-    // Pattern properties (regex)
+    // Pattern properties (regex) - optimized iteration
     if (schema.patternProperties !== undefined) {
-      for (const pattern in schema.patternProperties) {
-        if (Object.prototype.hasOwnProperty.call(schema.patternProperties, pattern)) {
-          const property = getResolvedRef(schema.patternProperties[pattern])
-          if (!property) {
-            continue
-          }
-
-          // Use the regex pattern as an example key
-          const exampleKey = pattern
-
-          response[exampleKey] = getExampleFromSchema(property, options, level + 1, schema, exampleKey)
+      for (const pattern of Object.keys(schema.patternProperties)) {
+        const property = getResolvedRef(schema.patternProperties[pattern])
+        if (!property) {
+          continue
         }
+
+        // Use the regex pattern as an example key
+        response[pattern] = getExampleFromSchema(property, options, level + 1, schema, pattern)
       }
     }
 
@@ -310,12 +309,11 @@ export const getExampleFromSchema = (
         const allOf = items.allOf.filter(isDefined)
         const firstItem = getResolvedRef(allOf[0])
 
-        // IfirstItemem is an object type, merge all schemas
+        // If first item is an object type, merge all schemas
         if (firstItem?.type === 'object') {
           const combined = { type: 'object', allOf } as SchemaObject
 
           const mergedExample = getExampleFromSchema(combined, options, level + 1, schema)
-
           return cache(schema, wrapItems ? [{ [itemsXmlTagName]: mergedExample }] : [mergedExample])
         }
         // For non-objects (like strings), collect all examples
@@ -326,19 +324,17 @@ export const getExampleFromSchema = (
         return cache(schema, wrapItems ? examples.map((example: any) => ({ [itemsXmlTagName]: example })) : examples)
       }
 
-      // Handle other rules (anyOf, oneOf)
-      const rules = ['anyOf', 'oneOf'] as const
-      for (const rule of rules) {
-        if (!items[rule]) {
-          continue
+      // Handle other rules (anyOf, oneOf) - optimized
+      if (items.anyOf || items.oneOf) {
+        const ruleItems = items.anyOf || items.oneOf
+        if (ruleItems && ruleItems.length > 0) {
+          const firstItem = ruleItems[0]
+          if (firstItem) {
+            const exampleFromRule = getExampleFromSchema(getResolvedRef(firstItem), options, level + 1, schema)
+
+            return cache(schema, wrapItems ? [{ [itemsXmlTagName]: exampleFromRule }] : [exampleFromRule])
+          }
         }
-
-        const schemas = items[rule].slice(0, 1)
-        const exampleFromRule = schemas
-          .map((item) => getExampleFromSchema(getResolvedRef(item), options, level + 1, schema))
-          .filter(isDefined)
-
-        return cache(schema, wrapItems ? [{ [itemsXmlTagName]: exampleFromRule }] : exampleFromRule)
       }
     }
 
@@ -349,11 +345,10 @@ export const getExampleFromSchema = (
 
     if (items?.type || isObject || isArray) {
       const exampleFromSchema = getExampleFromSchema(items, options, level + 1)
-
-      return wrapItems ? [{ [itemsXmlTagName]: exampleFromSchema }] : [exampleFromSchema]
+      return cache(schema, wrapItems ? [{ [itemsXmlTagName]: exampleFromSchema }] : [exampleFromSchema])
     }
 
-    return []
+    return cache(schema, [])
   }
 
   const exampleValues: Record<any, any> = {
@@ -375,11 +370,12 @@ export const getExampleFromSchema = (
 
     if (firstNonNullItem) {
       // Return an example for the first non-null item
-      return getExampleFromSchema(firstNonNullItem, options, level + 1)
+      const result = getExampleFromSchema(firstNonNullItem, options, level + 1)
+      return cache(schema, result)
     }
 
     // If all items are null, return null
-    return null
+    return cache(schema, null)
   }
 
   // Check if schema has the `allOf` key
@@ -410,7 +406,7 @@ export const getExampleFromSchema = (
   if (Array.isArray(schema.type)) {
     // Return null if the type is nullable
     if (schema.type.includes('null')) {
-      return null
+      return cache(schema, null)
     }
     // Return an example for the first type in the union
     const exampleValue = exampleValues[schema.type[0] ?? '']
@@ -423,5 +419,5 @@ export const getExampleFromSchema = (
   // console.warn(`[getExampleFromSchema] Unknown property type "${schema.type}".`)
 
   // … and just return null for now.
-  return null
+  return cache(schema, null)
 }

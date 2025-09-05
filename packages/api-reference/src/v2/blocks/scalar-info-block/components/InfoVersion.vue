@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { InfoObject } from '@scalar/workspace-store/schemas/v3.1/strict/info'
+import type { InfoObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import { Badge } from '@/components/Badge'

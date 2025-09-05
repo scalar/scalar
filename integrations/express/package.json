@@ -17,7 +17,7 @@
   "scripts": {
     "build": "scalar-build-esbuild",
     "build:playground": "cd playground && pnpm build",
-    "dev:doesnt-work": "cd playground && pnpm dev",
+    "dev": "nodemon --exec \"vite-node playground/index.ts\" --watch playground --ext ts --quiet",
     "docker:build": "docker build --build-arg BASE_IMAGE=scalar-base -t express-api-reference -f Dockerfile .",
     "docker:run": "docker run -p 5055:5055 express-api-reference",
     "format": "scalar-format",
@@ -53,6 +53,8 @@
     "express": "catalog:*",
     "supertest": "^6.3.3",
     "vite": "catalog:*",
-    "vitest": "catalog:*"
+    "vitest": "catalog:*",
+    "swagger-jsdoc": "^6.2.8",
+    "@types/swagger-jsdoc": "^6.0.3"
   }
 }

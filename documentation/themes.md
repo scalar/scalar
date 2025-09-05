@@ -8,7 +8,7 @@ You don't like the color scheme? We've prepared some themes for you:
 <ApiReference :configuration="{ theme: 'moon' }" />
 ```
 
-> [!NOTE]\
+> [!NOTE]
 > The `default` theme is … the default theme.
 > If you want to make sure **no** theme is applied, pass `none`.
 
@@ -37,7 +37,7 @@ To get started, overwrite our CSS variables. We won't judge.
 </style>
 ```
 
-> [!NOTE]\
+> [!NOTE]
 > By default, we're using Inter and JetBrains Mono, served by our in-house CDN.
 
 If you want use a different font or want to use Google Fonts, pass `withDefaultFonts: false` to the configuration and overwrite the `--scalar-font` and `--scalar-font-code` CSS variables. You will also need to provide the source of your new font which can be local or served over the network.

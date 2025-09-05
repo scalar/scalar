@@ -44,10 +44,6 @@
 
     // Packages
     {
-      "matchFileNames": ["packages/**"],
-      "labels": ["package"]
-    },
-    {
       "matchFileNames": ["packages/api-client/**"],
       "additionalBranchPrefix": "api-client"
     },
@@ -198,10 +194,6 @@
 
     // Integrations
     {
-      "matchFileNames": ["integrations/**"],
-      "labels": ["integration"]
-    },
-    {
       "matchFileNames": ["integrations/aspire/**"],
       "additionalBranchPrefix": "aspire"
     },
@@ -220,10 +212,6 @@
     {
       "matchFileNames": ["integrations/docusaurus/**", "examples/docusaurus/**"],
       "additionalBranchPrefix": "docusaurus"
-    },
-    {
-      "matchFileNames": ["integrations/express/**", "examples/express/**"],
-      "additionalBranchPrefix": "express"
     },
     {
       "matchFileNames": ["integrations/fastapi/**"],
@@ -328,6 +316,13 @@
       "matchFileNames": ["**/Scalar.Aspire.csproj"],
       "matchPackageNames": ["Aspire.Hosting"],
       "matchUpdateTypes": ["patch"],
+      "enabled": false
+    },
+
+    // Disable node updates for Aspire playground image
+    {
+      "matchFileNames": ["**/aspire/playground/**"],
+      "matchDatasources": ["docker"],
       "enabled": false
     },
 

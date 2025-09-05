@@ -1044,12 +1044,8 @@ components:
         orbit:
           type: object
           properties:
-            planetId:
-              type: integer
-              format: int64
-              description: The ID of the planet this satellite orbits
-              examples:
-                - 1
+            planet:
+              $ref: '#/components/schemas/Planet'
             orbitalPeriod:
               type: number
               format: float

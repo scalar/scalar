@@ -23,6 +23,12 @@ export function isGroups(options: Option[] | OptionGroup[]): options is OptionGr
   return isGroup(options[0])
 }
 
+/** Available events emitted by the combobox */
+export type ComboboxEmits = {
+  /** Emitted when the "Add a new option" button is clicked */
+  add: []
+}
+
 /** Available slots for the combobox */
 export type ComboboxSlots<O extends Option = Option, G extends OptionGroup<O> = OptionGroup<O>> = {
   /** The reference element / trigger for the combobox */
@@ -31,8 +37,6 @@ export type ComboboxSlots<O extends Option = Option, G extends OptionGroup<O> = 
   option?(props: { option: O; active: boolean; selected: boolean }): unknown
   /** A template to override the group label */
   group?(props: { group: G }): unknown
-  /** A slot for contents before the combobox options */
-  before?(): unknown
-  /** A slot for contents after the combobox options */
-  after?(): unknown
+  /** Creates an "Add a new option" button after the options list*/
+  add?(props: { active: boolean }): unknown
 }

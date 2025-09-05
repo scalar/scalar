@@ -1,7 +1,7 @@
 import { getExampleFromSchema } from '@/spec-getters/get-example-from-schema'
 import { json2xml } from '@scalar/helpers/file/json2xml'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/request-body'
+import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { Param, PostData } from 'har-format'
 import type { OperationToHarProps } from './operation-to-har'
 

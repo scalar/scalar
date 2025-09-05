@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { XPostResponseSchema } from './x-post-response'
-import { Value } from '@sinclair/typebox/value'
+import { Value } from '@scalar/typebox/value'
 
 describe('x-post-response', () => {
   it('validates a valid post response script', () => {

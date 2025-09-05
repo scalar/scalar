@@ -85,6 +85,7 @@ const {
  */
 const proxy = (
   input: string | URL | globalThis.Request,
+  // eslint-disable-next-line no-undef
   init?: RequestInit,
 ) => {
   return fetch(
@@ -165,7 +166,7 @@ const addOrUpdateDocument = async (
       url: makeUrlAbsolute(config.url, {
         basePath: selectedConfiguration.value.pathRouting?.basePath,
       }),
-      fetch: proxy,
+      fetch: config.fetch ?? proxy,
       config: mapConfiguration(config),
     })
   }
@@ -283,6 +284,9 @@ useFavicon(favicon)
       </template>
       <template #sidebar-start>
         <slot name="sidebar-start" />
+      </template>
+      <template #sidebar-end>
+        <slot name="sidebar-end" />
       </template>
     </ApiReferenceLayout>
   </div>

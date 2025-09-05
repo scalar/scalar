@@ -1,10 +1,12 @@
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import type { AvailableClients } from '@scalar/snippetz'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
+import type {
+  OperationObject,
+  ServerObject,
+  SecuritySchemeObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'

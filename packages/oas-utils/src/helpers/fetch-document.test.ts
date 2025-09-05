@@ -80,4 +80,19 @@ describe('fetchDocument', () => {
   it('throws error when fetch fails', async () => {
     await expect(fetchDocument('https://does-not-exist.scalar.com/spec.yaml')).rejects.toThrow('fetch failed')
   })
+
+  it('uses custom fetch implementation', async () => {
+    const fn = vi.fn()
+
+    const fetcher = async (...args: any) => {
+      fn(...args)
+      return new Response('custom-fetch', { status: 200 })
+    }
+
+    const spec = await fetchDocument('https://example.com/spec.yaml', undefined, fetcher)
+
+    expect(fn).toHaveBeenCalled()
+    expect(fn).toHaveBeenCalledWith('https://example.com/spec.yaml', undefined)
+    expect(spec).toEqual('custom-fetch')
+  })
 })

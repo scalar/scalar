@@ -1,5 +1,5 @@
 import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
+import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 /**
  * Convert the old security scheme to the new one with secret extensions

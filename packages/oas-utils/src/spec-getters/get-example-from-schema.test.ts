@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { getExampleFromSchema } from './get-example-from-schema'
 
 describe('getExampleFromSchema', () => {
@@ -1507,14 +1507,24 @@ describe('getExampleFromSchema', () => {
       // Create a circular reference
       schema.properties!.foobar = schema
 
-      // 10 levels deep, that's enough. It should return null then.
+      // 10 levels deep, that's enough. It should hit the max depth limit and return '[Max Depth Exceeded]'
       expect(getExampleFromSchema(schema)).toStrictEqual({
         foobar: {
           foobar: {
             foobar: {
               foobar: {
                 foobar: {
-                  foobar: '[Circular Reference]',
+                  foobar: {
+                    foobar: {
+                      foobar: {
+                        foobar: {
+                          foobar: {
+                            foobar: '[Max Depth Exceeded]',
+                          },
+                        },
+                      },
+                    },
+                  },
                 },
               },
             },

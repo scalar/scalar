@@ -14,6 +14,7 @@ public class ScalarOptionsMapperTests
         // Assert
         configuration.ProxyUrl.Should().BeNull();
         configuration.ShowSidebar.Should().BeTrue();
+        configuration.OperationTitleSource.Should().BeNull();
         configuration.HideModels.Should().BeFalse();
         configuration.DocumentDownloadType.Should().BeNull();
         configuration.HideTestRequestButton.Should().BeFalse();
@@ -46,6 +47,7 @@ public class ScalarOptionsMapperTests
         {
             ProxyUrl = "http://localhost:8080",
             ShowSidebar = false,
+            OperationTitleSource = OperationTitleSource.Path,
             HideModels = true,
             HideTestRequestButton = true,
             DarkMode = false,
@@ -86,6 +88,7 @@ public class ScalarOptionsMapperTests
         // Assert
         configuration.ProxyUrl.Should().Be("http://localhost:8080");
         configuration.ShowSidebar.Should().BeFalse();
+        configuration.OperationTitleSource.Should().Be(OperationTitleSource.Path);
         configuration.HideModels.Should().BeTrue();
         configuration.DocumentDownloadType.Should().Be(DocumentDownloadType.None);
         configuration.HideTestRequestButton.Should().BeTrue();

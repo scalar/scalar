@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { XScalarSecurityQuery } from './x-scalar-security-query'
-import { Value } from '@sinclair/typebox/value'
+import { Value } from '@scalar/typebox/value'
 
 describe('XScalarSecurityQuery', () => {
   it('allows any property', () => {

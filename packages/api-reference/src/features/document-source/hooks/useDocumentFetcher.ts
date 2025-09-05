@@ -9,7 +9,7 @@ import { type MaybeRefOrGetter, ref, toValue, watch } from 'vue'
 export function useDocumentFetcher({
   configuration,
 }: {
-  configuration?: MaybeRefOrGetter<Pick<ApiReferenceConfiguration, 'url' | 'content' | 'proxyUrl'>>
+  configuration?: MaybeRefOrGetter<Pick<ApiReferenceConfiguration, 'url' | 'content' | 'proxyUrl' | 'fetch'>>
 }) {
   /** OpenAPI document as a string */
   const originalDocument = ref<string>('')
@@ -21,7 +21,7 @@ export function useDocumentFetcher({
         return
       }
 
-      const content = await getContent(newConfig, toValue(configuration)?.proxyUrl)
+      const content = await getContent(newConfig, toValue(configuration)?.proxyUrl, toValue(configuration)?.fetch)
 
       if (typeof content === 'string') {
         originalDocument.value = content.trim()
@@ -44,11 +44,15 @@ export function useDocumentFetcher({
  * 4. If the content is a function, call it and get the content.
  * 5. Otherwise, return an empty string.
  */
-const getContent = async ({ url, content }: SpecConfiguration, proxyUrl?: string): Promise<string | undefined> => {
+const getContent = async (
+  { url, content }: SpecConfiguration,
+  proxyUrl?: string,
+  fetch?: (input: string | URL | globalThis.Request, init?: RequestInit) => Promise<Response>,
+): Promise<string | undefined> => {
   // Fetch from URL only if we do not already have the content
   if (url && !content) {
     try {
-      const result = await fetchDocument(url, proxyUrl)
+      const result = await fetchDocument(url, proxyUrl, fetch)
 
       return result
     } catch (error) {

@@ -4,6 +4,11 @@ type WebServer = PlaywrightTestConfig['webServer']
 
 const CI = !!process.env.CI
 
+const isLinux = process.platform === 'linux' && !CI
+
+/** Linux uses the host network to connect to the dev server */
+const network = isLinux ? 'host' : 'bridge'
+
 /**
  * Playwright Test Server
  *
@@ -12,7 +17,7 @@ const CI = !!process.env.CI
  */
 const playwrightServer: WebServer = {
   name: 'Playwright',
-  command: 'pnpm test:e2e:playwright',
+  command: `NETWORK=${network} pnpm test:e2e:playwright`,
   url: 'http://localhost:5001',
   timeout: 120 * 1000,
   reuseExistingServer: !CI,
@@ -59,9 +64,10 @@ export default defineConfig({
    * @see https://playwright.dev/docs/ci#via-containers
    */
   webServer: CI ? [storybookServer] : [playwrightServer, storybookServer],
+  workers: '100%',
   use: {
-    /** The base URL is on the docker host where we're running storybook */
-    baseURL: CI ? 'http://localhost:5100/' : 'http://host.docker.internal:5100/',
+    /** The base URL is on the docker host where we're running Vite */
+    baseURL: CI || isLinux ? 'http://localhost:5100/' : 'http://host.docker.internal:5100/',
     /** Use a smaller viewport for components */
     viewport: { width: 640, height: 480 },
     /** Save a screenshot on failure */

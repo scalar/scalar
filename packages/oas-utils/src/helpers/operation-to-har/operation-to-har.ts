@@ -5,9 +5,11 @@ import { processServerUrl } from './process-server-url'
 import { processParameters } from './process-parameters'
 import { processBody } from './process-body'
 import { processSecuritySchemes } from './process-security-schemes'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
+import type {
+  ServerObject,
+  SecuritySchemeObject,
+  OperationObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 
 export type OperationToHarProps = {

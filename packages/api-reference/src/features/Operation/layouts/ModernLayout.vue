@@ -10,9 +10,11 @@ import {
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
+import type {
+  OperationObject,
+  SecuritySchemeObject,
+  ServerObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, useId } from 'vue'
 
 import { Anchor } from '@/components/Anchor'

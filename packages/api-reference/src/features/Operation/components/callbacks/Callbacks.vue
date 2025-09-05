@@ -2,7 +2,7 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { CallbackObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
+import type { CallbackObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import type { Schemas } from '@/features/Operation/types/schemas'
 
@@ -41,8 +41,8 @@ const {
             v-if="isHttpMethod(method)"
             :callback="callback"
             :method="method"
-            :operationMethod="operationMethod"
             :name="name"
+            :operationMethod="operationMethod"
             :path="path"
             :schemas="schemas"
             :url="url" />

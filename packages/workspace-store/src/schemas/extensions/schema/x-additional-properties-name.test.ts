@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { XAdditionalPropertiesNameSchema } from './x-additional-properties-name'
-import { Value } from '@sinclair/typebox/value'
+import { Value } from '@scalar/typebox/value'
 
 describe('XAdditionalPropertiesNameSchema', () => {
   it('accepts a valid additional properties name', () => {

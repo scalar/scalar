@@ -1,4 +1,4 @@
-import { Type } from '@sinclair/typebox'
+import { Type } from '@scalar/typebox'
 
 /**
  * Post response scripts allow to execute arbitrary code after a response is received

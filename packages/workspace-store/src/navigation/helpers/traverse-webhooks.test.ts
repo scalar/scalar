@@ -1,8 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { traverseWebhooks } from './traverse-webhooks'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
-import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
-import type { TagObject } from '@/schemas/v3.1/strict/tag'
+import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
 import type { TraversedEntry } from '@/schemas/navigation'
 
 describe('traverse-webhooks', () => {

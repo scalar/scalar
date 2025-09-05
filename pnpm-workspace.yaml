@@ -26,8 +26,8 @@ catalogs:
     '@google-cloud/storage': 7.16.0
     '@headlessui/tailwindcss': ^0.2.2
     '@headlessui/vue': ^1.7.23
-    '@playwright/test': 1.54.0
-    '@sinclair/typebox': https://github.com/DemonHa/typebox/raw/c68bffb2e646570b5de9071764a9dae124f3a66c/target/sinclair-typebox-0.34.40.tgz
+    '@playwright/test': 1.55.0
+    '@scalar/typebox': 0.1.1
     '@tailwindcss/vite': ^4.1.7
     '@types/express': 5.0.3
     '@types/node': ^22.9.0
@@ -52,7 +52,7 @@ catalogs:
     js-base64: ^3.7.8
     microdiff: ^1.5.0
     nanoid: 5.1.5
-    next: ^15.3.3
+    next: ^15.4.7
     picomatch: 4.0.2
     postcss: ^8.4.38
     prettier: 3.5.3

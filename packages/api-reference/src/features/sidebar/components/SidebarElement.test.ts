@@ -4,7 +4,7 @@ import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import SidebarElement from './SidebarElement.vue'
 
 // Mock the dependencies

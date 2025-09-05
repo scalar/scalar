@@ -12,6 +12,7 @@ import { Models } from '@/components/Content/Models'
 import { SectionFlare } from '@/components/SectionFlare'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import { DEFAULT_INTRODUCTION_SLUG } from '@/features/traverse-schema'
+import { useFreezing } from '@/hooks/useFreezing'
 import { useNavState } from '@/hooks/useNavState'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 import { ClientSelector } from '@/v2/blocks/scalar-client-selector-block'
@@ -27,6 +28,8 @@ const { store, config } = defineProps<{
   config: ApiReferenceConfiguration
   store: WorkspaceStore
 }>()
+
+useFreezing()
 
 /**
  * Generate all client options so that it can be shared between the top client picker and the operations

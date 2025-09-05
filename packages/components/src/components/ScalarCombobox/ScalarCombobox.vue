@@ -7,6 +7,7 @@ import type { ScalarFloatingOptions } from '../ScalarFloating'
 import ComboboxOptions from './ScalarComboboxOptions.vue'
 import ComboboxPopover from './ScalarComboboxPopover.vue'
 import type {
+  ComboboxEmits,
   ComboboxSlots,
   Option,
   OptionGroup,
@@ -21,6 +22,8 @@ defineProps<
 >()
 
 const model = defineModel<O>()
+
+const emit = defineEmits<ComboboxEmits>()
 
 defineSlots<ComboboxSlots<O, G>>()
 </script>
@@ -41,13 +44,9 @@ defineSlots<ComboboxSlots<O, G>>()
         :open
         :options
         :placeholder
-        @update:modelValue="(v) => (close(), (model = v[0]))">
+        @update:modelValue="(v) => (close(), (model = v[0]))"
+        @add="() => (close(), emit('add'))">
         <!-- Pass through the combobox slots -->
-        <template
-          v-if="$slots.before"
-          #before>
-          <slot name="before" />
-        </template>
         <template
           v-if="$slots.option"
           #option="props">
@@ -63,9 +62,11 @@ defineSlots<ComboboxSlots<O, G>>()
             v-bind="props" />
         </template>
         <template
-          v-if="$slots.after"
-          #after>
-          <slot name="after" />
+          v-if="$slots.add"
+          #add="props">
+          <slot
+            name="add"
+            v-bind="props" />
         </template>
       </ComboboxOptions>
     </template>

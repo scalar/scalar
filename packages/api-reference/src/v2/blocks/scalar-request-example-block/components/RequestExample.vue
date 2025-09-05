@@ -84,9 +84,11 @@ import { operationToHar } from '@scalar/oas-utils/helpers/operation-to-har'
 import { type AvailableClients, type TargetId } from '@scalar/snippetz'
 import { emitCustomEvent } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
+import type {
+  OperationObject,
+  SecuritySchemeObject,
+  ServerObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'

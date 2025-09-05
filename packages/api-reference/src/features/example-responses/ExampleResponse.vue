@@ -2,8 +2,10 @@
 import { ScalarCodeBlock } from '@scalar/components'
 import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/example'
-import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/media-header-encoding'
+import type {
+  ExampleObject,
+  MediaTypeObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { getResolvedRefDeep } from './helpers/get-resolved-ref-deep'
 
