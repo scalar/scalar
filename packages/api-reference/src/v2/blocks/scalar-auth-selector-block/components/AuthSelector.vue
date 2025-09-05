@@ -33,7 +33,8 @@ import type {
 } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { isDefined } from '@scalar/oas-utils/helpers'
-import { computed, ref, useId } from 'vue'
+import { emitCustomEvent } from '@scalar/workspace-store/events'
+import { computed, ref, useId, useTemplateRef } from 'vue'
 
 import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
 import RequestAuthDataTable from './RequestAuthDataTable.vue'
@@ -63,12 +64,7 @@ const {
 }>()
 
 const { layout: clientLayout } = useLayout()
-const {
-  securitySchemes,
-  securitySchemeMutators,
-  requestMutators,
-  collectionMutators,
-} = useWorkspace()
+const { securitySchemes, requestMutators } = useWorkspace()
 
 const titleId = useId()
 
@@ -148,12 +144,12 @@ function updateSelectedAuth(entries: SecuritySchemeOption[]) {
   // Adding new auth
   if (addNewOption?.payload) {
     // Create new scheme
-    const scheme = securitySchemeMutators.add(
-      addNewOption.payload,
-      collection?.uid,
-    )
-    if (scheme) {
-      _entries.push(scheme.uid)
+    emitCustomEvent(wrapperRef.value?.$el, 'scalar-add-auth-option', {
+      payload: addNewOption.payload,
+    })
+
+    if (addNewOption.payload.uid) {
+      _entries.push(addNewOption.payload.uid as SecurityScheme['uid'])
     }
   }
 
@@ -163,7 +159,10 @@ function updateSelectedAuth(entries: SecuritySchemeOption[]) {
 const editSelectedSchemeUids = (uids: SelectedSecuritySchemeUids) => {
   // Set as selected on the collection for the modal
   if (collection.useCollectionSecurity) {
-    collectionMutators.edit(collection.uid, 'selectedSecuritySchemeUids', uids)
+    // Update selected security schemes
+    emitCustomEvent(wrapperRef.value?.$el, 'scalar-select-security-schemes', {
+      uids: uids as string[],
+    })
 
     if (!persistAuth) {
       return
@@ -232,9 +231,12 @@ const openAuthCombobox = (event: Event) => {
 
   comboboxButtonRef.value?.$el.click()
 }
+
+const wrapperRef = useTemplateRef('wrapperRef')
 </script>
 <template>
   <ViewLayoutCollapse
+    ref="wrapperRef"
     class="group/params relative"
     :itemCount="selectedSchemeOptions.length"
     :layout="layout"

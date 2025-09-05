@@ -17,6 +17,7 @@ import {
 } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { useToasts } from '@scalar/use-toasts'
+import { useTemplateRef } from 'vue'
 
 import { updateScheme as _updateScheme } from '../helpers/update-scheme'
 import OAuthScopesInput from './OAuthScopesInput.vue'
@@ -48,7 +49,14 @@ const storeContext = useWorkspace()
 
 /** Update the current scheme */
 const updateScheme: UpdateScheme = (path, value) =>
-  _updateScheme(scheme.uid, path, value, storeContext, persistAuth)
+  _updateScheme(
+    scheme.uid,
+    path,
+    value,
+    storeContext,
+    wrapperRef.value,
+    persistAuth,
+  )
 
 /** Authorize the user using specified flow */
 const handleAuthorize = async () => {
@@ -81,9 +89,12 @@ const dataTableInputProps = {
   envVariables,
   workspace,
 }
+
+const wrapperRef = useTemplateRef('wrapperRef')
 </script>
 
 <template>
+  <div ref="wrapperRef"></div>
   <!-- Access Token Granted -->
   <template v-if="flow.token">
     <DataTableRow>

@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { useWorkspace } from '@scalar/api-client/store'
 import { ScalarButton, ScalarModal } from '@scalar/components'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
+import { emitCustomEvent } from '@scalar/workspace-store/events'
+import { useTemplateRef } from 'vue'
 
 const props = defineProps<{
   state: { open: boolean; show: () => void; hide: () => void }
@@ -13,17 +14,20 @@ const emit = defineEmits<{
   (e: 'delete'): void
 }>()
 
-const { securitySchemeMutators } = useWorkspace()
-
 const deleteScheme = () => {
   if (props.scheme?.id) {
-    securitySchemeMutators.delete(props.scheme.id)
+    emitCustomEvent(wrapperRef.value?.$el, 'scalar-delete-security-scheme', {
+      uid: props.scheme.id,
+    })
   }
   emit('delete')
 }
+
+const wrapperRef = useTemplateRef('wrapperRef')
 </script>
 <template>
   <ScalarModal
+    ref="wrapperRef"
     size="xxs"
     :state="state"
     title="Delete Security Scheme">

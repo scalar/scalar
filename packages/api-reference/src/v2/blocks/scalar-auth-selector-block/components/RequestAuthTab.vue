@@ -18,8 +18,9 @@ import type {
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
+import { emitCustomEvent } from '@scalar/workspace-store/events'
 import type { Entries } from 'type-fest'
-import { capitalize, computed, onMounted, ref } from 'vue'
+import { capitalize, computed, onMounted, ref, useTemplateRef } from 'vue'
 
 import {
   updateScheme as _updateScheme,
@@ -49,8 +50,7 @@ const {
 }>()
 
 const storeContext = useWorkspace()
-const { collectionMutators, securitySchemes, securitySchemeMutators } =
-  storeContext
+const { securitySchemes } = storeContext
 const security = computed(() =>
   securitySchemeUids.map((uid) => ({
     scheme: securitySchemes[uid],
@@ -95,7 +95,7 @@ const updateScheme = <
   path: P,
   value: NonNullable<PathValue<SecurityScheme, P>>,
 ) => {
-  _updateScheme(uid, path, value, storeContext, persistAuth)
+  _updateScheme(uid, path, value, storeContext, wrapperRef.value, persistAuth)
 }
 
 // Restore auth from local storage on mount
@@ -126,7 +126,11 @@ onMounted(() => {
     if (uid) {
       const entries = Object.entries(entry) as Entries<typeof entry>
       entries.forEach(([path, value]) => {
-        securitySchemeMutators.edit(uid, path, value)
+        emitCustomEvent(wrapperRef.value, 'scalar-edit-security-scheme', {
+          uid,
+          path,
+          value,
+        })
       })
     }
   })
@@ -148,7 +152,10 @@ onMounted(() => {
       })
       .filter(isDefined)
 
-    collectionMutators.edit(collection.uid, 'selectedSecuritySchemeUids', uids)
+    // Update selected schemes
+    emitCustomEvent(wrapperRef.value, 'scalar-select-security-schemes', {
+      uids: uids as string[],
+    })
   } catch {
     // Nothing to restore
   }
@@ -160,8 +167,11 @@ const dataTableInputProps = {
   envVariables,
   workspace,
 }
+
+const wrapperRef = useTemplateRef('wrapperRef')
 </script>
 <template>
+  <div ref="wrapperRef"></div>
   <!-- Loop over for multiple auth selection -->
   <template
     v-for="{ scheme } in security"

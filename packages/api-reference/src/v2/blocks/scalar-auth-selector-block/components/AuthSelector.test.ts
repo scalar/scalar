@@ -1,4 +1,4 @@
-import type { EnvVariable } from '@/store/active-entities'
+import type { EnvVariable } from '@scalar/api-client/store'
 import { environmentSchema } from '@scalar/oas-utils/entities/environment'
 import { type Collection, collectionSchema, requestSchema, serverSchema } from '@scalar/oas-utils/entities/spec'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
@@ -21,7 +21,7 @@ const collectionMutators = {
 }
 
 // Mock useWorkspace
-vi.mock('@/store/store', () => ({
+vi.mock('@scalar/api-client/store', () => ({
   useWorkspace: () => ({
     securitySchemes: {
       'bearer-auth': {
@@ -72,7 +72,7 @@ vi.mock('@/store/store', () => ({
   }),
 }))
 
-describe('RequestAuth.vue', () => {
+describe('AuthSelector.vue', () => {
   const createBaseProps = () =>
     ({
       collection: collectionSchema.parse({
