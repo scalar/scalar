@@ -121,7 +121,7 @@ export const clients: Target[] = [
   },
   {
     key: 'powershell',
-    title: 'Powershell',
+    title: 'PowerShell',
     default: 'webrequest',
     clients: [powershellWebrequest, powershellRestmethod],
   },
