@@ -1,187 +1,97 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { computed, inject } from 'vue'
+import type {
+  DiscriminatorObject,
+  SchemaObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { computed } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
-import type { Schemas } from '@/features/Operation/types/schemas'
-import { useConfig } from '@/hooks/useConfig'
-import { DISCRIMINATOR_CONTEXT } from '@/hooks/useDiscriminator'
 
 import { isTypeObject } from './helpers/is-type-object'
 import SchemaHeading from './SchemaHeading.vue'
 import SchemaObjectProperties from './SchemaObjectProperties.vue'
 import SchemaProperty from './SchemaProperty.vue'
 
-const props = withDefaults(
-  defineProps<{
-    value?:
-      | OpenAPIV3_1.OperationObject
-      | OpenAPIV3_1.SchemaObject
-      | OpenAPIV3_1.ArraySchemaObject
-      | OpenAPIV3_1.NonArraySchemaObject
-      | OpenAPIV3_1.SchemaObject
-      | OpenAPIV3_1.ArraySchemaObject
-      | OpenAPIV3_1.NonArraySchemaObject
-    /** Track how deep we've gone */
-    level?: number
-    /* Show as a heading */
-    name?: string
-    /** A tighter layout with less borders and without a heading */
-    compact?: boolean
-    /** Shows a toggle to hide/show children */
-    noncollapsible?: boolean
-    hideHeading?: boolean
-    /** Show a special one way toggle for additional properties, also has a top border when open */
-    additionalProperties?: boolean
-    /** Hide model names in type display */
-    hideModelNames?: boolean
-    /** All schemas for model name retrieval */
-    schemas?: Schemas
-    /** Selected discriminator */
-    discriminator?: string
-    /** Discriminator mapping */
-    discriminatorMapping?: Record<string, string>
-    /** Discriminator property name */
-    discriminatorPropertyName?: string
-    /** Whether the schema has a discriminator */
-    hasDiscriminator?: boolean
-    /** Breadcrumb for the schema */
-    breadcrumb?: string[]
-  }>(),
-  { level: 0, noncollapsible: false, hideModelNames: false },
-)
-
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: string): void
+const {
+  schema,
+  level = 0,
+  name,
+  compact,
+  noncollapsible = false,
+  hideHeading,
+  additionalProperties,
+  hideModelNames = false,
+  discriminator,
+  breadcrumb,
+} = defineProps<{
+  schema?: SchemaObject
+  /** Track how deep we've gone */
+  level?: number
+  /* Show as a heading */
+  name?: string
+  /** A tighter layout with less borders and without a heading */
+  compact?: boolean
+  /** Shows a toggle to hide/show children */
+  noncollapsible?: boolean
+  /** Hide the heading */
+  hideHeading?: boolean
+  /** Show a special one way toggle for additional properties, also has a top border when open */
+  additionalProperties?: boolean
+  /** Hide model names in type display */
+  hideModelNames?: boolean
+  /** Discriminator object */
+  discriminator?: DiscriminatorObject
+  /** Breadcrumb for the schema */
+  breadcrumb?: string[]
 }>()
 
-const config = useConfig()
-
-// Inject the discriminator context
-const discriminatorContext = inject(DISCRIMINATOR_CONTEXT, null)
-
-// Use injected context values or fallback to props for backward compatibility
-const discriminatorMapping = computed(
-  () =>
-    discriminatorContext?.value?.discriminatorMapping ||
-    props.discriminatorMapping ||
-    {},
-)
-const discriminatorPropertyName = computed(
-  () =>
-    discriminatorContext?.value?.discriminatorPropertyName ||
-    props.discriminatorPropertyName ||
-    '',
-)
-const discriminator = computed(
-  () => discriminatorContext?.value?.selectedType || props.discriminator,
-)
-
-/* Returns the resolved schema from discriminator context when available for display */
-const schema = computed(() => {
-  // Get the merged schema from the discriminator context
-  const mergedSchema = discriminatorContext?.value?.mergedSchema
-
-  // Get the original schema from the props
-  const originalSchema = props.value
-
-  // If the merged schema is an object schema and the original schema is an object schema, return the merged schema
-  if (
-    mergedSchema &&
-    props.level === 0 &&
-    props.hasDiscriminator &&
-    isTypeObject(originalSchema) &&
-    isTypeObject(mergedSchema)
-  ) {
-    return mergedSchema
-  }
-
-  // Otherwise fall back to the resolved schema prop or value prop
-  return props.value
-})
-
-const shouldShowToggle = computed(() => {
-  if (props.noncollapsible || props.level === 0) {
-    return false
-  }
-
-  return true
+/**
+ * Determines whether to show the collapse/expand toggle button.
+ * We hide the toggle for non-collapsible schemas and root-level schemas.
+ */
+const shouldShowToggle = computed((): boolean => {
+  return !noncollapsible && level > 0
 })
 
 /** Gets the description to show for the schema */
 const schemaDescription = computed(() => {
-  // Special handling for allOf compositions
-  if (
-    schema.value?.allOf &&
-    Array.isArray(schema.value.allOf) &&
-    // Because we don't want it to show in models
-    props.name === 'Request Body'
-  ) {
-    // Lets show the base description if it exists
-    if (schema.value.description) {
-      return schema.value.description
-    }
-
-    // Otherwise grab the first description
-    const firstSchemaWithDescription = schema.value.allOf.find(
-      (item) => item.description && typeof item.description === 'string',
-    )
-    if (firstSchemaWithDescription?.description) {
-      return firstSchemaWithDescription.description
-    }
-  }
-
   // Don't show description if there's no description or it's not a string
-  if (
-    !schema.value?.description ||
-    typeof schema.value.description !== 'string'
-  ) {
+  if (!schema?.description || typeof schema.description !== 'string') {
     return null
   }
 
   // Don't show description if the schema has other composition keywords
   // This prevents duplicate descriptions when individual schemas are part of compositions
-  if (schema.value.oneOf || schema.value.anyOf) {
+  if (schema.oneOf || schema.anyOf) {
     return null
   }
 
   // Don't show description for enum schemas (they have special handling)
-  if (schema.value.enum) {
+  if (schema.enum) {
     return null
   }
 
   // Will be shown in the properties anyway
   if (
-    !schema.value.properties &&
-    !schema.value.patternProperties &&
-    !schema.value.additionalProperties
+    !schema.properties &&
+    !schema.patternProperties &&
+    !schema.additionalProperties
   ) {
     return null
   }
 
-  // Merged allOf schemas at level 0 should not show individual descriptions
-  // to prevent duplicates with the request body description
-  if (props.level === 0) {
-    return null
-  }
-
   // Return the schema's own description
-  return schema.value.description
+  return schema.description
 })
 
 // Prevent click action if noncollapsible
-const handleClick = (e: MouseEvent) =>
-  props.noncollapsible && e.stopPropagation()
-
-const handleDiscriminatorChange = (type: string) => {
-  emit('update:modelValue', type)
-}
+const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
 </script>
 <template>
   <Disclosure
-    v-if="typeof value === 'object' && Object.keys(value).length"
+    v-if="typeof schema === 'object' && Object.keys(schema).length"
     v-slot="{ open }"
     :defaultOpen="noncollapsible">
     <div
@@ -237,10 +147,10 @@ const handleDiscriminatorChange = (type: string) => {
               icon="Add"
               size="sm" />
             <template v-if="open">
-              Hide {{ value?.title ?? 'Child Attributes' }}
+              Hide {{ schema?.title ?? 'Child Attributes' }}
             </template>
             <template v-else>
-              Show {{ value?.title ?? 'Child Attributes' }}
+              Show {{ schema?.title ?? 'Child Attributes' }}
             </template>
             <ScreenReader v-if="name">for {{ name }}</ScreenReader>
           </template>
@@ -251,8 +161,8 @@ const handleDiscriminatorChange = (type: string) => {
               icon="Add"
               size="sm" />
             <SchemaHeading
-              :name="value?.title ?? name"
-              :value="value" />
+              :name="schema?.title ?? name"
+              :value="schema" />
           </template>
         </DisclosureButton>
         <DisclosurePanel
@@ -264,37 +174,22 @@ const handleDiscriminatorChange = (type: string) => {
             v-if="isTypeObject(schema)"
             :breadcrumb="breadcrumb"
             :compact="compact"
-            :discriminator="discriminator"
-            :discriminatorMapping="discriminatorMapping"
-            :discriminatorPropertyName="discriminatorPropertyName"
-            :hasDiscriminator="hasDiscriminator"
+            :discriminator
             :hideHeading="hideHeading"
             :hideModelNames="hideModelNames"
             :level="level + 1"
-            :orderRequiredPropertiesFirst="config.orderRequiredPropertiesFirst"
-            :orderSchemaPropertiesBy="config.orderSchemaPropertiesBy"
-            :schema="schema"
-            :schemas="schemas"
-            @update:modelValue="handleDiscriminatorChange" />
+            :schema="schema" />
 
           <!-- Not an object -->
           <template v-else>
             <SchemaProperty
               v-if="schema"
-              :breadcrumb="breadcrumb"
-              :compact="compact"
-              :discriminatorMapping="discriminatorMapping"
-              :discriminatorPropertyName="discriminatorPropertyName"
-              :hideHeading="hideHeading"
-              :hideModelNames="hideModelNames"
-              :level="level"
-              :modelValue="discriminator"
-              :name="(schema as OpenAPIV3_1.SchemaObject).name"
-              :schemas="schemas"
-              :value="
-                value.discriminator?.propertyName === name ? value : schema
-              "
-              @update:modelValue="handleDiscriminatorChange" />
+              :breadcrumb
+              :compact
+              :hideHeading
+              :hideModelNames
+              :level
+              :value="schema" />
           </template>
         </DisclosurePanel>
       </div>

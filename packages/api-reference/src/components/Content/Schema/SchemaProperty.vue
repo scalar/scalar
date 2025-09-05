@@ -1,20 +1,21 @@
 <script lang="ts" setup>
 import { ScalarMarkdown } from '@scalar/components'
-import { computed, inject, type Component } from 'vue'
+import { isDefined } from '@scalar/helpers/array/is-defined'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type {
+  DiscriminatorObject,
+  SchemaObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { computed, type Component } from 'vue'
 
 import { WithBreadcrumb } from '@/components/Anchor'
 import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
-import type { Schemas } from '@/features/Operation/types/schemas'
 import { SpecificationExtension } from '@/features/specification-extension'
-import { DISCRIMINATOR_CONTEXT } from '@/hooks/useDiscriminator'
 
-import {
-  compositions,
-  optimizeValueForDisplay,
-} from './helpers/optimize-value-for-display'
+import { optimizeValueForDisplay } from './helpers/optimize-value-for-display'
+import { compositions } from './helpers/schema-composition'
 import Schema from './Schema.vue'
 import SchemaComposition from './SchemaComposition.vue'
-import SchemaDiscriminator from './SchemaDiscriminator.vue'
 import SchemaEnumValues from './SchemaEnumValues.vue'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 
@@ -28,20 +29,16 @@ import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 const props = withDefaults(
   defineProps<{
     is?: string | Component
-    value?: Record<string, any>
+    value: SchemaObject | undefined
     noncollapsible?: boolean
     level?: number
     name?: string
     required?: boolean
     compact?: boolean
+    discriminator?: DiscriminatorObject
     description?: string
-    withExamples?: boolean
     hideModelNames?: boolean
-    schemas?: Schemas
     hideHeading?: boolean
-    discriminatorMapping?: Record<string, string>
-    discriminatorPropertyName?: string
-    isDiscriminator?: boolean
     variant?: 'additionalProperties' | 'patternProperties'
     breadcrumb?: string[]
   }>(),
@@ -49,14 +46,9 @@ const props = withDefaults(
     level: 0,
     required: false,
     compact: false,
-    withExamples: true,
     hideModelNames: false,
   },
 )
-
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: string): void
-}>()
 
 const descriptions: Record<string, Record<string, string>> = {
   integer: {
@@ -74,29 +66,6 @@ const descriptions: Record<string, Record<string, string>> = {
     'byte': 'base64-encoded characters, for example, U3dhZ2dlciByb2Nrcw==',
     'binary': 'binary data, used to describe files',
   },
-}
-
-const displayDescription = (
-  description: string | undefined,
-  value?: Record<string, any>,
-) => {
-  if (value?.properties) {
-    return null
-  }
-
-  if (value?.additionalProperties) {
-    return null
-  }
-
-  if (value?.patternProperties) {
-    return null
-  }
-
-  if (value?.allOf) {
-    return null
-  }
-
-  return description || value?.description || null
 }
 
 const generatePropertyDescription = (property?: Record<string, any>) => {
@@ -119,31 +88,30 @@ const getEnumFromValue = (value?: Record<string, any>): any[] | [] =>
 /** Simplified composition with `null` type. */
 const optimizedValue = computed(() => optimizeValueForDisplay(props.value))
 
-// Inject the discriminator context
-const discriminatorContext = inject(DISCRIMINATOR_CONTEXT, null)
+const displayDescription = computed(() => {
+  const value = optimizedValue.value
 
-/** Handle schema value according to discriminator context */
-const schema = computed(() => {
-  // Prevent recursion in discriminator context presence
-  if (props.level > 0) {
-    return optimizedValue.value
+  if (!value) {
+    return null
   }
 
-  if (discriminatorContext?.value?.mergedSchema) {
-    return discriminatorContext.value.mergedSchema
+  if (value?.properties) {
+    return null
   }
 
-  return optimizedValue.value
-})
+  if (value?.additionalProperties) {
+    return null
+  }
 
-/** Get the current selected discriminator schema with the first as default */
-const currentDiscriminator = computed(() => {
-  return (
-    discriminatorContext?.value?.selectedType ||
-    (props.discriminatorMapping
-      ? Object.keys(props.discriminatorMapping)[0]
-      : '')
-  )
+  if (value?.patternProperties) {
+    return null
+  }
+
+  if (value?.allOf) {
+    return null
+  }
+
+  return props.description || value?.description || null
 })
 
 // Display the property heading if any of the following are true
@@ -165,11 +133,6 @@ const displayPropertyHeading = (
   )
 }
 
-// Handle discriminator type change
-const handleDiscriminatorChange = (type: string) => {
-  emit('update:modelValue', type)
-}
-
 /**
  * Checks if array items have complex structure
  * like: objects, references, discriminators, or compositions
@@ -182,7 +145,12 @@ const hasComplexArrayItems = computed(() => {
 
   const items = value.items
   return (
-    ('type' in items && ['object'].includes(items.type)) ||
+    ('type' in items &&
+      items.type &&
+      (Array.isArray(items.type)
+        ? items.type.includes('object')
+        : ['object'].includes(items.type))) ||
+    'properties' in items ||
     '$ref' in items ||
     'discriminator' in items ||
     'allOf' in items ||
@@ -224,13 +192,56 @@ const shouldRenderObjectProperties = computed(() => {
 })
 
 const shouldHaveLink = computed(() => props.level <= 1)
+
+/**
+ * Computes which compositions should be rendered and with which values.
+ * This consolidates the template logic for better performance and readability.
+ */
+const compositionsToRender = computed(() => {
+  if (!optimizedValue.value) {
+    return []
+  }
+
+  return compositions
+    .map((composition) => {
+      // Check if we should render property composition
+      const hasPropertyComposition =
+        optimizedValue.value?.[composition] &&
+        !(
+          optimizedValue.value?.items &&
+          typeof composition === 'string' &&
+          typeof optimizedValue.value.items === 'object' &&
+          composition in optimizedValue.value.items
+        )
+
+      if (hasPropertyComposition) {
+        return {
+          composition,
+          value: optimizedValue.value,
+        }
+      }
+
+      // Check if we should render array item composition
+      if (
+        shouldRenderArrayItemComposition(composition) &&
+        optimizedValue.value?.items
+      ) {
+        return {
+          composition,
+          value: optimizedValue.value.items,
+        }
+      }
+
+      return null
+    })
+    .filter(isDefined)
+})
 </script>
 <template>
   <component
     :is="is ?? 'li'"
     class="property"
     :class="[
-      !displayDescription(description, optimizedValue) ? '' : '',
       `property--level-${level}`,
       {
         'property--compact': compact,
@@ -239,12 +250,12 @@ const shouldHaveLink = computed(() => props.level <= 1)
     ]">
     <SchemaPropertyHeading
       v-if="displayPropertyHeading(optimizedValue, name, required)"
+      class="group"
       :enum="getEnumFromValue(optimizedValue).length > 0"
-      :required="required"
-      :value="optimizedValue"
-      :schemas="schemas"
-      :hideModelNames="hideModelNames"
-      class="group">
+      :hideModelNames
+      :isDiscriminator="discriminator && discriminator.propertyName === name"
+      :required
+      :value="optimizedValue">
       <template
         v-if="name"
         #name>
@@ -274,12 +285,12 @@ const shouldHaveLink = computed(() => props.level <= 1)
         {{ optimizedValue.example }}
       </template>
     </SchemaPropertyHeading>
+
     <!-- Description -->
     <div
-      v-if="displayDescription(description, optimizedValue)"
+      v-if="displayDescription"
       class="property-description">
-      <ScalarMarkdown
-        :value="displayDescription(description, optimizedValue)" />
+      <ScalarMarkdown :value="displayDescription" />
     </div>
     <div
       v-else-if="generatePropertyDescription(optimizedValue)"
@@ -287,25 +298,31 @@ const shouldHaveLink = computed(() => props.level <= 1)
       <ScalarMarkdown
         :value="generatePropertyDescription(optimizedValue) || ''" />
     </div>
+
     <!-- Enum -->
-    <SchemaEnumValues :value="optimizedValue" />
+    <SchemaEnumValues
+      v-if="
+        (
+          optimizedValue?.enum ||
+          getResolvedRef(optimizedValue?.items)?.enum ||
+          []
+        ).length
+      "
+      :value="optimizedValue" />
+
     <!-- Object -->
     <div
       v-if="shouldRenderObjectProperties"
       class="children">
       <Schema
-        :compact="compact"
         :breadcrumb="breadcrumb && name ? [...breadcrumb, name] : undefined"
+        :compact="compact"
         :level="level + 1"
         :name="name"
         :noncollapsible="noncollapsible"
-        :value="schema"
-        :resolvedSchema="schema"
-        :discriminatorMapping="discriminatorMapping"
-        :discriminatorPropertyName="discriminatorPropertyName"
-        :schemas="schemas"
-        @update:modelValue="handleDiscriminatorChange" />
+        :schema="optimizedValue" />
     </div>
+
     <!-- Array of objects -->
     <template
       v-if="optimizedValue?.items && typeof optimizedValue.items === 'object'">
@@ -317,70 +334,23 @@ const shouldHaveLink = computed(() => props.level <= 1)
           :level="level + 1"
           :name="name"
           :noncollapsible="noncollapsible"
-          :value="
-            schema && typeof schema === 'object' && 'items' in schema
-              ? schema.items
-              : optimizedValue.items
-          "
-          :resolvedSchema="
-            schema && typeof schema === 'object' && 'items' in schema
-              ? schema.items
-              : optimizedValue.items
-          "
-          :discriminatorMapping="discriminatorMapping"
-          :discriminatorPropertyName="discriminatorPropertyName"
-          :schemas="schemas"
-          @update:modelValue="handleDiscriminatorChange" />
+          :schema="getResolvedRef(optimizedValue.items)" />
       </div>
     </template>
-    <!-- Compositions -->
-    <template
-      v-for="composition in compositions"
-      :key="composition">
-      <!-- Property composition -->
-      <template
-        v-if="
-          optimizedValue?.[composition] &&
-          !(
-            optimizedValue?.items &&
-            typeof composition === 'string' &&
-            typeof optimizedValue.items === 'object' &&
-            composition in optimizedValue.items
-          )
-        ">
-        <SchemaComposition
-          :breadcrumb="breadcrumb"
-          :compact="compact"
-          :composition="composition"
-          :hideHeading="hideHeading"
-          :level="level"
-          :name="name"
-          :noncollapsible="noncollapsible"
-          :schemas="schemas"
-          :value="optimizedValue" />
-      </template>
 
-      <!-- Array item composition -->
-      <template
-        v-else-if="shouldRenderArrayItemComposition(composition)"
-        :key="composition">
-        <SchemaComposition
-          :breadcrumb="breadcrumb"
-          :compact="compact"
-          :composition="composition"
-          :hideHeading="hideHeading"
-          :level="level"
-          :name="name"
-          :noncollapsible="noncollapsible"
-          :schemas="schemas"
-          :value="optimizedValue?.items" />
-      </template>
-    </template>
-    <SchemaDiscriminator
-      v-if="isDiscriminator && discriminatorMapping && compact"
-      :discriminator-mapping="discriminatorMapping"
-      :discriminator="currentDiscriminator"
-      @update:modelValue="handleDiscriminatorChange" />
+    <!-- Compositions -->
+    <SchemaComposition
+      v-for="compositionData in compositionsToRender"
+      :key="compositionData.composition"
+      :breadcrumb="breadcrumb"
+      :compact="compact"
+      :composition="compositionData.composition"
+      :discriminator="value?.discriminator"
+      :hideHeading="hideHeading"
+      :level="level"
+      :name="name"
+      :noncollapsible="noncollapsible"
+      :value="getResolvedRef(compositionData.value)" />
     <SpecificationExtension :value="optimizedValue" />
   </component>
 </template>
@@ -498,6 +468,18 @@ const shouldHaveLink = computed(() => props.level <= 1)
   ) {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
+}
+
+.property-rule
+  :deep(.composition-panel > .schema-card > .schema-card-description) {
+  padding-left: 8px;
+  padding-right: 8px;
+  border-left: 1px solid var(--scalar-border-color);
+  border-right: 1px solid var(--scalar-border-color);
+
+  & + .schema-properties {
+    margin-top: 0;
+  }
 }
 
 .property-example {

@@ -14,5 +14,10 @@ import { Type } from '@scalar/typebox'
  *   other: "Other"
  */
 export const XEnumDescriptionsSchema = Type.Object({
-  'x-enumDescriptions': Type.Optional(Type.Record(Type.String(), Type.String(), { default: {} })),
+  'x-enumDescriptions': Type.Optional(
+    Type.Union([Type.Record(Type.String(), Type.String()), Type.Array(Type.String())]),
+  ),
+  'x-enum-descriptions': Type.Optional(
+    Type.Union([Type.Record(Type.String(), Type.String()), Type.Array(Type.String())]),
+  ),
 })

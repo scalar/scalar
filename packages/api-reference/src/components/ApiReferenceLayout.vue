@@ -396,7 +396,6 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
         class="references-rendered">
         <Content
           :config="configuration"
-          :document="dereferencedDocument"
           :store="store">
           <template #start>
             <slot

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarErrorBoundary } from '@scalar/components'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, useId } from 'vue'
 
 import {
@@ -17,9 +17,9 @@ import { useNavState } from '@/hooks/useNavState'
 
 import { Schema, SchemaHeading } from '../Schema'
 
-const { config, schemas } = defineProps<{
+const { config, schemas = [] } = defineProps<{
   config: ApiReferenceConfiguration
-  schemas?: Record<string, OpenAPIV3_1.SchemaObject>
+  schemas: { name: string; schema: SchemaObject }[]
 }>()
 
 const headerId = useId()
@@ -32,19 +32,17 @@ const { getModelId } = useNavState()
 const showAllModels = computed(
   () =>
     config.expandAllModelSections ||
-    Object.keys(schemas ?? {}).length <= MAX_MODELS_INITIALLY_SHOWN ||
+    schemas.length <= MAX_MODELS_INITIALLY_SHOWN ||
     collapsedSidebarItems[getModelId()],
 )
 
 const models = computed(() => {
-  const allModels = Object.keys(schemas ?? {})
-
   if (showAllModels.value) {
-    return allModels
+    return schemas
   }
 
   // return only first MAX_MODELS_INITIALLY_SHOWN models
-  return allModels.slice(0, MAX_MODELS_INITIALLY_SHOWN)
+  return schemas.slice(0, MAX_MODELS_INITIALLY_SHOWN)
 })
 </script>
 <template>
@@ -63,7 +61,7 @@ const models = computed(() => {
         class="models-list"
         :class="{ 'models-list-truncated': !showAllModels }">
         <CompactSection
-          v-for="name in models"
+          v-for="{ name, schema } in models"
           :id="getModelId({ name })"
           :key="name"
           class="models-list-item"
@@ -72,8 +70,8 @@ const models = computed(() => {
           <template #heading>
             <SectionHeaderTag :level="3">
               <SchemaHeading
-                :name="schemas[name].title ?? name"
-                :value="schemas[name]" />
+                :name="schema.title ?? name"
+                :value="schema" />
             </SectionHeaderTag>
           </template>
           <ScalarErrorBoundary>
@@ -82,8 +80,7 @@ const models = computed(() => {
               :hideModelNames="true"
               :level="1"
               noncollapsible
-              :schemas="schemas"
-              :value="schemas[name]" />
+              :schema />
           </ScalarErrorBoundary>
         </CompactSection>
       </div>
