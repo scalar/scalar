@@ -1,9 +1,11 @@
-import { readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs'
+import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+
+import { clients } from '@scalar/snippetz'
 
 /**
  * Generator script to create C# enums from TypeScript clients configuration.
- * This script directly imports the clients array from the TypeScript source,
+ * This script directly imports the clients array from @scalar/snippetz,
  * ensuring the C# enums stays in perfect sync with the TypeScript source of truth.
  */
 
@@ -63,22 +65,7 @@ const OBSOLETE_CLIENT_ENTRIES = [
   },
 ]
 
-/**
- * Regex patterns used for parsing TypeScript files
- */
-const PATTERNS = {
-  // Matches: export const pluginName: Plugin = { target: 'js', client: 'fetch', title: 'Fetch' }
-  PLUGIN_EXPORT:
-    /export\s+const\s+(\w+):\s*Plugin\s*=\s*{[^}]*target:\s*'([^']+)'[^}]*client:\s*'([^']+)'[^}]*title:\s*'([^']+)'/s,
-
-  // Matches: { key: 'js', title: 'JavaScript', default: 'fetch', clients: [jsFetch, jsAxios] }
-  TARGET_DEFINITION: /{\s*key:\s*'([^']+)',\s*title:\s*'([^']+)',\s*default:\s*'([^']+)',\s*clients:\s*\[([^\]]+)\]/g,
-
-  // Matches: import names like jsFetch, nodeAxios, etc.
-  CLIENT_IMPORT_NAMES: /[a-zA-Z][a-zA-Z0-9]*/g,
-}
-
-// We'll use dynamic import to load the clients array directly
+// We'll use the imported clients array directly
 type ImportedTarget = {
   key: string
   title: string
@@ -108,137 +95,44 @@ function toPascalCase(str: string): string {
 }
 
 /**
- * Scans all plugin files to build a dynamic mapping of export names to plugin data.
+ * Converts the imported clients array to the expected format for enum generation.
  */
-function scanPluginFiles(): Map<string, { target: string; client: string; title: string }> {
-  console.log('Scanning plugin files dynamically...')
-
-  const pluginsDir = resolve(__dirname, '../../../packages/snippetz/src/plugins')
-  const pluginMap = new Map<string, { target: string; client: string; title: string }>()
-
-  function scanDirectory(dir: string): void {
-    const entries = readdirSync(dir)
-
-    for (const entry of entries) {
-      const fullPath = resolve(dir, entry)
-      const stat = statSync(fullPath)
-
-      if (stat.isDirectory()) {
-        scanDirectory(fullPath)
-      } else if (entry.endsWith('.ts') && !entry.endsWith('.test.ts')) {
-        try {
-          const content = readFileSync(fullPath, 'utf-8')
-          const pluginInfo = extractPluginInfo(content)
-          if (pluginInfo) {
-            pluginMap.set(pluginInfo.exportName, {
-              target: pluginInfo.target,
-              client: pluginInfo.client,
-              title: pluginInfo.title,
-            })
-          }
-        } catch (error) {
-          console.warn(`Could not parse ${fullPath}:`, error)
-        }
-      }
-    }
-  }
-
-  scanDirectory(pluginsDir)
-  console.log(`Found ${pluginMap.size} plugins`)
-  return pluginMap
-}
-
-/**
- * Extracts plugin information from a TypeScript file.
- */
-function extractPluginInfo(
-  content: string,
-): { exportName: string; target: string; client: string; title: string } | null {
-  const exportMatch = PATTERNS.PLUGIN_EXPORT.exec(content)
-  if (!exportMatch) {
-    return null
-  }
-
-  const [, exportName, target, client, title] = exportMatch
-  if (!exportName || !target || !client || !title) {
-    return null
-  }
-
-  return { exportName, target, client, title }
-}
-
-/**
- * Parses the clients.ts file to extract targets and clients information using dynamic plugin data.
- */
-function parseClientsFile(): {
+function parseClientsFromImport(): {
   targets: ImportedTarget[]
   allClients: Array<{ target: string; client: string; title: string }>
 } {
-  console.log('Parsing clients.ts file structure...')
+  console.log('Processing clients from @scalar/snippetz import...')
 
-  const clientsContent = readClientsFileContent()
-  const pluginMap = scanPluginFiles()
-
-  return extractTargetsAndClients(clientsContent, pluginMap)
-}
-
-function readClientsFileContent(): string {
-  const clientsPath = resolve(__dirname, '../../../packages/snippetz/src/clients.ts')
-  return readFileSync(clientsPath, 'utf-8')
-}
-
-function extractTargetsAndClients(
-  content: string,
-  pluginMap: Map<string, { target: string; client: string; title: string }>,
-): { targets: ImportedTarget[]; allClients: Array<{ target: string; client: string; title: string }> } {
   const targets: ImportedTarget[] = []
   const allClientsMap = new Map<string, { target: string; client: string; title: string }>()
 
-  let match
-  while ((match = PATTERNS.TARGET_DEFINITION.exec(content)) !== null) {
-    const target = parseTargetDefinition(match, pluginMap, allClientsMap)
-    if (target) {
-      targets.push(target)
+  for (const target of clients) {
+    const targetClients: Array<{ target: string; client: string; title: string }> = []
+
+    for (const client of target.clients) {
+      const clientInfo = {
+        target: target.key,
+        client: client.client,
+        title: client.title,
+      }
+      targetClients.push(clientInfo)
+      // Use only client name as key to avoid duplicates across targets
+      allClientsMap.set(client.client, clientInfo)
     }
+
+    targets.push({
+      key: target.key,
+      title: target.title,
+      default: target.default,
+      clients: targetClients,
+    })
   }
 
   const allClients = Array.from(allClientsMap.values())
-  console.log(`Parsed ${targets.length} targets from TypeScript`)
+  console.log(`Processed ${targets.length} targets from import`)
   console.log(`Found ${allClients.length} unique clients`)
 
   return { targets, allClients }
-}
-
-function parseTargetDefinition(
-  match: RegExpExecArray,
-  pluginMap: Map<string, { target: string; client: string; title: string }>,
-  allClientsMap: Map<string, { target: string; client: string; title: string }>,
-): ImportedTarget | null {
-  const [, key, title, defaultClient, clientsStr] = match
-  if (!key || !title || !defaultClient || !clientsStr) {
-    return null
-  }
-
-  const clientImportNames = clientsStr.match(PATTERNS.CLIENT_IMPORT_NAMES) || []
-  const targetClients: Array<{ target: string; client: string; title: string }> = []
-
-  for (const importName of clientImportNames) {
-    const pluginInfo = pluginMap.get(importName)
-    if (pluginInfo) {
-      targetClients.push(pluginInfo)
-      // Use only client name as key to avoid duplicates across targets
-      allClientsMap.set(pluginInfo.client, pluginInfo)
-    } else {
-      console.warn(`Plugin not found for import: ${importName}`)
-    }
-  }
-
-  return {
-    key,
-    title,
-    default: defaultClient,
-    clients: targetClients,
-  }
 }
 
 /**
@@ -401,8 +295,8 @@ function main(): void {
   console.log('Generating C# enums from TypeScript clients...')
 
   try {
-    // Parse all client information from the clients.ts file
-    const { targets, allClients } = parseClientsFile()
+    // Parse all client information from the imported clients array
+    const { targets, allClients } = parseClientsFromImport()
 
     // Generate enums
     console.log('\nGenerating C# enums...')
