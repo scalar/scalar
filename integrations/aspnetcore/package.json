@@ -19,6 +19,7 @@
     "copy:standalone": "shx cp ../../packages/api-reference/dist/browser/standalone.js ./src/Scalar.AspNetCore/StaticAssets/scalar.js",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
+    "generate:enums": "vite-node scripts/generate-enums.ts",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
     "test": "vitest"
@@ -28,6 +29,8 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "shx": "^0.4.0"
+    "@scalar/snippetz": "workspace:*",
+    "shx": "^0.4.0",
+    "vite-node": "catalog:*"
   }
 }
