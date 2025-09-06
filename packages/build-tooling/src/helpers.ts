@@ -71,13 +71,7 @@ function formatEntry(filepath: string, namespacePath: string) {
  *
  * ex. import { foo } from '@scalar/some-package/foo-domain'
  */
-export async function addPackageFileExports({
-  allowCss,
-  entries,
-}: {
-  allowCss?: boolean
-  entries: string | string[]
-}) {
+export async function addPackageFileExports({ allowCss, entries }: { allowCss?: boolean; entries: string | string[] }) {
   /** package.json type exports need to be updated */
   const packageExports: PackageExports = {}
 

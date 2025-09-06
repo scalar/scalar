@@ -1,5 +1,6 @@
-import { createOverridesProxy, unpackOverridesProxy } from '@/helpers/overrides-proxy'
 import { describe, expect, it } from 'vitest'
+
+import { createOverridesProxy, unpackOverridesProxy } from '@/helpers/overrides-proxy'
 
 describe('createOverridesProxy', () => {
   it('should return the original object if no overrides are provided', () => {

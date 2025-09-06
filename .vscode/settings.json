@@ -2,6 +2,7 @@
   "eslint.validate": ["vue"],
   "biome.enabled": true,
   "biome.searchInPath": true,
+  "biome.lsp.bin": "node_modules/.bin/biome",
   "editor.formatOnSave": true,
   "editor.tabSize": 2,
   "search.exclude": {
@@ -17,13 +18,13 @@
   "[json]": {
     "editor.defaultFormatter": "biomejs.biome",
     "editor.codeActionsOnSave": {
-      "source.fixAll.biome": "explicit"
+      "source.fixAll.biome": "always"
     }
   },
   "[jsonc]": {
     "editor.defaultFormatter": "biomejs.biome",
     "editor.codeActionsOnSave": {
-      "source.fixAll.biome": "explicit"
+      "source.fixAll.biome": "always"
     }
   },
   "[html]": {
@@ -32,22 +33,21 @@
   "[css]": {
     "editor.defaultFormatter": "biomejs.biome",
     "editor.codeActionsOnSave": {
-      "source.fixAll.biome": "explicit"
+      "source.fixAll.biome": "always"
     }
   },
   "[javascript]": {
     "editor.defaultFormatter": "biomejs.biome",
     "editor.codeActionsOnSave": {
-      "source.fixAll.biome": "explicit"
-      // "source.organizeImports.biome": "explicit"
+      "source.fixAll.biome": "always",
+      "source.organizeImports.biome": "always"
     }
   },
   "[typescript]": {
     "editor.defaultFormatter": "biomejs.biome",
     "editor.codeActionsOnSave": {
-      "source.fixAll.biome": "explicit"
-      // Disabled due to mangling the imports during change
-      // "source.organizeImports.biome": "explicit"
+      "source.fixAll.biome": "always",
+      "source.organizeImports.biome": "always"
     }
   },
   "[vue]": {

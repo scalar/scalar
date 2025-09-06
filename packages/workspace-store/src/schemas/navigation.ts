@@ -1,5 +1,6 @@
+import { type Static, Type } from '@scalar/typebox'
+
 import { compose } from '@/schemas/compose'
-import { Type, type Static } from '@scalar/typebox'
 
 export const NavigationBaseSchema = Type.Object({
   type: Type.Union([

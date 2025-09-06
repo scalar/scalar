@@ -1,5 +1,6 @@
-import { createWorkspaceStore, generateClientMutators } from '@/client'
 import { describe, expect, it } from 'vitest'
+
+import { createWorkspaceStore, generateClientMutators } from '@/client'
 
 describe('generateClientMutators', () => {
   describe('cookieMutators', () => {

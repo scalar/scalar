@@ -1,5 +1,6 @@
+import { describe, expect, it } from 'vitest'
+
 import { deepClone } from '@/helpers/deep-clone'
-import { expect, it, describe } from 'vitest'
 
 describe('deepClone', () => {
   it('should return primitives as-is', () => {

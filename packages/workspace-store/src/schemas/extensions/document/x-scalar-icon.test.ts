@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest'
-import { XScalarIconSchema } from './x-scalar-icon'
 import { Value } from '@scalar/typebox/value'
+import { describe, expect, it } from 'vitest'
+
+import { XScalarIconSchema } from './x-scalar-icon'
 
 describe('XScalarIconSchema', () => {
   it('allows any string value', () => {

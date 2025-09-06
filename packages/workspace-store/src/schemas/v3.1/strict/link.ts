@@ -1,5 +1,6 @@
-import { ServerObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 import { Type } from '@scalar/typebox'
+
+import { ServerObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 
 /**
  * The Link Object represents a possible design-time link for a response. The presence of a link does not guarantee the caller's ability to successfully invoke it, rather it provides a known relationship and traversal mechanism between responses and other operations.

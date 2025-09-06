@@ -1,10 +1,12 @@
-import { deepClone } from '@/helpers/general'
-import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs, cleanUp } from '@/plugins'
+import { setTimeout } from 'node:timers/promises'
+
 import { bundle } from '@scalar/json-magic/bundle'
 import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
-import { fastify, type FastifyInstance } from 'fastify'
-import { setTimeout } from 'node:timers/promises'
+import { type FastifyInstance, fastify } from 'fastify'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { deepClone } from '@/helpers/general'
+import { cleanUp, externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
 
 function deferred<T>() {
   let resolve!: (value: T | PromiseLike<T>) => void

@@ -1,5 +1,6 @@
+import { describe, expect, it } from 'vitest'
+
 import { mergeObjects } from '@/helpers/merge-object'
-import { expect, it, describe } from 'vitest'
 
 describe('mergeObjects', () => {
   it('should merge objects that does not have any conflicting keys', () => {

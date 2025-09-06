@@ -1,6 +1,7 @@
 import { Type } from '@scalar/typebox'
-import { reference } from '@/schemas/v3.1/strict/reference'
+
 import { EncodingObjectRef, ExampleObjectRef, SchemaObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
+import { reference } from '@/schemas/v3.1/strict/reference'
 
 /**
  * Each Media Type Object provides schema and examples for the media type identified by its key.

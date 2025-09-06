@@ -1,9 +1,18 @@
+import { measureAsync, measureSync } from '@scalar/helpers/testing/measure'
+import { bundle } from '@scalar/json-magic/bundle'
+import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
+import { type Difference, apply, diff, merge } from '@scalar/json-magic/diff'
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 import { upgrade } from '@scalar/openapi-parser'
+import type { Record } from '@scalar/typebox'
+import { Value } from '@scalar/typebox/value'
+import type { PartialDeep } from 'type-fest/source/partial-deep'
+import type { RequiredDeep } from 'type-fest/source/required-deep'
 import { reactive } from 'vue'
 import YAML from 'yaml'
 
 import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
+import { deepClone } from '@/helpers/deep-clone'
 import { type UnknownObject, isObject, safeAssign } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
@@ -11,6 +20,7 @@ import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import { createNavigation } from '@/navigation'
 import type { TraverseSpecOptions } from '@/navigation/types'
 import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
+import { getServersFromDocument } from '@/preprocessing/server'
 import { extensions } from '@/schemas/extensions'
 import { type InMemoryWorkspace, InMemoryWorkspaceSchema } from '@/schemas/inmemory-workspace'
 import { defaultReferenceConfig } from '@/schemas/reference-config'
@@ -22,16 +32,6 @@ import {
 import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from '@/schemas/workspace'
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
 import type { Config } from '@/schemas/workspace-specification/config'
-import { bundle } from '@scalar/json-magic/bundle'
-import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
-import { type Difference, apply, diff, merge } from '@scalar/json-magic/diff'
-import type { Record } from '@scalar/typebox'
-import { Value } from '@scalar/typebox/value'
-import { deepClone } from '@/helpers/deep-clone'
-import { measureAsync, measureSync } from '@scalar/helpers/testing/measure'
-import { getServersFromDocument } from '@/preprocessing/server'
-import type { PartialDeep } from 'type-fest/source/partial-deep'
-import type { RequiredDeep } from 'type-fest/source/required-deep'
 
 export type DocumentConfiguration = Config &
   PartialDeep<{
@@ -901,7 +901,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       safeAssign(documentMeta, result.documentMeta)
     },
     importWorkspaceFromSpecification: (specification: WorkspaceSpecification) => {
-      const { documents, overrides, info, workspace: workspaceVersion, ...meta } = specification
+      const { documents, overrides, info: _info, workspace: _workspaceVersion, ...meta } = specification
 
       // Assign workspace metadata
       safeAssign(workspace, meta)
@@ -970,5 +970,5 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   }
 }
 
-// biome-ignore lint/performance/noBarrelFile: <explanation>
+// biome-ignore lint/performance/noBarrelFile: It's a package entry point
 export { generateClientMutators } from '@/mutators'

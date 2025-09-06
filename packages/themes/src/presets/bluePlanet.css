@@ -136,7 +136,8 @@
     transparent, var(--c7);
   --trans-wrap: var(--trans), transparent, var(--c1);
 
-  background: radial-gradient(circle, var(--trans)), conic-gradient(from 180deg, var(--trans-wrap)),
+  background:
+    radial-gradient(circle, var(--trans)), conic-gradient(from 180deg, var(--trans-wrap)),
     radial-gradient(circle, var(--trans)), conic-gradient(var(--solid-wrap));
   width: 70vw;
   height: 700px;
@@ -153,7 +154,8 @@
   --star-color: #6b9acc;
   --star-color2: #446b8d;
   --star-color3: #3e5879;
-  background-image: radial-gradient(2px 2px at 20px 30px, var(--star-color2), rgba(0, 0, 0, 0)),
+  background-image:
+    radial-gradient(2px 2px at 20px 30px, var(--star-color2), rgba(0, 0, 0, 0)),
     radial-gradient(2px 2px at 40px 70px, var(--star-color), rgba(0, 0, 0, 0)),
     radial-gradient(2px 2px at 50px 160px, var(--star-color3), rgba(0, 0, 0, 0)),
     radial-gradient(2px 2px at 90px 40px, var(--star-color), rgba(0, 0, 0, 0)),

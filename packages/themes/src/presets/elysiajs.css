@@ -93,7 +93,9 @@
   contain-intrinsic-size: 100vw 40vh;
   background-image: var(--stripesDark), var(--rainbow);
   background-size: 300%, 200%;
-  background-position: 50% 50%, 50% 50%;
+  background-position:
+    50% 50%,
+    50% 50%;
   filter: opacity(20%) saturate(200%);
   -webkit-mask-image: radial-gradient(ellipse at 100% 0%, black 40%, transparent 70%);
   mask-image: radial-gradient(ellipse at 100% 0%, black 40%, transparent 70%);

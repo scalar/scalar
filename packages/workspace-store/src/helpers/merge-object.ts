@@ -1,5 +1,6 @@
-import type { UnknownObject } from '@/helpers/general'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
+
+import type { UnknownObject } from '@/helpers/general'
 
 /**
  * Deep merges two objects, combining their properties recursively.

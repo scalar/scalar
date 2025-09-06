@@ -111,7 +111,9 @@
   --rainbow: repeating-linear-gradient(100deg, #fff 10%, #fff 16%, #fff 22%, #fff 30%);
   background-image: var(--stripesDark), var(--rainbow);
   background-size: 300%, 200%;
-  background-position: 50% 50%, 50% 50%;
+  background-position:
+    50% 50%,
+    50% 50%;
   filter: invert(100%);
   -webkit-mask-image: radial-gradient(ellipse at 100% 0%, black 40%, transparent 70%);
   mask-image: radial-gradient(ellipse at 100% 0%, black 40%, transparent 70%);
@@ -146,7 +148,8 @@
   width: 100%;
   height: 100%;
   position: absolute;
-  background-image: radial-gradient(2px 2px at 20px 30px, var(--star-color2), rgba(0, 0, 0, 0)),
+  background-image:
+    radial-gradient(2px 2px at 20px 30px, var(--star-color2), rgba(0, 0, 0, 0)),
     radial-gradient(2px 2px at 40px 70px, var(--star-color), rgba(0, 0, 0, 0)),
     radial-gradient(2px 2px at 50px 160px, var(--star-color3), rgba(0, 0, 0, 0)),
     radial-gradient(2px 2px at 90px 40px, var(--star-color), rgba(0, 0, 0, 0)),

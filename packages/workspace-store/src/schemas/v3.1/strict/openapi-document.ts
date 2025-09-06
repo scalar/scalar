@@ -1,47 +1,49 @@
-import { Type, type Static, type TSchema } from '@scalar/typebox'
+import { type Static, type TSchema, Type } from '@scalar/typebox'
+
 import { compose } from '@/schemas/compose'
-import { xScalarClientConfigEnvironmentsSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-environments'
-import { xScalarClientConfigCookiesSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-cookies'
 import { extensions } from '@/schemas/extensions'
 import { TraversedEntrySchema } from '@/schemas/navigation'
+import { CallbackObjectSchemaDefinition } from '@/schemas/v3.1/strict/callback'
+import { xScalarClientConfigCookiesSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-cookies'
+import { xScalarClientConfigEnvironmentsSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-environments'
+import { ContactObjectSchemaDefinition } from '@/schemas/v3.1/strict/contact'
+import { DiscriminatorObjectSchemaDefinition } from '@/schemas/v3.1/strict/discriminator'
+import { EncodingObjectSchemaDefinition } from '@/schemas/v3.1/strict/encoding'
+import { ExampleObjectSchemaDefinition } from '@/schemas/v3.1/strict/example'
+import { HeaderObjectSchemaDefinition } from '@/schemas/v3.1/strict/header'
+import { LicenseObjectSchemaDefinition } from '@/schemas/v3.1/strict/license'
+import { LinkObjectSchemaDefinition } from '@/schemas/v3.1/strict/link'
+import { MediaTypeObjectSchemaDefinition } from '@/schemas/v3.1/strict/media-type'
+import { OAuthFlowsObjectSchemaDefinition } from '@/schemas/v3.1/strict/oauthflows'
+import { OperationObjectSchemaDefinition } from '@/schemas/v3.1/strict/operation'
+import { ParameterObjectSchemaDefinition } from '@/schemas/v3.1/strict/parameter'
+import { PathItemObjectSchemaDefinition } from '@/schemas/v3.1/strict/path-item'
 import {
-  REF_DEFINITIONS,
   ComponentsObjectRef,
-  SecurityRequirementObjectRef,
-  TagObjectRef,
-  PathItemObjectRef,
-  ServerObjectRef,
-  PathsObjectRef,
   ExternalDocumentationObjectRef,
   InfoObjectRef,
+  PathItemObjectRef,
+  PathsObjectRef,
+  REF_DEFINITIONS,
+  SecurityRequirementObjectRef,
+  ServerObjectRef,
+  TagObjectRef,
 } from '@/schemas/v3.1/strict/ref-definitions'
-import { InfoObjectSchemaDefinition } from './info'
-import { ServerObjectSchemaDefinition } from './server'
-import { PathsObjectSchemaDefinition } from './paths'
-import { ComponentsObjectSchemaDefinition } from './components'
-import { SecurityRequirementObjectSchemaDefinition } from './security-requirement'
-import { TagObjectSchemaDefinition } from './tag'
-import { ExternalDocumentationObjectSchemaDefinition } from './external-documentation'
-import { CallbackObjectSchemaDefinition } from '@/schemas/v3.1/strict/callback'
-import { PathItemObjectSchemaDefinition } from '@/schemas/v3.1/strict/path-item'
-import { OperationObjectSchemaDefinition } from '@/schemas/v3.1/strict/operation'
-import { SchemaObjectSchemaDefinition } from '@/schemas/v3.1/strict/schema'
-import { EncodingObjectSchemaDefinition } from '@/schemas/v3.1/strict/encoding'
-import { MediaTypeObjectSchemaDefinition } from '@/schemas/v3.1/strict/media-type'
-import { HeaderObjectSchemaDefinition } from '@/schemas/v3.1/strict/header'
-import { ContactObjectSchemaDefinition } from '@/schemas/v3.1/strict/contact'
-import { LicenseObjectSchemaDefinition } from '@/schemas/v3.1/strict/license'
+import { RequestBodyObjectSchemaDefinition } from '@/schemas/v3.1/strict/request-body'
 import { ResponseObjectSchemaDefinition } from '@/schemas/v3.1/strict/response'
 import { ResponsesObjectSchemaDefinition } from '@/schemas/v3.1/strict/responses'
-import { ParameterObjectSchemaDefinition } from '@/schemas/v3.1/strict/parameter'
-import { ExampleObjectSchemaDefinition } from '@/schemas/v3.1/strict/example'
-import { RequestBodyObjectSchemaDefinition } from '@/schemas/v3.1/strict/request-body'
+import { SchemaObjectSchemaDefinition } from '@/schemas/v3.1/strict/schema'
 import { SecuritySchemeObjectSchemaDefinition } from '@/schemas/v3.1/strict/security-scheme'
-import { LinkObjectSchemaDefinition } from '@/schemas/v3.1/strict/link'
-import { XMLObjectSchemaDefinition } from '@/schemas/v3.1/strict/xml'
-import { DiscriminatorObjectSchemaDefinition } from '@/schemas/v3.1/strict/discriminator'
-import { OAuthFlowsObjectSchemaDefinition } from '@/schemas/v3.1/strict/oauthflows'
 import { ServerVariableObjectSchemaDefinition } from '@/schemas/v3.1/strict/server-variable'
+import { XMLObjectSchemaDefinition } from '@/schemas/v3.1/strict/xml'
+
+import { ComponentsObjectSchemaDefinition } from './components'
+import { ExternalDocumentationObjectSchemaDefinition } from './external-documentation'
+import { InfoObjectSchemaDefinition } from './info'
+import { PathsObjectSchemaDefinition } from './paths'
+import { SecurityRequirementObjectSchemaDefinition } from './security-requirement'
+import { ServerObjectSchemaDefinition } from './server'
+import { TagObjectSchemaDefinition } from './tag'
 
 const OpenApiExtensionsSchema = Type.Partial(
   Type.Object({

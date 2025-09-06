@@ -1,5 +1,6 @@
-import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
 import { describe, expect, it } from 'vitest'
+
+import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
 
 describe('applySelectiveUpdates', () => {
   it('should update the original document with the changes from the updated document', () => {

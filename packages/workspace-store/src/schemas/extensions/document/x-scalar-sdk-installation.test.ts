@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest'
-import { XScalarSdkInstallationSchema } from './x-scalar-sdk-installation'
 import { Value } from '@scalar/typebox/value'
+import { describe, expect, it } from 'vitest'
+
+import { XScalarSdkInstallationSchema } from './x-scalar-sdk-installation'
 
 describe('XScalarSdkInstallationSchema', () => {
   it('supports an array of installation instructions', () => {

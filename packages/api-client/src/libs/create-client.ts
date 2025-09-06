@@ -135,7 +135,7 @@ export const createApiClient = ({
       let _key = ''
 
       for (_key in localStorage) {
-        if (!Object.prototype.hasOwnProperty.call(localStorage, _key)) {
+        if (!Object.hasOwn(localStorage, _key)) {
           continue
         }
         _xLen = (localStorage[_key].length + _key.length) * 2

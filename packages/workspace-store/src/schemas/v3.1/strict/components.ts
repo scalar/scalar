@@ -1,5 +1,5 @@
 import { Type } from '@scalar/typebox'
-import { reference } from './reference'
+
 import {
   CallbackObjectRef,
   ExampleObjectRef,
@@ -12,6 +12,8 @@ import {
   SchemaObjectRef,
   SecuritySchemeObjectRef,
 } from '@/schemas/v3.1/strict/ref-definitions'
+
+import { reference } from './reference'
 
 /** Holds a set of reusable objects for different aspects of the OAS. All objects defined within the Components Object will have no effect on the API unless they are explicitly referenced from outside the Components Object. */
 export const ComponentsObjectSchemaDefinition = Type.Object({

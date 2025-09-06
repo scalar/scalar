@@ -1,5 +1,6 @@
-import { MediaTypeObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 import { Type } from '@scalar/typebox'
+
+import { MediaTypeObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 
 /** Describes a single request body. */
 export const RequestBodyObjectSchemaDefinition = Type.Object({

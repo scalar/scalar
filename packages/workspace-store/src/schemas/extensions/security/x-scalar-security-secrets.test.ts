@@ -1,6 +1,7 @@
-import { describe, it, expect } from 'vitest'
 import { Value } from '@scalar/typebox/value'
-import { XScalarSecretTokenSchema, XScalarSecretHTTPSchema } from './x-scalar-security-secrets'
+import { describe, expect, it } from 'vitest'
+
+import { XScalarSecretHTTPSchema, XScalarSecretTokenSchema } from './x-scalar-security-secrets'
 
 describe('XScalarSecrets', () => {
   describe('XScalarSecretTokenSchema', () => {

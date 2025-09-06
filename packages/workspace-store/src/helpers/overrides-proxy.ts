@@ -1,4 +1,4 @@
-import { isObject, type UnknownObject } from '@/helpers/general'
+import { type UnknownObject, isObject } from '@/helpers/general'
 
 const isOverridesProxy = Symbol('isOverridesProxy')
 

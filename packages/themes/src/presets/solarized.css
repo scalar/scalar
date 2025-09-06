@@ -48,8 +48,8 @@
   --scalar-backdrop-brightness: 0.5;
 
   --scalar-shadow-1: 0 1px 3px 0 rgb(0, 0, 0, 0.1);
-  --scalar-shadow-2: rgba(15, 15, 15, 0.2) 0px 3px 6px, rgba(15, 15, 15, 0.4) 0px 9px 24px, 0 0 0 1px
-    rgba(255, 255, 255, 0.1);
+  --scalar-shadow-2:
+    rgba(15, 15, 15, 0.2) 0px 3px 6px, rgba(15, 15, 15, 0.4) 0px 9px 24px, 0 0 0 1px rgba(255, 255, 255, 0.1);
 
   --scalar-button-1: #f6f6f6;
   --scalar-button-1-color: #000;

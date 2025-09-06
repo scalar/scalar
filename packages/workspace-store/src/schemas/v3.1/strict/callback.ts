@@ -1,6 +1,7 @@
 import { Type } from '@scalar/typebox'
-import { reference } from '@/schemas/v3.1/strict/reference'
+
 import { PathItemObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
+import { reference } from '@/schemas/v3.1/strict/reference'
 
 export const CallbackObjectSchemaDefinition = Type.Record(
   Type.String(),

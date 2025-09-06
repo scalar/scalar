@@ -1,4 +1,5 @@
 import { Type } from '@scalar/typebox'
+
 import { compose } from '@/schemas/compose'
 import {
   XScalarSecretHTTPSchema,

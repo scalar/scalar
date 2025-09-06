@@ -1,5 +1,6 @@
-import { PathItemObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 import { Type } from '@scalar/typebox'
+
+import { PathItemObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 
 /**
  * Holds the relative paths to the individual endpoints and their operations. The path is appended to the URL from the Server Object in order to construct the full URL. The Paths Object MAY be empty, due to Access Control List (ACL) constraints.

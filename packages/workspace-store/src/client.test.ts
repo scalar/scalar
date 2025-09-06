@@ -1,12 +1,14 @@
+import assert from 'node:assert'
 import { setTimeout } from 'node:timers/promises'
+
+import { consoleErrorSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
+import { getRaw } from '@scalar/json-magic/magic-proxy'
+import fastify, { type FastifyInstance } from 'fastify'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
 import { createWorkspaceStore } from '@/client'
 import { defaultReferenceConfig } from '@/schemas/reference-config'
 import { createServerWorkspaceStore } from '@/server'
-import { consoleErrorSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
-import fastify, { type FastifyInstance } from 'fastify'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import assert from 'node:assert'
-import { getRaw } from '@scalar/json-magic/magic-proxy'
 
 // Test document
 const getDocument = (version?: string) => ({

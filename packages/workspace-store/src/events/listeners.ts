@@ -1,5 +1,6 @@
+import { type Ref, onBeforeUnmount, watch } from 'vue'
+
 import type { ApiReferenceEvent, ApiReferenceEvents } from './definitions'
-import { onBeforeUnmount, type Ref, watch } from 'vue'
 
 /**
  * Vue wrapper for attaching and removing event listeners

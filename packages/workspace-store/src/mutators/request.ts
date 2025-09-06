@@ -1,5 +1,6 @@
-import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+
+import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
 export type OperationIdentifier = {
   path: string
@@ -34,7 +35,10 @@ export const requestMutators = (document?: OpenApiDocument) => {
   const moveOperation = ({
     source,
     destination,
-  }: { source: OperationIdentifier; destination: OperationIdentifier }) => {
+  }: {
+    source: OperationIdentifier
+    destination: OperationIdentifier
+  }) => {
     if (!document || !document.paths) {
       return false
     }

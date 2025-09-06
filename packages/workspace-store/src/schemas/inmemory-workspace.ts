@@ -1,6 +1,7 @@
+import { type Static, Type } from '@scalar/typebox'
+
 import { WorkspaceDocumentSchema, WorkspaceMetaSchema } from '@/schemas/workspace'
 import { ConfigSchema } from '@/schemas/workspace-specification/config'
-import { Type, type Static } from '@scalar/typebox'
 
 const UnknownObjectSchema = Type.Record(Type.String(), Type.Unknown())
 

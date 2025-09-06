@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest'
-import { XScalarSecurityBody } from './x-scalar-security-body'
 import { Value } from '@scalar/typebox/value'
+import { describe, expect, it } from 'vitest'
+
+import { XScalarSecurityBody } from './x-scalar-security-body'
 
 describe('XScalarSecurityBody', () => {
   it('allows multiple properties', () => {

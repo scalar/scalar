@@ -1,12 +1,12 @@
 import { Type } from '@scalar/typebox'
-import { reference } from './reference'
+
 import { compose } from '@/schemas/compose'
-import { xScalarClientConfigRequestExampleSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-request-example'
-import { XBadgesSchema } from '@/schemas/extensions/operation/x-badge'
 import { XInternalSchema } from '@/schemas/extensions/document/x-internal'
 import { XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
+import { XBadgesSchema } from '@/schemas/extensions/operation/x-badge'
 import { XCodeSamplesSchema } from '@/schemas/extensions/operation/x-code-samples'
 import { XScalarStabilitySchema } from '@/schemas/extensions/operation/x-scalar-stability'
+import { xScalarClientConfigRequestExampleSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-request-example'
 import {
   CallbackObjectRef,
   ExternalDocumentationObjectRef,
@@ -16,6 +16,8 @@ import {
   SecurityRequirementObjectRef,
   ServerObjectRef,
 } from '@/schemas/v3.1/strict/ref-definitions'
+
+import { reference } from './reference'
 
 const OperationExtensionsSchema = Type.Partial(
   Type.Object({

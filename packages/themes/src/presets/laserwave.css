@@ -95,21 +95,21 @@
 /* P3 color support */
 @supports (color: color(display-p3 1 1 1)) {
   .light-mode {
-    --scalar-color-accent: color(display-p3 0.25098 0.705882 0.768627 / 1.0);
-    --scalar-color-green: color(display-p3 0.454902 0.87451 0.768627 / 1.0);
-    --scalar-color-red: color(display-p3 0.847059 0.529412 0.960784 / 1.0);
-    --scalar-color-yellow: color(display-p3 1.0 0.886275 0.380392 / 1.0);
-    --scalar-color-blue: color(display-p3 0.25098 0.705882 0.768627 / 1.0);
-    --scalar-color-orange: color(display-p3 1.0 0.321569 0.74902 / 1.0);
-    --scalar-color-purple: color(display-p3 0.568627 0.533333 0.607843 / 1.0);
+    --scalar-color-accent: color(display-p3 0.25098 0.705882 0.768627 / 1);
+    --scalar-color-green: color(display-p3 0.454902 0.87451 0.768627 / 1);
+    --scalar-color-red: color(display-p3 0.847059 0.529412 0.960784 / 1);
+    --scalar-color-yellow: color(display-p3 1 0.886275 0.380392 / 1);
+    --scalar-color-blue: color(display-p3 0.25098 0.705882 0.768627 / 1);
+    --scalar-color-orange: color(display-p3 1 0.321569 0.74902 / 1);
+    --scalar-color-purple: color(display-p3 0.568627 0.533333 0.607843 / 1);
   }
   .dark-mode {
-    --scalar-color-accent: color(display-p3 0.929412 0.470588 0.760784 / 1.0);
-    --scalar-color-green: color(display-p3 0.454902 0.87451 0.768627 / 1.0);
-    --scalar-color-red: color(display-p3 0.847059 0.529412 0.960784 / 1.0);
-    --scalar-color-yellow: color(display-p3 1.0 0.886275 0.380392 / 1.0);
-    --scalar-color-blue: color(display-p3 0.25098 0.705882 0.768627 / 1.0);
-    --scalar-color-orange: color(display-p3 1.0 0.321569 0.74902 / 1.0);
-    --scalar-color-purple: color(display-p3 0.568627 0.533333 0.607843 / 1.0);
+    --scalar-color-accent: color(display-p3 0.929412 0.470588 0.760784 / 1);
+    --scalar-color-green: color(display-p3 0.454902 0.87451 0.768627 / 1);
+    --scalar-color-red: color(display-p3 0.847059 0.529412 0.960784 / 1);
+    --scalar-color-yellow: color(display-p3 1 0.886275 0.380392 / 1);
+    --scalar-color-blue: color(display-p3 0.25098 0.705882 0.768627 / 1);
+    --scalar-color-orange: color(display-p3 1 0.321569 0.74902 / 1);
+    --scalar-color-purple: color(display-p3 0.568627 0.533333 0.607843 / 1);
   }
 }

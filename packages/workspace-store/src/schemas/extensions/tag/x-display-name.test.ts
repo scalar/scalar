@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest'
-import { XDisplayNameSchema } from './x-display-name'
 import { Value } from '@scalar/typebox/value'
+import { describe, expect, it } from 'vitest'
+
+import { XDisplayNameSchema } from './x-display-name'
 
 describe('XDisplayName', () => {
   it('allows string value', () => {

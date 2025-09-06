@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest'
-import { XScalarIgnoreSchema } from './x-scalar-ignore'
 import { Value } from '@scalar/typebox/value'
+import { describe, expect, it } from 'vitest'
+
+import { XScalarIgnoreSchema } from './x-scalar-ignore'
 
 describe('XScalarIgnoreSchema', () => {
   it('allows true', () => {

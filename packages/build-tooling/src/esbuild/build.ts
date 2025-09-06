@@ -22,12 +22,7 @@ function makeEntryPoints(allowJs?: boolean) {
 }
 
 function nodeBuildOptions(
-  options: {
-    bundle?: boolean
-    shimRequire?: boolean
-    allowJs?: boolean
-    options?: esbuild.BuildOptions
-  } = {},
+  options: { bundle?: boolean; shimRequire?: boolean; allowJs?: boolean; options?: esbuild.BuildOptions } = {},
 ): esbuild.BuildOptions {
   return {
     entryPoints: options.bundle ? ['src/index.ts'] : makeEntryPoints(options.allowJs),
@@ -39,11 +34,7 @@ function nodeBuildOptions(
   }
 }
 
-function browserBuildOptions({
-  allowJs = false,
-}: {
-  allowJs?: boolean
-}): esbuild.BuildOptions {
+function browserBuildOptions({ allowJs = false }: { allowJs?: boolean }): esbuild.BuildOptions {
   return {
     entryPoints: makeEntryPoints(allowJs),
     bundle: false,
