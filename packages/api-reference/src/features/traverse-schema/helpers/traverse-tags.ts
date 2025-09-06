@@ -22,6 +22,7 @@ const createTagEntry = (
   titlesMap.set(id, title)
 
   return {
+    type: 'tag',
     id,
     title,
     tag,

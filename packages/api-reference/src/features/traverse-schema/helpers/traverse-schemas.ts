@@ -21,6 +21,7 @@ const createSchemaEntry = (
   titlesMap.set(id, title)
 
   return {
+    type: 'schema',
     id,
     title,
     name,

@@ -20,6 +20,7 @@ const createOperationEntry = (
   titlesMap.set(id, title)
 
   return {
+    type: 'operation',
     id,
     title,
     path,

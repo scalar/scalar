@@ -5,6 +5,7 @@ import { getCurrentIndex } from './get-current-index'
 // Mock data for testing
 const createMockEntries = (): TraversedEntry[] => [
   {
+    type: 'tag',
     id: 'tag-pets',
     title: 'Pets',
     children: [],
@@ -12,6 +13,7 @@ const createMockEntries = (): TraversedEntry[] => [
     isGroup: true,
   },
   {
+    type: 'operation',
     id: 'operation-get-pets',
     title: 'Get Pets',
     method: 'get',
@@ -19,6 +21,7 @@ const createMockEntries = (): TraversedEntry[] => [
     operation: {} as any,
   },
   {
+    type: 'operation',
     id: 'operation-post-pets',
     title: 'Create Pet',
     method: 'post',
@@ -26,12 +29,14 @@ const createMockEntries = (): TraversedEntry[] => [
     operation: {} as any,
   },
   {
+    type: 'schema',
     id: 'models',
     title: 'Models',
     name: 'Models',
     schema: {} as any,
   },
   {
+    type: 'tag',
     id: 'tag-users',
     title: 'Users',
     children: [],
@@ -149,9 +154,10 @@ describe('getCurrentIndex', () => {
       const entriesWithDuplicate = [
         ...entries,
         {
+          type: 'operation' as const,
           id: 'operation-get-pets',
           title: 'Get Pets Duplicate',
-          method: 'get',
+          method: 'get' as const,
           path: '/pets',
           operation: {} as any,
         },

@@ -5,6 +5,7 @@ import ClassicLayout from './ClassicLayout.vue'
 
 describe('ClassicLayout', () => {
   const createMockTag = (overrides: Partial<TraversedTag> = {}): TraversedTag => ({
+    type: 'tag',
     id: 'test-tag',
     title: 'Test Tag',
     children: [],

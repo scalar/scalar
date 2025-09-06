@@ -18,6 +18,7 @@ vi.mock('@/features/sidebar', () => ({
 
 describe('TagSection', () => {
   const createMockTag = (overrides: Partial<TraversedTag> = {}): TraversedTag => ({
+    type: 'tag',
     id: 'test-tag',
     title: 'Test Tag',
     tag: {
@@ -100,7 +101,7 @@ describe('TagSection', () => {
       })
 
       const specExtension = wrapper.findComponent({ name: 'SpecificationExtension' })
-      expect(specExtension.props('value')).toMatchObject(mockTag.tag)
+      expect(specExtension.props('value')).toMatchObject(mockTag.tag!)
     })
   })
 

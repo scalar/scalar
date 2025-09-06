@@ -14,13 +14,16 @@ export type TagsMap = Map<string, { tag: TagObject; entries: TraversedEntry[] }>
 
 /** Description entry returned from traversing the document */
 export type TraversedDescription = {
+  type: 'description'
   id: string
   title: string
+  depth: number
   children?: TraversedDescription[]
 }
 
 /** Operation entry returned from traversing the document */
 export type TraversedOperation = {
+  type: 'operation'
   id: string
   title: string
   method: OpenAPIV3_1.HttpMethods
@@ -30,6 +33,7 @@ export type TraversedOperation = {
 
 /** Model entry returned from traversing the document */
 export type TraversedSchema = {
+  type: 'schema'
   id: string
   title: string
   name: string
@@ -38,16 +42,18 @@ export type TraversedSchema = {
 
 /** Tag entry returned from traversing the document, includes tagGroups */
 export type TraversedTag = {
+  type: 'tag'
   id: string
   title: string
-  children: TraversedEntry[]
-  tag: TagObject
-  isGroup: boolean
+  children?: TraversedEntry[]
+  tag?: TagObject
+  isGroup?: boolean
   isWebhooks?: boolean
 }
 
 /** Webhook entry returned from traversing the document, basically the same as an operaation but with name instead of path */
 export type TraversedWebhook = {
+  type: 'webhook'
   id: string
   title: string
   method: OpenAPIV3_1.HttpMethods
