@@ -153,8 +153,9 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
+      # Install only root dependencies
       - name: Install dev dependencies
-        run: pnpm install --dev
+        run: pnpm install --filter .
       - name: Lint code
         run: pnpm lint:check
       - name: Check formatting
