@@ -1,6 +1,7 @@
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
-import { describe, it, expect, vi } from 'vitest'
-import { getResolvedRef, type Dereference } from './get-resolved-ref'
+import { describe, expect, it, vi } from 'vitest'
+
+import { type Dereference, getResolvedRef } from './get-resolved-ref'
 
 describe('get-resolved-ref', () => {
   describe.todo('multiple ref depth', () => {

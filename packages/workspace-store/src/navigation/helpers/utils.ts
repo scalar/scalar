@@ -1,6 +1,7 @@
-import type { Heading } from '@/navigation/types'
 import { getHeadings } from '@scalar/code-highlight/markdown'
 import GithubSlugger from 'github-slugger'
+
+import type { Heading } from '@/navigation/types'
 
 /**
  * Adds URL-friendly slugs to each heading in the array.

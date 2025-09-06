@@ -1,11 +1,13 @@
-import { getTag } from './get-tag'
-import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
-import { escapeJsonPointer } from '@scalar/openapi-parser'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
-import type { OpenApiDocument, OperationObject, TagObject } from '@/schemas/v3.1/strict/openapi-document'
-import type { TraversedOperation } from '@/schemas/navigation'
-import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
+import { escapeJsonPointer } from '@scalar/openapi-parser'
+
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
+import type { TraversedOperation } from '@/schemas/navigation'
+import type { OpenApiDocument, OperationObject, TagObject } from '@/schemas/v3.1/strict/openapi-document'
+
+import { getTag } from './get-tag'
 
 /**
  * Creates a traversed operation entry from an OpenAPI operation object.

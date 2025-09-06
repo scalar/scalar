@@ -1,6 +1,8 @@
 import { Type } from '@scalar/typebox'
-import { reference } from './reference'
+
 import { OperationObjectRef, ParameterObjectRef, ServerObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
+
+import { reference } from './reference'
 
 export const PathItemObjectSchemaDefinition = Type.Object({
   /**

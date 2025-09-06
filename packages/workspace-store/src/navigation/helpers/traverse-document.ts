@@ -1,11 +1,12 @@
+import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import type { TraversedEntry } from '@/schemas/navigation'
+import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
+
 import { traverseDescription } from './traverse-description'
 import { traversePaths } from './traverse-paths'
 import { traverseSchemas } from './traverse-schemas'
 import { traverseTags } from './traverse-tags'
 import { traverseWebhooks } from './traverse-webhooks'
-import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
-import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
 /**
  * Traverses an OpenAPI Document to generate navigation structure and metadata.

@@ -1,5 +1,6 @@
-import { ServerVariableObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 import { Type } from '@scalar/typebox'
+
+import { ServerVariableObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 
 /** An object representing a Server. */
 export const ServerObjectSchemaDefinition = Type.Object({

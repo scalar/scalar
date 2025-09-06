@@ -1,7 +1,8 @@
-import { getTag } from './get-tag'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
-import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
 import type { TraversedEntry, TraversedTag } from '@/schemas/navigation'
+import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
+
+import { getTag } from './get-tag'
 
 type Options = Pick<TraverseSpecOptions, 'getTagId' | 'tagsSorter' | 'operationsSorter'>
 

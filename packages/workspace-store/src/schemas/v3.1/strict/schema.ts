@@ -1,17 +1,17 @@
-import { Type, type TAny, type TIntersect, type TObject } from '@scalar/typebox'
+import { type TAny, type TIntersect, type TObject, Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
 import { XInternalSchema } from '@/schemas/extensions/document/x-internal'
 import { XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
-import { reference } from '@/schemas/v3.1/strict/reference'
-import { XVariableSchema } from '@/schemas/extensions/schema/x-variable'
 import { XAdditionalPropertiesNameSchema } from '@/schemas/extensions/schema/x-additional-properties-name'
+import { XVariableSchema } from '@/schemas/extensions/schema/x-variable'
 import {
   DiscriminatorObjectRef,
   ExternalDocumentationObjectRef,
   SchemaObjectRef,
   XMLObjectRef,
 } from '@/schemas/v3.1/strict/ref-definitions'
+import { reference } from '@/schemas/v3.1/strict/reference'
 
 const SchemaBase = compose(
   Type.Object({

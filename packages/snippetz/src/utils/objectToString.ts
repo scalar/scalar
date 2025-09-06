@@ -55,7 +55,7 @@ export function objectToString(obj: Record<string, any>, indent = 0): string {
 
       if (items.some((item) => item.includes('\n'))) {
         // format vertically if any array element contains a newline
-        const arrayString = items.map((item) => indentString(item, indent + 4)).join(`,\n`)
+        const arrayString = items.map((item) => indentString(item, indent + 4)).join(',\n')
         parts.push(`${innerIndentation}${formattedKey}: [\n${arrayString}\n${innerIndentation}]`)
       } else {
         parts.push(`${innerIndentation}${formattedKey}: [${items.join(', ')}]`)
