@@ -3,7 +3,7 @@ import { ScalarSidebarGroupToggle } from '@scalar/components'
 import { scrollToId } from '@scalar/helpers/dom/scroll-to-id'
 import { getHttpMethodInfo } from '@scalar/helpers/http/http-info'
 import { sleep } from '@scalar/helpers/testing/sleep'
-import { ScalarIconWebhooksLogo } from '@scalar/icons'
+import { ScalarIconHouse, ScalarIconWebhooksLogo } from '@scalar/icons'
 import {
   combineUrlAndPath,
   isOperationDeprecated,
@@ -136,6 +136,12 @@ const onAnchorClick = async (ev: Event) => {
         :tabindex="hasChildren ? -1 : 0"
         @click="onAnchorClick">
         <p class="sidebar-heading-link-title">
+          <!-- Show the house icon if the item is the "Introduction" description and has no children -->
+          <ScalarIconHouse
+            v-if="
+              !hasChildren && item.type === 'description' && item.depth === 1
+            "
+            class="sidebar-icon" />
           <span
             v-if="config.operationTitleSource === 'path'"
             class="hanging-indent">
