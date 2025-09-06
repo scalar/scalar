@@ -34,7 +34,10 @@ export const requestMutators = (document?: OpenApiDocument) => {
   const moveOperation = ({
     source,
     destination,
-  }: { source: OperationIdentifier; destination: OperationIdentifier }) => {
+  }: {
+    source: OperationIdentifier
+    destination: OperationIdentifier
+  }) => {
     if (!document || !document.paths) {
       return false
     }

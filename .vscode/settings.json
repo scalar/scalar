@@ -1,7 +1,5 @@
 {
-  "eslint.validate": [
-    "vue"
-  ],
+  "eslint.validate": ["vue"],
   "biome.enabled": true,
   "biome.searchInPath": true,
   "editor.formatOnSave": true,
@@ -69,9 +67,7 @@
   "cSpell.enabledFileTypes": {
     "*": true
   },
-  "css.customData": [
-    ".vscode/tailwind.json"
-  ],
+  "css.customData": [".vscode/tailwind.json"],
   "git.pullTags": false,
   "vue.complete.casing.props": "camel",
   "vue.complete.casing.tags": "pascal",
@@ -85,11 +81,7 @@
     "leaveToClass",
     "leaveActiveClass"
   ],
-  "tailwindCSS.classFunctions": [
-    "tw",
-    "clsx",
-    "cx"
-  ],
+  "tailwindCSS.classFunctions": ["tw", "clsx", "cx"],
   "tailwindCSS.experimental.configFile": {
     "packages/api-client/src/style.css": "packages/api-client/**",
     "packages/api-reference/src/style.css": "packages/api-reference/**",
@@ -98,7 +90,5 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "vitest.commandLine": "pnpm vitest",
   "vitest.enable": true,
-  "cSpell.words": [
-    "microdiff"
-  ]
+  "cSpell.words": ["microdiff"]
 }

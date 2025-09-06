@@ -44,15 +44,7 @@
           "level": "on",
           "options": {
             "identifierOrder": "lexicographic",
-            "groups": [
-              ":NODE:",
-              ":BLANK_LINE:",
-              ":PACKAGE:",
-              ":BLANK_LINE:",
-              ":ALIAS:",
-              ":BLANK_LINE:",
-              ":PATH:"
-            ]
+            "groups": [":NODE:", ":BLANK_LINE:", ":PACKAGE:", ":BLANK_LINE:", ":ALIAS:", ":BLANK_LINE:", ":PATH:"]
           }
         }
       }
@@ -203,9 +195,7 @@
   },
   "overrides": [
     {
-      "includes": [
-        "**/*.vue"
-      ],
+      "includes": ["**/*.vue"],
       "formatter": {
         "enabled": false
       },
@@ -223,10 +213,7 @@
       }
     },
     {
-      "includes": [
-        "**/tsconfig.*.json",
-        "**/tsconfig.json"
-      ],
+      "includes": ["**/tsconfig.*.json", "**/tsconfig.json"],
       "json": {
         "parser": {
           "allowComments": true
@@ -234,18 +221,13 @@
       }
     },
     {
-      "includes": [
-        "**/*.tsx"
-      ],
+      "includes": ["**/*.tsx"],
       "javascript": {
         "jsxRuntime": "reactClassic"
       }
     },
     {
-      "includes": [
-        "**/packages/api-reference/**/*.ts",
-        "**/packages/openapi-parser/**/*.ts"
-      ],
+      "includes": ["**/packages/api-reference/**/*.ts", "**/packages/openapi-parser/**/*.ts"],
       "linter": {
         "rules": {
           "performance": {
