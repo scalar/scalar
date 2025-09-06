@@ -159,7 +159,7 @@ jobs:
       - name: Lint code
         run: pnpm lint:check
       - name: Check formatting
-        run: pnpm prettier --check . && biome format
+        run: pnpm format:check
 
   build-examples:
     needs: [build]
