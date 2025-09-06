@@ -26,8 +26,8 @@ export const traverseDescription = (
     slug: DEFAULT_INTRODUCTION_SLUG,
   })
 
-  const root = { children: [], depth: 0, title: 'root', id: 'root' }
-  const stack: (TraversedDescription & { depth: number })[] = [root]
+  const root = { type: 'description', children: [], depth: 0, title: 'root', id: 'root' } satisfies TraversedDescription
+  const stack: TraversedDescription[] = [root]
 
   headings.forEach((heading) => {
     let stackHead = stack.at(-1)
@@ -36,7 +36,8 @@ export const traverseDescription = (
     stackHead = stack[parentIndex]
     stack.splice(parentIndex + 1)
 
-    const sidebarItem = {
+    const sidebarItem: TraversedDescription = {
+      type: 'description',
       children: [],
       depth: heading.depth,
       id: getHeadingId(heading),
