@@ -16,6 +16,7 @@ export type TagsMap = Map<string, { tag: TagObject; entries: TraversedEntry[] }>
 export type TraversedDescription = {
   id: string
   title: string
+  depth: number
   children?: TraversedDescription[]
 }
 

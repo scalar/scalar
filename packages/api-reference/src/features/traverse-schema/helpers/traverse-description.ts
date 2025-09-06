@@ -1,5 +1,5 @@
 import type { TraversedDescription } from '@/features/traverse-schema/types'
-import { getHeadingsFromMarkdown, getLowestHeadingLevel } from '@/libs/markdown'
+import { getHeadingsFromMarkdown } from '@/libs/markdown'
 import type { Heading } from '@scalar/types/legacy'
 
 export const DEFAULT_INTRODUCTION_SLUG = 'introduction'
@@ -19,49 +19,35 @@ export const traverseDescription = (
   }
 
   const headings = getHeadingsFromMarkdown(description)
-  const lowestLevel = getLowestHeadingLevel(headings)
 
-  const entries: TraversedDescription[] = []
-  let currentParent: TraversedDescription | null = null
+  headings.splice(0, 0, {
+    depth: 1,
+    value: 'Introduction',
+    slug: DEFAULT_INTRODUCTION_SLUG,
+  })
 
-  // Add "Introduction" as the first heading
-  if (description && !description.trim().startsWith('#')) {
-    const heading: Heading = {
-      depth: 1,
-      value: 'Introduction',
-      slug: DEFAULT_INTRODUCTION_SLUG,
-    }
+  const root = { children: [], depth: 0, title: 'root', id: 'root' } satisfies TraversedDescription
+  const stack: TraversedDescription[] = [root]
 
-    const id = getHeadingId(heading)
-    const title = heading.value
+  headings.forEach((heading) => {
+    let stackHead = stack.at(-1)
 
-    entries.push({
-      id,
-      title,
-    })
-    titlesMap.set(id, title)
-  }
+    const parentIndex = stack.findLastIndex((item) => item.depth < heading.depth)
+    stackHead = stack[parentIndex]
+    stack.splice(parentIndex + 1)
 
-  // Traverse for the rest
-  for (const heading of headings) {
-    if (heading.depth !== lowestLevel && heading.depth !== lowestLevel + 1) {
-      continue
-    }
-
-    const entry: TraversedDescription = {
+    const sidebarItem: TraversedDescription = {
+      children: [],
+      depth: heading.depth,
       id: getHeadingId(heading),
       title: heading.value,
     }
-    titlesMap.set(entry.id, entry.title)
 
-    if (heading.depth === lowestLevel) {
-      entry.children = []
-      entries.push(entry)
-      currentParent = entry
-    } else if (currentParent) {
-      currentParent.children?.push(entry)
-    }
-  }
+    titlesMap.set(sidebarItem.id, sidebarItem.title)
+    stackHead?.children?.push(sidebarItem)
+    stack.push(sidebarItem)
+  })
 
-  return entries
+  console.log('return', root.children)
+  return root.children
 }

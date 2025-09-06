@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.json",
   "include": ["./src", "./test"],
   "compilerOptions": {
+    "lib": ["esnext"],
     // TODO: Reenable when we can fix all the issues
     "noUncheckedIndexedAccess": false,
     // TODO: Reenable when we can fix all the issues
