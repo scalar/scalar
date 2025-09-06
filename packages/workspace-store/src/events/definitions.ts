@@ -124,6 +124,13 @@ export type ApiReferenceEvents<T extends keyof ServerObject = keyof ServerObject
     }
   }
 
+  'scalar-select-operation-security-schemes': {
+    detail: {
+      operationUid: string
+      uids: string[]
+    }
+  }
+
   'scalar-edit-security-scheme': {
     detail: {
       uid: string

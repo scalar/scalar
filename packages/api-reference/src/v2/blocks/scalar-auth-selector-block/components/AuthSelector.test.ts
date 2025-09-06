@@ -7,18 +7,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 import type { VueWrapper } from '@vue/test-utils'
 
-import RequestAuth from './AuthSelector.vue'
-
-const securitySchemeMutators = {
-  add: vi.fn(),
-  edit: vi.fn(),
-}
-const requestMutators = {
-  edit: vi.fn(),
-}
-const collectionMutators = {
-  edit: vi.fn(),
-}
+import AuthSelector from './AuthSelector.vue'
 
 // Mock useWorkspace
 vi.mock('@scalar/api-client/store', () => ({
@@ -66,10 +55,13 @@ vi.mock('@scalar/api-client/store', () => ({
         value: 'key456',
       },
     },
-    collectionMutators,
-    requestMutators,
-    securitySchemeMutators,
   }),
+}))
+
+const emitCustomEvent = vi.fn()
+
+vi.mock('@scalar/workspace-store/events', () => ({
+  emitCustomEvent: (...args: any[]) => emitCustomEvent(...args),
 }))
 
 describe('AuthSelector.vue', () => {
@@ -111,7 +103,7 @@ describe('AuthSelector.vue', () => {
   }
 
   it('renders the basics', async () => {
-    const wrapper = mount(RequestAuth, {
+    const wrapper = mount(AuthSelector, {
       props: createBaseProps(),
     })
 
@@ -121,8 +113,8 @@ describe('AuthSelector.vue', () => {
     expect(wrapper.text()).toContain('No authentication selected')
   })
 
-  it('calls correct mutator when selecting auth scheme', async () => {
-    const wrapper = mount(RequestAuth, {
+  it('emit correct event when selecting auth scheme', async () => {
+    const wrapper = mount(AuthSelector, {
       props: createBaseProps(),
       attachTo: document.body,
     })
@@ -141,14 +133,19 @@ describe('AuthSelector.vue', () => {
     await nextTick()
 
     // Verify mutation
-    expect(requestMutators.edit).toHaveBeenCalledWith('test-operation', 'selectedSecuritySchemeUids', ['bearer-auth'])
+    // expect(requestMutators.edit).toHaveBeenCalledWith('test-operation', 'selectedSecuritySchemeUids', ['bearer-auth'])
+
+    expect(emitCustomEvent).toHaveBeenCalledWith(expect.anything(), 'scalar-select-operation-security-schemes', {
+      'operationUid': 'test-operation',
+      'uids': ['bearer-auth'],
+    })
   })
 
   it('shows optional status when security is optional', async () => {
     const props = createBaseProps()
     props.operation.security = [{}]
 
-    const wrapper = mount(RequestAuth, {
+    const wrapper = mount(AuthSelector, {
       props,
     })
 
@@ -161,7 +158,7 @@ describe('AuthSelector.vue', () => {
       selectedSecuritySchemeUids: ['bearer-auth', 'api-key'] as Collection['selectedSecuritySchemeUids'],
     }
 
-    const wrapper = mount(RequestAuth, {
+    const wrapper = mount(AuthSelector, {
       props,
     })
 
@@ -173,7 +170,7 @@ describe('AuthSelector.vue', () => {
     const props = createBaseProps()
     props.operation.security = [{ 'Client ID': [], 'Client Key': [] }, {}]
 
-    const wrapper = mount(RequestAuth, {
+    const wrapper = mount(AuthSelector, {
       attachTo: document.body,
       props,
     })
@@ -190,7 +187,7 @@ describe('AuthSelector.vue', () => {
   })
 
   it('opens auth select when auth indicator is clicked', async () => {
-    const wrapper = mount(RequestAuth, {
+    const wrapper = mount(AuthSelector, {
       props: createBaseProps(),
       attachTo: document.body,
     })

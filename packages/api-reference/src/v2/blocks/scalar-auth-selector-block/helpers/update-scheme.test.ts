@@ -5,16 +5,17 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import type { WorkspaceStore } from '@scalar/api-client/store'
 import { updateScheme } from './update-scheme'
 
+const emitCustomEvent = vi.fn()
+
+vi.mock('@scalar/workspace-store/events', () => ({
+  emitCustomEvent: (...args: any[]) => emitCustomEvent(...args),
+}))
+
 describe('updateScheme', () => {
   // Mock localStorage
   const mockLocalStorage = {
     getItem: vi.fn(),
     setItem: vi.fn(),
-  }
-
-  // Mock store
-  const mockSecuritySchemeMutators = {
-    edit: vi.fn(),
   }
 
   const scheme1 = securitySchemeSchema.parse({
@@ -33,7 +34,6 @@ describe('updateScheme', () => {
   })
 
   const mockStore = {
-    securitySchemeMutators: mockSecuritySchemeMutators,
     securitySchemes: {
       [scheme1.uid]: scheme1,
       [scheme2.uid]: scheme2,
@@ -59,10 +59,16 @@ describe('updateScheme', () => {
     const path = 'name'
     const value = 'New-API-Key'
 
-    updateScheme(uid, path, value, mockStore)
+    updateScheme(uid, path, value, mockStore, window.document.body)
 
-    expect(mockSecuritySchemeMutators.edit).toHaveBeenCalledWith(uid, path, value)
     expect(mockLocalStorage.setItem).not.toHaveBeenCalled()
+
+    expect(emitCustomEvent).toHaveBeenCalled()
+    expect(emitCustomEvent).toHaveBeenCalledWith(expect.anything(), 'scalar-edit-security-scheme', {
+      'path': 'name',
+      'uid': 'scheme-1',
+      'value': 'New-API-Key',
+    })
   })
 
   it('should update security scheme and persist to localStorage when persistAuth is true', () => {
@@ -77,9 +83,8 @@ describe('updateScheme', () => {
 
     mockLocalStorage.getItem.mockReturnValue(JSON.stringify(existingAuth))
 
-    updateScheme(uid, path, value, mockStore, true)
+    updateScheme(uid, path, value, mockStore, window.document.body, true)
 
-    expect(mockSecuritySchemeMutators.edit).toHaveBeenCalledWith(uid, path, value)
     expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
       CLIENT_LS_KEYS.AUTH,
       JSON.stringify({
@@ -88,6 +93,13 @@ describe('updateScheme', () => {
         },
       }),
     )
+
+    expect(emitCustomEvent).toHaveBeenCalled()
+    expect(emitCustomEvent).toHaveBeenCalledWith(expect.anything(), 'scalar-edit-security-scheme', {
+      'path': 'name',
+      'uid': 'scheme-1',
+      'value': 'New-API-Key',
+    })
   })
 
   it('should create new auth entry in localStorage if none exists', () => {
@@ -97,7 +109,7 @@ describe('updateScheme', () => {
 
     mockLocalStorage.getItem.mockReturnValue('{}')
 
-    updateScheme(uid, path, value, mockStore, true)
+    updateScheme(uid, path, value, mockStore, window.document.body, true)
 
     expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
       CLIENT_LS_KEYS.AUTH,
@@ -116,9 +128,8 @@ describe('updateScheme', () => {
 
     mockLocalStorage.getItem.mockReturnValue('{}')
 
-    updateScheme(uid, path, value, mockStore, true)
+    updateScheme(uid, path, value, mockStore, window.document.body, true)
 
-    expect(mockSecuritySchemeMutators.edit).toHaveBeenCalledWith(uid, path, value)
     expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
       CLIENT_LS_KEYS.AUTH,
       JSON.stringify({
@@ -127,6 +138,13 @@ describe('updateScheme', () => {
         },
       }),
     )
+
+    expect(emitCustomEvent).toHaveBeenCalled()
+    expect(emitCustomEvent).toHaveBeenCalledWith(expect.anything(), 'scalar-edit-security-scheme', {
+      'path': 'scheme',
+      'uid': 'scheme-2',
+      'value': 'basic',
+    })
   })
 
   it('should handle missing nameKey in security scheme', () => {
@@ -143,10 +161,16 @@ describe('updateScheme', () => {
       },
     } as unknown as WorkspaceStore
 
-    updateScheme(uid, path, value, storeWithMissingNameKey, true)
+    updateScheme(uid, path, value, storeWithMissingNameKey, window.document.body, true)
 
-    expect(mockSecuritySchemeMutators.edit).toHaveBeenCalledWith(uid, path, value)
     expect(mockLocalStorage.setItem).not.toHaveBeenCalled()
+
+    expect(emitCustomEvent).toHaveBeenCalled()
+    expect(emitCustomEvent).toHaveBeenCalledWith(expect.anything(), 'scalar-edit-security-scheme', {
+      'path': 'name',
+      'uid': 'scheme-1',
+      'value': 'New-API-Key',
+    })
   })
 
   it('should handle invalid JSON in localStorage', () => {
@@ -156,10 +180,16 @@ describe('updateScheme', () => {
 
     mockLocalStorage.getItem.mockReturnValue('invalid-json')
 
-    updateScheme(uid, path, value, mockStore, true)
+    updateScheme(uid, path, value, mockStore, window.document.body, true)
 
-    expect(mockSecuritySchemeMutators.edit).toHaveBeenCalledOnce()
     expect(mockLocalStorage.setItem).not.toHaveBeenCalled()
+
+    expect(emitCustomEvent).toHaveBeenCalled()
+    expect(emitCustomEvent).toHaveBeenCalledWith(expect.anything(), 'scalar-edit-security-scheme', {
+      'path': 'name',
+      'uid': 'scheme-1',
+      'value': 'New-API-Key',
+    })
   })
 
   it('should preserve existing auth data for other schemes', () => {
@@ -177,7 +207,7 @@ describe('updateScheme', () => {
 
     mockLocalStorage.getItem.mockReturnValue(JSON.stringify(existingAuth))
 
-    updateScheme(uid, path, value, mockStore, true)
+    updateScheme(uid, path, value, mockStore, window.document.body, true)
 
     expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
       CLIENT_LS_KEYS.AUTH,

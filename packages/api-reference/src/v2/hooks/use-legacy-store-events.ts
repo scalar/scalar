@@ -18,7 +18,7 @@ export const useLegacyStoreEvents = (
   activeEntities: ReturnType<typeof createActiveEntitiesStore>,
   root: Ref<HTMLElement | null>,
 ) => {
-  const { servers, serverMutators, collectionMutators, securitySchemeMutators } = legacyStore
+  const { servers, serverMutators, requestMutators, collectionMutators, securitySchemeMutators } = legacyStore
   const { activeCollection, activeServer } = activeEntities
 
   onCustomEvent(root, 'scalar-replace-servers', ({ detail: { servers: inputServers, options } }) => {
@@ -114,6 +114,10 @@ export const useLegacyStoreEvents = (
 
     // Set the selected security schemes in the legacy store
     collectionMutators.edit(collection.uid, 'selectedSecuritySchemeUids', uids as any)
+  })
+
+  onCustomEvent(root, 'scalar-select-operation-security-schemes', ({ detail: { operationUid, uids } }) => {
+    requestMutators.edit(operationUid as any, 'selectedSecuritySchemeUids', uids as any)
   })
 
   onCustomEvent(root, 'scalar-edit-security-scheme', ({ detail: { uid, path, value } }) => {

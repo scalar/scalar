@@ -64,7 +64,7 @@ const {
 }>()
 
 const { layout: clientLayout } = useLayout()
-const { securitySchemes, requestMutators } = useWorkspace()
+const { securitySchemes } = useWorkspace()
 
 const titleId = useId()
 
@@ -185,7 +185,14 @@ const editSelectedSchemeUids = (uids: SelectedSecuritySchemeUids) => {
   }
   // Set as selected on request
   else if (operation?.uid) {
-    requestMutators.edit(operation.uid, 'selectedSecuritySchemeUids', uids)
+    emitCustomEvent(
+      wrapperRef.value?.$el,
+      'scalar-select-operation-security-schemes',
+      {
+        operationUid: operation.uid,
+        uids: uids as string[],
+      },
+    )
   }
 }
 
