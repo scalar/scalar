@@ -1,60 +1,80 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "files": {
-    "ignore": [
-      "node_modules",
-      "dist",
-      ".venv",
-      ".turbo",
-      ".nuxt",
-      ".vite",
-      ".output",
-      ".vite-ssg-temp",
-      "**/vite.config.ts.timestamp-*",
-      "package.json",
-      "scalar.config.json",
-      "**/test-results/**",
-      "**/build/**",
-      "**/cdn/**",
-      "**/cloudbuild.json",
-      "**/fixtures/**",
-      "**/node_modules/**",
-      "**/dist/**",
-      "**/playwright-report/**",
-      "**/pnpm-lock.yaml",
-      "**/openapi3-examples/**",
-      "**/.docusaurus/**",
-      "examples/nestjs-api-reference-fastify/**",
-      "examples/nestjs-api-reference-express/**",
-      "*/storybook-static/*",
-      "**/httpsnippet-lite/**",
-      "**/.next/**",
-      "**/obj/**",
-      "**/bin/**",
-      "packages/openapi-parser/src/schemas/**/*.ts",
-      ".github/renovate.json",
-      "**/webjars/**/*.js"
+    "includes": [
+      "**",
+      "!**/node_modules",
+      "!**/dist",
+      "!**/.venv",
+      "!**/.turbo",
+      "!**/.nuxt",
+      "!**/.vite",
+      "!**/.output",
+      "!**/.vite-ssg-temp",
+      "!**/vite.config.ts.timestamp-*",
+      "!**/package.json",
+      "!**/scalar.config.json",
+      "!**/test-results/**",
+      "!**/build/**",
+      "!**/cdn/**",
+      "!**/cloudbuild.json",
+      "!**/fixtures/**",
+      "!**/node_modules/**",
+      "!**/dist/**",
+      "!**/playwright-report/**",
+      "!**/pnpm-lock.yaml",
+      "!**/openapi3-examples/**",
+      "!**/.docusaurus/**",
+      "!**/examples/nestjs-api-reference-fastify/**",
+      "!**/examples/nestjs-api-reference-express/**",
+      "!**/*/storybook-static/**/*",
+      "!**/httpsnippet-lite/**",
+      "!**/.next/**",
+      "!**/obj/**",
+      "!**/bin/**",
+      "!**/packages/openapi-parser/src/schemas/**/*.ts",
+      "!**/.github/renovate.json",
+      "!**/webjars/**/*.js"
     ]
   },
-  "organizeImports": {
-    "enabled": true
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": {
+          "level": "on",
+          "options": {
+            "identifierOrder": "lexicographic",
+            "groups": [
+              ":NODE:",
+              ":BLANK_LINE:",
+              ":PACKAGE:",
+              ":BLANK_LINE:",
+              ":ALIAS:",
+              ":BLANK_LINE:",
+              ":PATH:"
+            ]
+          }
+        }
+      }
+    }
   },
   "formatter": {
     "formatWithErrors": false,
-    "ignore": [
-      ".git",
-      ".svn",
-      ".hg",
-      ".tmp",
-      "node_modules",
-      "dist",
-      "generated",
-      "venv",
-      ".venv",
-      "playwright-report",
-      ".vite-ssg-temp",
-      "pnpm-lock.yaml",
-      "fixtures"
+    "includes": [
+      "**",
+      "!**/.git",
+      "!**/.svn",
+      "!**/.hg",
+      "!**/.tmp",
+      "!**/node_modules",
+      "!**/dist",
+      "!**/generated",
+      "!**/venv",
+      "!**/.venv",
+      "!**/playwright-report",
+      "!**/.vite-ssg-temp",
+      "!**/pnpm-lock.yaml",
+      "!**/fixtures"
     ],
     "enabled": true,
     "lineEnding": "lf",
@@ -84,14 +104,14 @@
       "recommended": false,
       "complexity": {
         "noExtraBooleanCast": "warn",
-        "noMultipleSpacesInRegularExpressionLiterals": "warn",
         "noUselessCatch": "warn",
         "noUselessTypeConstraint": "warn",
-        "noWith": "warn",
         "noForEach": "off",
         "useFlatMap": "warn",
         "useArrowFunction": "warn",
-        "useOptionalChain": "warn"
+        "useOptionalChain": "warn",
+        "noAdjacentSpacesInRegex": "warn",
+        "noArguments": "warn"
       },
       "correctness": {
         "noConstAssign": "warn",
@@ -114,11 +134,11 @@
         "noUnusedLabels": "warn",
         "noUnusedPrivateClassMembers": "warn",
         "noUnusedVariables": "warn",
-        "useArrayLiterals": "warn",
         "useIsNan": "warn",
         "useValidForDirection": "warn",
         "useYield": "warn",
-        "noUnusedImports": "warn"
+        "noUnusedImports": "warn",
+        "useValidTypeof": "warn"
       },
       "style": {
         "noNamespace": "warn",
@@ -133,9 +153,9 @@
         "useExportType": "warn",
         "noUnusedTemplateLiteral": "warn",
         "useShorthandFunctionType": "warn",
-        "noArguments": "warn",
-        "noVar": "warn",
-        "useConst": "warn"
+        "useConst": "warn",
+        "useArrayLiterals": "warn",
+        "noDescendingSpecificity": "warn"
       },
       "suspicious": {
         "noAsyncPromiseExecutor": "warn",
@@ -164,27 +184,28 @@
         "noUnsafeNegation": "warn",
         "useGetterReturn": "warn",
         "useNamespaceKeyword": "warn",
-        "useValidTypeof": "warn",
         "noDoubleEquals": "warn",
         "noThenProperty": "warn",
         "useIsArray": "warn",
         "noExplicitAny": "off",
-        "noExportsInTest": "warn"
+        "noExportsInTest": "warn",
+        "noWith": "warn",
+        "noVar": "warn",
+        "useGuardForIn": "warn"
       },
       "performance": {
         "noDelete": "off",
         "noReExportAll": "warn",
         "noBarrelFile": "warn"
       },
-      "nursery": {
-        "noDescendingSpecificity": "warn",
-        "useGuardForIn": "warn"
-      }
+      "nursery": {}
     }
   },
   "overrides": [
     {
-      "include": ["**/*.vue"],
+      "includes": [
+        "**/*.vue"
+      ],
       "formatter": {
         "enabled": false
       },
@@ -202,7 +223,10 @@
       }
     },
     {
-      "include": ["**/tsconfig.*.json", "**/tsconfig.json"],
+      "includes": [
+        "**/tsconfig.*.json",
+        "**/tsconfig.json"
+      ],
       "json": {
         "parser": {
           "allowComments": true
@@ -210,13 +234,18 @@
       }
     },
     {
-      "include": ["**/*.tsx"],
+      "includes": [
+        "**/*.tsx"
+      ],
       "javascript": {
         "jsxRuntime": "reactClassic"
       }
     },
     {
-      "include": ["packages/api-reference/**/*.ts", "packages/openapi-parser/**/*.ts"],
+      "includes": [
+        "**/packages/api-reference/**/*.ts",
+        "**/packages/openapi-parser/**/*.ts"
+      ],
       "linter": {
         "rules": {
           "performance": {
