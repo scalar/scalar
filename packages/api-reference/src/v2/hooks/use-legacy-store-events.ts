@@ -18,7 +18,7 @@ export const useLegacyStoreEvents = (
   activeEntities: ReturnType<typeof createActiveEntitiesStore>,
   root: Ref<HTMLElement | null>,
 ) => {
-  const { servers, serverMutators, collectionMutators } = legacyStore
+  const { servers, serverMutators, requestMutators, collectionMutators, securitySchemeMutators } = legacyStore
   const { activeCollection, activeServer } = activeEntities
 
   onCustomEvent(root, 'scalar-replace-servers', ({ detail: { servers: inputServers, options } }) => {
@@ -102,5 +102,43 @@ export const useLegacyStoreEvents = (
     variables[key] = { ...variables[key], default: value }
 
     serverMutators.edit(server.uid, 'variables', variables)
+  })
+
+  /** Auth events */
+  onCustomEvent(root, 'scalar-select-security-schemes', ({ detail: { uids } }) => {
+    const collection = activeCollection.value
+
+    if (!collection) {
+      return console.warn('No active collection found')
+    }
+
+    // Set the selected security schemes in the legacy store
+    collectionMutators.edit(collection.uid, 'selectedSecuritySchemeUids', uids as any)
+  })
+
+  onCustomEvent(root, 'scalar-select-operation-security-schemes', ({ detail: { operationUid, uids } }) => {
+    requestMutators.edit(operationUid as any, 'selectedSecuritySchemeUids', uids as any)
+  })
+
+  onCustomEvent(root, 'scalar-edit-security-scheme', ({ detail: { uid, path, value } }) => {
+    securitySchemeMutators.edit(uid as any, path as any, value)
+  })
+
+  onCustomEvent(root, 'scalar-add-auth-option', ({ detail: { payload } }) => {
+    const collection = activeCollection.value
+    if (!collection) {
+      return console.warn('No active collection found')
+    }
+
+    securitySchemeMutators.add(payload, collection.uid)
+  })
+
+  onCustomEvent(root, 'scalar-delete-security-scheme', ({ detail: { uid } }) => {
+    const collection = activeCollection.value
+    if (!collection) {
+      return console.warn('No active collection found')
+    }
+
+    securitySchemeMutators.delete(uid as any)
   })
 }
