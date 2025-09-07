@@ -18,8 +18,12 @@ const { title } = defineProps<{
 }>()
 
 const { hash, isIntersectionEnabled } = useNavState()
-const { items, toggleCollapsedSidebarItem, collapsedSidebarItems } =
-  useSidebar()
+const {
+  items,
+  toggleCollapsedSidebarItem,
+  collapsedSidebarItems,
+  hasSidebarScrolled,
+} = useSidebar()
 
 // This offset determines how far down the sidebar the items scroll
 const SCROLL_OFFSET = -160
@@ -104,6 +108,12 @@ const isItemActive = (itemId: string) => {
   return false
 }
 
+function onSidebarScroll(event: Event) {
+  const target = event.currentTarget as HTMLDivElement
+
+  hasSidebarScrolled.value = target.scrollTop > 0
+}
+
 const observer = ref<MutationObserver | undefined>(undefined)
 onMounted(() => {
   observer.value = observeSidebarElement(hash.value)
@@ -130,7 +140,8 @@ const hasChildren = (
     <nav
       ref="scrollerEl"
       :aria-label="`Table of contents for ${title}`"
-      class="sidebar-pages custom-scroll custom-scroll-self-contain-overflow">
+      class="sidebar-pages custom-scroll custom-scroll-self-contain-overflow"
+      @scroll="onSidebarScroll">
       <SidebarGroup :level="0">
         <template
           v-for="item in items.entries"

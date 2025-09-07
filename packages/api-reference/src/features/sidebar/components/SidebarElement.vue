@@ -141,7 +141,7 @@ const onAnchorClick = async (ev: Event) => {
             v-if="
               !hasChildren && item.type === 'description' && item.depth === 1
             "
-            class="sidebar-icon" />
+            class="sidebar-icon size-4" />
           <span
             v-if="config.operationTitleSource === 'path'"
             class="hanging-indent">
