@@ -111,11 +111,16 @@ useResizeObserver(documentEl, (entries) => {
 const obtrusiveScrollbars = computed(hasObtrusiveScrollbars)
 
 const navState = useNavState(configuration)
-const { isSidebarOpen, setCollapsedSidebarItem, scrollToOperation, items } =
-  useSidebar(dereferencedDocument, {
-    ...navState,
-    config: configuration,
-  })
+const {
+  isSidebarOpen,
+  setCollapsedSidebarItem,
+  scrollToOperation,
+  items,
+  hasSidebarScrolled,
+} = useSidebar(dereferencedDocument, {
+  ...navState,
+  config: configuration,
+})
 
 const {
   getReferenceId,
@@ -348,6 +353,7 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
                   :hideModels="configuration?.hideModels"
                   :searchHotKey="configuration?.searchHotKey" />
               </div>
+              <hr v-if="hasSidebarScrolled" />
               <!-- Sidebar Start -->
               <slot
                 name="sidebar-start"

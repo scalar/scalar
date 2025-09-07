@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { ScalarSidebarSearchButton, useModal } from '@scalar/components'
+import {
+  ScalarHotkeyTooltip,
+  ScalarSidebarSearchButton,
+  useModal,
+} from '@scalar/components'
 import { isMacOS } from '@scalar/helpers/general/is-mac-os'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
@@ -51,30 +55,25 @@ function handleClick() {
 }
 </script>
 <template>
-  <ScalarSidebarSearchButton
-    ref="button"
-    class="w-full"
-    :class="$attrs.class"
-    @click="handleClick">
-    <span class="sr-only">Open Search</span>
-    <span
-      aria-hidden="true"
-      class="sidebar-search-placeholder">
-      Search
-    </span>
-    <template #shortcut>
-      <template v-if="isMacOS()">
-        <span class="sr-only">Command</span>
-        <span aria-hidden="true">⌘</span>
-      </template>
-      <template v-else>
-        <span class="sr-only">CTRL</span>
-        <span aria-hidden="true">⌃</span>
-      </template>
-      {{ searchHotKey }}
-    </template>
-  </ScalarSidebarSearchButton>
+  <ScalarHotkeyTooltip
+    content="Search"
+    hotkey="K"
+    :modifier="['Meta']"
+    placement="bottom">
+    <ScalarSidebarSearchButton
+      ref="button"
+      class="w-full"
+      :class="$attrs.class"
+      @click="handleClick">
+      <span class="sr-only">Open Search</span>
+      <span
+        aria-hidden="true"
+        class="sidebar-search-placeholder">
+        Search
+      </span>
+    </ScalarSidebarSearchButton>
+  </ScalarHotkeyTooltip>
   <SearchModal
-    :modalState="modalState"
-    :hideModels="hideModels" />
+    :hideModels="hideModels"
+    :modalState="modalState" />
 </template>
