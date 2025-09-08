@@ -47,7 +47,7 @@ const getJavaScriptUrl = (routePrefix?: string) =>
 /**
  * The custom theme for Fastify
  */
-export const customTheme = ``
+export const customTheme = ''
 
 /**
  * The default configuration for Fastify

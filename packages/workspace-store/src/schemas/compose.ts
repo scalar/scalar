@@ -1,4 +1,4 @@
-import { Type, type TSchema } from '@scalar/typebox'
+import { type TSchema, Type } from '@scalar/typebox'
 
 /**
  * Work around for: https://github.com/sinclairzx81/typebox/issues/1264

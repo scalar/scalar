@@ -1,6 +1,6 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 const MAX_LEVELS_DEEP = 10
 /** Sets the max number of properties after the third level to prevent exponential horizontal growth */
@@ -49,7 +49,7 @@ const genericExampleValues: Record<string, string> = {
 /**
  * We can use the `format` to generate some random values.
  */
-function guessFromFormat(schema: SchemaObject, makeUpRandomData: boolean = false, fallback: string = '') {
+function guessFromFormat(schema: OpenAPIV3_1.SchemaObject, makeUpRandomData: boolean = false, fallback: string = '') {
   if (schema.format === 'binary') {
     return new File([''], 'filename')
   }
@@ -60,7 +60,7 @@ function guessFromFormat(schema: SchemaObject, makeUpRandomData: boolean = false
 const resultCache = new WeakMap<Record<string, any>, any>()
 
 /** Store result in the cache, and return the result */
-function cache(schema: SchemaObject, result: unknown) {
+function cache(schema: OpenAPIV3_1.SchemaObject, result: unknown) {
   // Avoid unnecessary WeakMap operations for primitive values
   if (typeof result !== 'object' || result === null) {
     return result
@@ -75,7 +75,7 @@ function cache(schema: SchemaObject, result: unknown) {
  * This function takes an OpenAPI schema and generates an example from it
  */
 export const getExampleFromSchema = (
-  _schema: SchemaObject,
+  _schema: OpenAPIV3_1.SchemaObject,
   options?: {
     /**
      * The fallback string for empty string values.
@@ -103,7 +103,7 @@ export const getExampleFromSchema = (
     omitEmptyAndOptionalProperties?: boolean
   },
   level: number = 0,
-  parentSchema?: SchemaObject,
+  parentSchema?: OpenAPIV3_1.SchemaObject,
   name?: string,
 ): any => {
   const schema = getResolvedRef(_schema)
@@ -187,9 +187,7 @@ export const getExampleFromSchema = (
     !!schema.oneOf?.at?.(0)
   if (!isObjectOrArray && options?.omitEmptyAndOptionalProperties === true) {
     const isRequired =
-      // @ts-expect-error - I suppose old schema used to allow `required: true` remove when moving to new store
       schema.required === true ||
-      // @ts-expect-error - I suppose old schema used to allow `required: true` remove when moving to new store
       parentSchema?.required === true ||
       parentSchema?.required?.includes(name ?? schema.title ?? '')
 
@@ -278,7 +276,7 @@ export const getExampleFromSchema = (
         response,
         ...schema.allOf
           .filter(isDefined)
-          .map((item) => getExampleFromSchema(getResolvedRef(item), options, level + 1, schema)),
+          .map((item: any) => getExampleFromSchema(getResolvedRef(item), options, level + 1, schema)),
       )
     }
 
@@ -311,14 +309,14 @@ export const getExampleFromSchema = (
 
         // If first item is an object type, merge all schemas
         if (firstItem?.type === 'object') {
-          const combined = { type: 'object', allOf } as SchemaObject
+          const combined = { type: 'object', allOf } as OpenAPIV3_1.SchemaObject
 
           const mergedExample = getExampleFromSchema(combined, options, level + 1, schema)
           return cache(schema, wrapItems ? [{ [itemsXmlTagName]: mergedExample }] : [mergedExample])
         }
         // For non-objects (like strings), collect all examples
         const examples = allOf
-          .map((item) => getExampleFromSchema(getResolvedRef(item), options, level + 1, schema))
+          .map((item: any) => getExampleFromSchema(getResolvedRef(item), options, level + 1, schema))
           .filter(isDefined)
 
         return cache(schema, wrapItems ? examples.map((example: any) => ({ [itemsXmlTagName]: example })) : examples)

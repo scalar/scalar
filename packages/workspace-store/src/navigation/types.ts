@@ -29,11 +29,7 @@ export type TraverseSpecOptions = {
   hideModels: boolean
 
   /** Function to generate unique IDs for markdown headings */
-  getHeadingId: (heading: {
-    depth: number
-    value: string
-    slug?: string
-  }) => string
+  getHeadingId: (heading: { depth: number; value: string; slug?: string }) => string
 
   /** Function to generate unique IDs for operations */
   getOperationId: (

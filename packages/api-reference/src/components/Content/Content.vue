@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
-import { RequestAuth } from '@scalar/api-client/views/Request/RequestSection/RequestAuth'
 import { ScalarErrorBoundary } from '@scalar/components'
 import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { ApiReferenceConfiguration } from '@scalar/types'
@@ -14,6 +13,7 @@ import { getXKeysFromObject } from '@/features/specification-extension'
 import { DEFAULT_INTRODUCTION_SLUG } from '@/features/traverse-schema'
 import { useFreezing } from '@/hooks/useFreezing'
 import { useNavState } from '@/hooks/useNavState'
+import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 import { ClientSelector } from '@/v2/blocks/scalar-client-selector-block'
 import { InfoBlock } from '@/v2/blocks/scalar-info-block'
 import { IntroductionCardItem } from '@/v2/blocks/scalar-info-block/'
@@ -136,7 +136,7 @@ const getOriginalDocument = () => store.exportActiveDocument('json') ?? '{}'
                 Object.keys(securitySchemes ?? {}).length
               "
               class="scalar-reference-intro-auth scalar-client introduction-card-item leading-normal">
-              <RequestAuth
+              <AuthSelector
                 :collection="activeCollection"
                 :envVariables="activeEnvVariables"
                 :environment="activeEnvironment"

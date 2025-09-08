@@ -1,9 +1,18 @@
+import { measureAsync, measureSync } from '@scalar/helpers/testing/measure'
+import { bundle } from '@scalar/json-magic/bundle'
+import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
+import { type Difference, apply, diff, merge } from '@scalar/json-magic/diff'
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 import { upgrade } from '@scalar/openapi-parser'
+import type { Record } from '@scalar/typebox'
+import { Value } from '@scalar/typebox/value'
+import type { PartialDeep } from 'type-fest/source/partial-deep'
+import type { RequiredDeep } from 'type-fest/source/required-deep'
 import { reactive } from 'vue'
 import YAML from 'yaml'
 
 import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
+import { deepClone } from '@/helpers/deep-clone'
 import { type UnknownObject, isObject, safeAssign } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
@@ -11,6 +20,7 @@ import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import { createNavigation } from '@/navigation'
 import type { TraverseSpecOptions } from '@/navigation/types'
 import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
+import { getServersFromDocument } from '@/preprocessing/server'
 import { extensions } from '@/schemas/extensions'
 import { type InMemoryWorkspace, InMemoryWorkspaceSchema } from '@/schemas/inmemory-workspace'
 import { defaultReferenceConfig } from '@/schemas/reference-config'
@@ -22,16 +32,6 @@ import {
 import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from '@/schemas/workspace'
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
 import type { Config } from '@/schemas/workspace-specification/config'
-import { bundle } from '@scalar/json-magic/bundle'
-import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
-import { type Difference, apply, diff, merge } from '@scalar/json-magic/diff'
-import type { Record } from '@scalar/typebox'
-import { Value } from '@scalar/typebox/value'
-import { deepClone } from '@/helpers/deep-clone'
-import { measureAsync, measureSync } from '@scalar/helpers/testing/measure'
-import { getServersFromDocument } from '@/preprocessing/server'
-import type { PartialDeep } from 'type-fest/source/partial-deep'
-import type { RequiredDeep } from 'type-fest/source/required-deep'
 
 export type DocumentConfiguration = Config &
   PartialDeep<{
@@ -587,10 +587,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   }
 
   // Add a document to the store synchronously from an in-memory OpenAPI document
-  async function addInMemoryDocument(input: ObjectDoc & { initialize?: boolean; documentSource?: string }): Promise<{
-    errors: ValidationError[] | null
-    document: unknown
-  }> {
+  async function addInMemoryDocument(input: ObjectDoc & { initialize?: boolean; documentSource?: string }) {
     const { name, meta } = input
     const cloned = measureSync('deepClone', () => deepClone(input.document))
     const inputDocument = measureSync('upgrade', () => upgrade(cloned).specification)
@@ -619,19 +616,18 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       }
     })
 
-    const temporaryDocument: UnknownObject = createMagicProxy({ ...inputDocument, ...meta })
+    const strictDocument: UnknownObject = createMagicProxy({ ...inputDocument, ...meta })
 
-    // Set the original document version
-    temporaryDocument['x-original-oas-version'] = input.document.openapi ?? input.document.swagger
+    strictDocument['x-original-oas-version'] = input.document.openapi ?? input.document.swagger
 
-    if (temporaryDocument[extensions.document.navigation] === undefined) {
+    if (strictDocument[extensions.document.navigation] === undefined) {
       // If the document navigation is not already present, bundle the entire document to resolve all references.
       // This typically applies when the document is not preprocessed by the server and needs local reference resolution.
       // We need to bundle document first before we validate, so we can also validate the external references
       await measureAsync(
         'bundle',
         async () =>
-          await bundle(getRaw(temporaryDocument), {
+          await bundle(getRaw(strictDocument), {
             treeShake: false,
             plugins: [
               fetchUrls({
@@ -639,8 +635,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               }),
               externalValueResolver(),
               refsEverywhere(),
-              // TODO: investigate problems with type: {} properties
-              // cleanUp(),
             ],
             urlMap: true,
             origin: documentMeta[name]?.documentSource, // use the document origin (if provided) as the base URL for resolution
@@ -649,49 +643,45 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       // We coerce the values only when the document is not preprocessed by the server-side-store
       const coerced = measureSync('coerceValue', () =>
-        coerceValue(OpenAPIDocumentSchemaStrict, deepClone(temporaryDocument)),
+        coerceValue(OpenAPIDocumentSchemaStrict, deepClone(strictDocument)),
       )
-      measureAsync('mergeObjects', async () => mergeObjects(temporaryDocument, coerced))
+      measureAsync('mergeObjects', async () => mergeObjects(strictDocument, coerced))
     }
 
-    const isValid = Value.Check(OpenAPIDocumentSchemaStrict, temporaryDocument)
-    let errors: ValidationError[] | null = null
+    const isValid = Value.Check(OpenAPIDocumentSchemaStrict, strictDocument)
 
     if (!isValid) {
-      const validationErrors = Array.from(Value.Errors(OpenAPIDocumentSchemaStrict, temporaryDocument))
+      const validationErrors = Array.from(Value.Errors(OpenAPIDocumentSchemaStrict, strictDocument))
 
-      errors = validationErrors.map((error) => ({
-        message: error.message,
-        path: error.path,
-        schema: error.schema,
-        value: error.value,
-      }))
+      console.warn('document validation errors: ')
+      console.warn(
+        validationErrors.map((error) => ({
+          message: error.message,
+          path: error.path,
+          schema: error.schema,
+          value: error.value,
+        })),
+      )
     }
-
-    // Type-cast and just try to render, even if the document is (partially) invalid
-    const strictDocument = isValid ? temporaryDocument : (temporaryDocument as OpenApiDocument)
 
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (strictDocument[extensions.document.navigation] === undefined) {
       const showModels = input.config?.['x-scalar-reference-config']?.features?.showModels
 
-      strictDocument[extensions.document.navigation] = createNavigation(strictDocument, {
+      strictDocument[extensions.document.navigation] = createNavigation(strictDocument as OpenApiDocument, {
         ...(input.config?.['x-scalar-reference-config'] ?? {}),
         hideModels: showModels === undefined ? undefined : !showModels,
       }).entries
 
       // Do some document processing
-      processDocument(getRaw(strictDocument), { ...input.config, documentSource: input.documentSource })
+      processDocument(getRaw(strictDocument as OpenApiDocument), {
+        ...input.config,
+        documentSource: input.documentSource,
+      })
     }
 
     // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map
-    workspace.documents[name] = createOverridesProxy(strictDocument, input.overrides)
-
-    // Always return success with the processed document and any validation errors
-    return {
-      errors,
-      document: workspace.documents[name],
-    }
+    workspace.documents[name] = createOverridesProxy(strictDocument as OpenApiDocument, input.overrides)
   }
 
   // Asynchronously adds a new document to the workspace by loading and validating the input.
@@ -736,15 +726,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         return
       }
 
-      const { errors } = await addInMemoryDocument({
+      await addInMemoryDocument({
         ...input,
         document: resolve.data,
         documentSource: getDocumentSource(input),
       })
-
-      if (errors) {
-        console.warn('OpenAPI Document Validation Errors', errors)
-      }
     })
   }
 
@@ -793,7 +779,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       }
 
       // Replace the whole document
-      const { errors } = await addInMemoryDocument({
+      await addInMemoryDocument({
         name: documentName,
         document: input,
         // Preserve the current metadata
@@ -803,10 +789,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         },
         initialize: false,
       })
-
-      if (errors) {
-        console.warn('OpenAPI Document Validation Errors', errors)
-      }
     },
     resolve: async (path: string[]) => {
       const activeDocument = workspace.activeDocument
@@ -845,15 +827,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         return
       }
 
-      const { errors } = await addInMemoryDocument({
+      await addInMemoryDocument({
         name: documentName,
         document: intermediate,
         initialize: false,
       })
-
-      if (errors) {
-        console.warn('OpenAPI Document Validation Errors', errors)
-      }
     },
     commitDocument(documentName: string) {
       // TODO: Implement commit logic
@@ -901,7 +879,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       safeAssign(documentMeta, result.documentMeta)
     },
     importWorkspaceFromSpecification: (specification: WorkspaceSpecification) => {
-      const { documents, overrides, info, workspace: workspaceVersion, ...meta } = specification
+      const { documents, overrides, info: _info, workspace: _workspaceVersion, ...meta } = specification
 
       // Assign workspace metadata
       safeAssign(workspace, meta)
@@ -970,5 +948,5 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   }
 }
 
-// biome-ignore lint/performance/noBarrelFile: <explanation>
+// biome-ignore lint/performance/noBarrelFile: It's a package entry point
 export { generateClientMutators } from '@/mutators'

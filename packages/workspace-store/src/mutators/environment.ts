@@ -1,7 +1,7 @@
 import type { UnknownObject } from '@/helpers/general'
 import type {
-  xScalarClientConfigEnvironment,
   XScalarClientConfigEnvironments,
+  xScalarClientConfigEnvironment,
 } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-environments'
 
 /**

@@ -1,6 +1,7 @@
-import type { ServerObject } from '@/schemas/v3.1/strict/openapi-document'
 import type { AvailableClients } from '@scalar/snippetz'
 import type { Simplify } from 'type-fest'
+
+import type { ServerObject } from '@/schemas/v3.1/strict/openapi-document'
 
 /**
  * Event definitions for scalar blocks
@@ -114,6 +115,40 @@ export type ApiReferenceEvents<T extends keyof ServerObject = keyof ServerObject
          */
         disableOldStoreUpdate: boolean
       }
+    }
+  }
+
+  /** Auth events */
+  'scalar-select-security-schemes': {
+    detail: {
+      uids: string[]
+    }
+  }
+
+  'scalar-select-operation-security-schemes': {
+    detail: {
+      operationUid: string
+      uids: string[]
+    }
+  }
+
+  'scalar-edit-security-scheme': {
+    detail: {
+      uid: string
+      path: string
+      value: any
+    }
+  }
+
+  'scalar-add-auth-option': {
+    detail: {
+      payload: any
+    }
+  }
+
+  'scalar-delete-security-scheme': {
+    detail: {
+      uid: string
     }
   }
 }

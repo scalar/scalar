@@ -30,8 +30,7 @@ export function getParametersFromOperation(
       value: parameter.example
         ? parameter.example
         : parameter.schema
-          ? // @ts-expect-error not on the new store yet
-            getExampleFromSchema(parameter.schema, { mode: 'write' })
+          ? getExampleFromSchema(parameter.schema, { mode: 'write' })
           : '',
       required: parameter.required ?? false,
       enabled: parameter.required ?? false,

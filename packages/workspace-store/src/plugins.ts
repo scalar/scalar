@@ -3,8 +3,10 @@
  * Plugins defined here can extend or modify the behavior of the bundling process,
  * such as adding lifecycle hooks or custom processing logic.
  */
-import { isLocalRef } from '@/helpers/general'
+
 import type { LifecyclePlugin } from '@scalar/json-magic/bundle'
+
+import { isLocalRef } from '@/helpers/general'
 
 /**
  * A lifecycle plugin that adds a `$status` property to nodes during resolution.
@@ -167,70 +169,6 @@ export const restoreOriginalRefs = (): LifecyclePlugin => {
       // Replace the $ref with the original version from the mapping,
       // or keep the current version if there is no mapping (e.g., for local refs)
       node['$ref'] = (extUrls as Record<string, string>)[key] ?? ref
-    },
-  }
-}
-
-/**
- * Lifecycle plugin to automatically add missing "type" fields to OpenAPI/JSON Schema nodes.
- *
- * This plugin is intended for use as a "lifecycle" plugin during the bundling process.
- * It ensures that schema objects are explicitly typed, improving compatibility with OpenAPI tools and validators.
- *
- * Behavior:
- * - If a schema object has a "properties" field but no "type", it sets "type" to "object".
- *   This is required for schemas that define properties but omit the type.
- *
- * - If a schema object contains any array-related keywords ("items", "prefixItems", "minItems", "maxItems", or "uniqueItems")
- *   and lacks a "type", it sets "type" to "array". This clarifies the intent for array schemas missing an explicit type.
- *
- * - If a schema object has a "pattern" field but no "type", it sets "type" to "string".
- *   This ensures that pattern constraints are only applied to string-typed schemas.
- *
- * Usage:
- *   Add this plugin to the bundler to automatically fix schemas missing "type: object", "type: array", or "type: string"
- *   when defining properties, array-related keywords, or pattern constraints.
- *
- * Examples:
- *   // Before:
- *   { properties: { foo: { type: "string" } } }
- *   // After:
- *   { type: "object", properties: { foo: { type: "string" } } }
- *
- *   // Before:
- *   { items: { type: "string" } }
- *   // After:
- *   { type: "array", items: { type: "string" } }
- *
- *   // Before:
- *   { pattern: "^[a-z]+$" }
- *   // After:
- *   { type: "string", pattern: "^[a-z]+$" }
- */
-export const cleanUp = (): LifecyclePlugin => {
-  return {
-    type: 'lifecycle',
-    onBeforeNodeProcess: (node) => {
-      // If the node has "properties" but no "type", set "type" to "object"
-      if ('properties' in node && !('type' in node)) {
-        node['type'] = 'object'
-      }
-
-      // Set type to 'array' for schemas that have array-related keywords but are missing a type
-      const arrayKeywords = ['items', 'prefixItems', 'minItems', 'maxItems', 'uniqueItems']
-      if (arrayKeywords.some((it) => Object.hasOwn(node, it)) && !('type' in node)) {
-        node['type'] = 'array'
-      }
-
-      // If the node has "pattern" but no "type", set "type" to "string"
-      if ('pattern' in node && !('type' in node)) {
-        node['type'] = 'string'
-      }
-
-      // Convert required: null to required: [] for object schemas
-      if ('required' in node && node.required === null && 'properties' in node) {
-        node.required = []
-      }
     },
   }
 }

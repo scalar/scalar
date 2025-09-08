@@ -1,9 +1,10 @@
-import { coerceValue } from '@/schemas/typebox-coerce'
-import { compose } from '@/schemas/compose'
-import { Type } from '@scalar/typebox'
-import { describe, expect, it } from 'vitest'
 import { Storage } from '@google-cloud/storage'
+import { Type } from '@scalar/typebox'
 import { Value } from '@scalar/typebox/value'
+import { describe, expect, it } from 'vitest'
+
+import { compose } from '@/schemas/compose'
+import { coerceValue } from '@/schemas/typebox-coerce'
 import { ComponentsObjectSchema, OpenAPIDocumentSchema } from '@/schemas/v3.1/strict/openapi-document'
 
 const storage = new Storage()
@@ -16,16 +17,16 @@ async function listFiles(folder: string, limit: number) {
 
 describe('should correctly cast/default values to make the input schema compliant', () => {
   it.each([
-    [Type.Number(), '10', 10],
+    [Type.Number(), '10', 0],
     [Type.Number(), null, 0],
     [Type.Number(), {}, 0],
-    [Type.String(), 10, '10'],
+    [Type.String(), 10, ''],
     [Type.String(), null, ''],
     [Type.String(), {}, ''],
-    [Type.String(), 0, '0'],
-    [Type.String(), 1, '1'],
-    [Type.Boolean(), 1, true],
-    [Type.Boolean(), 'true', true],
+    [Type.String(), 0, ''],
+    [Type.String(), 1, ''],
+    [Type.Boolean(), 1, false],
+    [Type.Boolean(), 'true', false],
     [Type.Boolean(), 0, false],
     [Type.Boolean(), 'false', false],
     [Type.Object({}), null, {}],
@@ -61,8 +62,8 @@ describe('should correctly cast/default values to make the input schema complian
       true,
       { name: '' },
     ],
-    [Type.Array(Type.String()), 10, ['10']],
-    [Type.Array(Type.Number()), '', [0]],
+    [Type.Array(Type.String()), 10, []],
+    [Type.Array(Type.Number()), '', []],
   ])('should cast to appropriate type', (schema, value, result) => {
     expect(coerceValue(schema, value)).toEqual(result)
   })

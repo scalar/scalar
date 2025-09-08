@@ -1,6 +1,7 @@
+import { type Static, Type } from '@scalar/typebox'
+
 import { compose } from '@/schemas/compose'
 import { XScalarSecretTokenSchema } from '@/schemas/extensions/security/x-scalar-security-secrets'
-import { Type, type Static } from '@scalar/typebox'
 
 /** Common properties used across all OAuth flows */
 const OAuthFlowCommonSchema = Type.Object({
