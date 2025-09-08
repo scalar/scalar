@@ -27,7 +27,6 @@
     "@scalar/api-reference": "workspace:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
-    "shx": "^0.4.0"
+    "@scalar/build-tooling": "workspace:*"
   }
 }

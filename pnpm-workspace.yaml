@@ -60,6 +60,7 @@ catalogs:
     react: ^19.1.0
     rollup: 4.45.1
     semver: 7.7.2
+    shx: ^0.4.0
     stdout-update: 4.0.1
     tailwindcss: ^4.1.7
     type-fest: 4.41.0

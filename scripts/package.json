@@ -20,7 +20,6 @@
     "picomatch": "catalog:*",
     "prettier": "catalog:*",
     "semver": "catalog:*",
-    "vite-node": "catalog:*",
     "yaml": "catalog:*",
     "zod": "catalog:*",
     "concurrently": "catalog:*"

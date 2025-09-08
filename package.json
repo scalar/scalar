@@ -29,7 +29,7 @@
     "remark-lint-no-dead-urls": "^1.1.0",
     "remark-validate-links": "^13.0.2",
     "rollup": "catalog:*",
-    "shx": "^0.4.0",
+    "shx": "catalog:*",
     "start-server-and-test": "^2.0.9",
     "syncpack": "^12.4.0",
     "tailwindcss": "catalog:*",
@@ -38,7 +38,7 @@
     "turbo": "^2.4.4",
     "typescript": "^5.6.2",
     "typescript-eslint": "^8.15.0",
-    "vite-node": "^2.1.1",
+    "vite-node": "catalog:*",
     "vitest": "catalog:*",
     "vue-eslint-parser": "^9.4.3",
     "vue-tsc": "catalog:*"
