@@ -1,23 +1,24 @@
-import { escapeJsonPointer, upgrade } from '@scalar/openapi-parser'
-import { getValueByPath, parseJsonPointer } from './helpers/json-path-utils'
-import type { WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/workspace'
 import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
+
+import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
+import { escapeJsonPointer, upgrade } from '@scalar/openapi-parser'
+
+import { keyOf } from '@/helpers/general'
 import { createNavigation, type createNavigationOptions } from '@/navigation'
 import { extensions } from '@/schemas/extensions'
+import type { TraversedEntry } from '@/schemas/navigation'
+import { coerceValue } from '@/schemas/typebox-coerce'
 import {
-  OpenAPIDocumentSchema,
   type ComponentsObject,
+  OpenAPIDocumentSchema,
   type OpenApiDocument,
   type OperationObject,
   type PathsObject,
 } from '@/schemas/v3.1/strict/openapi-document'
 
-import { keyOf } from '@/helpers/general'
-import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
-import { coerceValue } from '@/schemas/typebox-coerce'
-
-import type { TraversedEntry } from '@/schemas/navigation'
+import { getValueByPath, parseJsonPointer } from './helpers/json-path-utils'
+import type { WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/workspace'
 
 const DEFAULT_ASSETS_FOLDER = 'assets'
 export const WORKSPACE_FILE_NAME = 'scalar-workspace.json'

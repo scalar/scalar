@@ -1,6 +1,8 @@
 import { Type } from '@scalar/typebox'
-import { reference } from './reference'
+
 import { HeaderObjectRef, LinkObjectRef, MediaTypeObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
+
+import { reference } from './reference'
 
 export const ResponseObjectSchemaDefinition = Type.Object({
   /** REQUIRED. A description of the response. CommonMark syntax MAY be used for rich text representation. */

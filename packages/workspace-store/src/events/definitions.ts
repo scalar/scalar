@@ -1,6 +1,7 @@
-import type { ServerObject } from '@/schemas/v3.1/strict/openapi-document'
 import type { AvailableClients } from '@scalar/snippetz'
 import type { Simplify } from 'type-fest'
+
+import type { ServerObject } from '@/schemas/v3.1/strict/openapi-document'
 
 /**
  * Event definitions for scalar blocks

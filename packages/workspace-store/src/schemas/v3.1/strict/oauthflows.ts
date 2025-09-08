@@ -1,9 +1,10 @@
 import { Type } from '@scalar/typebox'
+
 import {
+  OAuthFlowAuthorizationCodeSchema,
+  OAuthFlowClientCredentialsSchema,
   OAuthFlowImplicitSchema,
   OAuthFlowPasswordSchema,
-  OAuthFlowClientCredentialsSchema,
-  OAuthFlowAuthorizationCodeSchema,
 } from './oauth-flow'
 
 /**

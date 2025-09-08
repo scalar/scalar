@@ -1,10 +1,12 @@
 import { type Static, Type } from '@scalar/typebox'
-import { OpenAPIDocumentSchema, SecuritySchemeObjectSchema, ServerObjectSchema } from './v3.1/strict/openapi-document'
-import { extensions } from '@/schemas/extensions'
-import { compose } from '@/schemas/compose'
-import { xScalarClientConfigEnvironmentsSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-environments'
-import { xScalarClientConfigCookiesSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-cookies'
 import { AVAILABLE_CLIENTS } from '@scalar/types/snippetz'
+
+import { compose } from '@/schemas/compose'
+import { extensions } from '@/schemas/extensions'
+import { xScalarClientConfigCookiesSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-cookies'
+import { xScalarClientConfigEnvironmentsSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-environments'
+
+import { OpenAPIDocumentSchema, SecuritySchemeObjectSchema, ServerObjectSchema } from './v3.1/strict/openapi-document'
 
 export const WorkspaceDocumentMetaSchema = Type.Partial(
   Type.Object({

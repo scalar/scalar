@@ -1,6 +1,7 @@
-import { ServerObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
-import { Type, type Static } from '@scalar/typebox'
+import { type Static, Type } from '@scalar/typebox'
 import type { RequiredDeep } from 'type-fest'
+
+import { ServerObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
 
 export const SettingsSchema = Type.Partial(
   Type.Object({

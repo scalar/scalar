@@ -1,10 +1,12 @@
-import type { TraversedWebhook } from '@/schemas/navigation'
-import { getTag } from './get-tag'
-import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
-import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
-import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
+
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
+import type { TraversedWebhook } from '@/schemas/navigation'
+import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
+
+import { getTag } from './get-tag'
 
 /** Creates a traversed webhook entry from an OpenAPI webhook object.
  *

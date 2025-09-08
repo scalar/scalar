@@ -1,9 +1,10 @@
-import { coerceValue } from '@/schemas/typebox-coerce'
-import { compose } from '@/schemas/compose'
-import { Type } from '@scalar/typebox'
-import { describe, expect, it } from 'vitest'
 import { Storage } from '@google-cloud/storage'
+import { Type } from '@scalar/typebox'
 import { Value } from '@scalar/typebox/value'
+import { describe, expect, it } from 'vitest'
+
+import { compose } from '@/schemas/compose'
+import { coerceValue } from '@/schemas/typebox-coerce'
 import { ComponentsObjectSchema, OpenAPIDocumentSchema } from '@/schemas/v3.1/strict/openapi-document'
 
 const storage = new Storage()

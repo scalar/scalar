@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { traverseDocument } from './traverse-document'
+
 import type { TraverseSpecOptions } from '@/navigation/types'
-import { SchemaObjectSchema, type OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import type { TraversedTag } from '@/schemas/navigation'
 import { coerceValue } from '@/schemas/typebox-coerce'
+import { type OpenApiDocument, SchemaObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
+
+import { traverseDocument } from './traverse-document'
 
 describe('traverseDocument', () => {
   const mockOptions: TraverseSpecOptions = {

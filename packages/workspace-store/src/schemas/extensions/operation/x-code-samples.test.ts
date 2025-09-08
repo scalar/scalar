@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest'
-import { XCodeSamplesSchema } from './x-code-samples'
 import { Value } from '@scalar/typebox/value'
+import { describe, expect, it } from 'vitest'
+
+import { XCodeSamplesSchema } from './x-code-samples'
 
 describe('XCodeSamplesSchema', () => {
   const sampleCode = {

@@ -1,4 +1,4 @@
-import { Type, type Static } from '@scalar/typebox'
+import { type Static, Type } from '@scalar/typebox'
 
 /**
  * Schema for individual badge configuration in x-badges extension.

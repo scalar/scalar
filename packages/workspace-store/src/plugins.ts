@@ -3,8 +3,10 @@
  * Plugins defined here can extend or modify the behavior of the bundling process,
  * such as adding lifecycle hooks or custom processing logic.
  */
-import { isLocalRef } from '@/helpers/general'
+
 import type { LifecyclePlugin } from '@scalar/json-magic/bundle'
+
+import { isLocalRef } from '@/helpers/general'
 
 /**
  * A lifecycle plugin that adds a `$status` property to nodes during resolution.
