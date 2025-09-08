@@ -1,5 +1,6 @@
-import { createMagicProxy, getRaw } from './proxy'
 import { describe, expect, it } from 'vitest'
+
+import { createMagicProxy, getRaw } from './proxy'
 
 describe('createMagicProxy', () => {
   describe('get', () => {
@@ -1138,7 +1139,136 @@ describe('createMagicProxy', () => {
     })
   })
 
-  describe('underscore property hiding', () => {
+  describe('show underscore properties when specified', () => {
+    it('should not hide properties starting with underscore from direct access', () => {
+      const input = {
+        public: 'visible',
+        _private: 'hidden',
+        __internal: 'also hidden',
+        normal_underscore: 'visible with underscore in middle',
+      }
+
+      const result = createMagicProxy(input, { showInternal: true })
+
+      expect(result.public).toBe('visible')
+      expect(result._private).toBe('hidden')
+      expect(result.__internal).toBe('also hidden')
+      expect(result.normal_underscore).toBe('visible with underscore in middle')
+    })
+
+    it('should not hide underscore properties from "in" operator', () => {
+      const input = {
+        public: 'visible',
+        _private: 'hidden',
+        __internal: 'also hidden',
+      }
+
+      const result = createMagicProxy(input, { showInternal: true })
+
+      expect('public' in result).toBe(true)
+      expect('_private' in result).toBe(true)
+      expect('__internal' in result).toBe(true)
+    })
+
+    it('should not exclude underscore properties from Object.keys enumeration', () => {
+      const input = {
+        public: 'visible',
+        _private: 'hidden',
+        __internal: 'also hidden',
+        another: 'visible',
+      }
+
+      const result = createMagicProxy(input, { showInternal: true })
+      const keys = Object.keys(result)
+
+      expect(keys).toContain('public')
+      expect(keys).toContain('another')
+      expect(keys).toContain('_private')
+      expect(keys).toContain('__internal')
+    })
+
+    it('should not hide underscore properties from getOwnPropertyDescriptor', () => {
+      const input = {
+        public: 'visible',
+        _private: 'hidden',
+      }
+
+      const result = createMagicProxy(input, { showInternal: true })
+
+      expect(Object.getOwnPropertyDescriptor(result, 'public')).toBeDefined()
+      expect(Object.getOwnPropertyDescriptor(result, '_private')).toBeDefined()
+    })
+
+    it('should not hide underscore properties in nested objects', () => {
+      const input = {
+        nested: {
+          public: 'visible',
+          _private: 'hidden',
+          deeper: {
+            _alsoHidden: 'secret',
+            visible: 'shown',
+          },
+        },
+        _topLevel: 'hidden',
+      }
+
+      const result = createMagicProxy(input, { showInternal: true })
+
+      expect(result._topLevel).toBe('hidden')
+      expect(result.nested.public).toBe('visible')
+      expect(result.nested._private).toBe('hidden')
+      expect(result.nested.deeper._alsoHidden).toBe('secret')
+      expect(result.nested.deeper.visible).toBe('shown')
+    })
+
+    it('should show underscore properties with arrays containing objects with underscore properties', () => {
+      const input = {
+        items: [
+          { public: 'item1', _private: 'hidden1' },
+          { public: 'item2', _private: 'hidden2' },
+        ],
+      }
+
+      const result = createMagicProxy(input, { showInternal: true })
+
+      expect(result.items[0].public).toBe('item1')
+      expect(result.items[0]._private).toBe('hidden1')
+      expect(result.items[1].public).toBe('item2')
+      expect(result.items[1]._private).toBe('hidden2')
+    })
+
+    it('should show underscore ref properties', () => {
+      const input = {
+        definitions: {
+          example: {
+            value: 'hello',
+            _internal: 'hidden',
+          },
+        },
+        _hiddenRef: { $ref: '#/definitions/example' },
+        publicRef: { $ref: '#/definitions/example' },
+      }
+
+      const result = createMagicProxy(input, { showInternal: true })
+
+      // Underscore property should be hidden
+      expect(result._hiddenRef).toEqual({
+        '$ref': '#/definitions/example',
+        '$ref-value': {
+          '_internal': 'hidden',
+          'value': 'hello',
+        },
+      })
+
+      // Public ref should work normally
+      expect(result.publicRef['$ref-value'].value).toBe('hello')
+
+      // Underscore properties in referenced objects should be hidden
+      expect(result.publicRef['$ref-value']._internal).toBe('hidden')
+    })
+  })
+
+  describe('hide underscore properties', () => {
     it('should hide properties starting with underscore from direct access', () => {
       const input = {
         public: 'visible',

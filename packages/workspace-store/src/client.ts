@@ -616,7 +616,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       }
     })
 
-    const strictDocument: UnknownObject = createMagicProxy({ ...inputDocument, ...meta })
+    const strictDocument: UnknownObject = createMagicProxy({ ...inputDocument, ...meta }, { showInternal: true })
 
     strictDocument['x-original-oas-version'] = input.document.openapi ?? input.document.swagger
 
@@ -681,7 +681,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     }
 
     // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map
-    workspace.documents[name] = createOverridesProxy(strictDocument as OpenApiDocument, input.overrides)
+    // We create a new proxy here in order to hide internal properties after validation and processing
+    // This ensures that the workspace document only exposes the intended OpenAPI properties and extensions
+    workspace.documents[name] = createOverridesProxy(
+      createMagicProxy(getRaw(strictDocument)) as OpenApiDocument,
+      input.overrides,
+    )
   }
 
   // Asynchronously adds a new document to the workspace by loading and validating the input.
