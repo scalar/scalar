@@ -69,6 +69,11 @@ export default defineNuxtModule<ModuleOptions>({
       '@scalar/nuxt > ajv-draft-04 > ajv',
       '@scalar/nuxt > ajv-formats > ajv',
       '@scalar/nuxt > whatwg-mimetype',
+      '@scalar/nuxt > @scalar/openapi-parser',
+      '@scalar/nuxt > debug',
+      '@scalar/nuxt > extend',
+      '@scalar/nuxt > highlightjs-curl',
+      '@scalar/nuxt > highlight.js/lib/core',
     )
 
     // Ensure proper handling of CommonJS modules
