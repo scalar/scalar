@@ -874,7 +874,7 @@ describe('upgradeFromTwoToThree', () => {
     ])
   })
 
-  it('upgrades parameters defined globally or path wide', async () => {
+  it('upgrades parameters defined globally and path wide - without body and formData', async () => {
     const result = upgradeFromTwoToThree({
       swagger: '2.0',
       produces: ['application/json'],
@@ -922,6 +922,96 @@ describe('upgradeFromTwoToThree', () => {
         required: false,
         schema: {
           type: 'string',
+        },
+      },
+    })
+  })
+
+  it('upgrades parameters defined globally and path wide - body and formData', async () => {
+    const result = upgradeFromTwoToThree({
+      swagger: '2.0',
+      produces: ['application/json'],
+      consumes: ['application/xml'],
+      parameters: {
+        planetBody: {
+          in: 'body',
+          name: 'planet body',
+          required: true,
+          schema: {
+            type: 'object',
+            properties: {
+              name: {
+                type: 'string',
+              },
+            },
+          },
+        },
+      },
+      paths: {
+        '/planets/{planetId}': {
+          parameters: [
+            {
+              description: 'planet name',
+              in: 'formData',
+              name: 'name',
+              required: true,
+              type: 'string',
+            },
+            {
+              description: 'planet size',
+              in: 'formData',
+              name: 'size',
+              required: false,
+              type: 'number',
+            },
+          ],
+          post: {
+            responses: {
+              '201': {
+                description: 'The planet just created.',
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths['/planets/{planetId}'].post.requestBody).toStrictEqual({
+      content: {
+        'application/x-www-form-urlencoded': {
+          schema: {
+            type: 'object',
+            required: ['name'],
+            properties: {
+              name: {
+                description: 'planet name',
+                type: 'string',
+              },
+              size: {
+                type: 'number',
+                description: 'planet size',
+              },
+            },
+          },
+        },
+      },
+    })
+
+    // @ts-ignore
+    expect(result.components.requestBodies).toStrictEqual({
+      planetBody: {
+        required: true,
+        content: {
+          'application/xml': {
+            schema: {
+              type: 'object',
+              properties: {
+                name: {
+                  type: 'string',
+                },
+              },
+            },
+          },
         },
       },
     })
