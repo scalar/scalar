@@ -1,7 +1,7 @@
 export const sources = [
   {
     title: 'Scalar Galaxy',
-    url: 'http://localhost:8000/galaxy.json',
+    url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
   },
   {
     title: 'Scalar Galaxy (YAML)',
