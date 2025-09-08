@@ -14,16 +14,6 @@ env:
   NODE_OPTIONS: '--max_old_space_size=8192'
   TURBO_CACHE_DIR: '${{ github.ref_name }}/.turbo'
 jobs:
-  harden_security:
-    name: Check used GitHub Actions
-    runs-on: blacksmith-2vcpu-ubuntu-2204
-    timeout-minutes: 10
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - name: Ensure all Actions are pinned to a Commit SHA
-        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@fc87bb5b5a97953d987372e74478de634726b3e5
-
   # Initial build.
   # We only build the packages and integrations as everything else depends on them
   # turbo is cached to sticky disk and pnpm is cached in the standard actions cache
@@ -153,18 +143,13 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
+      # Install only root dependencies
       - name: Install dev dependencies
-        run: pnpm install --dev
-      # You might ask why we need a GitHub Action to install Biome.
-      # Well, it's because GHA throws an error when it's run through pnpm.# > Error: Cannot find module '@biomejs/cli-linux-x64/biome'
-      - name: Setup Biome
-        uses: biomejs/setup-biome@454fa0d884737805f48d7dc236c1761a0ac3cc13 # v2
-        with:
-          version: 1.9.4
+        run: pnpm install --filter .
       - name: Lint code
-        run: biome lint --diagnostic-level=error
+        run: pnpm lint:check
       - name: Check formatting
-        run: pnpm prettier --check . && biome format
+        run: pnpm format:check
 
   build-examples:
     needs: [build]
@@ -587,8 +572,7 @@ jobs:
     permissions:
       contents: write
       id-token: write
-    needs:
-      [harden_security, build, format, types, test-packages, test-integrations]
+    needs: [build, format, types, test-packages, test-integrations]
     strategy:
       matrix:
         node-version: [22]
@@ -969,7 +953,6 @@ jobs:
       cancel-in-progress: false
     needs:
       [
-        harden_security,
         build,
         format,
         types,
@@ -1053,7 +1036,6 @@ jobs:
       cancel-in-progress: false
     needs:
       [
-        harden_security,
         build,
         format,
         types,
@@ -1192,7 +1174,6 @@ jobs:
       cancel-in-progress: false
     needs:
       [
-        harden_security,
         build,
         format,
         types,

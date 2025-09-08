@@ -182,10 +182,7 @@ codeMirror.value?.focus()
 
 // If we specify autofocus then focus codemirror on creation
 watch(codeMirror, () => {
-  if (
-    codeMirror.value &&
-    Object.prototype.hasOwnProperty.call(attrs, 'autofocus')
-  ) {
+  if (codeMirror.value && Object.hasOwn(attrs, 'autofocus')) {
     codeMirror.value.focus()
   }
 })

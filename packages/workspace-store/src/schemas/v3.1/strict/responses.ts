@@ -1,6 +1,8 @@
 import { Type } from '@scalar/typebox'
-import { reference } from './reference'
+
 import { ResponseObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
+
+import { reference } from './reference'
 
 /**
  * A container for the expected responses of an operation. The container maps a HTTP response code to the expected response.

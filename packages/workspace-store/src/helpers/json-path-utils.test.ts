@@ -1,5 +1,6 @@
-import { parseJsonPointer } from '@/helpers/json-path-utils'
 import { describe, expect, test } from 'vitest'
+
+import { parseJsonPointer } from '@/helpers/json-path-utils'
 
 describe('parseJsonPointer', () => {
   test.each([

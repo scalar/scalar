@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest'
-import { XTagGroupsSchema } from './x-tag-groups'
 import { Value } from '@scalar/typebox/value'
+import { describe, expect, it } from 'vitest'
+
+import { XTagGroupsSchema } from './x-tag-groups'
 
 describe('XTagGroupsSchema', () => {
   it('accepts valid tag groups array', () => {

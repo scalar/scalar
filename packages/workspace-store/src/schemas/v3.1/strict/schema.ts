@@ -1,17 +1,18 @@
 import { Type } from '@scalar/typebox'
+
 import { compose } from '@/schemas/compose'
-import { reference } from '@/schemas/v3.1/strict/reference'
+import { XInternalSchema } from '@/schemas/extensions/document/x-internal'
+import { XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
+import { XTags } from '@/schemas/extensions/document/x-tags'
+import { XAdditionalPropertiesNameSchema } from '@/schemas/extensions/schema/x-additional-properties-name'
+import { XVariableSchema } from '@/schemas/extensions/schema/x-variable'
 import {
   DiscriminatorObjectRef,
   ExternalDocumentationObjectRef,
   SchemaObjectRef,
   XMLObjectRef,
 } from '@/schemas/v3.1/strict/ref-definitions'
-import { XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
-import { XInternalSchema } from '@/schemas/extensions/document/x-internal'
-import { XVariableSchema } from '@/schemas/extensions/schema/x-variable'
-import { XAdditionalPropertiesNameSchema } from '@/schemas/extensions/schema/x-additional-properties-name'
-import { XTags } from '@/schemas/extensions/document/x-tags'
+import { reference } from '@/schemas/v3.1/strict/reference'
 
 const schemaOrReference = Type.Union([SchemaObjectRef, reference(SchemaObjectRef)])
 

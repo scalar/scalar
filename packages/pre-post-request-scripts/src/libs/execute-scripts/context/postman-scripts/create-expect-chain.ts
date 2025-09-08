@@ -158,7 +158,7 @@ export const createExpectChain = (actual: any): ExpectChain => {
           return true
         },
         property: (name: string, value?: any) => {
-          if (typeof actual !== 'object' || actual === null || !Object.prototype.hasOwnProperty.call(actual, name)) {
+          if (typeof actual !== 'object' || actual === null || !Object.hasOwn(actual, name)) {
             throw new Error(`Expected object to have property "${name}"`)
           }
           if (value !== undefined && actual[name] !== value) {
@@ -170,7 +170,7 @@ export const createExpectChain = (actual: any): ExpectChain => {
           if (typeof actual !== 'object' || actual === null) {
             throw new Error('Expected value to be an object')
           }
-          const missingKeys = keys.filter((key) => !Object.prototype.hasOwnProperty.call(actual, key))
+          const missingKeys = keys.filter((key) => !Object.hasOwn(actual, key))
           if (missingKeys.length > 0) {
             throw new Error(`Expected object to have keys: ${missingKeys.join(', ')}`)
           }

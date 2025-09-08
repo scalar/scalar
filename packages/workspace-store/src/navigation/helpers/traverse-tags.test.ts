@@ -1,7 +1,9 @@
-import type { TraversedEntry, TraversedOperation, TraversedTag } from '@/schemas/navigation'
-import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { describe, expect, it } from 'vitest'
+
+import type { TraversedEntry, TraversedOperation, TraversedTag } from '@/schemas/navigation'
+import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
+
 import { traverseTags } from './traverse-tags'
 
 type TagGroup = { name: string; tags: string[] }

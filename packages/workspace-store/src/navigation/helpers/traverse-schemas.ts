@@ -61,7 +61,7 @@ export const traverseSchemas = (
   const schemas = content.components?.schemas ?? {}
   const untagged: TraversedSchema[] = []
 
-  // biome-ignore lint/nursery/useGuardForIn: we do have an if statement after de-ref
+  // biome-ignore lint/suspicious/useGuardForIn: we do have an if statement after de-ref
   for (const name in schemas) {
     const schema = getResolvedRef(schemas[name])
 

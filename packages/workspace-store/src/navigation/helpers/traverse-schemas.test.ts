@@ -1,9 +1,11 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { traverseSchemas } from './traverse-schemas'
+import { beforeEach, describe, expect, it } from 'vitest'
+
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
-import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import { coerceValue } from '@/schemas/typebox-coerce'
+import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import { OpenAPIDocumentSchema } from '@/schemas/v3.1/strict/openapi-document'
+
+import { traverseSchemas } from './traverse-schemas'
 
 describe('traverseSchemas', () => {
   // Mock getModelId function

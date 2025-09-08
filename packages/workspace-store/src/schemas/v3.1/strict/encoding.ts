@@ -1,6 +1,8 @@
 import { Type } from '@scalar/typebox'
-import { reference } from './reference'
+
 import { HeaderObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
+
+import { reference } from './reference'
 
 /**
  * A single encoding definition applied to a single schema property. See Appendix B for a discussion of converting values of various types to string representations.

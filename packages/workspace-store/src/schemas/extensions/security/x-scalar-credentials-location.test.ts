@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest'
-import { XScalarCredentialsLocationSchema } from './x-scalar-credentials-location'
 import { Value } from '@scalar/typebox/value'
+import { describe, expect, it } from 'vitest'
+
+import { XScalarCredentialsLocationSchema } from './x-scalar-credentials-location'
 
 describe('XScalarCredentialsLocationSchema', () => {
   it('allows header value', () => {

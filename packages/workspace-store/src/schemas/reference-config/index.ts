@@ -1,12 +1,13 @@
-import { Type, type Static } from '@scalar/typebox'
+import { type Static, Type } from '@scalar/typebox'
 import { AVAILABLE_CLIENTS } from '@scalar/types/snippetz'
-import { defaultMeta, MetaSchema } from '@/schemas/reference-config/meta'
-import { defaultFeatures, FeaturesSchema } from '@/schemas/reference-config/features'
-import { AppearanceSchema, defaultAppearance } from '@/schemas/reference-config/appearance'
-import { defaultRouting, RoutingSchema } from '@/schemas/reference-config/routing'
-import { defaultSettings, SettingsSchema } from '@/schemas/reference-config/settings'
-import type { MutableArray } from '@/types'
 import type { RequiredDeep } from 'type-fest'
+
+import { AppearanceSchema, defaultAppearance } from '@/schemas/reference-config/appearance'
+import { FeaturesSchema, defaultFeatures } from '@/schemas/reference-config/features'
+import { MetaSchema, defaultMeta } from '@/schemas/reference-config/meta'
+import { RoutingSchema, defaultRouting } from '@/schemas/reference-config/routing'
+import { SettingsSchema, defaultSettings } from '@/schemas/reference-config/settings'
+import type { MutableArray } from '@/types'
 
 /**
  * ReferenceConfigSchema defines the shape of the configuration object

@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest'
-import { XScalarStabilitySchema } from './x-scalar-stability'
 import { Value } from '@scalar/typebox/value'
+import { describe, expect, it } from 'vitest'
+
+import { XScalarStabilitySchema } from './x-scalar-stability'
 
 describe('XScalarStability', () => {
   it('allows deprecated value', () => {

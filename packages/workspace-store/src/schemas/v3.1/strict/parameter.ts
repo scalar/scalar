@@ -1,7 +1,8 @@
-import { compose } from '@/schemas/compose'
-import { reference } from '@/schemas/v3.1/strict/reference'
 import { Type } from '@scalar/typebox'
+
+import { compose } from '@/schemas/compose'
 import { ExampleObjectRef, MediaTypeObjectRef, SchemaObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
+import { reference } from '@/schemas/v3.1/strict/reference'
 
 export const ParameterObjectBaseSchema = Type.Object({
   /** REQUIRED. The name of the parameter. Parameter names are case sensitive.
