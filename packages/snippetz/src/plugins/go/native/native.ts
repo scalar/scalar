@@ -1,11 +1,12 @@
-import type { Plugin } from '@scalar/types/snippetz'
-import type { HarRequest } from '@scalar/types/snippetz'
+import type { HarRequest, Plugin } from '@scalar/types/snippetz'
 
 /**
  * Escapes a string for use in Go double-quoted strings
  */
 function escapeForGoString(str: string | undefined): string {
-  if (!str) return ''
+  if (!str) {
+    return ''
+  }
   return str
     .replace(/\\/g, '\\\\')
     .replace(/"/g, '\\"')
@@ -39,7 +40,8 @@ function buildUrl(url: string, queryString?: Array<{ name: string; value: string
     urlObj.searchParams.set(name, value)
   })
 
-  return urlObj.toString()
+  // Convert + back to %20 for spaces to match expected output
+  return urlObj.toString().replace(/\+/g, '%20')
 }
 
 /**
@@ -116,16 +118,32 @@ function generateGoCode(
   }
 
   // Add required imports
-  if (needsStrings) imports.add('strings')
-  if (needsBytes) imports.add('bytes')
-  if (needsMultipart) imports.add('mime/multipart')
-  if (needsUrl) imports.add('net/url')
-  if (needsOs) imports.add('os')
+  if (needsStrings) {
+    imports.add('strings')
+  }
+  if (needsBytes) {
+    imports.add('bytes')
+  }
+  if (needsMultipart) {
+    imports.add('mime/multipart')
+  }
+  if (needsUrl) {
+    imports.add('net/url')
+  }
+  if (needsOs) {
+    imports.add('os')
+  }
 
   // Build headers
   let headersCode = ''
   if (request.headers && request.headers.length > 0) {
+    // Group headers by name and only use the last value for each name
+    const headerMap = new Map<string, string>()
     request.headers.forEach(({ name, value }) => {
+      headerMap.set(name, value)
+    })
+
+    headerMap.forEach((value, name) => {
       headersCode += `\treq.Header.Add("${escapeForGoString(name)}", "${escapeForGoString(value)}")\n`
     })
     headersCode += '\n'
