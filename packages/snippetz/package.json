@@ -29,6 +29,11 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./clients": {
+      "import": "./dist/clients/index.js",
+      "types": "./dist/clients/index.d.ts",
+      "default": "./dist/clients/index.js"
+    },
     "./plugins/c/libcurl": {
       "import": "./dist/plugins/c/libcurl/index.js",
       "types": "./dist/plugins/c/libcurl/index.d.ts",

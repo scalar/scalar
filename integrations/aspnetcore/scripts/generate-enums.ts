@@ -1,7 +1,8 @@
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
-import { clients, type Target } from '@scalar/snippetz'
+import type { Target } from '@scalar/snippetz'
+import { clients } from '@scalar/snippetz/clients'
 
 /**
  * Generator script to create C# enums from TypeScript clients configuration.
@@ -212,7 +213,7 @@ function generateClientOptionsMapping(targets: Target[]): string {
 
   return `${header}
 
-#pragma warning disable CS0618 // Type or member is obsolete 
+#pragma warning disable CS0618 // Type or member is obsolete
 namespace Scalar.AspNetCore;
 
 /// <summary>
