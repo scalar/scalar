@@ -117,6 +117,40 @@ export type ApiReferenceEvents<T extends keyof ServerObject = keyof ServerObject
       }
     }
   }
+
+  /** Auth events */
+  'scalar-select-security-schemes': {
+    detail: {
+      uids: string[]
+    }
+  }
+
+  'scalar-select-operation-security-schemes': {
+    detail: {
+      operationUid: string
+      uids: string[]
+    }
+  }
+
+  'scalar-edit-security-scheme': {
+    detail: {
+      uid: string
+      path: string
+      value: any
+    }
+  }
+
+  'scalar-add-auth-option': {
+    detail: {
+      payload: any
+    }
+  }
+
+  'scalar-delete-security-scheme': {
+    detail: {
+      uid: string
+    }
+  }
 }
 
 export type ApiReferenceEvent = Simplify<keyof ApiReferenceEvents>
