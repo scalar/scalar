@@ -1,13 +1,10 @@
-import { defineConfig, type PlaywrightTestConfig } from '@playwright/test'
+import { type PlaywrightTestConfig, defineConfig } from '@playwright/test'
 
 type WebServer = PlaywrightTestConfig['webServer']
 
 const CI = !!process.env.CI
 
 const isLinux = process.platform === 'linux' && !CI
-
-/** Linux uses the host network to connect to the dev server */
-const network = isLinux ? 'host' : 'bridge'
 
 /**
  * Playwright Test Server
@@ -17,12 +14,12 @@ const network = isLinux ? 'host' : 'bridge'
  */
 const playwrightServer: WebServer = {
   name: 'Playwright',
-  command: `NETWORK=${network} pnpm test:e2e:playwright`,
+  command: 'pnpm test:e2e:playwright',
   url: 'http://localhost:5001',
   timeout: 120 * 1000,
   reuseExistingServer: !CI,
   gracefulShutdown: {
-    signal: 'SIGINT',
+    signal: 'SIGTERM',
     timeout: 10 * 1000,
   },
 } as const
