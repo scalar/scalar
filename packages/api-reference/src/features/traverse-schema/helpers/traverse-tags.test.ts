@@ -76,6 +76,7 @@ describe('traverseTags', () => {
     expect(result).toEqual([
       {
         id: 'tag1',
+        type: 'tag',
         title: 'tag1',
         tag: { name: 'tag1' },
         children: [createMockEntry('Test Operation')],
@@ -83,6 +84,7 @@ describe('traverseTags', () => {
       },
       {
         id: 'default',
+        type: 'tag',
         title: 'default',
         tag: { name: 'default' },
         children: [createMockEntry('Test Operation')],

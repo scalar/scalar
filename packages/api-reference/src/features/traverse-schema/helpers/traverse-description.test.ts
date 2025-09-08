@@ -23,7 +23,7 @@ describe('traverseDescription', () => {
     const titlesMap = new Map<string, string>()
     const description = 'This is a paragraph without any headings.'
     const result = traverseDescription(description, titlesMap, getHeadingId)
-    expect(result).toEqual([{ id: 'heading-introduction', title: 'Introduction' }])
+    expect(result).toMatchObject([{ id: 'heading-introduction', title: 'Introduction' }])
     expect(titlesMap.size).toBe(1)
   })
 
@@ -39,23 +39,28 @@ Final content
     `
     const result = traverseDescription(description, titlesMap, getHeadingId)
 
-    expect(result).toHaveLength(3)
-    expect(result[0]).toEqual({
+    expect(result).toHaveLength(4)
+    expect(result[0]).toMatchObject({
+      id: 'heading-introduction',
+      title: 'Introduction',
+      children: [],
+    })
+    expect(result[1]).toMatchObject({
       id: 'heading-first-heading',
       title: 'First Heading',
       children: [],
     })
-    expect(result[1]).toEqual({
+    expect(result[2]).toMatchObject({
       id: 'heading-second-heading',
       title: 'Second Heading',
       children: [],
     })
-    expect(result[2]).toEqual({
+    expect(result[3]).toMatchObject({
       id: 'heading-third-heading',
       title: 'Third Heading',
       children: [],
     })
-    expect(titlesMap.size).toBe(3)
+    expect(titlesMap.size).toBe(4)
     expect(titlesMap.get('heading-first-heading')).toBe('First Heading')
   })
 
@@ -75,8 +80,8 @@ Final content
     `
     const result = traverseDescription(description, titlesMap, getHeadingId)
 
-    expect(result).toHaveLength(2)
-    expect(result[0]).toEqual({
+    expect(result).toHaveLength(3)
+    expect(result[1]).toMatchObject({
       id: 'heading-main-section',
       title: 'Main Section',
       children: [
@@ -90,7 +95,7 @@ Final content
         },
       ],
     })
-    expect(result[1]).toEqual({
+    expect(result[2]).toMatchObject({
       id: 'heading-another-section',
       title: 'Another Section',
       children: [
@@ -100,10 +105,10 @@ Final content
         },
       ],
     })
-    expect(titlesMap.size).toBe(5)
+    expect(titlesMap.size).toBe(6)
   })
 
-  it('should handle h2 and h3 headings when they are the lowest levels', () => {
+  it('should nest h2 and h3 headings when under "Introduction"', () => {
     const titlesMap = new Map<string, string>()
     const description = `
 ## Section 1
@@ -119,8 +124,8 @@ Content
     `
     const result = traverseDescription(description, titlesMap, getHeadingId)
 
-    expect(result).toHaveLength(2)
-    expect(result[0]).toEqual({
+    expect(result).toHaveLength(1)
+    expect(result[0].children?.[0]).toMatchObject({
       id: 'heading-section-1',
       title: 'Section 1',
       children: [
@@ -134,7 +139,7 @@ Content
         },
       ],
     })
-    expect(result[1]).toEqual({
+    expect(result[0].children?.[1]).toMatchObject({
       id: 'heading-section-2',
       title: 'Section 2',
       children: [
@@ -144,33 +149,7 @@ Content
         },
       ],
     })
-    expect(titlesMap.size).toBe(5)
-  })
-
-  it('should skip headings that are not at the lowest two levels', () => {
-    const titlesMap = new Map<string, string>()
-    const description = `
-# Level 1
-## Level 2
-### Level 3
-#### Level 4
-##### Level 5
-    `
-    const result = traverseDescription(description, titlesMap, getHeadingId)
-
-    // Should only include Level 1 and Level 2
-    expect(result).toHaveLength(1)
-    expect(result[0]).toEqual({
-      id: 'heading-level-1',
-      title: 'Level 1',
-      children: [
-        {
-          id: 'heading-level-2',
-          title: 'Level 2',
-        },
-      ],
-    })
-    expect(titlesMap.size).toBe(2)
+    expect(titlesMap.size).toBe(6)
   })
 
   it('should handle special characters in headings', () => {
@@ -181,8 +160,8 @@ Content
     `
     const result = traverseDescription(description, titlesMap, getHeadingId)
 
-    expect(result).toHaveLength(1)
-    expect(result[0]).toEqual({
+    expect(result).toHaveLength(2)
+    expect(result[1]).toMatchObject({
       id: 'heading-section-with-@#$%^&*()-chars',
       title: 'Section with @#$%^&*() chars',
       children: [
@@ -192,6 +171,6 @@ Content
         },
       ],
     })
-    expect(titlesMap.size).toBe(2)
+    expect(titlesMap.size).toBe(3)
   })
 })
