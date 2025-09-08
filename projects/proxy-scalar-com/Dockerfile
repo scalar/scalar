@@ -1,5 +1,5 @@
 # Build image
-FROM golang:1.25-alpine as build
+FROM golang:1.25-alpine AS build
 WORKDIR /app
 
 COPY ./main.go ./
