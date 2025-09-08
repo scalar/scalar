@@ -108,9 +108,11 @@ const isItemActive = (itemId: string) => {
   return false
 }
 
+/** Fires when the sidebar-pages element is scrolled. */
 function onSidebarScroll(event: Event) {
   const target = event.currentTarget as HTMLDivElement
 
+  // Updates hasSidebarScrolled if the sidebar has been scrolled down
   hasSidebarScrolled.value = target.scrollTop > 0
 }
 

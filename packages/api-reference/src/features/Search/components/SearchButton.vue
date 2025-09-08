@@ -55,6 +55,7 @@ function handleClick() {
 }
 </script>
 <template>
+  <!-- Show a tooltip on of Meta + K on hover -->
   <ScalarHotkeyTooltip
     content="Search"
     hotkey="K"
