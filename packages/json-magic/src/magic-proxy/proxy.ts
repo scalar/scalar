@@ -50,6 +50,7 @@ const REF_KEY = '$ref'
  */
 export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S extends UnknownObject>(
   target: T,
+  options?: { showInternal?: boolean },
   root: S | T = target,
   cache = new Map<string, unknown>(),
   proxyCache = new WeakMap<object, T>(),
@@ -87,7 +88,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
 
       // Hide properties starting with underscore - these are considered internal/private properties
       // and should not be accessible through the magic proxy interface
-      if (typeof prop === 'string' && prop.startsWith('_')) {
+      if (typeof prop === 'string' && prop.startsWith('_') && !options?.showInternal) {
         return undefined
       }
 
@@ -100,7 +101,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
 
         // Resolve the reference and create a new magic proxy
         const resolvedValue = getValueByPath(root, parseJsonPointer(ref))
-        const proxiedValue = createMagicProxy(resolvedValue, root, cache)
+        const proxiedValue = createMagicProxy(resolvedValue, options, root, cache)
 
         // Store in cache for future lookups
         cache.set(ref, proxiedValue)
@@ -109,7 +110,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
 
       // For all other properties, recursively wrap the value in a magic proxy
       const value = Reflect.get(target, prop, receiver)
-      return createMagicProxy(value as T, root, cache, proxyCache)
+      return createMagicProxy(value as T, options, root, cache, proxyCache)
     },
     /**
      * Proxy "set" trap for magic proxy.
@@ -122,7 +123,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
     set(target, prop, newValue, receiver) {
       const ref = Reflect.get(target, REF_KEY, receiver)
 
-      if (typeof prop === 'string' && prop.startsWith('_')) {
+      if (typeof prop === 'string' && prop.startsWith('_') && !options?.showInternal) {
         return true
       }
 
@@ -164,7 +165,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      */
     has(target, prop) {
       // Hide properties starting with underscore
-      if (typeof prop === 'string' && prop.startsWith('_')) {
+      if (typeof prop === 'string' && prop.startsWith('_') && !options?.showInternal) {
         return false
       }
 
@@ -186,7 +187,9 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
       const keys = Reflect.ownKeys(target)
 
       // Filter out properties starting with underscore
-      const filteredKeys = keys.filter((key) => typeof key !== 'string' || !key.startsWith('_'))
+      const filteredKeys = keys.filter(
+        (key) => typeof key !== 'string' || !(key.startsWith('_') && !options?.showInternal),
+      )
 
       if (REF_KEY in target && !filteredKeys.includes(REF_VALUE)) {
         filteredKeys.push(REF_VALUE)
@@ -203,7 +206,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      */
     getOwnPropertyDescriptor(target, prop) {
       // Hide properties starting with underscore
-      if (typeof prop === 'string' && prop.startsWith('_')) {
+      if (typeof prop === 'string' && prop.startsWith('_') && !options?.showInternal) {
         return undefined
       }
 
