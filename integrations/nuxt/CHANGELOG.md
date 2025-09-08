@@ -1,5 +1,32 @@
 # @scalar/nuxt
 
+## 0.5.7
+
+### Patch Changes
+
+- 64f0264: fix(nuxt): more CommonJS issues
+- Updated dependencies [ba27329]
+- Updated dependencies [714b197]
+- Updated dependencies [792c937]
+- Updated dependencies [f918582]
+- Updated dependencies [549eb02]
+- Updated dependencies [3473e08]
+- Updated dependencies [a6ae22a]
+- Updated dependencies [94e4762]
+- Updated dependencies [d5c1d0c]
+- Updated dependencies [63283aa]
+- Updated dependencies [8680da6]
+- Updated dependencies [2077f01]
+- Updated dependencies [ee605d8]
+- Updated dependencies [0e747c7]
+- Updated dependencies [697f1d0]
+- Updated dependencies [99894bc]
+- Updated dependencies [5ad329e]
+  - @scalar/workspace-store@0.15.0
+  - @scalar/api-reference@1.35.0
+  - @scalar/api-client@2.5.27
+  - @scalar/types@0.2.14
+
 ## 0.5.6
 
 ### Patch Changes

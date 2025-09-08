@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.2.14
+
+### Patch Changes
+
+- 792c937: Configurable option for sidebar to show method path instead of method summary.
+
 ## 0.2.13
 
 ### Patch Changes
