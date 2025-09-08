@@ -1,18 +1,13 @@
 import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
 import { isDereferenced } from '@scalar/openapi-types/helpers'
 
-import type {
-  ParameterObject,
-  MediaTypeObject,
-  SchemaObject,
-  OperationObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ParameterObject, OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 
 /**
  * Formats a property object into a string.
  */
-export function formatProperty(key: string, obj: SchemaObject): string {
+export function formatProperty(key: string, obj: OpenAPIV3_1.SchemaObject): string {
   let output = key
   const isRequired = obj.required?.includes(key)
   output += isRequired ? ' REQUIRED ' : ' optional '
@@ -32,7 +27,7 @@ export function formatProperty(key: string, obj: SchemaObject): string {
 /**
  * Recursively logs the properties of an object.
  */
-function recursiveLogger(obj: MediaTypeObject): string[] {
+function recursiveLogger(obj: OpenAPIV3_1.MediaTypeObject): string[] {
   const results: string[] = ['Body']
   const schema = getResolvedRef(obj?.schema)
 

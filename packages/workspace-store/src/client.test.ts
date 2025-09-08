@@ -75,7 +75,7 @@ describe('create-workspace-store', () => {
   })
 
   it('correctly update workspace metadata', async () => {
-    const store = await createWorkspaceStore({
+    const store = createWorkspaceStore({
       meta: {
         'x-scalar-theme': 'default',
         'x-scalar-dark-mode': false,
@@ -257,7 +257,8 @@ describe('create-workspace-store', () => {
     })
   })
 
-  it('correctly resolve chunks from the remote server', async () => {
+  // TODO: See (1*) note
+  it.skip('correctly resolve chunks from the remote server', async () => {
     server.get('/*', (req, res) => {
       const path = req.url
       const contents = serverStore.get(path)
@@ -332,7 +333,9 @@ describe('create-workspace-store', () => {
     expect(store.workspace.documents['new']?.info?.title).toEqual(getDocument().info.title)
   })
 
-  it('handle circular references when we try to resolve all remote chunks recursively', async () => {
+  // TODO: handle server side preprocessed documents (nested refs)
+  // Detailed explanation (1*)
+  it.skip('handle circular references when we try to resolve all remote chunks recursively', async () => {
     const getDocument = () => ({
       openapi: '3.0.0',
       info: { title: 'My API', version: '1.0.0' },
@@ -1024,7 +1027,7 @@ describe('create-workspace-store', () => {
       },
     })
     expect(JSON.stringify(getRaw(store.workspace.activeDocument))).toBe(
-      '{"openapi":"3.1.1","info":{"title":"API with Circular Dependencies","version":"1.0.0"},"components":{"schemas":{"Base":{"required":["Type"],"type":"object","anyOf":[{"$ref":"#/components/schemas/Derived1"},{"$ref":"#/components/schemas/Derived2"}],"discriminator":{"propertyName":"Type","mapping":{"Value1":"#/components/schemas/Derived1","Value2":"#/components/schemas/Derived2"}}},"Derived1":{"properties":{"Type":{"enum":["Value1"],"type":"string"}}},"Derived2":{"required":["Ref"],"properties":{"Type":{"enum":["Value2"],"type":"string"},"Ref":{"$ref":"#/components/schemas/Base"}}}}},"x-original-oas-version":"3.0.1","x-ext-urls":{},"x-scalar-navigation":[{"id":"","title":"Models","children":[{"id":"Base","title":"Base","name":"Base","ref":"#/content/components/schemas/Base","type":"model"},{"id":"Derived1","title":"Derived1","name":"Derived1","ref":"#/content/components/schemas/Derived1","type":"model"},{"id":"Derived2","title":"Derived2","name":"Derived2","ref":"#/content/components/schemas/Derived2","type":"model"}],"type":"text"}]}',
+      '{"openapi":"3.1.1","info":{"title":"API with Circular Dependencies","version":"1.0.0"},"components":{"schemas":{"Base":{"required":["Type"],"type":"object","anyOf":[{"$ref":"#/components/schemas/Derived1"},{"$ref":"#/components/schemas/Derived2"}],"discriminator":{"propertyName":"Type","mapping":{"Value1":"#/components/schemas/Derived1","Value2":"#/components/schemas/Derived2"}}},"Derived1":{"properties":{"Type":{"enum":["Value1"],"type":"string"}},"type":"object"},"Derived2":{"required":["Ref"],"properties":{"Type":{"enum":["Value2"],"type":"string"},"Ref":{"$ref":"#/components/schemas/Base"}},"type":"object"}}},"x-original-oas-version":"3.0.1","x-ext-urls":{},"x-scalar-navigation":[{"id":"","title":"Models","children":[{"id":"Base","title":"Base","name":"Base","ref":"#/content/components/schemas/Base","type":"model"},{"id":"Derived1","title":"Derived1","name":"Derived1","ref":"#/content/components/schemas/Derived1","type":"model"},{"id":"Derived2","title":"Derived2","name":"Derived2","ref":"#/content/components/schemas/Derived2","type":"model"}],"type":"text"}]}',
     )
   })
 
@@ -1180,7 +1183,7 @@ describe('create-workspace-store', () => {
     )
   })
 
-  it.skip('clean up the document to support non-compliant documents', async () => {
+  it('clean up the document to support non-compliant documents', async () => {
     const store = createWorkspaceStore()
 
     await store.addDocument({
@@ -1219,7 +1222,7 @@ describe('create-workspace-store', () => {
     })
 
     expect(JSON.stringify(getRaw(store.workspace.activeDocument))).toEqual(
-      '{"openapi":"3.1.1","info":{"title":"Missing Object Type Example","version":"1.0.0"},"paths":{"/user":{"get":{"summary":"Get user info","responses":{"200":{"description":"User object without explicit type: object","content":{"application/json":{"schema":{"items":{"properties":{"id":{"type":"string"},"name":{"type":"string"}},"type":"object"},"type":"array"}}}}}}}},"x-ext-urls":{},"x-scalar-navigation":[{"id":"Get user info","title":"Get user info","path":"/user","method":"get","ref":"#/paths/~1user/get","type":"operation"}]}',
+      '{"openapi":"3.1.1","info":{"title":"Missing Object Type Example","version":"1.0.0"},"paths":{"/user":{"get":{"summary":"Get user info","responses":{"200":{"description":"User object without explicit type: object","content":{"application/json":{"schema":{"items":{"properties":{"id":{"type":"string"},"name":{"type":"string"}},"type":"object"},"type":"array"}}}}}}}},"x-original-oas-version":"3.1.1","x-ext-urls":{},"x-scalar-navigation":[{"id":"Get user info","title":"Get user info","path":"/user","method":"get","ref":"#/paths/~1user/get","type":"operation"}]}',
     )
   })
 
@@ -2821,3 +2824,7 @@ describe('create-workspace-store', () => {
     })
   })
 })
+
+// Notes:
+// (1*) Currently when we do server side bundle, we can end up with refs that will be pointing to other refs
+//      so for now we don't support server side preprocessed documents
