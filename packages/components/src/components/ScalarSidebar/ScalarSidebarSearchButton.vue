@@ -11,7 +11,7 @@ const { cx } = useBindCx()
     type="button"
     v-bind="
       cx(
-        'flex items-center rounded text-base h-8 gap-1 pl-2 pr-1',
+        'flex items-center rounded text-base h-8 gap-1 pl-2 pr-1 hover:bg-b-2',
         'bg-sidebar-b-search text-sidebar-c-search',
       )
     ">
