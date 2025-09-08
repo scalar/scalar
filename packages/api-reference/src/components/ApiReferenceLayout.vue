@@ -354,7 +354,9 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
                   :searchHotKey="configuration?.searchHotKey" />
               </div>
               <!-- Show a horizontal line if the sidebar has been scrolled -->
-              <hr v-if="hasSidebarScrolled" />
+              <hr
+                v-if="hasSidebarScrolled"
+                class="border-t-1" />
               <!-- Sidebar Start -->
               <slot
                 name="sidebar-start"
