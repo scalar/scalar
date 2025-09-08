@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { sleep } from '@scalar/helpers/testing/sleep'
+import { useDebounceFn } from '@vueuse/core'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 
 import type { TraversedEntry } from '@/features/traverse-schema'
@@ -109,12 +110,14 @@ const isItemActive = (itemId: string) => {
 }
 
 /** Fires when the sidebar-pages element is scrolled. */
-function onSidebarScroll(event: Event) {
-  const target = event.currentTarget as HTMLDivElement
+const onSidebarScroll = useDebounceFn((event: Event) => {
+  console.log(event)
+  const target = event.target as HTMLDivElement
 
   // Updates hasSidebarScrolled if the sidebar has been scrolled down
   hasSidebarScrolled.value = target.scrollTop > 0
-}
+  console.log(target.scrollTop)
+}, 20)
 
 const observer = ref<MutationObserver | undefined>(undefined)
 onMounted(() => {
