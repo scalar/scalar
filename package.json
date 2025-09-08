@@ -4,9 +4,9 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "pnpm": "^10.5.2"
+    "pnpm": "^10.15.1"
   },
-  "packageManager": "pnpm@10.5.2",
+  "packageManager": "pnpm@10.15.1",
   "devDependencies": {
     "@biomejs/biome": "^2.2.3",
     "@changesets/cli": "^2.27.10",
