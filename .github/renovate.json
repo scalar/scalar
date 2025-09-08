@@ -10,6 +10,7 @@
     "rangeStrategy": "bump",
     "assignees": ["@hanspagel"]
   },
+  "recreateWhen": "never",
   "packageRules": [
     // Group major dependencies
     {
