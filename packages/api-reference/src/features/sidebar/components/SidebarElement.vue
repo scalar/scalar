@@ -136,7 +136,7 @@ const onAnchorClick = async (ev: Event) => {
         :tabindex="hasChildren ? -1 : 0"
         @click="onAnchorClick">
         <p class="sidebar-heading-link-title">
-          <!-- Show the house icon if the item is the "Introduction" description and has no children -->
+          <!-- Show a house icon if the heading is an h1 and and has no children. -->
           <ScalarIconHouse
             v-if="
               !hasChildren && item.type === 'description' && item.depth === 1

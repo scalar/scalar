@@ -353,6 +353,7 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
                   :hideModels="configuration?.hideModels"
                   :searchHotKey="configuration?.searchHotKey" />
               </div>
+              <!-- Show a horizontal line if the sidebar has been scrolled -->
               <hr v-if="hasSidebarScrolled" />
               <!-- Sidebar Start -->
               <slot

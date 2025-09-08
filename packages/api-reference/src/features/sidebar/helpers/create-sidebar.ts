@@ -24,6 +24,7 @@ export type SidebarOptions = TraverseSpecOptions
 export const createSidebar = (dereferencedDocument: Ref<OpenAPIV3_1.Document>, options: SidebarOptions) => {
   const collapsedSidebarItems = reactive<CollapsedSidebarItems>({})
   const isSidebarOpen = ref(false)
+  // Is set when the sidebar is scrolled
   const hasSidebarScrolled = ref(false)
 
   const toggleCollapsedSidebarItem = (key: string) => (collapsedSidebarItems[key] = !collapsedSidebarItems[key])
