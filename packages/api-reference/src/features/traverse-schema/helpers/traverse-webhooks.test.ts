@@ -59,6 +59,7 @@ describe('traverse-webhooks', () => {
         title: 'Test Webhook',
         name: 'test-webhook',
         method: 'post',
+        type: 'webhook',
         webhook: {
           summary: 'Test Webhook',
           operationId: 'testWebhook',
@@ -94,6 +95,7 @@ describe('traverse-webhooks', () => {
         title: 'Untagged Webhook',
         name: 'untagged-webhook',
         method: 'post',
+        type: 'webhook',
         webhook: {
           summary: 'Untagged Webhook',
           operationId: 'untaggedWebhook',
@@ -181,6 +183,7 @@ describe('traverse-webhooks', () => {
         title: 'Deprecated Webhook',
         name: 'deprecated-webhook',
         method: 'post',
+        type: 'webhook',
         webhook: {
           deprecated: true,
           summary: 'Deprecated Webhook',
@@ -221,6 +224,7 @@ describe('traverse-webhooks', () => {
             title: 'POST Webhook',
             name: 'multi-method-webhook',
             method: 'post',
+            type: 'webhook',
             webhook: {
               summary: 'POST Webhook',
               operationId: 'postWebhook',
@@ -231,6 +235,7 @@ describe('traverse-webhooks', () => {
             title: 'GET Webhook',
             name: 'multi-method-webhook',
             method: 'get',
+            type: 'webhook',
             webhook: {
               summary: 'GET Webhook',
               operationId: 'getWebhook',

@@ -90,6 +90,7 @@ describe('traverseSchemas', () => {
     expect(result).toHaveLength(2)
     expect(result).toEqual([
       {
+        type: 'schema',
         id: 'model-User',
         title: 'User',
         name: 'User',
@@ -102,6 +103,7 @@ describe('traverseSchemas', () => {
         },
       },
       {
+        type: 'schema',
         id: 'model-Product',
         title: 'Product',
         name: 'Product',
@@ -207,6 +209,7 @@ describe('traverseSchemas', () => {
       id: 'model-EmptySchema',
       title: 'EmptySchema',
       name: 'EmptySchema',
+      type: 'schema',
       schema: {
         type: 'object',
       },
