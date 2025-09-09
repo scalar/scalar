@@ -7,14 +7,14 @@ export const pathToRegex = (path: string) => {
     path
       .replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // escape special regex chars
       .replace(/\\\{([^}]+)\\\}/g, '([^/]+)') + // replace {param} with capture group
-    '$' // end anchor
+    '(\\?.*)?$' // optional query parameters at the end
 
   return new RegExp(regxStr)
 }
 
 /**
  * Takes a path and method and returns the request that matches the path and method while taking
- * path params into account by converting to a regex. Will also return the path params if they exist
+ * path params into account by converting to a regex. Will also return the path params if they exist.
  *
  * @example path can be /planets/{planetId} OR /planets/1
  */
