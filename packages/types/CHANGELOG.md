@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.2.15
+
+### Patch Changes
+
+- abe3842: Add analytic events to api-client + add telemetry option
+
 ## 0.2.14
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/oas-utils
 
+## 0.4.24
+
+### Patch Changes
+
+- Updated dependencies [abe3842]
+  - @scalar/types@0.2.15
+  - @scalar/themes@0.13.16
+  - @scalar/workspace-store@0.15.1
+
 ## 0.4.23
 
 ### Patch Changes
