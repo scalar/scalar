@@ -38,23 +38,16 @@ func main() {
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 )
 
 func main() {
-	url := "https://example.com"
-
-	req, _ := http.NewRequest("POST", url, nil)
-
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.Post("https://example.com", "", nil)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -74,25 +67,19 @@ func main() {
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 )
 
 func main() {
-	url := "https://example.com"
+	req, _ := http.NewRequest("GET", "https://example.com", nil)
+	req.Header.Set("Content-Type", "application/json")
 
-	req, _ := http.NewRequest("GET", url, nil)
-
-	req.Header.Add("Content-Type", "application/json")
-
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -122,38 +109,33 @@ func main() {
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"mime/multipart"
 	"net/http"
+	"os"
 )
 
 func main() {
-	url := "https://example.com"
-
-	payload := &bytes.Buffer{}
-	writer := multipart.NewWriter(payload)
-
-	part, _ := writer.CreateFormFile("file", "test.txt")
+	var b bytes.Buffer
+	w := multipart.NewWriter(&b)
 
 	f, _ := os.Open("test.txt")
 	defer f.Close()
 
-	_, _ = io.Copy(part, f)
+	fw, _ := w.CreateFormFile("file", "test.txt")
+	_, _ = fw.Write([]byte("file content"))
 
-	_ = writer.WriteField("field", "value")
-	writer.Close()
+	w.WriteField("field", "value")
+	w.Close()
 
-	req, _ := http.NewRequest("POST", url, payload)
+	req, _ := http.NewRequest("POST", "https://example.com", &b)
+	req.Header.Set("Content-Type", w.FormDataContentType())
 
-	req.Header.Set("Content-Type", writer.FormDataContentType())
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -178,28 +160,21 @@ func main() {
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"strings"
 )
 
 func main() {
-	url := "https://example.com"
+	data := url.Values{}
+	data.Set("special chars!@#", "value")
 
-	postData := url.Values{}
-	postData.Set("special chars!@#", "value")
-
-	req, _ := http.NewRequest("POST", url, strings.NewReader(postData.Encode()))
-
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.Post("https://example.com", "application/x-www-form-urlencoded", strings.NewReader(data.Encode()))
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -219,26 +194,17 @@ func main() {
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 	"strings"
 )
 
 func main() {
-	url := "https://example.com"
-
-	payload := strings.NewReader("binary content")
-
-	req, _ := http.NewRequest("POST", url, payload)
-
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.Post("https://example.com", "application/octet-stream", strings.NewReader("binary content"))
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -253,23 +219,16 @@ func main() {
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 )
 
 func main() {
-	url := "https://example.com/path%20with%20spaces/[brackets]"
-
-	req, _ := http.NewRequest("GET", url, nil)
-
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.Get("https://example.com/path%20with%20spaces/[brackets]")
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -288,25 +247,20 @@ func main() {
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 )
 
 func main() {
-	url := "https://example.com"
-
-	req, _ := http.NewRequest("GET", url, nil)
-
+	req, _ := http.NewRequest("GET", "https://example.com", nil)
+	req.Header.Add("X-Custom", "value1")
 	req.Header.Add("X-Custom", "value2")
 
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -322,25 +276,19 @@ func main() {
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 )
 
 func main() {
-	url := "https://example.com"
+	req, _ := http.NewRequest("GET", "https://example.com", nil)
+	req.Header.Set("X-Empty", "")
 
-	req, _ := http.NewRequest("GET", url, nil)
-
-	req.Header.Add("X-Empty", "")
-
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -355,23 +303,16 @@ func main() {
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 )
 
 func main() {
-	url := "https://example.com/api?param1=value1&param2=special%20value&param3=123"
-
-	req, _ := http.NewRequest("GET", url, nil)
-
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.Get("https://example.com/api?param1=value1&param2=special%20value&param3=123")
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -387,23 +328,16 @@ func main() {
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 )
 
 func main() {
-	url := "https://example.com"
-
-	req, _ := http.NewRequest("GET", url, nil)
-
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.Get("https://example.com")
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -433,7 +367,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 )
 
@@ -442,25 +375,15 @@ type Request struct {
 }
 
 func main() {
-	url := "https://example.com"
-
-	payload := Request
-	payload = Request{
-	Hello: "world",
-}
+	payload := Request{Hello: "world"}
 	jsonData, _ := json.Marshal(payload)
-	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 
-	req.Header.Set("Content-Type", "application/json")
-
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.Post("https://example.com", "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -485,23 +408,16 @@ func main() {
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 )
 
 func main() {
-	url := "https://example.com/?foo=bar&bar=foo"
-
-	req, _ := http.NewRequest("GET", url, nil)
-
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.Get("https://example.com/?foo=bar&bar=foo")
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -526,24 +442,19 @@ func main() {
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 )
 
 func main() {
-	url := "https://example.com"
+	req, _ := http.NewRequest("GET", "https://example.com", nil)
+	req.Header.Set("Cookie", "foo=bar; bar=foo")
 
-	req, _ := http.NewRequest("GET", url, nil)
-
-	req.Header.Add("Cookie", "foo=bar; bar=foo")
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -559,23 +470,16 @@ func main() {
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 )
 
 func main() {
-	url := "https://example.com"
-
-	req, _ := http.NewRequest("GET", url, nil)
-
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.Get("https://example.com")
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -598,24 +502,19 @@ func main() {
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 )
 
 func main() {
-	url := "https://example.com"
-
-	req, _ := http.NewRequest("GET", url, nil)
-
+	req, _ := http.NewRequest("GET", "https://example.com", nil)
 	req.SetBasicAuth("user", "pass")
-	res, _ := http.DefaultClient.Do(req)
 
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -630,23 +529,16 @@ func main() {
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 )
 
 func main() {
-	url := "https://example.com"
-
-	req, _ := http.NewRequest("GET", url, nil)
-
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.Get("https://example.com")
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -669,23 +561,16 @@ func main() {
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 )
 
 func main() {
-	url := "https://example.com"
-
-	req, _ := http.NewRequest("GET", url, nil)
-
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.Get("https://example.com")
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -708,23 +593,16 @@ func main() {
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 )
 
 func main() {
-	url := "https://example.com"
-
-	req, _ := http.NewRequest("GET", url, nil)
-
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.Get("https://example.com")
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -747,24 +625,19 @@ func main() {
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 )
 
 func main() {
-	url := "https://example.com"
-
-	req, _ := http.NewRequest("GET", url, nil)
-
+	req, _ := http.NewRequest("GET", "https://example.com", nil)
 	req.SetBasicAuth("user@example.com", "pass:word!")
-	res, _ := http.DefaultClient.Do(req)
 
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -784,23 +657,16 @@ func main() {
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 )
 
 func main() {
-	url := "https://example.com"
-
-	req, _ := http.NewRequest("GET", url, nil)
-
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.Get("https://example.com")
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -829,29 +695,23 @@ func main() {
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"net/http"
 )
 
 func main() {
-	url := "https://example.com"
-
 	payload := bytes.NewBuffer([]byte(\`{
   "foo": "bar"
 }\`))
 
-	req, _ := http.NewRequest("POST", url, payload)
-
+	req, _ := http.NewRequest("POST", "https://example.com", payload)
 	req.Header.Set("Content-Type", "multipart/form-data")
 
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -872,24 +732,19 @@ func main() {
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 )
 
 func main() {
-	url := "https://example.com"
+	req, _ := http.NewRequest("GET", "https://example.com", nil)
+	req.Header.Set("Accept-Encoding", "gzip, deflate")
 
-	req, _ := http.NewRequest("GET", url, nil)
-
-	req.Header.Add("Accept-Encoding", "gzip, deflate")
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -914,23 +769,16 @@ func main() {
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 )
 
 func main() {
-	url := "https://example.com?q=hello%20world%20%26%20more&special=%21%40%23%24%25%5E%26*%28%29"
-
-	req, _ := http.NewRequest("GET", url, nil)
-
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.Get("https://example.com?q=hello%20world%20%26%20more&special=%21%40%23%24%25%5E%26*%28%29")
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -945,23 +793,16 @@ func main() {
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 )
 
 func main() {
-	url := ""
-
-	req, _ := http.NewRequest("GET", url, nil)
-
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.Get("")
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -976,23 +817,16 @@ func main() {
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 )
 
 func main() {
-	url := "https://example.com/${'a'.repeat(2000)}"
-
-	req, _ := http.NewRequest("GET", url, nil)
-
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.Get("https://example.com/${'a'.repeat(2000)}")
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -1018,37 +852,32 @@ func main() {
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"mime/multipart"
 	"net/http"
+	"os"
 )
 
 func main() {
-	url := "https://example.com"
-
-	payload := &bytes.Buffer{}
-	writer := multipart.NewWriter(payload)
-
-	part, _ := writer.CreateFormFile("file", "")
+	var b bytes.Buffer
+	w := multipart.NewWriter(&b)
 
 	f, _ := os.Open("")
 	defer f.Close()
 
-	_, _ = io.Copy(part, f)
+	fw, _ := w.CreateFormFile("file", "")
+	_, _ = fw.Write([]byte("file content"))
 
-	writer.Close()
+	w.Close()
 
-	req, _ := http.NewRequest("POST", url, payload)
+	req, _ := http.NewRequest("POST", "https://example.com", &b)
+	req.Header.Set("Content-Type", w.FormDataContentType())
 
-	req.Header.Set("Content-Type", writer.FormDataContentType())
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -1079,37 +908,35 @@ func main() {
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 )
 
+type Request struct {
+	Key    string \`json:"key"\`
+	Nested struct {
+		Array []string \`json:"array"\`
+	} \`json:"nested"\`
+}
+
 func main() {
-	url := "https://example.com"
+	payload := Request{
+		Key: "\"quotes\" and \\\\backslashes\\\\",
+		Nested: struct {
+			Array []string \`json:"array"\`
+		}{
+			Array: []string{"item1", "", ""},
+		},
+	}
+	jsonData, _ := json.Marshal(payload)
 
-	payload := bytes.NewBuffer([]byte(\`{
-  "key": "\\"quotes\\" and \\\\backslashes\\\\",
-  "nested": {
-    "array": [
-      "item1",
-      null,
-      null
-    ]
-  }
-}\`))
-
-	req, _ := http.NewRequest("POST", url, payload)
-
-	req.Header.Set("Content-Type", "application/json")
-
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.Post("https://example.com", "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -1130,24 +957,19 @@ func main() {
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 )
 
 func main() {
-	url := "https://example.com"
+	req, _ := http.NewRequest("GET", "https://example.com", nil)
+	req.Header.Set("Cookie", "special%3Bcookie=value%20with%20spaces")
 
-	req, _ := http.NewRequest("GET", url, nil)
-
-	req.Header.Add("Cookie", "special%3Bcookie=value%20with%20spaces")
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -1222,23 +1044,16 @@ func main() {
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 )
 
 func main() {
-	url := "https://example.com/path$with$dollars"
-
-	req, _ := http.NewRequest("GET", url, nil)
-
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.Get("https://example.com/path$with$dollars")
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -1263,23 +1078,16 @@ func main() {
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 )
 
 func main() {
-	url := "https://example.com/?price=%24100&currency=USD%24"
-
-	req, _ := http.NewRequest("GET", url, nil)
-
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.Get("https://example.com/?price=%24100&currency=USD%24")
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -1300,23 +1108,16 @@ func main() {
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 )
 
 func main() {
-	url := "https://example.com/api$v1/prices?amount=%2450.00"
-
-	req, _ := http.NewRequest("GET", url, nil)
-
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.Get("https://example.com/api$v1/prices?amount=%2450.00")
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })

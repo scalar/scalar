@@ -17,6 +17,33 @@ export const goNative: Plugin = {
     const method = (normalizedRequest.method || 'GET').toUpperCase()
     const url = buildUrl(normalizedRequest.url || '', normalizedRequest.queryString)
 
+    // Check if this is a simple GET request that can use http.Get()
+    const isSimpleGet =
+      method === 'GET' &&
+      !normalizedRequest.postData &&
+      (!normalizedRequest.headers || normalizedRequest.headers.length === 0) &&
+      (!normalizedRequest.cookies || normalizedRequest.cookies.length === 0) &&
+      !options?.auth
+
+    if (isSimpleGet) {
+      return `package main
+
+import (
+	"fmt"
+	"net/http"
+)
+
+func main() {
+	res, err := http.Get("${escapeString(url)}")
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	defer res.Body.Close()
+}`
+    }
+
+    // For complex requests, use http.NewRequest approach
     // Determine required imports
     const imports = new Set(['fmt', 'io', 'net/http'])
 
@@ -84,7 +111,7 @@ export const goNative: Plugin = {
 
             // Store struct definitions separately to be added before main function
             requestBody = `${indent('payload := Request')}\n`
-            requestBody += `${indent('payload = Request' + initialization)}\n`
+            requestBody += `${indent('payload = ' + initialization)}\n`
             requestBody += `${indent('jsonData, _ := json.Marshal(payload)')}\n`
             requestBody += `${indent('req, _ := http.NewRequest("' + method + '", url, bytes.NewBuffer(jsonData))')}\n\n`
             contentTypeHeader = `${indent('req.Header.Set("Content-Type", "application/json")')}\n`
@@ -181,10 +208,6 @@ ${mainFunctionBody}${contentTypeHeader}${headersCode}${authCode}${indent('res, _
 
 ${indent('defer res.Body.Close()')}
 ${indent('body, _ := io.ReadAll(res.Body)')}
-
-${indent('fmt.Println(res)')}
-${indent('fmt.Println(string(body))')}
-
 }`
   },
 }
@@ -193,14 +216,13 @@ ${indent('fmt.Println(string(body))')}
  * Builds the URL with query parameters
  */
 function buildUrl(url: string, queryString?: Array<{ name: string; value: string }>): string {
-  if (!queryString || queryString.length === 0) {
-    return url
-  }
-
   const urlObj = new URL(url)
-  queryString.forEach(({ name, value }) => {
-    urlObj.searchParams.set(name, value)
-  })
+
+  if (queryString && queryString.length > 0) {
+    queryString.forEach(({ name, value }) => {
+      urlObj.searchParams.set(name, value)
+    })
+  }
 
   // Convert + back to %20 for spaces to match expected output
   return urlObj.toString().replace(/\+/g, '%20')
@@ -248,27 +270,51 @@ function formatJson(jsonText: string): string {
 }
 
 /**
- * Generates Go struct definitions from JSON data
+ * Abstract tree structure for Go types
+ */
+type GoTypeNode = {
+  kind: 'primitive' | 'struct' | 'array' | 'inline_struct'
+  name?: string
+  goType: string
+  fields?: GoFieldNode[]
+  elementType?: GoTypeNode
+  jsonTag?: string
+}
+
+type GoFieldNode = {
+  name: string
+  type: GoTypeNode
+  jsonTag: string
+}
+
+type StructDefinition = {
+  name: string
+  fields: GoFieldNode[]
+}
+
+/**
+ * Generates Go struct definitions from JSON data using abstract tree approach
  */
 function generateGoStructs(jsonData: any, structName: string = 'Request'): { structs: string; initialization: string } {
-  const structs: string[] = []
+  const structDefinitions: StructDefinition[] = []
+  const typeRegistry = new Map<string, GoTypeNode>()
 
-  // Generate structs in the correct order based on the test expectation
-  // First: RequestNestedObject (for the object field)
-  if (jsonData.nested?.object) {
-    structs.push(generateStructDefinition('RequestNestedObject', jsonData.nested.object))
+  // Build the abstract tree - create separate structs for nested objects
+  const _rootType = buildTypeTreeWithSeparateStructs(jsonData, structName, structDefinitions, typeRegistry)
+
+  // Add the main struct definition with separate structs
+  const mainStructFields = generateMainStructFields(jsonData, structName, structDefinitions, typeRegistry)
+  const mainStructDef: StructDefinition = {
+    name: structName,
+    fields: mainStructFields,
   }
+  structDefinitions.push(mainStructDef)
 
-  // Second: RequestNested (for the nested field)
-  if (jsonData.nested) {
-    structs.push(generateStructDefinition('RequestNested', jsonData.nested))
-  }
+  // Generate struct definitions in dependency order
+  const structs = generateStructDefinitions(structDefinitions)
 
-  // Third: Request (main struct)
-  structs.push(generateMainStructDefinition(jsonData, structName))
-
-  // Generate initialization
-  const initialization = generateStructInitialization(jsonData, structName, 0)
+  // Generate initialization with separate structs
+  const initialization = generateMainStructInitialization(jsonData, structName, structDefinitions, typeRegistry)
 
   return {
     structs: structs.join('\n\n'),
@@ -276,101 +322,408 @@ function generateGoStructs(jsonData: any, structName: string = 'Request'): { str
   }
 }
 
-function generateStructDefinition(structName: string, data: any): string {
-  const fields: string[] = []
-
-  if (typeof data === 'object' && data !== null && !Array.isArray(data)) {
-    for (const [key, value] of Object.entries(data)) {
-      const fieldName = capitalizeFirst(key)
-      const fieldType = getGoType(value)
-      const jsonTag = `\`json:"${key}"\``
-      fields.push(`\t${fieldName} ${fieldType} ${jsonTag}`)
-    }
+/**
+ * Builds the abstract type tree with separate structs for nested objects
+ */
+function buildTypeTreeWithSeparateStructs(
+  data: any,
+  structName: string,
+  structDefinitions: StructDefinition[],
+  typeRegistry: Map<string, GoTypeNode>,
+): GoTypeNode {
+  if (data === null || data === undefined) {
+    return { kind: 'primitive', goType: 'interface{}' }
   }
 
-  return `type ${structName} struct {
-${fields.join('\n')}
-}`
-}
-
-function generateMainStructDefinition(data: any, structName: string): string {
-  const fields: string[] = []
-
-  if (typeof data === 'object' && data !== null && !Array.isArray(data)) {
-    for (const [key, value] of Object.entries(data)) {
-      const fieldName = capitalizeFirst(key)
-      const fieldType = getGoTypeForMainStruct(value)
-      const jsonTag = `\`json:"${key}"\``
-      fields.push(`\t${fieldName} ${fieldType} ${jsonTag}`)
-    }
+  if (typeof data === 'string') {
+    return { kind: 'primitive', goType: 'string' }
   }
 
-  return `type ${structName} struct {
-${fields.join('\n')}
-}`
-}
-
-function getGoTypeForMainStruct(value: any): string {
-  if (value === null || value === undefined) {
-    return 'interface{}'
-  }
-  if (typeof value === 'string') {
-    return 'string'
-  }
-  if (typeof value === 'number') {
-    return Number.isInteger(value) ? 'int' : 'float64'
-  }
-  if (typeof value === 'boolean') {
-    return 'bool'
-  }
-  if (Array.isArray(value)) {
-    if (value.length === 0) {
-      return '[]interface{}'
-    }
-    return `[]${getGoTypeForMainStruct(value[0])}`
-  }
-  if (typeof value === 'object' && value !== null) {
-    // Use inline struct definition for the main struct
-    return `struct {
-\t\t${Object.entries(value)
-      .map(([k, v]) => `${capitalizeFirst(k)} ${getGoTypeForMainStruct(v)} \`json:"${k}"\``)
-      .join('\n\t\t')}
-\t}`
+  if (typeof data === 'number') {
+    return { kind: 'primitive', goType: Number.isInteger(data) ? 'int' : 'float64' }
   }
 
-  return 'interface{}'
-}
+  if (typeof data === 'boolean') {
+    return { kind: 'primitive', goType: 'bool' }
+  }
 
-function generateStructInitialization(data: any, structName: string, indentLevel: number): string {
   if (Array.isArray(data)) {
     if (data.length === 0) {
-      return `[]${getGoType(data[0] || null)}{}`
+      return { kind: 'array', goType: '[]interface{}', elementType: { kind: 'primitive', goType: 'interface{}' } }
     }
-    // Format arrays as single line: []int{1, 2, 3}
-    const elements = data.map((item) => generateValueInitialization(item, 0)).join(', ')
-    return `[]${getGoType(data[0])}{${elements}}`
+    const elementType = buildTypeTreeWithSeparateStructs(data[0], '', structDefinitions, typeRegistry)
+    return { kind: 'array', goType: `[]${elementType.goType}`, elementType }
   }
+
   if (typeof data === 'object' && data !== null) {
-    const fields: string[] = []
-
-    for (const [key, value] of Object.entries(data)) {
-      const fieldName = capitalizeFirst(key)
-      const valueStr = generateValueInitialization(value, indentLevel + 1)
-      fields.push(`\t${'\t'.repeat(indentLevel)}${fieldName}: ${valueStr}`)
+    // For the main struct, create separate struct definitions for nested objects
+    if (structName) {
+      return buildMainStructType(data, structName, structDefinitions, typeRegistry)
     }
-
-    return `{
-${fields.join(',\n')},
-${'\t'.repeat(indentLevel)}}`
+    // For inline structs, create inline struct type
+    return buildInlineStructType(data, structDefinitions, typeRegistry)
   }
 
-  return generateValueInitialization(data, indentLevel)
+  return { kind: 'primitive', goType: 'interface{}' }
 }
 
-function generateValueInitialization(value: any, indentLevel: number): string {
-  if (value === null || value === undefined) {
+/**
+ * Builds the abstract type tree from JSON data
+ */
+function buildTypeTree(
+  data: any,
+  structName: string,
+  structDefinitions: StructDefinition[],
+  typeRegistry: Map<string, GoTypeNode>,
+): GoTypeNode {
+  if (data === null || data === undefined) {
+    return { kind: 'primitive', goType: 'interface{}' }
+  }
+
+  if (typeof data === 'string') {
+    return { kind: 'primitive', goType: 'string' }
+  }
+
+  if (typeof data === 'number') {
+    return { kind: 'primitive', goType: Number.isInteger(data) ? 'int' : 'float64' }
+  }
+
+  if (typeof data === 'boolean') {
+    return { kind: 'primitive', goType: 'bool' }
+  }
+
+  if (Array.isArray(data)) {
+    if (data.length === 0) {
+      return { kind: 'array', goType: '[]interface{}', elementType: { kind: 'primitive', goType: 'interface{}' } }
+    }
+    const elementType = buildTypeTree(data[0], '', structDefinitions, typeRegistry)
+    return { kind: 'array', goType: `[]${elementType.goType}`, elementType }
+  }
+
+  if (typeof data === 'object' && data !== null) {
+    // For the main struct, we need to create separate struct definitions for nested objects
+    if (structName) {
+      return buildStructType(data, structName, structDefinitions, typeRegistry)
+    }
+    // For inline structs, create inline struct type
+    return buildInlineStructType(data, structDefinitions, typeRegistry)
+  }
+
+  return { kind: 'primitive', goType: 'interface{}' }
+}
+
+/**
+ * Generates fields for the main struct with separate structs
+ */
+function generateMainStructFields(
+  data: any,
+  structName: string,
+  structDefinitions: StructDefinition[],
+  typeRegistry: Map<string, GoTypeNode>,
+): GoFieldNode[] {
+  const fields: GoFieldNode[] = []
+
+  for (const [key, value] of Object.entries(data)) {
+    const fieldName = capitalizeFirst(key)
+
+    // For nested objects, create separate struct definitions and reference them
+    let fieldType: GoTypeNode
+    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+      const nestedStructName = `${structName}${fieldName}`
+      // Create separate struct definition
+      buildStructType(value, nestedStructName, structDefinitions, typeRegistry)
+      // Reference the separate struct type
+      fieldType = {
+        kind: 'struct',
+        name: nestedStructName,
+        goType: nestedStructName,
+      }
+    } else {
+      fieldType = buildTypeTreeWithSeparateStructs(value, '', structDefinitions, typeRegistry)
+    }
+
+    const jsonTag = `json:"${key}"`
+
+    fields.push({
+      name: fieldName,
+      type: fieldType,
+      jsonTag,
+    })
+  }
+
+  return fields
+}
+
+/**
+ * Builds the main struct type with separate structs for nested objects
+ */
+function buildMainStructType(
+  data: any,
+  structName: string,
+  structDefinitions: StructDefinition[],
+  typeRegistry: Map<string, GoTypeNode>,
+): GoTypeNode {
+  const fields: GoFieldNode[] = []
+
+  for (const [key, value] of Object.entries(data)) {
+    const fieldName = capitalizeFirst(key)
+
+    // For nested objects, create separate struct definitions
+    let fieldType: GoTypeNode
+    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+      const nestedStructName = `${structName}${fieldName}`
+      fieldType = buildStructType(value, nestedStructName, structDefinitions, typeRegistry)
+    } else {
+      fieldType = buildTypeTreeWithSeparateStructs(value, '', structDefinitions, typeRegistry)
+    }
+
+    const jsonTag = `json:"${key}"`
+
+    fields.push({
+      name: fieldName,
+      type: fieldType,
+      jsonTag,
+    })
+  }
+
+  // For the main struct, use separate struct definition
+  return {
+    kind: 'struct',
+    name: structName,
+    goType: structName,
+    fields,
+  }
+}
+
+/**
+ * Builds a struct type with proper dependency handling
+ */
+function buildStructType(
+  data: any,
+  structName: string,
+  structDefinitions: StructDefinition[],
+  typeRegistry: Map<string, GoTypeNode>,
+): GoTypeNode {
+  const fields: GoFieldNode[] = []
+
+  for (const [key, value] of Object.entries(data)) {
+    const fieldName = capitalizeFirst(key)
+
+    // For nested objects, create separate struct definitions
+    let fieldType: GoTypeNode
+    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+      const nestedStructName = `${structName}${fieldName}`
+      fieldType = buildStructType(value, nestedStructName, structDefinitions, typeRegistry)
+    } else {
+      fieldType = buildTypeTree(value, '', structDefinitions, typeRegistry)
+    }
+
+    const jsonTag = `json:"${key}"`
+
+    fields.push({
+      name: fieldName,
+      type: fieldType,
+      jsonTag,
+    })
+  }
+
+  const structDef: StructDefinition = {
+    name: structName,
+    fields,
+  }
+
+  structDefinitions.push(structDef)
+
+  return {
+    kind: 'struct',
+    name: structName,
+    goType: structName,
+    fields,
+  }
+}
+
+/**
+ * Builds an inline struct type
+ */
+function buildInlineStructType(
+  data: any,
+  structDefinitions: StructDefinition[],
+  typeRegistry: Map<string, GoTypeNode>,
+): GoTypeNode {
+  const fields: GoFieldNode[] = []
+
+  for (const [key, value] of Object.entries(data)) {
+    const fieldName = capitalizeFirst(key)
+    const fieldType = buildTypeTree(value, '', structDefinitions, typeRegistry)
+    const jsonTag = `json:"${key}"`
+
+    fields.push({
+      name: fieldName,
+      type: fieldType,
+      jsonTag,
+    })
+  }
+
+  return {
+    kind: 'inline_struct',
+    goType: 'struct',
+    fields,
+  }
+}
+
+/**
+ * Generates struct definitions with proper formatting and alignment
+ */
+function generateStructDefinitions(structDefinitions: StructDefinition[]): string[] {
+  // Sort structs by dependency order (nested structs first)
+  const sortedStructs = sortStructsByDependency(structDefinitions)
+
+  return sortedStructs.map((structDef) => renderStructDefinition(structDef))
+}
+
+/**
+ * Sorts structs by dependency order to ensure nested structs are defined first
+ */
+function sortStructsByDependency(structDefinitions: StructDefinition[]): StructDefinition[] {
+  const sorted: StructDefinition[] = []
+  const visited = new Set<string>()
+
+  function visit(structDef: StructDefinition) {
+    if (visited.has(structDef.name)) {
+      return
+    }
+
+    visited.add(structDef.name)
+
+    // First, visit dependencies
+    for (const field of structDef.fields) {
+      if (field.type.kind === 'struct' && field.type.name) {
+        const dependency = structDefinitions.find((s) => s.name === field.type.name)
+        if (dependency && !visited.has(dependency.name)) {
+          visit(dependency)
+        }
+      }
+    }
+
+    sorted.push(structDef)
+  }
+
+  for (const structDef of structDefinitions) {
+    visit(structDef)
+  }
+
+  return sorted
+}
+
+/**
+ * Renders a struct definition with proper alignment
+ */
+function renderStructDefinition(structDef: StructDefinition): string {
+  if (structDef.fields.length === 0) {
+    return `type ${structDef.name} struct {
+}`
+  }
+
+  // Calculate the maximum field name length for alignment
+  const maxFieldNameLength = Math.max(...structDef.fields.map((field) => field.name.length))
+
+  const fieldLines = structDef.fields.map((field) => {
+    const fieldType = renderTypeForStruct(field.type)
+    const jsonTag = `\`${field.jsonTag}\``
+
+    // Align field names with tabs, then align types
+    const fieldName = field.name.padEnd(maxFieldNameLength)
+    return `\t${fieldName}\t${fieldType} ${jsonTag}`
+  })
+
+  return `type ${structDef.name} struct {
+${fieldLines.join('\n')}
+}`
+}
+
+/**
+ * Renders a type for use in struct definitions
+ */
+function renderTypeForStruct(typeNode: GoTypeNode): string {
+  switch (typeNode.kind) {
+    case 'primitive':
+      return typeNode.goType
+    case 'array':
+      return typeNode.goType
+    case 'struct':
+      return typeNode.goType
+    case 'inline_struct':
+      return renderInlineStruct(typeNode)
+    default:
+      return 'interface{}'
+  }
+}
+
+/**
+ * Renders an inline struct with proper formatting
+ */
+function renderInlineStruct(typeNode: GoTypeNode): string {
+  if (!typeNode.fields || typeNode.fields.length === 0) {
+    return 'struct {}'
+  }
+
+  // Calculate the maximum field name length for alignment
+  const maxFieldNameLength = Math.max(...typeNode.fields.map((field) => field.name.length))
+
+  const fieldLines = typeNode.fields.map((field) => {
+    const fieldType = renderTypeForStruct(field.type)
+    const jsonTag = `\`${field.jsonTag}\``
+
+    // Align field names with tabs, then align types
+    const fieldName = field.name.padEnd(maxFieldNameLength)
+    return `\t\t${fieldName}\t${fieldType} ${jsonTag}`
+  })
+
+  return `struct {
+${fieldLines.join('\n')}
+\t}`
+}
+
+/**
+ * Generates struct initialization from the abstract tree
+ */
+function generateStructInitializationFromTree(
+  data: any,
+  typeNode: GoTypeNode,
+  indentLevel: number,
+  structName?: string,
+): string {
+  if (data === null || data === undefined) {
     return 'nil'
   }
+
+  if (typeNode.kind === 'primitive') {
+    return generatePrimitiveValue(data)
+  }
+
+  if (typeNode.kind === 'array') {
+    return generateArrayInitialization(data, typeNode)
+  }
+
+  if (typeNode.kind === 'struct') {
+    return generateStructInitialization(data, typeNode, indentLevel)
+  }
+
+  if (typeNode.kind === 'inline_struct') {
+    // If this is the main struct, use the struct name instead of inline struct
+    if (structName) {
+      return generateStructInitializationWithName(data, typeNode, indentLevel, structName)
+    }
+    return generateInlineStructInitialization(data, typeNode, indentLevel)
+  }
+
+  return 'nil'
+}
+
+/**
+ * Generates primitive value initialization
+ */
+function generatePrimitiveValue(value: any): string {
   if (typeof value === 'string') {
     return `"${escapeString(value)}"`
   }
@@ -380,22 +733,130 @@ function generateValueInitialization(value: any, indentLevel: number): string {
   if (typeof value === 'boolean') {
     return value.toString()
   }
+  return 'nil'
+}
+
+/**
+ * Generates array initialization
+ */
+function generateArrayInitialization(data: any[], typeNode: GoTypeNode): string {
+  if (data.length === 0) {
+    return `${typeNode.goType}{}`
+  }
+
+  const elements = data.map((item) => generateStructInitializationFromTree(item, typeNode.elementType!, 0)).join(', ')
+  return `${typeNode.goType}{${elements}}`
+}
+
+/**
+ * Generates struct initialization
+ */
+function generateStructInitialization(data: any, typeNode: GoTypeNode, indentLevel: number): string {
+  if (!typeNode.fields || typeNode.fields.length === 0) {
+    return `${typeNode.goType}{}`
+  }
+
+  const fields: string[] = []
+  const indent = '\t'.repeat(indentLevel + 1)
+
+  for (const field of typeNode.fields) {
+    const fieldData = data[field.jsonTag.replace('json:', '').replace(/"/g, '')]
+    const valueStr = generateStructInitializationFromTree(fieldData, field.type, indentLevel + 1)
+    fields.push(`${indent}${field.name}: ${valueStr}`)
+  }
+
+  return `${typeNode.goType}{
+${fields.join(',\n')},
+${'\t'.repeat(indentLevel)}}`
+}
+
+/**
+ * Generates main struct initialization with separate structs
+ */
+function generateMainStructInitialization(
+  data: any,
+  structName: string,
+  structDefinitions: StructDefinition[],
+  typeRegistry: Map<string, GoTypeNode>,
+): string {
+  if (typeof data !== 'object' || data === null || Array.isArray(data)) {
+    return `${structName}{}`
+  }
+
+  const fields: string[] = []
+  const indent = '\t'
+
+  for (const [key, value] of Object.entries(data)) {
+    const fieldName = capitalizeFirst(key)
+    const valueStr = generateMainStructFieldInitialization(value, key, structName, structDefinitions, typeRegistry, 1)
+    fields.push(`${indent}${fieldName}: ${valueStr}`)
+  }
+
+  return `${structName}{
+${fields.join(',\n')},
+}`
+}
+
+/**
+ * Generates initialization for a field in the main struct
+ */
+function generateMainStructFieldInitialization(
+  value: any,
+  fieldKey: string,
+  parentStructName: string,
+  structDefinitions: StructDefinition[],
+  typeRegistry: Map<string, GoTypeNode>,
+  indentLevel: number,
+): string {
+  if (value === null || value === undefined) {
+    return 'nil'
+  }
+
+  if (typeof value === 'string') {
+    return `"${escapeString(value)}"`
+  }
+
+  if (typeof value === 'number') {
+    return value.toString()
+  }
+
+  if (typeof value === 'boolean') {
+    return value.toString()
+  }
+
   if (Array.isArray(value)) {
     if (value.length === 0) {
-      return `[]${getGoType(null)}{}`
+      return '[]interface{}{}'
     }
-    // Format arrays as single line: []int{1, 2, 3}
-    const elements = value.map((item) => generateValueInitialization(item, 0)).join(', ')
-    return `[]${getGoType(value[0])}{${elements}}`
+    const elementType = buildTypeTreeWithSeparateStructs(value[0], '', structDefinitions, typeRegistry)
+    const elements = value
+      .map((item) =>
+        generateMainStructFieldInitialization(item, '', parentStructName, structDefinitions, typeRegistry, 0),
+      )
+      .join(', ')
+    return `[]${elementType.goType}{${elements}}`
   }
+
   if (typeof value === 'object' && value !== null) {
+    // Use separate struct initialization
+    const nestedStructName = `${parentStructName}${capitalizeFirst(fieldKey)}`
     const fields: string[] = []
+    const indent = '\t'.repeat(indentLevel + 1)
+
     for (const [key, val] of Object.entries(value)) {
       const fieldName = capitalizeFirst(key)
-      const valueStr = generateValueInitialization(val, indentLevel + 1)
-      fields.push(`\t${'\t'.repeat(indentLevel)}${fieldName}: ${valueStr}`)
+      const valueStr = generateMainStructFieldInitialization(
+        val,
+        key,
+        nestedStructName,
+        structDefinitions,
+        typeRegistry,
+        indentLevel + 1,
+      )
+      fields.push(`${indent}${fieldName}: ${valueStr}`)
     }
-    return `struct {
+
+    return `${nestedStructName}{
 ${fields.join(',\n')},
 ${'\t'.repeat(indentLevel)}}`
   }
@@ -404,32 +865,52 @@ ${'\t'.repeat(indentLevel)}}`
 }
 
 /**
- * Converts JavaScript type to Go type
+ * Generates struct initialization with a specific struct name
  */
-function getGoType(value: any): string {
-  if (value === null || value === undefined) {
-    return 'interface{}'
-  }
-  if (typeof value === 'string') {
-    return 'string'
-  }
-  if (typeof value === 'number') {
-    return Number.isInteger(value) ? 'int' : 'float64'
-  }
-  if (typeof value === 'boolean') {
-    return 'bool'
-  }
-  if (Array.isArray(value)) {
-    if (value.length === 0) {
-      return '[]interface{}'
-    }
-    return `[]${getGoType(value[0])}`
-  }
-  if (typeof value === 'object') {
-    return 'struct{}'
+function generateStructInitializationWithName(
+  data: any,
+  typeNode: GoTypeNode,
+  indentLevel: number,
+  structName: string,
+): string {
+  if (!typeNode.fields || typeNode.fields.length === 0) {
+    return `${structName}{}`
   }
 
-  return 'interface{}'
+  const fields: string[] = []
+  const indent = '\t'.repeat(indentLevel + 1)
+
+  for (const field of typeNode.fields) {
+    const fieldData = data[field.jsonTag.replace('json:', '').replace(/"/g, '')]
+    const valueStr = generateStructInitializationFromTree(fieldData, field.type, indentLevel + 1)
+    fields.push(`${indent}${field.name}: ${valueStr}`)
+  }
+
+  return `${structName}{
+${fields.join(',\n')},
+${'\t'.repeat(indentLevel)}}`
+}
+
+/**
+ * Generates inline struct initialization
+ */
+function generateInlineStructInitialization(data: any, typeNode: GoTypeNode, indentLevel: number): string {
+  if (!typeNode.fields || typeNode.fields.length === 0) {
+    return 'struct {}'
+  }
+
+  const fields: string[] = []
+  const indent = '\t'.repeat(indentLevel + 1)
+
+  for (const field of typeNode.fields) {
+    const fieldData = data[field.jsonTag.replace('json:', '').replace(/"/g, '')]
+    const valueStr = generateStructInitializationFromTree(fieldData, field.type, indentLevel + 1)
+    fields.push(`${indent}${field.name}: ${valueStr}`)
+  }
+
+  return `struct {
+${fields.join(',\n')},
+${'\t'.repeat(indentLevel)}}`
 }
 
 /**
