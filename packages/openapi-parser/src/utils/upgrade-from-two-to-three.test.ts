@@ -1,3 +1,4 @@
+import type { OpenAPIV3 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 
 import { upgradeFromTwoToThree } from './upgrade-from-two-to-three'
@@ -875,7 +876,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('upgrades parameters defined globally and path wide - without body and formData', async () => {
-    const result = upgradeFromTwoToThree({
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       produces: ['application/json'],
       parameters: {
@@ -913,7 +914,7 @@ describe('upgradeFromTwoToThree', () => {
         },
       },
     ])
-    // @ts-ignore
+
     expect(result.components.parameters).toMatchObject({
       globalHeader: {
         description: 'a global defined header',
@@ -928,7 +929,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('upgrades parameters defined globally and path wide - body and formData', async () => {
-    const result = upgradeFromTwoToThree({
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       produces: ['application/json'],
       consumes: ['application/xml'],
@@ -997,7 +998,6 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    // @ts-ignore
     expect(result.components.requestBodies).toStrictEqual({
       planetBody: {
         required: true,
