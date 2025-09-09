@@ -99,7 +99,7 @@ const href = computed((): string | undefined => {
   align-items: center;
   justify-content: center;
   white-space: nowrap;
-  font-size: var(--scalar-mini);
+  font-size: var(--scalar-small);
   font-weight: var(--scalar-semibold);
   line-height: 1.385;
   text-decoration: none;
