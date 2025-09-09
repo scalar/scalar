@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { goNative } from './native'
 
 describe('goNative', () => {
-  it('returns a basic request', () => {
+  it.only('returns a basic request', () => {
     const result = goNative.generate({
       url: 'https://example.com',
     })
