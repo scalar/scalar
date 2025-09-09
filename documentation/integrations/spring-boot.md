@@ -49,14 +49,14 @@ If you're using Spring Boot's parent POM, the dependency management will be hand
 Configure the OpenAPI document URL in your `application.properties`:
 
 ```properties
+# Enable/disable the Scalar API reference (default: false)
+scalar.enabled=true
+
 # The URL of your OpenAPI document
 scalar.url=https://example.com/openapi.json
 
 # Optional: Custom path (default: /scalar)
 scalar.path=/docs
-
-# Optional: Enable/disable (default: true)
-scalar.enabled=true
 ```
 
 Or in `application.yml`:

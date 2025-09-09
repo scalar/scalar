@@ -40,9 +40,9 @@ public class ScalarProperties {
 
     /**
      * Whether the Scalar API Reference is enabled.
-     * Defaults to true.
+     * Defaults to false.
      */
-    private boolean enabled = true;
+    private boolean enabled = false;
 
     /**
      * The path where the API reference will be available.

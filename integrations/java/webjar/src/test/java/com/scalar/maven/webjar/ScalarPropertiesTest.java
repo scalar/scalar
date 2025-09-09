@@ -33,9 +33,9 @@ class ScalarPropertiesTest {
         }
 
         @Test
-        @DisplayName("should be enabled by default")
-        void shouldBeEnabledByDefault() {
-            assertThat(properties.isEnabled()).isTrue();
+        @DisplayName("should be disabled by default")
+        void shouldBeDisabledByDefault() {
+            assertThat(properties.isEnabled()).isFalse();
         }
 
         @Test
