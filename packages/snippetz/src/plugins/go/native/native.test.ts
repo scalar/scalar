@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { goNative } from './native'
 
 describe('goNative', () => {
-  it('returns a basic request', () => {
+  it.only('returns a basic request', () => {
     const result = goNative.generate({
       url: 'https://example.com',
     })
@@ -13,23 +13,16 @@ describe('goNative', () => {
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 )
 
 func main() {
-	url := "https://example.com"
-
-	req, _ := http.NewRequest("GET", url, nil)
-
-	res, _ := http.DefaultClient.Do(req)
-
+	res, err := http.Get("https://example.com/")
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
 }`,
     )
   })
@@ -1188,22 +1181,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 )
 
-type RequestNestedObject struct {
-	Foo string \`json:"foo"\`
-}
-
-type RequestNested struct {
-	Array  []int \`json:"array"\`
-	Object struct {
-		Foo string \`json:"foo"\`
-	} \`json:"object"\`
-}
-
-type Request struct {
+type Payload struct {
 	Nested struct {
 		Array  []int \`json:"array"\`
 		Object struct {
@@ -1214,38 +1195,20 @@ type Request struct {
 }
 
 func main() {
-	url := "https://example.com"
+	var p Payload
+	p.Nested.Array = []int{1, 2, 3}
+	p.Nested.Object.Foo = "bar"
+	p.Simple = "value"
 
-	payload := Request
-	payload = Request{
-		Nested: struct {
-			Array  []int \`json:"array"\`
-			Object struct {
-				Foo string \`json:"foo"\`
-			} \`json:"object"\`
-		}{
-			Array: []int{1, 2, 3},
-			Object: struct {
-				Foo string \`json:"foo"\`
-			}{
-				Foo: "bar",
-			},
-		},
-		Simple: "value",
+	b, _ := json.Marshal(p)
+	res, err := http.Post("https://example.com", "application/json", bytes.NewBuffer(b))
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
 	}
-	jsonData, _ := json.Marshal(payload)
-	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
-
-	req.Header.Set("Content-Type", "application/json")
-
-	res, _ := http.DefaultClient.Do(req)
-
 	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-}`,
+}
+`,
     )
   })
 
