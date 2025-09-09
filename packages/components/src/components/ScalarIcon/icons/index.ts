@@ -90,6 +90,7 @@ export const ICONS = [
   'programming-language-csharp',
   'programming-language-css3',
   'programming-language-dart',
+  'programming-language-fsharp',
   'programming-language-go',
   'programming-language-html5',
   'programming-language-http',
