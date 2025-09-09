@@ -1,50 +1,6 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
 /**
- * Escapes a string for use in Go double-quoted strings
- */
-function escapeForGoString(str: string | undefined): string {
-  if (!str) {
-    return ''
-  }
-  return str
-    .replace(/\\/g, '\\\\')
-    .replace(/"/g, '\\"')
-    .replace(/\n/g, '\\n')
-    .replace(/\r/g, '\\r')
-    .replace(/\t/g, '\\t')
-}
-
-/**
- * Formats JSON with proper indentation for Go code
- */
-function formatJsonForGo(jsonText: string): string {
-  try {
-    const parsed = JSON.parse(jsonText)
-    return JSON.stringify(parsed, null, 2).replace(/"/g, '\\"').replace(/\n/g, '\\n')
-  } catch {
-    return escapeForGoString(jsonText)
-  }
-}
-
-/**
- * Builds the URL with query parameters
- */
-function buildUrl(url: string, queryString?: Array<{ name: string; value: string }>): string {
-  if (!queryString || queryString.length === 0) {
-    return url
-  }
-
-  const urlObj = new URL(url)
-  queryString.forEach(({ name, value }) => {
-    urlObj.searchParams.set(name, value)
-  })
-
-  // Convert + back to %20 for spaces to match expected output
-  return urlObj.toString().replace(/\+/g, '%20')
-}
-
-/**
  * go/native
  */
 export const goNative: Plugin = {
@@ -83,48 +39,53 @@ export const goNative: Plugin = {
         needsUrl = true
         needsStrings = true
 
-        requestBody = '\tpostData := url.Values{}\n'
+        const requestBodyLines = [indent('postData := url.Values{}')]
         normalizedRequest.postData.params.forEach(({ name, value }) => {
-          requestBody += `\tpostData.Set("${escapeForGoString(name)}", "${escapeForGoString(value)}")\n`
+          requestBodyLines.push(indent(`postData.Set("${escapeString(name)}", "${escapeString(value)}")`))
         })
-        requestBody += `\n\treq, _ := http.NewRequest("${method}", url, strings.NewReader(postData.Encode()))\n\n`
+        requestBodyLines.push(
+          '',
+          indent(`req, _ := http.NewRequest("${method}", url, strings.NewReader(postData.Encode()))`),
+          '',
+        )
+        requestBody = requestBodyLines.join('\n')
       } else if (normalizedRequest.postData.mimeType === 'multipart/form-data' && normalizedRequest.postData.params) {
         needsBytes = true
         needsMultipart = true
         needsOs = true
 
-        requestBody = '\tpayload := &bytes.Buffer{}\n'
-        requestBody += '\twriter := multipart.NewWriter(payload)\n\n'
+        requestBody = `${indent('payload := &bytes.Buffer{}')}\n`
+        requestBody += `${indent('writer := multipart.NewWriter(payload)')}\n\n`
 
         normalizedRequest.postData.params.forEach(({ name, value, fileName }) => {
           if (fileName !== undefined) {
-            requestBody += `\tpart, _ := writer.CreateFormFile("${escapeForGoString(name)}", "${escapeForGoString(fileName)}")\n\n`
-            requestBody += `\tf, _ := os.Open("${escapeForGoString(fileName)}")\n`
-            requestBody += '\tdefer f.Close()\n\n'
-            requestBody += '\t_, _ = io.Copy(part, f)\n\n'
+            requestBody += `${indent(`part, _ := writer.CreateFormFile("${escapeString(name)}", "${escapeString(fileName)}")`)}\n\n`
+            requestBody += `${indent(`f, _ := os.Open("${escapeString(fileName)}")`)}\n`
+            requestBody += `${indent('defer f.Close()')}\n\n`
+            requestBody += `${indent('_, _ = io.Copy(part, f)')}\n\n`
           } else {
-            requestBody += `\t_ = writer.WriteField("${escapeForGoString(name)}", "${escapeForGoString(value)}")\n`
+            requestBody += `${indent(`_ = writer.WriteField("${escapeString(name)}", "${escapeString(value)}")`)}\n`
           }
         })
 
-        requestBody += '\twriter.Close()\n\n'
-        requestBody += `\treq, _ := http.NewRequest("${method}", url, payload)\n\n`
-        contentTypeHeader = `\treq.Header.Set("Content-Type", writer.FormDataContentType())\n`
+        requestBody += `${indent('writer.Close()')}\n\n`
+        requestBody += `${indent(`req, _ := http.NewRequest("${method}", url, payload)`)}\n\n`
+        contentTypeHeader = `${indent('req.Header.Set("Content-Type", writer.FormDataContentType())')}\n`
       } else if (normalizedRequest.postData.text) {
         if (normalizedRequest.postData.mimeType === 'application/json') {
           needsBytes = true
-          const formattedJson = formatJsonForGo(normalizedRequest.postData.text)
-          requestBody = `\tpayload := bytes.NewBuffer([]byte(\`${formattedJson}\`))\n\n`
-          requestBody += `\treq, _ := http.NewRequest("${method}", url, payload)\n\n`
-          contentTypeHeader = `\treq.Header.Set("Content-Type", "application/json")\n`
+          const formattedJson = formatJson(normalizedRequest.postData.text)
+          requestBody = `${indent(`payload := bytes.NewBuffer([]byte(\`${formattedJson}\`))`)}\n\n`
+          requestBody += `${indent(`req, _ := http.NewRequest("${method}", url, payload)`)}\n\n`
+          contentTypeHeader = `${indent('req.Header.Set("Content-Type", "application/json")')}\n`
         } else {
           needsStrings = true
-          requestBody = `\tpayload := strings.NewReader("${escapeForGoString(normalizedRequest.postData.text)}")\n\n`
-          requestBody += `\treq, _ := http.NewRequest("${method}", url, payload)\n\n`
+          requestBody = `${indent(`payload := strings.NewReader("${escapeString(normalizedRequest.postData.text)}")`)}\n\n`
+          requestBody += `${indent(`req, _ := http.NewRequest("${method}", url, payload)`)}\n\n`
         }
       }
     } else {
-      requestBody = `\treq, _ := http.NewRequest("${method}", url, nil)\n\n`
+      requestBody = `${indent(`req, _ := http.NewRequest("${method}", url, nil)`)}\n\n`
     }
 
     // Add required imports
@@ -154,7 +115,7 @@ export const goNative: Plugin = {
       })
 
       headerMap.forEach((value, name) => {
-        headersCode += `\treq.Header.Add("${escapeForGoString(name)}", "${escapeForGoString(value)}")\n`
+        headersCode += `${indent(`req.Header.Add("${escapeString(name)}", "${escapeString(value)}")`)}\n`
       })
       headersCode += '\n'
     }
@@ -164,36 +125,94 @@ export const goNative: Plugin = {
       const cookieString = normalizedRequest.cookies
         .map(({ name, value }) => `${encodeURIComponent(name)}=${encodeURIComponent(value)}`)
         .join('; ')
-      headersCode += `\treq.Header.Add("Cookie", "${escapeForGoString(cookieString)}")\n`
+      headersCode += `${indent(`req.Header.Add("Cookie", "${escapeString(cookieString)}")`)}\n`
     }
 
     // Handle basic auth
     let authCode = ''
     if (options?.auth?.username && options?.auth?.password) {
-      authCode = `\treq.SetBasicAuth("${escapeForGoString(options.auth.username)}", "${escapeForGoString(options.auth.password)}")\n`
+      authCode = `${indent(`req.SetBasicAuth("${escapeString(options.auth.username)}", "${escapeString(options.auth.password)}")`)}\n`
     }
 
     // Build the complete code
     const importArray = Array.from(imports).sort()
-    const importBlock = importArray.map((imp) => `\t"${imp}"`).join('\n')
+    const importBlock = importArray.map((imp) => indent(`"${imp}"`)).join('\n')
 
     return `package main
 
-  import (
-  ${importBlock}
-  )
+import (
+${importBlock}
+)
 
-  func main() {
-  \turl := "${escapeForGoString(url)}"
+func main() {
+${indent(`url := "${escapeString(url)}"`)}
 
-  ${requestBody}${contentTypeHeader}${headersCode}${authCode}\tres, _ := http.DefaultClient.Do(req)
+${requestBody}${contentTypeHeader}${headersCode}${authCode}${indent('res, _ := http.DefaultClient.Do(req)')}
 
-  \tdefer res.Body.Close()
-  \tbody, _ := io.ReadAll(res.Body)
+${indent('defer res.Body.Close()')}
+${indent('body, _ := io.ReadAll(res.Body)')}
 
-  \tfmt.Println(res)
-  \tfmt.Println(string(body))
+${indent('fmt.Println(res)')}
+${indent('fmt.Println(string(body))')}
 
-  }`
+}`
   },
+}
+
+/**
+ * Builds the URL with query parameters
+ */
+function buildUrl(url: string, queryString?: Array<{ name: string; value: string }>): string {
+  if (!queryString || queryString.length === 0) {
+    return url
+  }
+
+  const urlObj = new URL(url)
+  queryString.forEach(({ name, value }) => {
+    urlObj.searchParams.set(name, value)
+  })
+
+  // Convert + back to %20 for spaces to match expected output
+  return urlObj.toString().replace(/\+/g, '%20')
+}
+
+/**
+ * Escapes a string for use in Go double-quoted strings
+ */
+function escapeString(str: string | undefined): string {
+  if (!str) {
+    return ''
+  }
+  return str
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(/\t/g, '\\t')
+}
+
+/**
+ * Creates indented Go code lines using tabs
+ */
+function indent(lines: string | string[], level: number = 1): string {
+  const tab = '\t'
+  const indentation = tab.repeat(level)
+
+  if (typeof lines === 'string') {
+    return `${indentation}${lines}`
+  }
+
+  return lines.map((line) => (line ? `${indentation}${line}` : line)).join('\n')
+}
+
+/**
+ * Formats JSON with proper indentation for Go code
+ */
+function formatJson(jsonText: string): string {
+  try {
+    const parsed = JSON.parse(jsonText)
+    return JSON.stringify(parsed, null, 2).replace(/"/g, '\\"').replace(/\n/g, '\\n')
+  } catch {
+    return escapeString(jsonText)
+  }
 }

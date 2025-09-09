@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { goNative } from './native'
 
 describe('goNative', () => {
-  it.only('returns a basic request', () => {
+  it('returns a basic request', () => {
     const result = goNative.generate({
       url: 'https://example.com',
     })
@@ -1269,7 +1269,7 @@ import (
 )
 
 func main() {
-	url := "https://example.com?price=%24100&currency=USD%24"
+	url := "https://example.com/?price=%24100&currency=USD%24"
 
 	req, _ := http.NewRequest("GET", url, nil)
 
