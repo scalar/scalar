@@ -9,7 +9,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-#pragma warning disable CS0618 // Type or member is obsolete 
+#pragma warning disable CS0618 // Type or member is obsolete
 namespace Scalar.AspNetCore;
 
 /// <summary>
