@@ -25,7 +25,7 @@ import java.nio.charset.StandardCharsets;
  * @since 0.1.0
  */
 @Endpoint(id = "scalar")
-@WebEndpoint
+@WebEndpoint(id = "scalar")
 public class ScalarActuatorEndpoint {
 
     private final ScalarProperties properties;
