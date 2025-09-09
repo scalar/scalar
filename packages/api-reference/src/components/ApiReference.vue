@@ -14,10 +14,11 @@ defineProps<{
 
 /** These slots render in their respective slots in the underlying ApiReferenceWorkspace component */
 defineSlots<{
-  footer?(): unknown
+  'content-start'?(): unknown
   'content-end'?(): unknown
   'sidebar-start'?(): unknown
   'sidebar-end'?(): unknown
+  footer?(): unknown
 }>()
 
 /**
@@ -37,17 +38,11 @@ if (typeof window !== 'undefined') {
   <ApiReferenceWorkspace
     :configuration="configuration"
     :store="workspaceStore">
-    <template #footer>
-      <slot name="footer" />
-    </template>
-    <template #content-end>
-      <slot name="content-end" />
-    </template>
-    <template #sidebar-start>
-      <slot name="sidebar-start" />
-    </template>
-    <template #sidebar-end>
-      <slot name="sidebar-end" />
-    </template>
+    <!-- Pass through content, sidebar and footer slots -->
+    <template #content-start><slot name="content-start" /></template>
+    <template #content-end><slot name="content-end" /></template>
+    <template #sidebar-start><slot name="sidebar-start" /></template>
+    <template #sidebar-end><slot name="sidebar-end" /></template>
+    <template #footer><slot name="footer" /></template>
   </ApiReferenceWorkspace>
 </template>
