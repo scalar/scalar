@@ -6,6 +6,7 @@ export const analyticsEventData = {
     from: z.string(),
     hostname: z.string(),
   }),
+  'client-send-request': z.undefined(),
 } as const
 
 export type Events = keyof typeof analyticsEventData
