@@ -105,8 +105,7 @@ const dataTableInputProps = {
       </RequestAuthDataTableInput>
     </DataTableRow>
     <DataTableRow class="min-w-full">
-      <div class="flex h-8 items-center justify-end gap-2 border-t">
-        <slot name="oauth-actions" />
+      <div class="flex h-8 items-center justify-end border-t">
         <ScalarButton
           class="mr-1 p-0 px-2 py-0.5"
           :loading="loadingState"
@@ -115,6 +114,7 @@ const dataTableInputProps = {
           @click="updateScheme(`flows.${flow.type}.token`, '')">
           Clear
         </ScalarButton>
+        <slot name="oauth-actions" />
       </div>
     </DataTableRow>
   </template>
