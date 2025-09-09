@@ -36,6 +36,7 @@ import { shellHttpie } from '@/plugins/shell/httpie'
 import { shellWget } from '@/plugins/shell/wget'
 import { swiftNsurlsession } from '@/plugins/swift/nsurlsession'
 import type { Target } from '@scalar/types/snippetz'
+import { fsharpHttpclient } from '@/plugins/fsharp/httpclient/httpclient'
 
 /**
  * All available clients
@@ -64,6 +65,12 @@ export const clients: Target[] = [
     title: 'Dart',
     default: 'http',
     clients: [dartHttp],
+  },
+  {
+    key: 'fsharp',
+    title: 'F#',
+    default: 'httpclient',
+    clients: [fsharpHttpclient],
   },
   {
     key: 'go',
