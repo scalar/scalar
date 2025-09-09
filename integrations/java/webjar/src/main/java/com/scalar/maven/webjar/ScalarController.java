@@ -111,6 +111,11 @@ public class ScalarController {
             basePath = DEFAULT_PATH;
         }
 
+        // Remove trailing slash to avoid double slashes when concatenating
+        if (basePath.endsWith("/")) {
+            basePath = basePath.substring(0, basePath.length() - 1);
+        }
+
         return basePath + "/" + JS_FILENAME;
     }
 

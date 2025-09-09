@@ -509,6 +509,22 @@ class ScalarControllerTest {
                     .doesNotContain("__CONFIGURATION__")
                     .contains("url: \"https://example.com/api.json\"");
         }
+
+        @Test
+        @DisplayName("should use correct scalar.js URL when path is set to root")
+        void shouldUseCorrectScalarJsUrlWhenPathIsSetToRoot() throws Exception {
+            // Given
+            when(properties.getPath()).thenReturn("/");
+
+            // When
+            ResponseEntity<String> response = controller.getDocs();
+
+            // Then
+            String html = response.getBody();
+            assertThat(html)
+                    .isNotNull()
+                    .contains("<script src=\"/scalar.js\"></script>");
+        }
     }
 
     @Nested
