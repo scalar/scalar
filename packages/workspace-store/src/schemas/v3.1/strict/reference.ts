@@ -1,4 +1,4 @@
-import { type Static, type TIntersect, type TObject, type TSchema, Type } from '@scalar/typebox'
+import { type Static, type TSchema, Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
 
@@ -29,14 +29,7 @@ export const ReferenceObjectSchema = compose(
 
 export type ReferenceObject = Static<typeof ReferenceObjectSchema>
 
-export const reference = <T extends TSchema>(schema: T): ReferenceType<T> =>
+export const reference = <T extends TSchema>(schema: T) =>
   compose(ReferenceObjectSchema, Type.Object({ '$ref-value': schema }))
 
-export type ReferenceType<Schema extends TSchema> = TIntersect<
-  [
-    typeof ReferenceObjectSchema,
-    TObject<{
-      '$ref-value': Schema
-    }>,
-  ]
->
+export type ReferenceType<Value> = ReferenceObject & { '$ref-value': Value }

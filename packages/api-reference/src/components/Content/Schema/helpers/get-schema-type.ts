@@ -1,5 +1,6 @@
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/reference'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 
 import { getRefName } from '@/components/Content/Schema/helpers/get-ref-name'
@@ -24,7 +25,7 @@ const processArrayType = (value: Extract<SchemaObject, { type: 'array' }>, isUni
     return isUnionType ? 'array' : value.title || value.xml?.name || 'array'
   }
 
-  const itemType = getSchemaType(getResolvedRef(value.items))
+  const itemType = getSchemaType(value.items)
   const baseType = formatArrayType(itemType)
 
   if (isUnionType) {
@@ -47,11 +48,21 @@ const processArrayType = (value: Extract<SchemaObject, { type: 'array' }>, isUni
  * 6. $ref names
  * 7. raw type
  */
-export const getSchemaType = (value: SchemaObject): string => {
+export const getSchemaType = (valueOrRef: SchemaObject | ReferenceType<SchemaObject>): string => {
   // Early return for falsy values
-  if (!value) {
+  if (!valueOrRef) {
     return ''
   }
+
+  if ('$ref' in valueOrRef) {
+    // Handle referenced schemas
+    const refName = getRefName(valueOrRef)
+    if (refName) {
+      return refName
+    }
+  }
+
+  const value = getResolvedRef(valueOrRef)
 
   // Handle const values first (highest priority)
   if (value.const !== undefined) {
@@ -91,12 +102,6 @@ export const getSchemaType = (value: SchemaObject): string => {
   // Handle type with content encoding
   if ('type' in value && value.type && value.contentEncoding) {
     return `${value.type} • ${value.contentEncoding}`
-  }
-
-  // Handle referenced schemas
-  const refName = getRefName(value)
-  if (refName) {
-    return refName
   }
 
   // Fallback to raw type
