@@ -437,20 +437,28 @@ func main() {
       `package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
 )
+
+type Request struct {
+	Hello string \`json:"hello"\`
+}
 
 func main() {
 	url := "https://example.com"
 
-	payload := strings.NewReader("{\"hello\":\"world\"}")
+	payload := Request
+	payload = Request{
+	Hello: "world",
+}
+	jsonData, _ := json.Marshal(payload)
+	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 
-	req, _ := http.NewRequest("POST", url, payload)
-
-	req.Header.Add("Content-Type", "application/json")
+	req.Header.Set("Content-Type", "application/json")
 
 	res, _ := http.DefaultClient.Do(req)
 
@@ -1176,31 +1184,58 @@ func main() {
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 )
 
+type RequestNestedObject struct {
+	Foo string \`json:"foo"\`
+}
+
+type RequestNested struct {
+	Array  []int \`json:"array"\`
+	Object struct {
+		Foo string \`json:"foo"\`
+	} \`json:"object"\`
+}
+
+type Request struct {
+	Nested struct {
+		Array  []int \`json:"array"\`
+		Object struct {
+			Foo string \`json:"foo"\`
+		} \`json:"object"\`
+	} \`json:"nested"\`
+	Simple string \`json:"simple"\`
+}
+
 func main() {
 	url := "https://example.com"
 
-	payload := bytes.NewBuffer([]byte(\`{
-  "nested": {
-    "array": [
-      1,
-      2,
-      3
-    ],
-    "object": {
-      "foo": "bar"
-    }
-  },
-  "simple": "value"
-}\`))
-
-	req, _ := http.NewRequest("POST", url, payload)
+	payload := Request
+	payload = Request{
+		Nested: struct {
+			Array  []int \`json:"array"\`
+			Object struct {
+				Foo string \`json:"foo"\`
+			} \`json:"object"\`
+		}{
+			Array: []int{1, 2, 3},
+			Object: struct {
+				Foo string \`json:"foo"\`
+			}{
+				Foo: "bar",
+			},
+		},
+		Simple: "value",
+	}
+	jsonData, _ := json.Marshal(payload)
+	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 
 	req.Header.Set("Content-Type", "application/json")
+
 	res, _ := http.DefaultClient.Do(req)
 
 	defer res.Body.Close()
