@@ -850,6 +850,7 @@ func main() {
 	req, _ := http.NewRequest("POST", url, payload)
 
 	req.Header.Set("Content-Type", "multipart/form-data")
+
 	res, _ := http.DefaultClient.Do(req)
 
 	defer res.Body.Close()
