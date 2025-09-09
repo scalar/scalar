@@ -71,6 +71,7 @@ const handleAuthorize = async () => {
 
   if (accessToken) {
     updateScheme(`flows.${flow.type}.token`, accessToken)
+    console.log('oauth2')
     emits('authorized')
   } else {
     console.error(error)
