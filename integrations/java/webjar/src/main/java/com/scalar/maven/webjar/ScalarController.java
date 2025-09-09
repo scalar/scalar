@@ -1,5 +1,6 @@
 package com.scalar.maven.webjar;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,9 +25,13 @@ import java.util.stream.Collectors;
  *   <li>{@code /scalar/scalar.js} (or custom path) - The JavaScript bundle</li>
  * </ul>
  *
+ * <p>This controller can be overridden by providing a custom {@code ScalarController}
+ * bean in the application context.</p>
+ *
  * @since 0.1.0
  */
 @RestController
+@ConditionalOnMissingBean(ScalarController.class)
 public class ScalarController {
 
     private static final String DEFAULT_PATH = "/scalar";
