@@ -11,7 +11,7 @@ describe('ContentTypeSelect', () => {
           'application/json': {},
           'application/xml': {},
         },
-        modelValue: 'application/xml',
+        modelValue: 'application/json',
       },
     })
 

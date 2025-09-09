@@ -152,7 +152,7 @@ describe('SchemaComposition', () => {
 
       const schemaComponent = wrapper.findComponent({ name: 'Schema' })
       expect(schemaComponent.exists()).toBe(true)
-      expect(schemaComponent.props('value')).toEqual({ const: 'Baz' })
+      expect(schemaComponent.props('schema')).toEqual({ '_': '', const: 'Baz' })
     })
 
     it('renders enum schema in composition panel', async () => {
@@ -176,7 +176,7 @@ describe('SchemaComposition', () => {
 
       const schemaComponent = wrapper.findComponent({ name: 'Schema' })
       expect(schemaComponent.exists()).toBe(true)
-      expect(schemaComponent.props('value')).toEqual({
+      expect(schemaComponent.props('schema')).toEqual({
         type: 'string',
         enum: ['option1', 'option2', 'option3'],
       })
@@ -188,19 +188,15 @@ describe('SchemaComposition', () => {
           composition: 'oneOf',
           value: coerceValue(SchemaObjectSchema, {
             oneOf: [
-              {
-                allOf: [
-                  { title: 'Planet', type: 'object' },
-                  { type: 'object', properties: { test: { type: 'string' } } },
-                ],
-              },
+              { title: 'Planet', type: 'object' },
+              { type: 'object', properties: { test: { type: 'string' } } },
             ],
           }),
           level: 0,
         },
       })
 
-      const tab = wrapper.findAll('.composition-selector-label')[1]
+      const tab = wrapper.findAll('.composition-selector-label')[0]
       expect(tab.text()).toBe('Planet')
     })
   })
@@ -231,10 +227,10 @@ describe('SchemaComposition', () => {
     })
 
     const schemaComponent = wrapper.findComponent({ name: 'Schema' })
-    expect(schemaComponent.props('value')).toEqual({
+    expect(schemaComponent.props('schema')).toEqual({
       type: 'object',
       properties: {
-        foo: { const: 'Foo' },
+        foo: { _: '', const: 'Foo' },
       },
       required: ['foo'],
     })
@@ -285,7 +281,7 @@ describe('SchemaComposition', () => {
 
     // Check that the first schema (string) is rendered correctly
     const schemaComponent = wrapper.findComponent({ name: 'Schema' })
-    expect(schemaComponent.props('value')).toEqual({
+    expect(schemaComponent.props('schema')).toEqual({
       type: 'string',
     })
   })
@@ -332,7 +328,7 @@ describe('SchemaComposition', () => {
 
     // Check that the merged schema is rendered with both properties
     const schemaComponent = wrapper.findComponent({ name: 'Schema' })
-    const schemaValue = schemaComponent.props('value')
+    const schemaValue = schemaComponent.props('schema')
 
     expect(typeof schemaValue).toBe('object')
     expect(schemaValue.allOf).toEqual([

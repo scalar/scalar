@@ -45,7 +45,7 @@ const contentTypeSelect = cva({
 </script>
 <template>
   <ScalarListbox
-    v-if="contentTypes.length"
+    v-if="contentTypes.length > 1"
     v-model="selectedOption"
     :options="options"
     placement="bottom-end">
