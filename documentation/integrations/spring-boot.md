@@ -82,7 +82,7 @@ The Scalar integration automatically configures:
 
 The auto-configuration is conditional on:
 
-- `scalar.enabled=true` (default)
+- `scalar.enabled=true`
 - Spring Boot web starter being present
 - No existing `ScalarController` bean
 
@@ -107,7 +107,7 @@ spring.autoconfigure.exclude=com.scalar.maven.webjar.ScalarAutoConfiguration
 
 | Property                       | Default                                                              | Description                                                                                                                                                      |
 | ------------------------------ | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `scalar.enabled`               | `true`                                                               | Enable or disable the Scalar API reference                                                                                                                       |
+| `scalar.enabled`               | `false`                                                               | Enable or disable the Scalar API reference                                                                                                                       |
 | `scalar.path`                  | `/scalar`                                                            | Path where the API reference will be available                                                                                                                   |
 | `scalar.url`                   | `https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json` | URL of your OpenAPI document                                                                                                                                     |
 | `scalar.showSidebar`           | `true`                                                               | Whether the sidebar should be shown                                                                                                                              |
