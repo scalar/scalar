@@ -202,6 +202,7 @@
   "dependencies": {
     "@headlessui/tailwindcss": "catalog:*",
     "@headlessui/vue": "catalog:*",
+    "@scalar/analytics-client": "workspace:*",
     "@scalar/components": "workspace:*",
     "@scalar/draggable": "workspace:*",
     "@scalar/helpers": "workspace:*",

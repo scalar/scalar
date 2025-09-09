@@ -1135,6 +1135,9 @@ importers:
       '@headlessui/vue':
         specifier: catalog:*
         version: 1.7.23(vue@3.5.17(typescript@5.8.3))
+      '@scalar/analytics-client':
+        specifier: workspace:*
+        version: link:../analytics-client
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
