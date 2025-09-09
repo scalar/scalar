@@ -1,6 +1,7 @@
 import { analyticsFactory } from '@scalar/analytics-client'
 
 import { type ClientLayout, useLayout } from '@/hooks'
+import { useClientConfig } from '@/hooks/useClientConfig'
 import { analytics as appAnalytics } from '@/layouts/App'
 import { analytics as webAnalytics } from '@/layouts/Web'
 
@@ -15,6 +16,11 @@ export function createAnalyticsClient() {
 /** Gets the correct analytics client based on the layout. */
 export function useAnalytics() {
   const { layout } = useLayout()
+  const config = useClientConfig()
+
+  if (!config.value.telemetry) {
+    return
+  }
 
   // Create layout -> client mapping
   const AnalyticsMapping: Record<ClientLayout, ReturnType<typeof analyticsFactory> | undefined> = {

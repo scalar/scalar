@@ -225,6 +225,8 @@ export const apiClientConfigurationSchema = z.object({
   persistAuth: z.boolean().optional().default(false).catch(false),
   /** Plugins for the API client */
   plugins: z.array(ApiClientPluginSchema).optional(),
+  /** Enables / disables telemetry*/
+  telemetry: z.boolean().optional().default(true),
 })
 
 export type ApiClientConfiguration = z.infer<typeof apiClientConfigurationSchema>
