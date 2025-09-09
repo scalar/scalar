@@ -302,8 +302,8 @@ watch(
           <component
             :is="view.component"
             v-show="selectedFilter === 'All' || selectedFilter === view.title"
-            @update:operation="updateOperationHandler"
-            :operation="operation" />
+            :operation="operation"
+            @update:operation="updateOperationHandler" />
         </ScalarErrorBoundary>
       </template>
 
@@ -315,11 +315,11 @@ watch(
         <RequestCodeExample
           class="request-section-content-code-example -mt-1/2 border-t"
           :collection="collection"
+          :environment="envVariables"
           :example="example"
           :operation="operation"
           :server="server"
-          :workspace="workspace"
-          :environment="envVariables" />
+          :workspace="workspace" />
       </ScalarErrorBoundary>
     </div>
   </ViewLayoutSection>

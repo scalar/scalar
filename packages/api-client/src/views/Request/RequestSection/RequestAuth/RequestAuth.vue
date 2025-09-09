@@ -68,6 +68,10 @@ const emits = defineEmits<{
   authorized: []
 }>()
 
+defineSlots<{
+  'oauth-actions'?: () => unknown
+}>()
+
 const { layout: clientLayout } = useLayout()
 const {
   securitySchemes,
@@ -314,6 +318,8 @@ const openAuthCombobox = (event: Event) => {
         </ScalarComboboxMultiselect>
       </div>
     </template>
+
+    <!-- Auth Table -->
     <RequestAuthDataTable
       :collection="collection"
       :envVariables="envVariables"
@@ -323,7 +329,12 @@ const openAuthCombobox = (event: Event) => {
       :selectedSchemeOptions="selectedSchemeOptions"
       :server="server"
       :workspace="workspace"
-      @authorized="emits('authorized')" />
+      @authorized="emits('authorized')">
+      <template #oauth-actions>
+        <slot name="oauth-actions" />
+      </template>
+    </RequestAuthDataTable>
+
     <DeleteRequestAuthModal
       :scheme="selectedScheme"
       :state="deleteSchemeModal"

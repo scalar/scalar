@@ -43,6 +43,10 @@ const emits = defineEmits<{
   authorized: []
 }>()
 
+defineSlots<{
+  'oauth-actions'?: () => unknown
+}>()
+
 const storeContext = useWorkspace()
 const { securitySchemes } = storeContext
 const security = computed(() =>
@@ -239,7 +243,11 @@ const dataTableInputProps = {
           :scheme="scheme"
           :server="server"
           :workspace="workspace"
-          @authorized="emits('authorized')" />
+          @authorized="emits('authorized')">
+          <template #oauth-actions>
+            <slot name="oauth-actions" />
+          </template>
+        </OAuth2>
       </template>
     </template>
 

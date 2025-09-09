@@ -40,6 +40,10 @@ const emits = defineEmits<{
   authorized: []
 }>()
 
+defineSlots<{
+  'oauth-actions'?: () => unknown
+}>()
+
 const deleteSchemeModal = useModal()
 const selectedScheme = ref<{ id: SecurityScheme['uid']; label: string } | null>(
   null,
@@ -117,7 +121,11 @@ watch(
         :securitySchemeUids="activeScheme"
         :server="server"
         :workspace="workspace"
-        @authorized="emits('authorized')" />
+        @authorized="emits('authorized')">
+        <template #oauth-actions>
+          <slot name="oauth-actions" />
+        </template>
+      </RequestAuthTab>
     </DataTable>
 
     <div
