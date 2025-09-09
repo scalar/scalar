@@ -1,6 +1,7 @@
-import { parseCurlCommand } from '@/libs/parse-curl'
 import { operationSchema } from '@scalar/oas-utils/entities/spec'
 import { describe, expect, it } from 'vitest'
+
+import { parseCurlCommand } from '@/libs/parse-curl'
 
 import { findRequestByPathMethod, pathToRegex } from './find-request'
 
@@ -38,6 +39,13 @@ describe('pathToRegex', () => {
     expect(regex.test('/api/v1.0/data/123')).toBe(true)
     expect(regex.test('/api/v1.0/data/abc')).toBe(true)
     expect(regex.test('/api/v1.0/data/')).toBe(false)
+  })
+
+  it('should ignore query parameters', () => {
+    const regex = pathToRegex('/planets')
+
+    expect(regex.test('/planets?name=earth&age=100')).toBe(true)
+    expect(regex.test('/planets?age=100')).toBe(true)
   })
 })
 
