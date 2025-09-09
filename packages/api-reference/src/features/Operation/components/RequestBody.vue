@@ -99,6 +99,7 @@ const partitionedSchema = computed(() => {
       <Schema
         :breadcrumb
         compact
+        :hideReadOnly="true"
         name="Request Body"
         noncollapsible
         :schema="partitionedSchema.visibleProperties" />
@@ -107,6 +108,7 @@ const partitionedSchema = computed(() => {
         additionalProperties
         :breadcrumb
         compact
+        :hideReadOnly="true"
         name="Request Body"
         :schema="partitionedSchema.collapsedProperties" />
     </div>
@@ -118,6 +120,7 @@ const partitionedSchema = computed(() => {
       <Schema
         :breadcrumb
         compact
+        :hideReadOnly="true"
         name="Request Body"
         noncollapsible
         :schema />

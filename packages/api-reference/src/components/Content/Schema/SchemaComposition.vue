@@ -30,6 +30,8 @@ const props = withDefaults(
     compact?: boolean
     /** Whether to hide the heading */
     hideHeading?: boolean
+    /** Whether to hide read-only properties */
+    hideReadOnly?: boolean
     /** Breadcrumb for navigation */
     breadcrumb?: string[]
   }>(),
@@ -90,6 +92,7 @@ const selectedComposition = computed(
       :compact="compact"
       :discriminator="discriminator"
       :hideHeading="hideHeading"
+      :hideReadOnly="hideReadOnly"
       :level="level"
       :name="name"
       :noncollapsible="true"
@@ -128,6 +131,7 @@ const selectedComposition = computed(
           :compact="compact"
           :discriminator="discriminator"
           :hideHeading="hideHeading"
+          :hideReadOnly="hideReadOnly"
           :level="level + 1"
           :name="name"
           :noncollapsible="true"

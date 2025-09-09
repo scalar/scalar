@@ -40,6 +40,7 @@ const props = withDefaults(
     description?: string
     hideModelNames?: boolean
     hideHeading?: boolean
+    hideReadOnly?: boolean
     variant?: 'additionalProperties' | 'patternProperties'
     breadcrumb?: string[]
   }>(),
@@ -329,6 +330,7 @@ const compositionsToRender = computed(() => {
       <Schema
         :breadcrumb="breadcrumb && name ? [...breadcrumb, name] : undefined"
         :compact="compact"
+        :hideReadOnly="hideReadOnly"
         :level="level + 1"
         :name="name"
         :noncollapsible="noncollapsible"
@@ -347,6 +349,7 @@ const compositionsToRender = computed(() => {
         class="children">
         <Schema
           :compact="compact"
+          :hideReadOnly="hideReadOnly"
           :level="level + 1"
           :name="name"
           :noncollapsible="noncollapsible"
@@ -363,6 +366,7 @@ const compositionsToRender = computed(() => {
       :composition="compositionData.composition"
       :discriminator="value?.discriminator"
       :hideHeading="hideHeading"
+      :hideReadOnly="hideReadOnly"
       :level="level"
       :name="name"
       :noncollapsible="noncollapsible"
