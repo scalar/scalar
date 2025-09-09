@@ -5,7 +5,7 @@ import { useToasts } from '@scalar/use-toasts'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
-import { useAnalyticsClient } from '@/analytics'
+import { useAnalytics } from '@/analytics'
 import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
 import { useLayout } from '@/hooks'
 import { useClientConfig } from '@/hooks/useClientConfig'
@@ -27,7 +27,7 @@ const { toast } = useToasts()
 const { layout } = useLayout()
 const config = useClientConfig()
 const { isSidebarOpen } = useSidebar()
-const analytics = useAnalyticsClient()
+const analytics = useAnalytics()
 
 const {
   activeCollection,
@@ -135,6 +135,7 @@ const executeRequest = async () => {
 const cancelRequest = async () =>
   requestAbortController.value?.abort(ERRORS.REQUEST_ABORTED)
 
+/** Subscribed to executeRequest, used for logging / analytics. */
 function logRequest() {
   analytics?.capture('client-send-request')
 }

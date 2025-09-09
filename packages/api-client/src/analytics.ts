@@ -4,18 +4,25 @@ import { type ClientLayout, useLayout } from '@/hooks'
 import { analytics as appAnalytics } from '@/layouts/App'
 import { analytics as webAnalytics } from '@/layouts/Web'
 
+/** Centralized method to control creation of analytics clients.  */
 export function createAnalyticsClient() {
-  return analyticsFactory('https://api.scalar.com', () => '')
+  return analyticsFactory(
+    'https://api.scalar.com',
+    () => null, // There is no auth to return.
+  )
 }
 
-export function useAnalyticsClient() {
+/** Gets the correct analytics client based on the layout. */
+export function useAnalytics() {
   const { layout } = useLayout()
 
-  const AnalyticsClientMapping: Record<ClientLayout, ReturnType<typeof analyticsFactory> | undefined> = {
+  // Create layout -> client mapping
+  const AnalyticsMapping: Record<ClientLayout, ReturnType<typeof analyticsFactory> | undefined> = {
     'desktop': appAnalytics,
     'web': webAnalytics,
-    modal: undefined,
+    modal: undefined, // There are currently no analytics for the modal layout.
   }
 
-  return AnalyticsClientMapping[layout]
+  // Return the correct analytics client
+  return AnalyticsMapping[layout]
 }
