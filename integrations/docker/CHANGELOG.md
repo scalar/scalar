@@ -1,5 +1,11 @@
 # @scalarapi/docker-api-reference
 
+## 0.2.28
+
+### Patch Changes
+
+- @scalar/api-reference@1.35.2
+
 ## 0.2.27
 
 ### Patch Changes

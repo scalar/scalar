@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.20.3
+
+### Patch Changes
+
+- b8c4b61: fix: migrate global and path item parameters from Swagger 2.0 to OpenAPI 3.0
+
 ## 0.20.2
 
 ### Patch Changes
