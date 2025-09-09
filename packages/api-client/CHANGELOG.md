@@ -1,5 +1,19 @@
 # @scalar/api-client
 
+## 2.5.29
+
+### Patch Changes
+
+- 5eedb97: feat: allow query params on findRequestByPathMethod method
+- Updated dependencies [b8c4b61]
+  - @scalar/openapi-parser@0.20.3
+  - @scalar/import@0.4.21
+  - @scalar/oas-utils@0.4.25
+  - @scalar/workspace-store@0.15.2
+  - @scalar/components@0.14.30
+  - @scalar/postman-to-openapi@0.3.28
+  - @scalar/use-codemirror@0.12.31
+
 ## 2.5.28
 
 ### Patch Changes

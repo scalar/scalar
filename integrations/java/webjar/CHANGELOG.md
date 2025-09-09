@@ -1,5 +1,17 @@
 # @scalar/webjar
 
+## 0.3.0
+
+### Minor Changes
+
+- fac3b3c: feat!: disable Scalar by default (use scalar.enabled = true)
+
+### Patch Changes
+
+- 7f5bfcf: feat: add @ConditionalOnMissingBean
+- 6b8d8f5: fix: paths ending with a slash break the JS URL
+  - @scalar/api-reference@1.35.2
+
 ## 0.2.1
 
 ### Patch Changes

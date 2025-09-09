@@ -1,5 +1,15 @@
 # @scalar/aspnetcore
 
+## 2.8.0
+
+### Minor Changes
+
+- d5e46cf: feat: Use generated ScalarTarget and ScalarClient enums
+
+### Patch Changes
+
+- @scalar/api-reference@1.35.2
+
 ## 2.7.4
 
 ### Patch Changes
