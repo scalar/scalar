@@ -30,7 +30,7 @@ describe('generateClientOptions', () => {
         'Objective-C',
         'OCaml',
         'PHP',
-        'Powershell',
+        'PowerShell',
         'Python',
         'R',
         'Ruby',
