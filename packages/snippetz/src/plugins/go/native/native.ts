@@ -16,6 +16,7 @@ export const goNative: Plugin = {
 
     const method = (normalizedRequest.method || 'GET').toUpperCase()
     const url = buildUrl(normalizedRequest.url || '', normalizedRequest.queryString)
+    const complexUrl = buildUrlForComplexRequest(normalizedRequest.url || '', normalizedRequest.queryString)
 
     // Check if this is a simple GET request that can use http.Get()
     const isSimpleGet =
@@ -23,7 +24,7 @@ export const goNative: Plugin = {
       !normalizedRequest.postData &&
       (!normalizedRequest.headers || normalizedRequest.headers.length === 0) &&
       (!normalizedRequest.cookies || normalizedRequest.cookies.length === 0) &&
-      !options?.auth
+      (!options?.auth || !options?.auth?.username || !options?.auth?.password)
 
     if (isSimpleGet) {
       return `package main
@@ -43,9 +44,136 @@ func main() {
 }`
     }
 
+    // Check if this is a simple POST request that can use http.Post()
+    const isSimplePost =
+      method === 'POST' &&
+      (!normalizedRequest.cookies || normalizedRequest.cookies.length === 0) &&
+      !options?.auth &&
+      (!normalizedRequest.postData ||
+        (normalizedRequest.postData.mimeType !== 'multipart/form-data' &&
+          (normalizedRequest.postData.text ||
+            (normalizedRequest.postData.mimeType === 'application/x-www-form-urlencoded' &&
+              normalizedRequest.postData.params))))
+
+    if (isSimplePost) {
+      if (!normalizedRequest.postData) {
+        return `package main
+
+import (
+	"fmt"
+	"net/http"
+)
+
+func main() {
+	res, err := http.Post("${escapeString(complexUrl)}", "", nil)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	defer res.Body.Close()
+}`
+      }
+
+      const contentType = normalizedRequest.postData.mimeType || 'text/plain'
+
+      if (contentType === 'application/json') {
+        try {
+          const jsonData = JSON.parse(normalizedRequest.postData.text)
+          const { structs, initialization } = generateGoStructs(jsonData, 'Request')
+
+          return `package main
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"net/http"
+)
+
+${structs}
+
+func main() {
+	payload := ${initialization}
+	jsonData, _ := json.Marshal(payload)
+
+	res, err := http.Post("${escapeString(complexUrl)}", "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	defer res.Body.Close()
+}`
+        } catch {
+          const formattedJson = formatJson(normalizedRequest.postData.text)
+          return `package main
+
+import (
+	"bytes"
+	"fmt"
+	"net/http"
+)
+
+func main() {
+	payload := bytes.NewBuffer([]byte(\`${formattedJson}\`))
+
+	res, err := http.Post("${escapeString(complexUrl)}", "application/json", payload)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	defer res.Body.Close()
+}`
+        }
+      } else if (contentType === 'application/x-www-form-urlencoded') {
+        const params = normalizedRequest.postData.params || []
+        const formData = params
+          .map(({ name, value }) => `data.Set("${escapeString(name)}", "${escapeString(value)}")`)
+          .join('\n\t')
+
+        return `package main
+
+import (
+	"fmt"
+	"net/http"
+	"net/url"
+	"strings"
+)
+
+func main() {
+	data := url.Values{}
+	${formData}
+
+	res, err := http.Post("${escapeString(complexUrl)}", "application/x-www-form-urlencoded", strings.NewReader(data.Encode()))
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	defer res.Body.Close()
+}`
+      } else {
+        const body = escapeString(normalizedRequest.postData.text)
+        return `package main
+
+import (
+	"fmt"
+	"net/http"
+	"strings"
+)
+
+func main() {
+	res, err := http.Post("${escapeString(complexUrl)}", "${contentType}", strings.NewReader("${body}"))
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	defer res.Body.Close()
+}`
+      }
+    }
+
     // For complex requests, use http.NewRequest approach
     // Determine required imports
-    const imports = new Set(['fmt', 'io', 'net/http'])
+    const imports = new Set(['fmt', 'net/http'])
 
     // Check if we need additional imports based on request content
     let needsStrings = false
@@ -68,38 +196,48 @@ func main() {
         needsUrl = true
         needsStrings = true
 
-        const requestBodyLines = [indent('postData := url.Values{}')]
+        const requestBodyLines = [indent('data := url.Values{}')]
         normalizedRequest.postData.params.forEach(({ name, value }) => {
-          requestBodyLines.push(indent(`postData.Set("${escapeString(name)}", "${escapeString(value)}")`))
+          requestBodyLines.push(indent(`data.Set("${escapeString(name)}", "${escapeString(value)}")`))
         })
         requestBodyLines.push(
           '',
-          indent(`req, _ := http.NewRequest("${method}", url, strings.NewReader(postData.Encode()))`),
+          indent(
+            `req, _ := http.NewRequest("${method}", "${escapeString(complexUrl)}", strings.NewReader(data.Encode()))`,
+          ),
           '',
         )
         requestBody = requestBodyLines.join('\n')
-      } else if (normalizedRequest.postData.mimeType === 'multipart/form-data' && normalizedRequest.postData.params) {
-        needsBytes = true
-        needsMultipart = true
-        needsOs = true
+      } else if (normalizedRequest.postData.mimeType === 'multipart/form-data') {
+        if (normalizedRequest.postData.params) {
+          needsBytes = true
+          needsMultipart = true
+          needsOs = true
 
-        requestBody = `${indent('payload := &bytes.Buffer{}')}\n`
-        requestBody += `${indent('writer := multipart.NewWriter(payload)')}\n\n`
+          requestBody = `${indent('var b bytes.Buffer')}\n`
+          requestBody += `${indent('w := multipart.NewWriter(&b)')}\n\n`
 
-        normalizedRequest.postData.params.forEach(({ name, value, fileName }) => {
-          if (fileName !== undefined) {
-            requestBody += `${indent(`part, _ := writer.CreateFormFile("${escapeString(name)}", "${escapeString(fileName)}")`)}\n\n`
-            requestBody += `${indent(`f, _ := os.Open("${escapeString(fileName)}")`)}\n`
-            requestBody += `${indent('defer f.Close()')}\n\n`
-            requestBody += `${indent('_, _ = io.Copy(part, f)')}\n\n`
-          } else {
-            requestBody += `${indent(`_ = writer.WriteField("${escapeString(name)}", "${escapeString(value)}")`)}\n`
-          }
-        })
+          normalizedRequest.postData.params.forEach(({ name, value, fileName }) => {
+            if (fileName !== undefined) {
+              requestBody += `${indent(`f, _ := os.Open("${escapeString(fileName)}")`)}\n`
+              requestBody += `${indent('defer f.Close()')}\n\n`
+              requestBody += `${indent(`fw, _ := w.CreateFormFile("${escapeString(name)}", "${escapeString(fileName)}")`)}\n`
+              requestBody += `${indent('_, _ = fw.Write([]byte("file content"))')}\n\n`
+            } else {
+              requestBody += `${indent(`w.WriteField("${escapeString(name)}", "${escapeString(value)}")`)}\n`
+            }
+          })
 
-        requestBody += `${indent('writer.Close()')}\n\n`
-        requestBody += `${indent(`req, _ := http.NewRequest("${method}", url, payload)`)}\n\n`
-        contentTypeHeader = `${indent('req.Header.Set("Content-Type", writer.FormDataContentType())')}\n`
+          requestBody += `${indent('w.Close()')}\n\n`
+          requestBody += `${indent(`req, _ := http.NewRequest("${method}", "${escapeString(complexUrl)}", &b)`)}\n`
+          contentTypeHeader = `${indent('req.Header.Set("Content-Type", w.FormDataContentType())')}\n\n`
+        } else if (normalizedRequest.postData.text) {
+          needsBytes = true
+          const formattedJson = formatJson(normalizedRequest.postData.text)
+          requestBody = `${indent(`payload := bytes.NewBuffer([]byte(\`${formattedJson}\`))`)}\n\n`
+          requestBody += `${indent(`req, _ := http.NewRequest("${method}", "${escapeString(complexUrl)}", payload)`)}\n`
+          contentTypeHeader = `${indent('req.Header.Set("Content-Type", "multipart/form-data")')}\n\n`
+        }
       } else if (normalizedRequest.postData.text) {
         if (normalizedRequest.postData.mimeType === 'application/json') {
           needsBytes = true
@@ -110,10 +248,9 @@ func main() {
             const { structs, initialization } = generateGoStructs(jsonData, 'Request')
 
             // Store struct definitions separately to be added before main function
-            requestBody = `${indent('payload := Request')}\n`
-            requestBody += `${indent('payload = ' + initialization)}\n`
+            requestBody = `${indent('payload := ' + initialization)}\n`
             requestBody += `${indent('jsonData, _ := json.Marshal(payload)')}\n`
-            requestBody += `${indent('req, _ := http.NewRequest("' + method + '", url, bytes.NewBuffer(jsonData))')}\n\n`
+            requestBody += `${indent('req, _ := http.NewRequest("' + method + '", url, bytes.NewBuffer(jsonData))')}\n`
             contentTypeHeader = `${indent('req.Header.Set("Content-Type", "application/json")')}\n`
 
             // Store struct definitions to be added before main function
@@ -122,17 +259,17 @@ func main() {
             // Fallback to raw JSON if parsing fails
             const formattedJson = formatJson(normalizedRequest.postData.text)
             requestBody = `${indent(`payload := bytes.NewBuffer([]byte(\`${formattedJson}\`))`)}\n\n`
-            requestBody += `${indent(`req, _ := http.NewRequest("${method}", url, payload)`)}\n\n`
+            requestBody += `${indent(`req, _ := http.NewRequest("${method}", "${escapeString(complexUrl)}", payload)`)}\n`
             contentTypeHeader = `${indent('req.Header.Set("Content-Type", "application/json")')}\n`
           }
         } else {
           needsStrings = true
           requestBody = `${indent(`payload := strings.NewReader("${escapeString(normalizedRequest.postData.text)}")`)}\n\n`
-          requestBody += `${indent(`req, _ := http.NewRequest("${method}", url, payload)`)}\n\n`
+          requestBody += `${indent(`req, _ := http.NewRequest("${method}", "${escapeString(complexUrl)}", payload)`)}\n`
         }
       }
     } else {
-      requestBody = `${indent(`req, _ := http.NewRequest("${method}", url, nil)`)}\n\n`
+      requestBody = `${indent(`req, _ := http.NewRequest("${method}", "${escapeString(complexUrl)}", nil)`)}\n`
     }
 
     // Add required imports
@@ -157,21 +294,28 @@ func main() {
 
     // Build headers
     let headersCode = ''
+    let hasHeaders = false
     if (normalizedRequest.headers && normalizedRequest.headers.length > 0) {
-      // Group headers by name and only use the last value for each name
-      const headerMap = new Map<string, string>()
+      // Group headers by name to check for duplicates
+      const headerCounts = new Map<string, number>()
+      normalizedRequest.headers.forEach(({ name }) => {
+        headerCounts.set(name, (headerCounts.get(name) || 0) + 1)
+      })
+
       normalizedRequest.headers.forEach(({ name, value }) => {
         // Skip Content-Type if we're setting it explicitly via contentTypeHeader
         if (name.toLowerCase() === 'content-type' && contentTypeHeader) {
           return
         }
-        headerMap.set(name, value)
-      })
 
-      headerMap.forEach((value, name) => {
-        headersCode += `${indent(`req.Header.Add("${escapeString(name)}", "${escapeString(value)}")`)}\n`
+        // Use Add for multiple headers with same name, Set for single headers
+        const method = headerCounts.get(name) > 1 ? 'Add' : 'Set'
+        headersCode += `${indent(`req.Header.${method}("${escapeString(name)}", "${escapeString(value)}")`)}\n`
+        hasHeaders = true
       })
-      headersCode += '\n'
+      if (hasHeaders) {
+        headersCode += '\n'
+      }
     }
 
     // Handle cookies
@@ -179,13 +323,13 @@ func main() {
       const cookieString = normalizedRequest.cookies
         .map(({ name, value }) => `${encodeURIComponent(name)}=${encodeURIComponent(value)}`)
         .join('; ')
-      headersCode += `${indent(`req.Header.Add("Cookie", "${escapeString(cookieString)}")`)}\n`
+      headersCode += `${indent(`req.Header.Set("Cookie", "${escapeString(cookieString)}")`)}\n\n`
     }
 
     // Handle basic auth
     let authCode = ''
     if (options?.auth?.username && options?.auth?.password) {
-      authCode = `${indent(`req.SetBasicAuth("${escapeString(options.auth.username)}", "${escapeString(options.auth.password)}")`)}\n`
+      authCode = `${indent(`req.SetBasicAuth("${escapeString(options.auth.username)}", "${escapeString(options.auth.password)}")`)}\n\n`
     }
 
     // Build the complete code
@@ -202,12 +346,12 @@ ${importBlock}
 )
 
 ${structDefinitions}${structDefinitions ? '\n\n' : ''}func main() {
-${indent(`url := "${escapeString(url)}"`)}
-
-${mainFunctionBody}${contentTypeHeader}${headersCode}${authCode}${indent('res, _ := http.DefaultClient.Do(req)')}
-
+${mainFunctionBody}${contentTypeHeader}${headersCode}${authCode}${indent('res, err := http.DefaultClient.Do(req)')}
+${indent('if err != nil {')}
+${indent('	fmt.Println("Error:", err)')}
+${indent('	return')}
+${indent('}')}
 ${indent('defer res.Body.Close()')}
-${indent('body, _ := io.ReadAll(res.Body)')}
 }`
   },
 }
@@ -216,6 +360,10 @@ ${indent('body, _ := io.ReadAll(res.Body)')}
  * Builds the URL with query parameters
  */
 function buildUrl(url: string, queryString?: Array<{ name: string; value: string }>): string {
+  if (!url) {
+    return ''
+  }
+
   const urlObj = new URL(url)
 
   if (queryString && queryString.length > 0) {
@@ -225,7 +373,43 @@ function buildUrl(url: string, queryString?: Array<{ name: string; value: string
   }
 
   // Convert + back to %20 for spaces to match expected output
-  return urlObj.toString().replace(/\+/g, '%20')
+  let result = urlObj.toString().replace(/\+/g, '%20')
+
+  // Remove trailing slash if it was added by URL constructor and wasn't in original
+  // But only if there are no query parameters
+  if (url && !url.endsWith('/') && result.endsWith('/') && !result.includes('?')) {
+    result = result.slice(0, -1)
+  }
+
+  return result
+}
+
+/**
+ * Builds the URL with query parameters for complex requests (removes trailing slash)
+ */
+function buildUrlForComplexRequest(url: string, queryString?: Array<{ name: string; value: string }>): string {
+  if (!url) {
+    return ''
+  }
+
+  const urlObj = new URL(url)
+
+  if (queryString && queryString.length > 0) {
+    queryString.forEach(({ name, value }) => {
+      urlObj.searchParams.set(name, value)
+    })
+  }
+
+  // Convert + back to %20 for spaces to match expected output
+  let result = urlObj.toString().replace(/\+/g, '%20')
+
+  // Remove trailing slash if it was added by URL constructor and wasn't in original
+  // But only if there are no query parameters
+  if (url && !url.endsWith('/') && result.endsWith('/') && !result.includes('?')) {
+    result = result.slice(0, -1)
+  }
+
+  return result
 }
 
 /**
@@ -624,16 +808,12 @@ function renderStructDefinition(structDef: StructDefinition): string {
 }`
   }
 
-  // Calculate the maximum field name length for alignment
-  const maxFieldNameLength = Math.max(...structDef.fields.map((field) => field.name.length))
-
   const fieldLines = structDef.fields.map((field) => {
     const fieldType = renderTypeForStruct(field.type)
     const jsonTag = `\`${field.jsonTag}\``
 
-    // Align field names with tabs, then align types
-    const fieldName = field.name.padEnd(maxFieldNameLength)
-    return `\t${fieldName}\t${fieldType} ${jsonTag}`
+    // Use proper tab alignment for Go struct fields
+    return `\t${field.name} ${fieldType} ${jsonTag}`
   })
 
   return `type ${structDef.name} struct {
@@ -733,6 +913,9 @@ function generatePrimitiveValue(value: any): string {
   if (typeof value === 'boolean') {
     return value.toString()
   }
+  if (value === null) {
+    return 'nil'
+  }
   return 'nil'
 }
 
@@ -744,7 +927,14 @@ function generateArrayInitialization(data: any[], typeNode: GoTypeNode): string 
     return `${typeNode.goType}{}`
   }
 
-  const elements = data.map((item) => generateStructInitializationFromTree(item, typeNode.elementType!, 0)).join(', ')
+  const elements = data
+    .map((item) => {
+      if (item === null || item === undefined) {
+        return 'nil'
+      }
+      return generateStructInitializationFromTree(item, typeNode.elementType!, 0)
+    })
+    .join(', ')
   return `${typeNode.goType}{${elements}}`
 }
 
@@ -757,16 +947,23 @@ function generateStructInitialization(data: any, typeNode: GoTypeNode, indentLev
   }
 
   const fields: string[] = []
-  const indent = '\t'.repeat(indentLevel + 1)
 
   for (const field of typeNode.fields) {
     const fieldData = data[field.jsonTag.replace('json:', '').replace(/"/g, '')]
     const valueStr = generateStructInitializationFromTree(fieldData, field.type, indentLevel + 1)
-    fields.push(`${indent}${field.name}: ${valueStr}`)
+    fields.push(`${field.name}: ${valueStr}`)
   }
 
+  // For simple cases with one field, use single-line format
+  if (fields.length === 1) {
+    return `${typeNode.goType}{${fields.join(', ')}}`
+  }
+
+  // For complex cases, use multi-line format
+  const indent = '\t'.repeat(indentLevel + 1)
+  const multiLineFields = fields.map((field) => `${indent}${field}`)
   return `${typeNode.goType}{
-${fields.join(',\n')},
+${multiLineFields.join(',\n')},
 ${'\t'.repeat(indentLevel)}}`
 }
 

@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { goNative } from './native'
 
 describe('goNative', () => {
-  it.only('returns a basic request', () => {
+  it('returns a basic request', () => {
     const result = goNative.generate({
       url: 'https://example.com',
     })
@@ -17,7 +17,7 @@ import (
 )
 
 func main() {
-	res, err := http.Get("https://example.com/")
+	res, err := http.Get("https://example.com")
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -773,7 +773,7 @@ import (
 )
 
 func main() {
-	res, err := http.Get("https://example.com?q=hello%20world%20%26%20more&special=%21%40%23%24%25%5E%26*%28%29")
+	res, err := http.Get("https://example.com/?q=hello%20world%20%26%20more&special=%21%40%23%24%25%5E%26*%28%29")
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
