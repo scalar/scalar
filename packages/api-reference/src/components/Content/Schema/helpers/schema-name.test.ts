@@ -1,4 +1,4 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import { getModelName, getModelNameFromSchema } from './schema-name'
@@ -6,7 +6,7 @@ import { getModelName, getModelNameFromSchema } from './schema-name'
 describe('schema-name', () => {
   describe('getModelNameFromSchema', () => {
     it('returns title when present', () => {
-      const schema: OpenAPIV3_1.SchemaObject = { title: 'Galaxy Planet', type: 'object' }
+      const schema: SchemaObject = { title: 'Galaxy Planet', type: 'object' }
       expect(getModelNameFromSchema(schema)).toBe('Galaxy Planet')
     })
 
@@ -21,7 +21,7 @@ describe('schema-name', () => {
     })
 
     it('returns null for empty object', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {}
+      const schema: SchemaObject = { _: '' }
       expect(getModelNameFromSchema(schema)).toBe(null)
     })
   })
@@ -29,11 +29,12 @@ describe('schema-name', () => {
   describe('getModelName', () => {
     it('returns null when value has no type', () => {
       const value = { properties: { name: { type: 'string' } } }
+      // @ts-ignore
       expect(getModelName(value)).toBe(null)
     })
 
     it('returns nothing when hideModelNames is true', () => {
-      const value = {
+      const value: SchemaObject = {
         type: 'array',
         items: { type: 'string' },
       }
@@ -41,12 +42,12 @@ describe('schema-name', () => {
     })
 
     it('returns null when hideModelNames is true and not array', () => {
-      const value = { type: 'object' }
+      const value: SchemaObject = { type: 'object' }
       expect(getModelName(value, true)).toBe(null)
     })
 
     it('returns model name with title', () => {
-      const value = {
+      const value: SchemaObject = {
         type: 'object',
         title: 'Planet',
       }
@@ -54,7 +55,7 @@ describe('schema-name', () => {
     })
 
     it('returns array model name with title', () => {
-      const value = {
+      const value: SchemaObject = {
         type: 'array',
         title: 'PlanetArray',
       }
@@ -62,7 +63,7 @@ describe('schema-name', () => {
     })
 
     it('handles array with item title', () => {
-      const value = {
+      const value: SchemaObject = {
         type: 'array',
         items: {
           type: 'object',
@@ -73,7 +74,7 @@ describe('schema-name', () => {
     })
 
     it('handles array with item name', () => {
-      const value = {
+      const value: SchemaObject = {
         type: 'array',
         items: {
           type: 'object',
@@ -84,7 +85,7 @@ describe('schema-name', () => {
     })
 
     it('handles array with basic item type', () => {
-      const value = {
+      const value: SchemaObject = {
         type: 'array',
         items: { type: 'string' },
       }
@@ -92,10 +93,11 @@ describe('schema-name', () => {
     })
 
     it('handles array with object items fallback', () => {
-      const value = {
+      const value: SchemaObject = {
         type: 'array',
-        items: {},
+        items: { _: 'empty' },
       }
+
       expect(getModelName(value)).toBe('array object[]')
     })
   })

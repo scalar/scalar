@@ -1,6 +1,8 @@
-import { getRefName } from '@/components/Content/Schema/helpers/get-ref-name'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+
+import { getRefName } from '@/components/Content/Schema/helpers/get-ref-name'
 
 /**
  * Formats an array type string with proper wrapping for union types.
@@ -17,7 +19,7 @@ const formatArrayType = (itemType: string): string => {
 /**
  * Handles array type processing for both single array types and union types containing array.
  */
-const processArrayType = (value: SchemaObject, isUnionType: boolean = false): string => {
+const processArrayType = (value: Extract<SchemaObject, { type: 'array' }>, isUnionType: boolean = false): string => {
   if (!value.items) {
     return isUnionType ? 'array' : value.title || value.xml?.name || 'array'
   }
@@ -30,7 +32,7 @@ const processArrayType = (value: SchemaObject, isUnionType: boolean = false): st
   }
 
   // Handle nullable arrays for non-union types
-  return value.nullable ? `${baseType} | null` : baseType
+  return (value as any).nullable ? `${baseType} | null` : baseType
 }
 
 /**
@@ -57,10 +59,11 @@ export const getSchemaType = (value: SchemaObject): string => {
   }
 
   // Handle union types (array of types)
-  if (Array.isArray(value.type)) {
+  if ('type' in value && Array.isArray(value.type)) {
     // Special case: union types containing 'array'
-    if (value.type.includes('array') && value.items) {
-      const arrayType = processArrayType(value, true)
+    // TODO: Correctly type array of types in SchemaObject
+    if (value.type.includes('array') && (value as Extract<SchemaObject, { type: 'array' }>).items) {
+      const arrayType = processArrayType(value as Extract<SchemaObject, { type: 'array' }>, true)
       const otherTypes = value.type.filter((t) => t !== 'array')
 
       return otherTypes.length > 0 ? `${arrayType} | ${otherTypes.join(' | ')}` : arrayType
@@ -71,7 +74,7 @@ export const getSchemaType = (value: SchemaObject): string => {
   }
 
   // Handle single array type
-  if (value.type === 'array') {
+  if (isArraySchema(value)) {
     return processArrayType(value, false)
   }
 
@@ -86,7 +89,7 @@ export const getSchemaType = (value: SchemaObject): string => {
   }
 
   // Handle type with content encoding
-  if (value.type && value.contentEncoding) {
+  if ('type' in value && value.type && value.contentEncoding) {
     return `${value.type} • ${value.contentEncoding}`
   }
 
@@ -97,5 +100,5 @@ export const getSchemaType = (value: SchemaObject): string => {
   }
 
   // Fallback to raw type
-  return value.type ?? ''
+  return 'type' in value ? (value.type as string) : ''
 }

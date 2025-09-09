@@ -2,6 +2,7 @@
 import { ScalarMarkdown } from '@scalar/components'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 import { computed, ref } from 'vue'
 
 import { Schema } from '@/components/Content/Schema'
@@ -39,16 +40,12 @@ const schema = computed(() =>
  * Returns null for schemas with fewer properties or non-object schemas.
  */
 const partitionedSchema = computed(() => {
-  if (!schema.value) {
-    return null
-  }
-
   // Early return if not an object schema
-  if (schema.value?.type !== 'object' || !schema.value.properties) {
+  if (!schema.value || !isObjectSchema(schema.value)) {
     return null
   }
 
-  const propertyEntries = Object.entries(schema.value.properties)
+  const propertyEntries = Object.entries(schema.value.properties ?? {})
   if (propertyEntries.length <= MAX_VISIBLE_PROPERTIES) {
     return null
   }

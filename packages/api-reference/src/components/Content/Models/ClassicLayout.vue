@@ -45,10 +45,10 @@ const { getModelId } = useNavState()
       </template>
       <!-- Schema -->
       <div
-        v-if="schema?.properties"
+        v-if="'properties' in schema"
         class="properties">
         <SchemaProperty
-          v-for="[property, value] in Object.entries(schema.properties)"
+          v-for="[property, value] in Object.entries(schema.properties ?? {})"
           :key="property"
           :name="property"
           :required="schema.required?.includes(property)"

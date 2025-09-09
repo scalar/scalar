@@ -1,6 +1,7 @@
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { getRefName } from './get-ref-name'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+
+import { getRefName } from './get-ref-name'
 
 /**
  * Extract schema name from various schema formats
@@ -17,6 +18,10 @@ export const getModelNameFromSchema = (schema: SchemaObject): string | null => {
     return schema.title
   }
 
+  if (schema.name) {
+    return schema.name
+  }
+
   // Grab the name of the schema from the ref path
   const refName = getRefName(schema)
   if (refName) {
@@ -29,7 +34,7 @@ export const getModelNameFromSchema = (schema: SchemaObject): string | null => {
 /**
  * Format the type and model name for display
  */
-export const formatTypeWithModel = (type: SchemaObject['type'], modelName: string): string =>
+export const formatTypeWithModel = (type: Extract<SchemaObject, { type: any }>['type'], modelName: string): string =>
   `${type} ${modelName}${type === 'array' ? '[]' : ''}`
 
 /**
@@ -37,7 +42,7 @@ export const formatTypeWithModel = (type: SchemaObject['type'], modelName: strin
  * e.g. User | Admin | array of User | array of Admin
  */
 export const getModelName = (value: SchemaObject, hideModelNames = false): string | null => {
-  if (!value?.type || hideModelNames) {
+  if (!('type' in value) || hideModelNames) {
     return null
   }
 
@@ -61,12 +66,12 @@ export const getModelName = (value: SchemaObject, hideModelNames = false): strin
 
     // Use the model name
     const itemModelName = getModelNameFromSchema(items)
-    if (itemModelName && itemModelName !== items.type) {
+    if (itemModelName && 'type' in items && itemModelName !== items.type) {
       return formatTypeWithModel(valueType, itemModelName)
     }
 
     // Use the type
-    if (items.type) {
+    if ('type' in items) {
       return formatTypeWithModel(valueType, Array.isArray(items.type) ? items.type.join(' | ') : items.type)
     }
 

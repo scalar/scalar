@@ -1,6 +1,7 @@
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { compositions } from './schema-composition'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+
+import { compositions } from './schema-composition'
 
 /**
  * Optimize the value by removing nulls from compositions and merging root properties.
@@ -26,7 +27,7 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
   }
 
   // Extract root properties efficiently (excluding composition and nullable)
-  const { [composition]: _, nullable: originalNullable, ...rootProperties } = value
+  const { [composition]: _, nullable: originalNullable, ...rootProperties } = value as any
   const hasRootProperties = Object.keys(rootProperties).length > 0
 
   // Check for null schemas and filter them out in one pass
@@ -34,7 +35,7 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
     (acc: { filteredSchemas: SchemaObject[]; hasNullSchema: boolean }, _schema) => {
       const schema = getResolvedRef(_schema)
 
-      if (schema?.type === 'null') {
+      if ('type' in schema && schema.type === 'null') {
         acc.hasNullSchema = true
       } else {
         acc.filteredSchemas.push(schema)
@@ -51,6 +52,7 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
   if (filteredSchemas.length === 1) {
     const mergedSchema = { ...rootProperties, ...filteredSchemas[0] }
     if (shouldBeNullable) {
+      // @ts-ignore
       mergedSchema.nullable = true
     }
     return mergedSchema
@@ -76,6 +78,7 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
     // @ts-expect-error - We avoid using coerceValue here as it may be dangerous, so we type cast
     const result = { [composition]: mergedSchemas } as SchemaObject
     if (shouldBeNullable) {
+      // @ts-ignore We use nullable
       result.nullable = true
     }
     return result
@@ -85,6 +88,7 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
   if (filteredSchemas.length !== schemas.length) {
     const result: SchemaObject = { ...value, [composition]: filteredSchemas }
     if (shouldBeNullable) {
+      // @ts-ignore We use nullable
       result.nullable = true
     }
     return result

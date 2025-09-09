@@ -1,7 +1,8 @@
-import { describe, expect, it } from 'vitest'
-import { getSchemaType } from './get-schema-type'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { describe, expect, it } from 'vitest'
+
+import { getSchemaType } from './get-schema-type'
 
 describe('get-schema-type', () => {
   describe('getSchemaType', () => {

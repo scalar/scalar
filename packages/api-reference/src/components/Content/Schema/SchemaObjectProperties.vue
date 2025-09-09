@@ -5,6 +5,7 @@ import type {
   DiscriminatorObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 import { computed } from 'vue'
 
 import SchemaProperty from './SchemaProperty.vue'
@@ -32,7 +33,7 @@ const {
  * Required properties appear first, followed by optional properties.
  */
 const sortedProperties = computed(() => {
-  if (!schema.properties) {
+  if (!isObjectSchema(schema) || !schema.properties) {
     return []
   }
 
@@ -80,7 +81,10 @@ const sortedProperties = computed(() => {
  * Uses x-additionalPropertiesName extension if available, otherwise falls back to a default name.
  */
 const getAdditionalPropertiesName = (
-  _additionalProperties: SchemaObject['additionalProperties'],
+  _additionalProperties: Extract<
+    SchemaObject,
+    { type: 'object' }
+  >['additionalProperties'],
 ) => {
   const additionalProperties = getResolvedRef(_additionalProperties)
 
@@ -101,7 +105,10 @@ const getAdditionalPropertiesName = (
  * When additionalProperties is true or an empty object, it should render as { type: 'anything' }.
  */
 const getAdditionalPropertiesValue = (
-  additionalProperties: SchemaObject['additionalProperties'],
+  additionalProperties: Extract<
+    SchemaObject,
+    { type: 'object' }
+  >['additionalProperties'],
 ): SchemaObject => {
   if (
     additionalProperties === true ||
@@ -123,7 +130,7 @@ const getAdditionalPropertiesValue = (
 
 <template>
   <!-- Properties -->
-  <template v-if="schema.properties">
+  <template v-if="isObjectSchema(schema) && schema.properties">
     <SchemaProperty
       v-for="property in sortedProperties"
       :key="property"
@@ -139,7 +146,7 @@ const getAdditionalPropertiesValue = (
   </template>
 
   <!-- patternProperties -->
-  <template v-if="schema.patternProperties">
+  <template v-if="isObjectSchema(schema) && schema.patternProperties">
     <SchemaProperty
       v-for="[key, property] in Object.entries(schema.patternProperties)"
       :key="key"
@@ -154,7 +161,7 @@ const getAdditionalPropertiesValue = (
   </template>
 
   <!-- additionalProperties -->
-  <template v-if="schema.additionalProperties">
+  <template v-if="isObjectSchema(schema) && schema.additionalProperties">
     <SchemaProperty
       :breadcrumb
       :compact

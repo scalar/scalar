@@ -3,6 +3,7 @@ import { ScalarButton } from '@scalar/components'
 import { ScalarIconPlus } from '@scalar/icons'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 import { computed, ref } from 'vue'
 
 import SchemaEnumPropertyItem from './SchemaEnumPropertyItem.vue'
@@ -24,7 +25,11 @@ const enumValues = computed(() => {
   if (!value) {
     return []
   }
-  return value.enum || getResolvedRef(value.items)?.enum || []
+  return (
+    value.enum ||
+    (isArraySchema(value) && getResolvedRef(value.items)?.enum) ||
+    []
+  )
 })
 
 /**

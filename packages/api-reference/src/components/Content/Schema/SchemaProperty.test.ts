@@ -1,11 +1,11 @@
+import { ScalarListbox } from '@scalar/components'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
 import Schema from './Schema.vue'
 import SchemaProperty from './SchemaProperty.vue'
-import { ScalarListbox } from '@scalar/components'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 
 describe('SchemaProperty', () => {
   describe('expandable schema behavior', () => {
@@ -330,8 +330,8 @@ describe('SchemaProperty', () => {
         props: {
           variant: 'additionalProperties',
           name: 'propertyName*',
+          // @ts-ignore
           value: {
-            // @ts-expect-error - ask hans
             type: 'anything',
           },
         },

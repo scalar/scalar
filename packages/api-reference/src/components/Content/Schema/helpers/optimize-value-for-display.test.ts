@@ -1,9 +1,9 @@
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 
 import { optimizeValueForDisplay } from './optimize-value-for-display'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 
 describe('optimizeValueForDisplay', () => {
   it('should return the original value if it is not an object', () => {

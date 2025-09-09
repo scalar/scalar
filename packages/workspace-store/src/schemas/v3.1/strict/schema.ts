@@ -141,6 +141,7 @@ const StringValidationProperties = Type.Object({
 })
 
 const CorePropertiesWithSchema = Type.Object({
+  name: Type.Optional(Type.String()),
   /** A title for the schema. */
   title: Type.Optional(Type.String()),
   /** A description of the schema. */

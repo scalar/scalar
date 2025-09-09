@@ -1,15 +1,16 @@
+import { enableConsoleError, enableConsoleWarn } from '@scalar/helpers/testing/console-spies'
+import { collectionSchema } from '@scalar/oas-utils/entities/spec'
+import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { OpenAPIDocumentSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+
 import { createMockSidebar, createMockStore } from '@/helpers/test-utils'
+import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
 import Operation from './Operation.vue'
-import { collectionSchema } from '@scalar/oas-utils/entities/spec'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
-import { enableConsoleError, enableConsoleWarn } from '@scalar/helpers/testing/console-spies'
-import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
-import { OpenAPIDocumentSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 
 // Mock the workspace store
 vi.mock('@scalar/api-client/store', () => ({
@@ -520,7 +521,7 @@ describe('Operation', () => {
         server: undefined,
         store: storeWithResponses,
         collection: mockCollection,
-        document: documentWithResponses as OpenAPIV3_1.Document,
+        document: documentWithResponses,
       },
     })
 

@@ -1,7 +1,8 @@
-import { describe, expect, it } from 'vitest'
-import { mergeAllOfSchemas } from './merge-all-of-schemas'
-import { SchemaObjectSchema, type SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { type SchemaObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { describe, expect, it } from 'vitest'
+
+import { mergeAllOfSchemas } from './merge-all-of-schemas'
 
 describe('mergeAllOfSchemas', () => {
   it('returns empty object for empty or invalid input', () => {
@@ -825,8 +826,8 @@ describe('mergeAllOfSchemas', () => {
     expect(typeof result).toBe('object')
 
     // Should have at least some properties from the early levels
-    expect(result.properties).toBeDefined()
-    expect(result.type).toBe('object')
+    expect((result as any).properties).toBeDefined()
+    expect((result as any).type).toBe('object')
   })
 
   it('merges two objects with the same properties', () => {

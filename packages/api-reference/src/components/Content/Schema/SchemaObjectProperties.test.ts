@@ -1,8 +1,9 @@
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { type SchemaObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
+
 import SchemaObjectProperties from './SchemaObjectProperties.vue'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 
 // Mock child component to avoid deep rendering
 vi.mock('./SchemaProperty.vue', () => ({
@@ -208,7 +209,7 @@ describe('SchemaObjectProperties', () => {
   })
 
   it('sorts properties alphabetically when orderRequiredPropertiesFirst is false', () => {
-    const schema: OpenAPIV3_1.SchemaObject = {
+    const schema: SchemaObject = {
       type: 'object',
       properties: {
         zebra: { type: 'string' },
@@ -237,7 +238,7 @@ describe('SchemaObjectProperties', () => {
   })
 
   it('preserves original property order when orderSchemaPropertiesBy is preserve', () => {
-    const schema: OpenAPIV3_1.SchemaObject = {
+    const schema: SchemaObject = {
       type: 'object',
       properties: {
         zebra: { type: 'string' },

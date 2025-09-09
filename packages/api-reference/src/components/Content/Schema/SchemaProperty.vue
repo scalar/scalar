@@ -6,6 +6,7 @@ import type {
   DiscriminatorObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 import { computed, type Component } from 'vue'
 
 import { WithBreadcrumb } from '@/components/Anchor'
@@ -95,15 +96,19 @@ const displayDescription = computed(() => {
     return null
   }
 
-  if (value?.properties) {
+  if ('properties' in value) {
     return null
   }
 
-  if (value?.additionalProperties) {
+  if ('additionalProperties' in value) {
     return null
   }
 
-  if (value?.patternProperties) {
+  if ('patternProperties' in value) {
+    return null
+  }
+
+  if (value?.allOf) {
     return null
   }
 
@@ -139,7 +144,7 @@ const displayPropertyHeading = (
  */
 const hasComplexArrayItems = computed(() => {
   const value = optimizedValue.value
-  if (!value?.items || typeof value.items !== 'object') {
+  if (!value || !isArraySchema(value) || typeof value.items !== 'object') {
     return false
   }
 
@@ -162,6 +167,7 @@ const hasComplexArrayItems = computed(() => {
 const shouldRenderArrayItemComposition = (composition: string): boolean => {
   const value = optimizedValue.value
   if (
+    (value && isArraySchema(value) === false) ||
     !value?.items ||
     typeof value.items !== 'object' ||
     !(composition in value.items)
@@ -186,7 +192,8 @@ const shouldRenderObjectProperties = computed(() => {
   const value = optimizedValue.value
   const isObjectType = isTypeObject(value)
 
-  const hasPropertiesToRender = value.properties || value.additionalProperties
+  const hasPropertiesToRender =
+    'properties' in value || 'additionalProperties' in value
 
   return isObjectType && hasPropertiesToRender
 })
@@ -208,6 +215,7 @@ const compositionsToRender = computed(() => {
       const hasPropertyComposition =
         optimizedValue.value?.[composition] &&
         !(
+          isArraySchema(optimizedValue.value) &&
           optimizedValue.value?.items &&
           typeof composition === 'string' &&
           typeof optimizedValue.value.items === 'object' &&
@@ -224,7 +232,9 @@ const compositionsToRender = computed(() => {
       // Check if we should render array item composition
       if (
         shouldRenderArrayItemComposition(composition) &&
-        optimizedValue.value?.items
+        optimizedValue.value &&
+        isArraySchema(optimizedValue.value) &&
+        optimizedValue.value.items
       ) {
         return {
           composition,
@@ -304,7 +314,9 @@ const compositionsToRender = computed(() => {
       v-if="
         (
           optimizedValue?.enum ||
-          getResolvedRef(optimizedValue?.items)?.enum ||
+          (optimizedValue &&
+            isArraySchema(optimizedValue) &&
+            getResolvedRef(optimizedValue?.items)?.enum) ||
           []
         ).length
       "
@@ -325,7 +337,11 @@ const compositionsToRender = computed(() => {
 
     <!-- Array of objects -->
     <template
-      v-if="optimizedValue?.items && typeof optimizedValue.items === 'object'">
+      v-if="
+        optimizedValue &&
+        isArraySchema(optimizedValue) &&
+        typeof optimizedValue.items === 'object'
+      ">
       <div
         v-if="shouldRenderArrayOfObjects"
         class="children">

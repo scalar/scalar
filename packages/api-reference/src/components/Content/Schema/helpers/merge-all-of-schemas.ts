@@ -1,6 +1,7 @@
 import { objectKeys } from '@scalar/helpers/object/object-keys'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 
 /**
  * Merges multiple OpenAPI schema objects into a single schema object.
@@ -20,13 +21,7 @@ export const mergeAllOfSchemas = (schemas: SchemaObject | undefined, rootSchema?
   const result = {} as SchemaObject
 
   // Extract base schema properties (everything except allOf)
-  const baseSchema = {} as SchemaObject
-  const schemaKeys = objectKeys(schemas)
-  for (const key of schemaKeys) {
-    if (key !== 'allOf') {
-      baseSchema[key] = schemas[key]
-    }
-  }
+  const { allOf: _, ...baseSchema } = schemas
 
   // Process allOf schemas first
   for (const _schema of schemas.allOf) {
@@ -82,63 +77,77 @@ const mergeSchemaIntoResult = (result: SchemaObject, schema: SchemaObject, overr
 
   // Loop through all schema properties and handle them appropriately
   for (const key of schemaKeys) {
-    const value = getResolvedRef(schema[key])
+    const value = getResolvedRef(schema[key]) as SchemaObject
 
     if (value === undefined) {
       continue
     }
 
     // Required
-    if (key === 'required') {
+    if ((key as string) === 'required') {
       // Merge required fields with deduplication
       if (Array.isArray(value) && value.length > 0) {
+        // @ts-ignore
         if (result.required?.length) {
+          // @ts-ignore
           result.required = [...new Set([...result.required, ...value])]
         } else {
+          // @ts-ignore
           result.required = value.slice()
         }
       }
     }
     // Properties
-    else if (key === 'properties') {
+    else if ((key as string) === 'properties') {
       // Merge properties recursively
       if (value && typeof value === 'object') {
+        // @ts-ignore
         if (!result.properties) {
+          // @ts-ignore
           result.properties = {}
         }
+
+        // @ts-ignore
         mergePropertiesIntoResult(result.properties, value)
       }
     }
     // Items
-    else if (key === 'items') {
+    else if ((key as string) === 'items') {
       // Handle items (for both arrays and objects with items)
       const items = getResolvedRef(value)
       if (items) {
-        if (schema.type === 'array') {
+        if (isArraySchema(schema)) {
+          // @ts-ignore
           if (!result.items) {
-            result.items = {} as SchemaObject
+            // @ts-ignore
+            result.items = {}
           }
 
           // Handle allOf within array items
           if (items.allOf) {
             const mergedItems = mergeAllOfSchemas(items)
+            // @ts-ignore
             Object.assign(result.items, mergedItems)
           } else {
+            // @ts-ignore
             mergeItemsIntoResult(getResolvedRef(result.items), items)
           }
         }
         // For non-array types with items.allOf, merge into properties
         else if (items.allOf) {
           const mergedItems = mergeAllOfSchemas(items)
-          if (mergedItems.properties) {
-            if (!result.properties) {
+          if ('properties' in mergedItems) {
+            if (!('properties' in result)) {
+              // @ts-ignore
               result.properties = {}
             }
-            mergePropertiesIntoResult(result.properties, mergedItems.properties)
+
+            'properties' in result && mergePropertiesIntoResult(result.properties, mergedItems.properties)
           }
         }
         // For non-array types without allOf, still set items if not already set
-        else if (!result.items) {
+        else if (!('items' in result)) {
+          // @ts-ignore
           result.items = items
         }
       }
@@ -151,14 +160,15 @@ const mergeSchemaIntoResult = (result: SchemaObject, schema: SchemaObject, overr
     }
     // OneOf/AnyOf
     else if (key === 'oneOf' || key === 'anyOf') {
-      // Merge oneOf/anyOf subschemas
+      // Merge oneOf/anyOf subschema
       if (Array.isArray(value)) {
-        if (!result.properties) {
+        if (!('properties' in result)) {
+          // @ts-ignore
           result.properties = {}
         }
         for (const _option of value) {
           const option = getResolvedRef(_option)
-          if (option.properties) {
+          if (option.properties && 'properties' in result) {
             mergePropertiesIntoResult(result.properties, option.properties)
           }
         }
@@ -171,6 +181,7 @@ const mergeSchemaIntoResult = (result: SchemaObject, schema: SchemaObject, overr
     // For all other properties, preserve the first occurrence or override if specified
     else {
       if (override || result[key] === undefined) {
+        // @ts-ignore
         result[key] = value
       }
     }
@@ -181,8 +192,8 @@ const mergeSchemaIntoResult = (result: SchemaObject, schema: SchemaObject, overr
  * Efficiently merges properties into a result object without creating new objects.
  */
 const mergePropertiesIntoResult = (
-  result: SchemaObject['properties'],
-  properties: SchemaObject['properties'],
+  result: Extract<SchemaObject, { type: 'object' }>['properties'],
+  properties: Extract<SchemaObject, { type: 'object' }>['properties'],
 ): void => {
   const propertyKeys = Object.keys(properties ?? {})
   if (!properties || !result || propertyKeys.length === 0) {
@@ -201,7 +212,7 @@ const mergePropertiesIntoResult = (
       // Handle new property with allOf
       if (schema.allOf) {
         result[key] = mergeAllOfSchemas(schema)
-      } else if (schema.type === 'array' && getResolvedRef(schema.items)?.allOf) {
+      } else if ('type' in schema && schema.type === 'array' && getResolvedRef(schema.items)?.allOf) {
         result[key] = {
           ...schema,
           items: mergeAllOfSchemas(getResolvedRef(schema.items)),
@@ -217,7 +228,7 @@ const mergePropertiesIntoResult = (
 
     if (schema.allOf) {
       result[key] = mergeAllOfSchemas({ allOf: [existing, ...schema.allOf] } as SchemaObject)
-    } else if (schema.type === 'array' && schema.items) {
+    } else if (isArraySchema(schema) && isArraySchema(existing) && schema.items) {
       const existingItems = getResolvedRef(existing.items)
       result[key] = {
         ...existing,
@@ -226,7 +237,7 @@ const mergePropertiesIntoResult = (
       }
     } else {
       // Create merged object with properties handled separately
-      if (existing.properties && schema.properties) {
+      if ('properties' in existing && 'properties' in schema) {
         const merged = { ...existing, ...schema }
         merged.properties = { ...existing.properties }
         mergePropertiesIntoResult(merged.properties, schema.properties)
@@ -234,6 +245,7 @@ const mergePropertiesIntoResult = (
       }
       // Simple merge without property recursion
       else {
+        // @ts-ignore
         result[key] = { ...schema, ...existing }
       }
     }
@@ -274,7 +286,7 @@ const mergeItemsIntoResult = (result: SchemaObject, items: SchemaObject): void =
   Object.assign(result, items)
 
   // Merge properties if both have them
-  if (result.properties && items.properties) {
+  if ('properties' in result && 'properties' in items) {
     mergePropertiesIntoResult(result.properties, items.properties)
   }
 }
@@ -310,10 +322,12 @@ const mergeItems = (existing: SchemaObject, incoming: SchemaObject): SchemaObjec
   const merged = { ...existing, ...incoming }
 
   // Recursively merge properties if both have properties
-  if (existing.properties && incoming.properties) {
+  if ('properties' in existing && 'properties' in incoming) {
+    // @ts-ignore
     merged.properties = { ...existing.properties }
+    // @ts-ignore
     mergePropertiesIntoResult(merged.properties, incoming.properties)
   }
 
-  return merged
+  return merged as SchemaObject
 }

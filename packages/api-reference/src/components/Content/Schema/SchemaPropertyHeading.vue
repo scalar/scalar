@@ -2,6 +2,11 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import {
+  isArraySchema,
+  isNumberSchema,
+  isStringSchema,
+} from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 import { computed, toRef } from 'vue'
 
 import { Badge } from '@/components/Badge'
@@ -52,8 +57,9 @@ const constValue = computed(() => {
   }
 
   // Check items for const values (for arrays)
-  if (schema.items) {
+  if (isArraySchema(schema) && schema.items) {
     const items = getResolvedRef(schema.items)
+
     if (isDefined(items.const)) {
       return items.const
     }
@@ -75,96 +81,104 @@ const validationProperties = computed(() => {
   const properties = []
 
   // Array validation properties
-  if (schema.minItems || schema.maxItems) {
-    properties.push({
-      key: 'array-range',
-      value: `${schema.minItems || ''}…${schema.maxItems || ''}`,
-    })
+  if (isArraySchema(schema)) {
+    if (schema.minItems || schema.maxItems) {
+      properties.push({
+        key: 'array-range',
+        value: `${schema.minItems || ''}…${schema.maxItems || ''}`,
+      })
+    }
+
+    // Unique items
+    if (schema.uniqueItems) {
+      properties.push({
+        key: 'unique-items',
+        value: 'unique!',
+      })
+    }
   }
 
   // String length properties
-  if (schema.minLength) {
-    properties.push({
-      key: 'min-length',
-      prefix: 'min length: ',
-      value: schema.minLength,
-    })
-  }
+  if (isStringSchema(schema)) {
+    if (schema.minLength) {
+      properties.push({
+        key: 'min-length',
+        prefix: 'min length: ',
+        value: schema.minLength,
+      })
+    }
 
-  if (schema.maxLength) {
-    properties.push({
-      key: 'max-length',
-      prefix: 'max length: ',
-      value: schema.maxLength,
-    })
-  }
+    if (schema.maxLength) {
+      properties.push({
+        key: 'max-length',
+        prefix: 'max length: ',
+        value: schema.maxLength,
+      })
+    }
 
-  // Unique items
-  if (schema.uniqueItems) {
-    properties.push({
-      key: 'unique-items',
-      value: 'unique!',
-    })
+    // Pattern
+    if (schema.pattern) {
+      properties.push({
+        key: 'pattern',
+        value: schema.pattern,
+        code: true,
+        truncate: true,
+      })
+    }
   }
 
   // Format
-  if (schema.format) {
-    properties.push({
-      key: 'format',
-      value: schema.format,
-      truncate: true,
-    })
+  if (isStringSchema(schema) || isNumberSchema(schema)) {
+    if (schema.format) {
+      properties.push({
+        key: 'format',
+        value: schema.format,
+        truncate: true,
+      })
+    }
   }
 
   // Numeric validation properties
-  if (isDefined(schema.exclusiveMinimum)) {
-    properties.push({
-      key: 'exclusive-minimum',
-      prefix: 'greater than: ',
-      value: schema.exclusiveMinimum,
-    })
-  }
+  if (isNumberSchema(schema)) {
+    if (isDefined(schema.exclusiveMinimum)) {
+      properties.push({
+        key: 'exclusive-minimum',
+        prefix: 'greater than: ',
+        value: schema.exclusiveMinimum,
+      })
+    }
 
-  if (isDefined(schema.minimum)) {
-    properties.push({
-      key: 'minimum',
-      prefix: 'min: ',
-      value: schema.minimum,
-    })
-  }
+    if (isDefined(schema.minimum)) {
+      properties.push({
+        key: 'minimum',
+        prefix: 'min: ',
+        value: schema.minimum,
+      })
+    }
 
-  if (isDefined(schema.exclusiveMaximum)) {
-    properties.push({
-      key: 'exclusive-maximum',
-      prefix: 'less than: ',
-      value: schema.exclusiveMaximum,
-    })
-  }
+    if (isDefined(schema.exclusiveMaximum)) {
+      properties.push({
+        key: 'exclusive-maximum',
+        prefix: 'less than: ',
+        value: schema.exclusiveMaximum,
+      })
+    }
 
-  if (isDefined(schema.maximum)) {
-    properties.push({
-      key: 'maximum',
-      prefix: 'max: ',
-      value: schema.maximum,
-    })
-  }
+    if (isDefined(schema.maximum)) {
+      properties.push({
+        key: 'maximum',
+        prefix: 'max: ',
+        value: schema.maximum,
+      })
+    }
 
-  if (isDefined(schema.multipleOf)) {
-    properties.push({
-      key: 'multiple-of',
-      prefix: 'multiple of: ',
-      value: schema.multipleOf,
-    })
-  }
-
-  // Pattern
-  if (schema.pattern) {
-    properties.push({
-      key: 'pattern',
-      value: schema.pattern,
-      code: true,
-      truncate: true,
-    })
+    if (isDefined(schema.multipleOf)) {
+      properties.push({
+        key: 'multiple-of',
+        prefix: 'multiple of: ',
+        value: schema.multipleOf,
+      })
+    }
   }
 
   return properties
@@ -181,7 +195,7 @@ const modelName = computed(() => {
 
 /** Check if we should show the type information */
 const shouldShowType = computed(() => {
-  if (!props.value?.type) {
+  if (!props.value || !('type' in props.value)) {
     return false
   }
 
@@ -304,7 +318,7 @@ const flattenedDefaultValue = computed(() => {
     </div>
     <template v-else>
       <!-- Shows only when a composition is used (so props.value?.type is undefined) -->
-      <SchemaPropertyDetail v-if="props.value?.nullable === true">
+      <SchemaPropertyDetail v-if="(props.value as any)?.nullable === true">
         nullable
       </SchemaPropertyDetail>
     </template>
@@ -327,7 +341,10 @@ const flattenedDefaultValue = computed(() => {
     <SchemaPropertyExamples
       v-if="props.withExamples"
       :example="
-        props.value?.example || getResolvedRef(props.value?.items)?.example
+        props.value?.example ||
+        (props.value &&
+          isArraySchema(props.value) &&
+          getResolvedRef(props.value?.items)?.example)
       "
       :examples="props.value?.examples" />
   </div>
