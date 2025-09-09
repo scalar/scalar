@@ -501,12 +501,12 @@ type StructDefinition = {
 /**
  * Generates Go struct definitions from JSON data using abstract tree approach
  */
-function generateGoStructs(jsonData: any, structName: string = 'Request'): { structs: string; initialization: string } {
+export function generateGoStructs(
+  jsonData: any,
+  structName: string = 'Request',
+): { structs: string; initialization: string } {
   const structDefinitions: StructDefinition[] = []
   const typeRegistry = new Map<string, GoTypeNode>()
-
-  // Build the abstract tree - create separate structs for nested objects
-  const _rootType = buildTypeTreeWithSeparateStructs(jsonData, structName, structDefinitions, typeRegistry)
 
   // Add the main struct definition with separate structs
   const mainStructFields = generateMainStructFields(jsonData, structName, structDefinitions, typeRegistry)
@@ -830,12 +830,21 @@ function renderStructDefinition(structDef: StructDefinition): string {
 }`
   }
 
+  // Calculate the maximum field name length for alignment
+  const maxFieldNameLength = Math.max(...structDef.fields.map((field) => field.name.length))
+
+  // Calculate the maximum type length for alignment
+  const fieldTypes = structDef.fields.map((field) => renderTypeForStruct(field.type))
+  const maxTypeLength = Math.max(...fieldTypes.map((type) => type.length))
+
   const fieldLines = structDef.fields.map((field) => {
     const fieldType = renderTypeForStruct(field.type)
     const jsonTag = `\`${field.jsonTag}\``
 
-    // Use proper tab alignment for Go struct fields
-    return `\t${field.name} ${fieldType} ${jsonTag}`
+    // Align field names with proper spacing
+    const fieldName = field.name.padEnd(maxFieldNameLength)
+    const alignedType = fieldType.padEnd(maxTypeLength)
+    return `\t${fieldName} ${alignedType} ${jsonTag}`
   })
 
   return `type ${structDef.name} struct {

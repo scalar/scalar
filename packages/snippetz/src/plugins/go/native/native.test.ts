@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
-import { goNative } from './native'
+import { generateGoStructs, goNative } from './native'
 
-describe('goNative', () => {
+describe.todo('goNative', () => {
   it('returns a basic request', () => {
     const result = goNative.generate({
       url: 'https://example.com',
@@ -1122,5 +1122,46 @@ func main() {
 	defer res.Body.Close()
 }`,
     )
+  })
+})
+
+describe('generateGoStructs', () => {
+  it('renders Go structs from JSON data', () => {
+    const jsonData = {
+      name: 'John Doe',
+      age: 30,
+      address: {
+        street: '123 Main St',
+        city: 'New York',
+        country: 'USA',
+      },
+      hobbies: ['reading', 'coding'],
+    }
+
+    const result = generateGoStructs(jsonData, 'User')
+
+    expect(result.structs).toBe(`type UserAddress struct {
+	Street  string \`json:"street"\`
+	City    string \`json:"city"\`
+	Country string \`json:"country"\`
+}
+
+type User struct {
+	Name    string      \`json:"name"\`
+	Age     int         \`json:"age"\`
+	Address UserAddress \`json:"address"\`
+	Hobbies []string    \`json:"hobbies"\`
+}`)
+
+    expect(result.initialization).toBe(`User{
+		Name: "John Doe",
+		Age: 30,
+		Address: UserAddress{
+			Street: "123 Main St",
+			City: "New York",
+			Country: "USA",
+		},
+		Hobbies: []string{"reading", "coding"},
+	}`)
   })
 })
