@@ -64,6 +64,10 @@ const {
   workspace: Workspace
 }>()
 
+const emits = defineEmits<{
+  authorized: []
+}>()
+
 const { layout: clientLayout } = useLayout()
 const {
   securitySchemes,
@@ -261,10 +265,10 @@ const openAuthCombobox = (event: Event) => {
         <ScalarComboboxMultiselect
           class="w-72 text-xs"
           :modelValue="selectedSchemeOptions"
-          teleport
           multiple
-          placement="bottom-end"
           :options="schemeOptions"
+          placement="bottom-end"
+          teleport
           @delete="handleDeleteScheme"
           @update:modelValue="updateSelectedAuth">
           <ScalarButton
@@ -286,13 +290,13 @@ const openAuthCombobox = (event: Event) => {
               Auth Type
             </template>
             <ScalarIconCaretDown
-              weight="bold"
-              class="size-3 shrink-0 transition-transform duration-100 group-aria-expanded/combobox-button:rotate-180" />
+              class="size-3 shrink-0 transition-transform duration-100 group-aria-expanded/combobox-button:rotate-180"
+              weight="bold" />
           </ScalarButton>
           <template #option="{ option, selected }">
             <ScalarListboxCheckbox
-              :selected="selected"
-              multiselect />
+              multiselect
+              :selected="selected" />
             <div class="min-w-0 flex-1 truncate">
               {{ option.label }}
             </div>
@@ -301,11 +305,11 @@ const openAuthCombobox = (event: Event) => {
                 option.isDeletable ??
                 (clientLayout !== 'modal' && layout !== 'reference')
               "
-              size="xs"
-              :label="`Delete ${option.label}`"
+              class="-m-0.5 shrink-0 p-0.5 opacity-0 group-hover/item:opacity-100"
               :icon="ScalarIconTrash"
-              @click.stop="handleDeleteScheme(option)"
-              class="-m-0.5 shrink-0 p-0.5 opacity-0 group-hover/item:opacity-100" />
+              :label="`Delete ${option.label}`"
+              size="xs"
+              @click.stop="handleDeleteScheme(option)" />
           </template>
         </ScalarComboboxMultiselect>
       </div>
@@ -318,7 +322,8 @@ const openAuthCombobox = (event: Event) => {
       :persistAuth="persistAuth"
       :selectedSchemeOptions="selectedSchemeOptions"
       :server="server"
-      :workspace="workspace" />
+      :workspace="workspace"
+      @authorized="emits('authorized')" />
     <DeleteRequestAuthModal
       :scheme="selectedScheme"
       :state="deleteSchemeModal"

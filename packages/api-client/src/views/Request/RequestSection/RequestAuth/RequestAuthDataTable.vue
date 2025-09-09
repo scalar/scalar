@@ -35,6 +35,11 @@ const {
   workspace: Workspace
 }>()
 
+const emits = defineEmits<{
+  /** Emits when the user has authorized with an oauth2 flow */
+  authorized: []
+}>()
+
 const deleteSchemeModal = useModal()
 const selectedScheme = ref<{ id: SecurityScheme['uid']; label: string } | null>(
   null,
@@ -111,7 +116,8 @@ watch(
         :persistAuth="persistAuth"
         :securitySchemeUids="activeScheme"
         :server="server"
-        :workspace="workspace" />
+        :workspace="workspace"
+        @authorized="emits('authorized')" />
     </DataTable>
 
     <div

@@ -40,6 +40,10 @@ const {
   workspace: Workspace
 }>()
 
+const emits = defineEmits<{
+  authorized: []
+}>()
+
 const loadingState = useLoadingState()
 const { toast } = useToasts()
 const storeContext = useWorkspace()
@@ -67,6 +71,7 @@ const handleAuthorize = async () => {
 
   if (accessToken) {
     updateScheme(`flows.${flow.type}.token`, accessToken)
+    emits('authorized')
   } else {
     console.error(error)
     toast(error?.message ?? 'Failed to authorize', 'error')

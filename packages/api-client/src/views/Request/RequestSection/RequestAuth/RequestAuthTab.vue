@@ -47,6 +47,10 @@ const {
   workspace: Workspace
 }>()
 
+const emits = defineEmits<{
+  authorized: []
+}>()
+
 const storeContext = useWorkspace()
 const { collectionMutators, securitySchemes, securitySchemeMutators } =
   storeContext
@@ -180,8 +184,8 @@ const dataTableInputProps = {
     <!-- Description -->
     <DataTableRow v-if="scheme?.description && security.length <= 1">
       <DataTableCell
-        class="max-h-[auto]"
-        :aria-label="scheme.description">
+        :aria-label="scheme.description"
+        class="max-h-[auto]">
         <ScalarMarkdownSummary
           class="auth-description bg-b-1 text-c-2 min-w-0 flex-1 px-3 py-1.25"
           :value="scheme.description" />
@@ -290,7 +294,8 @@ const dataTableInputProps = {
           :persistAuth="persistAuth"
           :scheme="scheme"
           :server="server"
-          :workspace="workspace" />
+          :workspace="workspace"
+          @authorized="emits('authorized')" />
       </template>
     </template>
 
