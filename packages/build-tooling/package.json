@@ -100,7 +100,6 @@
   },
   "devDependencies": {
     "@types/node": "catalog:*",
-    "@types/picomatch": "^2.3.3",
-    "vite-node": "^2.1.1"
+    "@types/picomatch": "^2.3.3"
   }
 }
