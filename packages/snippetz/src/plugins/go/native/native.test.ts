@@ -497,7 +497,7 @@ import (
 )
 
 func main() {
-	url := "https://example.com?foo=bar&bar=foo"
+	url := "https://example.com/?foo=bar&bar=foo"
 
 	req, _ := http.NewRequest("GET", url, nil)
 
@@ -1107,6 +1107,7 @@ func main() {
 	req, _ := http.NewRequest("POST", url, payload)
 
 	req.Header.Set("Content-Type", "application/json")
+
 	res, _ := http.DefaultClient.Do(req)
 
 	defer res.Body.Close()
@@ -1243,7 +1244,6 @@ func main() {
 
 	fmt.Println(res)
 	fmt.Println(string(body))
-
 }`,
     )
   })
