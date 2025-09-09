@@ -259,13 +259,13 @@ describe('get-schema-type', () => {
     })
 
     it('handles nullable array schema with items that have no type', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = {
         type: 'array',
         nullable: true,
         items: {},
-      })
+      }
 
-      const result = getSchemaType(schema)
+      const result = getSchemaType(schema as any)
 
       expect(result).toBe('array | null')
     })
@@ -330,7 +330,7 @@ describe('get-schema-type', () => {
 
       const result = getSchemaType(schema)
 
-      expect(result).toBe('')
+      expect(result).toBe('array string[]')
     })
 
     it('handles deeply nested array items', () => {

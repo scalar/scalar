@@ -7,11 +7,11 @@ import Schema from './Schema.vue'
 
 describe('Schema', () => {
   describe('shouldShowDescription computed property', () => {
-    it('shows the base description with allOf composition', () => {
+    it('shows the base description of the first allOf schema', () => {
       const wrapper = mount(Schema, {
         props: {
           name: 'Request Body',
-          value: coerceValue(SchemaObjectSchema, {
+          schema: coerceValue(SchemaObjectSchema, {
             description: 'This description should be shown',
             allOf: [
               {
@@ -31,14 +31,13 @@ describe('Schema', () => {
 
       const text = wrapper.text()
       expect(text).toContain('This description should be shown')
-      expect(text).toContain('This description should be shown 2')
     })
 
     it('shows the first description with allOf composition', () => {
       const wrapper = mount(Schema, {
         props: {
           name: 'Request Body',
-          value: coerceValue(SchemaObjectSchema, {
+          schema: coerceValue(SchemaObjectSchema, {
             allOf: [
               {
                 type: 'object',
@@ -60,10 +59,10 @@ describe('Schema', () => {
       expect(text).not.toContain('This description should not be shown')
     })
 
-    it('does not show the allOf description if we are not in the Request Body', () => {
+    it('does show the allOf description', () => {
       const wrapper = mount(Schema, {
         props: {
-          value: coerceValue(SchemaObjectSchema, {
+          schema: {
             type: 'object',
             allOf: [
               {
@@ -76,12 +75,12 @@ describe('Schema', () => {
                 properties: { email: { type: 'string' } },
               },
             ],
-          }),
+          },
         },
       })
 
       const text = wrapper.text()
-      expect(text).not.toContain('This description should not be shown')
+      expect(text).toContain('This description should not be shown')
     })
   })
 
@@ -89,7 +88,7 @@ describe('Schema', () => {
     it('shows special toggle button when additionalProperties is true', () => {
       const wrapper = mount(Schema, {
         props: {
-          value: coerceValue(SchemaObjectSchema, {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               name: { type: 'string' },
@@ -107,7 +106,7 @@ describe('Schema', () => {
     it('does not show special toggle button when additionalProperties is false', () => {
       const wrapper = mount(Schema, {
         props: {
-          value: coerceValue(SchemaObjectSchema, {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               name: { type: 'string' },
@@ -124,7 +123,7 @@ describe('Schema', () => {
     it('shows special toggle button with screen reader text when name is provided', () => {
       const wrapper = mount(Schema, {
         props: {
-          value: coerceValue(SchemaObjectSchema, {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               name: { type: 'string' },
@@ -143,7 +142,7 @@ describe('Schema', () => {
     it('adds border-t class when additionalProperties is true and disclosure is open', async () => {
       const wrapper = mount(Schema, {
         props: {
-          value: coerceValue(SchemaObjectSchema, {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               name: { type: 'string' },
@@ -167,7 +166,7 @@ describe('Schema', () => {
     it('renders additional properties schema when disclosure is opened', async () => {
       const wrapper = mount(Schema, {
         props: {
-          value: coerceValue(SchemaObjectSchema, {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               name: { type: 'string' },
@@ -193,7 +192,7 @@ describe('Schema', () => {
     it('prevents click propagation when noncollapsible is true', async () => {
       const wrapper = mount(Schema, {
         props: {
-          value: coerceValue(SchemaObjectSchema, {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               name: { type: 'string' },
@@ -218,7 +217,7 @@ describe('Schema', () => {
     it('does not prevent click propagation when noncollapsible is false', async () => {
       const wrapper = mount(Schema, {
         props: {
-          value: coerceValue(SchemaObjectSchema, {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               name: { type: 'string' },
@@ -243,7 +242,7 @@ describe('Schema', () => {
     it('shows Add icon in toggle button', () => {
       const wrapper = mount(Schema, {
         props: {
-          value: coerceValue(SchemaObjectSchema, {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               name: { type: 'string' },
@@ -263,7 +262,7 @@ describe('Schema', () => {
     it('renders additional properties with noncollapsible prop set to true', async () => {
       const wrapper = mount(Schema, {
         props: {
-          value: coerceValue(SchemaObjectSchema, {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               name: { type: 'string' },
@@ -288,7 +287,7 @@ describe('Schema', () => {
     it('handles additionalProperties as boolean true correctly', async () => {
       const wrapper = mount(Schema, {
         props: {
-          value: coerceValue(SchemaObjectSchema, {
+          schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
               name: { type: 'string' },
@@ -315,13 +314,13 @@ describe('Schema', () => {
     it('handles additionalProperties as empty object correctly', async () => {
       const wrapper = mount(Schema, {
         props: {
-          value: coerceValue(SchemaObjectSchema, {
+          schema: {
             type: 'object',
             properties: {
               name: { type: 'string' },
             },
             additionalProperties: {},
-          }),
+          } as any,
           additionalProperties: true,
         },
       })
@@ -344,7 +343,7 @@ describe('Schema', () => {
     it('should render properties by required alphabetical order', () => {
       const wrapper = mount(Schema, {
         props: {
-          value: coerceValue(SchemaObjectSchema, {
+          schema: {
             type: 'object',
             properties: {
               gOptional: { type: 'string' },
@@ -356,7 +355,7 @@ describe('Schema', () => {
               cRequired: { type: 'string' },
             },
             required: ['aRequired', 'bRequired', 'cRequired', 'dRequired'],
-          }),
+          },
         },
       })
 

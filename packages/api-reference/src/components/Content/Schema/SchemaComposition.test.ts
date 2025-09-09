@@ -103,7 +103,7 @@ describe('SchemaComposition', () => {
       const wrapper = mount(SchemaComposition, {
         props: {
           composition: 'anyOf',
-          value: coerceValue(SchemaObjectSchema, {
+          value: {
             anyOf: [
               {
                 type: 'object',
@@ -111,9 +111,9 @@ describe('SchemaComposition', () => {
               },
               { nullable: true },
             ],
-          }),
+          },
           level: 0,
-        },
+        } as any,
       })
 
       const listbox = wrapper.findComponent({ name: 'ScalarListbox' })

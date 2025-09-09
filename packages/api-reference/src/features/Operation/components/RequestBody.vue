@@ -2,10 +2,10 @@
 import { ScalarMarkdown } from '@scalar/components'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 import { computed, ref } from 'vue'
 
 import { Schema } from '@/components/Content/Schema'
+import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 
@@ -41,7 +41,7 @@ const schema = computed(() =>
  */
 const partitionedSchema = computed(() => {
   // Early return if not an object schema
-  if (!schema.value || !isObjectSchema(schema.value)) {
+  if (!schema.value || !isTypeObject(schema.value)) {
     return null
   }
 

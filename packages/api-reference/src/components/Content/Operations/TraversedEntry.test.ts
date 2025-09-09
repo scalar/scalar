@@ -6,10 +6,10 @@ import { describe, expect, it, vi } from 'vitest'
 
 import type { TraversedEntry, TraversedOperation, TraversedTag } from '@/features/traverse-schema'
 import type { TraversedWebhook } from '@/features/traverse-schema/types'
-
-import TraversedEntryComponent from './TraversedEntry.vue'
 import { createMockNavState, createMockPluginManager, createMockSidebar } from '@/helpers/test-utils'
 import { useNavState } from '@/hooks/useNavState'
+
+import TraversedEntryComponent from './TraversedEntry.vue'
 
 vi.mock('@/features/sidebar', () => ({ useSidebar: vi.fn(() => createMockSidebar()) }))
 vi.mock('@/hooks/useNavState', () => ({ useNavState: vi.fn(() => createMockNavState('')) }))
@@ -738,7 +738,7 @@ describe('TraversedEntry', async () => {
         },
       })
 
-      const component = wrapper.vm as any
+      const component = wrapper.vm
       expect(component.isLazy(entries[0], 0)).toBe(null)
       expect(component.isLazy(entries[1], 1)).toBe(null)
     })
@@ -762,7 +762,7 @@ describe('TraversedEntry', async () => {
         },
       })
 
-      const component = wrapper.vm as any
+      const component = wrapper.vm
       expect(component.isLazy(entries[0], 0)).toBe(null)
       expect(component.isLazy(entries[1], 1)).toBe(null)
     })
@@ -792,7 +792,7 @@ describe('TraversedEntry', async () => {
         },
       })
 
-      const component = wrapper.vm as any
+      const component = wrapper.vm
       // Index 0 is before current index (1)
       expect(component.isLazy(entries[0], 0)).toBe('prev')
       // Index 1 is current index

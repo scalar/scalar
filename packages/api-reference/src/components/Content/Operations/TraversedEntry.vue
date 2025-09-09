@@ -90,6 +90,7 @@ const isLazy = (entry: TraversedEntry, index: number) => {
 
 defineExpose({
   currentIndex,
+  isLazy,
 })
 </script>
 

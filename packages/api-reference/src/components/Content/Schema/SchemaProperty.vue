@@ -366,7 +366,7 @@ const compositionsToRender = computed(() => {
       :level="level"
       :name="name"
       :noncollapsible="noncollapsible"
-      :value="getResolvedRef(compositionData.value)!" />
+      :value="getResolvedRef(props.value)!" />
     <SpecificationExtension :value="optimizedValue" />
   </component>
 </template>

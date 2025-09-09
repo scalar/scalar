@@ -5,7 +5,6 @@ import type {
   DiscriminatorObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 import { computed } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
@@ -76,10 +75,9 @@ const schemaDescription = computed(() => {
 
   // Will be shown in the properties anyway
   if (
-    isObjectSchema(schema) &&
-    !schema.properties &&
-    !schema.patternProperties &&
-    !schema.additionalProperties
+    !('properties' in schema) &&
+    !('patternProperties' in schema) &&
+    !('additionalProperties' in schema)
   ) {
     return null
   }

@@ -5,8 +5,9 @@ import type {
   DiscriminatorObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 import { computed } from 'vue'
+
+import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
 
 import SchemaProperty from './SchemaProperty.vue'
 
@@ -33,7 +34,7 @@ const {
  * Required properties appear first, followed by optional properties.
  */
 const sortedProperties = computed(() => {
-  if (!isObjectSchema(schema) || !schema.properties) {
+  if (!isTypeObject(schema) || !schema.properties) {
     return []
   }
 
@@ -130,7 +131,7 @@ const getAdditionalPropertiesValue = (
 
 <template>
   <!-- Properties -->
-  <template v-if="isObjectSchema(schema) && schema.properties">
+  <template v-if="isTypeObject(schema) && schema.properties">
     <SchemaProperty
       v-for="property in sortedProperties"
       :key="property"
@@ -146,7 +147,7 @@ const getAdditionalPropertiesValue = (
   </template>
 
   <!-- patternProperties -->
-  <template v-if="isObjectSchema(schema) && schema.patternProperties">
+  <template v-if="isTypeObject(schema) && schema.patternProperties">
     <SchemaProperty
       v-for="[key, property] in Object.entries(schema.patternProperties)"
       :key="key"
@@ -161,7 +162,7 @@ const getAdditionalPropertiesValue = (
   </template>
 
   <!-- additionalProperties -->
-  <template v-if="isObjectSchema(schema) && schema.additionalProperties">
+  <template v-if="isTypeObject(schema) && schema.additionalProperties">
     <SchemaProperty
       :breadcrumb
       :compact

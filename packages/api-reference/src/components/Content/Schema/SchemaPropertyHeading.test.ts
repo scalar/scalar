@@ -692,7 +692,7 @@ describe('SchemaPropertyHeading', () => {
     it('renders nullable when type is undefined and nullable is true', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          value: coerceValue(SchemaObjectSchema, { nullable: true }),
+          value: { nullable: true } as any,
         },
       })
 

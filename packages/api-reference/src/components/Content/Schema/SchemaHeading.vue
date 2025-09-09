@@ -1,10 +1,9 @@
 <script lang="ts" setup>
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import {
-  isArraySchema,
-  isObjectSchema,
-} from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 import { computed } from 'vue'
+
+import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
 
 const { value } = defineProps<{
   value: SchemaObject
@@ -25,10 +24,7 @@ const failsafeType = computed(() => {
     return 'array'
   }
 
-  if (
-    isObjectSchema(value) &&
-    (value.properties || value.additionalProperties)
-  ) {
+  if (isTypeObject(value) && (value.properties || value.additionalProperties)) {
     return 'object'
   }
 
@@ -49,7 +45,7 @@ const failsafeType = computed(() => {
             ? value.type.join(' | ')
             : 'unknown type'
       ">
-      <template v-if="isObjectSchema(value)"> {} </template>
+      <template v-if="isTypeObject(value)"> {} </template>
       <template v-if="isArraySchema(value)"> [] </template>
       <template v-if="value.enum"> enum </template>
     </span>

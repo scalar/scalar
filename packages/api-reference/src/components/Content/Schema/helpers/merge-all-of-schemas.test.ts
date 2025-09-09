@@ -13,7 +13,7 @@ describe('mergeAllOfSchemas', () => {
   })
 
   it('merges basic properties from multiple schemas', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = {
       allOf: [
         {
           type: 'object',
@@ -27,9 +27,9 @@ describe('mergeAllOfSchemas', () => {
           },
         },
       ],
-    })
+    }
 
-    expect(mergeAllOfSchemas(schema)).toEqual({
+    expect(mergeAllOfSchemas(schema as any)).toEqual({
       type: 'object',
       properties: {
         name: { type: 'string' },
@@ -39,7 +39,7 @@ describe('mergeAllOfSchemas', () => {
   })
 
   it('handles nested allOf schemas', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = {
       allOf: [
         {
           allOf: [
@@ -57,9 +57,9 @@ describe('mergeAllOfSchemas', () => {
           ],
         },
       ],
-    })
+    }
 
-    expect(mergeAllOfSchemas(schema)).toEqual({
+    expect(mergeAllOfSchemas(schema as any)).toEqual({
       type: 'object',
       properties: {
         id: { type: 'string' },
@@ -69,7 +69,7 @@ describe('mergeAllOfSchemas', () => {
   })
 
   it('combines required fields from multiple schemas', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = {
       allOf: [
         {
           required: ['name'],
@@ -78,15 +78,15 @@ describe('mergeAllOfSchemas', () => {
           required: ['age'],
         },
       ],
-    })
+    }
 
-    expect(mergeAllOfSchemas(schema)).toEqual({
+    expect(mergeAllOfSchemas(schema as any)).toEqual({
       required: ['name', 'age'],
     })
   })
 
   it('preserves first type and description when duplicates exist', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = {
       allOf: [
         {
           type: 'object',
@@ -97,9 +97,9 @@ describe('mergeAllOfSchemas', () => {
           description: 'Second description', // Should be ignored
         },
       ],
-    })
+    }
 
-    expect(mergeAllOfSchemas(schema)).toEqual({
+    expect(mergeAllOfSchemas(schema as any)).toEqual({
       type: 'object',
       description: 'First description',
     })
@@ -128,7 +128,7 @@ describe('mergeAllOfSchemas', () => {
   })
 
   it('merges deeply nested schema structures', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = {
       allOf: [
         {
           type: 'object',
@@ -154,9 +154,9 @@ describe('mergeAllOfSchemas', () => {
           required: ['metadata'],
         },
       ],
-    })
+    }
 
-    expect(mergeAllOfSchemas(schema)).toEqual({
+    expect(mergeAllOfSchemas(schema as any)).toEqual({
       type: 'object',
       properties: {
         user: {
@@ -200,7 +200,7 @@ describe('mergeAllOfSchemas', () => {
   })
 
   it('merges allOf schemas within object items', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = {
       allOf: [
         {
           type: 'object',
@@ -224,9 +224,9 @@ describe('mergeAllOfSchemas', () => {
           },
         },
       ],
-    })
+    }
 
-    expect(mergeAllOfSchemas(schema)).toEqual({
+    expect(mergeAllOfSchemas(schema as any)).toEqual({
       type: 'object',
       properties: {
         id: { type: 'string' },
@@ -238,7 +238,7 @@ describe('mergeAllOfSchemas', () => {
   })
 
   it('merges allOf schemas within array items', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = {
       allOf: [
         {
           type: 'array',
@@ -263,9 +263,9 @@ describe('mergeAllOfSchemas', () => {
           },
         },
       ],
-    })
+    }
 
-    expect(mergeAllOfSchemas(schema)).toEqual({
+    expect(mergeAllOfSchemas(schema as any)).toEqual({
       type: 'array',
       items: {
         type: 'object',
@@ -281,7 +281,7 @@ describe('mergeAllOfSchemas', () => {
   })
 
   it('properly merges multiple top-level objects with array items containing allOf', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = {
       allOf: [
         {
           'type': 'object',
@@ -337,9 +337,9 @@ describe('mergeAllOfSchemas', () => {
           },
         },
       ],
-    })
+    }
 
-    expect(mergeAllOfSchemas(schema)).toEqual({
+    expect(mergeAllOfSchemas(schema as any)).toEqual({
       'type': 'object',
       'properties': {
         'top-level-property': {
@@ -372,7 +372,7 @@ describe('mergeAllOfSchemas', () => {
   })
 
   it('merges allOf schemas within a large complex schema', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = {
       'description': 'The big long nested list',
       'allOf': [
         {
@@ -478,9 +478,9 @@ describe('mergeAllOfSchemas', () => {
           },
         },
       ],
-    })
+    }
 
-    expect(mergeAllOfSchemas(schema)).toEqual({
+    expect(mergeAllOfSchemas(schema as any)).toEqual({
       'description': 'The big long nested list',
       'properties': {
         'next_page_token': {
@@ -544,7 +544,7 @@ describe('mergeAllOfSchemas', () => {
   })
 
   it('merges properties from oneOf/anyOf subschemas within allOf', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = {
       allOf: [
         {
           allOf: [
@@ -584,9 +584,9 @@ describe('mergeAllOfSchemas', () => {
           ],
         },
       ],
-    })
+    }
 
-    expect(mergeAllOfSchemas(schema)).toEqual({
+    expect(mergeAllOfSchemas(schema as any)).toEqual({
       properties: {
         a: { type: 'string', example: 'foo' },
         b: { type: 'number', example: 42 },
@@ -598,7 +598,7 @@ describe('mergeAllOfSchemas', () => {
   })
 
   it('preserves title from first schema that has them', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = {
       allOf: [
         {
           title: 'Planet',
@@ -615,9 +615,9 @@ describe('mergeAllOfSchemas', () => {
           },
         },
       ],
-    })
+    }
 
-    expect(mergeAllOfSchemas(schema)).toEqual({
+    expect(mergeAllOfSchemas(schema as any)).toEqual({
       title: 'Planet',
       type: 'object',
       properties: {
@@ -658,7 +658,7 @@ describe('mergeAllOfSchemas', () => {
   it('handles $ref values', () => {
     // Create schemas that reference each other using $ref
     const schemas = [
-      coerceValue(SchemaObjectSchema, {
+      {
         type: 'object',
         properties: {
           id: { '$ref-value': { type: 'string' } },
@@ -675,8 +675,8 @@ describe('mergeAllOfSchemas', () => {
             },
           },
         },
-      }),
-      coerceValue(SchemaObjectSchema, {
+      },
+      {
         type: 'object',
         properties: {
           things: { '$ref-value': { type: 'string' } },
@@ -684,11 +684,11 @@ describe('mergeAllOfSchemas', () => {
             '$ref-value': { allOf: [{ '$ref-value': { type: 'string' } }] },
           },
         },
-      }),
+      },
     ]
 
     // This should not throw an error and should return a merged result
-    const result = mergeAllOfSchemas({ allOf: schemas } as SchemaObject)
+    const result = mergeAllOfSchemas({ allOf: schemas } as any)
 
     expect(result).toStrictEqual({
       properties: {
@@ -716,7 +716,7 @@ describe('mergeAllOfSchemas', () => {
 
   it('merges allOf schemas containing $ref circular references', () => {
     // Create a more complex scenario with allOf and $ref circular references
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = {
       allOf: [
         {
           allOf: [
@@ -763,9 +763,9 @@ describe('mergeAllOfSchemas', () => {
           ],
         },
       ],
-    })
+    }
 
-    const result = mergeAllOfSchemas(schema)
+    const result = mergeAllOfSchemas(schema as any)
 
     expect(result).toStrictEqual({
       type: 'object',
@@ -831,7 +831,7 @@ describe('mergeAllOfSchemas', () => {
   })
 
   it('merges two objects with the same properties', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = {
       allOf: [
         {
           type: 'object',
@@ -858,9 +858,9 @@ describe('mergeAllOfSchemas', () => {
           minProperties: 50,
         },
       ],
-    })
+    }
 
-    expect(mergeAllOfSchemas(schema)).toStrictEqual({
+    expect(mergeAllOfSchemas(schema as any)).toStrictEqual({
       type: 'object',
       format: 'date-time',
       description: 'Second description',
