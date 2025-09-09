@@ -114,6 +114,13 @@ public class ScalarProperties {
     private String documentDownloadType = "both";
 
     /**
+     * Whether to expose the Scalar UI as an actuator endpoint.
+     * When enabled, the Scalar UI will be available at /actuator/scalar.
+     * Defaults to false.
+     */
+    private boolean actuatorEnabled = false;
+
+    /**
      * Gets the list of OpenAPI specification sources
      *
      * @return list of OpenAPI specification sources
@@ -363,6 +370,24 @@ public class ScalarProperties {
      */
     public void setDocumentDownloadType(String documentDownloadType) {
         this.documentDownloadType = documentDownloadType;
+    }
+
+    /**
+     * Checks if the actuator endpoint is enabled.
+     *
+     * @return true if actuator endpoint is enabled, false otherwise
+     */
+    public boolean isActuatorEnabled() {
+        return actuatorEnabled;
+    }
+
+    /**
+     * Sets whether the actuator endpoint is enabled.
+     *
+     * @param actuatorEnabled true to enable actuator endpoint, false to disable
+     */
+    public void setActuatorEnabled(boolean actuatorEnabled) {
+        this.actuatorEnabled = actuatorEnabled;
     }
 
     /**
