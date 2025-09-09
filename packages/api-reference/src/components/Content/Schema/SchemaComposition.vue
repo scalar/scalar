@@ -43,8 +43,8 @@ const props = withDefaults(
 const composition = computed(() =>
   [props.value[props.composition]]
     .flat()
-    .map((schema) => getResolvedRef(schema))
-    .filter(isDefined),
+    .map((schema) => ({ value: getResolvedRef(schema), original: schema }))
+    .filter((it) => isDefined(it.value)),
 )
 
 /**
@@ -54,7 +54,7 @@ const composition = computed(() =>
 const listboxOptions = computed((): ScalarListboxOption[] =>
   composition.value.map((schema, index: number) => ({
     id: String(index),
-    label: getSchemaType(schema) || 'Schema',
+    label: getSchemaType(schema.original!) || 'Schema',
   })),
 )
 
@@ -77,7 +77,7 @@ const humanizeType = (type: CompositionKeyword): string =>
 
 /** Inside the currently selected composition */
 const selectedComposition = computed(
-  () => composition.value[Number(selectedOption.value.id)],
+  () => composition.value[Number(selectedOption.value.id)].value,
 )
 </script>
 

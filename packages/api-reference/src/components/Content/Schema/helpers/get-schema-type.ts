@@ -54,14 +54,6 @@ export const getSchemaType = (valueOrRef: SchemaObject | ReferenceType<SchemaObj
     return ''
   }
 
-  if ('$ref' in valueOrRef) {
-    // Handle referenced schemas
-    const refName = getRefName(valueOrRef)
-    if (refName) {
-      return refName
-    }
-  }
-
   const value = getResolvedRef(valueOrRef)
 
   // Handle const values first (highest priority)
@@ -102,6 +94,14 @@ export const getSchemaType = (valueOrRef: SchemaObject | ReferenceType<SchemaObj
   // Handle type with content encoding
   if ('type' in value && value.type && value.contentEncoding) {
     return `${value.type} • ${value.contentEncoding}`
+  }
+
+  if ('$ref' in valueOrRef) {
+    // Handle referenced schemas
+    const refName = getRefName(valueOrRef)
+    if (refName) {
+      return refName
+    }
   }
 
   // Fallback to raw type
