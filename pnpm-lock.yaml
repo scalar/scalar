@@ -765,9 +765,6 @@ importers:
       '@scalar/snippetz':
         specifier: workspace:*
         version: link:../../packages/snippetz
-      shx:
-        specifier: ^0.4.0
-        version: 0.4.0
       vite-node:
         specifier: catalog:*
         version: 3.2.4(@types/node@22.15.3)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
