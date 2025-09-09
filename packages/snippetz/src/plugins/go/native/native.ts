@@ -248,7 +248,7 @@ func main() {
             const { structs, initialization } = generateGoStructs(jsonData, 'Request')
 
             // Store struct definitions separately to be added before main function
-            requestBody = `${indent('payload := ' + initialization)}\n`
+            requestBody = `${indentMultiline('payload := ' + initialization)}\n`
             requestBody += `${indent('jsonData, _ := json.Marshal(payload)')}\n`
             requestBody += `${indent('req, _ := http.NewRequest("' + method + '", url, bytes.NewBuffer(jsonData))')}\n`
             contentTypeHeader = `${indent('req.Header.Set("Content-Type", "application/json")')}\n`
@@ -451,6 +451,28 @@ function formatJson(jsonText: string): string {
   } catch {
     return escapeString(jsonText)
   }
+}
+
+/**
+ * Handles indentation for multi-line code blocks properly
+ * For single-line code, applies normal indentation
+ * For multi-line code, only indents the first line and preserves internal indentation
+ */
+function indentMultiline(code: string, level: number = 1): string {
+  const lines = code.split('\n')
+
+  if (lines.length === 1) {
+    // Single line - apply normal indentation
+    return indent(code, level)
+  }
+
+  // Multi-line - only indent the first line, preserve internal indentation
+  const tab = '\t'
+  const indentation = tab.repeat(level)
+  const firstLine = `${indentation}${lines[0]}`
+  const remainingLines = lines.slice(1)
+
+  return [firstLine, ...remainingLines].join('\n')
 }
 
 /**
@@ -981,7 +1003,7 @@ function generateMainStructInitialization(
   }
 
   const fields: string[] = []
-  const indent = '\t'
+  const indent = '\t\t' // Two tabs for proper struct field indentation
 
   for (const [key, value] of Object.entries(data)) {
     const fieldName = capitalizeFirst(key)
@@ -991,7 +1013,7 @@ function generateMainStructInitialization(
 
   return `${structName}{
 ${fields.join(',\n')},
-}`
+	}`
 }
 
 /**

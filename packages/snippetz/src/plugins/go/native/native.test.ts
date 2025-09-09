@@ -375,7 +375,9 @@ type Request struct {
 }
 
 func main() {
-	payload := Request{Hello: "world"}
+	payload := Request{
+		Hello: "world",
+	}
 	jsonData, _ := json.Marshal(payload)
 
 	res, err := http.Post("https://example.com", "application/json", bytes.NewBuffer(jsonData))
