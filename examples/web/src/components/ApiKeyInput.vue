@@ -120,7 +120,7 @@ const switchToFreeApi = () => {
       </p>
       <p class="description">
         Your API key will be injected into requests to
-        <code>https://pro-api.llama.fi</code> endpoints.
+        <b><code>https://pro-api.llama.fi</code></b> endpoints.
         <br />
         When your API key is set, free endpoints will be changed to pro version to bypass rate limits"
       </p>
