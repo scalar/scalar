@@ -22,6 +22,7 @@ const {
   noncollapsible = false,
   hideHeading,
   hideReadOnly,
+  hideWriteOnly,
   additionalProperties,
   hideModelNames = false,
   discriminator,
@@ -40,6 +41,8 @@ const {
   hideHeading?: boolean
   /** Hide read-only properties */
   hideReadOnly?: boolean
+  /** Hide write-only properties */
+  hideWriteOnly?: boolean
   /** Show a special one way toggle for additional properties, also has a top border when open */
   additionalProperties?: boolean
   /** Hide model names in type display */
@@ -181,6 +184,7 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
             :hideHeading="hideHeading"
             :hideModelNames="hideModelNames"
             :hideReadOnly="hideReadOnly"
+            :hideWriteOnly="hideWriteOnly"
             :level="level + 1"
             :schema="schema" />
 
@@ -193,6 +197,7 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
               :hideHeading
               :hideModelNames
               :hideReadOnly="hideReadOnly"
+              :hideWriteOnly="hideWriteOnly"
               :level
               :value="schema" />
           </template>

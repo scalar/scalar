@@ -15,6 +15,7 @@ const {
   schema,
   discriminator,
   hideReadOnly,
+  hideWriteOnly,
   orderSchemaPropertiesBy = 'alpha',
   orderRequiredPropertiesFirst = true,
 } = defineProps<{
@@ -26,6 +27,8 @@ const {
   hideModelNames?: boolean
   /** Hide readonly properties */
   hideReadOnly?: boolean
+  /** Hide write-only properties */
+  hideWriteOnly?: boolean
   breadcrumb?: string[]
   orderSchemaPropertiesBy?: ApiReferenceConfiguration['orderSchemaPropertiesBy']
   orderRequiredPropertiesFirst?: ApiReferenceConfiguration['orderRequiredPropertiesFirst']
@@ -83,6 +86,14 @@ const sortedProperties = computed(() => {
         return !(
           schema.properties &&
           getResolvedRef(schema.properties[property]).readOnly === true
+        )
+      }
+
+      // If hideWriteOnly is true, filter out properties that are writeOnly
+      if (hideWriteOnly) {
+        return !(
+          schema.properties &&
+          getResolvedRef(schema.properties[property]).writeOnly === true
         )
       }
       return true
@@ -153,6 +164,8 @@ const getAdditionalPropertiesValue = (
       :discriminator
       :hideHeading
       :hideModelNames
+      :hideReadOnly="hideReadOnly"
+      :hideWriteOnly="hideWriteOnly"
       :level
       :name="property"
       :required="schema.required?.includes(property)"
@@ -169,6 +182,8 @@ const getAdditionalPropertiesValue = (
       :discriminator
       :hideHeading
       :hideModelNames="hideModelNames"
+      :hideReadOnly="hideReadOnly"
+      :hideWriteOnly="hideWriteOnly"
       :level
       :name="key"
       :value="getResolvedRef(property)" />
@@ -182,6 +197,8 @@ const getAdditionalPropertiesValue = (
       :discriminator
       :hideHeading
       :hideModelNames
+      :hideReadOnly="hideReadOnly"
+      :hideWriteOnly="hideWriteOnly"
       :level
       :name="getAdditionalPropertiesName(schema.additionalProperties)"
       noncollapsible

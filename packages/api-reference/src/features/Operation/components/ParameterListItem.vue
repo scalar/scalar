@@ -123,6 +123,7 @@ const shouldCollapse = computed<boolean>(() =>
           :breadcrumb="breadcrumb"
           compact
           :description="shouldCollapse ? '' : parameter.description"
+          :hideWriteOnly="true"
           :name="shouldCollapse ? '' : name"
           :noncollapsible="true"
           :required="'required' in parameter && parameter.required"

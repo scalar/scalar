@@ -32,6 +32,8 @@ const props = withDefaults(
     hideHeading?: boolean
     /** Whether to hide read-only properties */
     hideReadOnly?: boolean
+    /** Hide write-only properties */
+    hideWriteOnly?: boolean
     /** Breadcrumb for navigation */
     breadcrumb?: string[]
   }>(),
@@ -93,6 +95,7 @@ const selectedComposition = computed(
       :discriminator="discriminator"
       :hideHeading="hideHeading"
       :hideReadOnly="hideReadOnly"
+      :hideWriteOnly="hideWriteOnly"
       :level="level"
       :name="name"
       :noncollapsible="true"
@@ -132,6 +135,7 @@ const selectedComposition = computed(
           :discriminator="discriminator"
           :hideHeading="hideHeading"
           :hideReadOnly="hideReadOnly"
+          :hideWriteOnly="hideWriteOnly"
           :level="level + 1"
           :name="name"
           :noncollapsible="true"
