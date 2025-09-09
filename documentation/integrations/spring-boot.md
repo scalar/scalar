@@ -174,6 +174,58 @@ scalar.documentDownloadType=both
 scalar.customCss=body { font-family: 'Arial', sans-serif; }
 ```
 
+## Multiple OpenAPI Documents (Sources)
+
+You can configure multiple OpenAPI documents using the `sources` configuration. This allows you to display multiple APIs in a single interface with a document switcher.
+
+### Using Sources in application.properties
+
+```properties
+# Multiple OpenAPI documents
+scalar.sources[0].url=https://api.example.com/v1/openapi.json
+scalar.sources[0].title=API v1
+scalar.sources[0].slug=api-v1
+scalar.sources[0].default=true
+
+scalar.sources[1].url=https://api.example.com/v2/openapi.json
+scalar.sources[1].title=API v2
+scalar.sources[1].slug=api-v2
+
+scalar.sources[2].url=https://internal.example.com/openapi.json
+scalar.sources[2].title=Internal API
+scalar.sources[2].slug=internal-api
+```
+
+### Using Sources in application.yml
+
+```yaml
+scalar:
+  sources:
+    - url: https://api.example.com/v1/openapi.json
+      title: API v1
+      slug: api-v1
+      default: true
+    - url: https://api.example.com/v2/openapi.json
+      title: API v2
+      slug: api-v2
+    - url: https://internal.example.com/openapi.json
+      title: Internal API
+      slug: internal-api
+```
+
+### Source Configuration Options
+
+Each source in the `sources` array supports the following properties:
+
+| Property  | Required | Description                                                                    |
+| --------- | -------- | ------------------------------------------------------------------------------ |
+| `url`     | Yes      | The URL of the OpenAPI specification                                           |
+| `title`   | No       | Display title for the API (defaults to auto-generated)                         |
+| `slug`    | No       | URL slug for the API (auto-generated from title if not provided)               |
+| `default` | No       | Whether this is the default source (first source is default if none specified) |
+
+When using sources, the `scalar.url` property is ignored. Users can switch between different APIs using the document selector in the interface.
+
 ## Available Themes
 
 The `scalar.theme` property supports the following values:
