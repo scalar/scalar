@@ -1,5 +1,14 @@
 # @scalar/components
 
+## 0.14.29
+
+### Patch Changes
+
+- c470c60: fix(components): update scalar menu button flex
+  - @scalar/oas-utils@0.4.24
+  - @scalar/themes@0.13.16
+  - @scalar/code-highlight@0.1.9
+
 ## 0.14.28
 
 ### Patch Changes

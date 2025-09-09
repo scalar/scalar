@@ -1,5 +1,12 @@
 # @scalar/themes
 
+## 0.13.16
+
+### Patch Changes
+
+- Updated dependencies [abe3842]
+  - @scalar/types@0.2.15
+
 ## 0.13.15
 
 ### Patch Changes

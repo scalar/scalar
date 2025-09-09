@@ -1,5 +1,24 @@
 # @scalar/api-client
 
+## 2.5.28
+
+### Patch Changes
+
+- c470c60: fix(components): update scalar menu button flex
+- abe3842: Add analytic events to api-client + add telemetry option
+- 5a7d388: fix(api-client): don't apply block layout on desktop
+- Updated dependencies [c470c60]
+- Updated dependencies [abe3842]
+  - @scalar/components@0.14.29
+  - @scalar/types@0.2.15
+  - @scalar/use-codemirror@0.12.30
+  - @scalar/oas-utils@0.4.24
+  - @scalar/openapi-parser@0.20.2
+  - @scalar/snippetz@0.4.9
+  - @scalar/themes@0.13.16
+  - @scalar/workspace-store@0.15.1
+  - @scalar/postman-to-openapi@0.3.27
+
 ## 2.5.27
 
 ### Patch Changes

@@ -1,5 +1,22 @@
 # @scalar/api-reference
 
+## 1.35.1
+
+### Patch Changes
+
+- Updated dependencies [c470c60]
+- Updated dependencies [abe3842]
+- Updated dependencies [5a7d388]
+  - @scalar/api-client@2.5.28
+  - @scalar/components@0.14.29
+  - @scalar/types@0.2.15
+  - @scalar/oas-utils@0.4.24
+  - @scalar/openapi-parser@0.20.2
+  - @scalar/snippetz@0.4.9
+  - @scalar/themes@0.13.16
+  - @scalar/workspace-store@0.15.1
+  - @scalar/code-highlight@0.1.9
+
 ## 1.35.0
 
 ### Minor Changes
