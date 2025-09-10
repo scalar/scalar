@@ -12,14 +12,14 @@
   </ItemGroup>
 
   <ItemGroup Condition="$(TargetFrameWork) == 'net8.0'">
-    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.19" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.20" />
   </ItemGroup>
 
   <ItemGroup Condition="$(TargetFrameWork) == 'net9.0'">
-    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.8" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.9" />
   </ItemGroup>
 
   <ItemGroup Condition="$(TargetFrameWork) == 'net10.0'">
-    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.0-preview.7.25380.108" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.0-rc.1.25451.107" />
   </ItemGroup>
 </Project>
