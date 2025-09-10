@@ -18,7 +18,6 @@
     "commander": "catalog:*",
     "nanoid": "catalog:*",
     "picomatch": "catalog:*",
-    "prettier": "catalog:*",
     "semver": "catalog:*",
     "yaml": "catalog:*",
     "zod": "catalog:*",
