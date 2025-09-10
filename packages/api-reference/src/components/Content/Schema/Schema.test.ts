@@ -59,7 +59,7 @@ describe('Schema', () => {
       expect(text).not.toContain('This description should not be shown')
     })
 
-    it('does show the allOf description', () => {
+    it('does not show the allOf description if we are not in the Request Body', () => {
       const wrapper = mount(Schema, {
         props: {
           schema: {
@@ -80,7 +80,7 @@ describe('Schema', () => {
       })
 
       const text = wrapper.text()
-      expect(text).toContain('This description should not be shown')
+      expect(text).not.toContain('This description should not be shown')
     })
   })
 
