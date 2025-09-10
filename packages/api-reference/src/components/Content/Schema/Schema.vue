@@ -63,6 +63,16 @@ const shouldShowToggle = computed((): boolean => {
 
 /** Gets the description to show for the schema */
 const schemaDescription = computed(() => {
+  // For the request body we want to show the base description or the first allOf schema description
+  if (
+    schema &&
+    schema.allOf &&
+    schema.allOf.length > 0 &&
+    name === 'Request Body'
+  ) {
+    return schema.description || schema.allOf[0].description
+  }
+
   // Don't show description if there's no description or it's not a string
   if (!schema?.description || typeof schema.description !== 'string') {
     return null
@@ -85,6 +95,12 @@ const schemaDescription = computed(() => {
     !('patternProperties' in schema) &&
     !('additionalProperties' in schema)
   ) {
+    return null
+  }
+
+  // Merged allOf schemas at level 0 should not show individual descriptions
+  // to prevent duplicates with the request body description
+  if (level === 0) {
     return null
   }
 
