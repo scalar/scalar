@@ -1,5 +1,16 @@
 # @scalar/oas-utils
 
+## 0.4.26
+
+### Patch Changes
+
+- 821717b: refactor: schema rendering
+- Updated dependencies [821717b]
+  - @scalar/workspace-store@0.15.3
+  - @scalar/helpers@0.0.10
+  - @scalar/json-magic@0.4.1
+  - @scalar/object-utils@1.2.6
+
 ## 0.4.25
 
 ### Patch Changes

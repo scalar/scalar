@@ -1,5 +1,23 @@
 # @scalar/api-client
 
+## 2.5.30
+
+### Patch Changes
+
+- c173063: feat: add authorized event to oauth2
+- c173063: feat: add oauth2 actions slot
+- Updated dependencies [821717b]
+- Updated dependencies [2249fe3]
+  - @scalar/workspace-store@0.15.3
+  - @scalar/oas-utils@0.4.26
+  - @scalar/helpers@0.0.10
+  - @scalar/components@0.14.31
+  - @scalar/postman-to-openapi@0.3.29
+  - @scalar/import@0.4.22
+  - @scalar/object-utils@1.2.6
+  - @scalar/use-codemirror@0.12.32
+  - @scalar/openapi-parser@0.20.4
+
 ## 2.5.29
 
 ### Patch Changes

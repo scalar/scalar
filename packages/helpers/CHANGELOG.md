@@ -1,5 +1,11 @@
 # @scalar/helpers
 
+## 0.0.10
+
+### Patch Changes
+
+- 821717b: refactor: schema rendering
+
 ## 0.0.9
 
 ### Patch Changes

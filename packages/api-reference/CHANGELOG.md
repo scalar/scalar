@@ -1,5 +1,25 @@
 # @scalar/api-reference
 
+## 1.35.3
+
+### Patch Changes
+
+- 821717b: refactor: schema rendering
+- 821717b: fix: deep resolve response examples
+- 425a954: fix(api-reference): render proper slots
+- Updated dependencies [821717b]
+- Updated dependencies [c173063]
+- Updated dependencies [c173063]
+- Updated dependencies [2249fe3]
+  - @scalar/workspace-store@0.15.3
+  - @scalar/oas-utils@0.4.26
+  - @scalar/helpers@0.0.10
+  - @scalar/api-client@2.5.30
+  - @scalar/components@0.14.31
+  - @scalar/json-magic@0.4.1
+  - @scalar/object-utils@1.2.6
+  - @scalar/openapi-parser@0.20.4
+
 ## 1.35.2
 
 ### Patch Changes

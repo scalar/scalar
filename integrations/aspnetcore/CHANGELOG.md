@@ -1,5 +1,15 @@
 # @scalar/aspnetcore
 
+## 2.8.1
+
+### Patch Changes
+
+- 1fc2bfa: chore: bump dependencies
+- Updated dependencies [821717b]
+- Updated dependencies [821717b]
+- Updated dependencies [425a954]
+  - @scalar/api-reference@1.35.3
+
 ## 2.8.0
 
 ### Minor Changes
