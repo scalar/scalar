@@ -154,7 +154,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
         The Postman Alternative Your Team Is Dreaming Of
       </h2>
       <p>
-        Fully open-source API Client built on the OpenAPI standard
+        Fully open-source & offline first API Client built on the OpenAPI standard, by us & our community.
       </p>
       <div class="flex flex-wrap text-orange gap-y-2">
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
