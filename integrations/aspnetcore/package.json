@@ -29,7 +29,6 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@scalar/snippetz": "workspace:*",
-    "vite-node": "catalog:*"
+    "@scalar/snippetz": "workspace:*"
   }
 }
