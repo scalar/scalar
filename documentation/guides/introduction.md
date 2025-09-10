@@ -149,41 +149,40 @@ They are open source. So I can get in on free features and stay with Scalar no m
   </div>
   <div class="product">
     <div class="product-copy">
-      <span class="font-bold text-orange">API Client</span>
+      <span class="font-bold text-orange">Scalar API Client</span>
       <h2 class="c">
-        An offline first API Client built for the OpenAPI™ standard.
+        The Postman Alternative Your Team Is Dreaming Of
       </h2>
       <p>
-        Minimal, powerful, fully open-source API Client built on open standards
-        by us + our community
+        Fully open-source API Client built on the OpenAPI standard
       </p>
       <div class="flex flex-wrap text-orange gap-y-2">
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/users"></scalar-icon>
-          Collaborate
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/wifi-slash"></scalar-icon>
-          Offline First
+          Offline-first
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/globe"></scalar-icon>
-          Sync Local API's
+          Sync your local API
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/graph"></scalar-icon>
-          OpenAPI Support
+          OpenAPI by Heart
+        </b>
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/users"></scalar-icon>
+          Collaborate with Others
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/lock-simple-open"></scalar-icon>
-          No Vendor Lock In
+          No Vendor Lock-In
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/desktop-tower"></scalar-icon>
-          Multi-platform
+          Linux, Windows, macOS
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="https://client.scalar.com/">Try It Out For Free →</a>
+      <a class="mt-3 t-editor__anchor" href="https://client.scalar.com/">Try It in the Browser →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
