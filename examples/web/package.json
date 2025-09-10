@@ -39,7 +39,6 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "catalog:*",
     "autoprefixer": "^10.4.19",
-    "eslint-plugin-vue": "^9.31.0",
     "postcss": "catalog:*",
     "postcss-nested": "^6.0.1",
     "vite": "catalog:*"
