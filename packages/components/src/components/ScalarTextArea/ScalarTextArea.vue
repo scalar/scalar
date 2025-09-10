@@ -17,6 +17,7 @@ import { onMounted } from 'vue'
 const model = defineModel<string>()
 
 const { textarea } = useTextareaAutosize({
+  // @ts-expect-error - unexpected type mismatch
   input: model,
   styleProp: 'minHeight',
 })

@@ -8,17 +8,16 @@ packages:
   - '!**/.next/**'
   - '!**/dist/**'
   - '!**/.output/**'
-
 catalogs:
   '*':
     '@electron-toolkit/preload': ^3.0.0
     '@electron-toolkit/utils': ^3.0.0
     '@fastify/swagger': ^8.10.1
-    '@floating-ui/utils': ^0.2.2
-    '@floating-ui/vue': ^1.1.7
+    '@floating-ui/utils': 0.2.10
+    '@floating-ui/vue': 1.1.9
     '@google-cloud/storage': 7.16.0
     '@headlessui/tailwindcss': ^0.2.2
-    '@headlessui/vue': ^1.7.23
+    '@headlessui/vue': 1.7.23
     '@playwright/test': 1.55.0
     '@scalar/typebox': 0.1.1
     '@tailwindcss/vite': ^4.1.7
@@ -31,8 +30,8 @@ catalogs:
     '@typescript-eslint/parser': ^8.0.0
     '@vitejs/plugin-vue': 6.0.1
     '@vue/test-utils': ^2.4.1
-    '@vueuse/core': ^11.2.0
-    '@vueuse/integrations': ^11.2.0
+    '@vueuse/core': 13.9.0
+    '@vueuse/integrations': 13.9.0
     ansis: 4.1.0
     chokidar: 4.0.3
     commander: 13.1.0
@@ -69,24 +68,3 @@ catalogs:
     vue-tsc: ^2.2.0
     yaml: 2.8.0
     zod: 3.24.1
-
-ignoredBuiltDependencies:
-  - '@firebase/util'
-  - core-js
-  - core-js-pure
-  - dtrace-provider
-  - protobufjs
-  - sharp
-  - unrs-resolver
-  - vue-demi
-  - workerd
-
-onlyBuiltDependencies:
-  - '@nestjs/core'
-  - '@parcel/watcher'
-  - '@swc/core'
-  - '@tailwindcss/oxide'
-  - '@todesktop/cli'
-  - electron
-  - esbuild
-  - lefthook
