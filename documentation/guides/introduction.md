@@ -30,7 +30,7 @@
 <div class="slider">
   <button class="active" type="button" data-target="#slide-1">API Docs</button>
   <button type="button" data-target="#slide-2">API Registry</button>
-  <button type="button" data-target="#slide-3">SDK's</button>
+  <button type="button" data-target="#slide-3">SDKs</button>
   <button type="button" data-target="#slide-4">API Client</button>
   <ul class="gallery container-full" id="gallery">
     <li id="slide-1">
@@ -244,9 +244,9 @@ They are open source. So I can get in on free features and stay with Scalar no m
   </div>
   <div class="product">
     <div class="product-copy">
-      <span class="font-bold text-purple">SDK Generation</span>
+      <span class="font-bold text-purple">Scalar SDK Generation</span>
       <h2 class="c">
-        Create World-Class SDKs for your APIs
+        One Commit To Update All Your SDKs
       </h2>
       <p>
         Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python, Golang, PHP, Java and Ruby with more languages coming soon.
@@ -254,7 +254,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
       <div class="flex flex-wrap text-purple gap-y-2">
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon>
-          OpenAPI First
+          OpenAPI-First
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/brackets-square"></scalar-icon>
@@ -266,7 +266,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/fingerprint"></scalar-icon>
-          <span><span class="lg-only">OpenAPI </span>Auth support</span>
+          <span><span class="lg-only">OpenAPI </span>Authentication</span>
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/cloud-check"></scalar-icon>
@@ -274,10 +274,10 @@ They are open source. So I can get in on free features and stay with Scalar no m
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/file-cloud"></scalar-icon>
-          File Streaming
+          File Streaming Support
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/scalar/scalar-sdks/getting-started">Learn More →</a>
+      <a class="mt-3 t-editor__anchor" href="/scalar/scalar-sdks/getting-started">Generate your first SDK →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
