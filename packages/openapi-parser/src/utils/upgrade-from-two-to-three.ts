@@ -87,103 +87,72 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
     return schema
   })
 
+  if (Object.hasOwn(specification, 'parameters')) {
+    specification.components ??= {}
+
+    const params = {}
+    const bodyParams = {}
+    for (const [name, param] of Object.entries(specification.parameters ?? {})) {
+      if (param.in === 'body') {
+        bodyParams[name] = migrateBodyParameter(
+          param,
+          (specification.consumes as string[] | undefined) ?? ['application/json'],
+        )
+      } else if (param.in === 'formData') {
+        bodyParams[name] = migrateFormDataParameter(param)
+      } else {
+        params[name] = transformParameterObject(param)
+      }
+    }
+
+    if (Object.keys(params).length > 0) {
+      ;(specification.components as UnknownObject).parameters = params
+    }
+
+    if (Object.keys(bodyParams).length > 0) {
+      ;(specification.components as UnknownObject).requestBodies = bodyParams
+    }
+
+    delete specification.parameters
+  }
+
   // Paths
   if (typeof specification.paths === 'object') {
     for (const path in specification.paths) {
       if (Object.hasOwn(specification.paths, path)) {
         const pathItem = specification.paths[path]
 
-        for (const method in pathItem) {
-          if (Object.hasOwn(pathItem, method)) {
-            const operationItem = pathItem[method]
+        let requestBodyObject: OpenAPIV3.RequestBodyObject | undefined
 
-            // Request bodies
+        for (const methodOrParameters in pathItem) {
+          if (methodOrParameters === 'parameters' && Object.hasOwn(pathItem, methodOrParameters)) {
+            const pathItemParameters = migrateParameters(
+              pathItem.parameters,
+              (specification.consumes as string[] | undefined) ?? ['application/json'],
+            )
+
+            pathItem.parameters = pathItemParameters.parameters
+            requestBodyObject = pathItemParameters.requestBody
+          } else if (Object.hasOwn(pathItem, methodOrParameters)) {
+            const operationItem = pathItem[methodOrParameters]
+
+            if (requestBodyObject) {
+              operationItem.requestBody = requestBodyObject
+            }
+
             if (operationItem.parameters) {
-              const bodyParameter = structuredClone(
-                operationItem.parameters.find((parameter: OpenAPIV3.ParameterObject) => parameter.in === 'body') ?? {},
+              const migrationResult = migrateParameters(
+                operationItem.parameters,
+                operationItem.consumes ?? specification.consumes ?? ['application/json'],
               )
 
-              if (bodyParameter && Object.keys(bodyParameter).length) {
-                delete bodyParameter.name
-                delete bodyParameter.in
+              operationItem.parameters = migrationResult.parameters
 
-                const consumes = specification.consumes ?? operationItem.consumes ?? ['application/json']
-
-                if (typeof operationItem.requestBody !== 'object') {
-                  operationItem.requestBody = {}
-                }
-
-                if (typeof operationItem.requestBody.content !== 'object') {
-                  operationItem.requestBody.content = {}
-                }
-
-                const { schema, ...requestBody } = bodyParameter
-
-                operationItem.requestBody = {
-                  ...operationItem.requestBody,
-                  ...requestBody,
-                }
-
-                for (const type of consumes) {
-                  operationItem.requestBody.content[type] = {
-                    schema: schema,
-                  }
-                }
+              if (migrationResult.requestBody) {
+                operationItem.requestBody = migrationResult.requestBody
               }
-
-              // Delete body parameter
-              operationItem.parameters = operationItem.parameters.filter(
-                (parameter: OpenAPIV2.ParameterObject) => parameter.in !== 'body',
-              )
 
               delete operationItem.consumes
-
-              // formData parameters
-              const formDataParameters = operationItem.parameters.filter(
-                (parameter: OpenAPIV2.ParameterObject) => parameter.in === 'formData',
-              )
-
-              if (formDataParameters.length > 0) {
-                if (typeof operationItem.requestBody !== 'object') {
-                  operationItem.requestBody = {}
-                }
-
-                if (typeof operationItem.requestBody.content !== 'object') {
-                  operationItem.requestBody.content = {}
-                }
-
-                operationItem.requestBody.content['application/x-www-form-urlencoded'] = {
-                  schema: {
-                    type: 'object',
-                    properties: {},
-                    required: [], // Initialize required array
-                  },
-                }
-
-                for (const param of formDataParameters) {
-                  operationItem.requestBody.content['application/x-www-form-urlencoded'].schema.properties[param.name] =
-                    {
-                      type: param.type,
-                      description: param.description,
-                    }
-
-                  // Add to required array if param is required
-                  if (param.required) {
-                    operationItem.requestBody.content['application/x-www-form-urlencoded'].schema.required.push(
-                      param.name,
-                    )
-                  }
-                }
-
-                // Remove formData parameters from the parameters array
-                operationItem.parameters = operationItem.parameters.filter(
-                  (parameter: OpenAPIV2.ParameterObject) => parameter.in !== 'formData',
-                )
-              }
-
-              operationItem.parameters = operationItem.parameters.map((parameter) =>
-                transformParameterObject(parameter),
-              )
             }
 
             // Responses
@@ -287,6 +256,9 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
     delete specification.securityDefinitions
   }
 
+  delete specification.consumes
+  delete specification.produces
+
   return specification as OpenAPIV3.Document
 }
 
@@ -386,4 +358,102 @@ function getParameterSerializationStyle(parameter: OpenAPIV2.ParameterObject): P
   const collectionFormat = parameter.collectionFormat ?? 'csv'
 
   return serializationStyles[parameter.in][collectionFormat]
+}
+
+type ParameterMigrationResult = {
+  parameters: OpenAPIV3.ParameterObject[]
+  requestBody?: OpenAPIV3.RequestBodyObject
+}
+
+function migrateBodyParameter(
+  bodyParameter: OpenAPIV2.ParameterObject,
+  consumes: string[],
+): OpenAPIV3.RequestBodyObject {
+  delete bodyParameter.name
+  delete bodyParameter.in
+
+  const { schema, ...requestBody } = bodyParameter
+
+  const requestBodyObject: OpenAPIV3.RequestBodyObject = {
+    content: {},
+    ...requestBody,
+  }
+
+  for (const type of consumes) {
+    requestBodyObject.content[type] = {
+      schema: schema,
+    }
+  }
+
+  return requestBodyObject
+}
+
+function migrateFormDataParameter(parameters: OpenAPIV2.ParameterObject[]): OpenAPIV3.RequestBodyObject {
+  const requestBodyObject: OpenAPIV3.RequestBodyObject = {
+    content: {},
+  }
+
+  requestBodyObject.content['application/x-www-form-urlencoded'] = {
+    schema: {
+      type: 'object',
+      properties: {},
+      required: [], // Initialize required array
+    },
+  }
+
+  for (const param of parameters) {
+    requestBodyObject.content['application/x-www-form-urlencoded'].schema.properties[param.name] = {
+      type: param.type,
+      description: param.description,
+    }
+
+    // Add to required array if param is required
+    if (param.required) {
+      requestBodyObject.content['application/x-www-form-urlencoded'].schema.required.push(param.name)
+    }
+  }
+
+  return requestBodyObject
+}
+
+function migrateParameters(parameters: OpenAPIV2.ParameterObject[], consumes: string[]): ParameterMigrationResult {
+  const result: ParameterMigrationResult = {
+    parameters: parameters
+      .filter((parameter) => !(parameter.in === 'body' || parameter.in === 'formData'))
+      .map((parameter) => transformParameterObject(parameter)),
+  }
+
+  const bodyParameter = structuredClone(
+    parameters.find((parameter: OpenAPIV3.ParameterObject) => parameter.in === 'body') ?? {},
+  )
+
+  if (bodyParameter && Object.keys(bodyParameter).length) {
+    result.requestBody = migrateBodyParameter(bodyParameter, consumes)
+  }
+
+  const formDataParameters = parameters.filter((parameter: OpenAPIV2.ParameterObject) => parameter.in === 'formData')
+
+  if (formDataParameters.length > 0) {
+    const requestBodyObject = migrateFormDataParameter(formDataParameters)
+
+    if (typeof result.requestBody !== 'object') {
+      result.requestBody = requestBodyObject
+    } else {
+      result.requestBody = {
+        ...result.requestBody,
+        content: {
+          ...result.requestBody.content,
+          ...requestBodyObject.content,
+        },
+      }
+    }
+
+    if (typeof result.requestBody !== 'object') {
+      result.requestBody = {
+        content: {},
+      }
+    }
+  }
+
+  return result
 }

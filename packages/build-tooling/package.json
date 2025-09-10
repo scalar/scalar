@@ -11,7 +11,7 @@
     "directory": "packages/build-tooling"
   },
   "keywords": [],
-  "version": "0.2.6",
+  "version": "0.2.7",
   "engines": {
     "node": ">=20"
   },
@@ -100,7 +100,6 @@
   },
   "devDependencies": {
     "@types/node": "catalog:*",
-    "@types/picomatch": "^2.3.3",
-    "vite-node": "^2.1.1"
+    "@types/picomatch": "^2.3.3"
   }
 }

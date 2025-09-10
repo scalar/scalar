@@ -1,5 +1,17 @@
 # @scalar/sveltekit
 
+## 0.1.22
+
+### Patch Changes
+
+- @scalar/core@0.3.16
+
+## 0.1.21
+
+### Patch Changes
+
+- @scalar/core@0.3.15
+
 ## 0.1.20
 
 ### Patch Changes

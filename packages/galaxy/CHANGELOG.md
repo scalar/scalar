@@ -1,5 +1,13 @@
 # @scalar/galaxy
 
+## 0.5.8
+
+### Patch Changes
+
+- 0a91180: chore: add another value to the galaxy server variable enum
+- 3473e08: fix: performance issues on script load
+- 71a5647: feat: circular reference between planet ↔ satellite
+
 ## 0.5.7
 
 ### Patch Changes

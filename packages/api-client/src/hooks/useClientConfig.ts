@@ -1,4 +1,4 @@
-import { apiClientConfigurationSchema, type ApiClientConfiguration } from '@scalar/types/api-reference'
+import { type ApiClientConfiguration, apiClientConfigurationSchema } from '@scalar/types/api-reference'
 import { type InjectionKey, type Ref, inject, ref } from 'vue'
 
 export const CLIENT_CONFIGURATION_SYMBOL = Symbol() as InjectionKey<Ref<ApiClientConfiguration>>

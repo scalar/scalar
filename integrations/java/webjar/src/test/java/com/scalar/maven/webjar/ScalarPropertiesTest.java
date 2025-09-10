@@ -33,9 +33,9 @@ class ScalarPropertiesTest {
         }
 
         @Test
-        @DisplayName("should be enabled by default")
-        void shouldBeEnabledByDefault() {
-            assertThat(properties.isEnabled()).isTrue();
+        @DisplayName("should be disabled by default")
+        void shouldBeDisabledByDefault() {
+            assertThat(properties.isEnabled()).isFalse();
         }
 
         @Test
@@ -96,6 +96,12 @@ class ScalarPropertiesTest {
         @DisplayName("should have correct default documentDownloadType")
         void shouldHaveCorrectDefaultDocumentDownloadType() {
             assertThat(properties.getDocumentDownloadType()).isEqualTo("both");
+        }
+
+        @Test
+        @DisplayName("should have correct default actuatorEnabled")
+        void shouldHaveCorrectDefaultActuatorEnabled() {
+            assertThat(properties.isActuatorEnabled()).isFalse();
         }
     }
 
@@ -466,6 +472,22 @@ class ScalarPropertiesTest {
     }
 
     @Nested
+    @DisplayName("actuatorEnabled property")
+    class ActuatorEnabledProperty {
+
+        @ParameterizedTest
+        @ValueSource(booleans = {true, false})
+        @DisplayName("should set and get actuatorEnabled state")
+        void shouldSetAndGetActuatorEnabledState(boolean actuatorEnabled) {
+            // When
+            properties.setActuatorEnabled(actuatorEnabled);
+
+            // Then
+            assertThat(properties.isActuatorEnabled()).isEqualTo(actuatorEnabled);
+        }
+    }
+
+    @Nested
     @DisplayName("property combinations")
     class PropertyCombinations {
 
@@ -486,6 +508,7 @@ class ScalarPropertiesTest {
             String customLayout = "classic";
             boolean customHideSearch = true;
             String customDocumentDownloadType = "json";
+            boolean customActuatorEnabled = true;
 
             // When
             properties.setUrl(customUrl);
@@ -501,6 +524,7 @@ class ScalarPropertiesTest {
             properties.setLayout(customLayout);
             properties.setHideSearch(customHideSearch);
             properties.setDocumentDownloadType(customDocumentDownloadType);
+            properties.setActuatorEnabled(customActuatorEnabled);
 
             // Then
             assertThat(properties.getUrl()).isEqualTo(customUrl);
@@ -516,6 +540,7 @@ class ScalarPropertiesTest {
             assertThat(properties.getLayout()).isEqualTo(customLayout);
             assertThat(properties.isHideSearch()).isEqualTo(customHideSearch);
             assertThat(properties.getDocumentDownloadType()).isEqualTo(customDocumentDownloadType);
+            assertThat(properties.isActuatorEnabled()).isEqualTo(customActuatorEnabled);
         }
 
         @Test

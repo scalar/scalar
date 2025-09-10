@@ -1,5 +1,85 @@
 # @scalar/api-reference
 
+## 1.35.2
+
+### Patch Changes
+
+- Updated dependencies [b8c4b61]
+- Updated dependencies [5eedb97]
+  - @scalar/openapi-parser@0.20.3
+  - @scalar/api-client@2.5.29
+  - @scalar/oas-utils@0.4.25
+  - @scalar/workspace-store@0.15.2
+  - @scalar/components@0.14.30
+
+## 1.35.1
+
+### Patch Changes
+
+- Updated dependencies [c470c60]
+- Updated dependencies [abe3842]
+- Updated dependencies [5a7d388]
+  - @scalar/api-client@2.5.28
+  - @scalar/components@0.14.29
+  - @scalar/types@0.2.15
+  - @scalar/oas-utils@0.4.24
+  - @scalar/openapi-parser@0.20.2
+  - @scalar/snippetz@0.4.9
+  - @scalar/themes@0.13.16
+  - @scalar/workspace-store@0.15.1
+  - @scalar/code-highlight@0.1.9
+
+## 1.35.0
+
+### Minor Changes
+
+- 697f1d0: feat(api-reference): info block
+- 5ad329e: feat: openapi auth selector block
+
+### Patch Changes
+
+- 714b197: feat: support base64 unicode characters
+- 792c937: Configurable option for sidebar to show method path instead of method summary.
+- f918582: feat(api-reference, components): update scalar floating components contraints
+- 549eb02: feat(api-reference): export workspace store hooks
+- 3473e08: fix: performance issues on script load
+- a6ae22a: feat: change the way we declare schemas
+- 94e4762: fix: padding on intro block
+- d5c1d0c: feat(api-reference): custom display for webhook request examples
+- 2077f01: fix: open first tag when not defined in document
+- 0e747c7: fix: initial scroll to id lands in random positions
+- Updated dependencies [ba27329]
+- Updated dependencies [714b197]
+- Updated dependencies [40e79b9]
+- Updated dependencies [06a46f0]
+- Updated dependencies [98c55d0]
+- Updated dependencies [792c937]
+- Updated dependencies [f918582]
+- Updated dependencies [cededd8]
+- Updated dependencies [3473e08]
+- Updated dependencies [a6ae22a]
+- Updated dependencies [422cb2b]
+- Updated dependencies [63283aa]
+- Updated dependencies [8680da6]
+- Updated dependencies [ee605d8]
+- Updated dependencies [2b22eab]
+- Updated dependencies [0e747c7]
+- Updated dependencies [976366f]
+- Updated dependencies [99894bc]
+- Updated dependencies [5ad329e]
+  - @scalar/workspace-store@0.15.0
+  - @scalar/api-client@2.5.27
+  - @scalar/oas-utils@0.4.23
+  - @scalar/snippetz@0.4.8
+  - @scalar/json-magic@0.4.0
+  - @scalar/helpers@0.0.9
+  - @scalar/types@0.2.14
+  - @scalar/components@0.14.28
+  - @scalar/themes@0.13.15
+  - @scalar/openapi-parser@0.20.2
+  - @scalar/object-utils@1.2.5
+  - @scalar/code-highlight@0.1.9
+
 ## 1.34.6
 
 ### Patch Changes

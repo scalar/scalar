@@ -1,5 +1,50 @@
 # @scalar/workspace-store
 
+## 0.15.2
+
+### Patch Changes
+
+- Updated dependencies [b8c4b61]
+  - @scalar/openapi-parser@0.20.3
+
+## 0.15.1
+
+### Patch Changes
+
+- Updated dependencies [abe3842]
+  - @scalar/types@0.2.15
+  - @scalar/openapi-parser@0.20.2
+  - @scalar/snippetz@0.4.9
+  - @scalar/code-highlight@0.1.9
+
+## 0.15.0
+
+### Minor Changes
+
+- a6ae22a: feat: change the way we declare schemas
+- 99894bc: feat: correctly validate the schemas
+- 5ad329e: feat: openapi auth selector block
+
+### Patch Changes
+
+- ba27329: chore: switch to the new version of typebox
+- 3473e08: fix: performance issues on script load
+- 63283aa: fix: use hidden properties during validation
+- 8680da6: chore: delete loose schemas
+- Updated dependencies [40e79b9]
+- Updated dependencies [06a46f0]
+- Updated dependencies [98c55d0]
+- Updated dependencies [792c937]
+- Updated dependencies [63283aa]
+- Updated dependencies [0e747c7]
+- Updated dependencies [99894bc]
+  - @scalar/snippetz@0.4.8
+  - @scalar/json-magic@0.4.0
+  - @scalar/helpers@0.0.9
+  - @scalar/types@0.2.14
+  - @scalar/openapi-parser@0.20.2
+  - @scalar/code-highlight@0.1.9
+
 ## 0.14.2
 
 ### Patch Changes

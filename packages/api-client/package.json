@@ -18,7 +18,7 @@
     "rest",
     "testing"
   ],
-  "version": "2.5.26",
+  "version": "2.5.29",
   "engines": {
     "node": ">=20"
   },
@@ -202,6 +202,7 @@
   "dependencies": {
     "@headlessui/tailwindcss": "catalog:*",
     "@headlessui/vue": "catalog:*",
+    "@scalar/analytics-client": "workspace:*",
     "@scalar/components": "workspace:*",
     "@scalar/draggable": "workspace:*",
     "@scalar/helpers": "workspace:*",

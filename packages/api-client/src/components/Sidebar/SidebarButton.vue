@@ -23,7 +23,7 @@ const handleClick = () => {
     <slot name="title" />
     <ScalarHotkey
       v-if="hotkey && layout === 'desktop'"
-      class="text-c-2 add-item-hotkey absolute right-2 hidden group-hover:opacity-80 md:block"
+      class="text-c-2 add-item-hotkey absolute right-2 hidden group-hover:opacity-80 md:flex"
       :hotkey="hotkey" />
   </ScalarButton>
 </template>

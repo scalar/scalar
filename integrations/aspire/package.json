@@ -9,7 +9,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/aspire"
   },
-  "version": "0.4.2",
+  "version": "0.4.5",
   "private": true,
   "engines": {
     "node": ">=20"
@@ -27,7 +27,6 @@
     "@scalar/api-reference": "workspace:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
-    "shx": "^0.4.0"
+    "@scalar/build-tooling": "workspace:*"
   }
 }

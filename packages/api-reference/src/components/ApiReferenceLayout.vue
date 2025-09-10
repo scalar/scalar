@@ -400,29 +400,28 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
           <template #start>
             <slot
               v-bind="referenceSlotProps"
-              name="content-start">
-              <ClassicHeader v-if="configuration.layout === 'classic'">
-                <div
-                  v-if="$slots['document-selector']"
-                  class="w-64 *:!p-0 empty:hidden">
-                  <slot name="document-selector" />
-                </div>
-                <SearchButton
-                  v-if="!configuration.hideSearch"
-                  class="t-doc__sidebar max-w-64"
-                  :hideModels="configuration?.hideModels"
-                  :searchHotKey="configuration.searchHotKey" />
-                <template #dark-mode-toggle>
-                  <ScalarColorModeToggleIcon
-                    v-if="!configuration.hideDarkModeToggle"
-                    class="text-c-2 hover:text-c-1"
-                    :mode="isDark ? 'dark' : 'light'"
-                    style="transform: scale(1.4)"
-                    variant="icon"
-                    @click="$emit('toggleDarkMode')" />
-                </template>
-              </ClassicHeader>
-            </slot>
+              name="content-start" />
+            <ClassicHeader v-if="configuration.layout === 'classic'">
+              <div
+                v-if="$slots['document-selector']"
+                class="w-64 *:!p-0 empty:hidden">
+                <slot name="document-selector" />
+              </div>
+              <SearchButton
+                v-if="!configuration.hideSearch"
+                class="t-doc__sidebar max-w-64"
+                :hideModels="configuration?.hideModels"
+                :searchHotKey="configuration.searchHotKey" />
+              <template #dark-mode-toggle>
+                <ScalarColorModeToggleIcon
+                  v-if="!configuration.hideDarkModeToggle"
+                  class="text-c-2 hover:text-c-1"
+                  :mode="isDark ? 'dark' : 'light'"
+                  style="transform: scale(1.4)"
+                  variant="icon"
+                  @click="$emit('toggleDarkMode')" />
+              </template>
+            </ClassicHeader>
           </template>
           <template
             v-if="configuration?.isEditable"

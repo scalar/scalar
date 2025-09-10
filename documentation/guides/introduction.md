@@ -30,7 +30,7 @@
 <div class="slider">
   <button class="active" type="button" data-target="#slide-1">API Docs</button>
   <button type="button" data-target="#slide-2">API Registry</button>
-  <button type="button" data-target="#slide-3">SDK's</button>
+  <button type="button" data-target="#slide-3">SDKs</button>
   <button type="button" data-target="#slide-4">API Client</button>
   <ul class="gallery container-full" id="gallery">
     <li id="slide-1">
@@ -100,12 +100,12 @@ They are open source. So I can get in on free features and stay with Scalar no m
 <div>
   <div class="product product-reversed">
     <div class="product-copy">
-      <span class="font-bold text-green">API Registry</span>
+      <span class="font-bold text-green">Scalar Registry</span>
       <h2>
-        A centralized repository for your APIs
+        The Centralized Repository for Your API Definitions
       </h2>
       <p>
-        Managing & versioning OpenAPI Documents, JSON Schema, Spectral Rules as your single source of truth with a deep Git integration or custom worfklows.
+        Upload, manage and version OpenAPI Documents, JSON Schemas and Spectral Rules in a single place. Can pull from your repository, works with any CI workflow.
       </p>
       <div class="flex flex-wrap text-green gap-y-2">
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
@@ -115,8 +115,12 @@ They are open source. So I can get in on free features and stay with Scalar no m
           <span>
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/arrows-clockwise"></scalar-icon>
+          Bi-directional Git Sync
+        </b>
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon>
-          OpenAPI Support
+          OpenAPI Documents
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/brackets-curly"></scalar-icon>
@@ -128,14 +132,17 @@ They are open source. So I can get in on free features and stay with Scalar no m
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/arrows-clockwise"></scalar-icon>
-          Bi-directional Git
+          AsyncAPI (coming soon)
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/lock-simple"></scalar-icon>
           Private or Public
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/scalar/scalar-registry/getting-started">Get Started For Free →</a>
+      <a class="mt-3 t-editor__anchor" href="/scalar/scalar-registry/getting-started">
+      Connect Your API for Free
+       →
+      </a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
@@ -149,41 +156,40 @@ They are open source. So I can get in on free features and stay with Scalar no m
   </div>
   <div class="product">
     <div class="product-copy">
-      <span class="font-bold text-orange">API Client</span>
+      <span class="font-bold text-orange">Scalar API Client</span>
       <h2 class="c">
-        An offline first API Client built for the OpenAPI™ standard.
+        The Postman Alternative Your Team Is Dreaming Of
       </h2>
       <p>
-        Minimal, powerful, fully open-source API Client built on open standards
-        by us + our community
+        Fully open-source & offline first API Client built on the OpenAPI standard, by us & our community.
       </p>
       <div class="flex flex-wrap text-orange gap-y-2">
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/users"></scalar-icon>
-          Collaborate
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/wifi-slash"></scalar-icon>
-          Offline First
+          Offline-first
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/globe"></scalar-icon>
-          Sync Local API's
+          Sync your local API
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/graph"></scalar-icon>
-          OpenAPI Support
+          OpenAPI by Heart
+        </b>
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/users"></scalar-icon>
+          Collaborate with Others
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/lock-simple-open"></scalar-icon>
-          No Vendor Lock In
+          No Vendor Lock-In
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/desktop-tower"></scalar-icon>
-          Multi-platform
+          Linux, Windows, macOS
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="https://client.scalar.com/">Try It Out For Free →</a>
+      <a class="mt-3 t-editor__anchor" href="https://client.scalar.com/">Try It in the Browser →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
@@ -197,25 +203,21 @@ They are open source. So I can get in on free features and stay with Scalar no m
   </div>
   <div class="product product-reversed">
     <div class="product-copy">
-      <span class="font-bold text-blue">API Docs</span>
+      <span class="font-bold text-blue">Scalar Docs</span>
       <h2>
-        Modern Documentation platform for your APIs, with first-class OpenAPI support
+        The Modern Documentation Platform for Your API and Everything Else
       </h2>
       <p>
-        Write beautiful documentation with our WYSIWYG or docs-as-code with Markdown + MDX + Git Sync & make your OpenAPI documents Interactive
+        Write documentation with our WYSIWYG, pull Markdown and MDX files from your repository or generate API References from your OpenAPI documents. No matter how you work, your new documentation will always be up to date.
       </p>
       <div class="flex flex-wrap text-blue gap-y-2">
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/palette"></scalar-icon>
-          Fully Brand-able
+          <scalar-icon src="phosphor/bold/brackets-angle"></scalar-icon>
+          Markdown and MDX
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon>
-          OpenAPI Support
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/brackets-angle"></scalar-icon>
-          MDX Support
+          OpenAPI Documents
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/brackets-curly"></scalar-icon>
@@ -223,14 +225,18 @@ They are open source. So I can get in on free features and stay with Scalar no m
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/github-logo"></scalar-icon>
-          Sync with Git
+          GitHub Sync
+        </b>
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/palette"></scalar-icon>
+          Customize Everything
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/users"></scalar-icon>
-          Access Groups
+          Fine-grained Access
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/scalar/scalar-docs/getting-started">Learn More →</a>
+      <a class="mt-3 t-editor__anchor" href="/scalar/scalar-docs/getting-started">Create Your New Documentation →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
@@ -244,9 +250,9 @@ They are open source. So I can get in on free features and stay with Scalar no m
   </div>
   <div class="product">
     <div class="product-copy">
-      <span class="font-bold text-purple">SDK Generation</span>
+      <span class="font-bold text-purple">Scalar SDK Generation</span>
       <h2 class="c">
-        Create World-Class SDKs for your APIs
+        One Commit To Update All Your SDKs
       </h2>
       <p>
         Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python, Golang, PHP, Java and Ruby with more languages coming soon.
@@ -254,7 +260,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
       <div class="flex flex-wrap text-purple gap-y-2">
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon>
-          OpenAPI First
+          OpenAPI-First
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/brackets-square"></scalar-icon>
@@ -266,7 +272,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/fingerprint"></scalar-icon>
-          <span><span class="lg-only">OpenAPI </span>Auth support</span>
+          <span><span class="lg-only">OpenAPI </span>Authentication</span>
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/cloud-check"></scalar-icon>
@@ -274,10 +280,10 @@ They are open source. So I can get in on free features and stay with Scalar no m
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/file-cloud"></scalar-icon>
-          File Streaming
+          File Streaming Support
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/scalar/scalar-sdks/getting-started">Learn More →</a>
+      <a class="mt-3 t-editor__anchor" href="/scalar/scalar-sdks/getting-started">Generate your first SDK →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">

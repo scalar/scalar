@@ -123,6 +123,9 @@ catalogs:
     semver:
       specifier: 7.7.2
       version: 7.7.2
+    shx:
+      specifier: ^0.4.0
+      version: 0.4.0
     stdout-update:
       specifier: 4.0.1
       version: 4.0.1
@@ -222,7 +225,7 @@ importers:
         specifier: catalog:*
         version: 4.45.1
       shx:
-        specifier: ^0.4.0
+        specifier: catalog:*
         version: 0.4.0
       start-server-and-test:
         specifier: ^2.0.9
@@ -249,8 +252,8 @@ importers:
         specifier: ^8.15.0
         version: 8.24.0(eslint@9.20.1(jiti@2.4.2))(typescript@5.8.3)
       vite-node:
-        specifier: ^2.1.1
-        version: 2.1.5(@types/node@22.15.3)(lightningcss@1.30.1)(terser@5.31.2)
+        specifier: catalog:*
+        version: 3.2.4(@types/node@22.15.3)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
       vitest:
         specifier: catalog:*
         version: 3.2.4(@types/debug@4.1.12)(@types/node@22.15.3)(jiti@2.4.2)(jsdom@25.0.1)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
@@ -747,9 +750,6 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../../packages/build-tooling
-      shx:
-        specifier: ^0.4.0
-        version: 0.4.0
 
   integrations/aspire/playground/Scalar.Aspire.UserService: {}
 
@@ -762,9 +762,12 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../../packages/build-tooling
-      shx:
-        specifier: ^0.4.0
-        version: 0.4.0
+      '@scalar/snippetz':
+        specifier: workspace:*
+        version: link:../../packages/snippetz
+      vite-node:
+        specifier: catalog:*
+        version: 3.2.4(@types/node@22.15.3)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
 
   integrations/docker:
     dependencies:
@@ -775,9 +778,6 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../../packages/build-tooling
-      shx:
-        specifier: ^0.4.0
-        version: 0.4.0
 
   integrations/docusaurus:
     dependencies:
@@ -809,9 +809,6 @@ importers:
       react:
         specifier: catalog:*
         version: 19.1.0
-      shx:
-        specifier: ^0.4.0
-        version: 0.4.0
 
   integrations/express:
     dependencies:
@@ -888,9 +885,6 @@ importers:
       rollup-plugin-node-externals:
         specifier: ^7.1.2
         version: 7.1.2(rollup@4.45.1)
-      shx:
-        specifier: ^0.4.0
-        version: 0.4.0
       terser:
         specifier: ^5.30.0
         version: 5.31.2
@@ -944,9 +938,6 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../../../packages/build-tooling
-      shx:
-        specifier: ^0.4.0
-        version: 0.4.0
 
   integrations/nestjs:
     dependencies:
@@ -1135,6 +1126,9 @@ importers:
       '@headlessui/vue':
         specifier: catalog:*
         version: 1.7.23(vue@3.5.17(typescript@5.8.3))
+      '@scalar/analytics-client':
+        specifier: workspace:*
+        version: link:../analytics-client
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
@@ -1609,9 +1603,6 @@ importers:
       '@types/picomatch':
         specifier: ^2.3.3
         version: 2.3.3
-      vite-node:
-        specifier: ^2.1.1
-        version: 2.1.5(@types/node@22.15.3)(lightningcss@1.30.1)(terser@5.31.2)
 
   packages/code-highlight:
     dependencies:
@@ -2813,9 +2804,6 @@ importers:
       stdout-update:
         specifier: catalog:*
         version: 4.0.1
-      vite-node:
-        specifier: catalog:*
-        version: 3.2.4(@types/node@22.15.3)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
       yaml:
         specifier: catalog:*
         version: 2.8.0

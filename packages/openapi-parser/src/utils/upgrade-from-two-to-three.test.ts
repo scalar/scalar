@@ -1,3 +1,4 @@
+import type { OpenAPIV3 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 
 import { upgradeFromTwoToThree } from './upgrade-from-two-to-three'
@@ -872,5 +873,147 @@ describe('upgradeFromTwoToThree', () => {
         },
       },
     ])
+  })
+
+  it('upgrades parameters defined globally and path wide - without body and formData', async () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      produces: ['application/json'],
+      parameters: {
+        globalHeader: {
+          description: 'a global defined header',
+          in: 'header',
+          name: 'global header',
+          required: false,
+          type: 'string',
+        },
+      },
+      paths: {
+        '/planets/{planetId}': {
+          parameters: [
+            {
+              description: 'planet id',
+              in: 'path',
+              name: 'planetId',
+              required: true,
+              type: 'number',
+            },
+          ],
+        },
+      },
+    })
+
+    expect(result.paths['/planets/{planetId}'].parameters).toStrictEqual([
+      {
+        description: 'planet id',
+        in: 'path',
+        name: 'planetId',
+        required: true,
+        schema: {
+          type: 'number',
+        },
+      },
+    ])
+
+    expect(result.components.parameters).toMatchObject({
+      globalHeader: {
+        description: 'a global defined header',
+        in: 'header',
+        name: 'global header',
+        required: false,
+        schema: {
+          type: 'string',
+        },
+      },
+    })
+  })
+
+  it('upgrades parameters defined globally and path wide - body and formData', async () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      produces: ['application/json'],
+      consumes: ['application/xml'],
+      parameters: {
+        planetBody: {
+          in: 'body',
+          name: 'planet body',
+          required: true,
+          schema: {
+            type: 'object',
+            properties: {
+              name: {
+                type: 'string',
+              },
+            },
+          },
+        },
+      },
+      paths: {
+        '/planets/{planetId}': {
+          parameters: [
+            {
+              description: 'planet name',
+              in: 'formData',
+              name: 'name',
+              required: true,
+              type: 'string',
+            },
+            {
+              description: 'planet size',
+              in: 'formData',
+              name: 'size',
+              required: false,
+              type: 'number',
+            },
+          ],
+          post: {
+            responses: {
+              '201': {
+                description: 'The planet just created.',
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths['/planets/{planetId}'].post.requestBody).toStrictEqual({
+      content: {
+        'application/x-www-form-urlencoded': {
+          schema: {
+            type: 'object',
+            required: ['name'],
+            properties: {
+              name: {
+                description: 'planet name',
+                type: 'string',
+              },
+              size: {
+                type: 'number',
+                description: 'planet size',
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.components.requestBodies).toStrictEqual({
+      planetBody: {
+        required: true,
+        content: {
+          'application/xml': {
+            schema: {
+              type: 'object',
+              properties: {
+                name: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+        },
+      },
+    })
   })
 })

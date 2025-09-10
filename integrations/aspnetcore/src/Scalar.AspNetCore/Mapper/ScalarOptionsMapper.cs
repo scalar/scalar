@@ -1,32 +1,14 @@
 namespace Scalar.AspNetCore;
 
-internal static class ScalarOptionsMapper
+internal static partial class ScalarOptionsMapper
 {
     private const string DocumentName = "{documentName}";
 
-    internal static readonly Dictionary<ScalarTarget, ScalarClient[]> ClientOptions = new()
-    {
-        { ScalarTarget.C, [ScalarClient.Libcurl] },
-        { ScalarTarget.Clojure, [ScalarClient.CljHttp] },
-        { ScalarTarget.CSharp, [ScalarClient.HttpClient, ScalarClient.RestSharp] },
-        { ScalarTarget.Http, [ScalarClient.Http11] },
-        { ScalarTarget.Java, [ScalarClient.AsyncHttp, ScalarClient.NetHttp, ScalarClient.OkHttp, ScalarClient.Unirest] },
-        { ScalarTarget.JavaScript, [ScalarClient.Xhr, ScalarClient.Axios, ScalarClient.Fetch, ScalarClient.JQuery, ScalarClient.OFetch] },
-        { ScalarTarget.Node, [ScalarClient.Undici, ScalarClient.Native, ScalarClient.Request, ScalarClient.Unirest, ScalarClient.Axios, ScalarClient.Fetch, ScalarClient.OFetch] },
-        { ScalarTarget.ObjC, [ScalarClient.Nsurlsession] },
-        { ScalarTarget.OCaml, [ScalarClient.CoHttp] },
-        { ScalarTarget.Php, [ScalarClient.Curl, ScalarClient.Guzzle, ScalarClient.Http1, ScalarClient.Http2] },
-        { ScalarTarget.PowerShell, [ScalarClient.WebRequest, ScalarClient.RestMethod] },
-        { ScalarTarget.Python, [ScalarClient.Python3, ScalarClient.Requests, ScalarClient.HttpxSync, ScalarClient.HttpxAsync] },
-        { ScalarTarget.R, [ScalarClient.Httr] },
-        { ScalarTarget.Ruby, [ScalarClient.Native] },
-        { ScalarTarget.Shell, [ScalarClient.Curl, ScalarClient.Httpie, ScalarClient.Wget] },
-        { ScalarTarget.Swift, [ScalarClient.Nsurlsession] },
-        { ScalarTarget.Go, [ScalarClient.Native] },
-        { ScalarTarget.Kotlin, [ScalarClient.OkHttp] },
-        { ScalarTarget.Dart, [ScalarClient.Http] },
-        { ScalarTarget.Rust, [ScalarClient.Reqwest] }
-    };
+    /// <summary>
+    /// Mapping of targets to their available clients.
+    /// This dictionary is auto-generated from TypeScript clients configuration.
+    /// </summary>
+    internal static partial Dictionary<ScalarTarget, ScalarClient[]> AvailableClientsByTarget { get; }
 
     internal static ScalarConfiguration ToScalarConfiguration(this ScalarOptions options)
     {
@@ -93,9 +75,9 @@ internal static class ScalarOptionsMapper
             return null;
         }
 
-        var hiddenClients = new Dictionary<ScalarTarget, ScalarClient[]>(ClientOptions.Count);
+        var hiddenClients = new Dictionary<ScalarTarget, ScalarClient[]>(AvailableClientsByTarget.Count);
 
-        foreach (var (scalarTarget, scalarClients) in ClientOptions)
+        foreach (var (scalarTarget, scalarClients) in AvailableClientsByTarget)
         {
             if (options.EnabledTargets.Length > 0 && !options.EnabledTargets.Contains(scalarTarget))
             {

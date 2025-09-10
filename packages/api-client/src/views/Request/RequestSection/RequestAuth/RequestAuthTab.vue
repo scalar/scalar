@@ -1,9 +1,5 @@
 <script setup lang="ts">
 import { ScalarMarkdownSummary } from '@scalar/components'
-import {
-  CLIENT_LS_KEYS,
-  safeLocalStorage,
-} from '@scalar/helpers/object/local-storage'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type {
   Collection,
@@ -11,18 +7,14 @@ import type {
   Server,
 } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
-import { isDefined } from '@scalar/oas-utils/helpers'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
-import type { Entries } from 'type-fest'
 import { capitalize, computed, onMounted, ref } from 'vue'
 
 import { DataTableCell, DataTableRow } from '@/components/DataTable'
 import type { EnvVariable } from '@/store/active-entities'
 import { useWorkspace } from '@/store/store'
-import {
-  updateScheme as _updateScheme,
-  type Auth,
-} from '@/views/Request/RequestSection/helpers/update-scheme'
+import { updateScheme as _updateScheme } from '@/views/Request/RequestSection/helpers/update-scheme'
+import { restoreAuthFromLocalStorage } from '@/views/Request/RequestSection/RequestAuth/helpers/restore-auth-from-local-storage'
 
 import OAuth2 from './OAuth2.vue'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
@@ -47,9 +39,16 @@ const {
   workspace: Workspace
 }>()
 
+const emits = defineEmits<{
+  authorized: []
+}>()
+
+defineSlots<{
+  'oauth-actions'?: () => unknown
+}>()
+
 const storeContext = useWorkspace()
-const { collectionMutators, securitySchemes, securitySchemeMutators } =
-  storeContext
+const { securitySchemes } = storeContext
 const security = computed(() =>
   securitySchemeUids.map((uid) => ({
     scheme: securitySchemes[uid],
@@ -103,54 +102,7 @@ onMounted(() => {
     return
   }
 
-  const auth: Auth<Path<SecurityScheme>> = JSON.parse(
-    safeLocalStorage().getItem(CLIENT_LS_KEYS.AUTH) ?? '{}',
-  )
-
-  /** Map the security scheme name key to the uid */
-  const dict = Object.keys(securitySchemes).reduce(
-    (acc, key) => {
-      const scheme = securitySchemes[key]
-      if (scheme) {
-        acc[scheme.nameKey] = scheme.uid
-      }
-      return acc
-    },
-    {} as Record<string, SecurityScheme['uid']>,
-  )
-
-  /** Now we can use the dict to restore the auth from local storage */
-  Object.entries(auth).forEach(([key, entry]) => {
-    const uid = dict[key]
-    if (uid) {
-      const entries = Object.entries(entry) as Entries<typeof entry>
-      entries.forEach(([path, value]) => {
-        securitySchemeMutators.edit(uid, path, value)
-      })
-    }
-  })
-
-  /** Restore the selected security scheme uids */
-  try {
-    const selectedSchemeUids: (string | string[])[] = JSON.parse(
-      safeLocalStorage().getItem(CLIENT_LS_KEYS.SELECTED_SECURITY_SCHEMES) ??
-        '',
-    )
-
-    // Convert back to uids
-    const uids = selectedSchemeUids
-      .map((nameKeys) => {
-        if (Array.isArray(nameKeys)) {
-          return nameKeys.map((key) => dict[key]).filter(isDefined)
-        }
-        return dict[nameKeys]
-      })
-      .filter(isDefined)
-
-    collectionMutators.edit(collection.uid, 'selectedSecuritySchemeUids', uids)
-  } catch (e) {
-    // Nothing to restore
-  }
+  restoreAuthFromLocalStorage(storeContext, collection.uid)
 })
 
 /** To make prop drilling a little easier */
@@ -180,8 +132,8 @@ const dataTableInputProps = {
     <!-- Description -->
     <DataTableRow v-if="scheme?.description && security.length <= 1">
       <DataTableCell
-        class="max-h-[auto]"
-        :aria-label="scheme.description">
+        :aria-label="scheme.description"
+        class="max-h-[auto]">
         <ScalarMarkdownSummary
           class="auth-description bg-b-1 text-c-2 min-w-0 flex-1 px-3 py-1.25"
           :value="scheme.description" />
@@ -290,7 +242,12 @@ const dataTableInputProps = {
           :persistAuth="persistAuth"
           :scheme="scheme"
           :server="server"
-          :workspace="workspace" />
+          :workspace="workspace"
+          @authorized="emits('authorized')">
+          <template #oauth-actions>
+            <slot name="oauth-actions" />
+          </template>
+        </OAuth2>
       </template>
     </template>
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useModal } from '@scalar/components'
+import { isDefined } from '@scalar/helpers/array/is-defined'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type {
   Collection,
@@ -10,6 +11,7 @@ import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { computed, ref, watch } from 'vue'
 
 import { DataTable } from '@/components/DataTable'
+import { useWorkspace } from '@/store'
 import type { EnvVariable } from '@/store/active-entities'
 
 import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
@@ -35,6 +37,16 @@ const {
   workspace: Workspace
 }>()
 
+const emits = defineEmits<{
+  authorized: []
+  activeSchemes: [schemes: SecurityScheme[]]
+}>()
+
+defineSlots<{
+  'oauth-actions'?: () => unknown
+}>()
+
+const { securitySchemes } = useWorkspace()
 const deleteSchemeModal = useModal()
 const selectedScheme = ref<{ id: SecurityScheme['uid']; label: string } | null>(
   null,
@@ -58,10 +70,22 @@ const activeScheme = computed(() => {
   return keys.length > 1 ? keys : [option.id]
 })
 
+/** Emit active schemes */
+watch(
+  activeScheme,
+  (newActiveSchemes) => {
+    emits(
+      'activeSchemes',
+      newActiveSchemes
+        .map((scheme) => securitySchemes[scheme])
+        .filter(isDefined),
+    )
+  },
+  { immediate: true },
+)
+
 /** Return true if there are any active schemes */
-const hasActiveSchemes = computed(() => {
-  return activeScheme.value.length > 0
-})
+const hasActiveSchemes = computed(() => activeScheme.value.length > 0)
 
 watch(
   () => selectedSchemeOptions,
@@ -111,7 +135,12 @@ watch(
         :persistAuth="persistAuth"
         :securitySchemeUids="activeScheme"
         :server="server"
-        :workspace="workspace" />
+        :workspace="workspace"
+        @authorized="emits('authorized')">
+        <template #oauth-actions>
+          <slot name="oauth-actions" />
+        </template>
+      </RequestAuthTab>
     </DataTable>
 
     <div

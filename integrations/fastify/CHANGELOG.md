@@ -1,5 +1,27 @@
 # @scalar/fastify-api-reference
 
+## 1.35.2
+
+### Patch Changes
+
+- Updated dependencies [b8c4b61]
+  - @scalar/openapi-parser@0.20.3
+
+## 1.35.1
+
+### Patch Changes
+
+- @scalar/core@0.3.16
+- @scalar/openapi-parser@0.20.2
+
+## 1.35.0
+
+### Patch Changes
+
+- 3999fb1: fix: does not work with @fastify/swagger decorator option
+  - @scalar/openapi-parser@0.20.2
+  - @scalar/core@0.3.15
+
 ## 1.34.6
 
 ### Patch Changes

@@ -1,5 +1,74 @@
 # @scalar/api-client
 
+## 2.5.29
+
+### Patch Changes
+
+- 5eedb97: feat: allow query params on findRequestByPathMethod method
+- Updated dependencies [b8c4b61]
+  - @scalar/openapi-parser@0.20.3
+  - @scalar/import@0.4.21
+  - @scalar/oas-utils@0.4.25
+  - @scalar/workspace-store@0.15.2
+  - @scalar/components@0.14.30
+  - @scalar/postman-to-openapi@0.3.28
+  - @scalar/use-codemirror@0.12.31
+
+## 2.5.28
+
+### Patch Changes
+
+- c470c60: fix(components): update scalar menu button flex
+- abe3842: Add analytic events to api-client + add telemetry option
+- 5a7d388: fix(api-client): don't apply block layout on desktop
+- Updated dependencies [c470c60]
+- Updated dependencies [abe3842]
+  - @scalar/components@0.14.29
+  - @scalar/types@0.2.15
+  - @scalar/use-codemirror@0.12.30
+  - @scalar/oas-utils@0.4.24
+  - @scalar/openapi-parser@0.20.2
+  - @scalar/snippetz@0.4.9
+  - @scalar/themes@0.13.16
+  - @scalar/workspace-store@0.15.1
+  - @scalar/postman-to-openapi@0.3.27
+
+## 2.5.27
+
+### Patch Changes
+
+- 714b197: feat: support base64 unicode characters
+- ee605d8: fix(api-reference): allow server variables dropdown to close on selection
+- Updated dependencies [ba27329]
+- Updated dependencies [714b197]
+- Updated dependencies [40e79b9]
+- Updated dependencies [98c55d0]
+- Updated dependencies [792c937]
+- Updated dependencies [f918582]
+- Updated dependencies [cededd8]
+- Updated dependencies [3473e08]
+- Updated dependencies [a6ae22a]
+- Updated dependencies [422cb2b]
+- Updated dependencies [63283aa]
+- Updated dependencies [8680da6]
+- Updated dependencies [2b22eab]
+- Updated dependencies [0e747c7]
+- Updated dependencies [976366f]
+- Updated dependencies [99894bc]
+- Updated dependencies [5ad329e]
+  - @scalar/workspace-store@0.15.0
+  - @scalar/oas-utils@0.4.23
+  - @scalar/snippetz@0.4.8
+  - @scalar/helpers@0.0.9
+  - @scalar/types@0.2.14
+  - @scalar/components@0.14.28
+  - @scalar/themes@0.13.15
+  - @scalar/postman-to-openapi@0.3.26
+  - @scalar/openapi-parser@0.20.2
+  - @scalar/import@0.4.20
+  - @scalar/object-utils@1.2.5
+  - @scalar/use-codemirror@0.12.29
+
 ## 2.5.26
 
 ### Patch Changes

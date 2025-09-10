@@ -1,5 +1,48 @@
 # @scalar/oas-utils
 
+## 0.4.25
+
+### Patch Changes
+
+- @scalar/workspace-store@0.15.2
+
+## 0.4.24
+
+### Patch Changes
+
+- Updated dependencies [abe3842]
+  - @scalar/types@0.2.15
+  - @scalar/themes@0.13.16
+  - @scalar/workspace-store@0.15.1
+
+## 0.4.23
+
+### Patch Changes
+
+- 714b197: feat: support base64 unicode characters
+- 98c55d0: feat: better xml rendering
+- cededd8: fix: schema undefined in example generator
+- a6ae22a: feat: change the way we declare schemas
+- 976366f: feat: upgrade performance of example from schema generator
+- Updated dependencies [ba27329]
+- Updated dependencies [06a46f0]
+- Updated dependencies [98c55d0]
+- Updated dependencies [792c937]
+- Updated dependencies [3473e08]
+- Updated dependencies [a6ae22a]
+- Updated dependencies [63283aa]
+- Updated dependencies [8680da6]
+- Updated dependencies [2b22eab]
+- Updated dependencies [0e747c7]
+- Updated dependencies [99894bc]
+- Updated dependencies [5ad329e]
+  - @scalar/workspace-store@0.15.0
+  - @scalar/json-magic@0.4.0
+  - @scalar/helpers@0.0.9
+  - @scalar/types@0.2.14
+  - @scalar/themes@0.13.15
+  - @scalar/object-utils@1.2.5
+
 ## 0.4.22
 
 ### Patch Changes

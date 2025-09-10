@@ -64,7 +64,7 @@ defineOptions({ inheritAttrs: false })
             v-for="t in teams"
             :key="t.id"
             :as="ScalarDropdownButton"
-            class="group/item"
+            class="group/item flex items-center"
             :value="t.id">
             <ScalarMenuTeamProfile
               class="-ml-0.75 flex-1 min-w-0"
@@ -77,6 +77,7 @@ defineOptions({ inheritAttrs: false })
         </DropdownMenu.RadioGroup>
         <DropdownMenu.Item
           :as="ScalarDropdownButton"
+          class="flex items-center"
           @click="emit('add')">
           <ScalarIconPlus
             class="bg-b-3 -ml-0.75 rounded p-1 size-5 text-c-3"

@@ -151,7 +151,7 @@ const isDraftsMenuItem = computed(() => {
         <!-- Add example -->
         <ScalarDropdownButton
           v-if="menuItem.item?.entity.type === 'request'"
-          class="flex gap-2"
+          class="flex items-center gap-2"
           @click="handleAddExample">
           <ScalarIcon
             class="inline-flex"
@@ -165,7 +165,7 @@ const isDraftsMenuItem = computed(() => {
         <ScalarDropdownButton
           v-if="!isDraftsMenuItem"
           ref="menuRef"
-          class="flex gap-2"
+          class="flex items-center gap-2"
           @click="editModal.show()">
           <ScalarIcon
             class="inline-flex"
@@ -182,7 +182,7 @@ const isDraftsMenuItem = computed(() => {
 
         <!-- Duplicate -->
         <!-- <ScalarDropdownButton
-        class="flex !gap-2"
+        class="flex  items-center !gap-2"
         @click="handleItemDuplicate">
         <ScalarIcon
           class="inline-flex"
@@ -197,7 +197,7 @@ const isDraftsMenuItem = computed(() => {
         <ScalarDropdownButton
           v-if="menuItem.item?.documentUrl"
           ref="menuRef"
-          class="flex gap-2"
+          class="flex items-center gap-2"
           @click="toggleWatchMode">
           <ScalarIcon
             class="inline-flex"
@@ -216,7 +216,7 @@ const isDraftsMenuItem = computed(() => {
         <!-- Delete -->
         <ScalarDropdownButton
           v-if="!isDraftsMenuItem"
-          class="flex gap-2"
+          class="flex items-center gap-2"
           @click="deleteModal.show()">
           <ScalarIcon
             class="inline-flex"
@@ -229,7 +229,7 @@ const isDraftsMenuItem = computed(() => {
         <!-- Clear Drafts -->
         <ScalarDropdownButton
           v-if="isDraftsMenuItem"
-          class="flex gap-2"
+          class="flex items-center gap-2"
           @click="clearDraftsModal.show()">
           <ScalarIcon
             class="inline-flex"
