@@ -1,5 +1,14 @@
 # @scalar/components
 
+## 0.14.31
+
+### Patch Changes
+
+- 2249fe3: fix: a > img takes the full width
+- Updated dependencies [821717b]
+  - @scalar/oas-utils@0.4.26
+  - @scalar/helpers@0.0.10
+
 ## 0.14.30
 
 ### Patch Changes

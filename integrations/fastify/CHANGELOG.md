@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.35.3
+
+### Patch Changes
+
+- @scalar/openapi-parser@0.20.4
+
 ## 1.35.2
 
 ### Patch Changes

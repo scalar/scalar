@@ -1,5 +1,12 @@
 # @scalar/use-codemirror
 
+## 0.12.32
+
+### Patch Changes
+
+- Updated dependencies [2249fe3]
+  - @scalar/components@0.14.31
+
 ## 0.12.31
 
 ### Patch Changes

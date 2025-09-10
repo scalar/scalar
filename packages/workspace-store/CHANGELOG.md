@@ -1,5 +1,15 @@
 # @scalar/workspace-store
 
+## 0.15.3
+
+### Patch Changes
+
+- 821717b: refactor: schema rendering
+- Updated dependencies [821717b]
+  - @scalar/helpers@0.0.10
+  - @scalar/json-magic@0.4.1
+  - @scalar/openapi-parser@0.20.4
+
 ## 0.15.2
 
 ### Patch Changes
