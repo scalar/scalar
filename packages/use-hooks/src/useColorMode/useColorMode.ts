@@ -84,18 +84,19 @@ export function useColorMode(opts: UseColorModeOptions = {}) {
   // Watch for colorMode changes and update the body class
   watch(colorMode, applyColorMode, { immediate: true })
 
+  const handleChange = () => colorMode.value === 'system' && applyColorMode('system')
+
+  const mediaQuery = ref<MediaQueryList | null>(null)
   // Listen to system preference changes
   onMounted(() => {
     if (typeof window !== 'undefined' && typeof window?.matchMedia === 'function') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-      const handleChange = () => colorMode.value === 'system' && applyColorMode('system')
-
-      mediaQuery.addEventListener('change', handleChange)
-
-      onUnmounted(() => {
-        mediaQuery.removeEventListener('change', handleChange)
-      })
+      mediaQuery.value = window.matchMedia('(prefers-color-scheme: dark)')
+      mediaQuery.value?.addEventListener('change', handleChange)
     }
+  })
+
+  onUnmounted(() => {
+    mediaQuery.value?.removeEventListener('change', handleChange)
   })
 
   return {

@@ -104,18 +104,19 @@ const isItemActive = (itemId: string) => {
   return false
 }
 
+const observer = ref<MutationObserver | undefined>(undefined)
 onMounted(() => {
-  const observer = observeSidebarElement(hash.value)
+  observer.value = observeSidebarElement(hash.value)
 
   // Enable scrolling after some time
   if (!hash.value) {
     setTimeout(() => (disableScroll.value = false), 300)
   }
+})
 
-  // Cleanup the observer when component is unmounted
-  onUnmounted(() => {
-    observer?.disconnect()
-  })
+// Cleanup the observer when component is unmounted
+onUnmounted(() => {
+  observer.value?.disconnect()
 })
 
 const hasChildren = (
