@@ -230,7 +230,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
           Fine-grained Access
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/scalar/scalar-docs/getting-started">Learn More →</a>
+      <a class="mt-3 t-editor__anchor" href="/scalar/scalar-docs/getting-started">Create Your New Documentation →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
