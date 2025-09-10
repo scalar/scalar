@@ -42,6 +42,7 @@ import RequestAuthDataTable from './RequestAuthDataTable.vue'
 
 const {
   collection,
+  isReadOnly = false,
   environment,
   envVariables,
   layout,
@@ -53,6 +54,8 @@ const {
   workspace,
 } = defineProps<{
   collection: Collection
+  /** Controls whether user can add new auth schemes */
+  isReadOnly?: boolean
   environment: Environment
   envVariables: EnvVariable[]
   layout: 'client' | 'reference'
@@ -62,6 +65,17 @@ const {
   server: Server | undefined
   title: string
   workspace: Workspace
+}>()
+
+const emits = defineEmits<{
+  /** Emits when the user has authorized with an oauth2 flow */
+  authorized: []
+  /** Emits the currently active scheme */
+  activeSchemes: [schemes: SecurityScheme[]]
+}>()
+
+defineSlots<{
+  'oauth-actions'?: () => unknown
 }>()
 
 const { layout: clientLayout } = useLayout()
@@ -222,7 +236,7 @@ const schemeOptions = computed(() =>
     securityRequirements.value.filteredRequirements,
     collection?.securitySchemes ?? [],
     securitySchemes,
-    clientLayout === 'modal' || layout === 'reference',
+    isReadOnly,
   ),
 )
 
@@ -261,10 +275,10 @@ const openAuthCombobox = (event: Event) => {
         <ScalarComboboxMultiselect
           class="w-72 text-xs"
           :modelValue="selectedSchemeOptions"
-          teleport
           multiple
-          placement="bottom-end"
           :options="schemeOptions"
+          placement="bottom-end"
+          teleport
           @delete="handleDeleteScheme"
           @update:modelValue="updateSelectedAuth">
           <ScalarButton
@@ -286,13 +300,13 @@ const openAuthCombobox = (event: Event) => {
               Auth Type
             </template>
             <ScalarIconCaretDown
-              weight="bold"
-              class="size-3 shrink-0 transition-transform duration-100 group-aria-expanded/combobox-button:rotate-180" />
+              class="size-3 shrink-0 transition-transform duration-100 group-aria-expanded/combobox-button:rotate-180"
+              weight="bold" />
           </ScalarButton>
           <template #option="{ option, selected }">
             <ScalarListboxCheckbox
-              :selected="selected"
-              multiselect />
+              multiselect
+              :selected="selected" />
             <div class="min-w-0 flex-1 truncate">
               {{ option.label }}
             </div>
@@ -301,15 +315,17 @@ const openAuthCombobox = (event: Event) => {
                 option.isDeletable ??
                 (clientLayout !== 'modal' && layout !== 'reference')
               "
-              size="xs"
-              :label="`Delete ${option.label}`"
+              class="-m-0.5 shrink-0 p-0.5 opacity-0 group-hover/item:opacity-100"
               :icon="ScalarIconTrash"
-              @click.stop="handleDeleteScheme(option)"
-              class="-m-0.5 shrink-0 p-0.5 opacity-0 group-hover/item:opacity-100" />
+              :label="`Delete ${option.label}`"
+              size="xs"
+              @click.stop="handleDeleteScheme(option)" />
           </template>
         </ScalarComboboxMultiselect>
       </div>
     </template>
+
+    <!-- Auth Table -->
     <RequestAuthDataTable
       :collection="collection"
       :envVariables="envVariables"
@@ -318,7 +334,14 @@ const openAuthCombobox = (event: Event) => {
       :persistAuth="persistAuth"
       :selectedSchemeOptions="selectedSchemeOptions"
       :server="server"
-      :workspace="workspace" />
+      :workspace="workspace"
+      @activeSchemes="emits('activeSchemes', $event)"
+      @authorized="emits('authorized')">
+      <template #oauth-actions>
+        <slot name="oauth-actions" />
+      </template>
+    </RequestAuthDataTable>
+
     <DeleteRequestAuthModal
       :scheme="selectedScheme"
       :state="deleteSchemeModal"
