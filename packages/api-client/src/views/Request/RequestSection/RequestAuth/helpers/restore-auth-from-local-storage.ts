@@ -13,7 +13,7 @@ import type { Auth } from '@/views/Request/RequestSection/helpers/update-scheme'
  * Only use this if you need to restore auth manually, in the client web + app we load the whole store from
  * local storage so it isn't needed there.
  */
-export const restoreAuthFromLocalStorage = (store: WorkspaceStore, collectionUid: Collection['uid']) => {
+export const restoreAuthFromLocalStorage = (store: WorkspaceStore, collectionUid: string) => {
   try {
     const { collectionMutators, securitySchemes, securitySchemeMutators } = store
     const auth: Auth<Path<SecurityScheme>> = JSON.parse(safeLocalStorage().getItem(CLIENT_LS_KEYS.AUTH) ?? '{}')
@@ -56,7 +56,7 @@ export const restoreAuthFromLocalStorage = (store: WorkspaceStore, collectionUid
       })
       .filter(isDefined)
 
-    collectionMutators.edit(collectionUid, 'selectedSecuritySchemeUids', uids)
+    collectionMutators.edit(collectionUid as Collection['uid'], 'selectedSecuritySchemeUids', uids)
   } catch (e) {
     // Nothing to restore
     console.error(e)
