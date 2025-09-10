@@ -82,6 +82,12 @@ const schemaDescription = computed(() => {
     return null
   }
 
+  // Merged allOf schemas at level 0 should not show individual descriptions
+  // to prevent duplicates with the request body description
+  if (level === 0) {
+    return null
+  }
+
   // Return the schema's own description
   return schema.description
 })
