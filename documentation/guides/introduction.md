@@ -197,25 +197,21 @@ They are open source. So I can get in on free features and stay with Scalar no m
   </div>
   <div class="product product-reversed">
     <div class="product-copy">
-      <span class="font-bold text-blue">API Docs</span>
+      <span class="font-bold text-blue">Scalar Docs</span>
       <h2>
-        Modern Documentation platform for your APIs, with first-class OpenAPI support
+        The Modern Documentation Platform for Your API and Everything Else
       </h2>
       <p>
-        Write beautiful documentation with our WYSIWYG or docs-as-code with Markdown + MDX + Git Sync & make your OpenAPI documents Interactive
+        Write documentation with our WYSIWYG, pull Markdown and MDX files from your repository or generate API References from your OpenAPI documents. No matter how you work, your new documentation will always be up to date.
       </p>
       <div class="flex flex-wrap text-blue gap-y-2">
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/palette"></scalar-icon>
-          Fully Brand-able
+          <scalar-icon src="phosphor/bold/brackets-angle"></scalar-icon>
+          Markdown and MDX
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon>
-          OpenAPI Support
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/brackets-angle"></scalar-icon>
-          MDX Support
+          OpenAPI Documents
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/brackets-curly"></scalar-icon>
@@ -223,14 +219,18 @@ They are open source. So I can get in on free features and stay with Scalar no m
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/github-logo"></scalar-icon>
-          Sync with Git
+          GitHub Sync
+        </b>
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/palette"></scalar-icon>
+          Customize Everything
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/users"></scalar-icon>
-          Access Groups
+          Fine-grained Access
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/scalar/scalar-docs/getting-started">Learn More →</a>
+      <a class="mt-3 t-editor__anchor" href="/scalar/scalar-docs/getting-started">Create Your New Documentation →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
