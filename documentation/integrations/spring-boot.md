@@ -80,7 +80,7 @@ To enable actuator support, add the following configuration:
 
 ```properties
 # Enable actuator support
-scalar.actuator-enabled=true
+scalar.actuatorEnabled=true
 
 # Expose the scalar endpoint
 management.endpoints.web.exposure.include=scalar
@@ -90,7 +90,7 @@ Or in `application.yml`:
 
 ```yaml
 scalar:
-  actuator-enabled: true
+  actuatorEnabled: true
 
 management:
   endpoints:
@@ -190,7 +190,7 @@ spring.autoconfigure.exclude=com.scalar.maven.webjar.ScalarAutoConfiguration
 | `scalar.layout`                | `modern`                                                             | The layout style to use for the API reference. Can be "modern" or "classic"                                                                                      |
 | `scalar.hideSearch`            | `false`                                                              | Whether to show the sidebar search bar                                                                                                                           |
 | `scalar.documentDownloadType`  | `both`                                                               | Sets the file type of the document to download. Can be "json", "yaml", "both", or "none"                                                                         |
-| `scalar.actuator-enabled`      | `false`                                                              | Whether to expose the Scalar UI as an actuator endpoint at /actuator/scalar                                                                                      |
+| `scalar.actuatorEnabled`       | `false`                                                              | Whether to expose the Scalar UI as an actuator endpoint at /actuator/scalar                                                                                      |
 
 ## Security Configuration
 
@@ -242,7 +242,7 @@ scalar.layout=modern
 scalar.documentDownloadType=both
 
 # Actuator support
-scalar.actuator-enabled=false
+scalar.actuatorEnabled=false
 
 # Custom styling
 scalar.customCss=body { font-family: 'Arial', sans-serif; }

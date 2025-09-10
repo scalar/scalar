@@ -49,7 +49,7 @@ public class ScalarAutoConfiguration {
      * @return a configured ScalarActuatorEndpoint instance
      */
     @Bean
-    @ConditionalOnProperty(prefix = "scalar", name = "actuator-enabled", havingValue = "true")
+    @ConditionalOnProperty(prefix = "scalar", name = "actuatorEnabled", havingValue = "true")
     @ConditionalOnClass(name = "org.springframework.boot.actuate.endpoint.annotation.Endpoint")
     @ConditionalOnAvailableEndpoint(endpoint = ScalarActuatorEndpoint.class)
     public ScalarActuatorEndpoint scalarActuatorEndpoint(ScalarProperties properties) {

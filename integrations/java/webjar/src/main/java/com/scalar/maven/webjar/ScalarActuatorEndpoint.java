@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets;
  * Spring Boot Actuator endpoints. It serves the same HTML content as the
  * regular ScalarController but is accessible at the actuator path.</p>
  *
- * <p>The endpoint is only enabled when {@code scalar.actuator-enabled=true} is set
+ * <p>The endpoint is only enabled when {@code scalar.actuatorEnabled=true} is set
  * in the configuration properties.</p>
  *
  * <p>Access the endpoint at: {@code /actuator/scalar}</p>
