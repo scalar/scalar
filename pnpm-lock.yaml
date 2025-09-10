@@ -396,12 +396,6 @@ importers:
       '@typescript-eslint/parser':
         specifier: catalog:*
         version: 8.24.0(eslint@9.20.1(jiti@2.4.2))(typescript@5.3.3)
-      eslint-config-prettier:
-        specifier: ^9.1.0
-        version: 9.1.0(eslint@9.20.1(jiti@2.4.2))
-      eslint-plugin-prettier:
-        specifier: ^5.2.1
-        version: 5.2.3(@types/eslint@8.56.10)(eslint-config-prettier@9.1.0(eslint@9.20.1(jiti@2.4.2)))(eslint@9.20.1(jiti@2.4.2))(prettier@3.5.3)
       jest:
         specifier: ^29.5.0
         version: 29.7.0(@types/node@22.15.3)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@22.15.3)(typescript@5.3.3))
@@ -469,12 +463,6 @@ importers:
       '@typescript-eslint/parser':
         specifier: catalog:*
         version: 8.24.0(eslint@9.20.1(jiti@2.4.2))(typescript@5.8.3)
-      eslint-config-prettier:
-        specifier: ^9.1.0
-        version: 9.1.0(eslint@9.20.1(jiti@2.4.2))
-      eslint-plugin-prettier:
-        specifier: ^5.2.1
-        version: 5.2.3(@types/eslint@8.56.10)(eslint-config-prettier@9.1.0(eslint@9.20.1(jiti@2.4.2)))(eslint@9.20.1(jiti@2.4.2))(prettier@3.5.3)
       jest:
         specifier: ^29.5.0
         version: 29.7.0(@types/node@22.15.3)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@22.15.3)(typescript@5.8.3))
@@ -728,9 +716,6 @@ importers:
       autoprefixer:
         specifier: ^10.4.19
         version: 10.4.21(postcss@8.5.6)
-      eslint-plugin-vue:
-        specifier: ^9.31.0
-        version: 9.32.0(eslint@9.20.1(jiti@2.4.2))
       postcss:
         specifier: catalog:*
         version: 8.5.6
@@ -765,9 +750,6 @@ importers:
       '@scalar/snippetz':
         specifier: workspace:*
         version: link:../../packages/snippetz
-      vite-node:
-        specifier: catalog:*
-        version: 3.2.4(@types/node@22.15.3)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
 
   integrations/docker:
     dependencies:
@@ -2759,9 +2741,6 @@ importers:
       '@vue/eslint-config-prettier':
         specifier: ^9.0.0
         version: 9.0.0(@types/eslint@8.56.10)(eslint@9.20.1(jiti@2.4.2))(prettier@3.5.3)
-      '@vue/eslint-config-typescript':
-        specifier: ^14.1.3
-        version: 14.4.0(eslint-plugin-vue@9.32.0(eslint@9.20.1(jiti@2.4.2)))(eslint@9.20.1(jiti@2.4.2))(typescript@5.8.3)
       electron:
         specifier: ^37.3.1
         version: 37.4.0
