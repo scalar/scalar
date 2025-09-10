@@ -135,6 +135,12 @@ const html = computed(() => {
 
   /* Images */
   .markdown img {
+    /**
+    * With `display: block` <a><img></a> will take the whole width.
+    *
+    * @see https://github.com/scalar/scalar/issues/3961
+    */
+    display: inline-block;
     overflow: hidden;
     border-radius: var(--scalar-radius);
     max-width: 100%;
