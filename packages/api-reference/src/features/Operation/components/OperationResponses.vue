@@ -15,7 +15,7 @@ const { responses, collapsableItems = true } = defineProps<{
     v-if="Object.keys(responses ?? {}).length"
     class="mt-6">
     <div class="text-c-1 mt-3 mb-3 leading-[1.45] font-medium">Responses</div>
-    <ul class="m-0 mb-3 list-none p-0 text-sm">
+    <ul class="mb-3 list-none p-0 text-sm">
       <ParameterListItem
         v-for="(response, status) in responses"
         :key="status"
