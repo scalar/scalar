@@ -68,7 +68,10 @@ const {
 }>()
 
 const emits = defineEmits<{
+  /** Emits when the user has authorized with an oauth2 flow */
   authorized: []
+  /** Emits the currently active scheme */
+  activeSchemes: [schemes: SecurityScheme[]]
 }>()
 
 defineSlots<{
@@ -332,6 +335,7 @@ const openAuthCombobox = (event: Event) => {
       :selectedSchemeOptions="selectedSchemeOptions"
       :server="server"
       :workspace="workspace"
+      @activeSchemes="emits('activeSchemes', $event)"
       @authorized="emits('authorized')">
       <template #oauth-actions>
         <slot name="oauth-actions" />
