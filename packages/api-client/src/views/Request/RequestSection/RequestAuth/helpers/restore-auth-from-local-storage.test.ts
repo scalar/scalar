@@ -1,9 +1,10 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import type { Collection, SecurityScheme } from '@scalar/oas-utils/entities/spec'
 import { CLIENT_LS_KEYS } from '@scalar/helpers/object/local-storage'
+import type { Collection, SecurityScheme } from '@scalar/oas-utils/entities/spec'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import type { WorkspaceStore } from '@/store/store'
 
 import { restoreAuthFromLocalStorage } from './restore-auth-from-local-storage'
-import type { WorkspaceStore } from '@/store/store'
 
 vi.mock('@scalar/helpers/object/local-storage', async () => {
   const actual = await vi.importActual('@scalar/helpers/object/local-storage')
@@ -195,12 +196,12 @@ describe('restoreAuthFromLocalStorage', () => {
       // Act
       restoreAuthFromLocalStorage(mockStore, collectionUid)
 
-      // Assert - should not throw and should not call mutators
-      // When localStorage returns null, the fallback is empty string for SELECTED_SECURITY_SCHEMES
-      // which causes JSON.parse('') to throw, so the function exits early and doesn't call any mutators
+      // Assert - should not throw and should handle empty state properly
+      // When localStorage returns null, the fallback is '{}' for AUTH and '[]' for SELECTED_SECURITY_SCHEMES
+      // This results in empty auth data and empty selected scheme UIDs
       expect(mockStore.securitySchemeMutators.edit).not.toHaveBeenCalled()
-      expect(mockStore.collectionMutators.edit).not.toHaveBeenCalled()
-      expect(console.error).toHaveBeenCalled()
+      expect(mockStore.collectionMutators.edit).toHaveBeenCalledWith(collectionUid, 'selectedSecuritySchemeUids', [])
+      expect(console.error).not.toHaveBeenCalled()
     })
 
     it('should handle invalid JSON in local storage', () => {

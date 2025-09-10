@@ -43,7 +43,7 @@ export const restoreAuthFromLocalStorage = (store: WorkspaceStore, collectionUid
 
     /** Restore the selected security scheme uids */
     const selectedSchemeUids: (string | string[])[] = JSON.parse(
-      safeLocalStorage().getItem(CLIENT_LS_KEYS.SELECTED_SECURITY_SCHEMES) ?? '{}',
+      safeLocalStorage().getItem(CLIENT_LS_KEYS.SELECTED_SECURITY_SCHEMES) ?? '[]',
     )
 
     // Convert back to uids
