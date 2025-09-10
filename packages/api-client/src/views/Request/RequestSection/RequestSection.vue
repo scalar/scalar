@@ -213,6 +213,7 @@ watch(
         :collection="collection"
         :envVariables="envVariables"
         :environment="environment"
+        :isReadOnly="layout === 'modal'"
         layout="client"
         :operation="operation"
         :role="selectedFilter === 'All' ? 'none' : 'tabpanel'"

@@ -42,6 +42,7 @@ import RequestAuthDataTable from './RequestAuthDataTable.vue'
 
 const {
   collection,
+  isReadOnly = false,
   environment,
   envVariables,
   layout,
@@ -53,6 +54,8 @@ const {
   workspace,
 } = defineProps<{
   collection: Collection
+  /** Controls whether user can add new auth schemes */
+  isReadOnly?: boolean
   environment: Environment
   envVariables: EnvVariable[]
   layout: 'client' | 'reference'
@@ -230,7 +233,7 @@ const schemeOptions = computed(() =>
     securityRequirements.value.filteredRequirements,
     collection?.securitySchemes ?? [],
     securitySchemes,
-    clientLayout === 'modal' || layout === 'reference',
+    isReadOnly,
   ),
 )
 
