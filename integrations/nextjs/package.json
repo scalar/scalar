@@ -48,7 +48,6 @@
   },
   "devDependencies": {
     "@scalar/api-reference": "workspace:*",
-    "@types/node": "catalog:*",
     "@types/react": "catalog:*",
     "@types/react-dom": "catalog:*",
     "@vitejs/plugin-react": "^4.3.4",

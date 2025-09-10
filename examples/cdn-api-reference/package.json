@@ -29,7 +29,6 @@
     "fastify": "^4.26.2"
   },
   "devDependencies": {
-    "@types/node": "catalog:*",
     "vite": "catalog:*"
   }
 }

@@ -71,7 +71,6 @@
     "@apidevtools/swagger-parser": "^10.1.0",
     "@scalar/build-tooling": "workspace:*",
     "@scalar/types": "workspace:*",
-    "@types/node": "catalog:*",
     "fastify": "catalog:*",
     "json-to-ast": "^2.1.0",
     "just-diff": "^6.0.2",

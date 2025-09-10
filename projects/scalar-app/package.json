@@ -51,10 +51,8 @@
   },
   "devDependencies": {
     "@electron-toolkit/tsconfig": "^1.0.1",
-    "@playwright/test": "catalog:*",
     "@rushstack/eslint-patch": "^1.10.3",
     "@todesktop/cli": "^1.15.1",
-    "@types/node": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/eslint-config-prettier": "^9.0.0",
     "electron": "^37.3.1",

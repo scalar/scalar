@@ -121,7 +121,6 @@
     "@scalar/build-tooling": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
-    "@types/node": "catalog:*",
     "type-fest": "^4.20.0",
     "vite": "catalog:*",
     "vitest": "catalog:*",

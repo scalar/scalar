@@ -173,9 +173,6 @@ importers:
       '@ianvs/prettier-plugin-sort-imports':
         specifier: ^4.4.0
         version: 4.4.1(@vue/compiler-sfc@3.5.17)(prettier@3.5.3)
-      '@nuxt/eslint-config':
-        specifier: ^0.7.3
-        version: 0.7.6(@vue/compiler-sfc@3.5.17)(eslint@9.20.1(jiti@2.4.2))(typescript@5.8.3)
       '@playwright/test':
         specifier: catalog:*
         version: 1.55.0
@@ -276,9 +273,6 @@ importers:
         specifier: ^4.26.2
         version: 4.28.0
     devDependencies:
-      '@types/node':
-        specifier: catalog:*
-        version: 22.15.3
       vite:
         specifier: catalog:*
         version: 6.1.6(@types/node@22.15.3)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
@@ -387,9 +381,6 @@ importers:
       '@types/jest':
         specifier: ^29.5.2
         version: 29.5.12
-      '@types/node':
-        specifier: catalog:*
-        version: 22.15.3
       '@types/supertest':
         specifier: ^2.0.12
         version: 2.0.16
@@ -454,9 +445,6 @@ importers:
       '@types/jest':
         specifier: ^29.5.2
         version: 29.5.12
-      '@types/node':
-        specifier: catalog:*
-        version: 22.15.3
       '@types/supertest':
         specifier: ^2.0.12
         version: 2.0.16
@@ -503,9 +491,6 @@ importers:
       '@next/eslint-plugin-next':
         specifier: ^15.1.1
         version: 15.1.1
-      '@types/node':
-        specifier: catalog:*
-        version: 22.15.3
       '@types/react':
         specifier: catalog:*
         version: 19.1.8
@@ -979,9 +964,6 @@ importers:
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../../packages/api-reference
-      '@types/node':
-        specifier: catalog:*
-        version: 22.15.3
       '@types/react':
         specifier: catalog:*
         version: 19.1.8
@@ -1046,9 +1028,6 @@ importers:
       '@nuxt/test-utils':
         specifier: ^3.19.2
         version: 3.19.2(@jest/globals@29.7.0)(@playwright/test@1.55.0)(@vue/test-utils@2.4.6)(jsdom@25.0.1)(magicast@0.3.5)(playwright-core@1.55.0)(typescript@5.8.3)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.15.3)(jiti@2.4.2)(jsdom@25.0.1)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))
-      '@types/node':
-        specifier: catalog:*
-        version: 22.15.3
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
@@ -1093,9 +1072,6 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
-      '@types/node':
-        specifier: catalog:*
-        version: 22.15.3
       vite:
         specifier: catalog:*
         version: 6.1.6(@types/node@22.15.3)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
@@ -1170,7 +1146,7 @@ importers:
         version: 11.2.0(vue@3.5.17(typescript@5.8.3))
       '@vueuse/integrations':
         specifier: catalog:*
-        version: 11.2.0(axios@1.7.7)(change-case@5.4.4)(focus-trap@7.6.2)(fuse.js@7.1.0)(jwt-decode@4.0.0)(nprogress@0.2.0)(vue@3.5.17(typescript@5.8.3))
+        version: 11.2.0(axios@1.11.0)(change-case@5.4.4)(focus-trap@7.6.2)(fuse.js@7.1.0)(jwt-decode@4.0.0)(nprogress@0.2.0)(vue@3.5.17(typescript@5.8.3))
       focus-trap:
         specifier: ^7
         version: 7.6.2
@@ -1384,9 +1360,6 @@ importers:
       '@hono/node-server':
         specifier: ^1.11.0
         version: 1.11.3
-      '@playwright/test':
-        specifier: catalog:*
-        version: 1.55.0
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
@@ -1518,9 +1491,6 @@ importers:
       '@types/compression':
         specifier: ^1.7.5
         version: 1.7.5
-      '@types/node':
-        specifier: catalog:*
-        version: 22.15.3
       '@vitejs/plugin-vue':
         specifier: catalog:*
         version: 5.2.4(vite@6.1.6(@types/node@22.15.3)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))(vue@3.5.17(typescript@5.8.3))
@@ -1579,9 +1549,6 @@ importers:
         specifier: catalog:*
         version: 3.2.4(@types/debug@4.1.12)(@types/node@22.15.3)(jiti@2.4.2)(jsdom@25.0.1)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
     devDependencies:
-      '@types/node':
-        specifier: catalog:*
-        version: 22.15.3
       '@types/picomatch':
         specifier: ^2.3.3
         version: 2.3.3
@@ -1725,9 +1692,6 @@ importers:
       '@headlessui/tailwindcss':
         specifier: catalog:*
         version: 0.2.2(tailwindcss@4.1.8)
-      '@playwright/test':
-        specifier: catalog:*
-        version: 1.55.0
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
@@ -1758,9 +1722,6 @@ importers:
       '@types/jsdom':
         specifier: ^21.1.3
         version: 21.1.7
-      '@types/node':
-        specifier: catalog:*
-        version: 22.15.3
       '@vitejs/plugin-vue':
         specifier: catalog:*
         version: 5.2.4(vite@6.1.6(@types/node@22.15.3)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))(vue@3.5.17(typescript@5.8.3))
@@ -1856,9 +1817,6 @@ importers:
       '@phosphor-icons/core':
         specifier: ^2.1.1
         version: 2.1.1
-      '@types/node':
-        specifier: catalog:*
-        version: 22.15.3
       chalk:
         specifier: ^5.4.1
         version: 5.4.1
@@ -1959,9 +1917,6 @@ importers:
       '@scalar/hono-api-reference':
         specifier: workspace:*
         version: link:../../integrations/hono
-      '@types/node':
-        specifier: catalog:*
-        version: 22.15.3
       vite:
         specifier: catalog:*
         version: 6.1.6(@types/node@22.15.3)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
@@ -1983,9 +1938,6 @@ importers:
       '@scalar/openapi-parser':
         specifier: workspace:*
         version: link:../../openapi-parser
-      '@types/node':
-        specifier: catalog:*
-        version: 22.15.3
       vite:
         specifier: catalog:*
         version: 6.1.6(@types/node@22.15.3)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
@@ -2008,9 +1960,6 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
-      '@types/node':
-        specifier: catalog:*
-        version: 22.15.3
       '@types/react':
         specifier: catalog:*
         version: 19.1.8
@@ -2084,9 +2033,6 @@ importers:
       '@scalar/openapi-parser':
         specifier: workspace:*
         version: link:../openapi-parser
-      '@types/node':
-        specifier: catalog:*
-        version: 22.15.3
       vite:
         specifier: catalog:*
         version: 6.1.6(@types/node@22.15.3)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
@@ -2158,9 +2104,6 @@ importers:
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
-      '@types/node':
-        specifier: catalog:*
-        version: 22.15.3
       fastify:
         specifier: catalog:*
         version: 5.3.3
@@ -2650,11 +2593,7 @@ importers:
         specifier: catalog:*
         version: 3.2.4(@types/debug@4.1.12)(@types/node@22.15.3)(jiti@2.4.2)(jsdom@25.0.1)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
 
-  playwright:
-    devDependencies:
-      '@playwright/test':
-        specifier: catalog:*
-        version: 1.55.0
+  playwright: {}
 
   projects/client-scalar-com:
     dependencies:
@@ -2723,18 +2662,12 @@ importers:
       '@electron-toolkit/tsconfig':
         specifier: ^1.0.1
         version: 1.0.1(@types/node@22.15.3)
-      '@playwright/test':
-        specifier: catalog:*
-        version: 1.55.0
       '@rushstack/eslint-patch':
         specifier: ^1.10.3
         version: 1.10.3
       '@todesktop/cli':
         specifier: ^1.15.1
         version: 1.15.1(@types/react@19.1.8)
-      '@types/node':
-        specifier: catalog:*
-        version: 22.15.3
       '@vitejs/plugin-vue':
         specifier: catalog:*
         version: 5.2.4(vite@6.1.6(@types/node@22.15.3)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))(vue@3.5.17(typescript@5.8.3))
@@ -9749,6 +9682,9 @@ packages:
 
   axios@0.21.4:
     resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
+
+  axios@1.11.0:
+    resolution: {integrity: sha512-1Lx3WLFQWm3ooKDYZD1eXmoGO9fxYQjrycfHFC8P0sCfQVXyROp0p9PFWBehewBOdCwHc+f/b8I0fMto5eSfwA==}
 
   axios@1.7.7:
     resolution: {integrity: sha512-S4kL7XrjgBmvdGut0sN3yJxqYzrDOnivkBiN0OFs6hLiUam3UPvswUo0kqGyhqUZGEOytHyumEdXsAkgCOUf3Q==}
@@ -17810,12 +17746,12 @@ packages:
   superagent@7.1.6:
     resolution: {integrity: sha512-gZkVCQR1gy/oUXr+kxJMLDjla434KmSOKbx5iGD30Ql+AkJQ/YlPKECJy2nhqOsHLjGHzoDTXNSjhnvWhzKk7g==}
     engines: {node: '>=6.4.0 <13 || >=14'}
-    deprecated: Please upgrade to v9.0.0+ as we have fixed a public vulnerability with formidable dependency. Note that v9.0.0+ requires Node.js v14.18.0+. See https://github.com/ladjs/superagent/pull/1800 for insight. This project is supported and maintained by the team at Forward Email @ https://forwardemail.net
+    deprecated: Please upgrade to superagent v10.2.2+, see release notes at https://github.com/forwardemail/superagent/releases/tag/v10.2.2 - maintenance is supported by Forward Email @ https://forwardemail.net
 
   superagent@8.1.2:
     resolution: {integrity: sha512-6WTxW1EB6yCxV5VFOIPQruWGHqc3yI7hEmZK6h+pyk69Lk/Ut7rLUY6W/ONF2MjBuGjvmMiIpsrVJ2vjrHlslA==}
     engines: {node: '>=6.4.0 <13 || >=14'}
-    deprecated: Please upgrade to v9.0.0+ as we have fixed a public vulnerability with formidable dependency. Note that v9.0.0+ requires Node.js v14.18.0+. See https://github.com/ladjs/superagent/pull/1800 for insight. This project is supported and maintained by the team at Forward Email @ https://forwardemail.net
+    deprecated: Please upgrade to superagent v10.2.2+, see release notes at https://github.com/forwardemail/superagent/releases/tag/v10.2.2 - maintenance is supported by Forward Email @ https://forwardemail.net
 
   superjson@2.2.2:
     resolution: {integrity: sha512-5JRxVqC8I8NuOUjzBbvVJAKNM8qoVuH0O77h4WInc/qC2q5IreqKxYwgkga3PfA22OayK2ikceb/B26dztPl+Q==}
@@ -26963,7 +26899,7 @@ snapshots:
       ajv-formats: 2.1.1(ajv@8.17.1)
       analytics-node: 4.0.1
       archiver: 5.3.2
-      axios: 1.7.7(debug@4.4.0)
+      axios: 1.7.7
       better-ajv-errors: 1.2.0(ajv@8.17.1)
       bunyan: 1.8.15
       chalk: 4.1.2
@@ -28076,13 +28012,13 @@ snapshots:
       - '@vue/composition-api'
       - vue
 
-  '@vueuse/integrations@11.2.0(axios@1.7.7)(change-case@5.4.4)(focus-trap@7.6.2)(fuse.js@7.1.0)(jwt-decode@4.0.0)(nprogress@0.2.0)(vue@3.5.17(typescript@5.8.3))':
+  '@vueuse/integrations@11.2.0(axios@1.11.0)(change-case@5.4.4)(focus-trap@7.6.2)(fuse.js@7.1.0)(jwt-decode@4.0.0)(nprogress@0.2.0)(vue@3.5.17(typescript@5.8.3))':
     dependencies:
       '@vueuse/core': 11.2.0(vue@3.5.17(typescript@5.8.3))
       '@vueuse/shared': 11.2.0(vue@3.5.17(typescript@5.8.3))
       vue-demi: 0.14.10(vue@3.5.17(typescript@5.8.3))
     optionalDependencies:
-      axios: 1.7.7(debug@4.4.0)
+      axios: 1.11.0(debug@4.4.0)
       change-case: 5.4.4
       focus-trap: 7.6.2
       fuse.js: 7.1.0
@@ -28663,10 +28599,18 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  axios@1.7.7(debug@4.4.0):
+  axios@1.11.0(debug@4.4.0):
     dependencies:
       follow-redirects: 1.15.6(debug@4.4.0)
-      form-data: 4.0.0
+      form-data: 4.0.4
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+
+  axios@1.7.7:
+    dependencies:
+      follow-redirects: 1.15.6(debug@4.4.0)
+      form-data: 4.0.4
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
@@ -33765,7 +33709,7 @@ snapshots:
       cssstyle: 4.1.0
       data-urls: 5.0.0
       decimal.js: 10.4.3
-      form-data: 4.0.0
+      form-data: 4.0.4
       html-encoding-sniffer: 4.0.0
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.5
@@ -38848,7 +38792,7 @@ snapshots:
       cookiejar: 2.1.4
       debug: 4.4.1(supports-color@5.5.0)
       fast-safe-stringify: 2.1.1
-      form-data: 4.0.0
+      form-data: 4.0.4
       formidable: 2.1.2
       methods: 1.1.2
       mime: 2.6.0
@@ -38864,7 +38808,7 @@ snapshots:
       cookiejar: 2.1.4
       debug: 4.4.1(supports-color@5.5.0)
       fast-safe-stringify: 2.1.1
-      form-data: 4.0.0
+      form-data: 4.0.4
       formidable: 2.1.2
       methods: 1.1.2
       mime: 2.6.0
@@ -40662,7 +40606,7 @@ snapshots:
 
   wait-on@8.0.1(debug@4.4.0):
     dependencies:
-      axios: 1.7.7(debug@4.4.0)
+      axios: 1.11.0(debug@4.4.0)
       joi: 17.13.3
       lodash: 4.17.21
       minimist: 1.2.8

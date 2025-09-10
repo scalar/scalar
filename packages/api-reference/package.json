@@ -98,7 +98,6 @@
   },
   "devDependencies": {
     "@hono/node-server": "^1.11.0",
-    "@playwright/test": "catalog:*",
     "@scalar/build-tooling": "workspace:*",
     "@scalar/core": "workspace:*",
     "@scalar/galaxy": "workspace:*",

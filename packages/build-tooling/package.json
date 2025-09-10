@@ -99,7 +99,6 @@
     "vitest": "catalog:*"
   },
   "devDependencies": {
-    "@types/node": "catalog:*",
     "@types/picomatch": "^2.3.3"
   }
 }
