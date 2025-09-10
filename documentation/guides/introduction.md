@@ -71,32 +71,6 @@
     <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-sfcompute.svg"></scalar-icon>
   </div>
 </div>
-<div class="quotes">
-  <h2>Take their word for it</h2>
-  <div class="flex flex-wrap quotes-container">
-    <div class="quotes-item">
-      <p>
-        <b>"After years of helping enterprises implement API strategies at SmartBear, I can confidently say Scalar is what the industry has been waiting for.</b> The strict OpenAPI compliance, robust CLI/API registry, and seamless CI/CD integration solve the exact pain points I watched customers struggle with daily. This is the modern API platform developers deserve."
-      </p>
-      <p class="mt-3 text-c-3">Michael - Former Solutions Architect @ Smartbear</p>
-    </div>
-    <div class="quotes-item">
-      <p>
-        "One of my most recent favorites is a in-browser ad hoc testing UI called Scalar.
-One of the things that I really love about Scalar, it's got this modern UI experience, and it provides <b>built-in test generation code for a variety of targets, from cURL to HttpClient in C#.</b>"
-      </p>
-      <p class="mt-3 text-c-3">Captain Safia - Engineer @ Microsoft ASP.NET</p>
-    </div>
-    <div class="quotes-item">
-      <p>
-        "Scalar's "golden ticket" is... Scalar!
-<b>They are (in my own words) building a product ecosystem for API design, docs, testing, and governance-</b> with offerings at every price point.
-They are open source. So I can get in on free features and stay with Scalar no matter how big my API needs blow up."
-      </p>
-      <p class="mt-3 text-c-3">Eron - Documentation Engineer @ Qrvey</p>
-    </div>
-  </div>
-</div>
 <div>
   <div class="product product-reversed">
     <div class="product-copy">
@@ -334,6 +308,32 @@ They are open source. So I can get in on free features and stay with Scalar no m
   </div>
   <div class="draggable sticker-9">
     <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/jSSY0fRlk7g_HdR7i7BIu.svg"></scalar-icon>
+  </div>
+</div>
+<div class="quotes">
+  <h2>Take their word for it</h2>
+  <div class="flex flex-wrap quotes-container">
+    <div class="quotes-item">
+      <p>
+        <b>"After years of helping enterprises implement API strategies at SmartBear, I can confidently say Scalar is what the industry has been waiting for.</b> The strict OpenAPI compliance, robust CLI/API registry, and seamless CI/CD integration solve the exact pain points I watched customers struggle with daily. This is the modern API platform developers deserve."
+      </p>
+      <p class="mt-3 text-c-3">Michael, Former Solutions Architect @ Smartbear</p>
+    </div>
+    <div class="quotes-item">
+      <p>
+        "One of my most recent favorites is a in-browser ad hoc testing UI called Scalar.
+One of the things that I really love about Scalar, it's got this modern UI experience, and it provides <b>built-in test generation code for a variety of targets, from cURL to HttpClient in C#.</b>"
+      </p>
+      <p class="mt-3 text-c-3">Captain Safia, Engineer @ Microsoft ASP.NET</p>
+    </div>
+    <div class="quotes-item">
+      <p>
+        "Scalar's "golden ticket" is... Scalar!
+<b>They are (in my own words) building a product ecosystem for API design, docs, testing, and governance-</b> with offerings at every price point.
+They are open source. So I can get in on free features and stay with Scalar no matter how big my API needs blow up."
+      </p>
+      <p class="mt-3 text-c-3">Eron, Documentation Engineer @ Qrvey</p>
+    </div>
   </div>
 </div>
 <div class="cta flex flex-col gap-3 small-test">
