@@ -15,11 +15,13 @@ import { type StrictPluginOptions, createRollupConfig } from '../rollup'
  * - Builds only ESM output
  * - Preserves modules
  */
-export function createViteBuildOptions(props: {
+export function createViteBuildOptions<
+  T extends Partial<BuildOptions & { rollupOptions: StrictPluginOptions }>,
+>(props: {
   entry: LibraryOptions['entry']
   pkgFile?: Record<string, any>
-  options?: BuildOptions & { rollupOptions?: StrictPluginOptions }
-}): BuildOptions {
+  options?: T
+}): T & Pick<BuildOptions, 'rollupOptions' | 'lib' | 'outDir'> {
   return {
     outDir: './dist',
     ...props.options,
@@ -38,7 +40,7 @@ export function createViteBuildOptions(props: {
       options: props.options?.rollupOptions,
       emptyOutDir: false,
     }),
-  }
+  } as Pick<BuildOptions, 'rollupOptions' | 'lib' | 'outDir'> & T
 }
 
 // ---------------------------------------------------------------------------
