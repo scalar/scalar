@@ -133,7 +133,7 @@ public static class ScalarEndpointRouteBuilderExtensions
         // Handle static assets
         scalarEndpointGroup.MapStaticAssetsEndpoints();
 
-        scalarEndpointGroup.MapGet("/{documentName?}", (HttpContext httpContext, IOptionsSnapshot<ScalarOptions> optionsSnapshot, string? documentName) =>
+        scalarEndpointGroup.MapGet("/{documentName?}", async (HttpContext httpContext, IOptionsSnapshot<ScalarOptions> optionsSnapshot, string? documentName, CancellationToken cancellationToken) =>
         {
             if (ShouldRedirectToTrailingSlash(httpContext, documentName, out var redirectUrl))
             {
@@ -155,7 +155,15 @@ public static class ScalarEndpointRouteBuilderExtensions
                 options.AddDocument("v1");
             }
 
-            var configuration = options.ToScalarConfiguration();
+            var documentProvider = httpContext.RequestServices.GetService<IScalarDocumentProvider>();
+
+            Dictionary<string, string>? documentContents = null;
+            if (documentProvider is not null)
+            {
+                documentContents = await LoadDocumentContentsAsync(documentProvider, options.Documents, cancellationToken);
+            }
+
+            var configuration = options.ToScalarConfiguration(documentContents);
             var serializedConfiguration = JsonSerializer.Serialize(configuration, typeof(ScalarConfiguration), ScalarConfigurationSerializerContext.Default);
 
             var title = options.Documents.Count == 1 ? options.Title?.Replace(DocumentName, options.Documents[0].Name) : options.Title;
@@ -256,5 +264,25 @@ public static class ScalarEndpointRouteBuilderExtensions
         }
 
         return redirectUrl is not null;
+    }
+
+    /// <summary>
+    /// Loads document contents for all configured documents using the IScalarDocumentProvider.
+    /// </summary>
+    /// <param name="documentProvider">The document provider to use for loading content.</param>
+    /// <param name="documents">The list of documents to load content for.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A dictionary containing document contents keyed by document name.</returns>
+    private async static Task<Dictionary<string, string>> LoadDocumentContentsAsync(IScalarDocumentProvider documentProvider, List<ScalarDocument> documents, CancellationToken cancellationToken)
+    {
+        var documentContents = new Dictionary<string, string>();
+
+        foreach (var document in documents)
+        {
+            var content = await documentProvider.GetDocumentContentAsync(document.Name, cancellationToken);
+            documentContents[document.Name] = content;
+        }
+
+        return documentContents;
     }
 }

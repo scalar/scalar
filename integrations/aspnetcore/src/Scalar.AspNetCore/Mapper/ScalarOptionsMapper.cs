@@ -10,9 +10,9 @@ internal static partial class ScalarOptionsMapper
     /// </summary>
     internal static partial Dictionary<ScalarTarget, ScalarClient[]> AvailableClientsByTarget { get; }
 
-    internal static ScalarConfiguration ToScalarConfiguration(this ScalarOptions options)
+    internal static ScalarConfiguration ToScalarConfiguration(this ScalarOptions options, Dictionary<string, string>? documentContents = null)
     {
-        var sources = GetSources(options);
+        var sources = GetSources(options, documentContents);
         return new ScalarConfiguration
         {
             ProxyUrl = options.ProxyUrl,
@@ -52,19 +52,32 @@ internal static partial class ScalarOptionsMapper
         };
     }
 
-    private static IEnumerable<ScalarSource> GetSources(ScalarOptions options)
+    private static IEnumerable<ScalarSource> GetSources(ScalarOptions options, Dictionary<string, string>? documentContents = null)
     {
         var trimmedOpenApiRoutePattern = options.OpenApiRoutePattern.TrimStart('/');
 
         foreach (var (name, title, routePattern, isDefault) in options.Documents)
         {
-            var openApiRoutePattern = routePattern is null ? trimmedOpenApiRoutePattern : routePattern.TrimStart('/');
-            yield return new ScalarSource
+            var source = new ScalarSource
             {
                 Title = title ?? name,
-                Url = openApiRoutePattern.Replace(DocumentName, name),
                 Default = isDefault
             };
+
+            // If we have content from the document provider, use it and skip URL
+            if (documentContents is not null && documentContents.TryGetValue(name, out var content))
+            {
+                source.Content = content;
+                source.Url = null; // No need for URL when we have content
+            }
+            else
+            {
+                // Fall back to default when no content is available
+                var openApiRoutePattern = routePattern is null ? trimmedOpenApiRoutePattern : routePattern.TrimStart('/');
+                source.Url = openApiRoutePattern.Replace(DocumentName, name);
+            }
+
+            yield return source;
         }
     }
 

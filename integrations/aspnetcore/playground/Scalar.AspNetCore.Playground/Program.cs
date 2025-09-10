@@ -10,6 +10,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.TypeInfoResolverChain.Add(BookSerializerContext.Default);
 });
+builder.Services.AddScalarServices();
 
 // Adds API versioning and OpenAPI
 builder.Services.AddApiVersioningAndDocumentation();
