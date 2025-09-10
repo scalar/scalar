@@ -55,6 +55,10 @@ const props = defineProps<{
   store: WorkspaceStore
 }>()
 
+defineEmits<{
+  (e: 'updateContent', content: any): void
+}>()
+
 // ---------------------------------------------------------------------------
 /**
  * DEPRECATED: This is a temporary state solution while we migrate to the new workspace store

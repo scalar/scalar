@@ -1,8 +1,9 @@
-import { describe, expect, it } from 'vitest'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
+
 import { DEFAULT_CLIENT } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 
 import ClientLibraries from './ClientLibraries.vue'
 
@@ -104,7 +105,7 @@ describe('ClientLibraries', () => {
       expect(wrapper.exists()).toBe(true)
 
       // The selectedClientOption computed property should resolve to the custom client
-      const vm = wrapper.vm as any
+      const vm = wrapper.vm
       expect(vm.selectedClientOption?.id).toBe(customClient)
     })
 
@@ -128,7 +129,7 @@ describe('ClientLibraries', () => {
       expect(wrapper.exists()).toBe(true)
 
       // The selectedClientOption computed property should resolve to the default client
-      const vm = wrapper.vm as any
+      const vm = wrapper.vm
       expect(vm.selectedClientOption?.id).toBe(DEFAULT_CLIENT)
     })
   })

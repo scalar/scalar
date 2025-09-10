@@ -5,6 +5,8 @@ import { XInternalSchema } from '@/schemas/extensions/document/x-internal'
 import { XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
 import { XTags } from '@/schemas/extensions/document/x-tags'
 import { XAdditionalPropertiesNameSchema } from '@/schemas/extensions/schema/x-additional-properties-name'
+import { XEnumDescriptionsSchema } from '@/schemas/extensions/schema/x-enum-descriptions'
+import { XEnumVarNamesSchema } from '@/schemas/extensions/schema/x-enum-varnames'
 import { XVariableSchema } from '@/schemas/extensions/schema/x-variable'
 import {
   DiscriminatorObjectRef,
@@ -139,6 +141,7 @@ const StringValidationProperties = Type.Object({
 })
 
 const CorePropertiesWithSchema = Type.Object({
+  name: Type.Optional(Type.String()),
   /** A title for the schema. */
   title: Type.Optional(Type.String()),
   /** A description of the schema. */
@@ -225,6 +228,8 @@ const Extensions = compose(
   XScalarIgnoreSchema,
   XInternalSchema,
   XVariableSchema,
+  XEnumDescriptionsSchema,
+  XEnumVarNamesSchema,
   XAdditionalPropertiesNameSchema,
   XTags,
 )

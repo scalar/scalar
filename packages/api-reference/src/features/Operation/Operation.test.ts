@@ -1,16 +1,16 @@
+import { enableConsoleError, enableConsoleWarn } from '@scalar/helpers/testing/console-spies'
+import { collectionSchema } from '@scalar/oas-utils/entities/spec'
+import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { OpenAPIDocumentSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+
 import { createMockSidebar, createMockStore } from '@/helpers/test-utils'
+import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
 import Operation from './Operation.vue'
-import { collectionSchema } from '@scalar/oas-utils/entities/spec'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { enableConsoleError, enableConsoleWarn } from '@scalar/helpers/testing/console-spies'
-import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
-import { OpenAPIDocumentSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 
 // Mock the workspace store
 vi.mock('@scalar/api-client/store', () => ({
@@ -109,7 +109,7 @@ describe('Operation', () => {
         server: undefined,
         store: createMockStore(createMockDocument()),
         collection: mockCollection,
-        document: createMockDocument() as OpenAPIV3_1.Document,
+        document: createMockDocument(),
       },
     })
 
@@ -138,7 +138,7 @@ describe('Operation', () => {
   })
 
   it('renders path parameters from operation parameters only when no pathItem parameters', () => {
-    const documentWithOnlyOperationParams = {
+    const documentWithOnlyOperationParams = coerceValue(OpenAPIDocumentSchema, {
       openapi: '3.1.0',
       info: {
         title: 'Test API',
@@ -165,9 +165,9 @@ describe('Operation', () => {
       components: {
         schemas: {},
       },
-    }
+    })
 
-    const storeWithOnlyOperationParams = createMockStore(documentWithOnlyOperationParams as WorkspaceDocument)
+    const storeWithOnlyOperationParams = createMockStore(documentWithOnlyOperationParams)
 
     const wrapper = mount(Operation, {
       props: {
@@ -180,7 +180,7 @@ describe('Operation', () => {
         server: undefined,
         store: storeWithOnlyOperationParams,
         collection: mockCollection,
-        document: documentWithOnlyOperationParams as OpenAPIV3_1.Document,
+        document: documentWithOnlyOperationParams,
       },
     })
 
@@ -194,7 +194,7 @@ describe('Operation', () => {
   })
 
   it('handles webhook path parameters correctly', () => {
-    const documentWithWebhooks = {
+    const documentWithWebhooks = coerceValue(OpenAPIDocumentSchema, {
       openapi: '3.1.0',
       info: {
         title: 'Test API',
@@ -218,9 +218,9 @@ describe('Operation', () => {
           },
         },
       },
-    }
+    })
 
-    const storeWithWebhooks = createMockStore(documentWithWebhooks as WorkspaceDocument)
+    const storeWithWebhooks = createMockStore(documentWithWebhooks)
 
     const wrapper = mount(Operation, {
       props: {
@@ -233,7 +233,7 @@ describe('Operation', () => {
         server: undefined,
         store: storeWithWebhooks,
         collection: mockCollection,
-        document: documentWithWebhooks as OpenAPIV3_1.Document,
+        document: documentWithWebhooks,
       },
     })
 
@@ -247,7 +247,7 @@ describe('Operation', () => {
   })
 
   it('filters out unresolved references from parameters', () => {
-    const documentWithRefs = {
+    const documentWithRefs = coerceValue(OpenAPIDocumentSchema, {
       openapi: '3.1.0',
       info: {
         title: 'Test API',
@@ -274,9 +274,9 @@ describe('Operation', () => {
           },
         },
       },
-    }
+    })
 
-    const storeWithRefs = createMockStore(documentWithRefs as WorkspaceDocument)
+    const storeWithRefs = createMockStore(documentWithRefs)
 
     const wrapper = mount(Operation, {
       props: {
@@ -289,7 +289,7 @@ describe('Operation', () => {
         server: undefined,
         store: storeWithRefs,
         collection: mockCollection,
-        document: documentWithRefs as OpenAPIV3_1.Document,
+        document: documentWithRefs,
       },
     })
 
@@ -303,7 +303,7 @@ describe('Operation', () => {
   })
 
   it('overrides path parameters with operation parameters of the same name', () => {
-    const documentWithOverridingParams = {
+    const documentWithOverridingParams = coerceValue(OpenAPIDocumentSchema, {
       openapi: '3.1.0',
       info: {
         title: 'Test API',
@@ -366,9 +366,9 @@ describe('Operation', () => {
       components: {
         schemas: {},
       },
-    }
+    })
 
-    const storeWithOverridingParams = createMockStore(documentWithOverridingParams as WorkspaceDocument)
+    const storeWithOverridingParams = createMockStore(documentWithOverridingParams)
 
     const wrapper = mount(Operation, {
       props: {
@@ -381,7 +381,7 @@ describe('Operation', () => {
         server: undefined,
         store: storeWithOverridingParams,
         collection: mockCollection,
-        document: documentWithOverridingParams as OpenAPIV3_1.Document,
+        document: documentWithOverridingParams,
       },
     })
 
@@ -420,7 +420,7 @@ describe('Operation', () => {
         server: undefined,
         store: createMockStore(createMockDocument() as WorkspaceDocument),
         collection: mockCollection,
-        document: createMockDocument() as OpenAPIV3_1.Document,
+        document: createMockDocument(),
       },
     })
 
@@ -465,7 +465,7 @@ describe('Operation', () => {
         server: undefined,
         store: storeWithoutOperation,
         collection: mockCollection,
-        document: {},
+        document: {} as WorkspaceDocument,
       },
     })
 
@@ -521,7 +521,7 @@ describe('Operation', () => {
         server: undefined,
         store: storeWithResponses,
         collection: mockCollection,
-        document: documentWithResponses as OpenAPIV3_1.Document,
+        document: documentWithResponses,
       },
     })
 

@@ -1,5 +1,4 @@
 import { collectionSchema, serverSchema } from '@scalar/oas-utils/entities/spec'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { apiReferenceConfigurationSchema } from '@scalar/types'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { mount } from '@vue/test-utils'
@@ -7,10 +6,10 @@ import { describe, expect, it, vi } from 'vitest'
 
 import type { TraversedEntry, TraversedOperation, TraversedTag } from '@/features/traverse-schema'
 import type { TraversedWebhook } from '@/features/traverse-schema/types'
-
-import TraversedEntryComponent from './TraversedEntry.vue'
 import { createMockNavState, createMockPluginManager, createMockSidebar } from '@/helpers/test-utils'
 import { useNavState } from '@/hooks/useNavState'
+
+import TraversedEntryComponent from './TraversedEntry.vue'
 
 vi.mock('@/features/sidebar', () => ({ useSidebar: vi.fn(() => createMockSidebar()) }))
 vi.mock('@/hooks/useNavState', () => ({ useNavState: vi.fn(() => createMockNavState('')) }))
@@ -38,8 +37,8 @@ vi.mock('@scalar/api-client/store', () => ({
 }))
 
 describe('TraversedEntry', async () => {
-  const mockDocument: OpenAPIV3_1.Document = {
-    openapi: '3.1.0',
+  const mockDocument = {
+    openapi: '3.1.0' as const,
     info: {
       title: 'Test API',
       version: '1.0.0',
@@ -739,7 +738,7 @@ describe('TraversedEntry', async () => {
         },
       })
 
-      const component = wrapper.vm as any
+      const component = wrapper.vm
       expect(component.isLazy(entries[0], 0)).toBe(null)
       expect(component.isLazy(entries[1], 1)).toBe(null)
     })
@@ -763,7 +762,7 @@ describe('TraversedEntry', async () => {
         },
       })
 
-      const component = wrapper.vm as any
+      const component = wrapper.vm
       expect(component.isLazy(entries[0], 0)).toBe(null)
       expect(component.isLazy(entries[1], 1)).toBe(null)
     })
@@ -793,7 +792,7 @@ describe('TraversedEntry', async () => {
         },
       })
 
-      const component = wrapper.vm as any
+      const component = wrapper.vm
       // Index 0 is before current index (1)
       expect(component.isLazy(entries[0], 0)).toBe('prev')
       // Index 1 is current index

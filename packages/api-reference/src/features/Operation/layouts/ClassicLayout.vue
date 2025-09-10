@@ -15,12 +15,13 @@ import {
   getOperationStabilityColor,
   isOperationDeprecated,
 } from '@scalar/oas-utils/helpers'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   OperationObject,
+  ParameterObject,
   SecuritySchemeObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -37,7 +38,6 @@ import { ExternalDocs } from '@/features/external-docs'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
-import type { Schemas } from '@/features/Operation/types/schemas'
 import { TestRequestButton } from '@/features/test-request-button'
 import { XBadges } from '@/features/x-badges'
 import { RequestExample } from '@/v2/blocks/scalar-request-example-block'
@@ -50,26 +50,16 @@ const { operation, path, config, isWebhook } = defineProps<{
   method: HttpMethodType
   config: ApiReferenceConfiguration
   operation: OperationObject
-  oldOperation: OpenAPIV3_1.OperationObject
   // pathServers: ServerObject[] | undefined
   isWebhook: boolean
   server: ServerObject | undefined
   securitySchemes: SecuritySchemeObject[]
-  schemas?: Schemas
   store: WorkspaceStore
-}>()
-
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: string): void
 }>()
 
 const operationTitle = computed(() => operation.summary || path || '')
 
 const { copyToClipboard } = useClipboard()
-
-const handleDiscriminatorChange = (type: string) => {
-  emit('update:modelValue', type)
-}
 </script>
 <template>
   <SectionAccordion
@@ -153,16 +143,16 @@ const handleDiscriminatorChange = (type: string) => {
       <div class="operation-details-card">
         <div class="operation-details-card-item">
           <OperationParameters
-            :parameters="operation.parameters"
-            :requestBody="oldOperation.requestBody"
-            :schemas
-            @update:modelValue="handleDiscriminatorChange" />
+            :parameters="
+              // These have been resolved in the Operation.vue component
+              operation.parameters as ParameterObject[]
+            "
+            :requestBody="getResolvedRef(operation.requestBody)" />
         </div>
         <div class="operation-details-card-item">
           <OperationResponses
             :collapsableItems="false"
-            :responses="oldOperation.responses"
-            :schemas="schemas" />
+            :responses="operation.responses" />
         </div>
 
         <!-- Callbacks -->
@@ -172,8 +162,7 @@ const handleDiscriminatorChange = (type: string) => {
           <Callbacks
             :callbacks="operation.callbacks"
             :method="method"
-            :path="path"
-            :schemas="schemas" />
+            :path="path" />
         </div>
       </div>
 
@@ -194,14 +183,12 @@ const handleDiscriminatorChange = (type: string) => {
             class="operation-example-card"
             :clientOptions="clientOptions"
             fallback
-            :isWebhook
             :method="method"
             :operation="operation"
             :path="path"
             :securitySchemes="securitySchemes"
             :selectedClient="store.workspace['x-scalar-default-client']"
-            :selectedServer="server"
-            @update:modelValue="handleDiscriminatorChange" />
+            :selectedServer="server" />
         </ScalarErrorBoundary>
       </div>
     </div>

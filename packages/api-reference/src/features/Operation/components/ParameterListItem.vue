@@ -1,72 +1,94 @@
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarMarkdown } from '@scalar/components'
+import { isDefined } from '@scalar/helpers/array/is-defined'
 import { ScalarIconCaretRight } from '@scalar/icons'
-import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
-import { isDefined } from '@scalar/oas-utils/helpers'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type {
+  ParameterObject,
+  ResponseObject,
+  SchemaObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref } from 'vue'
 
-import { SchemaProperty } from '@/components/Content/Schema'
+import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
-import ParameterHeaders from './ParameterHeaders.vue'
+import Headers from './Headers.vue'
 
-const props = withDefaults(
-  defineProps<{
-    parameter:
-      | NonNullable<RequestEntity['parameters']>[number]
-      | NonNullable<RequestEntity['responses']>[number]
-    showChildren?: boolean
-    collapsableItems?: boolean
-    withExamples?: boolean
-    schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
-    breadcrumb?: string[]
-  }>(),
-  {
-    showChildren: false,
-    collapsableItems: false,
-    withExamples: true,
-  },
+const {
+  collapsableItems = false,
+  withExamples = true,
+  name,
+  parameter,
+  breadcrumb,
+} = defineProps<{
+  parameter: ParameterObject | ResponseObject
+  name: string
+  collapsableItems?: boolean
+  withExamples?: boolean
+  breadcrumb?: string[]
+}>()
+
+/** Responses and params may both have a schema */
+const schema = computed<SchemaObject | null>(() =>
+  'schema' in parameter && parameter.schema
+    ? getResolvedRef(parameter.schema)
+    : null,
 )
 
-const contentTypes = computed(() => {
-  if (props.parameter.content) {
-    return Object.keys(props.parameter.content)
-  }
-  return []
-})
-const selectedContentType = ref<string>(contentTypes.value[0])
-if (props.parameter.content) {
-  if ('application/json' in props.parameter.content) {
-    selectedContentType.value = 'application/json'
-  }
-}
+/** Response and params may both have content */
+const content = computed(() =>
+  'content' in parameter && parameter.content ? parameter.content : null,
+)
 
-const shouldCollapse = computed<boolean>(() => {
-  return !!(
-    props.collapsableItems &&
-    (props.parameter.content ||
-      props.parameter.headers ||
-      props.parameter.schema)
-  )
+const selectedContentType = ref<string>(Object.keys(content.value || {})[0])
+
+/** Response headers */
+const headers = computed<ResponseObject['headers'] | null>(() =>
+  'headers' in parameter && parameter.headers ? parameter.headers : null,
+)
+
+/** Computed value from the combined schema param and content param */
+const value = computed(() => {
+  const baseSchema = content.value
+    ? content.value?.[selectedContentType.value]?.schema
+    : schema.value
+
+  const deprecated =
+    'deprecated' in parameter ? parameter.deprecated : schema.value?.deprecated
+
+  // Convert examples to schema examples which is an array
+  const paramExamples = 'examples' in parameter ? parameter.examples : {}
+  const arrayExamples = schema.value?.examples ?? []
+  const recordExamples = Object.values({
+    ...paramExamples,
+    ...content.value?.[selectedContentType.value]?.examples,
+  })
+
+  /** Combine param examples with content ones */
+  const examples = [...recordExamples, ...arrayExamples]
+
+  return {
+    ...getResolvedRef(baseSchema),
+    deprecated: deprecated,
+    ...('example' in parameter &&
+      isDefined(parameter.example) && { example: parameter.example }),
+    examples,
+  } as SchemaObject
 })
 
 /**
- * We're showing request data, read-only parameters should not be shown.
+ * Determines whether this parameter item should be rendered as a collapsible disclosure.
+ * Only collapses when collapsableItems is enabled and the parameter has additional
+ * content to display (content types, headers, or schema details).
  */
-const shouldShowParameter = computed(() => {
-  if (props.parameter.readOnly === true) {
-    return false
-  }
-
-  return true
-})
+const shouldCollapse = computed<boolean>(() =>
+  Boolean(collapsableItems && (content.value || headers.value || schema.value)),
+)
 </script>
 <template>
-  <li
-    v-if="shouldShowParameter"
-    class="parameter-item group/parameter-item relative">
+  <li class="parameter-item group/parameter-item relative">
     <Disclosure v-slot="{ open }">
       <DisclosureButton
         v-if="shouldCollapse"
@@ -74,10 +96,10 @@ const shouldShowParameter = computed(() => {
         :class="{ 'parameter-item-trigger-open': open }">
         <span class="parameter-item-name">
           <ScalarIconCaretRight
-            weight="bold"
             class="parameter-item-icon size-3 transition-transform duration-100"
-            :class="{ 'rotate-90': open }" />
-          <span>{{ parameter.name }}</span>
+            :class="{ 'rotate-90': open }"
+            weight="bold" />
+          <span>{{ name }}</span>
         </span>
         <span class="parameter-item-type">
           <ScalarMarkdown
@@ -89,45 +111,34 @@ const shouldShowParameter = computed(() => {
       <DisclosurePanel
         class="parameter-item-container parameter-item-container-markdown"
         :static="!shouldCollapse">
-        <ParameterHeaders
-          v-if="parameter.headers"
+        <!-- Headers -->
+        <Headers
+          v-if="headers"
           :breadcrumb="breadcrumb"
-          :headers="parameter.headers" />
+          :headers="headers" />
+
+        <!-- Schema -->
         <SchemaProperty
           is="div"
-          compact
           :breadcrumb="breadcrumb"
+          compact
           :description="shouldCollapse ? '' : parameter.description"
-          :name="shouldCollapse ? '' : parameter.name"
+          :name="shouldCollapse ? '' : name"
           :noncollapsible="true"
-          :required="parameter.required"
-          :schemas="schemas"
-          :value="{
-            ...(parameter.content
-              ? parameter.content?.[selectedContentType]?.schema
-              : parameter.schema),
-            deprecated: parameter.deprecated,
-            ...(isDefined(parameter.example) && { example: parameter.example }),
-            examples: parameter.content
-              ? {
-                  ...parameter.examples,
-                  ...parameter.content?.[selectedContentType]?.examples,
-                }
-              : parameter.examples || parameter.schema?.examples,
-          }"
+          :required="'required' in parameter && parameter.required"
+          :value="value"
           :withExamples="withExamples" />
       </DisclosurePanel>
     </Disclosure>
+
+    <!-- Content type select -->
     <div
       class="absolute top-3 right-0 opacity-0 group-focus-within/parameter-item:opacity-100 group-hover/parameter-item:opacity-100">
       <ContentTypeSelect
-        v-if="shouldCollapse && props.parameter.content"
+        v-if="shouldCollapse && content"
+        v-model="selectedContentType"
         class="parameter-item-content-type"
-        :defaultValue="selectedContentType"
-        :requestBody="props.parameter"
-        @selectContentType="
-          ({ contentType }) => (selectedContentType = contentType)
-        " />
+        :content="content" />
     </div>
   </li>
 </template>

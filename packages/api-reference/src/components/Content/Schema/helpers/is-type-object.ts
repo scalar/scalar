@@ -1,9 +1,9 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 /*
  * Checks whether a JSON schema is of type object
  */
-export const isTypeObject = (schema: unknown): schema is OpenAPIV3_1.SchemaObject => {
+export const isTypeObject = (schema: unknown): schema is Extract<SchemaObject, { type: 'object' }> => {
   // null, primitive types, arrays
   if (schema === null || typeof schema !== 'object' || Array.isArray(schema)) {
     return false

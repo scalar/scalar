@@ -1,11 +1,12 @@
 import { useSidebar } from '@/features/sidebar'
-import { createMockNavState, createMockSidebar, createMockSidebarFromDocument } from '@/helpers/test-utils'
-import { useNavState } from '@/hooks/useNavState'
-import { type OpenAPIV3_1, apiReferenceConfigurationSchema } from '@scalar/types'
+import { createMockSidebar, createMockSidebarFromDocument, createMockNavState } from '@/helpers/test-utils'
+import { apiReferenceConfigurationSchema } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import TraversedEntryContainer from './TraversedEntryContainer.vue'
+import { useNavState } from '@/hooks/useNavState'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 
 // Mock the sidebar module
 vi.mock('@/features/sidebar')
@@ -35,7 +36,7 @@ vi.mock('@scalar/api-client/store', () => ({
 }))
 
 /** Helper to generate props for the component */
-const getProps = (document: OpenAPIV3_1.Document) => ({
+const getProps = (document: WorkspaceDocument) => ({
   props: {
     document,
     config: apiReferenceConfigurationSchema.parse({}),
@@ -44,7 +45,7 @@ const getProps = (document: OpenAPIV3_1.Document) => ({
       workspace: {
         activeDocument: document,
       },
-    } as unknown as WorkspaceStore,
+    } as WorkspaceStore,
   },
 })
 
@@ -59,7 +60,7 @@ describe('TraversedEntryContainer', () => {
   describe('basic operation rendering', () => {
     it('renders a single operation summary when document has one operation and no tag', () => {
       const document = {
-        openapi: '3.1.0',
+        openapi: '3.1.0' as const,
         info: {
           title: 'Test',
           version: '1.0.0',
@@ -72,7 +73,7 @@ describe('TraversedEntryContainer', () => {
             },
           },
         },
-      } as const
+      }
 
       // Mock the sidebar with the correct entries for this document
       vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
@@ -83,7 +84,7 @@ describe('TraversedEntryContainer', () => {
 
     it('renders multiple operations with different methods', async () => {
       const document = {
-        openapi: '3.1.0',
+        openapi: '3.1.0' as const,
         info: {
           title: 'Test',
           version: '1.0.0',
@@ -108,7 +109,7 @@ describe('TraversedEntryContainer', () => {
             },
           },
         },
-      } as const
+      }
 
       // Mock the sidebar with the correct entries for this document
       vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
@@ -130,7 +131,7 @@ describe('TraversedEntryContainer', () => {
           version: '1.0.0',
         },
         paths: {},
-      } as const
+      }
 
       // Mock the sidebar with empty entries
       vi.mocked(useSidebar).mockReturnValue(createMockSidebar({}, []))
@@ -144,7 +145,7 @@ describe('TraversedEntryContainer', () => {
   describe('tag-based grouping', () => {
     it('renders operations grouped under tags', () => {
       const document = {
-        openapi: '3.1.0',
+        openapi: '3.1.0' as const,
         info: {
           title: 'Test',
           version: '1.0.0',
@@ -164,7 +165,7 @@ describe('TraversedEntryContainer', () => {
             },
           },
         },
-      } as const
+      }
 
       // Mock the sidebar with the correct entries for this document
       vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
@@ -177,7 +178,7 @@ describe('TraversedEntryContainer', () => {
 
     it('renders tag groups with x-tagGroups extension', () => {
       const document = {
-        openapi: '3.1.0',
+        openapi: '3.1.0' as const,
         info: {
           title: 'Test',
           version: '1.0.0',
@@ -208,7 +209,7 @@ describe('TraversedEntryContainer', () => {
             },
           },
         },
-      } as const
+      }
 
       // Mock the sidebar with the correct entries for this document
       vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
@@ -223,7 +224,7 @@ describe('TraversedEntryContainer', () => {
 
     it('renders complex nested tag groups with multiple levels', () => {
       const document = {
-        openapi: '3.1.0',
+        openapi: '3.1.0' as const,
         info: {
           title: 'Test',
           version: '1.0.0',
@@ -266,7 +267,7 @@ describe('TraversedEntryContainer', () => {
             },
           },
         },
-      } as const
+      }
 
       // Mock the sidebar with the correct entries for this document
       vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
@@ -283,7 +284,7 @@ describe('TraversedEntryContainer', () => {
   describe('webhook rendering', () => {
     it('renders webhooks grouped under webhook section', () => {
       const document = {
-        openapi: '3.1.0',
+        openapi: '3.1.0' as const,
         info: {
           title: 'Test',
           version: '1.0.0',
@@ -302,7 +303,7 @@ describe('TraversedEntryContainer', () => {
             },
           },
         },
-      } as const
+      }
 
       // Mock the sidebar with the correct entries for this document
       vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
@@ -315,7 +316,7 @@ describe('TraversedEntryContainer', () => {
 
     it('renders webhooks with tags', () => {
       const document = {
-        openapi: '3.1.0',
+        openapi: '3.1.0' as const,
         info: {
           title: 'Test',
           version: '1.0.0',
@@ -330,7 +331,7 @@ describe('TraversedEntryContainer', () => {
             },
           },
         },
-      } as const
+      }
 
       // Mock the sidebar with the correct entries for this document
       vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))
@@ -344,7 +345,7 @@ describe('TraversedEntryContainer', () => {
   describe('mixed content rendering', () => {
     it('renders operations and webhooks mixed under tags', () => {
       const document = {
-        openapi: '3.1.0',
+        openapi: '3.1.0' as const,
         info: {
           title: 'Test',
           version: '1.0.0',
@@ -368,7 +369,7 @@ describe('TraversedEntryContainer', () => {
             },
           },
         },
-      } as const
+      }
 
       // Mock the sidebar with the correct entries for this document
       vi.mocked(useSidebar).mockReturnValue(createMockSidebarFromDocument(document))

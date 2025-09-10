@@ -2,7 +2,6 @@
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import { ScalarErrorBoundary } from '@scalar/components'
 import { getSlugUid } from '@scalar/oas-utils/transforms'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { computed } from 'vue'
@@ -24,7 +23,6 @@ import { ServerSelector } from '@/v2/blocks/scalar-server-selector-block'
 import { TraversedEntryContainer } from './Operations'
 
 const { store, config } = defineProps<{
-  document: OpenAPIV3_1.Document
   config: ApiReferenceConfiguration
   store: WorkspaceStore
 }>()
@@ -177,16 +175,17 @@ const getOriginalDocument = () => store.exportActiveDocument('json') ?? '{}'
 
     <!-- Loop on traversed entries -->
     <TraversedEntryContainer
+      v-if="store.workspace.activeDocument"
       :clientOptions
       :config
-      :document
+      :document="store.workspace.activeDocument"
       :store />
 
     <!-- Models -->
     <Models
-      v-if="!config?.hideModels"
+      v-if="!config?.hideModels && store.workspace.activeDocument"
       :config
-      :document />
+      :document="store.workspace.activeDocument" />
 
     <slot name="end" />
   </div>

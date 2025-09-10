@@ -1,3 +1,5 @@
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -12,9 +14,9 @@ describe('OperationParameters', () => {
             {
               in: 'path',
               name: 'userId',
-              schema: {
+              schema: coerceValue(SchemaObjectSchema, {
                 type: 'string',
-              },
+              }),
               required: true,
               deprecated: false,
             },
@@ -36,9 +38,9 @@ describe('OperationParameters', () => {
             {
               in: 'query',
               name: 'search',
-              schema: {
+              schema: coerceValue(SchemaObjectSchema, {
                 type: 'string',
-              },
+              }),
               required: false,
               deprecated: false,
             },
@@ -59,9 +61,9 @@ describe('OperationParameters', () => {
             {
               in: 'header',
               name: 'Authorization',
-              schema: {
+              schema: coerceValue(SchemaObjectSchema, {
                 type: 'string',
-              },
+              }),
               required: true,
               deprecated: false,
             },
@@ -83,11 +85,11 @@ describe('OperationParameters', () => {
             {
               in: 'cookie',
               name: 'debug',
-              schema: {
+              schema: coerceValue(SchemaObjectSchema, {
                 type: 'integer',
                 enum: [0, 1],
                 default: 0,
-              },
+              }),
               deprecated: false,
               required: true,
             },
@@ -107,10 +109,10 @@ describe('OperationParameters', () => {
             {
               in: 'cookie',
               name: 'csrftoken',
-              schema: {
+              schema: coerceValue(SchemaObjectSchema, {
                 type: 'string',
                 default: 'the-example-token',
-              },
+              }),
               deprecated: true,
               required: false,
             },
@@ -131,13 +133,13 @@ describe('OperationParameters', () => {
           requestBody: {
             content: {
               'application/json': {
-                schema: {
+                schema: coerceValue(SchemaObjectSchema, {
                   type: 'object',
                   properties: {
                     name: { type: 'string' },
                     age: { type: 'integer' },
                   },
-                },
+                }),
               },
             },
           },
@@ -156,7 +158,7 @@ describe('OperationParameters', () => {
           requestBody: {
             content: {
               'application/json': {
-                schema: {
+                schema: coerceValue(SchemaObjectSchema, {
                   type: 'object',
                   properties: {
                     regularProperty: {
@@ -171,7 +173,7 @@ describe('OperationParameters', () => {
                       writeOnly: true,
                     },
                   },
-                },
+                }),
               },
             },
           },
@@ -192,13 +194,13 @@ describe('OperationParameters', () => {
           requestBody: {
             content: {
               'application/x-www-form-urlencoded': {
-                schema: {
+                schema: coerceValue(SchemaObjectSchema, {
                   type: 'object',
                   properties: {
                     username: { type: 'string' },
                     password: { type: 'string' },
                   },
-                },
+                }),
               },
             },
           },

@@ -1,26 +1,23 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref } from 'vue'
 
 import { Schema } from '@/components/Content/Schema'
+import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
+
+const { requestBody } = defineProps<{
+  breadcrumb?: string[]
+  requestBody?: RequestBodyObject
+}>()
 
 /**
  * The maximum number of properties to show in the request body schema.
  */
 const MAX_VISIBLE_PROPERTIES = 12
-
-const { requestBody, schemas } = defineProps<{
-  breadcrumb?: string[]
-  requestBody?: OpenAPIV3_1.OperationObject['requestBody']
-  schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
-}>()
-
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: string): void
-}>()
 
 const availableContentTypes = computed(() =>
   Object.keys(requestBody?.content ?? {}),
@@ -34,25 +31,27 @@ if (requestBody?.content) {
   }
 }
 
+const schema = computed(() =>
+  getResolvedRef(requestBody?.content?.[selectedContentType.value]?.schema),
+)
+
 /**
  * Splits schema properties into visible and collapsed sections when there are more than 12 properties.
  * Returns null for schemas with fewer properties or non-object schemas.
  */
 const partitionedSchema = computed(() => {
-  const schema = requestBody?.content?.[selectedContentType.value]?.schema
-
   // Early return if not an object schema
-  if (schema?.type !== 'object' || !schema.properties) {
+  if (!schema.value || !isTypeObject(schema.value)) {
     return null
   }
 
-  const propertyEntries = Object.entries(schema.properties)
+  const propertyEntries = Object.entries(schema.value.properties ?? {})
   if (propertyEntries.length <= MAX_VISIBLE_PROPERTIES) {
     return null
   }
 
   // Destructure everything except properties
-  const { properties, ...schemaMetadata } = schema
+  const { properties, ...schemaMetadata } = schema.value
 
   return {
     visibleProperties: {
@@ -69,10 +68,6 @@ const partitionedSchema = computed(() => {
     },
   }
 })
-
-const handleDiscriminatorChange = (type: string) => {
-  emit('update:modelValue', type)
-}
 </script>
 <template>
   <div
@@ -88,11 +83,8 @@ const handleDiscriminatorChange = (type: string) => {
         </div>
       </span>
       <ContentTypeSelect
-        :defaultValue="selectedContentType"
-        :requestBody="requestBody"
-        @selectContentType="
-          ({ contentType }) => (selectedContentType = contentType)
-        " />
+        v-model="selectedContentType"
+        :content="requestBody.content" />
       <div
         v-if="requestBody.description"
         class="request-body-description">
@@ -105,35 +97,30 @@ const handleDiscriminatorChange = (type: string) => {
       v-if="partitionedSchema"
       class="request-body-schema">
       <Schema
+        :breadcrumb
         compact
         name="Request Body"
         noncollapsible
-        :breadcrumb
-        :schemas="schemas"
-        :value="partitionedSchema.visibleProperties"
-        @update:modelValue="handleDiscriminatorChange" />
+        :schema="partitionedSchema.visibleProperties" />
 
       <Schema
         additionalProperties
+        :breadcrumb
         compact
         name="Request Body"
-        :breadcrumb
-        :schemas="schemas"
-        :value="partitionedSchema.collapsedProperties" />
+        :schema="partitionedSchema.collapsedProperties" />
     </div>
 
     <!-- Show em all 12 and under -->
     <div
-      v-else-if="requestBody.content?.[selectedContentType]"
+      v-else-if="schema"
       class="request-body-schema">
       <Schema
         :breadcrumb
         compact
         name="Request Body"
         noncollapsible
-        :schemas="schemas"
-        :value="requestBody.content?.[selectedContentType]?.schema"
-        @update:modelValue="handleDiscriminatorChange" />
+        :schema />
     </div>
   </div>
 </template>
