@@ -270,24 +270,17 @@ useFavicon(favicon)
       :store="store"
       @toggleDarkMode="() => toggleColorMode()"
       @updateContent="$emit('updateContent', $event)">
-      <template #footer>
-        <slot name="footer" />
-      </template>
-      <!-- Expose the content end slot as a slot for the footer -->
-      <template #content-end>
-        <slot name="footer" />
-      </template>
       <template #document-selector>
         <DocumentSelector
           v-model="selectedDocumentIndex"
           :options="availableDocuments" />
       </template>
-      <template #sidebar-start>
-        <slot name="sidebar-start" />
-      </template>
-      <template #sidebar-end>
-        <slot name="sidebar-end" />
-      </template>
+      <!-- Pass through content, sidebar and footer slots -->
+      <template #content-start><slot name="content-start" /></template>
+      <template #content-end><slot name="content-end" /></template>
+      <template #sidebar-start><slot name="sidebar-start" /></template>
+      <template #sidebar-end><slot name="sidebar-end" /></template>
+      <template #footer><slot name="footer" /></template>
     </ApiReferenceLayout>
   </div>
 </template>
