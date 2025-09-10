@@ -33,6 +33,6 @@
     "@scalar/build-tooling": "workspace:*",
     "@vitejs/plugin-vue": "catalog:*",
     "vite": "catalog:*",
-    "vite-ssg": "^0.24.2"
+    "vite-ssg": "catalog:*"
   }
 }

@@ -5,7 +5,7 @@
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
       "version": "22",
-      "pnpmVersion": "10.5.2"
+      "pnpmVersion": "10.15.1"
     }
   },
   "customizations": {
