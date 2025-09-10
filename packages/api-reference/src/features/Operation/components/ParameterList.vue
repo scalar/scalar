@@ -18,7 +18,7 @@ const {
   <div
     v-if="parameters?.length"
     class="mt-6">
-    <div class="text-c-1 mt-3 mb-3 text-base leading-[1.45] font-semibold">
+    <div class="text-c-1 mt-3 mb-3 text-lg leading-[1.45] font-medium">
       <slot name="title" />
     </div>
     <ul class="m-0 mb-3 list-none p-0 text-sm">
