@@ -1,5 +1,7 @@
 package com.scalar.maven.webjar;
 
+import org.springframework.boot.actuate.autoconfigure.endpoint.condition.ConditionalOnAvailableEndpoint;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -37,5 +39,20 @@ public class ScalarAutoConfiguration {
     @Bean
     public ScalarController scalarController(ScalarProperties properties) {
         return new ScalarController(properties);
+    }
+
+    /**
+     * Creates a ScalarActuatorEndpoint bean when actuator support is enabled.
+     * This endpoint exposes the Scalar UI at /actuator/scalar.
+     *
+     * @param properties the configuration properties for the Scalar integration
+     * @return a configured ScalarActuatorEndpoint instance
+     */
+    @Bean
+    @ConditionalOnProperty(prefix = "scalar", name = "actuatorEnabled", havingValue = "true")
+    @ConditionalOnClass(name = "org.springframework.boot.actuate.endpoint.annotation.Endpoint")
+    @ConditionalOnAvailableEndpoint(endpoint = ScalarActuatorEndpoint.class)
+    public ScalarActuatorEndpoint scalarActuatorEndpoint(ScalarProperties properties) {
+        return new ScalarActuatorEndpoint(properties);
     }
 }

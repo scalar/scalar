@@ -70,6 +70,76 @@ scalar:
 
 Access your API reference at `http://localhost:8080/scalar` (or your custom path)
 
+## Actuator Support
+
+The Scalar integration supports exposing the API reference interface through Spring Boot Actuator endpoints. This is useful when you want to integrate the Scalar UI with your application's monitoring and management infrastructure.
+
+### Enabling Actuator Support
+
+To enable actuator support, add the following configuration:
+
+```properties
+# Enable actuator support
+scalar.actuatorEnabled=true
+
+# Expose the scalar endpoint
+management.endpoints.web.exposure.include=scalar
+```
+
+Or in `application.yml`:
+
+```yaml
+scalar:
+  actuatorEnabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: scalar
+```
+
+### Accessing the Actuator Endpoint
+
+Once enabled, the Scalar UI will be available at:
+
+```
+http://localhost:8080/actuator/scalar
+```
+
+### Actuator Security
+
+When using actuator endpoints, it's recommended to secure them, especially in production:
+
+```properties
+# Enable actuator security
+management.security.enabled=true
+
+# Or with Spring Security
+management.endpoints.web.base-path=/actuator
+```
+
+With Spring Security:
+
+```java
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests(authz -> authz
+                .requestMatchers("/actuator/scalar").authenticated()
+                .requestMatchers("/actuator/health").permitAll()
+                .anyRequest().permitAll()
+            )
+            .formLogin(form -> form.permitAll());
+        return http.build();
+    }
+}
+```
+
 ## Auto-Configuration
 
 The Scalar integration automatically configures:
@@ -120,6 +190,7 @@ spring.autoconfigure.exclude=com.scalar.maven.webjar.ScalarAutoConfiguration
 | `scalar.layout`                | `modern`                                                             | The layout style to use for the API reference. Can be "modern" or "classic"                                                                                      |
 | `scalar.hideSearch`            | `false`                                                              | Whether to show the sidebar search bar                                                                                                                           |
 | `scalar.documentDownloadType`  | `both`                                                               | Sets the file type of the document to download. Can be "json", "yaml", "both", or "none"                                                                         |
+| `scalar.actuatorEnabled`       | `false`                                                              | Whether to expose the Scalar UI as an actuator endpoint at /actuator/scalar                                                                                      |
 
 ## Security Configuration
 
@@ -169,6 +240,9 @@ scalar.layout=modern
 
 # Document options
 scalar.documentDownloadType=both
+
+# Actuator support
+scalar.actuatorEnabled=false
 
 # Custom styling
 scalar.customCss=body { font-family: 'Arial', sans-serif; }
