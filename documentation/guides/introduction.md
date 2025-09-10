@@ -100,12 +100,12 @@ They are open source. So I can get in on free features and stay with Scalar no m
 <div>
   <div class="product product-reversed">
     <div class="product-copy">
-      <span class="font-bold text-green">API Registry</span>
+      <span class="font-bold text-green">Scalar Registry</span>
       <h2>
-        A centralized repository for your APIs
+        The Centralized Repository for Your API Definitions
       </h2>
       <p>
-        Managing & versioning OpenAPI Documents, JSON Schema, Spectral Rules as your single source of truth with a deep Git integration or custom worfklows.
+        Upload, manage and version OpenAPI Documents, JSON Schemas and Spectral Rules in a single place. Can pull from your repository, works with any CI workflow.
       </p>
       <div class="flex flex-wrap text-green gap-y-2">
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
@@ -115,8 +115,12 @@ They are open source. So I can get in on free features and stay with Scalar no m
           <span>
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
+          <scalar-icon src="phosphor/bold/arrows-clockwise"></scalar-icon>
+          Bi-directional Git Sync
+        </b>
+        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon>
-          OpenAPI Support
+          OpenAPI Documents
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/brackets-curly"></scalar-icon>
@@ -128,14 +132,17 @@ They are open source. So I can get in on free features and stay with Scalar no m
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/arrows-clockwise"></scalar-icon>
-          Bi-directional Git
+          AsyncAPI (coming soon)
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/lock-simple"></scalar-icon>
           Private or Public
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/scalar/scalar-registry/getting-started">Get Started For Free →</a>
+      <a class="mt-3 t-editor__anchor" href="/scalar/scalar-registry/getting-started">
+      Connect Your API for Free
+       →
+      </a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
