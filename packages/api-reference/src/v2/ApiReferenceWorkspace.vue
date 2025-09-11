@@ -43,6 +43,7 @@ import {
   DocumentSelector,
   useMultipleDocuments,
 } from '@/features/multiple-documents'
+import ApiReferenceToolbar from '@/features/toolbar/ApiReferenceToolbar.vue'
 import { NAV_STATE_SYMBOL } from '@/hooks/useNavState'
 import { isClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import { getDocumentName } from '@/v2/helpers/get-document-name'
@@ -298,7 +299,11 @@ useFavicon(favicon)
           :options="availableDocuments" />
       </template>
       <!-- Pass through content, sidebar and footer slots -->
-      <template #content-start><slot name="content-start" /></template>
+      <template #content-start>
+        <!-- Only appears on localhost -->
+        <ApiReferenceToolbar />
+        <slot name="content-start" />
+      </template>
       <template #content-end><slot name="content-end" /></template>
       <template #sidebar-start><slot name="sidebar-start" /></template>
       <template #sidebar-end><slot name="sidebar-end" /></template>
