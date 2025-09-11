@@ -283,7 +283,7 @@ useFavicon(favicon)
       <!-- Pass through content, sidebar and footer slots -->
       <template #content-start>
         <!-- Only appears on localhost -->
-        <ApiReferenceToolbar />
+        <ApiReferenceToolbar :configuration="selectedConfiguration" />
         <slot name="content-start" />
       </template>
       <template #content-end><slot name="content-end" /></template>
