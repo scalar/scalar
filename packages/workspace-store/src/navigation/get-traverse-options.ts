@@ -82,7 +82,7 @@ export const getTraverseOptions = (config?: DocumentConfiguration): TraverseSpec
   const getWebhookId = referenceConfig?.getWebhookId ?? getWebhookIdDefault
   const getTagId = referenceConfig?.getTagId ?? getTagIdDefault
 
-  const hideModels = !referenceConfig?.features?.showModels
+  const hideModels = referenceConfig?.features?.showModels === false
   const operationsSorter: TraverseSpecOptions['operationsSorter'] = referenceConfig?.operationsSorter ?? 'alpha'
   const tagsSorter: TraverseSpecOptions['tagsSorter'] = referenceConfig?.tagSort ?? 'alpha'
 

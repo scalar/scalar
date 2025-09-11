@@ -43,6 +43,8 @@ const createOperationEntry = (
   const id = getOperationId({ ...operation, method, path }, tag)
   const title = operation.summary?.trim() ? operation.summary : path
 
+  const isDeprecated = isDeprecatedOperation(operation)
+
   const entry = {
     id,
     title,
@@ -50,7 +52,7 @@ const createOperationEntry = (
     method,
     ref,
     type: 'operation',
-    isDeprecated: isDeprecatedOperation(operation),
+    isDeprecated: isDeprecated ? isDeprecated : undefined,
   } satisfies TraversedOperation
 
   entitiesMap.set(id, entry)

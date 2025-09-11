@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
-import type { TraversedEntry } from '@/schemas/navigation'
-import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument, TagObject, TraversedEntry } from '@/schemas/v3.1/strict/openapi-document'
 
 import { traverseWebhooks } from './traverse-webhooks'
 
@@ -23,13 +22,13 @@ describe('traverse-webhooks', () => {
       }
 
       const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>()
-      const titlesMap = new Map<string, string>()
+      const entitiesMap = new Map<string, TraversedEntry>()
 
-      const result = traverseWebhooks(content, tagsMap, titlesMap, mockGetWebhookId)
+      const result = traverseWebhooks(content, tagsMap, entitiesMap, mockGetWebhookId)
 
       expect(result).toEqual([])
       expect(tagsMap.size).toBe(0)
-      expect(titlesMap.size).toBe(0)
+      expect(entitiesMap.size).toBe(0)
     })
 
     it('should process webhooks with tags', () => {
@@ -49,9 +48,9 @@ describe('traverse-webhooks', () => {
       }
 
       const tagsMap: TagsMap = new Map()
-      const titlesMap = new Map<string, string>()
+      const entitiesMap = new Map<string, TraversedEntry>()
 
-      const result = traverseWebhooks(content, tagsMap, titlesMap, mockGetWebhookId)
+      const result = traverseWebhooks(content, tagsMap, entitiesMap, mockGetWebhookId)
 
       expect(result).toEqual([]) // Should be empty as webhook has a tag
       expect(tagsMap.get('webhook-tag')?.entries).toHaveLength(1)
@@ -63,7 +62,14 @@ describe('traverse-webhooks', () => {
         name: 'test-webhook',
         method: 'post',
       })
-      expect(titlesMap.get('webhook-tag-post-test-webhook')).toBe('Test Webhook')
+      expect(entitiesMap.get('webhook-tag-post-test-webhook')).toEqual({
+        type: 'webhook',
+        ref: '#/webhooks/test-webhook/post',
+        id: 'webhook-tag-post-test-webhook',
+        title: 'Test Webhook',
+        name: 'test-webhook',
+        method: 'post',
+      })
     })
 
     it('should process untagged webhooks', () => {
@@ -82,9 +88,9 @@ describe('traverse-webhooks', () => {
       }
 
       const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>()
-      const titlesMap = new Map<string, string>()
+      const entitiesMap = new Map<string, TraversedEntry>()
 
-      const result = traverseWebhooks(content, tagsMap, titlesMap, mockGetWebhookId)
+      const result = traverseWebhooks(content, tagsMap, entitiesMap, mockGetWebhookId)
 
       expect(result).toHaveLength(1)
       expect(result[0]).toEqual({
@@ -95,7 +101,14 @@ describe('traverse-webhooks', () => {
         type: 'webhook',
         ref: '#/webhooks/untagged-webhook/post',
       })
-      expect(titlesMap.get('untagged-post-untagged-webhook')).toBe('Untagged Webhook')
+      expect(entitiesMap.get('untagged-post-untagged-webhook')).toEqual({
+        id: 'untagged-post-untagged-webhook',
+        title: 'Untagged Webhook',
+        name: 'untagged-webhook',
+        method: 'post',
+        type: 'webhook',
+        ref: '#/webhooks/untagged-webhook/post',
+      })
     })
 
     it('should skip internal webhooks', () => {
@@ -115,13 +128,13 @@ describe('traverse-webhooks', () => {
       }
 
       const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>()
-      const titlesMap = new Map<string, string>()
+      const entitiesMap = new Map<string, TraversedEntry>()
 
-      const result = traverseWebhooks(content, tagsMap, titlesMap, mockGetWebhookId)
+      const result = traverseWebhooks(content, tagsMap, entitiesMap, mockGetWebhookId)
 
       expect(result).toEqual([])
       expect(tagsMap.size).toBe(0)
-      expect(titlesMap.size).toBe(0)
+      expect(entitiesMap.size).toBe(0)
     })
 
     it('should skip scalar-ignore webhooks', () => {
@@ -141,13 +154,13 @@ describe('traverse-webhooks', () => {
       }
 
       const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>()
-      const titlesMap = new Map<string, string>()
+      const entitiesMap = new Map<string, TraversedEntry>()
 
-      const result = traverseWebhooks(content, tagsMap, titlesMap, mockGetWebhookId)
+      const result = traverseWebhooks(content, tagsMap, entitiesMap, mockGetWebhookId)
 
       expect(result).toEqual([])
       expect(tagsMap.size).toBe(0)
-      expect(titlesMap.size).toBe(0)
+      expect(entitiesMap.size).toBe(0)
     })
 
     it('should handle deprecated webhooks', () => {
@@ -167,15 +180,16 @@ describe('traverse-webhooks', () => {
       }
 
       const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>()
-      const titlesMap = new Map<string, string>()
+      const entitiesMap = new Map<string, TraversedEntry>()
 
-      const result = traverseWebhooks(content, tagsMap, titlesMap, mockGetWebhookId)
+      const result = traverseWebhooks(content, tagsMap, entitiesMap, mockGetWebhookId)
 
       expect(result).toHaveLength(1)
       expect(result[0]).toEqual({
         type: 'webhook',
         ref: '#/webhooks/deprecated-webhook/post',
         id: 'untagged-post-deprecated-webhook',
+        isDeprecated: true,
         title: 'Deprecated Webhook',
         name: 'deprecated-webhook',
         method: 'post',
@@ -202,9 +216,9 @@ describe('traverse-webhooks', () => {
       }
 
       const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>()
-      const titlesMap = new Map<string, string>()
+      const entitiesMap = new Map<string, TraversedEntry>()
 
-      const result = traverseWebhooks(content, tagsMap, titlesMap, mockGetWebhookId)
+      const result = traverseWebhooks(content, tagsMap, entitiesMap, mockGetWebhookId)
 
       expect(result).toHaveLength(2)
       expect(result).toEqual(

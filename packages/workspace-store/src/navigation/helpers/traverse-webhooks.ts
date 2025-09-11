@@ -43,7 +43,7 @@ const createWebhookEntry = (
     ref,
     method: method,
     type: 'webhook',
-    isDeprecated,
+    isDeprecated: isDeprecated ? isDeprecated : undefined,
   } satisfies TraversedWebhook
 
   // Store the id to the entity for fast lookup

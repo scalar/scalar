@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import { coerceValue } from '@/schemas/typebox-coerce'
-import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument, TraversedEntry } from '@/schemas/v3.1/strict/openapi-document'
 import { OpenAPIDocumentSchema } from '@/schemas/v3.1/strict/openapi-document'
 
 import { traverseSchemas } from './traverse-schemas'
@@ -17,7 +17,7 @@ describe('traverseSchemas', () => {
   }
 
   // Mock titlesMap
-  const mockTitlesMap = new Map<string, string>()
+  const mockEntitiesMap = new Map<string, TraversedEntry>()
 
   let mockTagsMap: TagsMap
 
@@ -57,7 +57,7 @@ describe('traverseSchemas', () => {
       },
     }
 
-    const result = traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
+    const result = traverseSchemas(content, mockTagsMap, mockEntitiesMap, mockGetModelId)
     expect(result).toEqual([])
   })
 
@@ -88,7 +88,7 @@ describe('traverseSchemas', () => {
       },
     })
 
-    const result = traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
+    const result = traverseSchemas(content, mockTagsMap, mockEntitiesMap, mockGetModelId)
 
     expect(result).toHaveLength(2)
     expect(result).toEqual([
@@ -109,8 +109,20 @@ describe('traverseSchemas', () => {
     ])
 
     // Verify titlesMap was populated
-    expect(mockTitlesMap.get('model-User')).toBe('User')
-    expect(mockTitlesMap.get('model-Product')).toBe('Product')
+    expect(mockEntitiesMap.get('model-User')).toEqual({
+      'id': 'model-User',
+      'name': 'User',
+      'ref': '#/content/components/schemas/User',
+      'title': 'User',
+      'type': 'model',
+    })
+    expect(mockEntitiesMap.get('model-Product')).toEqual({
+      'id': 'model-Product',
+      'name': 'Product',
+      'ref': '#/content/components/schemas/Product',
+      'title': 'Product',
+      'type': 'model',
+    })
   })
 
   it('should skip schemas with x-internal flag', () => {
@@ -139,7 +151,7 @@ describe('traverseSchemas', () => {
       },
     })
 
-    const result = traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
+    const result = traverseSchemas(content, mockTagsMap, mockEntitiesMap, mockGetModelId)
 
     expect(result).toHaveLength(1)
     expect(result[0]?.title).toBe('PublicUser')
@@ -171,7 +183,7 @@ describe('traverseSchemas', () => {
       },
     })
 
-    const result = traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
+    const result = traverseSchemas(content, mockTagsMap, mockEntitiesMap, mockGetModelId)
 
     expect(result).toHaveLength(1)
     expect(result[0]?.title).toBe('ValidSchema')
@@ -193,7 +205,7 @@ describe('traverseSchemas', () => {
       },
     })
 
-    const result = traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
+    const result = traverseSchemas(content, mockTagsMap, mockEntitiesMap, mockGetModelId)
 
     expect(result).toHaveLength(1)
     expect(result[0]).toEqual({
@@ -224,7 +236,7 @@ describe('traverseSchemas', () => {
       },
     })
 
-    const result = traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
+    const result = traverseSchemas(content, mockTagsMap, mockEntitiesMap, mockGetModelId)
 
     expect(result).toHaveLength(1)
     expect(result[0]?.title).toBe('User-Profile')
@@ -264,7 +276,7 @@ describe('traverseSchemas', () => {
       },
     })
 
-    const result = traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
+    const result = traverseSchemas(content, mockTagsMap, mockEntitiesMap, mockGetModelId)
 
     expect(result).toHaveLength(1)
     expect(result[0]?.title).toBe('ValidSchema')
@@ -304,7 +316,7 @@ describe('traverseSchemas', () => {
       },
     })
 
-    const result = traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
+    const result = traverseSchemas(content, mockTagsMap, mockEntitiesMap, mockGetModelId)
 
     expect(result).toHaveLength(1)
     expect(result[0]?.title).toBe('Foobar')
@@ -346,7 +358,7 @@ describe('traverseSchemas', () => {
         },
       })
 
-      const result = traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
+      const result = traverseSchemas(content, mockTagsMap, mockEntitiesMap, mockGetModelId)
 
       // Verify the schemas are in the correct tags
       expect(mockTagsMap.get('users')?.entries).toHaveLength(1)
@@ -397,7 +409,7 @@ describe('traverseSchemas', () => {
         },
       })
 
-      traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
+      traverseSchemas(content, mockTagsMap, mockEntitiesMap, mockGetModelId)
 
       // Verify the schema is in both tags
       expect(mockTagsMap.get('users')?.entries).toHaveLength(1)
@@ -439,7 +451,7 @@ describe('traverseSchemas', () => {
         },
       })
 
-      traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
+      traverseSchemas(content, mockTagsMap, mockEntitiesMap, mockGetModelId)
 
       // Verify the entry in the default tag
       expect(mockTagsMap.get('non-existent-tag')?.entries).toHaveLength(1)
