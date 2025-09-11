@@ -8,6 +8,8 @@ defineProps<{
   configuration?: Partial<ApiReferenceConfiguration>
 }>()
 
+const overrides = defineModel<Partial<ApiReferenceConfiguration>>('overrides')
+
 const showToolbar = computed<boolean>(() => {
   if (!window) {
     return false
@@ -21,7 +23,9 @@ const showToolbar = computed<boolean>(() => {
     class="api-reference-toolbar h-header bg-b-1 sticky top-0 z-10 flex justify-center border-b px-15">
     <div
       class="flex max-w-(--refs-content-max-width) flex-1 items-center justify-end">
-      <ApiReferenceToolbarConfig :configuration />
+      <ApiReferenceToolbarConfig
+        :configuration
+        v-model:overrides="overrides" />
     </div>
   </header>
 </template>

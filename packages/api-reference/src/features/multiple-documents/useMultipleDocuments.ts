@@ -1,4 +1,3 @@
-import type { NavState } from '@/hooks/useNavState'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import {
   type AnyApiReferenceConfiguration,
@@ -7,8 +6,9 @@ import {
   isConfigurationWithSources,
 } from '@scalar/types/api-reference'
 import GithubSlugger from 'github-slugger'
-
 import { type Ref, computed, ref, watch } from 'vue'
+
+import type { NavState } from '@/hooks/useNavState'
 
 /** URL parameter name for the selected API document */
 const QUERY_PARAMETER = 'api'
@@ -19,6 +19,8 @@ type UseMultipleDocumentsProps = {
    * Can be a single configuration or an array of configurations for multiple documents.
    */
   configuration: Ref<AnyApiReferenceConfiguration | undefined>
+  /** Configuration options to apply over the currently selected configuration */
+  configurationOverrides?: Ref<Partial<ApiReferenceConfiguration> | undefined>
   /** The initial index to pre-select a document, if there is no query parameter available */
   initialIndex?: number
 } & NavState
@@ -108,6 +110,7 @@ const addSlugAndTitle = (_source: SpecConfiguration, index = 0): SpecConfigurati
  */
 export const useMultipleDocuments = ({
   configuration,
+  configurationOverrides,
   initialIndex,
   isIntersectionEnabled,
   hash,
@@ -177,12 +180,14 @@ export const useMultipleDocuments = ({
    * we also add the source options (slug, title, etc) to the configuration
    */
   const selectedConfiguration = computed(() => {
+    const overrides = configurationOverrides?.value ?? {}
     // Multiple sources
     if (configuration.value && isConfigurationWithSources(configuration.value)) {
       return {
         ...configuration.value,
         ...configuration.value?.sources?.[selectedDocumentIndex.value],
         ...availableDocuments.value[selectedDocumentIndex.value],
+        ...overrides,
       }
     }
 
@@ -190,6 +195,7 @@ export const useMultipleDocuments = ({
     return {
       ...flattenedConfig,
       ...availableDocuments.value[selectedDocumentIndex.value],
+      ...overrides,
     }
   })
 
