@@ -13,10 +13,10 @@
 export default {}
 </script>
 <template>
-  <fieldset class="flex min-w-0 flex-col gap-4">
+  <fieldset class="flex min-w-0 flex-col gap-3">
     <!-- Legend and flexbox have some issues -->
     <legend class="contents">
-      <span class="text-lg font-medium text-c-1">
+      <span class="text-base font-medium text-c-1">
         <slot name="label" />
       </span>
     </legend>
