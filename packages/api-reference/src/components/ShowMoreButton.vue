@@ -24,8 +24,8 @@ const handleClick = () => {
     @click="handleClick">
     Show More
     <ScalarIconCaretDown
-      weight="bold"
-      class="text-c-2 mt-0.25 size-3" />
+      class="text-c-2 mt-0.25 size-3"
+      weight="bold" />
   </button>
 </template>
 

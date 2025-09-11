@@ -9,8 +9,8 @@ import {
   isOperationDeprecated,
 } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1, XScalarStability } from '@scalar/types'
+import type { TraversedEntry } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
-import type { TraversedEntry } from '@/features/traverse-schema'
 import { useConfig } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
 
@@ -156,7 +156,7 @@ const onAnchorClick = async (ev: Event) => {
             :method="item.method">
             <template #default>
               <ScalarIconWebhooksLogo
-                v-if="'webhook' in item"
+                v-if="item.type === 'webhook'"
                 :style="{
                   color: getHttpMethodInfo(item.method).colorVar,
                 }"

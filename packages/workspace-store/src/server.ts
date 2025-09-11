@@ -5,9 +5,8 @@ import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { escapeJsonPointer, upgrade } from '@scalar/openapi-parser'
 
 import { keyOf } from '@/helpers/general'
-import { createNavigation, type createNavigationOptions } from '@/navigation'
+import { createNavigation } from '@/navigation'
 import { extensions } from '@/schemas/extensions'
-import type { TraversedEntry } from '@/schemas/navigation'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import {
   type ComponentsObject,
@@ -15,7 +14,9 @@ import {
   type OpenApiDocument,
   type OperationObject,
   type PathsObject,
+  type TraversedEntry,
 } from '@/schemas/v3.1/strict/openapi-document'
+import type { DocumentConfiguration } from '@/schemas/workspace-specification/config'
 
 import { getValueByPath, parseJsonPointer } from './helpers/json-path-utils'
 import type { WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/workspace'
@@ -37,7 +38,7 @@ type WorkspaceDocumentInput = UrlDoc | ObjectDoc | FileDoc
 type CreateServerWorkspaceStoreBase = {
   documents: WorkspaceDocumentInput[]
   meta?: WorkspaceMeta
-  config?: createNavigationOptions
+  config?: DocumentConfiguration
 }
 type CreateServerWorkspaceStore =
   | ({

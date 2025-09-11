@@ -1,21 +1,26 @@
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { getTag } from '@/navigation/helpers/get-tag'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
-import type { TraversedSchema } from '@/schemas/navigation'
-import type { OpenApiDocument, SchemaObject, TagObject } from '@/schemas/v3.1/strict/openapi-document'
+import type {
+  OpenApiDocument,
+  SchemaObject,
+  TagObject,
+  TraversedEntry,
+  TraversedSchema,
+} from '@/schemas/v3.1/strict/openapi-document'
 
 /** Creates a traversed schema entry from an OpenAPI schema object.
  *
  * @param ref - JSON pointer reference to the schema in the OpenAPI document
  * @param name - Name of the schema, defaults to 'Unknown'
- * @param titlesMap - Map to store schema IDs and titles for mobile header navigation
+ * @param entriesMap - Map to store schema IDs and titles for mobile header navigation
  * @param getModelId - Function to generate unique IDs for schemas
  * @returns A traversed schema entry with ID, title, name and reference
  */
 const createSchemaEntry = (
   ref: string,
   name = 'Unknown',
-  titlesMap: Map<string, string>,
+  entriesMap: Map<string, TraversedEntry>,
   getModelId: TraverseSpecOptions['getModelId'],
   tag?: TagObject,
   _schema?: SchemaObject,
@@ -27,15 +32,17 @@ const createSchemaEntry = (
   // @see https://json-schema.org/draft/2020-12/json-schema-core#section-4.3.5
   const title = (schema && 'title' in schema && (schema.title as string)) || name
 
-  titlesMap.set(id, title)
-
-  return {
+  const entry = {
     id,
     title,
     name,
     ref,
     type: 'model',
-  }
+  } satisfies TraversedSchema
+
+  entriesMap.set(id, entry)
+
+  return entry
 }
 
 /** Traverses the schemas in an OpenAPI document to build an array of model entries.
@@ -46,7 +53,7 @@ const createSchemaEntry = (
  * - Store model IDs and titles for mobile header navigation
  *
  * @param content - The OpenAPI document to traverse
- * @param titlesMap - Map to store schema IDs and titles for mobile header navigation
+ * @param entitiesMap - Map to store schema IDs and titles for mobile header navigation
  * @param getModelId - Function to generate unique IDs for schemas
  * @returns Array of traversed schema entries
  */
@@ -55,7 +62,7 @@ export const traverseSchemas = (
   /** Map of tagNames and their entries */
   tagsMap: TagsMap,
   /** Map of titles for the mobile header */
-  titlesMap: Map<string, string>,
+  entitiesMap: Map<string, TraversedEntry>,
   getModelId: TraverseSpecOptions['getModelId'],
 ): TraversedSchema[] => {
   const schemas = content.components?.schemas ?? {}
@@ -75,12 +82,12 @@ export const traverseSchemas = (
     if (schema?.['x-tags']) {
       schema['x-tags'].forEach((tagName: string) => {
         const { tag } = getTag(tagsMap, tagName)
-        tagsMap.get(tagName)?.entries.push(createSchemaEntry(ref, name, titlesMap, getModelId, tag))
+        tagsMap.get(tagName)?.entries.push(createSchemaEntry(ref, name, entitiesMap, getModelId, tag))
       })
     }
     // Add to untagged
     else {
-      untagged.push(createSchemaEntry(ref, name, titlesMap, getModelId, undefined, getResolvedRef(schemas[name])))
+      untagged.push(createSchemaEntry(ref, name, entitiesMap, getModelId, undefined, getResolvedRef(schemas[name])))
     }
   }
 

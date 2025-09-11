@@ -1,6 +1,7 @@
-import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
-import type { TraversedEntry } from '@/schemas/navigation'
-import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
+import { getTraverseOptions } from '@/navigation/get-traverse-options'
+import type { TagsMap } from '@/navigation/types'
+import type { OpenApiDocument, TraversedEntry } from '@/schemas/v3.1/strict/openapi-document'
+import type { DocumentConfiguration } from '@/schemas/workspace-specification/config'
 
 import { traverseDescription } from './traverse-description'
 import { traversePaths } from './traverse-paths'
@@ -17,31 +18,22 @@ import { traverseWebhooks } from './traverse-webhooks'
  * - Tag-based organization of operations and webhooks
  * - Optional schema/model documentation
  */
-export const traverseDocument = (
-  document: OpenApiDocument,
-  {
-    hideModels = false,
-    tagsSorter = 'alpha',
-    operationsSorter = 'alpha',
-    getHeadingId = (heading) => heading.value,
-    getOperationId = (operation) => operation.summary ?? '',
-    getWebhookId = (webhook) => webhook?.name ?? 'webhooks',
-    getModelId = (model) => model?.name ?? '',
-    getTagId = (tag) => tag.name ?? '',
-  }: Partial<TraverseSpecOptions>,
-) => {
-  /** Map it ID to title for the mobile header */
-  const titles = new Map<string, string>()
+export const traverseDocument = (document: OpenApiDocument, config?: DocumentConfiguration) => {
+  const { hideModels, tagsSorter, operationsSorter, getHeadingId, getOperationId, getWebhookId, getModelId, getTagId } =
+    getTraverseOptions(config)
+
+  /** Map it ID to the actual entities for fast lookups */
+  const entities = new Map<string, TraversedEntry>()
 
   /** Map of tags and their entries */
   const tagsMap: TagsMap = new Map(
     document.tags?.map((tag) => [tag.name ?? 'Untitled Tag', { tag, entries: [] }]) ?? [],
   )
 
-  const entries: TraversedEntry[] = traverseDescription(document.info?.description, titles, getHeadingId)
-  traversePaths(document, tagsMap, titles, getOperationId)
-  const untaggedWebhooks = traverseWebhooks(document, tagsMap, titles, getWebhookId)
-  const tagsEntries = traverseTags(document, tagsMap, titles, {
+  const entries: TraversedEntry[] = traverseDescription(document.info?.description, entities, getHeadingId)
+  traversePaths(document, tagsMap, entities, getOperationId)
+  const untaggedWebhooks = traverseWebhooks(document, tagsMap, entities, getWebhookId)
+  const tagsEntries = traverseTags(document, tagsMap, entities, {
     getTagId,
     tagsSorter,
     operationsSorter,
@@ -62,7 +54,7 @@ export const traverseDocument = (
 
   // Add models if they are not hidden
   if (!hideModels && document.components?.schemas) {
-    const untaggedModels = traverseSchemas(document, tagsMap, titles, getModelId)
+    const untaggedModels = traverseSchemas(document, tagsMap, entities, getModelId)
 
     if (untaggedModels.length) {
       entries.push({
@@ -74,5 +66,5 @@ export const traverseDocument = (
     }
   }
 
-  return { entries, titles }
+  return { entries, entities }
 }

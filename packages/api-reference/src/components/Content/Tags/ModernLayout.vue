@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import type { TraversedTag } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, nextTick, ref, useId } from 'vue'
 
 import { Lazy } from '@/components/Lazy'
 import { SectionContainer } from '@/components/Section'
 import ShowMoreButton from '@/components/ShowMoreButton.vue'
 import { useSidebar } from '@/features/sidebar'
-import type { TraversedTag } from '@/features/traverse-schema'
 import { useNavState } from '@/hooks/useNavState'
 
 import TagSection from './TagSection.vue'

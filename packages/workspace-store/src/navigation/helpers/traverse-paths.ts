@@ -4,10 +4,20 @@ import { escapeJsonPointer } from '@scalar/openapi-parser'
 
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
-import type { TraversedOperation } from '@/schemas/navigation'
-import type { OpenApiDocument, OperationObject, TagObject } from '@/schemas/v3.1/strict/openapi-document'
+import { XScalarStabilityValues } from '@/schemas/extensions/operation/x-scalar-stability'
+import type {
+  OpenApiDocument,
+  OperationObject,
+  TagObject,
+  TraversedEntry,
+  TraversedOperation,
+} from '@/schemas/v3.1/strict/openapi-document'
 
 import { getTag } from './get-tag'
+
+export const isDeprecatedOperation = (operation: OperationObject) => {
+  return operation.deprecated || operation['x-scalar-stability'] === XScalarStabilityValues.Deprecated
+}
 
 /**
  * Creates a traversed operation entry from an OpenAPI operation object.
@@ -17,7 +27,7 @@ import { getTag } from './get-tag'
  * @param method - HTTP method of the operation
  * @param path - API path of the operation, defaults to 'Unknown'
  * @param tag - Tag object associated with the operation
- * @param titlesMap - Map to store operation IDs and titles for mobile header navigation
+ * @param entitiesMap - Map to store operation IDs and titles for mobile header navigation
  * @param getOperationId - Function to generate unique IDs for operations
  * @returns A traversed operation entry with ID, title, path, method and reference
  */
@@ -27,22 +37,25 @@ const createOperationEntry = (
   method: string,
   path = 'Unknown',
   tag: TagObject,
-  titlesMap: Map<string, string>,
+  entitiesMap: Map<string, TraversedEntry>,
   getOperationId: TraverseSpecOptions['getOperationId'],
 ): TraversedOperation => {
   const id = getOperationId({ ...operation, method, path }, tag)
   const title = operation.summary?.trim() ? operation.summary : path
 
-  titlesMap.set(id, title)
-
-  return {
+  const entry = {
     id,
     title,
     path,
     method,
     ref,
     type: 'operation',
-  }
+    isDeprecated: isDeprecatedOperation(operation),
+  } satisfies TraversedOperation
+
+  entitiesMap.set(id, entry)
+
+  return entry
 }
 
 /**
@@ -58,7 +71,7 @@ const createOperationEntry = (
  *
  * @param content - The OpenAPI document to traverse
  * @param tagsDict - Dictionary mapping tag names to their OpenAPI tag objects
- * @param titlesMap - Map to store operation IDs and titles for mobile header navigation
+ * @param entitiesMap - Map to store operation IDs and titles for mobile header navigation
  * @param getOperationId - Function to generate unique IDs for operations
  * @returns Map of tag names to arrays of traversed operations
  */
@@ -66,8 +79,8 @@ export const traversePaths = (
   content: OpenApiDocument,
   /** Map of tags and their entries */
   tagsMap: TagsMap,
-  /** Map of titles for the mobile header */
-  titlesMap: Map<string, string>,
+  /** Map of entities for fast lookups */
+  entitiesMap: Map<string, TraversedEntry>,
   getOperationId: TraverseSpecOptions['getOperationId'],
 ) => {
   // Traverse paths
@@ -94,7 +107,7 @@ export const traversePaths = (
           const { tag } = getTag(tagsMap, tagName)
           tagsMap
             .get(tagName)
-            ?.entries.push(createOperationEntry(ref, operation, method, path, tag, titlesMap, getOperationId))
+            ?.entries.push(createOperationEntry(ref, operation, method, path, tag, entitiesMap, getOperationId))
         })
       }
       // Add to default tag
@@ -102,7 +115,7 @@ export const traversePaths = (
         const { tag } = getTag(tagsMap, 'default')
         tagsMap
           .get('default')
-          ?.entries.push(createOperationEntry(ref, operation, method, path, tag, titlesMap, getOperationId))
+          ?.entries.push(createOperationEntry(ref, operation, method, path, tag, entitiesMap, getOperationId))
       }
     })
   })

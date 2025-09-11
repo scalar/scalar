@@ -1,7 +1,7 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { type InjectionKey, type Ref, inject, provide } from 'vue'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { type InjectionKey, inject, provide } from 'vue'
 
-import { createSidebar, type SidebarOptions } from '@/features/sidebar/helpers/create-sidebar'
+import { createSidebar } from '@/features/sidebar/helpers/create-sidebar'
 import type { TraverseSpecOptions } from '@/features/traverse-schema'
 
 type Sidebar = ReturnType<typeof createSidebar>
@@ -12,24 +12,16 @@ type Sidebar = ReturnType<typeof createSidebar>
  */
 export const SIDEBAR_SYMBOL: InjectionKey<Sidebar> = Symbol()
 
-type UseSidebar = {
-  (): Sidebar
-  (content: Ref<OpenAPIV3_1.Document>, options: SidebarOptions): Sidebar
-}
-
 /**
  * Composable for managing the sidebar state.
  *
  * When called with a collection and options, it creates and provides a new sidebar instance.
  * When called without parameters, it returns the injected sidebar state.
  */
-export const useSidebar: UseSidebar = (
-  content?: Ref<OpenAPIV3_1.Document>,
-  options?: TraverseSpecOptions,
-): ReturnType<typeof createSidebar> => {
+export const useSidebar = (store?: WorkspaceStore, options?: TraverseSpecOptions): ReturnType<typeof createSidebar> => {
   // If collection is provided, create and provide a new sidebar instance
-  if (content && options) {
-    const sidebar = createSidebar(content, options)
+  if (store && options) {
+    const sidebar = createSidebar(store, options)
     provide(SIDEBAR_SYMBOL, sidebar)
 
     return sidebar

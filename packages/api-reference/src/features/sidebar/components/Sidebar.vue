@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { sleep } from '@scalar/helpers/testing/sleep'
-import { onMounted, onUnmounted, ref, watch } from 'vue'
-
-import type { TraversedEntry } from '@/features/traverse-schema'
 import type {
   TraversedDescription,
+  TraversedEntry,
   TraversedTag,
-} from '@/features/traverse-schema/types'
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
+
 import { useNavState } from '@/hooks/useNavState'
 
 import { useSidebar } from '../hooks/useSidebar'
@@ -121,7 +121,8 @@ onMounted(() => {
 const hasChildren = (
   item: TraversedEntry,
 ): item is TraversedTag | TraversedDescription =>
-  'children' in item && (item.children?.length ?? 0) > 0
+  (item.type === 'tag' || item.type === 'text') &&
+  (item.children?.length ?? 0) > 0
 </script>
 <template>
   <div class="sidebar">
@@ -164,7 +165,7 @@ const hasChildren = (
                       <SidebarElement
                         :id="`sidebar-${child.id}`"
                         :isActive="isItemActive(child.id)"
-                        :item="child" />
+                        :item="child as TraversedEntry" />
                     </template>
                   </SidebarGroup>
                 </template>
@@ -195,7 +196,7 @@ const hasChildren = (
                     <SidebarElement
                       :id="`sidebar-${child.id}`"
                       :isActive="isItemActive(child.id)"
-                      :item="child" />
+                      :item="child as TraversedEntry" />
                   </template>
                 </SidebarGroup>
               </template>

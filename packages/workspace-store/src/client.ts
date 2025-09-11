@@ -18,7 +18,6 @@ import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
 import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import { createNavigation } from '@/navigation'
-import type { TraverseSpecOptions } from '@/navigation/types'
 import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
 import { getServersFromDocument } from '@/preprocessing/server'
 import { extensions } from '@/schemas/extensions'
@@ -28,38 +27,24 @@ import { coerceValue } from '@/schemas/typebox-coerce'
 import {
   OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
   type OpenApiDocument,
+  type TraversedEntry,
 } from '@/schemas/v3.1/strict/openapi-document'
 import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from '@/schemas/workspace'
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
-import type { Config } from '@/schemas/workspace-specification/config'
-
-export type DocumentConfiguration = Config &
-  PartialDeep<{
-    'x-scalar-reference-config': {
-      tagSort: TraverseSpecOptions['tagsSorter']
-      operationsSorter: TraverseSpecOptions['operationsSorter']
-      getHeadingId: TraverseSpecOptions['getHeadingId']
-      getOperationId: TraverseSpecOptions['getOperationId']
-      getWebhookId: TraverseSpecOptions['getWebhookId']
-      getModelId: TraverseSpecOptions['getModelId']
-      getTagId: TraverseSpecOptions['getTagId']
-      generateOperationSlug?: (details: {
-        path: string
-        operationId?: string
-        method: string
-        summary?: string
-      }) => string
-      generateHeadingSlug?: (details: { slug?: string }) => string
-      generateTagSlug?: (details: { name?: string }) => string
-      generateModelSlug?: (details: { name?: string }) => string
-      generateWebhookSlug?: (details: { name: string; method: string }) => string
-    }
-  }>
+import type { Config, DocumentConfiguration } from '@/schemas/workspace-specification/config'
 
 type ExtraDocumentConfigurations = Record<
   string,
   {
     fetch: WorkspaceDocumentMetaInput['fetch']
+  }
+>
+
+type ComputedDocumentProperties = Record<
+  string,
+  {
+    // Mapping between sidebar entity id to the actual title
+    entities: Map<string, TraversedEntry>
   }
 >
 
@@ -268,6 +253,10 @@ export type WorkspaceStore = {
    * falling back to the first document if none is specified.
    */
   readonly config: typeof defaultConfig
+  /**
+   * Returns extra computed properties for a specific document.
+   */
+  getComputedProperties(documentName: string): ComputedDocumentProperties[string] | undefined
   /**
    * Exports the specified document in the requested format.
    *
@@ -487,13 +476,18 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * per-document attributes that are not part of the OpenAPI document structure.
    */
   const documentMeta: InMemoryWorkspace['documentMeta'] = {}
-
   /**
    * Holds additional configuration options for each document in the workspace.
    *
    * This can include settings that can not be persisted between sessions (not JSON serializable)
    */
   const extraDocumentConfigurations: ExtraDocumentConfigurations = {}
+  /**
+   * Extra computed properties for the document that are not part of the OpenAPI specification.
+   *
+   * This properties can not be serialized and are not reactive.
+   */
+  const computedDocumentProperties: ComputedDocumentProperties = {}
 
   // Create a reactive workspace object with proxied documents
   // Each document is wrapped in a proxy to enable reactive updates and reference resolution
@@ -666,12 +660,14 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (strictDocument[extensions.document.navigation] === undefined) {
-      const showModels = input.config?.['x-scalar-reference-config']?.features?.showModels
+      const navigation = createNavigation(strictDocument as OpenApiDocument, input.config)
 
-      strictDocument[extensions.document.navigation] = createNavigation(strictDocument as OpenApiDocument, {
-        ...(input.config?.['x-scalar-reference-config'] ?? {}),
-        hideModels: showModels === undefined ? undefined : !showModels,
-      }).entries
+      strictDocument[extensions.document.navigation] = navigation.entries
+
+      // Store computed properties for the document
+      computedDocumentProperties[name] = {
+        entities: navigation.entities,
+      }
 
       // Do some document processing
       processDocument(getRaw(strictDocument as OpenApiDocument), {
@@ -820,6 +816,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     addDocument,
     get config() {
       return getDocumentConfiguration(getActiveDocumentName())
+    },
+    getComputedProperties(documentName) {
+      return computedDocumentProperties[documentName]
     },
     exportDocument,
     exportActiveDocument: (format) => exportDocument(getActiveDocumentName(), format),

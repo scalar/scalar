@@ -112,7 +112,7 @@ const obtrusiveScrollbars = computed(hasObtrusiveScrollbars)
 
 const navState = useNavState(configuration)
 const { isSidebarOpen, setCollapsedSidebarItem, scrollToOperation, items } =
-  useSidebar(dereferencedDocument, {
+  useSidebar(store, {
     ...navState,
     config: configuration,
   })
@@ -233,7 +233,10 @@ watch(dereferencedDocument, (newDoc) => {
 
 /** This is passed into all of the slots so they have access to the references data */
 const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
-  breadcrumb: items.value?.titles.get(hash.value) ?? '',
+  breadcrumb:
+    store
+      .getComputedProperties(store.workspace['x-scalar-active-document'] ?? '')
+      ?.entities.get(hash.value)?.title ?? '',
 }))
 
 onUnmounted(() => {

@@ -2,9 +2,14 @@ import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
 
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { isDeprecatedOperation } from '@/navigation/helpers/traverse-paths'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
-import type { TraversedWebhook } from '@/schemas/navigation'
-import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
+import type {
+  OpenApiDocument,
+  TagObject,
+  TraversedEntry,
+  TraversedWebhook,
+} from '@/schemas/v3.1/strict/openapi-document'
 
 import { getTag } from './get-tag'
 
@@ -14,7 +19,7 @@ import { getTag } from './get-tag'
  * @param method - HTTP method of the webhook
  * @param name - Name of the webhook, defaults to 'Unknown'
  * @param title - Title of the webhook, defaults to 'Unknown'
- * @param titlesMap - Map to store webhook IDs and titles for mobile header navigation
+ * @param entitiesMap - Map to store webhook IDs and titles for mobile header navigation
  * @param getWebhookId - Function to generate unique IDs for webhooks
  * @param tag - Optional tag object associated with the webhook
  * @returns A traversed webhook entry with ID, title, name, method and reference
@@ -24,21 +29,27 @@ const createWebhookEntry = (
   method: string,
   name = 'Unknown',
   title = 'Unknown',
-  titlesMap: Map<string, string>,
+  entitiesMap: Map<string, TraversedEntry>,
   getWebhookId: TraverseSpecOptions['getWebhookId'],
   tag?: TagObject,
+  isDeprecated?: boolean,
 ): TraversedWebhook => {
   const id = getWebhookId({ name, method }, tag)
-  titlesMap.set(id, title)
 
-  return {
+  const entry = {
     id,
     title,
     name,
     ref,
     method: method,
     type: 'webhook',
-  }
+    isDeprecated,
+  } satisfies TraversedWebhook
+
+  // Store the id to the entity for fast lookup
+  entitiesMap.set(id, entry)
+
+  return entry
 }
 
 /** Traverses the webhooks in an OpenAPI document to build an array of webhook entries.
@@ -52,7 +63,7 @@ const createWebhookEntry = (
  * @param content - The OpenAPI document to traverse
  * @param tagsMap - Map of tag names to arrays of traversed entries from operations
  * @param tagsDict - Dictionary mapping tag names to their OpenAPI tag objects
- * @param titlesMap - Map to store webhook IDs and titles for mobile header navigation
+ * @param entitiesMap - Map to store webhook IDs and titles for mobile header navigation
  * @param getWebhookId - Function to generate unique IDs for webhooks
  * @returns Array of untagged webhook entries
  */
@@ -61,7 +72,7 @@ export const traverseWebhooks = (
   /** The tag map from from traversing paths */
   tagsMap: TagsMap,
   /** Map of titles for the mobile title */
-  titlesMap: Map<string, string>,
+  entitiesMap: Map<string, TraversedEntry>,
   getWebhookId: TraverseSpecOptions['getWebhookId'],
 ): TraversedWebhook[] => {
   const untagged: TraversedWebhook[] = []
@@ -90,13 +101,33 @@ export const traverseWebhooks = (
           tagsMap
             .get(tagName)
             ?.entries.push(
-              createWebhookEntry(ref, method, name, operation.summary ?? name, titlesMap, getWebhookId, tag),
+              createWebhookEntry(
+                ref,
+                method,
+                name,
+                operation.summary ?? name,
+                entitiesMap,
+                getWebhookId,
+                tag,
+                isDeprecatedOperation(operation),
+              ),
             )
         })
       }
       // Add to untagged
       else {
-        untagged.push(createWebhookEntry(ref, method, name, operation.summary ?? name, titlesMap, getWebhookId))
+        untagged.push(
+          createWebhookEntry(
+            ref,
+            method,
+            name,
+            operation.summary ?? name,
+            entitiesMap,
+            getWebhookId,
+            undefined,
+            isDeprecatedOperation(operation),
+          ),
+        )
       }
     })
   })

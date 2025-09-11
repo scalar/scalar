@@ -1,11 +1,9 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { scrollToId } from '@scalar/helpers/dom/scroll-to-id'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { computed, reactive, ref } from 'vue'
 
 import { lazyBus } from '@/components/Lazy'
-import { type Ref, computed, reactive, ref } from 'vue'
-
 import type { TraverseSpecOptions } from '@/features/traverse-schema'
-import { traverseDocument } from '@/features/traverse-schema'
-import { scrollToId } from '@scalar/helpers/dom/scroll-to-id'
 
 /** Track which sidebar items are opened */
 type CollapsedSidebarItems = Record<string, boolean>
@@ -21,7 +19,7 @@ export type SidebarOptions = TraverseSpecOptions
  *  - update docs
  *  - tagged models
  */
-export const createSidebar = (dereferencedDocument: Ref<OpenAPIV3_1.Document>, options: SidebarOptions) => {
+export const createSidebar = (store: WorkspaceStore, options: SidebarOptions) => {
   const collapsedSidebarItems = reactive<CollapsedSidebarItems>({})
   const isSidebarOpen = ref(false)
 
@@ -55,14 +53,17 @@ export const createSidebar = (dereferencedDocument: Ref<OpenAPIV3_1.Document>, o
 
   /** Sidebar items */
   const items = computed(() => {
-    const result = traverseDocument(dereferencedDocument.value, options)
+    const result = store.workspace.activeDocument?.['x-scalar-navigation']
 
     // Open all tags
     if (options.config.value.defaultOpenAllTags) {
-      result.entries.forEach((entry) => setCollapsedSidebarItem(entry.id, true))
+      result?.forEach((entry) => setCollapsedSidebarItem(entry.id, true))
     }
 
-    return result
+    return {
+      entries: result ?? [],
+      entities: store.getComputedProperties(store.workspace['x-scalar-active-document'] || '')?.entities,
+    }
   })
 
   return {

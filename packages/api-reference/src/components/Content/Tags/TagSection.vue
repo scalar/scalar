@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
+import type { TraversedTag } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { Anchor } from '@/components/Anchor'
 import { OperationsList } from '@/components/OperationsList'
@@ -13,7 +14,6 @@ import {
   SectionHeaderTag,
 } from '@/components/Section'
 import { SpecificationExtension } from '@/features/specification-extension'
-import type { TraversedTag } from '@/features/traverse-schema'
 import { useConfig } from '@/hooks/useConfig'
 
 const { tag, headerId, isCollapsed } = defineProps<{
