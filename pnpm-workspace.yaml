@@ -8,6 +8,7 @@ packages:
   - '!**/.next/**'
   - '!**/dist/**'
   - '!**/.output/**'
+
 catalogs:
   '*':
     '@electron-toolkit/preload': ^3.0.0
@@ -68,3 +69,24 @@ catalogs:
     vue-tsc: ^2.2.0
     yaml: 2.8.0
     zod: 3.24.1
+
+ignoredBuiltDependencies:
+  - '@firebase/util'
+  - core-js
+  - core-js-pure
+  - dtrace-provider
+  - protobufjs
+  - sharp
+  - unrs-resolver
+  - vue-demi
+  - workerd
+
+onlyBuiltDependencies:
+  - '@nestjs/core'
+  - '@parcel/watcher'
+  - '@swc/core'
+  - '@tailwindcss/oxide'
+  - '@todesktop/cli'
+  - electron
+  - esbuild
+  - lefthook
