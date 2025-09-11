@@ -1,11 +1,11 @@
 import { placements } from '@floating-ui/utils'
+import { ScalarIconCaretDown } from '@scalar/icons'
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { ref } from 'vue'
 
-import { ScalarButton } from '../..'
 import ScalarListbox from './ScalarListbox.vue'
+import ScalarListboxInput from './ScalarListboxInput.vue'
 import type { Option } from './types'
-import { ScalarIconCaretDown } from '@scalar/icons'
 
 const meta = {
   component: ScalarListbox,
@@ -32,7 +32,7 @@ export const Base: Story = {
   render: (args) => ({
     components: {
       ScalarListbox,
-      ScalarButton,
+      ScalarListboxInput,
       ScalarIconCaretDown,
     },
     setup() {
@@ -40,16 +40,11 @@ export const Base: Story = {
       return { args, selected }
     },
     template: `
-<div class="flex justify-center w-full min-h-96">
-  <ScalarListbox v-model="selected" v-bind="args">
-    <ScalarButton class="w-48 px-3" variant="outlined">
-      <div class="flex flex-1 items-center min-w-0">
-        <span class="inline-block truncate flex-1 min-w-0 text-left">
+<div class="flex items-start justify-center w-full min-h-96">
+  <ScalarListbox v-model="selected" v-bind="args" v-slot="{ open }">
+    <ScalarListboxInput class="w-48" :open>
         {{ selected?.label ?? 'Select an option' }}
-        </span>
-        <ScalarIconCaretDown class="ml-1 ui-open:rotate-180 size-3" weight="bold" />
-      </div>
-    </ScalarButton>
+    </ScalarListboxInput>
   </ScalarListbox>
 </div>
 `,
@@ -68,7 +63,7 @@ export const Multiselect: Story = {
   render: (args) => ({
     components: {
       ScalarListbox,
-      ScalarButton,
+      ScalarListboxInput,
       ScalarIconCaretDown,
     },
     setup() {
@@ -76,16 +71,11 @@ export const Multiselect: Story = {
       return { args, selected }
     },
     template: `
-<div class="flex justify-center w-full min-h-96">
-  <ScalarListbox v-model="selected" v-bind="args">
-    <ScalarButton class="w-48 min-w-max px-3" variant="outlined">
-      <div class="flex flex-1 items-center min-w-0">
-        <span class="inline-block truncate flex-1 min-w-0 text-left">
+<div class="flex items-start justify-center w-full min-h-96">
+  <ScalarListbox v-model="selected" v-bind="args" v-slot="{ open }">
+       <ScalarListboxInput class="w-48" :open>
         {{ selected?.length ? selected.map(o => o.label).join(', ') : 'Select an option' }}
-        </span>
-        <ScalarIconCaretDown class="ml-1 ui-open:rotate-180 size-3" weight="bold" />
-      </div>
-    </ScalarButton>
+    </ScalarListboxInput>
   </ScalarListbox>
 </div>
 `,
@@ -104,7 +94,7 @@ export const CustomClasses: Story = {
   render: (args) => ({
     components: {
       ScalarListbox,
-      ScalarButton,
+      ScalarListboxInput,
       ScalarIconCaretDown,
     },
     setup() {
@@ -112,16 +102,11 @@ export const CustomClasses: Story = {
       return { args, selected }
     },
     template: `
-<div class="flex justify-center w-full min-h-96">
-  <ScalarListbox v-model="selected" v-bind="args">
-    <ScalarButton class="w-48 min-w-max px-3" variant="outlined">
-      <div class="flex flex-1 items-center min-w-0">
-        <span class="inline-block truncate flex-1 min-w-0 text-left">
-        {{ selected?.label ?? 'Select an option' }}
-        </span>
-        <ScalarIconCaretDown class="ml-1 ui-open:rotate-180 size-3" weight="bold" />
-      </div>
-    </ScalarButton>
+<div class="flex items-start justify-center w-full min-h-96">
+  <ScalarListbox v-model="selected" v-bind="args" v-slot="{ open }">
+    <ScalarListboxInput class="w-48" :open>
+      {{ selected?.label ?? 'Select an option' }}
+    </ScalarListboxInput>
   </ScalarListbox>
 </div>
 `,
