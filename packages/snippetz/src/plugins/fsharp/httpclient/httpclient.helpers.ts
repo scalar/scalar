@@ -74,11 +74,24 @@ function turnQueryStringToCode(query: Record<string, string>, url: string): stri
 function turnPostDataToCode(postData: any): string {
   if (!postData) return ''
   let code = ''
+
   if (postData.mimeType === 'multipart/form-data') {
     code += turnPostDataMultiPartToCode(postData)
   } else if (postData.mimeType === 'application/x-www-form-urlencoded') {
     code += turnPostDataUrlEncodeToCode(postData)
+  } else {
+    code += turnPostDataToCodeUsingMimeType(postData, postData.mimeType)
   }
+
+  return code
+}
+
+function turnPostDataToCodeUsingMimeType(postData: any, contentType: string): string {
+  let code = ''
+  const json = escapeString(postData.text)
+  code += `let content = new StringContent("${json}", Encoding.UTF8, "${contentType}")\n`
+  code += `content.Headers.ContentType <- new MediaTypeHeaderValue("${contentType}")\n`
+  code += 'let response = client.PostAsync(client.BaseAddress, content).Result\n'
   return code
 }
 
@@ -86,21 +99,16 @@ function turnPostDataMultiPartToCode(postData: any): string {
   let code = ''
   code += '// Multipart Form\n'
   code += 'use multipartFormContent = new MultipartFormDataContent()\n'
-  if (postData.text) {
-    const dataObj = JSON.parse(postData.text)
-    let fileCount = 0
-    for (const key in dataObj) {
-      if (Object.hasOwn(dataObj, key)) {
-        const value = dataObj[key]
-        if (Object.hasOwn(value, 'type') && value.type === 'file') {
-          code += `let fileStreamContent_${fileCount} = new StreamContent(File.OpenRead("${value.name}"))\n`
-          code += `fileStreamContent_${fileCount}.Headers.ContentType <- new MediaTypeHeaderValue("${value.mimeType}")\n`
-          code += `multipartFormContent.Add(fileStreamContent_${fileCount}, "file_${fileCount}", "${value.name}")\n`
-          fileCount++
-        } else {
-          code += `multipartFormContent.Add(new StringContent("${value}"), "${key}")\n`
-        }
-      }
+
+  let fileCount = 0
+  for (const data of postData.params) {
+    if (data.value === 'BINARY') {
+      code += `let fileStreamContent_${fileCount} = new StreamContent(File.OpenRead("${data.fileName}"))\n`
+      code += `fileStreamContent_${fileCount}.Headers.ContentType <- new MediaTypeHeaderValue("${data.contentType}")\n`
+      code += `multipartFormContent.Add(fileStreamContent_${fileCount}, "file_${fileCount}", "${data.fileName}")\n`
+      fileCount++
+    } else {
+      code += `multipartFormContent.Add(new StringContent("${data.value}", "${data.name}")\n`
     }
   }
   code += 'let response = client.PostAsync(client.BaseAddress, multipartFormContent).Result\n'
@@ -111,18 +119,20 @@ function turnPostDataUrlEncodeToCode(postData: any): string {
   let code = ''
   code += '// Url Encode\n'
   code += 'let formUrlEncodedContentDictionary = new Dictionary<string, string>()\n'
-  if (postData.text) {
-    const splitPostDataText = postData.text.split('&')
-    for (const postDataText of splitPostDataText) {
-      const splitText = postDataText.split('=')
-      if (splitText.length === 2) {
-        code += `formUrlEncodedContentDictionary.Add("${splitText[0]}", "${splitText[1]}")\n`
-      }
-      // need to add error handling for when the split is not 2. Users might put multiple '=' in the value
-    }
+
+  for (const data of postData.params) {
+    code += `formUrlEncodedContentDictionary.Add("${data.value}", "${data.name}")\n`
   }
-  code += 'let response = client.PostAsync(client.BaseAddress, new FormUrlEncodedContent(formUrlEncodedContentDictionary)).Result\n'
+
+  code +=
+    'let response = client.PostAsync(client.BaseAddress, new FormUrlEncodedContent(formUrlEncodedContentDictionary)).Result\n'
   return code
+}
+
+function escapeString(str: string): string {
+  return str
+    .replace(/\\/g, '\\\\') // Escape backslashes
+    .replace(/"/g, '\\"') // Escape double quotes
 }
 
 export const httpClientHelpers = {

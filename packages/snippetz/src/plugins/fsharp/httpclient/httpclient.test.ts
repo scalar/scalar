@@ -143,61 +143,98 @@ describe('turnQueryStringToCode', () => {
   })
 })
 
-describe('turnPostDataToCode', () => {
-  it('returns empty string when postData is falsy', () => {
-    expect(httpClientHelpers.turnPostDataToCode(null)).toBe('')
-    expect(httpClientHelpers.turnPostDataToCode(undefined)).toBe('')
-  })
-
-  it('returns empty string when mimeType is not multipart/form-data', () => {
-    const postData = { mimeType: 'application/json', text: '{"key":"value"}' }
-    expect(httpClientHelpers.turnPostDataToCode(postData)).toBe('')
-  })
-
-  it('handles multipart/form-data with mixed file and non-file fields', () => {
-    const postData = {
-      mimeType: 'multipart/form-data',
-      text: '{"file_1":{"type":"file","text":"BINARY","name":"example.pdf","mimeType":"application/pdf"},"field1":"value1"}',
-    }
-
-    const result = httpClientHelpers.turnPostDataToCode(postData)
-
-    expect(result).toContain('// Multipart Form')
-    expect(result).toContain('use multipartFormContent = new MultipartFormDataContent()')
-    expect(result).toContain('let fileStreamContent_0 = new StreamContent(File.OpenRead("example.pdf"))')
-    expect(result).toContain('fileStreamContent_0.Headers.ContentType <- new MediaTypeHeaderValue("application/pdf")')
-    expect(result).toContain('multipartFormContent.Add(fileStreamContent_0, "file_0", "example.pdf")')
-    expect(result).toContain('multipartFormContent.Add(new StringContent("value1"), "field1")')
-    expect(result).toContain('let response = client.PostAsync(client.BaseAddress, multipartFormContent).Result')
-  })
-})
-
-describe('turnPostDataToCode with url-encoded form data', () => {
-  it('handles application/x-www-form-urlencoded with multiple key-value pairs', () => {
+describe('turnPostDataUrlEncodeToCode', () => {
+  it('generates F# code for a single form param', () => {
     const postData = {
       mimeType: 'application/x-www-form-urlencoded',
-      text: 'field1=value1&field2=value2',
+      params: [{ name: 'foo', value: 'bar' }],
     }
-
-    const result = httpClientHelpers.turnPostDataToCode(postData)
-
-    expect(result).toContain('// Url Encode')
-    expect(result).toContain('let formUrlEncodedContentDictionary = new Dictionary<string, string>()')
-    expect(result).toContain('formUrlEncodedContentDictionary.Add("field1", "value1")')
-    expect(result).toContain('formUrlEncodedContentDictionary.Add("field2", "value2")')
-    expect(result).toContain(
+    const code = httpClientHelpers.turnPostDataToCode(postData)
+    expect(code).toContain('let formUrlEncodedContentDictionary = new Dictionary<string, string>()')
+    expect(code).toContain('formUrlEncodedContentDictionary.Add("bar", "foo")')
+    expect(code).toContain(
       'let response = client.PostAsync(client.BaseAddress, new FormUrlEncodedContent(formUrlEncodedContentDictionary)).Result',
     )
   })
 
-  it('handles application/x-www-form-urlencoded with a single key-value pair', () => {
+  it('generates F# code for multiple form params', () => {
     const postData = {
       mimeType: 'application/x-www-form-urlencoded',
-      text: 'username=johndoe',
+      params: [
+        { name: 'foo', value: 'bar' },
+        { name: 'baz', value: 'qux' },
+      ],
+    }
+    const code = httpClientHelpers.turnPostDataToCode(postData)
+    expect(code).toContain('let formUrlEncodedContentDictionary = new Dictionary<string, string>()')
+    expect(code).toContain('formUrlEncodedContentDictionary.Add("bar", "foo")')
+    expect(code).toContain('formUrlEncodedContentDictionary.Add("qux", "baz")')
+    expect(code).toContain(
+      'let response = client.PostAsync(client.BaseAddress, new FormUrlEncodedContent(formUrlEncodedContentDictionary)).Result',
+    )
+  })
+})
+
+describe('turnPostDataMultiPartToCode', () => {
+  it('generates F# code for a single file param', () => {
+    const postData = {
+      mimeType: 'multipart/form-data',
+      params: [{ name: 'file1', value: 'BINARY', fileName: 'test.txt', contentType: 'text/plain' }],
     }
 
-    const result = httpClientHelpers.turnPostDataToCode(postData)
+    const code = httpClientHelpers.turnPostDataToCode(postData)
+    expect(code).toContain('let fileStreamContent_0 = new StreamContent(File.OpenRead("test.txt"))')
+    expect(code).toContain('fileStreamContent_0.Headers.ContentType <- new MediaTypeHeaderValue("text/plain")')
+    expect(code).toContain('multipartFormContent.Add(fileStreamContent_0, "file_0", "test.txt")')
+    expect(code).toContain('let response = client.PostAsync(client.BaseAddress, multipartFormContent).Result')
+  })
 
-    expect(result).toContain('formUrlEncodedContentDictionary.Add("username", "johndoe")')
+  it('generates F# code for a multipart param that is not binary (string field)', () => {
+    const postData = {
+      mimeType: 'multipart/form-data',
+      params: [{ name: 'desc', value: 'hello' }],
+    }
+
+    const code = httpClientHelpers.turnPostDataToCode(postData)
+    expect(code).toContain('multipartFormContent.Add(new StringContent("hello", "desc")')
+    expect(code).toContain('let response = client.PostAsync(client.BaseAddress, multipartFormContent).Result')
+  })
+
+  it('handles multipart/form-data with no params property', () => {
+    const postData = {
+      mimeType: 'multipart/form-data',
+      params: [],
+    }
+
+    const code = httpClientHelpers.turnPostDataToCode(postData)
+    expect(code).toContain('use multipartFormContent = new MultipartFormDataContent()')
+    expect(code).toContain('let response = client.PostAsync(client.BaseAddress, multipartFormContent).Result')
+  })
+})
+
+describe('turnPostDataJsonToCode', () => {
+  it('generates F# code for JSON post data', () => {
+    const postData = {
+      mimeType: 'application/json',
+      text: '{"foo":"bar"}',
+    }
+
+    const code = httpClientHelpers.turnPostDataToCode(postData)
+    expect(code).toContain(
+      'let content = new StringContent("{\\"foo\\":\\"bar\\"}", Encoding.UTF8, "application/json")',
+    )
+    expect(code).toContain('content.Headers.ContentType <- new MediaTypeHeaderValue("application/json")')
+    expect(code).toContain('let response = client.PostAsync(client.BaseAddress, content).Result')
+  })
+
+  it('escapes quotes and backslashes in JSON', () => {
+    const postData = {
+      mimeType: 'application/json',
+      text: '{"path":"C:\\\\test\\\\file.txt","msg":"He said \\"hi\\""}',
+    }
+
+    const code = httpClientHelpers.turnPostDataToCode(postData)
+    expect(code).toContain('\\"path\\":\\"C:\\\\\\\\test\\\\\\\\file.txt\\"')
+    expect(code).toContain('\\"msg\\":\\"He said \\\\\\"hi\\\\\\"\\"')
   })
 })
