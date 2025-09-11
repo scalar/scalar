@@ -26,7 +26,6 @@ import { isDefined } from '@scalar/oas-utils/helpers'
 import { computed, ref, useId } from 'vue'
 
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
-import { useLayout } from '@/hooks/useLayout'
 import type { EnvVariable } from '@/store/active-entities'
 import { useWorkspace } from '@/store/store'
 import type { SecuritySchemeOption } from '@/views/Request/consts'
@@ -78,7 +77,6 @@ defineSlots<{
   'oauth-actions'?: () => unknown
 }>()
 
-const { layout: clientLayout } = useLayout()
 const {
   securitySchemes,
   securitySchemeMutators,
