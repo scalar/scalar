@@ -311,10 +311,7 @@ const openAuthCombobox = (event: Event) => {
               {{ option.label }}
             </div>
             <ScalarIconButton
-              v-if="
-                option.isDeletable ??
-                (clientLayout !== 'modal' && layout !== 'reference')
-              "
+              v-if="option.isDeletable ?? !isReadOnly"
               class="-m-0.5 shrink-0 p-0.5 opacity-0 group-hover/item:opacity-100"
               :icon="ScalarIconTrash"
               :label="`Delete ${option.label}`"
