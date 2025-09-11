@@ -1,8 +1,11 @@
 <script lang="ts" setup>
+import type { ApiReferenceConfiguration } from '@scalar/types'
 import { computed } from 'vue'
 
+import ApiReferenceToolbarConfig from '@/features/toolbar/ApiReferenceToolbarConfig.vue'
+
 defineProps<{
-  store?: any
+  configuration?: Partial<ApiReferenceConfiguration>
 }>()
 
 const showToolbar = computed<boolean>(() => {
@@ -15,7 +18,10 @@ const showToolbar = computed<boolean>(() => {
 <template>
   <header
     v-if="showToolbar"
-    class="api-reference-toolbar h-header bg-b-1 sticky top-0 z-10 flex items-center justify-center border-b">
-    Dev Toolbar
+    class="api-reference-toolbar h-header bg-b-1 sticky top-0 z-10 flex justify-center border-b px-15">
+    <div
+      class="flex max-w-(--refs-content-max-width) flex-1 items-center justify-end">
+      <ApiReferenceToolbarConfig :configuration />
+    </div>
   </header>
 </template>
