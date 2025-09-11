@@ -4,7 +4,7 @@ import { ScalarIconCaretDown, ScalarIconInfo } from '@scalar/icons'
 </script>
 <template>
   <ScalarPopover
-    class="max-h-[inherit] w-120 max-w-[inherit] p-0"
+    class="max-h-[inherit] w-120 max-w-[inherit] p-0 text-base"
     placement="bottom-end">
     <template #default="{ open }">
       <button
@@ -16,7 +16,7 @@ import { ScalarIconCaretDown, ScalarIconInfo } from '@scalar/icons'
       </button>
     </template>
     <template #popover="props">
-      <div class="custom-scroll bg-b-1 flex flex-col rounded-lg p-7 pb-6">
+      <div class="custom-scroll bg-b-1 flex flex-col gap-7 rounded-lg p-7 pb-6">
         <slot v-bind="props" />
       </div>
       <div class="text-c-2 flex items-center justify-center gap-1 p-2 text-sm">

@@ -22,6 +22,7 @@ import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { redirectToProxy } from '@scalar/oas-utils/helpers'
 import type {
   AnyApiReferenceConfiguration,
+  ApiReferenceConfiguration,
   ApiReferenceConfigurationWithSources,
 } from '@scalar/types'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
@@ -66,6 +67,8 @@ defineEmits<{
  *
  */
 
+/** Configuration overrides to apply to the selected document (from the localhost toolbar) */
+const configurationOverrides = ref<Partial<ApiReferenceConfiguration>>({})
 const {
   availableDocuments,
   selectedConfiguration,
@@ -75,6 +78,7 @@ const {
   hashPrefix,
 } = useMultipleDocuments({
   configuration: toRef(props, 'configuration'),
+  configurationOverrides,
   isIntersectionEnabled: ref(false),
   hash: ref(''),
   hashPrefix: ref(''),
@@ -301,7 +305,9 @@ useFavicon(favicon)
       <!-- Pass through content, sidebar and footer slots -->
       <template #content-start>
         <!-- Only appears on localhost -->
-        <ApiReferenceToolbar :configuration="selectedConfiguration" />
+        <ApiReferenceToolbar
+          :configuration="selectedConfiguration"
+          v-model:overrides="configurationOverrides" />
         <slot name="content-start" />
       </template>
       <template #content-end><slot name="content-end" /></template>
