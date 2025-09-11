@@ -8,7 +8,7 @@ COPY ./public ./public
 RUN go build main.go
 
 # Build distroless image
-FROM gcr.io/distroless/static-debian11
+FROM gcr.io/distroless/static-debian12
 WORKDIR /app
 
 ENV PORT=9033
