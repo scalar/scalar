@@ -94,12 +94,14 @@
     "picomatch": "^4.0.2",
     "rollup": "catalog:*",
     "rollup-plugin-copy": "^3.5.0",
-    "rollup-plugin-import-css": "^3.5.8",
-    "vite": "catalog:*",
-    "vitest": "catalog:*"
+    "rollup-plugin-import-css": "^3.5.8"
   },
   "devDependencies": {
     "@types/node": "catalog:*",
-    "@types/picomatch": "^2.3.3"
+    "@types/picomatch": "^2.3.3",
+    "vite": "catalog:*"
+  },
+  "peerDependencies": {
+    "vite": "catalog:*"
   }
 }
