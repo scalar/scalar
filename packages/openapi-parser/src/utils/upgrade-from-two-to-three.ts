@@ -88,6 +88,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
   })
 
   if (Object.hasOwn(specification, 'parameters')) {
+    console.log('parameters', specification.parameters)
     specification.components ??= {}
 
     const params = {}

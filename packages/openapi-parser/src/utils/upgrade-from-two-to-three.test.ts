@@ -1016,4 +1016,101 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
   })
+
+  it.only('upgrades parameters defined globally and path wide - body and formData', async () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      produces: ['application/json'],
+      consumes: ['application/xml'],
+      parameters: {
+        Body: {
+          in: 'body',
+          name: 'planet body',
+          required: true,
+          schema: {
+            type: 'object',
+            properties: {
+              name: {
+                type: 'string',
+              },
+            },
+          },
+        },
+        'content type': {
+          in: 'body',
+          name: 'content type',
+          required: true,
+          schema: {
+            type: 'string',
+          },
+        },
+        Accept: {
+          in: 'body',
+          name: 'Accept',
+          required: true,
+          schema: {
+            type: 'string',
+          },
+        },
+      },
+      paths: {
+        '/planets/{planetId}': {
+          parameters: [
+            {
+              '$ref': '#/parameters/Body',
+            },
+            {
+              '$ref': '#/parameters/content type',
+            },
+            {
+              '$ref': '#/parameters/Accept',
+            },
+          ],
+          post: {
+            responses: {
+              '201': {
+                description: 'The planet just created.',
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths['/planets/{planetId}'].parameters).toMatchObject([
+      {
+        '$ref': '#/components/parameters/Body',
+      },
+      {
+        '$ref': '#/components/parameters/content type',
+      },
+      {
+        '$ref': '#/components/parameters/Accept',
+      },
+    ])
+
+    expect(result.components.parameters).toMatchObject({
+      requestBodies: {
+        Body: {
+          content: {
+            'application/xml': {
+              schema: {
+                type: 'object',
+                properties: { name: { type: 'string' } },
+              },
+            },
+          },
+          required: true,
+        },
+        'content type': {
+          content: { 'application/xml': { schema: { type: 'string' } } },
+          required: true,
+        },
+        Accept: {
+          content: { 'application/xml': { schema: { type: 'string' } } },
+          required: true,
+        },
+      },
+    })
+  })
 })
