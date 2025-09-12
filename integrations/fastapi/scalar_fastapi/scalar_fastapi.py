@@ -213,7 +213,7 @@ def get_scalar_api_reference(
             Defaults to "Scalar" if not provided.
             """
         ),
-    ],
+    ] = None,
     content: Annotated[
         str | dict | None,
         Doc(
