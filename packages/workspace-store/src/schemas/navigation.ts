@@ -3,7 +3,7 @@ import { Type } from '@scalar/typebox'
 import { compose } from '@/schemas/compose'
 import { TagObjectRef, TraversedEntryObjectRef, TraversedTagObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 
-const NavigationBaseSchemaDefinition = Type.Object({
+export const NavigationBaseSchemaDefinition = Type.Object({
   id: Type.String(),
   title: Type.String(),
 })

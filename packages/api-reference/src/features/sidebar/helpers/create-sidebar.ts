@@ -4,6 +4,7 @@ import { computed, reactive, ref } from 'vue'
 
 import { lazyBus } from '@/components/Lazy'
 import type { TraverseSpecOptions } from '@/features/traverse-schema'
+import { generateReverseIndex } from '@/features/traverse-schema/helpers/generate-reverse-index'
 
 /** Track which sidebar items are opened */
 type CollapsedSidebarItems = Record<string, boolean>
@@ -62,7 +63,7 @@ export const createSidebar = (store: WorkspaceStore, options: SidebarOptions) =>
 
     return {
       entries: result ?? [],
-      entities: store.getComputedProperties(store.workspace['x-scalar-active-document'] || '')?.entities,
+      entities: generateReverseIndex(result),
     }
   })
 

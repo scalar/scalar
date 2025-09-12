@@ -9,7 +9,6 @@ import type {
   OpenApiDocument,
   OperationObject,
   TagObject,
-  TraversedEntry,
   TraversedOperation,
 } from '@/schemas/v3.1/strict/openapi-document'
 
@@ -37,7 +36,6 @@ const createOperationEntry = (
   method: string,
   path = 'Unknown',
   tag: TagObject,
-  entitiesMap: Map<string, TraversedEntry>,
   getOperationId: TraverseSpecOptions['getOperationId'],
 ): TraversedOperation => {
   const id = getOperationId({ ...operation, method, path }, tag)
@@ -54,8 +52,6 @@ const createOperationEntry = (
     type: 'operation',
     isDeprecated: isDeprecated ? isDeprecated : undefined,
   } satisfies TraversedOperation
-
-  entitiesMap.set(id, entry)
 
   return entry
 }
@@ -81,8 +77,6 @@ export const traversePaths = (
   content: OpenApiDocument,
   /** Map of tags and their entries */
   tagsMap: TagsMap,
-  /** Map of entities for fast lookups */
-  entitiesMap: Map<string, TraversedEntry>,
   getOperationId: TraverseSpecOptions['getOperationId'],
 ) => {
   // Traverse paths
@@ -107,17 +101,13 @@ export const traversePaths = (
       if (operation.tags?.length) {
         operation.tags.forEach((tagName: string) => {
           const { tag } = getTag(tagsMap, tagName)
-          tagsMap
-            .get(tagName)
-            ?.entries.push(createOperationEntry(ref, operation, method, path, tag, entitiesMap, getOperationId))
+          tagsMap.get(tagName)?.entries.push(createOperationEntry(ref, operation, method, path, tag, getOperationId))
         })
       }
       // Add to default tag
       else {
         const { tag } = getTag(tagsMap, 'default')
-        tagsMap
-          .get('default')
-          ?.entries.push(createOperationEntry(ref, operation, method, path, tag, entitiesMap, getOperationId))
+        tagsMap.get('default')?.entries.push(createOperationEntry(ref, operation, method, path, tag, getOperationId))
       }
     })
   })

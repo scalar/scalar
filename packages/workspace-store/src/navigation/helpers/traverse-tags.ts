@@ -16,7 +16,6 @@ type Options = Pick<TraverseSpecOptions, 'getTagId' | 'tagsSorter' | 'operations
  */
 const createTagEntry = (
   tag: TagObject,
-  entriesMap: Map<string, TraversedEntry>,
   getTagId: TraverseSpecOptions['getTagId'],
   children: TraversedEntry[],
   isGroup = false,
@@ -33,8 +32,6 @@ const createTagEntry = (
     isGroup,
     type: 'tag',
   } satisfies TraversedTag
-
-  entriesMap.set(id, entry)
 
   return entry
 }
@@ -60,8 +57,6 @@ const getSortedTagEntries = (
   _keys: string[],
   /** Map of tags and their entries */
   tagsMap: TagsMap,
-  /** Map of titles for the mobile header */
-  entriesMap: Map<string, TraversedEntry>,
   { getTagId, tagsSorter, operationsSorter }: Options,
 ) => {
   // Ensure that default is last if it exists
@@ -126,7 +121,7 @@ const getSortedTagEntries = (
       })
     }
 
-    return entries.length ? createTagEntry(tag, entriesMap, getTagId, entries) : []
+    return entries.length ? createTagEntry(tag, getTagId, entries) : []
   })
 }
 
@@ -143,8 +138,6 @@ export const traverseTags = (
   content: OpenApiDocument,
   /** Map of tags and their entries */
   tagsMap: TagsMap,
-  /** Map of entries for fast lookup */
-  entitiesMap: Map<string, TraversedEntry>,
   { getTagId, tagsSorter, operationsSorter }: Options,
 ): TraversedEntry[] => {
   // x-tagGroups
@@ -152,18 +145,18 @@ export const traverseTags = (
     const tagGroups = content['x-tagGroups']
 
     return tagGroups.flatMap((tagGroup) => {
-      const entries = getSortedTagEntries(tagGroup.tags ?? [], tagsMap, entitiesMap, {
+      const entries = getSortedTagEntries(tagGroup.tags ?? [], tagsMap, {
         getTagId,
         tagsSorter,
         operationsSorter,
       })
-      return entries.length ? createTagEntry(tagGroup, entitiesMap, getTagId, entries, true) : []
+      return entries.length ? createTagEntry(tagGroup, getTagId, entries, true) : []
     })
   }
 
   // Ungrouped regular tags
   const keys = Array.from(tagsMap.keys())
-  const tags = getSortedTagEntries(keys, tagsMap, entitiesMap, { getTagId, tagsSorter, operationsSorter })
+  const tags = getSortedTagEntries(keys, tagsMap, { getTagId, tagsSorter, operationsSorter })
 
   // Flatten if we only have default tag
   if (tags.length === 1 && tags[0]?.title === 'default') {

@@ -4,12 +4,7 @@ import { objectKeys } from '@scalar/helpers/object/object-keys'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { isDeprecatedOperation } from '@/navigation/helpers/traverse-paths'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
-import type {
-  OpenApiDocument,
-  TagObject,
-  TraversedEntry,
-  TraversedWebhook,
-} from '@/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument, TagObject, TraversedWebhook } from '@/schemas/v3.1/strict/openapi-document'
 
 import { getTag } from './get-tag'
 
@@ -29,7 +24,6 @@ const createWebhookEntry = (
   method: string,
   name = 'Unknown',
   title = 'Unknown',
-  entitiesMap: Map<string, TraversedEntry>,
   getWebhookId: TraverseSpecOptions['getWebhookId'],
   tag?: TagObject,
   isDeprecated?: boolean,
@@ -45,9 +39,6 @@ const createWebhookEntry = (
     type: 'webhook',
     isDeprecated: isDeprecated ? isDeprecated : undefined,
   } satisfies TraversedWebhook
-
-  // Store the id to the entity for fast lookup
-  entitiesMap.set(id, entry)
 
   return entry
 }
@@ -71,8 +62,6 @@ export const traverseWebhooks = (
   content: OpenApiDocument,
   /** The tag map from from traversing paths */
   tagsMap: TagsMap,
-  /** Map of titles for the mobile title */
-  entitiesMap: Map<string, TraversedEntry>,
   getWebhookId: TraverseSpecOptions['getWebhookId'],
 ): TraversedWebhook[] => {
   const untagged: TraversedWebhook[] = []
@@ -106,7 +95,6 @@ export const traverseWebhooks = (
                 method,
                 name,
                 operation.summary ?? name,
-                entitiesMap,
                 getWebhookId,
                 tag,
                 isDeprecatedOperation(operation),
@@ -122,7 +110,6 @@ export const traverseWebhooks = (
             method,
             name,
             operation.summary ?? name,
-            entitiesMap,
             getWebhookId,
             undefined,
             isDeprecatedOperation(operation),

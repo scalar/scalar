@@ -27,7 +27,6 @@ import { coerceValue } from '@/schemas/typebox-coerce'
 import {
   OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
   type OpenApiDocument,
-  type TraversedEntry,
 } from '@/schemas/v3.1/strict/openapi-document'
 import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from '@/schemas/workspace'
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
@@ -39,21 +38,6 @@ type ExtraDocumentConfigurations = Record<
     fetch: WorkspaceDocumentMetaInput['fetch']
   }
 >
-
-type ComputedDocumentProperties = Record<
-  string,
-  {
-    // Mapping between sidebar entity id to the actual title
-    entities: Map<string, TraversedEntry>
-  }
->
-
-export type ValidationError = {
-  message: string
-  path: string
-  schema: unknown
-  value: unknown
-}
 
 const defaultConfig: RequiredDeep<Config> = {
   'x-scalar-reference-config': defaultReferenceConfig,
@@ -253,10 +237,6 @@ export type WorkspaceStore = {
    * falling back to the first document if none is specified.
    */
   readonly config: typeof defaultConfig
-  /**
-   * Returns extra computed properties for a specific document.
-   */
-  getComputedProperties(documentName: string): ComputedDocumentProperties[string] | undefined
   /**
    * Exports the specified document in the requested format.
    *
@@ -482,12 +462,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * This can include settings that can not be persisted between sessions (not JSON serializable)
    */
   const extraDocumentConfigurations: ExtraDocumentConfigurations = {}
-  /**
-   * Extra computed properties for the document that are not part of the OpenAPI specification.
-   *
-   * This properties can not be serialized and are not reactive.
-   */
-  const computedDocumentProperties: ComputedDocumentProperties = {}
 
   // Create a reactive workspace object with proxied documents
   // Each document is wrapped in a proxy to enable reactive updates and reference resolution
@@ -664,11 +638,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       strictDocument[extensions.document.navigation] = navigation.entries
 
-      // Store computed properties for the document
-      computedDocumentProperties[name] = {
-        entities: navigation.entities,
-      }
-
       // Do some document processing
       processDocument(getRaw(strictDocument as OpenApiDocument), {
         ...input.config,
@@ -816,9 +785,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     addDocument,
     get config() {
       return getDocumentConfiguration(getActiveDocumentName())
-    },
-    getComputedProperties(documentName) {
-      return computedDocumentProperties[documentName]
     },
     exportDocument,
     exportActiveDocument: (format) => exportDocument(getActiveDocumentName(), format),
