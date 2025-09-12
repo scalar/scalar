@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.15.4
+
+### Patch Changes
+
+- 019a22a: Try catch merge object to avoid uncaught proxy errors
+
 ## 0.15.3
 
 ### Patch Changes
