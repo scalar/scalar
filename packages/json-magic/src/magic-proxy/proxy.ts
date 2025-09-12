@@ -134,15 +134,12 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
           return false // Can not set top level $ref-value
         }
 
-        const getParent = () => getValueByPath(root, segments.slice(0, -1))
-
-        // Create the path if it does not exist
-        if (getParent() === undefined) {
-          createPathFromSegments(root, segments)
-        }
+        // Get the parent node or create it if it does not exist
+        const parentNode =
+          getValueByPath(root, segments.slice(0, -1)) ?? createPathFromSegments(root, segments.slice(0, -1))
 
         // Set the value on the parent node
-        getParent()[segments.at(-1)] = newValue
+        parentNode[segments.at(-1)] = newValue
         return true
       }
 

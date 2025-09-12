@@ -405,6 +405,20 @@ describe('createMagicProxy', () => {
       }).not.toThrowError("'set' on proxy: trap returned falsish for property '$ref-value'")
 
       expect(proxied.a['$ref-value']).toBe('new value')
+
+      expect(input).toEqual({
+        'a': {
+          '$ref': '#/non-existent/some-path',
+        },
+        'b': {
+          'c': {
+            'hello': 'world',
+          },
+        },
+        'non-existent': {
+          'some-path': 'new value',
+        },
+      })
     })
   })
 
