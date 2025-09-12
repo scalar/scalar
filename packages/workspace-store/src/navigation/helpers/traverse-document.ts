@@ -1,4 +1,4 @@
-import { getTraverseOptions } from '@/navigation/get-traverse-options'
+import { getNavigationOptions } from '@/navigation/get-navigation-options'
 import type { TagsMap } from '@/navigation/types'
 import type { OpenApiDocument, TraversedEntry } from '@/schemas/v3.1/strict/openapi-document'
 import type { DocumentConfiguration } from '@/schemas/workspace-specification/config'
@@ -20,7 +20,7 @@ import { traverseWebhooks } from './traverse-webhooks'
  */
 export const traverseDocument = (document: OpenApiDocument, config?: DocumentConfiguration) => {
   const { hideModels, tagsSorter, operationsSorter, getHeadingId, getOperationId, getWebhookId, getModelId, getTagId } =
-    getTraverseOptions(config)
+    getNavigationOptions(config)
 
   /** Map of tags and their entries */
   const tagsMap: TagsMap = new Map(
