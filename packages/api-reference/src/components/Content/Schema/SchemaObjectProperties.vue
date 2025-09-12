@@ -85,14 +85,14 @@ const sortedProperties = computed(() => {
       if (hideReadOnly) {
         return !(
           schema.properties &&
-          getResolvedRef(schema.properties[property]).readOnly === true
+          getResolvedRef(schema.properties[property])?.readOnly === true
         )
       }
       // If hideWriteOnly is true, filter out properties that are writeOnly
       if (hideWriteOnly) {
         return !(
           schema.properties &&
-          getResolvedRef(schema.properties[property]).writeOnly === true
+          getResolvedRef(schema.properties[property])?.writeOnly === true
         )
       }
       return true
