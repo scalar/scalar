@@ -418,7 +418,6 @@ function migrateFormDataParameter(parameters: OpenAPIV2.ParameterObject[]): Open
     },
   }
 
-  console.log({ parameters })
   for (const param of parameters) {
     requestBodyObject.content['application/x-www-form-urlencoded'].schema.properties[param.name] = {
       type: param.type,
