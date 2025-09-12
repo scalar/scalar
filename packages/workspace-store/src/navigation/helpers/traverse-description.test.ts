@@ -1,36 +1,27 @@
 import { describe, expect, it } from 'vitest'
 
-import type { TraversedEntry } from '@/schemas/v3.1/strict/openapi-document'
-
 import { traverseDescription } from './traverse-description'
 
 describe('traverseDescription', () => {
   const getHeadingId = (heading: { value: string }) => `heading-${heading.value.toLowerCase().replace(/\s+/g, '-')}`
 
   it('should return empty array for undefined description', () => {
-    const entitiesMap = new Map<string, TraversedEntry>()
-    const result = traverseDescription(undefined, entitiesMap, getHeadingId)
+    const result = traverseDescription(undefined, getHeadingId)
     expect(result).toEqual([])
-    expect(entitiesMap.size).toBe(0)
   })
 
   it('should return empty array for empty description', () => {
-    const entitiesMap = new Map<string, TraversedEntry>()
-    const result = traverseDescription('', entitiesMap, getHeadingId)
+    const result = traverseDescription('', getHeadingId)
     expect(result).toEqual([])
-    expect(entitiesMap.size).toBe(0)
   })
 
   it('should return an introduction entry for description with no headings', () => {
-    const entitiesMap = new Map<string, TraversedEntry>()
     const description = 'This is a paragraph without any headings.'
-    const result = traverseDescription(description, entitiesMap, getHeadingId)
+    const result = traverseDescription(description, getHeadingId)
     expect(result).toEqual([{ id: 'heading-introduction', title: 'Introduction', type: 'text' }])
-    expect(entitiesMap.size).toBe(1)
   })
 
   it('should create single level entries for h1 headings', () => {
-    const entitiesMap = new Map<string, TraversedEntry>()
     const description = `
 # First Heading
 Some content here
@@ -39,7 +30,7 @@ More content
 # Third Heading
 Final content
     `
-    const result = traverseDescription(description, entitiesMap, getHeadingId)
+    const result = traverseDescription(description, getHeadingId)
 
     expect(result).toHaveLength(3)
     expect(result[0]).toEqual({
@@ -60,17 +51,9 @@ Final content
       children: [],
       type: 'text',
     })
-    expect(entitiesMap.size).toBe(3)
-    expect(entitiesMap.get('heading-first-heading')).toEqual({
-      'children': [],
-      'id': 'heading-first-heading',
-      'title': 'First Heading',
-      'type': 'text',
-    })
   })
 
   it('should create nested entries for h1 and h2 headings', () => {
-    const entitiesMap = new Map<string, TraversedEntry>()
     const description = `
 # Main Section
 Some content
@@ -83,7 +66,7 @@ More content
 ## Another Subsection
 Final content
     `
-    const result = traverseDescription(description, entitiesMap, getHeadingId)
+    const result = traverseDescription(description, getHeadingId)
 
     expect(result).toHaveLength(2)
     expect(result[0]).toEqual({
@@ -115,11 +98,9 @@ Final content
         },
       ],
     })
-    expect(entitiesMap.size).toBe(5)
   })
 
   it('should handle h2 and h3 headings when they are the lowest levels', () => {
-    const entitiesMap = new Map<string, TraversedEntry>()
     const description = `
 ## Section 1
 Content
@@ -132,7 +113,7 @@ Content
 ### Subsection 2.1
 Content
     `
-    const result = traverseDescription(description, entitiesMap, getHeadingId)
+    const result = traverseDescription(description, getHeadingId)
 
     expect(result).toHaveLength(2)
     expect(result[0]).toEqual({
@@ -164,11 +145,9 @@ Content
         },
       ],
     })
-    expect(entitiesMap.size).toBe(5)
   })
 
   it('should skip headings that are not at the lowest two levels', () => {
-    const entitiesMap = new Map<string, TraversedEntry>()
     const description = `
 # Level 1
 ## Level 2
@@ -176,7 +155,7 @@ Content
 #### Level 4
 ##### Level 5
     `
-    const result = traverseDescription(description, entitiesMap, getHeadingId)
+    const result = traverseDescription(description, getHeadingId)
 
     // Should only include Level 1 and Level 2
     expect(result).toHaveLength(1)
@@ -192,16 +171,14 @@ Content
         },
       ],
     })
-    expect(entitiesMap.size).toBe(2)
   })
 
   it('should handle special characters in headings', () => {
-    const entitiesMap = new Map<string, TraversedEntry>()
     const description = `
 # Section with @#$%^&*() chars
 ## Sub-section with !@#$%^&*() chars
     `
-    const result = traverseDescription(description, entitiesMap, getHeadingId)
+    const result = traverseDescription(description, getHeadingId)
 
     expect(result).toHaveLength(1)
     expect(result[0]).toEqual({
@@ -216,6 +193,5 @@ Content
       ],
       type: 'text',
     })
-    expect(entitiesMap.size).toBe(2)
   })
 })

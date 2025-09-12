@@ -65,7 +65,7 @@ export const traverseSchemas = (
       continue
     }
 
-    const ref = `#/content/components/schemas/${name}`
+    const ref = `#/components/schemas/${name}`
 
     // Add to tags
     if (schema?.['x-tags']) {
