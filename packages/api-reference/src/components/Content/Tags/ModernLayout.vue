@@ -25,7 +25,7 @@ const { hash } = useNavState()
 
 const moreThanOneDefaultTag = computed(
   () =>
-    moreThanOneTag || tag?.title !== 'default' || tag?.tag.description !== '',
+    moreThanOneTag || tag?.title !== 'default' || tag?.tag?.description !== '',
 )
 
 async function focusContents() {

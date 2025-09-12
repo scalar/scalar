@@ -53,6 +53,7 @@ describe('useSidebar', () => {
         })),
         collapsedSidebarItems: {},
         isSidebarOpen: ref(false),
+        hasSidebarScrolled: ref(false),
         scrollToOperation: vi.fn(),
         setCollapsedSidebarItem: vi.fn(),
         toggleCollapsedSidebarItem: vi.fn(),

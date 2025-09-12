@@ -22,11 +22,12 @@ describe('traverseTags', () => {
   })
 
   // Helper function to create a mock sidebar entry
-  const createMockEntry = (title: string, method?: HttpMethod): TraversedEntry => ({
-    id: `entry-${title}`,
-    title,
-    ...(method && { method }),
-  })
+  const createMockEntry = (title: string, method?: HttpMethod) =>
+    ({
+      id: `entry-${title}`,
+      title,
+      ...(method && { method }),
+    }) as TraversedEntry
 
   it('should handle empty tags map', () => {
     const document = createMockDocument()
@@ -75,6 +76,7 @@ describe('traverseTags', () => {
     expect(result).toEqual([
       {
         id: 'tag1',
+        type: 'tag',
         title: 'tag1',
         tag: { name: 'tag1' },
         children: [createMockEntry('Test Operation')],
@@ -82,6 +84,7 @@ describe('traverseTags', () => {
       },
       {
         id: 'default',
+        type: 'tag',
         title: 'default',
         tag: { name: 'default' },
         children: [createMockEntry('Test Operation')],

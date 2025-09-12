@@ -21,15 +21,17 @@ const { tag } = defineProps<{
 
 const operationsAndWebhooks = computed(
   (): (TraversedOperation | TraversedWebhook)[] => {
-    return tag.children?.filter(
-      (child) => 'operation' in child || 'webhook' in child,
+    return (
+      tag.children?.filter(
+        (child) => 'operation' in child || 'webhook' in child,
+      ) ?? []
     )
   },
 )
 </script>
 
 <template>
-  <template v-if="tag.children?.length > 0">
+  <template v-if="tag.children && tag.children.length > 0">
     <ScalarCard class="endpoints-card">
       <ScalarCardHeader muted>
         <ScreenReader>{{ tag.title }}</ScreenReader>

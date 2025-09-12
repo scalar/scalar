@@ -14,6 +14,7 @@ vi.mock('@/features/sidebar', () => ({
 
 describe('Tag', () => {
   const mockTag: TraversedTag = {
+    type: 'tag',
     id: 'test-tag',
     title: 'Test Tag',
     children: [],

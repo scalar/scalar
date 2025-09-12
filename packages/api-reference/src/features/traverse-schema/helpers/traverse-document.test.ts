@@ -65,7 +65,7 @@ describe('traverseDocument', () => {
     }
 
     const result = traverseDocument(doc, mockOptions)
-    expect(result.entries).toHaveLength(1)
+    expect(result.entries).toHaveLength(2)
     expect(result.titles.get('Test Description')).toBe('Test Description')
   })
 

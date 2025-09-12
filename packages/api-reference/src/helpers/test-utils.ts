@@ -13,6 +13,7 @@ import { computed, ref } from 'vue'
 export const createMockSidebar = (collapsedItems: Record<string, boolean> = {}, entries: TraversedEntry[] = []) => ({
   collapsedSidebarItems: collapsedItems,
   isSidebarOpen: ref(true),
+  hasSidebarScrolled: ref(false),
   items: computed(() => ({ entries, titles: new Map() })),
   scrollToOperation: vi.fn(),
   setCollapsedSidebarItem: vi.fn(),
