@@ -2,7 +2,7 @@ import { isLocalRef } from '@/bundle/bundle'
 import type { UnknownObject } from '@/types'
 import { getSegmentsFromPath } from '@/utils/get-segments-from-path'
 import { isObject } from '@/utils/is-object'
-import { getValueByPath, parseJsonPointer } from '@/utils/json-path-utils'
+import { createPathFromSegments, getValueByPath, parseJsonPointer } from '@/utils/json-path-utils'
 
 const isMagicProxy = Symbol('isMagicProxy')
 const magicProxyTarget = Symbol('magicProxyTarget')
@@ -134,13 +134,11 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
           return false // Can not set top level $ref-value
         }
 
-        const parentNode = getValueByPath(root, segments.slice(0, -1))
+        // Get the parent node or create it if it does not exist
+        const parentNode =
+          getValueByPath(root, segments.slice(0, -1)) ?? createPathFromSegments(root, segments.slice(0, -1))
 
-        // TODO: Maybe we create the path if it does not exist?
-        // TODO: This can allow for invalid references to not throw errors
-        if (!parentNode || (!isObject(parentNode) && !Array.isArray(parentNode))) {
-          return false // Parent node does not exist, cannot set $ref-value
-        }
+        // Set the value on the parent node
         parentNode[segments.at(-1)] = newValue
         return true
       }
