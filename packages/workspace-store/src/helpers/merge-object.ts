@@ -59,7 +59,12 @@ export const mergeObjects = <R>(
 
         mergeObjects(aValue as Record<string, unknown>, bValue as Record<string, unknown>, cache)
       } else {
-        a[key] = bValue // Overwrite with b's value if not an object
+        try {
+          a[key] = bValue // Overwrite with b's value if not an object
+        } catch (error) {
+          console.warn(`Issue setting ${key} on object`)
+          console.warn(error)
+        }
       }
     }
   }
