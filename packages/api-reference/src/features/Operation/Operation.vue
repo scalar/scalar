@@ -6,7 +6,10 @@ import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type {
+  OpenApiDocument,
+  ServerObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import { combineParams } from '@/features/Operation/helpers/combine-params'
@@ -70,6 +73,29 @@ const selectedSecuritySchemes = computed(() =>
     securitySchemes,
   ).map(convertSecurityScheme),
 )
+
+/**
+ * Determine the effective server for examples/snippets.
+ * Preference order: operation.servers -> pathItem.servers -> provided server prop
+ */
+const effectiveServer = computed<ServerObject | undefined>(() => {
+  const opServer =
+    operation.value?.servers && operation.value.servers[0]
+      ? (getResolvedRef(operation.value.servers[0]) as ServerObject)
+      : undefined
+
+  if (opServer?.url) return opServer
+
+  const pathServer =
+    pathItem.value?.servers && pathItem.value.servers[0]
+      ? (getResolvedRef(pathItem.value.servers[0]) as ServerObject)
+      : undefined
+
+  if (pathServer?.url) return pathServer
+
+  // Fallback to the server coming from the active collection selection
+  return server as unknown as ServerObject | undefined
+})
 </script>
 
 <template>
@@ -84,7 +110,7 @@ const selectedSecuritySchemes = computed(() =>
         :operation="operation"
         :path="path"
         :securitySchemes="selectedSecuritySchemes"
-        :server="server"
+        :server="effectiveServer"
         :store="store" />
     </template>
     <template v-else>
@@ -97,7 +123,7 @@ const selectedSecuritySchemes = computed(() =>
         :operation="operation"
         :path="path"
         :securitySchemes="selectedSecuritySchemes"
-        :server="server"
+        :server="effectiveServer"
         :store="store" />
     </template>
   </template>
