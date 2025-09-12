@@ -1,5 +1,17 @@
 # @scalar/api-client
 
+## 2.5.31
+
+### Patch Changes
+
+- f8fc81c: fix: only allow deleting auth if not reaonly
+- Updated dependencies [019a22a]
+  - @scalar/workspace-store@0.15.4
+  - @scalar/oas-utils@0.4.27
+  - @scalar/components@0.14.32
+  - @scalar/postman-to-openapi@0.3.30
+  - @scalar/use-codemirror@0.12.33
+
 ## 2.5.30
 
 ### Patch Changes
