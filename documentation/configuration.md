@@ -1042,7 +1042,7 @@ Whether to order required properties first in schema objects. When enabled, requ
 Control how schema properties are ordered in model definitions. Can be set to:
 
 - `'alpha'`: Sort properties alphabetically by name
-- `'required'`: Preserve the order from the OpenAPI Document
+- `'preserve'`: Preserve the order from the OpenAPI Document
 
 @default 'alpha'
 
