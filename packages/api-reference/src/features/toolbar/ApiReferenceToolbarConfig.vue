@@ -10,6 +10,7 @@ import type { ApiReferenceConfiguration } from '@scalar/types'
 import { computed } from 'vue'
 
 import ApiReferenceToolbarConfigLayout from '@/features/toolbar/ApiReferenceToolbarConfigLayout.vue'
+import ApiReferenceToolbarConfigLayoutOptions from '@/features/toolbar/ApiReferenceToolbarConfigLayoutOptions.vue'
 import ApiReferenceToolbarConfigTheme from '@/features/toolbar/ApiReferenceToolbarConfigTheme.vue'
 import ApiReferenceToolbarPopover from '@/features/toolbar/ApiReferenceToolbarPopover.vue'
 
@@ -55,6 +56,12 @@ const layout = computed<'modern' | 'classic'>({
       <ScalarFormField>
         <template #label>Layout</template>
         <ApiReferenceToolbarConfigLayout v-model="layout" />
+      </ScalarFormField>
+      <ScalarFormField is="div">
+        <template #label>Layout Options</template>
+        <ApiReferenceToolbarConfigLayoutOptions
+          :configuration
+          v-model="overrides" />
       </ScalarFormField>
     </div>
   </ApiReferenceToolbarPopover>
