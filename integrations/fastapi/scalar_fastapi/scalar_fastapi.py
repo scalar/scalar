@@ -213,7 +213,7 @@ def get_scalar_api_reference(
             Defaults to "Scalar" if not provided.
             """
         ),
-    ],
+    ] = None,
     content: Annotated[
         str | dict | None,
         Doc(
@@ -328,10 +328,10 @@ def get_scalar_api_reference(
         Doc(
             """
             Whether dark mode is on or off initially (light mode).
-            Default is True which means dark mode is used.
+            Default is None which means the dark mode is not set.
             """
         ),
-    ] = True,
+    ] = None,
     force_dark_mode_state: Annotated[
         str | None,
         Doc(
@@ -532,7 +532,7 @@ def get_scalar_api_reference(
     if hide_search:  # Default is False
         config["hideSearch"] = hide_search
 
-    if not dark_mode:  # Default is True
+    if dark_mode is not None:  # Default is None
         config["darkMode"] = dark_mode
 
     if force_dark_mode_state:  # Default is None
