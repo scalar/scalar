@@ -27,7 +27,7 @@ const createTagEntry = (
     id,
     title,
     name: tag.name || title,
-    tag,
+    description: tag.description,
     children,
     isGroup,
     type: 'tag',

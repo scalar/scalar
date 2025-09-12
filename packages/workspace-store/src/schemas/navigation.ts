@@ -1,7 +1,7 @@
 import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
-import { TagObjectRef, TraversedEntryObjectRef, TraversedTagObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
+import { TraversedEntryObjectRef, TraversedTagObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 
 export const NavigationBaseSchemaDefinition = Type.Object({
   id: Type.String(),
@@ -52,7 +52,7 @@ export const TraversedTagSchemaDefinition = compose(
   Type.Object({
     type: Type.Literal('tag'),
     name: Type.String(),
-    tag: TagObjectRef,
+    description: Type.Optional(Type.String()),
     children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
     isGroup: Type.Boolean(),
     isWebhooks: Type.Optional(Type.Boolean()),
