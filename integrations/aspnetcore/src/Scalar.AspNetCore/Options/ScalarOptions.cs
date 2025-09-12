@@ -293,4 +293,16 @@ public sealed class ScalarOptions
     /// </summary>
     /// <value>The default value is <c>null</c>.</value>
     public DocumentDownloadType? DocumentDownloadType { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether required properties should be ordered first in schema properties.
+    /// </summary>
+    /// <value>The default value is <c>false</c>.</value>
+    public bool OrderRequiredPropertiesFirst { get; set; }
+
+    /// <summary>
+    /// Gets or sets the ordering method for schema properties.
+    /// </summary>
+    /// <value>The default value is <c>null</c>.</value>
+    public PropertyOrder? OrderSchemaPropertiesBy { get; set; }
 }

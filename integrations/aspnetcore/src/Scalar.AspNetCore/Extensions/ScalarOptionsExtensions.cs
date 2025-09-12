@@ -916,4 +916,28 @@ public static class ScalarOptionsExtensions
         options.PersistentAuthentication = persistAuth;
         return options;
     }
+
+    /// <summary>
+    /// Sets whether required properties should be ordered first in schema properties.
+    /// </summary>
+    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
+    /// <param name="orderRequiredFirst">Whether to order required properties first.</param>
+    /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
+    public static ScalarOptions WithOrderRequiredPropertiesFirst(this ScalarOptions options, bool orderRequiredFirst = true)
+    {
+        options.OrderRequiredPropertiesFirst = orderRequiredFirst;
+        return options;
+    }
+
+    /// <summary>
+    /// Sets the ordering method for schema properties.
+    /// </summary>
+    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
+    /// <param name="orderBy">The ordering method to use for schema properties.</param>
+    /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
+    public static ScalarOptions WithOrderSchemaPropertiesBy(this ScalarOptions options, PropertyOrder? orderBy)
+    {
+        options.OrderSchemaPropertiesBy = orderBy;
+        return options;
+    }
 }
