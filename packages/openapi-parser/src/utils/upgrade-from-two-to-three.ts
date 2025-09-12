@@ -88,6 +88,23 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
   })
 
   if (Object.hasOwn(specification, 'parameters')) {
+    // update all the $refs before we do any transformations
+    specification = traverse(specification, (schema) => {
+      if (typeof schema.$ref === 'string' && schema.$ref.startsWith('#/parameters/')) {
+        const schemaName = schema.$ref.split('/')[2]
+
+        const param = specification.parameters?.[schemaName]
+
+        if (param?.in === 'body' || param?.in === 'formData') {
+          schema.$ref = schema.$ref.replace(/^#\/parameters\//, '#/components/requestBodies/')
+        } else {
+          schema.$ref = schema.$ref.replace(/^#\/parameters\//, '#/components/parameters/')
+        }
+      }
+
+      return schema
+    })
+
     specification.components ??= {}
 
     const params = {}
@@ -401,6 +418,7 @@ function migrateFormDataParameter(parameters: OpenAPIV2.ParameterObject[]): Open
     },
   }
 
+  console.log({ parameters })
   for (const param of parameters) {
     requestBodyObject.content['application/x-www-form-urlencoded'].schema.properties[param.name] = {
       type: param.type,
