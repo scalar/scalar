@@ -935,9 +935,9 @@ public static class ScalarOptionsExtensions
     /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
     /// <param name="orderBy">The ordering method to use for schema properties.</param>
     /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
-    public static ScalarOptions WithOrderSchemaPropertiesBy(this ScalarOptions options, PropertyOrder? orderBy)
+    public static ScalarOptions WithSchemaPropertyOrder(this ScalarOptions options, PropertyOrder? orderBy)
     {
-        options.OrderSchemaPropertiesBy = orderBy;
+        options.SchemaPropertyOrder = orderBy;
         return options;
     }
 }

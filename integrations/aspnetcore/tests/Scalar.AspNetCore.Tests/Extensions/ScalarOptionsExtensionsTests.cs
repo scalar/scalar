@@ -65,7 +65,7 @@ public class ScalarOptionsExtensionsTests
             .WithJavaScriptConfiguration("/scalar/config.js")
             .WithPersistentAuthentication()
             .WithOrderRequiredPropertiesFirst()
-            .WithOrderSchemaPropertiesBy(PropertyOrder.Alpha);
+            .WithSchemaPropertyOrder(PropertyOrder.Alpha);
 
         // Assert
         options.Title.Should().Be("My title");
@@ -115,7 +115,7 @@ public class ScalarOptionsExtensionsTests
         options.JavaScriptConfiguration.Should().Be("/scalar/config.js");
         options.PersistentAuthentication.Should().BeTrue();
         options.OrderRequiredPropertiesFirst.Should().BeTrue();
-        options.OrderSchemaPropertiesBy.Should().Be(PropertyOrder.Alpha);
+        options.SchemaPropertyOrder.Should().Be(PropertyOrder.Alpha);
 
 #pragma warning restore CS0618 // Type or member is obsolete
     }
@@ -509,10 +509,10 @@ public class ScalarOptionsExtensionsTests
         var options = new ScalarOptions();
 
         // Act
-        options.WithOrderSchemaPropertiesBy(PropertyOrder.Alpha);
+        options.WithSchemaPropertyOrder(PropertyOrder.Alpha);
 
         // Assert
-        options.OrderSchemaPropertiesBy.Should().Be(PropertyOrder.Alpha);
+        options.SchemaPropertyOrder.Should().Be(PropertyOrder.Alpha);
     }
 
     [Fact]
@@ -522,10 +522,10 @@ public class ScalarOptionsExtensionsTests
         var options = new ScalarOptions();
 
         // Act
-        options.WithOrderSchemaPropertiesBy(PropertyOrder.Preserve);
+        options.WithSchemaPropertyOrder(PropertyOrder.Preserve);
 
         // Assert
-        options.OrderSchemaPropertiesBy.Should().Be(PropertyOrder.Preserve);
+        options.SchemaPropertyOrder.Should().Be(PropertyOrder.Preserve);
     }
 
     [Fact]
@@ -535,9 +535,9 @@ public class ScalarOptionsExtensionsTests
         var options = new ScalarOptions();
 
         // Act
-        options.WithOrderSchemaPropertiesBy(null);
+        options.WithSchemaPropertyOrder(null);
 
         // Assert
-        options.OrderSchemaPropertiesBy.Should().BeNull();
+        options.SchemaPropertyOrder.Should().BeNull();
     }
 }
