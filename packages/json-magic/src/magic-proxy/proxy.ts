@@ -135,11 +135,19 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
         }
 
         // Get the parent node or create it if it does not exist
-        const parentNode =
-          getValueByPath(root, segments.slice(0, -1)) ?? createPathFromSegments(root, segments.slice(0, -1))
+        const getParentNode = () => getValueByPath(root, segments.slice(0, -1))
+
+        if (getParentNode() === undefined) {
+          createPathFromSegments(root, segments.slice(0, -1))
+
+          // In this case the ref is pointing to an invalid path, so we warn the user
+          console.warn(
+            `Trying to set $ref-value for invalid reference: ${ref}\n\nPlease fix your input file to fix this issue.`,
+          )
+        }
 
         // Set the value on the parent node
-        parentNode[segments.at(-1)] = newValue
+        getParentNode()[segments.at(-1)] = newValue
         return true
       }
 
