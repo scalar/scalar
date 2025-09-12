@@ -381,4 +381,120 @@ describe('Schema', () => {
       expect(propertyNames).toEqual(expectedOrder)
     })
   })
+
+  describe('hideReadOnly prop', () => {
+    it('does not render readOnly properties when hideReadOnly is true', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          hideReadOnly: true,
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              visible: { type: 'string' },
+              secret: { type: 'string', readOnly: true },
+              alsoVisible: { type: 'integer', format: 'int32' },
+            },
+          }),
+        },
+      })
+
+      const text = wrapper.text()
+      expect(text).toContain('visible')
+      expect(text).toContain('alsoVisible')
+      expect(text).not.toContain('secret')
+    })
+
+    it('applies to nested object properties as well', async () => {
+      const wrapper = mount(Schema, {
+        props: {
+          hideReadOnly: true,
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              profile: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                  createdAt: { type: 'string', format: 'date-time', readOnly: true },
+                },
+              },
+            },
+          }),
+        },
+      })
+
+      // Expand the nested schema for `profile` to reveal its children
+      const profileProperty = wrapper
+        .findAllComponents({ name: 'SchemaProperty' })
+        .find((prop) => prop.props('name') === 'profile')
+      expect(profileProperty).toBeDefined()
+
+      const toggleButton = profileProperty!.find('.schema-card-title')
+      expect(toggleButton.exists()).toBe(true)
+      await toggleButton.trigger('click')
+
+      const text = wrapper.text()
+      expect(text).toContain('profile')
+      expect(text).toContain('name')
+      expect(text).not.toContain('createdAt')
+    })
+  })
+
+  describe('hideWriteOnly prop', () => {
+    it('does not render writeOnly properties when hideWriteOnly is true', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          hideWriteOnly: true,
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              visible: { type: 'string' },
+              secret: { type: 'string', writeOnly: true },
+              alsoVisible: { type: 'integer', format: 'int32' },
+            },
+          }),
+        },
+      })
+
+      const text = wrapper.text()
+      expect(text).toContain('visible')
+      expect(text).toContain('alsoVisible')
+      expect(text).not.toContain('secret')
+    })
+
+    it('applies to nested object properties as well', async () => {
+      const wrapper = mount(Schema, {
+        props: {
+          hideWriteOnly: true,
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              profile: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                  password: { type: 'string', format: 'password', writeOnly: true },
+                },
+              },
+            },
+          }),
+        },
+      })
+
+      // Expand the nested schema for `profile` to reveal its children
+      const profileProperty = wrapper
+        .findAllComponents({ name: 'SchemaProperty' })
+        .find((prop) => prop.props('name') === 'profile')
+      expect(profileProperty).toBeDefined()
+
+      const toggleButton = profileProperty!.find('.schema-card-title')
+      expect(toggleButton.exists()).toBe(true)
+      await toggleButton.trigger('click')
+
+      const text = wrapper.text()
+      expect(text).toContain('profile')
+      expect(text).toContain('name')
+      expect(text).not.toContain('password')
+    })
+  })
 })
