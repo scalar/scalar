@@ -2,20 +2,17 @@
 import { cva, cx } from '@scalar/use-hooks/useBindCx'
 
 const props = defineProps<{
-  modelValue?: boolean
   disabled?: boolean
   label?: string
 }>()
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: boolean): void
-}>()
+const model = defineModel<boolean>()
 
 function toggle() {
   if (props.disabled) {
     return
   }
-  emit('update:modelValue', !props.modelValue)
+  model.value = !model.value
 }
 
 const variants = cva({

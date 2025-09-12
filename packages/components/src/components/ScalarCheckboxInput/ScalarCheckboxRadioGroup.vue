@@ -28,7 +28,7 @@ const name = useId()
       type="radio"
       :value="option.value"
       :name
-      :modelValue="model === option"
+      :modelValue="model?.value === option.value"
       @update:modelValue="(checked) => (model = checked ? option : undefined)"
       :key="option.value">
       {{ option.label }}
