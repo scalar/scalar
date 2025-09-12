@@ -386,9 +386,7 @@ describe('createMagicProxy', () => {
       }).toThrowError("'set' on proxy: trap returned falsish for property '$ref-value'")
     })
 
-    // TODO: might change this behavior in the future
-    // so we allow setting the $ref-value for invalid refs by creating the path
-    it('throws when trying to update an invalid ref where the parent node does not exists', () => {
+    it('does not throw when trying to update an invalid ref where the parent node does not exists', () => {
       const input = {
         a: {
           $ref: '#/non-existent/some-path',
@@ -404,7 +402,9 @@ describe('createMagicProxy', () => {
 
       expect(() => {
         proxied.a['$ref-value'] = 'new value'
-      }).toThrowError("'set' on proxy: trap returned falsish for property '$ref-value'")
+      }).not.toThrowError("'set' on proxy: trap returned falsish for property '$ref-value'")
+
+      expect(proxied.a['$ref-value']).toBe('new value')
     })
   })
 
