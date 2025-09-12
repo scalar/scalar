@@ -304,5 +304,5 @@ public sealed class ScalarOptions
     /// Gets or sets the ordering method for schema properties.
     /// </summary>
     /// <value>The default value is <c>null</c>.</value>
-    public PropertyOrder? OrderSchemaPropertiesBy { get; set; }
+    public PropertyOrder? SchemaPropertyOrder { get; set; }
 }

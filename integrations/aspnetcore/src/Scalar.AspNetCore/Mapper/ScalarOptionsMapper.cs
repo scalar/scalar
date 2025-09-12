@@ -50,7 +50,7 @@ internal static partial class ScalarOptionsMapper
             DocumentDownloadType = options.HideDownloadButton ? DocumentDownloadType.None : options.DocumentDownloadType,
 #pragma warning restore CS0618 // Type or member is obsolete
             OrderRequiredPropertiesFirst = options.OrderRequiredPropertiesFirst,
-            OrderSchemaPropertiesBy = options.OrderSchemaPropertiesBy
+            OrderSchemaPropertiesBy = options.SchemaPropertyOrder
         };
     }
 

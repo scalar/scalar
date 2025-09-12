@@ -82,7 +82,7 @@ public class ScalarOptionsMapperTests
             HideClientButton = true,
             PersistentAuthentication = true,
             OrderRequiredPropertiesFirst = true,
-            OrderSchemaPropertiesBy = PropertyOrder.Alpha
+            SchemaPropertyOrder = PropertyOrder.Alpha
         };
         options.AddDocument("v2");
 
