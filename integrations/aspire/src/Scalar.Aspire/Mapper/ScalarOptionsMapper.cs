@@ -72,7 +72,9 @@ internal static class ScalarOptionsMapper
             Sources = sources,
             BaseServerUrl = options.BaseServerUrl,
             PersistAuth = options.PersistentAuthentication,
-            DocumentDownloadType = options.DocumentDownloadType?.ToStringFast(true)
+            DocumentDownloadType = options.DocumentDownloadType?.ToStringFast(true),
+            OrderRequiredPropertiesFirst = options.OrderRequiredPropertiesFirst,
+            OrderSchemaPropertiesBy = options.SchemaPropertyOrder?.ToStringFast(true)
         };
     }
 
