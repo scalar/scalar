@@ -5,7 +5,8 @@ import { ScalarIconCaretDown, ScalarIconInfo } from '@scalar/icons'
 <template>
   <ScalarPopover
     class="max-h-[inherit] w-120 max-w-[inherit] p-0 text-base"
-    placement="bottom-end">
+    placement="bottom-end"
+    teleport>
     <template #default="{ open }">
       <button
         class="text-c-2 hover:text-c-1 hover:bg-b-2 flex items-center gap-1 rounded px-2 py-2.25 text-base leading-none">
