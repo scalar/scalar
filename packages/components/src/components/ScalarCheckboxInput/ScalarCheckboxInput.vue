@@ -1,19 +1,26 @@
 <script lang="ts">
 /**
- * Scalar Text Area component
+ * Scalar Checkbox Input component
  *
- * A wrapper around the HTML textarea element with a focusable container.
+ * A wrapper around the HTML input element for either checkboxes or radio buttons.
  *
  * @example
- *   <ScalarTextArea v-model="model" />
+ *  <ScalarCheckboxInput v-model="model" type="checkbox">
+ *    Option Label
+ *  </ScalarCheckboxInput>
  */
 export default {}
 </script>
 <script setup lang="ts">
-import { ScalarIconCheck } from '@scalar/icons'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 
 import { ScalarFormInput } from '../ScalarForm'
+import ScalarCheckbox from './ScalarCheckbox.vue'
+import type { ScalarCheckboxType } from './types'
+
+const { type = 'checkbox' } = defineProps<{
+  type?: ScalarCheckboxType
+}>()
 
 const model = defineModel<boolean>()
 
@@ -23,22 +30,16 @@ const { classCx, otherAttrs } = useBindCx()
 <template>
   <ScalarFormInput
     is="label"
-    v-bind="classCx('cursor-pointer gap-2')">
+    v-bind="classCx('cursor-pointer gap-2 hover:bg-b-2')">
+    <ScalarCheckbox
+      :selected="model"
+      :type
+      class="shrink-0" />
+    <div class="flex-1 text-left min-w-0 truncate"><slot /></div>
     <input
-      type="checkbox"
+      :type
       v-model="model"
       class="sr-only"
       v-bind="otherAttrs" />
-    <div
-      class="flex size-4 items-center justify-center p-0.75 rounded"
-      :class="[
-        model ? 'bg-c-accent text-b-1' : 'text-transparent shadow-border',
-      ]">
-      <ScalarIconCheck
-        v-if="model"
-        class="size-3"
-        weight="bold" />
-    </div>
-    <div class="flex-1 text-left min-w-0 truncate"><slot /></div>
   </ScalarFormInput>
 </template>

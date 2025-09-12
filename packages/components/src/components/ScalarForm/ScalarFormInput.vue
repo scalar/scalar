@@ -15,8 +15,10 @@
 export default {}
 </script>
 <script setup lang="ts">
-import { useBindCx } from '@scalar/use-hooks/useBindCx'
+import { cva, useBindCx } from '@scalar/use-hooks/useBindCx'
 import type { Component } from 'vue'
+
+import { useFormGroupInput } from './useFormGroups'
 
 const { is = 'button' } = defineProps<{
   is?: string | Component
@@ -24,17 +26,32 @@ const { is = 'button' } = defineProps<{
 
 defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
+
+const grouped = useFormGroupInput()
+
+const variants = cva({
+  base: [
+    // Layout
+    'bg-b-1.5 flex items-center text-c-2 gap-0.75 px-3 py-2.5 ',
+    //Focus
+    'outline-offset-[-1px] has-[:focus-visible]:outline',
+    // Interaction
+    'hover:bg-b-2',
+  ],
+  variants: {
+    grouped: {
+      true: 'first:rounded-t-[inherit] last:rounded-b-[inherit]',
+      false: 'rounded border',
+    },
+    button: { true: 'cursor-pointer hover:bg-b-2' },
+  },
+})
 </script>
 <template>
   <component
     :is="is"
     :type="is === 'button' ? 'button' : undefined"
-    v-bind="
-      cx(
-        'bg-b-1.5 flex items-center text-c-2 gap-0.75 rounded border px-3 py-2.5 outline-offset-[-1px] has-[:focus-visible]:outline',
-        { 'hover:bg-b-2': is === 'button' },
-      )
-    ">
+    v-bind="cx(variants({ button: is === 'button', grouped }))">
     <slot />
   </component>
 </template>
