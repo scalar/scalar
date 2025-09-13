@@ -1,5 +1,14 @@
 # @scalar/oas-utils
 
+## 0.4.28
+
+### Patch Changes
+
+- Updated dependencies [3bd1209]
+- Updated dependencies [1943b99]
+  - @scalar/json-magic@0.4.2
+  - @scalar/workspace-store@0.15.5
+
 ## 0.4.27
 
 ### Patch Changes
