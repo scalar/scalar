@@ -37,6 +37,8 @@ public class ScalarOptionsMapperTests
         configuration.Integration.Should().Be("dotnet");
         configuration.Sources.Should().BeEmpty();
         configuration.PersistAuth.Should().BeFalse();
+        configuration.OrderRequiredPropertiesFirst.Should().BeFalse();
+        configuration.OrderSchemaPropertiesBy.Should().BeNull();
     }
 
     [Fact]
@@ -78,7 +80,9 @@ public class ScalarOptionsMapperTests
             OperationSorter = OperationSorter.Method,
             DotNetFlag = false,
             HideClientButton = true,
-            PersistentAuthentication = true
+            PersistentAuthentication = true,
+            OrderRequiredPropertiesFirst = true,
+            SchemaPropertyOrder = PropertyOrder.Alpha
         };
         options.AddDocument("v2");
 
@@ -117,6 +121,8 @@ public class ScalarOptionsMapperTests
         configuration.HideClientButton.Should().BeTrue();
         configuration.Sources.Should().ContainSingle().Which.Url.Should().Be("openapi/v2.json");
         configuration.PersistAuth.Should().BeTrue();
+        configuration.OrderRequiredPropertiesFirst.Should().BeTrue();
+        configuration.OrderSchemaPropertiesBy.Should().Be(PropertyOrder.Alpha);
     }
 
     [Fact]

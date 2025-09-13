@@ -63,7 +63,9 @@ public class ScalarOptionsExtensionsTests
             .WithBaseServerUrl("https://example.com")
             .WithDynamicBaseServerUrl()
             .WithJavaScriptConfiguration("/scalar/config.js")
-            .WithPersistentAuthentication();
+            .WithPersistentAuthentication()
+            .WithOrderRequiredPropertiesFirst()
+            .WithSchemaPropertyOrder(PropertyOrder.Alpha);
 
         // Assert
         options.Title.Should().Be("My title");
@@ -112,6 +114,8 @@ public class ScalarOptionsExtensionsTests
         options.DynamicBaseServerUrl.Should().BeTrue();
         options.JavaScriptConfiguration.Should().Be("/scalar/config.js");
         options.PersistentAuthentication.Should().BeTrue();
+        options.OrderRequiredPropertiesFirst.Should().BeTrue();
+        options.SchemaPropertyOrder.Should().Be(PropertyOrder.Alpha);
 
 #pragma warning restore CS0618 // Type or member is obsolete
     }
@@ -470,5 +474,70 @@ public class ScalarOptionsExtensionsTests
         authorizationCodeFlow!.ClientId.Should().Be("clientId");
         authorizationCodeFlow.AuthorizationUrl.Should().Be("https://example.com/authorize");
         oauth2Scheme.DefaultScopes.Should().BeEquivalentTo("scope1", "scope2");
+    }
+
+    [Fact]
+    public void WithOrderRequiredPropertiesFirst_ShouldSetProperty()
+    {
+        // Arrange
+        var options = new ScalarOptions();
+
+        // Act
+        options.WithOrderRequiredPropertiesFirst();
+
+        // Assert
+        options.OrderRequiredPropertiesFirst.Should().BeTrue();
+    }
+
+    [Fact]
+    public void WithOrderRequiredPropertiesFirst_ShouldSetDefaultValue()
+    {
+        // Arrange
+        var options = new ScalarOptions();
+
+        // Act
+        options.WithOrderRequiredPropertiesFirst();
+
+        // Assert
+        options.OrderRequiredPropertiesFirst.Should().BeTrue();
+    }
+
+    [Fact]
+    public void WithOrderSchemaPropertiesBy_ShouldSetProperty()
+    {
+        // Arrange
+        var options = new ScalarOptions();
+
+        // Act
+        options.WithSchemaPropertyOrder(PropertyOrder.Alpha);
+
+        // Assert
+        options.SchemaPropertyOrder.Should().Be(PropertyOrder.Alpha);
+    }
+
+    [Fact]
+    public void WithOrderSchemaPropertiesBy_ShouldSetPreserveProperty()
+    {
+        // Arrange
+        var options = new ScalarOptions();
+
+        // Act
+        options.WithSchemaPropertyOrder(PropertyOrder.Preserve);
+
+        // Assert
+        options.SchemaPropertyOrder.Should().Be(PropertyOrder.Preserve);
+    }
+
+    [Fact]
+    public void WithOrderSchemaPropertiesBy_ShouldSetNullProperty()
+    {
+        // Arrange
+        var options = new ScalarOptions();
+
+        // Act
+        options.WithSchemaPropertyOrder(null);
+
+        // Assert
+        options.SchemaPropertyOrder.Should().BeNull();
     }
 }

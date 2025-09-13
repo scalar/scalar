@@ -47,8 +47,10 @@ internal static partial class ScalarOptionsMapper
             BaseServerUrl = options.BaseServerUrl,
             PersistAuth = options.PersistentAuthentication,
 #pragma warning disable CS0618 // Type or member is obsolete
-            DocumentDownloadType = options.HideDownloadButton ? DocumentDownloadType.None : options.DocumentDownloadType
+            DocumentDownloadType = options.HideDownloadButton ? DocumentDownloadType.None : options.DocumentDownloadType,
 #pragma warning restore CS0618 // Type or member is obsolete
+            OrderRequiredPropertiesFirst = options.OrderRequiredPropertiesFirst,
+            OrderSchemaPropertiesBy = options.SchemaPropertyOrder
         };
     }
 
