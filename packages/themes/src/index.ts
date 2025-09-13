@@ -1,20 +1,21 @@
 import defaultFonts from './fonts/fonts.css?inline'
 import alternateTheme from './presets/alternate.css?inline'
 import bluePlanetTheme from './presets/bluePlanet.css?inline'
+import customThemeStarter from './presets/custom-theme-starter.css?inline'
 import deepSpaceTheme from './presets/deepSpace.css?inline'
 import defaultTheme from './presets/default.css?inline'
 import elysiajsTheme from './presets/elysiajs.css?inline'
 import fastifyTheme from './presets/fastify.css?inline'
 import keplerTheme from './presets/kepler.css?inline'
+import laserwaveTheme from './presets/laserwave.css?inline'
 import marsTheme from './presets/mars.css?inline'
 import moonTheme from './presets/moon.css?inline'
-import laserwaveTheme from './presets/laserwave.css?inline'
 import purpleTheme from './presets/purple.css?inline'
 import saturnTheme from './presets/saturn.css?inline'
 import solarizedTheme from './presets/solarized.css?inline'
 
-import customThemeStarter from './presets/custom-theme-starter.css?inline'
 export { hasObtrusiveScrollbars } from './utilities/has-obtrusive-scrollbars'
+
 import { nanoid } from 'nanoid'
 
 // Export all presets for easier access
@@ -77,7 +78,7 @@ export const themeIds = [
 /**
  * User readable theme names / labels
  */
-export const themeLabels: Record<ThemeId, string> = {
+export const themeLabels = {
   default: 'Default',
   alternate: 'Alternate',
   moon: 'Moon',
@@ -91,8 +92,8 @@ export const themeLabels: Record<ThemeId, string> = {
   mars: 'Mars',
   deepSpace: 'Deep Space',
   laserwave: 'Laserwave',
-  none: '',
-}
+  none: 'None',
+} as const satisfies Record<ThemeId, string>
 
 /**
  * Formatted list of available theme presets.

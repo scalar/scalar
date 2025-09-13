@@ -1,5 +1,5 @@
 export { default as ScalarListbox } from './ScalarListbox.vue'
-export { default as ScalarListboxItem } from './ScalarListboxItem.vue'
 export { default as ScalarListboxCheckbox } from './ScalarListboxCheckbox.vue'
-
+export { default as ScalarListboxInput } from './ScalarListboxInput.vue'
+export { default as ScalarListboxItem } from './ScalarListboxItem.vue'
 export type { Option as ScalarListboxOption } from './types'
