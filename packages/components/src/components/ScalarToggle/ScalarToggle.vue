@@ -6,7 +6,7 @@ const props = defineProps<{
   label?: string
 }>()
 
-const model = defineModel<boolean>()
+const model = defineModel<boolean>({ default: false })
 
 function toggle() {
   if (props.disabled) {
