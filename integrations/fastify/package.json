@@ -68,7 +68,6 @@
     "rollup-plugin-node-externals": "^7.1.2",
     "terser": "^5.30.0",
     "vite": "catalog:*",
-    "vite-plugin-static-copy": "^2.3.2",
     "vitest": "catalog:*",
     "yaml": "catalog:*"
   }

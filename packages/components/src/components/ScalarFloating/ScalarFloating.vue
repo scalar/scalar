@@ -16,7 +16,7 @@ import type { FloatingOptions } from './types'
 import { useResizeWithTarget } from './useResizeWithTarget'
 
 const {
-  placement = 'bottom',
+  placement,
   offset = 5,
   resize = false,
   middleware = [],
@@ -69,14 +69,18 @@ const targetSize = useResizeWithTarget(targetRef, {
 })
 
 const targetWidth = computed(() =>
-  getSideAxis(placement) === 'y' ? targetSize.width.value : undefined,
+  getSideAxis(placement ?? 'bottom') === 'y'
+    ? targetSize.width.value
+    : undefined,
 )
 
 const targetHeight = computed(() =>
-  getSideAxis(placement) === 'x' ? targetSize.height.value : undefined,
+  getSideAxis(placement ?? 'bottom') === 'x'
+    ? targetSize.height.value
+    : undefined,
 )
 const { floatingStyles, middlewareData } = useFloating(targetRef, floatingRef, {
-  placement: computed(() => placement),
+  placement: computed(() => placement ?? 'bottom'),
   whileElementsMounted: autoUpdate,
   middleware: computed(() => [
     offsetMiddleware(offset),

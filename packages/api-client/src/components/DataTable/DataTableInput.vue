@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarIconButton } from '@scalar/components'
+import { ScalarIconEye, ScalarIconEyeSlash } from '@scalar/icons'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { computed, ref } from 'vue'
@@ -145,7 +146,7 @@ const handleLabelClick = () => {
     <ScalarIconButton
       v-if="type === 'password'"
       class="-ml-.5 mr-1.25 h-6 w-6 self-center p-1.25"
-      :icon="mask ? 'Show' : 'Hide'"
+      :icon="mask ? ScalarIconEye : ScalarIconEyeSlash"
       :label="mask ? 'Show Password' : 'Hide Password'"
       @click="mask = !mask" />
   </DataTableCell>
