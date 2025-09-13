@@ -4,7 +4,7 @@ import { ScalarIconCaretDown, ScalarIconInfo } from '@scalar/icons'
 </script>
 <template>
   <ScalarPopover
-    class="max-h-[inherit] w-120 max-w-[inherit] p-0 text-base"
+    class="max-h-[inherit] max-w-[inherit] p-0 text-base"
     placement="bottom-end"
     teleport>
     <template #default="{ open }">
