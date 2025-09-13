@@ -1,5 +1,15 @@
 # @scalar/workspace-store
 
+## 0.15.5
+
+### Patch Changes
+
+- Updated dependencies [3bd1209]
+- Updated dependencies [39bbc0e]
+- Updated dependencies [1943b99]
+  - @scalar/json-magic@0.4.2
+  - @scalar/openapi-parser@0.20.5
+
 ## 0.15.4
 
 ### Patch Changes

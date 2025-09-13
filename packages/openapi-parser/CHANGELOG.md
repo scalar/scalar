@@ -1,5 +1,14 @@
 # @scalar/openapi-parser
 
+## 0.20.5
+
+### Patch Changes
+
+- 39bbc0e: fix: correctly reflect the changes to parameters on the refs
+- Updated dependencies [3bd1209]
+- Updated dependencies [1943b99]
+  - @scalar/json-magic@0.4.2
+
 ## 0.20.4
 
 ### Patch Changes
