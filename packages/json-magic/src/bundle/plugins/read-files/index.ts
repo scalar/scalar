@@ -1,6 +1,6 @@
-import { normalize } from '@/utils/normalize'
 import type { LoaderPlugin, ResolveResult } from '@/bundle'
 import { isFilePath } from '@/bundle/bundle'
+import { normalize } from '@/helpers/normalize'
 
 /**
  * Reads and normalizes data from a local file

@@ -1,11 +1,12 @@
+import { getSchemas } from '@/helpers/get-schemas'
+import path from '@/polyfills/path'
 import type { UnknownObject } from '@/types'
 
-import { escapeJsonPointer } from '../utils/escape-json-pointer'
-import path from '@/polyfills/path'
-import { getSegmentsFromPath } from '../utils/get-segments-from-path'
-import { isObject } from '../utils/is-object'
-import { isYaml } from '../utils/is-yaml'
-import { isJsonObject } from '../utils/is-json-object'
+import { escapeJsonPointer } from '../helpers/escape-json-pointer'
+import { getSegmentsFromPath } from '../helpers/get-segments-from-path'
+import { isJsonObject } from '../helpers/is-json-object'
+import { isObject } from '../helpers/is-object'
+import { isYaml } from '../helpers/is-yaml'
 import { getHash, uniqueValueGeneratorFactory } from './value-generator'
 
 /**
@@ -649,6 +650,9 @@ export async function bundle(input: UnknownObject | string, config: Config) {
   // We need this when we want to do a partial bundle of a document
   const documentRoot = config.root ?? rawSpecification
 
+  // Extract all $id and $anchor values from the document to identify local schemas
+  const schemas = getSchemas(documentRoot)
+
   // Determines if the bundling operation is partial.
   // Partial bundling occurs when:
   // - A root document is provided that is different from the raw specification being bundled, or
@@ -751,6 +755,12 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       }
 
       const [prefix, path = ''] = ref.split('#', 2)
+
+      // This reference is defined in the local document using $id and/or $anchor
+      // We do not need to bundle it, so we can skip further processing
+      if (schemas.has(ref) || schemas.has(prefix)) {
+        return
+      }
 
       // Combine the current origin with the new path to resolve relative references
       // correctly within the context of the external file being processed

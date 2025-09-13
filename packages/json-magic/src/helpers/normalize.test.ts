@@ -1,5 +1,6 @@
-import { normalize } from '@/utils/normalize'
 import { describe, expect, it } from 'vitest'
+
+import { normalize } from '@/helpers/normalize'
 
 describe('normalize', () => {
   it('returns undefined if the document is null', () => {

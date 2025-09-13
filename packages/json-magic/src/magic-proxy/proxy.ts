@@ -1,8 +1,8 @@
 import { isLocalRef } from '@/bundle/bundle'
+import { getSegmentsFromPath } from '@/helpers/get-segments-from-path'
+import { isObject } from '@/helpers/is-object'
+import { createPathFromSegments, getValueByPath, parseJsonPointer } from '@/helpers/json-path-utils'
 import type { UnknownObject } from '@/types'
-import { getSegmentsFromPath } from '@/utils/get-segments-from-path'
-import { isObject } from '@/utils/is-object'
-import { createPathFromSegments, getValueByPath, parseJsonPointer } from '@/utils/json-path-utils'
 
 const isMagicProxy = Symbol('isMagicProxy')
 const magicProxyTarget = Symbol('magicProxyTarget')
