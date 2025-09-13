@@ -2,10 +2,14 @@
 import {
   ScalarButton,
   ScalarIcon,
+  ScalarModal,
   ScalarSearchResultItem,
   ScalarSearchResultList,
   ScalarSidebarSearchInput,
+  useModal,
 } from '@scalar/components'
+import { safeLocalStorage } from '@scalar/helpers/object/local-storage'
+import { ScalarIconWarning } from '@scalar/icons'
 import { LibraryIcon } from '@scalar/icons/library'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
@@ -174,6 +178,26 @@ watch(
   },
 )
 
+const ignoreWaitlistSignup = ref(
+  safeLocalStorage().getItem('scalar-client-waitlist-signup') === 'true'
+    ? true
+    : false,
+)
+const waitlistSignupModal = useModal()
+const waitlistEmail = ref('')
+const waitlistSeatCount = ref(1)
+
+function handleIgnoreWaitlistSignup() {
+  ignoreWaitlistSignup.value = true
+  safeLocalStorage().setItem('scalar-client-waitlist-signup', 'true')
+}
+
+function submitWaitlistSignup() {
+  waitlistSignupModal.hide()
+  ignoreWaitlistSignup.value = true
+  safeLocalStorage().setItem('scalar-client-waitlist-signup', 'true')
+}
+
 /** Screen reader label for the search input */
 const srLabel = computed<string>(() => {
   const results = searchResultsWithPlaceholderResults.value
@@ -316,14 +340,14 @@ function handleBlur(e: FocusEvent) {
         <ScalarSidebarSearchInput
           ref="searchInputRef"
           v-model="searchText"
-          autofocus
           :aria-controls="searchResultsId"
+          autofocus
           :label="srLabel"
+          @blur="handleBlur"
           @input="fuseSearch"
           @keydown.down.stop="navigateSearchResults('down')"
           @keydown.enter.stop="selectSearchResult()"
-          @keydown.up.stop="navigateSearchResults('up')"
-          @blur="handleBlur" />
+          @keydown.up.stop="navigateSearchResults('up')" />
       </div>
       <div
         class="gap-1/2 flex flex-1 flex-col overflow-visible overflow-y-auto px-3 pt-0 pb-3"
@@ -348,9 +372,9 @@ function handleBlur(e: FocusEvent) {
               :id="`#search-input-${entry.item.id}`"
               :key="entry.refIndex"
               :ref="(el) => (searchResultRefs[index] = el as HTMLElement)"
-              :selected="selectedSearchResult === index"
               class="px-2"
               :href="entry.item.link"
+              :selected="selectedSearchResult === index"
               @click.prevent="onSearchResultClick(entry)"
               @focus="selectedSearchResult = index">
               {{ entry.item.title }}
@@ -429,6 +453,27 @@ function handleBlur(e: FocusEvent) {
             </p>
           </div>
         </div>
+        <div v-else-if="!ignoreWaitlistSignup">
+          <div class="mx-4 mb-4 flex flex-col gap-2 rounded-lg border p-4">
+            <div class="flex items-center gap-1">
+              <span class="font-bold"> Scalar Sync (Beta) </span>
+            </div>
+
+            <span> Want to sync your collections with your team? </span>
+
+            <button
+              class="text-c-accent"
+              type="button"
+              @click="waitlistSignupModal.show()">
+              Sign Up for Beta
+            </button>
+            <button
+              type="button"
+              @click="handleIgnoreWaitlistSignup">
+              Ignore
+            </button>
+          </div>
+        </div>
         <ScalarButton
           v-if="layout !== 'modal'"
           class="mb-1.5 hidden h-fit w-full p-1.5 opacity-0"
@@ -455,6 +500,28 @@ function handleBlur(e: FocusEvent) {
     @clearDrafts="handleClearDrafts"
     @closeMenu="menuItem.open = false"
     @toggleWatchMode="handleToggleWatchMode" />
+
+  <ScalarModal :state="waitlistSignupModal">
+    <h1>Join the Scalar Sync Beta</h1>
+    <p>
+      We're currently in beta and we're looking for teams to test our sync
+      feature. Our API Client will always be offline-first & open-source (MIT),
+      but teams also need a single-source-of-truth for their API collections.
+    </p>
+    <div>
+      <input
+        v-model="waitlistEmail"
+        placeholder="Email"
+        type="email" />
+      <br />
+      <input
+        v-model="waitlistSeatCount"
+        placeholder="Seat Count"
+        type="number" />
+      <br />
+      <ScalarButton @click="submitWaitlistSignup">Join the Beta</ScalarButton>
+    </div>
+  </ScalarModal>
 </template>
 <style scoped>
 .search-button-fade {
