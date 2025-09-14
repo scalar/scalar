@@ -35,8 +35,6 @@ const variants = cva({
     'bg-b-1.5 flex items-center text-c-2 gap-0.75 px-3 py-2.5 ',
     //Focus
     'outline-offset-[-1px] has-[:focus-visible]:outline',
-    // Interaction
-    'hover:bg-b-2',
   ],
   variants: {
     grouped: {

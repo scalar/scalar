@@ -31,6 +31,13 @@ type Story = StoryObj<typeof meta>
 
 export const Base: Story = {}
 
+export const Readonly: Story = {
+  args: {
+    readonly: true,
+    modelValue: 'This is read-only',
+  },
+}
+
 export const WithPrefix: Story = {
   args: {
     prefix: 'https://',
