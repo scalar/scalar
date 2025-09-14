@@ -153,6 +153,7 @@ const labelId = useId()
                 :method="method"
                 :operation="operation"
                 :path="path"
+                :isWebhook="isWebhook"
                 :securitySchemes="securitySchemes"
                 :selectedClient="store.workspace['x-scalar-default-client']"
                 :selectedServer="server">
