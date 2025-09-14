@@ -49,11 +49,11 @@
     "@hono/zod-openapi": "^0.8.6",
     "@scalar/build-tooling": "workspace:*",
     "@scalar/openapi-to-markdown": "workspace:*",
-    "hono": "^4.6.5",
+    "hono": "^4.9.7",
     "vite": "catalog:*",
     "vitest": "catalog:*"
   },
   "peerDependencies": {
-    "hono": "^4.0.0"
+    "hono": "^4.9.7"
   }
 }
