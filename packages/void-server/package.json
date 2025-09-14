@@ -48,7 +48,7 @@
   "dependencies": {
     "@hono/node-server": "^1.11.0",
     "@scalar/helpers": "workspace:*",
-    "hono": "^4.6.5",
+    "hono": "^4.9.7",
     "js-base64": "catalog:*"
   },
   "devDependencies": {
