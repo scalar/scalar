@@ -6,8 +6,8 @@
  */
 import fs from 'node:fs/promises'
 import path from 'node:path'
-
 import { fileURLToPath } from 'node:url'
+
 import { glob } from 'glob'
 
 const cssExports = {
@@ -106,7 +106,7 @@ export async function addPackageFileExports({ allowCss, entries }: { allowCss?: 
   })
 
   // don't touch the package.json in ./dist
-  if (import.meta.dirname.endsWith('dist')) {
+  if (import.meta.dirname?.endsWith('dist')) {
     return
   }
 
