@@ -1,13 +1,11 @@
 <script lang="ts" setup>
 import type { ApiReferenceConfiguration } from '@scalar/types'
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { computed } from 'vue'
 
 import ApiReferenceToolbarConfig from '@/features/toolbar/ApiReferenceToolbarConfig.vue'
 import ApiReferenceToolbarShare from '@/features/toolbar/ApiReferenceToolbarShare.vue'
 
 defineProps<{
-  store: WorkspaceStore
   configuration?: Partial<ApiReferenceConfiguration>
 }>()
 
@@ -26,9 +24,7 @@ const showToolbar = computed<boolean>(() => {
     class="api-reference-toolbar h-header bg-b-1 sticky top-0 z-10 flex justify-center border-b px-15">
     <div
       class="flex max-w-(--refs-content-max-width) flex-1 items-center justify-end">
-      <ApiReferenceToolbarShare
-        :store
-        :configuration />
+      <ApiReferenceToolbarShare :configuration />
       <ApiReferenceToolbarConfig
         :configuration
         v-model:overrides="overrides" />
