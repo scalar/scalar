@@ -15,6 +15,10 @@ import { onMounted, ref } from 'vue'
 
 import { ScalarFormInput } from '../ScalarForm'
 
+const { readonly } = defineProps<{
+  readonly?: boolean
+}>()
+
 const model = defineModel<string>()
 
 const input = ref<HTMLInputElement>()
@@ -26,12 +30,22 @@ onMounted(() => {
   // Force autofocus if the input has the autofocus attribute
   if ('autofocus' in otherAttrs.value) input.value?.focus()
 })
+
+function handleClick() {
+  if (readonly) {
+    input.value?.select() // If readonly, select the input on click
+  } else {
+    input.value?.focus() // If not readonly, focus the input on click
+  }
+}
 </script>
 <template>
   <ScalarFormInput
     is="div"
-    v-bind="classCx('cursor-text text-c-1 focus-within:bg-b-1')"
-    @click="input?.focus()">
+    v-bind="
+      classCx('cursor-text text-c-1', readonly ? '' : 'focus-within:bg-b-1')
+    "
+    @click="handleClick">
     <div class="flex flex-1 relative">
       <span
         v-if="$slots.prefix"
@@ -41,6 +55,8 @@ onMounted(() => {
       <input
         ref="input"
         v-model="model"
+        :readonly
+        :aria-readonly="readonly || undefined"
         class="z-1 min-w-0 flex-1 border-none bg-transparent text-sm placeholder:font-[inherit] focus-within:outline-none"
         v-bind="otherAttrs" />
       <div
