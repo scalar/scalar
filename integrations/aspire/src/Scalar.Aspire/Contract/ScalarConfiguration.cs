@@ -67,4 +67,8 @@ internal sealed class ScalarConfiguration
     public required bool PersistAuth { get; set; }
 
     public required string? DocumentDownloadType { get; init; }
+
+    public required bool OrderRequiredPropertiesFirst { get; init; }
+
+    public required string? OrderSchemaPropertiesBy { get; init; }
 }
