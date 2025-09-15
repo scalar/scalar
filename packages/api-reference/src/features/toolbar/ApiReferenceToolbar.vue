@@ -3,6 +3,7 @@ import type { ApiReferenceConfiguration } from '@scalar/types'
 import { computed } from 'vue'
 
 import ApiReferenceToolbarConfig from '@/features/toolbar/ApiReferenceToolbarConfig.vue'
+import ApiReferenceToolbarSdks from '@/features/toolbar/ApiReferenceToolbarSdks.vue'
 import ApiReferenceToolbarShare from '@/features/toolbar/ApiReferenceToolbarShare.vue'
 
 defineProps<{
@@ -25,6 +26,7 @@ const showToolbar = computed<boolean>(() => {
     <div
       class="flex max-w-(--refs-content-max-width) flex-1 items-center justify-end">
       <ApiReferenceToolbarShare :configuration />
+      <ApiReferenceToolbarSdks :configuration />
       <ApiReferenceToolbarConfig
         :configuration
         v-model:overrides="overrides" />

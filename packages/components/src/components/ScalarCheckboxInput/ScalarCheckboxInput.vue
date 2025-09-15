@@ -30,7 +30,9 @@ const { classCx, otherAttrs } = useBindCx()
 <template>
   <ScalarFormInput
     is="label"
-    v-bind="classCx('cursor-pointer gap-2 hover:bg-b-2')">
+    v-bind="
+      classCx('cursor-pointer gap-2 hover:bg-b-2', { 'text-c-1': model })
+    ">
     <ScalarCheckbox
       :selected="model"
       :type
