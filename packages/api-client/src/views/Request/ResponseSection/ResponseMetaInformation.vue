@@ -18,9 +18,9 @@ events.requestStatus.on((status) => {
   if (status === 'start') {
     interval.value = setInterval(() => (stopwatch.value += 1000), 1000)
   } else {
-    ;(clearInterval(interval.value),
+    clearInterval(interval.value),
       (interval.value = undefined),
-      (stopwatch.value = 0))
+      (stopwatch.value = 0)
   }
 })
 

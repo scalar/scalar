@@ -314,8 +314,8 @@ const onAnchorClick = async (ev: Event) => {
   outline: none;
 }
 .sidebar-heading:has(
-  .sidebar-heading-chevron .toggle-nested-icon:focus-visible
-) {
+    .sidebar-heading-chevron .toggle-nested-icon:focus-visible
+  ) {
   outline: none;
   box-shadow: inset 0 0 0 1px var(--scalar-color-accent);
 }
