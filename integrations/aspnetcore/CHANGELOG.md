@@ -1,5 +1,14 @@
 # @scalar/aspnetcore
 
+## 2.8.4
+
+### Patch Changes
+
+- 422f01d: feat: add SchemaPropertyOrder and OrderRequiredPropertiesFirst configuration support
+- Updated dependencies [b6a59bd]
+- Updated dependencies [8f2a2f2]
+  - @scalar/api-reference@1.35.6
+
 ## 2.8.3
 
 ### Patch Changes
