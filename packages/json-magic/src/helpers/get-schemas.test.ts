@@ -1,6 +1,113 @@
 import { describe, expect, it } from 'vitest'
 
-import { getSchemas } from './get-schemas'
+import { getId, getSchemas } from './get-schemas'
+
+describe('getId', () => {
+  it('should return $id when it exists and is a string', () => {
+    const input = { $id: 'https://example.com/schema' }
+    const result = getId(input)
+    expect(result).toBe('https://example.com/schema')
+  })
+
+  it('should return undefined when $id does not exist', () => {
+    const input = { type: 'object' }
+    const result = getId(input)
+    expect(result).toBeUndefined()
+  })
+
+  it('should return undefined when $id is not a string', () => {
+    const input = { $id: 123 }
+    const result = getId(input)
+    expect(result).toBeUndefined()
+  })
+
+  it('should return undefined when $id is null', () => {
+    const input = { $id: null }
+    const result = getId(input)
+    expect(result).toBeUndefined()
+  })
+
+  it('should return undefined when $id is undefined', () => {
+    const input = { $id: undefined }
+    const result = getId(input)
+    expect(result).toBeUndefined()
+  })
+
+  it('should return undefined when $id is a boolean', () => {
+    const input = { $id: true }
+    const result = getId(input)
+    expect(result).toBeUndefined()
+  })
+
+  it('should return undefined when $id is an object', () => {
+    const input = { $id: { nested: 'value' } }
+    const result = getId(input)
+    expect(result).toBeUndefined()
+  })
+
+  it('should return undefined when $id is an array', () => {
+    const input = { $id: ['item1', 'item2'] }
+    const result = getId(input)
+    expect(result).toBeUndefined()
+  })
+
+  it('should return undefined when $id is a function', () => {
+    const input = { $id: () => 'test' }
+    const result = getId(input)
+    expect(result).toBeUndefined()
+  })
+
+  it('should return empty string when $id is an empty string', () => {
+    const input = { $id: '' }
+    const result = getId(input)
+    expect(result).toBe('')
+  })
+
+  it('should return string with special characters', () => {
+    const input = { $id: 'https://example.com/schema#fragment?query=value' }
+    const result = getId(input)
+    expect(result).toBe('https://example.com/schema#fragment?query=value')
+  })
+
+  it('should return string with unicode characters', () => {
+    const input = { $id: 'https://example.com/测试/中文' }
+    const result = getId(input)
+    expect(result).toBe('https://example.com/测试/中文')
+  })
+
+  it('should handle object with multiple properties including $id', () => {
+    const input = {
+      $id: 'https://example.com/schema',
+      type: 'object',
+      properties: { name: { type: 'string' } },
+      required: ['name'],
+    }
+    const result = getId(input)
+    expect(result).toBe('https://example.com/schema')
+  })
+
+  it('should handle object with $id as first property', () => {
+    const input = { $id: 'https://example.com/schema', other: 'value' }
+    const result = getId(input)
+    expect(result).toBe('https://example.com/schema')
+  })
+
+  it('should handle object with $id as last property', () => {
+    const input = { other: 'value', $id: 'https://example.com/schema' }
+    const result = getId(input)
+    expect(result).toBe('https://example.com/schema')
+  })
+
+  it('should handle object with $id in the middle', () => {
+    const input = {
+      before: 'value',
+      $id: 'https://example.com/schema',
+      after: 'value',
+    }
+    const result = getId(input)
+    expect(result).toBe('https://example.com/schema')
+  })
+})
 
 describe('getSchemas', () => {
   it('should return empty map for null input', () => {

@@ -1329,7 +1329,7 @@ describe('bundle', () => {
       })
     })
 
-    it.only('does not modify external URLs when already defined by $id property', async () => {
+    it('does not modify external URLs when already defined by $id property', async () => {
       const url = `http://localhost:${port}`
 
       const input = {
@@ -1386,7 +1386,7 @@ describe('bundle', () => {
       })
     })
 
-    it.only('does not modify external URLs when already defined by $anchor property', async () => {
+    it('does not modify external URLs when already defined by $anchor property', async () => {
       const input = {
         $id: 'https://example.com/root',
         components: {
@@ -1443,7 +1443,7 @@ describe('bundle', () => {
       })
     })
 
-    it.only('does not modify external URLs when prefix is already defined by $id', async () => {
+    it('does not modify external URLs when prefix is already defined by $id', async () => {
       const url = `http://localhost:${port}`
 
       const input = {
@@ -1498,6 +1498,59 @@ describe('bundle', () => {
           name: { type: 'string' },
         },
       })
+    })
+
+    it('prioritizes $id when resolving refs', async () => {
+      const input = {
+        $id: 'https://example.com/root',
+        a: {
+          b: {
+            c: {
+              $ref: '/b',
+            },
+          },
+        },
+      }
+
+      const fn = vi.fn()
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [
+          {
+            type: 'loader',
+            validate: () => true,
+            exec: async (value) => {
+              fn(value)
+              return {
+                ok: true,
+                data: {
+                  message: 'resolved value',
+                },
+              }
+            },
+          },
+        ],
+      })
+
+      expect(input).toEqual({
+        '$id': 'https://example.com/root',
+        'a': {
+          'b': {
+            'c': {
+              '$ref': '#/x-ext/69a42cc',
+            },
+          },
+        },
+        'x-ext': {
+          '69a42cc': {
+            'message': 'resolved value',
+          },
+        },
+      })
+
+      expect(fn).toHaveBeenCalled()
+      expect(fn).toHaveBeenCalledWith('https://example.com/b')
     })
   })
 

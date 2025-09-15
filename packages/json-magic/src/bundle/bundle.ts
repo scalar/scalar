@@ -1,4 +1,4 @@
-import { getSchemas } from '@/helpers/get-schemas'
+import { getId, getSchemas } from '@/helpers/get-schemas'
 import path from '@/polyfills/path'
 import type { UnknownObject } from '@/types'
 
@@ -736,6 +736,8 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       })
     }
 
+    const id = getId(root)
+
     if (typeof root === 'object' && '$ref' in root && typeof root['$ref'] === 'string') {
       const ref = root['$ref']
       const isChunk = '$global' in root && typeof root['$global'] === 'boolean' && root['$global']
@@ -764,7 +766,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
 
       // Combine the current origin with the new path to resolve relative references
       // correctly within the context of the external file being processed
-      const resolvedPath = resolveReferencePath(origin, prefix)
+      const resolvedPath = resolveReferencePath(id ?? origin, prefix)
 
       // Generate a unique compressed path for the external document
       // This is used as a key to store and reference the bundled external document
@@ -869,7 +871,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           return
         }
 
-        await bundler(value, origin, isChunkParent, depth + 1, [...path, key], root as UnknownObject)
+        await bundler(value, id ?? origin, isChunkParent, depth + 1, [...path, key], root as UnknownObject)
       }),
     )
 
