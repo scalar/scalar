@@ -216,10 +216,28 @@ watch(
 // TODO: Remove this legacy code block. Directly copied from SingleApiReference.vue
 // Logic should be mapped to the workspace store
 
+/**
+ * Determines the initial color mode based on the dark mode configuration.
+ * Returns 'dark' for explicit true, 'light' for explicit false, or undefined for auto.
+ */
+function getInitialColorMode(
+  darkMode: boolean | undefined,
+): 'dark' | 'light' | undefined {
+  if (darkMode === true) {
+    return 'dark'
+  }
+
+  if (darkMode === false) {
+    return 'light'
+  }
+
+  return undefined
+}
+
 // TODO: persistence should be hoisted into standalone
 // Client side integrations will want to handle dark mode externally
 const { toggleColorMode, isDarkMode } = useColorMode({
-  initialColorMode: selectedConfiguration.value.darkMode ? 'dark' : undefined,
+  initialColorMode: getInitialColorMode(selectedConfiguration.value.darkMode),
   overrideColorMode: selectedConfiguration.value.forceDarkModeState,
 })
 
