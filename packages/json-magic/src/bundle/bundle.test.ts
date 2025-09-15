@@ -1552,6 +1552,127 @@ describe('bundle', () => {
       expect(fn).toHaveBeenCalled()
       expect(fn).toHaveBeenCalledWith('https://example.com/b')
     })
+
+    it('prioritizes $id when resolving refs with origin #1', async () => {
+      const url = `http://localhost:${port}`
+
+      const input = {
+        $id: '/root',
+        a: {
+          b: {
+            c: {
+              $ref: '/b',
+            },
+          },
+        },
+      }
+
+      const fn = vi.fn()
+
+      await bundle(input, {
+        treeShake: false,
+        origin: url,
+        plugins: [
+          {
+            type: 'loader',
+            validate: () => true,
+            exec: async (value) => {
+              fn(value)
+              return {
+                ok: true,
+                data: {
+                  message: 'resolved value',
+                },
+              }
+            },
+          },
+        ],
+      })
+
+      expect(input).toEqual({
+        '$id': '/root',
+        'a': {
+          'b': {
+            'c': {
+              '$ref': '#/x-ext/25c8e1f',
+            },
+          },
+        },
+        'x-ext': {
+          '25c8e1f': {
+            'message': 'resolved value',
+          },
+        },
+      })
+
+      expect(fn).toHaveBeenCalled()
+      expect(fn).toHaveBeenCalledWith('/b')
+    })
+
+    it.only('prioritizes $id when resolving refs with origin #2', async () => {
+      const url = `http://localhost:${port}`
+
+      const input = {
+        $id: 'http://example.com/root',
+        a: {
+          b: {
+            c: {
+              $ref: '/b',
+            },
+          },
+        },
+      }
+
+      const fn = vi.fn()
+
+      await bundle(url, {
+        treeShake: false,
+        origin: url,
+        plugins: [
+          {
+            type: 'loader',
+            validate: () => true,
+            exec: async (value) => {
+              fn(value)
+
+              if (value === url) {
+                return {
+                  ok: true,
+                  data: input,
+                }
+              }
+
+              return {
+                ok: true,
+                data: {
+                  message: 'resolved value',
+                },
+              }
+            },
+          },
+        ],
+      })
+
+      expect(input).toEqual({
+        '$id': 'http://example.com/root',
+        'a': {
+          'b': {
+            'c': {
+              '$ref': '#/x-ext/943da6f',
+            },
+          },
+        },
+        'x-ext': {
+          '943da6f': {
+            'message': 'resolved value',
+          },
+        },
+      })
+
+      expect(fn).toHaveBeenCalledTimes(2)
+      expect(fn.mock.calls[0][0]).toBe(url)
+      expect(fn.mock.calls[1][0]).toBe('http://example.com/b')
+    })
   })
 
   describe('local files', () => {

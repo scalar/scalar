@@ -57,10 +57,10 @@ describe('getId', () => {
     expect(result).toBeUndefined()
   })
 
-  it('should return empty string when $id is an empty string', () => {
+  it('should return undefined when $id is an empty string', () => {
     const input = { $id: '' }
     const result = getId(input)
-    expect(result).toBe('')
+    expect(result).toBe(undefined)
   })
 
   it('should return string with special characters', () => {
