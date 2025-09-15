@@ -78,7 +78,7 @@
     "@types/html-minifier-terser": "^7.0.2",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "^2.4.1",
-    "hono": "^4.6.5",
+    "hono": "catalog:*",
     "vite": "catalog:*",
     "vue": "catalog:*"
   }

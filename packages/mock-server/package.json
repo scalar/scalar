@@ -50,7 +50,7 @@
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
-    "hono": "^4.6.5"
+    "hono": "catalog:*"
   },
   "devDependencies": {
     "@hono/node-server": "^1.11.0",
