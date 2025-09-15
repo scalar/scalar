@@ -121,7 +121,8 @@ test.concurrent.each(files)('$title ($url)', { timeout: 45 * 1000 }, async ({ ti
     throw new Error('Failed to fetch')
   }
 
-  const upgradedDocument = upgrade(document)
+  const normalizedDocument = normalize(document)
+  const upgradedDocument = upgrade(normalizedDocument)
 
   const { schema } = await dereference(upgradedDocument)
 
