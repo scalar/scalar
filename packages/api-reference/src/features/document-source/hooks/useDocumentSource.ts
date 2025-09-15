@@ -1,8 +1,8 @@
 import { createActiveEntitiesStore, createWorkspaceStore } from '@scalar/api-client/store'
 import { measureAsync } from '@scalar/helpers/testing/measure'
 import { dereference, normalize } from '@scalar/openapi-parser'
-import { upgrade } from '@scalar/openapi-upgrader'
 import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
+import { upgrade } from '@scalar/openapi-upgrader'
 import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { type MaybeRefOrGetter, type Ref, computed, ref, toValue, watch } from 'vue'
 

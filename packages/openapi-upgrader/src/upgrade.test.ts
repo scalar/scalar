@@ -47,6 +47,6 @@ describe('upgrade', () => {
   it('deals with null', async () => {
     const document = upgrade(null as unknown as UnknownObject)
 
-    expect(document).toStrictEqual(undefined)
+    expect(document).toStrictEqual(null)
   })
 })

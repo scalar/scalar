@@ -14,6 +14,6 @@ describe('OpenAPI', () => {
       paths: {},
     })
 
-    expectTypeOf(document).toEqualTypeOf<OpenAPIV3_1.Document | undefined>()
+    expectTypeOf(document).toEqualTypeOf<OpenAPIV3_1.Document>()
   })
 })
