@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends dumb-init git c
 # Set Node.js memory limit to 8GB
 ENV NODE_OPTIONS="--max-old-space-size=8192"
 
-RUN npm install pnpm@10.5.2 --global
+RUN npm install pnpm@10.15.1 --global
 RUN pnpm config set store-dir ~/.pnpm-store
 
 WORKDIR /app
