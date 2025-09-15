@@ -7,6 +7,7 @@ import { describe, expect, it, test, vi } from 'vitest'
 import { createSSRApp, h } from 'vue'
 
 import ApiReferenceLayout from './ApiReferenceLayout.vue'
+import type { UnknownObject } from '@scalar/types/utils'
 
 const EXAMPLE_API_DEFINITIONS = [
   {
@@ -121,7 +122,7 @@ test.concurrent.each(files)('$title ($url)', { timeout: 45 * 1000 }, async ({ ti
     throw new Error('Failed to fetch')
   }
 
-  const normalizedDocument = normalize(document)
+  const normalizedDocument = normalize(document) as UnknownObject
   const upgradedDocument = upgrade(normalizedDocument)
 
   const { schema } = await dereference(upgradedDocument)
