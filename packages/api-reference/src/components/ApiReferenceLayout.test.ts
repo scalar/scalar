@@ -1,11 +1,11 @@
+import { dereference, normalize } from '@scalar/openapi-parser'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { upgrade } from '@scalar/openapi-upgrader'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { renderToString } from '@vue/server-renderer'
 import { describe, expect, it, test, vi } from 'vitest'
 import { createSSRApp, h } from 'vue'
 
-import { dereference } from '@scalar/openapi-parser'
-import { upgrade } from '@scalar/openapi-upgrader'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import ApiReferenceLayout from './ApiReferenceLayout.vue'
 
 const EXAMPLE_API_DEFINITIONS = [
