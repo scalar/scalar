@@ -2,4 +2,3 @@ include README.md
 include package.json
 include LICENSE
 recursive-include scalar_fastapi *.py
-recursive-include tests *.py
