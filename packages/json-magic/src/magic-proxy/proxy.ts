@@ -1,5 +1,5 @@
-import { isLocalRef } from '@/bundle/bundle'
-import { getSegmentsFromPath } from '@/helpers/get-segments-from-path'
+import { convertToLocalRef } from '@/helpers/convert-to-local-ref'
+import { getId, getSchemas } from '@/helpers/get-schemas'
 import { isObject } from '@/helpers/is-object'
 import { createPathFromSegments, getValueByPath, parseJsonPointer } from '@/helpers/json-path-utils'
 import type { UnknownObject } from '@/types'
@@ -50,7 +50,7 @@ const REF_KEY = '$ref'
  */
 export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S extends UnknownObject>(
   target: T,
-  options?: { showInternal?: boolean },
+  options?: Partial<{ showInternal: boolean }>,
   args: {
     /**
      * The root object for resolving local JSON references.
@@ -67,6 +67,10 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      */
     cache: Map<string, unknown>
     /**
+     * Map of all schemas by their $id or $anchor for cross-document reference resolution.
+     */
+    schemas: Map<string, string>
+    /**
      * The current JSON path context within the root object.
      *
      * Used to resolve $anchor references correctly.
@@ -76,6 +80,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
     root: target,
     proxyCache: new WeakMap(),
     cache: new Map(),
+    schemas: getSchemas(target),
     currentContext: '',
   },
 ) => {
@@ -108,23 +113,32 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
         return target
       }
 
-      const ref = Reflect.get(target, REF_KEY, receiver)
-
       // Hide properties starting with underscore - these are considered internal/private properties
       // and should not be accessible through the magic proxy interface
       if (typeof prop === 'string' && prop.startsWith('_') && !options?.showInternal) {
         return undefined
       }
 
+      // Get the $ref value of the current target (if any)
+      const ref = Reflect.get(target, REF_KEY, receiver)
+      // Get the identifier ($id) of the current target for context tracking
+      const id = getId(target)
+
       // If accessing "$ref-value" and $ref is a local reference, resolve and return the referenced value
-      if (prop === REF_VALUE && typeof ref === 'string' && isLocalRef(ref)) {
+      if (prop === REF_VALUE && typeof ref === 'string') {
         // Check cache first for performance optimization
         if (args.cache.has(ref)) {
           return args.cache.get(ref)
         }
 
+        const path = convertToLocalRef(ref, id ?? args.currentContext, args.schemas)
+
+        if (path === undefined) {
+          return undefined
+        }
+
         // Resolve the reference and create a new magic proxy
-        const resolvedValue = getValueByPath(args.root, parseJsonPointer(ref))
+        const resolvedValue = getValueByPath(args.root, parseJsonPointer(`#/${path}`))
         const proxiedValue = createMagicProxy(resolvedValue, options, args)
 
         // Store in cache for future lookups
@@ -134,7 +148,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
 
       // For all other properties, recursively wrap the value in a magic proxy
       const value = Reflect.get(target, prop, receiver)
-      return createMagicProxy(value as T, options, args)
+      return createMagicProxy(value as T, options, { ...args, currentContext: id ?? args.currentContext })
     },
     /**
      * Proxy "set" trap for magic proxy.
@@ -151,8 +165,15 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
         return true
       }
 
-      if (prop === REF_VALUE && typeof ref === 'string' && isLocalRef(ref)) {
-        const segments = getSegmentsFromPath(ref)
+      if (prop === REF_VALUE && typeof ref === 'string') {
+        const id = getId(target)
+        const path = convertToLocalRef(ref, id ?? args.currentContext, args.schemas)
+
+        if (path === undefined) {
+          return undefined
+        }
+
+        const segments = parseJsonPointer(`#/${path}`)
 
         if (segments.length === 0) {
           return false // Can not set top level $ref-value

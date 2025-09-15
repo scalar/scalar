@@ -12,6 +12,16 @@ export const getId = (input: object): string | undefined => {
 }
 
 /**
+ * Joins an array of path segments into a single string separated by '/'.
+ *
+ * @param segments - The array of path segments.
+ * @returns The joined path string.
+ */
+const getPath = (segments: string[]): string => {
+  return segments.join('/')
+}
+
+/**
  * Recursively traverses the input object to collect all schemas identified by $id and $anchor properties.
  *
  * - If an object has a $id property, it is added to the map with its $id as the key.
@@ -26,7 +36,8 @@ export const getId = (input: object): string | undefined => {
 export const getSchemas = (
   input: unknown,
   base: string = '',
-  map = new Map<string, unknown>(),
+  segments: string[] = [],
+  map = new Map<string, string>(),
   visited = new WeakSet(),
 ) => {
   // Only process non-null objects
@@ -47,7 +58,7 @@ export const getSchemas = (
 
   // If $id exists, add the object to the map with $id as the key
   if (id) {
-    map.set(id, input)
+    map.set(id, getPath(segments))
   }
 
   // Update the base for nested anchors
@@ -55,13 +66,13 @@ export const getSchemas = (
 
   // If $anchor exists, add the object to the map with base#anchor as the key
   if (input['$anchor'] && typeof input['$anchor'] === 'string') {
-    map.set(`${newBase}#${input['$anchor']}`, input)
+    map.set(`${newBase}#${input['$anchor']}`, getPath(segments))
   }
 
   // Recursively traverse all properties (DFS)
   for (const key in input) {
     if (typeof input[key] === 'object' && input[key] !== null) {
-      getSchemas(input[key], newBase, map, visited)
+      getSchemas(input[key], newBase, [...segments, key], map, visited)
     }
   }
 

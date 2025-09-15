@@ -1105,18 +1105,18 @@ describe('bundle', () => {
           $ref: `${url}/external/document.json`,
         },
         b: {
-          $ref: `${url}/chunk2#`,
+          $ref: `${url}/chunk2`,
           $global: true,
         },
         a: {
-          $ref: `${url}/chunk1#`,
+          $ref: `${url}/chunk1`,
           $global: true,
         },
         entry: {
           $ref: '#/a',
         },
         nonBundle: {
-          $ref: `${url}/chunk1#`,
+          $ref: `${url}/chunk1`,
         },
       }
 
@@ -1148,7 +1148,7 @@ describe('bundle', () => {
           $ref: '#/a',
         },
         nonBundle: {
-          $ref: `http://localhost:${port}/chunk1#`,
+          $ref: `http://localhost:${port}/chunk1`,
         },
         'x-ext': {
           [await getHash(`${url}/external/document.json`)]: {

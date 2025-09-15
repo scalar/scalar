@@ -1282,6 +1282,468 @@ describe('createMagicProxy', () => {
     })
   })
 
+  describe('$id and $anchor reference resolution', () => {
+    it('resolves references to schemas with $id property', () => {
+      const input = {
+        $id: 'https://example.com/schema',
+        definitions: {
+          user: {
+            $id: 'https://example.com/user',
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+              age: { type: 'number' },
+            },
+          },
+        },
+        userRef: {
+          $ref: 'https://example.com/user',
+        },
+      }
+
+      const result = createMagicProxy(input)
+
+      expect(result.userRef['$ref-value']).toEqual({
+        $id: 'https://example.com/user',
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          age: { type: 'number' },
+        },
+      })
+    })
+
+    it('resolves references to schemas with $anchor property', () => {
+      const input = {
+        $id: 'https://example.com/schema',
+        definitions: {
+          user: {
+            $anchor: 'user-schema',
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+              email: { type: 'string' },
+            },
+          },
+        },
+        userRef: {
+          $ref: 'https://example.com/schema#user-schema',
+        },
+      }
+
+      const result = createMagicProxy(input)
+
+      expect(result.userRef['$ref-value']).toEqual({
+        $anchor: 'user-schema',
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          email: { type: 'string' },
+        },
+      })
+    })
+
+    it('resolves references to schemas with both $id and $anchor properties', () => {
+      const input = {
+        $id: 'https://example.com/root',
+        definitions: {
+          user: {
+            $id: 'https://example.com/user',
+            $anchor: 'user-schema',
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              profile: { type: 'object' },
+            },
+          },
+        },
+        userByIdRef: {
+          $ref: 'https://example.com/user',
+        },
+        userByAnchorRef: {
+          $ref: 'https://example.com/user#user-schema',
+        },
+      }
+
+      const result = createMagicProxy(input)
+
+      const expectedUser = {
+        $id: 'https://example.com/user',
+        $anchor: 'user-schema',
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          profile: { type: 'object' },
+        },
+      }
+
+      expect(result.userByIdRef['$ref-value']).toEqual(expectedUser)
+      expect(result.userByAnchorRef['$ref-value']).toEqual(expectedUser)
+    })
+
+    it('resolves nested references with $id and $anchor', () => {
+      const input = {
+        $id: 'https://example.com/api',
+        components: {
+          schemas: {
+            user: {
+              $id: 'https://example.com/user',
+              $anchor: 'user-schema',
+              type: 'object',
+              properties: {
+                profile: {
+                  $anchor: 'profile-schema',
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
+        },
+        userRef: {
+          $ref: 'https://example.com/user',
+        },
+        profileRef: {
+          $ref: 'https://example.com/user#profile-schema',
+        },
+      }
+
+      const result = createMagicProxy(input)
+
+      expect(result.userRef['$ref-value']).toEqual({
+        $id: 'https://example.com/user',
+        $anchor: 'user-schema',
+        type: 'object',
+        properties: {
+          profile: {
+            $anchor: 'profile-schema',
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+            },
+          },
+        },
+      })
+
+      expect(result.profileRef['$ref-value']).toEqual({
+        $anchor: 'profile-schema',
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+        },
+      })
+    })
+
+    it('resolves references with path fragments after $id', () => {
+      const input = {
+        $id: 'https://example.com/schema',
+        definitions: {
+          user: {
+            $id: 'https://example.com/user',
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+              address: {
+                type: 'object',
+                properties: {
+                  street: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        addressRef: {
+          $ref: 'https://example.com/user#/properties/address',
+        },
+      }
+
+      const result = createMagicProxy(input)
+
+      expect(result.addressRef['$ref-value']).toEqual({
+        type: 'object',
+        properties: {
+          street: { type: 'string' },
+        },
+      })
+    })
+
+    it('handles multiple schemas with different $id values', () => {
+      const input = {
+        $id: 'https://example.com/root',
+        schemas: {
+          user: {
+            $id: 'https://example.com/user',
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+            },
+          },
+          product: {
+            $id: 'https://example.com/product',
+            type: 'object',
+            properties: {
+              title: { type: 'string' },
+            },
+          },
+        },
+        userRef: {
+          $ref: 'https://example.com/user',
+        },
+        productRef: {
+          $ref: 'https://example.com/product',
+        },
+      }
+
+      const result = createMagicProxy(input)
+
+      expect(result.userRef['$ref-value']).toEqual({
+        $id: 'https://example.com/user',
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+        },
+      })
+
+      expect(result.productRef['$ref-value']).toEqual({
+        $id: 'https://example.com/product',
+        type: 'object',
+        properties: {
+          title: { type: 'string' },
+        },
+      })
+    })
+
+    it('handles multiple schemas with different $anchor values', () => {
+      const input = {
+        $id: 'https://example.com/schema',
+        definitions: {
+          user: {
+            $anchor: 'user',
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+            },
+          },
+          admin: {
+            $anchor: 'admin',
+            type: 'object',
+            properties: {
+              permissions: { type: 'array' },
+            },
+          },
+        },
+        userRef: {
+          $ref: 'https://example.com/schema#user',
+        },
+        adminRef: {
+          $ref: 'https://example.com/schema#admin',
+        },
+      }
+
+      const result = createMagicProxy(input)
+
+      expect(result.userRef['$ref-value']).toEqual({
+        $anchor: 'user',
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+        },
+      })
+
+      expect(result.adminRef['$ref-value']).toEqual({
+        $anchor: 'admin',
+        type: 'object',
+        properties: {
+          permissions: { type: 'array' },
+        },
+      })
+    })
+
+    it('handles external references to $id schemas', () => {
+      const input = {
+        $id: 'https://example.com/schema',
+        definitions: {
+          external: {
+            $id: 'https://external.com/schema',
+            type: 'object',
+            properties: {
+              externalProp: { type: 'string' },
+            },
+          },
+        },
+        externalRef: {
+          $ref: 'https://external.com/schema',
+        },
+      }
+
+      const result = createMagicProxy(input)
+
+      expect(result.externalRef['$ref-value']).toEqual({
+        $id: 'https://external.com/schema',
+        type: 'object',
+        properties: {
+          externalProp: { type: 'string' },
+        },
+      })
+    })
+
+    it('handles references in arrays with $id and $anchor', () => {
+      const input = {
+        $id: 'https://example.com/schema',
+        definitions: {
+          item: {
+            $anchor: 'item-schema',
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+            },
+          },
+        },
+        items: [{ $ref: 'https://example.com/schema#item-schema' }, { $ref: 'https://example.com/schema#item-schema' }],
+      }
+
+      const result = createMagicProxy(input)
+
+      expect(result.items[0]['$ref-value']).toEqual({
+        $anchor: 'item-schema',
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+        },
+      })
+
+      expect(result.items[1]['$ref-value']).toEqual({
+        $anchor: 'item-schema',
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+        },
+      })
+    })
+
+    it('preserves $ref information when resolving $id references', () => {
+      const input = {
+        $id: 'https://example.com/schema',
+        definitions: {
+          user: {
+            $id: 'https://example.com/user',
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+            },
+          },
+        },
+        userRef: {
+          $ref: 'https://example.com/user',
+        },
+      }
+
+      const result = createMagicProxy(input)
+
+      expect(result.userRef).toEqual({
+        $ref: 'https://example.com/user',
+        '$ref-value': {
+          $id: 'https://example.com/user',
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+          },
+        },
+      })
+    })
+
+    it('preserves $ref information when resolving $anchor references', () => {
+      const input = {
+        $id: 'https://example.com/schema',
+        definitions: {
+          user: {
+            $anchor: 'user-schema',
+            type: 'object',
+            properties: {
+              email: { type: 'string' },
+            },
+          },
+        },
+        userRef: {
+          $ref: 'https://example.com/schema#user-schema',
+        },
+      }
+
+      const result = createMagicProxy(input)
+
+      expect(result.userRef).toEqual({
+        $ref: 'https://example.com/schema#user-schema',
+        '$ref-value': {
+          $anchor: 'user-schema',
+          type: 'object',
+          properties: {
+            email: { type: 'string' },
+          },
+        },
+      })
+    })
+
+    it('handles deeply nested $id and $anchor references', () => {
+      const input = {
+        $id: 'https://example.com/root',
+        api: {
+          $id: 'https://example.com/api',
+          v1: {
+            schemas: {
+              user: {
+                $id: 'https://example.com/user',
+                $anchor: 'user-schema',
+                type: 'object',
+                properties: {
+                  profile: {
+                    $anchor: 'profile-schema',
+                    type: 'object',
+                    properties: {
+                      name: { type: 'string' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        userRef: {
+          $ref: 'https://example.com/user',
+        },
+        profileRef: {
+          $ref: 'https://example.com/user#profile-schema',
+        },
+      }
+
+      const result = createMagicProxy(input)
+
+      expect(result.userRef['$ref-value']).toEqual({
+        $id: 'https://example.com/user',
+        $anchor: 'user-schema',
+        type: 'object',
+        properties: {
+          profile: {
+            $anchor: 'profile-schema',
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+            },
+          },
+        },
+      })
+
+      expect(result.profileRef['$ref-value']).toEqual({
+        $anchor: 'profile-schema',
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+        },
+      })
+    })
+  })
+
   describe('hide underscore properties', () => {
     it('should hide properties starting with underscore from direct access', () => {
       const input = {

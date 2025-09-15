@@ -1,5 +1,5 @@
+import { convertToLocalRef } from '@/helpers/convert-to-local-ref'
 import { getId, getSchemas } from '@/helpers/get-schemas'
-import path from '@/polyfills/path'
 import type { UnknownObject } from '@/types'
 
 import { escapeJsonPointer } from '../helpers/escape-json-pointer'
@@ -8,6 +8,7 @@ import { isJsonObject } from '../helpers/is-json-object'
 import { isObject } from '../helpers/is-object'
 import { isYaml } from '../helpers/is-yaml'
 import { getHash, uniqueValueGeneratorFactory } from './value-generator'
+import path from '@/polyfills/path'
 
 /**
  * Checks if a string is a remote URL (starts with http:// or https://)
@@ -697,7 +698,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     origin: string = defaultOrigin(),
     isChunkParent = false,
     depth = 0,
-    path: readonly string[] = [],
+    currentPath: readonly string[] = [],
     parent: UnknownObject = null,
   ) => {
     // If a maximum depth is set in the config, stop bundling when the current depth reaches or exceeds it
@@ -719,7 +720,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
 
     // Invoke the onBeforeNodeProcess hook for the current node before any further processing
     await config.hooks?.onBeforeNodeProcess?.(root as UnknownObject, {
-      path,
+      path: currentPath,
       resolutionCache: cache,
       parentNode: parent,
       rootNode: documentRoot as UnknownObject,
@@ -728,7 +729,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     // Invoke onBeforeNodeProcess hooks from all registered lifecycle plugins
     for (const plugin of lifecyclePlugin) {
       await plugin.onBeforeNodeProcess?.(root as UnknownObject, {
-        path,
+        path: currentPath,
         resolutionCache: cache,
         parentNode: parent,
         rootNode: documentRoot as UnknownObject,
@@ -742,9 +743,10 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       const ref = root['$ref']
       const isChunk = '$global' in root && typeof root['$global'] === 'boolean' && root['$global']
 
-      if (isLocalRef(ref)) {
+      if (ref.startsWith('#')) {
         if (isPartialBundling) {
-          const segments = getSegmentsFromPath(ref.substring(1))
+          // Handle anchor and local references
+          const segments = getSegmentsFromPath(convertToLocalRef(ref, id ?? origin, schemas))
           const parent = segments.length > 0 ? getNestedValue(documentRoot, segments.slice(0, -1)) : undefined
 
           // When doing partial bundling, we need to recursively bundle all dependencies
@@ -871,14 +873,14 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           return
         }
 
-        await bundler(value, id ?? origin, isChunkParent, depth + 1, [...path, key], root as UnknownObject)
+        await bundler(value, id ?? origin, isChunkParent, depth + 1, [...currentPath, key], root as UnknownObject)
       }),
     )
 
     // Invoke the optional onAfterNodeProcess hook from the config, if provided.
     // This allows for custom post-processing logic after a node has been handled by the bundler.
     await config.hooks?.onAfterNodeProcess?.(root as UnknownObject, {
-      path,
+      path: currentPath,
       resolutionCache: cache,
       parentNode: parent,
       rootNode: documentRoot as UnknownObject,
@@ -889,7 +891,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     // This enables plugins to perform additional post-processing or cleanup after the node is processed.
     for (const plugin of lifecyclePlugin) {
       await plugin.onAfterNodeProcess?.(root as UnknownObject, {
-        path,
+        path: currentPath,
         resolutionCache: cache,
         parentNode: parent,
         rootNode: documentRoot as UnknownObject,
