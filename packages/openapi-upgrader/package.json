@@ -15,9 +15,12 @@
     "scalar",
     "swagger",
     "parser",
-    "typescript"
+    "typescript",
+    "upgrade",
+    "openapi 3.0",
+    "openapi 3.1"
   ],
-  "version": "0.20.6",
+  "version": "0.0.0",
   "engines": {
     "node": ">=20"
   },
@@ -40,15 +43,15 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./plugins/fetch-urls": {
-      "import": "./dist/plugins/fetch-urls/index.js",
-      "types": "./dist/plugins/fetch-urls/index.d.ts",
-      "default": "./dist/plugins/fetch-urls/index.js"
+    "./2.0-to-3.0": {
+      "import": "./dist/2.0-to-3.0/index.js",
+      "types": "./dist/2.0-to-3.0/index.d.ts",
+      "default": "./dist/2.0-to-3.0/index.js"
     },
-    "./plugins/read-files": {
-      "import": "./dist/plugins/read-files/index.js",
-      "types": "./dist/plugins/read-files/index.d.ts",
-      "default": "./dist/plugins/read-files/index.js"
+    "./3.0-to-3.1": {
+      "import": "./dist/3.0-to-3.1/index.js",
+      "types": "./dist/3.0-to-3.1/index.d.ts",
+      "default": "./dist/3.0-to-3.1/index.js"
     }
   },
   "files": [
@@ -58,24 +61,12 @@
   "module": "./dist/index.js",
   "sideEffects": false,
   "dependencies": {
-    "@scalar/json-magic": "workspace:*",
-    "@scalar/openapi-types": "workspace:*",
-    "@scalar/openapi-upgrader": "workspace:*",
-    "ajv": "^8.17.1",
-    "ajv-draft-04": "^1.0.0",
-    "ajv-formats": "^3.0.1",
-    "jsonpointer": "^5.0.1",
-    "leven": "^4.0.0",
-    "yaml": "catalog:*"
+    "@scalar/openapi-types": "workspace:*"
   },
   "devDependencies": {
-    "@apidevtools/swagger-parser": "10.1.0",
     "@scalar/build-tooling": "workspace:*",
     "@scalar/types": "workspace:*",
     "@types/node": "catalog:*",
-    "fastify": "catalog:*",
-    "json-to-ast": "^2.1.0",
-    "just-diff": "^6.0.2",
     "tinybench": "^2.8.0",
     "vite": "catalog:*"
   }

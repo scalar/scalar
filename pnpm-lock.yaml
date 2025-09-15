@@ -2296,6 +2296,28 @@ importers:
         specifier: workspace:*
         version: link:../build-tooling
 
+  packages/openapi-upgrader:
+    dependencies:
+      '@scalar/openapi-types':
+        specifier: workspace:*
+        version: link:../openapi-types
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../types
+      '@types/node':
+        specifier: catalog:*
+        version: 22.15.3
+      tinybench:
+        specifier: ^2.8.0
+        version: 2.9.0
+      vite:
+        specifier: catalog:*
+        version: 6.1.6(@types/node@22.15.3)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
+
   packages/postman-to-openapi:
     dependencies:
       '@scalar/helpers':
