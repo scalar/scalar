@@ -1365,6 +1365,9 @@ importers:
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
+      '@scalar/openapi-upgrader':
+        specifier: workspace:*
+        version: link:../openapi-upgrader
       '@scalar/snippetz':
         specifier: workspace:*
         version: link:../snippetz
@@ -2664,6 +2667,9 @@ importers:
       '@scalar/openapi-parser':
         specifier: workspace:*
         version: link:../openapi-parser
+      '@scalar/openapi-upgrader':
+        specifier: workspace:*
+        version: link:../openapi-upgrader
       '@scalar/snippetz':
         specifier: workspace:*
         version: link:../snippetz
