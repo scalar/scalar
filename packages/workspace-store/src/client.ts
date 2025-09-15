@@ -909,7 +909,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       }
 
       // ---- Get the new intermediate document
-      const changelogAA = diff(originalDocument, newOrigin)
+      const changelogAA = diff(originalDocument, newOrigin as UnknownObject)
       const changelogAB = diff(originalDocument, intermediateDocument)
 
       const changesA = merge(changelogAA, changelogAB)
@@ -926,7 +926,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       intermediateDocuments[documentName] = newIntermediateDocument
 
       // Update the original document
-      originalDocuments[documentName] = newOrigin
+      originalDocuments[documentName] = newOrigin as UnknownObject
 
       // ---- Get the new active document
       const changelogBA = diff(intermediateDocument, newIntermediateDocument)
