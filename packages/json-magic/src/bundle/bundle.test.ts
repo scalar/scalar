@@ -1609,7 +1609,7 @@ describe('bundle', () => {
       expect(fn).toHaveBeenCalledWith('/b')
     })
 
-    it.only('prioritizes $id when resolving refs with origin #2', async () => {
+    it('prioritizes $id when resolving refs with origin #2', async () => {
       const url = `http://localhost:${port}`
 
       const input = {
@@ -1753,7 +1753,9 @@ describe('bundle', () => {
       }
       const bName = randomUUID()
 
-      await fs.mkdir('./nested')
+      await fs.mkdir('./nested').catch(() => {
+        return
+      })
       await fs.writeFile(`./nested/${bName}`, JSON.stringify(b))
       await fs.writeFile(`./nested/${cName}`, JSON.stringify(c))
 
@@ -1797,7 +1799,9 @@ describe('bundle', () => {
       }
       const bName = randomUUID()
 
-      await fs.mkdir('./nested')
+      await fs.mkdir('./nested').catch(() => {
+        return
+      })
       await fs.writeFile(`./nested/${bName}`, JSON.stringify(b))
       await fs.writeFile(`./nested/${cName}`, JSON.stringify(c))
 

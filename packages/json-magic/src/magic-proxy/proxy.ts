@@ -14,16 +14,16 @@ const REF_KEY = '$ref'
  * Creates a "magic" proxy for a given object or array, enabling transparent access to
  * JSON Reference ($ref) values as if they were directly present on the object.
  *
- * - If an object contains a `$ref` property, accessing the special `$ref-value` property
- *   will resolve and return the referenced value from the root object.
- * - All nested objects and arrays are recursively wrapped in proxies, so reference resolution
- *   works at any depth.
- * - Properties starting with an underscore (_) are hidden and will not be accessible through
- *   the proxy (returns undefined on access, false on 'in' checks, excluded from enumeration).
+ * Features:
+ * - If an object contains a `$ref` property, accessing the special `$ref-value` property will resolve and return the referenced value from the root object.
+ * - All nested objects and arrays are recursively wrapped in proxies, so reference resolution works at any depth.
+ * - Properties starting with an underscore (_) are considered internal and are hidden by default: they return undefined on access, are excluded from enumeration, and `'in'` checks return false. This can be overridden with the `showInternal` option.
  * - Setting, deleting, and enumerating properties works as expected, including for proxied references.
+ * - Ensures referential stability by caching proxies for the same target object.
  *
  * @param target - The object or array to wrap in a magic proxy
- * @param root - The root object for resolving local JSON references (defaults to target)
+ * @param options - Optional settings (e.g., showInternal to expose internal properties)
+ * @param args - Internal arguments for advanced usage (root object, proxy/cache maps, current context)
  * @returns A proxied version of the input object/array with magic $ref-value support
  *
  * @example
@@ -51,17 +51,41 @@ const REF_KEY = '$ref'
 export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S extends UnknownObject>(
   target: T,
   options?: { showInternal?: boolean },
-  root: S | T = target,
-  cache = new Map<string, unknown>(),
-  proxyCache = new WeakMap<object, T>(),
+  args: {
+    /**
+     * The root object for resolving local JSON references.
+     */
+    root: S | T
+    /**
+     * Cache to store already created proxies for target objects to ensure referential stability.
+     *
+     * It is helpful when dealing with reactive frameworks like Vue,
+     */
+    proxyCache: WeakMap<object, T>
+    /**
+     * Cache to store resolved JSON references.
+     */
+    cache: Map<string, unknown>
+    /**
+     * The current JSON path context within the root object.
+     *
+     * Used to resolve $anchor references correctly.
+     */
+    currentContext: string
+  } = {
+    root: target,
+    proxyCache: new WeakMap(),
+    cache: new Map(),
+    currentContext: '',
+  },
 ) => {
   if (!isObject(target) && !Array.isArray(target)) {
     return target
   }
 
   // Return existing proxy for the same target to ensure referential stability
-  if (proxyCache.has(target)) {
-    return proxyCache.get(target)
+  if (args.proxyCache.has(target)) {
+    return args.proxyCache.get(target)
   }
 
   const handler: ProxyHandler<T> = {
@@ -95,22 +119,22 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
       // If accessing "$ref-value" and $ref is a local reference, resolve and return the referenced value
       if (prop === REF_VALUE && typeof ref === 'string' && isLocalRef(ref)) {
         // Check cache first for performance optimization
-        if (cache.has(ref)) {
-          return cache.get(ref)
+        if (args.cache.has(ref)) {
+          return args.cache.get(ref)
         }
 
         // Resolve the reference and create a new magic proxy
-        const resolvedValue = getValueByPath(root, parseJsonPointer(ref))
-        const proxiedValue = createMagicProxy(resolvedValue, options, root, cache)
+        const resolvedValue = getValueByPath(args.root, parseJsonPointer(ref))
+        const proxiedValue = createMagicProxy(resolvedValue, options, args)
 
         // Store in cache for future lookups
-        cache.set(ref, proxiedValue)
+        args.cache.set(ref, proxiedValue)
         return proxiedValue
       }
 
       // For all other properties, recursively wrap the value in a magic proxy
       const value = Reflect.get(target, prop, receiver)
-      return createMagicProxy(value as T, options, root, cache, proxyCache)
+      return createMagicProxy(value as T, options, args)
     },
     /**
      * Proxy "set" trap for magic proxy.
@@ -135,10 +159,10 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
         }
 
         // Get the parent node or create it if it does not exist
-        const getParentNode = () => getValueByPath(root, segments.slice(0, -1))
+        const getParentNode = () => getValueByPath(args.root, segments.slice(0, -1))
 
         if (getParentNode() === undefined) {
-          createPathFromSegments(root, segments.slice(0, -1))
+          createPathFromSegments(args.root, segments.slice(0, -1))
 
           // In this case the ref is pointing to an invalid path, so we warn the user
           console.warn(
@@ -233,7 +257,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
   }
 
   const proxied = new Proxy<T>(target, handler)
-  proxyCache.set(target, proxied)
+  args.proxyCache.set(target, proxied)
   return proxied
 }
 
