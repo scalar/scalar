@@ -202,7 +202,11 @@ const wrapperRef = useTemplateRef('wrapperRef')
     <!-- HTTP -->
     <template v-if="scheme?.type === 'http'">
       <!-- Bearer -->
-      <DataTableRow v-if="scheme.scheme === 'bearer'">
+      <DataTableRow
+        v-if="
+          scheme.scheme === 'bearer' &&
+          !scheme['x-scalar-hidden-fields']?.includes('token')
+        ">
         <RequestAuthDataTableInput
           v-bind="dataTableInputProps"
           :containerClass="layout === 'reference' && 'border-t'"
@@ -216,7 +220,8 @@ const wrapperRef = useTemplateRef('wrapperRef')
 
       <!-- HTTP Basic -->
       <template v-else-if="scheme?.scheme === 'basic'">
-        <DataTableRow>
+        <DataTableRow
+          v-if="!scheme['x-scalar-hidden-fields']?.includes('username')">
           <RequestAuthDataTableInput
             v-bind="dataTableInputProps"
             class="text-c-2"
@@ -227,7 +232,8 @@ const wrapperRef = useTemplateRef('wrapperRef')
             Username
           </RequestAuthDataTableInput>
         </DataTableRow>
-        <DataTableRow>
+        <DataTableRow
+          v-if="!scheme['x-scalar-hidden-fields']?.includes('password')">
           <RequestAuthDataTableInput
             v-bind="dataTableInputProps"
             :modelValue="scheme.password"
@@ -242,7 +248,8 @@ const wrapperRef = useTemplateRef('wrapperRef')
 
     <!-- API Key -->
     <template v-else-if="scheme?.type === 'apiKey'">
-      <DataTableRow>
+      <DataTableRow
+        v-if="!scheme['x-scalar-hidden-fields']?.includes('api-key')">
         <RequestAuthDataTableInput
           v-bind="dataTableInputProps"
           :containerClass="layout === 'reference' && 'border-t'"
@@ -252,7 +259,8 @@ const wrapperRef = useTemplateRef('wrapperRef')
           Name
         </RequestAuthDataTableInput>
       </DataTableRow>
-      <DataTableRow>
+      <DataTableRow
+        v-if="!scheme['x-scalar-hidden-fields']?.includes('api-key')">
         <RequestAuthDataTableInput
           v-bind="dataTableInputProps"
           :modelValue="scheme.value"
