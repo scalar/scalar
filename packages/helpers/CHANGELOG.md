@@ -1,5 +1,11 @@
 # @scalar/helpers
 
+## 0.0.11
+
+### Patch Changes
+
+- bff46e5: feat: don’t use proxy for reserved tlds
+
 ## 0.0.10
 
 ### Patch Changes

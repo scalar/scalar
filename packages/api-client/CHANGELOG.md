@@ -1,5 +1,25 @@
 # @scalar/api-client
 
+## 2.5.33
+
+### Patch Changes
+
+- 8f2a2f2: Bump some dependencies to latest
+- Updated dependencies [498f771]
+- Updated dependencies [bff46e5]
+- Updated dependencies [8f2a2f2]
+  - @scalar/components@0.14.34
+  - @scalar/helpers@0.0.11
+  - @scalar/use-hooks@0.2.5
+  - @scalar/themes@0.13.17
+  - @scalar/use-codemirror@0.12.35
+  - @scalar/import@0.4.24
+  - @scalar/oas-utils@0.4.29
+  - @scalar/object-utils@1.2.7
+  - @scalar/postman-to-openapi@0.3.32
+  - @scalar/workspace-store@0.15.6
+  - @scalar/openapi-parser@0.20.6
+
 ## 2.5.32
 
 ### Patch Changes

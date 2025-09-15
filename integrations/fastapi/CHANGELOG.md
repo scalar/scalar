@@ -1,5 +1,11 @@
 # scalar-fastapi
 
+## 1.4.1
+
+### Patch Changes
+
+- da4d1da: fix: scalar-fastapi installs tests
+
 ## 1.4.0
 
 ### Minor Changes
