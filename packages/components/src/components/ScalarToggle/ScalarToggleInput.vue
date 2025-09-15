@@ -25,7 +25,9 @@ const { classCx, otherAttrs } = useBindCx()
 <template>
   <ScalarFormInput
     is="label"
-    v-bind="classCx('cursor-pointer gap-2 hover:bg-b-2')">
+    v-bind="
+      classCx('cursor-pointer gap-2 hover:bg-b-2', { 'text-c-1': model })
+    ">
     <div class="flex-1 text-left min-w-0 truncate"><slot /></div>
     <ScalarToggle
       v-model="model"
