@@ -1,6 +1,6 @@
 {
-  "name": "@scalar/openapi-parser",
-  "description": "modern OpenAPI parser written in TypeScript",
+  "name": "@scalar/openapi-upgrader",
+  "description": "Upgrade OpenAPI documents to the latest and greatest version",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
@@ -8,7 +8,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scalar/scalar.git",
-    "directory": "packages/openapi-parser"
+    "directory": "packages/openapi-upgrader"
   },
   "keywords": [
     "openapi",
@@ -26,11 +26,7 @@
   },
   "scripts": {
     "build": "scalar-build-esbuild",
-    "format": "prettier --write .",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
-    "test": "NODE_OPTIONS=--max_old_space_size=8192 vitest",
-    "test:prepare": "vite-node scripts/load-files.ts",
+    "test": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
@@ -66,7 +62,6 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@scalar/types": "workspace:*",
-    "@types/node": "catalog:*",
     "tinybench": "^2.8.0",
     "vite": "catalog:*"
   }

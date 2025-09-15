@@ -2163,6 +2163,9 @@ importers:
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
+      '@scalar/openapi-upgrader':
+        specifier: workspace:*
+        version: link:../openapi-upgrader
       ajv:
         specifier: ^8.17.1
         version: 8.17.1
@@ -2308,9 +2311,6 @@ importers:
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
-      '@types/node':
-        specifier: catalog:*
-        version: 22.15.3
       tinybench:
         specifier: ^2.8.0
         version: 2.9.0
