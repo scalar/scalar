@@ -189,8 +189,7 @@ const dataTableInputProps = {
 
     <!-- API Key -->
     <template v-else-if="scheme?.type === 'apiKey'">
-      <DataTableRow
-        v-if="!scheme['x-scalar-hidden-fields']?.includes('api-key')">
+      <DataTableRow>
         <RequestAuthDataTableInput
           v-bind="dataTableInputProps"
           :containerClass="layout === 'reference' && 'border-t'"
