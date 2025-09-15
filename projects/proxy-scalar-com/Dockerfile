@@ -13,6 +13,8 @@ WORKDIR /app
 
 ENV PORT=9033
 
+EXPOSE $PORT
+
 # Copy the compiled app binary and public directory
 COPY --from=build --chown=1001:1001 /app/main /app/
 COPY --from=build --chown=1001:1001 /app/public /app/public
