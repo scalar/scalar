@@ -724,6 +724,74 @@ The `authentication` configuration accepts:
   - An array containing strings or arrays of strings (AND/OR relationship)
 - `securitySchemes`: An object mapping security scheme names to their configurations. Each security scheme can be configured with type-specific options.
 
+## x-scalar-hidden-fields
+
+You can hide specific authentication form fields in the API reference using the `x-scalar-hidden-fields` extension. This is useful when you want to simplify the authentication UI or hide sensitive fields that are pre-configured.
+
+### Supported Field Types
+
+The extension supports hiding the following field types across all authentication schemes:
+
+- `client-id` - OAuth2 client ID field
+- `client-secret` - OAuth2 client secret field  
+- `api-key` - API key name and value fields
+- `username` - Username field (HTTP Basic, OAuth2 Password)
+- `password` - Password field (HTTP Basic, OAuth2 Password)
+- `token` - Token field (HTTP Bearer, OAuth2)
+
+### Usage Examples
+
+**Hide API key fields:**
+```yaml
+securitySchemes:
+  ApiKeyAuth:
+    type: apiKey
+    in: header
+    name: X-API-Key
+    x-scalar-hidden-fields: ['api-key']
+```
+
+**Hide HTTP Basic authentication fields:**
+```yaml
+securitySchemes:
+  BasicAuth:
+    type: http
+    scheme: basic
+    x-scalar-hidden-fields: ['username', 'password']
+```
+
+**Hide OAuth2 fields:**
+```yaml
+securitySchemes:
+  OAuth2Auth:
+    type: oauth2
+    flows:
+      authorizationCode:
+        authorizationUrl: https://example.com/oauth/authorize
+        tokenUrl: https://example.com/oauth/token
+    x-scalar-hidden-fields: ['client-id', 'client-secret']
+```
+
+**Hide bearer token field:**
+```yaml
+securitySchemes:
+  BearerAuth:
+    type: http
+    scheme: bearer
+    x-scalar-hidden-fields: ['token']
+```
+
+**Hide multiple field types:**
+```yaml
+securitySchemes:
+  ComplexAuth:
+    type: oauth2
+    flows:
+      password:
+        tokenUrl: https://example.com/oauth/token
+    x-scalar-hidden-fields: ['client-id', 'username', 'password', 'token']
+```
+
 ### generateHeadingSlug?: (heading: Heading) => string
 
 Customize how heading URLs are generated. This function receives the heading and returns a string ID that controls the entire URL hash.
