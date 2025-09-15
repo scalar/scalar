@@ -93,7 +93,7 @@ const dataTableInputProps = {
 <template>
   <!-- Access Token Granted -->
   <template v-if="flow.token">
-    <DataTableRow>
+    <DataTableRow v-if="!scheme['x-scalar-hidden-fields']?.includes('token')">
       <RequestAuthDataTableInput
         v-bind="dataTableInputProps"
         class="border-r-transparent"
@@ -162,7 +162,8 @@ const dataTableInputProps = {
 
     <!-- Username and password -->
     <template v-if="flow.type === 'password'">
-      <DataTableRow>
+      <DataTableRow
+        v-if="!scheme['x-scalar-hidden-fields']?.includes('username')">
         <RequestAuthDataTableInput
           v-bind="dataTableInputProps"
           class="text-c-2"
@@ -174,7 +175,8 @@ const dataTableInputProps = {
           Username
         </RequestAuthDataTableInput>
       </DataTableRow>
-      <DataTableRow>
+      <DataTableRow
+        v-if="!scheme['x-scalar-hidden-fields']?.includes('password')">
         <RequestAuthDataTableInput
           v-bind="dataTableInputProps"
           :modelValue="flow.password"
