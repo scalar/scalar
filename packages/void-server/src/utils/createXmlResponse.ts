@@ -7,12 +7,7 @@ import type { Context } from 'hono'
 export function createXmlResponse(c: Context, data: Record<string, any>) {
   c.header('Content-Type', 'application/xml')
 
-  const obj = {
-    '?xml version="1.0" encoding="UTF-8"?': null,
-    ...data,
-  }
-
-  return c.text(json2xml(obj), 200, {
+  return c.text(json2xml(data), 200, {
     'Content-Type': 'application/xml; charset=UTF-8',
   })
 }
