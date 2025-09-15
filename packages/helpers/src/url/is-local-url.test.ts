@@ -23,6 +23,31 @@ describe('isLocalUrl ', () => {
     expect(isLocalUrl('https://0.0.0.0')).toBe(true)
   })
 
+  /**
+   * @see https://en.wikipedia.org/wiki/.test
+   */
+  describe('reserved tlds', () => {
+    it('returns true for reserved test tld', () => {
+      expect(isLocalUrl('http://foobar.test')).toBe(true)
+      expect(isLocalUrl('https://foobar.test')).toBe(true)
+    })
+
+    it('returns true for reserved example tld', () => {
+      expect(isLocalUrl('http://foobar.example')).toBe(true)
+      expect(isLocalUrl('https://foobar.example')).toBe(true)
+    })
+
+    it('returns true for reserved invalid tld', () => {
+      expect(isLocalUrl('http://foobar.invalid')).toBe(true)
+      expect(isLocalUrl('https://foobar.invalid')).toBe(true)
+    })
+
+    it('returns true for reserved local tld', () => {
+      expect(isLocalUrl('http://foobar.localhost')).toBe(true)
+      expect(isLocalUrl('https://foobar.localhost')).toBe(true)
+    })
+  })
+
   it('returns false for non-local URLs', () => {
     expect(isLocalUrl('http://example.com')).toBe(false)
     expect(isLocalUrl('https://google.com')).toBe(false)
