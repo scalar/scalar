@@ -1744,6 +1744,92 @@ describe('createMagicProxy', () => {
     })
   })
 
+  describe('setting on $id and $anchor properties', () => {
+    it('should allow writing on an $id property', () => {
+      const input = {
+        $id: 'https://example.com/schema',
+        definitions: {
+          user: {
+            $id: 'https://example.com/user',
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+            },
+          },
+        },
+        a: {
+          $ref: 'https://example.com/user',
+        },
+      }
+
+      const proxy = createMagicProxy(input)
+
+      proxy.a['$ref-value'] = {
+        message: 'I rewrote the user schema',
+      }
+
+      expect(proxy.definitions.user).toEqual({
+        'message': 'I rewrote the user schema',
+      })
+    })
+
+    it('should allow writing on an $anchor property', () => {
+      const input = {
+        $id: 'https://example.com/schema',
+        definitions: {
+          user: {
+            $id: 'https://example.com/user',
+            $anchor: 'user-schema',
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+            },
+          },
+        },
+        a: {
+          $ref: 'https://example.com/user#user-schema',
+        },
+      }
+
+      const proxy = createMagicProxy(input)
+
+      proxy.a['$ref-value'] = {
+        message: 'I rewrote the user schema',
+      }
+
+      expect(proxy.definitions.user).toEqual({
+        'message': 'I rewrote the user schema',
+      })
+    })
+
+    it('should allow writing on a top level $anchor property', () => {
+      const input = {
+        definitions: {
+          user: {
+            $anchor: 'user-schema',
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+            },
+          },
+        },
+        a: {
+          $ref: '#user-schema',
+        },
+      }
+
+      const proxy = createMagicProxy(input)
+
+      proxy.a['$ref-value'] = {
+        message: 'I rewrote the user schema',
+      }
+
+      expect(proxy.definitions.user).toEqual({
+        'message': 'I rewrote the user schema',
+      })
+    })
+  })
+
   describe('hide underscore properties', () => {
     it('should hide properties starting with underscore from direct access', () => {
       const input = {
