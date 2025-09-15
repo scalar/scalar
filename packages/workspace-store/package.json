@@ -89,6 +89,7 @@
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
+    "@scalar/openapi-upgrader": "workspace:*",
     "@scalar/snippetz": "workspace:*",
     "@scalar/typebox": "catalog:*",
     "@scalar/types": "workspace:*",

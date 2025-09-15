@@ -2,7 +2,8 @@ import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
 
 import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
-import { escapeJsonPointer, upgrade } from '@scalar/openapi-parser'
+import { escapeJsonPointer } from '@scalar/openapi-parser'
+import { upgrade } from '@scalar/openapi-upgrader'
 
 import { keyOf } from '@/helpers/general'
 import { createNavigation, type createNavigationOptions } from '@/navigation'
@@ -277,7 +278,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
   const addDocumentSync = (document: Record<string, unknown>, meta: { name: string } & WorkspaceDocumentMeta) => {
     const { name, ...documentMeta } = meta
 
-    const documentV3 = coerceValue(OpenAPIDocumentSchema, upgrade(document).specification)
+    const documentV3 = coerceValue(OpenAPIDocumentSchema, upgrade(document))
 
     // add the assets
     assets[meta.name] = {
