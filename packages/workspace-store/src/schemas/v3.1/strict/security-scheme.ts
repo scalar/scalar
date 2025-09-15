@@ -13,8 +13,10 @@ export const DescriptionSchema = Type.Object({
   description: Type.Optional(Type.String()),
 })
 
+export const CommonSecuritySchema = compose(DescriptionSchema, XScalarHiddenFieldsSchema)
+
 export const ApiKeySchema = compose(
-  DescriptionSchema,
+  CommonSecuritySchema,
   XScalarSecretTokenSchema,
   Type.Object({
     /** REQUIRED. The type of the security scheme. Valid values are "apiKey", "http", "mutualTLS", "oauth2", "openIdConnect". */
@@ -27,7 +29,7 @@ export const ApiKeySchema = compose(
 )
 
 export const HttpSchema = compose(
-  DescriptionSchema,
+  CommonSecuritySchema,
   XScalarSecretTokenSchema,
   XScalarSecretHTTPSchema,
   Type.Object({
@@ -41,8 +43,7 @@ export const HttpSchema = compose(
 )
 
 export const OAuth2 = compose(
-  DescriptionSchema,
-  XScalarHiddenFieldsSchema,
+  CommonSecuritySchema,
   Type.Object({
     /** REQUIRED. The type of the security scheme. Valid values are "apiKey", "http", "mutualTLS", "oauth2", "openIdConnect". */
     type: Type.Literal('oauth2'),
@@ -52,7 +53,7 @@ export const OAuth2 = compose(
 )
 
 export const OpenIdConnect = compose(
-  DescriptionSchema,
+  CommonSecuritySchema,
   Type.Object({
     /** REQUIRED. The type of the security scheme. Valid values are "apiKey", "http", "mutualTLS", "oauth2", "openIdConnect". */
     type: Type.Literal('openIdConnect'),
