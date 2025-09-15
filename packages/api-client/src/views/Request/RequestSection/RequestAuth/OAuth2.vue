@@ -190,7 +190,7 @@ const dataTableInputProps = {
 
     <!-- Client ID -->
     <DataTableRow
-      v-if="!(scheme as any)['x-scalar-hidden-fields']?.includes('client-id')">
+      v-if="!scheme['x-scalar-hidden-fields']?.includes('client-id')">
       <RequestAuthDataTableInput
         v-bind="dataTableInputProps"
         :modelValue="flow['x-scalar-client-id']"
@@ -206,7 +206,7 @@ const dataTableInputProps = {
     <DataTableRow
       v-if="
         'clientSecret' in flow &&
-        !(scheme as any)['x-scalar-hidden-fields']?.includes('clientSecret')
+        !scheme['x-scalar-hidden-fields']?.includes('client-secret')
       ">
       <RequestAuthDataTableInput
         v-bind="dataTableInputProps"

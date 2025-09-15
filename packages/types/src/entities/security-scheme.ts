@@ -5,10 +5,15 @@ import { type ENTITY_BRANDS, nanoidSchema } from '../utils/nanoid'
 // ---------------------------------------------------------------------------
 // COMMON PROPS FOR ALL SECURITY SCHEMES
 
+/** Options for the x-scalar-hidden-fields extension - these are the field keys that can be hidden in authentication section */
+export const hiddenFieldsOptions = ['client-id', 'client-secret', 'api-key', 'username', 'password', 'token'] as const
+
 /** Some common properties used in all security schemes */
 const commonProps = z.object({
   /* A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
   description: z.string().optional(),
+  /** Configuration to hide specific form fields in the authentication UI */
+  'x-scalar-hidden-fields': z.array(z.enum(hiddenFieldsOptions)).optional(),
 })
 
 const extendedSecuritySchema = z.object({
@@ -131,9 +136,6 @@ const defaultRedirectUri = typeof window !== 'undefined' ? window.location.origi
 /** Options for the x-usePkce extension */
 export const pkceOptions = ['SHA-256', 'plain', 'no'] as const
 
-/** Options for the x-scalar-hidden-fields extension - these are the field keys that can be hidden in OAuth2 flows */
-export const hiddenFieldsOptions = ['client-id', 'clientSecret'] as const
-
 const credentialsLocationExtension = z.enum(['header', 'body']).optional()
 
 /** Oauth2 security scheme */
@@ -141,8 +143,6 @@ const oasSecuritySchemeOauth2 = commonProps.extend({
   type: z.literal('oauth2'),
   /** The default scopes for the oauth flow */
   'x-default-scopes': z.string().or(z.array(z.string())).optional(),
-  /** Configuration to hide specific form fields in the authentication UI */
-  'x-scalar-hidden-fields': z.array(z.enum(hiddenFieldsOptions)).optional(),
   /** REQUIRED. An object containing configuration information for the flow types supported. */
   flows: z
     .object({
