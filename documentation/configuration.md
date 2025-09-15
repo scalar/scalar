@@ -342,7 +342,7 @@ Whether models (`components.schemas` or `definitions`) should be shown in the si
 }
 ```
 
-### documentDownloadType?: 'json' | 'yaml' | 'both' | 'none'
+### documentDownloadType?: 'json' | 'yaml' | 'both' | 'direct' | 'none'
 
 Sets the file type of the document to download, set to `none` to hide the download button
 
@@ -353,6 +353,8 @@ Sets the file type of the document to download, set to `none` to hide the downlo
   documentDownloadType: 'json'
 }
 ```
+
+When `'direct'` is passed, it just outputs a regular link to the passed URL.
 
 ### hideDownloadButton?: boolean
 
