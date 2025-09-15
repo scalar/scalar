@@ -1,6 +1,7 @@
 import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
+import { XScalarHiddenFieldsSchema } from '@/schemas/extensions/security/x-scalar-hidden-fields'
 import {
   XScalarSecretHTTPSchema,
   XScalarSecretTokenSchema,
@@ -41,6 +42,7 @@ export const HttpSchema = compose(
 
 export const OAuth2 = compose(
   DescriptionSchema,
+  XScalarHiddenFieldsSchema,
   Type.Object({
     /** REQUIRED. The type of the security scheme. Valid values are "apiKey", "http", "mutualTLS", "oauth2", "openIdConnect". */
     type: Type.Literal('oauth2'),
