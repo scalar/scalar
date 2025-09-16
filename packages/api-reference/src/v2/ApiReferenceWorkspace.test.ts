@@ -503,18 +503,21 @@ describe('ApiReferenceWorkspace', () => {
 
   describe('event emission', () => {
     it('emits updateContent event', async () => {
+      const onUpdateContent = vi.fn()
       wrapper = mount(ApiReferenceWorkspace, {
         props: {
           configuration: mockConfiguration,
           store: mockStore,
+          onUpdateContent,
         },
       })
 
       const layoutComponent = wrapper.findComponent({ name: 'ApiReferenceLayout' })
       await layoutComponent.vm.$emit('updateContent', { some: 'content' })
+      await nextTick()
 
-      expect(wrapper.emitted('updateContent')).toBeTruthy()
-      expect(wrapper.emitted('updateContent')?.[0]).toEqual([{ some: 'content' }])
+      expect(onUpdateContent).toHaveBeenCalledTimes(1)
+      expect(onUpdateContent).toHaveBeenCalledWith({ some: 'content' })
     })
   })
 

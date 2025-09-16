@@ -1,5 +1,19 @@
 # @scalar/json-magic
 
+## 0.4.3
+
+### Patch Changes
+
+- Updated dependencies [bff46e5]
+  - @scalar/helpers@0.0.11
+
+## 0.4.2
+
+### Patch Changes
+
+- 3bd1209: fix: do not throw when we set on an invalid ref
+- 1943b99: chore: emit warning when trying to set an invalid ref
+
 ## 0.4.1
 
 ### Patch Changes

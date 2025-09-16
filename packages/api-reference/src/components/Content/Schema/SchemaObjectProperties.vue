@@ -14,7 +14,8 @@ import SchemaProperty from './SchemaProperty.vue'
 const {
   schema,
   discriminator,
-
+  hideReadOnly,
+  hideWriteOnly,
   orderSchemaPropertiesBy = 'alpha',
   orderRequiredPropertiesFirst = true,
 } = defineProps<{
@@ -24,6 +25,10 @@ const {
   hideHeading?: boolean
   level?: number
   hideModelNames?: boolean
+  /** Hide readonly properties */
+  hideReadOnly?: boolean
+  /** Hide write-only properties */
+  hideWriteOnly?: boolean
   breadcrumb?: string[]
   orderSchemaPropertiesBy?: ApiReferenceConfiguration['orderSchemaPropertiesBy']
   orderRequiredPropertiesFirst?: ApiReferenceConfiguration['orderRequiredPropertiesFirst']
@@ -41,39 +46,57 @@ const sortedProperties = computed(() => {
   const propertyNames = Object.keys(schema.properties)
   const requiredPropertiesSet = new Set(schema.required || [])
 
-  return propertyNames.sort((a, b) => {
-    const aDiscriminator = a === discriminator?.propertyName
-    const bDiscriminator = b === discriminator?.propertyName
+  return propertyNames
+    .sort((a, b) => {
+      const aDiscriminator = a === discriminator?.propertyName
+      const bDiscriminator = b === discriminator?.propertyName
 
-    const aRequired = requiredPropertiesSet.has(a)
-    const bRequired = requiredPropertiesSet.has(b)
+      const aRequired = requiredPropertiesSet.has(a)
+      const bRequired = requiredPropertiesSet.has(b)
 
-    // Discriminator comes first always
-    if (aDiscriminator && !bDiscriminator) {
-      return -1
-    }
-    if (!aDiscriminator && bDiscriminator) {
-      return 1
-    }
-
-    // Order required properties first
-    if (orderRequiredPropertiesFirst) {
-      // If one is required and the other isn't, required comes first
-      if (aRequired && !bRequired) {
+      // Discriminator comes first always
+      if (aDiscriminator && !bDiscriminator) {
         return -1
       }
-      if (!aRequired && bRequired) {
+      if (!aDiscriminator && bDiscriminator) {
         return 1
       }
-    }
 
-    // If both have the same required status, sort alphabetically
-    if (orderSchemaPropertiesBy === 'alpha') {
-      return a.localeCompare(b)
-    }
+      // Order required properties first
+      if (orderRequiredPropertiesFirst) {
+        // If one is required and the other isn't, required comes first
+        if (aRequired && !bRequired) {
+          return -1
+        }
+        if (!aRequired && bRequired) {
+          return 1
+        }
+      }
 
-    return 0
-  })
+      // If both have the same required status, sort alphabetically
+      if (orderSchemaPropertiesBy === 'alpha') {
+        return a.localeCompare(b)
+      }
+
+      return 0
+    })
+    .filter((property) => {
+      // If hideReadOnly is true, filter out properties that are readOnly
+      if (hideReadOnly) {
+        return !(
+          schema.properties &&
+          getResolvedRef(schema.properties[property])?.readOnly === true
+        )
+      }
+      // If hideWriteOnly is true, filter out properties that are writeOnly
+      if (hideWriteOnly) {
+        return !(
+          schema.properties &&
+          getResolvedRef(schema.properties[property])?.writeOnly === true
+        )
+      }
+      return true
+    })
 })
 
 /**
@@ -140,6 +163,8 @@ const getAdditionalPropertiesValue = (
       :discriminator
       :hideHeading
       :hideModelNames
+      :hideReadOnly="hideReadOnly"
+      :hideWriteOnly="hideWriteOnly"
       :level
       :name="property"
       :required="schema.required?.includes(property)"
@@ -156,6 +181,8 @@ const getAdditionalPropertiesValue = (
       :discriminator
       :hideHeading
       :hideModelNames="hideModelNames"
+      :hideReadOnly="hideReadOnly"
+      :hideWriteOnly="hideWriteOnly"
       :level
       :name="key"
       :value="getResolvedRef(property)" />
@@ -169,6 +196,8 @@ const getAdditionalPropertiesValue = (
       :discriminator
       :hideHeading
       :hideModelNames
+      :hideReadOnly="hideReadOnly"
+      :hideWriteOnly="hideWriteOnly"
       :level
       :name="getAdditionalPropertiesName(schema.additionalProperties)"
       noncollapsible

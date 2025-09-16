@@ -1,5 +1,52 @@
 # @scalar/api-reference
 
+## 1.35.6
+
+### Patch Changes
+
+- b6a59bd: fix(api-reference): webhook request example display
+- 8f2a2f2: Bump some dependencies to latest
+- Updated dependencies [498f771]
+- Updated dependencies [bff46e5]
+- Updated dependencies [8f2a2f2]
+  - @scalar/components@0.14.34
+  - @scalar/helpers@0.0.11
+  - @scalar/api-client@2.5.33
+  - @scalar/use-hooks@0.2.5
+  - @scalar/themes@0.13.17
+  - @scalar/json-magic@0.4.3
+  - @scalar/oas-utils@0.4.29
+  - @scalar/object-utils@1.2.7
+  - @scalar/workspace-store@0.15.6
+  - @scalar/code-highlight@0.1.9
+  - @scalar/openapi-parser@0.20.6
+
+## 1.35.5
+
+### Patch Changes
+
+- 4e7e8a9: fix: safely check for readonly/writeonly properties
+- Updated dependencies [3bd1209]
+- Updated dependencies [39bbc0e]
+- Updated dependencies [1943b99]
+  - @scalar/json-magic@0.4.2
+  - @scalar/openapi-parser@0.20.5
+  - @scalar/oas-utils@0.4.28
+  - @scalar/workspace-store@0.15.5
+  - @scalar/api-client@2.5.32
+  - @scalar/components@0.14.33
+
+## 1.35.4
+
+### Patch Changes
+
+- Updated dependencies [019a22a]
+- Updated dependencies [f8fc81c]
+  - @scalar/workspace-store@0.15.4
+  - @scalar/api-client@2.5.31
+  - @scalar/oas-utils@0.4.27
+  - @scalar/components@0.14.32
+
 ## 1.35.3
 
 ### Patch Changes

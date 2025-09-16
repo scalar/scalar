@@ -8,45 +8,42 @@ packages:
   - '!**/.next/**'
   - '!**/dist/**'
   - '!**/.output/**'
-onlyBuiltDependencies:
-  - '@biomejs/biome'
-  - '@nestjs/core'
-  - '@todesktop/cli'
-  - core-js
-  - core-js-pure
-  - electron
-  - esbuild
-  - lefthook
-  - vue-demi
+
 catalogs:
   '*':
+    '@electron-toolkit/preload': ^3.0.0
+    '@electron-toolkit/utils': ^3.0.0
     '@fastify/swagger': ^8.10.1
-    '@floating-ui/utils': ^0.2.2
-    '@floating-ui/vue': ^1.1.7
+    '@floating-ui/utils': 0.2.10
+    '@floating-ui/vue': 1.1.9
     '@google-cloud/storage': 7.16.0
     '@headlessui/tailwindcss': ^0.2.2
-    '@headlessui/vue': ^1.7.23
+    '@headlessui/vue': 1.7.23
     '@playwright/test': 1.55.0
     '@scalar/typebox': 0.1.1
     '@tailwindcss/vite': ^4.1.7
     '@types/express': 5.0.3
     '@types/node': ^22.9.0
     '@types/picomatch': 3.0.1
-    '@types/react-dom': ^19.1.6
     '@types/react': ^19.1.8
+    '@types/react-dom': ^19.1.6
     '@types/semver': 7.5.8
     '@typescript-eslint/parser': ^8.0.0
-    '@vueuse/core': ^11.2.0
-    '@vitejs/plugin-vue': ^5.2.4
-    '@vueuse/integrations': ^11.2.0
+    '@vitejs/plugin-vue': 6.0.1
     '@vue/test-utils': ^2.4.1
+    '@vueuse/core': 13.9.0
+    '@vueuse/integrations': 13.9.0
     ansis: 4.1.0
     chokidar: 4.0.3
     commander: 13.1.0
     concurrently: 9.1.2
+    electron: 37.3.1
+    electron-vite: 4.0.0
+    electron-window-state: ^5.0.3
     esbuild: 0.25.6
     express: 5.1.0
     fastify: ^5.3.3
+    fathom-client: ^3.7.2
     flatted: ^3.3.3
     fuse.js: ^7.1.0
     js-base64: ^3.7.8
@@ -56,18 +53,40 @@ catalogs:
     picomatch: 4.0.2
     postcss: ^8.4.38
     prettier: 3.5.3
-    react-dom: ^19.1.0
     react: ^19.1.0
+    react-dom: ^19.1.0
     rollup: 4.45.1
     semver: 7.7.2
     shx: ^0.4.0
     stdout-update: 4.0.1
     tailwindcss: ^4.1.7
     type-fest: 4.41.0
+    vite: 7.1.5
     vite-node: 3.2.4
-    vite: 6.1.6
-    vitest: ^3.2.4
+    vite-ssg: 28.1.0
+    vitest: 3.2.4
     vue: ^3.5.17
     vue-tsc: ^2.2.0
     yaml: 2.8.0
     zod: 3.24.1
+
+ignoredBuiltDependencies:
+  - '@firebase/util'
+  - core-js
+  - core-js-pure
+  - dtrace-provider
+  - protobufjs
+  - sharp
+  - unrs-resolver
+  - vue-demi
+  - workerd
+
+onlyBuiltDependencies:
+  - '@nestjs/core'
+  - '@parcel/watcher'
+  - '@swc/core'
+  - '@tailwindcss/oxide'
+  - '@todesktop/cli'
+  - electron
+  - esbuild
+  - lefthook

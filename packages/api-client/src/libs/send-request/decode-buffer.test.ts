@@ -6,14 +6,14 @@ describe('decode-buffer', () => {
   it('decodes JSON content', () => {
     const jsonData = JSON.stringify({ key: 'value' })
     const buffer = new TextEncoder().encode(jsonData)
-    const result = decodeBuffer(buffer, 'application/json')
+    const result = decodeBuffer(buffer.buffer, 'application/json')
     expect(result).toEqual(JSON.stringify({ key: 'value' }))
   })
 
   it('decodes text content', () => {
     const textData = 'Hello, world!'
     const buffer = new TextEncoder().encode(textData)
-    const result = decodeBuffer(buffer, 'text/plain')
+    const result = decodeBuffer(buffer.buffer, 'text/plain')
     expect(result).toBe('Hello, world!')
   })
 
@@ -27,7 +27,7 @@ describe('decode-buffer', () => {
   it('uses the charset parameter for text decoding', () => {
     const textData = 'こんにちは'
     const buffer = new TextEncoder().encode(textData)
-    const result = decodeBuffer(buffer, 'text/plain; charset=utf-8')
+    const result = decodeBuffer(buffer.buffer, 'text/plain; charset=utf-8')
     expect(result).toBe('こんにちは')
   })
 })

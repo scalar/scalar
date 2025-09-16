@@ -1,5 +1,27 @@
 # @scalar/aspire
 
+## 0.4.9
+
+### Patch Changes
+
+- 422f01d: feat: add SchemaPropertyOrder and OrderRequiredPropertiesFirst configuration support
+- Updated dependencies [b6a59bd]
+- Updated dependencies [8f2a2f2]
+  - @scalar/api-reference@1.35.6
+
+## 0.4.8
+
+### Patch Changes
+
+- Updated dependencies [4e7e8a9]
+  - @scalar/api-reference@1.35.5
+
+## 0.4.7
+
+### Patch Changes
+
+- @scalar/api-reference@1.35.4
+
 ## 0.4.6
 
 ### Patch Changes

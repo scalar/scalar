@@ -26,7 +26,6 @@ import { isDefined } from '@scalar/oas-utils/helpers'
 import { computed, ref, useId } from 'vue'
 
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
-import { useLayout } from '@/hooks/useLayout'
 import type { EnvVariable } from '@/store/active-entities'
 import { useWorkspace } from '@/store/store'
 import type { SecuritySchemeOption } from '@/views/Request/consts'
@@ -78,7 +77,6 @@ defineSlots<{
   'oauth-actions'?: () => unknown
 }>()
 
-const { layout: clientLayout } = useLayout()
 const {
   securitySchemes,
   securitySchemeMutators,
@@ -311,10 +309,7 @@ const openAuthCombobox = (event: Event) => {
               {{ option.label }}
             </div>
             <ScalarIconButton
-              v-if="
-                option.isDeletable ??
-                (clientLayout !== 'modal' && layout !== 'reference')
-              "
+              v-if="option.isDeletable ?? !isReadOnly"
               class="-m-0.5 shrink-0 p-0.5 opacity-0 group-hover/item:opacity-100"
               :icon="ScalarIconTrash"
               :label="`Delete ${option.label}`"

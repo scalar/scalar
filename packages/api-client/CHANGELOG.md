@@ -1,5 +1,50 @@
 # @scalar/api-client
 
+## 2.5.33
+
+### Patch Changes
+
+- 8f2a2f2: Bump some dependencies to latest
+- Updated dependencies [498f771]
+- Updated dependencies [bff46e5]
+- Updated dependencies [8f2a2f2]
+  - @scalar/components@0.14.34
+  - @scalar/helpers@0.0.11
+  - @scalar/use-hooks@0.2.5
+  - @scalar/themes@0.13.17
+  - @scalar/use-codemirror@0.12.35
+  - @scalar/import@0.4.24
+  - @scalar/oas-utils@0.4.29
+  - @scalar/object-utils@1.2.7
+  - @scalar/postman-to-openapi@0.3.32
+  - @scalar/workspace-store@0.15.6
+  - @scalar/openapi-parser@0.20.6
+
+## 2.5.32
+
+### Patch Changes
+
+- Updated dependencies [39bbc0e]
+  - @scalar/openapi-parser@0.20.5
+  - @scalar/oas-utils@0.4.28
+  - @scalar/workspace-store@0.15.5
+  - @scalar/import@0.4.23
+  - @scalar/components@0.14.33
+  - @scalar/postman-to-openapi@0.3.31
+  - @scalar/use-codemirror@0.12.34
+
+## 2.5.31
+
+### Patch Changes
+
+- f8fc81c: fix: only allow deleting auth if not reaonly
+- Updated dependencies [019a22a]
+  - @scalar/workspace-store@0.15.4
+  - @scalar/oas-utils@0.4.27
+  - @scalar/components@0.14.32
+  - @scalar/postman-to-openapi@0.3.30
+  - @scalar/use-codemirror@0.12.33
+
 ## 2.5.30
 
 ### Patch Changes

@@ -1,5 +1,31 @@
 # @scalar/workspace-store
 
+## 0.15.6
+
+### Patch Changes
+
+- Updated dependencies [bff46e5]
+  - @scalar/helpers@0.0.11
+  - @scalar/json-magic@0.4.3
+  - @scalar/code-highlight@0.1.9
+  - @scalar/openapi-parser@0.20.6
+
+## 0.15.5
+
+### Patch Changes
+
+- Updated dependencies [3bd1209]
+- Updated dependencies [39bbc0e]
+- Updated dependencies [1943b99]
+  - @scalar/json-magic@0.4.2
+  - @scalar/openapi-parser@0.20.5
+
+## 0.15.4
+
+### Patch Changes
+
+- 019a22a: Try catch merge object to avoid uncaught proxy errors
+
 ## 0.15.3
 
 ### Patch Changes

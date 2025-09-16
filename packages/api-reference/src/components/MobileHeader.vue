@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarIconButton } from '@scalar/components'
+import { ScalarIconList, ScalarIconX } from '@scalar/icons'
 
 import { useSidebar } from '@/v2/blocks/scalar-navigation-block'
 
@@ -12,7 +13,7 @@ const { isSidebarOpen } = useSidebar()
 <template>
   <div class="references-mobile-header t-doc__header">
     <ScalarIconButton
-      :icon="isSidebarOpen ? 'Close' : 'Menu'"
+      :icon="isSidebarOpen ? ScalarIconX : ScalarIconList"
       :label="isSidebarOpen ? 'Close Menu' : 'Open Menu'"
       size="md"
       @click="isSidebarOpen = !isSidebarOpen" />

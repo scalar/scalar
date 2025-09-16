@@ -1016,4 +1016,143 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
   })
+
+  it('upgrades parameters defined globally and correctly update all the references - body', async () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      produces: ['application/json'],
+      consumes: ['application/xml'],
+      parameters: {
+        Body: {
+          in: 'body',
+          name: 'planet body',
+          required: true,
+          schema: {
+            type: 'object',
+            properties: {
+              name: {
+                type: 'string',
+              },
+            },
+          },
+        },
+        'content type': {
+          in: 'body',
+          name: 'content type',
+          required: true,
+          schema: {
+            type: 'string',
+          },
+        },
+        Accept: {
+          in: 'body',
+          name: 'Accept',
+          required: true,
+          schema: {
+            type: 'string',
+          },
+        },
+      },
+      paths: {
+        '/planets/{planetId}': {
+          parameters: [
+            {
+              '$ref': '#/parameters/Body',
+            },
+            {
+              '$ref': '#/parameters/content type',
+            },
+            {
+              '$ref': '#/parameters/Accept',
+            },
+          ],
+          post: {
+            responses: {
+              '201': {
+                description: 'The planet just created.',
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths['/planets/{planetId}'].parameters).toMatchObject([
+      {
+        '$ref': '#/components/requestBodies/Body',
+      },
+      {
+        '$ref': '#/components/requestBodies/content type',
+      },
+      {
+        '$ref': '#/components/requestBodies/Accept',
+      },
+    ])
+
+    expect(result.components.requestBodies).toMatchObject({
+      Body: {
+        content: {
+          'application/xml': {
+            schema: {
+              type: 'object',
+              properties: { name: { type: 'string' } },
+            },
+          },
+        },
+        required: true,
+      },
+      'content type': {
+        content: { 'application/xml': { schema: { type: 'string' } } },
+        required: true,
+      },
+      Accept: {
+        content: { 'application/xml': { schema: { type: 'string' } } },
+        required: true,
+      },
+    })
+  })
+
+  it('upgrades parameters defined globally and correctly update all the references - parameters', async () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      'swagger': '2.0',
+      'info': { 'version': '1.0.0', 'title': 'Minimal API' },
+      'paths': {
+        '/items/{id}': {
+          'get': {
+            'summary': 'Get item',
+            'parameters': [{ '$ref': '#/parameters/ItemId' }],
+            'responses': {
+              '200': { 'description': 'OK' },
+            },
+          },
+        },
+      },
+      'parameters': {
+        'ItemId': {
+          'name': 'id',
+          'in': 'path',
+          'type': 'string',
+          'required': true,
+        },
+      },
+    })
+
+    // Update all the $rfs
+    expect(result.paths['/items/{id}'].get.parameters).toMatchObject([
+      {
+        '$ref': '#/components/parameters/ItemId',
+      },
+    ])
+
+    expect(result.components.parameters).toEqual({
+      'ItemId': {
+        'in': 'path',
+        'name': 'id',
+        'required': true,
+        'schema': {
+          'type': 'string',
+        },
+      },
+    })
+  })
 })
