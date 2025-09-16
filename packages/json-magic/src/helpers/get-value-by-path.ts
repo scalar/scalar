@@ -19,7 +19,7 @@ import { getId } from '@/helpers/get-schemas'
  * // Returns: { context: '', value: 42 }
  * getValueByPath(obj, ['foo', 'bar', 'baz']);
  */
-export function getValueByPath(target: Record<string, any>, segments: string[]): { context: string; value: any } {
+export function getValueByPath(target: unknown, segments: string[]): { context: string; value: any } {
   return segments.reduce<{ context: string; value: unknown }>(
     (acc, key) => {
       // If the accumulator is undefined, the path does not exist

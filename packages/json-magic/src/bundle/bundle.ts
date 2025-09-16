@@ -735,7 +735,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       // This is important to maintain the integrity of the partial bundle
       const localRef = convertToLocalRef(ref, id ?? origin, schemas)
 
-      if (localRef) {
+      if (localRef !== undefined) {
         if (isPartialBundling) {
           const segments = getSegmentsFromPath(`/${localRef}`)
           const parent = segments.length > 0 ? getValueByPath(documentRoot, segments.slice(0, -1)).value : undefined

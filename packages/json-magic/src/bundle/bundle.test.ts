@@ -1749,6 +1749,26 @@ describe('bundle', () => {
         },
       })
     })
+
+    it('treats internal root pointers as internal references', async () => {
+      resetConsoleSpies()
+
+      const input = {
+        a: {
+          $ref: '#/',
+        },
+      }
+
+      await bundle(input, { plugins: [fetchUrls()], treeShake: false })
+
+      expect(input).toEqual({
+        a: {
+          $ref: '#/',
+        },
+      })
+
+      expect(consoleWarnSpy).toHaveBeenCalledTimes(0)
+    })
   })
 
   describe('local files', () => {
