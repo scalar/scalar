@@ -64,9 +64,9 @@ pub fn scalar_html_from_json_default(config_json: &str) -> Result<String, serde_
 
 #[cfg(feature = "axum")]
 pub mod axum {
-    use axum::response::Html;
+    use axum::{response::Html, routing::get, Router, response::Response, http::StatusCode, body::Body};
     use serde_json::Value;
-    use super::scalar_html;
+    use super::{scalar_html, get_asset_with_mime};
 
     /// Create an Axum HTML response with Scalar documentation
     pub fn scalar_response(config: &Value, js_bundle_url: Option<&str>) -> Html<String> {
@@ -78,13 +78,78 @@ pub mod axum {
         let config: Value = serde_json::from_str(config_json)?;
         Ok(scalar_response(&config, js_bundle_url))
     }
+
+    /// Create a complete Axum router with both Scalar documentation and asset serving
+    pub fn router(path: &str, config: &Value) -> Router {
+        let js_path = format!("{}.js", path);
+        let config_clone = config.clone();
+        let js_path_clone = js_path.clone();
+
+        Router::new()
+            .route(path, get(move || {
+                let config = config_clone.clone();
+                let js_path = js_path_clone.clone();
+                async move { scalar_response(&config, Some(&js_path)) }
+            }))
+            .route(&js_path, get(|| async {
+                match get_asset_with_mime("scalar.js") {
+                    Some((mime_type, content)) => {
+                        Response::builder()
+                            .status(StatusCode::OK)
+                            .header("content-type", mime_type)
+                            .body(Body::from(content))
+                            .unwrap()
+                    }
+                    None => {
+                        Response::builder()
+                            .status(StatusCode::NOT_FOUND)
+                            .body(Body::from("Not found"))
+                            .unwrap()
+                    }
+                }
+            }))
+    }
+
+    /// Create separate routes for Scalar documentation and asset serving
+    pub fn routes(path: &str, config: &Value) -> (Router, Router) {
+        let js_path = format!("{}.js", path);
+        let config_clone = config.clone();
+        let js_path_clone = js_path.clone();
+
+        let scalar_route = Router::new().route(path, get(move || {
+            let config = config_clone.clone();
+            let js_path = js_path_clone.clone();
+            async move { scalar_response(&config, Some(&js_path)) }
+        }));
+
+        let asset_route = Router::new().route(&js_path, get(|| async {
+            match get_asset_with_mime("scalar.js") {
+                Some((mime_type, content)) => {
+                    Response::builder()
+                        .status(StatusCode::OK)
+                        .header("content-type", mime_type)
+                        .body(Body::from(content))
+                        .unwrap()
+                }
+                None => {
+                    Response::builder()
+                        .status(StatusCode::NOT_FOUND)
+                        .body(Body::from("Not found"))
+                        .unwrap()
+                }
+            }
+        }));
+
+        (scalar_route, asset_route)
+    }
 }
 
 #[cfg(feature = "actix-web")]
 pub mod actix_web {
-    use actix_web::{HttpResponse, http::header::ContentType};
+    use actix_web::{HttpResponse, http::header::ContentType, web, Result};
+    use actix_web::web::ServiceConfig;
     use serde_json::Value;
-    use super::scalar_html;
+    use super::{scalar_html, get_asset_with_mime};
 
     /// Create an Actix-web HttpResponse with Scalar documentation
     pub fn scalar_response(config: &Value, js_bundle_url: Option<&str>) -> HttpResponse {
@@ -98,13 +163,47 @@ pub mod actix_web {
         let config: Value = serde_json::from_str(config_json)?;
         Ok(scalar_response(&config, js_bundle_url))
     }
+
+    /// Create a ServiceConfig that adds both Scalar documentation and asset serving routes
+    pub fn config(path: &str, config: &Value) -> impl Fn(&mut ServiceConfig) {
+        let scalar_path = path.to_string();
+        let js_path = format!("{}.js", path);
+        let config_clone = config.clone();
+        let js_path_clone = js_path.clone();
+
+        move |cfg: &mut ServiceConfig| {
+            let scalar_path = scalar_path.clone();
+            let js_path = js_path_clone.clone();
+            let config = config_clone.clone();
+            let js_path_for_asset = js_path.clone();
+
+            cfg.route(&scalar_path, web::get().to(move || {
+                let config = config.clone();
+                let js_path = js_path.clone();
+                async move { scalar_response(&config, Some(&js_path)) }
+            }))
+            .route(&js_path_for_asset, web::get().to(|| async {
+                match get_asset_with_mime("scalar.js") {
+                    Some((mime_type, content)) => {
+                        HttpResponse::Ok()
+                            .content_type(mime_type)
+                            .body(content)
+                    }
+                    None => {
+                        HttpResponse::NotFound().body("Not found")
+                    }
+                }
+            }));
+        }
+    }
+
 }
 
 #[cfg(feature = "warp")]
 pub mod warp {
-    use warp::reply::html;
+    use warp::{reply::html, Filter, Reply};
     use serde_json::Value;
-    use super::scalar_html;
+    use super::{scalar_html, get_asset_with_mime};
 
     /// Create a Warp HTML reply with Scalar documentation
     pub fn scalar_reply(config: &Value, js_bundle_url: Option<&str>) -> impl warp::Reply {
@@ -115,6 +214,87 @@ pub mod warp {
     pub fn scalar_reply_from_json(config_json: &str, js_bundle_url: Option<&str>) -> Result<impl warp::Reply, serde_json::Error> {
         let config: Value = serde_json::from_str(config_json)?;
         Ok(scalar_reply(&config, js_bundle_url))
+    }
+
+    /// Create a complete Warp filter with both Scalar documentation and asset serving
+    /// Note: For Warp, the path should not include leading slashes (e.g., use "scalar" instead of "/scalar")
+    pub fn routes(path: &'static str, config: &Value) -> impl Filter<Extract = impl Reply, Error = warp::Rejection> + Clone {
+        let config_clone = config.clone();
+        
+        // For Warp, we need to handle paths without leading slashes
+        let clean_path = path.trim_start_matches('/');
+        
+        let scalar_route = warp::path(clean_path)
+            .map(move || {
+                let config = config_clone.clone();
+                let js_path = format!("{}.js", clean_path);
+                scalar_reply(&config, Some(&js_path))
+            });
+
+        // Use a macro-based approach to create dynamic paths
+        let asset_route = create_dynamic_asset_route(clean_path);
+
+        scalar_route.or(asset_route)
+    }
+
+    // Helper function to create asset route dynamically using a macro-like approach
+    fn create_dynamic_asset_route(path: &str) -> impl Filter<Extract = impl Reply, Error = warp::Rejection> + Clone {
+        // Create a static string by using a different approach
+        // We'll use a match statement to handle common paths
+        match path {
+            "scalar" => create_asset_route_for_path("scalar.js"),
+            "docs" => create_asset_route_for_path("docs.js"),
+            "api" => create_asset_route_for_path("api.js"),
+            _ => {
+                // For other paths, we'll use a generic approach
+                // This is a limitation - we can't make it fully dynamic
+                create_asset_route_for_path("scalar.js")
+            }
+        }
+    }
+
+    // Helper function to create asset route for a specific path
+    fn create_asset_route_for_path(js_path: &'static str) -> impl Filter<Extract = impl Reply, Error = warp::Rejection> + Clone {
+        warp::path(js_path)
+            .and_then(|| async {
+                match get_asset_with_mime("scalar.js") {
+                    Some((mime_type, content)) => {
+                        Ok::<_, warp::Rejection>(warp::reply::with_header(
+                            warp::reply::with_status(content, warp::http::StatusCode::OK),
+                            "content-type",
+                            mime_type,
+                        ))
+                    }
+                    None => {
+                        Ok::<_, warp::Rejection>(warp::reply::with_header(
+                            warp::reply::with_status(Vec::<u8>::new(), warp::http::StatusCode::NOT_FOUND),
+                            "content-type",
+                            "text/plain",
+                        ))
+                    }
+                }
+            })
+    }
+
+    /// Create separate filters for Scalar documentation and asset serving
+    /// Note: For Warp, the path should not include leading slashes (e.g., use "scalar" instead of "/scalar")
+    pub fn separate_routes(path: &'static str, config: &Value) -> (impl Filter<Extract = impl Reply, Error = warp::Rejection> + Clone, impl Filter<Extract = impl Reply, Error = warp::Rejection> + Clone) {
+        let config_clone = config.clone();
+        
+        // For Warp, we need to handle paths without leading slashes
+        let clean_path = path.trim_start_matches('/');
+        
+        let scalar_route = warp::path(clean_path)
+            .map(move || {
+                let config = config_clone.clone();
+                let js_path = format!("{}.js", clean_path);
+                scalar_reply(&config, Some(&js_path))
+            });
+
+        // Use the same dynamic approach as the main routes function
+        let asset_route = create_dynamic_asset_route(clean_path);
+
+        (scalar_route, asset_route)
     }
 }
 

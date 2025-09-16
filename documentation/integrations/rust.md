@@ -62,29 +62,24 @@ serde_json = "1.0"
 ```
 
 ```rust
-use axum::{routing::get, Router, response::Html};
-use scalar_api_reference::axum::scalar_response;
+use axum::Router;
+use scalar_api_reference::axum::router;
 use serde_json::json;
 
-async fn scalar() -> Html<String> {
+#[tokio::main]
+async fn main() {
     let config = json!({
-        "url": "/openapi.json"
+        "url": "https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json",
+        "theme": "purple",
     });
-    // Using CDN (recommended)
-    scalar_response(&config, None)
-}
 
-async fn scalar_custom() -> Html<String> {
-    let config = json!({
-        "url": "/openapi.json"
-    });
-    // Using custom JS bundle URL
-    scalar_response(&config, Some("/custom-scalar.js"))
-}
+    let app = Router::new()
+        .merge(router("/scalar", &config));
 
-let app = Router::new()
-    .route("/scalar", get(scalar))
-    .route("/scalar-custom", get(scalar_custom));
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    println!("Server running on http://localhost:3000/scalar");
+    axum::serve(listener, app).await.unwrap();
+}
 ```
 
 ### Actix-web
@@ -97,32 +92,22 @@ serde_json = "1.0"
 ```
 
 ```rust
-use actix_web::{web, App, HttpServer, Result};
-use scalar_api_reference::actix_web::scalar_response;
+use actix_web::{App, HttpServer};
+use scalar_api_reference::actix_web::config;
 use serde_json::json;
-
-async fn scalar() -> Result<actix_web::HttpResponse> {
-    let config = json!({
-        "url": "/openapi.json"
-    });
-    // Using CDN (recommended)
-    Ok(scalar_response(&config, None))
-}
-
-async fn scalar_custom() -> Result<actix_web::HttpResponse> {
-    let config = json!({
-        "url": "/openapi.json"
-    });
-    // Using custom JS bundle URL
-    Ok(scalar_response(&config, Some("/custom-scalar.js")))
-}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    HttpServer::new(|| {
+    let config_json = json!({
+        "url": "https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json",
+        "theme": "kepler",
+    });
+
+    println!("Server running on http://localhost:8080/scalar");
+
+    HttpServer::new(move || {
         App::new()
-            .route("/scalar", web::get().to(scalar))
-            .route("/scalar-custom", web::get().to(scalar_custom))
+            .configure(config("/scalar", &config_json))
     })
     .bind("127.0.0.1:8080")?
     .run()
@@ -140,37 +125,45 @@ serde_json = "1.0"
 ```
 
 ```rust
-use warp::Filter;
-use scalar_api_reference::warp::scalar_reply;
+use scalar_api_reference::warp::routes;
 use serde_json::json;
 
 #[tokio::main]
 async fn main() {
-    // Using CDN (recommended)
-    let scalar = warp::path("scalar")
-        .map(|| {
-            let config = json!({
-                "url": "/openapi.json"
-            });
-            scalar_reply(&config, None)
-        });
+    let config = json!({
+        "url": "https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json",
+        "theme": "kepler",
+        "layout": "classic"
+    });
 
-    // Using custom JS bundle URL
-    let scalar_custom = warp::path("scalar-custom")
-        .map(|| {
-            let config = json!({
-                "url": "/openapi.json"
-            });
-            scalar_reply(&config, Some("/custom-scalar.js"))
-        });
+    let scalar_routes = routes("scalar", &config);
 
-    let routes = scalar.or(scalar_custom);
-
-    warp::serve(routes)
+    println!("Server running on http://localhost:3030/scalar");
+    warp::serve(scalar_routes)
         .run(([127, 0, 0, 1], 3030))
         .await;
 }
 ```
+
+**Note:** For Warp, the path should not include leading slashes (e.g., use `"scalar"` instead of `"/scalar"`). This is due to Warp's path handling requirements. The Warp integration supports common paths like `"scalar"`, `"docs"`, and `"api"` with dynamic JS asset serving.
+
+## Simplified API
+
+The examples above use the new simplified API that automatically handles both serving the Scalar HTML documentation and its bundled JavaScript asset. This eliminates the need to manually set up routes for both the documentation and the JS file.
+
+### Available Functions
+
+- **Axum**: `scalar_api_reference::axum::router(path, config)` - Returns a complete Router
+- **Actix-web**: `scalar_api_reference::actix_web::config(path, config)` - Returns a configuration function
+- **Warp**: `scalar_api_reference::warp::routes(path, config)` - Returns a complete Filter
+
+All functions automatically:
+- Serve the Scalar HTML documentation at the specified path
+- Serve the bundled JavaScript at `{path}.js`
+- Handle proper MIME types and headers
+- Use the bundled JS file (no CDN dependency)
+
+**Warp Note:** The Warp integration supports common paths (`"scalar"`, `"docs"`, `"api"`) with dynamic JS asset serving. For other paths, it falls back to serving JS at `scalar.js`.
 
 ## Static Asset Serving
 
