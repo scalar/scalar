@@ -99,7 +99,7 @@ describe('getCurrentIndex', () => {
       expect(result).toBe(0) // Should find the pets tag
     })
 
-    it.only('should find tag entries with additional segments', () => {
+    it('should find tag entries with additional segments', () => {
       const result = getCurrentIndex('tag-pets.operations', entries)
       expect(result).toBe(0) // Should find the pets tag using startsWith
     })

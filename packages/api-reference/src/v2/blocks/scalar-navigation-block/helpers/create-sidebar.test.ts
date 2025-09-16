@@ -45,7 +45,7 @@ describe('createSidebar', () => {
               },
             },
           },
-        }
+        },
       })
 
       const sidebar1 = createSidebar(store, mockOptions)
@@ -72,15 +72,10 @@ describe('createSidebar', () => {
             version: '1.0.0',
           },
           paths: {},
-        }
+        },
       })
 
-      expect(
-        createSidebar(
-          store,
-          mockOptions,
-        ).items.value,
-      ).toStrictEqual({ entries: [], entities: new Map() })
+      expect(createSidebar(store, mockOptions).items.value).toStrictEqual({ entries: [], entities: new Map() })
     })
   })
 
@@ -90,7 +85,7 @@ describe('createSidebar', () => {
 
       await store.addDocument({
         name: 'default',
-        document:{
+        document: {
           openapi: '3.1.0',
           info: {
             title: 'Hello World',
@@ -104,15 +99,10 @@ describe('createSidebar', () => {
               },
             },
           },
-        }
+        },
       })
-      
-      expect(
-        createSidebar(
-          store,
-          mockOptions,
-        ).items.value,
-      ).toMatchObject({
+
+      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
         entries: [
           {
             title: 'Foobar',
@@ -145,17 +135,11 @@ describe('createSidebar', () => {
               },
             },
           },
-        }
+        },
       })
-      
-      expect(
-        createSidebar(
-          store,
-          mockOptions,
-        ).items.value,
-      ).toMatchObject({
-        entries: [
 
+      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
+        entries: [
           {
             title: 'Barfoo',
             children: [
@@ -202,15 +186,10 @@ describe('createSidebar', () => {
               },
             },
           },
-        }
+        },
       })
-      
-      expect(
-        createSidebar(
-          store,
-          mockOptions,
-        ).items.value,
-      ).toMatchObject({
+
+      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
         entries: [
           {
             title: 'Get Hello',
@@ -246,15 +225,10 @@ describe('createSidebar', () => {
               },
             },
           },
-        }
+        },
       })
-      
-      expect(
-        createSidebar(
-          store,
-          mockOptions,
-        ).items.value,
-      ).toMatchObject({
+
+      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
         entries: [{ title: 'Public' }],
       })
     })
@@ -278,16 +252,13 @@ describe('createSidebar', () => {
               },
             },
           },
-        }
+        },
       })
-      
+
       expect(
-        createSidebar(
-          store,
-          {
-            ...mockOptions,
-          },
-        ).items.value,
+        createSidebar(store, {
+          ...mockOptions,
+        }).items.value,
       ).toMatchObject({
         entries: [
           {
@@ -316,15 +287,15 @@ describe('createSidebar', () => {
       await store.addDocument({
         name: 'default',
         config: {
-          "x-scalar-reference-config": {
+          'x-scalar-reference-config': {
             tagSort: (a: { name: string }) => {
               if (a.name === 'Foobar') {
                 return -1
               }
-    
+
               return 1
             },
-          }
+          },
         },
         document: {
           openapi: '3.1.0',
@@ -340,16 +311,13 @@ describe('createSidebar', () => {
               },
             },
           },
-        }
+        },
       })
-      
+
       expect(
-        createSidebar(
-          store,
-          {
-            ...mockOptions,
-          },
-        ).items.value,
+        createSidebar(store, {
+          ...mockOptions,
+        }).items.value,
       ).toMatchObject({
         entries: [
           {
@@ -397,15 +365,10 @@ describe('createSidebar', () => {
               },
             },
           },
-        }
+        },
       })
-      
-      expect(
-        createSidebar(
-          store,
-          mockOptions,
-        ).items.value,
-      ).toMatchObject({
+
+      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
         entries: [
           {
             title: 'Foobar',
@@ -419,7 +382,7 @@ describe('createSidebar', () => {
       })
     })
 
-      it('creates a default tag', async () => {
+    it('creates a default tag', async () => {
       const store = createWorkspaceStore()
 
       await store.addDocument({
@@ -447,15 +410,10 @@ describe('createSidebar', () => {
               },
             },
           },
-        }
+        },
       })
-      
-      expect(
-        createSidebar(
-          store,
-          mockOptions,
-        ).items.value,
-      ).toMatchObject({
+
+      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
         entries: [
           {
             id: 'tag/foobar',
@@ -511,15 +469,10 @@ describe('createSidebar', () => {
               },
             },
           },
-        }
+        },
       })
-      
-      expect(
-        createSidebar(
-          store,
-          mockOptions,
-        ).items.value,
-      ).toMatchObject({
+
+      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
         entries: [
           {
             title: 'galaxy',
@@ -576,15 +529,10 @@ describe('createSidebar', () => {
               },
             },
           },
-        }
+        },
       })
-      
-      expect(
-        createSidebar(
-          store,
-          mockOptions,
-        ).items.value,
-      ).toMatchObject({
+
+      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
         entries: [
           {
             title: 'galaxy',
@@ -643,15 +591,10 @@ describe('createSidebar', () => {
               },
             },
           },
-        }
+        },
       })
-      
-      expect(
-        createSidebar(
-          store,
-          mockOptions,
-        ).items.value,
-      ).toMatchObject({
+
+      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
         entries: [
           {
             title: 'galaxy',
@@ -715,15 +658,10 @@ describe('createSidebar', () => {
               },
             },
           },
-        }
+        },
       })
-      
-      expect(
-        createSidebar(
-          store,
-          mockOptions,
-        ).items.value,
-      ).toMatchObject({
+
+      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
         entries: [
           {
             title: 'galaxy',
@@ -765,15 +703,10 @@ describe('createSidebar', () => {
             description: '# Foobar',
           },
           paths: {},
-        }
+        },
       })
-      
-      expect(
-        createSidebar(
-          store,
-          mockOptions,
-        ).items.value,
-      ).toMatchObject({
+
+      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
         entries: [
           {
             id: 'description/foobar',
@@ -797,15 +730,10 @@ describe('createSidebar', () => {
             description: '# Foobar\n\n## Barfoo',
           },
           paths: {},
-        }
+        },
       })
-      
-      expect(
-        createSidebar(
-          store,
-          mockOptions,
-        ).items.value,
-      ).toMatchObject({
+
+      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
         entries: [
           {
             id: 'description/foobar',
@@ -834,14 +762,9 @@ describe('createSidebar', () => {
             description: '# Foobar\n\n## Barfoo\n\n### Foofoo',
           },
           paths: {},
-        }
+        },
       })
-      expect(
-        createSidebar(
-          store,
-          mockOptions,
-        ).items.value,
-      ).toMatchObject({
+      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
         entries: [
           {
             id: 'description/foobar',
@@ -860,7 +783,6 @@ describe('createSidebar', () => {
 
   describe('operations', () => {
     it('has a single entry for a single operation', async () => {
-
       const store = createWorkspaceStore()
 
       await store.addDocument({
@@ -878,15 +800,10 @@ describe('createSidebar', () => {
               },
             },
           },
-        }
+        },
       })
 
-      expect(
-        createSidebar(
-          store,
-          mockOptions,
-        ).items.value,
-      ).toMatchObject({
+      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
         entries: [{ title: 'Hello World' }],
       })
     })
@@ -916,15 +833,10 @@ describe('createSidebar', () => {
               },
             },
           },
-        }
+        },
       })
-      
-      expect(
-        createSidebar(
-          store,
-          mockOptions,
-        ).items.value,
-      ).toMatchObject({
+
+      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
         entries: [
           { title: 'Hello World' },
           {
@@ -962,16 +874,10 @@ describe('createSidebar', () => {
               },
             },
           },
-        }
+        },
       })
 
-
-      expect(
-        createSidebar(
-          store,
-          mockOptions,
-        ).items.value,
-      ).toMatchObject({
+      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
         entries: [{ title: 'Get' }],
       })
     })
@@ -994,21 +900,15 @@ describe('createSidebar', () => {
               },
             },
           },
-        }
+        },
       })
 
-      expect(
-        createSidebar(
-          store,
-          mockOptions,
-        ).items.value,
-      ).toMatchObject({
+      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
         entries: [{ title: '/hello' }],
       })
     })
 
     it('sorts operations alphabetically with summary', async () => {
-
       const store = createWorkspaceStore()
 
       await store.addDocument({
@@ -1033,16 +933,13 @@ describe('createSidebar', () => {
               },
             },
           },
-        }
+        },
       })
 
       expect(
-        createSidebar(
-          store,
-          {
-            ...mockOptions,
-          },
-        ).items.value,
+        createSidebar(store, {
+          ...mockOptions,
+        }).items.value,
       ).toMatchObject({
         entries: [
           {
@@ -1083,16 +980,13 @@ describe('createSidebar', () => {
               },
             },
           },
-        }
+        },
       })
 
       expect(
-        createSidebar(
-          store,
-          {
-            ...mockOptions,
-          },
-        ).items.value,
+        createSidebar(store, {
+          ...mockOptions,
+        }).items.value,
       ).toMatchObject({
         entries: [
           {
@@ -1117,8 +1011,8 @@ describe('createSidebar', () => {
         name: 'default',
         config: {
           'x-scalar-reference-config': {
-            operationsSorter: "method"
-          }
+            operationsSorter: 'method',
+          },
         },
         document: {
           openapi: '3.1.0',
@@ -1140,16 +1034,13 @@ describe('createSidebar', () => {
               },
             },
           },
-        }
+        },
       })
-      
+
       expect(
-        createSidebar(
-          store,
-          {
-            ...mockOptions,
-          },
-        ).items.value,
+        createSidebar(store, {
+          ...mockOptions,
+        }).items.value,
       ).toMatchObject({
         entries: [
           {
@@ -1177,14 +1068,14 @@ describe('createSidebar', () => {
             operationsSorter: (a: { method: string; path: string }, b: { method: string; path: string }) => {
               const methodOrder = ['get', 'post', 'delete']
               const methodComparison = methodOrder.indexOf(a.method) - methodOrder.indexOf(b.method)
-    
+
               if (methodComparison !== 0) {
                 return methodComparison
               }
-    
+
               return a.path.localeCompare(b.path)
             },
-          }
+          },
         },
         document: {
           openapi: '3.1.0',
@@ -1218,16 +1109,13 @@ describe('createSidebar', () => {
               },
             },
           },
-        }
+        },
       })
-      
+
       expect(
-        createSidebar(
-          store,
-          {
-            ...mockOptions,
-          },
-        ).items.value,
+        createSidebar(store, {
+          ...mockOptions,
+        }).items.value,
       ).toMatchObject({
         entries: [
           {
@@ -1272,15 +1160,10 @@ describe('createSidebar', () => {
               },
             },
           },
-        }
+        },
       })
-      
-      expect(
-        createSidebar(
-          store,
-          mockOptions,
-        ).items.value,
-      ).toMatchObject({
+
+      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
         entries: [{ title: 'Webhooks', children: [{ title: 'Webhook' }] }],
       })
     })
@@ -1316,15 +1199,10 @@ describe('createSidebar', () => {
               },
             },
           },
-        }
+        },
       })
-      
-      expect(
-        createSidebar(
-          store,
-          mockOptions,
-        ).items.value,
-      ).toMatchObject({
+
+      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
         entries: [{ title: 'Operation' }, { title: 'Webhooks', children: [{ title: 'Webhook' }] }],
       })
     })
@@ -1354,22 +1232,17 @@ describe('createSidebar', () => {
               },
             },
           },
-        }
+        },
       })
-      
-      expect(
-        createSidebar(
-          store,
-          mockOptions,
-        ).items.value,
-      ).toMatchObject({
+
+      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
         entries: [{ title: 'Operation' }, { title: 'Webhooks', children: [{ title: 'Webhook' }] }],
       })
     })
   })
 
   describe('schemas', () => {
-      it('shows schemas', async () => {
+    it('shows schemas', async () => {
       const store = createWorkspaceStore()
 
       await store.addDocument({
@@ -1399,15 +1272,10 @@ describe('createSidebar', () => {
               },
             },
           },
-        }
+        },
       })
-      
-      expect(
-        createSidebar(
-          store,
-          mockOptions,
-        ).items.value,
-      ).toMatchObject({
+
+      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
         entries: [
           { title: 'Get' },
           {
@@ -1440,21 +1308,15 @@ describe('createSidebar', () => {
               },
             },
           },
-        }
+        },
       })
-      
-      expect(
-        createSidebar(
-          store,
-          mockOptions,
-        ).items.value,
-      ).toMatchObject({
+
+      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
         entries: [{ title: 'Models', children: [{ title: 'Foobar' }] }],
       })
     })
 
     it('hides schemas with x-internal: true', async () => {
-
       const store = createWorkspaceStore()
 
       await store.addDocument({
@@ -1494,15 +1356,10 @@ describe('createSidebar', () => {
               },
             },
           },
-        }
+        },
       })
 
-      expect(
-        createSidebar(
-          store,
-          mockOptions,
-        ).items.value,
-      ).toMatchObject({
+      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
         entries: [
           { title: 'Get' },
           {
