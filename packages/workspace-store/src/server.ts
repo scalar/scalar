@@ -2,7 +2,7 @@ import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
 
 import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
-import { escapeJsonPointer } from '@scalar/openapi-parser'
+import { escapeJsonPointer } from '@scalar/json-magic/utils/escape-json-pointer'
 import { upgrade } from '@scalar/openapi-upgrader'
 
 import { keyOf } from '@/helpers/general'

@@ -1,6 +1,6 @@
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
-import { escapeJsonPointer } from '@scalar/openapi-parser'
+import { escapeJsonPointer } from '@scalar/json-magic/utils/escape-json-pointer'
 
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
