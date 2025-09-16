@@ -170,8 +170,6 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
         const id = getId(target)
         const path = convertToLocalRef(ref, id ?? args.currentContext, args.schemas)
 
-        console.log({ path, ref, schemas: args.schemas,  })
-
         if (path === undefined) {
           return undefined
         }
