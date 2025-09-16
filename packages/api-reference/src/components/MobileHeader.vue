@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ScalarIconButton } from '@scalar/components'
 
-import { useSidebar } from '@/features/sidebar'
-
-const { isSidebarOpen } = useSidebar()
+import { useSidebar } from '@/v2/blocks/scalar-navigation-block'
 
 defineProps<{
   breadcrumb: string
 }>()
+
+const { isSidebarOpen } = useSidebar()
 </script>
 <template>
   <div class="references-mobile-header t-doc__header">

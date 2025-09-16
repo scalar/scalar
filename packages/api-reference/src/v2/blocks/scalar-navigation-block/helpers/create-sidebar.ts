@@ -3,14 +3,7 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { computed, reactive, ref } from 'vue'
 
 import { lazyBus } from '@/components/Lazy'
-import type { TraverseSpecOptions } from '@/features/traverse-schema'
-import { generateReverseIndex } from '@/features/traverse-schema/helpers/generate-reverse-index'
-
-/** Track which sidebar items are opened */
-type CollapsedSidebarItems = Record<string, boolean>
-
-/** Sidebar initialization options */
-export type SidebarOptions = TraverseSpecOptions
+import { generateReverseIndex } from '@/v2/blocks/scalar-navigation-block/helpers/generate-reverse-index'
 
 /**
  * Creating sidebar with only one traversal of the spec
@@ -20,8 +13,8 @@ export type SidebarOptions = TraverseSpecOptions
  *  - update docs
  *  - tagged models
  */
-export const createSidebar = (store: WorkspaceStore, options: SidebarOptions) => {
-  const collapsedSidebarItems = reactive<CollapsedSidebarItems>({})
+export const createSidebar = (store: WorkspaceStore, options: { getSectionId: (hashStr?: string) => string }) => {
+  const collapsedSidebarItems = reactive<Record<string, boolean>>({})
   const isSidebarOpen = ref(false)
 
   const toggleCollapsedSidebarItem = (key: string) => (collapsedSidebarItems[key] = !collapsedSidebarItems[key])
@@ -57,7 +50,7 @@ export const createSidebar = (store: WorkspaceStore, options: SidebarOptions) =>
     const result = store.workspace.activeDocument?.['x-scalar-navigation']
 
     // Open all tags
-    if (options.config.value.defaultOpenAllTags) {
+    if (store.config['x-scalar-reference-config'].features.expandAllTagSections) {
       result?.forEach((entry) => setCollapsedSidebarItem(entry.id, true))
     }
 

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ScalarIconCaretDown } from '@scalar/icons'
 
-import { useSidebar } from '@/features/sidebar'
 import { useConfig } from '@/hooks/useConfig'
+import { useSidebar } from '@/v2/blocks/scalar-navigation-block'
 
 const { id } = defineProps<{
   id: string

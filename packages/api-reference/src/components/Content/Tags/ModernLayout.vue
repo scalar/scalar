@@ -5,8 +5,8 @@ import { computed, nextTick, ref, useId } from 'vue'
 import { Lazy } from '@/components/Lazy'
 import { SectionContainer } from '@/components/Section'
 import ShowMoreButton from '@/components/ShowMoreButton.vue'
-import { useSidebar } from '@/features/sidebar'
 import { useNavState } from '@/hooks/useNavState'
+import { useSidebar } from '@/v2/blocks/scalar-navigation-block'
 
 import TagSection from './TagSection.vue'
 

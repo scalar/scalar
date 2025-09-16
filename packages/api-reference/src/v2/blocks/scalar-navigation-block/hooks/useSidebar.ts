@@ -1,8 +1,7 @@
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type InjectionKey, inject, provide } from 'vue'
 
-import { createSidebar } from '@/features/sidebar/helpers/create-sidebar'
-import type { TraverseSpecOptions } from '@/features/traverse-schema'
+import { createSidebar } from '@/v2/blocks/scalar-navigation-block/helpers/create-sidebar'
 
 type Sidebar = ReturnType<typeof createSidebar>
 
@@ -10,7 +9,7 @@ type Sidebar = ReturnType<typeof createSidebar>
  * Injection key for the sidebar instance.
  * This ensures type safety when injecting the sidebar.
  */
-export const SIDEBAR_SYMBOL: InjectionKey<Sidebar> = Symbol()
+export const SIDEBAR_SYMBOL: InjectionKey<Sidebar> = Symbol('sidebar')
 
 /**
  * Composable for managing the sidebar state.
@@ -18,7 +17,10 @@ export const SIDEBAR_SYMBOL: InjectionKey<Sidebar> = Symbol()
  * When called with a collection and options, it creates and provides a new sidebar instance.
  * When called without parameters, it returns the injected sidebar state.
  */
-export const useSidebar = (store?: WorkspaceStore, options?: TraverseSpecOptions): ReturnType<typeof createSidebar> => {
+export const useSidebar = (
+  store?: WorkspaceStore,
+  options?: { getSectionId: (hashStr?: string) => string },
+): ReturnType<typeof createSidebar> => {
   // If collection is provided, create and provide a new sidebar instance
   if (store && options) {
     const sidebar = createSidebar(store, options)

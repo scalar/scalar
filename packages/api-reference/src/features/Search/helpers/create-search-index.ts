@@ -1,11 +1,13 @@
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { OpenApiDocument, TraversedEntry } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+
 import type { FuseData } from '@/features/Search/types'
-import type { TraversedEntry } from '@/features/traverse-schema'
 import { createParameterMap, extractRequestBody } from '@/libs/openapi'
 
 /**
  * Create a search index from a list of entries.
  */
-export function createSearchIndex(entries: TraversedEntry[]): FuseData[] {
+export function createSearchIndex(entries: TraversedEntry[], document?: OpenApiDocument): FuseData[] {
   const index: FuseData[] = []
 
   /**
@@ -13,11 +15,11 @@ export function createSearchIndex(entries: TraversedEntry[]): FuseData[] {
    */
   function processEntries(entriesToProcess: TraversedEntry[]): void {
     entriesToProcess.forEach((entry) => {
-      addEntryToIndex(entry, index)
+      addEntryToIndex(entry, index, document)
 
       // Recursively process children if they exist
       if ('children' in entry && entry.children) {
-        processEntries(entry.children)
+        processEntries(entry.children as TraversedEntry[])
       }
     })
   }
@@ -30,18 +32,20 @@ export function createSearchIndex(entries: TraversedEntry[]): FuseData[] {
 /**
  * Adds a single entry to the search index, handling all entry types recursively.
  */
-function addEntryToIndex(entry: TraversedEntry, index: FuseData[]): void {
+function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: OpenApiDocument): void {
   // Operation
-  if ('operation' in entry) {
-    const requestBodyOrParameterMap = extractRequestBody(entry.operation) || createParameterMap(entry.operation)
+  if (entry.type === 'operation') {
+    const operation = getResolvedRef(document?.paths?.[entry.path]?.[entry.method as 'get']) ?? {}
+
+    const requestBodyOrParameterMap = extractRequestBody(operation) || createParameterMap(operation)
     const body = typeof requestBodyOrParameterMap !== 'boolean' ? requestBodyOrParameterMap : null
 
     index.push({
       type: 'operation',
       title: entry.title,
       href: `#${entry.id}`,
-      id: entry.operation.operationId,
-      description: entry.operation.description || '',
+      id: entry.id,
+      description: operation.description || '',
       method: entry.method,
       path: entry.path,
       body: body || '',
@@ -52,14 +56,16 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[]): void {
   }
 
   // Webhook
-  if ('webhook' in entry) {
+  if (entry.type === 'webhook') {
+    const webhook = getResolvedRef(document?.webhooks?.[entry.name]?.[entry.method as 'get']) ?? {}
+
     index.push({
       type: 'webhook',
       title: entry.title,
       href: `#${entry.id}`,
       description: 'Webhook',
       method: entry.method,
-      body: entry.webhook.description || '',
+      body: webhook.description || '',
       entry,
     })
 
@@ -67,9 +73,10 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[]): void {
   }
 
   // Model
-  if ('schema' in entry) {
-    const description =
-      'description' in entry.schema && typeof entry.schema.description === 'string' ? entry.schema.description : ''
+  if (entry.type === 'model') {
+    const schema = getResolvedRef(document?.components?.schemas?.[entry.name])
+
+    const description = schema?.description ?? ''
 
     index.push({
       type: 'model',
@@ -84,11 +91,11 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[]): void {
   }
 
   // Tag
-  if ('tag' in entry) {
+  if (entry.type === 'tag' && entry.isGroup === false) {
     index.push({
       title: entry.title,
       href: `#${entry.id}`,
-      description: entry.tag.description || '',
+      description: entry.description || '',
       type: 'tag',
       body: '',
       entry,
@@ -98,7 +105,7 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[]): void {
   }
 
   // Tag group
-  if ('isGroup' in entry) {
+  if (entry.type === 'tag' && entry.isGroup === true) {
     index.push({
       title: entry.title,
       href: `#${entry.id}`,

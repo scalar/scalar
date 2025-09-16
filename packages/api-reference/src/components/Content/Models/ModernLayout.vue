@@ -12,8 +12,8 @@ import {
   SectionHeaderTag,
 } from '@/components/Section'
 import ShowMoreButton from '@/components/ShowMoreButton.vue'
-import { useSidebar } from '@/features/sidebar'
 import { useNavState } from '@/hooks/useNavState'
+import { useSidebar } from '@/v2/blocks/scalar-navigation-block'
 
 import { Schema, SchemaHeading } from '../Schema'
 

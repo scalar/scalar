@@ -42,7 +42,6 @@ import MobileHeader from '@/components/MobileHeader.vue'
 import { ApiClientModal } from '@/features/api-client-modal'
 import { useDocumentSource } from '@/features/document-source'
 import { SearchButton } from '@/features/Search'
-import { Sidebar, useSidebar } from '@/features/sidebar'
 import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
@@ -51,6 +50,8 @@ import type {
   ReferenceLayoutSlot,
   ReferenceSlotProps,
 } from '@/types'
+import { useSidebar } from '@/v2/blocks/scalar-navigation-block'
+import Sidebar from '@/v2/blocks/scalar-navigation-block/components/Sidebar.vue'
 import { useLegacyStoreEvents } from '@/v2/hooks/use-legacy-store-events'
 
 const {
@@ -113,8 +114,7 @@ const obtrusiveScrollbars = computed(hasObtrusiveScrollbars)
 const navState = useNavState(configuration)
 const { isSidebarOpen, setCollapsedSidebarItem, scrollToOperation, items } =
   useSidebar(store, {
-    ...navState,
-    config: configuration,
+    getSectionId: navState.getSectionId,
   })
 
 const {
@@ -348,6 +348,7 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
                 v-if="!configuration.hideSearch"
                 class="scalar-api-references-standalone-search">
                 <SearchButton
+                  :document="store.workspace.activeDocument"
                   :hideModels="configuration?.hideModels"
                   :searchHotKey="configuration?.searchHotKey" />
               </div>

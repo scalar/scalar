@@ -78,6 +78,11 @@
       "import": "./dist/server.js",
       "types": "./dist/server.d.ts",
       "default": "./dist/server.js"
+    },
+    "./navigation": {
+      "import": "./dist/navigation/index.js",
+      "types": "./dist/navigation/index.d.ts",
+      "default": "./dist/navigation/index.js"
     }
   },
   "files": [
