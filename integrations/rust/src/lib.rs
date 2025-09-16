@@ -149,18 +149,18 @@ mod tests {
 
     #[test]
     fn test_scalar_html_from_json() {
-        let config_json = r#"{"url": "/api.json", "theme": "blue"}"#;
+        let config_json = r#"{"url": "/api.json", "theme": "purple"}"#;
 
         // Test with custom JS bundle URL
         let html1 = scalar_html_from_json(config_json, Some("/bundle.js")).unwrap();
         assert!(html1.contains("/api.json"));
-        assert!(html1.contains("blue"));
+        assert!(html1.contains("purple"));
         assert!(html1.contains("/bundle.js"));
 
         // Test with default CDN URL
         let html2 = scalar_html_from_json(config_json, None).unwrap();
         assert!(html2.contains("/api.json"));
-        assert!(html2.contains("blue"));
+        assert!(html2.contains("purple"));
         assert!(html2.contains("https://cdn.jsdelivr.net/npm/@scalar/api-reference"));
     }
 
@@ -168,20 +168,20 @@ mod tests {
     fn test_convenience_functions() {
         let config = json!({
             "url": "/test.json",
-            "theme": "green"
+            "theme": "kepler"
         });
 
         // Test scalar_html_default
         let html1 = scalar_html_default(&config);
         assert!(html1.contains("/test.json"));
-        assert!(html1.contains("green"));
+        assert!(html1.contains("kepler"));
         assert!(html1.contains("https://cdn.jsdelivr.net/npm/@scalar/api-reference"));
 
         // Test scalar_html_from_json_default
-        let config_json = r#"{"url": "/test2.json", "theme": "red"}"#;
+        let config_json = r#"{"url": "/test2.json", "theme": "purple"}"#;
         let html2 = scalar_html_from_json_default(config_json).unwrap();
         assert!(html2.contains("/test2.json"));
-        assert!(html2.contains("red"));
+        assert!(html2.contains("purple"));
         assert!(html2.contains("https://cdn.jsdelivr.net/npm/@scalar/api-reference"));
     }
 
