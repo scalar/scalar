@@ -726,10 +726,18 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       const ref = root['$ref']
       const isChunk = '$global' in root && typeof root['$global'] === 'boolean' && root['$global']
 
-      if (ref.startsWith('#')) {
+      // Try to convert the reference to a local reference if possible
+      // This handles cases where the reference points to a local schema using $id or $anchor
+      // If it can be converted to a local reference, we do not need to bundle it
+      // and can skip further processing for this reference
+      // In case of partial bundling, we still need to ensure that all dependencies
+      // of the local reference are bundled to create a complete and self-contained partial bundle
+      // This is important to maintain the integrity of the partial bundle
+      const localRef = convertToLocalRef(ref, id ?? origin, schemas)
+
+      if (localRef) {
         if (isPartialBundling) {
-          const localRef = convertToLocalRef(ref, id ?? origin, schemas)
-          const segments = getSegmentsFromPath(localRef)
+          const segments = getSegmentsFromPath(`/${localRef}`)
           const parent = segments.length > 0 ? getValueByPath(documentRoot, segments.slice(0, -1)).value : undefined
 
           const targetValue = getValueByPath(documentRoot, segments)
@@ -744,12 +752,6 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       }
 
       const [prefix, path = ''] = ref.split('#', 2)
-
-      // This reference is defined in the local document using $id and/or $anchor
-      // We do not need to bundle it, so we can skip further processing
-      if (schemas.has(ref) || schemas.has(prefix)) {
-        return
-      }
 
       // Combine the current origin with the new path to resolve relative references
       // correctly within the context of the external file being processed

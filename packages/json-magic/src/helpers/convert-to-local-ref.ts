@@ -34,7 +34,7 @@ export const convertToLocalRef = (
 
   if (pathOrAnchor) {
     if (pathOrAnchor.startsWith('/')) {
-      return pathOrAnchor
+      return pathOrAnchor.slice(1)
     }
     return schemas.get(`${currentContext}#${pathOrAnchor}`)
   }
