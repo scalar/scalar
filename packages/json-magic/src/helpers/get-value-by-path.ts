@@ -24,11 +24,11 @@ export function getValueByPath(target: Record<string, any>, segments: string[]):
     (acc, key) => {
       // If the accumulator is undefined, the path does not exist
       if (acc.value === undefined) {
-        return undefined
+        return { context: '', value: undefined }
       }
       // If the accumulator is not an object or is null, stop traversal
       if (typeof acc.value !== 'object' || acc.value === null) {
-        return undefined
+        return { context: '', value: undefined }
       }
       // Attempt to get the id from the current value for context tracking
       const id = getId(acc.value)
