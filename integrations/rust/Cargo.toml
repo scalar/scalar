@@ -1,0 +1,55 @@
+[package]
+name = "scalar-api-reference"
+version = "0.1.0"
+edition = "2021"
+description = "Embed Scalar API documentation in Rust web applications"
+license = "MIT"
+repository = "https://github.com/scalar/scalar"
+keywords = ["api", "documentation", "openapi", "swagger"]
+categories = ["web-programming", "development-tools"]
+
+[dependencies]
+rust-embed = "8"
+serde_json = "1.0"
+
+[features]
+default = []
+axum = ["dep:axum", "dep:axum-extra", "dep:tokio"]
+actix-web = ["dep:actix-web"]
+warp = ["dep:warp", "dep:tokio"]
+
+[dependencies.axum]
+version = "0.7"
+optional = true
+
+[dependencies.axum-extra]
+version = "0.9"
+optional = true
+
+[dependencies.actix-web]
+version = "4.0"
+optional = true
+
+[dependencies.warp]
+version = "0.3"
+optional = true
+
+[dependencies.tokio]
+version = "1.0"
+features = ["full"]
+optional = true
+
+[[example]]
+name = "axum"
+path = "examples/axum.rs"
+required-features = ["axum"]
+
+[[example]]
+name = "actix"
+path = "examples/actix.rs"
+required-features = ["actix-web"]
+
+[[example]]
+name = "warp"
+path = "examples/warp.rs"
+required-features = ["warp"]
