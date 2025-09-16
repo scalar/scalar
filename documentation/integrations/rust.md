@@ -7,6 +7,7 @@ A Rust crate for embedding Scalar API documentation in web applications.
 - Embed Scalar's HTML/JS assets directly into your Rust binary
 - Framework-agnostic core with optional integrations for popular web frameworks
 - Simple configuration injection via JSON
+- Automatic asset serving with proper MIME types
 
 ## Supported Frameworks
 
@@ -27,7 +28,7 @@ serde_json = "1.0"
 ### Core API
 
 ```rust
-use scalar_api_reference::{scalar_html, scalar_html_default, get_asset};
+use scalar_api_reference::{scalar_html, scalar_html_default, get_asset, get_asset_with_mime};
 use serde_json::json;
 
 // Generate HTML with configuration using CDN (recommended)
@@ -48,6 +49,11 @@ let html3 = scalar_html(&config, Some("/custom-scalar.js"));
 if let Some(js_content) = get_asset("scalar.js") {
     // Serve the JavaScript file
 }
+
+// Get static assets with MIME type
+if let Some((mime_type, content)) = get_asset_with_mime("scalar.js") {
+    // Serve the JavaScript file with proper MIME type
+}
 ```
 
 ## Framework Examples
@@ -59,6 +65,7 @@ if let Some(js_content) = get_asset("scalar.js") {
 scalar_api_reference = { version = "0.1.0", features = ["axum"] }
 axum = "0.7"
 serde_json = "1.0"
+tokio = { version = "1.0", features = ["full"] }
 ```
 
 ```rust
@@ -122,6 +129,7 @@ async fn main() -> std::io::Result<()> {
 scalar_api_reference = { version = "0.1.0", features = ["warp"] }
 warp = "0.3"
 serde_json = "1.0"
+tokio = { version = "1.0", features = ["full"] }
 ```
 
 ```rust
@@ -164,6 +172,38 @@ All functions automatically:
 - Use the bundled JS file (no CDN dependency)
 
 **Warp Note:** The Warp integration supports common paths (`"scalar"`, `"docs"`, `"api"`) with dynamic JS asset serving. For other paths, it falls back to serving JS at `scalar/scalar.js`.
+
+## Advanced Usage
+
+### Separate Routes (Axum)
+
+If you need more control over routing, you can use separate routes:
+
+```rust
+use scalar_api_reference::axum::{routes};
+
+let (scalar_route, asset_route) = routes("/scalar", &config);
+let app = Router::new()
+    .merge(scalar_route)
+    .merge(asset_route);
+```
+
+### Individual Response Functions
+
+You can also create individual responses without automatic routing:
+
+```rust
+use scalar_api_reference::axum::scalar_response;
+
+// Create a response handler
+async fn scalar_handler() -> Html<String> {
+    let config = json!({
+        "url": "/openapi.json",
+        "theme": "purple"
+    });
+    scalar_response(&config, Some("/scalar/scalar.js"))
+}
+```
 
 ## Static Asset Serving
 
