@@ -220,13 +220,13 @@ pub mod warp {
     /// Note: For Warp, the path should not include leading slashes (e.g., use "scalar" instead of "/scalar")
     pub fn routes(path: &'static str, config: &Value) -> impl Filter<Extract = impl Reply, Error = warp::Rejection> + Clone {
         let config_clone = config.clone();
-        
+
         // For Warp, we need to handle paths without leading slashes
         let clean_path = path.trim_start_matches('/');
-        
+
         // Create asset route first (more specific) to avoid conflicts
         let asset_route = create_asset_route(clean_path);
-        
+
         // Create scalar route that only matches exact path (not subpaths)
         let scalar_route = warp::path(clean_path)
             .and(warp::path::end())
@@ -280,13 +280,13 @@ pub mod warp {
     /// Note: For Warp, the path should not include leading slashes (e.g., use "scalar" instead of "/scalar")
     pub fn separate_routes(path: &'static str, config: &Value) -> (impl Filter<Extract = impl Reply, Error = warp::Rejection> + Clone, impl Filter<Extract = impl Reply, Error = warp::Rejection> + Clone) {
         let config_clone = config.clone();
-        
+
         // For Warp, we need to handle paths without leading slashes
         let clean_path = path.trim_start_matches('/');
-        
+
         // Create asset route
         let asset_route = create_asset_route(clean_path);
-        
+
         // Create scalar route that only matches exact path (not subpaths)
         let scalar_route = warp::path(clean_path)
             .and(warp::path::end())
@@ -403,5 +403,243 @@ mod tests {
         assert_eq!(get_mime_type("icon.svg"), "image/svg+xml");
         assert_eq!(get_mime_type("favicon.ico"), "image/x-icon");
         assert_eq!(get_mime_type("unknown.xyz"), "application/octet-stream");
+    }
+
+    #[test]
+    fn test_error_handling() {
+        // Test invalid JSON
+        let invalid_json = r#"{"url": "/api.json", "theme": "purple""#; // Missing closing brace
+        let result = scalar_html_from_json(invalid_json, None);
+        assert!(result.is_err());
+
+        // Test empty JSON
+        let empty_json = r#"{}"#;
+        let result = scalar_html_from_json(empty_json, None);
+        assert!(result.is_ok());
+        let html = result.unwrap();
+        assert!(html.contains("https://cdn.jsdelivr.net/npm/@scalar/api-reference"));
+    }
+
+    #[test]
+    fn test_edge_cases() {
+        // Test empty config
+        let empty_config = json!({});
+        let html = scalar_html(&empty_config, None);
+        assert!(html.contains("https://cdn.jsdelivr.net/npm/@scalar/api-reference"));
+
+        // Test config with special characters
+        let special_config = json!({
+            "url": "/api/v1/test?param=value&other=test",
+            "theme": "purple",
+            "description": "API with special chars: <>&\"'"
+        });
+        let html = scalar_html(&special_config, None);
+        assert!(html.contains("/api/v1/test?param=value&other=test"));
+        assert!(html.contains("purple"));
+
+        // Test paths with special characters
+        let config_with_special_path = json!({
+            "url": "/api/test",
+            "theme": "purple"
+        });
+        let html = scalar_html(&config_with_special_path, Some("/custom/path/scalar.js"));
+        assert!(html.contains("/custom/path/scalar.js"));
+    }
+}
+
+#[cfg(all(test, feature = "axum"))]
+mod axum_tests {
+    use super::*;
+    use crate::axum::{scalar_response, scalar_response_from_json, router, routes};
+    use serde_json::json;
+
+    #[test]
+    fn test_scalar_response() {
+        let config = json!({
+            "url": "/openapi.json",
+            "theme": "purple"
+        });
+
+        // Test with custom JS bundle URL
+        let response = scalar_response(&config, Some("/custom-scalar.js"));
+        let html = response.0;
+        assert!(html.contains("/openapi.json"));
+        assert!(html.contains("purple"));
+        assert!(html.contains("/custom-scalar.js"));
+
+        // Test with default CDN URL
+        let response = scalar_response(&config, None);
+        let html = response.0;
+        assert!(html.contains("/openapi.json"));
+        assert!(html.contains("purple"));
+        assert!(html.contains("https://cdn.jsdelivr.net/npm/@scalar/api-reference"));
+    }
+
+    #[test]
+    fn test_scalar_response_from_json() {
+        let config_json = r#"{"url": "/api.json", "theme": "purple"}"#;
+
+        // Test with custom JS bundle URL
+        let response = scalar_response_from_json(config_json, Some("/bundle.js")).unwrap();
+        let html = response.0;
+        assert!(html.contains("/api.json"));
+        assert!(html.contains("purple"));
+        assert!(html.contains("/bundle.js"));
+
+        // Test with default CDN URL
+        let response = scalar_response_from_json(config_json, None).unwrap();
+        let html = response.0;
+        assert!(html.contains("/api.json"));
+        assert!(html.contains("purple"));
+        assert!(html.contains("https://cdn.jsdelivr.net/npm/@scalar/api-reference"));
+
+        // Test invalid JSON
+        let invalid_json = r#"{"url": "/api.json", "theme": "purple""#;
+        let result = scalar_response_from_json(invalid_json, None);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_router_creation() {
+        let config = json!({
+            "url": "/openapi.json",
+            "theme": "purple"
+        });
+
+        // Test that router can be created without errors
+        let _app = router("/scalar", &config);
+        // Router creation is successful if we get here
+    }
+
+    #[test]
+    fn test_routes_creation() {
+        let config = json!({
+            "url": "/openapi.json",
+            "theme": "purple"
+        });
+
+        // Test that routes can be created without errors
+        let (scalar_route, asset_route) = routes("/scalar", &config);
+        // Routes creation is successful if we get here
+        // Note: We can't easily test the actual HTTP requests without more complex setup
+    }
+}
+
+#[cfg(all(test, feature = "actix-web"))]
+mod actix_tests {
+    use super::*;
+    use crate::actix_web::{scalar_response, scalar_response_from_json, config};
+    use serde_json::json;
+
+    #[test]
+    fn test_scalar_response() {
+        let config = json!({
+            "url": "/openapi.json",
+            "theme": "purple"
+        });
+
+        // Test with custom JS bundle URL
+        let response = scalar_response(&config, Some("/custom-scalar.js"));
+        // Test that response can be created without errors
+
+        // Test with default CDN URL
+        let response = scalar_response(&config, None);
+        // Test that response can be created without errors
+    }
+
+    #[test]
+    fn test_scalar_response_from_json() {
+        let config_json = r#"{"url": "/api.json", "theme": "purple"}"#;
+
+        // Test with custom JS bundle URL
+        let response = scalar_response_from_json(config_json, Some("/bundle.js")).unwrap();
+        // Test that response can be created without errors
+
+        // Test with default CDN URL
+        let response = scalar_response_from_json(config_json, None).unwrap();
+        // Test that response can be created without errors
+
+        // Test invalid JSON
+        let invalid_json = r#"{"url": "/api.json", "theme": "purple""#;
+        let result = scalar_response_from_json(invalid_json, None);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_config_creation() {
+        let config_json = json!({
+            "url": "/openapi.json",
+            "theme": "purple"
+        });
+
+        // Test that config function can be created without errors
+        let _config_fn = config("/scalar", &config_json);
+        // Config creation is successful if we get here
+    }
+}
+
+#[cfg(all(test, feature = "warp"))]
+mod warp_tests {
+    use super::*;
+    use crate::warp::{scalar_reply, scalar_reply_from_json, routes, separate_routes};
+    use serde_json::json;
+
+    #[test]
+    fn test_scalar_reply() {
+        let config = json!({
+            "url": "/openapi.json",
+            "theme": "purple"
+        });
+
+        // Test with custom JS bundle URL
+        let reply = scalar_reply(&config, Some("/custom-scalar.js"));
+        // Test that reply can be created without errors
+        // Note: We can't easily test the actual response content without more complex setup
+
+        // Test with default CDN URL
+        let reply = scalar_reply(&config, None);
+        // Test that reply can be created without errors
+    }
+
+    #[test]
+    fn test_scalar_reply_from_json() {
+        let config_json = r#"{"url": "/api.json", "theme": "purple"}"#;
+
+        // Test with custom JS bundle URL
+        let reply = scalar_reply_from_json(config_json, Some("/bundle.js")).unwrap();
+        // Test that reply can be created without errors
+
+        // Test with default CDN URL
+        let reply = scalar_reply_from_json(config_json, None).unwrap();
+        // Test that reply can be created without errors
+
+        // Test invalid JSON
+        let invalid_json = r#"{"url": "/api.json", "theme": "purple""#;
+        let result = scalar_reply_from_json(invalid_json, None);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_routes_creation() {
+        let config = json!({
+            "url": "/openapi.json",
+            "theme": "purple"
+        });
+
+        // Test that routes can be created without errors
+        let _filter = routes("scalar", &config);
+        // Routes creation is successful if we get here
+    }
+
+    #[test]
+    fn test_separate_routes_creation() {
+        let config = json!({
+            "url": "/openapi.json",
+            "theme": "purple"
+        });
+
+        // Test that separate routes can be created without errors
+        let (scalar_filter, asset_filter) = separate_routes("scalar", &config);
+        // Routes creation is successful if we get here
     }
 }
