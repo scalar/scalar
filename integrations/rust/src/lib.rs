@@ -81,7 +81,7 @@ pub mod axum {
 
     /// Create a complete Axum router with both Scalar documentation and asset serving
     pub fn router(path: &str, config: &Value) -> Router {
-        let js_path = format!("{}.js", path);
+        let js_path = format!("{}/scalar.js", path);
         let config_clone = config.clone();
         let js_path_clone = js_path.clone();
 
@@ -112,7 +112,7 @@ pub mod axum {
 
     /// Create separate routes for Scalar documentation and asset serving
     pub fn routes(path: &str, config: &Value) -> (Router, Router) {
-        let js_path = format!("{}.js", path);
+        let js_path = format!("{}/scalar.js", path);
         let config_clone = config.clone();
         let js_path_clone = js_path.clone();
 
@@ -167,7 +167,7 @@ pub mod actix_web {
     /// Create a ServiceConfig that adds both Scalar documentation and asset serving routes
     pub fn config(path: &str, config: &Value) -> impl Fn(&mut ServiceConfig) {
         let scalar_path = path.to_string();
-        let js_path = format!("{}.js", path);
+        let js_path = format!("{}/scalar.js", path);
         let config_clone = config.clone();
         let js_path_clone = js_path.clone();
 
@@ -224,38 +224,38 @@ pub mod warp {
         // For Warp, we need to handle paths without leading slashes
         let clean_path = path.trim_start_matches('/');
         
+        // Create asset route first (more specific) to avoid conflicts
+        let asset_route = create_asset_route(clean_path);
+        
+        // Create scalar route that only matches exact path (not subpaths)
         let scalar_route = warp::path(clean_path)
+            .and(warp::path::end())
             .map(move || {
                 let config = config_clone.clone();
-                let js_path = format!("{}.js", clean_path);
+                let js_path = format!("{}/scalar.js", clean_path);
                 scalar_reply(&config, Some(&js_path))
             });
 
-        // Use a macro-based approach to create dynamic paths
-        let asset_route = create_dynamic_asset_route(clean_path);
-
-        scalar_route.or(asset_route)
+        // Asset route should be checked first since it's more specific
+        asset_route.or(scalar_route)
     }
 
-    // Helper function to create asset route dynamically using a macro-like approach
-    fn create_dynamic_asset_route(path: &str) -> impl Filter<Extract = impl Reply, Error = warp::Rejection> + Clone {
-        // Create a static string by using a different approach
-        // We'll use a match statement to handle common paths
+    // Helper function to create asset route for any path
+    fn create_asset_route(path: &'static str) -> impl Filter<Extract = impl Reply, Error = warp::Rejection> + Clone {
+        // For Warp, we need to handle common paths explicitly since it requires static strings
         match path {
-            "scalar" => create_asset_route_for_path("scalar.js"),
-            "docs" => create_asset_route_for_path("docs.js"),
-            "api" => create_asset_route_for_path("api.js"),
-            _ => {
-                // For other paths, we'll use a generic approach
-                // This is a limitation - we can't make it fully dynamic
-                create_asset_route_for_path("scalar.js")
-            }
+            "scalar" => create_specific_asset_route("scalar"),
+            "docs" => create_specific_asset_route("docs"),
+            "api" => create_specific_asset_route("api"),
+            "reference" => create_specific_asset_route("reference"),
+            _ => create_specific_asset_route("scalar"), // fallback to scalar
         }
     }
 
     // Helper function to create asset route for a specific path
-    fn create_asset_route_for_path(js_path: &'static str) -> impl Filter<Extract = impl Reply, Error = warp::Rejection> + Clone {
-        warp::path(js_path)
+    fn create_specific_asset_route(path: &'static str) -> impl Filter<Extract = impl Reply, Error = warp::Rejection> + Clone {
+        warp::path(path)
+            .and(warp::path("scalar.js"))
             .and_then(|| async {
                 match get_asset_with_mime("scalar.js") {
                     Some((mime_type, content)) => {
@@ -284,15 +284,17 @@ pub mod warp {
         // For Warp, we need to handle paths without leading slashes
         let clean_path = path.trim_start_matches('/');
         
+        // Create asset route
+        let asset_route = create_asset_route(clean_path);
+        
+        // Create scalar route that only matches exact path (not subpaths)
         let scalar_route = warp::path(clean_path)
+            .and(warp::path::end())
             .map(move || {
                 let config = config_clone.clone();
-                let js_path = format!("{}.js", clean_path);
+                let js_path = format!("{}/scalar.js", clean_path);
                 scalar_reply(&config, Some(&js_path))
             });
-
-        // Use the same dynamic approach as the main routes function
-        let asset_route = create_dynamic_asset_route(clean_path);
 
         (scalar_route, asset_route)
     }

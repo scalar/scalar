@@ -74,10 +74,10 @@ async fn main() {
     });
 
     let app = Router::new()
-        .merge(router("/scalar", &config));
+        .merge(router("/docs", &config));
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
-    println!("Server running on http://localhost:3000/scalar");
+    println!("Server running on http://localhost:3000/docs");
     axum::serve(listener, app).await.unwrap();
 }
 ```
@@ -103,11 +103,11 @@ async fn main() -> std::io::Result<()> {
         "theme": "kepler",
     });
 
-    println!("Server running on http://localhost:8080/scalar");
+    println!("Server running on http://localhost:8080/docs");
 
     HttpServer::new(move || {
         App::new()
-            .configure(config("/scalar", &config_json))
+            .configure(config("/docs", &config_json))
     })
     .bind("127.0.0.1:8080")?
     .run()
@@ -136,16 +136,16 @@ async fn main() {
         "layout": "classic"
     });
 
-    let scalar_routes = routes("scalar", &config);
+    let scalar_routes = routes("docs", &config);
 
-    println!("Server running on http://localhost:3030/scalar");
+    println!("Server running on http://localhost:3030/docs");
     warp::serve(scalar_routes)
         .run(([127, 0, 0, 1], 3030))
         .await;
 }
 ```
 
-**Note:** For Warp, the path should not include leading slashes (e.g., use `"scalar"` instead of `"/scalar"`). This is due to Warp's path handling requirements. The Warp integration supports common paths like `"scalar"`, `"docs"`, and `"api"` with dynamic JS asset serving.
+**Note:** For Warp, the path should not include leading slashes (e.g., use `"docs"` instead of `"/docs"`). This is due to Warp's path handling requirements. The Warp integration supports common paths like `"scalar"`, `"docs"`, and `"api"` with dynamic JS asset serving. Documentation is served at `/docs` and JS is served at `/docs/scalar.js`.
 
 ## Simplified API
 
@@ -159,11 +159,11 @@ The examples above use the new simplified API that automatically handles both se
 
 All functions automatically:
 - Serve the Scalar HTML documentation at the specified path
-- Serve the bundled JavaScript at `{path}.js`
+- Serve the bundled JavaScript at `{path}/scalar.js`
 - Handle proper MIME types and headers
 - Use the bundled JS file (no CDN dependency)
 
-**Warp Note:** The Warp integration supports common paths (`"scalar"`, `"docs"`, `"api"`) with dynamic JS asset serving. For other paths, it falls back to serving JS at `scalar.js`.
+**Warp Note:** The Warp integration supports common paths (`"scalar"`, `"docs"`, `"api"`) with dynamic JS asset serving. For other paths, it falls back to serving JS at `scalar/scalar.js`.
 
 ## Static Asset Serving
 
