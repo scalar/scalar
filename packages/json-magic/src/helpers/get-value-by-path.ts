@@ -31,7 +31,6 @@ export function getValueByPath(target: Record<string, any>, segments: string[]):
         return undefined
       }
       // Attempt to get the id from the current value for context tracking
-      // Note: getId must be imported or defined elsewhere in your codebase
       const id = getId(acc.value)
 
       // Return the next context and value for the next iteration
