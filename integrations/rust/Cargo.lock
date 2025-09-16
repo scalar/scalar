@@ -1426,7 +1426,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "scalar-api-reference"
+name = "scalar_api_reference"
 version = "0.1.0"
 dependencies = [
  "actix-web",

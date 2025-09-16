@@ -1,5 +1,5 @@
 {
-  "name": "scalar-api-reference",
+  "name": "scalar_api_reference",
   "description": "A Rust crate for embedding Scalar API documentation in web applications",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
@@ -10,6 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/rust"
   },
+  "private": true,
   "keywords": [
     "api",
     "documentation",
@@ -73,7 +74,7 @@
   "dependencies": {},
   "devDependencies": {},
   "rust": {
-    "crate": "scalar-api-reference",
+    "crate": "scalar_api_reference",
     "version": "0.1.0",
     "features": [
       "axum",

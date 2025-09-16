@@ -1,5 +1,5 @@
 use actix_web::{web, App, HttpServer, Result};
-use scalar_rust::actix_web::scalar_response;
+use scalar_api_reference::actix_web::scalar_response;
 use serde_json::json;
 
 async fn scalar() -> Result<actix_web::HttpResponse> {
@@ -7,7 +7,8 @@ async fn scalar() -> Result<actix_web::HttpResponse> {
         "url": "/openapi.json",
         "theme": "kepler",
     });
-    Ok(scalar_response(&config))
+    // Using CDN (recommended)
+    Ok(scalar_response(&config, None))
 }
 
 #[actix_web::main]

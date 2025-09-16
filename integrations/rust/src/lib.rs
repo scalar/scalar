@@ -32,21 +32,34 @@ pub fn get_mime_type(path: &str) -> String {
     }
 }
 
-/// Render Scalar HTML with embedded configuration
-pub fn render_scalar(config_json: &str) -> String {
+/// Render Scalar HTML with embedded configuration and optional JS bundle URL
+pub fn render_scalar(config_json: &str, js_bundle_url: Option<&str>) -> String {
     let html_template = include_str!("../ui/index.html");
-    html_template.replace("__CONFIGURATION__", config_json)
+    let js_url = js_bundle_url.unwrap_or("https://cdn.jsdelivr.net/npm/@scalar/api-reference");
+    html_template
+        .replace("__CONFIGURATION__", config_json)
+        .replace("__JS_BUNDLE_URL__", js_url)
 }
 
-/// Return the Scalar HTML with embedded config
-pub fn scalar_html(config: &Value) -> String {
-    render_scalar(&config.to_string())
+/// Return the Scalar HTML with embedded config and optional JS bundle URL
+pub fn scalar_html(config: &Value, js_bundle_url: Option<&str>) -> String {
+    render_scalar(&config.to_string(), js_bundle_url)
 }
 
-/// Return the Scalar HTML with embedded config from a JSON string
-pub fn scalar_html_from_json(config_json: &str) -> Result<String, serde_json::Error> {
+/// Return the Scalar HTML with embedded config using CDN JS bundle URL
+pub fn scalar_html_default(config: &Value) -> String {
+    scalar_html(config, None)
+}
+
+/// Return the Scalar HTML with embedded config from a JSON string and optional JS bundle URL
+pub fn scalar_html_from_json(config_json: &str, js_bundle_url: Option<&str>) -> Result<String, serde_json::Error> {
     let config: Value = serde_json::from_str(config_json)?;
-    Ok(scalar_html(&config))
+    Ok(scalar_html(&config, js_bundle_url))
+}
+
+/// Return the Scalar HTML with embedded config from a JSON string using CDN JS bundle URL
+pub fn scalar_html_from_json_default(config_json: &str) -> Result<String, serde_json::Error> {
+    scalar_html_from_json(config_json, None)
 }
 
 #[cfg(feature = "axum")]
@@ -56,14 +69,14 @@ pub mod axum {
     use super::scalar_html;
 
     /// Create an Axum HTML response with Scalar documentation
-    pub fn scalar_response(config: &Value) -> Html<String> {
-        Html(scalar_html(config))
+    pub fn scalar_response(config: &Value, js_bundle_url: Option<&str>) -> Html<String> {
+        Html(scalar_html(config, js_bundle_url))
     }
 
     /// Create an Axum HTML response from JSON string
-    pub fn scalar_response_from_json(config_json: &str) -> Result<Html<String>, serde_json::Error> {
+    pub fn scalar_response_from_json(config_json: &str, js_bundle_url: Option<&str>) -> Result<Html<String>, serde_json::Error> {
         let config: Value = serde_json::from_str(config_json)?;
-        Ok(scalar_response(&config))
+        Ok(scalar_response(&config, js_bundle_url))
     }
 }
 
@@ -74,16 +87,16 @@ pub mod actix_web {
     use super::scalar_html;
 
     /// Create an Actix-web HttpResponse with Scalar documentation
-    pub fn scalar_response(config: &Value) -> HttpResponse {
+    pub fn scalar_response(config: &Value, js_bundle_url: Option<&str>) -> HttpResponse {
         HttpResponse::Ok()
             .content_type(ContentType::html())
-            .body(scalar_html(config))
+            .body(scalar_html(config, js_bundle_url))
     }
 
     /// Create an Actix-web HttpResponse from JSON string
-    pub fn scalar_response_from_json(config_json: &str) -> Result<HttpResponse, serde_json::Error> {
+    pub fn scalar_response_from_json(config_json: &str, js_bundle_url: Option<&str>) -> Result<HttpResponse, serde_json::Error> {
         let config: Value = serde_json::from_str(config_json)?;
-        Ok(scalar_response(&config))
+        Ok(scalar_response(&config, js_bundle_url))
     }
 }
 
@@ -94,20 +107,20 @@ pub mod warp {
     use super::scalar_html;
 
     /// Create a Warp HTML reply with Scalar documentation
-    pub fn scalar_reply(config: &Value) -> impl warp::Reply {
-        html(scalar_html(config))
+    pub fn scalar_reply(config: &Value, js_bundle_url: Option<&str>) -> impl warp::Reply {
+        html(scalar_html(config, js_bundle_url))
     }
 
     /// Create a Warp HTML reply from JSON string
-    pub fn scalar_reply_from_json(config_json: &str) -> Result<impl warp::Reply, serde_json::Error> {
+    pub fn scalar_reply_from_json(config_json: &str, js_bundle_url: Option<&str>) -> Result<impl warp::Reply, serde_json::Error> {
         let config: Value = serde_json::from_str(config_json)?;
-        Ok(scalar_reply(&config))
+        Ok(scalar_reply(&config, js_bundle_url))
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{scalar_html, scalar_html_from_json, get_asset, get_asset_with_mime, get_mime_type};
+    use crate::{scalar_html, scalar_html_from_json, scalar_html_default, scalar_html_from_json_default, get_asset, get_asset_with_mime, get_mime_type};
     use serde_json::json;
 
     #[test]
@@ -117,23 +130,59 @@ mod tests {
             "theme": "purple"
         });
 
-        let html = scalar_html(&config);
+        // Test with custom JS bundle URL
+        let html1 = scalar_html(&config, Some("/custom-scalar.js"));
+        assert!(html1.contains("/openapi.json"));
+        assert!(html1.contains("purple"));
+        assert!(html1.contains("/custom-scalar.js"));
+        assert!(html1.contains("<html"));
+        assert!(html1.contains("</html>"));
 
-        // Check that the HTML contains our config
-        assert!(html.contains("/openapi.json"));
-        assert!(html.contains("purple"));
-        assert!(html.contains("<html"));
-        assert!(html.contains("</html>"));
+        // Test with default CDN URL
+        let html2 = scalar_html(&config, None);
+        assert!(html2.contains("/openapi.json"));
+        assert!(html2.contains("purple"));
+        assert!(html2.contains("https://cdn.jsdelivr.net/npm/@scalar/api-reference"));
+        assert!(html2.contains("<html"));
+        assert!(html2.contains("</html>"));
     }
 
     #[test]
     fn test_scalar_html_from_json() {
         let config_json = r#"{"url": "/api.json", "theme": "blue"}"#;
 
-        let html = scalar_html_from_json(config_json).unwrap();
+        // Test with custom JS bundle URL
+        let html1 = scalar_html_from_json(config_json, Some("/bundle.js")).unwrap();
+        assert!(html1.contains("/api.json"));
+        assert!(html1.contains("blue"));
+        assert!(html1.contains("/bundle.js"));
 
-        assert!(html.contains("/api.json"));
-        assert!(html.contains("blue"));
+        // Test with default CDN URL
+        let html2 = scalar_html_from_json(config_json, None).unwrap();
+        assert!(html2.contains("/api.json"));
+        assert!(html2.contains("blue"));
+        assert!(html2.contains("https://cdn.jsdelivr.net/npm/@scalar/api-reference"));
+    }
+
+    #[test]
+    fn test_convenience_functions() {
+        let config = json!({
+            "url": "/test.json",
+            "theme": "green"
+        });
+
+        // Test scalar_html_default
+        let html1 = scalar_html_default(&config);
+        assert!(html1.contains("/test.json"));
+        assert!(html1.contains("green"));
+        assert!(html1.contains("https://cdn.jsdelivr.net/npm/@scalar/api-reference"));
+
+        // Test scalar_html_from_json_default
+        let config_json = r#"{"url": "/test2.json", "theme": "red"}"#;
+        let html2 = scalar_html_from_json_default(config_json).unwrap();
+        assert!(html2.contains("/test2.json"));
+        assert!(html2.contains("red"));
+        assert!(html2.contains("https://cdn.jsdelivr.net/npm/@scalar/api-reference"));
     }
 
     #[test]

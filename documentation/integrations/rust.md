@@ -7,7 +7,6 @@ A Rust crate for embedding Scalar API documentation in web applications.
 - Embed Scalar's HTML/JS assets directly into your Rust binary
 - Framework-agnostic core with optional integrations for popular web frameworks
 - Simple configuration injection via JSON
-- Static asset serving support
 
 ## Supported Frameworks
 
@@ -21,23 +20,29 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-scalar-api-reference = "0.1.0"
+scalar_api_reference = "0.1.0"
 serde_json = "1.0"
 ```
 
 ### Core API
 
 ```rust
-use scalar_rust::{scalar_html, get_asset};
+use scalar_api_reference::{scalar_html, scalar_html_default, get_asset};
 use serde_json::json;
 
-// Generate HTML with configuration
+// Generate HTML with configuration using CDN (recommended)
 let config = json!({
     "url": "/openapi.json",
     "theme": "purple"
 });
 
-let html = scalar_html(&config);
+// Using CDN fallback (recommended for most use cases)
+let html1 = scalar_html(&config, None);
+// or use the convenience function
+let html2 = scalar_html_default(&config);
+
+// Using custom JS bundle URL
+let html3 = scalar_html(&config, Some("/custom-scalar.js"));
 
 // Get static assets
 if let Some(js_content) = get_asset("scalar.js") {
@@ -51,46 +56,65 @@ if let Some(js_content) = get_asset("scalar.js") {
 
 ```toml
 [dependencies]
-scalar-api-reference = { version = "0.1.0", features = ["axum"] }
+scalar_api_reference = { version = "0.1.0", features = ["axum"] }
 axum = "0.7"
 serde_json = "1.0"
 ```
 
 ```rust
 use axum::{routing::get, Router, response::Html};
-use scalar_rust::axum::scalar_response;
+use scalar_api_reference::axum::scalar_response;
 use serde_json::json;
 
 async fn scalar() -> Html<String> {
     let config = json!({
         "url": "/openapi.json"
     });
-    scalar_response(&config)
+    // Using CDN (recommended)
+    scalar_response(&config, None)
+}
+
+async fn scalar_custom() -> Html<String> {
+    let config = json!({
+        "url": "/openapi.json"
+    });
+    // Using custom JS bundle URL
+    scalar_response(&config, Some("/custom-scalar.js"))
 }
 
 let app = Router::new()
-    .route("/scalar", get(scalar));
+    .route("/scalar", get(scalar))
+    .route("/scalar-custom", get(scalar_custom));
 ```
 
 ### Actix-web
 
 ```toml
 [dependencies]
-scalar-api-reference = { version = "0.1.0", features = ["actix-web"] }
+scalar_api_reference = { version = "0.1.0", features = ["actix-web"] }
 actix-web = "4.0"
 serde_json = "1.0"
 ```
 
 ```rust
 use actix_web::{web, App, HttpServer, Result};
-use scalar_rust::actix_web::scalar_response;
+use scalar_api_reference::actix_web::scalar_response;
 use serde_json::json;
 
 async fn scalar() -> Result<actix_web::HttpResponse> {
     let config = json!({
         "url": "/openapi.json"
     });
-    Ok(scalar_response(&config))
+    // Using CDN (recommended)
+    Ok(scalar_response(&config, None))
+}
+
+async fn scalar_custom() -> Result<actix_web::HttpResponse> {
+    let config = json!({
+        "url": "/openapi.json"
+    });
+    // Using custom JS bundle URL
+    Ok(scalar_response(&config, Some("/custom-scalar.js")))
 }
 
 #[actix_web::main]
@@ -98,6 +122,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .route("/scalar", web::get().to(scalar))
+            .route("/scalar-custom", web::get().to(scalar_custom))
     })
     .bind("127.0.0.1:8080")?
     .run()
@@ -109,27 +134,39 @@ async fn main() -> std::io::Result<()> {
 
 ```toml
 [dependencies]
-scalar-api-reference = { version = "0.1.0", features = ["warp"] }
+scalar_api_reference = { version = "0.1.0", features = ["warp"] }
 warp = "0.3"
 serde_json = "1.0"
 ```
 
 ```rust
 use warp::Filter;
-use scalar_rust::warp::scalar_reply;
+use scalar_api_reference::warp::scalar_reply;
 use serde_json::json;
 
 #[tokio::main]
 async fn main() {
+    // Using CDN (recommended)
     let scalar = warp::path("scalar")
         .map(|| {
             let config = json!({
                 "url": "/openapi.json"
             });
-            scalar_reply(&config)
+            scalar_reply(&config, None)
         });
 
-    warp::serve(scalar)
+    // Using custom JS bundle URL
+    let scalar_custom = warp::path("scalar-custom")
+        .map(|| {
+            let config = json!({
+                "url": "/openapi.json"
+            });
+            scalar_reply(&config, Some("/custom-scalar.js"))
+        });
+
+    let routes = scalar.or(scalar_custom);
+
+    warp::serve(routes)
         .run(([127, 0, 0, 1], 3030))
         .await;
 }
@@ -140,12 +177,37 @@ async fn main() {
 If you need to serve additional static assets (CSS, JS, images), use the asset functions:
 
 ```rust
-use scalar_rust::get_asset_with_mime;
+use scalar_api_reference::get_asset_with_mime;
 
 // In your route handler
 if let Some((mime_type, content)) = get_asset_with_mime("scalar.js") {
     // Return response with proper MIME type and content
 }
+```
+
+## JS Bundle URL Options
+
+The library supports two ways to load the Scalar JavaScript bundle:
+
+### CDN (Recommended)
+By default, the library uses the CDN-hosted version of Scalar:
+```rust
+// Uses https://cdn.jsdelivr.net/npm/@scalar/api-reference
+let html = scalar_html(&config, None);
+```
+
+### Custom Bundle URL
+You can provide your own JS bundle URL:
+```rust
+// Uses your custom URL
+let html = scalar_html(&config, Some("/path/to/scalar.js"));
+```
+
+### Convenience Functions
+For the simplest usage, use the convenience functions that default to CDN:
+```rust
+// Uses CDN automatically
+let html = scalar_html_default(&config);
 ```
 
 ## Configuration

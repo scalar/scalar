@@ -1,5 +1,5 @@
 use warp::Filter;
-use scalar_rust::warp::scalar_reply;
+use scalar_api_reference::warp::scalar_reply;
 use serde_json::json;
 
 #[tokio::main]
@@ -11,7 +11,8 @@ async fn main() {
                 "theme": "kepler",
                 "layout": "classic"
             });
-            scalar_reply(&config)
+            // Using CDN (recommended)
+            scalar_reply(&config, None)
         });
 
     println!("Server running on http://localhost:3030/scalar");

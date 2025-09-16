@@ -1,5 +1,5 @@
 [package]
-name = "scalar-api-reference"
+name = "scalar_api_reference"
 version = "0.1.0"
 edition = "2021"
 description = "Embed Scalar API documentation in Rust web applications"

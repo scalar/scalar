@@ -1,5 +1,5 @@
 use axum::{routing::get, Router, response::Html};
-use scalar_rust::axum::scalar_response;
+use scalar_api_reference::axum::scalar_response;
 use serde_json::json;
 
 async fn scalar() -> Html<String> {
@@ -7,7 +7,8 @@ async fn scalar() -> Html<String> {
         "url": "/openapi.json",
         "theme": "purple",
     });
-    scalar_response(&config)
+    // Using CDN (recommended)
+    scalar_response(&config, None)
 }
 
 #[tokio::main]
