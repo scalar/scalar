@@ -50,7 +50,6 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
       "
       class="download-button"
       type="button"
-      variant="ghost"
       @click.prevent="handleDownloadClick('yaml')">
       <span> Download OpenAPI Document </span>
       <Badge class="extension hidden group-hover:flex">yaml</Badge>
