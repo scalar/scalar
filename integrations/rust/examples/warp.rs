@@ -7,7 +7,7 @@ async fn main() {
     let scalar = warp::path("scalar")
         .map(|| {
             let config = json!({
-                "url": "/openapi.json",
+                "url": "https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json",
                 "theme": "kepler",
                 "layout": "classic"
             });

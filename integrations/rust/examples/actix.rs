@@ -4,7 +4,7 @@ use serde_json::json;
 
 async fn scalar() -> Result<actix_web::HttpResponse> {
     let config = json!({
-        "url": "/openapi.json",
+        "url": "https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json",
         "theme": "kepler",
     });
     // Using CDN (recommended)
