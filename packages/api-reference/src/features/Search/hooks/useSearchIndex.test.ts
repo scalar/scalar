@@ -22,7 +22,15 @@ describe('useSearchIndex', () => {
       entities: new Map(),
     }))
 
-    const { query, selectedIndex, searchResultsWithPlaceholderResults, resetSearch } = useSearchIndex(mockItems)
+    const { query, selectedIndex, searchResultsWithPlaceholderResults, resetSearch } = useSearchIndex(mockItems, {
+      paths: {
+        '/test': {
+          get: {
+            operationId: 'test-operation',
+          },
+        },
+      },
+    } as any)
 
     // Initial state should be empty
     expect(query.value).toBe('')

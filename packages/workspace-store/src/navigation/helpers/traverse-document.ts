@@ -42,10 +42,13 @@ export const traverseDocument = (document: OpenApiDocument, config?: DocumentCon
   // Add untagged webhooks
   if (untaggedWebhooks.length) {
     entries.push({
+      type: 'tag',
       id: getWebhookId({ name: '' }),
       title: 'Webhooks',
+      name: 'Webhooks',
       children: untaggedWebhooks,
-      type: 'text',
+      isGroup: false,
+      isWebhooks: true,
     })
   }
 
@@ -55,10 +58,12 @@ export const traverseDocument = (document: OpenApiDocument, config?: DocumentCon
 
     if (untaggedModels.length) {
       entries.push({
+        type: 'tag',
         id: getModelId({}),
+        name: 'Models',
         title: 'Models',
+        isGroup: false,
         children: untaggedModels,
-        type: 'text',
       })
     }
   }

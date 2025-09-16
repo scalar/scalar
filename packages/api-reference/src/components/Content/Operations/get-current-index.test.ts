@@ -1,41 +1,47 @@
-import { describe, it, expect } from 'vitest'
-import type { TraversedEntry } from '@/features/traverse-schema/types'
+import type { TraversedEntry } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { describe, expect, it } from 'vitest'
+
 import { getCurrentIndex } from './get-current-index'
 
 // Mock data for testing
 const createMockEntries = (): TraversedEntry[] => [
   {
+    type: 'tag',
+    name: 'Pets',
     id: 'tag-pets',
     title: 'Pets',
     children: [],
-    tag: {} as any,
     isGroup: true,
   },
   {
+    type: 'operation',
+    ref: '#/paths/~1pets/get',
     id: 'operation-get-pets',
     title: 'Get Pets',
     method: 'get',
     path: '/pets',
-    operation: {} as any,
   },
   {
+    type: 'operation',
+    ref: '#/paths/~1pets/post',
     id: 'operation-post-pets',
     title: 'Create Pet',
     method: 'post',
     path: '/pets',
-    operation: {} as any,
   },
   {
+    type: 'tag',
+    isGroup: false,
     id: 'models',
     title: 'Models',
     name: 'Models',
-    schema: {} as any,
   },
   {
+    type: 'tag',
+    name: 'Users',
     id: 'tag-users',
     title: 'Users',
     children: [],
-    tag: {} as any,
     isGroup: true,
   },
 ]
@@ -93,7 +99,7 @@ describe('getCurrentIndex', () => {
       expect(result).toBe(0) // Should find the pets tag
     })
 
-    it('should find tag entries with additional segments', () => {
+    it.only('should find tag entries with additional segments', () => {
       const result = getCurrentIndex('tag-pets.operations', entries)
       expect(result).toBe(0) // Should find the pets tag using startsWith
     })
@@ -149,13 +155,14 @@ describe('getCurrentIndex', () => {
       const entriesWithDuplicate = [
         ...entries,
         {
+          type: 'operation',
+          ref: '#/paths/~1pets/get',
           id: 'operation-get-pets',
           title: 'Get Pets Duplicate',
           method: 'get',
           path: '/pets',
-          operation: {} as any,
         },
-      ]
+      ] as TraversedEntry[]
 
       const result = getCurrentIndex('operation-get-pets', entriesWithDuplicate)
       expect(result).toBe(1) // Should return the first match

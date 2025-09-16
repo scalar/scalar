@@ -27,7 +27,7 @@ export const getCurrentIndex = (hash: string, entries: TraversedEntry[]) => {
 
   return entries.findIndex((entry) => {
     // For tag just check starts with as the ID should start with the tag ID
-    if ('tag' in entry) {
+    if (entry.type === 'tag') {
       return targetId.startsWith(entry.id)
     }
 

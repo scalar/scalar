@@ -44,7 +44,7 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
       type: 'operation',
       title: entry.title,
       href: `#${entry.id}`,
-      id: entry.id,
+      id: operation.operationId,
       description: operation.description || '',
       method: entry.method,
       path: entry.path,
@@ -90,7 +90,34 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
     return
   }
 
+  // Models heading
+  if (entry.title === 'Models') {
+    index.push({
+      type: 'heading',
+      title: 'Models',
+      href: `#${entry.id}`,
+      description: 'Heading',
+      body: '',
+      entry,
+    })
+
+    return
+  }
+
   // Tag
+  if (entry.type === 'tag' && entry.isWebhooks === true) {
+    index.push({
+      type: 'heading',
+      title: 'Webhooks',
+      href: `#${entry.id}`,
+      description: 'Heading',
+      body: '',
+      entry,
+    })
+
+    return
+  }
+
   if (entry.type === 'tag' && entry.isGroup === false) {
     index.push({
       title: entry.title,
@@ -111,34 +138,6 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
       href: `#${entry.id}`,
       description: 'Tag Group',
       type: 'tag',
-      body: '',
-      entry,
-    })
-
-    return
-  }
-
-  // Webhooks heading
-  if ('isWebhooks' in entry) {
-    index.push({
-      type: 'heading',
-      title: 'Webhooks',
-      href: `#${entry.id}`,
-      description: 'Heading',
-      body: '',
-      entry,
-    })
-
-    return
-  }
-
-  // Models heading
-  if (entry.title === 'Models') {
-    index.push({
-      type: 'heading',
-      title: 'Models',
-      href: `#${entry.id}`,
-      description: 'Heading',
       body: '',
       entry,
     })

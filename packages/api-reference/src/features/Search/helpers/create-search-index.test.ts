@@ -1,20 +1,16 @@
+import { createNavigation } from '@scalar/workspace-store/navigation'
+import type { OpenApiDocument, TraversedEntry } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
-import { type TraversedEntry, traverseDocument } from '@/features/traverse-schema'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { apiReferenceConfigurationSchema } from '@scalar/types'
-import { ref } from 'vue'
 import { createSearchIndex } from './create-search-index'
 
-function createEntriesFromDocument(document: Partial<OpenAPIV3_1.Document>): TraversedEntry[] {
-  const { entries } = traverseDocument(document, {
-    config: ref(apiReferenceConfigurationSchema.parse({ hideModels: false })),
-    getHeadingId: () => '',
-    getOperationId: () => '',
-    getWebhookId: () => '',
-    getModelId: () => '',
-    getTagId: () => '',
-    getSectionId: () => '',
+function createEntriesFromDocument(document: Partial<OpenApiDocument>): TraversedEntry[] {
+  const { entries } = createNavigation(document as OpenApiDocument, {
+    'x-scalar-reference-config': {
+      features: {
+        showModels: true,
+      },
+    },
   })
 
   return entries
@@ -23,7 +19,7 @@ function createEntriesFromDocument(document: Partial<OpenAPIV3_1.Document>): Tra
 describe('createSearchIndex', () => {
   describe('operations', () => {
     it('adds a single operation', () => {
-      const entries: TraversedEntry[] = createEntriesFromDocument({
+      const document = {
         paths: {
           '/users': {
             get: {
@@ -31,9 +27,11 @@ describe('createSearchIndex', () => {
             },
           },
         },
-      })
+      }
 
-      const index = createSearchIndex(entries)
+      const entries: TraversedEntry[] = createEntriesFromDocument(document)
+
+      const index = createSearchIndex(entries, document as any)
 
       expect(index.length).toEqual(1)
 
@@ -45,7 +43,7 @@ describe('createSearchIndex', () => {
     })
 
     it('adds operation with description and operationId', () => {
-      const entries: TraversedEntry[] = createEntriesFromDocument({
+      const document = {
         paths: {
           '/users': {
             post: {
@@ -55,9 +53,11 @@ describe('createSearchIndex', () => {
             },
           },
         },
-      })
+      }
 
-      const index = createSearchIndex(entries)
+      const entries: TraversedEntry[] = createEntriesFromDocument(document)
+
+      const index = createSearchIndex(entries, document as any)
 
       expect(index).toMatchObject([
         {
@@ -72,7 +72,7 @@ describe('createSearchIndex', () => {
     })
 
     it('adds operation with empty description', () => {
-      const entries: TraversedEntry[] = createEntriesFromDocument({
+      const document = {
         paths: {
           '/users': {
             delete: {
@@ -80,9 +80,11 @@ describe('createSearchIndex', () => {
             },
           },
         },
-      })
+      }
 
-      const index = createSearchIndex(entries)
+      const entries: TraversedEntry[] = createEntriesFromDocument(document)
+
+      const index = createSearchIndex(entries, document as any)
 
       expect(index).toMatchObject([
         {
@@ -96,7 +98,7 @@ describe('createSearchIndex', () => {
     })
 
     it('adds multiple operations', () => {
-      const entries: TraversedEntry[] = createEntriesFromDocument({
+      const document = {
         paths: {
           '/users': {
             get: {
@@ -112,18 +114,20 @@ describe('createSearchIndex', () => {
             },
           },
         },
-      })
+      }
 
-      const index = createSearchIndex(entries)
+      const entries: TraversedEntry[] = createEntriesFromDocument(document)
+
+      const index = createSearchIndex(entries, document as any)
 
       expect(index.length).toEqual(3)
-      expect(index.map((item) => item.title)).toEqual(['Get Users', 'Create User', 'Get Posts'])
+      expect(index.map((item) => item.title)).toEqual(['Create User', 'Get Posts', 'Get Users'])
     })
   })
 
   describe('schemas', () => {
     it('adds a single schema', () => {
-      const entries: TraversedEntry[] = createEntriesFromDocument({
+      const document = {
         components: {
           schemas: {
             User: {
@@ -133,9 +137,11 @@ describe('createSearchIndex', () => {
             },
           },
         },
-      })
+      }
 
-      const index = createSearchIndex(entries)
+      const entries: TraversedEntry[] = createEntriesFromDocument(document as any)
+
+      const index = createSearchIndex(entries, document as any)
 
       expect(index).toMatchObject([
         {
@@ -154,7 +160,7 @@ describe('createSearchIndex', () => {
     })
 
     it('adds schema without description', () => {
-      const entries: TraversedEntry[] = createEntriesFromDocument({
+      const document = {
         components: {
           schemas: {
             Post: {
@@ -163,7 +169,9 @@ describe('createSearchIndex', () => {
             },
           },
         },
-      })
+      }
+
+      const entries: TraversedEntry[] = createEntriesFromDocument(document as any)
 
       const index = createSearchIndex(entries)
 
@@ -182,7 +190,7 @@ describe('createSearchIndex', () => {
     })
 
     it('adds multiple schemas', () => {
-      const entries: TraversedEntry[] = createEntriesFromDocument({
+      const document = {
         components: {
           schemas: {
             User: {
@@ -197,9 +205,10 @@ describe('createSearchIndex', () => {
             },
           },
         },
-      })
+      }
+      const entries: TraversedEntry[] = createEntriesFromDocument(document as any)
 
-      const index = createSearchIndex(entries)
+      const index = createSearchIndex(entries, document as any)
 
       expect(index.length).toEqual(3) // 1 heading + 2 schemas
       expect(index[0]).toMatchObject({ type: 'heading', title: 'Models' })
@@ -220,7 +229,7 @@ describe('createSearchIndex', () => {
         },
       })
 
-      const index = createSearchIndex(entries)
+      const index = createSearchIndex(entries, document as any)
 
       expect(index).toMatchObject([
         {
@@ -240,7 +249,7 @@ describe('createSearchIndex', () => {
     })
 
     it('adds webhook with description', () => {
-      const entries: TraversedEntry[] = createEntriesFromDocument({
+      const document = {
         webhooks: {
           userDeleted: {
             delete: {
@@ -249,9 +258,10 @@ describe('createSearchIndex', () => {
             },
           },
         },
-      })
+      }
+      const entries: TraversedEntry[] = createEntriesFromDocument(document)
 
-      const index = createSearchIndex(entries)
+      const index = createSearchIndex(entries, document as any)
 
       expect(index).toMatchObject([
         {
@@ -270,7 +280,7 @@ describe('createSearchIndex', () => {
     })
 
     it('adds webhook without description', () => {
-      const entries: TraversedEntry[] = createEntriesFromDocument({
+      const document = {
         webhooks: {
           userUpdated: {
             put: {
@@ -278,9 +288,11 @@ describe('createSearchIndex', () => {
             },
           },
         },
-      })
+      }
 
-      const index = createSearchIndex(entries)
+      const entries: TraversedEntry[] = createEntriesFromDocument(document)
+
+      const index = createSearchIndex(entries, document as any)
 
       expect(index).toMatchObject([
         {
@@ -396,7 +408,7 @@ describe('createSearchIndex', () => {
         info: {
           description: '# API Documentation\nThis is the API documentation.',
         },
-      })
+      } as OpenApiDocument)
 
       const index = createSearchIndex(entries)
 
@@ -416,7 +428,7 @@ describe('createSearchIndex', () => {
         info: {
           description: '# Introduction\nWelcome to the API.\n\n## Getting Started\nFollow these steps.',
         },
-      })
+      } as OpenApiDocument)
 
       const index = createSearchIndex(entries)
 
@@ -438,7 +450,7 @@ describe('createSearchIndex', () => {
         info: {
           description: 'Plain text without headings',
         },
-      })
+      } as OpenApiDocument)
 
       const index = createSearchIndex(entries)
 

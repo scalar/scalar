@@ -1,4 +1,4 @@
-import type { InfoObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { InfoObject, TraversedEntry } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, reactive, ref } from 'vue'
@@ -22,7 +22,7 @@ beforeEach(() => {
     isSidebarOpen: ref(false),
     items: computed(() => ({
       entries: [],
-      titles: new Map<string, string>(),
+      entities: new Map<string, TraversedEntry>(),
     })),
     scrollToOperation: vi.fn(),
     setCollapsedSidebarItem: vi.fn(),
