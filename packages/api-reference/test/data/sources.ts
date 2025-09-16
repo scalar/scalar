@@ -4,27 +4,7 @@ export default [
   {
     title: 'Scalar Galaxy', // optional, would fallback to 'API #1'
     slug: 'scalar-galaxy', // optional, would be auto-generated from the title or the index
-    content: {
-      openapi: '3.1.0' as const,
-      info: {
-        title: 'Test',
-        version: '1.0.0',
-      },
-      webhooks: {
-        '/hello': {
-          post: {
-            summary: 'User Created Webhook',
-            responses: { '200': { description: 'OK' } },
-          },
-        },
-        '/hi': {
-          post: {
-            summary: 'User Updated Webhook',
-            responses: { '200': { description: 'OK' } },
-          },
-        },
-      },
-    },
+    url: 'https://galaxy.scalar.com/openapi.yaml',
   },
   {
     title: 'Scalar Galaxy Registry',
