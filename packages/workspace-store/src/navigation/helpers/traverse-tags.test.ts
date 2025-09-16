@@ -87,6 +87,7 @@ describe('traverseTags', () => {
         name: 'tag1',
         children: [createMockEntry('Test Operation')],
         isGroup: false,
+        xKeys: {},
       },
       {
         type: 'tag',
@@ -95,6 +96,7 @@ describe('traverseTags', () => {
         name: 'default',
         children: [createMockEntry('Test Operation')],
         isGroup: false,
+        xKeys: {},
       },
     ])
   })

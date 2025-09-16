@@ -45,7 +45,7 @@ const config = useConfig()
         <SectionColumn>
           <ScalarMarkdown
             :clamp="isCollapsed ? 7 : undefined"
-            :value="tag.tag?.description ?? ''"
+            :value="tag?.description ?? ''"
             withImages />
         </SectionColumn>
         <SectionColumn>
@@ -53,6 +53,6 @@ const config = useConfig()
         </SectionColumn>
       </SectionColumns>
     </SectionContent>
-    <SpecificationExtension :value="tag.tag" />
+    <SpecificationExtension :value="tag.xKeys" />
   </Section>
 </template>

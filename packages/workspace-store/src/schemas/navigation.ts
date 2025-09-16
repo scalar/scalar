@@ -56,6 +56,7 @@ export const TraversedTagSchemaDefinition = compose(
     children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
     isGroup: Type.Boolean(),
     isWebhooks: Type.Optional(Type.Boolean()),
+    xKeys: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
   }),
 )
 

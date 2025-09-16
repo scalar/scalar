@@ -99,6 +99,7 @@ describe('traverseDocument', () => {
         'name': 'test',
         'title': 'test',
         'type': 'tag',
+        xKeys: {},
         'children': [
           {
             'id': 'Test Operation',
@@ -268,6 +269,7 @@ describe('traverseDocument', () => {
         'name': 'tag1',
         'title': 'tag1',
         'type': 'tag',
+        xKeys: {},
         'children': [
           {
             'id': 'Test Operation 1',
@@ -286,6 +288,7 @@ describe('traverseDocument', () => {
         'name': 'tag2',
         'title': 'tag2',
         'type': 'tag',
+        xKeys: {},
         'children': [
           {
             'id': 'Test Operation 2',

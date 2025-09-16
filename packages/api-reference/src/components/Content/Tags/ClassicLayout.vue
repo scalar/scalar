@@ -26,7 +26,7 @@ defineProps<{
       </SectionHeader>
       <ScalarMarkdown
         class="tag-description"
-        :value="tag.tag?.description"
+        :value="tag?.description"
         withImages />
     </template>
     <slot />
