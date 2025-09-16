@@ -1,12 +1,13 @@
 import type { ApiReferenceConfiguration } from '@scalar/types'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { OpenAPIDocumentSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
+
 import Models from './Models.vue'
-import { OpenAPIDocumentSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 
 // Mock useSidebar composable
-vi.mock('@/features/sidebar', () => ({
+vi.mock('@/v2/blocks/scalar-navigation-block', () => ({
   useSidebar: vi.fn(() => ({
     collapsedSidebarItems: {
       'model/user': true,

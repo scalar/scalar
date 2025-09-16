@@ -1,7 +1,9 @@
-import type { TraversedTag } from '@/features/traverse-schema'
-import { createMockSidebar } from '@/helpers/test-utils'
+import type { TraversedTag } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
+
+import { createMockSidebar } from '@/helpers/test-utils'
+
 import TagSection from './TagSection.vue'
 
 // Mock the useConfig hook
@@ -12,18 +14,17 @@ vi.mock('@/hooks/useConfig', () => ({
 }))
 
 // Mock the sidebar like in ModernLayout.test.ts
-vi.mock('@/features/sidebar', () => ({
+vi.mock('@/v2/blocks/scalar-navigation-block', () => ({
   useSidebar: vi.fn(() => createMockSidebar()),
 }))
 
 describe('TagSection', () => {
   const createMockTag = (overrides: Partial<TraversedTag> = {}): TraversedTag => ({
+    type: 'tag',
     id: 'test-tag',
     title: 'Test Tag',
-    tag: {
-      name: 'test-tag',
-      description: 'This is a test tag description',
-    },
+    name: 'test-tag',
+    description: 'This is a test tag description',
     children: [],
     isGroup: false,
     ...overrides,
@@ -91,7 +92,11 @@ describe('TagSection', () => {
     })
 
     it('passes tag to SpecificationExtension component', () => {
-      const mockTag = createMockTag()
+      const mockTag = createMockTag({
+        xKeys: {
+          'x-something': 'value',
+        },
+      })
 
       const wrapper = mount(TagSection, {
         props: {
@@ -100,7 +105,9 @@ describe('TagSection', () => {
       })
 
       const specExtension = wrapper.findComponent({ name: 'SpecificationExtension' })
-      expect(specExtension.props('value')).toMatchObject(mockTag.tag)
+      expect(specExtension.props('value')).toMatchObject({
+        'x-something': 'value',
+      })
     })
   })
 
@@ -162,7 +169,7 @@ describe('TagSection', () => {
 
   describe('edge cases and error handling', () => {
     it('handles tag with null tag property gracefully', () => {
-      const mockTag = createMockTag({ tag: null as any })
+      const mockTag = createMockTag({})
 
       const wrapper = mount(TagSection, {
         props: {
@@ -176,10 +183,8 @@ describe('TagSection', () => {
 
     it('handles tag with empty description', () => {
       const mockTag = createMockTag({
-        tag: {
-          name: 'test-tag',
-          description: '',
-        },
+        name: 'test-tag',
+        description: '',
       })
 
       const wrapper = mount(TagSection, {

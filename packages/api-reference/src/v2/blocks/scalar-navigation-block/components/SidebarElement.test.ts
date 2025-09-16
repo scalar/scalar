@@ -87,10 +87,9 @@ describe('SidebarElement', () => {
   })
 
   it('applies deprecated class when operation is deprecated via deprecated property', async () => {
-    const { isOperationDeprecated } = await import('@scalar/oas-utils/helpers')
-    vi.mocked(isOperationDeprecated).mockReturnValue(true)
-
-    const item = createMockTraversedOperation()
+    const item = createMockTraversedOperation({
+      isDeprecated: true,
+    })
     const wrapper = mount(SidebarElement, {
       props: {
         id: 'test-id',
@@ -99,14 +98,12 @@ describe('SidebarElement', () => {
     })
 
     expect(wrapper.find('.sidebar-heading.deprecated').exists()).toBe(true)
-    expect(isOperationDeprecated).toHaveBeenCalledWith()
   })
 
   it('applies deprecated class when operation is deprecated via x-scalar-stability', async () => {
-    const { isOperationDeprecated } = await import('@scalar/oas-utils/helpers')
-    vi.mocked(isOperationDeprecated).mockReturnValue(true)
-
-    const item = createMockTraversedOperation()
+    const item = createMockTraversedOperation({
+      isDeprecated: true,
+    })
     const wrapper = mount(SidebarElement, {
       props: {
         id: 'test-id',
@@ -115,7 +112,6 @@ describe('SidebarElement', () => {
     })
 
     expect(wrapper.find('.sidebar-heading.deprecated').exists()).toBe(true)
-    expect(isOperationDeprecated).toHaveBeenCalledWith()
   })
 
   it('does not apply deprecated class when operation is not deprecated', async () => {
@@ -131,7 +127,6 @@ describe('SidebarElement', () => {
     })
 
     expect(wrapper.find('.sidebar-heading.deprecated').exists()).toBe(false)
-    expect(isOperationDeprecated).toHaveBeenCalledWith()
   })
 
   it('does not apply deprecated class for non-operation items', async () => {
@@ -206,7 +201,10 @@ describe('SidebarElement', () => {
   })
 
   it('handles webhook operations correctly', () => {
-    const item = createMockTraversedOperation()
+    const item = createMockTraversedOperation({
+      // @ts-expect-error - we want to test webhook operations
+      type: 'webhook',
+    })
     const wrapper = mount(SidebarElement, {
       props: {
         id: 'test-id',
@@ -217,38 +215,6 @@ describe('SidebarElement', () => {
     })
 
     expect(wrapper.findComponent({ name: 'ScalarIconWebhooksLogo' }).exists()).toBe(true)
-  })
-
-  it('calls isOperationDeprecated with correct operation object', async () => {
-    const { isOperationDeprecated } = await import('@scalar/oas-utils/helpers')
-    vi.mocked(isOperationDeprecated).mockReturnValue(true)
-
-    const item = createMockTraversedOperation()
-
-    mount(SidebarElement, {
-      props: {
-        id: 'test-id',
-        item,
-      },
-    })
-
-    expect(isOperationDeprecated).toHaveBeenCalledWith()
-  })
-
-  it('handles deprecated property taking precedence over x-scalar-stability', async () => {
-    const { isOperationDeprecated } = await import('@scalar/oas-utils/helpers')
-    vi.mocked(isOperationDeprecated).mockReturnValue(false)
-
-    const item = createMockTraversedOperation()
-
-    mount(SidebarElement, {
-      props: {
-        id: 'test-id',
-        item,
-      },
-    })
-
-    expect(isOperationDeprecated).toHaveBeenCalledWith()
   })
 
   it('renders action menu slot when provided', () => {

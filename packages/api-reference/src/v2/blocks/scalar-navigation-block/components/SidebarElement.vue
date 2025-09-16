@@ -4,11 +4,7 @@ import { scrollToId } from '@scalar/helpers/dom/scroll-to-id'
 import { getHttpMethodInfo } from '@scalar/helpers/http/http-info'
 import { sleep } from '@scalar/helpers/testing/sleep'
 import { ScalarIconWebhooksLogo } from '@scalar/icons'
-import {
-  combineUrlAndPath,
-  isOperationDeprecated,
-} from '@scalar/oas-utils/helpers'
-import type { OpenAPIV3_1, XScalarStability } from '@scalar/types'
+import { combineUrlAndPath } from '@scalar/oas-utils/helpers'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { useConfig } from '@/hooks/useConfig'
@@ -103,13 +99,7 @@ const onAnchorClick = async (ev: Event) => {
       :class="{
         'sidebar-group-item__folder': hasChildren,
         'active_page': isActive,
-        'deprecated':
-          'operation' in item &&
-          isOperationDeprecated(
-            item.operation as OpenAPIV3_1.OperationObject<{
-              'x-scalar-stability': XScalarStability
-            }>,
-          ),
+        'deprecated': item.type === 'operation' && item.isDeprecated,
       }"
       @click="handleClick">
       <!-- If children are detected then show the nesting icon -->

@@ -1,9 +1,10 @@
-import { useNavState } from '@/hooks/useNavState'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { describe, expect, it, vi } from 'vitest'
 import { ref, toRef, toValue } from 'vue'
-import { createSidebar } from './create-sidebar'
+
+import { useNavState } from '@/hooks/useNavState'
+import { createSidebar } from '@/v2/blocks/scalar-navigation-block/helpers/create-sidebar'
 
 // Mock vue's inject
 vi.mock('vue', () => {
@@ -26,24 +27,29 @@ const mockOptions = {
 
 describe('createSidebar', () => {
   describe('instance', () => {
-    it('creates a new instance every time', () => {
-      const content = ref({
-        openapi: '3.1.0',
-        info: {
-          title: 'Hello World',
-          version: '1.0.0',
-        },
-        paths: {
-          '/hello': {
-            get: {
-              summary: 'Hello World',
+    it('creates a new instance every time', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          paths: {
+            '/hello': {
+              get: {
+                summary: 'Hello World',
+              },
             },
           },
-        },
-      } as OpenAPIV3_1.Document)
+        }
+      })
 
-      const sidebar1 = createSidebar(content, mockOptions)
-      const sidebar2 = createSidebar(content, mockOptions)
+      const sidebar1 = createSidebar(store, mockOptions)
+      const sidebar2 = createSidebar(store, mockOptions)
 
       // Every call to createSidebar should return a new instance
       expect(toValue(sidebar1)).not.toBe(toValue(sidebar2))
@@ -54,42 +60,56 @@ describe('createSidebar', () => {
   })
 
   describe('empty content', () => {
-    it("doesn't return any entries for an empty specification", () => {
+    it("doesn't return any entries for an empty specification", async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          paths: {},
+        }
+      })
+
       expect(
         createSidebar(
-          ref({
-            openapi: '3.1.0',
-            info: {
-              title: 'Hello World',
-              version: '1.0.0',
-            },
-            paths: {},
-          } as OpenAPIV3_1.Document),
+          store,
           mockOptions,
         ).items.value,
-      ).toStrictEqual({ entries: [], titles: new Map() })
+      ).toStrictEqual({ entries: [], entities: new Map() })
     })
   })
 
   describe('tags', () => {
-    it('has a tag', () => {
-      expect(
-        createSidebar(
-          ref({
-            openapi: '3.1.0',
-            info: {
-              title: 'Hello World',
-              version: '1.0.0',
-            },
-            paths: {
-              '/hello': {
-                get: {
-                  summary: 'Hello World',
-                  tags: ['Foobar'],
-                },
+    it('has a tag', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document:{
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          paths: {
+            '/hello': {
+              get: {
+                summary: 'Hello World',
+                tags: ['Foobar'],
               },
             },
-          } as OpenAPIV3_1.Document),
+          },
+        }
+      })
+      
+      expect(
+        createSidebar(
+          store,
           mockOptions,
         ).items.value,
       ).toMatchObject({
@@ -106,36 +126,36 @@ describe('createSidebar', () => {
       })
     })
 
-    it('has multiple tags', () => {
-      expect(
-        createSidebar(
-          ref({
-            openapi: '3.1.0',
-            info: {
-              title: 'Hello World',
-              version: '1.0.0',
-            },
-            paths: {
-              '/hello': {
-                get: {
-                  summary: 'Hello World',
-                  tags: ['Foobar', 'Barfoo'],
-                },
+    it('has multiple tags', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          paths: {
+            '/hello': {
+              get: {
+                summary: 'Hello World',
+                tags: ['Foobar', 'Barfoo'],
               },
             },
-          } as OpenAPIV3_1.Document),
+          },
+        }
+      })
+      
+      expect(
+        createSidebar(
+          store,
           mockOptions,
         ).items.value,
       ).toMatchObject({
         entries: [
-          {
-            title: 'Foobar',
-            children: [
-              {
-                title: 'Hello World',
-              },
-            ],
-          },
+
           {
             title: 'Barfoo',
             children: [
@@ -144,35 +164,50 @@ describe('createSidebar', () => {
               },
             ],
           },
+          {
+            title: 'Foobar',
+            children: [
+              {
+                title: 'Hello World',
+              },
+            ],
+          },
         ],
       })
     })
 
-    it('shows operations without tags directly in the sidebar', () => {
+    it('shows operations without tags directly in the sidebar', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          paths: {
+            '/hello': {
+              get: {
+                summary: 'Get Hello',
+              },
+              post: {
+                summary: 'Post Hello',
+              },
+            },
+            '/world': {
+              get: {
+                summary: 'Get World',
+              },
+            },
+          },
+        }
+      })
+      
       expect(
         createSidebar(
-          ref({
-            openapi: '3.1.0',
-            info: {
-              title: 'Hello World',
-              version: '1.0.0',
-            },
-            paths: {
-              '/hello': {
-                get: {
-                  summary: 'Get Hello',
-                },
-                post: {
-                  summary: 'Post Hello',
-                },
-              },
-              '/world': {
-                get: {
-                  summary: 'Get World',
-                },
-              },
-            },
-          } as OpenAPIV3_1.Document),
+          store,
           mockOptions,
         ).items.value,
       ).toMatchObject({
@@ -181,35 +216,42 @@ describe('createSidebar', () => {
             title: 'Get Hello',
           },
           {
-            title: 'Post Hello',
+            title: 'Get World',
           },
           {
-            title: 'Get World',
+            title: 'Post Hello',
           },
         ],
       })
     })
 
-    it('filters out both internal and ignored tags', () => {
-      expect(
-        createSidebar(
-          ref({
-            openapi: '3.1.0',
-            info: { title: 'Test', version: '1.0.0' },
-            tags: [
-              { name: 'Public' },
-              { name: 'Internal', 'x-internal': true },
-              { name: 'Ignored', 'x-scalar-ignore': true },
-              { name: 'Both', 'x-internal': true, 'x-scalar-ignore': true },
-            ],
-            paths: {
-              '/hello': {
-                get: {
-                  tags: ['Public'],
-                },
+    it('filters out both internal and ignored tags', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.1.0',
+          info: { title: 'Test', version: '1.0.0' },
+          tags: [
+            { name: 'Public' },
+            { name: 'Internal', 'x-internal': true },
+            { name: 'Ignored', 'x-scalar-ignore': true },
+            { name: 'Both', 'x-internal': true, 'x-scalar-ignore': true },
+          ],
+          paths: {
+            '/hello': {
+              get: {
+                tags: ['Public'],
               },
             },
-          } as OpenAPIV3_1.Document),
+          },
+        }
+      })
+      
+      expect(
+        createSidebar(
+          store,
           mockOptions,
         ).items.value,
       ).toMatchObject({
@@ -217,31 +259,33 @@ describe('createSidebar', () => {
       })
     })
 
-    it('sorts tags alphabetically', () => {
-      const configWithSorter = ref({
-        ...config.value,
-        tagsSorter: 'alpha' as const,
-      })
-      expect(
-        createSidebar(
-          ref({
-            openapi: '3.1.0',
-            info: {
-              title: 'Hello World',
-              version: '1.0.0',
-            },
-            paths: {
-              '/hello': {
-                get: {
-                  summary: 'Hello World',
-                  tags: ['Foobar', 'Barfoo'],
-                },
+    it('sorts tags alphabetically', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          paths: {
+            '/hello': {
+              get: {
+                summary: 'Hello World',
+                tags: ['Foobar', 'Barfoo'],
               },
             },
-          } as OpenAPIV3_1.Document),
+          },
+        }
+      })
+      
+      expect(
+        createSidebar(
+          store,
           {
             ...mockOptions,
-            config: configWithSorter,
           },
         ).items.value,
       ).toMatchObject({
@@ -266,37 +310,44 @@ describe('createSidebar', () => {
       })
     })
 
-    it('sorts tags with custom function', () => {
-      const configWithSorter = ref({
-        ...config.value,
-        tagsSorter: (a: { name: string }) => {
-          if (a.name === 'Foobar') {
-            return -1
+    it('sorts tags with custom function', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        config: {
+          "x-scalar-reference-config": {
+            tagSort: (a: { name: string }) => {
+              if (a.name === 'Foobar') {
+                return -1
+              }
+    
+              return 1
+            },
           }
-
-          return 1
         },
-      })
-      expect(
-        createSidebar(
-          ref({
-            openapi: '3.1.0',
-            info: {
-              title: 'Hello World',
-              version: '1.0.0',
-            },
-            paths: {
-              '/hello': {
-                get: {
-                  summary: 'Hello World',
-                  tags: ['Foobar', 'Barfoo'],
-                },
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          paths: {
+            '/hello': {
+              get: {
+                summary: 'Hello World',
+                tags: ['Foobar', 'Barfoo'],
               },
             },
-          } as OpenAPIV3_1.Document),
+          },
+        }
+      })
+      
+      expect(
+        createSidebar(
+          store,
           {
             ...mockOptions,
-            config: configWithSorter,
           },
         ).items.value,
       ).toMatchObject({
@@ -321,30 +372,37 @@ describe('createSidebar', () => {
       })
     })
 
-    it('adds to existing tags', () => {
+    it('adds to existing tags', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          tags: [
+            {
+              name: 'Foobar',
+              description: 'Foobar',
+            },
+          ],
+          paths: {
+            '/hello': {
+              get: {
+                summary: 'Hello World',
+                tags: ['Foobar'],
+              },
+            },
+          },
+        }
+      })
+      
       expect(
         createSidebar(
-          ref({
-            openapi: '3.1.0',
-            info: {
-              title: 'Hello World',
-              version: '1.0.0',
-            },
-            tags: [
-              {
-                name: 'Foobar',
-                description: 'Foobar',
-              },
-            ],
-            paths: {
-              '/hello': {
-                get: {
-                  summary: 'Hello World',
-                  tags: ['Foobar'],
-                },
-              },
-            },
-          } as OpenAPIV3_1.Document),
+          store,
           mockOptions,
         ).items.value,
       ).toMatchObject({
@@ -361,33 +419,40 @@ describe('createSidebar', () => {
       })
     })
 
-    it('creates a default tag', () => {
+      it('creates a default tag', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          tags: [
+            {
+              name: 'Foobar',
+              description: 'Foobar',
+            },
+          ],
+          paths: {
+            '/hello': {
+              get: {
+                summary: 'Get Hello World',
+                tags: ['Foobar'],
+              },
+              post: {
+                summary: 'Post Hello World',
+              },
+            },
+          },
+        }
+      })
+      
       expect(
         createSidebar(
-          ref({
-            openapi: '3.1.0',
-            info: {
-              title: 'Hello World',
-              version: '1.0.0',
-            },
-            tags: [
-              {
-                name: 'Foobar',
-                description: 'Foobar',
-              },
-            ],
-            paths: {
-              '/hello': {
-                get: {
-                  summary: 'Get Hello World',
-                  tags: ['Foobar'],
-                },
-                post: {
-                  summary: 'Post Hello World',
-                },
-              },
-            },
-          } as OpenAPIV3_1.Document),
+          store,
           mockOptions,
         ).items.value,
       ).toMatchObject({
@@ -416,35 +481,42 @@ describe('createSidebar', () => {
   })
 
   describe('tag groups', () => {
-    it('groups tags by x-tagGroups', () => {
-      expect(
-        createSidebar(
-          ref({
-            'openapi': '3.1.0',
-            'info': {
-              title: 'Example',
-              version: '1.0',
+    it('groups tags by x-tagGroups', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          'openapi': '3.1.0',
+          'info': {
+            title: 'Example',
+            version: '1.0',
+          },
+          'tags': [
+            {
+              name: 'planets',
             },
-            'tags': [
-              {
-                name: 'planets',
-              },
-            ],
-            'x-tagGroups': [
-              {
-                name: 'galaxy',
+          ],
+          'x-tagGroups': [
+            {
+              name: 'galaxy',
+              tags: ['planets'],
+            },
+          ],
+          'paths': {
+            '/planets': {
+              get: {
+                summary: 'Get all planets',
                 tags: ['planets'],
               },
-            ],
-            'paths': {
-              '/planets': {
-                get: {
-                  summary: 'Get all planets',
-                  tags: ['planets'],
-                },
-              },
             },
-          } as OpenAPIV3_1.Document),
+          },
+        }
+      })
+      
+      expect(
+        createSidebar(
+          store,
           mockOptions,
         ).items.value,
       ).toMatchObject({
@@ -466,43 +538,50 @@ describe('createSidebar', () => {
       })
     })
 
-    it('groups tags by x-tagGroups and shows default webhook group', () => {
-      expect(
-        createSidebar(
-          ref({
-            'openapi': '3.1.0',
-            'info': {
-              title: 'Example',
-              version: '1.0',
+    it('groups tags by x-tagGroups and shows default webhook group', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          'openapi': '3.1.0',
+          'info': {
+            title: 'Example',
+            version: '1.0',
+          },
+          'tags': [
+            {
+              name: 'planets',
             },
-            'tags': [
-              {
-                name: 'planets',
-              },
-            ],
-            'x-tagGroups': [
-              {
-                name: 'galaxy',
+          ],
+          'x-tagGroups': [
+            {
+              name: 'galaxy',
+              tags: ['planets'],
+            },
+          ],
+          'paths': {
+            '/planets': {
+              get: {
+                summary: 'Get all planets',
                 tags: ['planets'],
               },
-            ],
-            'paths': {
-              '/planets': {
-                get: {
-                  summary: 'Get all planets',
-                  tags: ['planets'],
-                },
+            },
+          },
+          'webhooks': {
+            hello: {
+              post: {
+                tags: ['planets'],
+                summary: 'Hello Webhook',
               },
             },
-            'webhooks': {
-              hello: {
-                post: {
-                  tags: ['planets'],
-                  summary: 'Hello Webhook',
-                },
-              },
-            },
-          } as OpenAPIV3_1.Document),
+          },
+        }
+      })
+      
+      expect(
+        createSidebar(
+          store,
           mockOptions,
         ).items.value,
       ).toMatchObject({
@@ -527,42 +606,49 @@ describe('createSidebar', () => {
       })
     })
 
-    it.todo('groups tags by x-tagGroups and adds the webhooks to the tag group', () => {
+    it.todo('groups tags by x-tagGroups and adds the webhooks to the tag group', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          'openapi': '3.1.0',
+          'info': {
+            title: 'Example',
+            version: '1.0',
+          },
+          'tags': [
+            {
+              name: 'planets',
+            },
+          ],
+          'x-tagGroups': [
+            {
+              name: 'galaxy',
+              tags: ['planets', 'webhooks'],
+            },
+          ],
+          'paths': {
+            '/planets': {
+              get: {
+                summary: 'Get all planets',
+                tags: ['planets'],
+              },
+            },
+          },
+          'webhooks': {
+            hello: {
+              post: {
+                summary: 'Hello Webhook',
+              },
+            },
+          },
+        }
+      })
+      
       expect(
         createSidebar(
-          ref({
-            'openapi': '3.1.0',
-            'info': {
-              title: 'Example',
-              version: '1.0',
-            },
-            'tags': [
-              {
-                name: 'planets',
-              },
-            ],
-            'x-tagGroups': [
-              {
-                name: 'galaxy',
-                tags: ['planets', 'webhooks'],
-              },
-            ],
-            'paths': {
-              '/planets': {
-                get: {
-                  summary: 'Get all planets',
-                  tags: ['planets'],
-                },
-              },
-            },
-            'webhooks': {
-              hello: {
-                post: {
-                  summary: 'Hello Webhook',
-                },
-              },
-            },
-          } as OpenAPIV3_1.Document),
+          store,
           mockOptions,
         ).items.value,
       ).toMatchObject({
@@ -592,42 +678,49 @@ describe('createSidebar', () => {
       })
     })
 
-    it('groups tags by x-tagGroups and keeps the webhook default entry', () => {
-      expect(
-        createSidebar(
-          ref({
-            'openapi': '3.1.0',
-            'info': {
-              title: 'Example',
-              version: '1.0',
+    it('groups tags by x-tagGroups and keeps the webhook default entry', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          'openapi': '3.1.0',
+          'info': {
+            title: 'Example',
+            version: '1.0',
+          },
+          'tags': [
+            {
+              name: 'planets',
             },
-            'tags': [
-              {
-                name: 'planets',
-              },
-            ],
-            'x-tagGroups': [
-              {
-                name: 'galaxy',
+          ],
+          'x-tagGroups': [
+            {
+              name: 'galaxy',
+              tags: ['planets'],
+            },
+          ],
+          'paths': {
+            '/planets': {
+              get: {
+                summary: 'Get all planets',
                 tags: ['planets'],
               },
-            ],
-            'paths': {
-              '/planets': {
-                get: {
-                  summary: 'Get all planets',
-                  tags: ['planets'],
-                },
+            },
+          },
+          'webhooks': {
+            hello: {
+              post: {
+                summary: 'Hello Webhook',
               },
             },
-            'webhooks': {
-              hello: {
-                post: {
-                  summary: 'Hello Webhook',
-                },
-              },
-            },
-          } as OpenAPIV3_1.Document),
+          },
+        }
+      })
+      
+      expect(
+        createSidebar(
+          store,
           mockOptions,
         ).items.value,
       ).toMatchObject({
@@ -659,22 +752,28 @@ describe('createSidebar', () => {
   })
 
   describe('description', () => {
-    it('adds heading to the sidebar', () => {
+    it('adds heading to the sidebar', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+            description: '# Foobar',
+          },
+          paths: {},
+        }
+      })
+      
       expect(
         createSidebar(
-          ref({
-            openapi: '3.1.0',
-            info: {
-              title: 'Hello World',
-              version: '1.0.0',
-              description: '# Foobar',
-            },
-            paths: {},
-          } as OpenAPIV3_1.Document),
+          store,
           mockOptions,
         ).items.value,
       ).toMatchObject({
-        titles: {},
         entries: [
           {
             id: 'description/foobar',
@@ -685,22 +784,28 @@ describe('createSidebar', () => {
       })
     })
 
-    it('adds two levels of headings to the sidebar', () => {
+    it('adds two levels of headings to the sidebar', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+            description: '# Foobar\n\n## Barfoo',
+          },
+          paths: {},
+        }
+      })
+      
       expect(
         createSidebar(
-          ref({
-            openapi: '3.1.0',
-            info: {
-              title: 'Hello World',
-              version: '1.0.0',
-              description: '# Foobar\n\n## Barfoo',
-            },
-            paths: {},
-          } as OpenAPIV3_1.Document),
+          store,
           mockOptions,
         ).items.value,
       ).toMatchObject({
-        titles: {},
         entries: [
           {
             id: 'description/foobar',
@@ -716,22 +821,27 @@ describe('createSidebar', () => {
       })
     })
 
-    it("doesn't add third level of headings", () => {
+    it("doesn't add third level of headings", async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+            description: '# Foobar\n\n## Barfoo\n\n### Foofoo',
+          },
+          paths: {},
+        }
+      })
       expect(
         createSidebar(
-          ref({
-            openapi: '3.1.0',
-            info: {
-              title: 'Hello World',
-              version: '1.0.0',
-              description: '# Foobar\n\n## Barfoo\n\n### Foofoo',
-            },
-            paths: {},
-          } as OpenAPIV3_1.Document),
+          store,
           mockOptions,
         ).items.value,
       ).toMatchObject({
-        titles: {},
         entries: [
           {
             id: 'description/foobar',
@@ -749,23 +859,31 @@ describe('createSidebar', () => {
   })
 
   describe('operations', () => {
-    it('has a single entry for a single operation', () => {
-      expect(
-        createSidebar(
-          ref({
-            openapi: '3.1.0',
-            info: {
-              title: 'Hello World',
-              version: '1.0.0',
-            },
-            paths: {
-              '/hello': {
-                get: {
-                  summary: 'Hello World',
-                },
+    it('has a single entry for a single operation', async () => {
+
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          paths: {
+            '/hello': {
+              get: {
+                summary: 'Hello World',
               },
             },
-          } as OpenAPIV3_1.Document),
+          },
+        }
+      })
+
+      expect(
+        createSidebar(
+          store,
           mockOptions,
         ).items.value,
       ).toMatchObject({
@@ -773,30 +891,37 @@ describe('createSidebar', () => {
       })
     })
 
-    it('has two entries for a single operation and a webhook', () => {
+    it('has two entries for a single operation and a webhook', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          paths: {
+            '/hello': {
+              get: {
+                summary: 'Hello World',
+              },
+            },
+          },
+          webhooks: {
+            hello: {
+              post: {
+                'summary': 'Hello Webhook',
+              },
+            },
+          },
+        }
+      })
+      
       expect(
         createSidebar(
-          ref({
-            openapi: '3.1.0',
-            info: {
-              title: 'Hello World',
-              version: '1.0.0',
-            },
-            paths: {
-              '/hello': {
-                get: {
-                  summary: 'Hello World',
-                },
-              },
-            },
-            webhooks: {
-              hello: {
-                post: {
-                  'summary': 'Hello Webhook',
-                },
-              },
-            },
-          } as OpenAPIV3_1.Document),
+          store,
           mockOptions,
         ).items.value,
       ).toMatchObject({
@@ -814,28 +939,36 @@ describe('createSidebar', () => {
       })
     })
 
-    it('hides operations with x-internal: true', () => {
-      expect(
-        createSidebar(
-          ref({
-            openapi: '3.1.0',
-            info: {
-              title: 'Hello World',
-              version: '1.0.0',
-            },
-            paths: {
-              '/hello': {
-                get: {
-                  'summary': 'Get',
-                  'x-internal': false,
-                },
-                post: {
-                  'summary': 'Post',
-                  'x-internal': true,
-                },
+    it('hides operations with x-internal: true', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          paths: {
+            '/hello': {
+              get: {
+                'summary': 'Get',
+                'x-internal': false,
+              },
+              post: {
+                'summary': 'Post',
+                'x-internal': true,
               },
             },
-          } as OpenAPIV3_1.Document),
+          },
+        }
+      })
+
+
+      expect(
+        createSidebar(
+          store,
           mockOptions,
         ).items.value,
       ).toMatchObject({
@@ -843,23 +976,30 @@ describe('createSidebar', () => {
       })
     })
 
-    it('uses the path when summary is an empty string', () => {
-      expect(
-        createSidebar(
-          ref({
-            openapi: '3.1.0',
-            info: {
-              title: 'Hello World',
-              version: '1.0.0',
-            },
-            paths: {
-              '/hello': {
-                get: {
-                  summary: '',
-                },
+    it('uses the path when summary is an empty string', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          paths: {
+            '/hello': {
+              get: {
+                summary: '',
               },
             },
-          } as OpenAPIV3_1.Document),
+          },
+        }
+      })
+
+      expect(
+        createSidebar(
+          store,
           mockOptions,
         ).items.value,
       ).toMatchObject({
@@ -867,37 +1007,40 @@ describe('createSidebar', () => {
       })
     })
 
-    it('sorts operations alphabetically with summary', () => {
-      const configWithSorter = ref({
-        ...config.value,
-        operationsSorter: 'alpha' as const,
+    it('sorts operations alphabetically with summary', async () => {
+
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          paths: {
+            '/hello': {
+              get: {
+                summary: 'Operation A',
+                tags: ['Hello'],
+              },
+            },
+            '/world': {
+              get: {
+                summary: 'Operation B',
+                tags: ['Hello'],
+              },
+            },
+          },
+        }
       })
+
       expect(
         createSidebar(
-          ref({
-            openapi: '3.1.0',
-            info: {
-              title: 'Hello World',
-              version: '1.0.0',
-            },
-            paths: {
-              '/hello': {
-                get: {
-                  summary: 'Operation A',
-                  tags: ['Hello'],
-                },
-              },
-              '/world': {
-                get: {
-                  summary: 'Operation B',
-                  tags: ['Hello'],
-                },
-              },
-            },
-          } as OpenAPIV3_1.Document),
+          store,
           {
             ...mockOptions,
-            config: configWithSorter,
           },
         ).items.value,
       ).toMatchObject({
@@ -917,35 +1060,37 @@ describe('createSidebar', () => {
       })
     })
 
-    it('sorts operations alphabetically with paths', () => {
-      const configWithSorter = ref({
-        ...config.value,
-        operationsSorter: 'alpha' as const,
+    it('sorts operations alphabetically with paths', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          paths: {
+            '/foo': {
+              get: {
+                tags: ['Hello'],
+              },
+            },
+            '/bar': {
+              get: {
+                tags: ['Hello'],
+              },
+            },
+          },
+        }
       })
+
       expect(
         createSidebar(
-          ref({
-            openapi: '3.1.0',
-            info: {
-              title: 'Hello World',
-              version: '1.0.0',
-            },
-            paths: {
-              '/foo': {
-                get: {
-                  tags: ['Hello'],
-                },
-              },
-              '/bar': {
-                get: {
-                  tags: ['Hello'],
-                },
-              },
-            },
-          } as OpenAPIV3_1.Document),
+          store,
           {
             ...mockOptions,
-            config: configWithSorter,
           },
         ).items.value,
       ).toMatchObject({
@@ -965,37 +1110,44 @@ describe('createSidebar', () => {
       })
     })
 
-    it('sorts operations by method', () => {
-      const configWithSorter = ref({
-        ...config.value,
-        operationsSorter: 'method' as const,
+    it('sorts operations by method', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        config: {
+          'x-scalar-reference-config': {
+            operationsSorter: "method"
+          }
+        },
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          paths: {
+            '/hello': {
+              post: {
+                summary: 'Operation A',
+                tags: ['Example'],
+              },
+            },
+            '/world': {
+              get: {
+                summary: 'Operation B',
+                tags: ['Example'],
+              },
+            },
+          },
+        }
       })
+      
       expect(
         createSidebar(
-          ref({
-            openapi: '3.1.0',
-            info: {
-              title: 'Hello World',
-              version: '1.0.0',
-            },
-            paths: {
-              '/hello': {
-                post: {
-                  summary: 'Operation A',
-                  tags: ['Example'],
-                },
-              },
-              '/world': {
-                get: {
-                  summary: 'Operation B',
-                  tags: ['Example'],
-                },
-              },
-            },
-          } as OpenAPIV3_1.Document),
+          store,
           {
             ...mockOptions,
-            config: configWithSorter,
           },
         ).items.value,
       ).toMatchObject({
@@ -1015,58 +1167,65 @@ describe('createSidebar', () => {
       })
     })
 
-    it('sorts operations with custom function', () => {
-      const configWithSorter = ref({
-        ...config.value,
-        operationsSorter: (a: { method: string; path: string }, b: { method: string; path: string }) => {
-          const methodOrder = ['get', 'post', 'delete']
-          const methodComparison = methodOrder.indexOf(a.method) - methodOrder.indexOf(b.method)
+    it('sorts operations with custom function', async () => {
+      const store = createWorkspaceStore()
 
-          if (methodComparison !== 0) {
-            return methodComparison
+      await store.addDocument({
+        name: 'default',
+        config: {
+          'x-scalar-reference-config': {
+            operationsSorter: (a: { method: string; path: string }, b: { method: string; path: string }) => {
+              const methodOrder = ['get', 'post', 'delete']
+              const methodComparison = methodOrder.indexOf(a.method) - methodOrder.indexOf(b.method)
+    
+              if (methodComparison !== 0) {
+                return methodComparison
+              }
+    
+              return a.path.localeCompare(b.path)
+            },
           }
-
-          return a.path.localeCompare(b.path)
         },
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          paths: {
+            '/foo': {
+              post: {
+                summary: 'Hello World',
+                tags: ['Foobar'],
+              },
+            },
+            '/hello': {
+              delete: {
+                summary: 'Also World',
+                tags: ['Foobar'],
+              },
+            },
+            '/world': {
+              get: {
+                summary: 'Also Hello World',
+                tags: ['Foobar'],
+              },
+            },
+            '/bar': {
+              get: {
+                summary: 'Bar',
+                tags: ['Foobar'],
+              },
+            },
+          },
+        }
       })
+      
       expect(
         createSidebar(
-          ref({
-            openapi: '3.1.0',
-            info: {
-              title: 'Hello World',
-              version: '1.0.0',
-            },
-            paths: {
-              '/foo': {
-                post: {
-                  summary: 'Hello World',
-                  tags: ['Foobar'],
-                },
-              },
-              '/hello': {
-                delete: {
-                  summary: 'Also World',
-                  tags: ['Foobar'],
-                },
-              },
-              '/world': {
-                get: {
-                  summary: 'Also Hello World',
-                  tags: ['Foobar'],
-                },
-              },
-              '/bar': {
-                get: {
-                  summary: 'Bar',
-                  tags: ['Foobar'],
-                },
-              },
-            },
-          } as OpenAPIV3_1.Document),
+          store,
           {
             ...mockOptions,
-            config: configWithSorter,
           },
         ).items.value,
       ).toMatchObject({
@@ -1094,24 +1253,31 @@ describe('createSidebar', () => {
   })
 
   describe('webhooks', () => {
-    it('shows webhooks', () => {
-      expect(
-        createSidebar(
-          ref({
-            openapi: '3.1.0',
-            info: {
-              title: 'Hello World',
-              version: '1.0.0',
-            },
-            paths: {},
-            webhooks: {
-              hello: {
-                post: {
-                  'summary': 'Webhook',
-                },
+    it('shows webhooks', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          paths: {},
+          webhooks: {
+            hello: {
+              post: {
+                'summary': 'Webhook',
               },
             },
-          } as OpenAPIV3_1.Document),
+          },
+        }
+      })
+      
+      expect(
+        createSidebar(
+          store,
           mockOptions,
         ).items.value,
       ).toMatchObject({
@@ -1119,36 +1285,43 @@ describe('createSidebar', () => {
       })
     })
 
-    it('hides webhooks with x-internal: true', () => {
+    it('hides webhooks with x-internal: true', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          paths: {
+            '/hello': {
+              get: {
+                summary: 'Operation',
+              },
+            },
+          },
+          webhooks: {
+            hello: {
+              post: {
+                'summary': 'Webhook',
+              },
+            },
+            goodbye: {
+              post: {
+                'summary': 'Secret Webhook',
+                'x-internal': true,
+              },
+            },
+          },
+        }
+      })
+      
       expect(
         createSidebar(
-          ref({
-            openapi: '3.1.0',
-            info: {
-              title: 'Hello World',
-              version: '1.0.0',
-            },
-            paths: {
-              '/hello': {
-                get: {
-                  summary: 'Operation',
-                },
-              },
-            },
-            webhooks: {
-              hello: {
-                post: {
-                  'summary': 'Webhook',
-                },
-              },
-              goodbye: {
-                post: {
-                  'summary': 'Secret Webhook',
-                  'x-internal': true,
-                },
-              },
-            },
-          } as OpenAPIV3_1.Document),
+          store,
           mockOptions,
         ).items.value,
       ).toMatchObject({
@@ -1156,30 +1329,37 @@ describe('createSidebar', () => {
       })
     })
 
-    it('shows operations and webhooks', () => {
+    it('shows operations and webhooks', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          paths: {
+            '/hello': {
+              get: {
+                summary: 'Operation',
+              },
+            },
+          },
+          webhooks: {
+            hello: {
+              post: {
+                'summary': 'Webhook',
+              },
+            },
+          },
+        }
+      })
+      
       expect(
         createSidebar(
-          ref({
-            openapi: '3.1.0',
-            info: {
-              title: 'Hello World',
-              version: '1.0.0',
-            },
-            paths: {
-              '/hello': {
-                get: {
-                  summary: 'Operation',
-                },
-              },
-            },
-            webhooks: {
-              hello: {
-                post: {
-                  'summary': 'Webhook',
-                },
-              },
-            },
-          } as OpenAPIV3_1.Document),
+          store,
           mockOptions,
         ).items.value,
       ).toMatchObject({
@@ -1189,35 +1369,42 @@ describe('createSidebar', () => {
   })
 
   describe('schemas', () => {
-    it('shows schemas', () => {
-      expect(
-        createSidebar(
-          ref({
-            openapi: '3.1.0',
-            info: {
-              title: 'Hello World',
-              version: '1.0.0',
-            },
-            paths: {
-              '/hello': {
-                get: {
-                  summary: 'Get',
-                },
+      it('shows schemas', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          paths: {
+            '/hello': {
+              get: {
+                summary: 'Get',
               },
             },
-            components: {
-              schemas: {
-                Planet: {
-                  type: 'object',
-                  properties: {
-                    name: {
-                      type: 'string',
-                    },
+          },
+          components: {
+            schemas: {
+              Planet: {
+                type: 'object',
+                properties: {
+                  name: {
+                    type: 'string',
                   },
                 },
               },
             },
-          } as OpenAPIV3_1.Document),
+          },
+        }
+      })
+      
+      expect(
+        createSidebar(
+          store,
           mockOptions,
         ).items.value,
       ).toMatchObject({
@@ -1235,23 +1422,30 @@ describe('createSidebar', () => {
       })
     })
 
-    it('uses the title attribute of the schema', () => {
-      expect(
-        createSidebar(
-          ref({
-            openapi: '3.1.0',
-            info: {
-              title: 'Hello World',
-              version: '1.0.0',
-            },
-            components: {
-              schemas: {
-                Planet: {
-                  title: 'Foobar',
-                },
+    it('uses the title attribute of the schema', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          components: {
+            schemas: {
+              Planet: {
+                title: 'Foobar',
               },
             },
-          } as OpenAPIV3_1.Document),
+          },
+        }
+      })
+      
+      expect(
+        createSidebar(
+          store,
           mockOptions,
         ).items.value,
       ).toMatchObject({
@@ -1259,45 +1453,53 @@ describe('createSidebar', () => {
       })
     })
 
-    it('hides schemas with x-internal: true', () => {
+    it('hides schemas with x-internal: true', async () => {
+
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          paths: {
+            '/hello': {
+              get: {
+                summary: 'Get',
+              },
+            },
+          },
+          components: {
+            schemas: {
+              Planet: {
+                'type': 'object',
+                'x-internal': false,
+                'properties': {
+                  name: {
+                    type: 'string',
+                  },
+                },
+              },
+              User: {
+                'type': 'object',
+                'x-internal': true,
+                'properties': {
+                  name: {
+                    type: 'string',
+                  },
+                },
+              },
+            },
+          },
+        }
+      })
+
       expect(
         createSidebar(
-          ref({
-            openapi: '3.1.0',
-            info: {
-              title: 'Hello World',
-              version: '1.0.0',
-            },
-            paths: {
-              '/hello': {
-                get: {
-                  summary: 'Get',
-                },
-              },
-            },
-            components: {
-              schemas: {
-                Planet: {
-                  'type': 'object',
-                  'x-internal': false,
-                  'properties': {
-                    name: {
-                      type: 'string',
-                    },
-                  },
-                },
-                User: {
-                  'type': 'object',
-                  'x-internal': true,
-                  'properties': {
-                    name: {
-                      type: 'string',
-                    },
-                  },
-                },
-              },
-            },
-          } as OpenAPIV3_1.Document),
+          store,
           mockOptions,
         ).items.value,
       ).toMatchObject({

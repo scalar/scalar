@@ -1,26 +1,25 @@
-import type { TraversedEntry } from '@/features/traverse-schema'
+import type { TraversedEntry } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 import { computed } from 'vue'
+
 import { useSearchIndex } from './useSearchIndex'
 
 describe('useSearchIndex', () => {
   it('initializes with empty search state and watches for items changes', () => {
     const mockEntries: TraversedEntry[] = [
       {
+        type: 'operation',
+        ref: 'testOperation',
         id: 'test-operation',
         title: 'Test Operation',
         method: 'get',
         path: '/test',
-        operation: {
-          operationId: 'testOperation',
-          description: 'A test operation',
-        },
       },
     ]
 
     const mockItems = computed(() => ({
       entries: mockEntries,
-      titles: new Map(),
+      entities: new Map(),
     }))
 
     const { query, selectedIndex, searchResultsWithPlaceholderResults, resetSearch } = useSearchIndex(mockItems)
@@ -32,7 +31,7 @@ describe('useSearchIndex', () => {
       {
         item: {
           href: '#test-operation',
-          id: 'testOperation',
+          id: 'test-operation',
           method: 'get',
           path: '/test',
           title: 'Test Operation',

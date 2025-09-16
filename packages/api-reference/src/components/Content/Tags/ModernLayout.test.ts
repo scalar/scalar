@@ -1,11 +1,13 @@
-import type { TraversedTag } from '@/features/traverse-schema'
+import type { TraversedTag } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import ModernLayout from './ModernLayout.vue'
+
 import { createMockSidebar } from '@/helpers/test-utils'
 
+import ModernLayout from './ModernLayout.vue'
+
 // Mock the sidebar module
-vi.mock('@/features/sidebar', () => ({
+vi.mock('@/v2/blocks/scalar-navigation-block', () => ({
   useSidebar: vi.fn(() => createMockSidebar()),
 }))
 
@@ -28,14 +30,13 @@ vi.mock('vue', async () => {
 
 describe('ModernLayout', () => {
   const createMockTag = (overrides: Partial<TraversedTag> = {}): TraversedTag => ({
+    type: 'tag',
     id: 'test-tag',
     title: 'Test Tag',
     children: [],
     isGroup: false,
-    tag: {
-      name: 'test-tag',
-      description: 'Test description',
-    },
+    name: 'test-tag',
+    description: 'Test description',
     ...overrides,
   })
 
@@ -73,7 +74,8 @@ describe('ModernLayout', () => {
       const wrapper = mountComponent({
         tag: createMockTag({
           title: 'default',
-          tag: { name: 'default', description: 'Has description' },
+          name: 'default',
+          description: 'Has description',
         }),
         moreThanOneTag: false,
       })
@@ -85,7 +87,8 @@ describe('ModernLayout', () => {
       const wrapper = mountComponent({
         tag: createMockTag({
           title: 'default',
-          tag: { name: 'default', description: '' },
+          name: 'default',
+          description: '',
         }),
         moreThanOneTag: false,
       })
@@ -96,7 +99,7 @@ describe('ModernLayout', () => {
 
   describe('ShowMoreButton rendering', () => {
     it('renders ShowMoreButton when tag is collapsed and moreThanOneTag is true', async () => {
-      const { useSidebar } = await import('@/features/sidebar')
+      const { useSidebar } = await import('@/v2/blocks/scalar-navigation-block')
       vi.mocked(useSidebar).mockReturnValue(createMockSidebar({ 'test-tag': false }))
 
       const wrapper = mountComponent({
@@ -108,7 +111,7 @@ describe('ModernLayout', () => {
     })
 
     it('does not render ShowMoreButton when tag is not collapsed', async () => {
-      const { useSidebar } = await import('@/features/sidebar')
+      const { useSidebar } = await import('@/v2/blocks/scalar-navigation-block')
       vi.mocked(useSidebar).mockReturnValue(createMockSidebar({ 'test-tag': true }))
 
       const wrapper = mountComponent({
@@ -120,7 +123,7 @@ describe('ModernLayout', () => {
     })
 
     it('does not render ShowMoreButton when moreThanOneTag is false', async () => {
-      const { useSidebar } = await import('@/features/sidebar')
+      const { useSidebar } = await import('@/v2/blocks/scalar-navigation-block')
       vi.mocked(useSidebar).mockReturnValue(createMockSidebar({ 'test-tag': false }))
 
       const wrapper = mountComponent({
@@ -134,7 +137,7 @@ describe('ModernLayout', () => {
 
   describe('slot content rendering', () => {
     it('renders slot content when ShowMoreButton is not shown', async () => {
-      const { useSidebar } = await import('@/features/sidebar')
+      const { useSidebar } = await import('@/v2/blocks/scalar-navigation-block')
       vi.mocked(useSidebar).mockReturnValue(createMockSidebar({ 'test-tag': true }))
 
       const wrapper = mountComponent(
@@ -169,7 +172,7 @@ describe('ModernLayout', () => {
     })
 
     it('calls setCollapsedSidebarItem when ShowMoreButton is clicked', async () => {
-      const { useSidebar } = await import('@/features/sidebar')
+      const { useSidebar } = await import('@/v2/blocks/scalar-navigation-block')
       const mockSidebar = createMockSidebar({ 'test-tag': false })
       vi.mocked(useSidebar).mockReturnValue(mockSidebar)
 
@@ -186,7 +189,7 @@ describe('ModernLayout', () => {
 
     it('handles tag with null tag property gracefully', () => {
       const wrapper = mountComponent({
-        tag: createMockTag({ tag: null as any }),
+        tag: createMockTag(),
         moreThanOneTag: true,
       })
 
