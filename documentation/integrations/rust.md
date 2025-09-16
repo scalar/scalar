@@ -62,7 +62,7 @@ serde_json = "1.0"
 ```
 
 ```rust
-use axum::Router;
+use axum::{Router};
 use scalar_api_reference::axum::router;
 use serde_json::json;
 
@@ -74,10 +74,10 @@ async fn main() {
     });
 
     let app = Router::new()
-        .merge(router("/docs", &config));
+        .merge(router("/scalar", &config));
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
-    println!("Server running on http://localhost:3000/docs");
+    println!("Server running on http://localhost:3000/scalar");
     axum::serve(listener, app).await.unwrap();
 }
 ```
@@ -103,11 +103,11 @@ async fn main() -> std::io::Result<()> {
         "theme": "kepler",
     });
 
-    println!("Server running on http://localhost:8080/docs");
+    println!("Server running on http://localhost:8080/scalar");
 
     HttpServer::new(move || {
         App::new()
-            .configure(config("/docs", &config_json))
+            .configure(config("/scalar", &config_json))
     })
     .bind("127.0.0.1:8080")?
     .run()
@@ -136,16 +136,16 @@ async fn main() {
         "layout": "classic"
     });
 
-    let scalar_routes = routes("docs", &config);
+    let scalar = routes("scalar", &config);
 
-    println!("Server running on http://localhost:3030/docs");
-    warp::serve(scalar_routes)
+    println!("Server running on http://localhost:3030/scalar");
+    warp::serve(scalar)
         .run(([127, 0, 0, 1], 3030))
         .await;
 }
 ```
 
-**Note:** For Warp, the path should not include leading slashes (e.g., use `"docs"` instead of `"/docs"`). This is due to Warp's path handling requirements. The Warp integration supports common paths like `"scalar"`, `"docs"`, and `"api"` with dynamic JS asset serving. Documentation is served at `/docs` and JS is served at `/docs/scalar.js`.
+**Note:** For Warp, the path should not include leading slashes (e.g., use `"scalar"` instead of `"/scalar"`). This is due to Warp's path handling requirements. The Warp integration supports common paths like `"scalar"`, `"docs"`, and `"api"` with dynamic JS asset serving. Documentation is served at `/scalar` and JS is served at `/scalar/scalar.js`.
 
 ## Simplified API
 
