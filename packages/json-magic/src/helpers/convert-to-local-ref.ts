@@ -14,28 +14,30 @@ export const convertToLocalRef = (
   // Split the reference into base URL and path/anchor (e.g., "foo.json#/bar" => ["foo.json", "/bar"])
   const [baseUrl, pathOrAnchor] = ref.split('#', 2)
 
-  // If the full reference is already in the schemas map, return its path
-  if (schemas.has(ref)) {
-    return schemas.get(ref)
+  if (baseUrl) {
+    if (!schemas.has(baseUrl)) {
+      return undefined
+    }
+
+    if (!pathOrAnchor) {
+      return schemas.get(baseUrl)
+    }
+
+    // If the pathOrAnchor is a JSON pointer, we need to append it to the baseUrl
+    if (pathOrAnchor.startsWith('/')) {
+      return `${schemas.get(baseUrl)}${pathOrAnchor}`
+    }
+
+    // If the pathOrAnchor is an anchor, we need to return the anchor
+    return schemas.get(`${baseUrl}#${pathOrAnchor}`)
   }
 
-  // Determine the base path: use the schemas map for the baseUrl, or fallback to the current context
-  const base = schemas.get(baseUrl) ?? currentContext
-
-  // If a baseUrl is provided but not found in schemas, the reference cannot be resolved
-  // That means that this is an external reference, so we cannot resolve it
-  if (baseUrl && !schemas.has(baseUrl)) {
-    return undefined
-  }
-
-  // If there is a path or anchor after the '#', resolve it appropriately
   if (pathOrAnchor) {
-    // If it starts with '/', it's a JSON pointer; otherwise, it may be an anchor
-    return `${base}/${
-      pathOrAnchor.startsWith('/') ? pathOrAnchor.slice(1) : (schemas.get(`${baseUrl}#${pathOrAnchor}`) ?? pathOrAnchor)
-    }`
+    if (pathOrAnchor.startsWith('/')) {
+      return pathOrAnchor
+    }
+    return schemas.get(`${currentContext}#${pathOrAnchor}`)
   }
 
-  // If no path or anchor, just return the base path
-  return base
+  return undefined
 }

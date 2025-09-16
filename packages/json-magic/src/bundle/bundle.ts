@@ -1,5 +1,6 @@
 import { convertToLocalRef } from '@/helpers/convert-to-local-ref'
 import { getId, getSchemas } from '@/helpers/get-schemas'
+import path from '@/polyfills/path'
 import type { UnknownObject } from '@/types'
 
 import { escapeJsonPointer } from '../helpers/escape-json-pointer'
@@ -8,7 +9,7 @@ import { isJsonObject } from '../helpers/is-json-object'
 import { isObject } from '../helpers/is-object'
 import { isYaml } from '../helpers/is-yaml'
 import { getHash, uniqueValueGeneratorFactory } from './value-generator'
-import path from '@/polyfills/path'
+import { getValueByPath } from '@/helpers/get-value-by-path'
 
 /**
  * Checks if a string is a remote URL (starts with http:// or https://)
@@ -89,24 +90,6 @@ async function resolveContents(value: string, plugins: LoaderPlugin[]): Promise<
   return {
     ok: false,
   }
-}
-
-/**
- * Retrieves a nested value from an object using an array of property segments.
- * @param target - The target object to traverse
- * @param segments - Array of property names representing the path to the desired value
- * @returns The value at the specified path, or undefined if the path doesn't exist
- * @example
- * const obj = { foo: { bar: { baz: 42 } } };
- * getNestedValue(obj, ['foo', 'bar', 'baz']); // returns 42
- */
-export function getNestedValue(target: Record<string, any>, segments: string[]) {
-  return segments.reduce<any>((acc, key) => {
-    if (acc === undefined) {
-      return undefined
-    }
-    return acc[key]
-  }, target)
 }
 
 /**
@@ -327,7 +310,7 @@ const resolveAndCopyReferences = (
   documentKey: string,
   processedNodes = new Set(),
 ) => {
-  const referencedValue = getNestedValue(sourceDocument, getSegmentsFromPath(referencePath))
+  const referencedValue = getValueByPath(sourceDocument, getSegmentsFromPath(referencePath)).value
 
   if (processedNodes.has(referencedValue)) {
     return
@@ -745,15 +728,17 @@ export async function bundle(input: UnknownObject | string, config: Config) {
 
       if (ref.startsWith('#')) {
         if (isPartialBundling) {
-          // Handle anchor and local references
-          const segments = getSegmentsFromPath(convertToLocalRef(ref, id ?? origin, schemas))
-          const parent = segments.length > 0 ? getNestedValue(documentRoot, segments.slice(0, -1)) : undefined
+          const localRef = convertToLocalRef(ref, id ?? origin, schemas)
+          const segments = getSegmentsFromPath(localRef)
+          const parent = segments.length > 0 ? getValueByPath(documentRoot, segments.slice(0, -1)).value : undefined
+
+          const targetValue = getValueByPath(documentRoot, segments)
 
           // When doing partial bundling, we need to recursively bundle all dependencies
           // referenced by this local reference to ensure the partial bundle is complete.
           // This includes not just the direct reference but also all its dependencies,
           // creating a complete and self-contained partial bundle.
-          await bundler(getNestedValue(documentRoot, segments), origin, isChunkParent, depth + 1, segments, parent)
+          await bundler(targetValue.value, targetValue.context, isChunkParent, depth + 1, segments, parent)
         }
         return
       }

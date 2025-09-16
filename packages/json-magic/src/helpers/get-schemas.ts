@@ -4,8 +4,8 @@
  * @param input - The object to extract the $id from.
  * @returns The $id string if present, otherwise undefined.
  */
-export const getId = (input: object): string | undefined => {
-  if (input['$id'] && typeof input['$id'] === 'string') {
+export const getId = (input: unknown): string | undefined => {
+  if (input && typeof input === 'object' && input['$id'] && typeof input['$id'] === 'string') {
     return input['$id']
   }
   return undefined

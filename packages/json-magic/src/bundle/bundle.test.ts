@@ -14,7 +14,6 @@ import { getHash } from '@/bundle/value-generator'
 import {
   type LoaderPlugin,
   bundle,
-  getNestedValue,
   isLocalRef,
   isRemoteUrl,
   prefixInternalRef,
@@ -1673,6 +1672,83 @@ describe('bundle', () => {
       expect(fn.mock.calls[0][0]).toBe(url)
       expect(fn.mock.calls[1][0]).toBe('http://example.com/b')
     })
+
+    it('correctly bundles when doing a partial bundle with $anchor on a different context', async () => {
+      const input = {
+        a: {
+          b: {
+            c: {
+              $ref: '#/e/f',
+            },
+          },
+        },
+        e: {
+          $id: 'https://example.com/e',
+          $anchor: 'my-anchor',
+          f: {
+            $ref: '#my-anchor',
+          },
+          g: {
+            $ref: 'http://example.com',
+          },
+        },
+      }
+
+      const fn = vi.fn()
+
+      await bundle(input.a, {
+        treeShake: false,
+        plugins: [
+          {
+            type: 'loader',
+            validate: () => true,
+            exec: async (value) => {
+              fn(value)
+              if (value === 'http://example.com') {
+                return {
+                  ok: true,
+                  data: {
+                    message: 'resolved value',
+                  },
+                }
+              }
+              return { ok: false }
+            },
+          },
+        ],
+        root: input,
+        urlMap: true,
+        cache: new Map(),
+      })
+
+      expect(input).toEqual({
+        'a': {
+          'b': {
+            'c': {
+              '$ref': '#/e/f',
+            },
+          },
+        },
+        'e': {
+          '$anchor': 'my-anchor',
+          '$id': 'https://example.com/e',
+          'f': {
+            '$ref': '#my-anchor',
+          },
+          'g': {
+            '$ref': '#/x-ext/89dce6a',
+          },
+        },
+        'x-ext': {
+          '89dce6a': {
+             "message": "resolved value"
+          },
+        },
+           "x-ext-urls": {
+     "89dce6a": "http://example.com",
+   },
+      })
+    })
   })
 
   describe('local files', () => {
@@ -2682,17 +2758,6 @@ describe('isLocalRef', () => {
     ['./local-schema.json', false],
   ])('detects local refs', (a, b) => {
     expect(isLocalRef(a)).toBe(b)
-  })
-})
-
-describe('getNestedValue', () => {
-  it.each([
-    [{ a: { b: { c: 'hello' } } }, ['a', 'b', 'c'], 'hello'],
-    [{ a: { b: { c: 'hello' } } }, [], { a: { b: { c: 'hello' } } }],
-    [{ foo: { bar: { baz: 42 } } }, ['foo', 'bar', 'baz'], 42],
-    [{ foo: { bar: { baz: 42 } } }, ['foo', 'non-existing', 'baz'], undefined],
-  ])('gets nested value', (a, b, c) => {
-    expect(getNestedValue(a, b)).toEqual(c)
   })
 })
 

@@ -1,7 +1,8 @@
 import { convertToLocalRef } from '@/helpers/convert-to-local-ref'
 import { getId, getSchemas } from '@/helpers/get-schemas'
+import { getValueByPath } from '@/helpers/get-value-by-path'
 import { isObject } from '@/helpers/is-object'
-import { createPathFromSegments, getValueByPath, parseJsonPointer } from '@/helpers/json-path-utils'
+import { createPathFromSegments, parseJsonPointer } from '@/helpers/json-path-utils'
 import type { UnknownObject } from '@/types'
 
 const isMagicProxy = Symbol('isMagicProxy')
@@ -139,7 +140,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
 
         // Resolve the reference and create a new magic proxy
         const resolvedValue = getValueByPath(args.root, parseJsonPointer(`#/${path}`))
-        const proxiedValue = createMagicProxy(resolvedValue, options, args)
+        const proxiedValue = createMagicProxy(resolvedValue.value, options, { ...args, currentContext: resolvedValue.context })
 
         // Store in cache for future lookups
         args.cache.set(ref, proxiedValue)
@@ -169,6 +170,8 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
         const id = getId(target)
         const path = convertToLocalRef(ref, id ?? args.currentContext, args.schemas)
 
+        console.log({ path, ref, schemas: args.schemas,  })
+
         if (path === undefined) {
           return undefined
         }
@@ -180,7 +183,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
         }
 
         // Get the parent node or create it if it does not exist
-        const getParentNode = () => getValueByPath(args.root, segments.slice(0, -1))
+        const getParentNode = () => getValueByPath(args.root, segments.slice(0, -1)).value
 
         if (getParentNode() === undefined) {
           createPathFromSegments(args.root, segments.slice(0, -1))
