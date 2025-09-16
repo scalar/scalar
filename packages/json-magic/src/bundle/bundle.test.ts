@@ -1741,12 +1741,12 @@ describe('bundle', () => {
         },
         'x-ext': {
           '89dce6a': {
-             "message": "resolved value"
+            'message': 'resolved value',
           },
         },
-           "x-ext-urls": {
-     "89dce6a": "http://example.com",
-   },
+        'x-ext-urls': {
+          '89dce6a': 'http://example.com',
+        },
       })
     })
   })
