@@ -35,7 +35,8 @@
       "!**/packages/openapi-parser/src/schemas/**/*.ts",
       "!**/.github/renovate.json",
       "!**/webjars/**/*.js",
-      "!**/rust/**/*.js"
+      "!**/rust/**/*.js",
+      "!**/rust/**/target"
     ]
   },
   "assist": {
