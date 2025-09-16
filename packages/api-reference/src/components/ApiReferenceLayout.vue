@@ -50,8 +50,7 @@ import type {
   ReferenceLayoutSlot,
   ReferenceSlotProps,
 } from '@/types'
-import { useSidebar } from '@/v2/blocks/scalar-navigation-block'
-import Sidebar from '@/v2/blocks/scalar-navigation-block/components/Sidebar.vue'
+import { SidebarBlock, useSidebar } from '@/v2/blocks/scalar-navigation-block'
 import { useLegacyStoreEvents } from '@/v2/hooks/use-legacy-store-events'
 
 const {
@@ -336,7 +335,7 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
       <div class="references-navigation-list">
         <ScalarErrorBoundary>
           <!-- TODO: @brynn should this be conditional based on classic/modern layout? -->
-          <Sidebar
+          <SidebarBlock
             :title="dereferencedDocument?.info?.title ?? 'The OpenAPI Schema'">
             <template #sidebar-start>
               <!-- Wrap in a div when slot is filled -->
@@ -379,7 +378,7 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
                 </ScalarSidebarFooter>
               </slot>
             </template>
-          </Sidebar>
+          </SidebarBlock>
         </ScalarErrorBoundary>
       </div>
     </aside>
