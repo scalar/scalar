@@ -220,7 +220,7 @@ watch(dereferencedDocument, (newDoc) => {
   }
   // If there's no tags defined on the document, grab the first tag entry
   else {
-    const firstTag = items.value.entries.find((item) => 'tag' in item)
+    const firstTag = items.value.entries.find((item) => item.type === 'tag')
     if (firstTag) {
       setCollapsedSidebarItem(firstTag.id, true)
     }
