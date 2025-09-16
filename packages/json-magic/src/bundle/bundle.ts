@@ -1,5 +1,6 @@
 import { convertToLocalRef } from '@/helpers/convert-to-local-ref'
 import { getId, getSchemas } from '@/helpers/get-schemas'
+import { getValueByPath } from '@/helpers/get-value-by-path'
 import path from '@/polyfills/path'
 import type { UnknownObject } from '@/types'
 
@@ -9,7 +10,6 @@ import { isJsonObject } from '../helpers/is-json-object'
 import { isObject } from '../helpers/is-object'
 import { isYaml } from '../helpers/is-yaml'
 import { getHash, uniqueValueGeneratorFactory } from './value-generator'
-import { getValueByPath } from '@/helpers/get-value-by-path'
 
 /**
  * Checks if a string is a remote URL (starts with http:// or https://)
