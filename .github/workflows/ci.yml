@@ -1236,6 +1236,7 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # v1
         with:
+          toolchain: stable 12 months ago
           components: rustfmt, clippy
 
       - name: Cache cargo registry
@@ -1310,6 +1311,7 @@ jobs:
         name: Setup Rust
         uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # v1
         with:
+          toolchain: stable 12 months ago
           components: rustfmt, clippy
 
       - if: steps.changed-files.outputs.rust_integration_any_changed == 'true'
