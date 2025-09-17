@@ -202,33 +202,36 @@ const debouncedScroll = useDebounceFn(() => {
 const sidebarOpened = ref(false)
 
 // Open a sidebar tag
-watch(dereferencedDocument, (newDoc) => {
-  // Scroll to given hash
-  if (hash.value) {
-    const hashSectionId = getSectionId(hash.value)
-    if (hashSectionId) {
-      setCollapsedSidebarItem(hashSectionId, true)
+watch(
+  () => store.workspace.activeDocument,
+  (newDoc) => {
+    // Scroll to given hash
+    if (hash.value) {
+      const hashSectionId = getSectionId(hash.value)
+      if (hashSectionId) {
+        setCollapsedSidebarItem(hashSectionId, true)
+      }
     }
-  }
-  // Open the first tag if there are tags defined
-  else if (newDoc.tags?.length) {
-    const firstTag = newDoc.tags?.[0]
+    // Open the first tag if there are tags defined
+    else if (newDoc?.tags?.length) {
+      const firstTag = newDoc.tags?.[0]
 
-    if (firstTag) {
-      setCollapsedSidebarItem(getTagId(firstTag), true)
+      if (firstTag) {
+        setCollapsedSidebarItem(getTagId(firstTag), true)
+      }
     }
-  }
-  // If there's no tags defined on the document, grab the first tag entry
-  else {
-    const firstTag = items.value.entries.find((item) => item.type === 'tag')
-    if (firstTag) {
-      setCollapsedSidebarItem(firstTag.id, true)
+    // If there's no tags defined on the document, grab the first tag entry
+    else {
+      const firstTag = items.value.entries.find((item) => item.type === 'tag')
+      if (firstTag) {
+        setCollapsedSidebarItem(firstTag.id, true)
+      }
     }
-  }
 
-  // Open the sidebar
-  sidebarOpened.value = true
-})
+    // Open the sidebar
+    sidebarOpened.value = true
+  },
+)
 
 /** This is passed into all of the slots so they have access to the references data */
 const breadcrumb = computed(
