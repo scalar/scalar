@@ -12,7 +12,5 @@ async fn main() {
     let scalar = routes("scalar", &config);
 
     println!("Server running on http://localhost:3030/scalar");
-    warp::serve(scalar)
-        .run(([127, 0, 0, 1], 3030))
-        .await;
+    warp::serve(scalar).run(([127, 0, 0, 1], 3030)).await;
 }

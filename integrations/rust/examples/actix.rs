@@ -11,11 +11,8 @@ async fn main() -> std::io::Result<()> {
 
     println!("Server running on http://localhost:8080/scalar");
 
-    HttpServer::new(move || {
-        App::new()
-            .configure(config("/scalar", &config_json))
-    })
-    .bind("127.0.0.1:8080")?
-    .run()
-    .await
+    HttpServer::new(move || App::new().configure(config("/scalar", &config_json)))
+        .bind("127.0.0.1:8080")?
+        .run()
+        .await
 }
