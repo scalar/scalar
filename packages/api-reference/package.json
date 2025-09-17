@@ -109,7 +109,7 @@
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/server-renderer": "^3.5.17",
     "@vue/test-utils": "^2.4.1",
-    "hono": "^4.6.5",
+    "hono": "catalog:*",
     "react": "catalog:*",
     "react-dom": "catalog:*",
     "rollup-plugin-webpack-stats": "^0.2.5",
