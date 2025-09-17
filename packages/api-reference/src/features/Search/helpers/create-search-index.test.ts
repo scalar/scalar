@@ -121,7 +121,7 @@ describe('createSearchIndex', () => {
       const index = createSearchIndex(entries, document as any)
 
       expect(index.length).toEqual(3)
-      expect(index.map((item) => item.title)).toEqual(['Create User', 'Get Posts', 'Get Users'])
+      expect(index.map((item) => item.title)).toEqual(['Get Users', 'Create User', 'Get Posts'])
     })
   })
 

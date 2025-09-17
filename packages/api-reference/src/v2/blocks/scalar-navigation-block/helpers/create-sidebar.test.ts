@@ -141,7 +141,7 @@ describe('createSidebar', () => {
       expect(createSidebar(store, mockOptions).items.value).toMatchObject({
         entries: [
           {
-            title: 'Barfoo',
+            title: 'Foobar',
             children: [
               {
                 title: 'Hello World',
@@ -149,7 +149,7 @@ describe('createSidebar', () => {
             ],
           },
           {
-            title: 'Foobar',
+            title: 'Barfoo',
             children: [
               {
                 title: 'Hello World',
@@ -195,10 +195,10 @@ describe('createSidebar', () => {
             title: 'Get Hello',
           },
           {
-            title: 'Get World',
+            title: 'Post Hello',
           },
           {
-            title: 'Post Hello',
+            title: 'Get World',
           },
         ],
       })
@@ -262,7 +262,7 @@ describe('createSidebar', () => {
       ).toMatchObject({
         entries: [
           {
-            title: 'Barfoo',
+            title: 'Foobar',
             children: [
               {
                 title: 'Hello World',
@@ -270,7 +270,7 @@ describe('createSidebar', () => {
             ],
           },
           {
-            title: 'Foobar',
+            title: 'Barfoo',
             children: [
               {
                 title: 'Hello World',
@@ -993,10 +993,10 @@ describe('createSidebar', () => {
             title: 'Hello',
             children: [
               {
-                title: '/bar',
+                title: '/foo',
               },
               {
-                title: '/foo',
+                title: '/bar',
               },
             ],
           },

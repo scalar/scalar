@@ -113,8 +113,8 @@ export const getNavigationOptions = (config?: DocumentConfiguration): TraverseSp
   const getTagId = referenceConfig?.getTagId ?? getTagIdDefault
 
   const hideModels = referenceConfig?.features?.showModels === false
-  const operationsSorter: TraverseSpecOptions['operationsSorter'] = referenceConfig?.operationsSorter ?? 'alpha'
-  const tagsSorter: TraverseSpecOptions['tagsSorter'] = referenceConfig?.tagSort ?? 'alpha'
+  const operationsSorter: TraverseSpecOptions['operationsSorter'] = referenceConfig?.operationsSorter
+  const tagsSorter: TraverseSpecOptions['tagsSorter'] = referenceConfig?.tagSort
 
   return {
     hideModels,

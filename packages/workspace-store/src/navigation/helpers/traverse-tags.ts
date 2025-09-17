@@ -108,7 +108,7 @@ const getSortedTagEntries = (
     else if (typeof operationsSorter === 'function') {
       entries.sort((a, b) => {
         // Guard against tags
-        if ((a.type !== 'operation' && a.type !== 'webhook') || (b.type !== 'operation' && b.type !== 'webhook')) {
+        if (!(a.type === 'operation' || a.type === 'webhook') || !(b.type === 'operation' || b.type === 'webhook')) {
           return 0
         }
 

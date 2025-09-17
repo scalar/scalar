@@ -19,10 +19,10 @@ type OperationSortValue = {
  */
 export type TraverseSpecOptions = {
   /** Controls how tags are sorted - either alphabetically or using a custom sort function */
-  tagsSorter: 'alpha' | ((a: TagObject, b: TagObject) => number)
+  tagsSorter?: 'alpha' | ((a: TagObject, b: TagObject) => number)
 
   /** Controls how operations are sorted - alphabetically, by method, or using a custom sort function */
-  operationsSorter: 'alpha' | 'method' | ((a: OperationSortValue, b: OperationSortValue) => number)
+  operationsSorter?: 'alpha' | 'method' | ((a: OperationSortValue, b: OperationSortValue) => number)
 
   /** Whether to hide model schemas from the navigation */
   hideModels: boolean
