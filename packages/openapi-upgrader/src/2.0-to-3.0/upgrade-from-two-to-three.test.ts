@@ -1167,7 +1167,7 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    expect(result.paths['/noRequestBody'].post.consumes).toBeUndefined()
+    expect(result.paths?.['/noRequestBody']?.post?.consumes).toBeUndefined()
   })
 
   it('migrates parameter reference objects accordingly', () => {
@@ -1195,7 +1195,7 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    expect(result.paths['/planets/{planetId}'].get.parameters[0]).toEqual({
+    expect(result.paths?.['/planets/{planetId}']?.get?.parameters?.[0]).toEqual({
       $ref: '#/components/parameters/planetId',
     })
   })
