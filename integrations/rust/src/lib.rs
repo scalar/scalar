@@ -488,7 +488,6 @@ mod tests {
 
 #[cfg(all(test, feature = "axum"))]
 mod axum_tests {
-    use super::*;
     use crate::axum::{router, routes, scalar_response, scalar_response_from_json};
     use serde_json::json;
 
@@ -558,7 +557,7 @@ mod axum_tests {
         });
 
         // Test that routes can be created without errors
-        let (scalar_route, asset_route) = routes("/scalar", &config);
+        let (_scalar_route, _asset_route) = routes("/scalar", &config);
         // Routes creation is successful if we get here
         // Note: We can't easily test the actual HTTP requests without more complex setup
     }
@@ -566,7 +565,6 @@ mod axum_tests {
 
 #[cfg(all(test, feature = "actix-web"))]
 mod actix_tests {
-    use super::*;
     use crate::actix_web::{config, scalar_response, scalar_response_from_json};
     use serde_json::json;
 
@@ -578,11 +576,11 @@ mod actix_tests {
         });
 
         // Test with custom JS bundle URL
-        let response = scalar_response(&config, Some("/custom-scalar.js"));
+        let _response = scalar_response(&config, Some("/custom-scalar.js"));
         // Test that response can be created without errors
 
         // Test with default CDN URL
-        let response = scalar_response(&config, None);
+        let _response = scalar_response(&config, None);
         // Test that response can be created without errors
     }
 
@@ -591,11 +589,11 @@ mod actix_tests {
         let config_json = r#"{"url": "/api.json", "theme": "purple"}"#;
 
         // Test with custom JS bundle URL
-        let response = scalar_response_from_json(config_json, Some("/bundle.js")).unwrap();
+        let _response = scalar_response_from_json(config_json, Some("/bundle.js")).unwrap();
         // Test that response can be created without errors
 
         // Test with default CDN URL
-        let response = scalar_response_from_json(config_json, None).unwrap();
+        let _response = scalar_response_from_json(config_json, None).unwrap();
         // Test that response can be created without errors
 
         // Test invalid JSON
@@ -619,7 +617,6 @@ mod actix_tests {
 
 #[cfg(all(test, feature = "warp"))]
 mod warp_tests {
-    use super::*;
     use crate::warp::{routes, scalar_reply, scalar_reply_from_json, separate_routes};
     use serde_json::json;
 
@@ -631,12 +628,12 @@ mod warp_tests {
         });
 
         // Test with custom JS bundle URL
-        let reply = scalar_reply(&config, Some("/custom-scalar.js"));
+        let _reply = scalar_reply(&config, Some("/custom-scalar.js"));
         // Test that reply can be created without errors
         // Note: We can't easily test the actual response content without more complex setup
 
         // Test with default CDN URL
-        let reply = scalar_reply(&config, None);
+        let _reply = scalar_reply(&config, None);
         // Test that reply can be created without errors
     }
 
@@ -645,11 +642,11 @@ mod warp_tests {
         let config_json = r#"{"url": "/api.json", "theme": "purple"}"#;
 
         // Test with custom JS bundle URL
-        let reply = scalar_reply_from_json(config_json, Some("/bundle.js")).unwrap();
+        let _reply = scalar_reply_from_json(config_json, Some("/bundle.js")).unwrap();
         // Test that reply can be created without errors
 
         // Test with default CDN URL
-        let reply = scalar_reply_from_json(config_json, None).unwrap();
+        let _reply = scalar_reply_from_json(config_json, None).unwrap();
         // Test that reply can be created without errors
 
         // Test invalid JSON
@@ -678,7 +675,7 @@ mod warp_tests {
         });
 
         // Test that separate routes can be created without errors
-        let (scalar_filter, asset_filter) = separate_routes("scalar", &config);
+        let (_scalar_filter, _asset_filter) = separate_routes("scalar", &config);
         // Routes creation is successful if we get here
     }
 }
