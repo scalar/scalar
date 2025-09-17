@@ -187,9 +187,9 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
               if (migrationResult.requestBody) {
                 operationItem.requestBody = migrationResult.requestBody
               }
-
-              delete operationItem.consumes
             }
+
+            delete operationItem.consumes
 
             // Responses
             if (operationItem.responses) {
@@ -353,6 +353,10 @@ function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): O
 }
 
 function transformParameterObject(parameter: OpenAPIV2.ParameterObject): OpenAPIV3.ParameterObject {
+  if (Object.hasOwn(parameter, '$ref')) {
+    return parameter
+  }
+
   // it is important to call getParameterSerializationStyle first because transformItemsObject modifies properties on which getParameterSerializationStyle rely on
   const serializationStyle = getParameterSerializationStyle(parameter)
   const schema = transformItemsObject(parameter)

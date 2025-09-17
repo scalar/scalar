@@ -1153,4 +1153,50 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
   })
+
+  it('deletes consumes array even if no request body parameter is specified', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      'swagger': '2.0',
+      'info': { 'version': '1.0.0', 'title': 'Minimal API' },
+      'paths': {
+        '/noRequestBody': {
+          'post': {
+            'consumes': ['application/json', 'application/x-www-form-urlencoded'],
+          },
+        },
+      },
+    })
+
+    expect(result.paths?.['/noRequestBody']?.post?.consumes).toBeUndefined()
+  })
+
+  it('migrates parameter reference objects accordingly', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      'swagger': '2.0',
+      'info': { 'version': '1.0.0', 'title': 'Minimal API' },
+      parameters: {
+        planetId: {
+          name: 'planetId',
+          in: 'path',
+          required: true,
+          type: 'string',
+        },
+      },
+      'paths': {
+        '/planets/{planetId}': {
+          'get': {
+            parameters: [
+              {
+                $ref: '#/parameters/planetId',
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    expect(result.paths?.['/planets/{planetId}']?.get?.parameters?.[0]).toEqual({
+      $ref: '#/components/parameters/planetId',
+    })
+  })
 })
