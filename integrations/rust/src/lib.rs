@@ -260,14 +260,14 @@ pub mod warp {
         asset_route.or(scalar_route)
     }
 
-    // Helper function to create asset route for any path using dynamic path parameters
+    // Helper function to create asset route scoped to the specified path
     fn create_asset_route(
-        _path: &'static str,
+        path: &'static str,
     ) -> impl Filter<Extract = impl Reply, Error = warp::Rejection> + Clone {
-        // Use dynamic path parameter to match any path segment
-        warp::path::param::<String>()
+        // Use the specific path instead of dynamic path parameter
+        warp::path(path)
             .and(warp::path("scalar.js"))
-            .and_then(move |_path_param: String| async move {
+            .and_then(move || async move {
                 match get_asset_with_mime("scalar.js") {
                     Some((mime_type, content)) => {
                         Ok::<_, warp::Rejection>(warp::reply::with_header(
@@ -302,10 +302,10 @@ pub mod warp {
         // For Warp, we need to handle paths without leading slashes
         let clean_path = path.trim_start_matches('/');
 
-        // Create asset route using dynamic path parameter
-        let asset_route = warp::path::param::<String>()
+        // Create asset route scoped to the configured base path
+        let asset_route = warp::path(clean_path)
             .and(warp::path("scalar.js"))
-            .and_then(move |_path_param: String| async move {
+            .and_then(move || async move {
                 match get_asset_with_mime("scalar.js") {
                     Some((mime_type, content)) => {
                         Ok::<_, warp::Rejection>(warp::reply::with_header(
