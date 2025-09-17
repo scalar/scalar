@@ -20,7 +20,7 @@ pub fn get_asset_with_mime(path: &str) -> Option<(String, Vec<u8>)> {
 
 /// Determine MIME type based on file extension
 pub fn get_mime_type(path: &str) -> String {
-    match path.split('.').last() {
+    match path.split('.').next_back() {
         Some("html") => "text/html".to_string(),
         Some("js") => "application/javascript".to_string(),
         Some("css") => "text/css".to_string(),
