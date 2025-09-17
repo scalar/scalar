@@ -1,5 +1,5 @@
 ---
-'scalar-api-reference': minor
+'scalar_api_reference': minor
 ---
 
 hello world :)
