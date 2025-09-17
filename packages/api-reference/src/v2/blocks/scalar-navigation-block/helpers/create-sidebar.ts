@@ -13,12 +13,27 @@ import { generateReverseIndex } from '@/v2/blocks/scalar-navigation-block/helper
  *  - update docs
  *  - tagged models
  */
-export const createSidebar = (store: WorkspaceStore, options: { getSectionId: (hashStr?: string) => string }) => {
+export const createSidebar = (store: WorkspaceStore) => {
   const collapsedSidebarItems = reactive<Record<string, boolean>>({})
   const isSidebarOpen = ref(false)
 
   const toggleCollapsedSidebarItem = (key: string) => (collapsedSidebarItems[key] = !collapsedSidebarItems[key])
   const setCollapsedSidebarItem = (key: string, value: boolean) => (collapsedSidebarItems[key] = value)
+
+  /** Sidebar items */
+  const items = computed(() => {
+    const result = store.workspace.activeDocument?.['x-scalar-navigation']
+
+    // Open all tags
+    if (store.config['x-scalar-reference-config'].features.expandAllTagSections) {
+      result?.forEach((entry) => setCollapsedSidebarItem(entry.id, true))
+    }
+
+    return {
+      entries: result ?? [],
+      entities: generateReverseIndex(result),
+    }
+  })
 
   /**
    * Scroll to operation
@@ -27,7 +42,7 @@ export const createSidebar = (store: WorkspaceStore, options: { getSectionId: (h
    * it uses the lazyBus to ensure the section is open before scrolling to it
    */
   const scrollToOperation = (operationId: string, focus?: boolean) => {
-    const sectionId = options.getSectionId(operationId)
+    const sectionId = items.value.entities.get(operationId)?.parent?.id
 
     if (sectionId && sectionId !== operationId) {
       // We use the lazyBus to check when the target has loaded then scroll to it
@@ -44,21 +59,6 @@ export const createSidebar = (store: WorkspaceStore, options: { getSectionId: (h
       }
     }
   }
-
-  /** Sidebar items */
-  const items = computed(() => {
-    const result = store.workspace.activeDocument?.['x-scalar-navigation']
-
-    // Open all tags
-    if (store.config['x-scalar-reference-config'].features.expandAllTagSections) {
-      result?.forEach((entry) => setCollapsedSidebarItem(entry.id, true))
-    }
-
-    return {
-      entries: result ?? [],
-      entities: generateReverseIndex(result),
-    }
-  })
 
   return {
     collapsedSidebarItems,

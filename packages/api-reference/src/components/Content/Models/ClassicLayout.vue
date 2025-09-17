@@ -9,15 +9,12 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
-import { useNavState } from '@/hooks/useNavState'
 
 import { SchemaHeading, SchemaProperty } from '../Schema'
 
 defineProps<{
-  models: { name: string; schema: SchemaObject }[]
+  models: { id: string; name: string; schema: SchemaObject }[]
 }>()
-
-const { getModelId } = useNavState()
 </script>
 <template>
   <SectionContainerAccordion
@@ -27,13 +24,13 @@ const { getModelId } = useNavState()
       <SectionHeader :level="2">Models</SectionHeader>
     </template>
     <SectionAccordion
-      v-for="{ name, schema } in models"
-      :id="getModelId({ name })"
+      v-for="{ id, name, schema } in models"
+      :id="id"
       :key="name"
       :label="name">
       <template #title>
         <Anchor
-          :id="getModelId({ name })"
+          :id="id"
           class="reference-models-anchor">
           <SectionHeaderTag :level="3">
             <SchemaHeading

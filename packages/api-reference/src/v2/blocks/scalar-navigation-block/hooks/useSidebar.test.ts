@@ -1,8 +1,6 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { apiReferenceConfigurationSchema } from '@scalar/types'
-import type { Heading } from '@scalar/types/legacy'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import type { OperationObject, TraversedEntry } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { TraversedEntry } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, inject, provide, ref } from 'vue'
 
@@ -69,26 +67,11 @@ describe('useSidebar', () => {
         document: EXAMPLE_DOCUMENT as Record<string, unknown>,
       })
 
-      const config = ref(apiReferenceConfigurationSchema.parse({}))
-      const options = {
-        config,
-        getSectionId: (_hashStr?: string) => 'section-1',
-        getHeadingId: (heading: Heading) => heading.value,
-        getOperationId: (
-          operation: { path: string; method: OpenAPIV3_1.HttpMethods } & OperationObject,
-          _parentTag: OpenAPIV3_1.TagObject,
-        ) => operation.summary ?? '',
-        getWebhookId: (webhook?: { name: string; method?: string }, _parentTag?: OpenAPIV3_1.TagObject) =>
-          webhook?.name ?? 'webhooks',
-        getModelId: (model?: { name: string }) => model?.name ?? '',
-        getTagId: (tag: OpenAPIV3_1.TagObject) => tag.name ?? '',
-      }
-
       // Act
-      const result = useSidebar(store, options)
+      const result = useSidebar(store)
 
       // Assert
-      expect(createSidebar).toHaveBeenCalledWith(store, options)
+      expect(createSidebar).toHaveBeenCalledWith(store)
       expect(provide).toHaveBeenCalledWith(SIDEBAR_SYMBOL, mockSidebar)
       expect(result).toBe(mockSidebar)
     })

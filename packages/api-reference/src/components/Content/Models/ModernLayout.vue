@@ -12,14 +12,13 @@ import {
   SectionHeaderTag,
 } from '@/components/Section'
 import ShowMoreButton from '@/components/ShowMoreButton.vue'
-import { useNavState } from '@/hooks/useNavState'
 import { useSidebar } from '@/v2/blocks/scalar-navigation-block'
 
 import { Schema, SchemaHeading } from '../Schema'
 
 const { config, schemas = [] } = defineProps<{
   config: ApiReferenceConfiguration
-  schemas: { name: string; schema: SchemaObject }[]
+  schemas: { id: string; name: string; schema: SchemaObject }[]
 }>()
 
 const headerId = useId()
@@ -27,13 +26,12 @@ const headerId = useId()
 const MAX_MODELS_INITIALLY_SHOWN = 10
 
 const { collapsedSidebarItems } = useSidebar()
-const { getModelId } = useNavState()
 
 const showAllModels = computed(
   () =>
     config.expandAllModelSections ||
     schemas.length <= MAX_MODELS_INITIALLY_SHOWN ||
-    collapsedSidebarItems[getModelId()],
+    collapsedSidebarItems['models'],
 )
 
 const models = computed(() => {
@@ -61,8 +59,8 @@ const models = computed(() => {
         class="models-list"
         :class="{ 'models-list-truncated': !showAllModels }">
         <CompactSection
-          v-for="{ name, schema } in models"
-          :id="getModelId({ name })"
+          v-for="{ id, name, schema } in models"
+          :id="id"
           :key="name"
           class="models-list-item"
           :defaultOpen="config.expandAllModelSections"
@@ -86,7 +84,7 @@ const models = computed(() => {
       </div>
       <ShowMoreButton
         v-if="!showAllModels"
-        :id="getModelId()"
+        id="models"
         class="show-more-models" />
     </Section>
   </SectionContainer>

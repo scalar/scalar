@@ -17,13 +17,10 @@ export const SIDEBAR_SYMBOL: InjectionKey<Sidebar> = Symbol('sidebar')
  * When called with a collection and options, it creates and provides a new sidebar instance.
  * When called without parameters, it returns the injected sidebar state.
  */
-export const useSidebar = (
-  store?: WorkspaceStore,
-  options?: { getSectionId: (hashStr?: string) => string },
-): ReturnType<typeof createSidebar> => {
+export const useSidebar = (store?: WorkspaceStore): ReturnType<typeof createSidebar> => {
   // If collection is provided, create and provide a new sidebar instance
-  if (store && options) {
-    const sidebar = createSidebar(store, options)
+  if (store) {
+    const sidebar = createSidebar(store)
     provide(SIDEBAR_SYMBOL, sidebar)
 
     return sidebar

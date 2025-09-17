@@ -98,11 +98,11 @@ const getSortedTagEntries = (
 
     // Alpha sort
     if (operationsSorter === 'alpha') {
-      entries.sort((a, b) => ('method' in a && 'method' in b ? a.title.localeCompare(b.title) : 0))
+      entries.sort((a, b) => (a.type === 'operation' && b.type === 'operation' ? a.title.localeCompare(b.title) : 0))
     }
     // Method sort
     else if (operationsSorter === 'method') {
-      entries.sort((a, b) => ('method' in a && 'method' in b ? a.method.localeCompare(b.method) : 0))
+      entries.sort((a, b) => (a.type === 'operation' && b.type === 'operation' ? a.method.localeCompare(b.method) : 0))
     }
     // Custom sort
     else if (typeof operationsSorter === 'function') {

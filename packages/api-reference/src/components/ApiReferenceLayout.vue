@@ -112,15 +112,11 @@ const obtrusiveScrollbars = computed(hasObtrusiveScrollbars)
 
 const navState = useNavState(configuration)
 const { isSidebarOpen, setCollapsedSidebarItem, scrollToOperation, items } =
-  useSidebar(store, {
-    getSectionId: navState.getSectionId,
-  })
+  useSidebar(store)
 
 const {
   getReferenceId,
   getPathRoutingId,
-  getSectionId,
-  getTagId,
   hash,
   isIntersectionEnabled,
   updateHash,
@@ -204,23 +200,16 @@ const sidebarOpened = ref(false)
 // Open a sidebar tag
 watch(
   () => store.workspace.activeDocument,
-  (newDoc) => {
+  () => {
     // Scroll to given hash
     if (hash.value) {
-      const hashSectionId = getSectionId(hash.value)
+      const entry = items.value.entities.get(hash.value)
+      const hashSectionId = entry?.parent?.id ?? entry?.id
       if (hashSectionId) {
         setCollapsedSidebarItem(hashSectionId, true)
       }
     }
-    // Open the first tag if there are tags defined
-    else if (newDoc?.tags?.length) {
-      const firstTag = newDoc.tags?.[0]
-
-      if (firstTag) {
-        setCollapsedSidebarItem(getTagId(firstTag), true)
-      }
-    }
-    // If there's no tags defined on the document, grab the first tag entry
+    // Open the first tag if no hash is present
     else {
       const firstTag = items.value.entries.find((item) => item.type === 'tag')
       if (firstTag) {

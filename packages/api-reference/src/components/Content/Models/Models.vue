@@ -1,42 +1,43 @@
 <script setup lang="ts">
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type {
+  ComponentsObject,
+  TraversedDescription,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import { Lazy } from '@/components/Lazy'
 import { useNavState } from '@/hooks/useNavState'
+import { useSidebar } from '@/v2/blocks/scalar-navigation-block'
 
 import ClassicLayout from './ClassicLayout.vue'
 import ModernLayout from './ModernLayout.vue'
 
-const { document } = defineProps<{
-  document: OpenApiDocument
+const { schemas = {} } = defineProps<{
+  schemas: ComponentsObject['schemas']
   config: ApiReferenceConfiguration
 }>()
 
 const { hash } = useNavState()
 
+const { items } = useSidebar()
+
+const modelEntry = computed(() => {
+  return items.value.entries.find(
+    (item) => item.type === 'text' && item.id === 'models',
+  ) as TraversedDescription | undefined
+})
+
 /** Array of the name and value of all component schemas */
-const schemas = computed(() => {
-  const _schemas = document.components?.schemas
+const models = computed(() => {
+  const modelEntries = modelEntry.value?.children ?? []
 
-  if (!_schemas) {
-    return []
-  }
-
-  const entries = Object.entries(_schemas)
-
-  /** Remove any internal or ignored schemas */
-  return entries.flatMap(([name, _schema]) => {
-    const schema = getResolvedRef(_schema)
-    if (schema['x-internal'] || schema['x-scalar-ignore']) {
-      return []
-    }
-
-    // Need the type assertion because of the typescript limitation
-    return [{ name, schema }]
-  })
+  return modelEntries.map((it) => ({
+    id: it.id,
+    name: it.title,
+    schema: getResolvedRef(schemas[it.title]),
+  }))
 })
 </script>
 <template>
@@ -46,10 +47,10 @@ const schemas = computed(() => {
     :isLazy="Boolean(hash) && !hash.startsWith('model')">
     <ClassicLayout
       v-if="config?.layout === 'classic'"
-      :models="schemas" />
+      :models="models" />
     <ModernLayout
       v-else
       :config="config"
-      :schemas="schemas" />
+      :schemas="models" />
   </Lazy>
 </template>

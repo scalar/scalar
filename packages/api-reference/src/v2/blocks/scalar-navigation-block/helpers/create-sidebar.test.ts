@@ -1,9 +1,7 @@
-import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { describe, expect, it, vi } from 'vitest'
-import { ref, toRef, toValue } from 'vue'
+import { toValue } from 'vue'
 
-import { useNavState } from '@/hooks/useNavState'
 import { createSidebar } from '@/v2/blocks/scalar-navigation-block/helpers/create-sidebar'
 
 // Mock vue's inject
@@ -18,12 +16,6 @@ vi.mock('vue', () => {
     }),
   }
 })
-
-const config = ref(apiReferenceConfigurationSchema.parse({}))
-const mockOptions = {
-  config,
-  ...useNavState(toRef(config)),
-}
 
 describe('createSidebar', () => {
   describe('instance', () => {
@@ -48,8 +40,8 @@ describe('createSidebar', () => {
         },
       })
 
-      const sidebar1 = createSidebar(store, mockOptions)
-      const sidebar2 = createSidebar(store, mockOptions)
+      const sidebar1 = createSidebar(store)
+      const sidebar2 = createSidebar(store)
 
       // Every call to createSidebar should return a new instance
       expect(toValue(sidebar1)).not.toBe(toValue(sidebar2))
@@ -75,7 +67,7 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(createSidebar(store, mockOptions).items.value).toStrictEqual({ entries: [], entities: new Map() })
+      expect(createSidebar(store).items.value).toStrictEqual({ entries: [], entities: new Map() })
     })
   })
 
@@ -102,7 +94,7 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [
           {
             title: 'Foobar',
@@ -138,7 +130,7 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [
           {
             title: 'Foobar',
@@ -189,7 +181,7 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [
           {
             title: 'Get Hello',
@@ -228,7 +220,7 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [{ title: 'Public' }],
       })
     })
@@ -238,6 +230,11 @@ describe('createSidebar', () => {
 
       await store.addDocument({
         name: 'default',
+        config: {
+          'x-scalar-reference-config': {
+            tagSort: 'alpha',
+          },
+        },
         document: {
           openapi: '3.1.0',
           info: {
@@ -255,14 +252,10 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(
-        createSidebar(store, {
-          ...mockOptions,
-        }).items.value,
-      ).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [
           {
-            title: 'Foobar',
+            title: 'Barfoo',
             children: [
               {
                 title: 'Hello World',
@@ -270,7 +263,7 @@ describe('createSidebar', () => {
             ],
           },
           {
-            title: 'Barfoo',
+            title: 'Foobar',
             children: [
               {
                 title: 'Hello World',
@@ -314,11 +307,7 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(
-        createSidebar(store, {
-          ...mockOptions,
-        }).items.value,
-      ).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [
           {
             title: 'Foobar',
@@ -368,7 +357,7 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [
           {
             title: 'Foobar',
@@ -413,7 +402,7 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [
           {
             id: 'tag/foobar',
@@ -472,7 +461,7 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [
           {
             title: 'galaxy',
@@ -532,7 +521,7 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [
           {
             title: 'galaxy',
@@ -594,7 +583,7 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [
           {
             title: 'galaxy',
@@ -661,7 +650,7 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [
           {
             title: 'galaxy',
@@ -706,7 +695,7 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [
           {
             id: 'description/foobar',
@@ -733,7 +722,7 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [
           {
             id: 'description/foobar',
@@ -764,7 +753,7 @@ describe('createSidebar', () => {
           paths: {},
         },
       })
-      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [
           {
             id: 'description/foobar',
@@ -803,7 +792,7 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [{ title: 'Hello World' }],
       })
     })
@@ -836,7 +825,7 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [
           { title: 'Hello World' },
           {
@@ -877,7 +866,7 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [{ title: 'Get' }],
       })
     })
@@ -903,7 +892,7 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [{ title: '/hello' }],
       })
     })
@@ -913,6 +902,11 @@ describe('createSidebar', () => {
 
       await store.addDocument({
         name: 'default',
+        config: {
+          'x-scalar-reference-config': {
+            operationsSorter: 'alpha',
+          },
+        },
         document: {
           openapi: '3.1.0',
           info: {
@@ -936,11 +930,7 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(
-        createSidebar(store, {
-          ...mockOptions,
-        }).items.value,
-      ).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [
           {
             title: 'Hello',
@@ -962,6 +952,11 @@ describe('createSidebar', () => {
 
       await store.addDocument({
         name: 'default',
+        config: {
+          'x-scalar-reference-config': {
+            operationsSorter: 'method',
+          },
+        },
         document: {
           openapi: '3.1.0',
           info: {
@@ -969,12 +964,12 @@ describe('createSidebar', () => {
             version: '1.0.0',
           },
           paths: {
-            '/foo': {
+            '/bar': {
               get: {
                 tags: ['Hello'],
               },
             },
-            '/bar': {
+            '/foo': {
               get: {
                 tags: ['Hello'],
               },
@@ -983,20 +978,16 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(
-        createSidebar(store, {
-          ...mockOptions,
-        }).items.value,
-      ).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [
           {
             title: 'Hello',
             children: [
               {
-                title: '/foo',
+                title: '/bar',
               },
               {
-                title: '/bar',
+                title: '/foo',
               },
             ],
           },
@@ -1037,11 +1028,7 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(
-        createSidebar(store, {
-          ...mockOptions,
-        }).items.value,
-      ).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [
           {
             title: 'Example',
@@ -1112,11 +1099,7 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(
-        createSidebar(store, {
-          ...mockOptions,
-        }).items.value,
-      ).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [
           {
             title: 'Foobar',
@@ -1163,7 +1146,7 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [{ title: 'Webhooks', children: [{ title: 'Webhook' }] }],
       })
     })
@@ -1202,7 +1185,7 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [{ title: 'Operation' }, { title: 'Webhooks', children: [{ title: 'Webhook' }] }],
       })
     })
@@ -1235,7 +1218,7 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [{ title: 'Operation' }, { title: 'Webhooks', children: [{ title: 'Webhook' }] }],
       })
     })
@@ -1275,7 +1258,7 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [
           { title: 'Get' },
           {
@@ -1311,7 +1294,7 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [{ title: 'Models', children: [{ title: 'Foobar' }] }],
       })
     })
@@ -1359,7 +1342,7 @@ describe('createSidebar', () => {
         },
       })
 
-      expect(createSidebar(store, mockOptions).items.value).toMatchObject({
+      expect(createSidebar(store).items.value).toMatchObject({
         entries: [
           { title: 'Get' },
           {

@@ -4,7 +4,6 @@ import { ScalarErrorBoundary } from '@scalar/components'
 import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { DEFAULT_INTRODUCTION_SLUG } from '@scalar/workspace-store/navigation'
 import { computed } from 'vue'
 
 import IntroductionSection from '@/components/Content/IntroductionSection.vue'
@@ -12,11 +11,11 @@ import { Models } from '@/components/Content/Models'
 import { SectionFlare } from '@/components/SectionFlare'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import { useFreezing } from '@/hooks/useFreezing'
-import { useNavState } from '@/hooks/useNavState'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 import { ClientSelector } from '@/v2/blocks/scalar-client-selector-block'
 import { InfoBlock } from '@/v2/blocks/scalar-info-block'
 import { IntroductionCardItem } from '@/v2/blocks/scalar-info-block/'
+import { useSidebar } from '@/v2/blocks/scalar-navigation-block'
 import { generateClientOptions } from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
 import { ServerSelector } from '@/v2/blocks/scalar-server-selector-block'
 
@@ -36,15 +35,8 @@ const clientOptions = computed(() =>
   generateClientOptions(config.hiddenClients),
 )
 
-const { getHeadingId } = useNavState()
-
-const id = computed(() =>
-  getHeadingId({
-    slug: DEFAULT_INTRODUCTION_SLUG,
-    depth: 1,
-    value: 'Introduction',
-  }),
-)
+const { items } = useSidebar()
+const id = computed(() => items.value.entries[0]?.id)
 
 // Computed property to get all OpenAPI extension fields from the root document object
 const documentExtensions = computed(() =>
@@ -185,7 +177,7 @@ const getOriginalDocument = () => store.exportActiveDocument('json') ?? '{}'
     <Models
       v-if="!config?.hideModels && store.workspace.activeDocument"
       :config
-      :document="store.workspace.activeDocument" />
+      :schemas="store.workspace.activeDocument.components?.schemas" />
 
     <slot name="end" />
   </div>

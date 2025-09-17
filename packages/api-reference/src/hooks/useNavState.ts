@@ -1,10 +1,9 @@
-import { useConfig } from '@/hooks/useConfig'
 import { combineUrlAndPath } from '@scalar/helpers/url/merge-urls'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
-import type { Heading, OpenAPIV3_1 } from '@scalar/types/legacy'
-import type { OperationObject, TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { slug } from 'github-slugger'
+import type { Heading } from '@scalar/types/legacy'
 import { type InjectionKey, type Ref, inject, ref } from 'vue'
+
+import { useConfig } from '@/hooks/useConfig'
 
 export type NavState = {
   /** The URL hash without the #, also the "hash" pulled from pathRouting */
@@ -46,15 +45,6 @@ export const useNavState = (_config?: Ref<ApiReferenceConfiguration>) => {
 
     const reggy = new RegExp('^' + config.value.pathRouting?.basePath + '/?')
     return decodeURIComponent(pathName.replace(reggy, ''))
-  }
-
-  // Grabs the sectionId of the hash to open the section before scrolling
-  const getSectionId = (hashStr = hash.value) => {
-    const tagId = hashStr.match(/(tag\/[^/]+)/)?.[0]
-    const modelId = hashStr.startsWith('model') ? 'models' : ''
-    const webhookId = hashStr.startsWith('webhook') ? 'webhooks' : ''
-
-    return tagId || modelId || webhookId
   }
 
   /**
@@ -122,60 +112,6 @@ export const useNavState = (_config?: Ref<ApiReferenceConfiguration>) => {
     return ''
   }
 
-  const getModelId = (model?: { name: string }, parentTag?: OpenAPIV3_1.TagObject) => {
-    if (!model?.name) {
-      return 'models'
-    }
-
-    /** Prefix with the tag if we have one */
-    const prefixTag = parentTag ? `${getTagId(parentTag)}/` : ''
-
-    if (typeof config.value.generateModelSlug === 'function') {
-      return `${prefixTag}model/${config.value.generateModelSlug(model)}`
-    }
-    return `${prefixTag}model/${slug(model.name)}`
-  }
-
-  const getTagId = (tag: OpenAPIV3_1.TagObject) => {
-    if (typeof config.value.generateTagSlug === 'function') {
-      return `tag/${config.value.generateTagSlug(tag)}`
-    }
-    return `tag/${slug(tag.name ?? '')}`
-  }
-
-  const getOperationId = (
-    operation: {
-      path: string
-      method: OpenAPIV3_1.HttpMethods
-    } & OperationObject,
-    parentTag: TagObject,
-  ) => {
-    if (typeof config.value.generateOperationSlug === 'function') {
-      return `${getTagId(parentTag)}/${config.value.generateOperationSlug({
-        path: operation.path,
-        operationId: operation.operationId,
-        method: operation.method,
-        summary: operation.summary,
-      })}`
-    }
-
-    return `${getTagId(parentTag)}/${operation.method}${operation.path}`
-  }
-
-  const getWebhookId = (webhook?: { name: string; method?: string }, parentTag?: OpenAPIV3_1.TagObject) => {
-    if (!webhook?.name) {
-      return 'webhooks'
-    }
-
-    /** Prefix with the tag if we have one */
-    const prefixTag = parentTag ? `${getTagId(parentTag)}/` : ''
-
-    if (typeof config.value.generateWebhookSlug === 'function') {
-      return `${prefixTag}webhook/${config.value.generateWebhookSlug(webhook)}`
-    }
-    return `${prefixTag}webhook/${webhook.method}/${slug(webhook.name)}`
-  }
-
   return {
     hash,
     /** Sets the prefix for the hash */
@@ -201,13 +137,8 @@ export const useNavState = (_config?: Ref<ApiReferenceConfiguration>) => {
      */
     replaceUrlState,
     getReferenceId,
-    getWebhookId,
-    getModelId,
     getHeadingId,
-    getOperationId,
     getPathRoutingId,
-    getSectionId,
-    getTagId,
     isIntersectionEnabled,
     updateHash,
   }

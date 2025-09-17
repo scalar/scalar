@@ -8,8 +8,8 @@ const props = defineProps<{
   label?: string
 }>()
 
-const { getSectionId, isIntersectionEnabled, replaceUrlState } = useNavState()
-const { setCollapsedSidebarItem } = useSidebar()
+const { isIntersectionEnabled, replaceUrlState } = useNavState()
+const { items, setCollapsedSidebarItem } = useSidebar()
 
 function handleScroll() {
   if (!props.label || !isIntersectionEnabled.value) {
@@ -20,7 +20,11 @@ function handleScroll() {
 
   // Open models and webhooks on scroll
   if (props.id?.startsWith('model') || props.id?.startsWith('webhook')) {
-    setCollapsedSidebarItem(getSectionId(props.id), true)
+    const sectionId = items.value.entities.get(props.id)?.parent?.id
+
+    if (sectionId) {
+      setCollapsedSidebarItem(sectionId, false)
+    }
   }
 }
 </script>

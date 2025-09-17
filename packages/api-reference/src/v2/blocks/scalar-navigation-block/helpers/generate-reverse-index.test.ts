@@ -30,10 +30,10 @@ describe('generateReverseIndex', () => {
     }
     const result = generateReverseIndex([node])
     expect(result.size).toBe(4)
-    expect(result.get('root')).toBe(node)
-    expect(result.get('child1')).toBe(node.children?.[0])
-    expect(result.get('child2')).toBe(node.children?.[1])
-    expect(result.get('grandchild')).toBe((node.children?.[1] as any).children?.[0])
+    expect(result.get('root')).toMatchObject(node)
+    expect(result.get('child1')).toMatchObject(node.children?.[0] as any)
+    expect(result.get('child2')).toMatchObject(node.children?.[1] as any)
+    expect(result.get('grandchild')).toMatchObject((node.children?.[1] as any).children?.[0])
   })
 
   it('indexes multiple top-level nodes', () => {
@@ -45,6 +45,6 @@ describe('generateReverseIndex', () => {
     expect(result.size).toBe(3)
     expect(result.get('a')).toBe(nodes[0])
     expect(result.get('b')).toBe(nodes[1])
-    expect(result.get('c')).toBe((nodes[1] as any).children?.[0])
+    expect(result.get('c')).toEqual({ ...(nodes[1] as any).children?.[0], parent: nodes[1] })
   })
 })

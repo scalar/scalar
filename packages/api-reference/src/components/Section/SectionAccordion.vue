@@ -17,8 +17,8 @@ const { id } = defineProps<{
 const button = ref()
 const isHovered = useElementHover(button)
 
-const { getSectionId, isIntersectionEnabled, replaceUrlState } = useNavState()
-const { setCollapsedSidebarItem } = useSidebar()
+const { isIntersectionEnabled, replaceUrlState } = useNavState()
+const { items, setCollapsedSidebarItem } = useSidebar()
 
 /** On scroll over this section */
 const handleScroll = () => {
@@ -30,7 +30,11 @@ const handleScroll = () => {
 
   // Open models and webhooks on scroll
   if (id?.startsWith('model') || id?.startsWith('webhook')) {
-    setCollapsedSidebarItem(getSectionId(id), true)
+    const sectionId = items.value.entities.get(id)?.parent?.id
+
+    if (sectionId) {
+      setCollapsedSidebarItem(sectionId, false)
+    }
   }
 }
 </script>
