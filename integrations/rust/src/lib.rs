@@ -260,27 +260,14 @@ pub mod warp {
         asset_route.or(scalar_route)
     }
 
-    // Helper function to create asset route for any path
+    // Helper function to create asset route for any path using dynamic path parameters
     fn create_asset_route(
-        path: &'static str,
+        _path: &'static str,
     ) -> impl Filter<Extract = impl Reply, Error = warp::Rejection> + Clone {
-        // For Warp, we need to handle common paths explicitly since it requires static strings
-        match path {
-            "scalar" => create_specific_asset_route("scalar"),
-            "docs" => create_specific_asset_route("docs"),
-            "api" => create_specific_asset_route("api"),
-            "reference" => create_specific_asset_route("reference"),
-            _ => create_specific_asset_route("scalar"), // fallback to scalar
-        }
-    }
-
-    // Helper function to create asset route for a specific path
-    fn create_specific_asset_route(
-        path: &'static str,
-    ) -> impl Filter<Extract = impl Reply, Error = warp::Rejection> + Clone {
-        warp::path(path)
+        // Use dynamic path parameter to match any path segment
+        warp::path::param::<String>()
             .and(warp::path("scalar.js"))
-            .and_then(|| async {
+            .and_then(move |_path_param: String| async move {
                 match get_asset_with_mime("scalar.js") {
                     Some((mime_type, content)) => {
                         Ok::<_, warp::Rejection>(warp::reply::with_header(
@@ -315,8 +302,28 @@ pub mod warp {
         // For Warp, we need to handle paths without leading slashes
         let clean_path = path.trim_start_matches('/');
 
-        // Create asset route
-        let asset_route = create_asset_route(clean_path);
+        // Create asset route using dynamic path parameter
+        let asset_route = warp::path::param::<String>()
+            .and(warp::path("scalar.js"))
+            .and_then(move |_path_param: String| async move {
+                match get_asset_with_mime("scalar.js") {
+                    Some((mime_type, content)) => {
+                        Ok::<_, warp::Rejection>(warp::reply::with_header(
+                            warp::reply::with_status(content, warp::http::StatusCode::OK),
+                            "content-type",
+                            mime_type,
+                        ))
+                    }
+                    None => Ok::<_, warp::Rejection>(warp::reply::with_header(
+                        warp::reply::with_status(
+                            Vec::<u8>::new(),
+                            warp::http::StatusCode::NOT_FOUND,
+                        ),
+                        "content-type",
+                        "text/plain",
+                    )),
+                }
+            });
 
         // Create scalar route that only matches exact path (not subpaths)
         let scalar_route = warp::path(clean_path).and(warp::path::end()).map(move || {
