@@ -1,7 +1,7 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { UnknownObject } from '@scalar/types/utils'
 
-import { traverse } from './traverse'
+import { traverse } from '@/helpers/traverse'
 
 // Create Sets for faster schema path lookups
 const SCHEMA_SEGMENTS = new Set([
@@ -16,7 +16,12 @@ const SCHEMA_SEGMENTS = new Set([
 ])
 
 /** Determine if the current path is within a schema - optimized version */
-export function isSchemaPath(path: string[]): boolean {
+export function isSchemaPath(path: string[] | undefined): boolean {
+  // Early return if path is undefined
+  if (!path) {
+    return false
+  }
+
   // Check for schema segments first (most common case)
   if (path.some((segment) => SCHEMA_SEGMENTS.has(segment))) {
     return true
@@ -56,7 +61,7 @@ export function upgradeFromThreeToThreeOne(originalContent: UnknownObject) {
   return content as OpenAPIV3_1.Document
 }
 
-const applyChangesToDocument = (schema: UnknownObject, path: string[]) => {
+const applyChangesToDocument = (schema: UnknownObject, path?: string[]) => {
   // 1. Handle nullable types
   if (schema.type !== undefined && schema.nullable === true) {
     schema.type = [schema.type, 'null']
@@ -89,17 +94,18 @@ const applyChangesToDocument = (schema: UnknownObject, path: string[]) => {
         },
       }
     }
+
     delete schema.example
   }
 
   // 4. Handle multipart file uploads
   if (schema.type === 'object' && schema.properties !== undefined) {
-    const parentPath = path.slice(0, -1)
-    const isMultipart = parentPath.some((segment, index) => {
-      return segment === 'content' && path[index + 1] === 'multipart/form-data'
+    const parentPath = path?.slice(0, -1)
+    const isMultipart = parentPath?.some((segment, index) => {
+      return segment === 'content' && path?.[index + 1] === 'multipart/form-data'
     })
 
-    if (isMultipart) {
+    if (isMultipart && schema.properties !== null) {
       for (const value of Object.values(schema.properties)) {
         if (
           typeof value === 'object' &&
@@ -109,15 +115,16 @@ const applyChangesToDocument = (schema: UnknownObject, path: string[]) => {
           value.type === 'string' &&
           value.format === 'binary'
         ) {
-          ;(value as any).contentMediaType = 'application/octet-stream'
-          delete (value as any).format
+          value.contentMediaType = 'application/octet-stream'
+
+          delete value.format
         }
       }
     }
   }
 
   // 5. Handle binary file uploads
-  if (path.includes('content') && path.includes('application/octet-stream')) {
+  if (path?.includes('content') && path?.includes('application/octet-stream')) {
     return {}
   }
 
@@ -142,8 +149,8 @@ const applyChangesToDocument = (schema: UnknownObject, path: string[]) => {
     }
 
     if (schema.format === 'byte') {
-      const parentPath = path.slice(0, -1)
-      const contentMediaType = parentPath.find((_, index) => path[index - 1] === 'content')
+      const parentPath = path?.slice(0, -1)
+      const contentMediaType = parentPath?.find((_, index) => path?.[index - 1] === 'content')
       return {
         ...rest,
         type: 'string',

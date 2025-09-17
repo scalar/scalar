@@ -60,6 +60,7 @@
   "dependencies": {
     "@scalar/json-magic": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
+    "@scalar/openapi-upgrader": "workspace:*",
     "ajv": "^8.17.1",
     "ajv-draft-04": "^1.0.0",
     "ajv-formats": "^3.0.1",

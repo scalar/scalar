@@ -1,3 +1,4 @@
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 
 import { isSchemaPath, upgradeFromThreeToThreeOne } from './upgrade-from-three-to-three-one'
@@ -24,7 +25,7 @@ describe('isSchemaPath', () => {
 describe('upgradeFromThreeToThreeOne', () => {
   describe('version', () => {
     it(`doesn't modify Swagger 2.0 files`, async () => {
-      const result = upgradeFromThreeToThreeOne({
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         swagger: '2.0',
         info: {
           title: 'Hello World',
@@ -37,7 +38,7 @@ describe('upgradeFromThreeToThreeOne', () => {
     })
 
     it('changes the version to from 3.0.0 to 3.1.1', async () => {
-      const result = upgradeFromThreeToThreeOne({
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
           title: 'Hello World',
@@ -50,7 +51,7 @@ describe('upgradeFromThreeToThreeOne', () => {
     })
 
     it('changes the version to 3.0.3 to 3.1.1', async () => {
-      const result = upgradeFromThreeToThreeOne({
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.3',
         info: {
           title: 'Hello World',
@@ -65,7 +66,7 @@ describe('upgradeFromThreeToThreeOne', () => {
 
   describe('nullable types', () => {
     it('migrates nullable types', async () => {
-      const result = upgradeFromThreeToThreeOne({
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
           title: 'Hello World',
@@ -92,13 +93,13 @@ describe('upgradeFromThreeToThreeOne', () => {
         },
       })
 
-      expect(result.paths['/test'].get.responses['200'].content['application/json'].schema).toEqual({
+      expect(result.paths?.['/test']?.get?.responses?.['200']?.content['application/json'].schema).toEqual({
         type: ['string', 'null'],
       })
     })
 
     it('migrates nullable types with properties', async () => {
-      const result = upgradeFromThreeToThreeOne({
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
           title: 'Hello World',
@@ -129,7 +130,7 @@ describe('upgradeFromThreeToThreeOne', () => {
         },
       })
 
-      expect(result.paths['/test'].get.responses['200'].content['application/json'].schema).toEqual({
+      expect(result.paths?.['/test']?.get?.responses?.['200']?.content['application/json'].schema).toEqual({
         nullable: true,
         properties: {
           name: {
@@ -142,7 +143,7 @@ describe('upgradeFromThreeToThreeOne', () => {
 
   describe('exclusiveMinimum and exclusiveMaximum', () => {
     it('migrate exclusiveMinimum and exclusiveMaximum', async () => {
-      const result = upgradeFromThreeToThreeOne({
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
           title: 'Hello World',
@@ -172,7 +173,7 @@ describe('upgradeFromThreeToThreeOne', () => {
         },
       })
 
-      expect(result.paths['/test'].get.responses['200'].content['application/json'].schema).toEqual({
+      expect(result.paths?.['/test']?.get?.responses?.['200']?.content['application/json'].schema).toEqual({
         type: 'integer',
         exclusiveMinimum: 1,
         exclusiveMaximum: 100,
@@ -182,7 +183,7 @@ describe('upgradeFromThreeToThreeOne', () => {
 
   describe('migrates example to examples', () => {
     it('uses arrays in schemas', async () => {
-      const result = upgradeFromThreeToThreeOne({
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
           title: 'Hello World',
@@ -209,14 +210,14 @@ describe('upgradeFromThreeToThreeOne', () => {
         },
       })
 
-      expect(result.paths['/test'].get.responses['200'].content['application/json'].schema).toEqual({
+      expect(result.paths?.['/test']?.get?.responses?.['200']?.content['application/json'].schema).toEqual({
         type: 'integer',
         examples: [1],
       })
     })
 
     it('uses example objects everywhere else', async () => {
-      const result = upgradeFromThreeToThreeOne({
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
           title: 'Hello World',
@@ -241,7 +242,7 @@ describe('upgradeFromThreeToThreeOne', () => {
         },
       })
 
-      expect(result.paths['/test'].get.parameters[0]).toEqual({
+      expect(result.paths?.['/test']?.get?.parameters?.[0]).toEqual({
         name: 'limit',
         in: 'query',
         schema: {
@@ -259,7 +260,7 @@ describe('upgradeFromThreeToThreeOne', () => {
     })
 
     it(`doesn't transform arrays into objects`, () => {
-      const result = upgradeFromThreeToThreeOne({
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
           title: 'Sample API',
@@ -304,7 +305,7 @@ describe('upgradeFromThreeToThreeOne', () => {
       })
 
       expect(
-        result.paths['/users'].post.requestBody.content['application/json'].schema.properties.foobar,
+        result.paths?.['/users']?.post?.requestBody?.content['application/json'].schema.properties.foobar,
       ).toStrictEqual({
         type: 'array',
         examples: [['Portfolio1', 'Portfolio2']],
@@ -317,7 +318,7 @@ describe('upgradeFromThreeToThreeOne', () => {
 
   describe('describing File Upload Payloads', () => {
     it('removes schema for binary file uploads', async () => {
-      const result = upgradeFromThreeToThreeOne({
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
           title: 'Hello World',
@@ -341,11 +342,11 @@ describe('upgradeFromThreeToThreeOne', () => {
         },
       })
 
-      expect(result.paths['/upload'].post.requestBody.content['application/octet-stream']).toEqual({})
+      expect(result.paths?.['/upload']?.post?.requestBody?.content['application/octet-stream']).toEqual({})
     })
 
     it('migrates base64 format to contentEncoding for image uploads', async () => {
-      const result = upgradeFromThreeToThreeOne({
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
           title: 'Hello World',
@@ -369,7 +370,7 @@ describe('upgradeFromThreeToThreeOne', () => {
         },
       })
 
-      expect(result.paths['/upload'].post.requestBody.content['image/png']).toEqual({
+      expect(result.paths?.['/upload']?.post?.requestBody?.content['image/png']).toEqual({
         schema: {
           type: 'string',
           contentEncoding: 'base64',
@@ -378,7 +379,7 @@ describe('upgradeFromThreeToThreeOne', () => {
     })
 
     it('migrates binary format for multipart file uploads', async () => {
-      const result = upgradeFromThreeToThreeOne({
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
           title: 'Hello World',
@@ -411,7 +412,7 @@ describe('upgradeFromThreeToThreeOne', () => {
         },
       })
 
-      expect(result.paths['/upload'].post.requestBody.content['multipart/form-data']).toEqual({
+      expect(result.paths?.['/upload']?.post?.requestBody?.content['multipart/form-data']).toEqual({
         schema: {
           type: 'object',
           properties: {
@@ -430,7 +431,7 @@ describe('upgradeFromThreeToThreeOne', () => {
   })
 
   it('migrates byte format', async () => {
-    const result = upgradeFromThreeToThreeOne({
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
       openapi: '3.0.0',
       info: {
         title: 'Hello World',
@@ -454,7 +455,7 @@ describe('upgradeFromThreeToThreeOne', () => {
       },
     })
 
-    expect(result.paths['/upload'].post.requestBody.content['image/png']).toEqual({
+    expect(result.paths?.['/upload']?.post?.requestBody?.content['image/png']).toEqual({
       schema: {
         type: 'string',
         contentMediaType: 'image/png',
@@ -465,7 +466,7 @@ describe('upgradeFromThreeToThreeOne', () => {
 
   describe.skip('declaring $schema', () => {
     it('adds a $schema', async () => {
-      const result = upgradeFromThreeToThreeOne({
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
           title: 'Hello World',
@@ -480,7 +481,7 @@ describe('upgradeFromThreeToThreeOne', () => {
 
   describe('binary format handling with oneOf', () => {
     it('correctly handles format: binary in oneOf schemas', async () => {
-      const result = upgradeFromThreeToThreeOne({
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
           title: 'Hello World',
@@ -526,7 +527,8 @@ describe('upgradeFromThreeToThreeOne', () => {
       })
 
       expect(
-        result.paths['/images/edits'].post.requestBody.content['multipart/form-data'].schema.properties.image.oneOf[0],
+        result.paths?.['/images/edits']?.post?.requestBody?.content['multipart/form-data'].schema.properties.image
+          .oneOf[0],
       ).toEqual({
         type: 'string',
         contentMediaType: 'application/octet-stream',
@@ -536,7 +538,7 @@ describe('upgradeFromThreeToThreeOne', () => {
 
   describe('webhooks', () => {
     it('correctly upgrades x-webhooks to webhooks', async () => {
-      const result = upgradeFromThreeToThreeOne({
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
           title: 'Hello World',
