@@ -46,7 +46,7 @@ If you need more control over routing, you can use separate routes:
 ```rust
 use scalar_api_reference::axum::{routes};
 
-let (scalar_route, asset_route) = routes("/scalar", &config);
+let (scalar_route, asset_route) = routes("/scalar", &configuration);
 let app = Router::new()
     .merge(scalar_route)
     .merge(asset_route);

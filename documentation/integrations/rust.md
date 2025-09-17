@@ -38,18 +38,18 @@ use scalar_api_reference::{scalar_html, scalar_html_default, get_asset, get_asse
 use serde_json::json;
 
 // Generate HTML with configuration using CDN
-let config = json!({
+let configuration = json!({
     "url": "/openapi.json",
     "theme": "purple"
 });
 
 // Using CDN fallback
-let html1 = scalar_html(&config, None);
+let html1 = scalar_html(&configuration, None);
 // or use the convenience function
-let html2 = scalar_html_default(&config);
+let html2 = scalar_html_default(&configuration);
 
 // Using custom JS bundle URL
-let html3 = scalar_html(&config, Some("/custom-scalar.js"));
+let html3 = scalar_html(&configuration, Some("/custom-scalar.js"));
 
 // Get static assets
 if let Some(js_content) = get_asset("scalar.js") {
@@ -85,7 +85,7 @@ By default, the library uses the CDN-hosted version of Scalar:
 
 ```rust
 // Uses https://cdn.jsdelivr.net/npm/@scalar/api-reference
-let html = scalar_html(&config, None);
+let html = scalar_html(&configuration, None);
 ```
 
 ### Custom Bundle URL
@@ -94,7 +94,7 @@ You can provide your own JS bundle URL:
 
 ```rust
 // Uses your custom URL
-let html = scalar_html(&config, Some("/path/to/scalar.js"));
+let html = scalar_html(&configuration, Some("/path/to/scalar.js"));
 ```
 
 ### Convenience Functions
@@ -103,7 +103,7 @@ For the simplest usage, use the convenience functions that default to CDN:
 
 ```rust
 // Uses CDN automatically
-let html = scalar_html_default(&config);
+let html = scalar_html_default(&configuration);
 ```
 
 ## Configuration
