@@ -1,21 +1,27 @@
 # Scalar API Reference for Rust
 
-A Rust crate for embedding Scalar API documentation in web applications.
+We provide an official Rust crate for rendering the Scalar API documentation in web applications.
 
 ## Features
 
-- Embed Scalar's HTML/JS assets directly into your Rust binary
-- Framework-agnostic core with optional integrations for popular web frameworks
-- Simple configuration injection via JSON
-- Automatic asset serving with proper MIME types
+* Embed Scalar's HTML/JS assets directly into your Rust binary
+* Framework-agnostic core with optional integrations for popular web frameworks
+* Simple configuration injection via JSON
+* Automatic asset serving with proper MIME types
 
-## Supported Frameworks
+## Integrations
 
-- **Axum** (feature: `axum`)
-- **Actix-web** (feature: `actix-web`)
-- **Warp** (feature: `warp`)
+* [Axum (feature: `axum`)](https://guides.scalar.com/scalar/scalar-api-references/integrations/rust/axum)
+* [Actix-web (feature: `actix-web`)](https://guides.scalar.com/scalar/scalar-api-references/integrations/rust/actix-web)
+* [Warp (feature: `warp`)](https://guides.scalar.com/scalar/scalar-api-references/integrations/rust/warp)
 
-## Basic Usage
+There are a few community integrations, too:
+
+* [utoipa-scalar](https://github.com/juhaku/utoipa/tree/master/utoipa-scalar)
+* [Aide](https://github.com/tamasfe/aide)
+* [scalar-doc](https://crates.io/crates/scalar-doc) (framework-agnostic)
+
+## Installation
 
 Add to your `Cargo.toml`:
 
@@ -25,19 +31,19 @@ scalar_api_reference = "0.1.0"
 serde_json = "1.0"
 ```
 
-### Core API
+## Usage
 
 ```rust
 use scalar_api_reference::{scalar_html, scalar_html_default, get_asset, get_asset_with_mime};
 use serde_json::json;
 
-// Generate HTML with configuration using CDN (recommended)
+// Generate HTML with configuration using CDN
 let config = json!({
     "url": "/openapi.json",
     "theme": "purple"
 });
 
-// Using CDN fallback (recommended for most use cases)
+// Using CDN fallback
 let html1 = scalar_html(&config, None);
 // or use the convenience function
 let html2 = scalar_html_default(&config);
@@ -56,156 +62,7 @@ if let Some((mime_type, content)) = get_asset_with_mime("scalar.js") {
 }
 ```
 
-## Framework Examples
-
-### Axum
-
-```toml
-[dependencies]
-scalar_api_reference = { version = "0.1.0", features = ["axum"] }
-axum = "0.7"
-serde_json = "1.0"
-tokio = { version = "1.0", features = ["full"] }
-```
-
-```rust
-use axum::{Router};
-use scalar_api_reference::axum::router;
-use serde_json::json;
-
-#[tokio::main]
-async fn main() {
-    let config = json!({
-        "url": "https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json",
-        "theme": "purple",
-    });
-
-    let app = Router::new()
-        .merge(router("/scalar", &config));
-
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
-    println!("Server running on http://localhost:3000/scalar");
-    axum::serve(listener, app).await.unwrap();
-}
-```
-
-### Actix-web
-
-```toml
-[dependencies]
-scalar_api_reference = { version = "0.1.0", features = ["actix-web"] }
-actix-web = "4.0"
-serde_json = "1.0"
-```
-
-```rust
-use actix_web::{App, HttpServer};
-use scalar_api_reference::actix_web::config;
-use serde_json::json;
-
-#[actix_web::main]
-async fn main() -> std::io::Result<()> {
-    let config_json = json!({
-        "url": "https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json",
-        "theme": "kepler",
-    });
-
-    println!("Server running on http://localhost:8080/scalar");
-
-    HttpServer::new(move || {
-        App::new()
-            .configure(config("/scalar", &config_json))
-    })
-    .bind("127.0.0.1:8080")?
-    .run()
-    .await
-}
-```
-
-### Warp
-
-```toml
-[dependencies]
-scalar_api_reference = { version = "0.1.0", features = ["warp"] }
-warp = "0.3"
-serde_json = "1.0"
-tokio = { version = "1.0", features = ["full"] }
-```
-
-```rust
-use scalar_api_reference::warp::routes;
-use serde_json::json;
-
-#[tokio::main]
-async fn main() {
-    let config = json!({
-        "url": "https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json",
-        "theme": "kepler",
-        "layout": "classic"
-    });
-
-    let scalar = routes("scalar", &config);
-
-    println!("Server running on http://localhost:3030/scalar");
-    warp::serve(scalar)
-        .run(([127, 0, 0, 1], 3030))
-        .await;
-}
-```
-
-**Note:** For Warp, the path should not include leading slashes (e.g., use `"scalar"` instead of `"/scalar"`). This is due to Warp's path handling requirements. The Warp integration supports common paths like `"scalar"`, `"docs"`, and `"api"` with dynamic JS asset serving. Documentation is served at `/scalar` and JS is served at `/scalar/scalar.js`.
-
-## Simplified API
-
-The examples above use the new simplified API that automatically handles both serving the Scalar HTML documentation and its bundled JavaScript asset. This eliminates the need to manually set up routes for both the documentation and the JS file.
-
-### Available Functions
-
-- **Axum**: `scalar_api_reference::axum::router(path, config)` - Returns a complete Router
-- **Actix-web**: `scalar_api_reference::actix_web::config(path, config)` - Returns a configuration function
-- **Warp**: `scalar_api_reference::warp::routes(path, config)` - Returns a complete Filter
-
-All functions automatically:
-- Serve the Scalar HTML documentation at the specified path
-- Serve the bundled JavaScript at `{path}/scalar.js`
-- Handle proper MIME types and headers
-- Use the bundled JS file (no CDN dependency)
-
-**Warp Note:** The Warp integration supports common paths (`"scalar"`, `"docs"`, `"api"`) with dynamic JS asset serving. For other paths, it falls back to serving JS at `scalar/scalar.js`.
-
-## Advanced Usage
-
-### Separate Routes (Axum)
-
-If you need more control over routing, you can use separate routes:
-
-```rust
-use scalar_api_reference::axum::{routes};
-
-let (scalar_route, asset_route) = routes("/scalar", &config);
-let app = Router::new()
-    .merge(scalar_route)
-    .merge(asset_route);
-```
-
-### Individual Response Functions
-
-You can also create individual responses without automatic routing:
-
-```rust
-use scalar_api_reference::axum::scalar_response;
-
-// Create a response handler
-async fn scalar_handler() -> Html<String> {
-    let config = json!({
-        "url": "/openapi.json",
-        "theme": "purple"
-    });
-    scalar_response(&config, Some("/scalar/scalar.js"))
-}
-```
-
-## Static Asset Serving
+### Static Asset Serving
 
 If you need to serve additional static assets (CSS, JS, images), use the asset functions:
 
@@ -218,26 +75,32 @@ if let Some((mime_type, content)) = get_asset_with_mime("scalar.js") {
 }
 ```
 
-## JS Bundle URL Options
+### JS Bundle URL Options
 
 The library supports two ways to load the Scalar JavaScript bundle:
 
-### CDN (Recommended)
+#### CDN
+
 By default, the library uses the CDN-hosted version of Scalar:
+
 ```rust
 // Uses https://cdn.jsdelivr.net/npm/@scalar/api-reference
 let html = scalar_html(&config, None);
 ```
 
 ### Custom Bundle URL
+
 You can provide your own JS bundle URL:
+
 ```rust
 // Uses your custom URL
 let html = scalar_html(&config, Some("/path/to/scalar.js"));
 ```
 
 ### Convenience Functions
+
 For the simplest usage, use the convenience functions that default to CDN:
+
 ```rust
 // Uses CDN automatically
 let html = scalar_html_default(&config);
@@ -247,86 +110,10 @@ let html = scalar_html_default(&config);
 
 The configuration object supports all standard Scalar options. Common options include:
 
-- `url`: Path to your OpenAPI document
-- `layout`: Layout style ("classic" or "modern")
-- `theme`: [Theme name (e.g., "purple", "blue", "green")](https://guides.scalar.com/scalar/scalar-api-references/themes)
-- `darkMode`: Enable dark mode
+* `url`: Path to your OpenAPI document
+* `layout`: Layout style ("classic" or "modern")
+* `theme`: [Theme name (e.g., "purple", "blue", "green")](https://guides.scalar.com/scalar/scalar-api-references/themes)
+* `darkMode`: Enable dark mode
 
 See the documentation for [the complete configuration reference](https://guides.scalar.com/scalar/scalar-api-references/configuration).
 
-## Community integrations
-
-### Utopia
-
-For the wonderful Utoipa, there's a Utoipa-scalar crate:
-
-https://github.com/juhaku/utoipa/tree/master/utoipa-scalar
-
-### Aide
-
-There's [a wonderful package to generate OpenAPI files for Rust](https://github.com/tamasfe/aide) (called Aide) and it comes with Scalar.
-
-Set the `api_route` to use `Scalar` to get started:
-
-```rust
-use aide::{
-    axum::{
-        routing::{get_with},
-        ApiRouter, IntoApiResponse,
-    },
-    openapi::OpenApi,
-    scalar::Scalar,
-};
-
-// …
-
-let router: ApiRouter = ApiRouter::new()
-    .api_route_with(
-        "/",
-        get_with(
-            Scalar::new("/docs/private/api.json")
-                .with_title("Aide Axum")
-                .axum_handler(),
-            |op| op.description("This documentation page."),
-        ),
-        |p| p.security_requirement("ApiKey"),
-    )
-
-// …
-```
-
-If you want to use Scalar with Actix or any other web framework, you can do that too with the crate [scalar-doc](https://crates.io/crates/scalar-doc).
-
-To get started with Actix, first install the crate and activate `actix` feature :
-
-```bash
-cargo add scalar-doc -F actix
-```
-
-You can use the following code
-
-```rust
-use actix_web::{get, App, HttpResponse, HttpServer, Responder};
-use scalar_doc::scalar_actix::ActixDocumentation;
-
-#[get("/")]
-async fn doc() -> impl Responder {
-    ActixDocumentation::new("Api Documentation title", "/openapi")
-        .theme(scalar_doc::Theme::Kepler)
-        .service()
-}
-
-#[get("/openapi")]
-async fn openapi() -> impl Responder {
-    let open = include_str!("openapi.json");
-    HttpResponse::Ok().body(open)
-}
-
-#[actix_web::main]
-async fn main() -> std::io::Result<()> {
-    HttpServer::new(|| App::new().service(doc).service(openapi))
-        .bind(("127.0.0.1", 8080))?
-        .run()
-        .await
-}
-```
