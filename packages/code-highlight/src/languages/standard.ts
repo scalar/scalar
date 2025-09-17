@@ -34,6 +34,15 @@ import swift from 'highlight.js/lib/languages/swift'
 import typescript from 'highlight.js/lib/languages/typescript'
 import xml from 'highlight.js/lib/languages/xml'
 import yaml from 'highlight.js/lib/languages/yaml'
+import diff from 'highlight.js/lib/languages/diff'
+import dockerfile from 'highlight.js/lib/languages/dockerfile'
+import haskell from 'highlight.js/lib/languages/haskell'
+import http from 'highlight.js/lib/languages/http'
+import ini from 'highlight.js/lib/languages/ini'
+import lua from 'highlight.js/lib/languages/lua'
+import perl from 'highlight.js/lib/languages/perl'
+import properties from 'highlight.js/lib/languages/properties'
+import scala from 'highlight.js/lib/languages/scala'
 // @ts-expect-error No types available
 import curl from 'highlightjs-curl'
 
@@ -46,35 +55,44 @@ const standardLanguages: Record<string, LanguageFn> = {
   css,
   curl,
   dart,
+  diff,
+  docker: dockerfile,
+  dockerfile,
   elixir,
   go,
   graphql,
+  haskell,
   html: xml,
+  http,
+  ini,
   java,
   javascript,
   json,
   kotlin,
   less,
+  lua,
   makefile,
   markdown,
   matlab,
   nginx,
   objectivec,
   ocaml,
+  perl,
   php,
   plaintext,
   powershell,
+  properties,
   python,
   r,
   ruby,
   rust,
+  scala,
   scss,
   shell,
   sql,
   swift,
+  toml: ini,
   typescript,
   xml,
   yaml,
 }
-
-export { standardLanguages }
