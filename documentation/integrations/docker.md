@@ -56,7 +56,7 @@ The container includes a health check endpoint at `/health` that returns `OK` wi
 | Variable               | Description                                                    | Required |
 | ---------------------- | -------------------------------------------------------------- | -------- |
 | `API_REFERENCE_CONFIG` | JSON configuration for the Scalar API Reference                | Yes      |
-| `CDN_URL`              | URL for the API Reference CDN (default: local `standalone.js`) | No       |
+| `CDN_URL`              | URL for the API Reference CDN (default: local `scalar.js`) | No       |
 
 ## Configuration Options
 
