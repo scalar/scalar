@@ -16,6 +16,7 @@ import { combineParams } from '@/features/Operation/helpers/combine-params'
 import { convertSecurityScheme } from '@/helpers/convert-security-scheme'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
+import { getFirstServer } from './helpers/get-first-server'
 import ClassicLayout from './layouts/ClassicLayout.vue'
 import ModernLayout from './layouts/ModernLayout.vue'
 
@@ -75,27 +76,18 @@ const selectedSecuritySchemes = computed(() =>
 )
 
 /**
- * Determine the effective server for examples/snippets.
- * Preference order: operation.servers -> pathItem.servers -> provided server prop
+ * Determine the effective server for the code examples.
  */
-const effectiveServer = computed<ServerObject | undefined>(() => {
-  const opServer =
-    operation.value?.servers && operation.value.servers[0]
-      ? (getResolvedRef(operation.value.servers[0]) as ServerObject)
-      : undefined
-
-  if (opServer?.url) return opServer
-
-  const pathServer =
-    pathItem.value?.servers && pathItem.value.servers[0]
-      ? (getResolvedRef(pathItem.value.servers[0]) as ServerObject)
-      : undefined
-
-  if (pathServer?.url) return pathServer
-
-  // Fallback to the server coming from the active collection selection
-  return server as unknown as ServerObject | undefined
-})
+const selectedServer = computed<ServerObject | undefined>(() =>
+  getFirstServer(
+    // 1) Operation
+    operation.value?.servers,
+    // 2) Path Item
+    pathItem.value?.servers,
+    // 3) Document
+    server,
+  ),
+)
 </script>
 
 <template>
@@ -110,7 +102,7 @@ const effectiveServer = computed<ServerObject | undefined>(() => {
         :operation="operation"
         :path="path"
         :securitySchemes="selectedSecuritySchemes"
-        :server="effectiveServer"
+        :server="selectedServer"
         :store="store" />
     </template>
     <template v-else>
@@ -123,7 +115,7 @@ const effectiveServer = computed<ServerObject | undefined>(() => {
         :operation="operation"
         :path="path"
         :securitySchemes="selectedSecuritySchemes"
-        :server="effectiveServer"
+        :server="selectedServer"
         :store="store" />
     </template>
   </template>
