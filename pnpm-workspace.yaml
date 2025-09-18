@@ -9,6 +9,9 @@ packages:
   - '!**/dist/**'
   - '!**/.output/**'
 
+# To reduce the risk of installing compromised packages, we delay the installation of newly published versions.
+minimumReleaseAge: 1.440 # 1 day
+
 catalogs:
   '*':
     '@electron-toolkit/preload': ^3.0.0
