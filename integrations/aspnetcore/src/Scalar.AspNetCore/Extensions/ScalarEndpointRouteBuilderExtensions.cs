@@ -214,7 +214,7 @@ public static class ScalarEndpointRouteBuilderExtensions
 
         httpContext.Response.Headers.Append(HeaderNames.Vary, HeaderNames.AcceptEncoding);
 
-        var etag = $"\"{resourceFile.LastModified.Ticks}\"";
+        var etag = GenerateContentBasedETag(resourceFile);
         var ifNoneMatch = httpContext.Request.Headers.IfNoneMatch.ToString();
         if (ifNoneMatch == etag)
         {
@@ -222,7 +222,17 @@ public static class ScalarEndpointRouteBuilderExtensions
         }
 
         var stream = CreateResourceStream(resourceFile, httpContext);
-        return Results.Stream(stream, contentType, entityTag: new EntityTagHeaderValue(etag));
+        return Results.Stream(stream, contentType, entityTag: new EntityTagHeaderValue(etag, true));
+    }
+
+    private static string GenerateContentBasedETag(IFileInfo resourceFile)
+    {
+        var fileLength = resourceFile.Length;
+        var lastModified = resourceFile.LastModified.Ticks;
+
+        var combined = $"{fileLength}-{lastModified}";
+        var hash = combined.GetHashCode();
+        return $"\"{Math.Abs(hash):x8}\"";
     }
 
     private static Stream CreateResourceStream(IFileInfo resourceFile, HttpContext httpContext)
