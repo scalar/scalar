@@ -3,15 +3,32 @@ import type { AvailableClients } from '@scalar/snippetz'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type {
   OperationObject,
-  ServerObject,
   SecuritySchemeObject,
+  ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
+
 import type { ClientOptionGroup } from '../types'
 import RequestExample from './RequestExample.vue'
+
+// Mock the useClipboard hook
+const mockCopyToClipboard = vi.fn().mockResolvedValue(undefined)
+vi.mock('@scalar/use-hooks/useClipboard', () => ({
+  useClipboard: () => ({
+    copyToClipboard: mockCopyToClipboard,
+  }),
+}))
+
+// Mock the useToasts hook
+vi.mock('@scalar/use-toasts', () => ({
+  useToasts: () => ({
+    toast: vi.fn(),
+    initializeToasts: vi.fn(),
+  }),
+}))
 
 describe('RequestExample', () => {
   const mockOperation: OperationObject = {
@@ -859,6 +876,408 @@ describe('RequestExample', () => {
       expect(codeBlock.props('lang')).toBe('json')
       // Should still use operationToHar to generate the payload
       expect(codeBlock.props('content')).toBeTruthy()
+    })
+  })
+
+  describe('Webhook Copy as cURL', () => {
+    beforeEach(() => {
+      mockCopyToClipboard.mockClear()
+    })
+
+    it('renders copy button for webhook payloads', () => {
+      const wrapper = mount(RequestExample, {
+        props: {
+          ...defaultProps,
+          isWebhook: true,
+          selectedContentType: 'application/json',
+          selectedExample: 'example1',
+        },
+      })
+
+      const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
+      expect(codeBlock.exists()).toBe(true)
+      expect(codeBlock.props('copy')).toBe(true)
+
+      // The ScalarCodeBlockCopy component should be rendered
+      const copyComponent = wrapper.findComponent({ name: 'ScalarCodeBlockCopy' })
+      expect(copyComponent.exists()).toBe(true)
+    })
+
+    it('copies webhook payload content when copy button is clicked', async () => {
+      const wrapper = mount(RequestExample, {
+        props: {
+          ...defaultProps,
+          isWebhook: true,
+          method: 'POST' as HttpMethodType,
+          path: '/webhook/endpoint',
+          operation: {
+            summary: 'Webhook operation',
+            requestBody: {
+              content: {
+                'application/json': {
+                  examples: {
+                    webhookExample: {
+                      summary: 'Webhook payload',
+                      value: { event: 'user.created', userId: '123', data: { name: 'John Doe' } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          selectedExample: 'webhookExample',
+        },
+      })
+
+      const copyButton = wrapper.findComponent({ name: 'ScalarCodeBlockCopy' })
+      expect(copyButton.exists()).toBe(true)
+
+      // Find the actual button element and trigger click
+      const button = copyButton.find('button')
+      expect(button.exists()).toBe(true)
+
+      await button.trigger('click')
+      await nextTick()
+
+      // Verify that the clipboard API was called with the webhook payload
+      expect(mockCopyToClipboard).toHaveBeenCalled()
+      const copiedContent = mockCopyToClipboard.mock.calls[0][0]
+      expect(copiedContent).toContain('user.created')
+      expect(copiedContent).toContain('John Doe')
+    })
+
+    it('handles webhook copy with different content types', async () => {
+      const wrapper = mount(RequestExample, {
+        props: {
+          ...defaultProps,
+          isWebhook: true,
+          method: 'POST' as HttpMethodType,
+          path: '/webhook/xml',
+          operation: {
+            summary: 'XML webhook',
+            requestBody: {
+              content: {
+                'application/xml': {
+                  examples: {
+                    xmlExample: {
+                      summary: 'XML webhook payload',
+                      value: '<event type="user.created"><user id="123" name="John"/></event>',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          selectedContentType: 'application/xml',
+          selectedExample: 'xmlExample',
+        },
+      })
+
+      const copyButton = wrapper.findComponent({ name: 'ScalarCodeBlockCopy' })
+      expect(copyButton.exists()).toBe(true)
+
+      const button = copyButton.find('button')
+      expect(button.exists()).toBe(true)
+
+      await button.trigger('click')
+      await nextTick()
+
+      expect(mockCopyToClipboard).toHaveBeenCalled()
+      const copiedContent = mockCopyToClipboard.mock.calls[0][0]
+      expect(copiedContent).toContain('user.created')
+      expect(copiedContent).toContain('John')
+    })
+
+    it('copies webhook payload with security credentials hidden', async () => {
+      const wrapper = mount(RequestExample, {
+        props: {
+          ...defaultProps,
+          isWebhook: true,
+          method: 'POST' as HttpMethodType,
+          path: '/webhook/secure',
+          operation: {
+            summary: 'Secure webhook',
+            requestBody: {
+              content: {
+                'application/json': {
+                  examples: {
+                    secureExample: {
+                      summary: 'Secure webhook payload',
+                      value: {
+                        event: 'payment.processed',
+                        apiKey: 'secret-api-key-123',
+                        token: 'bearer-token-456',
+                        data: { amount: 100 },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          securitySchemes: [
+            {
+              type: 'apiKey',
+              name: 'X-API-Key',
+              in: 'header',
+              'x-scalar-secret-token': 'secret-api-key-123',
+            },
+            {
+              type: 'http',
+              scheme: 'bearer',
+              'x-scalar-secret-token': 'bearer-token-456',
+            },
+          ],
+          selectedExample: 'secureExample',
+        },
+      })
+
+      const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
+      expect(codeBlock.props('hideCredentials')).toContain('secret-api-key-123')
+      expect(codeBlock.props('hideCredentials')).toContain('bearer-token-456')
+
+      const copyButton = wrapper.findComponent({ name: 'ScalarCodeBlockCopy' })
+      expect(copyButton.exists()).toBe(true)
+
+      const button = copyButton.find('button')
+      expect(button.exists()).toBe(true)
+
+      await button.trigger('click')
+      await nextTick()
+
+      expect(mockCopyToClipboard).toHaveBeenCalled()
+      const copiedContent = mockCopyToClipboard.mock.calls[0][0]
+      // The copied content should contain the webhook payload but credentials should be masked
+      expect(copiedContent).toContain('payment.processed')
+      expect(copiedContent).toContain('amount')
+    })
+
+    it('handles webhook copy with complex nested payload', async () => {
+      const complexPayload = {
+        event: 'order.completed',
+        orderId: 'ORD-12345',
+        customer: {
+          id: 'CUST-789',
+          name: 'Jane Smith',
+          email: 'jane@example.com',
+        },
+        items: [
+          { id: 'ITEM-1', name: 'Product A', quantity: 2, price: 29.99 },
+          { id: 'ITEM-2', name: 'Product B', quantity: 1, price: 49.99 },
+        ],
+        total: 109.97,
+        metadata: {
+          source: 'web',
+          timestamp: '2024-01-15T10:30:00Z',
+        },
+      }
+
+      const wrapper = mount(RequestExample, {
+        props: {
+          ...defaultProps,
+          isWebhook: true,
+          method: 'POST' as HttpMethodType,
+          path: '/webhook/orders',
+          operation: {
+            summary: 'Order webhook',
+            requestBody: {
+              content: {
+                'application/json': {
+                  examples: {
+                    orderExample: {
+                      summary: 'Order completion webhook',
+                      value: complexPayload,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          selectedExample: 'orderExample',
+        },
+      })
+
+      const copyButton = wrapper.findComponent({ name: 'ScalarCodeBlockCopy' })
+      expect(copyButton.exists()).toBe(true)
+
+      const button = copyButton.find('button')
+      expect(button.exists()).toBe(true)
+
+      await button.trigger('click')
+      await nextTick()
+
+      expect(mockCopyToClipboard).toHaveBeenCalled()
+      const copiedContent = mockCopyToClipboard.mock.calls[0][0]
+
+      // Verify all key parts of the complex payload are copied
+      expect(copiedContent).toContain('order.completed')
+      expect(copiedContent).toContain('ORD-12345')
+      expect(copiedContent).toContain('Jane Smith')
+      expect(copiedContent).toContain('jane@example.com')
+      expect(copiedContent).toContain('Product A')
+      expect(copiedContent).toContain('109.97')
+      expect(copiedContent).toContain('2024-01-15T10:30:00Z')
+    })
+
+    it('handles webhook copy with empty or null payload gracefully', async () => {
+      const wrapper = mount(RequestExample, {
+        props: {
+          ...defaultProps,
+          isWebhook: true,
+          method: 'POST' as HttpMethodType,
+          path: '/webhook/empty',
+          operation: {
+            summary: 'Empty webhook',
+            requestBody: {
+              content: {
+                'application/json': {
+                  examples: {
+                    emptyExample: {
+                      summary: 'Empty webhook payload',
+                      value: null,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          selectedExample: 'emptyExample',
+        },
+      })
+
+      const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
+      expect(codeBlock.exists()).toBe(true)
+
+      // Copy button should still be present even with null content
+      const copyButton = wrapper.findComponent({ name: 'ScalarCodeBlockCopy' })
+      expect(copyButton.exists()).toBe(true)
+
+      const button = copyButton.find('button')
+      expect(button.exists()).toBe(true)
+
+      await button.trigger('click')
+      await nextTick()
+
+      expect(mockCopyToClipboard).toHaveBeenCalled()
+      const copiedContent = mockCopyToClipboard.mock.calls[0][0]
+      expect(copiedContent).toBe('"Empty webhook payload"')
+    })
+
+    it('handles webhook copy with referenced examples', async () => {
+      const wrapper = mount(RequestExample, {
+        props: {
+          ...defaultProps,
+          isWebhook: true,
+          method: 'POST' as HttpMethodType,
+          path: '/webhook/referenced',
+          operation: {
+            summary: 'Referenced webhook',
+            requestBody: {
+              content: {
+                'application/json': {
+                  examples: {
+                    referencedExample: {
+                      $ref: '#/components/examples/webhookExample',
+                      '$ref-value': {
+                        summary: 'Referenced webhook payload',
+                        value: { event: 'user.updated', userId: '456', changes: ['name', 'email'] },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          selectedExample: 'referencedExample',
+        },
+      })
+
+      const copyButton = wrapper.findComponent({ name: 'ScalarCodeBlockCopy' })
+      const button = copyButton.find('button')
+      expect(button.exists()).toBe(true)
+
+      await button.trigger('click')
+      await nextTick()
+
+      expect(mockCopyToClipboard).toHaveBeenCalled()
+      const copiedContent = mockCopyToClipboard.mock.calls[0][0]
+      expect(copiedContent).toContain('user.updated')
+      expect(copiedContent).toContain('456')
+      expect(copiedContent).toContain('name')
+      expect(copiedContent).toContain('email')
+    })
+
+    it('provides proper accessibility for webhook copy functionality', () => {
+      const wrapper = mount(RequestExample, {
+        props: {
+          ...defaultProps,
+          isWebhook: true,
+          selectedContentType: 'application/json',
+          selectedExample: 'example1',
+        },
+      })
+
+      const copyButton = wrapper.findComponent({ name: 'ScalarCodeBlockCopy' })
+      expect(copyButton.exists()).toBe(true)
+
+      // Check for proper ARIA attributes
+      const button = copyButton.find('button')
+      expect(button.exists()).toBe(true)
+      expect(button.attributes('aria-label')).toBe('Copy')
+
+      // Check for proper controls attribute
+      const ariaControls = button.attributes('aria-controls')
+      expect(ariaControls).toBeTruthy()
+      // The aria-controls should reference the code block ID (generated by useId)
+      expect(typeof ariaControls).toBe('string')
+    })
+
+    it('handles webhook copy with different HTTP methods', async () => {
+      const methods: HttpMethodType[] = ['get', 'post', 'put', 'patch', 'delete']
+
+      for (const method of methods) {
+        const wrapper = mount(RequestExample, {
+          props: {
+            ...defaultProps,
+            isWebhook: true,
+            method,
+            path: `/webhook/${method.toLowerCase()}`,
+            operation: {
+              summary: `${method} webhook`,
+              requestBody: {
+                content: {
+                  'application/json': {
+                    examples: {
+                      methodExample: {
+                        summary: `${method} webhook payload`,
+                        value: { method, event: 'test.event', timestamp: new Date().toISOString() },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            selectedExample: 'methodExample',
+          },
+        })
+
+        const copyButton = wrapper.findComponent({ name: 'ScalarCodeBlockCopy' })
+        expect(copyButton.exists()).toBe(true)
+
+        const button = copyButton.find('button')
+        expect(button.exists()).toBe(true)
+
+        await button.trigger('click')
+        await nextTick()
+
+        expect(mockCopyToClipboard).toHaveBeenCalled()
+        const copiedContent = mockCopyToClipboard.mock.calls[0][0]
+        expect(copiedContent).toContain(method)
+        expect(copiedContent).toContain('test.event')
+
+        wrapper.unmount()
+        mockCopyToClipboard.mockClear()
+      }
     })
   })
 
