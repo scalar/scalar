@@ -18,14 +18,30 @@
 
     <!-- Initialize the Scalar API Reference -->
     <script type="module">
-      import sources from './test/data/sources.ts'
-
-      Scalar.createApiReference('#app', {
-        sources,
-        persistAuth: true,
-        // Avoid CORS issues
-        proxyUrl: 'https://proxy.scalar.com',
+      // TODO: Restore file before merging
+      const scalar = Scalar.createApiReference('#app', {
+        content: JSON.stringify({
+          openapi: '3.1.0',
+          info: {
+            title: 'Loading…',
+            version: '1.0.0',
+          },
+          paths: {},
+        }),
       })
+
+      setTimeout(() => {
+        scalar.updateConfiguration({
+          content: JSON.stringify({
+            openapi: '3.1.0',
+            info: {
+              title: 'Hello World',
+              version: '1.0.0',
+            },
+            paths: {},
+          }),
+        })
+      }, 1000)
     </script>
   </body>
 </html>
