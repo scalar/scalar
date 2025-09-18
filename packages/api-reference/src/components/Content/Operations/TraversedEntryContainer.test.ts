@@ -6,12 +6,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createMockNavState, createMockSidebar, createMockSidebarFromDocument } from '@/helpers/test-utils'
 import { useNavState } from '@/hooks/useNavState'
-import { useSidebar } from '@/v2/blocks/scalar-navigation-block'
+import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
 
 import TraversedEntryContainer from './TraversedEntryContainer.vue'
 
 // Mock the sidebar module
-vi.mock('@/v2/blocks/scalar-navigation-block')
+vi.mock('@/v2/blocks/scalar-sidebar-block')
 
 // Mock useNavState
 vi.mock('@/hooks/useNavState')

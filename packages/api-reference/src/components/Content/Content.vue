@@ -15,9 +15,9 @@ import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 import { ClientSelector } from '@/v2/blocks/scalar-client-selector-block'
 import { InfoBlock } from '@/v2/blocks/scalar-info-block'
 import { IntroductionCardItem } from '@/v2/blocks/scalar-info-block/'
-import { useSidebar } from '@/v2/blocks/scalar-navigation-block'
 import { generateClientOptions } from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
 import { ServerSelector } from '@/v2/blocks/scalar-server-selector-block'
+import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
 
 import { TraversedEntryContainer } from './Operations'
 

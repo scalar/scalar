@@ -9,7 +9,7 @@ import { computed } from 'vue'
 
 import { Lazy } from '@/components/Lazy'
 import { useNavState } from '@/hooks/useNavState'
-import { useSidebar } from '@/v2/blocks/scalar-navigation-block'
+import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
 
 import ClassicLayout from './ClassicLayout.vue'
 import ModernLayout from './ModernLayout.vue'

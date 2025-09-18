@@ -5,13 +5,13 @@ import { OpenAPIDocumentSchema } from '@scalar/workspace-store/schemas/v3.1/stri
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { useSidebar } from '@/v2/blocks/scalar-navigation-block'
-import { createSidebar } from '@/v2/blocks/scalar-navigation-block/helpers/create-sidebar'
+import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
+import { createSidebar } from '@/v2/blocks/scalar-sidebar-block/helpers/create-sidebar'
 
 import Models from './Models.vue'
 
 // Mock useSidebar composable
-vi.mock('@/v2/blocks/scalar-navigation-block')
+vi.mock('@/v2/blocks/scalar-sidebar-block')
 
 describe('Models', async () => {
   const mockDocument = coerceValue(OpenAPIDocumentSchema, {

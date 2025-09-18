@@ -2,7 +2,7 @@ import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/stric
 import type { FuseResult } from 'fuse.js'
 import { computed, ref, toValue, watch } from 'vue'
 
-import type { useSidebar } from '@/v2/blocks/scalar-navigation-block'
+import type { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
 
 import { createFuseInstance } from '../helpers/create-fuse-instance'
 import { createSearchIndex } from '../helpers/create-search-index'

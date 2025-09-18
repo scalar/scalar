@@ -14,7 +14,7 @@ vi.mock('@/hooks/useConfig', () => ({
 }))
 
 // Mock the sidebar like in ModernLayout.test.ts
-vi.mock('@/v2/blocks/scalar-navigation-block', () => ({
+vi.mock('@/v2/blocks/scalar-sidebar-block', () => ({
   useSidebar: vi.fn(() => createMockSidebar()),
 }))
 

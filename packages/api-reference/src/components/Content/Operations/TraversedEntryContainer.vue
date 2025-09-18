@@ -8,8 +8,8 @@ import { computed } from 'vue'
 
 import { getCurrentIndex } from '@/components/Content/Operations/get-current-index'
 import { useNavState } from '@/hooks/useNavState'
-import { useSidebar } from '@/v2/blocks/scalar-navigation-block'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
+import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
 
 import TraversedEntry from './TraversedEntry.vue'
 

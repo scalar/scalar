@@ -10,7 +10,7 @@ import { computed } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
 import { SectionHeaderTag } from '@/components/Section'
-import { useSidebar } from '@/v2/blocks/scalar-navigation-block'
+import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
 
 const { operation } = defineProps<{
   operation: TraversedOperation | TraversedWebhook

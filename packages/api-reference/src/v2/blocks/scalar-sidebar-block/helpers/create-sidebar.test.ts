@@ -2,7 +2,7 @@ import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { describe, expect, it, vi } from 'vitest'
 import { toValue } from 'vue'
 
-import { createSidebar } from '@/v2/blocks/scalar-navigation-block/helpers/create-sidebar'
+import { createSidebar } from '@/v2/blocks/scalar-sidebar-block/helpers/create-sidebar'
 
 // Mock vue's inject
 vi.mock('vue', () => {

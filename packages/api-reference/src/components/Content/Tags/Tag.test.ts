@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 import Tag from './Tag.vue'
 
 // Mock the useSidebar hook
-vi.mock('@/v2/blocks/scalar-navigation-block', () => ({
+vi.mock('@/v2/blocks/scalar-sidebar-block', () => ({
   useSidebar: () => ({
     collapsedSidebarItems: {
       'test-tag': false, // This makes isCollapsed return false, so slot content is rendered

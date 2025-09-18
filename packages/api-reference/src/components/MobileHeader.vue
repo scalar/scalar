@@ -2,7 +2,7 @@
 import { ScalarIconButton } from '@scalar/components'
 import { ScalarIconList, ScalarIconX } from '@scalar/icons'
 
-import { useSidebar } from '@/v2/blocks/scalar-navigation-block'
+import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
 
 defineProps<{
   breadcrumb: string

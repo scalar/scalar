@@ -6,7 +6,7 @@ import OperationsListItem from './OperationsListItem.vue'
 
 // Mock the dependencies
 const mockScrollToOperation = vi.fn()
-vi.mock('@/v2/blocks/scalar-navigation-block', () => ({
+vi.mock('@/v2/blocks/scalar-sidebar-block', () => ({
   useSidebar: () => ({
     scrollToOperation: mockScrollToOperation,
   }),

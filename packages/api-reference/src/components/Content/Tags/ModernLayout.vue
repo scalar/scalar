@@ -6,7 +6,7 @@ import { Lazy } from '@/components/Lazy'
 import { SectionContainer } from '@/components/Section'
 import ShowMoreButton from '@/components/ShowMoreButton.vue'
 import { useNavState } from '@/hooks/useNavState'
-import { useSidebar } from '@/v2/blocks/scalar-navigation-block'
+import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
 
 import TagSection from './TagSection.vue'
 

@@ -7,7 +7,7 @@ import { createMockSidebar } from '@/helpers/test-utils'
 import ModernLayout from './ModernLayout.vue'
 
 // Mock the sidebar module
-vi.mock('@/v2/blocks/scalar-navigation-block', () => ({
+vi.mock('@/v2/blocks/scalar-sidebar-block', () => ({
   useSidebar: vi.fn(() => createMockSidebar()),
 }))
 
@@ -99,7 +99,7 @@ describe('ModernLayout', () => {
 
   describe('ShowMoreButton rendering', () => {
     it('renders ShowMoreButton when tag is collapsed and moreThanOneTag is true', async () => {
-      const { useSidebar } = await import('@/v2/blocks/scalar-navigation-block')
+      const { useSidebar } = await import('@/v2/blocks/scalar-sidebar-block')
       vi.mocked(useSidebar).mockReturnValue(createMockSidebar({ 'test-tag': false }))
 
       const wrapper = mountComponent({
@@ -111,7 +111,7 @@ describe('ModernLayout', () => {
     })
 
     it('does not render ShowMoreButton when tag is not collapsed', async () => {
-      const { useSidebar } = await import('@/v2/blocks/scalar-navigation-block')
+      const { useSidebar } = await import('@/v2/blocks/scalar-sidebar-block')
       vi.mocked(useSidebar).mockReturnValue(createMockSidebar({ 'test-tag': true }))
 
       const wrapper = mountComponent({
@@ -123,7 +123,7 @@ describe('ModernLayout', () => {
     })
 
     it('does not render ShowMoreButton when moreThanOneTag is false', async () => {
-      const { useSidebar } = await import('@/v2/blocks/scalar-navigation-block')
+      const { useSidebar } = await import('@/v2/blocks/scalar-sidebar-block')
       vi.mocked(useSidebar).mockReturnValue(createMockSidebar({ 'test-tag': false }))
 
       const wrapper = mountComponent({
@@ -137,7 +137,7 @@ describe('ModernLayout', () => {
 
   describe('slot content rendering', () => {
     it('renders slot content when ShowMoreButton is not shown', async () => {
-      const { useSidebar } = await import('@/v2/blocks/scalar-navigation-block')
+      const { useSidebar } = await import('@/v2/blocks/scalar-sidebar-block')
       vi.mocked(useSidebar).mockReturnValue(createMockSidebar({ 'test-tag': true }))
 
       const wrapper = mountComponent(
@@ -172,7 +172,7 @@ describe('ModernLayout', () => {
     })
 
     it('calls setCollapsedSidebarItem when ShowMoreButton is clicked', async () => {
-      const { useSidebar } = await import('@/v2/blocks/scalar-navigation-block')
+      const { useSidebar } = await import('@/v2/blocks/scalar-sidebar-block')
       const mockSidebar = createMockSidebar({ 'test-tag': false })
       vi.mocked(useSidebar).mockReturnValue(mockSidebar)
 

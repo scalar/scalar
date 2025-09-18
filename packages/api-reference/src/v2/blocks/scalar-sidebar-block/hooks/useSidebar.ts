@@ -1,7 +1,7 @@
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type InjectionKey, inject, provide } from 'vue'
 
-import { createSidebar } from '@/v2/blocks/scalar-navigation-block/helpers/create-sidebar'
+import { createSidebar } from '@/v2/blocks/scalar-sidebar-block/helpers/create-sidebar'
 
 type Sidebar = ReturnType<typeof createSidebar>
 

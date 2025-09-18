@@ -12,7 +12,7 @@ import {
   SectionHeaderTag,
 } from '@/components/Section'
 import ShowMoreButton from '@/components/ShowMoreButton.vue'
-import { useSidebar } from '@/v2/blocks/scalar-navigation-block'
+import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
 
 import { Schema, SchemaHeading } from '../Schema'
 

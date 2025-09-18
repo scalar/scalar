@@ -15,7 +15,7 @@ import { useNavState } from '@/hooks/useNavState'
 
 import TraversedEntryComponent from './TraversedEntry.vue'
 
-vi.mock('@/v2/blocks/scalar-navigation-block', () => ({ useSidebar: vi.fn(() => createMockSidebar()) }))
+vi.mock('@/v2/blocks/scalar-sidebar-block', () => ({ useSidebar: vi.fn(() => createMockSidebar()) }))
 vi.mock('@/hooks/useNavState', () => ({ useNavState: vi.fn(() => createMockNavState('')) }))
 vi.mock('@/plugins/hooks/usePluginManager', () => ({ usePluginManager: () => createMockPluginManager() }))
 

@@ -3,7 +3,7 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { computed, reactive, ref } from 'vue'
 
 import { lazyBus } from '@/components/Lazy'
-import { generateReverseIndex } from '@/v2/blocks/scalar-navigation-block/helpers/generate-reverse-index'
+import { generateReverseIndex } from '@/v2/blocks/scalar-sidebar-block/helpers/generate-reverse-index'
 
 /**
  * Creating sidebar with only one traversal of the spec

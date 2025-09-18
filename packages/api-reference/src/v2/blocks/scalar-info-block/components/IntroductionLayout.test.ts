@@ -4,12 +4,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, reactive, ref } from 'vue'
 
 import DownloadLink from '@/v2/blocks/scalar-info-block/components/DownloadLink.vue'
-import { useSidebar } from '@/v2/blocks/scalar-navigation-block/hooks/useSidebar'
+import { useSidebar } from '@/v2/blocks/scalar-sidebar-block/hooks/useSidebar'
 
 import IntroductionLayout from './IntroductionLayout.vue'
 
 // Mock the useSidebar hook and SIDEBAR_SYMBOL
-vi.mock('@/v2/blocks/scalar-navigation-block/hooks/useSidebar', () => ({
+vi.mock('@/v2/blocks/scalar-sidebar-block/hooks/useSidebar', () => ({
   useSidebar: vi.fn(),
   SIDEBAR_SYMBOL: Symbol(),
 }))

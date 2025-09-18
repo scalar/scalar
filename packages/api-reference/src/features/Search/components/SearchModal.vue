@@ -21,10 +21,7 @@ import { nanoid } from 'nanoid'
 import { ref, watch } from 'vue'
 
 import { lazyBus } from '@/components/Lazy'
-import {
-  SidebarHttpBadge,
-  useSidebar,
-} from '@/v2/blocks/scalar-navigation-block'
+import { SidebarHttpBadge, useSidebar } from '@/v2/blocks/scalar-sidebar-block'
 
 import { useSearchIndex } from '../hooks/useSearchIndex'
 import type { EntryType, FuseData } from '../types'

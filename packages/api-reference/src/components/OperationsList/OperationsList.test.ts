@@ -7,12 +7,12 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
 import { createMockSidebar } from '@/helpers/test-utils'
-import { useSidebar } from '@/v2/blocks/scalar-navigation-block'
+import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
 
 import OperationsList from './OperationsList.vue'
 
 // Mock the sidebar module
-vi.mock('@/v2/blocks/scalar-navigation-block', () => ({
+vi.mock('@/v2/blocks/scalar-sidebar-block', () => ({
   useSidebar: vi.fn(() => createMockSidebar()),
 }))
 

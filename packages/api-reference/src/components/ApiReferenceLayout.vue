@@ -50,7 +50,7 @@ import type {
   ReferenceLayoutSlot,
   ReferenceSlotProps,
 } from '@/types'
-import { SidebarBlock, useSidebar } from '@/v2/blocks/scalar-navigation-block'
+import { SidebarBlock, useSidebar } from '@/v2/blocks/scalar-sidebar-block'
 import { useLegacyStoreEvents } from '@/v2/hooks/use-legacy-store-events'
 
 const {

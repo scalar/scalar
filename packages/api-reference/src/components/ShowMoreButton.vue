@@ -2,7 +2,7 @@
 import { ScalarIconCaretDown } from '@scalar/icons'
 
 import { useConfig } from '@/hooks/useConfig'
-import { useSidebar } from '@/v2/blocks/scalar-navigation-block'
+import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
 
 const { id } = defineProps<{
   id: string
