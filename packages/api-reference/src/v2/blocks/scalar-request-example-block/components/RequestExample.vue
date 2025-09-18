@@ -313,9 +313,7 @@ const id = useId()
       <span
         v-if="generateLabel"
         v-html="generateLabel()" />
-      <slot
-        v-else-if="!isWebhook"
-        name="header" />
+      <slot name="header" />
       <!-- Client picker -->
       <template
         v-if="!isWebhook && clients.length"
