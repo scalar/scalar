@@ -17,7 +17,7 @@ public class EndpointTests(WebApplicationFactory<Program> factory) : IClassFixtu
         var client = factory.CreateClient();
 
         // Act
-        var response = await client.GetAsync("/standalone.js", TestContext.Current.CancellationToken);
+        var response = await client.GetAsync("/scalar.js", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
