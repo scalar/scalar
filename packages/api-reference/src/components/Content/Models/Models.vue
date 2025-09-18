@@ -30,10 +30,10 @@ const modelEntry = computed(() => {
 })
 
 /** Array of the name and value of all component schemas */
-const models = computed(() => {
-  const modelEntries = modelEntry.value?.children ?? []
+const flatSchemas = computed(() => {
+  const schemaEntries = modelEntry.value?.children ?? []
 
-  return modelEntries
+  return schemaEntries
     .filter((it) => it.type === 'model')
     .map((it) => ({
       id: it.id,
@@ -49,10 +49,10 @@ const models = computed(() => {
     :isLazy="Boolean(hash) && !hash.startsWith('model')">
     <ClassicLayout
       v-if="config?.layout === 'classic'"
-      :models="models" />
+      :schemas="flatSchemas" />
     <ModernLayout
       v-else
       :config="config"
-      :schemas="models" />
+      :schemas="flatSchemas" />
   </Lazy>
 </template>

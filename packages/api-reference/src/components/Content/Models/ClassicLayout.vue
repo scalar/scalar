@@ -13,18 +13,18 @@ import {
 import { SchemaHeading, SchemaProperty } from '../Schema'
 
 defineProps<{
-  models: { id: string; name: string; schema: SchemaObject }[]
+  schemas: { id: string; name: string; schema: SchemaObject }[]
 }>()
 </script>
 <template>
   <SectionContainerAccordion
-    v-if="models.length"
+    v-if="schemas.length"
     class="reference-models">
     <template #title>
       <SectionHeader :level="2">Models</SectionHeader>
     </template>
     <SectionAccordion
-      v-for="{ id, name, schema } in models"
+      v-for="{ id, name, schema } in schemas"
       :id="id"
       :key="name"
       :label="name">

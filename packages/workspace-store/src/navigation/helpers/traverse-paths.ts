@@ -1,3 +1,4 @@
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
 import { escapeJsonPointer } from '@scalar/openapi-parser'
@@ -33,7 +34,7 @@ export const isDeprecatedOperation = (operation: OperationObject) => {
 const createOperationEntry = (
   ref: string,
   operation: OperationObject,
-  method: string,
+  method: HttpMethod,
   path = 'Unknown',
   tag: TagObject,
   getOperationId: TraverseSpecOptions['getOperationId'],

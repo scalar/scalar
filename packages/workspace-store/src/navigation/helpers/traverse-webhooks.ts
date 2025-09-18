@@ -1,3 +1,4 @@
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
 
@@ -21,7 +22,7 @@ import { getTag } from './get-tag'
  */
 const createWebhookEntry = (
   ref: string,
-  method: string,
+  method: HttpMethod,
   name = 'Unknown',
   title = 'Unknown',
   getWebhookId: TraverseSpecOptions['getWebhookId'],

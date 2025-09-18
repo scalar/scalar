@@ -108,7 +108,7 @@ defineExpose({
           :config="config"
           :document
           :isWebhook="isWebhook(entry)"
-          :method="entry.method as any"
+          :method="entry.method"
           :path="isWebhook(entry) ? entry.name : entry.path"
           :server="activeServer"
           :store />
