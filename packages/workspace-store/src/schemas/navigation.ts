@@ -12,7 +12,7 @@ export const TraversedDescriptionSchemaDefinition = compose(
   NavigationBaseSchemaDefinition,
   Type.Object({
     type: Type.Literal('text'),
-    children: Type.Optional(Type.Array(NavigationBaseSchemaDefinition)),
+    children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
   }),
 )
 

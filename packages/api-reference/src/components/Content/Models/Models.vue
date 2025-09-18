@@ -33,11 +33,13 @@ const modelEntry = computed(() => {
 const models = computed(() => {
   const modelEntries = modelEntry.value?.children ?? []
 
-  return modelEntries.map((it) => ({
-    id: it.id,
-    name: it.title,
-    schema: getResolvedRef(schemas[it.title]),
-  }))
+  return modelEntries
+    .filter((it) => it.type === 'model')
+    .map((it) => ({
+      id: it.id,
+      name: it.name,
+      schema: getResolvedRef(schemas[it.name]),
+    }))
 })
 </script>
 <template>

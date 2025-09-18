@@ -64,6 +64,8 @@ describe('Models', async () => {
   } as ApiReferenceConfiguration
 
   beforeEach(async () => {
+    vi.clearAllMocks()
+
     await store.addDocument({
       name: 'default',
       document: mockDocument,
@@ -161,6 +163,8 @@ describe('Models', async () => {
       },
     })
 
+    const store = createWorkspaceStore()
+
     await store.addDocument({
       name: 'default',
       document: documentWithIgnoredSchema,
@@ -236,21 +240,26 @@ describe('Models', async () => {
   })
 
   describe('edge cases', () => {
-    it('renders nothing if document.components.schemas is undefined', () => {
-      const wrapper = mount(Models, {
-        props: {
+    it('renders nothing if sidebar entry is empty', async () => {
+      const document = {
+        ...mockDocument,
+        components: {
           schemas: {},
-          config: mockConfigClassic,
         },
+      }
+
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document,
       })
 
-      expect(wrapper.text()).toBe('')
-    })
+      vi.mocked(useSidebar).mockReturnValue(createSidebar(store))
 
-    it('renders nothing if document.components is undefined', () => {
       const wrapper = mount(Models, {
         props: {
-          schemas: undefined,
+          schemas: document.components?.schemas,
           config: mockConfigClassic,
         },
       })

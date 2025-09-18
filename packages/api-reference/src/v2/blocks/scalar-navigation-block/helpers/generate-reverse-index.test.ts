@@ -25,7 +25,12 @@ describe('generateReverseIndex', () => {
       name: '',
       children: [
         { id: 'child1', title: 'Child 1', type: 'webhook', method: '', name: '', ref: '' },
-        { id: 'child2', title: 'Child 2', type: 'text', children: [{ id: 'grandchild', title: 'Grandchild' }] },
+        {
+          id: 'child2',
+          title: 'Child 2',
+          type: 'text',
+          children: [{ type: 'text', id: 'grandchild', title: 'Grandchild' }],
+        },
       ],
     }
     const result = generateReverseIndex([node])
@@ -39,7 +44,7 @@ describe('generateReverseIndex', () => {
   it('indexes multiple top-level nodes', () => {
     const nodes: TraversedEntry[] = [
       { id: 'a', title: 'A', type: 'operation', method: 'get', path: '/a', ref: '' },
-      { id: 'b', title: 'B', type: 'text', children: [{ id: 'c', title: 'C' }] },
+      { id: 'b', title: 'B', type: 'text', children: [{ type: 'text', id: 'c', title: 'C' }] },
     ]
     const result = generateReverseIndex(nodes)
     expect(result.size).toBe(3)
