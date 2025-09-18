@@ -825,7 +825,7 @@ h4.t-editor__heading {
     --scalar-toc-width: 0;
   }
   .hero.hero {
-    margin-top: 80px;
+    margin-top: 88px;
   }
   .small-test {
     max-width: 440px;
