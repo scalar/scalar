@@ -5,7 +5,6 @@ import { useElementHover } from '@vueuse/core'
 import { ref } from 'vue'
 
 import { useNavState } from '@/hooks/useNavState'
-import { useSidebar } from '@/v2/blocks/scalar-navigation-block'
 
 import IntersectionObserver from '../IntersectionObserver.vue'
 
@@ -18,7 +17,6 @@ const button = ref()
 const isHovered = useElementHover(button)
 
 const { isIntersectionEnabled, replaceUrlState } = useNavState()
-const { items, setCollapsedSidebarItem } = useSidebar()
 
 /** On scroll over this section */
 const handleScroll = () => {
@@ -27,15 +25,6 @@ const handleScroll = () => {
   }
 
   replaceUrlState(id)
-
-  // Open models and webhooks on scroll
-  if (id?.startsWith('model') || id?.startsWith('webhook')) {
-    const sectionId = items.value.entities.get(id)?.parent?.id
-
-    if (sectionId) {
-      setCollapsedSidebarItem(sectionId, false)
-    }
-  }
 }
 </script>
 <template>
