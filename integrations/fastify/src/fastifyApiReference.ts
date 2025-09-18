@@ -177,7 +177,7 @@ const fastifyApiReference = fp<
     // We need this so the request to the JS file is relative.
 
     // With ignoreTrailingSlash, fastify registeres both routes anyway.
-    const doesNotIgnoreTrailingSlash = fastify.initialConfig.ignoreTrailingSlash !== true
+    const doesNotIgnoreTrailingSlash = fastify.initialConfig?.routerOptions?.ignoreTrailingSlash !== true && fastify.initialConfig.ignoreTrailingSlash !== true
 
     if (doesNotIgnoreTrailingSlash && getRoutePrefix(options.routePrefix)) {
       fastify.route({
