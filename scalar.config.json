@@ -452,7 +452,30 @@
                   "name": "Rust",
                   "slug": "rust",
                   "path": "documentation/integrations/rust.md",
-                  "type": "page"
+                  "type": "page",
+                  "children": [
+                    {
+                      "name": "Axum",
+                      "path": "documentation/integrations/axum.md",
+                      "type": "page"
+                    },
+                    {
+                      "name": "Actix-web",
+                      "path": "documentation/integrations/actix-web.md",
+                      "type": "page"
+                    },
+                    {
+                      "name": "Warp",
+                      "path": "documentation/integrations/warp.md",
+                      "type": "page"
+                    },
+                    {
+                      "name": "Aide",
+                      "path": "documentation/integrations/aide.md",
+                      "type": "page"
+                    }
+
+                  ]
                 },
                 {
                   "name": "Spring Boot",
@@ -507,12 +530,12 @@
     {
       "type": "version-selector"
     },
-    { 
+    {
       "title": "Log in",
       "type": "link",
       "link": "https://dashboard.scalar.com/login"
     },
-    { 
+    {
       "title": "Register",
       "type": "link",
       "isButton": true,

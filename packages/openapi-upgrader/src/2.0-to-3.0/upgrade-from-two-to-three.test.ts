@@ -5,7 +5,7 @@ import { upgradeFromTwoToThree } from './upgrade-from-two-to-three'
 
 describe('upgradeFromTwoToThree', () => {
   it('changes the version to from 3.0.0 to 3.1.0', async () => {
-    const result = upgradeFromTwoToThree({
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       info: {
         title: 'Hello World',
@@ -19,7 +19,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('upgrades URLs to new server syntax', async () => {
-    const result = upgradeFromTwoToThree({
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       basePath: '/v1',
       schemes: ['http'],
@@ -38,7 +38,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('upgrades basePath to new server syntax', async () => {
-    const result = upgradeFromTwoToThree({
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       basePath: '/v2',
     })
@@ -55,7 +55,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('upgrades host to new server syntax', async () => {
-    const result = upgradeFromTwoToThree({
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       host: 'api.example.com',
     })
@@ -72,7 +72,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('moves definitions to components', async () => {
-    const result = upgradeFromTwoToThree({
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       definitions: {
         Category: {
@@ -87,7 +87,6 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    // @ts-expect-error it's fine
     expect(result.components?.schemas).toStrictEqual({
       Category: {
         type: 'object',
@@ -104,7 +103,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('rewrites $refs to definitions', async () => {
-    const result = upgradeFromTwoToThree({
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       paths: {
         '/planets': {
@@ -128,13 +127,13 @@ describe('upgradeFromTwoToThree', () => {
         },
       },
     })
-    expect(result.paths['/planets'].get.responses['200'].content['application/json'].schema.$ref).toBe(
+    expect(result.paths?.['/planets']?.get?.responses?.['200']?.content['application/json'].schema.$ref).toBe(
       '#/components/schemas/Planet',
     )
   })
 
   it('transforms responses', async () => {
-    const result = upgradeFromTwoToThree({
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       paths: {
         '/planets': {
@@ -188,11 +187,11 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    expect(result.paths['/planets'].get.produces).toBeUndefined()
+    expect(result.paths?.['/planets']?.get?.produces).toBeUndefined()
   })
 
   it('uses global produces for responses', async () => {
-    const result = upgradeFromTwoToThree({
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       produces: ['application/json', 'application/xml'],
       paths: {
@@ -246,11 +245,11 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    expect(result.paths['/planets'].get.produces).toBeUndefined()
+    expect(result.paths?.['/planets']?.get?.produces).toBeUndefined()
   })
 
   it('transforms requestBody', async () => {
-    const result = upgradeFromTwoToThree({
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
 
       paths: {
@@ -298,11 +297,11 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    expect(result.paths['/planets'].get.produces).toBeUndefined()
+    expect(result.paths?.['/planets']?.get?.produces).toBeUndefined()
   })
 
   it('uses global consumes for requestBody', async () => {
-    const result = upgradeFromTwoToThree({
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       produces: ['application/json', 'application/xml'],
       paths: {
@@ -350,11 +349,11 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    expect(result.paths['/planets'].get.produces).toBeUndefined()
+    expect(result.paths?.['/planets']?.get?.produces).toBeUndefined()
   })
 
   it('migrates formData', async () => {
-    const result = upgradeFromTwoToThree({
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       paths: {
         '/planets': {
@@ -398,7 +397,7 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    expect(result.paths['/planets'].get.produces).toBeUndefined()
+    expect(result.paths?.['/planets']?.get?.produces).toBeUndefined()
   })
 
   it('upgrades securityDefinitions from Swagger 2.0 to OpenAPI 3.0', () => {
@@ -453,10 +452,9 @@ describe('upgradeFromTwoToThree', () => {
       },
     }
 
-    const result = upgradeFromTwoToThree(input)
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree(input)
 
-    // @ts-expect-error it's fine
-    expect(result.components.securitySchemes).toStrictEqual({
+    expect(result.components?.securitySchemes).toStrictEqual({
       api_key: {
         type: 'apiKey',
         name: 'api_key',
@@ -504,7 +502,7 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.securityDefinitions).toBeUndefined()
 
     // Check if the security attribute in the operation is upgraded
-    expect(result.paths['/pets'].get.security).toStrictEqual([
+    expect(result.paths?.['/pets']?.get?.security).toStrictEqual([
       {
         petstore_auth: ['read:pets'],
       },
@@ -512,7 +510,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('transforms parameter schemas', () => {
-    const result = upgradeFromTwoToThree({
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       produces: ['application/json', 'application/xml'],
       paths: {
@@ -544,8 +542,8 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    expect(result.paths['/planets'].get.parameters).toHaveLength(2)
-    expect(result.paths['/planets'].get.parameters[0]).toStrictEqual({
+    expect(result.paths?.['/planets']?.get?.parameters).toHaveLength(2)
+    expect(result.paths?.['/planets']?.get?.parameters?.[0]).toStrictEqual({
       in: 'header',
       name: 'x-custom-header',
       required: true,
@@ -555,7 +553,7 @@ describe('upgradeFromTwoToThree', () => {
         format: 'date-time',
       },
     })
-    expect(result.paths['/planets'].get.parameters[1]).toStrictEqual({
+    expect(result.paths?.['/planets']?.get?.parameters?.[1]).toStrictEqual({
       in: 'query',
       name: 'size',
       required: false,
@@ -569,7 +567,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('transforms basic security scheme', () => {
-    const result = upgradeFromTwoToThree({
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       paths: {},
       securityDefinitions: {
@@ -582,14 +580,14 @@ describe('upgradeFromTwoToThree', () => {
     })
 
     // @ts-expect-error it's fine
-    expect(result.components.securitySchemes.basic_auth).toStrictEqual({
+    expect(result.components?.securitySchemes.basic_auth).toStrictEqual({
       type: 'http',
       scheme: 'basic',
     })
   })
 
   it('transforms file type', () => {
-    const result = upgradeFromTwoToThree({
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       produces: ['image/png'],
       paths: {
@@ -611,7 +609,7 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    expect(result.paths['/planets'].post.requestBody).toStrictEqual({
+    expect(result.paths?.['/planets']?.post?.requestBody).toStrictEqual({
       required: true,
       content: {
         'image/png': {
@@ -625,7 +623,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('transform response headers', () => {
-    const result = upgradeFromTwoToThree({
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       produces: ['application/json'],
       paths: {
@@ -656,7 +654,7 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    expect(result.paths['/planets'].get.responses['200']).toStrictEqual({
+    expect(result.paths?.['/planets']?.get?.responses?.['200']).toStrictEqual({
       description: 'A list of planets.',
       content: {
         'application/json': {
@@ -681,7 +679,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('transform query parameter collectionFormat to new serialization keywords', () => {
-    const result = upgradeFromTwoToThree({
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       produces: ['application/json'],
       paths: {
@@ -732,7 +730,7 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    expect(result.paths['/planets'].get.parameters).toStrictEqual([
+    expect(result.paths?.['/planets']?.get?.parameters).toStrictEqual([
       {
         name: 'tags',
         in: 'query',
@@ -761,7 +759,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('transform path parameter collectionFormat to new serialization keywords', () => {
-    const result = upgradeFromTwoToThree({
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       produces: ['application/json'],
       paths: {
@@ -802,7 +800,7 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    expect(result.paths['/planets/{id}'].get.parameters).toStrictEqual([
+    expect(result.paths?.['/planets/{id}']?.get?.parameters).toStrictEqual([
       {
         name: 'id',
         in: 'path',
@@ -819,7 +817,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('transform header parameter collectionFormat to new serialization keywords', () => {
-    const result = upgradeFromTwoToThree({
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       produces: ['application/json'],
       paths: {
@@ -861,7 +859,7 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    expect(result.paths['/planets'].get.parameters).toStrictEqual([
+    expect(result.paths?.['/planets']?.get?.parameters).toStrictEqual([
       {
         name: 'myHeader',
         in: 'header',
@@ -903,7 +901,7 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    expect(result.paths['/planets/{planetId}'].parameters).toStrictEqual([
+    expect(result.paths?.['/planets/{planetId}']?.parameters).toStrictEqual([
       {
         description: 'planet id',
         in: 'path',
@@ -915,7 +913,7 @@ describe('upgradeFromTwoToThree', () => {
       },
     ])
 
-    expect(result.components.parameters).toMatchObject({
+    expect(result.components?.parameters).toMatchObject({
       globalHeader: {
         description: 'a global defined header',
         in: 'header',
@@ -977,7 +975,7 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    expect(result.paths['/planets/{planetId}'].post.requestBody).toStrictEqual({
+    expect(result.paths?.['/planets/{planetId}']?.post?.requestBody).toStrictEqual({
       content: {
         'application/x-www-form-urlencoded': {
           schema: {
@@ -998,7 +996,7 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    expect(result.components.requestBodies).toStrictEqual({
+    expect(result.components?.requestBodies).toStrictEqual({
       planetBody: {
         required: true,
         content: {
@@ -1077,7 +1075,7 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    expect(result.paths['/planets/{planetId}'].parameters).toMatchObject([
+    expect(result.paths?.['/planets/{planetId}']?.parameters).toMatchObject([
       {
         '$ref': '#/components/requestBodies/Body',
       },
@@ -1089,7 +1087,7 @@ describe('upgradeFromTwoToThree', () => {
       },
     ])
 
-    expect(result.components.requestBodies).toMatchObject({
+    expect(result.components?.requestBodies).toMatchObject({
       Body: {
         content: {
           'application/xml': {
@@ -1138,13 +1136,13 @@ describe('upgradeFromTwoToThree', () => {
     })
 
     // Update all the $rfs
-    expect(result.paths['/items/{id}'].get.parameters).toMatchObject([
+    expect(result.paths?.['/items/{id}']?.get?.parameters).toMatchObject([
       {
         '$ref': '#/components/parameters/ItemId',
       },
     ])
 
-    expect(result.components.parameters).toEqual({
+    expect(result.components?.parameters).toEqual({
       'ItemId': {
         'in': 'path',
         'name': 'id',
@@ -1153,6 +1151,52 @@ describe('upgradeFromTwoToThree', () => {
           'type': 'string',
         },
       },
+    })
+  })
+
+  it('deletes consumes array even if no request body parameter is specified', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      'swagger': '2.0',
+      'info': { 'version': '1.0.0', 'title': 'Minimal API' },
+      'paths': {
+        '/noRequestBody': {
+          'post': {
+            'consumes': ['application/json', 'application/x-www-form-urlencoded'],
+          },
+        },
+      },
+    })
+
+    expect(result.paths?.['/noRequestBody']?.post?.consumes).toBeUndefined()
+  })
+
+  it('migrates parameter reference objects accordingly', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      'swagger': '2.0',
+      'info': { 'version': '1.0.0', 'title': 'Minimal API' },
+      parameters: {
+        planetId: {
+          name: 'planetId',
+          in: 'path',
+          required: true,
+          type: 'string',
+        },
+      },
+      'paths': {
+        '/planets/{planetId}': {
+          'get': {
+            parameters: [
+              {
+                $ref: '#/parameters/planetId',
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    expect(result.paths?.['/planets/{planetId}']?.get?.parameters?.[0]).toEqual({
+      $ref: '#/components/parameters/planetId',
     })
   })
 })

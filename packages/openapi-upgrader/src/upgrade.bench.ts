@@ -1,9 +1,9 @@
 import { bench, describe, expect } from 'vitest'
 
+import { upgradeFromTwoToThree } from './2.0-to-3.0/upgrade-from-two-to-three'
 // import { upgrade as upgradeOld } from './slow/upgrade'
 // import { upgradeFromTwoToThree as upgradeFromTwoToThreeOld } from './slow/upgradeFromTwoToThree'
 import { upgrade } from './upgrade'
-import { upgradeFromTwoToThree } from './upgrade-from-two-to-three'
 
 // Setup the test data
 const STRIPE = await fetch(
@@ -35,17 +35,17 @@ describe('upgrade', () => {
     bench('new', () => {
       expect(STRIPE.openapi).toBe('3.0.0')
 
-      const { specification } = upgrade(JSON.stringify(STRIPE))
+      const document = upgrade(STRIPE)
 
-      expect(specification?.openapi).toBe('3.1.1')
+      expect(document?.openapi).toBe('3.1.1')
     })
 
     // bench('old', () => {
     //   expect(STRIPE.openapi).toBe('3.0.0')
 
-    //   const { specification } = upgradeOld(JSON.stringify(STRIPE))
+    //   const document = upgradeOld(STRIPE)
 
-    //   expect(specification?.openapi).toBe('3.1.1')
+    //   expect(document?.openapi).toBe('3.1.1')
     // })
   })
 
@@ -53,17 +53,17 @@ describe('upgrade', () => {
     bench('new', () => {
       expect(PETSTORE.swagger).toBe('2.0')
 
-      const { specification } = upgrade(JSON.stringify(PETSTORE))
+      const document = upgrade(PETSTORE)
 
-      expect(specification?.openapi).toBe('3.1.1')
+      expect(document?.openapi).toBe('3.1.1')
     })
 
     // bench('old', () => {
     //   expect(PETSTORE.swagger).toBe('2.0')
 
-    //   const { specification } = upgradeOld(JSON.stringify(PETSTORE))
+    //   const document = upgradeOld(PETSTORE)
 
-    //   expect(specification?.openapi).toBe('3.1.1')
+    //   expect(document?.openapi).toBe('3.1.1')
     // })
   })
 })

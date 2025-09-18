@@ -5,7 +5,7 @@ import { upgrade } from './upgrade'
 
 describe('OpenAPI', () => {
   it('narrows it down to OpenAPI 3.1', () => {
-    const { specification } = upgrade({
+    const document = upgrade({
       openapi: '3.0.0',
       info: {
         title: 'Hello World',
@@ -14,6 +14,6 @@ describe('OpenAPI', () => {
       paths: {},
     })
 
-    expectTypeOf(specification).toMatchTypeOf<OpenAPIV3_1.Document>()
+    expectTypeOf(document).toEqualTypeOf<OpenAPIV3_1.Document>()
   })
 })

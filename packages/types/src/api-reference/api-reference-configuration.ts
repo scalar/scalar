@@ -279,7 +279,7 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
      * Sets the file type of the document to download, set to `none` to hide the download button
      * @default 'both'
      */
-    documentDownloadType: z.enum(['yaml', 'json', 'both', 'none']).optional().default('both').catch('both'),
+    documentDownloadType: z.enum(['yaml', 'json', 'both', 'direct', 'none']).optional().default('both').catch('both'),
     /**
      * Whether to show the "Download OpenAPI Document" button
      * @default false

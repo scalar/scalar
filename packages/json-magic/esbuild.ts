@@ -9,5 +9,6 @@ await build({
     'src/dereference/index.ts',
     'src/bundle/plugins/node.ts',
     'src/bundle/plugins/browser.ts',
+    'src/helpers/escape-json-pointer.ts',
   ],
 })

@@ -1,4 +1,4 @@
-import { isObject } from '@/utils/is-object'
+import { isObject } from '@/helpers/is-object'
 
 /**
  * Determines if a string represents a valid JSON object (i.e., a plain object, not an array, primitive, or null).

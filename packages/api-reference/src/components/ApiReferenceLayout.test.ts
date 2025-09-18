@@ -1,11 +1,13 @@
+import { dereference, normalize } from '@scalar/openapi-parser'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { upgrade } from '@scalar/openapi-upgrader'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { renderToString } from '@vue/server-renderer'
 import { describe, expect, it, test, vi } from 'vitest'
 import { createSSRApp, h } from 'vue'
 
-import { dereference, upgrade } from '@scalar/openapi-parser'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import ApiReferenceLayout from './ApiReferenceLayout.vue'
+import type { UnknownObject } from '@scalar/types/utils'
 
 const EXAMPLE_API_DEFINITIONS = [
   {
@@ -78,7 +80,7 @@ describe('ApiReferenceLayout', () => {
       paths: {},
     }
 
-    const { specification: upgradedDocument } = upgrade(document)
+    const upgradedDocument = upgrade(document)
     const { schema } = await dereference(upgradedDocument)
 
     const app = createSSRApp({
@@ -120,7 +122,8 @@ test.concurrent.each(files)('$title ($url)', { timeout: 45 * 1000 }, async ({ ti
     throw new Error('Failed to fetch')
   }
 
-  const { specification: upgradedDocument } = upgrade(document)
+  const normalizedDocument = normalize(document) as UnknownObject
+  const upgradedDocument = upgrade(normalizedDocument)
 
   const { schema } = await dereference(upgradedDocument)
 

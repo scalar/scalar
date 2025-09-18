@@ -51,6 +51,11 @@
       "import": "./dist/magic-proxy/index.js",
       "types": "./dist/magic-proxy/index.d.ts",
       "default": "./dist/magic-proxy/index.js"
+    },
+    "./helpers/escape-json-pointer": {
+      "import": "./dist/helpers/escape-json-pointer.js",
+      "types": "./dist/helpers/escape-json-pointer.ts",
+      "default": "./dist/helpers/escape-json-pointer.js"
     }
   },
   "dependencies": {

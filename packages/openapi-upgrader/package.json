@@ -1,0 +1,68 @@
+{
+  "name": "@scalar/openapi-upgrader",
+  "description": "Upgrade OpenAPI documents to the latest and greatest version",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "packages/openapi-upgrader"
+  },
+  "keywords": [
+    "openapi",
+    "scalar",
+    "swagger",
+    "parser",
+    "typescript",
+    "upgrade",
+    "openapi 3.0",
+    "openapi 3.1"
+  ],
+  "version": "0.0.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "scalar-build-esbuild",
+    "test": "vitest",
+    "types:build": "scalar-types-build",
+    "types:check": "scalar-types-check"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./2.0-to-3.0": {
+      "import": "./dist/2.0-to-3.0/index.js",
+      "types": "./dist/2.0-to-3.0/index.d.ts",
+      "default": "./dist/2.0-to-3.0/index.js"
+    },
+    "./3.0-to-3.1": {
+      "import": "./dist/3.0-to-3.1/index.js",
+      "types": "./dist/3.0-to-3.1/index.d.ts",
+      "default": "./dist/3.0-to-3.1/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "module": "./dist/index.js",
+  "sideEffects": false,
+  "dependencies": {
+    "@scalar/openapi-types": "workspace:*"
+  },
+  "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
+    "@scalar/types": "workspace:*",
+    "tinybench": "^2.8.0",
+    "vite": "catalog:*"
+  }
+}

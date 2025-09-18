@@ -1,7 +1,7 @@
 import type { OpenAPIV2, OpenAPIV3 } from '@scalar/openapi-types'
 import type { UnknownObject } from '@scalar/types/utils'
 
-import { traverse } from './traverse'
+import { traverse } from '@/helpers/traverse'
 
 /** Update the flow names to OpenAPI 3.1.0 format */
 const upgradeFlow = (flow: string): 'implicit' | 'password' | 'clientCredentials' | 'authorizationCode' => {
@@ -25,49 +25,48 @@ const upgradeFlow = (flow: string): 'implicit' | 'password' | 'clientCredentials
  * https://swagger.io/blog/news/whats-new-in-openapi-3-0/
  */
 export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
-  let specification = originalSpecification
+  let document = originalSpecification
 
   // Version
   if (
-    specification !== null &&
-    typeof specification === 'object' &&
-    typeof specification.swagger === 'string' &&
-    specification.swagger?.startsWith('2.0')
+    document !== null &&
+    typeof document === 'object' &&
+    typeof document.swagger === 'string' &&
+    document.swagger?.startsWith('2.0')
   ) {
-    specification.openapi = '3.0.4'
-    delete specification.swagger
+    document.openapi = '3.0.4'
+    delete document.swagger
   } else {
     // Skip if it's something else than 3.0.x
-    return specification
+    return document
   }
 
   // Servers
-  if (specification.host) {
-    const schemes =
-      Array.isArray(specification.schemes) && specification.schemes?.length ? specification.schemes : ['http']
+  if (document.host) {
+    const schemes = Array.isArray(document.schemes) && document.schemes?.length ? document.schemes : ['http']
 
-    specification.servers = schemes.map((scheme: string[]) => ({
-      url: `${scheme}://${specification.host}${specification.basePath ?? ''}`,
+    document.servers = schemes.map((scheme: string[]) => ({
+      url: `${scheme}://${document.host}${document.basePath ?? ''}`,
     }))
 
-    delete specification.basePath
-    delete specification.schemes
-    delete specification.host
-  } else if (specification.basePath) {
-    specification.servers = [{ url: specification.basePath }]
-    delete specification.basePath
+    delete document.basePath
+    delete document.schemes
+    delete document.host
+  } else if (document.basePath) {
+    document.servers = [{ url: document.basePath }]
+    delete document.basePath
   }
 
   // Schemas
-  if (specification.definitions) {
-    specification.components = Object.assign({}, specification.components, {
-      schemas: specification.definitions,
+  if (document.definitions) {
+    document.components = Object.assign({}, document.components, {
+      schemas: document.definitions,
     })
 
-    delete specification.definitions
+    delete document.definitions
 
     // Rewrite $refs to definitions
-    specification = traverse(specification, (schema) => {
+    document = traverse(document, (schema) => {
       // Rewrite $refs to components
       if (typeof schema.$ref === 'string' && schema.$ref.startsWith('#/definitions/')) {
         schema.$ref = schema.$ref.replace(/^#\/definitions\//, '#/components/schemas/')
@@ -78,7 +77,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
   }
 
   // Transform file type to string with binary format
-  specification = traverse(specification, (schema) => {
+  document = traverse(document, (schema) => {
     if (schema.type === 'file') {
       schema.type = 'string'
       schema.format = 'binary'
@@ -87,15 +86,22 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
     return schema
   })
 
-  if (Object.hasOwn(specification, 'parameters')) {
+  if (Object.hasOwn(document, 'parameters')) {
     // update all the $refs before we do any transformations
-    specification = traverse(specification, (schema) => {
+    document = traverse(document, (schema) => {
       if (typeof schema.$ref === 'string' && schema.$ref.startsWith('#/parameters/')) {
         const schemaName = schema.$ref.split('/')[2]
 
-        const param = specification.parameters?.[schemaName]
+        if (!schemaName) {
+          return schema
+        }
 
-        if (param?.in === 'body' || param?.in === 'formData') {
+        const param =
+          document.parameters && typeof document.parameters === 'object' && schemaName in document.parameters
+            ? (document.parameters as Record<string, unknown>)[schemaName]
+            : undefined
+
+        if (param && typeof param === 'object' && 'in' in param && (param.in === 'body' || param.in === 'formData')) {
           schema.$ref = schema.$ref.replace(/^#\/parameters\//, '#/components/requestBodies/')
         } else {
           schema.$ref = schema.$ref.replace(/^#\/parameters\//, '#/components/parameters/')
@@ -105,53 +111,66 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
       return schema
     })
 
-    specification.components ??= {}
+    document.components ??= {}
 
-    const params = {}
-    const bodyParams = {}
-    for (const [name, param] of Object.entries(specification.parameters ?? {})) {
-      if (param.in === 'body') {
-        bodyParams[name] = migrateBodyParameter(
-          param,
-          (specification.consumes as string[] | undefined) ?? ['application/json'],
-        )
-      } else if (param.in === 'formData') {
-        bodyParams[name] = migrateFormDataParameter(param)
-      } else {
-        params[name] = transformParameterObject(param)
+    const params: Record<string, OpenAPIV3.ParameterObject> = {}
+    const bodyParams: Record<string, OpenAPIV3.RequestBodyObject> = {}
+    const parameters =
+      document.parameters && typeof document.parameters === 'object'
+        ? (document.parameters as Record<string, unknown>)
+        : {}
+    for (const [name, param] of Object.entries(parameters)) {
+      if (param && typeof param === 'object' && 'in' in param) {
+        if (param.in === 'body') {
+          bodyParams[name] = migrateBodyParameter(
+            param as OpenAPIV2.ParameterObject,
+            (document.consumes as string[] | undefined) ?? ['application/json'],
+          )
+        } else if (param.in === 'formData') {
+          bodyParams[name] = migrateFormDataParameter([param as OpenAPIV2.ParameterObject])
+        } else {
+          params[name] = transformParameterObject(param as OpenAPIV2.ParameterObject)
+        }
       }
     }
 
     if (Object.keys(params).length > 0) {
-      ;(specification.components as UnknownObject).parameters = params
+      ;(document.components as UnknownObject).parameters = params
     }
 
     if (Object.keys(bodyParams).length > 0) {
-      ;(specification.components as UnknownObject).requestBodies = bodyParams
+      ;(document.components as UnknownObject).requestBodies = bodyParams
     }
 
-    delete specification.parameters
+    delete document.parameters
   }
 
   // Paths
-  if (typeof specification.paths === 'object') {
-    for (const path in specification.paths) {
-      if (Object.hasOwn(specification.paths, path)) {
-        const pathItem = specification.paths[path]
+  if (typeof document.paths === 'object') {
+    for (const path in document.paths) {
+      if (Object.hasOwn(document.paths, path)) {
+        const pathItem =
+          document.paths && typeof document.paths === 'object' && path in document.paths
+            ? (document.paths as Record<string, unknown>)[path]
+            : undefined
+
+        if (!pathItem || typeof pathItem !== 'object') {
+          continue
+        }
 
         let requestBodyObject: OpenAPIV3.RequestBodyObject | undefined
 
         for (const methodOrParameters in pathItem) {
           if (methodOrParameters === 'parameters' && Object.hasOwn(pathItem, methodOrParameters)) {
             const pathItemParameters = migrateParameters(
-              pathItem.parameters,
-              (specification.consumes as string[] | undefined) ?? ['application/json'],
+              (pathItem as any).parameters,
+              (document.consumes as string[] | undefined) ?? ['application/json'],
             )
 
-            pathItem.parameters = pathItemParameters.parameters
+            ;(pathItem as any).parameters = pathItemParameters.parameters
             requestBodyObject = pathItemParameters.requestBody
           } else if (Object.hasOwn(pathItem, methodOrParameters)) {
-            const operationItem = pathItem[methodOrParameters]
+            const operationItem = (pathItem as any)[methodOrParameters]
 
             if (requestBodyObject) {
               operationItem.requestBody = requestBodyObject
@@ -160,7 +179,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
             if (operationItem.parameters) {
               const migrationResult = migrateParameters(
                 operationItem.parameters,
-                operationItem.consumes ?? specification.consumes ?? ['application/json'],
+                operationItem.consumes ?? document.consumes ?? ['application/json'],
               )
 
               operationItem.parameters = migrationResult.parameters
@@ -168,9 +187,9 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
               if (migrationResult.requestBody) {
                 operationItem.requestBody = migrationResult.requestBody
               }
-
-              delete operationItem.consumes
             }
+
+            delete operationItem.consumes
 
             // Responses
             if (operationItem.responses) {
@@ -178,16 +197,22 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
                 if (Object.hasOwn(operationItem.responses, response)) {
                   const responseItem = operationItem.responses[response]
 
-                  if (responseItem.headers) {
-                    responseItem.headers = Object.entries(responseItem.headers).reduce((acc, [name, header]) => {
-                      return {
-                        [name]: transformParameterObject(header),
-                        ...acc,
-                      }
-                    }, {})
+                  if (responseItem.headers && typeof responseItem.headers === 'object') {
+                    responseItem.headers = Object.entries(responseItem.headers).reduce(
+                      (acc, [name, header]) => {
+                        if (header && typeof header === 'object') {
+                          return {
+                            [name]: transformParameterObject(header as OpenAPIV2.ParameterObject),
+                            ...acc,
+                          }
+                        }
+                        return acc
+                      },
+                      {} as Record<string, OpenAPIV3.ParameterObject>,
+                    )
                   }
                   if (responseItem.schema) {
-                    const produces = specification.produces ?? operationItem.produces ?? ['application/json']
+                    const produces = document.produces ?? operationItem.produces ?? ['application/json']
 
                     if (typeof responseItem.content !== 'object') {
                       responseItem.content = {}
@@ -218,17 +243,16 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
   }
 
   // Upgrade securityDefinitions
-  if (specification.securityDefinitions) {
-    if (typeof specification.components !== 'object') {
-      specification.components = {}
+  if (document.securityDefinitions) {
+    if (typeof document.components !== 'object' || document.components === null) {
+      document.components = {}
     }
 
-    // Assert that components is of type OpenAPIV3.ComponentsObject
-    specification.components = specification.components as OpenAPIV3.ComponentsObject
+    if (document.components && typeof document.components === 'object') {
+      Object.assign(document.components, { securitySchemes: {} })
+    }
 
-    Object.assign(specification.components, { securitySchemes: {} })
-
-    for (const [key, securityScheme] of Object.entries(specification.securityDefinitions)) {
+    for (const [key, securityScheme] of Object.entries(document.securityDefinitions)) {
       if (typeof securityScheme === 'object') {
         if ('type' in securityScheme && securityScheme.type === 'oauth2') {
           const { flow, authorizationUrl, tokenUrl, scopes } = securityScheme as {
@@ -241,42 +265,62 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
 
           // Convert flow values to OpenAPI 3.1.0 format
 
-          // Assert that securitySchemes is of type OpenAPIV3.SecuritySchemeObject
-          Object.assign((specification.components as OpenAPIV3.ComponentsObject).securitySchemes, {
-            [key]: {
-              type: 'oauth2',
-              flows: {
-                [upgradeFlow(flow)]: Object.assign(
-                  {},
-                  authorizationUrl && { authorizationUrl },
-                  tokenUrl && { tokenUrl },
-                  scopes && { scopes },
-                ),
+          if (
+            document.components &&
+            typeof document.components === 'object' &&
+            'securitySchemes' in document.components &&
+            document.components.securitySchemes
+          ) {
+            Object.assign(document.components.securitySchemes, {
+              [key]: {
+                type: 'oauth2',
+                flows: {
+                  [upgradeFlow(flow || 'implicit')]: Object.assign(
+                    {},
+                    authorizationUrl && { authorizationUrl },
+                    tokenUrl && { tokenUrl },
+                    scopes && { scopes },
+                  ),
+                },
               },
-            },
-          })
+            })
+          }
         } else if ('type' in securityScheme && securityScheme.type === 'basic') {
-          Object.assign((specification.components as OpenAPIV3.ComponentsObject).securitySchemes, {
-            [key]: {
-              type: 'http',
-              scheme: 'basic',
-            },
-          })
+          if (
+            document.components &&
+            typeof document.components === 'object' &&
+            'securitySchemes' in document.components &&
+            document.components.securitySchemes
+          ) {
+            Object.assign(document.components.securitySchemes, {
+              [key]: {
+                type: 'http',
+                scheme: 'basic',
+              },
+            })
+          }
         } else {
-          Object.assign((specification.components as OpenAPIV3.ComponentsObject).securitySchemes, {
-            [key]: securityScheme,
-          })
+          if (
+            document.components &&
+            typeof document.components === 'object' &&
+            'securitySchemes' in document.components &&
+            document.components.securitySchemes
+          ) {
+            Object.assign(document.components.securitySchemes, {
+              [key]: securityScheme,
+            })
+          }
         }
       }
     }
 
-    delete specification.securityDefinitions
+    delete document.securityDefinitions
   }
 
-  delete specification.consumes
-  delete specification.produces
+  delete document.consumes
+  delete document.produces
 
-  return specification as OpenAPIV3.Document
+  return document as OpenAPIV3.Document
 }
 
 function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): OpenAPIV3.SchemaObject {
@@ -309,6 +353,10 @@ function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): O
 }
 
 function transformParameterObject(parameter: OpenAPIV2.ParameterObject): OpenAPIV3.ParameterObject {
+  if (Object.hasOwn(parameter, '$ref')) {
+    return parameter
+  }
+
   // it is important to call getParameterSerializationStyle first because transformItemsObject modifies properties on which getParameterSerializationStyle rely on
   const serializationStyle = getParameterSerializationStyle(parameter)
   const schema = transformItemsObject(parameter)
@@ -374,7 +422,14 @@ function getParameterSerializationStyle(parameter: OpenAPIV2.ParameterObject): P
 
   const collectionFormat = parameter.collectionFormat ?? 'csv'
 
-  return serializationStyles[parameter.in][collectionFormat]
+  if (
+    parameter.in in serializationStyles &&
+    collectionFormat in serializationStyles[parameter.in as keyof typeof serializationStyles]
+  ) {
+    return serializationStyles[parameter.in as keyof typeof serializationStyles][collectionFormat as CollectionFormat]
+  }
+
+  return {}
 }
 
 type ParameterMigrationResult = {
@@ -396,9 +451,11 @@ function migrateBodyParameter(
     ...requestBody,
   }
 
-  for (const type of consumes) {
-    requestBodyObject.content[type] = {
-      schema: schema,
+  if (requestBodyObject.content) {
+    for (const type of consumes) {
+      requestBodyObject.content[type] = {
+        schema: schema,
+      }
     }
   }
 
@@ -410,23 +467,30 @@ function migrateFormDataParameter(parameters: OpenAPIV2.ParameterObject[]): Open
     content: {},
   }
 
-  requestBodyObject.content['application/x-www-form-urlencoded'] = {
-    schema: {
-      type: 'object',
-      properties: {},
-      required: [], // Initialize required array
-    },
-  }
-
-  for (const param of parameters) {
-    requestBodyObject.content['application/x-www-form-urlencoded'].schema.properties[param.name] = {
-      type: param.type,
-      description: param.description,
+  if (requestBodyObject.content) {
+    requestBodyObject.content['application/x-www-form-urlencoded'] = {
+      schema: {
+        type: 'object',
+        properties: {},
+        required: [], // Initialize required array
+      },
     }
 
-    // Add to required array if param is required
-    if (param.required) {
-      requestBodyObject.content['application/x-www-form-urlencoded'].schema.required.push(param.name)
+    const formContent = requestBodyObject.content?.['application/x-www-form-urlencoded']
+    if (formContent?.schema && typeof formContent.schema === 'object' && 'properties' in formContent.schema) {
+      for (const param of parameters) {
+        if (param.name && formContent.schema.properties) {
+          formContent.schema.properties[param.name] = {
+            type: param.type,
+            description: param.description,
+          }
+
+          // Add to required array if param is required
+          if (param.required && Array.isArray(formContent.schema.required)) {
+            formContent.schema.required.push(param.name)
+          }
+        }
+      }
     }
   }
 

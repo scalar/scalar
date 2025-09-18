@@ -3,7 +3,7 @@ import { bundle } from '@scalar/json-magic/bundle'
 import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
 import { type Difference, apply, diff, merge } from '@scalar/json-magic/diff'
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
-import { upgrade } from '@scalar/openapi-parser'
+import { upgrade } from '@scalar/openapi-upgrader'
 import type { Record } from '@scalar/typebox'
 import { Value } from '@scalar/typebox/value'
 import type { PartialDeep } from 'type-fest/source/partial-deep'
@@ -558,7 +558,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   async function addInMemoryDocument(input: ObjectDoc & { initialize?: boolean; documentSource?: string }) {
     const { name, meta } = input
     const cloned = measureSync('deepClone', () => deepClone(input.document))
-    const inputDocument = measureSync('upgrade', () => upgrade(cloned).specification)
+    const inputDocument = measureSync('upgrade', () => upgrade(cloned))
 
     measureSync('initialize', () => {
       if (input.initialize !== false) {
@@ -862,7 +862,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       )
     },
     rebaseDocument: (documentName, newDocumentOrigin, resolvedConflicts) => {
-      const newOrigin = upgrade(newDocumentOrigin).specification
+      const newOrigin = upgrade(newDocumentOrigin)
 
       const originalDocument = originalDocuments[documentName]
       const intermediateDocument = intermediateDocuments[documentName]
