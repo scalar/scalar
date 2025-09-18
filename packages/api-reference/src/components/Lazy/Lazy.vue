@@ -43,11 +43,10 @@ const onIdle = (cb: () => void) => {
     setTimeout(() => window.requestIdleCallback(cb), lazyTimeout)
   } else {
     setTimeout(() => {
-      ;(nextTick(() => {
+      nextTick(() => {
         cb()
-      }),
-        lazyTimeout ?? DEFAULT_LAZY_TIMEOUT)
-    })
+      })
+    }, lazyTimeout ?? DEFAULT_LAZY_TIMEOUT)
   }
 }
 
