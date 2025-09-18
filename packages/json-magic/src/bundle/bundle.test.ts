@@ -1,25 +1,27 @@
 import { randomUUID } from 'node:crypto'
 import fs from 'node:fs/promises'
+import { setTimeout } from 'node:timers/promises'
+
+import { consoleWarnSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
 import fastify, { type FastifyInstance } from 'fastify'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import YAML from 'yaml'
+
+import { parseJson } from '@/bundle/plugins/parse-json'
+import { parseYaml } from '@/bundle/plugins/parse-yaml'
+import { getHash } from '@/bundle/value-generator'
+
 import {
+  type LoaderPlugin,
   bundle,
-  getNestedValue,
   isLocalRef,
   isRemoteUrl,
   prefixInternalRef,
   prefixInternalRefRecursive,
   setValueAtPath,
-  type LoaderPlugin,
 } from './bundle'
 import { fetchUrls } from './plugins/fetch-urls'
 import { readFiles } from './plugins/read-files'
-import { setTimeout } from 'node:timers/promises'
-import { parseJson } from '@/bundle/plugins/parse-json'
-import { parseYaml } from '@/bundle/plugins/parse-yaml'
-import YAML from 'yaml'
-import { getHash } from '@/bundle/value-generator'
-import { consoleWarnSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
 
 describe('bundle', () => {
   describe('external urls', () => {
@@ -1102,18 +1104,18 @@ describe('bundle', () => {
           $ref: `${url}/external/document.json`,
         },
         b: {
-          $ref: `${url}/chunk2#`,
+          $ref: `${url}/chunk2`,
           $global: true,
         },
         a: {
-          $ref: `${url}/chunk1#`,
+          $ref: `${url}/chunk1`,
           $global: true,
         },
         entry: {
           $ref: '#/a',
         },
         nonBundle: {
-          $ref: `${url}/chunk1#`,
+          $ref: `${url}/chunk1`,
         },
       }
 
@@ -1145,7 +1147,7 @@ describe('bundle', () => {
           $ref: '#/a',
         },
         nonBundle: {
-          $ref: `http://localhost:${port}/chunk1#`,
+          $ref: `http://localhost:${port}/chunk1`,
         },
         'x-ext': {
           [await getHash(`${url}/external/document.json`)]: {
@@ -1325,6 +1327,448 @@ describe('bundle', () => {
         'x-ext': { e53b62c: { message: 'some resolved external reference' } },
       })
     })
+
+    it('does not modify external URLs when already defined by $id property', async () => {
+      const url = `http://localhost:${port}`
+
+      const input = {
+        $id: 'https://example.com/root',
+        components: {
+          schemas: {
+            User: {
+              $id: `${url}/schema`,
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+              },
+            },
+          },
+        },
+        paths: {
+          '/users': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'Success',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        $ref: `${url}/schema`,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        plugins: [fetchUrls(), readFiles()],
+        treeShake: false,
+      })
+
+      // The $ref should remain unchanged because the schema is already defined locally with $id
+      expect(input.paths['/users'].get.responses['200'].content['application/json'].schema.$ref).toBe(`${url}/schema`)
+
+      // The external schema should not be bundled into x-ext
+      expect(input['x-ext']).toBeUndefined()
+
+      // The local schema with $id should remain unchanged
+      expect(input.components.schemas.User).toEqual({
+        $id: `${url}/schema`,
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+        },
+      })
+    })
+
+    it('does not modify external URLs when already defined by $anchor property', async () => {
+      const input = {
+        $id: 'https://example.com/root',
+        components: {
+          schemas: {
+            User: {
+              $anchor: 'user-schema',
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+              },
+            },
+          },
+        },
+        paths: {
+          '/users': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'Success',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        $ref: 'https://example.com/root/schema#user-schema',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        plugins: [fetchUrls(), readFiles()],
+        treeShake: false,
+      })
+
+      // The $ref should remain unchanged because the schema is already defined locally with $anchor
+      expect(input.paths['/users'].get.responses['200'].content['application/json'].schema.$ref).toBe(
+        'https://example.com/root/schema#user-schema',
+      )
+
+      // The external schema should not be bundled into x-ext
+      expect(input['x-ext']).toBeUndefined()
+
+      // The local schema with $anchor should remain unchanged
+      expect(input.components.schemas.User).toEqual({
+        $anchor: 'user-schema',
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+        },
+      })
+    })
+
+    it('does not modify external URLs when prefix is already defined by $id', async () => {
+      const url = `http://localhost:${port}`
+
+      const input = {
+        $id: `${url}/schema`,
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+              },
+            },
+          },
+        },
+        paths: {
+          '/users': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'Success',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        $ref: `${url}/schema#/components/schemas/User`,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        plugins: [fetchUrls(), readFiles()],
+        treeShake: false,
+      })
+
+      // The $ref should remain unchanged because the prefix is already defined locally with $id
+      expect(input.paths['/users'].get.responses['200'].content['application/json'].schema.$ref).toBe(
+        `${url}/schema#/components/schemas/User`,
+      )
+
+      // The external schema should not be bundled into x-ext
+      expect(input['x-ext']).toBeUndefined()
+
+      // The local schema should remain unchanged
+      expect(input.components.schemas.User).toEqual({
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+        },
+      })
+    })
+
+    it('prioritizes $id when resolving refs', async () => {
+      const input = {
+        $id: 'https://example.com/root',
+        a: {
+          b: {
+            c: {
+              $ref: '/b',
+            },
+          },
+        },
+      }
+
+      const fn = vi.fn()
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [
+          {
+            type: 'loader',
+            validate: () => true,
+            exec: async (value) => {
+              fn(value)
+              return {
+                ok: true,
+                data: {
+                  message: 'resolved value',
+                },
+              }
+            },
+          },
+        ],
+      })
+
+      expect(input).toEqual({
+        '$id': 'https://example.com/root',
+        'a': {
+          'b': {
+            'c': {
+              '$ref': '#/x-ext/69a42cc',
+            },
+          },
+        },
+        'x-ext': {
+          '69a42cc': {
+            'message': 'resolved value',
+          },
+        },
+      })
+
+      expect(fn).toHaveBeenCalled()
+      expect(fn).toHaveBeenCalledWith('https://example.com/b')
+    })
+
+    it('prioritizes $id when resolving refs with origin #1', async () => {
+      const url = `http://localhost:${port}`
+
+      const input = {
+        $id: '/root',
+        a: {
+          b: {
+            c: {
+              $ref: '/b',
+            },
+          },
+        },
+      }
+
+      const fn = vi.fn()
+
+      await bundle(input, {
+        treeShake: false,
+        origin: url,
+        plugins: [
+          {
+            type: 'loader',
+            validate: () => true,
+            exec: async (value) => {
+              fn(value)
+              return {
+                ok: true,
+                data: {
+                  message: 'resolved value',
+                },
+              }
+            },
+          },
+        ],
+      })
+
+      expect(input).toEqual({
+        '$id': '/root',
+        'a': {
+          'b': {
+            'c': {
+              '$ref': '#/x-ext/25c8e1f',
+            },
+          },
+        },
+        'x-ext': {
+          '25c8e1f': {
+            'message': 'resolved value',
+          },
+        },
+      })
+
+      expect(fn).toHaveBeenCalled()
+      expect(fn).toHaveBeenCalledWith('/b')
+    })
+
+    it('prioritizes $id when resolving refs with origin #2', async () => {
+      const url = `http://localhost:${port}`
+
+      const input = {
+        $id: 'http://example.com/root',
+        a: {
+          b: {
+            c: {
+              $ref: '/b',
+            },
+          },
+        },
+      }
+
+      const fn = vi.fn()
+
+      await bundle(url, {
+        treeShake: false,
+        origin: url,
+        plugins: [
+          {
+            type: 'loader',
+            validate: () => true,
+            exec: async (value) => {
+              fn(value)
+
+              if (value === url) {
+                return {
+                  ok: true,
+                  data: input,
+                }
+              }
+
+              return {
+                ok: true,
+                data: {
+                  message: 'resolved value',
+                },
+              }
+            },
+          },
+        ],
+      })
+
+      expect(input).toEqual({
+        '$id': 'http://example.com/root',
+        'a': {
+          'b': {
+            'c': {
+              '$ref': '#/x-ext/943da6f',
+            },
+          },
+        },
+        'x-ext': {
+          '943da6f': {
+            'message': 'resolved value',
+          },
+        },
+      })
+
+      expect(fn).toHaveBeenCalledTimes(2)
+      expect(fn.mock.calls[0][0]).toBe(url)
+      expect(fn.mock.calls[1][0]).toBe('http://example.com/b')
+    })
+
+    it('correctly bundles when doing a partial bundle with $anchor on a different context', async () => {
+      const input = {
+        a: {
+          b: {
+            c: {
+              $ref: '#/e/f',
+            },
+          },
+        },
+        e: {
+          $id: 'https://example.com/e',
+          $anchor: 'my-anchor',
+          f: {
+            $ref: '#my-anchor',
+          },
+          g: {
+            $ref: 'http://example.com',
+          },
+        },
+      }
+
+      const fn = vi.fn()
+
+      await bundle(input.a, {
+        treeShake: false,
+        plugins: [
+          {
+            type: 'loader',
+            validate: () => true,
+            exec: async (value) => {
+              fn(value)
+              if (value === 'http://example.com') {
+                return {
+                  ok: true,
+                  data: {
+                    message: 'resolved value',
+                  },
+                }
+              }
+              return { ok: false }
+            },
+          },
+        ],
+        root: input,
+        urlMap: true,
+        cache: new Map(),
+      })
+
+      expect(input).toEqual({
+        'a': {
+          'b': {
+            'c': {
+              '$ref': '#/e/f',
+            },
+          },
+        },
+        'e': {
+          '$anchor': 'my-anchor',
+          '$id': 'https://example.com/e',
+          'f': {
+            '$ref': '#my-anchor',
+          },
+          'g': {
+            '$ref': '#/x-ext/89dce6a',
+          },
+        },
+        'x-ext': {
+          '89dce6a': {
+            'message': 'resolved value',
+          },
+        },
+        'x-ext-urls': {
+          '89dce6a': 'http://example.com',
+        },
+      })
+    })
+
+    it('treats internal root pointers as internal references', async () => {
+      resetConsoleSpies()
+
+      const input = {
+        a: {
+          $ref: '#/',
+        },
+      }
+
+      await bundle(input, { plugins: [fetchUrls()], treeShake: false })
+
+      expect(input).toEqual({
+        a: {
+          $ref: '#/',
+        },
+      })
+
+      expect(consoleWarnSpy).toHaveBeenCalledTimes(0)
+    })
   })
 
   describe('local files', () => {
@@ -1405,7 +1849,9 @@ describe('bundle', () => {
       }
       const bName = randomUUID()
 
-      await fs.mkdir('./nested')
+      await fs.mkdir('./nested').catch(() => {
+        return
+      })
       await fs.writeFile(`./nested/${bName}`, JSON.stringify(b))
       await fs.writeFile(`./nested/${cName}`, JSON.stringify(c))
 
@@ -1449,7 +1895,9 @@ describe('bundle', () => {
       }
       const bName = randomUUID()
 
-      await fs.mkdir('./nested')
+      await fs.mkdir('./nested').catch(() => {
+        return
+      })
       await fs.writeFile(`./nested/${bName}`, JSON.stringify(b))
       await fs.writeFile(`./nested/${cName}`, JSON.stringify(c))
 
@@ -2330,17 +2778,6 @@ describe('isLocalRef', () => {
     ['./local-schema.json', false],
   ])('detects local refs', (a, b) => {
     expect(isLocalRef(a)).toBe(b)
-  })
-})
-
-describe('getNestedValue', () => {
-  it.each([
-    [{ a: { b: { c: 'hello' } } }, ['a', 'b', 'c'], 'hello'],
-    [{ a: { b: { c: 'hello' } } }, [], { a: { b: { c: 'hello' } } }],
-    [{ foo: { bar: { baz: 42 } } }, ['foo', 'bar', 'baz'], 42],
-    [{ foo: { bar: { baz: 42 } } }, ['foo', 'non-existing', 'baz'], undefined],
-  ])('gets nested value', (a, b, c) => {
-    expect(getNestedValue(a, b)).toEqual(c)
   })
 })
 

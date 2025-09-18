@@ -1,11 +1,14 @@
+import { convertToLocalRef } from '@/helpers/convert-to-local-ref'
+import { getId, getSchemas } from '@/helpers/get-schemas'
+import { getValueByPath } from '@/helpers/get-value-by-path'
+import path from '@/polyfills/path'
 import type { UnknownObject } from '@/types'
 
-import { escapeJsonPointer } from '../utils/escape-json-pointer'
-import path from '@/polyfills/path'
-import { getSegmentsFromPath } from '../utils/get-segments-from-path'
-import { isObject } from '../utils/is-object'
-import { isYaml } from '../utils/is-yaml'
-import { isJsonObject } from '../utils/is-json-object'
+import { escapeJsonPointer } from '../helpers/escape-json-pointer'
+import { getSegmentsFromPath } from '../helpers/get-segments-from-path'
+import { isJsonObject } from '../helpers/is-json-object'
+import { isObject } from '../helpers/is-object'
+import { isYaml } from '../helpers/is-yaml'
 import { getHash, uniqueValueGeneratorFactory } from './value-generator'
 
 /**
@@ -87,24 +90,6 @@ async function resolveContents(value: string, plugins: LoaderPlugin[]): Promise<
   return {
     ok: false,
   }
-}
-
-/**
- * Retrieves a nested value from an object using an array of property segments.
- * @param target - The target object to traverse
- * @param segments - Array of property names representing the path to the desired value
- * @returns The value at the specified path, or undefined if the path doesn't exist
- * @example
- * const obj = { foo: { bar: { baz: 42 } } };
- * getNestedValue(obj, ['foo', 'bar', 'baz']); // returns 42
- */
-export function getNestedValue(target: Record<string, any>, segments: string[]) {
-  return segments.reduce<any>((acc, key) => {
-    if (acc === undefined) {
-      return undefined
-    }
-    return acc[key]
-  }, target)
 }
 
 /**
@@ -325,7 +310,7 @@ const resolveAndCopyReferences = (
   documentKey: string,
   processedNodes = new Set(),
 ) => {
-  const referencedValue = getNestedValue(sourceDocument, getSegmentsFromPath(referencePath))
+  const referencedValue = getValueByPath(sourceDocument, getSegmentsFromPath(referencePath)).value
 
   if (processedNodes.has(referencedValue)) {
     return
@@ -649,6 +634,9 @@ export async function bundle(input: UnknownObject | string, config: Config) {
   // We need this when we want to do a partial bundle of a document
   const documentRoot = config.root ?? rawSpecification
 
+  // Extract all $id and $anchor values from the document to identify local schemas
+  const schemas = getSchemas(documentRoot)
+
   // Determines if the bundling operation is partial.
   // Partial bundling occurs when:
   // - A root document is provided that is different from the raw specification being bundled, or
@@ -693,7 +681,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     origin: string = defaultOrigin(),
     isChunkParent = false,
     depth = 0,
-    path: readonly string[] = [],
+    currentPath: readonly string[] = [],
     parent: UnknownObject = null,
   ) => {
     // If a maximum depth is set in the config, stop bundling when the current depth reaches or exceeds it
@@ -715,7 +703,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
 
     // Invoke the onBeforeNodeProcess hook for the current node before any further processing
     await config.hooks?.onBeforeNodeProcess?.(root as UnknownObject, {
-      path,
+      path: currentPath,
       resolutionCache: cache,
       parentNode: parent,
       rootNode: documentRoot as UnknownObject,
@@ -724,7 +712,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     // Invoke onBeforeNodeProcess hooks from all registered lifecycle plugins
     for (const plugin of lifecyclePlugin) {
       await plugin.onBeforeNodeProcess?.(root as UnknownObject, {
-        path,
+        path: currentPath,
         resolutionCache: cache,
         parentNode: parent,
         rootNode: documentRoot as UnknownObject,
@@ -732,20 +720,33 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       })
     }
 
+    const id = getId(root)
+
     if (typeof root === 'object' && '$ref' in root && typeof root['$ref'] === 'string') {
       const ref = root['$ref']
       const isChunk = '$global' in root && typeof root['$global'] === 'boolean' && root['$global']
 
-      if (isLocalRef(ref)) {
+      // Try to convert the reference to a local reference if possible
+      // This handles cases where the reference points to a local schema using $id or $anchor
+      // If it can be converted to a local reference, we do not need to bundle it
+      // and can skip further processing for this reference
+      // In case of partial bundling, we still need to ensure that all dependencies
+      // of the local reference are bundled to create a complete and self-contained partial bundle
+      // This is important to maintain the integrity of the partial bundle
+      const localRef = convertToLocalRef(ref, id ?? origin, schemas)
+
+      if (localRef !== undefined) {
         if (isPartialBundling) {
-          const segments = getSegmentsFromPath(ref.substring(1))
-          const parent = segments.length > 0 ? getNestedValue(documentRoot, segments.slice(0, -1)) : undefined
+          const segments = getSegmentsFromPath(`/${localRef}`)
+          const parent = segments.length > 0 ? getValueByPath(documentRoot, segments.slice(0, -1)).value : undefined
+
+          const targetValue = getValueByPath(documentRoot, segments)
 
           // When doing partial bundling, we need to recursively bundle all dependencies
           // referenced by this local reference to ensure the partial bundle is complete.
           // This includes not just the direct reference but also all its dependencies,
           // creating a complete and self-contained partial bundle.
-          await bundler(getNestedValue(documentRoot, segments), origin, isChunkParent, depth + 1, segments, parent)
+          await bundler(targetValue.value, targetValue.context, isChunkParent, depth + 1, segments, parent)
         }
         return
       }
@@ -754,7 +755,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
 
       // Combine the current origin with the new path to resolve relative references
       // correctly within the context of the external file being processed
-      const resolvedPath = resolveReferencePath(origin, prefix)
+      const resolvedPath = resolveReferencePath(id ?? origin, prefix)
 
       // Generate a unique compressed path for the external document
       // This is used as a key to store and reference the bundled external document
@@ -859,14 +860,14 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           return
         }
 
-        await bundler(value, origin, isChunkParent, depth + 1, [...path, key], root as UnknownObject)
+        await bundler(value, id ?? origin, isChunkParent, depth + 1, [...currentPath, key], root as UnknownObject)
       }),
     )
 
     // Invoke the optional onAfterNodeProcess hook from the config, if provided.
     // This allows for custom post-processing logic after a node has been handled by the bundler.
     await config.hooks?.onAfterNodeProcess?.(root as UnknownObject, {
-      path,
+      path: currentPath,
       resolutionCache: cache,
       parentNode: parent,
       rootNode: documentRoot as UnknownObject,
@@ -877,7 +878,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     // This enables plugins to perform additional post-processing or cleanup after the node is processed.
     for (const plugin of lifecyclePlugin) {
       await plugin.onAfterNodeProcess?.(root as UnknownObject, {
-        path,
+        path: currentPath,
         resolutionCache: cache,
         parentNode: parent,
         rootNode: documentRoot as UnknownObject,
