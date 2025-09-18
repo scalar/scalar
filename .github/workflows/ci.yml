@@ -73,9 +73,14 @@ jobs:
           path: integrations/docker/assets
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
+        name: Rename standalone.js to scalar.js
+        working-directory: integrations/docker/assets
+        run: mv standalone.js scalar.js
+
+      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Compress static assets
         working-directory: integrations/docker/assets
-        run: gzip --keep --verbose --force standalone.js
+        run: gzip --keep --verbose --force scalar.js
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Setup Docker Builder
