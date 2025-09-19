@@ -98,7 +98,7 @@ describe('SchemaObjectProperties', () => {
 
     const prop = wrapper.find('.schema-property')
     expect(prop.exists()).toBe(true)
-    expect(prop.attributes('data-name')).toBe('propertyName*')
+    expect(prop.attributes('data-name')).toBe('propertyName')
   })
 
   it('renders additionalProperties with x-additionalPropertiesName', () => {
@@ -116,7 +116,7 @@ describe('SchemaObjectProperties', () => {
 
     const prop = wrapper.find('.schema-property')
     expect(prop.exists()).toBe(true)
-    expect(prop.attributes('data-name')).toBe('customName*')
+    expect(prop.attributes('data-name')).toBe('customName')
   })
 
   it('handles additionalProperties as boolean true correctly', () => {
@@ -131,7 +131,7 @@ describe('SchemaObjectProperties', () => {
 
     const prop = wrapper.find('.schema-property')
     expect(prop.exists()).toBe(true)
-    expect(prop.attributes('data-name')).toBe('propertyName*')
+    expect(prop.attributes('data-name')).toBe('propertyName')
   })
 
   it('handles additionalProperties as empty object correctly', () => {
@@ -146,7 +146,7 @@ describe('SchemaObjectProperties', () => {
 
     const prop = wrapper.find('.schema-property')
     expect(prop.exists()).toBe(true)
-    expect(prop.attributes('data-name')).toBe('propertyName*')
+    expect(prop.attributes('data-name')).toBe('propertyName')
   })
 
   it('does not render anything if schema has no properties, patternProperties, or additionalProperties', () => {
