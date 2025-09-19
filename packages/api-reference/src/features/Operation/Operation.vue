@@ -6,13 +6,17 @@ import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type {
+  OpenApiDocument,
+  ServerObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import { combineParams } from '@/features/Operation/helpers/combine-params'
 import { convertSecurityScheme } from '@/helpers/convert-security-scheme'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
+import { getFirstServer } from './helpers/get-first-server'
 import ClassicLayout from './layouts/ClassicLayout.vue'
 import ModernLayout from './layouts/ModernLayout.vue'
 
@@ -70,6 +74,20 @@ const selectedSecuritySchemes = computed(() =>
     securitySchemes,
   ).map(convertSecurityScheme),
 )
+
+/**
+ * Determine the effective server for the code examples.
+ */
+const selectedServer = computed<ServerObject | undefined>(() =>
+  getFirstServer(
+    // 1) Operation
+    operation.value?.servers,
+    // 2) Path Item
+    pathItem.value?.servers,
+    // 3) Document
+    server,
+  ),
+)
 </script>
 
 <template>
@@ -84,7 +102,7 @@ const selectedSecuritySchemes = computed(() =>
         :operation="operation"
         :path="path"
         :securitySchemes="selectedSecuritySchemes"
-        :server="server"
+        :server="selectedServer"
         :store="store" />
     </template>
     <template v-else>
@@ -97,7 +115,7 @@ const selectedSecuritySchemes = computed(() =>
         :operation="operation"
         :path="path"
         :securitySchemes="selectedSecuritySchemes"
-        :server="server"
+        :server="selectedServer"
         :store="store" />
     </template>
   </template>
