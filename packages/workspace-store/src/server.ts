@@ -278,7 +278,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
   const addDocumentSync = (document: Record<string, unknown>, meta: { name: string } & WorkspaceDocumentMeta) => {
     const { name, ...documentMeta } = meta
 
-    const documentV3 = coerceValue(OpenAPIDocumentSchema, upgrade(document))
+    const documentV3 = coerceValue(OpenAPIDocumentSchema, upgrade(document, '3.1'))
 
     // add the assets
     assets[meta.name] = {

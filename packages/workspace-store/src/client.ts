@@ -590,7 +590,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   async function addInMemoryDocument(input: ObjectDoc & { initialize?: boolean; documentSource?: string }) {
     const { name, meta } = input
     const cloned = measureSync('deepClone', () => deepClone(input.document))
-    const inputDocument = measureSync('upgrade', () => upgrade(cloned))
+    const inputDocument = measureSync('upgrade', () => upgrade(cloned, '3.1'))
 
     measureSync('initialize', () => {
       if (input.initialize !== false) {
@@ -897,7 +897,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       )
     },
     rebaseDocument: (documentName, newDocumentOrigin, resolvedConflicts) => {
-      const newOrigin = upgrade(newDocumentOrigin)
+      const newOrigin = upgrade(newDocumentOrigin, '3.1')
 
       const originalDocument = originalDocuments[documentName]
       const intermediateDocument = intermediateDocuments[documentName]

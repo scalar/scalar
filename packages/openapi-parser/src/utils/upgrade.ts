@@ -22,6 +22,7 @@ export function upgrade(value: string | AnyObject | Filesystem): UpgradeResult<O
   // TODO: Run upgrade over the whole filesystem
   const document = originalUpgrade(
     isFilesystem(value) ? getEntrypoint(value).specification : (normalize(value) as UnknownObject),
+    '3.1',
   )
 
   return {
