@@ -70,7 +70,7 @@ const labelId = useId()
         <!-- Left -->
         <div class="flex gap-1">
           <!-- Operation ID -->
-          <Badge v-if="operation.operationId">
+          <Badge v-if="config.showOperationId && operation.operationId">
             {{ operation.operationId }}
           </Badge>
           <!-- Stability badge -->
@@ -154,10 +154,10 @@ const labelId = useId()
               <RequestExample
                 :clientOptions="clientOptions"
                 fallback
+                :isWebhook="isWebhook"
                 :method="method"
                 :operation="operation"
                 :path="path"
-                :isWebhook="isWebhook"
                 :securitySchemes="securitySchemes"
                 :selectedClient="store.workspace['x-scalar-default-client']"
                 :selectedServer="server">

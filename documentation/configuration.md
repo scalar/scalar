@@ -392,6 +392,20 @@ Whether to show the sidebar search bar
 }
 ```
 
+### showOperationId?: boolean
+
+Every operation can have a `operationId`, a unique string used to identify the operation, but it's optional.
+
+By default we don't render it in the UI. If it's helpful to show it to your users, enable it like this:
+
+`@default false`
+
+```js
+{
+  showOperationId: true
+}
+```
+
 ### darkMode?: boolean
 
 Whether dark mode is on or off initially (light mode)
