@@ -18,6 +18,7 @@ import {
   isRemoteUrl,
   prefixInternalRef,
   prefixInternalRefRecursive,
+  resolveAndCopyReferences,
   setValueAtPath,
 } from './bundle'
 import { fetchUrls } from './plugins/fetch-urls'
@@ -2820,5 +2821,75 @@ describe('setValueAtPath', () => {
     setValueAtPath(a, b, c)
 
     expect(a).toEqual(d)
+  })
+})
+
+describe('resolveAndCopyReferences', () => {
+  const source = {
+    openapi: '3.1.1',
+    info: {
+      title: 'Example API',
+      version: '1.0.0',
+    },
+    paths: {
+      '/': {
+        get: {
+          responses: {
+            '200': {
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/User',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    components: {
+      schemas: {
+        User: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+          },
+        },
+        Person: {
+          type: 'object',
+          properties: {
+            name: { type: 'string', default: 'John Doe' },
+          },
+        },
+      },
+    },
+  }
+
+  it('correctly resolves and copies local references, and leaves out the rest', async () => {
+    const target = {}
+
+    resolveAndCopyReferences(target, source, '/paths/~1', '', '', true)
+
+    expect(target).toEqual({
+      paths: {
+        '/': {
+          get: {
+            responses: {
+              '200': {
+                content: {
+                  'application/json': { schema: { '$ref': '#/components/schemas/User' } },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          User: { type: 'object', properties: { name: { type: 'string' } } },
+        },
+      },
+    })
   })
 })
