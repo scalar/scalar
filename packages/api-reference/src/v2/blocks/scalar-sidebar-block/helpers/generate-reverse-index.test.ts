@@ -24,7 +24,7 @@ describe('generateReverseIndex', () => {
       isGroup: false,
       name: '',
       children: [
-        { id: 'child1', title: 'Child 1', type: 'webhook', method: '', name: '', ref: '' },
+        { id: 'child1', title: 'Child 1', type: 'webhook', method: 'get', name: '', ref: '' },
         {
           id: 'child2',
           title: 'Child 2',
