@@ -97,7 +97,7 @@ const wrapperRef = useTemplateRef('wrapperRef')
   <div ref="wrapperRef"></div>
   <!-- Access Token Granted -->
   <template v-if="flow.token">
-    <DataTableRow>
+    <DataTableRow v-if="!scheme['x-scalar-hidden-fields']?.includes('token')">
       <RequestAuthDataTableInput
         v-bind="dataTableInputProps"
         class="border-r-transparent"
@@ -165,7 +165,8 @@ const wrapperRef = useTemplateRef('wrapperRef')
 
     <!-- Username and password -->
     <template v-if="flow.type === 'password'">
-      <DataTableRow>
+      <DataTableRow
+        v-if="!scheme['x-scalar-hidden-fields']?.includes('username')">
         <RequestAuthDataTableInput
           v-bind="dataTableInputProps"
           class="text-c-2"
@@ -177,7 +178,8 @@ const wrapperRef = useTemplateRef('wrapperRef')
           Username
         </RequestAuthDataTableInput>
       </DataTableRow>
-      <DataTableRow>
+      <DataTableRow
+        v-if="!scheme['x-scalar-hidden-fields']?.includes('password')">
         <RequestAuthDataTableInput
           v-bind="dataTableInputProps"
           :modelValue="flow.password"
@@ -192,7 +194,8 @@ const wrapperRef = useTemplateRef('wrapperRef')
     </template>
 
     <!-- Client ID -->
-    <DataTableRow>
+    <DataTableRow
+      v-if="!scheme['x-scalar-hidden-fields']?.includes('client-id')">
       <RequestAuthDataTableInput
         v-bind="dataTableInputProps"
         :modelValue="flow['x-scalar-client-id']"
@@ -205,7 +208,11 @@ const wrapperRef = useTemplateRef('wrapperRef')
     </DataTableRow>
 
     <!-- Client Secret (Authorization Code / Client Credentials / Password (optional)) -->
-    <DataTableRow v-if="'clientSecret' in flow">
+    <DataTableRow
+      v-if="
+        'clientSecret' in flow &&
+        !scheme['x-scalar-hidden-fields']?.includes('client-secret')
+      ">
       <RequestAuthDataTableInput
         v-bind="dataTableInputProps"
         :modelValue="flow.clientSecret"

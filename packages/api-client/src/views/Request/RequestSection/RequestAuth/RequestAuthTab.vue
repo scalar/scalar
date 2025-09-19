@@ -143,7 +143,11 @@ const dataTableInputProps = {
     <!-- HTTP -->
     <template v-if="scheme?.type === 'http'">
       <!-- Bearer -->
-      <DataTableRow v-if="scheme.scheme === 'bearer'">
+      <DataTableRow
+        v-if="
+          scheme.scheme === 'bearer' &&
+          !scheme['x-scalar-hidden-fields']?.includes('token')
+        ">
         <RequestAuthDataTableInput
           v-bind="dataTableInputProps"
           :containerClass="layout === 'reference' && 'border-t'"
@@ -157,7 +161,8 @@ const dataTableInputProps = {
 
       <!-- HTTP Basic -->
       <template v-else-if="scheme?.scheme === 'basic'">
-        <DataTableRow>
+        <DataTableRow
+          v-if="!scheme['x-scalar-hidden-fields']?.includes('username')">
           <RequestAuthDataTableInput
             v-bind="dataTableInputProps"
             class="text-c-2"
@@ -168,7 +173,8 @@ const dataTableInputProps = {
             Username
           </RequestAuthDataTableInput>
         </DataTableRow>
-        <DataTableRow>
+        <DataTableRow
+          v-if="!scheme['x-scalar-hidden-fields']?.includes('password')">
           <RequestAuthDataTableInput
             v-bind="dataTableInputProps"
             :modelValue="scheme.password"
@@ -193,7 +199,8 @@ const dataTableInputProps = {
           Name
         </RequestAuthDataTableInput>
       </DataTableRow>
-      <DataTableRow>
+      <DataTableRow
+        v-if="!scheme['x-scalar-hidden-fields']?.includes('api-key')">
         <RequestAuthDataTableInput
           v-bind="dataTableInputProps"
           :modelValue="scheme.value"
