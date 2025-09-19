@@ -35,7 +35,8 @@
       "!**/packages/openapi-parser/src/schemas/**/*.ts",
       "!**/.github/renovate.json",
       "!integrations/**/scalar.js",
-      "!integrations/**/standalone.js"
+      "!integrations/**/standalone.js",
+      "!**/rust/**/target"
     ]
   },
   "assist": {
