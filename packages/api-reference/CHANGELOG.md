@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.36.0
+
+### Minor Changes
+
+- 003bb98: Fix server selection for examples/snippets in Operation: prefer operation-level servers, then path-level servers, then provided server prop.
+
 ## 1.35.7
 
 ### Patch Changes
