@@ -4,7 +4,6 @@ await build({
   platform: 'shared',
   entries: [
     'src/bundle/index.ts',
-    'src/bundle/bundle-local-refs.ts',
     'src/magic-proxy/index.ts',
     'src/diff/index.ts',
     'src/dereference/index.ts',

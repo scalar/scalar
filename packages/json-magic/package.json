@@ -27,11 +27,6 @@
       "types": "./dist/bundle/index.d.ts",
       "default": "./dist/bundle/index.js"
     },
-    "./bundle/bundle-local-refs": {
-      "import": "./dist/bundle/bundle-local-refs.js",
-      "types": "./dist/bundle/bundle-local-refs.d.ts",
-      "default": "./dist/bundle/bundle-local-refs.js"
-    },
     "./bundle/plugins/browser": {
       "import": "./dist/bundle/plugins/browser.js",
       "types": "./dist/bundle/plugins/browser.d.ts",
