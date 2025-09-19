@@ -345,7 +345,6 @@ export const resolveAndCopyReferences = (
       }
       // Bundle the local refs as well
       else if (bundleLocalRefs) {
-        console.log('do it local')
         resolveAndCopyReferences(
           targetDocument,
           sourceDocument,
