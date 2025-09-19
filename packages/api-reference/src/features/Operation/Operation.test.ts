@@ -48,13 +48,47 @@ const clientOptions = [
   },
 ] as ClientOptionGroup[]
 
+const mockCollection = collectionSchema.parse({})
+
+const createDocumentWithOperationId = () =>
+  coerceValue(OpenAPIDocumentSchema, {
+    openapi: '3.1.0',
+    info: { title: 'Test API', version: '1.0.0' },
+    paths: {
+      '/users/{userId}': {
+        get: {
+          operationId: 'getUserById',
+          summary: 'Get user by ID',
+        },
+      },
+    },
+  })
+
+const mountOperationWithConfig = (config: Record<string, unknown>) => {
+  const document = createDocumentWithOperationId()
+  const store = createMockStore(document)
+
+  return mount(Operation, {
+    props: {
+      id: 'test-operation',
+      path: '/users/{userId}',
+      method: 'get',
+      clientOptions,
+      isWebhook: false,
+      config: apiReferenceConfigurationSchema.parse(config),
+      server: undefined,
+      store,
+      collection: mockCollection,
+      document,
+    },
+  })
+}
+
 describe('Operation', () => {
   beforeEach(() => {
     enableConsoleWarn()
     enableConsoleError()
   })
-
-  const mockCollection = collectionSchema.parse({})
 
   const createMockDocument = (): WorkspaceDocument =>
     coerceValue(OpenAPIDocumentSchema, {
@@ -531,5 +565,39 @@ describe('Operation', () => {
     // Find the OperationResponses component within ModernLayout
     const operationResponses = modernLayout.findComponent({ name: 'OperationResponses' })
     expect(operationResponses.text()).toContain('This is the testing string')
+  })
+
+  describe('showOperationId', () => {
+    describe('ModernLayout', () => {
+      it('shows operationId when showOperationId is true', () => {
+        const wrapper = mountOperationWithConfig({ showOperationId: true })
+        const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
+
+        expect(modernLayout.html()).toContain('getUserById')
+      })
+
+      it('does not show operationId by default', () => {
+        const wrapper = mountOperationWithConfig({})
+        const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
+
+        expect(modernLayout.html()).not.toContain('getUserById')
+      })
+    })
+
+    describe('ClassicLayout', () => {
+      it('shows operationId when showOperationId is true', () => {
+        const wrapper = mountOperationWithConfig({ showOperationId: true, layout: 'classic' })
+        const classicLayout = wrapper.findComponent({ name: 'ClassicLayout' })
+
+        expect(classicLayout.html()).toContain('getUserById')
+      })
+
+      it('does not show operationId by default', () => {
+        const wrapper = mountOperationWithConfig({ layout: 'classic' })
+        const classicLayout = wrapper.findComponent({ name: 'ClassicLayout' })
+
+        expect(classicLayout.html()).not.toContain('getUserById')
+      })
+    })
   })
 })

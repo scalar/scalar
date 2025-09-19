@@ -118,6 +118,11 @@ const { copyToClipboard } = useClipboard()
         v-if="active && !isWebhook"
         :method="method"
         :path="path" />
+      <span
+        v-if="config.showOperationId && operation.operationId"
+        class="font-code text-sm">
+        {{ operation.operationId }}
+      </span>
       <ScalarIconPlay
         v-else-if="!config?.hideTestRequestButton"
         class="endpoint-try-hint size-4.5" />
@@ -183,10 +188,10 @@ const { copyToClipboard } = useClipboard()
             class="operation-example-card"
             :clientOptions="clientOptions"
             fallback
+            :isWebhook="isWebhook"
             :method="method"
             :operation="operation"
             :path="path"
-            :isWebhook="isWebhook"
             :securitySchemes="securitySchemes"
             :selectedClient="store.workspace['x-scalar-default-client']"
             :selectedServer="server" />
