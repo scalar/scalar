@@ -58,6 +58,7 @@
     "@scalar/helpers": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
+    "@scalar/openapi-upgrader": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/snippetz": "workspace:*",
     "@scalar/types": "workspace:*",

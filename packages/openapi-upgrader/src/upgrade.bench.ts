@@ -35,7 +35,7 @@ describe('upgrade', () => {
     bench('new', () => {
       expect(STRIPE.openapi).toBe('3.0.0')
 
-      const document = upgrade(STRIPE)
+      const document = upgrade(STRIPE, '3.1')
 
       expect(document?.openapi).toBe('3.1.1')
     })
@@ -53,7 +53,7 @@ describe('upgrade', () => {
     bench('new', () => {
       expect(PETSTORE.swagger).toBe('2.0')
 
-      const document = upgrade(PETSTORE)
+      const document = upgrade(PETSTORE, '3.1')
 
       expect(document?.openapi).toBe('3.1.1')
     })
