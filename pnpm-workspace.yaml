@@ -10,7 +10,7 @@ packages:
   - '!**/.output/**'
 
 # To reduce the risk of installing compromised packages, we delay the installation of newly published versions.
-minimumReleaseAge: 1.440 # 1 day
+minimumReleaseAge: 10080 # 1 week
 
 catalogs:
   '*':
