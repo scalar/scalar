@@ -534,6 +534,20 @@ Whether to show the dark mode toggle.
 }
 ```
 
+### showOperationId?: boolean
+
+Every operation can have a `operationId`, a unique string used to identify the operation, but it's optional.
+
+By default we don't render it in the UI. If it's helpful to show it to your users, enable it like this:
+
+`@default false`
+
+```js
+{
+  showOperationId: true
+}
+```
+
 #### hideModels
 
 **Type:** `boolean`

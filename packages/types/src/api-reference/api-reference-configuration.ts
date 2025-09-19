@@ -301,6 +301,12 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
      * @default false
      */
     hideSearch: z.boolean().optional().default(false).catch(false),
+    /**
+     * Whether to show the operationId
+     *
+     * @default false
+     */
+    showOperationId: z.boolean().optional().default(false).catch(false),
     /** Whether dark mode is on or off initially (light mode) */
     darkMode: z.boolean().optional(),
     /** forceDarkModeState makes it always this state no matter what */
