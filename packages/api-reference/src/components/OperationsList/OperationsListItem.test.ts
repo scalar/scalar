@@ -18,6 +18,7 @@ vi.mock('@scalar/oas-utils/helpers', () => ({
 
 describe('OperationsListItem', () => {
   const createMockOperation = (overrides: Partial<TraversedOperation> = {}): TraversedOperation => ({
+    type: 'operation',
     id: 'test-operation-1',
     title: 'Test Operation',
     method: 'get',
@@ -34,6 +35,7 @@ describe('OperationsListItem', () => {
   })
 
   const createMockWebhook = (overrides: Partial<TraversedWebhook> = {}): TraversedWebhook => ({
+    type: 'webhook',
     id: 'test-webhook-1',
     title: 'Test Webhook',
     method: 'post',

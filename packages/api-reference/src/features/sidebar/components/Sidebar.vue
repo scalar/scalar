@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { sleep } from '@scalar/helpers/testing/sleep'
+import { useDebounceFn } from '@vueuse/core'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 
 import type { TraversedEntry } from '@/features/traverse-schema'
@@ -18,8 +19,12 @@ const { title } = defineProps<{
 }>()
 
 const { hash, isIntersectionEnabled } = useNavState()
-const { items, toggleCollapsedSidebarItem, collapsedSidebarItems } =
-  useSidebar()
+const {
+  items,
+  toggleCollapsedSidebarItem,
+  collapsedSidebarItems,
+  hasSidebarScrolled,
+} = useSidebar()
 
 // This offset determines how far down the sidebar the items scroll
 const SCROLL_OFFSET = -160
@@ -104,6 +109,16 @@ const isItemActive = (itemId: string) => {
   return false
 }
 
+/** Fires when the sidebar-pages element is scrolled. */
+const onSidebarScroll = useDebounceFn((event: Event) => {
+  console.log(event)
+  const target = event.target as HTMLDivElement
+
+  // Updates hasSidebarScrolled if the sidebar has been scrolled down
+  hasSidebarScrolled.value = target.scrollTop > 0
+  console.log(target.scrollTop)
+}, 20)
+
 const observer = ref<MutationObserver | undefined>(undefined)
 onMounted(() => {
   observer.value = observeSidebarElement(hash.value)
@@ -130,7 +145,8 @@ const hasChildren = (
     <nav
       ref="scrollerEl"
       :aria-label="`Table of contents for ${title}`"
-      class="sidebar-pages custom-scroll custom-scroll-self-contain-overflow">
+      class="sidebar-pages custom-scroll custom-scroll-self-contain-overflow"
+      @scroll="onSidebarScroll">
       <SidebarGroup :level="0">
         <template
           v-for="item in items.entries"

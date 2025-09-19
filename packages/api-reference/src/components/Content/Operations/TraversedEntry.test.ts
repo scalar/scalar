@@ -132,6 +132,7 @@ describe('TraversedEntry', async () => {
   })
 
   const createMockOperation = (overrides: Partial<TraversedOperation> = {}): TraversedOperation => ({
+    type: 'operation',
     id: 'operation-1',
     title: 'Get Users',
     method: 'get',
@@ -144,6 +145,7 @@ describe('TraversedEntry', async () => {
   })
 
   const createMockWebhook = (overrides: Partial<TraversedWebhook> = {}): TraversedWebhook => ({
+    type: 'webhook',
     id: 'webhook-1',
     title: 'User Created',
     method: 'post',
@@ -156,6 +158,7 @@ describe('TraversedEntry', async () => {
   })
 
   const createMockTag = (overrides: Partial<TraversedTag> = {}): TraversedTag => ({
+    type: 'tag',
     id: 'tag-1',
     title: 'Users',
     children: [],
@@ -168,6 +171,7 @@ describe('TraversedEntry', async () => {
   })
 
   const createMockTagGroup = (overrides: Partial<TraversedTag> = {}): TraversedTag => ({
+    type: 'tag',
     id: 'tag-group-1',
     title: 'Content Management',
     children: [],
@@ -180,6 +184,7 @@ describe('TraversedEntry', async () => {
   })
 
   const createMockWebhookGroup = (overrides: Partial<TraversedTag> = {}): TraversedTag => ({
+    type: 'tag',
     id: 'webhook-group-1',
     title: 'Webhooks',
     children: [],

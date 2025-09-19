@@ -19,6 +19,7 @@ beforeEach(() => {
   vi.mocked(mockUseSidebar).mockReturnValue({
     collapsedSidebarItems: reactive({}),
     isSidebarOpen: ref(false),
+    hasSidebarScrolled: ref(false),
     items: computed(() => ({
       entries: [],
       titles: new Map<string, string>(),

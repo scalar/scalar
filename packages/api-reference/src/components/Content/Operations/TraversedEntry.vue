@@ -38,10 +38,14 @@ const {
 /**
  * Type guards for different entry types
  */
-const isTagGroup = (entry: TraversedEntry): entry is TraversedTag =>
-  'isGroup' in entry && entry.isGroup
+const isTagGroup = (
+  entry: TraversedEntry,
+): entry is TraversedTag & { isGroup: boolean } =>
+  'isGroup' in entry && Boolean(entry.isGroup)
 
-const isTag = (entry: TraversedEntry): entry is TraversedTag =>
+const isTag = (
+  entry: TraversedEntry,
+): entry is TraversedTag & Required<{ tag: TraversedTag['tag'] }> =>
   'tag' in entry && !isTagGroup(entry)
 
 const isOperation = (entry: TraversedEntry): entry is TraversedOperation =>
@@ -50,7 +54,9 @@ const isOperation = (entry: TraversedEntry): entry is TraversedOperation =>
 const isWebhook = (entry: TraversedEntry): entry is TraversedWebhook =>
   'webhook' in entry
 
-const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
+const isWebhookGroup = (
+  entry: TraversedEntry,
+): entry is TraversedTag & { isWebhooks: boolean } =>
   'isWebhooks' in entry && Boolean(entry.isWebhooks)
 
 const isRootLevel = computed(() => level === 0)
@@ -124,7 +130,7 @@ defineExpose({
         :layout="config.layout"
         :moreThanOneTag="entries.filter(isTag).length > 1"
         :tag="entry">
-        <template v-if="'children' in entry && entry.children?.length">
+        <template v-if="entry.children?.length">
           <TraversedEntry
             :activeCollection
             :activeServer

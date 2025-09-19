@@ -92,7 +92,6 @@
 
   --color-sidebar-b-search: var(--scalar-sidebar-search-background, var(--scalar-background-2));
   --color-sidebar-c-search: var(--scalar-sidebar-search-color, var(--scalar-color-3));
-  --color-sidebar-border-search: var(--scalar-sidebar-search-border-color, var(--scalar-border-color));
 
   /* - Utility Colors */
   --color-backdrop: rgba(0, 0, 0, 0.22);

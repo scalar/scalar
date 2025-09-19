@@ -58,6 +58,7 @@ describe('SidebarElement', () => {
     operation: OperationObject,
     overrides: Partial<TraversedOperation> = {},
   ): TraversedOperation => ({
+    type: 'operation',
     id: 'test-operation',
     title: 'Test Operation',
     method: 'get',
@@ -66,11 +67,12 @@ describe('SidebarElement', () => {
     ...overrides,
   })
 
-  const createMockTraversedEntry = (overrides: Partial<TraversedEntry> = {}): TraversedEntry => ({
-    id: 'test-entry',
-    title: 'Test Entry',
-    ...overrides,
-  })
+  const createMockTraversedEntry = (overrides: Partial<TraversedEntry> = {}) =>
+    ({
+      id: 'test-entry',
+      title: 'Test Entry',
+      ...overrides,
+    }) as TraversedEntry
 
   it('renders basic sidebar element', () => {
     const item = createMockTraversedEntry()

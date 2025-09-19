@@ -31,6 +31,7 @@ vi.mock('@scalar/components', () => ({
 
 describe('OperationsList', () => {
   const createMockOperation = (overrides: Partial<TraversedOperation> = {}): TraversedOperation => ({
+    type: 'operation',
     id: 'test-operation-1',
     title: 'Test Operation',
     method: 'get',
@@ -47,6 +48,7 @@ describe('OperationsList', () => {
   })
 
   const createMockWebhook = (overrides: Partial<TraversedWebhook> = {}): TraversedWebhook => ({
+    type: 'webhook',
     id: 'test-webhook-1',
     title: 'Test Webhook',
     method: 'post',
@@ -63,6 +65,7 @@ describe('OperationsList', () => {
   })
 
   const createMockTag = (overrides: Partial<TraversedTag> = {}): TraversedTag => ({
+    type: 'tag',
     id: 'test-tag',
     title: 'Test Tag',
     children: [],
