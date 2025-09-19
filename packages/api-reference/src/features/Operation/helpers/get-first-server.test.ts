@@ -76,6 +76,7 @@ describe('get-first-server', () => {
         description: 'Valid server',
       }
 
+      // @ts-expect-error - Testing an invalid server object
       const result = getFirstServer(undefined, null, validServer)
 
       expect(result).toEqual(validServer)
