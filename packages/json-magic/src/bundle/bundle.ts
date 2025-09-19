@@ -337,8 +337,8 @@ export const resolveAndCopyReferences = (
           targetDocument,
           sourceDocument,
           node['$ref'].substring(1),
-          documentKey,
           externalRefsKey,
+          documentKey,
           bundleLocalRefs,
           processedNodes,
         )
@@ -349,8 +349,8 @@ export const resolveAndCopyReferences = (
           targetDocument,
           sourceDocument,
           node['$ref'].substring(1),
-          documentKey,
           externalRefsKey,
+          documentKey,
           bundleLocalRefs,
           processedNodes,
         )
