@@ -1,5 +1,37 @@
 # @scalar/api-reference
 
+## 1.35.7
+
+### Patch Changes
+
+- 6e92423: feat: do not show example picker for one example
+- 005fba9: feat: documentDownloadType: 'direct'
+- 724052c: fix: darkMode setting does not do anything for `false`
+- a1f865c: refactor: use @scalar/openapi-upgrader
+- 6ee88cd: feat: show webhook id in payload example
+- b5321f1: feat: copy webhook as cURL
+- dcf50ef: refactor: move escapeJsonPointer to @scalar/json-magic
+- Updated dependencies [6221e4a]
+- Updated dependencies [005fba9]
+- Updated dependencies [fe46413]
+- Updated dependencies [0aa6d26]
+- Updated dependencies [a1f865c]
+- Updated dependencies [a1f865c]
+- Updated dependencies [2d612e4]
+- Updated dependencies [dcf50ef]
+- Updated dependencies [02085ef]
+  - @scalar/openapi-upgrader@0.1.0
+  - @scalar/types@0.2.16
+  - @scalar/json-magic@0.5.0
+  - @scalar/code-highlight@0.2.0
+  - @scalar/workspace-store@0.15.7
+  - @scalar/openapi-parser@0.21.0
+  - @scalar/api-client@2.5.34
+  - @scalar/oas-utils@0.4.30
+  - @scalar/snippetz@0.4.10
+  - @scalar/themes@0.13.18
+  - @scalar/components@0.14.35
+
 ## 1.35.6
 
 ### Patch Changes

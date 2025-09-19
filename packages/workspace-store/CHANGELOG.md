@@ -1,5 +1,24 @@
 # @scalar/workspace-store
 
+## 0.15.7
+
+### Patch Changes
+
+- a1f865c: refactor: use @scalar/openapi-upgrader
+- dcf50ef: refactor: move escapeJsonPointer to @scalar/json-magic
+- Updated dependencies [6221e4a]
+- Updated dependencies [005fba9]
+- Updated dependencies [fe46413]
+- Updated dependencies [0aa6d26]
+- Updated dependencies [2d612e4]
+- Updated dependencies [dcf50ef]
+- Updated dependencies [02085ef]
+  - @scalar/openapi-upgrader@0.1.0
+  - @scalar/types@0.2.16
+  - @scalar/json-magic@0.5.0
+  - @scalar/code-highlight@0.2.0
+  - @scalar/snippetz@0.4.10
+
 ## 0.15.6
 
 ### Patch Changes

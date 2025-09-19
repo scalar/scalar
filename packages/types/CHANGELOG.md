@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.2.16
+
+### Patch Changes
+
+- 005fba9: feat: documentDownloadType: 'direct'
+
 ## 0.2.15
 
 ### Patch Changes

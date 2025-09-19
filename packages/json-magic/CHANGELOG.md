@@ -1,5 +1,15 @@
 # @scalar/json-magic
 
+## 0.5.0
+
+### Minor Changes
+
+- fe46413: feat: support for $id and $anchor
+
+### Patch Changes
+
+- dcf50ef: refactor: move escapeJsonPointer to @scalar/json-magic
+
 ## 0.4.3
 
 ### Patch Changes

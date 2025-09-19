@@ -1,5 +1,11 @@
 # scalar-fastapi
 
+## 1.4.2
+
+### Patch Changes
+
+- 24d5f59: fix: output for dark_mode is wrong
+
 ## 1.4.1
 
 ### Patch Changes

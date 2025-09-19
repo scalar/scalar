@@ -1,5 +1,24 @@
 # @scalar/openapi-to-markdown
 
+## 0.2.38
+
+### Patch Changes
+
+- 02085ef: refactor: use upgrade function from @scalar/openapi-upgrader
+- Updated dependencies [6221e4a]
+- Updated dependencies [005fba9]
+- Updated dependencies [a1f865c]
+- Updated dependencies [a1f865c]
+- Updated dependencies [2d612e4]
+- Updated dependencies [dcf50ef]
+- Updated dependencies [02085ef]
+  - @scalar/openapi-upgrader@0.1.0
+  - @scalar/types@0.2.16
+  - @scalar/openapi-parser@0.21.0
+  - @scalar/oas-utils@0.4.30
+  - @scalar/snippetz@0.4.10
+  - @scalar/components@0.14.35
+
 ## 0.2.37
 
 ### Patch Changes
