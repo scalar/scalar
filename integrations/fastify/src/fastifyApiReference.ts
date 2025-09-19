@@ -174,11 +174,11 @@ const fastifyApiReference = fp<
     // Redirect route without a trailing slash to force a trailing slash:
     // We need this so the request to the JS file is relative.
 
-    // With ignoreTrailingSlash, fastify responds to both routes anyway.
+    // With ignoreTrailingSlash: true, fastify responds to both routes anyway.
     const ignoreTrailingSlash =
       // @ts-expect-error We're still on Fastify 4, this is introduced in Fastify 5
-      fastify.initialConfig?.routerOptions?.ignoreTrailingSlash !== true &&
-      fastify.initialConfig.ignoreTrailingSlash !== true
+      fastify.initialConfig?.routerOptions?.ignoreTrailingSlash === true ||
+      fastify.initialConfig?.ignoreTrailingSlash === true
 
     if (!ignoreTrailingSlash && getRoutePrefix(options.routePrefix)) {
       fastify.route({
