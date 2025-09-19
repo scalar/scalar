@@ -1,5 +1,17 @@
 # @scalar/fastify-api-reference
 
+## 1.35.7
+
+### Patch Changes
+
+- 40ea201: fix: does not check for the new routerOptions.ignoreTrailingSlash
+- Updated dependencies [fd2c4ba]
+- Updated dependencies [a1f865c]
+- Updated dependencies [a1f865c]
+- Updated dependencies [dcf50ef]
+  - @scalar/core@0.3.17
+  - @scalar/openapi-parser@0.21.0
+
 ## 1.35.6
 
 ### Patch Changes
