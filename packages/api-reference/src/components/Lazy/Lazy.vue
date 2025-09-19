@@ -45,9 +45,8 @@ const onIdle = (cb: () => void) => {
     setTimeout(() => {
       nextTick(() => {
         cb()
-      }),
-        lazyTimeout ?? DEFAULT_LAZY_TIMEOUT
-    })
+      })
+    }, lazyTimeout ?? DEFAULT_LAZY_TIMEOUT)
   }
 }
 

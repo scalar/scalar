@@ -16,7 +16,7 @@
     "llm",
     "swagger"
   ],
-  "version": "0.2.37",
+  "version": "0.2.38",
   "engines": {
     "node": ">=20"
   },
@@ -58,6 +58,7 @@
     "@scalar/helpers": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
+    "@scalar/openapi-upgrader": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/snippetz": "workspace:*",
     "@scalar/types": "workspace:*",

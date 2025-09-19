@@ -15,6 +15,18 @@ The testing setup uses Playwright to capture visual snapshots of Storybook stori
 
 ## Running Tests
 
+### Non-Linux Systems
+
+On non-Linux systems (e.g. macOS, Windows) you need to access to a docker implementation that supports the `--network=host` flag. Docker Desktop on macOS and Windows does not support this flag so you will need to use an alternative such as [OrbStack](https://orbstack.dev/).
+
+### Fetching the Image
+
+The tests run using the `scalarapi/playwright:1.55.0` Docker image. The `test:e2e` script will not successfully pull the image (it looks like it does but it doesn't). You can force the pull by running:
+
+```bash
+pnpm test:e2e:playwright
+```
+
 ### Building Storybook
 
 If you're not running the components dev server Playwright will automatically start serving the built Storybook files from `storybook-static`. This means **before running tests you have to run**,

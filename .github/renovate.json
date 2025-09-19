@@ -12,6 +12,12 @@
   },
   "recreateWhen": "never",
   "packageRules": [
+    // Keep this in sync with package.json minimumReleaseAge
+    {
+      "matchDatasources": ["npm"],
+      "minimumReleaseAge": "7 days"
+    },
+
     // Group major dependencies
     {
       "matchUpdateTypes": ["major"],

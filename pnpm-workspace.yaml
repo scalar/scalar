@@ -9,6 +9,16 @@ packages:
   - '!**/dist/**'
   - '!**/.output/**'
 
+# To reduce the risk of installing compromised packages, we delay the installation of newly published versions.
+minimumReleaseAge: 10080 # 1 week
+
+minimumReleaseAgeExclude:
+  - rollup
+  - vite
+  - vue
+  - vite-node
+  - vitest
+
 catalogs:
   '*':
     '@electron-toolkit/preload': ^3.0.0

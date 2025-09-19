@@ -20,7 +20,7 @@
     "vue",
     "vue3"
   ],
-  "version": "1.35.6",
+  "version": "1.35.7",
   "engines": {
     "node": ">=20"
   },
@@ -77,8 +77,8 @@
     "@scalar/oas-utils": "workspace:*",
     "@scalar/object-utils": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
-    "@scalar/openapi-upgrader": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
+    "@scalar/openapi-upgrader": "workspace:*",
     "@scalar/snippetz": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",

@@ -87,7 +87,7 @@ export function useDocumentSource({
 
       const upgraded = outdatedVersion
         ? // Upgrade needed
-          upgrade(content)
+          upgrade(content, '3.1')
         : // Skip the upgrade
           content
 
