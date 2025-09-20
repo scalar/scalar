@@ -22,4 +22,4 @@ EXPOSE 8080
 ENV API_REFERENCE_CONFIG=undefined
 
 # Environment variable for CDN URL
-ENV CDN_URL=standalone.js
+ENV CDN_URL=scalar.js

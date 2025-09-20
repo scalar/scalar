@@ -16,8 +16,8 @@
   },
   "scripts": {
     "build": "command -v docker >/dev/null 2>&1 && docker build -t scalarapi/api-reference:latest . || echo '⚠️ Docker is not available, skipping the build.'",
-    "compress": "cd ./assets && gzip --keep --verbose --force standalone.js",
-    "copy:standalone": "shx cp ../../packages/api-reference/dist/browser/standalone.js ./assets",
+    "compress": "cd ./assets && gzip --keep --verbose --force scalar.js",
+    "copy:standalone": "shx cp ../../packages/api-reference/dist/browser/standalone.js ./assets/scalar.js",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
