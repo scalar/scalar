@@ -2,7 +2,6 @@
 import { ScalarIconButton } from '@scalar/components'
 import { ScalarIconEye, ScalarIconEyeSlash } from '@scalar/icons'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
-import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { computed, ref } from 'vue'
 
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
@@ -28,7 +27,6 @@ const props = withDefaults(
     max?: number
     environment: Environment
     envVariables: EnvVariable[]
-    workspace: Workspace
     description?: string | undefined
     lineWrapping?: boolean
   }>(),
@@ -131,7 +129,6 @@ const handleLabelClick = () => {
           :required="Boolean(required)"
           spellcheck="false"
           :type="inputType"
-          :workspace="workspace"
           @blur="handleBlur"
           @focus="emit('inputFocus')"
           @update:modelValue="emit('update:modelValue', $event)" />

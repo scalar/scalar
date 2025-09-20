@@ -22,6 +22,7 @@ import { reference } from './reference'
 const OperationExtensionsSchema = Type.Partial(
   Type.Object({
     'x-scalar-client-config-request-example': Type.Record(Type.String(), xScalarClientConfigRequestExampleSchema),
+    'x-scalar-selected-security': Type.Optional(Type.Array(SecurityRequirementObjectRef)),
   }),
 )
 

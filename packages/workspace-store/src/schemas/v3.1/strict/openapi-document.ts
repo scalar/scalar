@@ -61,6 +61,7 @@ const OpenApiExtensionsSchema = Type.Partial(
     'x-scalar-client-config-environments': xScalarClientConfigEnvironmentsSchema,
     'x-scalar-client-config-cookies': xScalarClientConfigCookiesSchema,
     'x-original-oas-version': Type.String(),
+    'x-scalar-selected-security': Type.Optional(Type.Array(SecurityRequirementObjectRef)),
     [extensions.document.navigation]: Type.Array(TraversedEntrySchema),
   }),
 )
