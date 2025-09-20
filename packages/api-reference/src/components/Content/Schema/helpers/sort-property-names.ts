@@ -15,7 +15,7 @@ type Options = Partial<
 >
 
 /** Take a list of property names and reduce it back into an object */
-export const reduceNamesToObject = (names: string[], properties: Properties) =>
+export const reduceNamesToObject = (names: string[], properties: Properties): Properties =>
   names.reduce((acc, name) => {
     const prop = properties?.[name]
     if (prop) {
@@ -34,7 +34,7 @@ export const sortPropertyNames = (
     orderSchemaPropertiesBy = 'alpha',
     orderRequiredPropertiesFirst = true,
   }: Options = {},
-) => {
+): string[] => {
   if (!isTypeObject(schema) || !schema.properties) {
     return []
   }
