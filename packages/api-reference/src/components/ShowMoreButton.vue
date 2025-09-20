@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ScalarIconCaretDown } from '@scalar/icons'
 
-import { useSidebar } from '@/features/sidebar'
 import { useConfig } from '@/hooks/useConfig'
+import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
 
 const { id } = defineProps<{
   id: string
@@ -24,8 +24,8 @@ const handleClick = () => {
     @click="handleClick">
     Show More
     <ScalarIconCaretDown
-      weight="bold"
-      class="text-c-2 mt-0.25 size-3" />
+      class="text-c-2 mt-0.25 size-3"
+      weight="bold" />
   </button>
 </template>
 

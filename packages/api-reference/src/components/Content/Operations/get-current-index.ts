@@ -1,4 +1,4 @@
-import type { TraversedEntry } from '@/features/traverse-schema/types'
+import type { TraversedEntry } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 /** Weak regex to match parameter links */
 const IS_PARAMETER_LINK = /^.*?(?=\.query|\.path|\.headers|\.cookies|\.body)/
@@ -27,7 +27,7 @@ export const getCurrentIndex = (hash: string, entries: TraversedEntry[]) => {
 
   return entries.findIndex((entry) => {
     // For tag just check starts with as the ID should start with the tag ID
-    if ('tag' in entry) {
+    if (entry.type === 'tag') {
       return targetId.startsWith(entry.id)
     }
 

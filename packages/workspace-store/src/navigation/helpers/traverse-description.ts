@@ -1,6 +1,6 @@
 import { getHeadingsFromMarkdown, getLowestHeadingLevel } from '@/navigation/helpers/utils'
 import type { Heading } from '@/navigation/types'
-import type { TraversedDescription } from '@/schemas/navigation'
+import type { TraversedDescription } from '@/schemas/v3.1/strict/openapi-document'
 
 export const DEFAULT_INTRODUCTION_SLUG = 'introduction'
 
@@ -15,14 +15,12 @@ export const DEFAULT_INTRODUCTION_SLUG = 'introduction'
  * is automatically added as the first entry.
  *
  * @param description - The markdown description text to process
- * @param titlesMap - Map to store heading IDs and titles for mobile header navigation
+ * @param entitiesMap - Map to store heading IDs and titles for mobile header navigation
  * @param getHeadingId - Function to generate unique IDs for headings
  * @returns Array of navigation entries with their hierarchy
  */
 export const traverseDescription = (
   description: string | undefined,
-  /** Map of titles for the mobile header */
-  titlesMap: Map<string, string>,
   getHeadingId: (heading: Heading) => string,
 ): TraversedDescription[] => {
   if (!description?.trim()) {
@@ -46,12 +44,14 @@ export const traverseDescription = (
     const id = getHeadingId(heading)
     const title = heading.value
 
-    entries.push({
+    const entry = {
       id,
       title,
       type: 'text',
-    })
-    titlesMap.set(id, title)
+    } satisfies TraversedDescription
+
+    // Push to entries
+    entries.push(entry)
   }
 
   // Traverse for the rest
@@ -65,7 +65,6 @@ export const traverseDescription = (
       title: heading.value,
       type: 'text',
     }
-    titlesMap.set(entry.id, entry.title)
 
     if (heading.depth === lowestLevel) {
       entry.children = []

@@ -1,26 +1,22 @@
+import { createNavigation } from '@scalar/workspace-store/navigation'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
-import { traverseDocument } from '@/features/traverse-schema'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { apiReferenceConfigurationSchema } from '@scalar/types'
-import { ref } from 'vue'
 import { createFuseInstance } from './helpers/create-fuse-instance'
 import { createSearchIndex } from './helpers/create-search-index'
 
-function search(query: string, document: Partial<OpenAPIV3_1.Document>) {
-  const { entries } = traverseDocument(document, {
-    config: ref(apiReferenceConfigurationSchema.parse({ hideModels: false })),
-    getHeadingId: () => '',
-    getOperationId: () => '',
-    getWebhookId: () => '',
-    getModelId: () => '',
-    getTagId: () => '',
-    getSectionId: () => '',
+function search(query: string, document: Partial<OpenApiDocument>) {
+  const { entries } = createNavigation(document as OpenApiDocument, {
+    'x-scalar-reference-config': {
+      features: {
+        showModels: true,
+      },
+    },
   })
 
   const fuse = createFuseInstance()
 
-  fuse.setCollection(createSearchIndex(entries))
+  fuse.setCollection(createSearchIndex(entries, document as OpenApiDocument))
 
   return fuse.search(query)
 }
@@ -29,7 +25,7 @@ describe('search quality', () => {
   it('looks up operations by summary', () => {
     const query = 'Get a token'
 
-    const document: Partial<OpenAPIV3_1.Document> = {
+    const document: Partial<OpenApiDocument> = {
       paths: {
         '/auth/token': {
           post: {
@@ -51,7 +47,7 @@ describe('search quality', () => {
   it('finds operations by partial title match', () => {
     const query = 'token'
 
-    const document: Partial<OpenAPIV3_1.Document> = {
+    const document: Partial<OpenApiDocument> = {
       paths: {
         '/auth/token': {
           post: {
@@ -82,7 +78,7 @@ describe('search quality', () => {
   it('finds operations by operationId', () => {
     const query = 'getToken'
 
-    const document: Partial<OpenAPIV3_1.Document> = {
+    const document: Partial<OpenApiDocument> = {
       paths: {
         '/auth/token': {
           post: {
@@ -104,7 +100,7 @@ describe('search quality', () => {
   it('finds operations by HTTP method', () => {
     const query = 'POST'
 
-    const document: Partial<OpenAPIV3_1.Document> = {
+    const document: Partial<OpenApiDocument> = {
       paths: {
         '/auth/token': {
           post: {
@@ -135,7 +131,7 @@ describe('search quality', () => {
   it('finds operations by path', () => {
     const query = '/auth'
 
-    const document: Partial<OpenAPIV3_1.Document> = {
+    const document: Partial<OpenApiDocument> = {
       paths: {
         '/auth/token': {
           post: {
@@ -164,7 +160,7 @@ describe('search quality', () => {
   it.todo('finds operations by tag', () => {
     const query = 'Foobar'
 
-    const document: Partial<OpenAPIV3_1.Document> = {
+    const document: Partial<OpenApiDocument> = {
       paths: {
         '/auth/token': {
           post: {
@@ -195,7 +191,7 @@ describe('search quality', () => {
   it('finds operations by description content', () => {
     const query = 'boring security'
 
-    const document: Partial<OpenAPIV3_1.Document> = {
+    const document: Partial<OpenApiDocument> = {
       paths: {
         '/auth/token': {
           post: {
@@ -217,7 +213,7 @@ describe('search quality', () => {
   it('finds models by title', () => {
     const query = 'User'
 
-    const document: Partial<OpenAPIV3_1.Document> = {
+    const document: Partial<OpenApiDocument> = {
       components: {
         schemas: {
           User: {
@@ -242,7 +238,7 @@ describe('search quality', () => {
   it('finds models by description', () => {
     const query = 'user in the system'
 
-    const document: Partial<OpenAPIV3_1.Document> = {
+    const document: Partial<OpenApiDocument> = {
       components: {
         schemas: {
           User: {
@@ -267,7 +263,7 @@ describe('search quality', () => {
   it('finds webhooks by title', () => {
     const query = 'user.created'
 
-    const document: Partial<OpenAPIV3_1.Document> = {
+    const document: Partial<OpenApiDocument> = {
       webhooks: {
         'user.created': {
           post: {
@@ -287,7 +283,7 @@ describe('search quality', () => {
   it('finds webhooks by description', () => {
     const query = 'fired when'
 
-    const document: Partial<OpenAPIV3_1.Document> = {
+    const document: Partial<OpenApiDocument> = {
       webhooks: {
         'user.created': {
           post: {
@@ -307,7 +303,7 @@ describe('search quality', () => {
   it('finds tags by name', () => {
     const query = 'Users'
 
-    const document: Partial<OpenAPIV3_1.Document> = {
+    const document: Partial<OpenApiDocument> = {
       tags: [
         {
           name: 'Users',
@@ -332,7 +328,7 @@ describe('search quality', () => {
   it('finds tags by description', () => {
     const query = 'user management'
 
-    const document: Partial<OpenAPIV3_1.Document> = {
+    const document: Partial<OpenApiDocument> = {
       tags: [
         {
           name: 'Users',
@@ -357,10 +353,11 @@ describe('search quality', () => {
   it('finds headings by title', () => {
     const query = 'Models'
 
-    const document: Partial<OpenAPIV3_1.Document> = {
+    const document: Partial<OpenApiDocument> = {
       info: {
         title: 'API Reference',
         description: 'This is a test API',
+        version: '1.0.0',
       },
       components: {
         schemas: {
@@ -380,7 +377,7 @@ describe('search quality', () => {
   it('handles case-insensitive search', () => {
     const query = 'user'
 
-    const document: Partial<OpenAPIV3_1.Document> = {
+    const document: Partial<OpenApiDocument> = {
       paths: {
         '/users': {
           get: {
@@ -401,7 +398,7 @@ describe('search quality', () => {
   it('handles fuzzy matching with typos', () => {
     const query = 'get a tken' // typo for "token"
 
-    const document: Partial<OpenAPIV3_1.Document> = {
+    const document: Partial<OpenApiDocument> = {
       paths: {
         '/auth/token': {
           post: {
@@ -422,7 +419,7 @@ describe('search quality', () => {
   it('prioritizes title matches over description matches', () => {
     const query = 'token'
 
-    const document: Partial<OpenAPIV3_1.Document> = {
+    const document: Partial<OpenApiDocument> = {
       paths: {
         '/auth/token': {
           post: {
@@ -453,7 +450,7 @@ describe('search quality', () => {
   it('returns empty results for non-matching queries', () => {
     const query = 'nonexistent'
 
-    const document: Partial<OpenAPIV3_1.Document> = {
+    const document: Partial<OpenApiDocument> = {
       paths: {
         '/auth/token': {
           post: {
@@ -474,7 +471,7 @@ describe('search quality', () => {
   it('handles empty document gracefully', () => {
     const query = 'test'
 
-    const document: Partial<OpenAPIV3_1.Document> = {}
+    const document: Partial<OpenApiDocument> = {}
 
     const result = search(query, document)
 
@@ -484,7 +481,7 @@ describe('search quality', () => {
   it.todo('handles complex nested schemas', () => {
     const query = 'address'
 
-    const document: Partial<OpenAPIV3_1.Document> = {
+    const document: Partial<OpenApiDocument> = {
       components: {
         schemas: {
           User: {
@@ -513,7 +510,7 @@ describe('search quality', () => {
   it('finds operations with request body parameters', () => {
     const query = 'email'
 
-    const document: Partial<OpenAPIV3_1.Document> = {
+    const document: Partial<OpenApiDocument> = {
       paths: {
         '/auth/register': {
           post: {

@@ -6,29 +6,22 @@ describe('traverseDescription', () => {
   const getHeadingId = (heading: { value: string }) => `heading-${heading.value.toLowerCase().replace(/\s+/g, '-')}`
 
   it('should return empty array for undefined description', () => {
-    const titlesMap = new Map<string, string>()
-    const result = traverseDescription(undefined, titlesMap, getHeadingId)
+    const result = traverseDescription(undefined, getHeadingId)
     expect(result).toEqual([])
-    expect(titlesMap.size).toBe(0)
   })
 
   it('should return empty array for empty description', () => {
-    const titlesMap = new Map<string, string>()
-    const result = traverseDescription('', titlesMap, getHeadingId)
+    const result = traverseDescription('', getHeadingId)
     expect(result).toEqual([])
-    expect(titlesMap.size).toBe(0)
   })
 
   it('should return an introduction entry for description with no headings', () => {
-    const titlesMap = new Map<string, string>()
     const description = 'This is a paragraph without any headings.'
-    const result = traverseDescription(description, titlesMap, getHeadingId)
+    const result = traverseDescription(description, getHeadingId)
     expect(result).toEqual([{ id: 'heading-introduction', title: 'Introduction', type: 'text' }])
-    expect(titlesMap.size).toBe(1)
   })
 
   it('should create single level entries for h1 headings', () => {
-    const titlesMap = new Map<string, string>()
     const description = `
 # First Heading
 Some content here
@@ -37,7 +30,7 @@ More content
 # Third Heading
 Final content
     `
-    const result = traverseDescription(description, titlesMap, getHeadingId)
+    const result = traverseDescription(description, getHeadingId)
 
     expect(result).toHaveLength(3)
     expect(result[0]).toEqual({
@@ -58,12 +51,9 @@ Final content
       children: [],
       type: 'text',
     })
-    expect(titlesMap.size).toBe(3)
-    expect(titlesMap.get('heading-first-heading')).toBe('First Heading')
   })
 
   it('should create nested entries for h1 and h2 headings', () => {
-    const titlesMap = new Map<string, string>()
     const description = `
 # Main Section
 Some content
@@ -76,7 +66,7 @@ More content
 ## Another Subsection
 Final content
     `
-    const result = traverseDescription(description, titlesMap, getHeadingId)
+    const result = traverseDescription(description, getHeadingId)
 
     expect(result).toHaveLength(2)
     expect(result[0]).toEqual({
@@ -108,11 +98,9 @@ Final content
         },
       ],
     })
-    expect(titlesMap.size).toBe(5)
   })
 
   it('should handle h2 and h3 headings when they are the lowest levels', () => {
-    const titlesMap = new Map<string, string>()
     const description = `
 ## Section 1
 Content
@@ -125,7 +113,7 @@ Content
 ### Subsection 2.1
 Content
     `
-    const result = traverseDescription(description, titlesMap, getHeadingId)
+    const result = traverseDescription(description, getHeadingId)
 
     expect(result).toHaveLength(2)
     expect(result[0]).toEqual({
@@ -157,11 +145,9 @@ Content
         },
       ],
     })
-    expect(titlesMap.size).toBe(5)
   })
 
   it('should skip headings that are not at the lowest two levels', () => {
-    const titlesMap = new Map<string, string>()
     const description = `
 # Level 1
 ## Level 2
@@ -169,7 +155,7 @@ Content
 #### Level 4
 ##### Level 5
     `
-    const result = traverseDescription(description, titlesMap, getHeadingId)
+    const result = traverseDescription(description, getHeadingId)
 
     // Should only include Level 1 and Level 2
     expect(result).toHaveLength(1)
@@ -185,16 +171,14 @@ Content
         },
       ],
     })
-    expect(titlesMap.size).toBe(2)
   })
 
   it('should handle special characters in headings', () => {
-    const titlesMap = new Map<string, string>()
     const description = `
 # Section with @#$%^&*() chars
 ## Sub-section with !@#$%^&*() chars
     `
-    const result = traverseDescription(description, titlesMap, getHeadingId)
+    const result = traverseDescription(description, getHeadingId)
 
     expect(result).toHaveLength(1)
     expect(result[0]).toEqual({
@@ -209,6 +193,5 @@ Content
       ],
       type: 'text',
     })
-    expect(titlesMap.size).toBe(2)
   })
 })

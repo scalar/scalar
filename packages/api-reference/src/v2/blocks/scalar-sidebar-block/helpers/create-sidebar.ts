@@ -1,17 +1,9 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { scrollToId } from '@scalar/helpers/dom/scroll-to-id'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { computed, reactive, ref } from 'vue'
 
 import { lazyBus } from '@/components/Lazy'
-import { type Ref, computed, reactive, ref } from 'vue'
-
-import type { TraverseSpecOptions } from '@/features/traverse-schema'
-import { traverseDocument } from '@/features/traverse-schema'
-import { scrollToId } from '@scalar/helpers/dom/scroll-to-id'
-
-/** Track which sidebar items are opened */
-type CollapsedSidebarItems = Record<string, boolean>
-
-/** Sidebar initialization options */
-export type SidebarOptions = TraverseSpecOptions
+import { generateReverseIndex } from '@/v2/blocks/scalar-sidebar-block/helpers/generate-reverse-index'
 
 /**
  * Creating sidebar with only one traversal of the spec
@@ -21,12 +13,27 @@ export type SidebarOptions = TraverseSpecOptions
  *  - update docs
  *  - tagged models
  */
-export const createSidebar = (dereferencedDocument: Ref<OpenAPIV3_1.Document>, options: SidebarOptions) => {
-  const collapsedSidebarItems = reactive<CollapsedSidebarItems>({})
+export const createSidebar = (store: WorkspaceStore) => {
+  const collapsedSidebarItems = reactive<Record<string, boolean>>({})
   const isSidebarOpen = ref(false)
 
   const toggleCollapsedSidebarItem = (key: string) => (collapsedSidebarItems[key] = !collapsedSidebarItems[key])
   const setCollapsedSidebarItem = (key: string, value: boolean) => (collapsedSidebarItems[key] = value)
+
+  /** Sidebar items */
+  const items = computed(() => {
+    const result = store.workspace.activeDocument?.['x-scalar-navigation']
+
+    // Open all tags
+    if (store.config['x-scalar-reference-config'].features.expandAllTagSections) {
+      result?.forEach((entry) => setCollapsedSidebarItem(entry.id, true))
+    }
+
+    return {
+      entries: result ?? [],
+      entities: generateReverseIndex(result),
+    }
+  })
 
   /**
    * Scroll to operation
@@ -35,7 +42,7 @@ export const createSidebar = (dereferencedDocument: Ref<OpenAPIV3_1.Document>, o
    * it uses the lazyBus to ensure the section is open before scrolling to it
    */
   const scrollToOperation = (operationId: string, focus?: boolean) => {
-    const sectionId = options.getSectionId(operationId)
+    const sectionId = items.value.entities.get(operationId)?.parent?.id
 
     if (sectionId && sectionId !== operationId) {
       // We use the lazyBus to check when the target has loaded then scroll to it
@@ -52,18 +59,6 @@ export const createSidebar = (dereferencedDocument: Ref<OpenAPIV3_1.Document>, o
       }
     }
   }
-
-  /** Sidebar items */
-  const items = computed(() => {
-    const result = traverseDocument(dereferencedDocument.value, options)
-
-    // Open all tags
-    if (options.config.value.defaultOpenAllTags) {
-      result.entries.forEach((entry) => setCollapsedSidebarItem(entry.id, true))
-    }
-
-    return result
-  })
 
   return {
     collapsedSidebarItems,

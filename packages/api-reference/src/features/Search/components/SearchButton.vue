@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ScalarSidebarSearchButton, useModal } from '@scalar/components'
 import { isMacOS } from '@scalar/helpers/general/is-mac-os'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { useApiClient } from '@/features/api-client-modal'
@@ -10,6 +11,7 @@ import SearchModal from './SearchModal.vue'
 const { searchHotKey = 'k', hideModels = false } = defineProps<{
   searchHotKey?: string
   hideModels?: boolean
+  document?: OpenApiDocument
 }>()
 
 const button = ref<InstanceType<typeof ScalarSidebarSearchButton>>()
@@ -24,7 +26,12 @@ const handleHotKey = (e: KeyboardEvent) => {
   ) {
     e.preventDefault()
     e.stopPropagation()
-    modalState.open ? modalState.hide() : modalState.show()
+
+    if (modalState.open) {
+      modalState.hide()
+    } else {
+      modalState.show()
+    }
   }
 }
 
@@ -75,6 +82,7 @@ function handleClick() {
     </template>
   </ScalarSidebarSearchButton>
   <SearchModal
-    :modalState="modalState"
-    :hideModels="hideModels" />
+    :document
+    :hideModels="hideModels"
+    :modalState="modalState" />
 </template>

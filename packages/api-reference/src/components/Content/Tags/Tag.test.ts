@@ -1,10 +1,11 @@
-import type { TraversedTag } from '@/features/traverse-schema'
+import type { TraversedTag } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
+
 import Tag from './Tag.vue'
 
 // Mock the useSidebar hook
-vi.mock('@/features/sidebar', () => ({
+vi.mock('@/v2/blocks/scalar-sidebar-block', () => ({
   useSidebar: () => ({
     collapsedSidebarItems: {
       'test-tag': false, // This makes isCollapsed return false, so slot content is rendered
@@ -14,13 +15,12 @@ vi.mock('@/features/sidebar', () => ({
 
 describe('Tag', () => {
   const mockTag: TraversedTag = {
+    type: 'tag',
     id: 'test-tag',
     title: 'Test Tag',
     children: [],
-    tag: {
-      name: 'test-tag',
-      description: 'A test tag description',
-    },
+    name: 'test-tag',
+    description: 'A test tag description',
     isGroup: false,
   }
 

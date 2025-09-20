@@ -1,18 +1,18 @@
-import type { TraversedTag } from '@/features/traverse-schema'
+import type { TraversedTag } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+
 import ClassicLayout from './ClassicLayout.vue'
 
 describe('ClassicLayout', () => {
   const createMockTag = (overrides: Partial<TraversedTag> = {}): TraversedTag => ({
+    type: 'tag',
     id: 'test-tag',
     title: 'Test Tag',
     children: [],
     isGroup: false,
-    tag: {
-      name: 'test-tag',
-      description: 'Test description',
-    },
+    name: 'test-tag',
+    description: 'Test description',
     ...overrides,
   })
 
@@ -70,10 +70,8 @@ describe('ClassicLayout', () => {
   describe('tag description rendering', () => {
     it('renders tag description when provided', () => {
       const mockTag = createMockTag({
-        tag: {
-          name: 'test-tag',
-          description: 'This is a detailed description of the tag',
-        },
+        name: 'test-tag',
+        description: 'This is a detailed description of the tag',
       })
 
       const wrapper = mount(ClassicLayout, {
@@ -87,10 +85,8 @@ describe('ClassicLayout', () => {
 
     it('handles tag without description gracefully', () => {
       const mockTag = createMockTag({
-        tag: {
-          name: 'test-tag',
-          description: undefined,
-        },
+        name: 'test-tag',
+        description: undefined,
       })
 
       const wrapper = mount(ClassicLayout, {
@@ -105,10 +101,8 @@ describe('ClassicLayout', () => {
 
     it('handles tag with empty description', () => {
       const mockTag = createMockTag({
-        tag: {
-          name: 'test-tag',
-          description: '',
-        },
+        name: 'test-tag',
+        description: '',
       })
 
       const wrapper = mount(ClassicLayout, {
@@ -124,10 +118,8 @@ describe('ClassicLayout', () => {
 
     it('handles tag with HTML in description', () => {
       const mockTag = createMockTag({
-        tag: {
-          name: 'test-tag',
-          description: '<p>HTML description with <strong>bold</strong> text</p>',
-        },
+        name: 'test-tag',
+        description: '<p>HTML description with <strong>bold</strong> text</p>',
       })
 
       const wrapper = mount(ClassicLayout, {
@@ -201,10 +193,8 @@ describe('ClassicLayout', () => {
   describe('ScalarMarkdown integration', () => {
     it('renders ScalarMarkdown with correct props', () => {
       const mockTag = createMockTag({
-        tag: {
-          name: 'test-tag',
-          description: 'Markdown description with **bold** text',
-        },
+        name: 'test-tag',
+        description: 'Markdown description with **bold** text',
       })
 
       const wrapper = mount(ClassicLayout, {
@@ -239,9 +229,7 @@ describe('ClassicLayout', () => {
 
   describe('edge cases and error handling', () => {
     it('handles tag with null tag property', () => {
-      const mockTag = createMockTag({
-        tag: null as any,
-      })
+      const mockTag = createMockTag({ description: undefined })
 
       const wrapper = mount(ClassicLayout, {
         props: {

@@ -4,14 +4,14 @@ import {
   ScalarCardHeader,
   ScalarCardSection,
 } from '@scalar/components'
+import type {
+  TraversedOperation,
+  TraversedTag,
+  TraversedWebhook,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
-import type { TraversedTag } from '@/features/traverse-schema'
-import type {
-  TraversedOperation,
-  TraversedWebhook,
-} from '@/features/traverse-schema/types'
 
 import OperationsListItem from './OperationsListItem.vue'
 
@@ -20,16 +20,16 @@ const { tag } = defineProps<{
 }>()
 
 const operationsAndWebhooks = computed(
-  (): (TraversedOperation | TraversedWebhook)[] => {
+  (): (TraversedOperation | TraversedWebhook)[] | undefined => {
     return tag.children?.filter(
-      (child) => 'operation' in child || 'webhook' in child,
+      (child) => child.type === 'operation' || child.type === 'webhook',
     )
   },
 )
 </script>
 
 <template>
-  <template v-if="tag.children?.length > 0">
+  <template v-if="tag.children && tag.children?.length > 0">
     <ScalarCard class="endpoints-card">
       <ScalarCardHeader muted>
         <ScreenReader>{{ tag.title }}</ScreenReader>

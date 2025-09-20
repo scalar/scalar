@@ -1,15 +1,17 @@
-import { useSidebar } from '@/features/sidebar'
-import { createMockSidebar, createMockSidebarFromDocument, createMockNavState } from '@/helpers/test-utils'
 import { apiReferenceConfigurationSchema } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import TraversedEntryContainer from './TraversedEntryContainer.vue'
+
+import { createMockNavState, createMockSidebar, createMockSidebarFromDocument } from '@/helpers/test-utils'
 import { useNavState } from '@/hooks/useNavState'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
+import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
+
+import TraversedEntryContainer from './TraversedEntryContainer.vue'
 
 // Mock the sidebar module
-vi.mock('@/features/sidebar')
+vi.mock('@/v2/blocks/scalar-sidebar-block')
 
 // Mock useNavState
 vi.mock('@/hooks/useNavState')

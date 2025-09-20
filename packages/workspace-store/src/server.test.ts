@@ -92,7 +92,7 @@ describe('create-server-store', () => {
         },
         'x-scalar-navigation': [
           {
-            id: 'List planets',
+            'id': 'tag/default/get/planets',
             method: 'get',
             type: 'operation',
             'ref': '#/paths/~1planets/get',
@@ -182,7 +182,7 @@ describe('create-server-store', () => {
         'x-scalar-active-auth': 'test',
         'x-scalar-navigation': [
           {
-            id: 'List planets',
+            'id': 'tag/default/get/planets',
             method: 'get',
             type: 'operation',
             'ref': '#/paths/~1planets/get',
@@ -214,7 +214,7 @@ describe('create-server-store', () => {
         'x-scalar-active-auth': 'test',
         'x-scalar-navigation': [
           {
-            id: 'List planets',
+            'id': 'tag/default/get/planets',
             method: 'get',
             type: 'operation',
             'ref': '#/paths/~1planets/get',
@@ -288,7 +288,7 @@ describe('create-server-store', () => {
             },
             'x-scalar-navigation': [
               {
-                id: 'List planets',
+                'id': 'tag/default/get/planets',
                 method: 'get',
                 path: '/planets',
                 title: 'List planets',
@@ -317,7 +317,7 @@ describe('create-server-store', () => {
             },
             'x-scalar-navigation': [
               {
-                id: 'List planets',
+                'id': 'tag/default/get/planets',
                 method: 'get',
                 type: 'operation',
                 'ref': '#/paths/~1planets/get',

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
+import type { TraversedTag } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { Anchor } from '@/components/Anchor'
 import {
@@ -7,7 +8,6 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
-import type { TraversedTag } from '@/features/traverse-schema'
 
 defineProps<{
   tag: TraversedTag
@@ -26,7 +26,7 @@ defineProps<{
       </SectionHeader>
       <ScalarMarkdown
         class="tag-description"
-        :value="tag.tag?.description"
+        :value="tag?.description"
         withImages />
     </template>
     <slot />

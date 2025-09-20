@@ -1,8 +1,13 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { describe, expect, it } from 'vitest'
 
-import type { TraversedEntry, TraversedOperation, TraversedTag } from '@/schemas/navigation'
-import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
+import type {
+  OpenApiDocument,
+  TagObject,
+  TraversedEntry,
+  TraversedOperation,
+  TraversedTag,
+} from '@/schemas/v3.1/strict/openapi-document'
 
 import { traverseTags } from './traverse-tags'
 
@@ -36,14 +41,13 @@ describe('traverseTags', () => {
   it('should handle empty tags map', () => {
     const document = createMockDocument()
     const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>()
-    const titlesMap = new Map<string, string>()
     const options = {
       getTagId: (tag: TagObject) => tag.name ?? '',
       tagsSorter: 'alpha' as const,
       operationsSorter: 'alpha' as const,
     }
 
-    const result = traverseTags(document, tagsMap, titlesMap, options)
+    const result = traverseTags(document, tagsMap, options)
     expect(result).toEqual([])
   })
 
@@ -52,14 +56,13 @@ describe('traverseTags', () => {
     const tagsMap = new Map([
       ['default', { tag: createMockTag('default'), entries: [createMockEntry('Test Operation')] }],
     ])
-    const titlesMap = new Map<string, string>()
     const options = {
       getTagId: (tag: TagObject) => tag.name ?? '',
       tagsSorter: 'alpha' as const,
       operationsSorter: 'alpha' as const,
     }
 
-    const result = traverseTags(document, tagsMap, titlesMap, options)
+    const result = traverseTags(document, tagsMap, options)
     expect(result).toEqual([createMockEntry('Test Operation')])
   })
 
@@ -69,14 +72,13 @@ describe('traverseTags', () => {
       ['default', { tag: createMockTag('default'), entries: [createMockEntry('Test Operation')] }],
       ['tag1', { tag: createMockTag('tag1'), entries: [createMockEntry('Test Operation')] }],
     ])
-    const titlesMap = new Map<string, string>()
     const options = {
       getTagId: (tag: TagObject) => tag.name ?? '',
       tagsSorter: 'alpha' as const,
       operationsSorter: 'alpha' as const,
     }
 
-    const result = traverseTags(document, tagsMap, titlesMap, options)
+    const result = traverseTags(document, tagsMap, options)
     expect(result).toEqual([
       {
         type: 'tag',
@@ -85,6 +87,7 @@ describe('traverseTags', () => {
         name: 'tag1',
         children: [createMockEntry('Test Operation')],
         isGroup: false,
+        xKeys: {},
       },
       {
         type: 'tag',
@@ -93,6 +96,7 @@ describe('traverseTags', () => {
         name: 'default',
         children: [createMockEntry('Test Operation')],
         isGroup: false,
+        xKeys: {},
       },
     ])
   })
@@ -103,14 +107,13 @@ describe('traverseTags', () => {
       ['zebra', { tag: createMockTag('zebra'), entries: [createMockEntry('Zebra Operation')] }],
       ['alpha', { tag: createMockTag('alpha'), entries: [createMockEntry('Alpha Operation')] }],
     ])
-    const titlesMap = new Map<string, string>()
     const options = {
       getTagId: (tag: TagObject) => tag.name ?? '',
       tagsSorter: 'alpha' as const,
       operationsSorter: 'alpha' as const,
     }
 
-    const result = traverseTags(document, tagsMap, titlesMap, options)
+    const result = traverseTags(document, tagsMap, options)
     expect(result[0]?.title).toBe('alpha')
     expect(result[1]?.title).toBe('zebra')
   })
@@ -127,14 +130,13 @@ describe('traverseTags', () => {
       ['tag1', { tag: createMockTag('tag1'), entries: [createMockEntry('Operation 1')] }],
       ['tag2', { tag: createMockTag('tag2'), entries: [createMockEntry('Operation 2')] }],
     ])
-    const titlesMap = new Map<string, string>()
     const options = {
       getTagId: (tag: TagObject) => tag.name ?? '',
       tagsSorter: 'alpha' as const,
       operationsSorter: 'alpha' as const,
     }
 
-    const result = traverseTags(document, tagsMap, titlesMap, options)
+    const result = traverseTags(document, tagsMap, options)
     expect(result).toHaveLength(1)
     expect(result[0]?.title).toBe('Group A')
     expect((result[0] as TraversedTag).children).toHaveLength(2)
@@ -151,14 +153,13 @@ describe('traverseTags', () => {
         },
       ],
     ])
-    const titlesMap = new Map<string, string>()
     const options = {
       getTagId: (tag: TagObject) => tag.name ?? '',
       tagsSorter: 'alpha',
       operationsSorter: 'method',
     } as const
 
-    const result = traverseTags(document, tagsMap, titlesMap, options)
+    const result = traverseTags(document, tagsMap, options)
     expect((result[0] as TraversedOperation).method).toBe('get')
     expect((result[1] as TraversedOperation).method).toBe('post')
   })
@@ -174,7 +175,6 @@ describe('traverseTags', () => {
         },
       ],
     ])
-    const titlesMap = new Map<string, string>()
     const options = {
       getTagId: (tag: TagObject) => tag.name ?? '',
       tagsSorter: 'alpha',
@@ -182,7 +182,7 @@ describe('traverseTags', () => {
         (a.httpVerb || '').localeCompare(b.httpVerb || ''),
     } as const
 
-    const result = traverseTags(document, tagsMap, titlesMap, options)
+    const result = traverseTags(document, tagsMap, options)
     expect((result[0] as TraversedOperation).method).toBe('get')
     expect((result[1] as TraversedOperation).method).toBe('post')
   })
@@ -193,14 +193,13 @@ describe('traverseTags', () => {
       ['tag1', { tag: createMockTag('tag1', 'Zebra'), entries: [createMockEntry('Operation 1')] }],
       ['tag2', { tag: createMockTag('tag2', 'Alpha'), entries: [createMockEntry('Operation 2')] }],
     ])
-    const titlesMap = new Map<string, string>()
     const options = {
       getTagId: (tag: TagObject) => tag.name ?? '',
       tagsSorter: (a: TagObject, b: TagObject) => (a['x-displayName'] ?? '').localeCompare(b['x-displayName'] || ''),
       operationsSorter: 'alpha' as const,
     }
 
-    const result = traverseTags(document, tagsMap, titlesMap, options)
+    const result = traverseTags(document, tagsMap, options)
     expect(result[0]?.title).toBe('Alpha')
     expect(result[1]?.title).toBe('Zebra')
   })
@@ -216,7 +215,6 @@ describe('traverseTags', () => {
         },
       ],
     ])
-    const titlesMap = new Map<string, string>()
 
     const options = {
       getTagId: (tag: TagObject) => tag.name ?? '',
@@ -225,7 +223,7 @@ describe('traverseTags', () => {
         (a.method || '').localeCompare(b.method || ''),
     }
 
-    const result = traverseTags(document, tagsMap, titlesMap, options)
+    const result = traverseTags(document, tagsMap, options)
     expect(result[0]?.title).toBe('Operation A')
     expect(result[1]?.title).toBe('Operation B')
   })
@@ -239,14 +237,13 @@ describe('traverseTags', () => {
       ],
       ['public', { tag: createMockTag('public'), entries: [createMockEntry('Public Operation')] }],
     ])
-    const titlesMap = new Map<string, string>()
     const options = {
       getTagId: (tag: TagObject) => tag.name ?? '',
       tagsSorter: 'alpha' as const,
       operationsSorter: 'alpha' as const,
     }
 
-    const result = traverseTags(document, tagsMap, titlesMap, options)
+    const result = traverseTags(document, tagsMap, options)
     expect(result).toHaveLength(1)
     expect(result[0]?.title).toBe('public')
   })
@@ -263,14 +260,13 @@ describe('traverseTags', () => {
       ],
       ['visible', { tag: createMockTag('visible'), entries: [createMockEntry('Visible Operation')] }],
     ])
-    const titlesMap = new Map<string, string>()
     const options = {
       getTagId: (tag: TagObject) => tag.name ?? '',
       tagsSorter: 'alpha' as const,
       operationsSorter: 'alpha' as const,
     }
 
-    const result = traverseTags(document, tagsMap, titlesMap, options)
+    const result = traverseTags(document, tagsMap, options)
     expect(result).toHaveLength(1)
     expect(result[0]?.title).toBe('visible')
   })
