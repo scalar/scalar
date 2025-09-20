@@ -76,7 +76,10 @@ const titleId = useId()
 
 const comboboxButtonRef = ref<typeof ScalarButtonType | null>(null)
 const deleteSchemeModal = useModal()
-const selectedScheme = ref<{ id: string; label: string } | null>(null)
+const selectedScheme = ref<{
+  label: string
+  payload: NonNullable<OpenApiDocument['x-scalar-selected-security']>[number]
+} | null>(null)
 const isViewLayoutOpen = ref(false)
 
 /** Indicates if auth is required */
@@ -139,8 +142,14 @@ const selectedSchemeOptions = computed<SecuritySchemeOption[]>(() => {
     .filter(isDefined)
 })
 
-function handleDeleteScheme({ id, label }: { id: string; label: string }) {
-  selectedScheme.value = { id, label }
+function handleDeleteScheme({
+  label,
+  value,
+}: {
+  label: string
+  value: NonNullable<OpenApiDocument['x-scalar-selected-security']>[number]
+}) {
+  selectedScheme.value = { label, payload: value }
   deleteSchemeModal.show()
 }
 
@@ -167,6 +176,19 @@ const updateSelectedAuth = (selected: SecuritySchemeOption[]) => {
     value: selected.map((s) => s.value),
     create: selected.map((it) => it.payload).filter(isDefined),
   })
+}
+
+const deleteScheme = () => {
+  if (!selectedScheme.value) {
+    return
+  }
+
+  // Emit the delete event with the scheme names
+  emits('deleteOperationAuth', Object.keys(selectedScheme.value.payload))
+
+  // Clear the selected scheme to delete
+  selectedScheme.value = null
+  deleteSchemeModal.hide()
 }
 </script>
 <template>
@@ -255,11 +277,11 @@ const updateSelectedAuth = (selected: SecuritySchemeOption[]) => {
       @update:selectedScopes="emits('update:selectedScopes', $event)" />
     <DeleteRequestAuthModal
       v-if="selectedScheme"
-      :label="selectedScheme?.label ?? ''"
+      :label="selectedScheme.label"
       :scheme="selectedScheme"
       :state="deleteSchemeModal"
       @close="deleteSchemeModal.hide()"
-      @delete="emits('deleteOperationAuth', selectedScheme.id.split(' & '))" />
+      @delete="deleteScheme" />
   </ViewLayoutCollapse>
 </template>
 <style scoped>
