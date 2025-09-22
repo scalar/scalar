@@ -372,7 +372,7 @@ describe('sortPropertyNames', () => {
       // Note: The current implementation only applies the first filter that is true
       // Since hideReadOnly is checked first, it will filter out readOnly properties
       // but won't check for writeOnly properties
-      expect(result).toEqual(['email', 'name', 'password'])
+      expect(result).toEqual(['email', 'name'])
     })
 
     it('should handle properties with $ref that resolve to readOnly', () => {
@@ -424,9 +424,7 @@ describe('sortPropertyNames', () => {
       // 1. Discriminator first: 'type'
       // 2. Required properties (alphabetically): 'banana', 'zebra'
       // 3. Non-required properties (alphabetically): 'apple'
-      // 4. Note: Only readOnlyProp is filtered out since hideReadOnly is checked first
-      //    writeOnlyProp remains because the filter uses if-else logic
-      expect(result).toEqual(['type', 'banana', 'zebra', 'apple', 'writeOnlyProp'])
+      expect(result).toEqual(['type', 'banana', 'zebra', 'apple'])
     })
 
     it('should handle properties with special characters in names', () => {
