@@ -1,8 +1,8 @@
-import { describe, expect, it } from 'vitest'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { decode } from 'js-base64'
+import { describe, expect, it } from 'vitest'
 
 import { getSecrets } from './get-secrets'
-import { decode } from 'js-base64'
 
 describe('getSecrets', () => {
   describe('apiKey security schemes', () => {
@@ -144,6 +144,10 @@ describe('getSecrets', () => {
               tokenUrl: 'https://example.com/oauth/token',
               scopes: { read: 'Read access' },
               'x-scalar-secret-token': 'oauth-token-secret-1',
+              'x-scalar-client-id': '',
+              'x-scalar-client-secret': '',
+              'x-scalar-redirect-uri': '',
+              'x-usePkce': 'no',
             },
           },
         },
@@ -164,16 +168,26 @@ describe('getSecrets', () => {
               tokenUrl: 'https://example.com/oauth/token',
               scopes: { read: 'Read access' },
               'x-scalar-secret-token': 'oauth-token-secret-1',
+              'x-scalar-client-id': '',
+              'x-scalar-client-secret': '',
+              'x-scalar-redirect-uri': '',
+              'x-usePkce': 'no',
             },
             clientCredentials: {
               tokenUrl: 'https://example.com/oauth/token',
               scopes: { write: 'Write access' },
               'x-scalar-secret-token': 'oauth-token-secret-2',
+              'x-scalar-client-id': '',
+              'x-scalar-client-secret': '',
             },
             password: {
               tokenUrl: 'https://example.com/oauth/token',
               scopes: { admin: 'Admin access' },
               'x-scalar-secret-token': 'oauth-token-secret-3',
+              'x-scalar-client-id': '',
+              'x-scalar-client-secret': '',
+              'x-scalar-username': '',
+              'x-scalar-password': '',
             },
           },
         },
@@ -193,6 +207,10 @@ describe('getSecrets', () => {
               authorizationUrl: 'https://example.com/oauth/authorize',
               tokenUrl: 'https://example.com/oauth/token',
               scopes: { read: 'Read access' },
+              'x-scalar-client-id': '',
+              'x-scalar-client-secret': '',
+              'x-scalar-redirect-uri': '',
+              'x-usePkce': 'no',
             },
           },
         },
@@ -240,6 +258,10 @@ describe('getSecrets', () => {
               tokenUrl: 'https://example.com/oauth/token',
               scopes: { read: 'Read access' },
               'x-scalar-secret-token': 'oauth-token-secret',
+              'x-scalar-client-id': '',
+              'x-scalar-client-secret': '',
+              'x-scalar-redirect-uri': '',
+              'x-usePkce': 'no',
             },
           },
         },
