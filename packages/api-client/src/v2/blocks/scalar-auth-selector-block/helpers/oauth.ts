@@ -1,6 +1,5 @@
-import type { Server } from '@scalar/oas-utils/entities/spec'
 import { shouldUseProxy } from '@scalar/oas-utils/helpers'
-import type { OAuthFlowsObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OAuthFlowsObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { encode, fromUint8Array } from 'js-base64'
 
 import type { ErrorResponse } from '@/libs/errors'
@@ -55,7 +54,7 @@ export const authorizeOauth2 = async (
   type: keyof OAuthFlowsObject,
   selectedScopes: string[],
   /** We use the active server to set a base for relative redirect uris */
-  activeServer: Server,
+  activeServer: ServerObject,
   /** If we want to use the proxy */
   proxyUrl?: string,
 ): Promise<ErrorResponse<string>> => {

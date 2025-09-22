@@ -6,6 +6,7 @@ import type {
   ComponentsObject,
   OpenApiDocument,
   SecuritySchemeObject,
+  ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { capitalize, computed, ref } from 'vue'
 
@@ -22,6 +23,7 @@ const {
   layout,
   selectedSecuritySchema: selectedSecuritySchemas,
   securitySchemes,
+  server,
 } = defineProps<{
   environment: Environment
   envVariables: EnvVariable[]
@@ -30,6 +32,7 @@ const {
     OpenApiDocument['x-scalar-selected-security']
   >[number]
   securitySchemes: NonNullable<ComponentsObject['securitySchemes']>
+  server: ServerObject | undefined
 }>()
 
 const emits = defineEmits<{
@@ -242,7 +245,7 @@ const dataTableInputProps = {
           proxyUrl=""
           :scheme="scheme"
           :selectedScopes="scopes"
-          :server="undefined"
+          :server="server"
           :type="key"
           @update:securityScheme="
             (payload) =>

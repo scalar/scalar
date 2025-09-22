@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { ScalarButton, useLoadingState } from '@scalar/components'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
-import { pkceOptions, type Server } from '@scalar/oas-utils/entities/spec'
+import { pkceOptions } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
-import type { OAuthFlowsObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type {
+  OAuthFlowsObject,
+  ServerObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import { DataTableRow } from '@/components/DataTable'
@@ -28,7 +31,7 @@ const {
   flows: OAuthFlowsObject
   type: keyof OAuthFlowsObject
   selectedScopes: string[]
-  server: Server | undefined
+  server: ServerObject | undefined
   proxyUrl: string
 }>()
 

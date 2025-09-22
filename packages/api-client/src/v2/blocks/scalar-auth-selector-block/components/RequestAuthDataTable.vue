@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { Environment } from '@scalar/oas-utils/entities/environment'
-import type { Server } from '@scalar/oas-utils/entities/spec'
 import type {
   ComponentsObject,
   OpenApiDocument,
+  ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref, watch } from 'vue'
 
@@ -25,7 +25,7 @@ const {
   layout: 'client' | 'reference'
   selectedSchemeOptions: OpenApiDocument['x-scalar-selected-security']
   securitySchemes: ComponentsObject['securitySchemes']
-  server: Server | undefined
+  server: ServerObject | undefined
 }>()
 
 const emits = defineEmits<{
