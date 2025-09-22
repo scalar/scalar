@@ -91,47 +91,47 @@ const StringValidationProperties = Type.Object({
   /** Different subtypes */
   format: Type.Optional(
     Type.Union([
-      // Date and time formats
-      Type.Literal('date'),
-      Type.Literal('date-time'),
-      Type.Literal('date-time-local'),
-      Type.Literal('time'),
-      Type.Literal('time-local'),
-      Type.Literal('duration'),
-      Type.Literal('http-date'),
-      // Network formats
-      Type.Literal('email'),
-      Type.Literal('idn-email'),
-      Type.Literal('hostname'),
-      Type.Literal('idn-hostname'),
-      Type.Literal('ipv4'),
-      Type.Literal('ipv6'),
-      Type.Literal('uri'),
-      Type.Literal('uri-reference'),
-      Type.Literal('uri-template'),
-      Type.Literal('iri'),
-      Type.Literal('iri-reference'),
-      Type.Literal('uuid'),
-      // Content formats
-      Type.Literal('binary'),
-      Type.Literal('byte'),
-      Type.Literal('base64url'),
-      Type.Literal('html'),
-      Type.Literal('commonmark'),
-      Type.Literal('password'),
-      Type.Literal('regex'),
-      Type.Literal('json-pointer'),
-      Type.Literal('relative-json-pointer'),
-      Type.Literal('media-range'),
-      // Character formats
-      Type.Literal('char'),
-      // Structured field string formats
-      Type.Literal('sf-string'),
-      Type.Literal('sf-token'),
-      Type.Literal('sf-binary'),
-      Type.Literal('sf-boolean'),
-      // Allow any arbitrary string
+      // Allow any arbitrary string, this negates the purpose of the other formats so they are commented
       Type.String(),
+      // Date and time formats
+      // Type.Literal('date'),
+      // Type.Literal('date-time'),
+      // Type.Literal('date-time-local'),
+      // Type.Literal('time'),
+      // Type.Literal('time-local'),
+      // Type.Literal('duration'),
+      // Type.Literal('http-date'),
+      // // Network formats
+      // Type.Literal('email'),
+      // Type.Literal('idn-email'),
+      // Type.Literal('hostname'),
+      // Type.Literal('idn-hostname'),
+      // Type.Literal('ipv4'),
+      // Type.Literal('ipv6'),
+      // Type.Literal('uri'),
+      // Type.Literal('uri-reference'),
+      // Type.Literal('uri-template'),
+      // Type.Literal('iri'),
+      // Type.Literal('iri-reference'),
+      // Type.Literal('uuid'),
+      // // Content formats
+      // Type.Literal('binary'),
+      // Type.Literal('byte'),
+      // Type.Literal('base64url'),
+      // Type.Literal('html'),
+      // Type.Literal('commonmark'),
+      // Type.Literal('password'),
+      // Type.Literal('regex'),
+      // Type.Literal('json-pointer'),
+      // Type.Literal('relative-json-pointer'),
+      // Type.Literal('media-range'),
+      // // Character formats
+      // Type.Literal('char'),
+      // // Structured field string formats
+      // Type.Literal('sf-string'),
+      // Type.Literal('sf-token'),
+      // Type.Literal('sf-binary'),
+      // Type.Literal('sf-boolean'),
     ]),
   ),
   /** Maximum string length. */
