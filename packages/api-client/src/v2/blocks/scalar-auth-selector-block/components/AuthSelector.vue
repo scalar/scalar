@@ -31,7 +31,6 @@ import {
   type SecuritySchemeOption,
 } from '@/v2/blocks/scalar-auth-selector-block/helpers/security-scheme'
 
-// import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
 import RequestAuthDataTable from './RequestAuthDataTable.vue'
 
 const {

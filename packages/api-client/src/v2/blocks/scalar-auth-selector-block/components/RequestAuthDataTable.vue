@@ -161,38 +161,4 @@ watch(
     opacity: 1;
   }
 }
-
-/* .references-auth-data-table :deep(table td) {
-  margin: 0 9px;
-  background: var(--scalar-background-2);
-} */
-
-/* More than one selected */
-/* .references-auth-data-table
-  :deep(table:has(.group\/delete) tr:nth-child(2) td) {
-  border-radius: var(--scalar-radius) var(--scalar-radius) 0 0;
-  border: 0.5px solid var(--scalar-border-color);
-  border-bottom: none;
-}
-.references-auth-data-table
-  :deep(table:not(:has(.group\/delete)) tr:nth-child(3) td) {
-  border-radius: var(--scalar-radius) var(--scalar-radius) 0 0;
-  border: 0.5px solid var(--scalar-border-color);
-  border-bottom: none;
-}
-.references-auth-data-table :deep(table tr:last-child td) {
-  border-radius: 0 0 var(--scalar-radius) var(--scalar-radius);
-  border: 0.5px solid var(--scalar-border-color);
-  border-top: none;
-}
-
-.references-auth-data-table :deep(.references-auth-row:last-of-type) td {
-  border-radius: 0 0 var(--scalar-radius) var(--scalar-radius);
-  background: blue;
-}
-.references-auth-data-table :deep(.scalar-data-table-input-required) {
-  background-color: var(--scalar-background-2);
-  --tw-bg-base: var(--scalar-background-2);
-  --tw-shadow: var(--scalar-background-2);
-} */
 </style>

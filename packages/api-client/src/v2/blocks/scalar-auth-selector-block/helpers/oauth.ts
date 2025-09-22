@@ -60,9 +60,8 @@ export const authorizeOauth2 = async (
   proxyUrl?: string,
 ): Promise<ErrorResponse<string>> => {
   const flow = flows[type]
-  
+
   try {
-    
     if (!flow) {
       return [new Error('Flow not found'), null]
     }
@@ -71,7 +70,6 @@ export const authorizeOauth2 = async (
 
     // Client Credentials or Password Flow
     if (type === 'clientCredentials' || type === 'password') {
-
       return authorizeServers(flows, type, scopes, {
         proxyUrl,
       })
