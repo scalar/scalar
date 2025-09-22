@@ -7,6 +7,7 @@ describe('useSearchIndex', () => {
   it('initializes with empty search state and watches for items changes', () => {
     const mockEntries: TraversedEntry[] = [
       {
+        type: 'operation',
         id: 'test-operation',
         title: 'Test Operation',
         method: 'get',

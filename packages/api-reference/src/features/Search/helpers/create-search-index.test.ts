@@ -403,30 +403,41 @@ describe('createSearchIndex', () => {
       expect(index).toMatchObject([
         {
           type: 'heading',
+          title: 'Introduction',
+          description: 'Description',
+        },
+        {
+          type: 'heading',
           title: 'API Documentation',
           description: 'Description',
         },
       ])
 
-      expect(index.length).toEqual(1)
+      expect(index.length).toEqual(2)
     })
 
     it('adds multiple headings from description', () => {
       const entries: TraversedEntry[] = createEntriesFromDocument({
         info: {
-          description: '# Introduction\nWelcome to the API.\n\n## Getting Started\nFollow these steps.',
+          description: '# Another heading\nWelcome to the API.\n\n## Getting Started\nFollow these steps.',
         },
       })
 
       const index = createSearchIndex(entries)
 
-      expect(index.length).toEqual(2)
+      expect(index.length).toEqual(3)
+
       expect(index[0]).toMatchObject({
         type: 'heading',
         title: 'Introduction',
         description: 'Description',
       })
       expect(index[1]).toMatchObject({
+        type: 'heading',
+        title: 'Another heading',
+        description: 'Description',
+      })
+      expect(index[2]).toMatchObject({
         type: 'heading',
         title: 'Getting Started',
         description: 'Description',

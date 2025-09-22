@@ -88,7 +88,7 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[]): void {
     index.push({
       title: entry.title,
       href: `#${entry.id}`,
-      description: entry.tag.description || '',
+      description: entry.tag?.description || '',
       type: 'tag',
       body: '',
       entry,

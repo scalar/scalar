@@ -33,14 +33,16 @@ onMounted(() => autofocus && inputRef.value?.focus())
   <label
     v-bind="
       classCx(
-        'flex items-center rounded border text-base has-[:focus-visible]:bg-b-1 has-[:focus-visible]:outline h-8 gap-1 pl-2 pr-1.5',
-        'bg-sidebar-b-search border-sidebar-border-search',
+        'flex items-center rounded text-base has-[:focus-visible]:bg-b-1 has-[:focus-visible]:outline h-8 gap-1 pl-2 pr-1.5',
+        'bg-sidebar-b-search',
         model ? 'text-c-1' : 'text-sidebar-c-search',
       )
     ">
     <ScalarIconMagnifyingGlass class="text-sidebar-c-search size-4" />
     <input
       ref="inputRef"
+      v-bind="otherAttrs"
+      v-model="model"
       :aria-label="label ?? 'Enter search query'"
       autocapitalize="off"
       autocomplete="off"
@@ -48,9 +50,7 @@ onMounted(() => autofocus && inputRef.value?.focus())
       class="flex-1 appearance-none rounded border-none bg-transparent outline-none"
       placeholder="Search..."
       spellcheck="false"
-      type="search"
-      v-bind="otherAttrs"
-      v-model="model" />
+      type="search" />
     <ScalarLoading
       v-if="loading && loading.isLoading"
       class="mr-3 self-center"
@@ -60,8 +60,8 @@ onMounted(() => autofocus && inputRef.value?.focus())
       v-else-if="model"
       class="p-0.25 size-4"
       :icon="ScalarIconX"
-      weight="bold"
       label="Clear Search"
+      weight="bold"
       @click.stop.prevent="handleClear" />
   </label>
 </template>

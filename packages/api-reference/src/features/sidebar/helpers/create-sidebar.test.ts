@@ -677,6 +677,11 @@ describe('createSidebar', () => {
         titles: {},
         entries: [
           {
+            id: 'description/introduction',
+            title: 'Introduction',
+            children: [],
+          },
+          {
             id: 'description/foobar',
             title: 'Foobar',
             children: [],
@@ -702,6 +707,11 @@ describe('createSidebar', () => {
       ).toMatchObject({
         titles: {},
         entries: [
+          {
+            id: 'description/introduction',
+            title: 'Introduction',
+            children: [],
+          },
           {
             id: 'description/foobar',
             title: 'Foobar',
@@ -733,6 +743,11 @@ describe('createSidebar', () => {
       ).toMatchObject({
         titles: {},
         entries: [
+          {
+            id: 'description/introduction',
+            title: 'Introduction',
+            children: [],
+          },
           {
             id: 'description/foobar',
             title: 'Foobar',
