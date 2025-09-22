@@ -27,7 +27,7 @@ vi.mock('@/hooks/useOperationDiscriminator', () => ({
 }))
 
 // Mock the sidebar provider
-vi.mock('@/features/sidebar/hooks/useSidebar', () => ({
+vi.mock('@/v2/blocks/scalar-sidebar-block/hooks/useSidebar', () => ({
   useSidebar: () => createMockSidebar({}),
 }))
 

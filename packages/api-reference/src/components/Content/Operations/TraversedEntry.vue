@@ -2,7 +2,13 @@
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type {
+  OpenApiDocument,
+  TraversedEntry,
+  TraversedOperation,
+  TraversedTag,
+  TraversedWebhook,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import { getCurrentIndex } from '@/components/Content/Operations/get-current-index'
@@ -10,12 +16,6 @@ import { Tag } from '@/components/Content/Tags'
 import { Lazy } from '@/components/Lazy'
 import { SectionContainer } from '@/components/Section'
 import { Operation } from '@/features/Operation'
-import {
-  type TraversedEntry,
-  type TraversedOperation,
-  type TraversedTag,
-} from '@/features/traverse-schema'
-import type { TraversedWebhook } from '@/features/traverse-schema/types'
 import { useNavState } from '@/hooks/useNavState'
 import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
@@ -38,20 +38,21 @@ const {
 /**
  * Type guards for different entry types
  */
-const isTagGroup = (entry: TraversedEntry): entry is TraversedTag =>
-  'isGroup' in entry && entry.isGroup
+const isTagGroup = (
+  entry: TraversedEntry,
+): entry is TraversedTag & { isGroup: true } =>
+  entry['type'] === 'tag' && entry.isGroup === true
 
-const isTag = (entry: TraversedEntry): entry is TraversedTag =>
-  'tag' in entry && !isTagGroup(entry)
+const isTag = (
+  entry: TraversedEntry,
+): entry is TraversedTag & { isGroup: false } =>
+  entry['type'] === 'tag' && !isTagGroup(entry)
 
 const isOperation = (entry: TraversedEntry): entry is TraversedOperation =>
-  'operation' in entry
+  entry['type'] === 'operation'
 
 const isWebhook = (entry: TraversedEntry): entry is TraversedWebhook =>
-  'webhook' in entry
-
-const isWebhookGroup = (entry: TraversedEntry): entry is TraversedTag =>
-  'isWebhooks' in entry && Boolean(entry.isWebhooks)
+  entry['type'] === 'webhook'
 
 const isRootLevel = computed(() => level === 0)
 const { hash } = useNavState()
@@ -119,7 +120,7 @@ defineExpose({
     </template>
 
     <!-- Webhook Group or Tag -->
-    <template v-else-if="isWebhookGroup(entry) || isTag(entry)">
+    <template v-else-if="isTag(entry)">
       <Tag
         :layout="config.layout"
         :moreThanOneTag="entries.filter(isTag).length > 1"

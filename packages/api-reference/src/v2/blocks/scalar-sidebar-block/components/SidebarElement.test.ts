@@ -1,10 +1,8 @@
-import type { TraversedEntry, TraversedOperation } from '@/features/traverse-schema'
-import { XScalarStability } from '@scalar/types/legacy'
+import type { TraversedEntry, TraversedOperation } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import SidebarElement from './SidebarElement.vue'
 
 // Mock the dependencies
@@ -44,33 +42,23 @@ describe('SidebarElement', () => {
     vi.clearAllMocks()
   })
 
-  const createMockOperation = (overrides: Partial<OperationObject> = {}): OperationObject => ({
-    summary: 'Test Operation',
-    responses: {
-      200: {
-        description: 'Success',
-      },
-    },
-    ...overrides,
-  })
-
-  const createMockTraversedOperation = (
-    operation: OperationObject,
-    overrides: Partial<TraversedOperation> = {},
-  ): TraversedOperation => ({
+  const createMockTraversedOperation = (overrides: Partial<TraversedOperation> = {}): TraversedOperation => ({
+    type: 'operation',
     id: 'test-operation',
     title: 'Test Operation',
+    ref: '#/paths/~1test/get',
     method: 'get',
     path: '/test',
-    operation,
     ...overrides,
   })
 
-  const createMockTraversedEntry = (overrides: Partial<TraversedEntry> = {}): TraversedEntry => ({
-    id: 'test-entry',
-    title: 'Test Entry',
-    ...overrides,
-  })
+  const createMockTraversedEntry = (overrides: Partial<TraversedEntry> = {}): TraversedEntry =>
+    ({
+      id: 'test-entry',
+      title: 'Test Entry',
+      type: 'text',
+      ...overrides,
+    }) as TraversedEntry
 
   it('renders basic sidebar element', () => {
     const item = createMockTraversedEntry()
@@ -86,8 +74,7 @@ describe('SidebarElement', () => {
   })
 
   it('renders operation with HTTP method badge', () => {
-    const operation = createMockOperation()
-    const item = createMockTraversedOperation(operation)
+    const item = createMockTraversedOperation()
     const wrapper = mount(SidebarElement, {
       props: {
         id: 'test-id',
@@ -100,11 +87,9 @@ describe('SidebarElement', () => {
   })
 
   it('applies deprecated class when operation is deprecated via deprecated property', async () => {
-    const { isOperationDeprecated } = await import('@scalar/oas-utils/helpers')
-    vi.mocked(isOperationDeprecated).mockReturnValue(true)
-
-    const operation = createMockOperation({ deprecated: true })
-    const item = createMockTraversedOperation(operation)
+    const item = createMockTraversedOperation({
+      isDeprecated: true,
+    })
     const wrapper = mount(SidebarElement, {
       props: {
         id: 'test-id',
@@ -113,17 +98,12 @@ describe('SidebarElement', () => {
     })
 
     expect(wrapper.find('.sidebar-heading.deprecated').exists()).toBe(true)
-    expect(isOperationDeprecated).toHaveBeenCalledWith(operation)
   })
 
   it('applies deprecated class when operation is deprecated via x-scalar-stability', async () => {
-    const { isOperationDeprecated } = await import('@scalar/oas-utils/helpers')
-    vi.mocked(isOperationDeprecated).mockReturnValue(true)
-
-    const operation = createMockOperation({
-      'x-scalar-stability': XScalarStability.Deprecated,
+    const item = createMockTraversedOperation({
+      isDeprecated: true,
     })
-    const item = createMockTraversedOperation(operation)
     const wrapper = mount(SidebarElement, {
       props: {
         id: 'test-id',
@@ -132,15 +112,13 @@ describe('SidebarElement', () => {
     })
 
     expect(wrapper.find('.sidebar-heading.deprecated').exists()).toBe(true)
-    expect(isOperationDeprecated).toHaveBeenCalledWith(operation)
   })
 
   it('does not apply deprecated class when operation is not deprecated', async () => {
     const { isOperationDeprecated } = await import('@scalar/oas-utils/helpers')
     vi.mocked(isOperationDeprecated).mockReturnValue(false)
 
-    const operation = createMockOperation()
-    const item = createMockTraversedOperation(operation)
+    const item = createMockTraversedOperation()
     const wrapper = mount(SidebarElement, {
       props: {
         id: 'test-id',
@@ -149,7 +127,6 @@ describe('SidebarElement', () => {
     })
 
     expect(wrapper.find('.sidebar-heading.deprecated').exists()).toBe(false)
-    expect(isOperationDeprecated).toHaveBeenCalledWith(operation)
   })
 
   it('does not apply deprecated class for non-operation items', async () => {
@@ -224,59 +201,20 @@ describe('SidebarElement', () => {
   })
 
   it('handles webhook operations correctly', () => {
-    const operation = createMockOperation()
-    const item = createMockTraversedOperation(operation)
+    const item = createMockTraversedOperation({
+      // @ts-expect-error - we want to test webhook operations
+      type: 'webhook',
+    })
     const wrapper = mount(SidebarElement, {
       props: {
         id: 'test-id',
         item: {
           ...item,
-          webhook: operation,
         },
       },
     })
 
     expect(wrapper.findComponent({ name: 'ScalarIconWebhooksLogo' }).exists()).toBe(true)
-  })
-
-  it('calls isOperationDeprecated with correct operation object', async () => {
-    const { isOperationDeprecated } = await import('@scalar/oas-utils/helpers')
-    vi.mocked(isOperationDeprecated).mockReturnValue(true)
-
-    const operation = createMockOperation({
-      deprecated: true,
-      'x-scalar-stability': XScalarStability.Stable,
-    })
-    const item = createMockTraversedOperation(operation)
-
-    mount(SidebarElement, {
-      props: {
-        id: 'test-id',
-        item,
-      },
-    })
-
-    expect(isOperationDeprecated).toHaveBeenCalledWith(operation)
-  })
-
-  it('handles deprecated property taking precedence over x-scalar-stability', async () => {
-    const { isOperationDeprecated } = await import('@scalar/oas-utils/helpers')
-    vi.mocked(isOperationDeprecated).mockReturnValue(false)
-
-    const operation = createMockOperation({
-      deprecated: false,
-      'x-scalar-stability': XScalarStability.Deprecated,
-    })
-    const item = createMockTraversedOperation(operation)
-
-    mount(SidebarElement, {
-      props: {
-        id: 'test-id',
-        item,
-      },
-    })
-
-    expect(isOperationDeprecated).toHaveBeenCalledWith(operation)
   })
 
   it('renders action menu slot when provided', () => {

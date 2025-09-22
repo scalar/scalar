@@ -1,9 +1,9 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { apiReferenceConfigurationSchema } from '@scalar/types'
-import type { Heading } from '@scalar/types/legacy'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import type { TraversedEntry } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, inject, provide, ref } from 'vue'
+
 import { createSidebar } from '../helpers/create-sidebar'
 import { SIDEBAR_SYMBOL, useSidebar } from './useSidebar'
 
@@ -44,12 +44,12 @@ describe('useSidebar', () => {
   })
 
   describe('when called with a collection', () => {
-    it('creates and provides a new sidebar instance', () => {
+    it('creates and provides a new sidebar instance', async () => {
       // Arrange
       const mockSidebar = {
         items: computed(() => ({
           entries: [],
-          titles: new Map<string, string>(),
+          entities: new Map<string, TraversedEntry>(),
         })),
         collapsedSidebarItems: {},
         isSidebarOpen: ref(false),
@@ -60,26 +60,18 @@ describe('useSidebar', () => {
 
       vi.mocked(createSidebar).mockReturnValue(mockSidebar)
 
-      const config = ref(apiReferenceConfigurationSchema.parse({}))
-      const options = {
-        config,
-        getSectionId: (_hashStr?: string) => 'section-1',
-        getHeadingId: (heading: Heading) => heading.value,
-        getOperationId: (
-          operation: { path: string; method: OpenAPIV3_1.HttpMethods } & OperationObject,
-          _parentTag: OpenAPIV3_1.TagObject,
-        ) => operation.summary ?? '',
-        getWebhookId: (webhook?: { name: string; method?: string }, _parentTag?: OpenAPIV3_1.TagObject) =>
-          webhook?.name ?? 'webhooks',
-        getModelId: (model?: { name: string }) => model?.name ?? '',
-        getTagId: (tag: OpenAPIV3_1.TagObject) => tag.name ?? '',
-      }
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'Example Document',
+        document: EXAMPLE_DOCUMENT as Record<string, unknown>,
+      })
 
       // Act
-      const result = useSidebar(ref(EXAMPLE_DOCUMENT), options)
+      const result = useSidebar(store)
 
       // Assert
-      expect(createSidebar).toHaveBeenCalledWith(ref(EXAMPLE_DOCUMENT), options)
+      expect(createSidebar).toHaveBeenCalledWith(store)
       expect(provide).toHaveBeenCalledWith(SIDEBAR_SYMBOL, mockSidebar)
       expect(result).toBe(mockSidebar)
     })
