@@ -10,12 +10,12 @@ import {
 } from '@scalar/components'
 import { ScalarIconCaretDown, ScalarIconTrash } from '@scalar/icons'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
-import type { Server } from '@scalar/oas-utils/entities/spec'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   OpenApiDocument,
   SecuritySchemeObject,
+  ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref, useId } from 'vue'
 
@@ -49,7 +49,7 @@ const {
   security: OpenApiDocument['security']
   selectedSecurity: OpenApiDocument['security']
   securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
-  server: Server | undefined
+  server: ServerObject | undefined
   title: string
 }>()
 
