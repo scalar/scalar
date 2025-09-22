@@ -3,30 +3,34 @@ import { ScalarButton, useLoadingState } from '@scalar/components'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import { pkceOptions, type Server } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
-import type { Dereference } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OAuthFlowsObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { computed } from 'vue'
 
 import { DataTableRow } from '@/components/DataTable'
 import { type EnvVariable } from '@/store'
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
 import type { UpdateSecuritySchemeEvent } from '@/v2/blocks/scalar-auth-selector-block/event-types'
+import { authorizeOauth2 } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
 
-// import { authorizeOauth2 } from '@/views/Request/libs'
-
-// import OAuthScopesInput from './OAuthScopesInput.vue'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
-type OAuth2 = Extract<Dereference<SecuritySchemeObject>, { type: 'oauth2' }>
-
-const { environment, envVariables, flow, server, selectedScopes, proxyUrl } =
-  defineProps<{
-    environment: Environment
-    envVariables: EnvVariable[]
-    flow: NonNullable<OAuth2['flows'][keyof OAuth2['flows']]>
-    selectedScopes: string[]
-    server: Server | undefined
-    proxyUrl: string
-  }>()
+const {
+  environment,
+  envVariables,
+  flows,
+  type,
+  server,
+  selectedScopes,
+  proxyUrl,
+} = defineProps<{
+  environment: Environment
+  envVariables: EnvVariable[]
+  flows: OAuthFlowsObject
+  type: keyof OAuthFlowsObject
+  selectedScopes: string[]
+  server: Server | undefined
+  proxyUrl: string
+}>()
 
 const emits = defineEmits<{
   (e: 'update:selectedScopes', payload: { scopes: string[] }): void
@@ -39,7 +43,6 @@ const emits = defineEmits<{
 const loadingState = useLoadingState()
 const { toast } = useToasts()
 
-// TODO: handle authorization
 /** Authorize the user using specified flow */
 const handleAuthorize = async () => {
   if (loadingState.isLoading) {
@@ -51,19 +54,21 @@ const handleAuthorize = async () => {
   }
   loadingState.startLoading()
 
-  // TODO: Handle authorization
-  // const [error, accessToken] = await authorizeOauth2(
-  //   flow,
-  //   server,
-  //   proxyUrl,
-  // ).finally(() => loadingState.stopLoading())
+  const [error, accessToken] = await authorizeOauth2(
+    flows,
+    type,
+    selectedScopes,
+    server,
+    proxyUrl,
+  ).finally(() => loadingState.stopLoading())
 
-  // if (accessToken) {
-  //   updateScheme(`token`, accessToken)
-  // } else {
-  //   console.error(error)
-  //   toast(error?.message ?? 'Failed to authorize', 'error')
-  // }
+  if (accessToken) {
+    // Set the access token
+    emits('update:securityScheme', { token: accessToken })
+  } else {
+    console.error(error)
+    toast(error?.message ?? 'Failed to authorize', 'error')
+  }
 }
 
 /** To make prop drilling a little easier */
@@ -71,6 +76,8 @@ const dataTableInputProps = {
   environment,
   envVariables,
 }
+
+const flow = computed(() => flows[type]!)
 </script>
 
 <template>

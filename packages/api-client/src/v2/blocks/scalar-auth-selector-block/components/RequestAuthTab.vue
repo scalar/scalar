@@ -233,12 +233,12 @@ const dataTableInputProps = {
         </div>
       </DataTableRow>
       <template
-        v-for="(flow, key, ind) in scheme?.flows"
+        v-for="(_flow, key, ind) in scheme.flows"
         :key="key">
         <OAuth2
           v-if="activeFlow === key || (ind === 0 && !activeFlow)"
           v-bind="dataTableInputProps"
-          :flow="flow!"
+          :flows="scheme.flows"
           proxyUrl=""
           :scheme="scheme"
           :selectedScopes="scopes"
