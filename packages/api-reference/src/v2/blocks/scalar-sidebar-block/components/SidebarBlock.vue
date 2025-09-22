@@ -166,7 +166,7 @@ const hasChildren = (
                       <SidebarElement
                         :id="`sidebar-${child.id}`"
                         :isActive="isItemActive(child.id)"
-                        :item="child as TraversedEntry" />
+                        :item="child" />
                     </template>
                   </SidebarGroup>
                 </template>
@@ -197,7 +197,7 @@ const hasChildren = (
                     <SidebarElement
                       :id="`sidebar-${child.id}`"
                       :isActive="isItemActive(child.id)"
-                      :item="child as TraversedEntry" />
+                      :item="child" />
                   </template>
                 </SidebarGroup>
               </template>

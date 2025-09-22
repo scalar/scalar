@@ -38,10 +38,14 @@ const {
 /**
  * Type guards for different entry types
  */
-const isTagGroup = (entry: TraversedEntry): entry is TraversedTag =>
+const isTagGroup = (
+  entry: TraversedEntry,
+): entry is TraversedTag & { isGroup: true } =>
   entry['type'] === 'tag' && entry.isGroup === true
 
-const isTag = (entry: TraversedEntry): entry is TraversedTag =>
+const isTag = (
+  entry: TraversedEntry,
+): entry is TraversedTag & { isGroup: false } =>
   entry['type'] === 'tag' && !isTagGroup(entry)
 
 const isOperation = (entry: TraversedEntry): entry is TraversedOperation =>
@@ -144,7 +148,7 @@ defineExpose({
         :clientOptions
         :config
         :document
-        :entries="(entry as TraversedTag).children || []"
+        :entries="entry.children || []"
         :level="level + 1"
         :rootIndex
         :store />

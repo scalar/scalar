@@ -19,7 +19,7 @@ export function createSearchIndex(entries: TraversedEntry[], document?: OpenApiD
 
       // Recursively process children if they exist
       if ('children' in entry && entry.children) {
-        processEntries(entry.children as TraversedEntry[])
+        processEntries(entry.children)
       }
     })
   }
@@ -35,7 +35,7 @@ export function createSearchIndex(entries: TraversedEntry[], document?: OpenApiD
 function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: OpenApiDocument): void {
   // Operation
   if (entry.type === 'operation') {
-    const operation = getResolvedRef(document?.paths?.[entry.path]?.[entry.method as 'get']) ?? {}
+    const operation = getResolvedRef(document?.paths?.[entry.path]?.[entry.method]) ?? {}
 
     const requestBodyOrParameterMap = extractRequestBody(operation) || createParameterMap(operation)
     const body = typeof requestBodyOrParameterMap !== 'boolean' ? requestBodyOrParameterMap : null
@@ -57,7 +57,7 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
 
   // Webhook
   if (entry.type === 'webhook') {
-    const webhook = getResolvedRef(document?.webhooks?.[entry.name]?.[entry.method as 'get']) ?? {}
+    const webhook = getResolvedRef(document?.webhooks?.[entry.name]?.[entry.method]) ?? {}
 
     index.push({
       type: 'webhook',
