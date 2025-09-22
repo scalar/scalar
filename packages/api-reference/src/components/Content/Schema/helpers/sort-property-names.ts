@@ -77,13 +77,15 @@ export const sortPropertyNames = (
       return 0
     })
     .filter((property) => {
+      const resolved = schema.properties && getResolvedRef(schema.properties[property])
+
       // If hideReadOnly is true, filter out properties that are readOnly
-      if (hideReadOnly) {
-        return !(schema.properties && getResolvedRef(schema.properties[property])?.readOnly === true)
+      if (hideReadOnly && resolved?.readOnly === true) {
+        return false
       }
       // If hideWriteOnly is true, filter out properties that are writeOnly
-      if (hideWriteOnly) {
-        return !(schema.properties && getResolvedRef(schema.properties[property])?.writeOnly === true)
+      if (hideWriteOnly && resolved?.writeOnly === true) {
+        return false
       }
       return true
     })
