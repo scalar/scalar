@@ -8,8 +8,6 @@ import type {
 
 import { authOptions } from '@/v2/blocks/scalar-auth-selector-block/helpers/auth-options'
 
-type SchemeType = SecuritySchemeObject['type']
-
 /** Format a scheme object into a display object */
 export const formatScheme = ({
   name,
@@ -17,7 +15,7 @@ export const formatScheme = ({
   value,
 }: {
   name: string
-  type: SchemeType | 'complex'
+  type: SecuritySchemeObject['type'] | 'complex'
   value: NonNullable<OpenApiDocument['x-scalar-selected-security']>[number]
 }) => ({
   id: name,
@@ -117,8 +115,6 @@ export const getSchemeOptions = (
         isDeletable: false,
       })),
     })
-
-    // return options
 
     return options
   }
