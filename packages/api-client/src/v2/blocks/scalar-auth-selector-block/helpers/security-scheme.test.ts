@@ -192,18 +192,24 @@ describe('security-scheme', () => {
       expect(groups[2].options.every((opt) => opt.isDeletable === false)).toBe(true)
     })
 
-    it('should return flat list when readonly and has required schemes', () => {
+    it('should return options when readonly and has required schemes', () => {
       const security: NonNullable<OpenApiDocument['security']> = [{ apiKey: [] }]
 
       const result = getSecuritySchemeOptions(security, securitySchemes, true)
 
       expect(Array.isArray(result)).toBe(true)
-      expect(result).toHaveLength(1)
+      expect(result).toHaveLength(2)
       expect(result[0]!.label).toBe('Required authentication')
 
       expect((result[0] as SecuritySchemeGroup).options).toHaveLength(1)
       expect((result[0] as SecuritySchemeGroup).options[0]!.id).toBe('apiKey')
       expect((result[0] as SecuritySchemeGroup).options[0]!.label).toBe('apiKey')
+
+      expect(result[1]!.label).toBe('Available authentication')
+      expect((result[1] as SecuritySchemeGroup).options).toHaveLength(3)
+      expect((result[1] as SecuritySchemeGroup).options.some((opt) => opt.id === 'oauth2')).toBe(true)
+      expect((result[1] as SecuritySchemeGroup).options.some((opt) => opt.id === 'openIdConnect')).toBe(true)
+      expect((result[1] as SecuritySchemeGroup).options.some((opt) => opt.id === 'httpBasic')).toBe(true)
     })
 
     it('should return flat list when readonly and no required schemes', () => {
@@ -212,8 +218,11 @@ describe('security-scheme', () => {
       const result = getSecuritySchemeOptions(security, securitySchemes, true)
 
       expect(Array.isArray(result)).toBe(true)
-      expect(result).toHaveLength(2) // Available schemes only
-      expect((result as SecuritySchemeOption[]).every((opt) => typeof opt.id === 'string')).toBe(true)
+      expect(result).toHaveLength(4) // Available schemes only
+      expect((result as SecuritySchemeOption[])[0]?.id).toBe('apiKey')
+      expect((result as SecuritySchemeOption[])[1]?.id).toBe('httpBasic')
+      expect((result as SecuritySchemeOption[])[2]?.id).toBe('oauth2')
+      expect((result as SecuritySchemeOption[])[3]?.id).toBe('openIdConnect')
     })
 
     it('should handle complex security schemes', () => {
