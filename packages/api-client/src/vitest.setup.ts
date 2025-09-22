@@ -1,7 +1,8 @@
-import { useLayout } from '@/hooks/useLayout'
-import { useSidebar } from '@/hooks/useSidebar'
 import { afterEach, beforeEach, expect, vi } from 'vitest'
 import { reactive, ref } from 'vue'
+
+import { useLayout } from '@/hooks/useLayout'
+import { useSidebar } from '@/hooks/useSidebar'
 
 // Mock the useLayout hook
 vi.mock('@/hooks/useLayout', () => ({
