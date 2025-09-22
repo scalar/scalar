@@ -35,6 +35,18 @@
       "cache": false,
       "persistent": true,
       "dependsOn": ["^build"]
+    },
+    "@scalar/webjar#build": {
+      "outputs": []
+    },
+    "@scalarapi/docker-api-reference#build": {
+      "outputs": []
+    },
+    "proxy-scalar-com#build": {
+      "outputs": []
+    },
+    "@scalar/rust-api-reference#build": {
+      "outputs": []
     }
   }
 }
