@@ -211,6 +211,10 @@ describe('should correctly cast/default values to make the input schema complian
                 'write:planets': 'modify planets in your account',
               },
               'tokenUrl': '',
+              'x-scalar-client-id': '',
+              'x-scalar-client-secret': '',
+              'x-scalar-redirect-uri': '',
+              'x-usePkce': 'no',
             },
             'clientCredentials': {
               'scopes': {
@@ -219,6 +223,8 @@ describe('should correctly cast/default values to make the input schema complian
                 'write:planets': 'modify planets in your account',
               },
               'tokenUrl': 'https://galaxy.scalar.com/oauth/token',
+              'x-scalar-client-id': '',
+              'x-scalar-client-secret': '',
             },
             'implicit': {
               'authorizationUrl': 'https://galaxy.scalar.com/oauth/authorize',
@@ -227,6 +233,8 @@ describe('should correctly cast/default values to make the input schema complian
                 'read:planets': 'read your planets',
                 'write:planets': 'modify planets in your account',
               },
+              'x-scalar-client-id': '',
+              'x-scalar-redirect-uri': '',
             },
             'password': {
               'scopes': {
@@ -235,6 +243,10 @@ describe('should correctly cast/default values to make the input schema complian
                 'write:planets': 'modify planets in your account',
               },
               'tokenUrl': 'https://galaxy.scalar.com/oauth/token',
+              'x-scalar-client-id': '',
+              'x-scalar-client-secret': '',
+              'x-scalar-password': '',
+              'x-scalar-username': '',
             },
           },
         },
