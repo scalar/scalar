@@ -6,9 +6,7 @@ import OAuth2 from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
 import RequestAuthDataTableInput from '@/v2/blocks/scalar-auth-selector-block/components/RequestAuthDataTableInput.vue'
 
-// Minimal polyfill for environments without ResizeObserver (Headless UI can rely on it)
-// This avoids errors without mocking application code.
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+// Mock ResizeObserver
 window.ResizeObserver =
   window.ResizeObserver ||
   vi.fn().mockImplementation(() => ({
