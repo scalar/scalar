@@ -2055,7 +2055,7 @@ describe('bundle', () => {
 
   describe('bundle with a certain depth', () => {
     let server: FastifyInstance
-    const PORT = 7299
+    const PORT = 7298
     const url = `http://localhost:${PORT}`
 
     beforeEach(() => {

@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest'
+import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { describe, expect, it } from 'vitest'
 
 import { processSecuritySchemes } from './process-security-schemes'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 describe('process-security-schemes', () => {
   describe('apiKey security scheme', () => {
@@ -120,6 +120,8 @@ describe('process-security-schemes', () => {
                 'write:users': 'Write user data',
               },
               'x-scalar-secret-token': 'test-oauth-token',
+              'x-scalar-client-id': '',
+              'x-scalar-client-secret': '',
             },
           },
         },
@@ -147,6 +149,10 @@ describe('process-security-schemes', () => {
                 'write:users': 'Write user data',
               },
               'x-scalar-secret-token': 'test-password-token',
+              'x-scalar-client-id': '',
+              'x-scalar-client-secret': '',
+              'x-scalar-password': '',
+              'x-scalar-username': '',
             },
           },
         },
@@ -174,6 +180,8 @@ describe('process-security-schemes', () => {
                 'write:users': 'Write user data',
               },
               'x-scalar-secret-token': 'test-implicit-token',
+              'x-scalar-client-id': '',
+              'x-scalar-redirect-uri': '',
             },
           },
         },
@@ -202,6 +210,10 @@ describe('process-security-schemes', () => {
                 'write:users': 'Write user data',
               },
               'x-scalar-secret-token': 'test-auth-code-token',
+              'x-scalar-client-id': '',
+              'x-scalar-client-secret': '',
+              'x-scalar-redirect-uri': '',
+              'x-usePkce': 'no',
             },
           },
         },
@@ -228,6 +240,8 @@ describe('process-security-schemes', () => {
                 'read:users': 'Read user data',
               },
               'x-scalar-secret-token': 'test-client-token',
+              'x-scalar-client-id': '',
+              'x-scalar-client-secret': '',
             },
             password: {
               tokenUrl: 'https://oauth.example.com/token',
@@ -235,6 +249,10 @@ describe('process-security-schemes', () => {
                 'write:users': 'Write user data',
               },
               'x-scalar-secret-token': 'test-password-token',
+              'x-scalar-client-id': '',
+              'x-scalar-client-secret': '',
+              'x-scalar-password': '',
+              'x-scalar-username': '',
             },
           },
         },
@@ -350,6 +368,8 @@ describe('process-security-schemes', () => {
               scopes: {
                 'read:users': 'Read user data',
               },
+              'x-scalar-client-id': '',
+              'x-scalar-client-secret': '',
             },
           },
         },
