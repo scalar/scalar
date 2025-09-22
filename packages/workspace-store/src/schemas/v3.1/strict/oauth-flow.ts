@@ -13,9 +13,9 @@ const OAuthFlowCommonSchema = Type.Object({
   /** The auth token */
   'x-scalar-secret-token': Type.Optional(Type.String()),
   /** Additional query parameters for the OAuth authorization request. Example: { prompt: 'consent', audience: 'scalar' }. */
-  'x-scalar-security-query': Type.Record(Type.String(), Type.String()),
+  'x-scalar-security-query': Type.Optional(Type.Record(Type.String(), Type.String())),
   /** Additional body parameters for the OAuth token request. Example: { audience: 'foo' }. */
-  'x-scalar-security-body': Type.Record(Type.String(), Type.String()),
+  'x-scalar-security-body': Type.Optional(Type.Record(Type.String(), Type.String())),
   /** Extension to specify custom token name in the response (defaults to 'access_token') */
   'x-tokenName': Type.Optional(Type.String()),
 })
@@ -43,7 +43,7 @@ export const OAuthFlowPasswordSchema = compose(
     'x-scalar-client-secret': Type.String(),
     'x-scalar-username': Type.String(),
     'x-scalar-password': Type.String(),
-    'x-scalar-credentials-location': Type.Union([Type.Literal('header'), Type.Literal('body')]),
+    'x-scalar-credentials-location': Type.Optional(Type.Union([Type.Literal('header'), Type.Literal('body')])),
   }),
 )
 
@@ -56,7 +56,7 @@ export const OAuthFlowClientCredentialsSchema = compose(
   }),
   Type.Object({
     'x-scalar-client-secret': Type.String(),
-    'x-scalar-credentials-location': Type.Union([Type.Literal('header'), Type.Literal('body')]),
+    'x-scalar-credentials-location': Type.Optional(Type.Union([Type.Literal('header'), Type.Literal('body')])),
   }),
 )
 
@@ -73,7 +73,7 @@ export const OAuthFlowAuthorizationCodeSchema = compose(
     'x-scalar-client-secret': Type.String(),
     'x-scalar-redirect-uri': Type.String(),
     'x-usePkce': Type.Union([Type.Literal('no'), Type.Literal('SHA-256'), Type.Literal('plain')]),
-    'x-scalar-credentials-location': Type.Union([Type.Literal('header'), Type.Literal('body')]),
+    'x-scalar-credentials-location': Type.Optional(Type.Union([Type.Literal('header'), Type.Literal('body')])),
   }),
 )
 

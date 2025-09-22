@@ -27,9 +27,9 @@ import type { UpdateSecuritySchemeEvent } from '@/v2/blocks/scalar-auth-selector
 import {
   formatComplexScheme,
   formatScheme,
-  getSchemeOptions,
+  getSecuritySchemeOptions,
   type SecuritySchemeOption,
-} from '@/v2/blocks/scalar-auth-selector-block/helpers/format-scheme'
+} from '@/v2/blocks/scalar-auth-selector-block/helpers/security-scheme'
 
 // import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
 import RequestAuthDataTable from './RequestAuthDataTable.vue'
@@ -155,7 +155,7 @@ function handleDeleteScheme({
 
 /** Options for the security scheme dropdown */
 const schemeOptions = computed(() => {
-  return getSchemeOptions(
+  return getSecuritySchemeOptions(
     security ?? [],
     securitySchemes ?? {},
     clientLayout === 'modal' || layout === 'reference',

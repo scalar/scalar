@@ -53,14 +53,14 @@ export type SecuritySchemeGroup = {
  *
  * contains either a flat list, or different groups of required, available, and add new
  */
-export const getSchemeOptions = (
-  filteredRequirements: NonNullable<OpenApiDocument['security']>,
+export const getSecuritySchemeOptions = (
+  security: NonNullable<OpenApiDocument['security']>,
   securitySchemes: NonNullable<ComponentsObject['securitySchemes']>,
   isReadOnly: boolean = false,
 ): SecuritySchemeOption[] | SecuritySchemeGroup[] => {
   {
     /** Builds the required schemes formatted as options */
-    const requiredFormatted = filteredRequirements
+    const requiredFormatted = security
       .map((r): SecuritySchemeOption | undefined => {
         const keys = Object.keys(r)
 
