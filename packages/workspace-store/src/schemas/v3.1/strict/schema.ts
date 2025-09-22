@@ -130,6 +130,8 @@ const StringValidationProperties = Type.Object({
       Type.Literal('sf-token'),
       Type.Literal('sf-binary'),
       Type.Literal('sf-boolean'),
+      // Allow any arbitrary string
+      Type.String(),
     ]),
   ),
   /** Maximum string length. */

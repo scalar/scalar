@@ -63,8 +63,18 @@ describe('Operation', () => {
         title: 'Test API',
         version: '1.0.0',
       },
+      servers: [
+        {
+          url: 'https://root.example.com',
+        },
+      ],
       paths: {
         '/users/{userId}': {
+          servers: [
+            {
+              url: 'https://path.example.com',
+            },
+          ],
           parameters: [
             {
               in: 'path',
@@ -78,6 +88,11 @@ describe('Operation', () => {
           ],
           get: {
             summary: 'Get user by ID',
+            servers: [
+              {
+                url: 'https://op.example.com',
+              },
+            ],
             parameters: [
               {
                 in: 'query',
@@ -531,5 +546,73 @@ describe('Operation', () => {
     // Find the OperationResponses component within ModernLayout
     const operationResponses = modernLayout.findComponent({ name: 'OperationResponses' })
     expect(operationResponses.text()).toContain('This is the testing string')
+  })
+
+  it('passes operation-level server to ModernLayout', () => {
+    const doc = createMockDocument()
+
+    const wrapper = mount(Operation, {
+      props: {
+        id: 'test-operation',
+        path: '/users/{userId}',
+        method: 'get',
+        clientOptions,
+        isWebhook: false,
+        config: apiReferenceConfigurationSchema.parse({}),
+        server: undefined,
+        store: createMockStore(doc),
+        collection: mockCollection,
+        document: doc,
+      },
+    })
+
+    const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
+    expect(modernLayout.exists()).toBe(true)
+    const server = modernLayout.props('server') as { url?: string } | undefined
+    expect(server?.url).toBe('https://op.example.com')
+  })
+
+  it('falls back to path-level server when operation servers are missing', () => {
+    const doc = coerceValue(OpenAPIDocumentSchema, {
+      openapi: '3.1.0',
+      info: { title: 'Test API', version: '1.0.0' },
+      servers: [
+        {
+          url: 'https://root.example.com',
+        },
+      ],
+      paths: {
+        '/users': {
+          servers: [
+            {
+              url: 'https://path.example.com',
+            },
+          ],
+          get: {
+            summary: 'List users',
+          },
+        },
+      },
+    })
+
+    const wrapper = mount(Operation, {
+      props: {
+        id: 'test-operation',
+        path: '/users',
+        method: 'get',
+        clientOptions,
+        isWebhook: false,
+        config: apiReferenceConfigurationSchema.parse({}),
+        server: undefined,
+        store: createMockStore(doc),
+        collection: mockCollection,
+        document: doc,
+      },
+    })
+
+    const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
+    expect(modernLayout.exists()).toBe(true)
+    const server = modernLayout.props('server') as { url?: string } | undefined
+    expect(server?.url).toBe('https://path.example.com')
   })
 })

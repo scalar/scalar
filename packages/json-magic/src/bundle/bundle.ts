@@ -278,6 +278,7 @@ export function prefixInternalRefRecursive(input: unknown, prefix: string[]) {
  * @param referencePath - The JSON pointer path to the reference
  * @param externalRefsKey - The key used for external references (e.g. 'x-ext')
  * @param documentKey - The key identifying the external document
+ * @param bundleLocalRefs - Also bundles the local refs
  * @param processedNodes - Set of already processed nodes to prevent duplicates
  * @example
  * ```ts
@@ -302,12 +303,13 @@ export function prefixInternalRefRecursive(input: unknown, prefix: string[]) {
  * // Result: target will contain the User schema with resolved references
  * ```
  */
-const resolveAndCopyReferences = (
+export const resolveAndCopyReferences = (
   targetDocument: unknown,
   sourceDocument: unknown,
   referencePath: string,
   externalRefsKey: string,
   documentKey: string,
+  bundleLocalRefs = false,
   processedNodes = new Set(),
 ) => {
   const referencedValue = getValueByPath(sourceDocument, getSegmentsFromPath(referencePath)).value
@@ -335,8 +337,21 @@ const resolveAndCopyReferences = (
           targetDocument,
           sourceDocument,
           node['$ref'].substring(1),
-          documentKey,
           externalRefsKey,
+          documentKey,
+          bundleLocalRefs,
+          processedNodes,
+        )
+      }
+      // Bundle the local refs as well
+      else if (bundleLocalRefs) {
+        resolveAndCopyReferences(
+          targetDocument,
+          sourceDocument,
+          node['$ref'].substring(1),
+          externalRefsKey,
+          documentKey,
+          bundleLocalRefs,
           processedNodes,
         )
       }
