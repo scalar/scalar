@@ -83,6 +83,7 @@
     "playwright:install": "npx playwright install --with-deps",
     "scripts:generate-cloudbuild": "vite-node ./tooling/cloudbuild/generateCloudbuild.ts",
     "test": "vitest",
+    "test:benchmark": "vitest bench",
     "test:ci": "pnpm test:integrations:ci && pnpm test:packages:ci",
     "test:integrations:ci": "CI=1 vitest integrations/* --silent",
     "test:packages:ci": "CI=1 vitest packages/* --silent",

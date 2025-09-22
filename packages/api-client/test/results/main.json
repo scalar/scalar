@@ -1,0 +1,39 @@
+{
+  "files": [
+    {
+      "filepath": "/home/amritk/apps/scalar/scalar/packages/api-client/src/v2/blocks/helpers/get-example-from-schema.bench.ts",
+      "groups": [
+        {
+          "fullName": "src/v2/blocks/helpers/get-example-from-schema.bench.ts > bench:getExampleFromSchema",
+          "benchmarks": [
+            {
+              "id": "-468935348_0_0",
+              "name": "complex schema generation",
+              "rank": 1,
+              "rme": 2.095907364797372,
+              "samples": [],
+              "totalTime": 500.00003300039,
+              "min": 0.00007999999979801942,
+              "max": 5.339328000000023,
+              "hz": 9450865.376235513,
+              "period": 0.00010581041631537046,
+              "mean": 0.00010581041631537046,
+              "variance": 0.000006049653223810609,
+              "sd": 0.002459604281954845,
+              "sem": 0.0000011314736266717396,
+              "df": 4725432,
+              "critical": 1.96,
+              "moe": 0.0000022176883082766095,
+              "p75": 0.00010000000020227162,
+              "p99": 0.0001999999999497959,
+              "p995": 0.00028000000020256266,
+              "p999": 0.0007109999996828265,
+              "sampleCount": 4725433,
+              "median": 0.00010000000020227162
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

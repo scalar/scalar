@@ -15,6 +15,7 @@ import {
   XMLObjectRef,
 } from '@/schemas/v3.1/strict/ref-definitions'
 import { reference } from '@/schemas/v3.1/strict/reference'
+import type { SchemaObject } from '@/schemas/v3.1/strict/openapi-document'
 
 const schemaOrReference = Type.Union([SchemaObjectRef, reference(SchemaObjectRef)])
 
@@ -205,3 +206,6 @@ export const SchemaObjectSchemaDefinition = Type.Union([
   compose(ObjectValidationPropertiesWithSchema, CorePropertiesWithSchema, Extensions),
   compose(ArrayValidationPropertiesWithSchema, CorePropertiesWithSchema, Extensions),
 ])
+
+/** Type guards against our fake _ type */
+export const isSchemaObject = (schema: SchemaObject): schema is Exclude<SchemaObject, { _: string }> => 'type' in schema
