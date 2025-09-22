@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.2.0
+
+### Minor Changes
+
+- 0aa6d26: feat: add ~45 new highlight.js languages + alias maps and new grouped exports (mediumLanguages, specializedLanguages, allLanguages)
+
 ## 0.1.9
 
 ### Patch Changes

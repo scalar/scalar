@@ -9,7 +9,7 @@ A Rust crate for embedding Scalar API documentation in web applications.
 
 ## Documentation
 
-[Read the documentation here](https://guides.scalar.com/scalar/scalar_api_references/integrations/rust)
+[Read the documentation here](https://guides.scalar.com/scalar/scalar-api-references/integrations/rust)
 
 ## Community
 

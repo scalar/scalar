@@ -10,7 +10,6 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/rust"
   },
-  "private": true,
   "keywords": [
     "api",
     "documentation",
@@ -23,42 +22,43 @@
     "actix-web",
     "warp"
   ],
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "private": true,
   "engines": {
     "node": ">=20"
   },
   "scripts": {
-    "copy:standalone": "shx cp ../../packages/api-reference/dist/browser/standalone.js ./ui/scalar.js",
     "build": "command -v cargo >/dev/null 2>&1 && cargo build --release || echo 'cargo not found, skipping build'",
     "build:debug": "cargo build",
     "check": "cargo check",
-    "check:axum": "cargo check --features axum",
     "check:actix-web": "cargo check --features actix-web",
-    "check:warp": "cargo check --features warp",
     "check:all": "cargo check --features axum && cargo check --features actix-web && cargo check --features warp",
-    "test": "command -v cargo >/dev/null 2>&1 && cargo test || echo 'cargo not found, skipping test'",
-    "test:axum": "cargo test --features axum",
-    "test:actix-web": "cargo test --features actix-web",
-    "test:warp": "cargo test --features warp",
-    "test:all": "cargo test --features axum && cargo test --features actix-web && cargo test --features warp",
-    "example:axum": "cargo run --example axum --features axum",
-    "example:actix": "cargo run --example actix --features actix-web",
-    "example:warp": "cargo run --example warp --features warp",
-    "doc": "cargo doc --open",
-    "doc:axum": "cargo doc --features axum --open",
-    "doc:actix-web": "cargo doc --features actix-web --open",
-    "doc:warp": "cargo doc --features warp --open",
+    "check:axum": "cargo check --features axum",
+    "check:warp": "cargo check --features warp",
     "clean": "cargo clean",
     "clippy": "cargo clippy -- -D warnings",
-    "clippy:axum": "cargo clippy --features axum -- -D warnings",
     "clippy:actix-web": "cargo clippy --features actix-web -- -D warnings",
-    "clippy:warp": "cargo clippy --features warp -- -D warnings",
     "clippy:all": "cargo clippy --features axum -- -D warnings && cargo clippy --features actix-web -- -D warnings && cargo clippy --features warp -- -D warnings",
+    "clippy:axum": "cargo clippy --features axum -- -D warnings",
+    "clippy:warp": "cargo clippy --features warp -- -D warnings",
+    "copy:standalone": "shx cp ../../packages/api-reference/dist/browser/standalone.js ./ui/scalar.js",
+    "doc": "cargo doc --open",
+    "doc:actix-web": "cargo doc --features actix-web --open",
+    "doc:axum": "cargo doc --features axum --open",
+    "doc:warp": "cargo doc --features warp --open",
+    "example:actix": "cargo run --example actix --features actix-web",
+    "example:axum": "cargo run --example axum --features axum",
+    "example:warp": "cargo run --example warp --features warp",
     "fmt": "cargo fmt",
     "fmt:check": "cargo fmt -- --check",
     "lint:check": "cargo clippy -- -D warnings && cargo fmt -- --check",
     "lint:fix": "cargo clippy --fix --allow-dirty && cargo fmt",
-    "publish:check": "cargo publish --dry-run"
+    "publish:check": "cargo publish --dry-run",
+    "test": "command -v cargo >/dev/null 2>&1 && cargo test || echo 'cargo not found, skipping test'",
+    "test:actix-web": "cargo test --features actix-web",
+    "test:all": "cargo test --features axum && cargo test --features actix-web && cargo test --features warp",
+    "test:axum": "cargo test --features axum",
+    "test:warp": "cargo test --features warp"
   },
   "type": "module",
   "main": "./src/lib.rs",
@@ -71,8 +71,6 @@
     "README.md",
     "CHANGELOG.md"
   ],
-  "dependencies": {},
-  "devDependencies": {},
   "rust": {
     "crate": "scalar_api_reference",
     "version": "0.1.0",
@@ -86,5 +84,7 @@
       "actix",
       "warp"
     ]
-  }
+  },
+  "dependencies": {},
+  "devDependencies": {}
 }

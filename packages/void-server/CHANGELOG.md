@@ -1,5 +1,11 @@
 # @scalar/void-server
 
+## 2.2.5
+
+### Patch Changes
+
+- c075323: fix: duplicate xml definition
+
 ## 2.2.4
 
 ### Patch Changes

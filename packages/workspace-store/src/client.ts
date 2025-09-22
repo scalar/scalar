@@ -18,7 +18,6 @@ import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
 import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import { createNavigation } from '@/navigation'
-import type { TraverseSpecOptions } from '@/navigation/types'
 import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
 import { getServersFromDocument } from '@/preprocessing/server'
 import { extensions } from '@/schemas/extensions'
@@ -31,30 +30,7 @@ import {
 } from '@/schemas/v3.1/strict/openapi-document'
 import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from '@/schemas/workspace'
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
-import type { Config } from '@/schemas/workspace-specification/config'
-
-export type DocumentConfiguration = Config &
-  PartialDeep<{
-    'x-scalar-reference-config': {
-      tagSort: TraverseSpecOptions['tagsSorter']
-      operationsSorter: TraverseSpecOptions['operationsSorter']
-      getHeadingId: TraverseSpecOptions['getHeadingId']
-      getOperationId: TraverseSpecOptions['getOperationId']
-      getWebhookId: TraverseSpecOptions['getWebhookId']
-      getModelId: TraverseSpecOptions['getModelId']
-      getTagId: TraverseSpecOptions['getTagId']
-      generateOperationSlug?: (details: {
-        path: string
-        operationId?: string
-        method: string
-        summary?: string
-      }) => string
-      generateHeadingSlug?: (details: { slug?: string }) => string
-      generateTagSlug?: (details: { name?: string }) => string
-      generateModelSlug?: (details: { name?: string }) => string
-      generateWebhookSlug?: (details: { name: string; method: string }) => string
-    }
-  }>
+import type { Config, DocumentConfiguration } from '@/schemas/workspace-specification/config'
 
 type ExtraDocumentConfigurations = Record<
   string,
@@ -62,13 +38,6 @@ type ExtraDocumentConfigurations = Record<
     fetch: WorkspaceDocumentMetaInput['fetch']
   }
 >
-
-export type ValidationError = {
-  message: string
-  path: string
-  schema: unknown
-  value: unknown
-}
 
 const defaultConfig: RequiredDeep<Config> = {
   'x-scalar-reference-config': defaultReferenceConfig,
@@ -487,7 +456,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * per-document attributes that are not part of the OpenAPI document structure.
    */
   const documentMeta: InMemoryWorkspace['documentMeta'] = {}
-
   /**
    * Holds additional configuration options for each document in the workspace.
    *
@@ -590,7 +558,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   async function addInMemoryDocument(input: ObjectDoc & { initialize?: boolean; documentSource?: string }) {
     const { name, meta } = input
     const cloned = measureSync('deepClone', () => deepClone(input.document))
-    const inputDocument = measureSync('upgrade', () => upgrade(cloned))
+    const inputDocument = measureSync('upgrade', () => upgrade(cloned, '3.1'))
 
     measureSync('initialize', () => {
       if (input.initialize !== false) {
@@ -666,12 +634,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (strictDocument[extensions.document.navigation] === undefined) {
-      const showModels = input.config?.['x-scalar-reference-config']?.features?.showModels
+      const navigation = createNavigation(strictDocument as OpenApiDocument, input.config)
 
-      strictDocument[extensions.document.navigation] = createNavigation(strictDocument as OpenApiDocument, {
-        ...(input.config?.['x-scalar-reference-config'] ?? {}),
-        hideModels: showModels === undefined ? undefined : !showModels,
-      }).entries
+      strictDocument[extensions.document.navigation] = navigation.entries
 
       // Do some document processing
       processDocument(getRaw(strictDocument as OpenApiDocument), {
@@ -897,7 +862,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       )
     },
     rebaseDocument: (documentName, newDocumentOrigin, resolvedConflicts) => {
-      const newOrigin = upgrade(newDocumentOrigin)
+      const newOrigin = upgrade(newDocumentOrigin, '3.1')
 
       const originalDocument = originalDocuments[documentName]
       const intermediateDocument = intermediateDocuments[documentName]

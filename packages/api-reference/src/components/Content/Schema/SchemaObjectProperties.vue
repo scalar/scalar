@@ -117,10 +117,10 @@ const getAdditionalPropertiesName = (
     typeof additionalProperties['x-additionalPropertiesName'] === 'string' &&
     additionalProperties['x-additionalPropertiesName'].trim().length > 0
   ) {
-    return `${additionalProperties['x-additionalPropertiesName'].trim()}*`
+    return `${additionalProperties['x-additionalPropertiesName'].trim()}`
   }
 
-  return 'propertyName*'
+  return 'propertyName'
 }
 
 /**

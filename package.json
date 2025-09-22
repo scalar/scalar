@@ -4,11 +4,11 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "pnpm": "^10.15.1"
+    "pnpm": "^10.16.1"
   },
-  "packageManager": "pnpm@10.15.1",
+  "packageManager": "pnpm@10.16.1",
   "devDependencies": {
-    "@biomejs/biome": "^2.2.3",
+    "@biomejs/biome": "2.2.4",
     "@changesets/cli": "^2.27.10",
     "@eslint/js": "^9.33.0",
     "@ianvs/prettier-plugin-sort-imports": "^4.4.0",
@@ -23,7 +23,7 @@
     "eslint-plugin-vue": "^9.31.0",
     "lefthook": "^1.9.2",
     "nodemon": "^3.1.9",
-    "prettier": "^3.3.3",
+    "prettier": "3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "remark-cli": "^12.0.1",
     "remark-lint-no-dead-urls": "^1.1.0",

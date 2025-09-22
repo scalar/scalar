@@ -2,7 +2,14 @@ import { type Static, type TSchema, Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
 import { extensions } from '@/schemas/extensions'
-import { TraversedEntrySchema } from '@/schemas/navigation'
+import {
+  TraversedDescriptionSchemaDefinition,
+  TraversedEntrySchemaDefinition,
+  TraversedOperationSchemaDefinition,
+  TraversedSchemaSchemaDefinition,
+  TraversedTagSchemaDefinition,
+  TraversedWebhookSchemaDefinition,
+} from '@/schemas/navigation'
 import { CallbackObjectSchemaDefinition } from '@/schemas/v3.1/strict/callback'
 import { xScalarClientConfigCookiesSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-cookies'
 import { xScalarClientConfigEnvironmentsSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-environments'
@@ -28,6 +35,7 @@ import {
   SecurityRequirementObjectRef,
   ServerObjectRef,
   TagObjectRef,
+  TraversedEntryObjectRef,
 } from '@/schemas/v3.1/strict/ref-definitions'
 import { RequestBodyObjectSchemaDefinition } from '@/schemas/v3.1/strict/request-body'
 import { ResponseObjectSchemaDefinition } from '@/schemas/v3.1/strict/response'
@@ -62,7 +70,7 @@ const OpenApiExtensionsSchema = Type.Partial(
     'x-scalar-client-config-cookies': xScalarClientConfigCookiesSchema,
     'x-original-oas-version': Type.String(),
     'x-scalar-selected-security': Type.Optional(Type.Array(SecurityRequirementObjectRef)),
-    [extensions.document.navigation]: Type.Array(TraversedEntrySchema),
+    [extensions.document.navigation]: Type.Array(TraversedEntryObjectRef),
   }),
 )
 
@@ -127,6 +135,14 @@ const module = Type.Module({
   [REF_DEFINITIONS.OAuthFlowsObject]: OAuthFlowsObjectSchemaDefinition,
   [REF_DEFINITIONS.ServerVariableObject]: ServerVariableObjectSchemaDefinition,
   OpenApiDocument: OpenApiDocumentSchemaDefinition,
+
+  // Navigation schemas
+  [REF_DEFINITIONS.TraversedDescriptionObject]: TraversedDescriptionSchemaDefinition,
+  [REF_DEFINITIONS.TraversedOperationObject]: TraversedOperationSchemaDefinition,
+  [REF_DEFINITIONS.TraversedSchemaObject]: TraversedSchemaSchemaDefinition,
+  [REF_DEFINITIONS.TraversedWebhookObject]: TraversedWebhookSchemaDefinition,
+  [REF_DEFINITIONS.TraversedTagObject]: TraversedTagSchemaDefinition,
+  [REF_DEFINITIONS.TraversedEntryObject]: TraversedEntrySchemaDefinition,
   // Enforces that all references are included in the module
 } satisfies Record<keyof typeof REF_DEFINITIONS, TSchema> & Record<'OpenApiDocument', TSchema>)
 
@@ -166,6 +182,13 @@ export const DiscriminatorObjectSchema = module.Import('DiscriminatorObject')
 export const OAuthFlowsObjectSchema = module.Import('OAuthFlowsObject')
 export const ServerVariableObjectSchema = module.Import('ServerVariableObject')
 
+export const TraversedDescriptionSchema = module.Import('TraversedDescriptionObject')
+export const TraversedEntrySchema = module.Import('TraversedEntryObject')
+export const TraversedTagSchema = module.Import('TraversedTagObject')
+export const TraversedOperationSchema = module.Import('TraversedOperationObject')
+export const TraversedSchemaSchema = module.Import('TraversedSchemaObject')
+export const TraversedWebhookSchema = module.Import('TraversedWebhookObject')
+
 // ----- Type Definitions ----
 export type OpenApiDocument = Static<typeof OpenAPIDocumentSchema>
 
@@ -201,3 +224,10 @@ export type XMLObject = Static<typeof XMLObjectSchema>
 export type DiscriminatorObject = Static<typeof DiscriminatorObjectSchema>
 export type OAuthFlowsObject = Static<typeof OAuthFlowsObjectSchema>
 export type ServerVariableObject = Static<typeof ServerVariableObjectSchema>
+
+export type TraversedDescription = Static<typeof TraversedDescriptionSchema>
+export type TraversedEntry = Static<typeof TraversedEntrySchema>
+export type TraversedTag = Static<typeof TraversedTagSchema>
+export type TraversedOperation = Static<typeof TraversedOperationSchema>
+export type TraversedSchema = Static<typeof TraversedSchemaSchema>
+export type TraversedWebhook = Static<typeof TraversedWebhookSchema>

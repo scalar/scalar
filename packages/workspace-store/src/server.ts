@@ -6,9 +6,8 @@ import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointe
 import { upgrade } from '@scalar/openapi-upgrader'
 
 import { keyOf } from '@/helpers/general'
-import { createNavigation, type createNavigationOptions } from '@/navigation'
+import { createNavigation } from '@/navigation'
 import { extensions } from '@/schemas/extensions'
-import type { TraversedEntry } from '@/schemas/navigation'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import {
   type ComponentsObject,
@@ -16,7 +15,9 @@ import {
   type OpenApiDocument,
   type OperationObject,
   type PathsObject,
+  type TraversedEntry,
 } from '@/schemas/v3.1/strict/openapi-document'
+import type { DocumentConfiguration } from '@/schemas/workspace-specification/config'
 
 import { getValueByPath, parseJsonPointer } from './helpers/json-path-utils'
 import type { WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/workspace'
@@ -38,7 +39,7 @@ type WorkspaceDocumentInput = UrlDoc | ObjectDoc | FileDoc
 type CreateServerWorkspaceStoreBase = {
   documents: WorkspaceDocumentInput[]
   meta?: WorkspaceMeta
-  config?: createNavigationOptions
+  config?: DocumentConfiguration
 }
 type CreateServerWorkspaceStore =
   | ({
@@ -278,7 +279,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
   const addDocumentSync = (document: Record<string, unknown>, meta: { name: string } & WorkspaceDocumentMeta) => {
     const { name, ...documentMeta } = meta
 
-    const documentV3 = coerceValue(OpenAPIDocumentSchema, upgrade(document))
+    const documentV3 = coerceValue(OpenAPIDocumentSchema, upgrade(document, '3.1'))
 
     // add the assets
     assets[meta.name] = {

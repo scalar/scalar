@@ -17,9 +17,9 @@ events.requestStatus.on((status) => {
   if (status === 'start') {
     timeout.value = setTimeout(() => loading.startLoading(), 1000)
   } else {
-    clearTimeout(timeout.value),
-      (timeout.value = undefined),
-      loading.stopLoading()
+    clearTimeout(timeout.value)
+    timeout.value = undefined
+    loading.stopLoading()
   }
 })
 </script>

@@ -1,22 +1,25 @@
 import { describe, expect, it } from 'vitest'
 
-import type { TraverseSpecOptions } from '@/navigation/types'
-import type { TraversedTag } from '@/schemas/navigation'
 import { coerceValue } from '@/schemas/typebox-coerce'
-import { type OpenApiDocument, SchemaObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
+import { type OpenApiDocument, SchemaObjectSchema, type TraversedTag } from '@/schemas/v3.1/strict/openapi-document'
+import type { DocumentConfiguration } from '@/schemas/workspace-specification/config'
 
 import { traverseDocument } from './traverse-document'
 
 describe('traverseDocument', () => {
-  const mockOptions: TraverseSpecOptions = {
-    hideModels: false,
-    operationsSorter: 'alpha',
-    tagsSorter: 'alpha',
-    getHeadingId: (heading) => heading.value,
-    getOperationId: (operation) => operation.summary ?? '',
-    getWebhookId: (webhook) => webhook?.name ?? 'webhooks',
-    getModelId: (model) => model?.name ?? '',
-    getTagId: (tag) => tag.name ?? '',
+  const mockOptions: DocumentConfiguration = {
+    'x-scalar-reference-config': {
+      features: {
+        showModels: true,
+      },
+      operationsSorter: 'alpha',
+      tagSort: 'alpha',
+      getHeadingId: (heading) => heading.value,
+      getOperationId: (operation) => operation.summary ?? '',
+      getWebhookId: (webhook) => webhook?.name ?? 'webhooks',
+      getModelId: (model) => model?.name ?? '',
+      getTagId: (tag) => tag.name ?? '',
+    },
   }
 
   it('should handle empty document', () => {
@@ -29,9 +32,7 @@ describe('traverseDocument', () => {
     }
 
     const result = traverseDocument(emptyDoc, mockOptions)
-    expect(result.entries).toHaveLength(0)
-    expect(result.titles).toBeInstanceOf(Map)
-    expect(result.titles.size).toBe(0)
+    expect(result.entries).toEqual([])
   })
 
   it('should traverse document with description', () => {
@@ -46,7 +47,18 @@ describe('traverseDocument', () => {
 
     const result = traverseDocument(doc, mockOptions)
     expect(result.entries).toHaveLength(1)
-    expect(result.titles.get('Test Description')).toBe('Test Description')
+    expect(result.entries[0]).toEqual({
+      'id': 'Test Description',
+      title: 'Test Description',
+      type: 'text',
+      children: [
+        {
+          'id': 'Section 1',
+          title: 'Section 1',
+          type: 'text',
+        },
+      ],
+    })
   })
 
   it('should handle paths and operations', () => {
@@ -79,7 +91,27 @@ describe('traverseDocument', () => {
 
     const result = traverseDocument(doc, mockOptions)
     expect(result.entries).toHaveLength(1) // One tag group
-    expect(result.titles.get('Test Operation')).toBe('Test Operation')
+    expect(result.entries).toEqual([
+      {
+        'description': 'Test Tag',
+        'id': 'test',
+        'isGroup': false,
+        'name': 'test',
+        'title': 'test',
+        'type': 'tag',
+        xKeys: {},
+        'children': [
+          {
+            'id': 'Test Operation',
+            'method': 'get',
+            'path': '/test',
+            'ref': '#/paths/~1test/get',
+            'title': 'Test Operation',
+            'type': 'operation',
+          },
+        ],
+      },
+    ])
   })
 
   it('should handle webhooks', () => {
@@ -105,9 +137,16 @@ describe('traverseDocument', () => {
 
     const result = traverseDocument(doc, mockOptions)
     expect(result.entries).toHaveLength(1) // Webhooks section
-    expect(result.titles.get('test-webhook')).toBe('Test Webhook')
     expect((result.entries[0] as TraversedTag).children).toHaveLength(1)
-    expect((result.entries[0] as TraversedTag).children?.[0]?.title).toBe('Test Webhook')
+    expect((result.entries[0] as TraversedTag).children?.[0]).toEqual({
+      'id': 'test-webhook',
+      'isDeprecated': undefined,
+      'method': 'post',
+      'name': 'test-webhook',
+      'ref': '#/webhooks/test-webhook/post',
+      'title': 'Test Webhook',
+      'type': 'webhook',
+    })
   })
 
   it('should handle schemas when not hidden', () => {
@@ -133,7 +172,14 @@ describe('traverseDocument', () => {
 
     const result = traverseDocument(doc, mockOptions)
     expect(result.entries).toHaveLength(1) // Models section
-    expect(result.titles.get('TestModel')).toBe('TestModel')
+    expect((result.entries[0] as TraversedTag).children).toHaveLength(1)
+    expect((result.entries[0] as TraversedTag).children?.[0]).toEqual({
+      'id': 'TestModel',
+      'name': 'TestModel',
+      'ref': '#/components/schemas/TestModel',
+      'title': 'TestModel',
+      'type': 'model',
+    })
   })
 
   it('should not include schemas when hidden', () => {
@@ -158,8 +204,12 @@ describe('traverseDocument', () => {
     }
 
     const optionsWithHiddenModels = {
-      ...mockOptions,
-      hideModels: true,
+      'x-scalar-reference-config': {
+        ...mockOptions['x-scalar-reference-config'],
+        features: {
+          showModels: false,
+        },
+      },
     }
 
     const result = traverseDocument(doc, optionsWithHiddenModels)
@@ -211,8 +261,46 @@ describe('traverseDocument', () => {
 
     const result = traverseDocument(doc, mockOptions)
     expect(result.entries).toHaveLength(2) // Two tag groups
-    expect(result.titles.get('Test Operation 1')).toBe('Test Operation 1')
-    expect(result.titles.get('Test Operation 2')).toBe('Test Operation 2')
+    expect(result.entries).toEqual([
+      {
+        'description': 'Tag 1',
+        'id': 'tag1',
+        'isGroup': false,
+        'name': 'tag1',
+        'title': 'tag1',
+        'type': 'tag',
+        xKeys: {},
+        'children': [
+          {
+            'id': 'Test Operation 1',
+            'method': 'get',
+            'path': '/test1',
+            'ref': '#/paths/~1test1/get',
+            'title': 'Test Operation 1',
+            'type': 'operation',
+          },
+        ],
+      },
+      {
+        'description': 'Tag 2',
+        'id': 'tag2',
+        'isGroup': false,
+        'name': 'tag2',
+        'title': 'tag2',
+        'type': 'tag',
+        xKeys: {},
+        'children': [
+          {
+            'id': 'Test Operation 2',
+            'method': 'post',
+            'path': '/test2',
+            'ref': '#/paths/~1test2/post',
+            'title': 'Test Operation 2',
+            'type': 'operation',
+          },
+        ],
+      },
+    ])
   })
 
   it('should handle operations without tags', () => {
@@ -238,7 +326,17 @@ describe('traverseDocument', () => {
 
     const result = traverseDocument(doc, mockOptions)
     expect(result.entries).toHaveLength(1) // One tag group for untagged operations
-    expect(result.titles.get('Untagged Operation')).toBe('Untagged Operation')
+    expect(result.entries).toEqual([
+      {
+        'id': 'Untagged Operation',
+        'isDeprecated': undefined,
+        'method': 'get',
+        'path': '/test',
+        'ref': '#/paths/~1test/get',
+        'title': 'Untagged Operation',
+        'type': 'operation',
+      },
+    ])
   })
 
   it('should respect tag sorting configuration', () => {

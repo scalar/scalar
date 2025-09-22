@@ -20,7 +20,7 @@
     "openapi 3.0",
     "openapi 3.1"
   ],
-  "version": "0.0.0",
+  "version": "0.1.0",
   "engines": {
     "node": ">=20"
   },
@@ -48,6 +48,11 @@
       "import": "./dist/3.0-to-3.1/index.js",
       "types": "./dist/3.0-to-3.1/index.d.ts",
       "default": "./dist/3.0-to-3.1/index.js"
+    },
+    "./3.1-to-3.2": {
+      "import": "./dist/3.1-to-3.2/index.js",
+      "types": "./dist/3.1-to-3.2/index.d.ts",
+      "default": "./dist/3.1-to-3.2/index.js"
     }
   },
   "files": [

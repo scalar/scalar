@@ -4,7 +4,6 @@ import { ScalarIconCaretRight } from '@scalar/icons'
 import { useElementHover } from '@vueuse/core'
 import { ref } from 'vue'
 
-import { useSidebar } from '@/features/sidebar'
 import { useNavState } from '@/hooks/useNavState'
 
 import IntersectionObserver from '../IntersectionObserver.vue'
@@ -17,8 +16,7 @@ const { id } = defineProps<{
 const button = ref()
 const isHovered = useElementHover(button)
 
-const { getSectionId, isIntersectionEnabled, replaceUrlState } = useNavState()
-const { setCollapsedSidebarItem } = useSidebar()
+const { isIntersectionEnabled, replaceUrlState } = useNavState()
 
 /** On scroll over this section */
 const handleScroll = () => {
@@ -27,11 +25,6 @@ const handleScroll = () => {
   }
 
   replaceUrlState(id)
-
-  // Open models and webhooks on scroll
-  if (id?.startsWith('model') || id?.startsWith('webhook')) {
-    setCollapsedSidebarItem(getSectionId(id), true)
-  }
 }
 </script>
 <template>

@@ -1,5 +1,23 @@
 # @scalar/openapi-parser
 
+## 0.21.0
+
+### Minor Changes
+
+- a1f865c: refactor: move upgrade() to @scalar/openapi-upgrader
+
+### Patch Changes
+
+- a1f865c: refactor: use @scalar/openapi-upgrader
+- dcf50ef: refactor: move escapeJsonPointer to @scalar/json-magic
+- Updated dependencies [6221e4a]
+- Updated dependencies [fe46413]
+- Updated dependencies [2d612e4]
+- Updated dependencies [dcf50ef]
+- Updated dependencies [02085ef]
+  - @scalar/openapi-upgrader@0.1.0
+  - @scalar/json-magic@0.5.0
+
 ## 0.20.6
 
 ### Patch Changes

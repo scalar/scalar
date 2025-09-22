@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/components"
   },
-  "version": "0.14.34",
+  "version": "0.14.35",
   "engines": {
     "node": ">=20"
   },
@@ -24,11 +24,12 @@
     "lint:check": "eslint . && pnpm lint:icons",
     "lint:fix": "eslint . --fix",
     "lint:icons": "svglint src/components/ScalarIcon/icons/*.svg --config src/components/ScalarIcon/.svglintrc.js",
+    "playwright:cleanup-docker": "docker rm -f scalar-playwright 2>/dev/null || true",
     "preview": "vite preview --outDir storybook-static -c test/vite.config.ts 1>&2",
     "test": "vitest",
     "test:e2e": "PW_TEST_CONNECT_WS_ENDPOINT=ws://127.0.0.1:5001/ playwright test",
     "test:e2e:ci": "CI=1 playwright test",
-    "test:e2e:playwright": "docker run --network=host -e PORT=5001 --rm --name scalar-playwright scalarapi/playwright:1.55.0",
+    "test:e2e:playwright": "pnpm playwright:cleanup-docker && docker run --network=host -e PORT=5001 --rm --name scalar-playwright scalarapi/playwright:1.55.0",
     "test:e2e:report": "playwright show-report",
     "test:e2e:ui": "pnpm test:e2e --ui",
     "test:e2e:update": "pnpm test:e2e --update-snapshots",
