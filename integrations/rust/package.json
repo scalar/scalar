@@ -1,5 +1,5 @@
 {
-  "name": "@scalar/rust-api-reference",
+  "name": "scalar_api_reference",
   "description": "A Rust crate for embedding Scalar API documentation in web applications",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
