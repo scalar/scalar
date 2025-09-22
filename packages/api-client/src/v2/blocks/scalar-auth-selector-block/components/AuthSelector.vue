@@ -189,6 +189,12 @@ const deleteScheme = () => {
   selectedScheme.value = null
   deleteSchemeModal.hide()
 }
+
+defineExpose({
+  authIndicator,
+  selectedSchemeOptions,
+  schemeOptions,
+})
 </script>
 <template>
   <ViewLayoutCollapse
@@ -206,6 +212,7 @@ const deleteScheme = () => {
           v-if="authIndicator"
           class="text-c-3 hover:bg-b-3 hover:text-c-1 -mr-1 cursor-pointer rounded px-1 py-0.5 text-xs leading-[normal]"
           :class="{ 'text-c-1': authIndicator.text === 'Required' }"
+          data-testid="auth-indicator"
           @click="openAuthCombobox">
           {{ authIndicator.text }}
         </span>
@@ -270,7 +277,7 @@ const deleteScheme = () => {
       :environment="environment"
       :layout="layout"
       :securitySchemes="securitySchemes"
-      :selectedSchemeOptions="selectedSecurity"
+      :selectedSchemeOptions="selectedSchemeOptions"
       :server="server"
       @update:securityScheme="emits('update:securityScheme', $event)"
       @update:selectedScopes="emits('update:selectedScopes', $event)" />

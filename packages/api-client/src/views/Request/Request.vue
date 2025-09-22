@@ -11,6 +11,7 @@ import { importCurlCommand } from '@/libs/importers/curl'
 import type { SendRequestResult } from '@/libs/send-request/create-request-operation'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
+import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
 import RequestSubpageHeader from '@/views/Request/RequestSubpageHeader.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
@@ -55,6 +56,17 @@ function handleCurlImport(curl: string) {
     },
   })
 }
+
+const a = {
+  uid: '' as any,
+  name: 'No Environment',
+  value: 'hello',
+  color: '',
+}
+
+const log = (...args: any[]) => {
+  console.log(...args)
+}
 </script>
 
 <template>
@@ -69,7 +81,67 @@ function handleCurlImport(curl: string) {
       <div
         v-if="activeRequest"
         class="flex h-full flex-1 flex-col">
-        <RequestSubpageHeader
+        <AuthSelector
+          :envVariables="[]"
+          :environment="a"
+          :layout="'client'"
+          :security="[
+            {
+              marc: [],
+              cam: ['auth'],
+            },
+          ]"
+          :securitySchemes="{
+            bearer: {
+              type: 'http',
+              scheme: 'bearer',
+            },
+            marc: {
+              type: 'apiKey',
+              name: 'marc',
+              in: 'header',
+            },
+            cam: {
+              type: 'oauth2',
+              flows: {
+                implicit: {
+                  'authorizationUrl': 'https://example.com/api/oauth/dialog',
+                  'scopes': {},
+                  'x-scalar-client-id': 'client-id',
+                  'x-scalar-redirect-uri': '',
+                },
+                password: {
+                  'scopes': {
+                    'auth':
+                      'Grants read and write access to protected resources',
+                    'write:auth': 'Grants write access to protected resources',
+                    'read:auth': 'Grants read access to protected resources',
+                  },
+                  'tokenUrl': '',
+                  'x-scalar-client-id': '',
+                  'x-scalar-client-secret': '',
+                  'x-scalar-username': '',
+                  'x-scalar-password': '',
+                },
+              },
+            },
+          }"
+          :selectedSecurity="[
+            {
+              marc: [],
+              cam: ['auth'],
+            },
+            {
+              marc: [],
+            },
+          ]"
+          :server="undefined"
+          :title="'Authentication'"
+          @deleteOperationAuth="log"
+          @update:securityScheme="log"
+          @update:selectedScopes="log"
+          @update:selectedSecurity="log" />
+        <!-- <RequestSubpageHeader
           v-model="isSidebarOpen"
           :collection="activeCollection"
           :envVariables="activeEnvVariables"
@@ -78,7 +150,7 @@ function handleCurlImport(curl: string) {
           :server="activeServer"
           :workspace="activeWorkspace"
           @hideModal="() => modalState.hide()"
-          @importCurl="handleCurlImport" />
+          @importCurl="handleCurlImport" /> -->
         <ViewLayout>
           <!-- TODO possible loading state -->
           <ViewLayoutContent
@@ -97,11 +169,11 @@ function handleCurlImport(curl: string) {
               :workspace="activeWorkspace" />
             <ResponseSection
               :collection="activeCollection"
-              :operation="activeRequest"
-              :workspace="activeWorkspace"
-              :requestResult="requestResult"
               :numWorkspaceRequests="activeWorkspaceRequests.length"
-              :response="activeHistoryEntry?.response" />
+              :operation="activeRequest"
+              :requestResult="requestResult"
+              :response="activeHistoryEntry?.response"
+              :workspace="activeWorkspace" />
           </ViewLayoutContent>
         </ViewLayout>
       </div>

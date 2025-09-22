@@ -2,7 +2,6 @@
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type {
   ComponentsObject,
-  OpenApiDocument,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref, watch } from 'vue'
@@ -10,6 +9,7 @@ import { computed, ref, watch } from 'vue'
 import { DataTable } from '@/components/DataTable'
 import type { EnvVariable } from '@/store'
 import type { UpdateSecuritySchemeEvent } from '@/v2/blocks/scalar-auth-selector-block/event-types'
+import type { SecuritySchemeOption } from '@/v2/blocks/scalar-auth-selector-block/helpers/security-scheme'
 
 import RequestAuthTab from './RequestAuthTab.vue'
 
@@ -23,7 +23,7 @@ const {
   environment: Environment
   envVariables: EnvVariable[]
   layout: 'client' | 'reference'
-  selectedSchemeOptions: OpenApiDocument['x-scalar-selected-security']
+  selectedSchemeOptions: SecuritySchemeOption[]
   securitySchemes: ComponentsObject['securitySchemes']
   server: ServerObject | undefined
 }>()
@@ -52,13 +52,19 @@ watch(
     }
   },
 )
+
+defineExpose({
+  activeAuthIndex,
+  activeScheme,
+})
 </script>
 <template>
   <form @submit.prevent>
     <div
       v-if="selectedSchemeOptions.length > 1"
       class="box-content flex flex-wrap gap-x-2.5 overflow-hidden border border-b-0 px-3"
-      :class="layout === 'client' && 'border-x-0'">
+      :class="layout === 'client' && 'border-x-0'"
+      data-testid="auth-tabs">
       <div
         v-for="(option, index) in selectedSchemeOptions"
         :key="Object.keys(option).join(' & ')"
@@ -89,7 +95,7 @@ watch(
         :environment="environment"
         :layout="layout"
         :securitySchemes="securitySchemes ?? {}"
-        :selectedSecuritySchema="activeScheme"
+        :selectedSecuritySchema="activeScheme.value"
         :server="server"
         @update:securityScheme="emits('update:securityScheme', $event)"
         @update:selectedScopes="emits('update:selectedScopes', $event)" />
