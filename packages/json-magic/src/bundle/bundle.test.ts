@@ -1329,35 +1329,32 @@ describe('bundle', () => {
       })
     })
 
-    it(
-      'does not modify external URLs when already defined by $id property',
-      async () => {
-        const url = `http://localhost:${port}`
+    it('does not modify external URLs when already defined by $id property', async () => {
+      const url = `http://localhost:${port}`
 
-        const input = {
-          $id: 'https://example.com/root',
-          components: {
-            schemas: {
-              User: {
-                $id: `${url}/schema`,
-                type: 'object',
-                properties: {
-                  name: { type: 'string' },
-                },
+      const input = {
+        $id: 'https://example.com/root',
+        components: {
+          schemas: {
+            User: {
+              $id: `${url}/schema`,
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
               },
             },
           },
-          paths: {
-            '/users': {
-              get: {
-                responses: {
-                  '200': {
-                    description: 'Success',
-                    content: {
-                      'application/json': {
-                        schema: {
-                          $ref: `${url}/schema`,
-                        },
+        },
+        paths: {
+          '/users': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'Success',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        $ref: `${url}/schema`,
                       },
                     },
                   },
@@ -1365,58 +1362,54 @@ describe('bundle', () => {
               },
             },
           },
-        }
+        },
+      }
 
-        await bundle(input, {
-          plugins: [fetchUrls(), readFiles()],
-          treeShake: false,
-        })
+      await bundle(input, {
+        plugins: [fetchUrls(), readFiles()],
+        treeShake: false,
+      })
 
-        // The $ref should remain unchanged because the schema is already defined locally with $id
-        expect(input.paths['/users'].get.responses['200'].content['application/json'].schema.$ref).toBe(`${url}/schema`)
+      // The $ref should remain unchanged because the schema is already defined locally with $id
+      expect(input.paths['/users'].get.responses['200'].content['application/json'].schema.$ref).toBe(`${url}/schema`)
 
-        // The external schema should not be bundled into x-ext
-        expect(input['x-ext']).toBeUndefined()
+      // The external schema should not be bundled into x-ext
+      expect(input['x-ext']).toBeUndefined()
 
-        // The local schema with $id should remain unchanged
-        expect(input.components.schemas.User).toEqual({
-          $id: `${url}/schema`,
-          type: 'object',
-          properties: {
-            name: { type: 'string' },
-          },
-        })
-      },
-      { timeout: 10000 },
-    )
+      // The local schema with $id should remain unchanged
+      expect(input.components.schemas.User).toEqual({
+        $id: `${url}/schema`,
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+        },
+      })
+    })
 
-    it(
-      'does not modify external URLs when already defined by $anchor property',
-      async () => {
-        const input = {
-          $id: 'https://example.com/root',
-          components: {
-            schemas: {
-              User: {
-                $anchor: 'user-schema',
-                type: 'object',
-                properties: {
-                  name: { type: 'string' },
-                },
+    it('does not modify external URLs when already defined by $anchor property', async () => {
+      const input = {
+        $id: 'https://example.com/root',
+        components: {
+          schemas: {
+            User: {
+              $anchor: 'user-schema',
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
               },
             },
           },
-          paths: {
-            '/users': {
-              get: {
-                responses: {
-                  '200': {
-                    description: 'Success',
-                    content: {
-                      'application/json': {
-                        schema: {
-                          $ref: 'https://example.com/root/schema#user-schema',
-                        },
+        },
+        paths: {
+          '/users': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'Success',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        $ref: 'https://example.com/root/schema#user-schema',
                       },
                     },
                   },
@@ -1424,32 +1417,31 @@ describe('bundle', () => {
               },
             },
           },
-        }
+        },
+      }
 
-        await bundle(input, {
-          plugins: [fetchUrls(), readFiles()],
-          treeShake: false,
-        })
+      await bundle(input, {
+        plugins: [fetchUrls(), readFiles()],
+        treeShake: false,
+      })
 
-        // The $ref should remain unchanged because the schema is already defined locally with $anchor
-        expect(input.paths['/users'].get.responses['200'].content['application/json'].schema.$ref).toBe(
-          'https://example.com/root/schema#user-schema',
-        )
+      // The $ref should remain unchanged because the schema is already defined locally with $anchor
+      expect(input.paths['/users'].get.responses['200'].content['application/json'].schema.$ref).toBe(
+        'https://example.com/root/schema#user-schema',
+      )
 
-        // The external schema should not be bundled into x-ext
-        expect(input['x-ext']).toBeUndefined()
+      // The external schema should not be bundled into x-ext
+      expect(input['x-ext']).toBeUndefined()
 
-        // The local schema with $anchor should remain unchanged
-        expect(input.components.schemas.User).toEqual({
-          $anchor: 'user-schema',
-          type: 'object',
-          properties: {
-            name: { type: 'string' },
-          },
-        })
-      },
-      { timeout: 10000 },
-    )
+      // The local schema with $anchor should remain unchanged
+      expect(input.components.schemas.User).toEqual({
+        $anchor: 'user-schema',
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+        },
+      })
+    })
 
     it('does not modify external URLs when prefix is already defined by $id', async () => {
       const url = `http://localhost:${port}`
