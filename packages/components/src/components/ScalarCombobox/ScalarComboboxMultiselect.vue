@@ -23,11 +23,11 @@ defineProps<
   } & ScalarFloatingOptions
 >()
 
-const model = defineModel<O[]>({ default: [] })
-
 const emit = defineEmits<ComboboxEmits>()
 
-const slots = defineSlots<ComboboxSlots<O, G>>()
+const model = defineModel<O[]>({ default: [] })
+
+defineSlots<ComboboxSlots<O, G>>()
 
 /** Propagate up the popover ref */
 const comboboxPopoverRef = ref<typeof ComboboxPopover | null>(null)

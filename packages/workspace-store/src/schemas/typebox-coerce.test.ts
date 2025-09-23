@@ -200,41 +200,61 @@ describe('should correctly cast/default values to make the input schema complian
     expect(result).toEqual({
       securitySchemes: {
         someName: {
-          'type': 'oauth2',
-          'description': 'OAuth 2.0 authentication',
-          'flows': {
-            'authorizationCode': {
-              'authorizationUrl': 'https://galaxy.scalar.com/oauth/authorize',
-              'scopes': {
+          description: 'OAuth 2.0 authentication',
+          type: 'oauth2',
+          flows: {
+            implicit: {
+              refreshUrl: '',
+              scopes: {
                 'read:account': 'read your account information',
-                'read:planets': 'read your planets',
                 'write:planets': 'modify planets in your account',
+                'read:planets': 'read your planets',
               },
-              'tokenUrl': '',
+              'x-scalar-secret-client-id': '',
+              'x-scalar-secret-token': '',
+              authorizationUrl: 'https://galaxy.scalar.com/oauth/authorize',
+              'x-scalar-secret-redirect-uri': '',
             },
-            'clientCredentials': {
-              'scopes': {
+            password: {
+              refreshUrl: '',
+              scopes: {
                 'read:account': 'read your account information',
-                'read:planets': 'read your planets',
                 'write:planets': 'modify planets in your account',
+                'read:planets': 'read your planets',
               },
-              'tokenUrl': 'https://galaxy.scalar.com/oauth/token',
+              'x-scalar-secret-client-id': '',
+              'x-scalar-secret-token': '',
+              tokenUrl: 'https://galaxy.scalar.com/oauth/token',
+              'x-scalar-secret-username': '',
+              'x-scalar-secret-password': '',
+              'x-scalar-secret-client-secret': '',
             },
-            'implicit': {
-              'authorizationUrl': 'https://galaxy.scalar.com/oauth/authorize',
-              'scopes': {
+            clientCredentials: {
+              refreshUrl: '',
+              scopes: {
                 'read:account': 'read your account information',
-                'read:planets': 'read your planets',
                 'write:planets': 'modify planets in your account',
+                'read:planets': 'read your planets',
               },
+              'x-scalar-secret-client-id': '',
+              'x-scalar-secret-token': '',
+              tokenUrl: 'https://galaxy.scalar.com/oauth/token',
+              'x-scalar-secret-client-secret': '',
             },
-            'password': {
-              'scopes': {
+            authorizationCode: {
+              refreshUrl: '',
+              scopes: {
                 'read:account': 'read your account information',
-                'read:planets': 'read your planets',
                 'write:planets': 'modify planets in your account',
+                'read:planets': 'read your planets',
               },
-              'tokenUrl': 'https://galaxy.scalar.com/oauth/token',
+              'x-scalar-secret-client-id': '',
+              'x-scalar-secret-token': '',
+              authorizationUrl: 'https://galaxy.scalar.com/oauth/authorize',
+              tokenUrl: '',
+              'x-scalar-secret-client-secret': '',
+              'x-scalar-secret-redirect-uri': '',
+              'x-usePkce': 'no',
             },
           },
         },

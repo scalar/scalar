@@ -71,6 +71,7 @@ describe('RequestExample', () => {
       scheme: 'basic',
       'x-scalar-secret-username': 'testuser',
       'x-scalar-secret-password': 'testpass',
+      'x-scalar-secret-token': 'testtoken',
     },
   ]
 
@@ -488,8 +489,13 @@ describe('RequestExample', () => {
             authorizationCode: {
               authorizationUrl: 'https://example.com/auth',
               tokenUrl: 'https://example.com/token',
+              refreshUrl: '',
               scopes: {},
               'x-scalar-secret-token': 'oauth-token',
+              'x-scalar-secret-client-id': '',
+              'x-scalar-secret-client-secret': '',
+              'x-scalar-secret-redirect-uri': '',
+              'x-usePkce': 'no',
             },
           },
         },
@@ -1026,6 +1032,8 @@ describe('RequestExample', () => {
               type: 'http',
               scheme: 'bearer',
               'x-scalar-secret-token': 'bearer-token-456',
+              'x-scalar-secret-username': '',
+              'x-scalar-secret-password': '',
             },
           ],
           selectedExample: 'secureExample',
