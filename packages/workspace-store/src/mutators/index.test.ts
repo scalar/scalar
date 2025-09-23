@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { createWorkspaceStore, generateClientMutators } from '@/client'
+import type { OAuthFlowAuthorizationCode } from '@/schemas/v3.1/strict/oauth-flow'
 
 describe('generateClientMutators', () => {
   describe('cookieMutators', () => {
@@ -239,6 +240,7 @@ describe('generateClientMutators', () => {
           type: 'apiKey',
           name: 'api_key',
           in: 'header',
+          'x-scalar-secret-token': '1234567890',
         },
       })
 
@@ -290,12 +292,14 @@ describe('generateClientMutators', () => {
             authorizationCode: {
               authorizationUrl: 'https://auth.example.com/authorize',
               tokenUrl: 'https://auth.example.com/token',
+              refreshUrl: '',
               scopes: {},
-              'x-scalar-client-id': '',
-              'x-scalar-client-secret': '',
-              'x-scalar-redirect-uri': '',
+              'x-scalar-secret-client-id': '',
+              'x-scalar-secret-client-secret': '',
+              'x-scalar-secret-redirect-uri': '',
+              'x-scalar-secret-token': '',
               'x-usePkce': 'no',
-            },
+            } satisfies OAuthFlowAuthorizationCode,
           },
         },
       })
@@ -333,11 +337,13 @@ describe('generateClientMutators', () => {
               authorizationUrl: 'https://auth.example.com/authorize',
               tokenUrl: 'https://auth.example.com/token',
               scopes: {},
-              'x-scalar-client-id': '',
-              'x-scalar-client-secret': '',
-              'x-scalar-redirect-uri': '',
+              refreshUrl: '',
+              'x-scalar-secret-client-id': '',
+              'x-scalar-secret-client-secret': '',
+              'x-scalar-secret-token': '',
+              'x-scalar-secret-redirect-uri': '',
               'x-usePkce': 'no',
-            },
+            } satisfies OAuthFlowAuthorizationCode,
           },
         },
       })
