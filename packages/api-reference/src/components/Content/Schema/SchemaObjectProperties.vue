@@ -8,6 +8,7 @@ import type {
 import { computed } from 'vue'
 
 import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
+import { sortPropertyNames } from '@/components/Content/Schema/helpers/sort-property-names'
 
 import SchemaProperty from './SchemaProperty.vue'
 
@@ -38,66 +39,14 @@ const {
  * Sorts properties by required status first, then alphabetically.
  * Required properties appear first, followed by optional properties.
  */
-const sortedProperties = computed(() => {
-  if (!isTypeObject(schema) || !schema.properties) {
-    return []
-  }
-
-  const propertyNames = Object.keys(schema.properties)
-  const requiredPropertiesSet = new Set(schema.required || [])
-
-  return propertyNames
-    .sort((a, b) => {
-      const aDiscriminator = a === discriminator?.propertyName
-      const bDiscriminator = b === discriminator?.propertyName
-
-      const aRequired = requiredPropertiesSet.has(a)
-      const bRequired = requiredPropertiesSet.has(b)
-
-      // Discriminator comes first always
-      if (aDiscriminator && !bDiscriminator) {
-        return -1
-      }
-      if (!aDiscriminator && bDiscriminator) {
-        return 1
-      }
-
-      // Order required properties first
-      if (orderRequiredPropertiesFirst) {
-        // If one is required and the other isn't, required comes first
-        if (aRequired && !bRequired) {
-          return -1
-        }
-        if (!aRequired && bRequired) {
-          return 1
-        }
-      }
-
-      // If both have the same required status, sort alphabetically
-      if (orderSchemaPropertiesBy === 'alpha') {
-        return a.localeCompare(b)
-      }
-
-      return 0
-    })
-    .filter((property) => {
-      // If hideReadOnly is true, filter out properties that are readOnly
-      if (hideReadOnly) {
-        return !(
-          schema.properties &&
-          getResolvedRef(schema.properties[property])?.readOnly === true
-        )
-      }
-      // If hideWriteOnly is true, filter out properties that are writeOnly
-      if (hideWriteOnly) {
-        return !(
-          schema.properties &&
-          getResolvedRef(schema.properties[property])?.writeOnly === true
-        )
-      }
-      return true
-    })
-})
+const sortedProperties = computed(() =>
+  sortPropertyNames(schema, discriminator, {
+    hideReadOnly,
+    hideWriteOnly,
+    orderSchemaPropertiesBy,
+    orderRequiredPropertiesFirst,
+  }),
+)
 
 /**
  * Get the display name for additional properties.

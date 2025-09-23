@@ -6,6 +6,11 @@ import { computed, ref } from 'vue'
 
 import { Schema } from '@/components/Content/Schema'
 import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
+import {
+  reduceNamesToObject,
+  sortPropertyNames,
+} from '@/components/Content/Schema/helpers/sort-property-names'
+import { useConfig } from '@/hooks/useConfig'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 
@@ -13,6 +18,8 @@ const { requestBody } = defineProps<{
   breadcrumb?: string[]
   requestBody?: RequestBodyObject
 }>()
+
+const config = useConfig()
 
 /**
  * The maximum number of properties to show in the request body schema.
@@ -45,25 +52,40 @@ const partitionedSchema = computed(() => {
     return null
   }
 
-  const propertyEntries = Object.entries(schema.value.properties ?? {})
-  if (propertyEntries.length <= MAX_VISIBLE_PROPERTIES) {
+  // Lets sort the names first
+  const sortedNames = sortPropertyNames(
+    schema.value,
+    schema.value.discriminator,
+    {
+      hideReadOnly: true,
+      orderSchemaPropertiesBy: config.value.orderSchemaPropertiesBy,
+      orderRequiredPropertiesFirst: config.value.orderRequiredPropertiesFirst,
+    },
+  )
+
+  if (sortedNames.length <= MAX_VISIBLE_PROPERTIES) {
     return null
   }
 
   // Destructure everything except properties
   const { properties, ...schemaMetadata } = schema.value
+  if (!properties) {
+    return null
+  }
 
   return {
     visibleProperties: {
       ...schemaMetadata,
-      properties: Object.fromEntries(
-        propertyEntries.slice(0, MAX_VISIBLE_PROPERTIES),
+      properties: reduceNamesToObject(
+        sortedNames.slice(0, MAX_VISIBLE_PROPERTIES),
+        properties,
       ),
     },
     collapsedProperties: {
       ...schemaMetadata,
-      properties: Object.fromEntries(
-        propertyEntries.slice(MAX_VISIBLE_PROPERTIES),
+      properties: reduceNamesToObject(
+        sortedNames.slice(MAX_VISIBLE_PROPERTIES),
+        properties,
       ),
     },
   }
