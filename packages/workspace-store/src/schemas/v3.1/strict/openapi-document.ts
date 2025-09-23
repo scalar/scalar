@@ -204,7 +204,7 @@ export type OperationObject = Static<typeof OperationObjectSchema>
  * Supported string formats in OpenAPI schemas.
  *
  * These provide better type safety for string format validation. We wanted to allow any arbitrary string
- * in the schema, so we type it in typescript instead
+ * in the schema, so we type it in typescript instead. This gives us autocomplete while allowing any string!
  */
 export type StringFormat =
   // Date and time formats
@@ -246,14 +246,11 @@ export type StringFormat =
   | 'sf-token'
   | 'sf-binary'
   | 'sf-boolean'
+  | (string & {})
 
 export type SchemaObject =
   | Exclude<Static<typeof SchemaObjectSchema>, { type: 'string' }>
-  | (Extract<Static<typeof SchemaObjectSchema>, { type: 'string' }> & {
-      /**
-       * When type is 'string', format should be one of the supported string formats.
-       * This provides better type safety while keeping runtime validation flexible.
-       */
+  | (Omit<Extract<Static<typeof SchemaObjectSchema>, { type: 'string' }>, 'format'> & {
       format?: StringFormat
     })
 
