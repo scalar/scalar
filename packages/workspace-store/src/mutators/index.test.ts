@@ -230,6 +230,7 @@ describe('generateClientMutators', () => {
           type: 'apiKey',
           name: 'api_key',
           in: 'header',
+          'x-scalar-secret-token': '1234567890',
         }),
       ).toBe(true)
 
@@ -246,6 +247,7 @@ describe('generateClientMutators', () => {
           type: 'apiKey',
           name: 'api_key',
           in: 'header',
+          'x-scalar-secret-token': '1234567890',
         }),
       ).toBe(false)
 
@@ -270,9 +272,11 @@ describe('generateClientMutators', () => {
               authorizationUrl: 'https://auth.example.com/authorize',
               tokenUrl: 'https://auth.example.com/token',
               scopes: {},
-              'x-scalar-client-id': '',
-              'x-scalar-client-secret': '',
-              'x-scalar-redirect-uri': '',
+              refreshUrl: '',
+              'x-scalar-secret-token': '',
+              'x-scalar-secret-client-id': '',
+              'x-scalar-secret-client-secret': '',
+              'x-scalar-secret-redirect-uri': '',
               'x-usePkce': 'no',
             },
           },
@@ -309,10 +313,12 @@ describe('generateClientMutators', () => {
             authorizationCode: {
               authorizationUrl: 'https://auth.example.com/authorize',
               tokenUrl: 'https://auth.example.com/token',
+              refreshUrl: '',
               scopes: {},
-              'x-scalar-client-id': '',
-              'x-scalar-client-secret': '',
-              'x-scalar-redirect-uri': '',
+              'x-scalar-secret-client-id': '',
+              'x-scalar-secret-client-secret': '',
+              'x-scalar-secret-redirect-uri': '',
+              'x-scalar-secret-token': '',
               'x-usePkce': 'no',
             },
           },
