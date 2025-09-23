@@ -474,7 +474,7 @@ describe('RequestAuthTab', () => {
     })
   })
 
-  describe.only('Multiple Security Schemes', () => {
+  describe('Multiple Security Schemes', () => {
     it('renders multiple security schemes when multiple are selected', () => {
       const wrapper = mountWithProps({
         securitySchemes: {
