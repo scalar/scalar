@@ -137,7 +137,7 @@ const credentialsLocationExtension = z.enum(['header', 'body']).optional()
 const oasSecuritySchemeOauth2 = commonProps.extend({
   type: z.literal('oauth2'),
   /** The default scopes for the oauth flow */
-  'x-default-scopes': z.string().or(z.array(z.string())).optional(),
+  'x-default-scopes': z.array(z.string()).optional(),
   /** REQUIRED. An object containing configuration information for the flow types supported. */
   flows: z
     .object({

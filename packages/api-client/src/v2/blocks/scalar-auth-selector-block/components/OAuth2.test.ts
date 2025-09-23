@@ -1,19 +1,11 @@
+import type { OAuthFlowsObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
 
 import OAuth2 from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
 import RequestAuthDataTableInput from '@/v2/blocks/scalar-auth-selector-block/components/RequestAuthDataTableInput.vue'
-
-// Mock ResizeObserver
-window.ResizeObserver =
-  window.ResizeObserver ||
-  vi.fn().mockImplementation(() => ({
-    disconnect: vi.fn(),
-    observe: vi.fn(),
-    unobserve: vi.fn(),
-  }))
 
 describe('OAuth2', () => {
   const baseEnv = {
@@ -33,17 +25,21 @@ describe('OAuth2', () => {
       proxyUrl: string
     }> = {},
   ) => {
-    const flows = custom.flows ?? {
-      authorizationCode: {
-        authorizationUrl: 'https://example.com/auth',
-        tokenUrl: 'https://example.com/token',
-        'x-scalar-redirect-uri': 'https://example.com/cb',
-        'x-usePkce': 'no',
-        scopes: { read: 'Read', write: 'Write' },
-        'x-scalar-client-id': '',
-        'x-scalar-client-secret': '',
-      },
-    }
+    const flows =
+      custom.flows ??
+      ({
+        authorizationCode: {
+          authorizationUrl: 'https://example.com/auth',
+          tokenUrl: 'https://example.com/token',
+          refreshUrl: 'https://example.com/token',
+          'x-scalar-secret-redirect-uri': 'https://example.com/cb',
+          'x-scalar-secret-token': '',
+          'x-usePkce': 'no',
+          scopes: { read: 'Read', write: 'Write' },
+          'x-scalar-secret-client-id': '',
+          'x-scalar-secret-client-secret': '',
+        },
+      } satisfies OAuthFlowsObject)
 
     return mount(OAuth2, {
       attachTo: document.body,
