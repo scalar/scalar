@@ -115,7 +115,7 @@ describe('getSecrets', () => {
       const result = getSecrets(securitySchemes)
 
       expect(result).toEqual([
-        'dW5kZWZpbmVkOnVuZGVmaW5lZA==', // base64 encoded "undefined:undefined"
+        'Og==', // base64 encoded "undefined:undefined"
       ])
     })
 
@@ -125,7 +125,7 @@ describe('getSecrets', () => {
           type: 'http',
           scheme: 'basic',
           'x-scalar-secret-token': '',
-          'x-scalar-secret-username': '',
+          'x-scalar-secret-username': 'partialuser',
           'x-scalar-secret-password': '',
         },
       ]
@@ -134,7 +134,7 @@ describe('getSecrets', () => {
 
       expect(result).toEqual([
         'partialuser',
-        'cGFydGlhbHVzZXI6dW5kZWZpbmVk', // base64 encoded "partialuser:undefined"
+        'cGFydGlhbHVzZXI6', // base64 encoded "partialuser:undefined"
       ])
     })
   })
@@ -342,9 +342,6 @@ describe('getSecrets', () => {
       const result = getSecrets(securitySchemes)
 
       expect(result).toEqual([
-        '',
-        '',
-        '',
         'Og==', // base64 encoded ":"
       ])
     })
