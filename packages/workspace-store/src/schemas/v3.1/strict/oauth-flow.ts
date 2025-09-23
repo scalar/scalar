@@ -1,24 +1,34 @@
 import { type Static, Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
+import { XScalarCredentialsLocationSchema } from '@/schemas/extensions/security/x-scalar-credentials-location'
+import { XScalarSecurityBody } from '@/schemas/extensions/security/x-scalar-security-body'
+import { XScalarSecurityQuery } from '@/schemas/extensions/security/x-scalar-security-query'
+import {
+  XScalarSecretClientIdSchema,
+  XScalarSecretClientSecretSchema,
+  XScalarSecretHTTPSchema,
+  XScalarSecretRedirectUriSchema,
+  XScalarSecretTokenSchema,
+} from '@/schemas/extensions/security/x-scalar-security-secrets'
+import { XTokenName } from '@/schemas/extensions/security/x-tokenName'
+import { XusePkceSchema } from '@/schemas/extensions/security/x-use-pkce'
 
 /** Common properties used across all OAuth flows */
-const OAuthFlowCommonSchema = Type.Object({
-  /** The URL to be used for obtaining refresh tokens. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
-  refreshUrl: Type.Optional(Type.String()),
-  /** REQUIRED. The available scopes for the OAuth2 security scheme. A map between the scope name and a short description for it. The map MAY be empty. */
-  scopes: Type.Record(Type.String(), Type.String()),
-  /** Extension to save the client Id associated with an oauth flow */
-  'x-scalar-client-id': Type.String(),
-  /** The auth token */
-  'x-scalar-secret-token': Type.Optional(Type.String()),
-  /** Additional query parameters for the OAuth authorization request. Example: { prompt: 'consent', audience: 'scalar' }. */
-  'x-scalar-security-query': Type.Optional(Type.Record(Type.String(), Type.String())),
-  /** Additional body parameters for the OAuth token request. Example: { audience: 'foo' }. */
-  'x-scalar-security-body': Type.Optional(Type.Record(Type.String(), Type.String())),
-  /** Extension to specify custom token name in the response (defaults to 'access_token') */
-  'x-tokenName': Type.Optional(Type.String()),
-})
+const OAuthFlowCommonSchema = compose(
+  Type.Object({
+    /** The URL to be used for obtaining refresh tokens. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
+    refreshUrl: Type.Optional(Type.String()),
+    /** REQUIRED. The available scopes for the OAuth2 security scheme. A map between the scope name and a short description for it. The map MAY be empty. */
+    scopes: Type.Record(Type.String(), Type.String()),
+  }),
+  XScalarSecretClientIdSchema,
+  XScalarSecretTokenSchema,
+  XScalarSecurityQuery,
+  XScalarSecurityBody,
+  XTokenName,
+  XScalarCredentialsLocationSchema,
+)
 
 /** Configuration for the OAuth Implicit flow */
 export const OAuthFlowImplicitSchema = compose(
@@ -27,9 +37,7 @@ export const OAuthFlowImplicitSchema = compose(
     /** REQUIRED. The authorization URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
     authorizationUrl: Type.String(),
   }),
-  Type.Object({
-    'x-scalar-redirect-uri': Type.String(),
-  }),
+  XScalarSecretRedirectUriSchema,
 )
 
 /** Configuration for the OAuth Resource Owner Password flow */
@@ -39,12 +47,8 @@ export const OAuthFlowPasswordSchema = compose(
     /** REQUIRED. The token URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
     tokenUrl: Type.String(),
   }),
-  Type.Object({
-    'x-scalar-client-secret': Type.String(),
-    'x-scalar-username': Type.String(),
-    'x-scalar-password': Type.String(),
-    'x-scalar-credentials-location': Type.Optional(Type.Union([Type.Literal('header'), Type.Literal('body')])),
-  }),
+  XScalarSecretHTTPSchema,
+  XScalarSecretClientSecretSchema,
 )
 
 /** Configuration for the OAuth Client Credentials flow. Previously called application in OpenAPI 2.0. */
@@ -54,10 +58,7 @@ export const OAuthFlowClientCredentialsSchema = compose(
     /** REQUIRED. The token URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
     tokenUrl: Type.String(),
   }),
-  Type.Object({
-    'x-scalar-client-secret': Type.String(),
-    'x-scalar-credentials-location': Type.Optional(Type.Union([Type.Literal('header'), Type.Literal('body')])),
-  }),
+  XScalarSecretClientSecretSchema,
 )
 
 /** Configuration for the OAuth Authorization Code flow. Previously called accessCode in OpenAPI 2.0. */
@@ -69,12 +70,9 @@ export const OAuthFlowAuthorizationCodeSchema = compose(
     /** REQUIRED. The token URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
     tokenUrl: Type.String(),
   }),
-  Type.Object({
-    'x-scalar-client-secret': Type.String(),
-    'x-scalar-redirect-uri': Type.String(),
-    'x-usePkce': Type.Union([Type.Literal('no'), Type.Literal('SHA-256'), Type.Literal('plain')]),
-    'x-scalar-credentials-location': Type.Optional(Type.Union([Type.Literal('header'), Type.Literal('body')])),
-  }),
+  XScalarSecretClientSecretSchema,
+  XScalarSecretRedirectUriSchema,
+  XusePkceSchema,
 )
 
 /** Union of all OAuth flow schemas */
