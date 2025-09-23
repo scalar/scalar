@@ -1,5 +1,15 @@
 # @scalar/workspace-store
 
+## 0.15.8
+
+### Patch Changes
+
+- 7be091c: fix: schema format does not allow custom formats
+- f0f28a9: feat: migrate sidebar to consume from the new store
+- db966b4: chore: remove other string schema formats
+- Updated dependencies [41d8600]
+  - @scalar/json-magic@0.5.1
+
 ## 0.15.7
 
 ### Patch Changes
