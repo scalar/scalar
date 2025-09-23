@@ -2,45 +2,46 @@
 import { ScalarButton, ScalarIcon } from '@scalar/components'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
-import type {
-  Collection,
-  Operation,
-  Server,
-} from '@scalar/oas-utils/entities/spec'
 import { REQUEST_METHODS } from '@scalar/oas-utils/helpers'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { ref, useId } from 'vue'
 
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
 import { HttpMethod } from '@/components/HttpMethod'
-import { ServerDropdown } from '@/components/Server'
 import { type ClientLayout } from '@/hooks'
 import { useWorkspace } from '@/store'
 import type { EnvVariable } from '@/store/active-entities'
+import { ServerDropdown } from '@/v2/components/server'
 
 import AddressBarHistory, { type History } from './AddressBarHistory.vue'
 
 const {
+  path,
+  method,
   layout,
   history,
-  collection,
-  operation,
   server,
   environment,
   envVariables,
-  percentage,
+  percentage = 100,
 } = defineProps<{
-  collection: Collection
-  operation: Operation
+  /** Current request path */
+  path: string
+  /** Current request method */
+  method: HttpMethodType
   /** Currently selected server */
-  server: Server | undefined
+  server: ServerObject | undefined
+  /** Server list available for operation/document */
+  servers: ServerObject[]
   /** Environment variables used for codemirror variables pill on input */
   environment: Environment
   envVariables: EnvVariable[]
+  /** List of request history */
   history: History[]
   /** Client layout */
   layout: ClientLayout
   /** The amount remaining to load from 100 -> 0 */
-  percentage: number
+  percentage?: number
 }>()
 
 const emits = defineEmits<{
@@ -62,7 +63,6 @@ const addressBarRef = ref<typeof CodeInput | null>(null)
 const sendButtonRef = ref<typeof ScalarButton | null>(null)
 
 function getBackgroundColor() {
-  const { method } = operation
   return REQUEST_METHODS[method].colorVar
 }
 
@@ -102,7 +102,7 @@ events.focusAddressBar.on(() => {
         <HttpMethod
           :isEditable="layout !== 'modal'"
           isSquare
-          :method="operation.method"
+          :method="method"
           teleport
           @change="emits('update:method', { method: $event })" />
       </div>
@@ -111,11 +111,10 @@ events.focusAddressBar.on(() => {
         class="scroll-timeline-x scroll-timeline-x-hidden z-context-plus relative flex w-full bg-blend-normal">
         <!-- Servers -->
         <ServerDropdown
-          v-if="collection.servers.length"
-          :collection="collection"
+          v-if="servers.length"
           layout="client"
-          :operation="operation"
           :server="server"
+          :servers="servers"
           :target="id" />
 
         <div class="fade-left" />
@@ -132,12 +131,8 @@ events.focusAddressBar.on(() => {
           :envVariables="envVariables"
           :environment="environment"
           importCurl
-          :modelValue="operation.path"
-          :placeholder="
-            server?.uid && collection.servers.includes(server.uid)
-              ? ''
-              : 'Enter a URL or cURL command'
-          "
+          :modelValue="path"
+          :placeholder="server ? '' : 'Enter a URL or cURL command'"
           server
           @curl="$emit('importCurl', $event)"
           @submit="emits('execute')"
@@ -163,8 +158,7 @@ events.focusAddressBar.on(() => {
           <span class="text-xxs hidden lg:flex">Send</span>
         </span>
         <span class="sr-only">
-          Send {{ operation.method }} request to {{ server?.url ?? ''
-          }}{{ operation.path }}
+          Send {{ method }} request to {{ server?.url ?? '' }}{{ path }}
         </span>
       </ScalarButton>
     </div>
