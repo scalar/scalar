@@ -112,13 +112,13 @@ export const authorizeOauth2 = async (
     const typedFlow = flows[type]! // Safe to assert due to earlier check
 
     // Handle relative redirect uris
-    if (typedFlow['x-scalar-redirect-uri'].startsWith('/')) {
+    if (typedFlow['x-scalar-secret-redirect-uri'].startsWith('/')) {
       const baseUrl = activeServer.url || window.location.origin + window.location.pathname
-      const redirectUri = new URL(typedFlow['x-scalar-redirect-uri'], baseUrl).toString()
+      const redirectUri = new URL(typedFlow['x-scalar-secret-redirect-uri'], baseUrl).toString()
 
       url.searchParams.set('redirect_uri', redirectUri)
     } else {
-      url.searchParams.set('redirect_uri', typedFlow['x-scalar-redirect-uri'])
+      url.searchParams.set('redirect_uri', typedFlow['x-scalar-secret-redirect-uri'])
     }
 
     if (flow['x-scalar-security-query']) {
@@ -132,7 +132,7 @@ export const authorizeOauth2 = async (
     }
 
     // Common to all flows
-    url.searchParams.set('client_id', flow['x-scalar-client-id'])
+    url.searchParams.set('client_id', flow['x-scalar-secret-client-id'])
     url.searchParams.set('state', state)
     if (scopes) {
       url.searchParams.set('scope', scopes)
@@ -245,7 +245,7 @@ export const authorizeServers = async (
   }
 
   const formData = new URLSearchParams()
-  formData.set('client_id', flow['x-scalar-client-id'])
+  formData.set('client_id', flow['x-scalar-secret-client-id'])
 
   // Only client credentials and password flows support scopes in the token request
   if (scopes && (type === 'clientCredentials' || type === 'password')) {
@@ -254,14 +254,14 @@ export const authorizeServers = async (
 
   // Only add the secret if a credentials location is not specified (backwards compatibility) or is set to body
   const shouldAddSecretToBody =
-    flow['x-scalar-client-secret'] &&
+    flow['x-scalar-secret-client-secret'] &&
     (!flow['x-scalar-credentials-location'] || flow['x-scalar-credentials-location'] === 'body')
 
   if (shouldAddSecretToBody) {
-    formData.set('client_secret', flow['x-scalar-client-secret'])
+    formData.set('client_secret', flow['x-scalar-secret-client-secret'])
   }
-  if ('x-scalar-redirect-uri' in flow && flow['x-scalar-redirect-uri']) {
-    formData.set('redirect_uri', flow['x-scalar-redirect-uri'])
+  if ('x-scalar-secret-redirect-uri' in flow && flow['x-scalar-secret-redirect-uri']) {
+    formData.set('redirect_uri', flow['x-scalar-secret-redirect-uri'])
   }
 
   // Authorization Code
@@ -278,8 +278,8 @@ export const authorizeServers = async (
   else if (type === 'password') {
     const typedFlow = flows[type]! // Safe to assert due to earlier check
     formData.set('grant_type', 'password')
-    formData.set('username', typedFlow['x-scalar-username'])
-    formData.set('password', typedFlow['x-scalar-password'])
+    formData.set('username', typedFlow['x-scalar-secret-username'])
+    formData.set('password', typedFlow['x-scalar-secret-password'])
   }
   // Client Credentials
   else {
@@ -302,12 +302,12 @@ export const authorizeServers = async (
 
     // Only add the secret if a credentials location is not specified (backwards compatibility) or is set to header
     const shouldAddSecretToHeader =
-      flow['x-scalar-client-secret'] &&
+      flow['x-scalar-secret-client-secret'] &&
       (!flow['x-scalar-credentials-location'] || flow['x-scalar-credentials-location'] === 'header')
 
     // Add client id + secret to headers
     if (shouldAddSecretToHeader) {
-      headers.Authorization = `Basic ${encode(`${flow['x-scalar-client-id']}:${flow['x-scalar-client-secret']}`)}`
+      headers.Authorization = `Basic ${encode(`${flow['x-scalar-secret-client-id']}:${flow['x-scalar-secret-client-secret']}`)}`
     }
 
     // Check if we should use the proxy

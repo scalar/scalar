@@ -136,10 +136,14 @@ describe('security-scheme', () => {
         type: 'apiKey',
         in: 'header',
         name: 'X-API-Key',
+        'x-scalar-secret-token': '',
       },
       httpBasic: {
         type: 'http',
         scheme: 'basic',
+        'x-scalar-secret-token': '',
+        'x-scalar-secret-username': '',
+        'x-scalar-secret-password': '',
       },
       oauth2: {
         type: 'oauth2',
@@ -147,8 +151,10 @@ describe('security-scheme', () => {
           clientCredentials: {
             tokenUrl: 'https://example.com/token',
             scopes: {},
-            'x-scalar-client-id': '',
-            'x-scalar-client-secret': '',
+            'x-scalar-secret-client-id': '',
+            'x-scalar-secret-client-secret': '',
+            'x-scalar-secret-token': '',
+            refreshUrl: 'https://example.com/token',
           },
         },
       },

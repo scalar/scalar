@@ -141,11 +141,11 @@ const flow = computed(() => flows[type]!)
       </RequestAuthDataTableInput>
     </DataTableRow>
 
-    <DataTableRow v-if="'x-scalar-redirect-uri' in flow">
+    <DataTableRow v-if="'x-scalar-secret-redirect-uri' in flow">
       <!-- Redirect URI -->
       <RequestAuthDataTableInput
         v-bind="dataTableInputProps"
-        :modelValue="flow['x-scalar-redirect-uri']"
+        :modelValue="flow['x-scalar-secret-redirect-uri']"
         placeholder="https://galaxy.scalar.com/callback"
         @update:modelValue="
           (v) => emits('update:securityScheme', { redirectUrl: v })
@@ -155,12 +155,15 @@ const flow = computed(() => flows[type]!)
     </DataTableRow>
 
     <!-- Username and password -->
-    <template v-if="'x-scalar-username' in flow && 'x-scalar-password' in flow">
+    <template
+      v-if="
+        'x-scalar-secret-username' in flow && 'x-scalar-secret-password' in flow
+      ">
       <DataTableRow>
         <RequestAuthDataTableInput
           v-bind="dataTableInputProps"
           class="text-c-2"
-          :modelValue="flow['x-scalar-username']"
+          :modelValue="flow['x-scalar-secret-username']"
           placeholder="janedoe"
           @update:modelValue="
             (v) => emits('update:securityScheme', { username: v })
@@ -171,7 +174,7 @@ const flow = computed(() => flows[type]!)
       <DataTableRow>
         <RequestAuthDataTableInput
           v-bind="dataTableInputProps"
-          :modelValue="flow['x-scalar-password']"
+          :modelValue="flow['x-scalar-secret-password']"
           placeholder="********"
           type="password"
           @update:modelValue="
@@ -186,7 +189,7 @@ const flow = computed(() => flows[type]!)
     <DataTableRow>
       <RequestAuthDataTableInput
         v-bind="dataTableInputProps"
-        :modelValue="flow['x-scalar-client-id']"
+        :modelValue="flow['x-scalar-secret-client-id']"
         placeholder="12345"
         @update:modelValue="
           (v) => emits('update:securityScheme', { clientId: v })
@@ -196,10 +199,10 @@ const flow = computed(() => flows[type]!)
     </DataTableRow>
 
     <!-- Client Secret (Authorization Code / Client Credentials / Password (optional)) -->
-    <DataTableRow v-if="'x-scalar-client-secret' in flow">
+    <DataTableRow v-if="'x-scalar-secret-client-secret' in flow">
       <RequestAuthDataTableInput
         v-bind="dataTableInputProps"
-        :modelValue="flow['x-scalar-client-secret']"
+        :modelValue="flow['x-scalar-secret-client-secret']"
         placeholder="XYZ123"
         type="password"
         @update:modelValue="

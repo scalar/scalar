@@ -18,7 +18,7 @@ import { XusePkceSchema } from '@/schemas/extensions/security/x-use-pkce'
 const OAuthFlowCommonSchema = compose(
   Type.Object({
     /** The URL to be used for obtaining refresh tokens. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
-    refreshUrl: Type.Optional(Type.String()),
+    refreshUrl: Type.String(),
     /** REQUIRED. The available scopes for the OAuth2 security scheme. A map between the scope name and a short description for it. The map MAY be empty. */
     scopes: Type.Record(Type.String(), Type.String()),
   }),

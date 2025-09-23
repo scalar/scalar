@@ -11,7 +11,7 @@ const baseFlow = {
     read: 'Read access',
     write: 'Write access',
   },
-  'x-scalar-client-id': 'xxxxx',
+  'x-scalar-secret-client-id': 'xxxxx',
 }
 const selectedScopes = ['read', 'write']
 
@@ -20,7 +20,7 @@ const authorizationUrl = 'https://auth.example.com/authorize'
 const tokenUrl = 'https://auth.example.com/token'
 const redirectUri = 'https://callback.example.com'
 const clientSecret = 'yyyyy'
-const secretAuth = encode(`${baseFlow['x-scalar-client-id']}:${clientSecret}`)
+const secretAuth = encode(`${baseFlow['x-scalar-secret-client-id']}:${clientSecret}`)
 
 const windowTarget = 'openAuth2Window'
 const windowFeatures = 'left=100,top=100,width=800,height=600'
@@ -64,9 +64,9 @@ describe('oauth', () => {
         'x-usePkce': 'no',
         authorizationUrl,
         tokenUrl,
-        'x-scalar-redirect-uri': redirectUri,
+        'x-scalar-secret-redirect-uri': redirectUri,
         'x-scalar-secret-token': '',
-        'x-scalar-client-secret': clientSecret,
+        'x-scalar-secret-client-secret': clientSecret,
       },
     } satisfies OAuthFlowsObject
 
@@ -79,8 +79,8 @@ describe('oauth', () => {
         new URL(
           `${scheme.authorizationCode.authorizationUrl}?${new URLSearchParams({
             response_type: 'code',
-            redirect_uri: scheme.authorizationCode['x-scalar-redirect-uri'],
-            client_id: scheme.authorizationCode['x-scalar-client-id'],
+            redirect_uri: scheme.authorizationCode['x-scalar-secret-redirect-uri'],
+            client_id: scheme.authorizationCode['x-scalar-secret-client-id'],
             state: state,
             scope: scope.join(' '),
           }).toString()}`,
@@ -90,7 +90,7 @@ describe('oauth', () => {
       )
 
       // Mock redirect back from login
-      mockWindow.location.href = `${scheme.authorizationCode['x-scalar-redirect-uri']}?code=auth_code_123&state=${state}`
+      mockWindow.location.href = `${scheme.authorizationCode['x-scalar-secret-redirect-uri']}?code=auth_code_123&state=${state}`
 
       // Mock the token exchange
       global.fetch = vi.fn().mockResolvedValueOnce({
@@ -109,9 +109,9 @@ describe('oauth', () => {
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
         method: 'POST',
         body: new URLSearchParams({
-          client_id: scheme.authorizationCode['x-scalar-client-id'],
-          client_secret: scheme.authorizationCode['x-scalar-client-secret'],
-          redirect_uri: scheme.authorizationCode['x-scalar-redirect-uri'],
+          client_id: scheme.authorizationCode['x-scalar-secret-client-id'],
+          client_secret: scheme.authorizationCode['x-scalar-secret-client-secret'],
+          redirect_uri: scheme.authorizationCode['x-scalar-secret-redirect-uri'],
           code: 'auth_code_123',
           grant_type: 'authorization_code',
         }),
@@ -162,10 +162,10 @@ describe('oauth', () => {
             response_type: 'code',
             code_challenge: codeChallenge,
             code_challenge_method: 'S256',
-            redirect_uri: flows.authorizationCode['x-scalar-redirect-uri'],
+            redirect_uri: flows.authorizationCode['x-scalar-secret-redirect-uri'],
             prompt: 'login',
             audience: 'scalar',
-            client_id: flows.authorizationCode['x-scalar-client-id'],
+            client_id: flows.authorizationCode['x-scalar-secret-client-id'],
             state: state,
             scope: scope.join(' '),
           }).toString()}`,
@@ -195,9 +195,9 @@ describe('oauth', () => {
           'Authorization': `Basic ${secretAuth}`,
         },
         body: new URLSearchParams({
-          client_id: flows.authorizationCode['x-scalar-client-id'],
-          client_secret: flows.authorizationCode['x-scalar-client-secret'],
-          redirect_uri: flows.authorizationCode['x-scalar-redirect-uri'],
+          client_id: flows.authorizationCode['x-scalar-secret-client-id'],
+          client_secret: flows.authorizationCode['x-scalar-secret-client-secret'],
+          redirect_uri: flows.authorizationCode['x-scalar-secret-redirect-uri'],
           code,
           grant_type: 'authorization_code',
           code_verifier: 'AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8',
@@ -221,7 +221,7 @@ describe('oauth', () => {
       const code = 'auth_code_123'
 
       // Mock redirect back from login
-      mockWindow.location.href = `${flows.authorizationCode['x-scalar-redirect-uri']}?code=${code}&state=${state}`
+      mockWindow.location.href = `${flows.authorizationCode['x-scalar-secret-redirect-uri']}?code=${code}&state=${state}`
 
       // Mock the token exchange
       global.fetch = vi.fn().mockResolvedValueOnce({
@@ -240,9 +240,9 @@ describe('oauth', () => {
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
         method: 'POST',
         body: new URLSearchParams({
-          client_id: flows.authorizationCode['x-scalar-client-id'],
-          client_secret: flows.authorizationCode['x-scalar-client-secret'],
-          redirect_uri: flows.authorizationCode['x-scalar-redirect-uri'],
+          client_id: flows.authorizationCode['x-scalar-secret-client-id'],
+          client_secret: flows.authorizationCode['x-scalar-secret-client-secret'],
+          redirect_uri: flows.authorizationCode['x-scalar-secret-redirect-uri'],
           code,
           grant_type: 'authorization_code',
           audience: 'https://api.example.com',
@@ -273,7 +273,7 @@ describe('oauth', () => {
       const flows = {
         'authorizationCode': {
           ...scheme.authorizationCode,
-          'x-scalar-redirect-uri': '/callback',
+          'x-scalar-secret-redirect-uri': '/callback',
         },
       } satisfies OAuthFlowsObject
 
@@ -285,7 +285,7 @@ describe('oauth', () => {
           `${flows.authorizationCode.authorizationUrl}?${new URLSearchParams({
             response_type: 'code',
             redirect_uri: `${mockServer.url}/callback`,
-            client_id: flows.authorizationCode['x-scalar-client-id'],
+            client_id: flows.authorizationCode['x-scalar-secret-client-id'],
             state: state,
             scope: scope.join(' '),
           }).toString()}`,
@@ -300,7 +300,7 @@ describe('oauth', () => {
       const promise = authorizeOauth2(scheme, 'authorizationCode', selectedScopes, mockServer)
 
       // Mock redirect with bad state
-      mockWindow.location.href = `${scheme.authorizationCode['x-scalar-redirect-uri']}?code=auth_code_123&state=bad_state`
+      mockWindow.location.href = `${scheme.authorizationCode['x-scalar-secret-redirect-uri']}?code=auth_code_123&state=bad_state`
       vi.advanceTimersByTime(200)
 
       const [error, result] = await promise
@@ -325,8 +325,8 @@ describe('oauth', () => {
         new URL(
           `${scheme.authorizationCode.authorizationUrl}?${new URLSearchParams({
             response_type: 'code',
-            redirect_uri: scheme.authorizationCode['x-scalar-redirect-uri'],
-            client_id: scheme.authorizationCode['x-scalar-client-id'],
+            redirect_uri: scheme.authorizationCode['x-scalar-secret-redirect-uri'],
+            client_id: scheme.authorizationCode['x-scalar-secret-client-id'],
             state: state,
             scope: scope.join(' '),
           }).toString()}`,
@@ -336,7 +336,7 @@ describe('oauth', () => {
       )
 
       // Mock redirect back from login
-      mockWindow.location.href = `${scheme.authorizationCode['x-scalar-redirect-uri']}?code=auth_code_123&state=${state}`
+      mockWindow.location.href = `${scheme.authorizationCode['x-scalar-secret-redirect-uri']}?code=auth_code_123&state=${state}`
 
       // Mock the token exchange
       global.fetch = vi.fn().mockResolvedValueOnce({
@@ -357,9 +357,9 @@ describe('oauth', () => {
         {
           method: 'POST',
           body: new URLSearchParams({
-            client_id: scheme.authorizationCode['x-scalar-client-id'],
-            client_secret: scheme.authorizationCode['x-scalar-client-secret'],
-            redirect_uri: scheme.authorizationCode['x-scalar-redirect-uri'],
+            client_id: scheme.authorizationCode['x-scalar-secret-client-id'],
+            client_secret: scheme.authorizationCode['x-scalar-secret-client-secret'],
+            redirect_uri: scheme.authorizationCode['x-scalar-secret-redirect-uri'],
             code: 'auth_code_123',
             grant_type: 'authorization_code',
           }),
@@ -377,7 +377,7 @@ describe('oauth', () => {
       clientCredentials: {
         ...baseFlow,
         tokenUrl,
-        'x-scalar-client-secret': clientSecret,
+        'x-scalar-secret-client-secret': clientSecret,
         'x-scalar-secret-token': '',
       },
     } satisfies OAuthFlowsObject
@@ -394,9 +394,9 @@ describe('oauth', () => {
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
         method: 'POST',
         body: new URLSearchParams({
-          client_id: scheme.clientCredentials['x-scalar-client-id'],
+          client_id: scheme.clientCredentials['x-scalar-secret-client-id'],
           scope: scope.join(' '),
-          client_secret: scheme.clientCredentials['x-scalar-client-secret'],
+          client_secret: scheme.clientCredentials['x-scalar-secret-client-secret'],
           grant_type: 'client_credentials',
         }),
         headers: {
@@ -453,9 +453,9 @@ describe('oauth', () => {
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
         method: 'POST',
         body: new URLSearchParams({
-          client_id: flows.clientCredentials['x-scalar-client-id'],
+          client_id: flows.clientCredentials['x-scalar-secret-client-id'],
           scope: scope.join(' '),
-          client_secret: flows.clientCredentials['x-scalar-client-secret'],
+          client_secret: flows.clientCredentials['x-scalar-secret-client-secret'],
           grant_type: 'client_credentials',
           audience: 'https://api.example.com',
           custom_param: 'custom_value',
@@ -486,7 +486,7 @@ describe('oauth', () => {
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
         method: 'POST',
         body: new URLSearchParams({
-          client_id: flows.clientCredentials['x-scalar-client-id'],
+          client_id: flows.clientCredentials['x-scalar-secret-client-id'],
           scope: scope.join(' '),
           grant_type: 'client_credentials',
         }),
@@ -516,9 +516,9 @@ describe('oauth', () => {
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
         method: 'POST',
         body: new URLSearchParams({
-          client_id: flows.clientCredentials['x-scalar-client-id'],
+          client_id: flows.clientCredentials['x-scalar-secret-client-id'],
           scope: scope.join(' '),
-          client_secret: flows.clientCredentials['x-scalar-client-secret'],
+          client_secret: flows.clientCredentials['x-scalar-secret-client-secret'],
           grant_type: 'client_credentials',
         }),
         headers: {
@@ -533,7 +533,7 @@ describe('oauth', () => {
       implicit: {
         ...baseFlow,
         authorizationUrl,
-        'x-scalar-redirect-uri': redirectUri,
+        'x-scalar-secret-redirect-uri': redirectUri,
         'x-scalar-secret-token': '',
       },
     } satisfies OAuthFlowsObject
@@ -545,7 +545,7 @@ describe('oauth', () => {
           `${scheme.implicit.authorizationUrl}?${new URLSearchParams({
             response_type: 'token',
             redirect_uri: redirectUri,
-            client_id: scheme.implicit['x-scalar-client-id'],
+            client_id: scheme.implicit['x-scalar-secret-client-id'],
             state: state,
             scope: scope.join(' '),
           })}`,
@@ -555,7 +555,7 @@ describe('oauth', () => {
       )
 
       // Redirect
-      mockWindow.location.href = `${scheme.implicit['x-scalar-redirect-uri']}#access_token=implicit_token_123&state=${state}`
+      mockWindow.location.href = `${scheme.implicit['x-scalar-secret-redirect-uri']}#access_token=implicit_token_123&state=${state}`
 
       // Run setInterval
       vi.advanceTimersByTime(200)
@@ -578,7 +578,7 @@ describe('oauth', () => {
       const promise = authorizeOauth2(flows, 'implicit', selectedScopes, mockServer)
 
       // Redirect with custom token name
-      mockWindow.location.href = `${flows.implicit['x-scalar-redirect-uri']}#custom_access_token=custom_implicit_token_123&state=${state}`
+      mockWindow.location.href = `${flows.implicit['x-scalar-secret-redirect-uri']}#custom_access_token=custom_implicit_token_123&state=${state}`
 
       // Run setInterval
       vi.advanceTimersByTime(200)
@@ -596,9 +596,9 @@ describe('oauth', () => {
       password: {
         ...baseFlow,
         tokenUrl,
-        'x-scalar-username': 'test-username',
-        'x-scalar-password': 'test-password',
-        'x-scalar-client-secret': clientSecret,
+        'x-scalar-secret-username': 'test-username',
+        'x-scalar-secret-password': 'test-password',
+        'x-scalar-secret-client-secret': clientSecret,
         'x-scalar-secret-token': '',
       },
     } satisfies OAuthFlowsObject
@@ -624,12 +624,12 @@ describe('oauth', () => {
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
         method: 'POST',
         body: new URLSearchParams({
-          client_id: scheme.password['x-scalar-client-id'],
+          client_id: scheme.password['x-scalar-secret-client-id'],
           scope: scope.join(' '),
-          client_secret: scheme.password['x-scalar-client-secret'],
+          client_secret: scheme.password['x-scalar-secret-client-secret'],
           grant_type: 'password',
-          username: scheme.password['x-scalar-username'],
-          password: scheme.password['x-scalar-password'],
+          username: scheme.password['x-scalar-secret-username'],
+          password: scheme.password['x-scalar-secret-password'],
         }),
         headers: {
           'Authorization': `Basic ${secretAuth}`,
@@ -660,12 +660,12 @@ describe('oauth', () => {
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
         method: 'POST',
         body: new URLSearchParams({
-          client_id: flows.password['x-scalar-client-id'],
+          client_id: flows.password['x-scalar-secret-client-id'],
           scope: scope.join(' '),
-          client_secret: flows.password['x-scalar-client-secret'],
+          client_secret: flows.password['x-scalar-secret-client-secret'],
           grant_type: 'password',
-          username: flows.password['x-scalar-username'],
-          password: flows.password['x-scalar-password'],
+          username: flows.password['x-scalar-secret-username'],
+          password: flows.password['x-scalar-secret-password'],
           audience: 'https://api.example.com',
           custom_param: 'custom_value',
         }),
@@ -702,11 +702,11 @@ describe('oauth', () => {
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
         method: 'POST',
         body: new URLSearchParams({
-          client_id: flows.password['x-scalar-client-id'],
+          client_id: flows.password['x-scalar-secret-client-id'],
           scope: scope.join(' '),
           grant_type: 'password',
-          username: flows.password['x-scalar-username'],
-          password: flows.password['x-scalar-password'],
+          username: flows.password['x-scalar-secret-username'],
+          password: flows.password['x-scalar-secret-password'],
         }),
         headers: {
           'Authorization': `Basic ${secretAuth}`,
@@ -741,12 +741,12 @@ describe('oauth', () => {
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
         method: 'POST',
         body: new URLSearchParams({
-          client_id: flows.password['x-scalar-client-id'],
+          client_id: flows.password['x-scalar-secret-client-id'],
           scope: scope.join(' '),
-          client_secret: flows.password['x-scalar-client-secret'],
+          client_secret: flows.password['x-scalar-secret-client-secret'],
           grant_type: 'password',
-          username: flows.password['x-scalar-username'],
-          password: flows.password['x-scalar-password'],
+          username: flows.password['x-scalar-secret-username'],
+          password: flows.password['x-scalar-secret-password'],
         }),
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
