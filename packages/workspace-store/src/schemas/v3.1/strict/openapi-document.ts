@@ -200,7 +200,62 @@ export type PathItemObject = Static<typeof PathItemObjectSchema>
 export type PathsObject = Static<typeof PathsObjectSchema>
 export type OperationObject = Static<typeof OperationObjectSchema>
 
-export type SchemaObject = Static<typeof SchemaObjectSchema>
+/**
+ * Supported string formats in OpenAPI schemas.
+ *
+ * These provide better type safety for string format validation. We wanted to allow any arbitrary string
+ * in the schema, so we type it in typescript instead
+ */
+export type StringFormat =
+  // Date and time formats
+  | 'date'
+  | 'date-time'
+  | 'date-time-local'
+  | 'time'
+  | 'time-local'
+  | 'duration'
+  | 'http-date'
+  // Network formats
+  | 'email'
+  | 'idn-email'
+  | 'hostname'
+  | 'idn-hostname'
+  | 'ipv4'
+  | 'ipv6'
+  | 'uri'
+  | 'uri-reference'
+  | 'uri-template'
+  | 'iri'
+  | 'iri-reference'
+  | 'uuid'
+  // Content formats
+  | 'binary'
+  | 'byte'
+  | 'base64url'
+  | 'html'
+  | 'commonmark'
+  | 'password'
+  | 'regex'
+  | 'json-pointer'
+  | 'relative-json-pointer'
+  | 'media-range'
+  // Character formats
+  | 'char'
+  // Structured field string formats
+  | 'sf-string'
+  | 'sf-token'
+  | 'sf-binary'
+  | 'sf-boolean'
+
+export type SchemaObject =
+  | Exclude<Static<typeof SchemaObjectSchema>, { type: 'string' }>
+  | (Extract<Static<typeof SchemaObjectSchema>, { type: 'string' }> & {
+      /**
+       * When type is 'string', format should be one of the supported string formats.
+       * This provides better type safety while keeping runtime validation flexible.
+       */
+      format?: StringFormat
+    })
 
 export type EncodingObject = Static<typeof EncodingObjectSchema>
 export type MediaTypeObject = Static<typeof MediaTypeObjectSchema>
