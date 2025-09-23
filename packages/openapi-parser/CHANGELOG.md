@@ -1,5 +1,13 @@
 # @scalar/openapi-parser
 
+## 0.21.1
+
+### Patch Changes
+
+- e1cdd00: fix: update import statement within deprecation message
+- Updated dependencies [41d8600]
+  - @scalar/json-magic@0.5.1
+
 ## 0.21.0
 
 ### Minor Changes

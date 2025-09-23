@@ -1,5 +1,28 @@
 # @scalar/api-reference
 
+## 1.36.0
+
+### Minor Changes
+
+- 003bb98: Fix server selection for examples/snippets in Operation: prefer operation-level servers, then path-level servers, then provided server prop.
+
+### Patch Changes
+
+- 2362df9: fix: add property name sorting to the request body before splitting additional properties
+- f0f28a9: feat: migrate sidebar to consume from the new store
+- dd98fdc: fix: remove asterisk from additionalProperties
+- Updated dependencies [7be091c]
+- Updated dependencies [e1cdd00]
+- Updated dependencies [f0f28a9]
+- Updated dependencies [41d8600]
+- Updated dependencies [db966b4]
+  - @scalar/workspace-store@0.15.8
+  - @scalar/openapi-parser@0.21.1
+  - @scalar/json-magic@0.5.1
+  - @scalar/api-client@2.5.35
+  - @scalar/oas-utils@0.4.31
+  - @scalar/components@0.14.36
+
 ## 1.35.7
 
 ### Patch Changes
