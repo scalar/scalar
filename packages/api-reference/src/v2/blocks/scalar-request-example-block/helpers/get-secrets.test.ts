@@ -27,6 +27,7 @@ describe('getSecrets', () => {
           type: 'apiKey',
           name: 'X-API-Key',
           in: 'header',
+          'x-scalar-secret-token': '',
         },
       ]
 
@@ -105,13 +106,16 @@ describe('getSecrets', () => {
         {
           type: 'http',
           scheme: 'basic',
+          'x-scalar-secret-token': '',
+          'x-scalar-secret-username': '',
+          'x-scalar-secret-password': '',
         },
       ]
 
       const result = getSecrets(securitySchemes)
 
       expect(result).toEqual([
-        'dW5kZWZpbmVkOnVuZGVmaW5lZA==', // base64 encoded "undefined:undefined"
+        'Og==', // base64 encoded "undefined:undefined"
       ])
     })
 
@@ -120,7 +124,9 @@ describe('getSecrets', () => {
         {
           type: 'http',
           scheme: 'basic',
+          'x-scalar-secret-token': '',
           'x-scalar-secret-username': 'partialuser',
+          'x-scalar-secret-password': '',
         },
       ]
 
@@ -128,7 +134,7 @@ describe('getSecrets', () => {
 
       expect(result).toEqual([
         'partialuser',
-        'cGFydGlhbHVzZXI6dW5kZWZpbmVk', // base64 encoded "partialuser:undefined"
+        'cGFydGlhbHVzZXI6', // base64 encoded "partialuser:undefined"
       ])
     })
   })
@@ -142,11 +148,12 @@ describe('getSecrets', () => {
             authorizationCode: {
               authorizationUrl: 'https://example.com/oauth/authorize',
               tokenUrl: 'https://example.com/oauth/token',
+              refreshUrl: '',
               scopes: { read: 'Read access' },
               'x-scalar-secret-token': 'oauth-token-secret-1',
-              'x-scalar-client-id': '',
-              'x-scalar-client-secret': '',
-              'x-scalar-redirect-uri': '',
+              'x-scalar-secret-client-id': '',
+              'x-scalar-secret-client-secret': '',
+              'x-scalar-secret-redirect-uri': '',
               'x-usePkce': 'no',
             },
           },
@@ -166,28 +173,31 @@ describe('getSecrets', () => {
             authorizationCode: {
               authorizationUrl: 'https://example.com/oauth/authorize',
               tokenUrl: 'https://example.com/oauth/token',
+              refreshUrl: '',
               scopes: { read: 'Read access' },
               'x-scalar-secret-token': 'oauth-token-secret-1',
-              'x-scalar-client-id': '',
-              'x-scalar-client-secret': '',
-              'x-scalar-redirect-uri': '',
+              'x-scalar-secret-client-id': '',
+              'x-scalar-secret-client-secret': '',
+              'x-scalar-secret-redirect-uri': '',
               'x-usePkce': 'no',
             },
             clientCredentials: {
               tokenUrl: 'https://example.com/oauth/token',
+              refreshUrl: '',
               scopes: { write: 'Write access' },
               'x-scalar-secret-token': 'oauth-token-secret-2',
-              'x-scalar-client-id': '',
-              'x-scalar-client-secret': '',
+              'x-scalar-secret-client-id': '',
+              'x-scalar-secret-client-secret': '',
             },
             password: {
               tokenUrl: 'https://example.com/oauth/token',
+              refreshUrl: '',
               scopes: { admin: 'Admin access' },
               'x-scalar-secret-token': 'oauth-token-secret-3',
-              'x-scalar-client-id': '',
-              'x-scalar-client-secret': '',
-              'x-scalar-username': '',
-              'x-scalar-password': '',
+              'x-scalar-secret-client-id': '',
+              'x-scalar-secret-client-secret': '',
+              'x-scalar-secret-username': '',
+              'x-scalar-secret-password': '',
             },
           },
         },
@@ -206,10 +216,12 @@ describe('getSecrets', () => {
             authorizationCode: {
               authorizationUrl: 'https://example.com/oauth/authorize',
               tokenUrl: 'https://example.com/oauth/token',
+              refreshUrl: '',
               scopes: { read: 'Read access' },
-              'x-scalar-client-id': '',
-              'x-scalar-client-secret': '',
-              'x-scalar-redirect-uri': '',
+              'x-scalar-secret-token': '',
+              'x-scalar-secret-client-id': '',
+              'x-scalar-secret-client-secret': '',
+              'x-scalar-secret-redirect-uri': '',
               'x-usePkce': 'no',
             },
           },
@@ -256,11 +268,12 @@ describe('getSecrets', () => {
             authorizationCode: {
               authorizationUrl: 'https://example.com/oauth/authorize',
               tokenUrl: 'https://example.com/oauth/token',
+              refreshUrl: '',
               scopes: { read: 'Read access' },
               'x-scalar-secret-token': 'oauth-token-secret',
-              'x-scalar-client-id': '',
-              'x-scalar-client-secret': '',
-              'x-scalar-redirect-uri': '',
+              'x-scalar-secret-client-id': '',
+              'x-scalar-secret-client-secret': '',
+              'x-scalar-secret-redirect-uri': '',
               'x-usePkce': 'no',
             },
           },
@@ -315,24 +328,6 @@ describe('getSecrets', () => {
       expect(result).toEqual([])
     })
 
-    it('should handle null/undefined values in http scheme', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
-        {
-          type: 'http',
-          scheme: 'basic',
-          'x-scalar-secret-token': undefined,
-          'x-scalar-secret-username': undefined,
-          'x-scalar-secret-password': undefined,
-        },
-      ]
-
-      const result = getSecrets(securitySchemes)
-
-      expect(result).toEqual([
-        'dW5kZWZpbmVkOnVuZGVmaW5lZA==', // base64 encoded "undefined:undefined"
-      ])
-    })
-
     it('should handle empty string values in http scheme', () => {
       const securitySchemes: SecuritySchemeObject[] = [
         {
@@ -347,9 +342,6 @@ describe('getSecrets', () => {
       const result = getSecrets(securitySchemes)
 
       expect(result).toEqual([
-        '',
-        '',
-        '',
         'Og==', // base64 encoded ":"
       ])
     })
@@ -363,6 +355,7 @@ describe('getSecrets', () => {
           scheme: 'basic',
           'x-scalar-secret-username': 'admin',
           'x-scalar-secret-password': 'secret123',
+          'x-scalar-secret-token': '',
         },
       ]
 
@@ -383,6 +376,7 @@ describe('getSecrets', () => {
           scheme: 'basic',
           'x-scalar-secret-username': 'user@domain.com',
           'x-scalar-secret-password': 'pass:word!',
+          'x-scalar-secret-token': '',
         },
       ]
 

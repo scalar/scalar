@@ -1,4 +1,3 @@
-import { isDefined } from '@scalar/helpers/array/is-defined'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { encode } from 'js-base64'
 
@@ -24,4 +23,4 @@ export const getSecrets = (securitySchemes: SecuritySchemeObject[]): string[] =>
 
       return []
     })
-    .filter(isDefined)
+    .filter(Boolean)

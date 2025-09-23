@@ -1,5 +1,11 @@
 # @scalar/json-magic
 
+## 0.5.1
+
+### Patch Changes
+
+- 41d8600: feat: add local ref bundling to bundler
+
 ## 0.5.0
 
 ### Minor Changes

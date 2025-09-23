@@ -19,45 +19,47 @@ export type VueClassProp = MaybeRefOrGetter<
   | false
 >
 
-const props = withDefaults(
-  defineProps<{
-    type?: string
-    containerClass?: VueClassProp
-    required?: boolean
-    modelValue: string | number
-    readOnly?: boolean
-    environment: Environment
-    envVariables: EnvVariable[]
-  }>(),
-  { required: false, readOnly: false },
-)
+const {
+  containerClass,
+  environment,
+  envVariables,
+  readOnly = false,
+  required = false,
+  type,
+} = defineProps<{
+  containerClass?: VueClassProp
+  environment: Environment
+  envVariables: EnvVariable[]
+  readOnly?: boolean
+  required?: boolean
+  type?: string
+}>()
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', v: string): void
   (e: 'inputFocus'): void
   (e: 'inputBlur'): void
   (e: 'selectVariable', value: string): void
 }>()
 
+const modelValue = defineModel<string>({ default: '', required: true })
 const id = useId()
 </script>
 <template>
   <DataTableInput
     :id="id"
-    :canAddCustomEnumValue="!props.readOnly"
-    :containerClass="props.containerClass"
     v-bind="$attrs"
-    :envVariables="props.envVariables"
-    :environment="props.environment"
+    v-model="modelValue"
+    :canAddCustomEnumValue="!readOnly"
+    :containerClass="containerClass"
+    :envVariables="envVariables"
+    :environment="environment"
     lineWrapping
-    :modelValue="props.modelValue"
-    :readOnly="props.readOnly"
-    :required="props.required"
-    :type="props.type"
+    :readOnly="readOnly"
+    :required="required"
+    :type="type"
     @inputBlur="emit('inputBlur')"
     @inputFocus="emit('inputFocus')"
-    @selectVariable="emit('selectVariable', $event)"
-    @update:modelValue="emit('update:modelValue', $event)">
+    @selectVariable="emit('selectVariable', $event)">
     <template #default>
       <label :for="id">
         <slot />

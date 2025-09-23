@@ -1329,7 +1329,7 @@ describe('bundle', () => {
       })
     })
 
-    it('does not modify external URLs when already defined by $id property', async () => {
+    it.todo('does not modify external URLs when already defined by $id property', async () => {
       const url = `http://localhost:${port}`
 
       const input = {

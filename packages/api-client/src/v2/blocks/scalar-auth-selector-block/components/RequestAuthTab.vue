@@ -67,7 +67,7 @@ const generateLabel = (name: string, scheme: SecuritySchemeObject) => {
     const firstFlow = Object.keys(scheme.flows ?? {})[0]
 
     return `${capitalize(name)}: ${
-      activeFlow.value ? activeFlow.value : (firstFlow ?? '')
+      activeFlow.value ? activeFlow.value : firstFlow
     }${description}`
   }
 
@@ -121,7 +121,7 @@ const dataTableInputProps = {
         <RequestAuthDataTableInput
           v-bind="dataTableInputProps"
           :containerClass="layout === 'reference' && 'border-t'"
-          :modelValue="scheme['x-scalar-secret-token'] ?? ''"
+          :modelValue="scheme['x-scalar-secret-token']"
           placeholder="Token"
           type="password"
           @update:modelValue="
@@ -141,7 +141,7 @@ const dataTableInputProps = {
           <RequestAuthDataTableInput
             v-bind="dataTableInputProps"
             class="text-c-2"
-            :modelValue="scheme['x-scalar-secret-username'] ?? ''"
+            :modelValue="scheme['x-scalar-secret-username']"
             placeholder="janedoe"
             required
             @update:modelValue="
@@ -157,7 +157,7 @@ const dataTableInputProps = {
         <DataTableRow>
           <RequestAuthDataTableInput
             v-bind="dataTableInputProps"
-            :modelValue="scheme['x-scalar-secret-password'] ?? ''"
+            :modelValue="scheme['x-scalar-secret-password']"
             placeholder="********"
             type="password"
             @update:modelValue="
@@ -194,7 +194,7 @@ const dataTableInputProps = {
       <DataTableRow>
         <RequestAuthDataTableInput
           v-bind="dataTableInputProps"
-          :modelValue="scheme['x-scalar-secret-token'] ?? ''"
+          :modelValue="scheme['x-scalar-secret-token']"
           placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
           type="password"
           @update:modelValue="
