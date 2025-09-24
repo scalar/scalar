@@ -1,9 +1,10 @@
-import { NAV_STATE_SYMBOL } from '@/hooks/useNavState'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick, ref } from 'vue'
-import { inject } from 'vue'
+import { inject, nextTick, ref } from 'vue'
+
+import { NAV_STATE_SYMBOL } from '@/hooks/useNavState'
+
 import { useDocumentSource } from './useDocumentSource'
 
 vi.mock('vue', () => {
