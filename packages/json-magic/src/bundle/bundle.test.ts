@@ -1329,7 +1329,7 @@ describe('bundle', () => {
       })
     })
 
-    it.todo('does not modify external URLs when already defined by $id property', async () => {
+    it('does not modify external URLs when already defined by $id property', async () => {
       const url = `http://localhost:${port}`
 
       const input = {
@@ -1409,7 +1409,7 @@ describe('bundle', () => {
                   content: {
                     'application/json': {
                       schema: {
-                        $ref: 'https://example.com/root/schema#user-schema',
+                        $ref: 'https://example.com/root#user-schema',
                       },
                     },
                   },
@@ -1421,13 +1421,20 @@ describe('bundle', () => {
       }
 
       await bundle(input, {
-        plugins: [fetchUrls(), readFiles()],
+        plugins: [
+          fetchUrls({
+            fetch: async () => {
+              return Response.json({ message: 'should not be called' })
+            },
+          }),
+          readFiles(),
+        ],
         treeShake: false,
       })
 
       // The $ref should remain unchanged because the schema is already defined locally with $anchor
       expect(input.paths['/users'].get.responses['200'].content['application/json'].schema.$ref).toBe(
-        'https://example.com/root/schema#user-schema',
+        'https://example.com/root#user-schema',
       )
 
       // The external schema should not be bundled into x-ext
