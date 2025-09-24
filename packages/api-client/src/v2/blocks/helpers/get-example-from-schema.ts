@@ -83,12 +83,43 @@ const guessFromFormat = (
  */
 const resultCache = new WeakMap<object, unknown>()
 
+/** Cache required property names per parent schema for O(1) membership checks */
+const requiredNamesCache = new WeakMap<object, ReadonlySet<string>>()
+
+/**
+ * Retrieves the set of required property names from a schema.
+ * Caches the result in a WeakMap for efficient lookups.
+ */
+const getRequiredNames = (parentSchema: SchemaObject | undefined): ReadonlySet<string> | undefined => {
+  if (!parentSchema) {
+    return undefined
+  }
+
+  const cached = requiredNamesCache.get(parentSchema)
+  if (cached) {
+    return cached
+  }
+
+  if ('required' in parentSchema) {
+    const required = parentSchema.required
+    if (Array.isArray(required) && required.length > 0) {
+      const set = new Set<string>(required)
+      requiredNamesCache.set(parentSchema, set)
+      return set
+    }
+  }
+
+  return undefined
+}
+
 /**
  * Cache the result for a schema if it is an object type.
  * Primitive values are not cached to avoid unnecessary WeakMap operations.
  */
 const cache = (schema: SchemaObject, result: unknown): unknown => {
-  if (typeof result !== 'object' || result === null) return result
+  if (typeof result !== 'object' || result === null) {
+    return result
+  }
   resultCache.set(schema, result)
   return result
 }
@@ -109,16 +140,31 @@ const shouldOmitProperty = (
   propertyName: string | undefined,
   options: { omitEmptyAndOptionalProperties?: boolean } | undefined,
 ): boolean => {
-  if (options?.omitEmptyAndOptionalProperties !== true) return false
+  if (options?.omitEmptyAndOptionalProperties !== true) {
+    return false
+  }
 
   // Never omit container types (objects/arrays) or composed schemas
   const isContainer = ('type' in schema && (schema.type === 'object' || schema.type === 'array')) || isComposed(schema)
-  if (isContainer) return false
+  if (isContainer) {
+    return false
+  }
+
+  // Do not omit if explicit example-like values are present
+  if (
+    ('examples' in schema && Array.isArray(schema.examples) && schema.examples.length > 0) ||
+    ('example' in schema && schema.example !== undefined) ||
+    ('default' in schema && schema.default !== undefined) ||
+    ('const' in schema && schema.const !== undefined) ||
+    ('enum' in schema && Array.isArray(schema.enum) && schema.enum.length > 0)
+  ) {
+    return false
+  }
 
   // Check if the property is required
   const name = propertyName ?? schema.title ?? ''
-  const isRequired =
-    parentSchema && Array.isArray((parentSchema as any).required) && (parentSchema as any).required.includes(name)
+  const requiredNames = getRequiredNames(parentSchema)
+  const isRequired = requiredNames ? requiredNames.has(name) : false
 
   return !isRequired
 }
@@ -138,17 +184,217 @@ const mergeExamples = (baseValue: unknown, newValue: unknown): unknown => {
 }
 
 /**
+ * Build an example for an object schema, including properties, patternProperties,
+ * additionalProperties, and composition (allOf/oneOf/anyOf) merging.
+ */
+const handleObjectSchema = (
+  schema: SchemaObject,
+  options: Parameters<typeof getExampleFromSchema>[1],
+  level: number,
+): unknown => {
+  const response: Record<string, unknown> = {}
+
+  if ('properties' in schema && schema.properties) {
+    const propertyNames = Object.keys(schema.properties)
+    const limit = level > 3 ? Math.min(MAX_PROPERTIES, propertyNames.length) : propertyNames.length
+
+    for (let i = 0; i < limit; i++) {
+      const propertyName = propertyNames[i]!
+      const propertySchema = getResolvedRef(schema.properties[propertyName])
+      if (!propertySchema) {
+        continue
+      }
+
+      const propertyXmlName = options?.xml && 'xml' in propertySchema ? propertySchema.xml?.name : undefined
+      const value = getExampleFromSchema(propertySchema, options, level + 1, schema, propertyName)
+
+      if (typeof value !== 'undefined') {
+        response[propertyXmlName ?? propertyName] = value
+      }
+    }
+
+    if (level > 3 && propertyNames.length > MAX_PROPERTIES) {
+      response['...'] = '[Additional Properties Truncated]'
+    }
+  }
+
+  if ('patternProperties' in schema && schema.patternProperties) {
+    for (const pattern of Object.keys(schema.patternProperties)) {
+      const propertySchema = getResolvedRef(schema.patternProperties[pattern])
+      if (!propertySchema) {
+        continue
+      }
+      response[pattern] = getExampleFromSchema(propertySchema, options, level + 1, schema, pattern)
+    }
+  }
+
+  if ('additionalProperties' in schema && schema.additionalProperties !== undefined) {
+    const additional = getResolvedRef(schema.additionalProperties)
+    const isAnyType =
+      schema.additionalProperties === true ||
+      (typeof schema.additionalProperties === 'object' && Object.keys(schema.additionalProperties).length === 0)
+
+    const additionalName =
+      typeof additional === 'object' &&
+      'x-additionalPropertiesName' in additional &&
+      typeof additional['x-additionalPropertiesName'] === 'string' &&
+      additional['x-additionalPropertiesName'].trim().length > 0
+        ? `${additional['x-additionalPropertiesName'].trim()}*`
+        : DEFAULT_ADDITIONAL_PROPERTIES_NAME
+
+    response[additionalName] = isAnyType
+      ? 'anything'
+      : typeof additional === 'object'
+        ? getExampleFromSchema(additional, options, level + 1)
+        : 'anything'
+  }
+
+  // onOf
+  if (schema.oneOf?.[0]) {
+    Object.assign(response, getExampleFromSchema(getResolvedRef(schema.oneOf[0]), options, level + 1))
+  }
+  // anyOf
+  else if (schema.anyOf?.[0]) {
+    Object.assign(response, getExampleFromSchema(getResolvedRef(schema.anyOf[0]), options, level + 1))
+  }
+  // allOf
+  else if (Array.isArray(schema.allOf) && schema.allOf.length > 0) {
+    let merged: unknown = response
+    for (const item of schema.allOf) {
+      const ex = getExampleFromSchema(getResolvedRef(item), options, level + 1, schema)
+      merged = mergeExamples(merged, ex)
+    }
+    if (merged && typeof merged === 'object') {
+      Object.assign(response, merged as Record<string, unknown>)
+    }
+  }
+
+  if (options?.xml && 'xml' in schema && schema.xml?.name && level === 0) {
+    const wrapped: Record<string, unknown> = {}
+    wrapped[schema.xml.name] = response
+    return cache(schema, wrapped)
+  }
+
+  return cache(schema, response)
+}
+
+/** Build an example for an array schema, including items, allOf, oneOf/anyOf, and XML wrapping */
+const handleArraySchema = (
+  schema: SchemaObject,
+  options: Parameters<typeof getExampleFromSchema>[1],
+  level: number,
+) => {
+  const items = 'items' in schema ? getResolvedRef(schema.items) : undefined
+  const itemsXmlTagName = items && typeof items === 'object' && 'xml' in items ? (items as any).xml?.name : undefined
+  const wrapItems = !!(options?.xml && 'xml' in schema && (schema as any).xml?.wrapped && itemsXmlTagName)
+
+  if (schema.example !== undefined) {
+    return cache(schema, wrapItems ? { [itemsXmlTagName as string]: schema.example } : schema.example)
+  }
+
+  if (items && typeof items === 'object') {
+    if (Array.isArray((items as any).allOf) && (items as any).allOf.length > 0) {
+      const allOf = (items as any).allOf.filter(isDefined)
+      const first = getResolvedRef(allOf[0])
+
+      if (first && typeof first === 'object' && 'type' in first && first.type === 'object') {
+        const combined: SchemaObject = { type: 'object', allOf: allOf as any }
+        const merged = getExampleFromSchema(combined, options, level + 1, schema)
+        return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: merged }] : [merged])
+      }
+
+      const examples = allOf
+        .map((s: any) => getExampleFromSchema(getResolvedRef(s), options, level + 1, schema))
+        .filter(isDefined)
+      return cache(
+        schema,
+        wrapItems ? (examples as unknown[]).map((e) => ({ [itemsXmlTagName as string]: e })) : examples,
+      )
+    }
+
+    const union = (items as any).anyOf || (items as any).oneOf
+    if (union && union.length > 0) {
+      const first = union[0]
+      const ex = getExampleFromSchema(getResolvedRef(first), options, level + 1, schema)
+      return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: ex }] : [ex])
+    }
+  }
+
+  const isObject =
+    items && typeof items === 'object' && (('type' in items && items.type === 'object') || 'properties' in items)
+  const isArray =
+    items && typeof items === 'object' && (('type' in items && items.type === 'array') || 'items' in items)
+
+  if (items && typeof items === 'object' && (('type' in items && items.type) || isObject || isArray)) {
+    const ex = getExampleFromSchema(items as SchemaObject, options, level + 1)
+    return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: ex }] : [ex])
+  }
+
+  return cache(schema, [])
+}
+
+/** Return primitive example value for single-type schemas, or undefined if not primitive */
+const getPrimitiveValue = (schema: SchemaObject, makeUpRandomData: boolean, emptyString: string | undefined) => {
+  if ('type' in schema && schema.type && !Array.isArray(schema.type)) {
+    switch (schema.type) {
+      case 'string':
+        return guessFromFormat(schema, makeUpRandomData, emptyString ?? '')
+      case 'boolean':
+        return true
+      case 'integer':
+        return 'minimum' in schema && typeof schema.minimum === 'number' ? schema.minimum : 1
+      case 'number':
+        return 'minimum' in schema && typeof schema.minimum === 'number' ? schema.minimum : 1
+      case 'array':
+        return []
+      default:
+        return undefined
+    }
+  }
+  return undefined
+}
+
+/** Return primitive example value for union-type schemas (type: string[]) */
+const getUnionPrimitiveValue = (schema: SchemaObject, makeUpRandomData: boolean, emptyString: string | undefined) => {
+  if ('type' in schema && Array.isArray(schema.type)) {
+    if (schema.type.includes('null')) {
+      return null
+    }
+
+    const first = schema.type[0]
+    if (first) {
+      switch (first) {
+        case 'string':
+          return guessFromFormat(schema, makeUpRandomData, emptyString ?? '')
+        case 'boolean':
+          return true
+        case 'integer':
+          return 'minimum' in schema && typeof schema.minimum === 'number' ? schema.minimum : 1
+        case 'number':
+          return 'minimum' in schema && typeof schema.minimum === 'number' ? schema.minimum : 1
+        case 'null':
+          return null
+        default:
+          return undefined
+      }
+    }
+  }
+  return undefined
+}
+
+/**
  * Generate an example value from a given OpenAPI SchemaObject.
  *
  * This function recursively processes OpenAPI schemas to create realistic example data.
  * It handles all OpenAPI schema types including primitives, objects, arrays, and
  * composition schemas (allOf, oneOf, anyOf).
  *
- * Performance optimizations:
- * - Uses WeakMap caching to avoid recomputing examples for the same schema
- * - Limits recursion depth to prevent infinite loops
- * - Limits property count in deep objects to prevent exponential growth
- * - Uses efficient type guards to minimize property access
+ * @param _schema - The OpenAPI SchemaObject to generate an example from.
+ * @param options - Options to customize example generation.
+ * @param level - The current recursion depth.
+ * @param parentSchema - The parent schema, if any.
+ * @param name - The name of the property being processed.
+ * @returns An example value for the given schema.
  */
 export const getExampleFromSchema = (
   _schema: SchemaObject,
@@ -170,21 +416,32 @@ export const getExampleFromSchema = (
 ): unknown => {
   // Resolve any $ref references to get the actual schema
   const schema = getResolvedRef(_schema)
-  if (!isDefined(schema)) return undefined
+  if (!isDefined(schema)) {
+    return undefined
+  }
 
   // Check cache first for performance - avoid recomputing the same schema
-  if (resultCache.has(schema)) return resultCache.get(schema)
+  if (resultCache.has(schema)) {
+    return resultCache.get(schema)
+  }
 
   // Prevent infinite recursion in circular references
-  if (level > MAX_LEVELS_DEEP) return '[Max Depth Exceeded]'
+  if (level > MAX_LEVELS_DEEP) {
+    return '[Max Depth Exceeded]'
+  }
 
   // Determine if we should generate realistic example data
   const makeUpRandomData = !!options?.emptyString
 
-  // Early exits for schemas that should not be included
-  if (schema.deprecated) return undefined
-  if ((options?.mode === 'write' && schema.readOnly) || (options?.mode === 'read' && schema.writeOnly)) return undefined
-  if (shouldOmitProperty(schema, parentSchema, name, options)) return undefined
+  // Early exits for schemas that should not be included (deprecated, readOnly, writeOnly, omitEmptyAndOptionalProperties)
+  if (
+    schema.deprecated ||
+    (options?.mode === 'write' && schema.readOnly) ||
+    (options?.mode === 'read' && schema.writeOnly) ||
+    shouldOmitProperty(schema, parentSchema, name, options)
+  ) {
+    return undefined
+  }
 
   // Handle custom variables (x-variable extension)
   if ('x-variable' in schema && schema['x-variable']) {
@@ -202,196 +459,71 @@ export const getExampleFromSchema = (
   if (Array.isArray(schema.examples) && schema.examples.length > 0) {
     return cache(schema, schema.examples[0])
   }
-  if (schema.example !== undefined) return cache(schema, schema.example)
-  if (schema.default !== undefined) return cache(schema, schema.default)
-  if (schema.const !== undefined) return cache(schema, schema.const)
+  if (schema.example !== undefined) {
+    return cache(schema, schema.example)
+  }
+  if (schema.default !== undefined) {
+    return cache(schema, schema.default)
+  }
+  if (schema.const !== undefined) {
+    return cache(schema, schema.const)
+  }
   if (Array.isArray(schema.enum) && schema.enum.length > 0) {
     return cache(schema, schema.enum[0])
   }
 
   // Handle object types - check for properties to identify objects
   if ('properties' in schema || ('type' in schema && schema.type === 'object')) {
-    const response: Record<string, unknown> = {}
-
-    // Process regular properties
-    if ('properties' in schema && schema.properties) {
-      const propertyNames = Object.keys(schema.properties)
-      // Limit properties in deep objects to prevent exponential growth
-      const limit = level > 3 ? Math.min(MAX_PROPERTIES, propertyNames.length) : propertyNames.length
-
-      for (let i = 0; i < limit; i++) {
-        const propertyName = propertyNames[i]!
-        const propertySchema = getResolvedRef(schema.properties[propertyName])
-        if (!propertySchema) continue
-
-        // Use XML name if specified and XML mode is enabled
-        const propertyXmlName = options?.xml && 'xml' in propertySchema ? propertySchema.xml?.name : undefined
-        const value = getExampleFromSchema(propertySchema, options, level + 1, schema, propertyName)
-
-        if (typeof value !== 'undefined') {
-          response[propertyXmlName ?? propertyName] = value
-        }
-      }
-
-      // Add truncation indicator if we hit the property limit
-      if (level > 3 && propertyNames.length > MAX_PROPERTIES) {
-        response['...'] = '[Additional Properties Truncated]'
-      }
-    }
-
-    // Process pattern properties (regex-based property names)
-    if ('patternProperties' in schema && schema.patternProperties) {
-      const patterns = Object.keys(schema.patternProperties)
-      for (let i = 0; i < patterns.length; i++) {
-        const pattern = patterns[i]!
-        const propertySchema = getResolvedRef(schema.patternProperties[pattern])
-        if (!propertySchema) continue
-        response[pattern] = getExampleFromSchema(propertySchema, options, level + 1, schema, pattern)
-      }
-    }
-
-    // Process additional properties
-    if ('additionalProperties' in schema && schema.additionalProperties !== undefined) {
-      const additional = getResolvedRef(schema.additionalProperties)
-      const isAnyType =
-        schema.additionalProperties === true ||
-        (typeof schema.additionalProperties === 'object' && Object.keys(schema.additionalProperties).length === 0)
-
-      // Get custom name for additional properties if available
-      const additionalName =
-        typeof additional === 'object' &&
-        'x-additionalPropertiesName' in additional &&
-        typeof additional['x-additionalPropertiesName'] === 'string' &&
-        additional['x-additionalPropertiesName'].trim().length > 0
-          ? `${additional['x-additionalPropertiesName'].trim()}*`
-          : DEFAULT_ADDITIONAL_PROPERTIES_NAME
-
-      response[additionalName] = isAnyType
-        ? 'anything'
-        : typeof additional === 'object'
-          ? getExampleFromSchema(additional, options, level + 1)
-          : 'anything'
-    }
-
-    // Handle composition schemas within objects
-    if (schema.oneOf?.[0]) {
-      Object.assign(response, getExampleFromSchema(getResolvedRef(schema.oneOf[0]), options, level + 1))
-    } else if (schema.anyOf?.[0]) {
-      Object.assign(response, getExampleFromSchema(getResolvedRef(schema.anyOf[0]), options, level + 1))
-    } else if (Array.isArray(schema.allOf) && schema.allOf.length > 0) {
-      // Merge all schemas in allOf
-      let merged: unknown = response
-      for (let i = 0; i < schema.allOf.length; i++) {
-        const item = getResolvedRef(schema.allOf[i])
-        if (!item) continue
-        const ex = getExampleFromSchema(item, options, level + 1, schema)
-        merged = mergeExamples(merged, ex)
-      }
-      if (merged && typeof merged === 'object') {
-        Object.assign(response, merged as Record<string, unknown>)
-      }
-    }
-
-    // Handle XML wrapping at root level
-    if (options?.xml && 'xml' in schema && schema.xml?.name && level === 0) {
-      const wrapped: Record<string, unknown> = {}
-      wrapped[schema.xml.name] = response
-      return cache(schema, wrapped)
-    }
-
-    return cache(schema, response)
+    return handleObjectSchema(schema, options, level)
   }
 
   // Handle array types
   if (('type' in schema && schema.type === 'array') || 'items' in schema) {
-    const items = 'items' in schema ? getResolvedRef(schema.items) : undefined
-    const itemsXmlTagName = items && typeof items === 'object' && 'xml' in items ? (items as any).xml?.name : undefined
-    const wrapItems = !!(options?.xml && 'xml' in schema && (schema as any).xml?.wrapped && itemsXmlTagName)
-
-    // Use explicit example if provided
-    if (schema.example !== undefined) {
-      return cache(schema, wrapItems ? { [itemsXmlTagName as string]: schema.example } : schema.example)
-    }
-
-    if (items && typeof items === 'object') {
-      // Handle allOf in array items
-      if (Array.isArray((items as any).allOf) && (items as any).allOf.length > 0) {
-        const allOf = (items as any).allOf.filter(isDefined)
-        const first = getResolvedRef(allOf[0])
-
-        // If first item is an object, merge all schemas
-        if (first && typeof first === 'object' && 'type' in first && first.type === 'object') {
-          const combined: SchemaObject = { type: 'object', allOf: allOf as any }
-          const merged = getExampleFromSchema(combined, options, level + 1, schema)
-          return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: merged }] : [merged])
-        }
-
-        // For non-objects, collect all examples
-        const examples = allOf
-          .map((s: any) => getExampleFromSchema(getResolvedRef(s), options, level + 1, schema))
-          .filter(isDefined)
-        return cache(
-          schema,
-          wrapItems ? (examples as unknown[]).map((e) => ({ [itemsXmlTagName as string]: e })) : examples,
-        )
-      }
-
-      // Handle oneOf/anyOf in array items
-      const union = (items as any).anyOf || (items as any).oneOf
-      if (union && union.length > 0) {
-        const first = union[0]
-        const ex = getExampleFromSchema(getResolvedRef(first), options, level + 1, schema)
-        return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: ex }] : [ex])
-      }
-    }
-
-    // Generate example for regular array items
-    const isObject =
-      items && typeof items === 'object' && (('type' in items && items.type === 'object') || 'properties' in items)
-    const isArray =
-      items && typeof items === 'object' && (('type' in items && items.type === 'array') || 'items' in items)
-
-    if (items && typeof items === 'object' && (('type' in items && items.type) || isObject || isArray)) {
-      const ex = getExampleFromSchema(items as SchemaObject, options, level + 1)
-      return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: ex }] : [ex])
-    }
-
-    return cache(schema, [])
+    return handleArraySchema(schema, options, level)
   }
 
-  // Handle primitive types
-  const primitiveExamples: Record<string, unknown> = {
-    string: guessFromFormat(schema, makeUpRandomData, options?.emptyString ?? ''),
-    boolean: true,
-    integer: 'minimum' in schema && typeof schema.minimum === 'number' ? schema.minimum : 1,
-    number: 'minimum' in schema && typeof schema.minimum === 'number' ? schema.minimum : 1,
-    array: [],
-  }
-
-  if ('type' in schema && schema.type && !Array.isArray(schema.type) && primitiveExamples[schema.type] !== undefined) {
-    return cache(schema, primitiveExamples[schema.type])
+  // Handle primitive types without allocating temporary objects
+  const primitive = getPrimitiveValue(schema, makeUpRandomData, options?.emptyString)
+  if (primitive !== undefined) {
+    return cache(schema, primitive)
   }
 
   // Handle composition schemas (oneOf, anyOf) at root level
   const discriminate = schema.oneOf || schema.anyOf
   if (Array.isArray(discriminate) && discriminate.length > 0) {
-    // Find the first non-null type
-    const firstNonNull = discriminate
-      .map((i) => getResolvedRef(i))
-      .find((i) => i && (!('type' in i) || i.type !== 'null'))
-
-    if (firstNonNull) {
-      return cache(schema, getExampleFromSchema(firstNonNull, options, level + 1))
+    // Find the first non-null type without allocating intermediate arrays
+    for (const item of discriminate) {
+      const resolved = getResolvedRef(item)
+      if (resolved && (!('type' in resolved) || resolved.type !== 'null')) {
+        return cache(schema, getExampleFromSchema(resolved, options, level + 1))
+      }
     }
     return cache(schema, null)
   }
 
+  // Handle allOf at root level (non-object/array schemas)
+  if (Array.isArray((schema as any).allOf) && (schema as any).allOf.length > 0) {
+    let merged: unknown = undefined
+    const items = (schema as any).allOf
+    for (const item of items) {
+      const ex = getExampleFromSchema(item, options, level + 1, schema)
+      if (merged === undefined) {
+        merged = ex
+      } else if (merged && typeof merged === 'object' && ex && typeof ex === 'object') {
+        merged = mergeExamples(merged, ex)
+      } else if (ex !== undefined) {
+        // Prefer the latest defined primitive value
+        merged = ex
+      }
+    }
+    return cache(schema, merged ?? null)
+  }
+
   // Handle union types (array of types)
-  if ('type' in schema && Array.isArray(schema.type)) {
-    if (schema.type.includes('null')) return cache(schema, null)
-    const first = schema.type[0]
-    const v = first ? primitiveExamples[first] : undefined
-    if (v !== undefined) return cache(schema, v)
+
+  const unionPrimitive = getUnionPrimitiveValue(schema, makeUpRandomData, options?.emptyString)
+  if (unionPrimitive !== undefined) {
+    return cache(schema, unionPrimitive)
   }
 
   // Default fallback
