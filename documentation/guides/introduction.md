@@ -303,32 +303,23 @@ They are open source. So I can get in on free features and stay with Scalar no m
   <p>Marc from Scalar here,</p>
   <br />
   <p>
-    There's no better feeling than building & being enabled by the software you
-    are integrating with, we've all experienced friction with out-of-date docs,
-    no client SDKs in your favorite language & no one to talk to about your
-    struggles on-boarding.
+    There's no better feeling than building and being enabled by the software you are integrating with.
   </p>
   <br />
   <p>
-    But we've also experienced those magical APIs that just work and everything
-    you need to reach for is there. This drives our simple three tenants at
-    Scalar: Accessibility, Open-Source, & API First. Making on-boarding easier &
-    magical enables people to build & being API first means your business can
-    scale for the future (LLMs)
+    We've all experienced friction with out-of-date docs, no client SDKs in your favorite language, and no one to talk to about your struggles on-boarding.
   </p>
   <br />
   <p>
-    Why Open-Source? If done right it builds transparency, builds industry
-    standards (OpenAPI), accelerates innovation & fosters collaboration. We love
-    Open-Source and keep it core to our values.
+    But we've also experienced those magical APIs that just work with everything you need right there. This drives our simple three tenants at Scalar: Accessibility, Open-Source, and API First. Making on-boarding easier and  magical enables people to build, and being API first means your business can scale for the future (LLMs).
   </p>
   <br />
   <p>
-    We are fans of show don't tell here at Scalar: so try our Docs (this page),
-    our SDKs for our API that includes our API Client, Agent Scalar to chat with
-    APIs & our GitHub for all our open-source products. As always, we love your
-    feedback so drop us a line in our discord, email or book a call with me to
-    see how we can help
+    Why Open-Source? If done right, it’s transparent, builds industry standards (OpenAPI), accelerates innovation, and fosters collaboration. We love Open-Source and keep it core to our values.
+  </p>
+  <br />
+  <p>
+    We are fans of “show don't tell here” at Scalar: so try our Docs (this page), our SDKs for our API that includes our API Client, Agent Scalar to chat with APIs, and our GitHub for all our open-source products. As always, we love your feedback so drop us a line in our discord, email, or book a call with me to see how we can help.
   </p>
   <br />
   <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/rzLt5QLobG1QcqnrhdAor.svg"></scalar-icon>
