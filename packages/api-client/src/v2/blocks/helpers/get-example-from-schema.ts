@@ -116,7 +116,7 @@ const getRequiredNames = (parentSchema: SchemaObject | undefined): ReadonlySet<s
  * Cache the result for a schema if it is an object type.
  * Primitive values are not cached to avoid unnecessary WeakMap operations.
  */
-const cache = (schema: SchemaObject, result: unknown): unknown => {
+const cache = (schema: SchemaObject, result: unknown) => {
   if (typeof result !== 'object' || result === null) {
     return result
   }

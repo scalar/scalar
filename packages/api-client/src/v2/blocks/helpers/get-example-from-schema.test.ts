@@ -1,7 +1,7 @@
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { type SchemaObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectSchema, type SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { getExampleFromSchema } from './get-example-from-schema'
 
 describe('getExampleFromSchema', () => {
@@ -263,11 +263,7 @@ describe('getExampleFromSchema', () => {
       },
     )
 
-    function isEmail(text: string) {
-      return !!text.match(/^.+@.+\..+$/)
-    }
-
-    expect(isEmail(result)).toBe(true)
+    expect(result).toBe('hello@example.com')
   })
 
   it('uses variables as an example value', () => {
@@ -1031,7 +1027,9 @@ describe('getExampleFromSchema', () => {
       expect(
         getExampleFromSchema({
           type: 'object',
-          additionalProperties: {},
+          additionalProperties: {
+            type: 'string',
+          },
         }),
       ).toMatchObject({
         'propertyName*': 'anything',
@@ -1597,7 +1595,7 @@ describe('getExampleFromSchema', () => {
 
       const example = getExampleFromSchema(schema)
       expect(example).toBeInstanceOf(Object)
-      expect(Object.keys(example).length).toBe(26)
+      expect(Object.keys(example as object).length).toBe(26)
     })
   })
 
