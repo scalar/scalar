@@ -7,7 +7,7 @@
     Scalar Registry
   </h2>
   <p>
-    Get started with Scalar Docs, literally in minutes. You don't need anything to get started, not even an account if you just want to play around.
+    Get started with Scalar Registry for managing & versioning OpenAPI Documents, JSON Schema, Spectral Rules as your source of truth with a deep Git integration.
   </p>
 </div>
 <img class="light-image mt-10" src="/registry-animated.svg"/>
@@ -15,9 +15,6 @@
 
 <div class="flex">
   <div class="full-container-constrained">
-
-## Getting Started
-Reading this guide helps you to get started with Scalar Registry for managing & versioning OpenAPI Documents, JSON Schema, Spectral Rules as your source of truth with a deep Git integration.
 
 ## Create your Scalar Account
 To first access the Scalar Registry you need to [create an account](https://dashboard.scalar.com/register) or [sign in](https://dashboard.scalar.com/login).
@@ -134,13 +131,13 @@ They are open source. So I can get in on free features and stay with Scalar no m
   <div class="resources-cta sticky">
     <div class="resources-cta-container">
       <p class="mt-3 mb-1 pl-2">
-        <b class="font-medium">Additioanl Reading</b>
+        <b class="font-medium">Additional Reading</b>
       </p>
       <p>
         <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/scalar-registry/cli"><scalar-icon src="phosphor/bold/brackets-square"></scalar-icon> CLI</a>
       </p>
       <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/scalar-regsitry/upload"><scalar-icon src="phosphor/bold/upload"></scalar-icon> Upload API</a>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/scalar-registry/upload"><scalar-icon src="phosphor/bold/upload"></scalar-icon> Upload API</a>
       </p>
       <p class="mt-3 mb-1 pl-2">
         <b class="font-medium">Community</b>

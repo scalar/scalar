@@ -4,10 +4,10 @@
 </div>
 <div class="flex flex-col gap-3 hero small-test">
   <h2 class="text-balance">
-    Scalar SDKs.
+    Scalar SDKs
   </h2>
   <p>
-    Get started with Scalar Docs, literally in minutes. You don't need anything to get started, not even an account if you just want to play around.
+    Get started with generating world-class SDKs in minutes on scalar.com in several languages: TypeScript, Python, Golang & more.
   </p>
 </div>
 <img class="light-image mt-10" src="/sdks-animated.svg"/>
@@ -17,7 +17,6 @@
   <div class="full-container-constrained">
 
 ## Getting Started
-This guide will help you get started with generating world-class SDKs on scalar.com in several languages: TypeScript, Python, Golang & more powered by [Speakeasy](https://speakeasy.com).
 
 :::scalar-callout{ type=info }
 SDK generation is part of our paid plans and costs $100 per month per language. Keep this in mind when selecting which languages you'd like to generate SDKs for.
@@ -135,7 +134,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
   <div class="resources-cta sticky">
     <div class="resources-cta-container">
       <p class="mt-3 mb-1 pl-2">
-        <b class="font-medium">Additioanl Reading</b>
+        <b class="font-medium">Additional Reading</b>
       </p>
       <p>
         <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/scalar-sdks/configuration/typescript"><scalar-icon src="phosphor/bold/file-ts"></scalar-icon> Typescript SDKs</a>
