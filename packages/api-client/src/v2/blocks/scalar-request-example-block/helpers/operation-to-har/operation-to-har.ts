@@ -1,16 +1,16 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type {
+  OperationObject,
+  SecuritySchemeObject,
+  ServerObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { Request as HarRequest } from 'har-format'
 
-import { processServerUrl } from './process-server-url'
-import { processParameters } from './process-parameters'
 import { processBody } from './process-body'
+import { processParameters } from './process-parameters'
 import { processSecuritySchemes } from './process-security-schemes'
-import type {
-  ServerObject,
-  SecuritySchemeObject,
-  OperationObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { processServerUrl } from './process-server-url'
 
 export type OperationToHarProps = {
   /** OpenAPI Operation object */
@@ -19,10 +19,6 @@ export type OperationToHarProps = {
   method: HttpMethod
   /** Path of the operation */
   path: string
-  /**
-   * requestBody.content[contentType].example to use for the request, it should be pre-selected and discriminated
-   */
-  example?: unknown
   /**
    * Content type of the request
    *
@@ -64,7 +60,6 @@ export const operationToHar = ({
   path,
   server,
   securitySchemes,
-  example,
 }: OperationToHarProps): HarRequest => {
   // Initialize the HAR request with basic properties
   const harRequest: HarRequest = {

@@ -1,7 +1,7 @@
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { bench, describe } from 'vitest'
 
-import { getExampleFromSchema } from '@/v2/blocks/helpers/get-example-from-schema'
+import { getExampleFromSchema } from '@/v2/blocks/scalar-request-example-block/helpers/get-example-from-schema'
 
 // A deliberately complex schema exercising objects, arrays, allOf/anyOf/oneOf,
 // patternProperties, additionalProperties with x-additionalPropertiesName, enums,

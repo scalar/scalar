@@ -114,13 +114,13 @@ import type {
   SecuritySchemeObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { getResolvedRefDeep } from '@v2/blocks/helpers/get-resolved-ref-deep'
 import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
 import { findClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import { generateCustomId } from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
 import { generateCodeSnippet } from '@/v2/blocks/scalar-request-example-block/helpers/generate-code-snippet'
+import { getResolvedRefDeep } from '@/v2/blocks/scalar-request-example-block/helpers/get-resolved-ref-deep'
 import { getSecrets } from '@/v2/blocks/scalar-request-example-block/helpers/get-secrets'
 import type {
   ClientOption,
