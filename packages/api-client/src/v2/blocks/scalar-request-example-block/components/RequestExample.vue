@@ -227,7 +227,7 @@ const webhookHar = computed(() => {
 
   try {
     const selectedExample =
-      operationExamples.value[selectedExampleKey.value || '']
+      requestBodyExamples.value[selectedExampleKey.value || '']
     const resolvedExample = getResolvedRefDeep(selectedExample)
     const example = resolvedExample?.value ?? resolvedExample?.summary
 
