@@ -1,35 +1,70 @@
 {
   "files": [
     {
-      "filepath": "/home/amritk/apps/scalar/scalar/packages/api-client/src/v2/blocks/helpers/get-example-from-schema.bench.ts",
+      "filepath": "/home/amritk/apps/scalar/scalar/packages/api-client/src/v2/blocks/operation-code-sample/helpers/get-example-from-schema.bench.ts",
       "groups": [
         {
-          "fullName": "src/v2/blocks/helpers/get-example-from-schema.bench.ts > bench:getExampleFromSchema",
+          "fullName": "src/v2/blocks/operation-code-sample/helpers/get-example-from-schema.bench.ts > bench:getExampleFromSchema",
           "benchmarks": [
             {
-              "id": "-468935348_0_0",
+              "id": "-1508042706_0_0",
               "name": "complex schema generation",
               "rank": 1,
-              "rme": 2.095907364797372,
+              "rme": 1.3084335912292275,
               "samples": [],
-              "totalTime": 500.00003300039,
+              "totalTime": 500.00002500010066,
               "min": 0.00007999999979801942,
-              "max": 5.339328000000023,
-              "hz": 9450865.376235513,
-              "period": 0.00010581041631537046,
-              "mean": 0.00010581041631537046,
-              "variance": 0.000006049653223810609,
-              "sd": 0.002459604281954845,
-              "sem": 0.0000011314736266717396,
-              "df": 4725432,
+              "max": 3.3317799999999806,
+              "hz": 10661123.46694168,
+              "period": 0.00009379874486031691,
+              "mean": 0.00009379874486031691,
+              "variance": 0.0000020900577237247194,
+              "sd": 0.0014457031935098986,
+              "sem": 6.261705540325434e-7,
+              "df": 5330561,
               "critical": 1.96,
-              "moe": 0.0000022176883082766095,
-              "p75": 0.00010000000020227162,
-              "p99": 0.0001999999999497959,
-              "p995": 0.00028000000020256266,
-              "p999": 0.0007109999996828265,
-              "sampleCount": 4725433,
-              "median": 0.00010000000020227162
+              "moe": 0.000001227294285903785,
+              "p75": 0.00009099999999762076,
+              "p99": 0.00012000000003808964,
+              "p995": 0.0001399999999875945,
+              "p999": 0.0001909999999725187,
+              "sampleCount": 5330562,
+              "median": 0.00009000000000014552
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "filepath": "/home/amritk/apps/scalar/scalar/packages/api-client/src/v2/blocks/operation-code-sample/helpers/operation-to-har/operation-to-har.bench.ts",
+      "groups": [
+        {
+          "fullName": "src/v2/blocks/operation-code-sample/helpers/operation-to-har/operation-to-har.bench.ts > bench:operationToHar with large complex payloads",
+          "benchmarks": [
+            {
+              "id": "467904521_0_0",
+              "name": "large JSON + multipart/form-data bodies with many params and security",
+              "rank": 1,
+              "rme": 1.7524954134235489,
+              "samples": [],
+              "totalTime": 500.5720959999999,
+              "min": 0.7941600000000335,
+              "max": 3.1201559999999517,
+              "hz": 1118.7199695605889,
+              "period": 0.8938787428571426,
+              "mean": 0.8938787428571426,
+              "variance": 0.03577230157701395,
+              "sd": 0.18913566976383367,
+              "sem": 0.007992440801091584,
+              "df": 559,
+              "critical": 1.96,
+              "moe": 0.015665183970139503,
+              "p75": 0.8871239999999716,
+              "p99": 2.1588239999999814,
+              "p995": 2.293886000000043,
+              "p999": 3.1201559999999517,
+              "sampleCount": 560,
+              "median": 0.8468189999999822
             }
           ]
         }

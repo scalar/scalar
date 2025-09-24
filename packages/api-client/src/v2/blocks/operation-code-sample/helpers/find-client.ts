@@ -1,5 +1,6 @@
-import type { ClientOption, ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 import { AVAILABLE_CLIENTS, type AvailableClients } from '@scalar/snippetz'
+
+import type { ClientOption, ClientOptionGroup } from '@/v2/blocks/operation-code-sample/types'
 
 export const DEFAULT_CLIENT = 'shell/curl'
 

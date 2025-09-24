@@ -1,5 +1,5 @@
 <script lang="ts">
-export type RequestExampleProps = {
+export type OperationCodeSampleProps = {
   /**
    * List of all http clients formatted into option groups for the client selector
    */
@@ -117,15 +117,15 @@ import type {
 import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
-import { findClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
-import { generateCustomId } from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
-import { generateCodeSnippet } from '@/v2/blocks/scalar-request-example-block/helpers/generate-code-snippet'
-import { getResolvedRefDeep } from '@/v2/blocks/scalar-request-example-block/helpers/get-resolved-ref-deep'
-import { getSecrets } from '@/v2/blocks/scalar-request-example-block/helpers/get-secrets'
+import { findClient } from '@/v2/blocks/operation-code-sample/helpers/find-client'
+import { generateCustomId } from '@/v2/blocks/operation-code-sample/helpers/generate-client-options'
+import { generateCodeSnippet } from '@/v2/blocks/operation-code-sample/helpers/generate-code-snippet'
+import { getResolvedRefDeep } from '@/v2/blocks/operation-code-sample/helpers/get-resolved-ref-deep'
+import { getSecrets } from '@/v2/blocks/operation-code-sample/helpers/get-secrets'
 import type {
   ClientOption,
   ClientOptionGroup,
-} from '@/v2/blocks/scalar-request-example-block/types'
+} from '@/v2/blocks/operation-code-sample/types'
 
 import ExamplePicker from './ExamplePicker.vue'
 
@@ -141,7 +141,7 @@ const {
   operation,
   isWebhook,
   generateLabel,
-} = defineProps<RequestExampleProps>()
+} = defineProps<OperationCodeSampleProps>()
 
 defineSlots<{
   header: () => unknown

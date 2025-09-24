@@ -1,12 +1,14 @@
-import { getExampleFromSchema } from '@/spec-getters/get-example-from-schema'
 import { json2xml } from '@scalar/helpers/file/json2xml'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { getExampleFromSchema } from '@v2/blocks/operation-code-sample/helpers/get-example-from-schema'
 import type { Param, PostData } from 'har-format'
+
+import { getExampleValue } from './get-example-value'
 import type { OperationToHarProps } from './operation-to-har'
 
 type ProcessBodyProps = Pick<OperationToHarProps, 'contentType' | 'example'> & {
-  content: RequestBodyObject['content']
+  requestBody: RequestBodyObject
 }
 
 /**
@@ -14,7 +16,7 @@ type ProcessBodyProps = Pick<OperationToHarProps, 'contentType' | 'example'> & {
  * @param obj - The object to convert
  * @returns Array of form parameters with name and value properties
  */
-const objectToFormParams = (obj: Record<string, unknown>): Param[] => {
+const objectToFormParams = (obj: object): Param[] => {
   const params: Param[] = []
 
   for (const [key, value] of Object.entries(obj)) {
@@ -30,7 +32,7 @@ const objectToFormParams = (obj: Record<string, unknown>): Param[] => {
     }
     // Handle nested objects by flattening them
     else if (typeof value === 'object') {
-      const nestedParams = objectToFormParams(value as Record<string, unknown>)
+      const nestedParams = objectToFormParams(value)
 
       for (const param of nestedParams) {
         params.push({ name: `${key}.${param.name}`, value: param.value })
@@ -46,8 +48,8 @@ const objectToFormParams = (obj: Record<string, unknown>): Param[] => {
 /**
  * Processes the request body and returns the processed data
  */
-export const processBody = ({ content, contentType, example }: ProcessBodyProps): PostData => {
-  const _contentType = (contentType || Object.keys(content)[0]) ?? ''
+export const processBody = ({ requestBody, contentType, example }: ProcessBodyProps): PostData => {
+  const _contentType = contentType || Object.keys(requestBody.content)[0] || ''
 
   // Check if this is a form data content type
   const isFormData = _contentType === 'multipart/form-data' || _contentType === 'application/x-www-form-urlencoded'
@@ -55,19 +57,22 @@ export const processBody = ({ content, contentType, example }: ProcessBodyProps)
   // Check if this is an XML content type
   const isXml = _contentType === 'application/xml'
 
+  // Get the example value
+  const _example = getExampleValue(requestBody, example, contentType)
+
   // Return the provided top level example
-  if (example) {
-    if (isFormData && typeof example === 'object' && example !== null) {
+  if (_example) {
+    if (isFormData && typeof _example === 'object' && _example !== null) {
       return {
         mimeType: _contentType,
-        params: objectToFormParams(example as Record<string, unknown>),
+        params: objectToFormParams(_example),
       }
     }
 
-    if (isXml && typeof example === 'object' && example !== null) {
+    if (isXml && typeof _example === 'object' && _example !== null) {
       return {
         mimeType: _contentType,
-        text: json2xml(example as Record<string, unknown>),
+        text: json2xml(_example),
       }
     }
 
@@ -78,7 +83,7 @@ export const processBody = ({ content, contentType, example }: ProcessBodyProps)
   }
 
   // Try to extract examples from the schema
-  const contentSchema = getResolvedRef(content[_contentType]?.schema)
+  const contentSchema = getResolvedRef(requestBody.content[_contentType]?.schema)
   if (contentSchema) {
     const extractedExample = getExampleFromSchema(contentSchema, {
       mode: 'write',
@@ -89,14 +94,14 @@ export const processBody = ({ content, contentType, example }: ProcessBodyProps)
       if (isFormData && typeof extractedExample === 'object' && extractedExample !== null) {
         return {
           mimeType: _contentType,
-          params: objectToFormParams(extractedExample as Record<string, unknown>),
+          params: objectToFormParams(extractedExample),
         }
       }
 
       if (isXml && typeof extractedExample === 'object' && extractedExample !== null) {
         return {
           mimeType: _contentType,
-          text: json2xml(extractedExample as Record<string, unknown>),
+          text: json2xml(extractedExample),
         }
       }
 

@@ -12,7 +12,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import type { ClientOptionGroup } from '../types'
-import RequestExample from './RequestExample.vue'
+import RequestExample from './OperationCodeSample.vue'
 
 // Mock the useClipboard hook
 const mockCopyToClipboard = vi.fn().mockResolvedValue(undefined)

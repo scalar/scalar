@@ -20,9 +20,16 @@ export type OperationToHarProps = {
   /** Path of the operation */
   path: string
   /**
-   * Content type of the request
+   * Name of the currently selected operation example
    *
-   * @defaults to the first content type in the operation.requestBody.content
+   * Applies to both the body and the parameters
+   */
+  example?: string
+  /**
+   * Content type of the operation
+   *
+   * Applies to both the body and the parameters (if applicable)
+   * @defaults to the first content type in the MediaTypeObject
    */
   contentType?: string
   /** OpenAPI Server object */
@@ -59,6 +66,7 @@ export const operationToHar = ({
   method,
   path,
   server,
+  example,
   securitySchemes,
 }: OperationToHarProps): HarRequest => {
   // Initialize the HAR request with basic properties
@@ -81,7 +89,12 @@ export const operationToHar = ({
 
   // Handle parameters
   if (operation.parameters) {
-    const { url, headers, queryString, cookies } = processParameters(harRequest, operation.parameters, example)
+    const { url, headers, queryString, cookies } = processParameters({
+      harRequest,
+      parameters: operation.parameters,
+      example,
+      contentType,
+    })
     harRequest.url = url
     harRequest.headers = headers
     harRequest.queryString = queryString
@@ -92,7 +105,7 @@ export const operationToHar = ({
 
   // Handle request body
   if (body?.content) {
-    const postData = processBody({ content: body.content, contentType, example })
+    const postData = processBody({ requestBody: body, contentType, example })
     harRequest.postData = postData
     harRequest.bodySize = postData.text?.length ?? -1
 

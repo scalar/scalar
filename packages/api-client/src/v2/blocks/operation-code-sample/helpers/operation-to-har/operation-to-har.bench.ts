@@ -1,4 +1,5 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { operationToHar as operationToHarOld } from '@scalar/oas-utils/helpers/operation-to-har'
 import type {
   OperationObject,
   SecuritySchemeObject,
@@ -6,7 +7,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { bench, describe } from 'vitest'
 
-import { operationToHar } from '@scalar/oas-utils/helpers/operation-to-har'
+import { operationToHar } from './operation-to-har'
 
 /**
  * Benchmarks for operationToHar with large complex payloads.
@@ -172,11 +173,6 @@ const operationJson: OperationObject = {
 } satisfies OperationObject
 
 describe('bench:operationToHar with large complex payloads', () => {
-  // Large form-data body: thousands of simple fields to stress encoding
-  const largeFormExample: Record<string, string> = Object.fromEntries(
-    Array.from({ length: 2000 }).map((_, i) => [`field_${i}`, `${'x'.repeat(64)}-${i}`]),
-  )
-
   const operationForm: OperationObject = {
     parameters: operationJson.parameters,
     requestBody: {
@@ -202,7 +198,6 @@ describe('bench:operationToHar with large complex payloads', () => {
       server,
       securitySchemes: [...complexSecuritySchemes],
       contentType: 'application/json',
-      example: largeJsonExample,
     })
 
     // multipart/form-data body
@@ -213,7 +208,29 @@ describe('bench:operationToHar with large complex payloads', () => {
       server,
       securitySchemes: [...complexSecuritySchemes],
       contentType: 'multipart/form-data',
-      example: largeFormExample,
+    })
+  })
+
+  bench('large JSON + multipart/form-data bodies with many params and security (old)', () => {
+    const method: HttpMethod = 'post'
+    // JSON body
+    operationToHarOld({
+      operation: operationJson,
+      method,
+      path: '/users/{userId}/orders/{.labels}/{;filters}',
+      server,
+      securitySchemes: [...complexSecuritySchemes],
+      contentType: 'application/json',
+    })
+
+    // multipart/form-data body
+    operationToHarOld({
+      operation: operationForm,
+      method,
+      path: '/users/{userId}/profile/{.labels}/{;filters}',
+      server,
+      securitySchemes: [...complexSecuritySchemes],
+      contentType: 'multipart/form-data',
     })
   })
 })

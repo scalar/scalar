@@ -1,8 +1,6 @@
 {
   "eslint.validate": ["vue"],
   "biome.enabled": true,
-  "biome.searchInPath": true,
-  "biome.lsp.bin": "node_modules/.bin/biome",
   "editor.formatOnSave": true,
   "editor.tabSize": 2,
   "search.exclude": {

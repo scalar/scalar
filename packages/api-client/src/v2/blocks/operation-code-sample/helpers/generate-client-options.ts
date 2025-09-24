@@ -1,8 +1,9 @@
-import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 import type { XCodeSample } from '@scalar/openapi-types/schemas/extensions'
-import { snippetz, type AvailableClients } from '@scalar/snippetz'
+import { type AvailableClients, snippetz } from '@scalar/snippetz'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { capitalize } from 'vue'
+
+import type { ClientOptionGroup } from '@/v2/blocks/operation-code-sample/types'
 
 /** Helper to generate an ID for custom code samples */
 export const generateCustomId = (example: XCodeSample) => `custom/${example.lang}`

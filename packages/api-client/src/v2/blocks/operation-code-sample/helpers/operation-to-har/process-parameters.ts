@@ -1,11 +1,9 @@
-import { getExampleFromSchema } from '@/spec-getters/get-example-from-schema'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type {
-  OperationObject,
-  ExampleObject,
-  ParameterObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OperationObject, ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { getExampleFromSchema } from '@v2/blocks/operation-code-sample/helpers/get-example-from-schema'
 import type { Request as HarRequest } from 'har-format'
+
+import { getExampleValue } from './get-example-value'
 
 type ProcessedParameters = {
   url: string
@@ -55,24 +53,14 @@ const getParameterStyleAndExplode = (param: ParameterObject): { style: string; e
  * Extract the value for a parameter from example data or schema.
  * Prioritizes example data over schema examples.
  */
-const getParameterValue = (param: ParameterObject, example?: unknown): unknown => {
-  // First try to get value from example data
-  if (example && typeof example === 'object' && param.name) {
-    const exampleValue = (example as Record<string, unknown>)[param.name]
-    if (exampleValue !== undefined) {
-      return exampleValue
-    }
-  }
-
-  // Check if the parameter itself has an example
-  if ('example' in param && param.example) {
-    return param.example
-  }
-
-  // Or multiple examples
-  if ('examples' in param && param.examples) {
-    const examples = param.examples as Record<string, unknown>
-    return examples[param.name] || (Object.values(examples)[0] as ExampleObject | undefined)?.value
+const getParameterValue = (
+  param: ParameterObject,
+  example: string | undefined,
+  contentType: string | undefined,
+): unknown => {
+  const exampleValue = getExampleValue(param, example, contentType)
+  if (exampleValue !== undefined) {
+    return exampleValue
   }
 
   // Fall back to schema example if available
@@ -90,11 +78,17 @@ const getParameterValue = (param: ParameterObject, example?: unknown): unknown =
  *
  * @see https://spec.openapis.org/oas/latest.html#style-values
  */
-export const processParameters = (
-  harRequest: HarRequest,
-  parameters: OperationObject['parameters'],
-  example?: unknown,
-): ProcessedParameters => {
+export const processParameters = ({
+  harRequest,
+  parameters,
+  example,
+  contentType,
+}: {
+  harRequest: HarRequest
+  parameters: OperationObject['parameters']
+  example: string | undefined
+  contentType: string | undefined
+}): ProcessedParameters => {
   // Create copies of the arrays to avoid modifying the input
   const newHeaders = [...harRequest.headers]
   const newQueryString = [...harRequest.queryString]
@@ -108,7 +102,7 @@ export const processParameters = (
       continue
     }
 
-    const paramValue = getParameterValue(param, example)
+    const paramValue = getParameterValue(param, example, contentType)
 
     if (paramValue === undefined) {
       continue

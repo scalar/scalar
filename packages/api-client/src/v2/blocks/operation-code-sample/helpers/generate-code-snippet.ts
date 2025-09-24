@@ -1,12 +1,13 @@
-import type { AvailableClients, ClientId, TargetId } from '@scalar/snippetz'
-import { operationToHar } from '@scalar/oas-utils/helpers/operation-to-har'
-import { getSnippet } from '@scalar/api-client/views/Components/CodeSnippet'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { operationToHar } from '@scalar/oas-utils/helpers/operation-to-har'
+import type { AvailableClients, ClientId, TargetId } from '@scalar/snippetz'
 import type {
-  ServerObject,
   OperationObject,
   SecuritySchemeObject,
+  ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+
+import { getSnippet } from '@/views/Components/CodeSnippet/helpers/get-snippet'
 
 type Props = {
   clientId: AvailableClients[number]
