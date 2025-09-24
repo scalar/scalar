@@ -285,20 +285,20 @@ const handleArraySchema = (
   level: number,
 ) => {
   const items = 'items' in schema ? getResolvedRef(schema.items) : undefined
-  const itemsXmlTagName = items && typeof items === 'object' && 'xml' in items ? (items as any).xml?.name : undefined
-  const wrapItems = !!(options?.xml && 'xml' in schema && (schema as any).xml?.wrapped && itemsXmlTagName)
+  const itemsXmlTagName = items && typeof items === 'object' && 'xml' in items ? items.xml?.name : undefined
+  const wrapItems = !!(options?.xml && 'xml' in schema && schema.xml?.wrapped && itemsXmlTagName)
 
   if (schema.example !== undefined) {
     return cache(schema, wrapItems ? { [itemsXmlTagName as string]: schema.example } : schema.example)
   }
 
   if (items && typeof items === 'object') {
-    if (Array.isArray((items as any).allOf) && (items as any).allOf.length > 0) {
-      const allOf = (items as any).allOf.filter(isDefined)
+    if (Array.isArray(items.allOf) && items.allOf.length > 0) {
+      const allOf = items.allOf.filter(isDefined)
       const first = getResolvedRef(allOf[0])
 
       if (first && typeof first === 'object' && 'type' in first && first.type === 'object') {
-        const combined: SchemaObject = { type: 'object', allOf: allOf as any }
+        const combined: SchemaObject = { type: 'object', allOf }
         const merged = getExampleFromSchema(combined, options, level + 1, schema)
         return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: merged }] : [merged])
       }
@@ -312,9 +312,9 @@ const handleArraySchema = (
       )
     }
 
-    const union = (items as any).anyOf || (items as any).oneOf
+    const union = items.anyOf || items.oneOf
     if (union && union.length > 0) {
-      const first = union[0]
+      const first = union[0] as SchemaObject
       const ex = getExampleFromSchema(getResolvedRef(first), options, level + 1, schema)
       return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: ex }] : [ex])
     }
@@ -390,7 +390,7 @@ const getUnionPrimitiveValue = (schema: SchemaObject, makeUpRandomData: boolean,
  * composition schemas (allOf, oneOf, anyOf).
  * Uses a tonne of caching for maximum performance.
  *
- * @param _schema - The OpenAPI SchemaObject to generate an example from.
+ * @param schema - The OpenAPI SchemaObject to generate an example from.
  * @param options - Options to customize example generation.
  * @param level - The current recursion depth.
  * @param parentSchema - The parent schema, if any.
@@ -398,7 +398,7 @@ const getUnionPrimitiveValue = (schema: SchemaObject, makeUpRandomData: boolean,
  * @returns An example value for the given schema.
  */
 export const getExampleFromSchema = (
-  _schema: SchemaObject,
+  schema: SchemaObject,
   options?: {
     /** Fallback string for empty string values. */
     emptyString?: string
@@ -416,14 +416,14 @@ export const getExampleFromSchema = (
   name?: string,
 ): unknown => {
   // Resolve any $ref references to get the actual schema
-  const schema = getResolvedRef(_schema)
-  if (!isDefined(schema)) {
+  const _schema = getResolvedRef(schema)
+  if (!isDefined(_schema)) {
     return undefined
   }
 
   // Check cache first for performance - avoid recomputing the same schema
-  if (resultCache.has(schema)) {
-    return resultCache.get(schema)
+  if (resultCache.has(_schema)) {
+    return resultCache.get(_schema)
   }
 
   // Prevent infinite recursion in circular references
@@ -436,78 +436,78 @@ export const getExampleFromSchema = (
 
   // Early exits for schemas that should not be included (deprecated, readOnly, writeOnly, omitEmptyAndOptionalProperties)
   if (
-    schema.deprecated ||
-    (options?.mode === 'write' && schema.readOnly) ||
-    (options?.mode === 'read' && schema.writeOnly) ||
-    shouldOmitProperty(schema, parentSchema, name, options)
+    _schema.deprecated ||
+    (options?.mode === 'write' && _schema.readOnly) ||
+    (options?.mode === 'read' && _schema.writeOnly) ||
+    shouldOmitProperty(_schema, parentSchema, name, options)
   ) {
     return undefined
   }
 
   // Handle custom variables (x-variable extension)
-  if ('x-variable' in schema && schema['x-variable']) {
-    const value = options?.variables?.[schema['x-variable']]
+  if ('x-variable' in _schema && _schema['x-variable']) {
+    const value = options?.variables?.[_schema['x-variable']]
     if (value !== undefined) {
       // Type coercion for numeric types
-      if ('type' in schema && (schema.type === 'number' || schema.type === 'integer')) {
-        return cache(schema, Number(value))
+      if ('type' in _schema && (_schema.type === 'number' || _schema.type === 'integer')) {
+        return cache(_schema, Number(value))
       }
-      return cache(schema, value)
+      return cache(_schema, value)
     }
   }
 
   // Priority order: examples > example > default > const > enum
-  if (Array.isArray(schema.examples) && schema.examples.length > 0) {
-    return cache(schema, schema.examples[0])
+  if (Array.isArray(_schema.examples) && _schema.examples.length > 0) {
+    return cache(_schema, _schema.examples[0])
   }
-  if (schema.example !== undefined) {
-    return cache(schema, schema.example)
+  if (_schema.example !== undefined) {
+    return cache(_schema, _schema.example)
   }
-  if (schema.default !== undefined) {
-    return cache(schema, schema.default)
+  if (_schema.default !== undefined) {
+    return cache(_schema, _schema.default)
   }
-  if (schema.const !== undefined) {
-    return cache(schema, schema.const)
+  if (_schema.const !== undefined) {
+    return cache(_schema, _schema.const)
   }
-  if (Array.isArray(schema.enum) && schema.enum.length > 0) {
-    return cache(schema, schema.enum[0])
+  if (Array.isArray(_schema.enum) && _schema.enum.length > 0) {
+    return cache(_schema, _schema.enum[0])
   }
 
   // Handle object types - check for properties to identify objects
-  if ('properties' in schema || ('type' in schema && schema.type === 'object')) {
+  if ('properties' in _schema || ('type' in _schema && _schema.type === 'object')) {
     return handleObjectSchema(schema, options, level)
   }
 
   // Handle array types
-  if (('type' in schema && schema.type === 'array') || 'items' in schema) {
-    return handleArraySchema(schema, options, level)
+  if (('type' in _schema && _schema.type === 'array') || 'items' in _schema) {
+    return handleArraySchema(_schema, options, level)
   }
 
   // Handle primitive types without allocating temporary objects
-  const primitive = getPrimitiveValue(schema, makeUpRandomData, options?.emptyString)
+  const primitive = getPrimitiveValue(_schema, makeUpRandomData, options?.emptyString)
   if (primitive !== undefined) {
-    return cache(schema, primitive)
+    return cache(_schema, primitive)
   }
 
   // Handle composition schemas (oneOf, anyOf) at root level
-  const discriminate = schema.oneOf || schema.anyOf
+  const discriminate = _schema.oneOf || _schema.anyOf
   if (Array.isArray(discriminate) && discriminate.length > 0) {
     // Find the first non-null type without allocating intermediate arrays
     for (const item of discriminate) {
       const resolved = getResolvedRef(item)
       if (resolved && (!('type' in resolved) || resolved.type !== 'null')) {
-        return cache(schema, getExampleFromSchema(resolved, options, level + 1))
+        return cache(_schema, getExampleFromSchema(resolved, options, level + 1))
       }
     }
-    return cache(schema, null)
+    return cache(_schema, null)
   }
 
   // Handle allOf at root level (non-object/array schemas)
-  if (Array.isArray((schema as any).allOf) && (schema as any).allOf.length > 0) {
+  if (Array.isArray(_schema.allOf) && _schema.allOf.length > 0) {
     let merged: unknown = undefined
-    const items = (schema as any).allOf
+    const items = _schema.allOf
     for (const item of items) {
-      const ex = getExampleFromSchema(item, options, level + 1, schema)
+      const ex = getExampleFromSchema(item as SchemaObject, options, level + 1, _schema)
       if (merged === undefined) {
         merged = ex
       } else if (merged && typeof merged === 'object' && ex && typeof ex === 'object') {
@@ -517,15 +517,15 @@ export const getExampleFromSchema = (
         merged = ex
       }
     }
-    return cache(schema, merged ?? null)
+    return cache(_schema, merged ?? null)
   }
 
   // Handle union types (array of types)
-  const unionPrimitive = getUnionPrimitiveValue(schema, makeUpRandomData, options?.emptyString)
+  const unionPrimitive = getUnionPrimitiveValue(_schema, makeUpRandomData, options?.emptyString)
   if (unionPrimitive !== undefined) {
-    return cache(schema, unionPrimitive)
+    return cache(_schema, unionPrimitive)
   }
 
   // Default fallback
-  return cache(schema, null)
+  return cache(_schema, null)
 }

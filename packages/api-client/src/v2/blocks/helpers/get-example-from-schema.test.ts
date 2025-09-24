@@ -1027,10 +1027,8 @@ describe('getExampleFromSchema', () => {
       expect(
         getExampleFromSchema({
           type: 'object',
-          additionalProperties: {
-            type: 'string',
-          },
-        }),
+          additionalProperties: {},
+        } as SchemaObject),
       ).toMatchObject({
         'propertyName*': 'anything',
       })

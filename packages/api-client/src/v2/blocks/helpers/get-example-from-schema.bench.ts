@@ -1,121 +1,78 @@
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { bench, describe } from 'vitest'
 
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { getExampleFromSchema } from './get-example-from-schema'
+import { getExampleFromSchema } from '@/v2/blocks/helpers/get-example-from-schema'
 
 // A deliberately complex schema exercising objects, arrays, allOf/anyOf/oneOf,
 // patternProperties, additionalProperties with x-additionalPropertiesName, enums,
 // formats, minimums, xml wrappers, and nested combinations.
 const complexSchema = {
   type: 'object',
-  required: ['id', 'entries'],
   properties: {
-    id: { type: 'string', format: 'uuid' },
-    createdAt: { type: 'string', format: 'date-time' },
-    // Map-like metadata with named additional properties
-    metadata: {
+    id: { type: 'integer', format: 'int64' },
+    name: { type: 'string' },
+    tag: { type: 'string' },
+    releaseDate: { type: 'string', format: 'date-time' },
+    available: { type: 'boolean' },
+    price: { type: 'number', format: 'float' },
+    dimensions: {
       type: 'object',
-      additionalProperties: {
-        type: 'object',
-        'x-additionalPropertiesName': 'meta',
-        properties: {
-          label: { type: 'string' },
-          value: { type: 'string' },
+      properties: {
+        width: { type: 'number' },
+        height: { type: 'number' },
+        depth: { type: 'number' },
+        unit: { type: 'string', enum: ['mm', 'cm', 'in'] },
+      },
+      required: ['width', 'height', 'depth', 'unit'],
+    },
+    manufacturer: {
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        country: { type: 'string' },
+        address: {
+          type: 'object',
+          properties: {
+            street: { type: 'string' },
+            city: { type: 'string' },
+            zipCode: { type: 'string' },
+          },
+          required: ['street', 'city', 'zipCode'],
         },
       },
+      required: ['name', 'country', 'address'],
     },
-    // Arbitrary configuration keys by regex
-    config: {
-      type: 'object',
-      patternProperties: {
-        '^[A-Z_]+$': { type: 'string' },
+    reviews: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          author: { type: 'string' },
+          rating: { type: 'integer', minimum: 1, maximum: 5 },
+          comment: { type: 'string' },
+          date: { type: 'string', format: 'date' },
+        },
+        required: ['author', 'rating', 'comment', 'date'],
       },
     },
-    // Main data: array of complex entries
-    entries: {
+    relatedProducts: {
       type: 'array',
-      xml: { wrapped: true },
-      items: {
-        allOf: [
-          {
-            type: 'object',
-            required: ['type'],
-            properties: {
-              type: { type: 'string', enum: ['A', 'B', 'C'] },
-              id: { type: 'integer', minimum: 1 },
-            },
-          },
-          {
-            type: 'object',
-            properties: {
-              // Union payloads
-              payload: {
-                oneOf: [
-                  {
-                    type: 'object',
-                    properties: {
-                      a1: { type: 'number', minimum: 0 },
-                      a2: { type: 'string', format: 'email' },
-                    },
-                  },
-                  {
-                    type: 'array',
-                    items: { type: 'string', examples: ['v1', 'v2'] },
-                  },
-                  {
-                    type: 'object',
-                    properties: {
-                      data: {
-                        type: 'object',
-                        patternProperties: {
-                          '^[a-z]+$': {
-                            type: 'object',
-                            properties: {
-                              value: { type: 'number', minimum: 0 },
-                              ts: { type: 'string', format: 'date-time' },
-                            },
-                          },
-                        },
-                      },
-                    },
-                  },
-                ],
-              },
-            },
-          },
-          {
-            type: 'object',
-            properties: {
-              tags: { type: 'array', items: { type: 'string' } },
-              related: {
-                type: 'array',
-                items: {
-                  allOf: [
-                    {
-                      type: 'object',
-                      properties: {
-                        id: { type: 'integer', minimum: 1 },
-                        link: {
-                          anyOf: [{ type: 'string', format: 'uri', example: 'https://example.com' }, { type: 'null' }],
-                        },
-                      },
-                    },
-                    {
-                      type: 'object',
-                      properties: {
-                        flags: { type: 'array', items: { type: 'boolean' } },
-                      },
-                    },
-                  ],
-                },
-              },
-            },
-          },
-        ],
+      items: { type: 'integer', format: 'int64' },
+    },
+    specifications: {
+      type: 'object',
+      properties: {
+        weight: { type: 'number' },
+        powerConsumption: { type: 'string' },
+        batteryLife: { type: 'string' },
+        displaySize: { type: 'string' },
+        memory: { type: 'string' },
+        storage: { type: 'string' },
       },
     },
   },
-} satisfies OpenAPIV3_1.SchemaObject
+  required: ['id', 'name', 'price'],
+} satisfies SchemaObject
 
 describe('bench:getExampleFromSchema', () => {
   bench('complex schema generation', () => {
