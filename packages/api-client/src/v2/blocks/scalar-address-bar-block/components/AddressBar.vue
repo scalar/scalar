@@ -56,6 +56,10 @@ const emits = defineEmits<{
   (e: 'update:path', payload: { path: string }): void
   /** Execute the current operation example */
   (e: 'execute'): void
+  /** Server events */
+  (e: 'update:selectedServer', payload: { id: string }): void
+  (e: 'update:variable', payload: { key: string; value: string }): void
+  (e: 'addServer'): void
 }>()
 
 const id = useId()
@@ -116,7 +120,10 @@ events.focusAddressBar.on(() => {
           :layout="layout"
           :server="server"
           :servers="servers"
-          :target="id" />
+          :target="id"
+          @addServer="emits('addServer')"
+          @update:selectedServer="emits('update:selectedServer', $event)"
+          @update:variable="emits('update:variable', $event)" />
 
         <div class="fade-left" />
         <!-- Path + URL + env vars -->
