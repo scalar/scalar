@@ -388,6 +388,7 @@ const getUnionPrimitiveValue = (schema: SchemaObject, makeUpRandomData: boolean,
  * This function recursively processes OpenAPI schemas to create realistic example data.
  * It handles all OpenAPI schema types including primitives, objects, arrays, and
  * composition schemas (allOf, oneOf, anyOf).
+ * Uses a tonne of caching for maximum performance.
  *
  * @param _schema - The OpenAPI SchemaObject to generate an example from.
  * @param options - Options to customize example generation.
@@ -520,7 +521,6 @@ export const getExampleFromSchema = (
   }
 
   // Handle union types (array of types)
-
   const unionPrimitive = getUnionPrimitiveValue(schema, makeUpRandomData, options?.emptyString)
   if (unionPrimitive !== undefined) {
     return cache(schema, unionPrimitive)
