@@ -8,7 +8,7 @@ import {
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
-import { useLayout } from '@/hooks/useLayout'
+import type { ClientLayout } from '@/hooks'
 
 import ServerDropdownItem from './ServerDropdownItem.vue'
 
@@ -19,6 +19,8 @@ const { target, server, servers } = defineProps<{
   server: ServerObject | undefined
   /** The id of the target to use for the popover (e.g. address bar) */
   target: string
+  /** Client layout */
+  layout: ClientLayout
 }>()
 
 const emits = defineEmits<{
@@ -26,8 +28,6 @@ const emits = defineEmits<{
   (e: 'update:variable', payload: { key: string; value: string }): void
   (e: 'addServer'): void
 }>()
-
-const { layout } = useLayout()
 
 const requestServerOptions = computed(() =>
   servers.map((s) => ({

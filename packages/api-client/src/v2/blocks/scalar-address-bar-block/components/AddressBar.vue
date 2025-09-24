@@ -9,8 +9,8 @@ import { ref, useId } from 'vue'
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
 import { HttpMethod } from '@/components/HttpMethod'
 import { type ClientLayout } from '@/hooks'
-import { useWorkspace } from '@/store'
 import type { EnvVariable } from '@/store/active-entities'
+import type { createStoreEvents } from '@/store/events'
 import { ServerDropdown } from '@/v2/components/server'
 
 import AddressBarHistory, { type History } from './AddressBarHistory.vue'
@@ -24,6 +24,7 @@ const {
   environment,
   envVariables,
   percentage = 100,
+  events,
 } = defineProps<{
   /** Current request path */
   path: string
@@ -42,6 +43,8 @@ const {
   layout: ClientLayout
   /** The amount remaining to load from 100 -> 0 */
   percentage?: number
+  /** Event bus */
+  events: ReturnType<typeof createStoreEvents>
 }>()
 
 const emits = defineEmits<{
@@ -56,8 +59,6 @@ const emits = defineEmits<{
 }>()
 
 const id = useId()
-
-const { events } = useWorkspace()
 
 const addressBarRef = ref<typeof CodeInput | null>(null)
 const sendButtonRef = ref<typeof ScalarButton | null>(null)
@@ -112,7 +113,7 @@ events.focusAddressBar.on(() => {
         <!-- Servers -->
         <ServerDropdown
           v-if="servers.length"
-          layout="client"
+          :layout="layout"
           :server="server"
           :servers="servers"
           :target="id" />
