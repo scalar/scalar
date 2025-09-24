@@ -6,6 +6,9 @@ import ApiReferenceToolbarConfig from '@/features/toolbar/ApiReferenceToolbarCon
 import ApiReferenceToolbarSdks from '@/features/toolbar/ApiReferenceToolbarSdks.vue'
 import ApiReferenceToolbarShare from '@/features/toolbar/ApiReferenceToolbarShare.vue'
 
+/** Turn this on to enabled the localhost toolbar */
+const FEATURE_FLAG = false as const
+
 defineProps<{
   configuration?: Partial<ApiReferenceConfiguration>
 }>()
@@ -13,7 +16,7 @@ defineProps<{
 const overrides = defineModel<Partial<ApiReferenceConfiguration>>('overrides')
 
 const showToolbar = computed<boolean>(() => {
-  if (!window) {
+  if (!window || !FEATURE_FLAG) {
     return false
   }
   return window.location.hostname === 'localhost'
