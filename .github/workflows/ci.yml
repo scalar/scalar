@@ -73,9 +73,14 @@ jobs:
           path: integrations/docker/assets
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
+        name: Rename standalone.js to scalar.js
+        working-directory: integrations/docker/assets
+        run: mv standalone.js scalar.js
+
+      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Compress static assets
         working-directory: integrations/docker/assets
-        run: gzip --keep --verbose --force standalone.js
+        run: gzip --keep --verbose --force scalar.js
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Setup Docker Builder
@@ -879,7 +884,7 @@ jobs:
           name: standalone-js
           path: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
 
-      - name: Rename standalone.js to scalar.js # Lets get rid of this
+      - name: Rename standalone.js to scalar.js
         working-directory: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
         run: mv standalone.js scalar.js
 
@@ -920,6 +925,10 @@ jobs:
         with:
           name: standalone-js
           path: integrations/aspire/src/Scalar.Aspire.Service/wwwroot
+
+      - name: Rename standalone.js to scalar.js
+        working-directory: integrations/aspire/src/Scalar.Aspire.Service/wwwroot
+        run: mv standalone.js scalar.js
 
       - name: Setup .NET
         uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5
@@ -1072,6 +1081,11 @@ jobs:
         with:
           name: standalone-js
           path: integrations/aspire/src/Scalar.Aspire.Service/wwwroot
+
+      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
+        name: Rename standalone.js to scalar.js
+        working-directory: integrations/aspire/src/Scalar.Aspire.Service/wwwroot
+        run: mv standalone.js scalar.js
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Log in to DockerHub
