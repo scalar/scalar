@@ -47,4 +47,10 @@ describe('htmlFromMarkdown', () => {
 
     expect(html.trim()).toEqual('<h1 id="example-heading">Example Heading</h1>')
   })
+
+  it('transforms line breaks', () => {
+    const html = htmlFromMarkdown('Line 1\nLine 2')
+
+    expect(html.trim()).toEqual('<p>Line 1<br>Line 2</p>')
+  })
 })
