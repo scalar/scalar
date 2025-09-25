@@ -117,7 +117,7 @@ const getAdditionalPropertiesValue = (
       :level
       :name="property"
       :required="schema.required?.includes(property)"
-      :value="getResolvedRef(schema.properties[property])" />
+      :schema="getResolvedRef(schema.properties[property])" />
   </template>
 
   <!-- patternProperties -->
@@ -134,7 +134,7 @@ const getAdditionalPropertiesValue = (
       :hideWriteOnly="hideWriteOnly"
       :level
       :name="key"
-      :value="getResolvedRef(property)" />
+      :schema="getResolvedRef(property)" />
   </template>
 
   <!-- additionalProperties -->
@@ -150,7 +150,7 @@ const getAdditionalPropertiesValue = (
       :level
       :name="getAdditionalPropertiesName(schema.additionalProperties)"
       noncollapsible
-      :value="getAdditionalPropertiesValue(schema.additionalProperties)"
+      :schema="getAdditionalPropertiesValue(schema.additionalProperties)"
       variant="additionalProperties" />
   </template>
 </template>

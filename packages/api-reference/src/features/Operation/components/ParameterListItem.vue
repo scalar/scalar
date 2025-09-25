@@ -127,7 +127,7 @@ const shouldCollapse = computed<boolean>(() =>
           :name="shouldCollapse ? '' : name"
           :noncollapsible="true"
           :required="'required' in parameter && parameter.required"
-          :value="value"
+          :schema="value"
           :withExamples="withExamples" />
       </DisclosurePanel>
     </Disclosure>

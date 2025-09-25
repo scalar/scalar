@@ -16,5 +16,5 @@ const { name, header, breadcrumb } = defineProps<{
     :breadcrumb="breadcrumb ? [...breadcrumb, 'headers'] : undefined"
     :description="header.description"
     :name="name"
-    :value="getResolvedRef(header.schema)" />
+    :schema="getResolvedRef(header.schema)" />
 </template>

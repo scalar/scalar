@@ -23,7 +23,7 @@ const props = withDefaults(
     /** Optional name for the schema */
     name?: string
     /** The schema value containing the composition */
-    value: SchemaObject
+    schema: SchemaObject
     /** Nesting level for proper indentation */
     level: number
     /** Whether to use compact layout */
@@ -45,7 +45,7 @@ const props = withDefaults(
 
 /** The current composition */
 const composition = computed(() =>
-  [props.value[props.composition]]
+  [props.schema[props.composition]]
     .flat()
     .map((schema) => ({ value: getResolvedRef(schema), original: schema }))
     .filter((it) => isDefined(it.value)),
@@ -99,7 +99,7 @@ const selectedComposition = computed(
       :level="level"
       :name="name"
       :noncollapsible="true"
-      :schema="mergeAllOfSchemas(props.value)" />
+      :schema="mergeAllOfSchemas(schema)" />
 
     <template v-else>
       <!-- Composition selector and panel for nested compositions -->

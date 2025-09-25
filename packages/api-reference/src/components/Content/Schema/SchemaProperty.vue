@@ -30,7 +30,7 @@ import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 const props = withDefaults(
   defineProps<{
     is?: string | Component
-    value: SchemaObject | undefined
+    schema: SchemaObject | undefined
     noncollapsible?: boolean
     level?: number
     name?: string
@@ -91,7 +91,7 @@ const getEnumFromValue = (value?: Record<string, any>): any[] | [] =>
   value?.enum || value?.items?.enum || []
 
 /** Simplified composition with `null` type. */
-const optimizedValue = computed(() => optimizeValueForDisplay(props.value))
+const optimizedValue = computed(() => optimizeValueForDisplay(props.schema))
 
 const displayDescription = computed(() => {
   const value = optimizedValue.value
@@ -369,14 +369,14 @@ const compositionsToRender = computed(() => {
       :breadcrumb="breadcrumb"
       :compact="compact"
       :composition="compositionData.composition"
-      :discriminator="value?.discriminator"
+      :discriminator="schema?.discriminator"
       :hideHeading="hideHeading"
       :hideReadOnly="hideReadOnly"
       :hideWriteOnly="hideWriteOnly"
       :level="level"
       :name="name"
       :noncollapsible="noncollapsible"
-      :value="getResolvedRef(props.value)!" />
+      :schema="getResolvedRef(props.schema)!" />
     <SpecificationExtension :value="optimizedValue" />
   </component>
 </template>
