@@ -5,7 +5,7 @@
   "tasks": {
     "lint:fix": {},
     "build": {
-      "outputs": ["dist/**", "storybook-static/**", ".output", ".nuxt", ".next", "build"],
+      "outputs": ["dist/**", "storybook-static/**", ".output", ".nuxt", ".next", "build", "target/**"],
       "dependsOn": ["^build"]
     },
     "types:check": {
@@ -36,16 +36,10 @@
       "persistent": true,
       "dependsOn": ["^build"]
     },
-    "@scalar/webjar#build": {
-      "outputs": []
-    },
     "@scalarapi/docker-api-reference#build": {
       "outputs": []
     },
     "proxy-scalar-com#build": {
-      "outputs": []
-    },
-    "@scalar/rust-api-reference#build": {
       "outputs": []
     }
   }
