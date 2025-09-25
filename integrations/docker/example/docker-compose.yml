@@ -1,0 +1,11 @@
+services:
+  api-reference:
+    image: scalarapi/api-reference:latest
+    ports:
+      - '8080:8080'
+
+      # Optional: Add global configuration like theme
+      # Optional: Custom mount directory and base URL
+      # OPENAPI_MOUNT_DIR: /mounted-docs
+      # OPENAPI_BASE_URL: /docs
+    restart: unless-stopped
