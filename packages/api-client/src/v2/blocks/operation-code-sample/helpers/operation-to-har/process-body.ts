@@ -78,7 +78,7 @@ export const processBody = ({ requestBody, contentType, example }: ProcessBodyPr
 
     return {
       mimeType: _contentType,
-      text: JSON.stringify(example),
+      text: JSON.stringify(_example),
     }
   }
 

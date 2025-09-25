@@ -136,9 +136,13 @@ export const operationToHar = ({
     harRequest.cookies.push(...cookies)
   }
 
-  // Calculate headers size
-  const headerText = harRequest.headers.map((h) => `${h.name}: ${h.value}`).join('\r\n')
-  harRequest.headersSize = headerText.length
+  // Calculate headers size without allocating a large joined string
+  let headersSize = 0
+  for (const h of harRequest.headers) {
+    // name + ": " + value + "\r\n"
+    headersSize += (h.name?.length ?? 0) + 2 + (h.value?.length ?? 0) + 2
+  }
+  harRequest.headersSize = headersSize
 
   return harRequest
 }

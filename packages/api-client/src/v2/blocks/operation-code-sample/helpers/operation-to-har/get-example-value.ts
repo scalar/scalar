@@ -11,12 +11,11 @@ export const getExampleValue = (
   contentType?: string,
 ): unknown => {
   // Prefer explicit examples on the parameter
-  if ('examples' in param && param.examples) {
-    const exampleKey = example ?? Object.keys(param.examples)[0]
-    const resolved = getResolvedRef(param.examples[exampleKey ?? ''])
+  if (example && 'examples' in param && param.examples) {
+    const resolved = getResolvedRef(param.examples[example])?.value
 
-    if (resolved?.value !== undefined) {
-      return resolved.value
+    if (resolved) {
+      return resolved
     }
   }
 
@@ -29,7 +28,7 @@ export const getExampleValue = (
       const exampleKey = example ?? Object.keys(media.examples)[0]
       const resolved = getResolvedRef(media.examples[exampleKey ?? ''])
 
-      if (resolved?.value !== undefined) {
+      if (resolved) {
         return resolved.value
       }
     }
@@ -45,5 +44,14 @@ export const getExampleValue = (
     return param.example
   }
 
+  // Finally fallback to the first example
+  if ('examples' in param && param.examples) {
+    const exampleKey = Object.keys(param.examples)[0] ?? ''
+    const resolved = getResolvedRef(param.examples[exampleKey])?.value
+
+    if (resolved) {
+      return resolved
+    }
+  }
   return undefined
 }

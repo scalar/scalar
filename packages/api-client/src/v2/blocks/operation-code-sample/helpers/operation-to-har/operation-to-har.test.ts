@@ -1,12 +1,13 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type {
+  OperationObject,
   SecuritySchemeObject,
   ServerObject,
-  OperationObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
+
 import { operationToHar } from './operation-to-har'
 
 describe('operationToHar', () => {
@@ -47,7 +48,6 @@ describe('operationToHar', () => {
           operation,
           method,
           path: '/api/users',
-          example: null,
         })
 
         expect(result.method).toBe(method)
