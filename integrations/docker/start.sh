@@ -1,7 +1,5 @@
 #!/bin/sh
 
-# Mount directory is hardcoded to /api-docs
-
 # Run the document scanner to generate configuration
 /usr/local/bin/scan-documents.sh
 
