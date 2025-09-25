@@ -42,6 +42,6 @@ ENV OPENAPI_BASE_URL=/docs
 # Use the startup script as entrypoint
 ENTRYPOINT ["/usr/local/bin/start.sh"]
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+# Health check - Caddy starts very quickly
+HEALTHCHECK --interval=10s --timeout=3s --start-period=2s --retries=2 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1

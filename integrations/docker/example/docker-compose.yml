@@ -3,8 +3,15 @@ services:
     image: scalarapi/api-reference:latest
     ports:
       - '8080:8080'
-
+    volumes:
+      # Mount the API documents directory
+      - ./api-docs:/mounted-docs:ro
+    environment:
       # Optional: Add global configuration like theme
+      API_REFERENCE_CONFIG: |
+        {
+          "theme": "purple"
+        }
       # Optional: Custom mount directory and base URL
       # OPENAPI_MOUNT_DIR: /mounted-docs
       # OPENAPI_BASE_URL: /docs

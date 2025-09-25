@@ -12,7 +12,6 @@ echo "Scanning for OpenAPI documents in: $MOUNT_DIR"
 
 # Check if mount directory exists
 if [ ! -d "$MOUNT_DIR" ]; then
-    echo "Mount directory does not exist, skipping document scan"
     echo '{"sources":[]}' > "$CONFIG_FILE"
     exit 0
 fi
@@ -90,7 +89,7 @@ for file in $(find "$MOUNT_DIR" -type f \( -name "*.json" -o -name "*.yaml" -o -
         escaped_slug=$(escape_json "$slug")
         escaped_url=$(escape_json "$url")
         
-        echo "Found OpenAPI document: $relative_path -> $title ($slug)"
+        # Found OpenAPI document: $relative_path -> $title ($slug)
         
         # Add comma if not first
         if [ "$FIRST" = "false" ]; then
@@ -117,7 +116,3 @@ else
     echo "No OpenAPI documents found"
     echo '{"sources":[]}' > "$CONFIG_FILE"
 fi
-
-echo "Configuration written to: $CONFIG_FILE"
-echo "Generated configuration:"
-cat "$CONFIG_FILE"
