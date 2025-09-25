@@ -44,10 +44,10 @@ export const fsharpHttpclient: Plugin = {
     if (request.cookies && request.cookies.length > 0 && request.url) {
       code += turnCookiesToCode(request.cookies, request.url)
 
-      code += '// Send the request\n'
+      code += '//Send the request\n'
       code += 'let client = new HttpClient(handler)\n'
     } else {
-      code += '// Send the request\n'
+      code += '//Send the request\n'
       code += 'let client = new HttpClient()\n'
     }
 
