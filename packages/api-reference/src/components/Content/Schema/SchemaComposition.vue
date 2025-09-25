@@ -9,6 +9,8 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref } from 'vue'
 
+import type { SchemaOptions } from '@/components/Content/Schema/types'
+
 import { getSchemaType } from './helpers/get-schema-type'
 import { mergeAllOfSchemas } from './helpers/merge-all-of-schemas'
 import { type CompositionKeyword } from './helpers/schema-composition'
@@ -30,12 +32,10 @@ const props = withDefaults(
     compact?: boolean
     /** Whether to hide the heading */
     hideHeading?: boolean
-    /** Whether to hide read-only properties */
-    hideReadOnly?: boolean
-    /** Hide write-only properties */
-    hideWriteOnly?: boolean
     /** Breadcrumb for navigation */
     breadcrumb?: string[]
+    /** Move the options into  single prop so they are easy to pass around */
+    options: SchemaOptions
   }>(),
   {
     compact: false,
@@ -94,11 +94,10 @@ const selectedComposition = computed(
       :compact="compact"
       :discriminator="discriminator"
       :hideHeading="hideHeading"
-      :hideReadOnly="hideReadOnly"
-      :hideWriteOnly="hideWriteOnly"
       :level="level"
       :name="name"
       :noncollapsible="true"
+      :options="options"
       :schema="mergeAllOfSchemas(schema)" />
 
     <template v-else>
@@ -134,11 +133,10 @@ const selectedComposition = computed(
           :compact="compact"
           :discriminator="discriminator"
           :hideHeading="hideHeading"
-          :hideReadOnly="hideReadOnly"
-          :hideWriteOnly="hideWriteOnly"
           :level="level + 1"
           :name="name"
           :noncollapsible="true"
+          :options="options"
           :schema="selectedComposition" />
       </div>
     </template>

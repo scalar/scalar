@@ -11,6 +11,7 @@ import { computed, type Component } from 'vue'
 
 import { WithBreadcrumb } from '@/components/Anchor'
 import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
+import type { SchemaOptions } from '@/components/Content/Schema/types'
 import { SpecificationExtension } from '@/features/specification-extension'
 
 import { optimizeValueForDisplay } from './helpers/optimize-value-for-display'
@@ -40,12 +41,9 @@ const props = withDefaults(
     description?: string
     hideModelNames?: boolean
     hideHeading?: boolean
-    /** Hide read-only properties */
-    hideReadOnly?: boolean
-    /** Hide write-only properties */
-    hideWriteOnly?: boolean
     variant?: 'additionalProperties' | 'patternProperties'
     breadcrumb?: string[]
+    options: SchemaOptions
   }>(),
   {
     level: 0,
@@ -333,11 +331,10 @@ const compositionsToRender = computed(() => {
       <Schema
         :breadcrumb="breadcrumb && name ? [...breadcrumb, name] : undefined"
         :compact="compact"
-        :hideReadOnly="hideReadOnly"
-        :hideWriteOnly="hideWriteOnly"
         :level="level + 1"
         :name="name"
         :noncollapsible="noncollapsible"
+        :options="options"
         :schema="optimizedValue" />
     </div>
 
@@ -353,11 +350,10 @@ const compositionsToRender = computed(() => {
         class="children">
         <Schema
           :compact="compact"
-          :hideReadOnly="hideReadOnly"
-          :hideWriteOnly="hideWriteOnly"
           :level="level + 1"
           :name="name"
           :noncollapsible="noncollapsible"
+          :options="options"
           :schema="getResolvedRef(optimizedValue.items)" />
       </div>
     </template>
@@ -371,11 +367,10 @@ const compositionsToRender = computed(() => {
       :composition="compositionData.composition"
       :discriminator="schema?.discriminator"
       :hideHeading="hideHeading"
-      :hideReadOnly="hideReadOnly"
-      :hideWriteOnly="hideWriteOnly"
       :level="level"
       :name="name"
       :noncollapsible="noncollapsible"
+      :options="options"
       :schema="getResolvedRef(props.schema)!" />
     <SpecificationExtension :value="optimizedValue" />
   </component>
