@@ -53,23 +53,14 @@
       // Show error message when no configuration is found
       function showErrorMessage() {
         document.getElementById('app').innerHTML = `
-          <div style="padding: 2rem; text-align: center; font-family: system-ui, sans-serif; color: #333;">
-            <h2 style="color: #d32f2f; margin-bottom: 1rem;">No API Reference Configuration Found</h2>
-            <p style="margin-bottom: 1.5rem;">To get started, you need to provide API documentation in one of these ways:</p>
-            <div style="text-align: left; max-width: 500px; margin: 0 auto; background: #f5f5f5; padding: 1.5rem; border-radius: 8px;">
-              <h3 style="margin-top: 0; color: #1976d2;">Option 1: Mount OpenAPI Documents</h3>
-              <p style="margin: 0.5rem 0; font-family: monospace; background: #e3f2fd; padding: 0.5rem; border-radius: 4px; font-size: 0.9rem;">
-                docker run -p 8080:8080 -v ./api-docs:/mounted-docs scalarapi/api-reference:latest
-              </p>
-              
-              <h3 style="color: #1976d2;">Option 2: Environment Configuration</h3>
-              <p style="margin: 0.5rem 0; font-family: monospace; background: #e3f2fd; padding: 0.5rem; border-radius: 4px; font-size: 0.9rem;">
-                docker run -p 8080:8080 -e API_REFERENCE_CONFIG='{"sources":[{"url":"https://api.example.com/openapi.json"}]}' scalarapi/api-reference:latest
-              </p>
-            </div>
-            <p style="margin-top: 1.5rem; font-size: 0.9rem; color: #666;">
-              See the <a href="https://github.com/scalar/scalar/tree/main/integrations/docker" target="_blank" style="color: #1976d2;">documentation</a> for more examples.
-            </p>
+          <div style="padding: 3rem; text-align: center; font-family: system-ui, sans-serif;">
+            <h2 style="color: #666; margin-bottom: 1rem;">Configuration Required</h2>
+            <p style="margin-bottom: 2rem; color: #999;">Please configure your API reference to get started.</p>
+            <a href="https://guides.scalar.com/scalar/scalar-api-references/integrations/docker" 
+               target="_blank" 
+               style="color: #1976d2; text-decoration: none; font-weight: 500;">
+              View Documentation →
+            </a>
           </div>
         `;
       }
