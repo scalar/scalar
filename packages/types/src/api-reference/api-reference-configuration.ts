@@ -125,7 +125,18 @@ export const specConfigurationSchema = z.object({
    * }
    * ```
    **/
-  content: z.union([z.string(), z.record(z.any()), z.function().returns(z.record(z.any())), z.null()]).optional(),
+
+  content: z
+    .union([
+      z.string(),
+      z.null(),
+      z.record(z.string(), z.any()),
+      z.function({
+        input: [z.void()],
+        output: z.record(z.string(), z.any()),
+      }),
+    ])
+    .optional(),
   /**
    * The title of the OpenAPI document.
    *
@@ -167,7 +178,17 @@ export const apiClientConfigurationSchema = z.object({
    *
    * @remarks It's recommended to pass a URL instead of content.
    **/
-  content: z.union([z.string(), z.record(z.any()), z.function().returns(z.record(z.any())), z.null()]).optional(),
+  content: z
+    .union([
+      z.string(),
+      z.null(),
+      z.record(z.string(), z.any()),
+      z.function({
+        input: [z.void()],
+        output: z.record(z.string(), z.any()),
+      }),
+    ])
+    .optional(),
   /**
    * The title of the OpenAPI document.
    *
@@ -225,7 +246,12 @@ export const apiClientConfigurationSchema = z.object({
   /** Integration type identifier */
   _integration: integrationEnum.optional(),
   /** onRequestSent is fired when a request is sent */
-  onRequestSent: z.function().args(z.string()).returns(z.void()).optional(),
+  onRequestSent: z
+    .function({
+      input: [z.string()],
+      output: z.void(),
+    })
+    .optional(),
   /** Whether to persist auth to local storage */
   persistAuth: z.boolean().optional().default(false).catch(false),
   /** Plugins for the API client */
@@ -237,9 +263,10 @@ export const apiClientConfigurationSchema = z.object({
 export type ApiClientConfiguration = z.infer<typeof apiClientConfigurationSchema>
 
 export const FetchLike = z
-  .function()
-  .args(z.union([z.string(), z.instanceof(URL), z.instanceof(Request)]), z.any().optional())
-  .returns(z.promise(z.instanceof(Response)))
+  .function({
+    input: [z.union([z.string(), z.instanceof(URL), z.instanceof(Request)]), z.any().optional()],
+    output: z.promise(z.instanceof(Response)),
+  })
   .optional()
 
 /** Configuration for the Api Client without the transform since it cannot be merged */
@@ -332,7 +359,7 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
      * By default hides Unirest, pass `[]` to show all clients
      */
     hiddenClients: z
-      .union([z.record(z.union([z.boolean(), z.array(z.string())])), z.array(z.string()), z.literal(true)])
+      .union([z.record(z.string(), z.union([z.boolean(), z.array(z.string())])), z.array(z.string()), z.literal(true)])
       .optional(),
     /** Determine the HTTP client that's selected by default */
     defaultHttpClient: z
@@ -344,29 +371,47 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
     /** Custom CSS to be added to the page */
     customCss: z.string().optional(),
     /** onSpecUpdate is fired on spec/swagger content change */
-    onSpecUpdate: z.function().args(z.string()).returns(z.void()).optional(),
+    onSpecUpdate: z
+      .function({
+        input: [z.string()],
+        output: z.void(),
+      })
+      .optional(),
     /** onServerChange is fired on selected server change */
-    onServerChange: z.function().args(z.string()).returns(z.void()).optional(),
+    onServerChange: z
+      .function({
+        input: [z.string()],
+        output: z.void(),
+      })
+      .optional(),
     /** onDocumentSelect is fired when the config is selected */
-    onDocumentSelect: z.function().returns(z.void().or(z.void().promise())).optional(),
+    onDocumentSelect: z.function().optional() as z.ZodType<() => Promise<void> | void> | undefined,
     /** Callback fired when the reference is fully loaded */
-    onLoaded: z.function().returns(z.void().or(z.void().promise())).optional(),
+    onLoaded: z.function().optional() as z.ZodType<() => Promise<void> | void> | undefined,
     /** onBeforeRequest is fired before the request is sent. You can modify the request here. */
     onBeforeRequest: z
-      .function()
-      .args(z.object({ request: z.instanceof(Request) }))
-      .returns(z.void().or(z.void().promise()))
-      .optional(),
+      .function({ input: [z.object({ request: z.instanceof(Request) })], output: z.void() })
+      .optional() as z.ZodType<(a: { request: Request }) => Promise<void> | void>,
     /**
      * onShowMore is fired when the user clicks the "Show more" button on the references
      * @param tagId - The ID of the tag that was clicked
      */
-    onShowMore: z.function().args(z.string()).returns(z.void().or(z.void().promise())).optional(),
+    onShowMore: z
+      .function({
+        input: [z.string()],
+        output: z.void(),
+      })
+      .optional() as z.ZodType<(a: string) => Promise<void> | void>,
     /**
      * onSidebarClick is fired when the user clicks on a sidebar item
      * @param href - The href of the sidebar item that was clicked
      */
-    onSidebarClick: z.function().args(z.string()).returns(z.void().or(z.void().promise())).optional(),
+    onSidebarClick: z
+      .function({
+        input: [z.string()],
+        output: z.void(),
+      })
+      .optional() as z.ZodType<(a: string) => Promise<void> | void>,
     /**
      * Route using paths instead of hashes, your server MUST support this
      * @example '/standalone-api-reference/:custom(.*)?'
@@ -381,13 +426,10 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
      * @default (heading) => `#description/${heading.slug}`
      */
     generateHeadingSlug: z
-      .function()
-      .args(
-        z.object({
-          slug: z.string().default('headingSlug'),
-        }),
-      )
-      .returns(z.string())
+      .function({
+        input: [z.object({ slug: z.string().default('headingSlug') })],
+        output: z.string(),
+      })
       .optional(),
     /**
      * Customize the model portion of the hash
@@ -396,13 +438,10 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
      * @default (model) => slug(model.name)
      */
     generateModelSlug: z
-      .function()
-      .args(
-        z.object({
-          name: z.string().default('modelName'),
-        }),
-      )
-      .returns(z.string())
+      .function({
+        input: [z.object({ name: z.string().default('modelName') })],
+        output: z.string(),
+      })
       .optional(),
     /**
      * Customize the tag portion of the hash
@@ -411,13 +450,10 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
      * @default (tag) => slug(tag.name)
      */
     generateTagSlug: z
-      .function()
-      .args(
-        z.object({
-          name: z.string().default('tagName'),
-        }),
-      )
-      .returns(z.string())
+      .function({
+        input: [z.object({ name: z.string().default('tagName') })],
+        output: z.string(),
+      })
       .optional(),
     /**
      * Customize the operation portion of the hash
@@ -426,16 +462,17 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
      * @default (operation) => `${operation.method}${operation.path}`
      */
     generateOperationSlug: z
-      .function()
-      .args(
-        z.object({
-          path: z.string(),
-          operationId: z.string().optional(),
-          method: z.string(),
-          summary: z.string().optional(),
-        }),
-      )
-      .returns(z.string())
+      .function({
+        input: [
+          z.object({
+            path: z.string(),
+            operationId: z.string().optional(),
+            method: z.string(),
+            summary: z.string().optional(),
+          }),
+        ],
+        output: z.string(),
+      })
       .optional(),
     /**
      * Customize the webhook portion of the hash
@@ -444,14 +481,15 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
      * @default (webhook) => slug(webhook.name)
      */
     generateWebhookSlug: z
-      .function()
-      .args(
-        z.object({
-          name: z.string(),
-          method: z.string().optional(),
-        }),
-      )
-      .returns(z.string())
+      .function({
+        input: [
+          z.object({
+            name: z.string(),
+            method: z.string().optional(),
+          }),
+        ],
+        output: z.string(),
+      })
       .optional(),
     /**
      * To handle redirects, pass a function that will recieve:
@@ -473,7 +511,12 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
      * }
      * ```
      */
-    redirect: z.function().args(z.string()).returns(z.string().nullable().optional()).optional(),
+    redirect: z
+      .function({
+        input: [z.string()],
+        output: z.string().nullable().optional(),
+      })
+      .optional(),
     /**
      * Whether to include default fonts
      * @default true
@@ -504,13 +547,28 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
      * Function to sort tags
      * @default 'alpha' for alphabetical sorting
      */
-    tagsSorter: z.union([z.literal('alpha'), z.function().args(z.any(), z.any()).returns(z.number())]).optional(),
+    tagsSorter: z
+      .union([
+        z.literal('alpha'),
+        z.function({
+          input: [z.any(), z.any()],
+          output: z.number(),
+        }),
+      ])
+      .optional(),
     /**
      * Function to sort operations
      * @default 'alpha' for alphabetical sorting
      */
     operationsSorter: z
-      .union([z.literal('alpha'), z.literal('method'), z.function().args(z.any(), z.any()).returns(z.number())])
+      .union([
+        z.literal('alpha'),
+        z.literal('method'),
+        z.function({
+          input: [z.any(), z.any()],
+          output: z.number(),
+        }),
+      ])
       .optional(),
     /**
      * Order the schema properties by

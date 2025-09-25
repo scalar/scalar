@@ -1,5 +1,3 @@
-import type { WorkspaceStore } from '@/store'
-import type { ActiveEntitiesStore } from '@/store/active-entities'
 import {
   type Request,
   type RequestParameterPayload,
@@ -18,6 +16,9 @@ import { type Path, type PathValue, getNestedValue } from '@scalar/object-utils/
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import microdiff, { type Difference } from 'microdiff'
 import { type ZodSchema, type ZodTypeDef, z } from 'zod'
+
+import type { WorkspaceStore } from '@/store'
+import type { ActiveEntitiesStore } from '@/store/active-entities'
 
 /**
  * Combine Rename Diffs

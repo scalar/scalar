@@ -1,4 +1,5 @@
 import type { v_2_4_0 } from '@/migrations/v-2.4.0/types.generated'
+
 import type { v_2_5_0 } from './types.generated'
 
 /** V-2.4.0 to V-2.5.0 migration */
@@ -137,6 +138,7 @@ export const migrate_v_2_5_0 = (data: v_2_4_0.DataRecord): v_2_5_0['DataRecord']
 
   const workspaces = Object.entries(data.workspaces || {}).reduce<Record<string, v_2_5_0['Workspace']>>(
     (acc, [key, workspace]) => {
+      // @ts-expect-error
       acc[key] = {
         ...workspace,
         uid: workspace.uid as v_2_5_0['Workspace']['uid'],

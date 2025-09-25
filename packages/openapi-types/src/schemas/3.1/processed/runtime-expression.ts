@@ -101,8 +101,8 @@ const validatePureExpression = (value: string): boolean => {
  *
  * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#runtime-expressions
  */
-export const RuntimeExpressionSchema = z.string().refine(isValidRuntimeExpression, (value) => ({
-  message: `Invalid runtime expression: "${value}". Runtime expressions must:
+export const RuntimeExpressionSchema = z.string().refine(isValidRuntimeExpression, {
+  message: `Invalid runtime expression. Runtime expressions must:
   - Start with $ or contain expressions in curly braces {}
   - Use one of: $method, $url, $statusCode
   - Or follow pattern: $request|response.(header|query|path|body)
@@ -111,4 +111,4 @@ export const RuntimeExpressionSchema = z.string().refine(isValidRuntimeExpressio
   Example valid expressions:
   - Pure: $method, $request.path.id, $response.body#/status
   - Embedded: "Hello {$request.body#/name}!", "Status: {$statusCode}"`,
-}))
+})
