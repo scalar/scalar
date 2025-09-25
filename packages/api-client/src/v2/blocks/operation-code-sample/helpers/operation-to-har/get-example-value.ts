@@ -53,5 +53,6 @@ export const getExampleValue = (
       return resolved
     }
   }
+
   return undefined
 }

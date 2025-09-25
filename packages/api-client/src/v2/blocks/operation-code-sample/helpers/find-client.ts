@@ -44,7 +44,7 @@ export const isClient = (id: any): id is AvailableClients[number] => AVAILABLE_C
 export const findClient = (
   clientGroups: ClientOptionGroup[],
   clientId?: AvailableClients[number] | undefined,
-): ClientOption => {
+): ClientOption | undefined => {
   const firstOption = clientGroups[0]?.options[0]
 
   // Client ID is passed in

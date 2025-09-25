@@ -1,6 +1,6 @@
-import type { XCodeSample } from '@scalar/openapi-types/schemas/extensions'
 import { type AvailableClients, snippetz } from '@scalar/snippetz'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 import { capitalize } from 'vue'
 
 import type { ClientOptionGroup } from '@/v2/blocks/operation-code-sample/types'

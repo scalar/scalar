@@ -1,8 +1,9 @@
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
-import { nextTick } from 'vue'
-import ExamplePicker from './ExamplePicker.vue'
 import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
+import { nextTick } from 'vue'
+
+import ExamplePicker from './ExamplePicker.vue'
 
 describe('ExamplePicker', () => {
   const mockExamples: Record<string, ExampleObject> = {
@@ -177,7 +178,7 @@ describe('ExamplePicker', () => {
     const items = wrapper.findAll('li')
 
     expect(items.length).toBe(2)
-    expect(items[0].text()).toBe('null-example')
-    expect(items[1].text()).toBe('undefined-example')
+    expect(items[0]?.text()).toBe('null-example')
+    expect(items[1]?.text()).toBe('undefined-example')
   })
 })

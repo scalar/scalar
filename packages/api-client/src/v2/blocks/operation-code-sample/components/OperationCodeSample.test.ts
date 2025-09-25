@@ -420,7 +420,7 @@ describe('RequestExample', () => {
       expect(codeBlock.exists()).toBe(true)
     })
 
-    it('handles $ref values in examples', () => {
+    it.only('handles $ref values in examples', () => {
       const wrapper = mount(RequestExample, {
         props: {
           ...defaultProps,

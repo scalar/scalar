@@ -120,7 +120,6 @@ import { HttpMethod } from '@/components/HttpMethod'
 import { findClient } from '@/v2/blocks/operation-code-sample/helpers/find-client'
 import { generateCustomId } from '@/v2/blocks/operation-code-sample/helpers/generate-client-options'
 import { generateCodeSnippet } from '@/v2/blocks/operation-code-sample/helpers/generate-code-snippet'
-import { getResolvedRefDeep } from '@/v2/blocks/operation-code-sample/helpers/get-resolved-ref-deep'
 import { getSecrets } from '@/v2/blocks/operation-code-sample/helpers/get-secrets'
 import type {
   ClientOption,
@@ -206,8 +205,8 @@ const clients = computed(() => {
 })
 
 /** The locally selected client which would include code samples from this operation only */
-const localSelectedClient = ref<ClientOption>(
-  findClient(clients.value, selectedClient) ?? null,
+const localSelectedClient = ref<ClientOption | undefined>(
+  findClient(clients.value, selectedClient),
 )
 
 /** If the globally selected client changes we can update the local one */
@@ -226,12 +225,12 @@ const webhookHar = computed(() => {
   if (!isWebhook) return null
 
   try {
-    const selectedExample =
-      requestBodyExamples.value[selectedExampleKey.value || '']
-    const resolvedExample = getResolvedRefDeep(selectedExample)
-    const example = resolvedExample?.value ?? resolvedExample?.summary
-
-    return operationToHar({ operation, method, path, example })
+    return operationToHar({
+      operation,
+      method,
+      path,
+      example: selectedExampleKey.value,
+    })
   } catch (error) {
     console.error('[webhookHar]', error)
     return null
@@ -251,11 +250,6 @@ const generatedCode = computed<string>(() => {
       )
     }
 
-    const selectedExample =
-      operationExamples.value[selectedExampleKey.value || '']
-    const resolvedExample = getResolvedRefDeep(selectedExample)
-    const example = resolvedExample?.value ?? resolvedExample?.summary
-
     if (isWebhook) {
       return webhookHar.value?.postData?.text ?? ''
     }
@@ -268,7 +262,7 @@ const generatedCode = computed<string>(() => {
       securitySchemes,
       contentType: selectedContentType,
       path,
-      example,
+      example: selectedExampleKey.value,
     })
   } catch (error) {
     console.error('[generateSnippet]', error)
@@ -358,7 +352,7 @@ const id = useId()
             fullWidth
             variant="ghost">
             <span class="text-base font-normal">{{
-              localSelectedClient.title
+              localSelectedClient?.title
             }}</span>
             <ScalarIconCaretDown
               class="ui-open:rotate-180 mt-0.25 size-3 transition-transform duration-100"
@@ -384,16 +378,16 @@ const id = useId()
 
     <!-- Footer -->
     <ScalarCardFooter
-      v-if="Object.keys(operationExamples).length > 1 || $slots.footer"
+      v-if="Object.keys(requestBodyExamples).length > 1 || $slots.footer"
       class="request-card-footer bg-b-3">
       <!-- Example picker -->
       <div
-        v-if="Object.keys(operationExamples).length > 1"
+        v-if="Object.keys(requestBodyExamples).length > 1"
         class="request-card-footer-addon">
-        <template v-if="Object.keys(operationExamples).length">
+        <template v-if="Object.keys(requestBodyExamples).length">
           <ExamplePicker
             v-model="selectedExampleKey"
-            :examples="operationExamples"
+            :examples="requestBodyExamples"
             @update:modelValue="
               emitCustomEvent(
                 elem?.$el,

@@ -1,5 +1,5 @@
-import { mergeUrls } from '@scalar/helpers/url/merge-urls'
 import { replaceVariables } from '@scalar/helpers/regex/replace-variables'
+import { mergeUrls } from '@scalar/helpers/url/merge-urls'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 /**

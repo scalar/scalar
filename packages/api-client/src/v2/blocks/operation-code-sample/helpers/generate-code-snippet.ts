@@ -1,5 +1,4 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import { operationToHar } from '@scalar/oas-utils/helpers/operation-to-har'
 import type { AvailableClients, ClientId, TargetId } from '@scalar/snippetz'
 import type {
   OperationObject,
@@ -7,12 +6,13 @@ import type {
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
+import { operationToHar } from '@/v2/blocks/operation-code-sample/helpers/operation-to-har/operation-to-har'
 import { getSnippet } from '@/views/Components/CodeSnippet/helpers/get-snippet'
 
 type Props = {
   clientId: AvailableClients[number]
   operation: OperationObject
-  example: unknown
+  example: string | undefined
   method: HttpMethod
   path: string
   contentType?: string | undefined
