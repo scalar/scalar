@@ -84,7 +84,7 @@ jobs:
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@0b434dfbb431f4e3a2bcee7a773a56bd363184c5 # v1
+        uses: useblacksmith/setup-docker-builder@80c45ee688bb4844ec646f05c49c0a0cab309846 # v1
         with:
           platforms: |
             linux/amd64
@@ -1100,7 +1100,7 @@ jobs:
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@0b434dfbb431f4e3a2bcee7a773a56bd363184c5 # v1
+        uses: useblacksmith/setup-docker-builder@80c45ee688bb4844ec646f05c49c0a0cab309846 # v1
         with:
           platforms: |
             linux/amd64
