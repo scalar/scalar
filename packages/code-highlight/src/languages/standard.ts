@@ -7,6 +7,7 @@ import csharp from 'highlight.js/lib/languages/csharp'
 import css from 'highlight.js/lib/languages/css'
 import dart from 'highlight.js/lib/languages/dart'
 import elixir from 'highlight.js/lib/languages/elixir'
+import fsharp from 'highlight.js/lib/languages/fsharp'
 import go from 'highlight.js/lib/languages/go'
 import graphql from 'highlight.js/lib/languages/graphql'
 import java from 'highlight.js/lib/languages/java'
@@ -47,6 +48,7 @@ const standardLanguages: Record<string, LanguageFn> = {
   curl,
   dart,
   elixir,
+  fsharp,
   go,
   graphql,
   html: xml,
