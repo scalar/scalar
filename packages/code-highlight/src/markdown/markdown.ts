@@ -4,6 +4,7 @@ import rehypeFormat from 'rehype-format'
 import rehypeRaw from 'rehype-raw'
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 import rehypeStringify from 'rehype-stringify'
+import remarkBreaks from 'remark-breaks'
 import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
@@ -15,6 +16,7 @@ import { SKIP, visit } from 'unist-util-visit'
 import { standardLanguages } from '@/languages'
 import { rehypeAlert } from '@/rehype-alert'
 import { rehypeHighlight } from '@/rehype-highlight'
+
 type Options = {
   transform?: (node: Record<string, any>) => Record<string, any>
   type?: string
@@ -62,6 +64,8 @@ export function htmlFromMarkdown(
     .use(remarkParse)
     // Support autolink literals, footnotes, strikethrough, tables and tasklists
     .use(remarkGfm)
+    // Support line breaks
+    .use(remarkBreaks)
     .use(transformNodes, {
       transform: options?.transform,
       type: options?.transformType,
