@@ -10,6 +10,7 @@ describe('Schema', () => {
     it('shows the base description of the first allOf schema', () => {
       const wrapper = mount(Schema, {
         props: {
+          options: {},
           name: 'Request Body',
           schema: coerceValue(SchemaObjectSchema, {
             description: 'This description should be shown',
@@ -51,6 +52,7 @@ describe('Schema', () => {
               },
             ],
           }),
+          options: {},
         },
       })
 
@@ -76,6 +78,7 @@ describe('Schema', () => {
               },
             ],
           },
+          options: {},
         },
       })
 
@@ -95,6 +98,7 @@ describe('Schema', () => {
             },
           }),
           additionalProperties: true,
+          options: {},
         },
       })
 
@@ -113,6 +117,7 @@ describe('Schema', () => {
             },
           }),
           additionalProperties: false,
+          options: {},
         },
       })
 
@@ -131,6 +136,7 @@ describe('Schema', () => {
           }),
           additionalProperties: true,
           name: 'User',
+          options: {},
         },
       })
 
@@ -149,6 +155,7 @@ describe('Schema', () => {
             },
           }),
           additionalProperties: true,
+          options: {},
         },
       })
 
@@ -173,6 +180,7 @@ describe('Schema', () => {
             },
           }),
           additionalProperties: true,
+          options: {},
         },
       })
 
@@ -201,6 +209,7 @@ describe('Schema', () => {
           }),
           additionalProperties: true,
           noncollapsible: true,
+          options: {},
         },
       })
 
@@ -226,6 +235,7 @@ describe('Schema', () => {
           }),
           additionalProperties: true,
           noncollapsible: false,
+          options: {},
         },
       })
 
@@ -250,6 +260,7 @@ describe('Schema', () => {
             additionalProperties: true,
           }),
           additionalProperties: true,
+          options: {},
         },
       })
 
@@ -270,6 +281,7 @@ describe('Schema', () => {
             additionalProperties: true,
           }),
           additionalProperties: true,
+          options: {},
         },
       })
 
@@ -295,6 +307,7 @@ describe('Schema', () => {
             additionalProperties: true,
           }),
           additionalProperties: true,
+          options: {},
         },
       })
 
@@ -306,7 +319,7 @@ describe('Schema', () => {
       const additionalProperty = schemaProperties.find((prop) => prop.props('variant') === 'additionalProperties')
 
       expect(additionalProperty).toBeDefined()
-      expect(additionalProperty?.props('value')).toEqual({
+      expect(additionalProperty?.props('schema')).toEqual({
         type: 'anything',
       })
     })
@@ -322,6 +335,7 @@ describe('Schema', () => {
             additionalProperties: {},
           } as any,
           additionalProperties: true,
+          options: {},
         },
       })
 
@@ -333,7 +347,7 @@ describe('Schema', () => {
       const additionalProperty = schemaProperties.find((prop) => prop.props('variant') === 'additionalProperties')
 
       expect(additionalProperty).toBeDefined()
-      expect(additionalProperty?.props('value')).toEqual({
+      expect(additionalProperty?.props('schema')).toEqual({
         type: 'anything',
       })
     })
@@ -356,6 +370,7 @@ describe('Schema', () => {
             },
             required: ['aRequired', 'bRequired', 'cRequired', 'dRequired'],
           },
+          options: {},
         },
       })
 
@@ -386,7 +401,6 @@ describe('Schema', () => {
     it('does not render readOnly properties when hideReadOnly is true', () => {
       const wrapper = mount(Schema, {
         props: {
-          hideReadOnly: true,
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
@@ -395,6 +409,9 @@ describe('Schema', () => {
               alsoVisible: { type: 'integer', format: 'int32' },
             },
           }),
+          options: {
+            hideReadOnly: true,
+          },
         },
       })
 
@@ -407,7 +424,6 @@ describe('Schema', () => {
     it('applies to nested object properties as well', async () => {
       const wrapper = mount(Schema, {
         props: {
-          hideReadOnly: true,
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
@@ -420,6 +436,9 @@ describe('Schema', () => {
               },
             },
           }),
+          options: {
+            hideReadOnly: true,
+          },
         },
       })
 
@@ -444,7 +463,6 @@ describe('Schema', () => {
     it('does not render writeOnly properties when hideWriteOnly is true', () => {
       const wrapper = mount(Schema, {
         props: {
-          hideWriteOnly: true,
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
@@ -453,6 +471,9 @@ describe('Schema', () => {
               alsoVisible: { type: 'integer', format: 'int32' },
             },
           }),
+          options: {
+            hideWriteOnly: true,
+          },
         },
       })
 
@@ -465,7 +486,6 @@ describe('Schema', () => {
     it('applies to nested object properties as well', async () => {
       const wrapper = mount(Schema, {
         props: {
-          hideWriteOnly: true,
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
@@ -478,6 +498,9 @@ describe('Schema', () => {
               },
             },
           }),
+          options: {
+            hideWriteOnly: true,
+          },
         },
       })
 

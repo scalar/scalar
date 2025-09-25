@@ -11,7 +11,7 @@ describe('SchemaComposition', () => {
       const wrapper = mount(SchemaComposition, {
         props: {
           composition: 'anyOf',
-          value: coerceValue(SchemaObjectSchema, {
+          schema: coerceValue(SchemaObjectSchema, {
             anyOf: [
               {
                 title: 'Any',
@@ -20,6 +20,7 @@ describe('SchemaComposition', () => {
             ],
           }),
           level: 0,
+          options: {},
         },
       })
 
@@ -31,7 +32,7 @@ describe('SchemaComposition', () => {
       const wrapper = mount(SchemaComposition, {
         props: {
           composition: 'oneOf',
-          value: coerceValue(SchemaObjectSchema, {
+          schema: coerceValue(SchemaObjectSchema, {
             oneOf: [
               {
                 type: 'object',
@@ -39,6 +40,7 @@ describe('SchemaComposition', () => {
             ],
           }),
           level: 0,
+          options: {},
         },
       })
 
@@ -50,7 +52,7 @@ describe('SchemaComposition', () => {
       const wrapper = mount(SchemaComposition, {
         props: {
           composition: 'anyOf',
-          value: coerceValue(SchemaObjectSchema, {
+          schema: coerceValue(SchemaObjectSchema, {
             anyOf: [
               {
                 type: 'array',
@@ -61,6 +63,7 @@ describe('SchemaComposition', () => {
             ],
           }),
           level: 0,
+          options: {},
         },
       })
 
@@ -74,10 +77,11 @@ describe('SchemaComposition', () => {
       const wrapper = mount(SchemaComposition, {
         props: {
           composition: 'oneOf',
-          value: coerceValue(SchemaObjectSchema, {
+          schema: coerceValue(SchemaObjectSchema, {
             oneOf: [{ type: 'object' }],
           }),
           level: 0,
+          options: {},
         },
       })
 
@@ -89,10 +93,11 @@ describe('SchemaComposition', () => {
       const wrapper = mount(SchemaComposition, {
         props: {
           composition: 'oneOf',
-          value: coerceValue(SchemaObjectSchema, {
+          schema: coerceValue(SchemaObjectSchema, {
             oneOf: [{ type: 'boolean' }, { type: 'object', properties: { foo: { type: 'string' } } }],
           }),
           level: 0,
+          options: {},
         },
       })
 
@@ -103,17 +108,19 @@ describe('SchemaComposition', () => {
       const wrapper = mount(SchemaComposition, {
         props: {
           composition: 'anyOf',
-          value: {
+          schema: {
             anyOf: [
               {
                 type: 'object',
                 properties: { foo: { type: 'string' } },
               },
+              // @ts-expect-error - Test nullable here
               { nullable: true },
             ],
           },
+          options: {},
           level: 0,
-        } as any,
+        },
       })
 
       const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
@@ -128,7 +135,7 @@ describe('SchemaComposition', () => {
       const wrapper = mount(SchemaComposition, {
         props: {
           composition: 'anyOf',
-          value: coerceValue(SchemaObjectSchema, {
+          schema: coerceValue(SchemaObjectSchema, {
             anyOf: [
               {
                 type: 'object',
@@ -143,6 +150,7 @@ describe('SchemaComposition', () => {
             ],
           }),
           level: 0,
+          options: {},
         },
       })
 
@@ -159,7 +167,7 @@ describe('SchemaComposition', () => {
       const wrapper = mount(SchemaComposition, {
         props: {
           composition: 'oneOf',
-          value: coerceValue(SchemaObjectSchema, {
+          schema: coerceValue(SchemaObjectSchema, {
             oneOf: [
               {
                 type: 'string',
@@ -170,6 +178,7 @@ describe('SchemaComposition', () => {
               },
             ],
           }),
+          options: {},
           level: 0,
         },
       })
@@ -186,13 +195,14 @@ describe('SchemaComposition', () => {
       const wrapper = mount(SchemaComposition, {
         props: {
           composition: 'oneOf',
-          value: coerceValue(SchemaObjectSchema, {
+          schema: coerceValue(SchemaObjectSchema, {
             oneOf: [
               { title: 'Planet', type: 'object' },
               { type: 'object', properties: { test: { type: 'string' } } },
             ],
           }),
           level: 0,
+          options: {},
         },
       })
 
@@ -205,7 +215,7 @@ describe('SchemaComposition', () => {
     const wrapper = mount(SchemaComposition, {
       props: {
         composition: 'anyOf',
-        value: coerceValue(SchemaObjectSchema, {
+        schema: coerceValue(SchemaObjectSchema, {
           anyOf: [
             {
               type: 'object',
@@ -223,6 +233,7 @@ describe('SchemaComposition', () => {
           ],
         }),
         level: 0,
+        options: {},
       },
     })
 
@@ -240,7 +251,7 @@ describe('SchemaComposition', () => {
     const wrapper = mount(SchemaComposition, {
       props: {
         composition: 'anyOf',
-        value: coerceValue(SchemaObjectSchema, {
+        schema: coerceValue(SchemaObjectSchema, {
           anyOf: [
             {
               type: 'string',
@@ -268,6 +279,7 @@ describe('SchemaComposition', () => {
           ],
         }),
         level: 0,
+        options: {},
       },
     })
 
@@ -290,7 +302,7 @@ describe('SchemaComposition', () => {
     const wrapper = mount(SchemaComposition, {
       props: {
         composition: 'anyOf',
-        value: coerceValue(SchemaObjectSchema, {
+        schema: coerceValue(SchemaObjectSchema, {
           anyOf: [
             {
               type: 'string',
@@ -318,6 +330,7 @@ describe('SchemaComposition', () => {
           ],
         }),
         level: 0,
+        options: {},
       },
     })
 
