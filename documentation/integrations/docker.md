@@ -30,18 +30,18 @@ Mount OpenAPI documents directly into the container for automatic discovery:
 
 ```bash
 docker run -p 8080:8080 \
-  -v /path/to/your/openapi-docs:/mounted-docs \
+  -v /path/to/your/openapi-docs:/api-docs \
   scalarapi/api-reference:latest
 ```
 
 The container automatically:
 - Scans for OpenAPI documents (`.json`, `.yaml`, `.yml` files)
-- Serves documents at `/docs/{filename}`
+- Serves documents at `/openapi/{filename}`
 - Generates titles from directory structure
 
 **Directory structure example:**
 ```
-/mounted-docs/
+/api-docs/
 ├── api-v1.json
 ├── internal/admin-api.yaml
 └── external/partner-api.json
@@ -53,7 +53,7 @@ You can combine both approaches:
 
 ```bash
 docker run -p 8080:8080 \
-  -v /path/to/your/openapi-docs:/mounted-docs \
+  -v /path/to/your/openapi-docs:/api-docs \
   -e API_REFERENCE_CONFIG='{"theme": "purple"}' \
   scalarapi/api-reference:latest
 ```
@@ -68,16 +68,13 @@ services:
       - "8080:8080"
     volumes:
       # Mount your OpenAPI documents directory
-      - ./api-docs:/mounted-docs
+      - ./api-docs:/api-docs
     environment:
       # Optional: Add global configuration like theme
       # API_REFERENCE_CONFIG: |
       #   {
       #     "theme": "purple"
       #   }
-      # Optional: Custom mount directory and base URL
-      # OPENAPI_MOUNT_DIR: /mounted-docs
-      # OPENAPI_BASE_URL: /docs
     restart: unless-stopped
 ```
 
@@ -87,10 +84,8 @@ services:
 | ---------------------- | -------------------------------------------------------------- | ------- |
 | `API_REFERENCE_CONFIG` | JSON configuration for the Scalar API Reference                | - |
 | `CDN_URL`              | URL for the API Reference CDN                                 | `scalar.js` |
-| `OPENAPI_MOUNT_DIR`    | Directory path for mounted OpenAPI documents                   | `/mounted-docs` |
-| `OPENAPI_BASE_URL`     | Base URL path for serving mounted documents                    | `/docs` |
 
-**Note:** Either `API_REFERENCE_CONFIG` must be set OR documents must be mounted to `/mounted-docs`
+**Note:** Either `API_REFERENCE_CONFIG` must be set OR documents must be mounted to `/api-docs`
 
 ## Health Check
 

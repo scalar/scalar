@@ -13,8 +13,8 @@
 	header Cache-Control "no-cache"
 
 	# Serve mounted OpenAPI documents
-	handle_path /docs/* {
-		root * /mounted-docs
+	handle_path /openapi/* {
+		root * /api-docs
 		file_server
 	}
 

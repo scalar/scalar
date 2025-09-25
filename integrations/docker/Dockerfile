@@ -19,7 +19,7 @@ COPY start.sh /usr/local/bin/start.sh
 RUN chmod +x /usr/local/bin/start.sh
 
 # Create mount point for OpenAPI documents
-RUN mkdir -p /mounted-docs
+RUN mkdir -p /api-docs
 
 # Set proper ownership of all Caddy directories
 RUN chown -R caddy:caddy /usr/share/caddy /etc/caddy /config/caddy /data/caddy
@@ -35,9 +35,6 @@ ENV API_REFERENCE_CONFIG=undefined
 # Environment variable for CDN URL
 ENV CDN_URL=scalar.js
 
-# Environment variables for document mounting
-ENV OPENAPI_MOUNT_DIR=/mounted-docs
-ENV OPENAPI_BASE_URL=/docs
 
 # Use the startup script as entrypoint
 ENTRYPOINT ["/usr/local/bin/start.sh"]
