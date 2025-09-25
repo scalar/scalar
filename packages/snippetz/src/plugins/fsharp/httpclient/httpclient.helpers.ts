@@ -1,79 +1,44 @@
-function extractHeaders(headersArray: { name: string; value: string }[]): Record<string, any> {
-  const headers: Record<string, any> = {}
-  headersArray.forEach((header) => {
-    if (headers[header.name] === undefined) {
-      headers[header.name] = header.value
-    } else if (Array.isArray(headers[header.name])) {
-      headers[header.name].push(header.value)
-    } else {
-      headers[header.name] = [headers[header.name], header.value]
-    }
-  })
-  return headers
-}
-
-function extractQueryString(queryStringArray: { name: string; value: string }[]): Record<string, string> {
-  const query: Record<string, string> = {}
-  queryStringArray.forEach((param) => {
-    query[param.name] = param.value
-  })
-  return query
-}
-
-function extractCookies(cookiesArray: { name: string; value: string }[]): Record<string, string> {
-  const cookies: Record<string, string> = {}
-  cookiesArray.forEach((cookie) => {
-    cookies[cookie.name] = cookie.value
-  })
-  return cookies
-}
-
-function turnCookiesToCode(cookies: Record<string, string>, url: string): string {
-  let code = '// Cookies\n'
-  code += 'let cookieContainer = new CookieContainer()\n'
-
-  for (const [key, value] of Object.entries(cookies)) {
-    code += `cookieContainer.Add("${url}", Cookie("${key}", "${value}"))\n`
-  }
-
-  code += 'use handler = new HttpClientHandler()\n'
-  code += 'handler.CookieContainer <- cookieContainer\n'
-  code += 'let client = new HttpClient(handler)\n'
-  code += '\n'
-  return code
-}
-
-function turnHeadersToCode(headers: Record<string, string>): string {
-  let code = '// Headers\n'
-  for (const [key, value] of Object.entries(headers)) {
-    code += `client.DefaultRequestHeaders.Add("${key}", ${value})\n`
-  }
-  code += '\n'
-  return code
-}
-
-function turnQueryStringToCode(query: Record<string, string>, url: string): string {
-  let code = '// QueryString\n'
+function extractQueryString(queryStringArray: { name: string; value: string }[]): string {
   let queryString = ''
   let itteration = 0
-  for (const [key, value] of Object.entries(query)) {
+  queryStringArray.forEach((param) => {
     if (itteration === 0) {
       queryString += '?'
     } else {
       queryString += '&'
     }
-    queryString += `${key}=${value}`
+    queryString += `${param.name}=${param.value}`
     itteration++
+  })
+  return queryString
+}
+
+function turnHeadersToCode(headersArray: { name: string; value: string }[]): string {
+  let code = '//Headers\n'
+  for (const header of headersArray) {
+    code += `httpRequestMessage.Headers.Add("${header.name}", "${header.value}")\n`
+  }
+  code += '\n'
+  return code
+}
+
+function turnCookiesToCode(cookies: { name: string; value: string }[], url: string): string {
+  let code = '//Cookies\n'
+
+  code += 'let cookieContainer = CookieContainer()\n'
+  for (const cookie of cookies) {
+    code += `cookieContainer.Add(Uri("${url}"), Cookie("${cookie.name}", "${cookie.value}"))\n`
   }
 
-  code += `client.BaseAddress <- Uri("${url}${queryString}")\n`
-  code += '\n'
+  code += 'use handler = new HttpClientHandler()\n'
+  code += 'handler.CookieContainer <- cookieContainer\n\n'
+
   return code
 }
 
 function turnPostDataToCode(postData: any): string {
   if (!postData) return ''
-  let code = ''
+  let code = '//Post Data\n'
 
   if (postData.mimeType === 'multipart/form-data') {
     code += turnPostDataMultiPartToCode(postData)
@@ -83,49 +48,42 @@ function turnPostDataToCode(postData: any): string {
     code += turnPostDataToCodeUsingMimeType(postData, postData.mimeType)
   }
 
+  code += 'httpRequestMessage.Content <- content\n\n'
   return code
 }
 
 function turnPostDataToCodeUsingMimeType(postData: any, contentType: string): string {
-  let code = ''
   const json = escapeString(postData.text)
-  code += `let content = new StringContent("${json}", Encoding.UTF8, "${contentType}")\n`
-  code += `content.Headers.ContentType <- new MediaTypeHeaderValue("${contentType}")\n`
-  code += 'let response = client.PostAsync(client.BaseAddress, content).Result\n'
+  let code = `let content = new StringContent("${json}", Encoding.UTF8, "${contentType}")\n`
+  code += `content.Headers.ContentType <- MediaTypeHeaderValue("${contentType}")\n`
   return code
 }
 
 function turnPostDataMultiPartToCode(postData: any): string {
-  let code = ''
-  code += '// Multipart Form\n'
-  code += 'use multipartFormContent = new MultipartFormDataContent()\n'
+  let code = 'let content = new MultipartFormDataContent()\n'
 
   let fileCount = 0
   for (const data of postData.params) {
     if (data.value === 'BINARY') {
       code += `let fileStreamContent_${fileCount} = new StreamContent(File.OpenRead("${data.fileName}"))\n`
       code += `fileStreamContent_${fileCount}.Headers.ContentType <- new MediaTypeHeaderValue("${data.contentType}")\n`
-      code += `multipartFormContent.Add(fileStreamContent_${fileCount}, "file_${fileCount}", "${data.fileName}")\n`
+      code += `content.Add(fileStreamContent_${fileCount}, "file_${fileCount}", "${data.fileName}")\n`
       fileCount++
     } else {
-      code += `multipartFormContent.Add(new StringContent("${data.value}", "${data.name}")\n`
+      code += `content.Add(new StringContent("${data.value}", "${data.name}")\n`
     }
   }
-  code += 'let response = client.PostAsync(client.BaseAddress, multipartFormContent).Result\n'
   return code
 }
 
 function turnPostDataUrlEncodeToCode(postData: any): string {
-  let code = ''
-  code += '// Url Encode\n'
-  code += 'let formUrlEncodedContentDictionary = new Dictionary<string, string>()\n'
+  let code = 'let formUrlEncodedContentDictionary = new Dictionary<string, string>()\n'
 
   for (const data of postData.params) {
     code += `formUrlEncodedContentDictionary.Add("${data.value}", "${data.name}")\n`
   }
 
-  code +=
-    'let response = client.PostAsync(client.BaseAddress, new FormUrlEncodedContent(formUrlEncodedContentDictionary)).Result\n'
+  code += 'let content = new FormUrlEncodedContent(formUrlEncodedContentDictionary)\n'
   return code
 }
 
@@ -136,12 +94,9 @@ function escapeString(str: string): string {
 }
 
 export const httpClientHelpers = {
-  extractHeaders,
   extractQueryString,
-  extractCookies,
 
-  turnCookiesToCode,
   turnHeadersToCode,
-  turnQueryStringToCode,
+  turnCookiesToCode,
   turnPostDataToCode,
 }
