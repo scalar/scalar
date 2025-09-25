@@ -6,15 +6,180 @@ settings:
 
 catalogs:
   '*':
+    '@electron-toolkit/preload':
+      specifier: ^3.0.0
+      version: 3.0.1
+    '@electron-toolkit/utils':
+      specifier: ^3.0.0
+      version: 3.0.0
+    '@fastify/swagger':
+      specifier: ^8.10.1
+      version: 8.14.0
+    '@floating-ui/utils':
+      specifier: 0.2.10
+      version: 0.2.10
+    '@floating-ui/vue':
+      specifier: 1.1.9
+      version: 1.1.9
+    '@google-cloud/storage':
+      specifier: 7.16.0
+      version: 7.16.0
+    '@headlessui/tailwindcss':
+      specifier: ^0.2.2
+      version: 0.2.2
+    '@headlessui/vue':
+      specifier: 1.7.23
+      version: 1.7.23
+    '@playwright/test':
+      specifier: 1.55.0
+      version: 1.55.0
+    '@scalar/typebox':
+      specifier: 0.1.1
+      version: 0.1.1
+    '@tailwindcss/vite':
+      specifier: ^4.1.7
+      version: 4.1.8
+    '@types/express':
+      specifier: 5.0.3
+      version: 5.0.3
+    '@types/node':
+      specifier: ^22.9.0
+      version: 22.15.3
+    '@types/picomatch':
+      specifier: 3.0.1
+      version: 3.0.1
+    '@types/react':
+      specifier: ^19.1.8
+      version: 19.1.8
+    '@types/react-dom':
+      specifier: ^19.1.6
+      version: 19.1.6
+    '@typescript-eslint/parser':
+      specifier: ^8.0.0
+      version: 8.24.0
+    '@vitejs/plugin-vue':
+      specifier: 6.0.1
+      version: 6.0.1
+    '@vue/test-utils':
+      specifier: ^2.4.1
+      version: 2.4.6
+    '@vueuse/core':
+      specifier: 13.9.0
+      version: 13.9.0
+    '@vueuse/integrations':
+      specifier: 13.9.0
+      version: 13.9.0
+    ansis:
+      specifier: 4.1.0
+      version: 4.1.0
+    chokidar:
+      specifier: 4.0.3
+      version: 4.0.3
+    commander:
+      specifier: 13.1.0
+      version: 13.1.0
+    concurrently:
+      specifier: 9.1.2
+      version: 9.1.2
+    electron:
+      specifier: 37.3.1
+      version: 37.3.1
+    electron-vite:
+      specifier: 4.0.0
+      version: 4.0.0
+    electron-window-state:
+      specifier: ^5.0.3
+      version: 5.0.3
+    esbuild:
+      specifier: 0.25.6
+      version: 0.25.6
+    express:
+      specifier: 5.1.0
+      version: 5.1.0
     fastify:
       specifier: ^5.3.3
       version: 5.3.3
+    fathom-client:
+      specifier: ^3.7.2
+      version: 3.7.2
+    flatted:
+      specifier: ^3.3.3
+      version: 3.3.3
+    fuse.js:
+      specifier: ^7.1.0
+      version: 7.1.0
+    hono:
+      specifier: 4.9.7
+      version: 4.9.7
+    js-base64:
+      specifier: ^3.7.8
+      version: 3.7.8
+    microdiff:
+      specifier: ^1.5.0
+      version: 1.5.0
+    nanoid:
+      specifier: 5.1.5
+      version: 5.1.5
+    next:
+      specifier: ^15.4.7
+      version: 15.5.2
+    picomatch:
+      specifier: 4.0.2
+      version: 4.0.2
+    postcss:
+      specifier: ^8.4.38
+      version: 8.5.6
+    prettier:
+      specifier: 3.5.3
+      version: 3.5.3
+    react:
+      specifier: ^19.1.0
+      version: 19.1.0
+    react-dom:
+      specifier: ^19.1.0
+      version: 19.1.0
+    rollup:
+      specifier: 4.45.1
+      version: 4.45.1
+    semver:
+      specifier: 7.7.2
+      version: 7.7.2
+    shx:
+      specifier: ^0.4.0
+      version: 0.4.0
+    stdout-update:
+      specifier: 4.0.1
+      version: 4.0.1
+    tailwindcss:
+      specifier: ^4.1.7
+      version: 4.1.8
+    type-fest:
+      specifier: 4.41.0
+      version: 4.41.0
     vite:
       specifier: 7.1.5
       version: 7.1.5
+    vite-node:
+      specifier: 3.2.4
+      version: 3.2.4
+    vite-ssg:
+      specifier: 28.1.0
+      version: 28.1.0
+    vitest:
+      specifier: 3.2.4
+      version: 3.2.4
+    vue:
+      specifier: ^3.5.17
+      version: 3.5.17
+    vue-tsc:
+      specifier: ^2.2.0
+      version: 2.2.12
     yaml:
       specifier: 2.8.0
       version: 2.8.0
+    zod:
+      specifier: 3.24.1
+      version: 3.24.1
 
 importers:
 
@@ -4247,8 +4412,17 @@ packages:
     resolution: {integrity: sha512-Qkzpg2s9GnVV2I2BjRksUi43U5e6+zaQMcjoJy0C+C5oxaKl+fmckGDQFtRpZpZV0NQekuZZ+tGz7EA9TVnQtQ==}
     engines: {node: '>=12'}
 
+  '@emnapi/core@1.5.0':
+    resolution: {integrity: sha512-sbP8GzB1WDzacS8fgNPpHlp6C9VZe+SJP3F90W9rLemaQj2PzIuTEl1qDOYQf58YIpyjViI24y9aPWCjEzY2cg==}
+
   '@emnapi/runtime@1.4.5':
     resolution: {integrity: sha512-++LApOtY0pEEz1zrd9vy1/zXVaVJJ/EbAF3u0fXIzPJEDtnITsBGbbK0EkM72amhl/R5b+5xx0Y/QhcVOpuulg==}
+
+  '@emnapi/runtime@1.5.0':
+    resolution: {integrity: sha512-97/BJ3iXHww3djw6hYIfErCZFee7qCtrneuLa20UXFCOTCfBM2cvQHjWJ2EG0s0MtdNwInarqCTz35i4wWXHsQ==}
+
+  '@emnapi/wasi-threads@1.1.0':
+    resolution: {integrity: sha512-WI0DdZ8xFSbgMjR1sFsKABJ/C5OnRrjT06JXbZKexJGrDuPTzZdDYfFlsgcCXCyf+suG5QU2e/y1Wo2V/OapLQ==}
 
   '@emotion/use-insertion-effect-with-fallbacks@1.0.1':
     resolution: {integrity: sha512-jT/qyKZ9rzLErtrjGgdkMBn2OP8wl0G3sQlBb3YPryvKHsjvINUhVaPFfP+fpBcOkmrVOVEEHQFJ7nbj2TH2gw==}
@@ -5966,6 +6140,9 @@ packages:
   '@mole-inc/bin-wrapper@8.0.1':
     resolution: {integrity: sha512-sTGoeZnjI8N4KS+sW2AN95gDBErhAguvkw/tWdCjeM8bvxpz5lqrnd0vOJABA1A+Ic3zED7PYoLP/RANLgVotA==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+
+  '@napi-rs/wasm-runtime@1.0.5':
+    resolution: {integrity: sha512-TBr9Cf9onSAS2LQ2+QHx6XcC6h9+RIzJgbqG3++9TUZSH204AwEy5jg3BTQ0VATsyoGj4ee49tN/y6rvaOOtcg==}
 
   '@ndelangen/get-tarball@3.0.9':
     resolution: {integrity: sha512-9JKTEik4vq+yGosHYhZ1tiH/3WpUS0Nh0kej4Agndhox8pAdWhEx5knFVRcb/ya9knCRCs1rPxNrSXTDdfVqpA==}
@@ -8286,6 +8463,9 @@ packages:
 
   '@tsconfig/node16@1.0.4':
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
+
+  '@tybys/wasm-util@0.10.1':
+    resolution: {integrity: sha512-9tTaPJLSiejZKx+Bmog4uSubteqTvFrVrURwkmHixBo0G4seD0zUxp98E1DzUBJxLQ3NPwXrGKDiVjwx/DpPsg==}
 
   '@types/acorn@4.0.6':
     resolution: {integrity: sha512-veQTnWP+1D/xbxVrPC3zHnCZRjSrKfhbMUlEA43iMZLu7EsnTtkJklIuwrCPbOi8YkvDQAiW05VQQFvvz9oieQ==}
@@ -21913,7 +22093,23 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@emnapi/core@1.5.0':
+    dependencies:
+      '@emnapi/wasi-threads': 1.1.0
+      tslib: 2.8.1
+    optional: true
+
   '@emnapi/runtime@1.4.5':
+    dependencies:
+      tslib: 2.8.1
+    optional: true
+
+  '@emnapi/runtime@1.5.0':
+    dependencies:
+      tslib: 2.8.1
+    optional: true
+
+  '@emnapi/wasi-threads@1.1.0':
     dependencies:
       tslib: 2.8.1
     optional: true
@@ -23324,7 +23520,7 @@ snapshots:
 
   '@jridgewell/gen-mapping@0.3.12':
     dependencies:
-      '@jridgewell/sourcemap-codec': 1.5.5
+      '@jridgewell/sourcemap-codec': 1.5.0
       '@jridgewell/trace-mapping': 0.3.29
 
   '@jridgewell/remapping@2.3.5':
@@ -23346,7 +23542,7 @@ snapshots:
   '@jridgewell/trace-mapping@0.3.29':
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
-      '@jridgewell/sourcemap-codec': 1.5.5
+      '@jridgewell/sourcemap-codec': 1.5.0
 
   '@jridgewell/trace-mapping@0.3.9':
     dependencies:
@@ -23537,6 +23733,13 @@ snapshots:
       filenamify: 5.1.1
       got: 11.8.6
       os-filter-obj: 2.0.0
+
+  '@napi-rs/wasm-runtime@1.0.5':
+    dependencies:
+      '@emnapi/core': 1.5.0
+      '@emnapi/runtime': 1.5.0
+      '@tybys/wasm-util': 0.10.1
+    optional: true
 
   '@ndelangen/get-tarball@3.0.9':
     dependencies:
@@ -24691,6 +24894,8 @@ snapshots:
     optional: true
 
   '@oxc-minify/binding-wasm32-wasi@0.87.0':
+    dependencies:
+      '@napi-rs/wasm-runtime': 1.0.5
     optional: true
 
   '@oxc-minify/binding-win32-arm64-msvc@0.87.0':
@@ -24736,6 +24941,8 @@ snapshots:
     optional: true
 
   '@oxc-parser/binding-wasm32-wasi@0.87.0':
+    dependencies:
+      '@napi-rs/wasm-runtime': 1.0.5
     optional: true
 
   '@oxc-parser/binding-win32-arm64-msvc@0.87.0':
@@ -24783,6 +24990,8 @@ snapshots:
     optional: true
 
   '@oxc-transform/binding-wasm32-wasi@0.87.0':
+    dependencies:
+      '@napi-rs/wasm-runtime': 1.0.5
     optional: true
 
   '@oxc-transform/binding-win32-arm64-msvc@0.87.0':
@@ -26815,6 +27024,11 @@ snapshots:
     optional: true
 
   '@tsconfig/node16@1.0.4':
+    optional: true
+
+  '@tybys/wasm-util@0.10.1':
+    dependencies:
+      tslib: 2.8.1
     optional: true
 
   '@types/acorn@4.0.6':
@@ -31628,7 +31842,7 @@ snapshots:
       citty: 0.1.6
       consola: 3.4.2
       defu: 6.1.4
-      node-fetch-native: 1.6.6
+      node-fetch-native: 1.6.7
       nypm: 0.6.1
       pathe: 2.0.3
 
