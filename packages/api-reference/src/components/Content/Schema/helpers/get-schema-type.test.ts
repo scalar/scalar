@@ -513,7 +513,7 @@ describe('get-schema-type', () => {
         expect(result).toBe('CustomArray')
       })
 
-      it('ignores the title for an array type if items are defined', () => {
+      it('Does not ignore the title for an array type if items are defined', () => {
         const schema = coerceValue(SchemaObjectSchema, {
           title: 'CustomArray',
           type: 'array',
@@ -522,7 +522,7 @@ describe('get-schema-type', () => {
           },
         })
         const result = getSchemaType(schema)
-        expect(result).toBe('array string[]')
+        expect(result).toBe('CustomArray')
       })
     })
 
