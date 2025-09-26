@@ -18,6 +18,7 @@ import type { ApiReferenceConfiguration } from '@scalar/types'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed } from 'vue'
 
+import { DASHBOARD_REGISTER_URL, EDITOR_PREVIEW_URL } from '@/consts/urls'
 import ApiReferenceToolbarBlurb from '@/features/toolbar/ApiReferenceToolbarBlurb.vue'
 import ApiReferenceToolbarPopover from '@/features/toolbar/ApiReferenceToolbarPopover.vue'
 
@@ -39,12 +40,16 @@ const { configuration } = defineProps<{
 
 const editorShareHref = computed<string>(() => {
   const encodedConfig = encodeURIComponent(JSON.stringify(configuration))
-  return `https://editor.scalar.com/preview?config=${encodedConfig}`
+  const url = new URL(EDITOR_PREVIEW_URL)
+  url.searchParams.append('config', encodedConfig)
+  return url.toString()
 })
 
 const registrySignupHref = computed<string>(() => {
-  const encodedSpecUrl = encodeURIComponent(configuration?.url ?? '')
-  return `https://dashboard.scalar.com/register?url=${encodedSpecUrl}`
+  const urlEncodedDocument = encodeURIComponent(configuration?.url ?? '')
+  const url = new URL(DASHBOARD_REGISTER_URL)
+  url.searchParams.append('url', urlEncodedDocument)
+  return url.toString()
 })
 
 const { copyToClipboard } = useClipboard()

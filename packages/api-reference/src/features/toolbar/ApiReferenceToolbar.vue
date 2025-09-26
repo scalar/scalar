@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import { computed } from 'vue'
 
@@ -19,7 +20,7 @@ const showToolbar = computed<boolean>(() => {
   if (!window || !FEATURE_FLAG) {
     return false
   }
-  return window.location.hostname === 'localhost'
+  return isLocalUrl(window.location.href)
 })
 </script>
 <template>

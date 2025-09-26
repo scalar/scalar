@@ -25,15 +25,15 @@ const variants = cva({
 </script>
 <template>
   <button
-    :aria-checked="modelValue"
+    :aria-checked="model"
     :aria-disabled="disabled"
-    :class="cx(variants({ checked: modelValue, disabled }))"
+    :class="cx(variants({ checked: model, disabled }))"
     role="switch"
     type="button"
     @click="toggle">
     <div
       class="absolute left-px top-px flex h-3 w-3 items-center justify-center rounded-full bg-b-1 text-c-accent transition-transform duration-300"
-      :class="{ 'translate-x-2.5': modelValue }" />
+      :class="{ 'translate-x-2.5': model }" />
     <span
       v-if="label"
       class="sr-only">
