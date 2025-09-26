@@ -262,12 +262,11 @@ export const apiClientConfigurationSchema = z.object({
 
 export type ApiClientConfiguration = z.infer<typeof apiClientConfigurationSchema>
 
-export const FetchLike = z
-  .function({
-    input: [z.union([z.string(), z.instanceof(URL), z.instanceof(Request)]), z.any().optional()],
-    output: z.promise(z.instanceof(Response)),
-  })
-  .optional()
+// TODO: This doesn't seem to match the native fetch function.
+const FetchLikeSchema = z.function({
+  input: [z.union([z.string(), z.instanceof(URL), z.instanceof(Request)]), z.any().optional()],
+  output: z.promise(z.instanceof(Response)),
+})
 
 /** Configuration for the Api Client without the transform since it cannot be merged */
 const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
@@ -287,7 +286,7 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
      *
      * Can be used to add custom headers, handle auth, etc.
      */
-    fetch: FetchLike,
+    fetch: FetchLikeSchema.optional(),
     /**
      * Plugins for the API reference
      */
