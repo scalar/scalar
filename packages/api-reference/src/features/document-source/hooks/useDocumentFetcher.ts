@@ -1,6 +1,6 @@
+import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { fetchDocument, prettyPrintJson } from '@scalar/oas-utils/helpers'
-import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
-import type { SpecConfiguration } from '@scalar/types/api-reference'
+import type { ApiReferenceConfiguration, SpecConfiguration } from '@scalar/types/api-reference'
 import { type MaybeRefOrGetter, ref, toValue, watch } from 'vue'
 
 /**
@@ -52,7 +52,9 @@ const getContent = async (
   // Fetch from URL only if we do not already have the content
   if (url && !content) {
     try {
-      const result = await fetchDocument(url, proxyUrl, fetch)
+      // Make relative URLs absolute before fetching
+      const absoluteUrl = makeUrlAbsolute(url)
+      const result = await fetchDocument(absoluteUrl, proxyUrl, fetch)
 
       return result
     } catch (error) {
