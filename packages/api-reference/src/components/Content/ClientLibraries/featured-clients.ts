@@ -1,4 +1,4 @@
-import type { ClientOption, ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
+import type { ClientOption, ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import type { AvailableClients } from '@scalar/snippetz'
 
 /** Hard coded list of default featured clients */

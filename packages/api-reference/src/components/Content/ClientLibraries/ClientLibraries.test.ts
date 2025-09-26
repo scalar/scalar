@@ -1,9 +1,7 @@
+import { type ClientOptionGroup, DEFAULT_CLIENT } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-
-import { DEFAULT_CLIENT } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
-import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
 import ClientLibraries from './ClientLibraries.vue'
 
