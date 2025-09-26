@@ -20,7 +20,10 @@ export const fsharpHttpclient: Plugin = {
         const queryString = extractQueryString(request.queryString)
         urlWithPotentialQueryString = `${request.url}${queryString}`
       }
+    } else {
+      urlWithPotentialQueryString = ''
     }
+
     // Generate the fsharp code
     let code = ''
 
@@ -117,9 +120,10 @@ function turnPostDataMultiPartToCode(postData: any): string {
   let fileCount = 0
   for (const data of postData.params) {
     if (data.value === 'BINARY') {
-      code += `let fileStreamContent_${fileCount} = new StreamContent(File.OpenRead("${data.fileName}"))\n`
+      const escapedFileName = escapeString(data.fileName)
+      code += `let fileStreamContent_${fileCount} = new StreamContent(File.OpenRead("${escapedFileName}"))\n`
       code += `fileStreamContent_${fileCount}.Headers.ContentType <- new MediaTypeHeaderValue("${data.contentType}")\n`
-      code += `content.Add(fileStreamContent_${fileCount}, "file_${fileCount}", "${data.fileName}")\n`
+      code += `content.Add(fileStreamContent_${fileCount}, "file_${fileCount}", "${escapedFileName}")\n`
       fileCount++
     } else {
       code += `content.Add(new StringContent("${data.value}"), "${data.name}")\n`
