@@ -133,8 +133,8 @@ describe('fsharpHttpclient.generate - postData', () => {
     } as any
     const result = fsharpHttpclient.generate(request, {})
     expect(result).toContain('let formUrlEncodedContentDictionary = new Dictionary<string, string>()')
-    expect(result).toContain('formUrlEncodedContentDictionary.Add("bar", "foo")')
-    expect(result).toContain('formUrlEncodedContentDictionary.Add("qux", "baz")')
+    expect(result).toContain('formUrlEncodedContentDictionary.Add("foo", "bar")')
+    expect(result).toContain('formUrlEncodedContentDictionary.Add("baz", "qux")')
     expect(result).toContain('let content = new FormUrlEncodedContent(formUrlEncodedContentDictionary)')
     expect(result).toContain('httpRequestMessage.Content <- content')
   })
