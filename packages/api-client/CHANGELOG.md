@@ -1,5 +1,27 @@
 # @scalar/api-client
 
+## 2.6.0
+
+### Minor Changes
+
+- 170b890: feat: scalar address bar block
+- db5b649: feat: auth selector block
+
+### Patch Changes
+
+- b858566: chore: moved api client code sample to new store
+- Updated dependencies [6462733]
+- Updated dependencies [b858566]
+- Updated dependencies [db5b649]
+  - @scalar/json-magic@0.5.2
+  - @scalar/workspace-store@0.16.0
+  - @scalar/components@0.14.37
+  - @scalar/oas-utils@0.4.32
+  - @scalar/openapi-parser@0.21.2
+  - @scalar/use-codemirror@0.12.38
+  - @scalar/postman-to-openapi@0.3.35
+  - @scalar/import@0.4.27
+
 ## 2.5.35
 
 ### Patch Changes
