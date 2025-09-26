@@ -7,6 +7,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
+import type { SchemaOptions } from '@/components/Content/Schema/types'
 import ScreenReader from '@/components/ScreenReader.vue'
 
 import { isTypeObject } from './helpers/is-type-object'
@@ -21,12 +22,11 @@ const {
   compact,
   noncollapsible = false,
   hideHeading,
-  hideReadOnly,
-  hideWriteOnly,
   additionalProperties,
-  hideModelNames = false,
   discriminator,
   breadcrumb,
+  hideModelNames = false,
+  options,
 } = defineProps<{
   schema?: SchemaObject
   /** Track how deep we've gone */
@@ -39,10 +39,6 @@ const {
   noncollapsible?: boolean
   /** Hide the heading */
   hideHeading?: boolean
-  /** Hide read-only properties */
-  hideReadOnly?: boolean
-  /** Hide write-only properties */
-  hideWriteOnly?: boolean
   /** Show a special one way toggle for additional properties, also has a top border when open */
   additionalProperties?: boolean
   /** Hide model names in type display */
@@ -51,6 +47,8 @@ const {
   discriminator?: DiscriminatorObject
   /** Breadcrumb for the schema */
   breadcrumb?: string[]
+  /** Move the options into a single prop so they are easy to pass around */
+  options: SchemaOptions
 }>()
 
 /**
@@ -183,15 +181,14 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
           <!-- Object properties -->
           <SchemaObjectProperties
             v-if="isTypeObject(schema)"
-            :breadcrumb="breadcrumb"
-            :compact="compact"
+            :breadcrumb
+            :compact
             :discriminator
-            :hideHeading="hideHeading"
-            :hideModelNames="hideModelNames"
-            :hideReadOnly="hideReadOnly"
-            :hideWriteOnly="hideWriteOnly"
+            :hideHeading
+            :hideModelNames
             :level="level + 1"
-            :schema="schema" />
+            :options
+            :schema />
 
           <!-- Not an object -->
           <template v-else>
@@ -201,10 +198,9 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
               :compact
               :hideHeading
               :hideModelNames
-              :hideReadOnly="hideReadOnly"
-              :hideWriteOnly="hideWriteOnly"
               :level
-              :value="schema" />
+              :options
+              :schema />
           </template>
         </DisclosurePanel>
       </div>

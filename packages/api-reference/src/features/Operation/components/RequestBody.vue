@@ -121,17 +121,25 @@ const partitionedSchema = computed(() => {
       <Schema
         :breadcrumb
         compact
-        :hideReadOnly="true"
         name="Request Body"
         noncollapsible
+        :options="{
+          hideReadOnly: true,
+          orderRequiredPropertiesFirst: config.orderRequiredPropertiesFirst,
+          orderSchemaPropertiesBy: config.orderSchemaPropertiesBy,
+        }"
         :schema="partitionedSchema.visibleProperties" />
 
       <Schema
         additionalProperties
         :breadcrumb
         compact
-        :hideReadOnly="true"
         name="Request Body"
+        :options="{
+          hideReadOnly: true,
+          orderRequiredPropertiesFirst: config.orderRequiredPropertiesFirst,
+          orderSchemaPropertiesBy: config.orderSchemaPropertiesBy,
+        }"
         :schema="partitionedSchema.collapsedProperties" />
     </div>
 
@@ -145,6 +153,11 @@ const partitionedSchema = computed(() => {
         :hideReadOnly="true"
         name="Request Body"
         noncollapsible
+        :options="{
+          hideReadOnly: true,
+          orderRequiredPropertiesFirst: config.orderRequiredPropertiesFirst,
+          orderSchemaPropertiesBy: config.orderSchemaPropertiesBy,
+        }"
         :schema />
     </div>
   </div>
