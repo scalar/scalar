@@ -15,7 +15,7 @@ import { isHttpMethod, schemaModel } from '@scalar/oas-utils/helpers'
 import { type Path, type PathValue, getNestedValue } from '@scalar/object-utils/nested'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import microdiff, { type Difference } from 'microdiff'
-import { type ZodSchema, type ZodTypeDef, z } from 'zod'
+import { type ZodSchema, z } from 'zod'
 
 import type { WorkspaceStore } from '@/store'
 import type { ActiveEntitiesStore } from '@/store/active-entities'
@@ -204,7 +204,7 @@ export const traverseZodSchema = (schema: ZodSchema, path: (string | number)[]):
  * We return a tuple to make it easier to pass into the mutators
  */
 export const parseDiff = <T>(
-  schema: ZodSchema<T, ZodTypeDef, any>,
+  schema: ZodSchema<T, any>,
   diff: Difference,
 ): {
   /** Typed path as it has been checked agains the schema */
