@@ -119,9 +119,10 @@ function turnPostDataMultiPartToCode(postData: any): string {
   let fileCount = 0
   for (const data of postData.params) {
     if (data.value === 'BINARY') {
-      code += `let fileStreamContent_${fileCount} = new StreamContent(File.OpenRead("${escapeString(data.fileName)}"))\n`
-      code += `fileStreamContent_${fileCount}.Headers.ContentType <- new MediaTypeHeaderValue("${data.contentType}")\n`
-      code += `content.Add(fileStreamContent_${fileCount}, "file_${fileCount}", "${escapeString(data.fileName)}")\n`
+      const escapedFileName = escapeString(data.fileName)
+      code += `let fileStreamContent_${fileCount} = new StreamContent(File.OpenRead("${escapedFileName}"))\n`
+      code += `fileStreamContent_${fileCount}.Headers.ContentType <- MediaTypeHeaderValue("${data.contentType}")\n`
+      code += `content.Add(fileStreamContent_${fileCount}, "${escapedFileName}", "${escapedFileName}")\n`
       fileCount++
     } else {
       code += `content.Add(new StringContent("${escapeString(data.value)}"), "${escapeString(data.name)}")\n`
