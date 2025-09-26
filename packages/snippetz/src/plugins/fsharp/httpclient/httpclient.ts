@@ -51,7 +51,7 @@ export const fsharpHttpclient: Plugin = {
 
     code += 'let! result = client.SendAsync(httpRequestMessage)\n'
 
-    return code
+    return escapeString(code)
   },
 }
 
@@ -108,7 +108,7 @@ function turnPostDataToCode(postData: any): string {
 }
 
 function turnPostDataToCodeUsingMimeType(postData: any, contentType: string): string {
-  const json = escapeString(postData.text)
+  const json = postData.text
   let code = `let content = new StringContent("${json}", Encoding.UTF8, "${contentType}")\n`
   code += `content.Headers.ContentType <- MediaTypeHeaderValue("${contentType}")\n`
   return code
@@ -120,10 +120,9 @@ function turnPostDataMultiPartToCode(postData: any): string {
   let fileCount = 0
   for (const data of postData.params) {
     if (data.value === 'BINARY') {
-      const escapedFileName = escapeString(data.fileName)
-      code += `let fileStreamContent_${fileCount} = new StreamContent(File.OpenRead("${escapedFileName}"))\n`
+      code += `let fileStreamContent_${fileCount} = new StreamContent(File.OpenRead("${data.fileName}"))\n`
       code += `fileStreamContent_${fileCount}.Headers.ContentType <- new MediaTypeHeaderValue("${data.contentType}")\n`
-      code += `content.Add(fileStreamContent_${fileCount}, "file_${fileCount}", "${escapedFileName}")\n`
+      code += `content.Add(fileStreamContent_${fileCount}, "file_${fileCount}", "${data.fileName}")\n`
       fileCount++
     } else {
       code += `content.Add(new StringContent("${data.value}"), "${data.name}")\n`
@@ -147,4 +146,7 @@ function escapeString(str: string): string {
   return str
     .replace(/\\/g, '\\\\') // Escape backslashes
     .replace(/"/g, '\\"') // Escape double quotes
+    .replace(/\n/g, '\\n') // Escape newlines
+    .replace(/\r/g, '\\r') // Escape carriage returns
+    .replace(/\t/g, '\\t') // Escape tabs
 }
