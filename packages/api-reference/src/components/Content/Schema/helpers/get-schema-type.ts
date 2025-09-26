@@ -40,9 +40,9 @@ const processArrayType = (value: Extract<SchemaObject, { type: 'array' }>, isUni
  * Computes the human-readable type for a schema.
  *
  * Priority order:
- * 1. const values
+ * 1. title property.
  * 2. Array types (with special handling for items)
- * 3. title property
+ * 3. const values
  * 4. xml.name property
  * 5. type with contentEncoding
  * 6. $ref names
