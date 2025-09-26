@@ -1,5 +1,58 @@
 # @scalar/scripts
 
+## 0.0.37
+
+### Patch Changes
+
+- @scalar/oas-utils@0.4.31
+- @scalar/components@0.14.36
+
+## 0.0.36
+
+### Patch Changes
+
+- @scalar/oas-utils@0.4.30
+- @scalar/components@0.14.35
+
+## 0.0.35
+
+### Patch Changes
+
+- Updated dependencies [498f771]
+- Updated dependencies [8f2a2f2]
+  - @scalar/components@0.14.34
+  - @scalar/oas-utils@0.4.29
+
+## 0.0.34
+
+### Patch Changes
+
+- @scalar/oas-utils@0.4.28
+- @scalar/components@0.14.33
+
+## 0.0.33
+
+### Patch Changes
+
+- @scalar/oas-utils@0.4.27
+- @scalar/components@0.14.32
+
+## 0.0.32
+
+### Patch Changes
+
+- Updated dependencies [821717b]
+- Updated dependencies [2249fe3]
+  - @scalar/oas-utils@0.4.26
+  - @scalar/components@0.14.31
+
+## 0.0.31
+
+### Patch Changes
+
+- @scalar/oas-utils@0.4.25
+- @scalar/components@0.14.30
+
 ## 0.0.30
 
 ### Patch Changes

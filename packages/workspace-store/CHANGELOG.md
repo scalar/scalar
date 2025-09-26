@@ -1,5 +1,77 @@
 # @scalar/workspace-store
 
+## 0.15.8
+
+### Patch Changes
+
+- 7be091c: fix: schema format does not allow custom formats
+- f0f28a9: feat: migrate sidebar to consume from the new store
+- db966b4: chore: remove other string schema formats
+- Updated dependencies [41d8600]
+  - @scalar/json-magic@0.5.1
+
+## 0.15.7
+
+### Patch Changes
+
+- a1f865c: refactor: use @scalar/openapi-upgrader
+- dcf50ef: refactor: move escapeJsonPointer to @scalar/json-magic
+- Updated dependencies [6221e4a]
+- Updated dependencies [005fba9]
+- Updated dependencies [fe46413]
+- Updated dependencies [0aa6d26]
+- Updated dependencies [2d612e4]
+- Updated dependencies [dcf50ef]
+- Updated dependencies [02085ef]
+  - @scalar/openapi-upgrader@0.1.0
+  - @scalar/types@0.2.16
+  - @scalar/json-magic@0.5.0
+  - @scalar/code-highlight@0.2.0
+  - @scalar/snippetz@0.4.10
+
+## 0.15.6
+
+### Patch Changes
+
+- Updated dependencies [bff46e5]
+  - @scalar/helpers@0.0.11
+  - @scalar/json-magic@0.4.3
+  - @scalar/code-highlight@0.1.9
+  - @scalar/openapi-parser@0.20.6
+
+## 0.15.5
+
+### Patch Changes
+
+- Updated dependencies [3bd1209]
+- Updated dependencies [39bbc0e]
+- Updated dependencies [1943b99]
+  - @scalar/json-magic@0.4.2
+  - @scalar/openapi-parser@0.20.5
+
+## 0.15.4
+
+### Patch Changes
+
+- 019a22a: Try catch merge object to avoid uncaught proxy errors
+
+## 0.15.3
+
+### Patch Changes
+
+- 821717b: refactor: schema rendering
+- Updated dependencies [821717b]
+  - @scalar/helpers@0.0.10
+  - @scalar/json-magic@0.4.1
+  - @scalar/openapi-parser@0.20.4
+
+## 0.15.2
+
+### Patch Changes
+
+- Updated dependencies [b8c4b61]
+  - @scalar/openapi-parser@0.20.3
+
 ## 0.15.1
 
 ### Patch Changes

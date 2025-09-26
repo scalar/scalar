@@ -7,12 +7,11 @@ describe('ContentTypeSelect', () => {
   it('renders with multiple content types as a dropdown', async () => {
     const wrapper = mount(ContentTypeSelect, {
       props: {
-        requestBody: {
-          content: {
-            'application/json': {},
-            'application/xml': {},
-          },
+        content: {
+          'application/json': {},
+          'application/xml': {},
         },
+        modelValue: 'application/json',
       },
     })
 
@@ -23,31 +22,14 @@ describe('ContentTypeSelect', () => {
   it('renders with a single content type as plain text', async () => {
     const wrapper = mount(ContentTypeSelect, {
       props: {
-        requestBody: {
-          content: {
-            'application/json': {},
-          },
+        content: {
+          'application/json': {},
         },
+        modelValue: 'application/json',
       },
     })
 
     expect(wrapper.findComponent({ name: 'ScalarListbox' }).exists()).toBe(false)
     expect(wrapper.text()).toContain('application/json')
-  })
-
-  it('uses the default value when provided', async () => {
-    const wrapper = mount(ContentTypeSelect, {
-      props: {
-        requestBody: {
-          content: {
-            'application/json': {},
-            'application/xml': {},
-          },
-        },
-        defaultValue: 'application/xml',
-      },
-    })
-
-    expect(wrapper.text()).toContain('application/xml')
   })
 })

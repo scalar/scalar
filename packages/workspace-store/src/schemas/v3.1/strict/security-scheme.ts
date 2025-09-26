@@ -1,6 +1,7 @@
 import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
+import { XDefaultScopesSchema } from '@/schemas/extensions/security/x-default-scopes'
 import {
   XScalarSecretHTTPSchema,
   XScalarSecretTokenSchema,
@@ -47,6 +48,7 @@ export const OAuth2 = compose(
     /** REQUIRED. An object containing configuration information for the flow types supported. */
     flows: OAuthFlowsObjectRef,
   }),
+  XDefaultScopesSchema,
 )
 
 export const OpenIdConnect = compose(

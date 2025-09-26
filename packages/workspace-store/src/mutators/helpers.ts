@@ -5,7 +5,7 @@ export const getDocument = (store: WorkspaceStore, documentName: string): OpenAp
   const document = store.workspace.documents[documentName]
 
   if (!document) {
-    return
+    return undefined
   }
 
   return document

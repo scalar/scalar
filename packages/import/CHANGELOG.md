@@ -1,5 +1,51 @@
 # @scalar/import
 
+## 0.4.26
+
+### Patch Changes
+
+- Updated dependencies [e1cdd00]
+  - @scalar/openapi-parser@0.21.1
+
+## 0.4.25
+
+### Patch Changes
+
+- Updated dependencies [a1f865c]
+- Updated dependencies [a1f865c]
+- Updated dependencies [dcf50ef]
+  - @scalar/openapi-parser@0.21.0
+
+## 0.4.24
+
+### Patch Changes
+
+- Updated dependencies [bff46e5]
+  - @scalar/helpers@0.0.11
+  - @scalar/openapi-parser@0.20.6
+
+## 0.4.23
+
+### Patch Changes
+
+- Updated dependencies [39bbc0e]
+  - @scalar/openapi-parser@0.20.5
+
+## 0.4.22
+
+### Patch Changes
+
+- Updated dependencies [821717b]
+  - @scalar/helpers@0.0.10
+  - @scalar/openapi-parser@0.20.4
+
+## 0.4.21
+
+### Patch Changes
+
+- Updated dependencies [b8c4b61]
+  - @scalar/openapi-parser@0.20.3
+
 ## 0.4.20
 
 ### Patch Changes

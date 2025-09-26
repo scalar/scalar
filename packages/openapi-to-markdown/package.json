@@ -16,7 +16,7 @@
     "llm",
     "swagger"
   ],
-  "version": "0.2.32",
+  "version": "0.2.39",
   "engines": {
     "node": ">=20"
   },
@@ -59,6 +59,7 @@
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
+    "@scalar/openapi-upgrader": "workspace:*",
     "@scalar/snippetz": "workspace:*",
     "@scalar/types": "workspace:*",
     "html-minifier-terser": "^7.2.0",
@@ -78,7 +79,7 @@
     "@types/html-minifier-terser": "^7.0.2",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "^2.4.1",
-    "hono": "^4.6.5",
+    "hono": "catalog:*",
     "vite": "catalog:*",
     "vue": "catalog:*"
   }

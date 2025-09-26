@@ -40,6 +40,14 @@ const {
   workspace: Workspace
 }>()
 
+const emits = defineEmits<{
+  authorized: []
+}>()
+
+defineSlots<{
+  'oauth-actions'?: () => unknown
+}>()
+
 const loadingState = useLoadingState()
 const { toast } = useToasts()
 const storeContext = useWorkspace()
@@ -67,6 +75,7 @@ const handleAuthorize = async () => {
 
   if (accessToken) {
     updateScheme(`flows.${flow.type}.token`, accessToken)
+    emits('authorized')
   } else {
     console.error(error)
     toast(error?.message ?? 'Failed to authorize', 'error')
@@ -96,7 +105,7 @@ const dataTableInputProps = {
       </RequestAuthDataTableInput>
     </DataTableRow>
     <DataTableRow class="min-w-full">
-      <div class="flex h-8 items-center justify-end gap-2 border-t">
+      <div class="flex h-8 items-center justify-end border-t">
         <ScalarButton
           class="mr-1 p-0 px-2 py-0.5"
           :loading="loadingState"
@@ -105,6 +114,7 @@ const dataTableInputProps = {
           @click="updateScheme(`flows.${flow.type}.token`, '')">
           Clear
         </ScalarButton>
+        <slot name="oauth-actions" />
       </div>
     </DataTableRow>
   </template>

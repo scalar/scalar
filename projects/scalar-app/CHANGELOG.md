@@ -1,5 +1,70 @@
 # scalar-app
 
+## 0.1.233
+
+### Patch Changes
+
+- @scalar/api-client@2.5.35
+- @scalar/import@0.4.26
+- @scalar/components@0.14.36
+
+## 0.1.232
+
+### Patch Changes
+
+- @scalar/api-client@2.5.34
+- @scalar/themes@0.13.18
+- @scalar/components@0.14.35
+- @scalar/import@0.4.25
+
+## 0.1.231
+
+### Patch Changes
+
+- 8f2a2f2: Bump some dependencies to latest
+- Updated dependencies [498f771]
+- Updated dependencies [8f2a2f2]
+  - @scalar/components@0.14.34
+  - @scalar/api-client@2.5.33
+  - @scalar/themes@0.13.17
+  - @scalar/import@0.4.24
+
+## 0.1.230
+
+### Patch Changes
+
+- @scalar/api-client@2.5.32
+- @scalar/import@0.4.23
+- @scalar/components@0.14.33
+
+## 0.1.229
+
+### Patch Changes
+
+- Updated dependencies [f8fc81c]
+  - @scalar/api-client@2.5.31
+  - @scalar/components@0.14.32
+
+## 0.1.228
+
+### Patch Changes
+
+- Updated dependencies [c173063]
+- Updated dependencies [c173063]
+- Updated dependencies [2249fe3]
+  - @scalar/api-client@2.5.30
+  - @scalar/components@0.14.31
+  - @scalar/import@0.4.22
+
+## 0.1.227
+
+### Patch Changes
+
+- Updated dependencies [5eedb97]
+  - @scalar/api-client@2.5.29
+  - @scalar/import@0.4.21
+  - @scalar/components@0.14.30
+
 ## 0.1.226
 
 ### Patch Changes

@@ -24,7 +24,7 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
 </script>
 <template>
   <div
-    v-if="config?.documentDownloadType !== 'none'"
+    v-if="['yaml', 'json', 'both'].includes(config?.documentDownloadType)"
     class="download-container group"
     :class="{
       'download-both': config?.documentDownloadType === 'both',
@@ -37,7 +37,6 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
       "
       class="download-button"
       type="button"
-      variant="ghost"
       @click.prevent="handleDownloadClick('json')">
       <span> Download OpenAPI Document </span>
       <Badge class="extension hidden group-hover:flex">json</Badge>
@@ -51,12 +50,26 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
       "
       class="download-button"
       type="button"
-      variant="ghost"
       @click.prevent="handleDownloadClick('yaml')">
       <span> Download OpenAPI Document </span>
       <Badge class="extension hidden group-hover:flex">yaml</Badge>
     </button>
   </div>
+  <template v-else-if="config?.documentDownloadType === 'direct'">
+    <a
+      v-if="config.url"
+      class="download-link"
+      :href="config.url">
+      Download OpenAPI Document
+    </a>
+    <a
+      v-else
+      class="download-link"
+      href="#"
+      @click.prevent="handleDownloadClick('json')">
+      Download OpenAPI Document
+    </a>
+  </template>
 </template>
 
 <style scoped>
@@ -171,5 +184,22 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
 .download-container:has(:focus-visible) .extension,
 .download-container:hover .extension {
   opacity: 1;
+}
+
+.download-link {
+  --font-color: var(--scalar-link-color, var(--scalar-color-accent));
+  --font-visited: var(--scalar-link-color-visited, var(--scalar-color-2));
+
+  text-decoration: var(--scalar-text-decoration);
+  color: var(--font-color);
+  font-weight: var(--scalar-link-font-weight, var(--scalar-semibold));
+  text-underline-offset: 0.25rem;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, var(--font-color) 30%, transparent);
+}
+
+.download-link:hover {
+  --font-color: var(--scalar-link-color, var(--scalar-color-accent));
+  text-decoration-color: var(--font-color);
 }
 </style>

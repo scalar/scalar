@@ -1,6 +1,7 @@
-import type { LoaderPlugin, ResolveResult } from '@/bundle'
-import { isYaml } from '@/utils/is-yaml'
 import YAML from 'yaml'
+
+import type { LoaderPlugin, ResolveResult } from '@/bundle'
+import { isYaml } from '@/helpers/is-yaml'
 
 /**
  * Creates a plugin that parses YAML strings into JavaScript objects.

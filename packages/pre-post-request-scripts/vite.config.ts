@@ -1,7 +1,8 @@
 import { URL, fileURLToPath } from 'node:url'
-import { createViteBuildOptions, findEntryPoints } from '@scalar/build-tooling'
+
+import { createViteBuildOptions } from '@scalar/build-tooling/vite'
 import vue from '@vitejs/plugin-vue'
-import { defineConfig } from 'vite'
+import { type BuildEnvironmentOptions, defineConfig } from 'vite'
 
 export default defineConfig({
   plugins: [vue()],
@@ -15,8 +16,8 @@ export default defineConfig({
   server: {
     port: 9000,
   },
-  build: createViteBuildOptions({
-    entry: await findEntryPoints({ allowCss: true }),
+  build: createViteBuildOptions<BuildEnvironmentOptions>({
+    entry: ['src/index.ts'],
     options: {
       ssr: false,
     },

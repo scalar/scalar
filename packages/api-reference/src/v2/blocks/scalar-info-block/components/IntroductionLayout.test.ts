@@ -1,13 +1,15 @@
-import { useSidebar } from '@/features/sidebar/hooks/useSidebar'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument, TraversedEntry } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, reactive, ref } from 'vue'
-import IntroductionLayout from './IntroductionLayout.vue'
+
 import DownloadLink from '@/v2/blocks/scalar-info-block/components/DownloadLink.vue'
+import { useSidebar } from '@/v2/blocks/scalar-sidebar-block/hooks/useSidebar'
+
+import IntroductionLayout from './IntroductionLayout.vue'
 
 // Mock the useSidebar hook and SIDEBAR_SYMBOL
-vi.mock('@/features/sidebar/hooks/useSidebar', () => ({
+vi.mock('@/v2/blocks/scalar-sidebar-block/hooks/useSidebar', () => ({
   useSidebar: vi.fn(),
   SIDEBAR_SYMBOL: Symbol(),
 }))
@@ -21,7 +23,7 @@ beforeEach(() => {
     isSidebarOpen: ref(false),
     items: computed(() => ({
       entries: [],
-      titles: new Map<string, string>(),
+      entities: new Map<string, TraversedEntry>(),
     })),
     scrollToOperation: vi.fn(),
     setCollapsedSidebarItem: vi.fn(),

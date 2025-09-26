@@ -1,7 +1,7 @@
-import type { Plugin } from 'rollup'
-import type { BuildOptions, LibraryOptions } from 'vite'
+import { readFileSync } from 'node:fs'
 
-import { type StrictPluginOptions, createRollupConfig } from '../rollup'
+import type { Plugin } from 'rollup'
+import type { BuildEnvironmentOptions, LibraryOptions } from 'vite'
 
 /**
  * Creates a standard Scalar library vite build config
@@ -15,11 +15,51 @@ import { type StrictPluginOptions, createRollupConfig } from '../rollup'
  * - Builds only ESM output
  * - Preserves modules
  */
-export function createViteBuildOptions(props: {
+export function createViteBuildOptions<
+  T extends {
+    lib?: Record<string, any> | undefined | false
+    rollupOptions?: Record<string, any> | undefined
+  } = BuildEnvironmentOptions,
+>(props: {
   entry: LibraryOptions['entry']
   pkgFile?: Record<string, any>
-  options?: BuildOptions & { rollupOptions?: StrictPluginOptions }
-}): BuildOptions {
+  options?: Partial<T>
+}): {
+  outDir: string
+  lib: {
+    formats: ['es']
+    cssFileName: 'style'
+  } & T['lib']
+  rollupOptions: T['rollupOptions'] & {
+    external: string | RegExp[]
+    output: {
+      format: 'esm'
+      preserveModules: true
+      preserveModulesRoot: './src'
+      dir: './dist'
+    }
+    treeshake: {
+      annotations: true
+      preset: 'recommended'
+      moduleSideEffects: (id: string) => boolean
+    }
+  }
+} {
+  /** Load the pkg file if not provided */
+  const pkgFile = props.pkgFile ?? JSON.parse(readFileSync('./package.json', 'utf-8'))
+
+  const external = Array.isArray(props.options?.rollupOptions?.external) ? props.options.rollupOptions.external : []
+
+  if ('dependencies' in pkgFile) {
+    external.push(...Object.keys(pkgFile.dependencies))
+  }
+  if ('devDependencies' in pkgFile) {
+    external.push(...Object.keys(pkgFile.devDependencies))
+  }
+  if ('peerDependencies' in pkgFile) {
+    external.push(...Object.keys(pkgFile.peerDependencies))
+  }
+
   return {
     outDir: './dist',
     ...props.options,
@@ -33,11 +73,28 @@ export function createViteBuildOptions(props: {
       ...props?.options?.lib,
       entry: props.entry,
     },
-    rollupOptions: createRollupConfig({
-      pkgFile: props.pkgFile,
-      options: props.options?.rollupOptions,
-      emptyOutDir: false,
-    }),
+    rollupOptions: {
+      ...props.options?.rollupOptions,
+      treeshake: {
+        annotations: true,
+        preset: 'recommended',
+        /**
+         * We should never be importing modules for the side effects BUT
+         * CSS import are by definition side effects. These must be excluded
+         */
+        moduleSideEffects: (id: string) => {
+          return id.includes('.css')
+        },
+      },
+      output: {
+        format: 'esm',
+        preserveModules: true,
+        preserveModulesRoot: './src',
+        dir: './dist',
+      },
+      /** Do not bundle any dependencies by default. */
+      external: external.map((packageName) => new RegExp(`^${packageName}(/.*)?`)),
+    },
   }
 }
 

@@ -313,9 +313,7 @@ const id = useId()
       <span
         v-if="generateLabel"
         v-html="generateLabel()" />
-      <slot
-        v-else-if="!isWebhook"
-        name="header" />
+      <slot name="header" />
       <!-- Client picker -->
       <template
         v-if="!isWebhook && clients.length"
@@ -359,18 +357,24 @@ const id = useId()
 
     <!-- Footer -->
     <ScalarCardFooter
-      v-if="Object.keys(operationExamples).length || $slots.footer"
+      v-if="Object.keys(operationExamples).length > 1 || $slots.footer"
       class="request-card-footer bg-b-3">
       <!-- Example picker -->
       <div
-        v-if="Object.keys(operationExamples).length"
+        v-if="Object.keys(operationExamples).length > 1"
         class="request-card-footer-addon">
-        <ExamplePicker
-          v-model="selectedExampleKey"
-          :examples="operationExamples"
-          @update:modelValue="
-            emitCustomEvent(elem?.$el, 'scalar-update-selected-example', $event)
-          " />
+        <template v-if="Object.keys(operationExamples).length">
+          <ExamplePicker
+            v-model="selectedExampleKey"
+            :examples="operationExamples"
+            @update:modelValue="
+              emitCustomEvent(
+                elem?.$el,
+                'scalar-update-selected-example',
+                $event,
+              )
+            " />
+        </template>
       </div>
 
       <!-- Footer -->

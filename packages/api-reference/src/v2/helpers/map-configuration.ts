@@ -1,5 +1,5 @@
 import type { ApiReferenceConfiguration } from '@scalar/types'
-import type { DocumentConfiguration } from '@scalar/workspace-store/client'
+import type { DocumentConfiguration } from '@scalar/workspace-store/schemas/workspace-specification/config'
 
 /**
  * Maps a partial ApiReferenceConfigurationWithSources object to a DocumentConfiguration

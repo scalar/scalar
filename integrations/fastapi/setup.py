@@ -12,7 +12,7 @@ def get_version():
 setup(
     name='scalar_fastapi',
     version=get_version(),
-    packages=find_packages(),
+    packages=find_packages(exclude=["tests"]),
     install_requires=[],
     author='Marc Laventure',
     author_email='marc@scalar.com',

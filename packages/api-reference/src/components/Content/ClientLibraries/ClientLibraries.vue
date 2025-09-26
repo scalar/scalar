@@ -86,6 +86,10 @@ const installationInstructions = computed(() => {
   // Got it!
   return instruction
 })
+
+defineExpose({
+  selectedClientOption,
+})
 </script>
 <template>
   <div

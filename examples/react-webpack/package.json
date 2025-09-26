@@ -14,7 +14,6 @@
   "engines": {
     "node": ">=20"
   },
-  "packageManager": "pnpm@10.5.2",
   "scripts": {
     "build": "webpack",
     "start": "webpack serve --allowed-hosts all"

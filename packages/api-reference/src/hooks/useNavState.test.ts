@@ -1,8 +1,9 @@
-import { useConfig } from '@/hooks/useConfig'
-import type { Heading, Tag } from '@scalar/types/legacy'
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+import type { Heading } from '@scalar/types/legacy'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, inject, ref } from 'vue'
+
+import { useConfig } from '@/hooks/useConfig'
 
 import { useNavState } from './useNavState'
 
@@ -98,36 +99,6 @@ describe('useNavState', () => {
       } satisfies Heading
       expect(navState.getHeadingId(heading)).toBe('description/test-heading')
     })
-
-    it('should generate model ID', () => {
-      expect(navState.getModelId({ name: 'Test Model' })).toBe('model/test-model')
-    })
-
-    it('should generate tag ID', () => {
-      const tag = {
-        name: 'Test Tag',
-        description: 'Test Description',
-        operations: [],
-      } satisfies Tag
-      expect(navState.getTagId(tag)).toBe('tag/test-tag')
-    })
-
-    it('should generate operation ID', () => {
-      const operation = {
-        method: 'get',
-        path: '/test',
-      } as const
-      const parentTag = {
-        name: 'Test Tag',
-        description: 'Test Description',
-        operations: [],
-      } satisfies Tag
-      expect(navState.getOperationId(operation, parentTag)).toBe('tag/test-tag/get/test')
-    })
-
-    it('should generate webhook ID', () => {
-      expect(navState.getWebhookId({ name: 'Test Webhook', method: 'POST' })).toBe('webhook/POST/test-webhook')
-    })
   })
 
   describe('custom slug generation', () => {
@@ -152,19 +123,6 @@ describe('useNavState', () => {
         slug: 'test-heading',
       } satisfies Heading
       expect(navState.getHeadingId(heading)).toBe('custom-heading')
-    })
-
-    it('should use custom model slug generator', () => {
-      expect(navState.getModelId({ name: 'Test Model' })).toBe('model/custom-model')
-    })
-
-    it('should use custom tag slug generator', () => {
-      const tag = {
-        name: 'Test Tag',
-        description: 'Test Description',
-        operations: [],
-      } satisfies Tag
-      expect(navState.getTagId(tag)).toBe('tag/custom-tag')
     })
   })
 
@@ -196,11 +154,6 @@ describe('useNavState', () => {
       window.location.pathname = '/docs/test-path'
 
       expect(navState.getReferenceId()).toBe('test-path')
-    })
-
-    it('should get section ID from hash', () => {
-      navState.hash.value = 'tag/test-tag/operation'
-      expect(navState.getSectionId()).toBe('tag/test-tag')
     })
   })
 

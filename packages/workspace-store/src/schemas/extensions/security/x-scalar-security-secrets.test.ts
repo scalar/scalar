@@ -1,6 +1,8 @@
 import { Value } from '@scalar/typebox/value'
 import { describe, expect, it } from 'vitest'
 
+import { coerceValue } from '@/schemas/typebox-coerce'
+
 import { XScalarSecretHTTPSchema, XScalarSecretTokenSchema } from './x-scalar-security-secrets'
 
 describe('XScalarSecrets', () => {
@@ -47,27 +49,16 @@ describe('XScalarSecrets', () => {
 
   describe('Optional field behavior', () => {
     it('validates objects without secret fields', () => {
-      const emptyObject = {}
+      const tokenResult = coerceValue(XScalarSecretTokenSchema, {})
+      const httpResult = coerceValue(XScalarSecretHTTPSchema, {})
 
-      const tokenResult = Value.Parse(XScalarSecretTokenSchema, emptyObject)
-      const httpResult = Value.Parse(XScalarSecretHTTPSchema, emptyObject)
-
-      expect(tokenResult).toEqual({})
-      expect(httpResult).toEqual({})
-    })
-
-    it('validates objects with undefined secret fields', () => {
-      const undefinedFields = {
-        'x-scalar-secret-token': undefined,
-        'x-scalar-secret-username': undefined,
-        'x-scalar-secret-password': undefined,
-      }
-
-      const tokenResult = Value.Parse(XScalarSecretTokenSchema, undefinedFields)
-      const httpResult = Value.Parse(XScalarSecretHTTPSchema, undefinedFields)
-
-      expect(tokenResult).toEqual(undefinedFields)
-      expect(httpResult).toEqual(undefinedFields)
+      expect(tokenResult).toEqual({
+        'x-scalar-secret-token': '',
+      })
+      expect(httpResult).toEqual({
+        'x-scalar-secret-username': '',
+        'x-scalar-secret-password': '',
+      })
     })
   })
 })

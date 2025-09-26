@@ -1,18 +1,18 @@
 # Scalar API Reference for ElysiaJS
 
-The `@elysiajs/swagger` plugin uses our API reference by default:
+The `@elysiajs/openapi` plugin uses our API Reference by default:
 
 ```ts
-import { swagger } from '@elysiajs/swagger'
 import { Elysia } from 'elysia'
+import { openapi } from '@elysiajs/openapi'
 
 new Elysia()
-  .use(swagger())
-  .get('/', () => 'hi')
-  .post('/hello', () => 'world')
-  .listen(8080)
+    .use(openapi())
+    .get('/', () => 'hello')
+    .post('/hello', () => 'OpenAPI')
+    .listen(3000)
 
-// open http://localhost:8080/swagger
+// open http://localhost:3000/openapi
 ```
 
-[Read more about @elysiajs/swagger](https://elysiajs.com/plugins/swagger.html)
+[Read more about @elysiajs/openapi](https://elysiajs.com/plugins/openapi)

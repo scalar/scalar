@@ -1,5 +1,72 @@
 # @scalar/aspnetcore
 
+## 2.8.6
+
+### Patch Changes
+
+- Updated dependencies [2362df9]
+- Updated dependencies [f0f28a9]
+- Updated dependencies [003bb98]
+- Updated dependencies [dd98fdc]
+  - @scalar/api-reference@1.36.0
+
+## 2.8.5
+
+### Patch Changes
+
+- 5377b1b: feat: add direct download type
+- 7b89e17: feat: improve etag header generation
+- Updated dependencies [6e92423]
+- Updated dependencies [005fba9]
+- Updated dependencies [724052c]
+- Updated dependencies [a1f865c]
+- Updated dependencies [6ee88cd]
+- Updated dependencies [b5321f1]
+- Updated dependencies [dcf50ef]
+  - @scalar/api-reference@1.35.7
+
+## 2.8.4
+
+### Patch Changes
+
+- 422f01d: feat: add SchemaPropertyOrder and OrderRequiredPropertiesFirst configuration support
+- Updated dependencies [b6a59bd]
+- Updated dependencies [8f2a2f2]
+  - @scalar/api-reference@1.35.6
+
+## 2.8.3
+
+### Patch Changes
+
+- Updated dependencies [4e7e8a9]
+  - @scalar/api-reference@1.35.5
+
+## 2.8.2
+
+### Patch Changes
+
+- @scalar/api-reference@1.35.4
+
+## 2.8.1
+
+### Patch Changes
+
+- 1fc2bfa: chore: bump dependencies
+- Updated dependencies [821717b]
+- Updated dependencies [821717b]
+- Updated dependencies [425a954]
+  - @scalar/api-reference@1.35.3
+
+## 2.8.0
+
+### Minor Changes
+
+- d5e46cf: feat: Use generated ScalarTarget and ScalarClient enums
+
+### Patch Changes
+
+- @scalar/api-reference@1.35.2
+
 ## 2.7.4
 
 ### Patch Changes
@@ -1089,7 +1156,6 @@
 ### Major Changes
 
 - c15cff3: - The `EndpointPathPrefix` property is now obsolete and should no longer be used.
-
   - Any existing workarounds for sub-path deployment are no longer necessary and should be removed.
   - Introduced a new parameter `endpointPrefix` to replace the obsolete `EndpointPathPrefix` property in ScalarOptions.
   - Automatic handling of sub-path deployments, eliminating the need for manual configurations.

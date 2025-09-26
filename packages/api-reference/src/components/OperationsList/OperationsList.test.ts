@@ -1,13 +1,18 @@
+import type {
+  TraversedOperation,
+  TraversedTag,
+  TraversedWebhook,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
-import type { TraversedOperation, TraversedTag, TraversedWebhook } from '@/features/traverse-schema'
-import OperationsList from './OperationsList.vue'
 import { createMockSidebar } from '@/helpers/test-utils'
-import { useSidebar } from '@/features/sidebar'
+import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
+
+import OperationsList from './OperationsList.vue'
 
 // Mock the sidebar module
-vi.mock('@/features/sidebar', () => ({
+vi.mock('@/v2/blocks/scalar-sidebar-block', () => ({
   useSidebar: vi.fn(() => createMockSidebar()),
 }))
 
@@ -31,45 +36,32 @@ vi.mock('@scalar/components', () => ({
 
 describe('OperationsList', () => {
   const createMockOperation = (overrides: Partial<TraversedOperation> = {}): TraversedOperation => ({
+    type: 'operation',
     id: 'test-operation-1',
     title: 'Test Operation',
     method: 'get',
     path: '/test',
-    operation: {
-      summary: 'Test Operation',
-      responses: {
-        '200': {
-          description: 'OK',
-        },
-      },
-    },
+    ref: 'test-operation-1',
     ...overrides,
   })
 
   const createMockWebhook = (overrides: Partial<TraversedWebhook> = {}): TraversedWebhook => ({
+    type: 'webhook',
     id: 'test-webhook-1',
     title: 'Test Webhook',
     method: 'post',
     name: 'test-webhook',
-    webhook: {
-      summary: 'Test Webhook',
-      responses: {
-        '200': {
-          description: 'OK',
-        },
-      },
-    },
+    ref: 'test-webhook-1',
     ...overrides,
   })
 
   const createMockTag = (overrides: Partial<TraversedTag> = {}): TraversedTag => ({
+    type: 'tag',
     id: 'test-tag',
     title: 'Test Tag',
     children: [],
-    tag: {
-      name: 'test',
-      description: 'Test tag description',
-    },
+    name: 'test',
+    description: 'Test tag description',
     isGroup: false,
     ...overrides,
   })

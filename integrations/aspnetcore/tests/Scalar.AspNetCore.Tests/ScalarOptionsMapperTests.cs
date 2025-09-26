@@ -37,6 +37,8 @@ public class ScalarOptionsMapperTests
         configuration.Integration.Should().Be("dotnet");
         configuration.Sources.Should().BeEmpty();
         configuration.PersistAuth.Should().BeFalse();
+        configuration.OrderRequiredPropertiesFirst.Should().BeFalse();
+        configuration.OrderSchemaPropertiesBy.Should().BeNull();
     }
 
     [Fact]
@@ -78,7 +80,9 @@ public class ScalarOptionsMapperTests
             OperationSorter = OperationSorter.Method,
             DotNetFlag = false,
             HideClientButton = true,
-            PersistentAuthentication = true
+            PersistentAuthentication = true,
+            OrderRequiredPropertiesFirst = true,
+            SchemaPropertyOrder = PropertyOrder.Alpha
         };
         options.AddDocument("v2");
 
@@ -117,6 +121,8 @@ public class ScalarOptionsMapperTests
         configuration.HideClientButton.Should().BeTrue();
         configuration.Sources.Should().ContainSingle().Which.Url.Should().Be("openapi/v2.json");
         configuration.PersistAuth.Should().BeTrue();
+        configuration.OrderRequiredPropertiesFirst.Should().BeTrue();
+        configuration.OrderSchemaPropertiesBy.Should().Be(PropertyOrder.Alpha);
     }
 
     [Fact]
@@ -155,7 +161,7 @@ public class ScalarOptionsMapperTests
         var hiddenClients = (IDictionary<ScalarTarget, ScalarClient[]>) options.ToScalarConfiguration().HiddenClients!;
 
         // Assert
-        hiddenClients.Should().HaveCount(ScalarOptionsMapper.ClientOptions.Count - 1);
+        hiddenClients.Should().HaveCount(ScalarOptionsMapper.AvailableClientsByTarget.Count - 1);
         hiddenClients.Should().NotContainKey(ScalarTarget.CSharp);
     }
 
@@ -169,7 +175,7 @@ public class ScalarOptionsMapperTests
         var hiddenClients = (IDictionary<ScalarTarget, ScalarClient[]>) options.ToScalarConfiguration().HiddenClients!;
 
         // Assert
-        hiddenClients.Should().HaveCount(ScalarOptionsMapper.ClientOptions.Count);
+        hiddenClients.Should().HaveCount(ScalarOptionsMapper.AvailableClientsByTarget.Count);
         hiddenClients.Should().ContainKey(ScalarTarget.CSharp)
             .WhoseValue.Should().ContainSingle().Which.Should().Be(ScalarClient.RestSharp);
         hiddenClients.Should().ContainKey(ScalarTarget.Python)
@@ -186,7 +192,7 @@ public class ScalarOptionsMapperTests
         var hiddenClients = (IDictionary<ScalarTarget, ScalarClient[]>) options.ToScalarConfiguration().HiddenClients!;
 
         // Assert
-        hiddenClients.Should().HaveCount(ScalarOptionsMapper.ClientOptions.Count - 1);
+        hiddenClients.Should().HaveCount(ScalarOptionsMapper.AvailableClientsByTarget.Count - 1);
         hiddenClients.Should().NotContainKey(ScalarTarget.Kotlin);
     }
 

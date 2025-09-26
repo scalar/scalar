@@ -1,11 +1,12 @@
-import type { EnvVariable } from '@/store/active-entities'
 import { environmentSchema } from '@scalar/oas-utils/entities/environment'
 import { type Collection, collectionSchema, requestSchema, serverSchema } from '@scalar/oas-utils/entities/spec'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
+import type { VueWrapper } from '@vue/test-utils'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
-import type { VueWrapper } from '@vue/test-utils'
+
+import type { EnvVariable } from '@/store/active-entities'
 
 import RequestAuth from './RequestAuth.vue'
 
@@ -64,6 +65,27 @@ vi.mock('@/store/store', () => ({
         nameKey: 'Client Key',
         in: 'header',
         value: 'key456',
+      },
+      'oauth2-auth': {
+        uid: 'oauth2-auth',
+        type: 'oauth2',
+        nameKey: 'OAuth2',
+        flows: {
+          authorizationCode: {
+            type: 'authorizationCode',
+            authorizationUrl: 'https://auth.example.com/authorize',
+            tokenUrl: 'https://auth.example.com/token',
+            refreshUrl: 'https://auth.example.com/refresh',
+            scopes: {
+              read: 'Read access',
+              write: 'Write access',
+            },
+            selectedScopes: ['read'],
+            'x-scalar-client-id': 'test-client-id',
+            'x-scalar-redirect-uri': 'https://callback.example.com',
+            token: '',
+          },
+        },
       },
     },
     collectionMutators,
@@ -203,5 +225,27 @@ describe('RequestAuth.vue', () => {
 
     expect(bearerAuthOption).toBeDefined()
     expect(bearerAuthOption?.textContent).toContain('bearerAuth')
+  })
+
+  it('emits authorized event when child component emits it', async () => {
+    const props = {
+      ...createBaseProps(),
+      selectedSecuritySchemeUids: ['oauth2-auth'] as Collection['selectedSecuritySchemeUids'],
+    }
+
+    const wrapper = mount(RequestAuth, {
+      props,
+    })
+
+    // Find the OAuth2 component
+    const oauth2 = wrapper.findComponent({ name: 'OAuth2' })
+    expect(oauth2.exists()).toBe(true)
+
+    // Emit the authorized event from the child component
+    await oauth2.vm.$emit('authorized')
+
+    // Check that the parent component emitted the authorized event
+    expect(wrapper.emitted('authorized')).toBeTruthy()
+    expect(wrapper.emitted('authorized')).toHaveLength(1)
   })
 })

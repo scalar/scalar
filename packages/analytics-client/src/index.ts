@@ -1,5 +1,6 @@
-import { analyticsEvents, type analyticsEventData, type Events, analyticsEventEnum } from '@/events'
 import type { z } from 'zod'
+
+import { type Events, type analyticsEventData, analyticsEventEnum, analyticsEvents } from '@/events'
 
 export const analyticsFactory = (
   /**
@@ -23,6 +24,10 @@ export const analyticsFactory = (
       ? []
       : [z.input<(typeof analyticsEventData)[E]>]
   ) {
+    if (import.meta.env.DEV) {
+      return
+    }
+
     if (!analyticsEvents.includes(event)) {
       throw new Error('[Analytics]: Invalid event submission')
     }

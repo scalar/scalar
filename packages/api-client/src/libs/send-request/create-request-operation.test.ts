@@ -1,3 +1,4 @@
+import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
 import {
   type RequestPayload,
   type ServerPayload,
@@ -7,13 +8,12 @@ import {
   securitySchemeSchema,
   serverSchema,
 } from '@scalar/oas-utils/entities/spec'
+import { encode } from 'js-base64'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 import type { z } from 'zod'
 
-import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
 import * as electron from '../electron'
 import { createRequestOperation } from './create-request-operation'
-import { encode } from 'js-base64'
 
 const PROXY_PORT = 5051
 const VOID_PORT = 5052

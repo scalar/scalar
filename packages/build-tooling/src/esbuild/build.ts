@@ -136,10 +136,13 @@ export async function build({
 
   console.log(as.blue('[esbuild]: Running initial build'))
   await esbuildCtx.rebuild()
+  console.log(as.blue('[esbuild]: Initial build complete'))
+
+  const start = performance.now()
   runCommand('tsc       -p tsconfig.build.json --watch', 'tsc')
   runCommand('tsc-alias -p tsconfig.build.json --watch', 'tsc-alias')
-
-  console.log(as.blue('[esbuild]: Initial build complete'))
+  const end = performance.now()
+  console.log(as.blue(`[esbuild]: Types build completed in ${(end - start).toFixed(0)}ms`))
 
   const srcDir = path.join(process.cwd(), 'src')
   const watcher = chokidar.watch([srcDir, 'package.json', 'tsconfig.json', 'tsconfig.build.json'], {

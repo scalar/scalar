@@ -4,6 +4,7 @@ import {
   htmlRenderingConfigurationSchema,
 } from '@scalar/types/api-reference'
 import { describe, expect, it } from 'vitest'
+
 import { getConfiguration, getHtmlDocument, getScriptTags } from './html-rendering'
 
 describe('html-rendering', () => {
@@ -213,6 +214,32 @@ describe('html-rendering', () => {
       // Check that function properties are preserved
       expect(tags).toContain('"tagsSorter": (a, b) => a.name.localeCompare(b.name)')
       expect(tags).toContain('"onLoaded": () => console.log("loaded")')
+    })
+
+    it('preserves plugins array containing functions', () => {
+      const mockPlugin = () => ({
+        name: 'test-plugin',
+        extensions: [
+          {
+            name: 'x-custom-extension',
+            component: 'MockComponent',
+          },
+        ],
+      })
+
+      const config = {
+        theme: 'kepler' as const,
+        plugins: [mockPlugin],
+      }
+
+      const tags = getScriptTags(config, 'https://example.com/script.js')
+
+      // Check that plugins array is preserved with function
+      expect(tags).toContain('"plugins": [() => ({')
+      expect(tags).toContain('name: "test-plugin"')
+      expect(tags).toContain('extensions: [')
+      expect(tags).toContain('name: "x-custom-extension"')
+      expect(tags).toContain('component: "MockComponent"')
     })
   })
 

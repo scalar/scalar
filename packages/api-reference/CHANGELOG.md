@@ -1,5 +1,139 @@
 # @scalar/api-reference
 
+## 1.36.0
+
+### Minor Changes
+
+- 003bb98: Fix server selection for examples/snippets in Operation: prefer operation-level servers, then path-level servers, then provided server prop.
+
+### Patch Changes
+
+- 2362df9: fix: add property name sorting to the request body before splitting additional properties
+- f0f28a9: feat: migrate sidebar to consume from the new store
+- dd98fdc: fix: remove asterisk from additionalProperties
+- Updated dependencies [7be091c]
+- Updated dependencies [e1cdd00]
+- Updated dependencies [f0f28a9]
+- Updated dependencies [41d8600]
+- Updated dependencies [db966b4]
+  - @scalar/workspace-store@0.15.8
+  - @scalar/openapi-parser@0.21.1
+  - @scalar/json-magic@0.5.1
+  - @scalar/api-client@2.5.35
+  - @scalar/oas-utils@0.4.31
+  - @scalar/components@0.14.36
+
+## 1.35.7
+
+### Patch Changes
+
+- 6e92423: feat: do not show example picker for one example
+- 005fba9: feat: documentDownloadType: 'direct'
+- 724052c: fix: darkMode setting does not do anything for `false`
+- a1f865c: refactor: use @scalar/openapi-upgrader
+- 6ee88cd: feat: show webhook id in payload example
+- b5321f1: feat: copy webhook as cURL
+- dcf50ef: refactor: move escapeJsonPointer to @scalar/json-magic
+- Updated dependencies [6221e4a]
+- Updated dependencies [005fba9]
+- Updated dependencies [fe46413]
+- Updated dependencies [0aa6d26]
+- Updated dependencies [a1f865c]
+- Updated dependencies [a1f865c]
+- Updated dependencies [2d612e4]
+- Updated dependencies [dcf50ef]
+- Updated dependencies [02085ef]
+  - @scalar/openapi-upgrader@0.1.0
+  - @scalar/types@0.2.16
+  - @scalar/json-magic@0.5.0
+  - @scalar/code-highlight@0.2.0
+  - @scalar/workspace-store@0.15.7
+  - @scalar/openapi-parser@0.21.0
+  - @scalar/api-client@2.5.34
+  - @scalar/oas-utils@0.4.30
+  - @scalar/snippetz@0.4.10
+  - @scalar/themes@0.13.18
+  - @scalar/components@0.14.35
+
+## 1.35.6
+
+### Patch Changes
+
+- b6a59bd: fix(api-reference): webhook request example display
+- 8f2a2f2: Bump some dependencies to latest
+- Updated dependencies [498f771]
+- Updated dependencies [bff46e5]
+- Updated dependencies [8f2a2f2]
+  - @scalar/components@0.14.34
+  - @scalar/helpers@0.0.11
+  - @scalar/api-client@2.5.33
+  - @scalar/use-hooks@0.2.5
+  - @scalar/themes@0.13.17
+  - @scalar/json-magic@0.4.3
+  - @scalar/oas-utils@0.4.29
+  - @scalar/object-utils@1.2.7
+  - @scalar/workspace-store@0.15.6
+  - @scalar/code-highlight@0.1.9
+  - @scalar/openapi-parser@0.20.6
+
+## 1.35.5
+
+### Patch Changes
+
+- 4e7e8a9: fix: safely check for readonly/writeonly properties
+- Updated dependencies [3bd1209]
+- Updated dependencies [39bbc0e]
+- Updated dependencies [1943b99]
+  - @scalar/json-magic@0.4.2
+  - @scalar/openapi-parser@0.20.5
+  - @scalar/oas-utils@0.4.28
+  - @scalar/workspace-store@0.15.5
+  - @scalar/api-client@2.5.32
+  - @scalar/components@0.14.33
+
+## 1.35.4
+
+### Patch Changes
+
+- Updated dependencies [019a22a]
+- Updated dependencies [f8fc81c]
+  - @scalar/workspace-store@0.15.4
+  - @scalar/api-client@2.5.31
+  - @scalar/oas-utils@0.4.27
+  - @scalar/components@0.14.32
+
+## 1.35.3
+
+### Patch Changes
+
+- 821717b: refactor: schema rendering
+- 821717b: fix: deep resolve response examples
+- 425a954: fix(api-reference): render proper slots
+- Updated dependencies [821717b]
+- Updated dependencies [c173063]
+- Updated dependencies [c173063]
+- Updated dependencies [2249fe3]
+  - @scalar/workspace-store@0.15.3
+  - @scalar/oas-utils@0.4.26
+  - @scalar/helpers@0.0.10
+  - @scalar/api-client@2.5.30
+  - @scalar/components@0.14.31
+  - @scalar/json-magic@0.4.1
+  - @scalar/object-utils@1.2.6
+  - @scalar/openapi-parser@0.20.4
+
+## 1.35.2
+
+### Patch Changes
+
+- Updated dependencies [b8c4b61]
+- Updated dependencies [5eedb97]
+  - @scalar/openapi-parser@0.20.3
+  - @scalar/api-client@2.5.29
+  - @scalar/oas-utils@0.4.25
+  - @scalar/workspace-store@0.15.2
+  - @scalar/components@0.14.30
+
 ## 1.35.1
 
 ### Patch Changes

@@ -97,11 +97,11 @@ function handleCurlImport(curl: string) {
               :workspace="activeWorkspace" />
             <ResponseSection
               :collection="activeCollection"
-              :operation="activeRequest"
-              :workspace="activeWorkspace"
-              :requestResult="requestResult"
               :numWorkspaceRequests="activeWorkspaceRequests.length"
-              :response="activeHistoryEntry?.response" />
+              :operation="activeRequest"
+              :requestResult="requestResult"
+              :response="activeHistoryEntry?.response"
+              :workspace="activeWorkspace" />
           </ViewLayoutContent>
         </ViewLayout>
       </div>

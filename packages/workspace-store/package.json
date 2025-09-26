@@ -16,7 +16,7 @@
     "openapi",
     "scalar"
   ],
-  "version": "0.15.1",
+  "version": "0.15.8",
   "engines": {
     "node": ">=18"
   },
@@ -78,6 +78,11 @@
       "import": "./dist/server.js",
       "types": "./dist/server.d.ts",
       "default": "./dist/server.js"
+    },
+    "./navigation": {
+      "import": "./dist/navigation/index.js",
+      "types": "./dist/navigation/index.d.ts",
+      "default": "./dist/navigation/index.js"
     }
   },
   "files": [
@@ -88,7 +93,7 @@
     "@scalar/code-highlight": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
-    "@scalar/openapi-parser": "workspace:*",
+    "@scalar/openapi-upgrader": "workspace:*",
     "@scalar/snippetz": "workspace:*",
     "@scalar/typebox": "catalog:*",
     "@scalar/types": "workspace:*",

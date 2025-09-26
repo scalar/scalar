@@ -2,7 +2,7 @@
 
 We support all standard markdown features:
 
-### Headings
+## Headings
 
 ```markdown
 # Heading 1
@@ -13,7 +13,7 @@ We support all standard markdown features:
 ###### Heading 6
 ```
 
-### Text Formatting
+## Text Formatting
 
 **Bold text**
 *Italic text*
@@ -28,7 +28,7 @@ We support all standard markdown features:
 `Inline code`
 ```
 
-### Lists
+## Lists
 
 - Unordered list item
 - Another item
@@ -54,14 +54,14 @@ We support all standard markdown features:
    2. Another nested item
 ```
 
-### Links and Images
+## Links and Images
 
 ```markdown
 [Link text](https://example.com)
 ![Alt text](https://example.com/image.png)
 ```
 
-### Code Blocks
+## Code Blocks
 
 ````markdown
 ```javascript
@@ -71,7 +71,7 @@ function example() {
 ```
 ````
 
-### Blockquotes
+## Blockquotes
 
 > This is a blockquote
 > 
@@ -83,7 +83,7 @@ function example() {
 > It can span multiple lines
 ```
 
-### Tables
+## Tables
 | Header 1 | Header 2 | Header 3 |
 |----------|----------|----------|
 | Cell 1   | Cell 2   | Cell 3   |
@@ -96,7 +96,7 @@ function example() {
 | Cell 4   | Cell 5   | Cell 6   |
 ```
 
-### Task Lists
+## Task Lists
 
 ```markdown
 - [x] Completed task

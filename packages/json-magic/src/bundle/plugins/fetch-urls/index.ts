@@ -1,7 +1,7 @@
-import { normalize } from '@/utils/normalize'
-import { createLimiter } from '@/bundle/create-limiter'
 import type { LoaderPlugin, ResolveResult } from '@/bundle'
 import { isRemoteUrl } from '@/bundle/bundle'
+import { createLimiter } from '@/bundle/create-limiter'
+import { normalize } from '@/helpers/normalize'
 
 type FetchConfig = Partial<{
   headers: { headers: HeadersInit; domains: string[] }[]

@@ -1,20 +1,17 @@
 <script setup lang="ts">
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { ScalarIconCaretRight } from '@scalar/icons'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { type OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { HttpMethod } from '@/components/HttpMethod'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
-import type { Schemas } from '@/features/Operation/types/schemas'
 
-const { method, name, schemas, url } = defineProps<{
+const { method, name, url } = defineProps<{
   callback: OperationObject
   method: HttpMethodType
-  path: string
-  operationMethod: HttpMethodType
   name: string
-  schemas?: Schemas
   url: string
   breadcrumb?: string[]
 }>()
@@ -43,15 +40,15 @@ const { method, name, schemas, url } = defineProps<{
     <!-- Body -->
     <div class="callback-operation-container flex flex-col gap-2">
       <OperationParameters
-        :parameters="callback.parameters"
-        :requestBody="callback.requestBody"
-        :schemas="schemas" />
+        :parameters="
+          callback.parameters?.map((param) => getResolvedRef(param)) ?? []
+        "
+        :requestBody="getResolvedRef(callback.requestBody)" />
 
       <!-- Responses -->
       <OperationResponses
         :collapsableItems="false"
-        :responses="callback.responses"
-        :schemas="schemas" />
+        :responses="callback.responses" />
     </div>
   </details>
 </template>

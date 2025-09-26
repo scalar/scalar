@@ -15,21 +15,20 @@ import {
   ScalarIconTextAlignLeft,
 } from '@scalar/icons'
 import type { ScalarIconComponent } from '@scalar/icons/types'
-import { isOperationDeprecated } from '@scalar/oas-utils/helpers'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { FuseResult } from 'fuse.js'
 import { nanoid } from 'nanoid'
 import { ref, watch } from 'vue'
 
 import { lazyBus } from '@/components/Lazy'
-import { useSidebar } from '@/features/sidebar'
-import SidebarHttpBadge from '@/features/sidebar/components/SidebarHttpBadge.vue'
+import { SidebarHttpBadge, useSidebar } from '@/v2/blocks/scalar-sidebar-block'
 
 import { useSearchIndex } from '../hooks/useSearchIndex'
 import type { EntryType, FuseData } from '../types'
 
 const props = defineProps<{
   modalState: ModalState
-  hideModels: boolean
+  document?: OpenApiDocument
 }>()
 
 /** Base id for the search form */
@@ -49,7 +48,7 @@ const {
   selectedSearchResult,
   searchResultsWithPlaceholderResults,
   query,
-} = useSearchIndex(items)
+} = useSearchIndex(items, props.document)
 
 const ENTRY_ICONS: { [x in EntryType]: ScalarIconComponent } = {
   heading: ScalarIconTextAlignLeft,
@@ -212,15 +211,15 @@ function onSearchResultEnter() {
         <span
           :class="{
             deprecated:
-              'operation' in result.item.entry &&
-              isOperationDeprecated(result.item.entry.operation),
+              result.item.entry.type === 'operation' &&
+              result.item.entry.isDeprecated,
           }">
           <span class="sr-only">
             {{ ENTRY_LABELS[result.item.type] }}:&nbsp;
             <template
               v-if="
-                'operation' in result.item.entry &&
-                isOperationDeprecated(result.item.entry.operation)
+                result.item.entry.type === 'operation' &&
+                result.item.entry.isDeprecated
               ">
               (Deprecated)&nbsp;
             </template>

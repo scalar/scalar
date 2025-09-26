@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest'
+import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { describe, expect, it } from 'vitest'
 
 import { processSecuritySchemes } from './process-security-schemes'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 describe('process-security-schemes', () => {
   describe('apiKey security scheme', () => {
@@ -74,6 +74,7 @@ describe('process-security-schemes', () => {
           scheme: 'basic',
           'x-scalar-secret-username': 'testuser',
           'x-scalar-secret-password': 'testpass',
+          'x-scalar-secret-token': '',
         },
       ]
 
@@ -93,6 +94,8 @@ describe('process-security-schemes', () => {
           type: 'http',
           scheme: 'bearer',
           'x-scalar-secret-token': 'test-bearer-token',
+          'x-scalar-secret-username': '',
+          'x-scalar-secret-password': '',
         },
       ]
 
@@ -115,11 +118,14 @@ describe('process-security-schemes', () => {
           flows: {
             clientCredentials: {
               tokenUrl: 'https://oauth.example.com/token',
+              refreshUrl: '',
               scopes: {
                 'read:users': 'Read user data',
                 'write:users': 'Write user data',
               },
               'x-scalar-secret-token': 'test-oauth-token',
+              'x-scalar-secret-client-id': '',
+              'x-scalar-secret-client-secret': '',
             },
           },
         },
@@ -142,11 +148,16 @@ describe('process-security-schemes', () => {
           flows: {
             password: {
               tokenUrl: 'https://oauth.example.com/token',
+              refreshUrl: '',
               scopes: {
                 'read:users': 'Read user data',
                 'write:users': 'Write user data',
               },
               'x-scalar-secret-token': 'test-password-token',
+              'x-scalar-secret-client-id': '',
+              'x-scalar-secret-client-secret': '',
+              'x-scalar-secret-password': '',
+              'x-scalar-secret-username': '',
             },
           },
         },
@@ -169,11 +180,14 @@ describe('process-security-schemes', () => {
           flows: {
             implicit: {
               authorizationUrl: 'https://oauth.example.com/authorize',
+              refreshUrl: '',
               scopes: {
                 'read:users': 'Read user data',
                 'write:users': 'Write user data',
               },
               'x-scalar-secret-token': 'test-implicit-token',
+              'x-scalar-secret-client-id': '',
+              'x-scalar-secret-redirect-uri': '',
             },
           },
         },
@@ -196,12 +210,17 @@ describe('process-security-schemes', () => {
           flows: {
             authorizationCode: {
               authorizationUrl: 'https://oauth.example.com/authorize',
+              refreshUrl: '',
               tokenUrl: 'https://oauth.example.com/token',
               scopes: {
                 'read:users': 'Read user data',
                 'write:users': 'Write user data',
               },
               'x-scalar-secret-token': 'test-auth-code-token',
+              'x-scalar-secret-client-id': '',
+              'x-scalar-secret-client-secret': '',
+              'x-scalar-secret-redirect-uri': '',
+              'x-usePkce': 'no',
             },
           },
         },
@@ -224,17 +243,25 @@ describe('process-security-schemes', () => {
           flows: {
             clientCredentials: {
               tokenUrl: 'https://oauth.example.com/token',
+              refreshUrl: '',
               scopes: {
                 'read:users': 'Read user data',
               },
               'x-scalar-secret-token': 'test-client-token',
+              'x-scalar-secret-client-id': '',
+              'x-scalar-secret-client-secret': '',
             },
             password: {
               tokenUrl: 'https://oauth.example.com/token',
+              refreshUrl: '',
               scopes: {
                 'write:users': 'Write user data',
               },
               'x-scalar-secret-token': 'test-password-token',
+              'x-scalar-secret-client-id': '',
+              'x-scalar-secret-client-secret': '',
+              'x-scalar-secret-password': '',
+              'x-scalar-secret-username': '',
             },
           },
         },
@@ -265,6 +292,8 @@ describe('process-security-schemes', () => {
           type: 'http',
           scheme: 'bearer',
           'x-scalar-secret-token': 'test-bearer-token',
+          'x-scalar-secret-username': '',
+          'x-scalar-secret-password': '',
         },
       ]
 
@@ -300,16 +329,19 @@ describe('process-security-schemes', () => {
           type: 'apiKey',
           name: 'X-API-Key',
           in: 'header',
+          'x-scalar-secret-token': '',
         },
         {
           type: 'apiKey',
           name: 'api-key',
           in: 'query',
+          'x-scalar-secret-token': '',
         },
         {
           type: 'apiKey',
           name: 'session',
           in: 'cookie',
+          'x-scalar-secret-token': '',
         },
       ]
 
@@ -325,10 +357,16 @@ describe('process-security-schemes', () => {
         {
           type: 'http',
           scheme: 'basic',
+          'x-scalar-secret-token': '',
+          'x-scalar-secret-username': '',
+          'x-scalar-secret-password': '',
         },
         {
           type: 'http',
           scheme: 'bearer',
+          'x-scalar-secret-token': '',
+          'x-scalar-secret-username': '',
+          'x-scalar-secret-password': '',
         },
       ]
 
@@ -347,9 +385,13 @@ describe('process-security-schemes', () => {
           flows: {
             clientCredentials: {
               tokenUrl: 'https://oauth.example.com/token',
+              refreshUrl: '',
               scopes: {
                 'read:users': 'Read user data',
               },
+              'x-scalar-secret-client-id': '',
+              'x-scalar-secret-client-secret': '',
+              'x-scalar-secret-token': '',
             },
           },
         },

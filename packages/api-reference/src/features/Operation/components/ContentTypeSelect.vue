@@ -1,36 +1,19 @@
 <script setup lang="ts">
 import { cva, ScalarButton, ScalarListbox } from '@scalar/components'
 import { ScalarIconCaretDown } from '@scalar/icons'
-import type { RequestBody } from '@scalar/types/legacy'
-import { computed, ref } from 'vue'
+import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { computed } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
 
-const prop = defineProps<{
-  requestBody?: RequestBody
-  defaultValue?: string
+const { content } = defineProps<{
+  content: Record<string, MediaTypeObject> | undefined
 }>()
 
-const emit = defineEmits<{
-  (e: 'selectContentType', payload: { contentType: string }): void
-}>()
+/** The selected content type with two-way binding */
+const selectedContentType = defineModel<string>({ required: true })
 
-const handleSelectContentType = (option: any) => {
-  if (option?.id) {
-    emit('selectContentType', { contentType: option.id })
-  }
-}
-
-const contentTypes = computed(() => {
-  if (prop.requestBody?.content) {
-    return Object.keys(prop.requestBody.content)
-  }
-  return []
-})
-
-const selectedContentType = ref<string>(
-  prop.defaultValue || contentTypes.value[0],
-)
+const contentTypes = computed(() => Object.keys(content ?? {}))
 
 const selectedOption = computed({
   get: () =>
@@ -62,11 +45,10 @@ const contentTypeSelect = cva({
 </script>
 <template>
   <ScalarListbox
-    v-if="prop?.requestBody && contentTypes.length > 1"
+    v-if="contentTypes.length > 1"
     v-model="selectedOption"
     :options="options"
-    placement="bottom-end"
-    @update:modelValue="handleSelectContentType">
+    placement="bottom-end">
     <ScalarButton
       class="h-fit"
       :class="contentTypeSelect({ dropdown: true })"
@@ -74,14 +56,14 @@ const contentTypeSelect = cva({
       <ScreenReader>Selected Content Type:</ScreenReader>
       <span>{{ selectedContentType }}</span>
       <ScalarIconCaretDown
-        weight="bold"
-        class="ui-open:rotate-180 size-2.75 transition-transform duration-100" />
+        class="ui-open:rotate-180 size-2.75 transition-transform duration-100"
+        weight="bold" />
     </ScalarButton>
   </ScalarListbox>
   <div
     v-else
-    :class="contentTypeSelect({ dropdown: false })"
     class="selected-content-type"
+    :class="contentTypeSelect({ dropdown: false })"
     tabindex="0">
     <span>{{ selectedContentType }}</span>
   </div>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { computed } from 'vue'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { Anchor } from '@/components/Anchor'
 import {
@@ -9,42 +9,28 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
-import { useNavState } from '@/hooks/useNavState'
 
 import { SchemaHeading, SchemaProperty } from '../Schema'
 
-const props = defineProps<{
-  schemas?: Record<string, OpenAPIV3_1.SchemaObject> | undefined
+defineProps<{
+  schemas: { id: string; name: string; schema: SchemaObject }[]
 }>()
-
-const models = computed(() => {
-  if (!props.schemas) {
-    return []
-  }
-
-  return Object.entries(props.schemas).map(([name, schema]) => ({
-    name,
-    schema,
-  }))
-})
-
-const { getModelId } = useNavState()
 </script>
 <template>
   <SectionContainerAccordion
-    v-if="props.schemas"
+    v-if="schemas.length"
     class="reference-models">
     <template #title>
       <SectionHeader :level="2">Models</SectionHeader>
     </template>
     <SectionAccordion
-      v-for="{ name, schema } in models"
-      :id="getModelId({ name })"
+      v-for="{ id, name, schema } in schemas"
+      :id="id"
       :key="name"
       :label="name">
       <template #title>
         <Anchor
-          :id="getModelId({ name })"
+          :id="id"
           class="reference-models-anchor">
           <SectionHeaderTag :level="3">
             <SchemaHeading
@@ -56,17 +42,14 @@ const { getModelId } = useNavState()
       </template>
       <!-- Schema -->
       <div
-        v-if="schema?.properties"
+        v-if="'properties' in schema"
         class="properties">
         <SchemaProperty
-          v-for="[property, value] in Object.entries(schema.properties)"
+          v-for="[property, value] in Object.entries(schema.properties ?? {})"
           :key="property"
           :name="property"
-          :required="
-            schema.required?.includes(property) ||
-            schema.properties?.[property]?.required === true
-          "
-          :value="value as Record<string, any>" />
+          :required="schema.required?.includes(property)"
+          :value="getResolvedRef(value)" />
       </div>
       <div v-else>
         <SchemaProperty :value="schema" />

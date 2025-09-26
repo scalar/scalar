@@ -28,6 +28,12 @@ public enum DocumentDownloadType
     Both,
 
     /// <summary>
+    /// Show the regular link to the OpenAPI document.
+    /// </summary>
+    [Description("direct")]
+    Direct,
+
+    /// <summary>
     /// Do not allow documentation downloads.
     /// </summary>
     [Description("none")]

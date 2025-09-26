@@ -18,12 +18,12 @@ public sealed class ScalarAspireOptions : ScalarOptions
     /// <summary>
     /// Gets or sets the CDN URL for loading Scalar assets.
     /// </summary>
-    /// <value>The default value is <c>"standalone.js"</c>.</value>
+    /// <value>The default value is <c>"scalar.js"</c>.</value>
     /// <remarks>
     /// This URL is used to load the Scalar JavaScript bundle and related assets.
     /// Can be customized to use a different CDN or local assets.
     /// </remarks>
-    public string CdnUrl { get; set; } = "standalone.js";
+    public string CdnUrl { get; set; } = "scalar.js";
 
     /// <summary>
     /// Gets or sets whether to allow self-signed certificates for HTTPS connections.

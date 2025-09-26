@@ -42,7 +42,6 @@ import MobileHeader from '@/components/MobileHeader.vue'
 import { ApiClientModal } from '@/features/api-client-modal'
 import { useDocumentSource } from '@/features/document-source'
 import { SearchButton } from '@/features/Search'
-import { Sidebar, useSidebar } from '@/features/sidebar'
 import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
@@ -51,6 +50,7 @@ import type {
   ReferenceLayoutSlot,
   ReferenceSlotProps,
 } from '@/types'
+import { SidebarBlock, useSidebar } from '@/v2/blocks/scalar-sidebar-block'
 import { useLegacyStoreEvents } from '@/v2/hooks/use-legacy-store-events'
 
 const {
@@ -112,16 +112,11 @@ const obtrusiveScrollbars = computed(hasObtrusiveScrollbars)
 
 const navState = useNavState(configuration)
 const { isSidebarOpen, setCollapsedSidebarItem, scrollToOperation, items } =
-  useSidebar(dereferencedDocument, {
-    ...navState,
-    config: configuration,
-  })
+  useSidebar(store)
 
 const {
   getReferenceId,
   getPathRoutingId,
-  getSectionId,
-  getTagId,
   hash,
   isIntersectionEnabled,
   updateHash,
@@ -203,37 +198,36 @@ const debouncedScroll = useDebounceFn(() => {
 const sidebarOpened = ref(false)
 
 // Open a sidebar tag
-watch(dereferencedDocument, (newDoc) => {
-  // Scroll to given hash
-  if (hash.value) {
-    const hashSectionId = getSectionId(hash.value)
-    if (hashSectionId) {
-      setCollapsedSidebarItem(hashSectionId, true)
+watch(
+  () => store.workspace.activeDocument,
+  () => {
+    // Scroll to given hash
+    if (hash.value) {
+      const entry = items.value.entities.get(hash.value)
+      const hashSectionId = entry?.parent?.id ?? entry?.id
+      if (hashSectionId) {
+        setCollapsedSidebarItem(hashSectionId, true)
+      }
     }
-  }
-  // Open the first tag if there are tags defined
-  else if (newDoc.tags?.length) {
-    const firstTag = newDoc.tags?.[0]
+    // Open the first tag if no hash is present
+    else {
+      const firstTag = items.value.entries.find((item) => item.type === 'tag')
+      if (firstTag) {
+        setCollapsedSidebarItem(firstTag.id, true)
+      }
+    }
 
-    if (firstTag) {
-      setCollapsedSidebarItem(getTagId(firstTag), true)
-    }
-  }
-  // If there's no tags defined on the document, grab the first tag entry
-  else {
-    const firstTag = items.value.entries.find((item) => 'tag' in item)
-    if (firstTag) {
-      setCollapsedSidebarItem(firstTag.id, true)
-    }
-  }
-
-  // Open the sidebar
-  sidebarOpened.value = true
-})
+    // Open the sidebar
+    sidebarOpened.value = true
+  },
+)
 
 /** This is passed into all of the slots so they have access to the references data */
+const breadcrumb = computed(
+  () => items.value.entities?.get(hash.value)?.title ?? '',
+)
 const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
-  breadcrumb: items.value?.titles.get(hash.value) ?? '',
+  breadcrumb: breadcrumb.value,
 }))
 
 onUnmounted(() => {
@@ -333,7 +327,7 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
       <div class="references-navigation-list">
         <ScalarErrorBoundary>
           <!-- TODO: @brynn should this be conditional based on classic/modern layout? -->
-          <Sidebar
+          <SidebarBlock
             :title="dereferencedDocument?.info?.title ?? 'The OpenAPI Schema'">
             <template #sidebar-start>
               <!-- Wrap in a div when slot is filled -->
@@ -345,6 +339,7 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
                 v-if="!configuration.hideSearch"
                 class="scalar-api-references-standalone-search">
                 <SearchButton
+                  :document="store.workspace.activeDocument"
                   :hideModels="configuration?.hideModels"
                   :searchHotKey="configuration?.searchHotKey" />
               </div>
@@ -375,7 +370,7 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
                 </ScalarSidebarFooter>
               </slot>
             </template>
-          </Sidebar>
+          </SidebarBlock>
         </ScalarErrorBoundary>
       </div>
     </aside>
@@ -396,34 +391,32 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
         class="references-rendered">
         <Content
           :config="configuration"
-          :document="dereferencedDocument"
           :store="store">
           <template #start>
             <slot
               v-bind="referenceSlotProps"
-              name="content-start">
-              <ClassicHeader v-if="configuration.layout === 'classic'">
-                <div
-                  v-if="$slots['document-selector']"
-                  class="w-64 *:!p-0 empty:hidden">
-                  <slot name="document-selector" />
-                </div>
-                <SearchButton
-                  v-if="!configuration.hideSearch"
-                  class="t-doc__sidebar max-w-64"
-                  :hideModels="configuration?.hideModels"
-                  :searchHotKey="configuration.searchHotKey" />
-                <template #dark-mode-toggle>
-                  <ScalarColorModeToggleIcon
-                    v-if="!configuration.hideDarkModeToggle"
-                    class="text-c-2 hover:text-c-1"
-                    :mode="isDark ? 'dark' : 'light'"
-                    style="transform: scale(1.4)"
-                    variant="icon"
-                    @click="$emit('toggleDarkMode')" />
-                </template>
-              </ClassicHeader>
-            </slot>
+              name="content-start" />
+            <ClassicHeader v-if="configuration.layout === 'classic'">
+              <div
+                v-if="$slots['document-selector']"
+                class="w-64 *:!p-0 empty:hidden">
+                <slot name="document-selector" />
+              </div>
+              <SearchButton
+                v-if="!configuration.hideSearch"
+                class="t-doc__sidebar max-w-64"
+                :hideModels="configuration?.hideModels"
+                :searchHotKey="configuration.searchHotKey" />
+              <template #dark-mode-toggle>
+                <ScalarColorModeToggleIcon
+                  v-if="!configuration.hideDarkModeToggle"
+                  class="text-c-2 hover:text-c-1"
+                  :mode="isDark ? 'dark' : 'light'"
+                  style="transform: scale(1.4)"
+                  variant="icon"
+                  @click="$emit('toggleDarkMode')" />
+              </template>
+            </ClassicHeader>
           </template>
           <template
             v-if="configuration?.isEditable"

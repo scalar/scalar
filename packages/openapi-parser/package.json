@@ -17,7 +17,7 @@
     "parser",
     "typescript"
   ],
-  "version": "0.20.2",
+  "version": "0.21.1",
   "engines": {
     "node": ">=20"
   },
@@ -60,6 +60,7 @@
   "dependencies": {
     "@scalar/json-magic": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
+    "@scalar/openapi-upgrader": "workspace:*",
     "ajv": "^8.17.1",
     "ajv-draft-04": "^1.0.0",
     "ajv-formats": "^3.0.1",
@@ -68,7 +69,7 @@
     "yaml": "catalog:*"
   },
   "devDependencies": {
-    "@apidevtools/swagger-parser": "^10.1.0",
+    "@apidevtools/swagger-parser": "10.1.0",
     "@scalar/build-tooling": "workspace:*",
     "@scalar/types": "workspace:*",
     "@types/node": "catalog:*",

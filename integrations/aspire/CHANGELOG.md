@@ -1,5 +1,66 @@
 # @scalar/aspire
 
+## 0.4.11
+
+### Patch Changes
+
+- Updated dependencies [2362df9]
+- Updated dependencies [f0f28a9]
+- Updated dependencies [003bb98]
+- Updated dependencies [dd98fdc]
+  - @scalar/api-reference@1.36.0
+
+## 0.4.10
+
+### Patch Changes
+
+- 5377b1b: feat: add direct download type
+- Updated dependencies [6e92423]
+- Updated dependencies [005fba9]
+- Updated dependencies [724052c]
+- Updated dependencies [a1f865c]
+- Updated dependencies [6ee88cd]
+- Updated dependencies [b5321f1]
+- Updated dependencies [dcf50ef]
+  - @scalar/api-reference@1.35.7
+
+## 0.4.9
+
+### Patch Changes
+
+- 422f01d: feat: add SchemaPropertyOrder and OrderRequiredPropertiesFirst configuration support
+- Updated dependencies [b6a59bd]
+- Updated dependencies [8f2a2f2]
+  - @scalar/api-reference@1.35.6
+
+## 0.4.8
+
+### Patch Changes
+
+- Updated dependencies [4e7e8a9]
+  - @scalar/api-reference@1.35.5
+
+## 0.4.7
+
+### Patch Changes
+
+- @scalar/api-reference@1.35.4
+
+## 0.4.6
+
+### Patch Changes
+
+- Updated dependencies [821717b]
+- Updated dependencies [821717b]
+- Updated dependencies [425a954]
+  - @scalar/api-reference@1.35.3
+
+## 0.4.5
+
+### Patch Changes
+
+- @scalar/api-reference@1.35.2
+
 ## 0.4.4
 
 ### Patch Changes

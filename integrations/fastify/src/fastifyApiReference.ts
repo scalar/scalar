@@ -1,14 +1,12 @@
+import { getHtmlDocument } from '@scalar/core/libs/html-rendering'
+import { normalize, toJson, toYaml } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
 import type { FastifyBaseLogger, FastifyTypeProviderDefault, RawServerDefault } from 'fastify'
 import fp from 'fastify-plugin'
 import { slug } from 'github-slugger'
 
-import type { FastifyApiReferenceHooksOptions, FastifyApiReferenceOptions } from './types'
+import type { ApiReferenceConfiguration, FastifyApiReferenceHooksOptions, FastifyApiReferenceOptions } from './types'
 import { getJavaScriptFile } from './utils/getJavaScriptFile'
-
-import { getHtmlDocument } from '@scalar/core/libs/html-rendering'
-import { normalize, toJson, toYaml } from '@scalar/openapi-parser'
-import type { ApiReferenceConfiguration } from './types'
 
 /**
  * Path to the bundled Scalar JavaScript file
@@ -176,10 +174,13 @@ const fastifyApiReference = fp<
     // Redirect route without a trailing slash to force a trailing slash:
     // We need this so the request to the JS file is relative.
 
-    // With ignoreTrailingSlash, fastify registeres both routes anyway.
-    const doesNotIgnoreTrailingSlash = fastify.initialConfig.ignoreTrailingSlash !== true
+    // With ignoreTrailingSlash: true, fastify responds to both routes anyway.
+    const ignoreTrailingSlash =
+      // @ts-expect-error We're still on Fastify 4, this is introduced in Fastify 5
+      fastify.initialConfig?.routerOptions?.ignoreTrailingSlash === true ||
+      fastify.initialConfig?.ignoreTrailingSlash === true
 
-    if (doesNotIgnoreTrailingSlash && getRoutePrefix(options.routePrefix)) {
+    if (!ignoreTrailingSlash && getRoutePrefix(options.routePrefix)) {
       fastify.route({
         method: 'GET',
         url: getRoutePrefix(options.routePrefix),

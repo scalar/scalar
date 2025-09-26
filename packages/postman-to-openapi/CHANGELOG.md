@@ -1,5 +1,51 @@
 # @scalar/postman-to-openapi
 
+## 0.3.34
+
+### Patch Changes
+
+- @scalar/oas-utils@0.4.31
+
+## 0.3.33
+
+### Patch Changes
+
+- @scalar/oas-utils@0.4.30
+
+## 0.3.32
+
+### Patch Changes
+
+- Updated dependencies [bff46e5]
+  - @scalar/helpers@0.0.11
+  - @scalar/oas-utils@0.4.29
+
+## 0.3.31
+
+### Patch Changes
+
+- @scalar/oas-utils@0.4.28
+
+## 0.3.30
+
+### Patch Changes
+
+- @scalar/oas-utils@0.4.27
+
+## 0.3.29
+
+### Patch Changes
+
+- Updated dependencies [821717b]
+  - @scalar/oas-utils@0.4.26
+  - @scalar/helpers@0.0.10
+
+## 0.3.28
+
+### Patch Changes
+
+- @scalar/oas-utils@0.4.25
+
 ## 0.3.27
 
 ### Patch Changes

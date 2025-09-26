@@ -1,6 +1,7 @@
-import { ERRORS } from '@/blocks/constants'
-import { escapeJsonPointer } from '@scalar/openapi-parser'
+import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 import type { OpenAPI } from '@scalar/openapi-types'
+
+import { ERRORS } from '@/blocks/constants'
 
 /**
  * Pass an array of strings to get a valid OpenAPI pointer.

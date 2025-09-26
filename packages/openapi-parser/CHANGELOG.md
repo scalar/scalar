@@ -1,5 +1,58 @@
 # @scalar/openapi-parser
 
+## 0.21.1
+
+### Patch Changes
+
+- e1cdd00: fix: update import statement within deprecation message
+- Updated dependencies [41d8600]
+  - @scalar/json-magic@0.5.1
+
+## 0.21.0
+
+### Minor Changes
+
+- a1f865c: refactor: move upgrade() to @scalar/openapi-upgrader
+
+### Patch Changes
+
+- a1f865c: refactor: use @scalar/openapi-upgrader
+- dcf50ef: refactor: move escapeJsonPointer to @scalar/json-magic
+- Updated dependencies [6221e4a]
+- Updated dependencies [fe46413]
+- Updated dependencies [2d612e4]
+- Updated dependencies [dcf50ef]
+- Updated dependencies [02085ef]
+  - @scalar/openapi-upgrader@0.1.0
+  - @scalar/json-magic@0.5.0
+
+## 0.20.6
+
+### Patch Changes
+
+- @scalar/json-magic@0.4.3
+
+## 0.20.5
+
+### Patch Changes
+
+- 39bbc0e: fix: correctly reflect the changes to parameters on the refs
+- Updated dependencies [3bd1209]
+- Updated dependencies [1943b99]
+  - @scalar/json-magic@0.4.2
+
+## 0.20.4
+
+### Patch Changes
+
+- @scalar/json-magic@0.4.1
+
+## 0.20.3
+
+### Patch Changes
+
+- b8c4b61: fix: migrate global and path item parameters from Swagger 2.0 to OpenAPI 3.0
+
 ## 0.20.2
 
 ### Patch Changes

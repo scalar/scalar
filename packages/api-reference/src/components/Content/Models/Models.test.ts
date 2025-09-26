@@ -1,28 +1,20 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { OpenAPIDocumentSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
+import { createSidebar } from '@/v2/blocks/scalar-sidebar-block/helpers/create-sidebar'
+
 import Models from './Models.vue'
 
 // Mock useSidebar composable
-vi.mock('@/features/sidebar', () => ({
-  useSidebar: vi.fn(() => ({
-    collapsedSidebarItems: {
-      'model/user': true,
-      'model/pet': true,
-    },
-  })),
-}))
+vi.mock('@/v2/blocks/scalar-sidebar-block')
 
-// Mock useNavState composable
-vi.mock('@/hooks/useNavState', () => ({
-  useNavState: vi.fn(() => ({
-    getModelId: vi.fn(({ name }: { name: string }) => `model-${name}`),
-  })),
-}))
-
-describe('Models', () => {
-  const mockDocument: OpenAPIV3_1.Document = {
+describe('Models', async () => {
+  const mockDocument = coerceValue(OpenAPIDocumentSchema, {
     openapi: '3.1.0',
     info: {
       title: 'Test API',
@@ -59,7 +51,9 @@ describe('Models', () => {
         },
       },
     },
-  }
+  })
+
+  const store = createWorkspaceStore()
 
   const mockConfigClassic: ApiReferenceConfiguration = {
     layout: 'classic',
@@ -69,11 +63,22 @@ describe('Models', () => {
     layout: 'modern',
   } as ApiReferenceConfiguration
 
+  beforeEach(async () => {
+    vi.clearAllMocks()
+
+    await store.addDocument({
+      name: 'default',
+      document: mockDocument,
+    })
+
+    vi.mocked(useSidebar).mockReturnValue(createSidebar(store))
+  })
+
   describe('layout rendering', () => {
     it('renders ClassicLayout when config.layout is classic', () => {
       const wrapper = mount(Models, {
         props: {
-          document: mockDocument,
+          schemas: mockDocument.components?.schemas,
           config: mockConfigClassic,
         },
       })
@@ -91,7 +96,7 @@ describe('Models', () => {
     it('renders ModernLayout when config.layout is modern', () => {
       const wrapper = mount(Models, {
         props: {
-          document: mockDocument,
+          schemas: mockDocument.components?.schemas,
           config: mockConfigModern,
         },
       })
@@ -111,7 +116,7 @@ describe('Models', () => {
     it('passes schemas to ClassicLayout', async () => {
       const wrapper = mount(Models, {
         props: {
-          document: mockDocument,
+          schemas: mockDocument.components?.schemas,
           config: mockConfigClassic,
         },
       })
@@ -125,7 +130,7 @@ describe('Models', () => {
     it('passes schemas to ModernLayout', () => {
       const wrapper = mount(Models, {
         props: {
-          document: mockDocument,
+          schemas: mockDocument.components?.schemas,
           config: mockConfigModern,
         },
       })
@@ -137,30 +142,39 @@ describe('Models', () => {
     })
   })
 
-  it('excludes schemas with x-scalar-ignore', () => {
-    const documentWithIgnoredSchema: OpenAPIV3_1.Document = {
+  it('excludes schemas with x-scalar-ignore', async () => {
+    const documentWithIgnoredSchema = coerceValue(OpenAPIDocumentSchema, {
       ...mockDocument,
       components: {
         schemas: {
           User: {
-            type: 'object',
+            type: 'object' as const,
             properties: {
-              id: { type: 'string' },
-              name: { type: 'string' },
+              id: { type: 'string' as const },
+              name: { type: 'string' as const },
             },
           },
           ImageUploadedMessage: {
             'x-scalar-ignore': true,
             description: 'Message about an image upload',
-            type: 'object',
+            type: 'object' as const,
           },
         },
       },
-    }
+    })
+
+    const store = createWorkspaceStore()
+
+    await store.addDocument({
+      name: 'default',
+      document: documentWithIgnoredSchema,
+    })
+
+    vi.mocked(useSidebar).mockReturnValue(createSidebar(store))
 
     const wrapper = mount(Models, {
       props: {
-        document: documentWithIgnoredSchema,
+        schemas: documentWithIgnoredSchema.components?.schemas,
         config: mockConfigModern,
       },
     })
@@ -178,7 +192,7 @@ describe('Models', () => {
 
       const wrapper = mount(Models, {
         props: {
-          document: mockDocument,
+          schemas: mockDocument.components?.schemas,
           config: configWithExpandAll,
         },
       })
@@ -207,7 +221,7 @@ describe('Models', () => {
 
       const wrapper = mount(Models, {
         props: {
-          document: mockDocument,
+          schemas: mockDocument.components?.schemas,
           config: configWithExpandAll,
         },
       })
@@ -226,32 +240,26 @@ describe('Models', () => {
   })
 
   describe('edge cases', () => {
-    it('renders nothing if document.components.schemas is undefined', () => {
-      const wrapper = mount(Models, {
-        props: {
-          document: { ...mockDocument, components: {} },
-          config: mockConfigClassic,
+    it('renders nothing if sidebar entry is empty', async () => {
+      const document = {
+        ...mockDocument,
+        components: {
+          schemas: {},
         },
+      }
+
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document,
       })
 
-      expect(wrapper.text()).toBe('')
-    })
+      vi.mocked(useSidebar).mockReturnValue(createSidebar(store))
 
-    it('renders nothing if document.components is undefined', () => {
       const wrapper = mount(Models, {
         props: {
-          document: { ...mockDocument, components: undefined },
-          config: mockConfigClassic,
-        },
-      })
-
-      expect(wrapper.text()).toBe('')
-    })
-
-    it('renders nothing if document is undefined', () => {
-      const wrapper = mount(Models, {
-        props: {
-          document: undefined as any,
+          schemas: document.components?.schemas,
           config: mockConfigClassic,
         },
       })

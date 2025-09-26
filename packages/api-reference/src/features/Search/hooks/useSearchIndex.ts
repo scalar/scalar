@@ -1,6 +1,9 @@
-import type { createSidebar } from '@/features/sidebar'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { FuseResult } from 'fuse.js'
 import { computed, ref, toValue, watch } from 'vue'
+
+import type { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
+
 import { createFuseInstance } from '../helpers/create-fuse-instance'
 import { createSearchIndex } from '../helpers/create-search-index'
 import type { FuseData } from '../types'
@@ -10,7 +13,7 @@ const MAX_SEARCH_RESULTS = 25
 /**
  * Creates the search index from an OpenAPI document.
  */
-export function useSearchIndex(items: ReturnType<typeof createSidebar>['items']) {
+export function useSearchIndex(items: ReturnType<typeof useSidebar>['items'], document?: OpenApiDocument) {
   const fuse = createFuseInstance()
 
   const selectedIndex = ref<number>()
@@ -20,7 +23,7 @@ export function useSearchIndex(items: ReturnType<typeof createSidebar>['items'])
     items,
     () => {
       const { entries } = toValue(items)
-      const newSearchIndex = createSearchIndex(entries)
+      const newSearchIndex = createSearchIndex(entries, document)
       fuse.setCollection(newSearchIndex)
     },
     { immediate: true },

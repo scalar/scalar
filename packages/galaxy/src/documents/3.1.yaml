@@ -427,7 +427,7 @@ paths:
       security:
         - {}
       requestBody:
-        description: Credentials to authenticate a user
+        description: Body for credentials to authenticate a user
         content:
           application/json:
             schema:

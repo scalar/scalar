@@ -1,6 +1,6 @@
+import { getXKeysFromObject } from '@/navigation/helpers/get-x-keys'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
-import type { TraversedEntry, TraversedTag } from '@/schemas/navigation'
-import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument, TagObject, TraversedEntry, TraversedTag } from '@/schemas/v3.1/strict/openapi-document'
 
 import { getTag } from './get-tag'
 
@@ -9,7 +9,7 @@ type Options = Pick<TraverseSpecOptions, 'getTagId' | 'tagsSorter' | 'operations
 /** Creates a traversed tag entry from an OpenAPI tag object.
  *
  * @param tag - The OpenAPI tag object
- * @param titlesMap - Map to store tag IDs and titles for mobile header navigation
+ * @param entriesMap - Map to store tag IDs and titles for mobile header navigation
  * @param getTagId - Function to generate unique IDs for tags
  * @param children - Array of child entries (operations, webhooks, etc.)
  * @param isGroup - Whether this tag represents a group of tags
@@ -17,23 +17,25 @@ type Options = Pick<TraverseSpecOptions, 'getTagId' | 'tagsSorter' | 'operations
  */
 const createTagEntry = (
   tag: TagObject,
-  titlesMap: Map<string, string>,
   getTagId: TraverseSpecOptions['getTagId'],
   children: TraversedEntry[],
   isGroup = false,
 ): TraversedTag => {
   const id = getTagId(tag)
   const title = tag['x-displayName'] ?? tag.name ?? 'Untitled Tag'
-  titlesMap.set(id, title)
 
-  return {
+  const entry = {
     id,
     title,
     name: tag.name || title,
+    description: tag.description,
     children,
     isGroup,
     type: 'tag',
-  }
+    xKeys: getXKeysFromObject(tag),
+  } satisfies TraversedTag
+
+  return entry
 }
 
 /** Sorts and processes tags to create a hierarchical structure of tag entries.
@@ -57,8 +59,6 @@ const getSortedTagEntries = (
   _keys: string[],
   /** Map of tags and their entries */
   tagsMap: TagsMap,
-  /** Map of titles for the mobile header */
-  titlesMap: Map<string, string>,
   { getTagId, tagsSorter, operationsSorter }: Options,
 ) => {
   // Ensure that default is last if it exists
@@ -98,17 +98,17 @@ const getSortedTagEntries = (
 
     // Alpha sort
     if (operationsSorter === 'alpha') {
-      entries.sort((a, b) => ('method' in a && 'method' in b ? a.title.localeCompare(b.title) : 0))
+      entries.sort((a, b) => (a.type === 'operation' && b.type === 'operation' ? a.title.localeCompare(b.title) : 0))
     }
     // Method sort
     else if (operationsSorter === 'method') {
-      entries.sort((a, b) => ('method' in a && 'method' in b ? a.method.localeCompare(b.method) : 0))
+      entries.sort((a, b) => (a.type === 'operation' && b.type === 'operation' ? a.method.localeCompare(b.method) : 0))
     }
     // Custom sort
     else if (typeof operationsSorter === 'function') {
       entries.sort((a, b) => {
         // Guard against tags
-        if ((a.type !== 'operation' && a.type !== 'webhook') || (b.type !== 'operation' && b.type !== 'webhook')) {
+        if (!(a.type === 'operation' || a.type === 'webhook') || !(b.type === 'operation' || b.type === 'webhook')) {
           return 0
         }
 
@@ -123,7 +123,7 @@ const getSortedTagEntries = (
       })
     }
 
-    return entries.length ? createTagEntry(tag, titlesMap, getTagId, entries) : []
+    return entries.length ? createTagEntry(tag, getTagId, entries) : []
   })
 }
 
@@ -140,8 +140,6 @@ export const traverseTags = (
   content: OpenApiDocument,
   /** Map of tags and their entries */
   tagsMap: TagsMap,
-  /** Map of titles for the mobile title */
-  titlesMap: Map<string, string>,
   { getTagId, tagsSorter, operationsSorter }: Options,
 ): TraversedEntry[] => {
   // x-tagGroups
@@ -149,18 +147,18 @@ export const traverseTags = (
     const tagGroups = content['x-tagGroups']
 
     return tagGroups.flatMap((tagGroup) => {
-      const entries = getSortedTagEntries(tagGroup.tags ?? [], tagsMap, titlesMap, {
+      const entries = getSortedTagEntries(tagGroup.tags ?? [], tagsMap, {
         getTagId,
         tagsSorter,
         operationsSorter,
       })
-      return entries.length ? createTagEntry(tagGroup, titlesMap, getTagId, entries, true) : []
+      return entries.length ? createTagEntry(tagGroup, getTagId, entries, true) : []
     })
   }
 
   // Ungrouped regular tags
   const keys = Array.from(tagsMap.keys())
-  const tags = getSortedTagEntries(keys, tagsMap, titlesMap, { getTagId, tagsSorter, operationsSorter })
+  const tags = getSortedTagEntries(keys, tagsMap, { getTagId, tagsSorter, operationsSorter })
 
   // Flatten if we only have default tag
   if (tags.length === 1 && tags[0]?.title === 'default') {

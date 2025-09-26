@@ -1,12 +1,12 @@
+import type { TraversedOperation, TraversedWebhook } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { TraversedOperation, TraversedWebhook } from '@/features/traverse-schema'
 import OperationsListItem from './OperationsListItem.vue'
 
 // Mock the dependencies
 const mockScrollToOperation = vi.fn()
-vi.mock('@/features/sidebar', () => ({
+vi.mock('@/v2/blocks/scalar-sidebar-block', () => ({
   useSidebar: () => ({
     scrollToOperation: mockScrollToOperation,
   }),
@@ -18,34 +18,22 @@ vi.mock('@scalar/oas-utils/helpers', () => ({
 
 describe('OperationsListItem', () => {
   const createMockOperation = (overrides: Partial<TraversedOperation> = {}): TraversedOperation => ({
+    type: 'operation',
+    ref: 'test-operation-1',
     id: 'test-operation-1',
     title: 'Test Operation',
     method: 'get',
     path: '/test',
-    operation: {
-      summary: 'Test Operation',
-      responses: {
-        '200': {
-          description: 'OK',
-        },
-      },
-    },
     ...overrides,
   })
 
   const createMockWebhook = (overrides: Partial<TraversedWebhook> = {}): TraversedWebhook => ({
+    type: 'webhook',
+    ref: 'test-webhook-1',
     id: 'test-webhook-1',
     title: 'Test Webhook',
     method: 'post',
     name: 'test-webhook',
-    webhook: {
-      summary: 'Test Webhook',
-      responses: {
-        '200': {
-          description: 'OK',
-        },
-      },
-    },
     ...overrides,
   })
 
@@ -129,24 +117,13 @@ describe('OperationsListItem', () => {
       const { isOperationDeprecated } = await import('@scalar/oas-utils/helpers')
       vi.mocked(isOperationDeprecated).mockReturnValue(true)
 
-      const operation = createMockOperation({
-        operation: {
-          summary: 'Test Operation',
-          deprecated: true,
-          responses: {
-            '200': {
-              description: 'OK',
-            },
-          },
-        },
-      })
+      const operation = createMockOperation({ isDeprecated: true })
 
       const wrapper = mount(OperationsListItem, {
         props: { operation },
       })
 
       expect(wrapper.find('.deprecated').exists()).toBe(true)
-      expect(isOperationDeprecated).toHaveBeenCalledWith(operation.operation)
     })
 
     it('does not apply deprecated class when operation is not deprecated', async () => {
@@ -160,7 +137,6 @@ describe('OperationsListItem', () => {
       })
 
       expect(wrapper.find('.deprecated').exists()).toBe(false)
-      expect(isOperationDeprecated).toHaveBeenCalledWith(operation.operation)
     })
 
     it('does not apply deprecated class for webhooks', async () => {

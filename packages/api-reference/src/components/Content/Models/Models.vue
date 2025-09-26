@@ -1,36 +1,58 @@
 <script setup lang="ts">
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type {
+  ComponentsObject,
+  TraversedDescription,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import { Lazy } from '@/components/Lazy'
 import { useNavState } from '@/hooks/useNavState'
-import { getModels } from '@/libs/openapi'
+import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
 
 import ClassicLayout from './ClassicLayout.vue'
 import ModernLayout from './ModernLayout.vue'
 
-const { document } = defineProps<{
-  document: OpenAPIV3_1.Document
+const { schemas = {} } = defineProps<{
+  schemas: ComponentsObject['schemas']
   config: ApiReferenceConfiguration
 }>()
 
 const { hash } = useNavState()
 
-/** Returns the model schemas from the document */
-const schemas = computed(() => getModels(document))
+const { items } = useSidebar()
+
+const modelEntry = computed(() => {
+  return items.value.entries.find(
+    (item) => item.type === 'text' && item.id === 'models',
+  ) as TraversedDescription | undefined
+})
+
+/** Array of the name and value of all component schemas */
+const flatSchemas = computed(() => {
+  const schemaEntries = modelEntry.value?.children ?? []
+
+  return schemaEntries
+    .filter((it) => it.type === 'model')
+    .map((it) => ({
+      id: it.id,
+      name: it.name,
+      schema: getResolvedRef(schemas[it.name]),
+    }))
+})
 </script>
 <template>
   <Lazy
-    id="models"
     v-if="schemas && Object.keys(schemas).length > 0"
+    id="models"
     :isLazy="Boolean(hash) && !hash.startsWith('model')">
     <ClassicLayout
       v-if="config?.layout === 'classic'"
-      :schemas="schemas" />
+      :schemas="flatSchemas" />
     <ModernLayout
       v-else
       :config="config"
-      :schemas="schemas" />
+      :schemas="flatSchemas" />
   </Lazy>
 </template>

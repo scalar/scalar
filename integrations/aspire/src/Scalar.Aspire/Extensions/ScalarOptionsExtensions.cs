@@ -613,4 +613,28 @@ public static class ScalarOptionsExtensions
         options.PreferHttpsEndpoint = true;
         return options;
     }
+
+    /// <summary>
+    /// Sets whether required properties should be ordered first in schema properties.
+    /// </summary>
+    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
+    /// <param name="orderRequiredFirst">Whether to order required properties first.</param>
+    /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
+    public static TOptions WithOrderRequiredPropertiesFirst<TOptions>(this TOptions options, bool orderRequiredFirst = true) where TOptions : ScalarOptions
+    {
+        options.OrderRequiredPropertiesFirst = orderRequiredFirst;
+        return options;
+    }
+
+    /// <summary>
+    /// Sets the ordering method for schema properties.
+    /// </summary>
+    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
+    /// <param name="orderBy">The ordering method to use for schema properties.</param>
+    /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
+    public static TOptions WithSchemaPropertyOrder<TOptions>(this TOptions options, PropertyOrder? orderBy) where TOptions : ScalarOptions
+    {
+        options.SchemaPropertyOrder = orderBy;
+        return options;
+    }
 }

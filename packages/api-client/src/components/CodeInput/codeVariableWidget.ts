@@ -1,9 +1,6 @@
-import { parseEnvVariables } from '@/libs'
-import { type EnvVariables, getEnvColor } from '@/libs/env-helpers'
 import { ScalarTooltip } from '@scalar/components'
 import { ScalarIconGlobe } from '@scalar/icons'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
-import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { REGEX } from '@scalar/oas-utils/helpers'
 import {
   Decoration,
@@ -14,8 +11,11 @@ import {
   type ViewUpdate,
   WidgetType,
 } from '@scalar/use-codemirror'
-import { createApp, defineComponent, h } from 'vue'
 import { nanoid } from 'nanoid'
+import { createApp, defineComponent, h } from 'vue'
+
+import { parseEnvVariables } from '@/libs'
+import { type EnvVariables, getEnvColor } from '@/libs/env-helpers'
 
 /**
  * Displays the value of a variable of the active environment in a pill
@@ -25,21 +25,18 @@ class PillWidget extends WidgetType {
   private uid: string
   environment: Environment | undefined
   envVariables: EnvVariables | undefined
-  workspace: Workspace | undefined
   isReadOnly: boolean
 
   constructor(
     private variableName: string,
     environment: Environment | undefined,
     envVariables: EnvVariables | undefined,
-    workspace: Workspace | undefined,
     isReadOnly: boolean | undefined,
   ) {
     super()
     this.variableName = variableName
     this.environment = environment
     this.envVariables = envVariables
-    this.workspace = workspace
     this.isReadOnly = isReadOnly ?? false
     this.uid = nanoid()
   }
@@ -121,7 +118,6 @@ class PillWidget extends WidgetType {
 export const pillPlugin = (props: {
   environment: Environment | undefined
   envVariables: EnvVariables | undefined
-  workspace: Workspace | undefined
   isReadOnly: boolean | undefined
 }) =>
   ViewPlugin.fromClass(
@@ -156,13 +152,7 @@ export const pillPlugin = (props: {
               start,
               end,
               Decoration.widget({
-                widget: new PillWidget(
-                  variableName,
-                  props.environment,
-                  props.envVariables,
-                  props.workspace,
-                  props.isReadOnly,
-                ),
+                widget: new PillWidget(variableName, props.environment, props.envVariables, props.isReadOnly),
                 side: 1,
               }),
             )

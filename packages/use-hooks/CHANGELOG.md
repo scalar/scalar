@@ -1,5 +1,11 @@
 # @scalar/use-hooks
 
+## 0.2.5
+
+### Patch Changes
+
+- 8f2a2f2: Bump some dependencies to latest
+
 ## 0.2.4
 
 ### Patch Changes

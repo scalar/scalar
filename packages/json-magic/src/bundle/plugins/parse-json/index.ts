@@ -1,5 +1,5 @@
-import { isJsonObject } from '@/utils/is-json-object'
 import type { LoaderPlugin, ResolveResult } from '@/bundle'
+import { isJsonObject } from '@/helpers/is-json-object'
 
 /**
  * Creates a plugin that parses JSON strings into JavaScript objects.

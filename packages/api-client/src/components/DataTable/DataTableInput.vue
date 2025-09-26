@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarIconButton } from '@scalar/components'
+import { ScalarIconEye, ScalarIconEyeSlash } from '@scalar/icons'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
-import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { computed, ref } from 'vue'
 
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
@@ -27,7 +27,6 @@ const props = withDefaults(
     max?: number
     environment: Environment
     envVariables: EnvVariable[]
-    workspace: Workspace
     description?: string | undefined
     lineWrapping?: boolean
   }>(),
@@ -130,7 +129,6 @@ const handleLabelClick = () => {
           :required="Boolean(required)"
           spellcheck="false"
           :type="inputType"
-          :workspace="workspace"
           @blur="handleBlur"
           @focus="emit('inputFocus')"
           @update:modelValue="emit('update:modelValue', $event)" />
@@ -145,7 +143,7 @@ const handleLabelClick = () => {
     <ScalarIconButton
       v-if="type === 'password'"
       class="-ml-.5 mr-1.25 h-6 w-6 self-center p-1.25"
-      :icon="mask ? 'Show' : 'Hide'"
+      :icon="mask ? ScalarIconEye : ScalarIconEyeSlash"
       :label="mask ? 'Show Password' : 'Hide Password'"
       @click="mask = !mask" />
   </DataTableCell>

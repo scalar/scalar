@@ -20,7 +20,7 @@
     "testing",
     "vue"
   ],
-  "version": "0.5.8",
+  "version": "0.5.15",
   "engines": {
     "node": ">=20"
   },
@@ -65,7 +65,7 @@
     "@nuxt/test-utils": "^3.19.2",
     "@types/node": "catalog:*",
     "cross-env": "^7.0.3",
-    "nuxt": "^4.0.0",
+    "nuxt": "^4.1.0",
     "vite": "catalog:*",
     "vitest": "catalog:*"
   }

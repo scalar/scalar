@@ -5,6 +5,8 @@ import { XInternalSchema } from '@/schemas/extensions/document/x-internal'
 import { XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
 import { XTags } from '@/schemas/extensions/document/x-tags'
 import { XAdditionalPropertiesNameSchema } from '@/schemas/extensions/schema/x-additional-properties-name'
+import { XEnumDescriptionsSchema } from '@/schemas/extensions/schema/x-enum-descriptions'
+import { XEnumVarNamesSchema } from '@/schemas/extensions/schema/x-enum-varnames'
 import { XVariableSchema } from '@/schemas/extensions/schema/x-variable'
 import {
   DiscriminatorObjectRef,
@@ -86,50 +88,8 @@ const NumericProperties = Type.Object({
  */
 const StringValidationProperties = Type.Object({
   type: Type.Literal('string'),
-  /** Different subtypes */
-  format: Type.Optional(
-    Type.Union([
-      // Date and time formats
-      Type.Literal('date'),
-      Type.Literal('date-time'),
-      Type.Literal('date-time-local'),
-      Type.Literal('time'),
-      Type.Literal('time-local'),
-      Type.Literal('duration'),
-      Type.Literal('http-date'),
-      // Network formats
-      Type.Literal('email'),
-      Type.Literal('idn-email'),
-      Type.Literal('hostname'),
-      Type.Literal('idn-hostname'),
-      Type.Literal('ipv4'),
-      Type.Literal('ipv6'),
-      Type.Literal('uri'),
-      Type.Literal('uri-reference'),
-      Type.Literal('uri-template'),
-      Type.Literal('iri'),
-      Type.Literal('iri-reference'),
-      Type.Literal('uuid'),
-      // Content formats
-      Type.Literal('binary'),
-      Type.Literal('byte'),
-      Type.Literal('base64url'),
-      Type.Literal('html'),
-      Type.Literal('commonmark'),
-      Type.Literal('password'),
-      Type.Literal('regex'),
-      Type.Literal('json-pointer'),
-      Type.Literal('relative-json-pointer'),
-      Type.Literal('media-range'),
-      // Character formats
-      Type.Literal('char'),
-      // Structured field string formats
-      Type.Literal('sf-string'),
-      Type.Literal('sf-token'),
-      Type.Literal('sf-binary'),
-      Type.Literal('sf-boolean'),
-    ]),
-  ),
+  /** Different subtypes - allow any arbitrary string, this negates the purpose of having a union of formats so we type it in typescript instead */
+  format: Type.Optional(Type.String()),
   /** Maximum string length. */
   maxLength: Type.Optional(Type.Integer({ minimum: 0 })),
   /** Minimum string length. */
@@ -139,6 +99,7 @@ const StringValidationProperties = Type.Object({
 })
 
 const CorePropertiesWithSchema = Type.Object({
+  name: Type.Optional(Type.String()),
   /** A title for the schema. */
   title: Type.Optional(Type.String()),
   /** A description of the schema. */
@@ -225,6 +186,8 @@ const Extensions = compose(
   XScalarIgnoreSchema,
   XInternalSchema,
   XVariableSchema,
+  XEnumDescriptionsSchema,
+  XEnumVarNamesSchema,
   XAdditionalPropertiesNameSchema,
   XTags,
 )

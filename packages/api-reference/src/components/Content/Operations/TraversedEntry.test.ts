@@ -1,18 +1,21 @@
 import { collectionSchema, serverSchema } from '@scalar/oas-utils/entities/spec'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { apiReferenceConfigurationSchema } from '@scalar/types'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import type {
+  TraversedEntry,
+  TraversedOperation,
+  TraversedTag,
+  TraversedWebhook,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
-import type { TraversedEntry, TraversedOperation, TraversedTag } from '@/features/traverse-schema'
-import type { TraversedWebhook } from '@/features/traverse-schema/types'
-
-import TraversedEntryComponent from './TraversedEntry.vue'
 import { createMockNavState, createMockPluginManager, createMockSidebar } from '@/helpers/test-utils'
 import { useNavState } from '@/hooks/useNavState'
 
-vi.mock('@/features/sidebar', () => ({ useSidebar: vi.fn(() => createMockSidebar()) }))
+import TraversedEntryComponent from './TraversedEntry.vue'
+
+vi.mock('@/v2/blocks/scalar-sidebar-block', () => ({ useSidebar: vi.fn(() => createMockSidebar()) }))
 vi.mock('@/hooks/useNavState', () => ({ useNavState: vi.fn(() => createMockNavState('')) }))
 vi.mock('@/plugins/hooks/usePluginManager', () => ({ usePluginManager: () => createMockPluginManager() }))
 
@@ -38,8 +41,8 @@ vi.mock('@scalar/api-client/store', () => ({
 }))
 
 describe('TraversedEntry', async () => {
-  const mockDocument: OpenAPIV3_1.Document = {
-    openapi: '3.1.0',
+  const mockDocument = {
+    openapi: '3.1.0' as const,
     info: {
       title: 'Test API',
       version: '1.0.0',
@@ -133,61 +136,51 @@ describe('TraversedEntry', async () => {
   })
 
   const createMockOperation = (overrides: Partial<TraversedOperation> = {}): TraversedOperation => ({
+    type: 'operation',
     id: 'operation-1',
     title: 'Get Users',
     method: 'get',
     path: '/users',
-    operation: {
-      summary: 'Get Users',
-      responses: { '200': { description: 'OK' } },
-    },
+    ref: '#/paths/users/get',
     ...overrides,
   })
 
   const createMockWebhook = (overrides: Partial<TraversedWebhook> = {}): TraversedWebhook => ({
+    type: 'webhook',
     id: 'webhook-1',
     title: 'User Created',
     method: 'post',
     name: 'user.created',
-    webhook: {
-      summary: 'User Created',
-      responses: { '200': { description: 'OK' } },
-    },
+    ref: '#/webhooks/user.created/post',
     ...overrides,
   })
 
   const createMockTag = (overrides: Partial<TraversedTag> = {}): TraversedTag => ({
+    type: 'tag',
     id: 'tag-1',
     title: 'Users',
     children: [],
-    tag: {
-      name: 'users',
-      description: 'User management operations',
-    },
     isGroup: false,
+    name: 'users',
     ...overrides,
   })
 
   const createMockTagGroup = (overrides: Partial<TraversedTag> = {}): TraversedTag => ({
+    type: 'tag',
     id: 'tag-group-1',
     title: 'Content Management',
     children: [],
-    tag: {
-      name: 'content-management',
-      description: 'Content management operations',
-    },
+    name: 'content-management',
     isGroup: true,
     ...overrides,
   })
 
   const createMockWebhookGroup = (overrides: Partial<TraversedTag> = {}): TraversedTag => ({
+    type: 'tag',
     id: 'webhook-group-1',
     title: 'Webhooks',
     children: [],
-    tag: {
-      name: 'webhooks',
-      description: 'Webhook operations',
-    },
+    name: 'webhooks',
     isGroup: false,
     isWebhooks: true,
     ...overrides,
@@ -662,38 +655,38 @@ describe('TraversedEntry', async () => {
         createMockTag({
           id: 'tag/users',
           title: 'Users',
-          tag: { name: 'users' },
+          name: 'users',
           children: [
             createMockOperation({
               id: 'tag/users/get/users',
               path: '/users',
               method: 'get',
-              operation: { summary: 'Get Users' },
+              title: 'Get Users',
             }),
             createMockOperation({
               id: 'tag/users/post/users',
               path: '/users',
               method: 'post',
-              operation: { summary: 'Create User' },
+              title: 'Create User',
             }),
           ],
         }),
         createMockTag({
           id: 'tag/planets',
           title: 'Planets',
-          tag: { name: 'planets' },
+          name: 'planets',
           children: [
             createMockOperation({
               id: 'tag/planets/get/planets',
               path: '/planets',
               method: 'get',
-              operation: { summary: 'Get Planets' },
+              title: 'Get Planets',
             }),
             createMockOperation({
               id: 'tag/planets/post/planets',
               path: '/planets',
               method: 'post',
-              operation: { summary: 'Create Planet' },
+              title: 'Create Planet',
             }),
           ],
         }),
@@ -739,7 +732,7 @@ describe('TraversedEntry', async () => {
         },
       })
 
-      const component = wrapper.vm as any
+      const component = wrapper.vm
       expect(component.isLazy(entries[0], 0)).toBe(null)
       expect(component.isLazy(entries[1], 1)).toBe(null)
     })
@@ -763,7 +756,7 @@ describe('TraversedEntry', async () => {
         },
       })
 
-      const component = wrapper.vm as any
+      const component = wrapper.vm
       expect(component.isLazy(entries[0], 0)).toBe(null)
       expect(component.isLazy(entries[1], 1)).toBe(null)
     })
@@ -793,7 +786,7 @@ describe('TraversedEntry', async () => {
         },
       })
 
-      const component = wrapper.vm as any
+      const component = wrapper.vm
       // Index 0 is before current index (1)
       expect(component.isLazy(entries[0], 0)).toBe('prev')
       // Index 1 is current index

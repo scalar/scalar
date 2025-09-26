@@ -55,6 +55,10 @@ const props = defineProps<{
   store: WorkspaceStore
 }>()
 
+defineEmits<{
+  (e: 'updateContent', content: any): void
+}>()
+
 // ---------------------------------------------------------------------------
 /**
  * DEPRECATED: This is a temporary state solution while we migrate to the new workspace store
@@ -212,10 +216,28 @@ watch(
 // TODO: Remove this legacy code block. Directly copied from SingleApiReference.vue
 // Logic should be mapped to the workspace store
 
+/**
+ * Determines the initial color mode based on the dark mode configuration.
+ * Returns 'dark' for explicit true, 'light' for explicit false, or undefined for auto.
+ */
+function getInitialColorMode(
+  darkMode: boolean | undefined,
+): 'dark' | 'light' | undefined {
+  if (darkMode === true) {
+    return 'dark'
+  }
+
+  if (darkMode === false) {
+    return 'light'
+  }
+
+  return undefined
+}
+
 // TODO: persistence should be hoisted into standalone
 // Client side integrations will want to handle dark mode externally
 const { toggleColorMode, isDarkMode } = useColorMode({
-  initialColorMode: selectedConfiguration.value.darkMode ? 'dark' : undefined,
+  initialColorMode: getInitialColorMode(selectedConfiguration.value.darkMode),
   overrideColorMode: selectedConfiguration.value.forceDarkModeState,
 })
 
@@ -270,24 +292,17 @@ useFavicon(favicon)
       :store="store"
       @toggleDarkMode="() => toggleColorMode()"
       @updateContent="$emit('updateContent', $event)">
-      <template #footer>
-        <slot name="footer" />
-      </template>
-      <!-- Expose the content end slot as a slot for the footer -->
-      <template #content-end>
-        <slot name="footer" />
-      </template>
       <template #document-selector>
         <DocumentSelector
           v-model="selectedDocumentIndex"
           :options="availableDocuments" />
       </template>
-      <template #sidebar-start>
-        <slot name="sidebar-start" />
-      </template>
-      <template #sidebar-end>
-        <slot name="sidebar-end" />
-      </template>
+      <!-- Pass through content, sidebar and footer slots -->
+      <template #content-start><slot name="content-start" /></template>
+      <template #content-end><slot name="content-end" /></template>
+      <template #sidebar-start><slot name="sidebar-start" /></template>
+      <template #sidebar-end><slot name="sidebar-end" /></template>
+      <template #footer><slot name="footer" /></template>
     </ApiReferenceLayout>
   </div>
 </template>

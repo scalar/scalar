@@ -1,5 +1,11 @@
 # @scalar/build-tooling
 
+## 0.2.7
+
+### Patch Changes
+
+- cef1034: Improve return types for vite options
+
 ## 0.2.6
 
 ### Patch Changes

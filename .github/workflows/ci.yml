@@ -73,13 +73,18 @@ jobs:
           path: integrations/docker/assets
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
+        name: Rename standalone.js to scalar.js
+        working-directory: integrations/docker/assets
+        run: mv standalone.js scalar.js
+
+      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Compress static assets
         working-directory: integrations/docker/assets
-        run: gzip --keep --verbose --force standalone.js
+        run: gzip --keep --verbose --force scalar.js
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@0b434dfbb431f4e3a2bcee7a773a56bd363184c5 # v1
+        uses: useblacksmith/setup-docker-builder@80c45ee688bb4844ec646f05c49c0a0cab309846 # v1
         with:
           platforms: |
             linux/amd64
@@ -229,17 +234,14 @@ jobs:
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
-    strategy:
-      matrix:
-        go-version: ['1.21']
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Setup Go
         uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version-file: projects/proxy-scalar-com/go.mod
+          cache: false
       - name: Run tests for the proxy server (Go)
         run: cd projects/proxy-scalar-com && go test -v
 
@@ -454,7 +456,7 @@ jobs:
           done
 
   test-component-snapshots:
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'changeset-release/main' || github.head_ref == 'main'
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     permissions:
@@ -505,7 +507,7 @@ jobs:
           report-file: packages/components/playwright-results.json
 
   test-cdn-snapshots:
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'changeset-release/main' || github.head_ref == 'main'
     needs: [build]
     runs-on: blacksmith-8vcpu-ubuntu-2204
     permissions:
@@ -882,7 +884,7 @@ jobs:
           name: standalone-js
           path: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
 
-      - name: Rename standalone.js to scalar.js # Lets get rid of this
+      - name: Rename standalone.js to scalar.js
         working-directory: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
         run: mv standalone.js scalar.js
 
@@ -923,6 +925,10 @@ jobs:
         with:
           name: standalone-js
           path: integrations/aspire/src/Scalar.Aspire.Service/wwwroot
+
+      - name: Rename standalone.js to scalar.js
+        working-directory: integrations/aspire/src/Scalar.Aspire.Service/wwwroot
+        run: mv standalone.js scalar.js
 
       - name: Setup .NET
         uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5
@@ -1077,6 +1083,11 @@ jobs:
           path: integrations/aspire/src/Scalar.Aspire.Service/wwwroot
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
+        name: Rename standalone.js to scalar.js
+        working-directory: integrations/aspire/src/Scalar.Aspire.Service/wwwroot
+        run: mv standalone.js scalar.js
+
+      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Log in to DockerHub
         uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3
         with:
@@ -1089,7 +1100,7 @@ jobs:
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@0b434dfbb431f4e3a2bcee7a773a56bd363184c5 # v1
+        uses: useblacksmith/setup-docker-builder@80c45ee688bb4844ec646f05c49c0a0cab309846 # v1
         with:
           platforms: |
             linux/amd64
@@ -1217,3 +1228,135 @@ jobs:
         working-directory: integrations/fastapi
         run: |
           twine upload --username __token__ --password ${{ secrets.PYPI_TOKEN }} dist/*
+
+  rust-build-test:
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    needs: [build]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: Download standalone.js artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          name: standalone-js
+          path: integrations/rust/ui
+
+      - name: Rename standalone.js to scalar.js
+        working-directory: integrations/rust/ui
+        run: mv standalone.js scalar.js
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # v1
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+
+      - name: Cache cargo registry
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Check Rust code formatting
+        working-directory: integrations/rust
+        run: cargo fmt -- --check
+
+      - name: Run Clippy
+        working-directory: integrations/rust
+        run: cargo clippy -- -D warnings
+
+      - name: Run tests
+        working-directory: integrations/rust
+        run: cargo test
+
+      - name: Run tests with all features
+        working-directory: integrations/rust
+        run: cargo test --features axum,actix-web,warp
+
+      - name: Build examples
+        working-directory: integrations/rust
+        run: |
+          cargo build --example axum --features axum
+          cargo build --example actix --features actix-web
+          cargo build --example warp --features warp
+
+  rust-publish:
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    concurrency:
+      group: rust-publish
+      cancel-in-progress: false
+    needs:
+      [build, format, types, test-packages, test-integrations, rust-build-test]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: Check for Rust integration changes
+        id: changed-files
+        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
+        with:
+          files_yaml: |
+            rust_integration:
+              - integrations/rust/package.json
+
+      - if: steps.changed-files.outputs.rust_integration_any_changed == 'true'
+        name: Download standalone.js artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          name: standalone-js
+          path: integrations/rust/ui
+
+      - if: steps.changed-files.outputs.rust_integration_any_changed == 'true'
+        name: Rename standalone.js to scalar.js
+        working-directory: integrations/rust/ui
+        run: mv standalone.js scalar.js
+
+      - if: steps.changed-files.outputs.rust_integration_any_changed == 'true'
+        name: Setup Rust
+        uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # v1
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+
+      - if: steps.changed-files.outputs.rust_integration_any_changed == 'true'
+        name: Cache cargo registry
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - if: steps.changed-files.outputs.rust_integration_any_changed == 'true'
+        name: Extract version from package.json
+        working-directory: integrations/rust
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - if: steps.changed-files.outputs.rust_integration_any_changed == 'true'
+        name: Update Cargo.toml version
+        working-directory: integrations/rust
+        run: |
+          sed -i "s/^version = \".*\"/version = \"$VERSION\"/" Cargo.toml
+          cat Cargo.toml | grep version
+
+      - if: steps.changed-files.outputs.rust_integration_any_changed == 'true'
+        name: Publish to crates.io
+        working-directory: integrations/rust
+        run: cargo publish
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}

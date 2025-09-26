@@ -1,5 +1,8 @@
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+
 import SchemaEnumValues from './SchemaEnumValues.vue'
 
 describe('SchemaEnumValues', () => {
@@ -7,9 +10,9 @@ describe('SchemaEnumValues', () => {
     it('renders enum values from value.enum', () => {
       const wrapper = mount(SchemaEnumValues, {
         props: {
-          value: {
+          value: coerceValue(SchemaObjectSchema, {
             enum: ['red', 'green', 'blue'],
-          },
+          }),
         },
       })
 
@@ -21,11 +24,11 @@ describe('SchemaEnumValues', () => {
     it('renders enum values from value.items.enum', () => {
       const wrapper = mount(SchemaEnumValues, {
         props: {
-          value: {
+          value: coerceValue(SchemaObjectSchema, {
             items: {
               enum: ['small', 'medium', 'large'],
             },
-          },
+          }),
         },
       })
 
@@ -37,9 +40,9 @@ describe('SchemaEnumValues', () => {
     it('does not render when no enum values exist', () => {
       const wrapper = mount(SchemaEnumValues, {
         props: {
-          value: {
+          value: coerceValue(SchemaObjectSchema, {
             type: 'string',
-          },
+          }),
         },
       })
 
@@ -49,22 +52,9 @@ describe('SchemaEnumValues', () => {
     it('does not render when enum array is empty', () => {
       const wrapper = mount(SchemaEnumValues, {
         props: {
-          value: {
+          value: coerceValue(SchemaObjectSchema, {
             enum: [],
-          },
-        },
-      })
-
-      expect(wrapper.html()).toBe('<!--v-if-->')
-    })
-
-    it('does not render when isDiscriminator is true', () => {
-      const wrapper = mount(SchemaEnumValues, {
-        props: {
-          value: {
-            enum: ['value1', 'value2'],
-          },
-          isDiscriminator: true,
+          }),
         },
       })
 
@@ -73,6 +63,7 @@ describe('SchemaEnumValues', () => {
 
     it('handles missing value prop gracefully', () => {
       const wrapper = mount(SchemaEnumValues, {
+        // @ts-expect-error - we want to test the case where no value is provided
         props: {},
       })
 
@@ -84,10 +75,10 @@ describe('SchemaEnumValues', () => {
     it('formats enum values with x-enum-varnames', () => {
       const wrapper = mount(SchemaEnumValues, {
         props: {
-          value: {
+          value: coerceValue(SchemaObjectSchema, {
             enum: [100, 200, 300],
             'x-enum-varnames': ['Unauthorized', 'AccessDenied', 'Unknown'],
-          },
+          }),
         },
       })
 
@@ -99,10 +90,10 @@ describe('SchemaEnumValues', () => {
     it('falls back to x-enumNames when x-enum-varnames is not available', () => {
       const wrapper = mount(SchemaEnumValues, {
         props: {
-          value: {
+          value: coerceValue(SchemaObjectSchema, {
             enum: [1, 2, 3],
             'x-enumNames': ['First', 'Second', 'Third'],
-          },
+          }),
         },
       })
 
@@ -114,11 +105,11 @@ describe('SchemaEnumValues', () => {
     it('prefers x-enum-varnames over x-enumNames when both exist', () => {
       const wrapper = mount(SchemaEnumValues, {
         props: {
-          value: {
+          value: coerceValue(SchemaObjectSchema, {
             enum: [1, 2],
             'x-enum-varnames': ['VarName1', 'VarName2'],
             'x-enumNames': ['EnumName1', 'EnumName2'],
-          },
+          }),
         },
       })
 
@@ -131,9 +122,9 @@ describe('SchemaEnumValues', () => {
     it('shows plain enum values when no varnames are available', () => {
       const wrapper = mount(SchemaEnumValues, {
         props: {
-          value: {
+          value: coerceValue(SchemaObjectSchema, {
             enum: ['active', 'inactive', 'pending'],
-          },
+          }),
         },
       })
 
@@ -146,10 +137,10 @@ describe('SchemaEnumValues', () => {
     it('handles partial varnames arrays gracefully', () => {
       const wrapper = mount(SchemaEnumValues, {
         props: {
-          value: {
+          value: coerceValue(SchemaObjectSchema, {
             enum: [1, 2, 3, 4],
             'x-enum-varnames': ['First', 'Second'], // Only first two have varnames
-          },
+          }),
         },
       })
 
@@ -166,10 +157,10 @@ describe('SchemaEnumValues', () => {
     it('renders descriptions from x-enum-descriptions array', () => {
       const wrapper = mount(SchemaEnumValues, {
         props: {
-          value: {
+          value: coerceValue(SchemaObjectSchema, {
             enum: [100, 200],
             'x-enum-descriptions': ['User is not authorized', 'Access denied'],
-          },
+          }),
         },
       })
 
@@ -180,10 +171,10 @@ describe('SchemaEnumValues', () => {
     it('falls back to x-enumDescriptions array when x-enum-descriptions is not available', () => {
       const wrapper = mount(SchemaEnumValues, {
         props: {
-          value: {
+          value: coerceValue(SchemaObjectSchema, {
             enum: [1, 2],
             'x-enumDescriptions': ['Description 1', 'Description 2'],
-          },
+          }),
         },
       })
 
@@ -194,13 +185,13 @@ describe('SchemaEnumValues', () => {
     it('uses special object format for x-enumDescriptions', () => {
       const wrapper = mount(SchemaEnumValues, {
         props: {
-          value: {
+          value: coerceValue(SchemaObjectSchema, {
             enum: ['active', 'inactive'],
             'x-enumDescriptions': {
               'active': 'The user is currently active',
               'inactive': 'The user is currently inactive',
             },
-          },
+          }),
         },
       })
 
@@ -213,10 +204,10 @@ describe('SchemaEnumValues', () => {
     it('does not show special description format when x-enumDescriptions is an array', () => {
       const wrapper = mount(SchemaEnumValues, {
         props: {
-          value: {
+          value: coerceValue(SchemaObjectSchema, {
             enum: ['active', 'inactive'],
             'x-enumDescriptions': ['Active status', 'Inactive status'],
-          },
+          }),
         },
       })
 
@@ -228,9 +219,9 @@ describe('SchemaEnumValues', () => {
     it('handles missing description arrays gracefully', () => {
       const wrapper = mount(SchemaEnumValues, {
         props: {
-          value: {
+          value: coerceValue(SchemaObjectSchema, {
             enum: [1, 2, 3],
-          },
+          }),
         },
       })
 
@@ -247,9 +238,9 @@ describe('SchemaEnumValues', () => {
       const nineValues = Array.from({ length: 9 }, (_, i) => `value${i + 1}`)
       const wrapper = mount(SchemaEnumValues, {
         props: {
-          value: {
+          value: coerceValue(SchemaObjectSchema, {
             enum: nineValues,
-          },
+          }),
         },
       })
 
@@ -266,9 +257,9 @@ describe('SchemaEnumValues', () => {
       const tenValues = Array.from({ length: 10 }, (_, i) => `value${i + 1}`)
       const wrapper = mount(SchemaEnumValues, {
         props: {
-          value: {
+          value: coerceValue(SchemaObjectSchema, {
             enum: tenValues,
-          },
+          }),
         },
       })
 
@@ -286,9 +277,9 @@ describe('SchemaEnumValues', () => {
       const fifteenValues = Array.from({ length: 15 }, (_, i) => `value${i + 1}`)
       const wrapper = mount(SchemaEnumValues, {
         props: {
-          value: {
+          value: coerceValue(SchemaObjectSchema, {
             enum: fifteenValues,
-          },
+          }),
         },
       })
 
@@ -311,9 +302,9 @@ describe('SchemaEnumValues', () => {
       const tenValues = Array.from({ length: 10 }, (_, i) => `value${i + 1}`)
       const wrapper = mount(SchemaEnumValues, {
         props: {
-          value: {
+          value: coerceValue(SchemaObjectSchema, {
             enum: tenValues,
-          },
+          }),
         },
       })
 
@@ -326,7 +317,7 @@ describe('SchemaEnumValues', () => {
     it('shows descriptions for hidden enum values when expanded', async () => {
       const wrapper = mount(SchemaEnumValues, {
         props: {
-          value: {
+          value: coerceValue(SchemaObjectSchema, {
             enum: [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
             'x-enum-descriptions': [
               'First description',
@@ -340,7 +331,7 @@ describe('SchemaEnumValues', () => {
               'Ninth description',
               'Tenth description',
             ],
-          },
+          }),
         },
       })
 
@@ -361,9 +352,9 @@ describe('SchemaEnumValues', () => {
     it('handles mixed data types in enum', () => {
       const wrapper = mount(SchemaEnumValues, {
         props: {
-          value: {
+          value: coerceValue(SchemaObjectSchema, {
             enum: [1, 'string', true, null, 0],
-          },
+          }),
         },
       })
 
@@ -377,9 +368,9 @@ describe('SchemaEnumValues', () => {
     it('handles enum with duplicate values', () => {
       const wrapper = mount(SchemaEnumValues, {
         props: {
-          value: {
+          value: coerceValue(SchemaObjectSchema, {
             enum: ['duplicate', 'duplicate', 'unique'],
-          },
+          }),
         },
       })
 
@@ -390,11 +381,11 @@ describe('SchemaEnumValues', () => {
     it('works with both enum and varnames/descriptions', () => {
       const wrapper = mount(SchemaEnumValues, {
         props: {
-          value: {
+          value: coerceValue(SchemaObjectSchema, {
             enum: [100, 200],
             'x-enum-varnames': ['StatusOK', 'StatusError'],
             'x-enum-descriptions': ['Request successful', 'Request failed'],
-          },
+          }),
         },
       })
 
@@ -407,9 +398,9 @@ describe('SchemaEnumValues', () => {
     it('handles empty string enum values', () => {
       const wrapper = mount(SchemaEnumValues, {
         props: {
-          value: {
+          value: coerceValue(SchemaObjectSchema, {
             enum: ['', 'nonempty', ''],
-          },
+          }),
         },
       })
 

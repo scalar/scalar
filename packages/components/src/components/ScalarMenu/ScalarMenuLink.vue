@@ -19,7 +19,8 @@ defineOptions({ inheritAttrs: false })
 <template>
   <ScalarDropdownButton
     v-bind="cx('flex items-center')"
-    :is="is">
+    :is="is"
+    as="a">
     <ScalarIconLegacyAdapter
       v-if="icon"
       :class="[

@@ -6,7 +6,7 @@ import { Type } from '@scalar/typebox'
  * We should not export this when exporting the document
  */
 export const XScalarSecretTokenSchema = Type.Object({
-  'x-scalar-secret-token': Type.Optional(Type.String()),
+  'x-scalar-secret-token': Type.String(),
 })
 
 /**
@@ -15,6 +15,33 @@ export const XScalarSecretTokenSchema = Type.Object({
  * We should not export this when exporting the document
  */
 export const XScalarSecretHTTPSchema = Type.Object({
-  'x-scalar-secret-username': Type.Optional(Type.String()),
-  'x-scalar-secret-password': Type.Optional(Type.String()),
+  'x-scalar-secret-username': Type.String(),
+  'x-scalar-secret-password': Type.String(),
+})
+
+/**
+ * Oauth client secret
+ *
+ * We should not export this when exporting the document
+ */
+export const XScalarSecretClientSecretSchema = Type.Object({
+  'x-scalar-secret-client-secret': Type.String(),
+})
+
+/**
+ * Oauth client ID
+ *
+ * We should not export this when exporting the document
+ */
+export const XScalarSecretClientIdSchema = Type.Object({
+  'x-scalar-secret-client-id': Type.String(),
+})
+
+/**
+ * Oauth Redirect URI
+ *
+ * We should not export this when exporting the document
+ */
+export const XScalarSecretRedirectUriSchema = Type.Object({
+  'x-scalar-secret-redirect-uri': Type.String(),
 })

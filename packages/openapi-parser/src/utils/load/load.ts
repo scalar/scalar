@@ -30,7 +30,7 @@ export type LoadOptions = {
  * @deprecated This function is deprecated and will be removed in a future version.
  * Please use the new bundler utility instead:
  * ```ts
- * import { bundle } from "@scalar/openapi-parser"
+ * import { bundle } from "@scalar/json-magic/bundle"
  * ```
  *
  * Loads an OpenAPI document, including any external references.
