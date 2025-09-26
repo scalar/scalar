@@ -206,6 +206,3 @@ export const SchemaObjectSchemaDefinition = Type.Union([
   compose(ObjectValidationPropertiesWithSchema, CorePropertiesWithSchema, Extensions),
   compose(ArrayValidationPropertiesWithSchema, CorePropertiesWithSchema, Extensions),
 ])
-
-/** Type guards against our fake _ type */
-export const isSchemaObject = (schema: SchemaObject): schema is Exclude<SchemaObject, { _: string }> => 'type' in schema
