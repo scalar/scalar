@@ -262,11 +262,8 @@ export const apiClientConfigurationSchema = z.object({
 
 export type ApiClientConfiguration = z.infer<typeof apiClientConfigurationSchema>
 
-// TODO: This doesn't seem to match the native fetch function.
-const FetchLikeSchema = z.function({
-  input: [z.union([z.string(), z.instanceof(URL), z.instanceof(Request)]), z.any().optional()],
-  output: z.promise(z.instanceof(Response)),
-})
+// Zod Schemas don't work well with async functions, so we use a custom type instead.
+const FetchLikeSchema = z.custom<(input: string | URL | Request, init?: RequestInit) => Promise<Response>>()
 
 /** Configuration for the Api Client without the transform since it cannot be merged */
 const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
