@@ -372,7 +372,7 @@ describe('getSecrets', () => {
       expect(result[2]).toBe('YWRtaW46c2VjcmV0MTIz') // base64 encoded "admin:secret123"
 
       // Verify we can decode it back
-      const decoded = decode(result[2])
+      const decoded = decode(result[2] || '')
       expect(decoded).toBe('admin:secret123')
     })
 
@@ -392,7 +392,7 @@ describe('getSecrets', () => {
       expect(result[2]).toBe('dXNlckBkb21haW4uY29tOnBhc3M6d29yZCE=') // base64 encoded "user@domain.com:pass:word!"
 
       // Verify we can decode it back
-      const decoded = decode(result[2])
+      const decoded = decode(result[2] || '')
       expect(decoded).toBe('user@domain.com:pass:word!')
     })
   })
