@@ -1,5 +1,16 @@
 # @scalar/aspire
 
+## 0.5.0
+
+### Minor Changes
+
+- f6883f5: feat: rename standalone.js to scalar.js
+
+### Patch Changes
+
+- Updated dependencies [77337d3]
+  - @scalar/api-reference@1.36.1
+
 ## 0.4.11
 
 ### Patch Changes
