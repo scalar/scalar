@@ -1,22 +1,22 @@
-import type { ZodSchema, ZodTypeDef } from 'zod'
+import type z from 'zod'
 
 /** Parse an value from a given schema with optional error or null return */
-export function schemaModel<T, I = any>(
+export function schemaModel<T extends z.ZodType, I = any>(
   data: I,
-  schema: ZodSchema<T, ZodTypeDef, any>,
+  schema: T,
   throwError?: true,
   errorLocation?: string,
-): T
+): z.infer<T>
 export function schemaModel<T, I = any>(
   data: I,
-  schema: ZodSchema<T, ZodTypeDef, any>,
+  schema: T,
   throwError?: false,
   errorLocation?: string,
-): T | null
+): z.infer<T> | null
 /** Parse a Zod */
-export function schemaModel<T, I = any>(
+export function schemaModel<T extends z.ZodType, I = any>(
   data: I,
-  schema: ZodSchema<T, ZodTypeDef, any>,
+  schema: T,
   throwError = true,
   errorLocation?: string,
 ) {

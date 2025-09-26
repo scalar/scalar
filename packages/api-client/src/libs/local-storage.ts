@@ -1,4 +1,3 @@
-import type { WorkspaceStore } from '@/store'
 import { cookieSchema } from '@scalar/oas-utils/entities/cookie'
 import { environmentSchema } from '@scalar/oas-utils/entities/environment'
 import {
@@ -12,12 +11,14 @@ import {
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import { schemaModel } from '@scalar/oas-utils/helpers'
 import { DATA_VERSION, DATA_VERSION_LS_LEY, migrator } from '@scalar/oas-utils/migrations'
-import type { ZodSchema, ZodTypeDef } from 'zod'
+import type { ZodSchema } from 'zod'
+
+import type { WorkspaceStore } from '@/store'
 
 /** Loads the migrated resource into the mutator safely */
 const loadResources = <T extends (object & { uid: string })[]>(
   resources: T,
-  schema: ZodSchema<T[number], ZodTypeDef, any>,
+  schema: ZodSchema<T[number], any>,
   add: (payload: T[number]) => void | T[number],
 ) =>
   resources.forEach((payload) => {

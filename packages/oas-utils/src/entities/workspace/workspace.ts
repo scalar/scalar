@@ -1,18 +1,17 @@
 import { themeIds } from '@scalar/themes'
+import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
 import { z } from 'zod'
 
-import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
 import { HOTKEY_EVENT_NAMES, KEYDOWN_KEYS } from '../hotkeys/hotkeys'
 
-const modifier = z
-  .enum(['Meta', 'Control', 'Shift', 'Alt', 'default'] as const)
+const modifiers = z
+  .array(z.union([z.literal('Meta'), z.literal('Control'), z.literal('Shift'), z.literal('Alt'), z.literal('default')]))
   .optional()
-  .default('default')
-const modifiers = z.array(modifier).optional().default(['default'])
+  .default(['default'])
 
 export type HotKeyModifiers = z.infer<typeof modifiers>
 
-const hotKeys = z.record(
+const hotKeys = z.partialRecord(
   z.enum(KEYDOWN_KEYS),
   z.object({
     modifiers: modifiers.optional(),
@@ -36,7 +35,7 @@ export const workspaceSchema = z.object({
   /** List of all collection uids in a given workspace */
   collections: z.array(z.string().brand<ENTITY_BRANDS['COLLECTION']>()).default([]),
   /** List of all environment uids in a given workspace, TODO: why is this a record? */
-  environments: z.record(z.string()).default({}),
+  environments: z.record(z.string(), z.string()).default({}),
   /** Customize hotkeys */
   hotKeyConfig: hotKeyConfigSchema,
   /** Active Environment ID to use for requests  */

@@ -28,7 +28,7 @@ const { layout } = defineProps<{
   /** Indicates if the info block is in a loading state. */
   isLoading?: boolean
   /** Optional callback invoked when the component has finished loading. */
-  onLoaded?: () => void
+  onLoaded?: (() => void) | unknown
 }>()
 
 /**

@@ -176,7 +176,16 @@ const oasSecuritySchemeOauth2 = commonProps.extend({
     })
     .partial()
     .default({
-      implicit: { type: 'implicit', authorizationUrl: 'http://localhost:8080' },
+      implicit: {
+        selectedScopes: [],
+        scopes: {},
+        'x-scalar-client-id': '',
+        refreshUrl: '',
+        token: '',
+        type: 'implicit',
+        authorizationUrl: 'http://localhost:8080',
+        'x-scalar-redirect-uri': defaultRedirectUri,
+      },
     }),
 })
 

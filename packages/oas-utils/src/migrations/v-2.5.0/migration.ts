@@ -1,4 +1,5 @@
 import type { v_2_4_0 } from '@/migrations/v-2.4.0/types.generated'
+
 import type { v_2_5_0 } from './types.generated'
 
 /** V-2.4.0 to V-2.5.0 migration */

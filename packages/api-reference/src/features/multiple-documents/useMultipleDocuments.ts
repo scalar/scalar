@@ -1,4 +1,3 @@
-import type { NavState } from '@/hooks/useNavState'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import {
   type AnyApiReferenceConfiguration,
@@ -7,8 +6,9 @@ import {
   isConfigurationWithSources,
 } from '@scalar/types/api-reference'
 import GithubSlugger from 'github-slugger'
-
 import { type Ref, computed, ref, watch } from 'vue'
+
+import type { NavState } from '@/hooks/useNavState'
 
 /** URL parameter name for the selected API document */
 const QUERY_PARAMETER = 'api'
@@ -236,7 +236,9 @@ export const useMultipleDocuments = ({
       }
 
       // Fire the onDocumentSelect event
-      selectedConfiguration.value.onDocumentSelect?.()
+      if (typeof selectedConfiguration.value.onDocumentSelect === 'function') {
+        selectedConfiguration.value.onDocumentSelect?.()
+      }
     },
     { flush: 'sync' },
   )

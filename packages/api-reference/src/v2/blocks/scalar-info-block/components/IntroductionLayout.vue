@@ -30,12 +30,12 @@ const { onLoaded } = defineProps<{
   infoExtensions?: Record<string, unknown>
   isLoading?: boolean
   getOriginalDocument: () => string
-  onLoaded?: () => void
+  onLoaded?: (() => void) | unknown
   id?: string
 }>()
 
 /** Trigger the onLoaded event when the component is mounted */
-onMounted(() => onLoaded?.())
+onMounted(() => (typeof onLoaded === 'function' ? onLoaded?.() : onLoaded))
 </script>
 
 <template>

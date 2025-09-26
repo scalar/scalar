@@ -1,6 +1,5 @@
 import { fetchDocument, prettyPrintJson } from '@scalar/oas-utils/helpers'
-import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
-import type { SpecConfiguration } from '@scalar/types/api-reference'
+import type { ApiReferenceConfiguration, SpecConfiguration } from '@scalar/types/api-reference'
 import { type MaybeRefOrGetter, ref, toValue, watch } from 'vue'
 
 /**
