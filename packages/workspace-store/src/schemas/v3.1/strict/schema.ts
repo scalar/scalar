@@ -8,7 +8,6 @@ import { XAdditionalPropertiesNameSchema } from '@/schemas/extensions/schema/x-a
 import { XEnumDescriptionsSchema } from '@/schemas/extensions/schema/x-enum-descriptions'
 import { XEnumVarNamesSchema } from '@/schemas/extensions/schema/x-enum-varnames'
 import { XVariableSchema } from '@/schemas/extensions/schema/x-variable'
-import type { SchemaObject } from '@/schemas/v3.1/strict/openapi-document'
 import {
   DiscriminatorObjectRef,
   ExternalDocumentationObjectRef,
