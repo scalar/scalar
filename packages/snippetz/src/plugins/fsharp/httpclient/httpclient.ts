@@ -126,7 +126,7 @@ function turnPostDataMultiPartToCode(postData: any): string {
       code += `content.Add(fileStreamContent_${fileCount}, "file_${fileCount}", "${data.fileName}")\n`
       fileCount++
     } else {
-      code += `content.Add(new StringContent("${data.value}", "${data.name}")\n`
+      code += `content.Add(new StringContent("${data.value}"), "${data.name}")\n`
     }
   }
   return code
