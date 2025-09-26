@@ -1,24 +1,8 @@
 import type { AvailableClients } from '@scalar/snippetz'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
 import { generateCodeSnippet } from './generate-code-snippet'
-
-// Import the mocked functions
-import { getSnippet as _getSnippet } from '@scalar/api-client/views/Components/CodeSnippet'
-import { operationToHar as _operationToHar } from '@scalar/oas-utils/helpers/operation-to-har'
-
-// Mock the dependencies
-vi.mock('@scalar/oas-utils/helpers/operation-to-har', () => ({
-  operationToHar: vi.fn(),
-}))
-
-vi.mock('@scalar/api-client/views/Components/CodeSnippet', () => ({
-  getSnippet: vi.fn(),
-}))
-
-// Cast to Mocks
-const operationToHar = _operationToHar as Mock
-const getSnippet = _getSnippet as Mock
 
 describe('generate-code-snippet', () => {
   const mockOperation: OperationObject = {
@@ -37,65 +21,24 @@ describe('generate-code-snippet', () => {
 
   describe('generateCodeSnippet', () => {
     it('returns generated code snippet when successful', () => {
-      operationToHar.mockReturnValue({
-        method: 'GET',
-        url: 'https://api.example.com/users/123',
-        headers: [],
-        queryString: [],
-      })
-
-      getSnippet.mockReturnValue([null, "fetch('/users/123')"])
-
       const result = generateCodeSnippet({
         clientId: 'js/fetch',
         operation: mockOperation,
         method: 'get',
         path: '/users/{userId}',
-        example: { userId: '123' },
         server: mockServer,
       })
 
-      expect(result).toBe("fetch('/users/123')")
+      expect(result).toBe("fetch('https://api.example.com/users/{userId}')")
     })
 
     it('returns error message when getSnippet fails', () => {
-      operationToHar.mockReturnValue({
-        method: 'GET',
-        url: 'https://api.example.com/users',
-        headers: [],
-        queryString: [],
-      })
-
-      getSnippet.mockReturnValue([{ message: 'Failed to generate snippet' }, null])
-
       const result = generateCodeSnippet({
         clientId: 'js/fetch',
-        operation: mockOperation,
+        // @ts-expect-error - testing undefined
+        operation: undefined,
         method: 'get',
         path: '/users',
-        example: { userId: '123' },
-        server: mockServer,
-      })
-
-      expect(result).toBe('Failed to generate snippet')
-    })
-
-    it('returns default error message when getSnippet error lacks message property', () => {
-      operationToHar.mockReturnValue({
-        method: 'GET',
-        url: 'https://api.example.com/users',
-        headers: [],
-        queryString: [],
-      })
-
-      getSnippet.mockReturnValue([{}, null])
-
-      const result = generateCodeSnippet({
-        clientId: 'js/fetch',
-        operation: mockOperation,
-        method: 'get',
-        path: '/users',
-        example: { userId: '123' },
         server: mockServer,
       })
 
@@ -103,72 +46,67 @@ describe('generate-code-snippet', () => {
     })
 
     it('calls operationToHar with all provided parameters', () => {
-      operationToHar.mockReturnValue({
-        method: 'POST',
-        url: 'https://api.example.com/users',
-        headers: [],
-        queryString: [],
-      })
-
-      getSnippet.mockReturnValue([null, 'snippet'])
-
-      generateCodeSnippet({
+      const code = generateCodeSnippet({
         clientId: 'python/requests',
-        operation: mockOperation,
+        operation: {
+          ...mockOperation,
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    name: {
+                      type: 'string',
+                      default: 'Marc',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
         method: 'post',
         path: '/users',
-        example: { name: 'John' },
         contentType: 'application/json',
         server: mockServer,
         securitySchemes: [],
       })
 
-      expect(operationToHar).toHaveBeenCalledWith({
-        operation: mockOperation,
-        method: 'post',
-        path: '/users',
-        example: { name: 'John' },
-        contentType: 'application/json',
-        server: mockServer,
-        securitySchemes: [],
-      })
+      expect(code).toBe(`requests.post("https://api.example.com/users",
+    headers={
+      "Content-Type": "application/json"
+    },
+    json={
+      "name": "Marc"
+    }
+)`)
     })
 
     it('calls getSnippet with split clientId and harRequest', () => {
-      const mockHarRequest = {
-        method: 'GET',
-        url: 'https://api.example.com/users',
-        headers: [],
-        queryString: [],
-      }
-
-      operationToHar.mockReturnValue(mockHarRequest)
-      getSnippet.mockReturnValue([null, 'snippet'])
-
-      generateCodeSnippet({
+      const code = generateCodeSnippet({
         clientId: 'node/axios',
         operation: mockOperation,
         method: 'get',
         path: '/users',
-        example: null,
         server: mockServer,
       })
 
-      expect(getSnippet).toHaveBeenCalledWith('node', 'axios', mockHarRequest)
+      expect(code).toBe(`const axios = require('axios').default;
+
+const options = {method: 'GET', url: 'https://api.example.com/users'};
+
+try {
+  const { data } = await axios.request(options);
+  console.log(data);
+} catch (error) {
+  console.error(error);
+}`)
     })
   })
 
   describe('clientId parsing', () => {
     it('processes different clientId formats without errors', () => {
-      operationToHar.mockReturnValue({
-        method: 'GET',
-        url: 'https://api.example.com/test',
-        headers: [],
-        queryString: [],
-      })
-
-      getSnippet.mockReturnValue([null, 'snippet'])
-
       const testCases: Array<{ input: AvailableClients[number]; expectedTarget: string; expectedClient: string }> = [
         { input: 'js/fetch', expectedTarget: 'js', expectedClient: 'fetch' },
         { input: 'python/requests', expectedTarget: 'python', expectedClient: 'requests' },
@@ -176,44 +114,17 @@ describe('generate-code-snippet', () => {
         { input: 'shell/curl', expectedTarget: 'shell', expectedClient: 'curl' },
       ]
 
-      testCases.forEach(({ input }) => {
+      testCases.forEach(({ input, expectedClient }) => {
         const result = generateCodeSnippet({
           clientId: input,
           operation: mockOperation,
           method: 'get',
           path: '/test',
-          example: null,
           server: mockServer,
         })
 
         // The function should work without throwing errors
-        expect(result).toBeDefined()
-      })
-    })
-
-    it('handles all supported client types successfully', () => {
-      operationToHar.mockReturnValue({
-        method: 'GET',
-        url: 'https://api.example.com/test',
-        headers: [],
-        queryString: [],
-      })
-
-      getSnippet.mockReturnValue([null, 'snippet'])
-
-      const clientTypes = ['js/fetch', 'js/axios', 'python/requests', 'node/fetch', 'shell/curl'] as const
-
-      clientTypes.forEach((clientId) => {
-        expect(() => {
-          generateCodeSnippet({
-            clientId,
-            operation: mockOperation,
-            method: 'get',
-            path: '/test',
-            example: null,
-            server: mockServer,
-          })
-        }).not.toThrow()
+        expect(result).toContain(expectedClient)
       })
     })
   })

@@ -86,8 +86,9 @@ export const processParameters = ({
 }: {
   harRequest: HarRequest
   parameters: OperationObject['parameters']
-  example: string | undefined
-  contentType: string | undefined
+  /** The name of the example to use */
+  example?: string | undefined
+  contentType?: string | undefined
 }): ProcessedParameters => {
   // Create copies of the arrays to avoid modifying the input
   const newHeaders = [...harRequest.headers]

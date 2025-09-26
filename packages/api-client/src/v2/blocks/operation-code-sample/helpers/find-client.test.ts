@@ -1,7 +1,8 @@
-import { describe, expect, it } from 'vitest'
-import { findClient } from './find-client'
-import type { ClientOption, ClientOptionGroup } from '../types'
 import type { AvailableClients } from '@scalar/snippetz'
+import { describe, expect, it } from 'vitest'
+
+import type { ClientOption, ClientOptionGroup } from '../types'
+import { findClient } from './find-client'
 
 describe('findClient', () => {
   // Test data setup
@@ -89,26 +90,26 @@ describe('findClient', () => {
   describe('when clientId is provided and found', () => {
     it('returns the exact client when found', () => {
       const result = findClient(mockClientGroups, 'js/fetch')
-      expect(result).toEqual(mockClientGroups[0].options[0])
+      expect(result).toEqual(mockClientGroups[0]?.options[0])
     })
 
     it('returns the exact client when found in different groups', () => {
       const result = findClient(mockClientGroups, 'python/requests')
-      expect(result).toEqual(mockClientGroups[1].options[0])
+      expect(result).toEqual(mockClientGroups[1]?.options[0])
     })
   })
 
   describe('when clientId is provided but not found', () => {
     it('returns default client when clientId does not exist', () => {
       const result = findClient(mockClientGroups, 'nonexistent/client' as AvailableClients[number])
-      expect(result).toEqual(mockClientGroups[2].options[0])
+      expect(result).toEqual(mockClientGroups[2]?.options[0])
     })
   })
 
   describe('when clientId is not provided', () => {
     it('returns default client when clientId is undefined', () => {
       const result = findClient(mockClientGroups)
-      expect(result).toEqual(mockClientGroups[2].options[0])
+      expect(result).toEqual(mockClientGroups[2]?.options[0])
     })
   })
 
@@ -133,7 +134,7 @@ describe('findClient', () => {
 
       const result = findClient(singleGroup, 'js/fetch')
 
-      expect(result).toEqual(singleGroup[0].options[0])
+      expect(result).toEqual(singleGroup[0]?.options[0])
     })
 
     it('returns first option when searching in single group without clientId', () => {
@@ -156,7 +157,7 @@ describe('findClient', () => {
 
       const result = findClient(singleGroup)
 
-      expect(result).toEqual(singleGroup[0].options[0])
+      expect(result).toEqual(singleGroup[0]?.options[0])
     })
 
     it('handles group with empty options array', () => {
@@ -183,7 +184,7 @@ describe('findClient', () => {
 
       const result = findClient(groupsWithEmpty, 'js/fetch')
 
-      expect(result).toEqual(groupsWithEmpty[1].options[0])
+      expect(result).toEqual(groupsWithEmpty[1]?.options[0])
     })
 
     it('returns undefined when first group has empty options and no default found', () => {
