@@ -6,8 +6,8 @@ const entries = [
   './src/client.ts',
   './src/server.ts',
   './src/schemas/*.ts',
-  './src/schemas/v3.1/*.ts',
-  './src/schemas/v3.1/strict/*.ts',
+  './src/schemas/extensions/operation/index.ts',
+  './src/schemas/v3.1/strict/openapi-document.ts',
   './src/events/index.ts',
   './src/navigation/index.ts',
 ]
