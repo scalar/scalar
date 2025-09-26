@@ -209,11 +209,13 @@ It is completely up to you whether you want to pass JSON or YAML. None of the di
 
 ## Configuration Options
 
-### content?: string | Record<string, any> | () => Record<string, any>
+### content
+
+**Type:** `string | Record<string, any> | () => Record<string, any>`
 
 Directly pass an OpenAPI/Swagger document (JSON or YAML) as a string:
 
-```
+```js
 {
   content: '{ "openapi": "3.1.1" }'
 }
@@ -241,7 +243,9 @@ Or as a callback returning the actual document:
 }
 ```
 
-### url?: string
+### url
+
+**Type:** `string`
 
 Pass the URL of an OpenAPI document (JSON or YAML).
 
@@ -251,7 +255,9 @@ Pass the URL of an OpenAPI document (JSON or YAML).
 }
 ```
 
-### proxyUrl?: string
+### proxyUrl
+
+**Type:** `string`
 
 Making requests to other domains is restricted in the browser and requires [CORS headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS). It's recommended to use a proxy to send requests to other origins.
 
@@ -271,7 +277,9 @@ You can use our hosted proxy:
 
 If you like to run your own, check out our [example proxy written in Go](https://github.com/scalar/scalar/tree/main/projects/proxy-scalar-com).
 
-### fetch?: fetch(input: string | URL | globalThis.Request, init?: RequestInit): Promise<Response>
+### fetch
+
+**Type:** `fetch(input: string | URL | globalThis.Request, init?: RequestInit): Promise<Response>`
 
 Custom [fetch function](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) to fetch documents with a custom logic. Can be used to add custom headers, handle auth, etc.
 
@@ -283,7 +291,9 @@ Custom [fetch function](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_A
 }
 ```
 
-### plugins?: ApiReferencePlugin[]
+### plugins
+
+**Type:** `ApiReferencePlugin[]`
 
 Pass an array of custom plugins that you want. [Read more about plugins here.](https://guides.scalar.com/scalar/scalar-api-references/plugins)
 
@@ -295,11 +305,13 @@ Pass an array of custom plugins that you want. [Read more about plugins here.](h
 }
 ```
 
-### showSidebar?: boolean
+### showSidebar
+
+**Type:** `boolean`
 
 Whether the sidebar should be shown.
 
-@default `true`
+**Default:** `true`
 
 ```js
 {
@@ -307,11 +319,13 @@ Whether the sidebar should be shown.
 }
 ```
 
-### operationTitleSource?: 'summary' | 'path'
+### operationTitleSource
+
+**Type:** `'summary' | 'path'`
 
 Whether the sidebar display text and search should use the operation summary or the operation path.
 
-@default `'summary'`
+**Default:** `'summary'`
 
 ```js
 {
@@ -325,11 +339,13 @@ Whether the sidebar display text and search should use the operation summary or 
 }
 ```
 
-### hideModels?: boolean
+### hideModels
+
+**Type:** `boolean`
 
 Whether models (`components.schemas` or `definitions`) should be shown in the sidebar, search and content.
 
-@default `false`
+**Default:** `false`
 
 ```js
 {
@@ -337,11 +353,13 @@ Whether models (`components.schemas` or `definitions`) should be shown in the si
 }
 ```
 
-### documentDownloadType?: 'json' | 'yaml' | 'both' | 'direct' | 'none'
+### documentDownloadType
+
+**Type:** `'json' | 'yaml' | 'both' | 'direct' | 'none'`
 
 Sets the file type of the document to download, set to `'none'` to hide the download button.
 
-@default `'both'`
+**Default:** `'both'`
 
 ```js
 {
@@ -351,11 +369,15 @@ Sets the file type of the document to download, set to `'none'` to hide the down
 
 When `'direct'` is passed, it just outputs a regular link to the passed URL.
 
-### hideDownloadButton?: boolean
+### hideDownloadButton
+
+**Type:** `boolean`
 
 Whether to show the "Download OpenAPI Document" button.
 
-@deprecated Use `documentDownloadType: 'none'` instead
+**Default:** `false`
+
+**@deprecated** Use `documentDownloadType: 'none'` instead
 
 ```js
 {
@@ -363,11 +385,13 @@ Whether to show the "Download OpenAPI Document" button.
 }
 ```
 
-### hideTestRequestButton?: boolean
+### hideTestRequestButton
+
+**Type:** `boolean`
 
 Whether to show the "Test Request" button.
 
-@default `false`
+**Default:** `false`
 
 ```js
 {
@@ -375,11 +399,13 @@ Whether to show the "Test Request" button.
 }
 ```
 
-### hideSearch?: boolean
+### hideSearch
+
+**Type:** `boolean`
 
 Whether to show the sidebar search bar.
 
-@default `false`
+**Default:** `false`
 
 ```js
 {
@@ -387,7 +413,9 @@ Whether to show the sidebar search bar.
 }
 ```
 
-### darkMode?: boolean
+### darkMode
+
+**Type:** `boolean`
 
 Whether dark mode is on or off initially (light mode).
 
@@ -397,7 +425,9 @@ Whether dark mode is on or off initially (light mode).
 }
 ```
 
-### forceDarkModeState?: 'dark' | 'light'
+### forceDarkModeState
+
+**Type:** `'dark' | 'light'`
 
 Force dark mode to always be this state no matter what.
 
@@ -407,7 +437,9 @@ Force dark mode to always be this state no matter what.
 }
 ```
 
-### hideDarkModeToggle?: boolean
+### hideDarkModeToggle
+
+**Type:** `boolean`
 
 Whether to show the dark mode toggle.
 
@@ -417,11 +449,13 @@ Whether to show the dark mode toggle.
 }
 ```
 
-### layout?: 'modern' | 'classic'
+### layout
+
+**Type:** `'modern' | 'classic'`
 
 The layout style to use for the API reference.
 
-@default `'modern'`
+**Default:** `'modern'`
 
 ```js
 {
@@ -429,11 +463,13 @@ The layout style to use for the API reference.
 }
 ```
 
-### isLoading?: boolean
+### isLoading
+
+**Type:** `boolean`
 
 Controls whether the references show a loading state in the intro section. Useful when you want to indicate that content is being loaded.
 
-@default `false`
+**Default:** `false`
 
 ```js
 {
@@ -441,7 +477,9 @@ Controls whether the references show a loading state in the intro section. Usefu
 }
 ```
 
-### customCss?: string
+### customCss
+
+**Type:** `string`
 
 You can pass custom CSS directly to the component. This is helpful for the integrations for Fastify, Express, Hono and others where it's easier to add CSS to the configuration.
 
@@ -453,11 +491,13 @@ In Vue or React you'd probably use other ways to add custom CSS.
 }
 ```
 
-### searchHotKey?: string
+### searchHotKey
+
+**Type:** `string`
 
 Key used with CTRL/CMD to open the search modal.
 
-@default `'k'` (e.g. CMD+k)
+**Default:** `'k'` (e.g. CMD+k)
 
 ```js
 {
@@ -465,7 +505,9 @@ Key used with CTRL/CMD to open the search modal.
 }
 ```
 
-### baseServerURL?: string
+### baseServerURL
+
+**Type:** `string`
 
 If you want to prefix all relative servers with a base URL, you can do so here.
 
@@ -475,7 +517,9 @@ If you want to prefix all relative servers with a base URL, you can do so here.
 }
 ```
 
-### servers?: Server[]
+### servers
+
+**Type:** `Server[]`
 
 Pass a list of servers to override the servers in your OpenAPI document.
 
@@ -499,7 +543,9 @@ Pass a list of servers to override the servers in your OpenAPI document.
 }
 ```
 
-### metaData?: object
+### metaData
+
+**Type:** `object`
 
 You can pass information to the config object to configure meta information out of the box.
 
@@ -517,7 +563,9 @@ You can pass information to the config object to configure meta information out 
 }
 ```
 
-### favicon?: string
+### favicon
+
+**Type:** `string`
 
 You can specify the path to a favicon to be used for the documentation.
 
@@ -527,7 +575,9 @@ You can specify the path to a favicon to be used for the documentation.
 }
 ```
 
-### defaultHttpClient?: HttpClientState
+### defaultHttpClient
+
+**Type:** `HttpClientState`
 
 By default, we're using Shell/curl as the default HTTP client. Or, if that's disabled (through `hiddenClients`), we're just using the first available HTTP client.
 
@@ -542,7 +592,9 @@ You can explicitly set the default HTTP client, though:
 }
 ```
 
-### hiddenClients?: array | true
+### hiddenClients
+
+**Type:** `array | true`
 
 We're generating code examples for a long list of popular HTTP clients. You can control which are shown by passing an array of clients, to hide the given clients.
 
@@ -585,11 +637,15 @@ But you can also pass `true` to **hide all** HTTP clients. If you have any custo
 }
 ```
 
-### onDocumentSelect?: () => void
+### onDocumentSelect
+
+**Type:** `() => void`
 
 Triggered when multiple documents are configured and the users switches between them.
 
-### onSpecUpdate?: (spec: string) => void
+### onSpecUpdate
+
+**Type:** `(spec: string) => void`
 
 You can listen to changes with onSpecUpdate that runs on spec/swagger content change.
 
@@ -601,7 +657,9 @@ You can listen to changes with onSpecUpdate that runs on spec/swagger content ch
 }
 ```
 
-### onServerChange?: (server: string) => void
+### onServerChange
+
+**Type:** `(server: string) => void`
 
 You can listen to changes with onServerChange that runs on server change.
 
@@ -613,7 +671,9 @@ You can listen to changes with onServerChange that runs on server change.
 }
 ```
 
-### authentication?: AuthenticationConfiguration
+### authentication
+
+**Type:** `AuthenticationConfiguration`
 
 To make authentication easier you can prefill the credentials for your users:
 
@@ -729,7 +789,9 @@ The `authentication` configuration accepts:
   - An array containing strings or arrays of strings (AND/OR relationship)
 - `securitySchemes`: An object mapping security scheme names to their configurations. Each security scheme can be configured with type-specific options.
 
-### generateHeadingSlug?: (heading: Heading) => string
+### generateHeadingSlug
+
+**Type:** `(heading: Heading) => string`
 
 Customize how heading URLs are generated. This function receives the heading and returns a string ID that controls the entire URL hash.
 
@@ -747,7 +809,9 @@ Customize how heading URLs are generated. This function receives the heading and
 }
 ```
 
-### generateModelSlug?: (model: { name: string }) => string
+### generateModelSlug
+
+**Type:** `(model: { name: string }) => string`
 
 Customize how model URLs are generated. This function receives the model object and returns a string ID. Note that `model/` will automatically be prepended to the result.
 
@@ -765,7 +829,9 @@ Customize how model URLs are generated. This function receives the model object 
 }
 ```
 
-### generateTagSlug?: (tag: Tag) => string
+### generateTagSlug
+
+**Type:** `(tag: Tag) => string`
 
 Customize how tag URLs are generated. This function receives the tag object and returns a string ID. Note that `tag/` will automatically be prepended to the result.
 
@@ -783,7 +849,9 @@ Customize how tag URLs are generated. This function receives the tag object and 
 }
 ```
 
-### generateOperationSlug?: (operation: Operation) => string
+### generateOperationSlug
+
+**Type:** `(operation: Operation) => string`
 
 Customize how operation URLs are generated. This function receives the operation object containing `path`, `operationId`, `method`, and `summary`. Note that `tag/tag-name/` will automatically be prepended to the result.
 
@@ -802,7 +870,9 @@ Customize how operation URLs are generated. This function receives the operation
 }
 ```
 
-### generateWebhookSlug?: (webhook: { name: string; method?: string }) => string
+### generateWebhookSlug
+
+**Type:** `(webhook: { name: string; method?: string }) => string`
 
 Customize how webhook URLs are generated. This function receives the webhook object containing the name and an optional HTTP method. Note that `webhook/` will automatically be prepended to the result.
 
@@ -821,7 +891,9 @@ Customize how webhook URLs are generated. This function receives the webhook obj
 }
 ```
 
-### pathRouting?: { basePath: string }
+### pathRouting
+
+**Type:** `{ basePath: string }`
 
 Configuration for path-based routing instead of hash-based routing. Your server must support this routing method.
 
@@ -833,7 +905,9 @@ Configuration for path-based routing instead of hash-based routing. Your server 
 }
 ```
 
-### redirect?: (path: string) => string | null | undefined
+### redirect
+
+**Type:** `(path: string) => string | null | undefined`
 
 Function to handle redirects in the API reference. Receives either:
 - The current path with hash if pathRouting is enabled
@@ -856,7 +930,9 @@ Function to handle redirects in the API reference. Receives either:
 }
 ```
 
-### onBeforeRequest?: ({ request: Request }) => void | Promise<void>
+### onBeforeRequest
+
+**Type:** `({ request: Request }) => void | Promise<void>`
 
 Callback function that is fired before a request is sent through the API client.
 
@@ -871,7 +947,9 @@ The function receives the request object and can be used to modify the request b
 }
 ```
 
-### onLoaded?: () => void
+### onLoaded
+
+**Type:** `() => void`
 
 Callback that triggers as soon as the references are lazy loaded.
 
@@ -885,7 +963,9 @@ Callback that triggers as soon as the references are lazy loaded.
 }
 ```
 
-### onShowMore?: (tagId: string) => void | Promise<void>
+### onShowMore
+
+**Type:** `(tagId: string) => void | Promise<void>`
 
 Callback function that is triggered when a user clicks the "Show more" button in the references. The function receives the ID of the tag that was clicked.
 
@@ -897,7 +977,9 @@ Callback function that is triggered when a user clicks the "Show more" button in
 }
 ```
 
-### onSidebarClick?: (href: string) => void | Promise<void>
+### onSidebarClick
+
+**Type:** `(href: string) => void | Promise<void>`
 
 Callback function that is triggered when a user clicks on any item in the sidebar. The function receives the href of the clicked item.
 
@@ -909,7 +991,9 @@ Callback function that is triggered when a user clicks on any item in the sideba
 }
 ```
 
-### onRequestSent?: (request: string) => void
+### onRequestSent
+
+**Type:** `(request: string) => void`
 
 Callback function that is triggered when a request is sent through the API client. The function receives the request details as a string.
 
@@ -921,11 +1005,13 @@ Callback function that is triggered when a request is sent through the API clien
 }
 ```
 
-### persistAuth?: boolean
+### persistAuth
+
+**Type:** `boolean`
 
 Whether to persist authentication credentials in local storage. This allows the authentication state to be maintained across page reloads.
 
-@default `false`
+**Default:** `false`
 
 ```js
 {
@@ -936,11 +1022,13 @@ Whether to persist authentication credentials in local storage. This allows the 
 > [!WARNING]
 > Persisting authentication information in the browser's local storage may present security risks in certain environments. Use this feature with caution based on your security requirements.
 
-### withDefaultFonts?: boolean
+### withDefaultFonts
+
+**Type:** `boolean`
 
 By default we're using Inter and JetBrains Mono, served from our fonts CDN at `https://fonts.scalar.com`. If you use a different font or just don't want to load web fonts, pass `withDefaultFonts: false` to the configuration.
 
-@default `true`
+**Default:** `true`
 
 ```js
 {
@@ -948,11 +1036,13 @@ By default we're using Inter and JetBrains Mono, served from our fonts CDN at `h
 }
 ```
 
-### defaultOpenAllTags?: boolean
+### defaultOpenAllTags
+
+**Type:** `boolean`
 
 By default we only open the relevant tag based on the url, however if you want all the tags open by default then set this configuration option.
 
-@default `false`
+**Default:** `false`
 
 ```js
 {
@@ -960,11 +1050,13 @@ By default we only open the relevant tag based on the url, however if you want a
 }
 ```
 
-### expandAllModelSections?: boolean
+### expandAllModelSections
+
+**Type:** `boolean`
 
 By default the models are all closed in the model section at the bottom, this flag will open them all by default.
 
-@default `false`
+**Default:** `false`
 
 ```js
 {
@@ -972,11 +1064,13 @@ By default the models are all closed in the model section at the bottom, this fl
 }
 ```
 
-### expandAllResponses?: boolean
+### expandAllResponses
+
+**Type:** `boolean`
 
 By default response sections are closed in the operations. This flag will open them by default.
 
-@default `false`
+**Default:** `false`
 
 ```js
 {
@@ -984,7 +1078,9 @@ By default response sections are closed in the operations. This flag will open t
 }
 ```
 
-### tagsSorter?: 'alpha' | (a: Tag, b: Tag) => number
+### tagsSorter
+
+**Type:** `'alpha' | (a: Tag, b: Tag) => number`
 
 Sort tags alphanumerically (`'alpha'`):
 
@@ -1010,7 +1106,9 @@ Or specify a custom function to sort the tags.
 
 Learn more about Array sort functions: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
 
-### operationsSorter?: 'alpha' | 'method' | ((a: OperationSortValue, b: OperationSortValue) => number)
+### operationsSorter
+
+**Type:** `'alpha' | 'method' | ((a: OperationSortValue, b: OperationSortValue) => number)`
 
 Sort operations alphanumerically (`'alpha'`) or by HTTP method (`'method'`):
 
@@ -1039,11 +1137,13 @@ Or specify a custom function to sort the operations:
 
 > Note: `method` is the HTTP method of the operation, represented as a lowercase string.
 
-### orderRequiredPropertiesFirst?: boolean
+### orderRequiredPropertiesFirst
+
+**Type:** `boolean`
 
 Whether to order required properties first in schema objects. When enabled, required properties will be displayed before optional properties in model definitions.
 
-@default `true`
+**Default:** `true`
 
 ```js
 {
@@ -1051,14 +1151,16 @@ Whether to order required properties first in schema objects. When enabled, requ
 }
 ```
 
-### orderSchemaPropertiesBy?: 'alpha' | 'preserve'
+### orderSchemaPropertiesBy
+
+**Type:** `'alpha' | 'preserve'`
 
 Control how schema properties are ordered in model definitions. Can be set to:
 
 - `'alpha'`: Sort properties alphabetically by name
 - `'preserve'`: Preserve the order from the OpenAPI Document
 
-@default `'alpha'`
+**Default:** `'alpha'`
 
 ```js
 // Preserve original ordering
@@ -1067,13 +1169,15 @@ Control how schema properties are ordered in model definitions. Can be set to:
 }
 ```
 
-### theme?: string
+### theme
+
+**Type:** `string`
 
 You don't like the color scheme? We've prepared some themes for you:
 
 Can be one of: **alternate**, **default**, **moon**, **purple**, **solarized**, **bluePlanet**, **saturn**, **kepler**, **mars**, **deepSpace**, **laserwave**, **none**
 
-@default `'default'`
+**Default:** `'default'`
 
 ```js
 {
@@ -1081,11 +1185,13 @@ Can be one of: **alternate**, **default**, **moon**, **purple**, **solarized**, 
 }
 ```
 
-### hideClientButton?: boolean
+### hideClientButton
+
+**Type:** `boolean`
 
 Whether to show the client button from the reference sidebar and modal.
 
-@default `false`
+**Default:** `false`
 
 ```js
 {
