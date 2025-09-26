@@ -41,10 +41,8 @@ export const fsharpHttpclient: Plugin = {
     if (request.cookies && request.cookies.length > 0 && request.url) {
       code += turnCookiesToCode(request.cookies, request.url)
 
-      code += '//Send the request\n'
       code += 'let client = new HttpClient(handler)\n'
     } else {
-      code += '//Send the request\n'
       code += 'let client = new HttpClient()\n'
     }
 
@@ -70,7 +68,7 @@ function extractQueryString(queryStringArray: { name: string; value: string }[])
 }
 
 function turnHeadersToCode(headersArray: { name: string; value: string }[]): string {
-  let code = '//Headers\n'
+  let code = ''
   for (const header of headersArray) {
     code += `httpRequestMessage.Headers.Add("${header.name}", "${header.value}")\n`
   }
@@ -79,9 +77,7 @@ function turnHeadersToCode(headersArray: { name: string; value: string }[]): str
 }
 
 function turnCookiesToCode(cookies: { name: string; value: string }[], url: string): string {
-  let code = '//Cookies\n'
-
-  code += 'let cookieContainer = CookieContainer()\n'
+  let code = 'let cookieContainer = CookieContainer()\n'
   for (const cookie of cookies) {
     code += `cookieContainer.Add(Uri("${url}"), Cookie("${cookie.name}", "${cookie.value}"))\n`
   }
@@ -94,7 +90,7 @@ function turnCookiesToCode(cookies: { name: string; value: string }[], url: stri
 
 function turnPostDataToCode(postData: any): string {
   if (!postData) return ''
-  let code = '//Post Data\n'
+  let code = ''
 
   if (postData.mimeType === 'multipart/form-data') {
     code += turnPostDataMultiPartToCode(postData)
