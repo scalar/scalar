@@ -8,12 +8,10 @@ export const fsharpHttpclient: Plugin = {
   target: 'fsharp',
   client: 'httpclient',
   title: 'HttpClient',
-  generate: (request, configuration) => {
+  generate: (request, _) => {
     if (!request) {
       return ''
     }
-
-    const options: Record<string, any> = {}
 
     let urlWithPotentialQueryString = request.url
     // handle url
@@ -25,7 +23,6 @@ export const fsharpHttpclient: Plugin = {
     }
     // Generate the fsharp code
     let code = ''
-    console.log(options, configuration, request)
 
     // Init the HttpRequestMessage
     code += `let httpRequestMessage = new HttpRequestMessage( HttpMethod("${request.method}"), new Uri("${urlWithPotentialQueryString}"))\n\n`
@@ -139,7 +136,7 @@ function turnPostDataUrlEncodeToCode(postData: any): string {
   let code = 'let formUrlEncodedContentDictionary = new Dictionary<string, string>()\n'
 
   for (const data of postData.params) {
-    code += `formUrlEncodedContentDictionary.Add("${data.value}", "${data.name}")\n`
+    code += `formUrlEncodedContentDictionary.Add("${data.name}", "${data.value}")\n`
   }
 
   code += 'let content = new FormUrlEncodedContent(formUrlEncodedContentDictionary)\n'
