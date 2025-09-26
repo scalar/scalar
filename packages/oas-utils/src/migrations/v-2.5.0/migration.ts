@@ -138,7 +138,6 @@ export const migrate_v_2_5_0 = (data: v_2_4_0.DataRecord): v_2_5_0['DataRecord']
 
   const workspaces = Object.entries(data.workspaces || {}).reduce<Record<string, v_2_5_0['Workspace']>>(
     (acc, [key, workspace]) => {
-      // @ts-expect-error
       acc[key] = {
         ...workspace,
         uid: workspace.uid as v_2_5_0['Workspace']['uid'],

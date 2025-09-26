@@ -11,7 +11,7 @@ const modifiers = z
 
 export type HotKeyModifiers = z.infer<typeof modifiers>
 
-const hotKeys = z.record(
+const hotKeys = z.partialRecord(
   z.enum(KEYDOWN_KEYS),
   z.object({
     modifiers: modifiers.optional(),
