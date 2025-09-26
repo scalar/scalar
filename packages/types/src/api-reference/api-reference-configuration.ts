@@ -381,7 +381,7 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
       })
       .optional(),
     /** onDocumentSelect is fired when the config is selected */
-    onDocumentSelect: z.function().optional() as z.ZodType<() => Promise<void> | void> | undefined,
+    onDocumentSelect: z.function().optional() as z.ZodType<(() => Promise<void> | void) | undefined>,
     /** Callback fired when the reference is fully loaded */
     onLoaded: z.function().optional() as z.ZodType<() => Promise<void> | void> | undefined,
     /** onBeforeRequest is fired before the request is sent. You can modify the request here. */
