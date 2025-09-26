@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { ExamplePicker } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import {
   ScalarCard,
   ScalarCardFooter,
@@ -21,7 +22,6 @@ import type {
 import { computed, ref, toValue, useId } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
-import { ExamplePicker } from '@/v2/blocks/scalar-request-example-block'
 
 import ExampleResponse from './ExampleResponse.vue'
 import ExampleResponseTab from './ExampleResponseTab.vue'

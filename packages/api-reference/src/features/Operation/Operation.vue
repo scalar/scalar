@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { useWorkspace } from '@scalar/api-client/store'
+import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { filterSecurityRequirements } from '@scalar/api-client/views/Request/RequestSection'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
@@ -14,7 +15,6 @@ import { computed } from 'vue'
 
 import { combineParams } from '@/features/Operation/helpers/combine-params'
 import { convertSecurityScheme } from '@/helpers/convert-security-scheme'
-import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
 import { getFirstServer } from './helpers/get-first-server'
 import ClassicLayout from './layouts/ClassicLayout.vue'

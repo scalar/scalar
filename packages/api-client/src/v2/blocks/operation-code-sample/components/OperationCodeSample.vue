@@ -116,7 +116,7 @@ import type {
 import { operationToHar } from '@v2/blocks/operation-code-sample/helpers/operation-to-har/operation-to-har'
 import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
 
-import { HttpMethod } from '@/components/HttpMethod'
+import HttpMethod from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 import { findClient } from '@/v2/blocks/operation-code-sample/helpers/find-client'
 import { generateCustomId } from '@/v2/blocks/operation-code-sample/helpers/generate-client-options'
 import { generateCodeSnippet } from '@/v2/blocks/operation-code-sample/helpers/generate-code-snippet'

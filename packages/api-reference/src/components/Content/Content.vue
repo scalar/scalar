@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
+import { generateClientOptions } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { ScalarErrorBoundary } from '@scalar/components'
 import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { ApiReferenceConfiguration } from '@scalar/types'
@@ -15,7 +16,6 @@ import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 import { ClientSelector } from '@/v2/blocks/scalar-client-selector-block'
 import { InfoBlock } from '@/v2/blocks/scalar-info-block'
 import { IntroductionCardItem } from '@/v2/blocks/scalar-info-block/'
-import { generateClientOptions } from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
 import { ServerSelector } from '@/v2/blocks/scalar-server-selector-block'
 import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
 

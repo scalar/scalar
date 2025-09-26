@@ -14,6 +14,7 @@
  * No state updates should be handled in children of this components. When updates are required
  * a custom event should be emitted to the workspace store and handled here.
  */
+import { isClient } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import {
   REFERENCE_LS_KEYS,
   safeLocalStorage,
@@ -44,7 +45,6 @@ import {
   useMultipleDocuments,
 } from '@/features/multiple-documents'
 import { NAV_STATE_SYMBOL } from '@/hooks/useNavState'
-import { isClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import { getDocumentName } from '@/v2/helpers/get-document-name'
 import { mapConfiguration } from '@/v2/helpers/map-configuration'
 import { normalizeContent } from '@/v2/helpers/normalize-content'

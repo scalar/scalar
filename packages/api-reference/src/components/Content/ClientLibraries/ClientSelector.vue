@@ -1,16 +1,15 @@
 <script setup lang="ts">
 import { Tab } from '@headlessui/vue'
+import {
+  findClient,
+  type ClientOption,
+  type ClientOptionGroup,
+} from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { ScalarCombobox, ScalarIcon } from '@scalar/components'
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type { AvailableClients, TargetId } from '@scalar/types/snippetz'
 import { emitCustomEvent } from '@scalar/workspace-store/events'
 import { computed, ref } from 'vue'
-
-import { findClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
-import type {
-  ClientOption,
-  ClientOptionGroup,
-} from '@/v2/blocks/scalar-request-example-block/types'
 
 import { isFeaturedClient } from './featured-clients'
 
@@ -82,11 +81,11 @@ const selectedTargetKey = computed(
 
     <!-- Client Dropdown -->
     <ScalarCombobox
-      :options="clientOptions"
       :modelValue="findClient(clientOptions, selectedClient)"
-      @update:modelValue="selectClient($event as ClientOption)"
+      :options="clientOptions"
       placement="bottom-end"
-      teleport>
+      teleport
+      @update:modelValue="selectClient($event as ClientOption)">
       <button
         class="client-libraries client-libraries__select"
         :class="{
@@ -99,8 +98,8 @@ const selectedTargetKey = computed(
           <template v-if="selectedClient && !isFeaturedClient(selectedClient)">
             <div :class="`client-libraries-icon__${selectedTargetKey}`">
               <ScalarIcon
-                class="client-libraries-icon"
                 v-if="selectedTargetKey"
+                class="client-libraries-icon"
                 :icon="getIconByLanguageKey(selectedTargetKey)" />
             </div>
           </template>
