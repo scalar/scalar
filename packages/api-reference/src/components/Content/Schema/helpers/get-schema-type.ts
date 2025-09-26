@@ -56,7 +56,12 @@ export const getSchemaType = (valueOrRef: SchemaObject | ReferenceType<SchemaObj
 
   const value = getResolvedRef(valueOrRef)
 
-  // Handle const values first (highest priority)
+  // Handle named schemas (title has highest priority for display)
+  if (value.title) {
+    return value.title
+  }
+
+  // Handle const values
   if (value.const !== undefined) {
     return 'const'
   }
@@ -79,11 +84,6 @@ export const getSchemaType = (valueOrRef: SchemaObject | ReferenceType<SchemaObj
   // Handle single array type
   if (isArraySchema(value)) {
     return processArrayType(value, false)
-  }
-
-  // Handle named schemas (title has highest priority)
-  if (value.title) {
-    return value.title
   }
 
   // Handle XML-named schemas

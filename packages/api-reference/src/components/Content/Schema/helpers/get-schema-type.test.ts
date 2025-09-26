@@ -68,7 +68,7 @@ describe('get-schema-type', () => {
       expect(result).toBe('')
     })
 
-    it('prioritizes array type over title', () => {
+    it('prioritizes title over array type', () => {
       const schema = coerceValue(SchemaObjectSchema, {
         type: ['string', 'null'],
         title: 'Optional String',
@@ -76,7 +76,7 @@ describe('get-schema-type', () => {
 
       const result = getSchemaType(schema)
 
-      expect(result).toBe('string | null')
+      expect(result).toBe('Optional String')
     })
 
     it('handles empty array type', () => {
@@ -118,7 +118,7 @@ describe('get-schema-type', () => {
 
       const result = getSchemaType(schema)
 
-      expect(result).toBe('string | number')
+      expect(result).toBe('Mixed Value')
     })
 
     it('handles array type containing object', () => {
@@ -408,7 +408,7 @@ describe('get-schema-type', () => {
       expect(result).toBe('array (array number[] | string)[]')
     })
 
-    it('handles array schema with items that have array type and other properties', () => {
+    it('handles array schema with items that have array type and other properties (no title)', () => {
       const schema = coerceValue(SchemaObjectSchema, {
         type: 'array',
         items: {
@@ -416,13 +416,29 @@ describe('get-schema-type', () => {
           items: {
             type: 'number',
           },
-          title: 'Mixed Item',
         },
       })
 
       const result = getSchemaType(schema)
 
       expect(result).toBe('array (array number[] | string)[]')
+    })
+
+    it('handles array schema with items that have array type and other properties (with title)', () => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        type: 'array',
+        items: {
+          title: 'Mixed Item',
+          type: ['string', 'array'],
+          items: {
+            type: 'number',
+          },
+        },
+      })
+
+      const result = getSchemaType(schema)
+
+      expect(result).toBe('array Mixed Item[]')
     })
 
     it('handles array schema with items that have array type', () => {
