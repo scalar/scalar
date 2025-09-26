@@ -1,7 +1,8 @@
-import { describe, it, expect } from 'vitest'
-import { processBody } from './process-body'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { describe, expect, it } from 'vitest'
+
+import { processBody } from './process-body'
 
 describe('processBody', () => {
   it('extracts example from simple object schema', () => {
@@ -18,7 +19,7 @@ describe('processBody', () => {
       },
     }
 
-    const result = processBody({ content })
+    const result = processBody({ requestBody: { content } })
 
     expect(result).toEqual({
       mimeType: 'application/json',
@@ -43,7 +44,7 @@ describe('processBody', () => {
       },
     }
 
-    const result = processBody({ content })
+    const result = processBody({ requestBody: { content } })
 
     expect(result).toEqual({
       mimeType: 'application/json',
@@ -78,7 +79,7 @@ describe('processBody', () => {
       },
     }
 
-    const result = processBody({ content })
+    const result = processBody({ requestBody: { content } })
 
     expect(result).toEqual({
       mimeType: 'application/json',
@@ -122,7 +123,7 @@ describe('processBody', () => {
       },
     }
 
-    const result = processBody({ content })
+    const result = processBody({ requestBody: { content } })
 
     expect(result).toEqual({
       mimeType: 'application/json',
@@ -143,7 +144,7 @@ describe('processBody', () => {
       },
     }
 
-    const result = processBody({ content })
+    const result = processBody({ requestBody: { content } })
 
     expect(result).toEqual({
       mimeType: 'application/json',
@@ -161,7 +162,7 @@ describe('processBody', () => {
       },
     }
 
-    const result = processBody({ content })
+    const result = processBody({ requestBody: { content } })
 
     expect(result).toEqual({
       mimeType: 'application/json',
@@ -179,7 +180,7 @@ describe('processBody', () => {
       },
     }
 
-    const result = processBody({ content })
+    const result = processBody({ requestBody: { content } })
 
     expect(result).toEqual({
       mimeType: 'application/json',
@@ -202,7 +203,7 @@ describe('processBody', () => {
       },
     }
 
-    const result = processBody({ content })
+    const result = processBody({ requestBody: { content } })
 
     expect(result).toEqual({
       mimeType: 'application/json',
@@ -236,7 +237,7 @@ describe('processBody', () => {
       },
     }
 
-    const result = processBody({ content })
+    const result = processBody({ requestBody: { content } })
 
     expect(result).toEqual({
       mimeType: 'application/json',
@@ -261,7 +262,7 @@ describe('processBody', () => {
       },
     }
 
-    const result = processBody({ content })
+    const result = processBody({ requestBody: { content } })
 
     expect(result).toEqual({
       mimeType: 'application/json',
@@ -287,7 +288,7 @@ describe('processBody', () => {
       },
     }
 
-    const result = processBody({ content })
+    const result = processBody({ requestBody: { content } })
 
     expect(result).toEqual({
       mimeType: 'application/json',
@@ -308,7 +309,7 @@ describe('processBody', () => {
     }
 
     const result = processBody({
-      content,
+      requestBody: { content },
       contentType: 'application/xml',
     })
 
@@ -320,7 +321,7 @@ describe('processBody', () => {
 
   it('handles operation without requestBody', () => {
     const content = {}
-    const result = processBody({ content })
+    const result = processBody({ requestBody: { content } })
 
     expect(result).toEqual({
       mimeType: '',
@@ -330,7 +331,7 @@ describe('processBody', () => {
 
   it('handles operation with empty content', () => {
     const content = {}
-    const result = processBody({ content })
+    const result = processBody({ requestBody: { content } })
 
     expect(result).toEqual({
       mimeType: '',
@@ -351,7 +352,7 @@ describe('processBody', () => {
       },
     }
 
-    const result = processBody({ content })
+    const result = processBody({ requestBody: { content } })
 
     expect(result).toEqual({
       mimeType: 'application/json',
@@ -372,11 +373,16 @@ describe('processBody', () => {
             age: { type: 'number', example: 25 },
           },
         }),
+        examples: {
+          'external': {
+            value: { name: 'External Example', age: 30 },
+          },
+        },
       },
     }
 
     const externalExample = { name: 'External Example', age: 30 }
-    const result = processBody({ content, example: externalExample })
+    const result = processBody({ requestBody: { content }, example: 'external' })
 
     expect(result).toEqual({
       mimeType: 'application/json',
@@ -413,7 +419,7 @@ describe('processBody', () => {
       }
 
       const result = processBody({
-        content,
+        requestBody: { content },
         contentType: 'multipart/form-data',
       })
 
@@ -447,7 +453,7 @@ describe('processBody', () => {
       }
 
       const result = processBody({
-        content,
+        requestBody: { content },
         contentType: 'multipart/form-data',
       })
 
@@ -490,7 +496,7 @@ describe('processBody', () => {
       }
 
       const result = processBody({
-        content,
+        requestBody: { content },
         contentType: 'multipart/form-data',
       })
 
@@ -538,7 +544,7 @@ describe('processBody', () => {
       }
 
       const result = processBody({
-        content,
+        requestBody: { content },
         contentType: 'multipart/form-data',
       })
 
@@ -572,7 +578,7 @@ describe('processBody', () => {
       }
 
       const result = processBody({
-        content,
+        requestBody: { content },
         contentType: 'multipart/form-data',
       })
 
@@ -614,7 +620,7 @@ describe('processBody', () => {
       }
 
       const result = processBody({
-        content,
+        requestBody: { content },
         contentType: 'multipart/form-data',
       })
 
@@ -641,7 +647,7 @@ describe('processBody', () => {
       }
 
       const result = processBody({
-        content,
+        requestBody: { content },
         contentType: 'multipart/form-data',
       })
 
@@ -666,7 +672,7 @@ describe('processBody', () => {
       }
 
       const result = processBody({
-        content,
+        requestBody: { content },
         contentType: 'multipart/form-data',
       })
 
@@ -699,7 +705,7 @@ describe('processBody', () => {
       }
 
       const result = processBody({
-        content,
+        requestBody: { content },
         contentType: 'multipart/form-data',
       })
 
@@ -733,7 +739,7 @@ describe('processBody', () => {
       }
 
       const result = processBody({
-        content,
+        requestBody: { content },
         contentType: 'application/x-www-form-urlencoded',
       })
 
@@ -774,7 +780,7 @@ describe('processBody', () => {
       }
 
       const result = processBody({
-        content,
+        requestBody: { content },
         contentType: 'application/x-www-form-urlencoded',
       })
 
@@ -814,7 +820,7 @@ describe('processBody', () => {
       }
 
       const result = processBody({
-        content,
+        requestBody: { content },
         contentType: 'application/x-www-form-urlencoded',
       })
 
@@ -863,7 +869,7 @@ describe('processBody', () => {
       }
 
       const result = processBody({
-        content,
+        requestBody: { content },
         contentType: 'application/x-www-form-urlencoded',
       })
 
@@ -895,7 +901,7 @@ describe('processBody', () => {
       }
 
       const result = processBody({
-        content,
+        requestBody: { content },
         contentType: 'application/x-www-form-urlencoded',
       })
 
@@ -911,18 +917,6 @@ describe('processBody', () => {
     })
 
     it('handles form data with external example', () => {
-      const content = {
-        'application/x-www-form-urlencoded': {
-          schema: coerceValue(SchemaObjectSchema, {
-            type: 'object',
-            properties: {
-              name: { type: 'string', example: 'Schema Example' },
-              age: { type: 'number', example: 25 },
-            },
-          }),
-        },
-      }
-
       const externalExample = {
         name: 'External Example',
         age: 30,
@@ -932,10 +926,27 @@ describe('processBody', () => {
         },
       }
 
+      const content = {
+        'application/x-www-form-urlencoded': {
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              name: { type: 'string', example: 'Schema Example' },
+              age: { type: 'number', example: 25 },
+            },
+          }),
+          examples: {
+            'test': {
+              value: externalExample,
+            },
+          },
+        },
+      }
+
       const result = processBody({
-        content,
+        requestBody: { content },
         contentType: 'application/x-www-form-urlencoded',
-        example: externalExample,
+        example: 'test',
       })
 
       expect(result).toEqual({
@@ -960,7 +971,7 @@ describe('processBody', () => {
       }
 
       const result = processBody({
-        content,
+        requestBody: { content },
         contentType: 'application/x-www-form-urlencoded',
       })
 
@@ -986,7 +997,7 @@ describe('processBody', () => {
       }
 
       const result = processBody({
-        content,
+        requestBody: { content },
         contentType: 'application/x-www-form-urlencoded',
       })
 
@@ -1020,7 +1031,7 @@ describe('processBody', () => {
       }
 
       const result = processBody({
-        content,
+        requestBody: { content },
         contentType: 'application/x-www-form-urlencoded',
       })
 
@@ -1047,7 +1058,7 @@ describe('processBody', () => {
       }
 
       const result = processBody({
-        content,
+        requestBody: { content },
         contentType: 'image/png',
       })
 
@@ -1072,7 +1083,7 @@ describe('processBody', () => {
       }
 
       const result = processBody({
-        content,
+        requestBody: { content },
         contentType: 'application/pdf',
       })
 
@@ -1129,7 +1140,7 @@ describe('processBody', () => {
         },
       }
 
-      const result = processBody({ content })
+      const result = processBody({ requestBody: { content } })
 
       expect(result).toEqual({
         mimeType: 'application/json',
@@ -1178,7 +1189,7 @@ describe('processBody', () => {
         },
       }
 
-      const result = processBody({ content })
+      const result = processBody({ requestBody: { content } })
 
       expect(result).toEqual({
         mimeType: 'application/json',

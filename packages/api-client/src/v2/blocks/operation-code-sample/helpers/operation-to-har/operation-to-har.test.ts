@@ -180,6 +180,11 @@ describe('operationToHar', () => {
             schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
             }),
+            examples: {
+              'number': {
+                value: '123',
+              },
+            },
           },
         ],
         responses: {
@@ -203,7 +208,7 @@ describe('operationToHar', () => {
         method: 'get',
         path: '/users/{userId}',
         server,
-        example: { userId: '123' },
+        example: 'number',
       })
 
       expect(result.url).toBe('https://api.example.com/users/123')
@@ -218,6 +223,11 @@ describe('operationToHar', () => {
             schema: coerceValue(SchemaObjectSchema, {
               type: 'string',
             }),
+            examples: {
+              'filter': {
+                value: 'active',
+              },
+            },
           },
         ],
         responses: {
@@ -241,7 +251,7 @@ describe('operationToHar', () => {
         method: 'get',
         path: '/users',
         server,
-        example: { filter: 'active' },
+        example: 'filter',
       })
 
       expect(result.url).toBe('https://api.example.com/users')
@@ -251,6 +261,11 @@ describe('operationToHar', () => {
 
   describe('request body handling', () => {
     it('should include request body when provided', () => {
+      const example = {
+        name: 'John Doe',
+        age: 30,
+      }
+
       const operation: OperationObject = {
         requestBody: {
           content: {
@@ -262,6 +277,11 @@ describe('operationToHar', () => {
                   age: { type: 'integer' },
                 },
               }),
+              examples: {
+                'test': {
+                  value: example,
+                },
+              },
             },
           },
         },
@@ -272,16 +292,11 @@ describe('operationToHar', () => {
         },
       }
 
-      const example = {
-        name: 'John Doe',
-        age: 30,
-      }
-
       const result = operationToHar({
         operation,
         method: 'post',
         path: '/api/users',
-        example,
+        example: 'test',
       })
 
       expect(result.postData).toBeDefined()
@@ -364,6 +379,15 @@ describe('operationToHar', () => {
 
   describe('data type handling', () => {
     it('should handle various data types in example', () => {
+      const example = {
+        stringProp: 'hello',
+        numberProp: 42,
+        boolProp: true,
+        nullProp: null,
+        arrayProp: [1, 2, 3],
+        objectProp: { foo: 'bar' },
+      }
+
       const operation: OperationObject = {
         requestBody: {
           content: {
@@ -379,6 +403,11 @@ describe('operationToHar', () => {
                   objectProp: { type: 'object', properties: { foo: { type: 'string' } } },
                 },
               }),
+              examples: {
+                'test': {
+                  value: example,
+                },
+              },
             },
           },
         },
@@ -389,20 +418,11 @@ describe('operationToHar', () => {
         },
       }
 
-      const example = {
-        stringProp: 'hello',
-        numberProp: 42,
-        boolProp: true,
-        nullProp: null,
-        arrayProp: [1, 2, 3],
-        objectProp: { foo: 'bar' },
-      }
-
       const result = operationToHar({
         operation,
         method: 'post',
         path: '/api/data',
-        example,
+        example: 'test',
       })
 
       expect(result.postData).toBeDefined()
@@ -452,7 +472,6 @@ describe('operationToHar', () => {
         operation,
         method: 'post',
         path: '/api/users',
-        example: { name: 'John Doe' },
       })
 
       expect(result.postData?.mimeType).toBe('application/json')
@@ -492,7 +511,6 @@ describe('operationToHar', () => {
         method: 'post',
         path: '/api/users',
         contentType: 'application/xml',
-        example: { name: 'John Doe' },
       })
 
       expect(result.postData?.mimeType).toBe('application/xml')
@@ -524,18 +542,17 @@ describe('operationToHar', () => {
         operation,
         method: 'post',
         path: '/api/users',
-        example: { name: 'John Doe', email: 'john@example.com' },
       })
 
       expect(result.postData?.mimeType).toBe('application/x-www-form-urlencoded')
       expect(result.postData?.params).toEqual([
         {
           name: 'name',
-          value: 'John Doe',
+          value: '',
         },
         {
           name: 'email',
-          value: 'john@example.com',
+          value: '',
         },
       ])
     })
@@ -566,22 +583,13 @@ describe('operationToHar', () => {
         operation,
         method: 'post',
         path: '/api/upload',
-        example: {
-          file: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
-          description: 'Test image',
-        },
       })
 
       expect(result.postData?.mimeType).toBe('multipart/form-data')
       expect(result.postData?.params).toEqual([
         {
-          name: 'file',
-          value:
-            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
-        },
-        {
           name: 'description',
-          value: 'Test image',
+          value: '',
         },
       ])
     })
@@ -608,11 +616,10 @@ describe('operationToHar', () => {
         operation,
         method: 'post',
         path: '/api/text',
-        example: 'Hello, World!',
       })
 
       expect(result.postData?.mimeType).toBe('text/plain')
-      expect(result.postData?.text).toBe(JSON.stringify('Hello, World!'))
+      expect(result.postData?.text).toBe(JSON.stringify(''))
     })
 
     it('should handle application/xml content type', () => {
@@ -646,15 +653,14 @@ describe('operationToHar', () => {
         operation,
         method: 'post',
         path: '/api/users',
-        example: { user: { name: 'John Doe', email: 'john@example.com' } },
       })
 
       expect(result.postData?.mimeType).toBe('application/xml')
       expect(result.postData?.text).toBe(
         `<?xml version="1.0" encoding="UTF-8"?>
 <user>
-  <name>John Doe</name>
-  <email>john@example.com</email>
+  <name></name>
+  <email></email>
 </user>`,
       )
     })
@@ -690,11 +696,10 @@ describe('operationToHar', () => {
         operation,
         method: 'post',
         path: '/api/resources',
-        example: { data: { type: 'users', attributes: { name: 'John' } } },
       })
 
       expect(result.postData?.mimeType).toBe('application/vnd.api+json')
-      expect(result.postData?.text).toBe(JSON.stringify({ data: { type: 'users', attributes: { name: 'John' } } }))
+      expect(result.postData?.text).toBe(JSON.stringify({ data: { type: '', attributes: {} } }))
     })
 
     it('should handle operations with no requestBody', () => {
@@ -741,7 +746,7 @@ describe('operationToHar', () => {
       const operation: OperationObject = {
         requestBody: {
           content: {
-            'application/json': {
+            'application/xml': {
               schema: coerceValue(SchemaObjectSchema, {
                 type: 'object',
                 properties: {
@@ -763,12 +768,11 @@ describe('operationToHar', () => {
         method: 'post',
         path: '/api/users',
         contentType: 'application/xml',
-        example: { name: 'John Doe' },
       })
 
       expect(result.postData?.mimeType).toBe('application/xml')
       expect(result.postData?.text).toBe(`<?xml version="1.0" encoding="UTF-8"?>
-<name>John Doe</name>`)
+<name></name>`)
     })
 
     it('should set Content-Type header when request body is present', () => {
@@ -796,7 +800,6 @@ describe('operationToHar', () => {
         operation,
         method: 'post',
         path: '/api/users',
-        example: { name: 'John Doe' },
       })
 
       expect(result.postData?.mimeType).toBe('application/json')
@@ -831,7 +834,6 @@ describe('operationToHar', () => {
         operation,
         method: 'post',
         path: '/api/users',
-        example: { name: 'John Doe' },
       })
 
       expect(result.postData?.mimeType).toBe('application/xml')
@@ -875,7 +877,6 @@ describe('operationToHar', () => {
         operation,
         method: 'post',
         path: '/api/users',
-        example: { name: 'John Doe' },
       })
 
       const contentTypeHeaders = result.headers.filter((header) => header.name === 'Content-Type')
@@ -927,7 +928,6 @@ describe('operationToHar', () => {
         operation,
         method: 'post',
         path: '/api/upload',
-        example: { file: 'test-file.txt' },
       })
 
       expect(result.postData?.mimeType).toBe('multipart/form-data')
@@ -959,7 +959,6 @@ describe('operationToHar', () => {
         operation,
         method: 'post',
         path: '/api/text',
-        example: 'Hello, World!',
       })
 
       expect(result.postData?.mimeType).toBe('text/plain')
