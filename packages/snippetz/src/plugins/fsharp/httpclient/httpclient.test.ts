@@ -165,8 +165,8 @@ describe('fsharpHttpclient.generate - postData', () => {
     } as any
     const result = fsharpHttpclient.generate(request, {})
     expect(result).toContain('let fileStreamContent_0 = new StreamContent(File.OpenRead("test.txt"))')
-    expect(result).toContain('fileStreamContent_0.Headers.ContentType <- new MediaTypeHeaderValue("text/plain")')
-    expect(result).toContain('content.Add(fileStreamContent_0, "file_0", "test.txt")')
+    expect(result).toContain('fileStreamContent_0.Headers.ContentType <- MediaTypeHeaderValue("text/plain")')
+    expect(result).toContain('content.Add(fileStreamContent_0, "test.txt", "test.txt")')
     expect(result).toContain('httpRequestMessage.Content <- content')
   })
 
@@ -186,8 +186,8 @@ describe('fsharpHttpclient.generate - postData', () => {
     expect(result).toContain('let content = new MultipartFormDataContent()')
     expect(result).toContain('content.Add(new StringContent("value1"), "field1")')
     expect(result).toContain('let fileStreamContent_0 = new StreamContent(File.OpenRead("test.txt"))')
-    expect(result).toContain('fileStreamContent_0.Headers.ContentType <- new MediaTypeHeaderValue("text/plain")')
-    expect(result).toContain('content.Add(fileStreamContent_0, "file_0", "test.txt")')
+    expect(result).toContain('fileStreamContent_0.Headers.ContentType <- MediaTypeHeaderValue("text/plain")')
+    expect(result).toContain('content.Add(fileStreamContent_0, "test.txt", "test.txt")')
     expect(result).toContain('httpRequestMessage.Content <- content')
   })
 })
