@@ -3,7 +3,8 @@
   "compilerOptions": {
     "types": ["vite/client"],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@v2/*": ["./src/v2/*"]
     }
   },
   "include": ["src", "playground"]

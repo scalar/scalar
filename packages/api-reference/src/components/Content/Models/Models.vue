@@ -49,6 +49,7 @@ const flatSchemas = computed(() => {
     :isLazy="Boolean(hash) && !hash.startsWith('model')">
     <ClassicLayout
       v-if="config?.layout === 'classic'"
+      :config="config"
       :schemas="flatSchemas" />
     <ModernLayout
       v-else

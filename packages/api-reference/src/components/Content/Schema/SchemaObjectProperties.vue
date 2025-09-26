@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   DiscriminatorObject,
@@ -9,30 +8,19 @@ import { computed } from 'vue'
 
 import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
 import { sortPropertyNames } from '@/components/Content/Schema/helpers/sort-property-names'
+import type { SchemaOptions } from '@/components/Content/Schema/types'
 
 import SchemaProperty from './SchemaProperty.vue'
 
-const {
-  schema,
-  discriminator,
-  hideReadOnly,
-  hideWriteOnly,
-  orderSchemaPropertiesBy = 'alpha',
-  orderRequiredPropertiesFirst = true,
-} = defineProps<{
+const { schema, discriminator, options } = defineProps<{
   schema: SchemaObject
   discriminator?: DiscriminatorObject
   compact?: boolean
   hideHeading?: boolean
   level?: number
   hideModelNames?: boolean
-  /** Hide readonly properties */
-  hideReadOnly?: boolean
-  /** Hide write-only properties */
-  hideWriteOnly?: boolean
   breadcrumb?: string[]
-  orderSchemaPropertiesBy?: ApiReferenceConfiguration['orderSchemaPropertiesBy']
-  orderRequiredPropertiesFirst?: ApiReferenceConfiguration['orderRequiredPropertiesFirst']
+  options: SchemaOptions
 }>()
 
 /**
@@ -40,12 +28,7 @@ const {
  * Required properties appear first, followed by optional properties.
  */
 const sortedProperties = computed(() =>
-  sortPropertyNames(schema, discriminator, {
-    hideReadOnly,
-    hideWriteOnly,
-    orderSchemaPropertiesBy,
-    orderRequiredPropertiesFirst,
-  }),
+  sortPropertyNames(schema, discriminator, options),
 )
 
 /**
@@ -112,12 +95,11 @@ const getAdditionalPropertiesValue = (
       :discriminator
       :hideHeading
       :hideModelNames
-      :hideReadOnly="hideReadOnly"
-      :hideWriteOnly="hideWriteOnly"
       :level
       :name="property"
+      :options="options"
       :required="schema.required?.includes(property)"
-      :value="getResolvedRef(schema.properties[property])" />
+      :schema="getResolvedRef(schema.properties[property])" />
   </template>
 
   <!-- patternProperties -->
@@ -130,11 +112,10 @@ const getAdditionalPropertiesValue = (
       :discriminator
       :hideHeading
       :hideModelNames="hideModelNames"
-      :hideReadOnly="hideReadOnly"
-      :hideWriteOnly="hideWriteOnly"
       :level
       :name="key"
-      :value="getResolvedRef(property)" />
+      :options="options"
+      :schema="getResolvedRef(property)" />
   </template>
 
   <!-- additionalProperties -->
@@ -145,12 +126,11 @@ const getAdditionalPropertiesValue = (
       :discriminator
       :hideHeading
       :hideModelNames
-      :hideReadOnly="hideReadOnly"
-      :hideWriteOnly="hideWriteOnly"
       :level
       :name="getAdditionalPropertiesName(schema.additionalProperties)"
       noncollapsible
-      :value="getAdditionalPropertiesValue(schema.additionalProperties)"
+      :options="options"
+      :schema="getAdditionalPropertiesValue(schema.additionalProperties)"
       variant="additionalProperties" />
   </template>
 </template>

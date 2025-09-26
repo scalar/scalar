@@ -74,10 +74,15 @@ const models = computed(() => {
           </template>
           <ScalarErrorBoundary>
             <Schema
-              :hideHeading="true"
-              :hideModelNames="true"
+              hideHeading
+              hideModelNames
               :level="1"
               noncollapsible
+              :options="{
+                orderRequiredPropertiesFirst:
+                  config.orderRequiredPropertiesFirst,
+                orderSchemaPropertiesBy: config.orderSchemaPropertiesBy,
+              }"
               :schema />
           </ScalarErrorBoundary>
         </CompactSection>
