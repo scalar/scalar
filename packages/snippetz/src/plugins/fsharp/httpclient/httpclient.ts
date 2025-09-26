@@ -51,7 +51,7 @@ export const fsharpHttpclient: Plugin = {
 
     code += 'let! result = client.SendAsync(httpRequestMessage)\n'
 
-    return escapeString(code)
+    return code
   },
 }
 
@@ -82,7 +82,7 @@ function turnHeadersToCode(headersArray: { name: string; value: string }[]): str
 function turnCookiesToCode(cookies: { name: string; value: string }[], url: string): string {
   let code = 'let cookieContainer = CookieContainer()\n'
   for (const cookie of cookies) {
-    code += `cookieContainer.Add(Uri("${url}"), Cookie("${cookie.name}", "${cookie.value}"))\n`
+    code += `cookieContainer.Add(Uri("${escapeString(url)}"), Cookie("${escapeString(cookie.name)}", "${escapeString(cookie.value)}"))\n`
   }
 
   code += 'use handler = new HttpClientHandler()\n'
@@ -108,7 +108,7 @@ function turnPostDataToCode(postData: any): string {
 }
 
 function turnPostDataToCodeUsingMimeType(postData: any, contentType: string): string {
-  const json = postData.text
+  const json = escapeString(postData.text)
   let code = `let content = new StringContent("${json}", Encoding.UTF8, "${contentType}")\n`
   code += `content.Headers.ContentType <- MediaTypeHeaderValue("${contentType}")\n`
   return code
@@ -120,12 +120,12 @@ function turnPostDataMultiPartToCode(postData: any): string {
   let fileCount = 0
   for (const data of postData.params) {
     if (data.value === 'BINARY') {
-      code += `let fileStreamContent_${fileCount} = new StreamContent(File.OpenRead("${data.fileName}"))\n`
+      code += `let fileStreamContent_${fileCount} = new StreamContent(File.OpenRead("${escapeString(data.fileName)}"))\n`
       code += `fileStreamContent_${fileCount}.Headers.ContentType <- new MediaTypeHeaderValue("${data.contentType}")\n`
-      code += `content.Add(fileStreamContent_${fileCount}, "file_${fileCount}", "${data.fileName}")\n`
+      code += `content.Add(fileStreamContent_${fileCount}, "file_${fileCount}", "${escapeString(data.fileName)}")\n`
       fileCount++
     } else {
-      code += `content.Add(new StringContent("${data.value}"), "${data.name}")\n`
+      code += `content.Add(new StringContent("${escapeString(data.value)}"), "${escapeString(data.name)}")\n`
     }
   }
   return code
