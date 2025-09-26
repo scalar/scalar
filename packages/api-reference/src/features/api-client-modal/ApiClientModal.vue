@@ -49,7 +49,10 @@ onMounted(() => {
     configuration: {
       ...configuration,
       // If the onBeforeRequest hook is configured, we add the plugin to the API client.
-      plugins: configuration.onBeforeRequest ? [OnBeforeRequestPlugin] : [],
+      plugins:
+        typeof configuration.onBeforeRequest === 'function'
+          ? [OnBeforeRequestPlugin]
+          : [],
     },
     store,
   })
