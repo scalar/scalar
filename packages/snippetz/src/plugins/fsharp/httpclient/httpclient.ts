@@ -108,8 +108,7 @@ function turnPostDataToCode(postData: any): string {
 }
 
 function turnPostDataToCodeUsingMimeType(postData: any, contentType: string): string {
-  const json = escapeString(postData.text)
-  let code = `let content = new StringContent("${json}", Encoding.UTF8, "${contentType}")\n`
+  let code = `let content = new StringContent("${escapeString(postData.text)}", Encoding.UTF8, "${contentType}")\n`
   code += `content.Headers.ContentType <- MediaTypeHeaderValue("${contentType}")\n`
   return code
 }
@@ -133,9 +132,8 @@ function turnPostDataMultiPartToCode(postData: any): string {
 
 function turnPostDataUrlEncodeToCode(postData: any): string {
   let code = 'let formUrlEncodedContentDictionary = new Dictionary<string, string>()\n'
-
   for (const data of postData.params) {
-    code += `formUrlEncodedContentDictionary.Add("${data.name}", "${data.value}")\n`
+    code += `formUrlEncodedContentDictionary.Add("${escapeString(data.name)}", "${escapeString(data.value)}")\n`
   }
 
   code += 'let content = new FormUrlEncodedContent(formUrlEncodedContentDictionary)\n'
