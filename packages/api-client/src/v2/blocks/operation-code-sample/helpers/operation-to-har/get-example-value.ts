@@ -1,5 +1,6 @@
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { ParameterObject, RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+
+import { getResolvedRefDeep } from '@/v2/blocks/operation-code-sample/helpers/get-resolved-ref-deep'
 
 /**
  * Resolve an example value for a parameter or requestBody from either `examples` or `content.*.examples`.
@@ -12,7 +13,7 @@ export const getExampleValue = (
 ): unknown => {
   // Prefer explicit examples on the parameter
   if (example && 'examples' in param && param.examples) {
-    const resolved = getResolvedRef(param.examples[example])?.value
+    const resolved = getResolvedRefDeep(param.examples[example])?.value
 
     if (resolved) {
       return resolved
@@ -26,7 +27,7 @@ export const getExampleValue = (
 
     if (media?.examples) {
       const exampleKey = example ?? Object.keys(media.examples)[0]
-      const resolved = getResolvedRef(media.examples[exampleKey ?? ''])
+      const resolved = getResolvedRefDeep(media.examples[exampleKey ?? ''])
 
       if (resolved) {
         return resolved.value
@@ -47,7 +48,7 @@ export const getExampleValue = (
   // Finally fallback to the first example
   if ('examples' in param && param.examples) {
     const exampleKey = Object.keys(param.examples)[0] ?? ''
-    const resolved = getResolvedRef(param.examples[exampleKey])?.value
+    const resolved = getResolvedRefDeep(param.examples[exampleKey])?.value
 
     if (resolved) {
       return resolved

@@ -71,6 +71,7 @@ describe('RequestExample', () => {
       scheme: 'basic',
       'x-scalar-secret-username': 'testuser',
       'x-scalar-secret-password': 'testpass',
+      'x-scalar-secret-token': 'testtoken',
     },
   ]
 
@@ -420,7 +421,7 @@ describe('RequestExample', () => {
       expect(codeBlock.exists()).toBe(true)
     })
 
-    it.only('handles $ref values in examples', () => {
+    it('handles $ref values in examples', () => {
       const wrapper = mount(RequestExample, {
         props: {
           ...defaultProps,
@@ -434,7 +435,17 @@ describe('RequestExample', () => {
                       $ref: '#/components/examples/example1',
                       '$ref-value': {
                         summary: 'Example 1',
-                        value: { test: 'This is the greatest test of all' },
+                        value: {
+                          type: 'object',
+                          properties: {
+                            name: {
+                              $ref: '#/components/properties/name',
+                              '$ref-value': {
+                                default: 'The greatest name of all',
+                              },
+                            },
+                          },
+                        },
                       },
                     },
                   },
@@ -449,7 +460,9 @@ describe('RequestExample', () => {
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
       expect(codeBlock.props('content')).toBeTruthy()
-      expect(codeBlock.props('content')).toContain('This is the greatest test of all')
+      expect(codeBlock.props('content')).not.toContain('$ref')
+      expect(codeBlock.props('content')).not.toContain('$ref-value')
+      expect(codeBlock.props('content')).toContain('The greatest name of all')
     })
   })
 
@@ -488,11 +501,12 @@ describe('RequestExample', () => {
             authorizationCode: {
               authorizationUrl: 'https://example.com/auth',
               tokenUrl: 'https://example.com/token',
+              refreshUrl: '',
               scopes: {},
               'x-scalar-secret-token': 'oauth-token',
-              'x-scalar-client-id': '',
-              'x-scalar-client-secret': '',
-              'x-scalar-redirect-uri': '',
+              'x-scalar-secret-client-id': '',
+              'x-scalar-secret-client-secret': '',
+              'x-scalar-secret-redirect-uri': '',
               'x-usePkce': 'no',
             },
           },
@@ -945,7 +959,7 @@ describe('RequestExample', () => {
 
       // Verify that the clipboard API was called with the webhook payload
       expect(mockCopyToClipboard).toHaveBeenCalled()
-      const copiedContent = mockCopyToClipboard.mock.calls[0][0]
+      const copiedContent = mockCopyToClipboard.mock.calls[0]?.[0]
       expect(copiedContent).toContain('user.created')
       expect(copiedContent).toContain('John Doe')
     })
@@ -987,7 +1001,7 @@ describe('RequestExample', () => {
       await nextTick()
 
       expect(mockCopyToClipboard).toHaveBeenCalled()
-      const copiedContent = mockCopyToClipboard.mock.calls[0][0]
+      const copiedContent = mockCopyToClipboard.mock.calls[0]?.[0]
       expect(copiedContent).toContain('user.created')
       expect(copiedContent).toContain('John')
     })
@@ -1030,6 +1044,8 @@ describe('RequestExample', () => {
               type: 'http',
               scheme: 'bearer',
               'x-scalar-secret-token': 'bearer-token-456',
+              'x-scalar-secret-username': '',
+              'x-scalar-secret-password': '',
             },
           ],
           selectedExample: 'secureExample',
@@ -1050,7 +1066,7 @@ describe('RequestExample', () => {
       await nextTick()
 
       expect(mockCopyToClipboard).toHaveBeenCalled()
-      const copiedContent = mockCopyToClipboard.mock.calls[0][0]
+      const copiedContent = mockCopyToClipboard.mock.calls[0]?.[0]
       // The copied content should contain the webhook payload but credentials should be masked
       expect(copiedContent).toContain('payment.processed')
       expect(copiedContent).toContain('amount')
@@ -1111,7 +1127,7 @@ describe('RequestExample', () => {
       await nextTick()
 
       expect(mockCopyToClipboard).toHaveBeenCalled()
-      const copiedContent = mockCopyToClipboard.mock.calls[0][0]
+      const copiedContent = mockCopyToClipboard.mock.calls[0]?.[0]
 
       // Verify all key parts of the complex payload are copied
       expect(copiedContent).toContain('order.completed')
@@ -1123,7 +1139,7 @@ describe('RequestExample', () => {
       expect(copiedContent).toContain('2024-01-15T10:30:00Z')
     })
 
-    it('handles webhook copy with empty or null payload gracefully', async () => {
+    it('handles handles null payload gracefully', async () => {
       const wrapper = mount(RequestExample, {
         props: {
           ...defaultProps,
@@ -1151,20 +1167,7 @@ describe('RequestExample', () => {
 
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
-
-      // Copy button should still be present even with null content
-      const copyButton = wrapper.findComponent({ name: 'ScalarCodeBlockCopy' })
-      expect(copyButton.exists()).toBe(true)
-
-      const button = copyButton.find('button')
-      expect(button.exists()).toBe(true)
-
-      await button.trigger('click')
-      await nextTick()
-
-      expect(mockCopyToClipboard).toHaveBeenCalled()
-      const copiedContent = mockCopyToClipboard.mock.calls[0][0]
-      expect(copiedContent).toBe('"Empty webhook payload"')
+      expect(codeBlock.props('content')).toBe('null')
     })
 
     it('handles webhook copy with referenced examples', async () => {
@@ -1204,7 +1207,7 @@ describe('RequestExample', () => {
       await nextTick()
 
       expect(mockCopyToClipboard).toHaveBeenCalled()
-      const copiedContent = mockCopyToClipboard.mock.calls[0][0]
+      const copiedContent = mockCopyToClipboard.mock.calls[0]?.[0]
       expect(copiedContent).toContain('user.updated')
       expect(copiedContent).toContain('456')
       expect(copiedContent).toContain('name')
@@ -1275,7 +1278,7 @@ describe('RequestExample', () => {
         await nextTick()
 
         expect(mockCopyToClipboard).toHaveBeenCalled()
-        const copiedContent = mockCopyToClipboard.mock.calls[0][0]
+        const copiedContent = mockCopyToClipboard.mock.calls[0]?.[0]
         expect(copiedContent).toContain(method)
         expect(copiedContent).toContain('test.event')
 

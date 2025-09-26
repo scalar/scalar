@@ -61,7 +61,7 @@ export const processBody = ({ requestBody, contentType, example }: ProcessBodyPr
   const _example = getExampleValue(requestBody, example, contentType)
 
   // Return the provided top level example
-  if (_example) {
+  if (typeof _example !== 'undefined') {
     if (isFormData && typeof _example === 'object' && _example !== null) {
       return {
         mimeType: _contentType,
@@ -84,7 +84,7 @@ export const processBody = ({ requestBody, contentType, example }: ProcessBodyPr
 
   // Try to extract examples from the schema
   const contentSchema = getResolvedRef(requestBody.content[_contentType]?.schema)
-  if (contentSchema) {
+  if (typeof contentSchema !== 'undefined') {
     const extractedExample = getExampleFromSchema(contentSchema, {
       mode: 'write',
       xml: isXml,

@@ -105,7 +105,6 @@ import {
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { ScalarIconCaretDown } from '@scalar/icons'
-import { operationToHar } from '@scalar/oas-utils/helpers/operation-to-har'
 import { type AvailableClients, type TargetId } from '@scalar/snippetz'
 import { emitCustomEvent } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -114,6 +113,7 @@ import type {
   SecuritySchemeObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { operationToHar } from '@v2/blocks/operation-code-sample/helpers/operation-to-har/operation-to-har'
 import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
@@ -240,8 +240,11 @@ const webhookHar = computed(() => {
 /** Generate the code snippet for the selected example */
 const generatedCode = computed<string>(() => {
   try {
+    const clientId = localSelectedClient.value?.id
+    if (!clientId) return ''
+
     // Use the selected custom example
-    if (localSelectedClient.value?.id.startsWith('custom')) {
+    if (clientId.startsWith('custom')) {
       return (
         customRequestExamples.value.find(
           (example) =>
@@ -255,7 +258,7 @@ const generatedCode = computed<string>(() => {
     }
 
     return generateCodeSnippet({
-      clientId: localSelectedClient.value?.id as AvailableClients[number],
+      clientId,
       operation,
       method,
       server: selectedServer,
