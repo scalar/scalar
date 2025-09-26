@@ -1,0 +1,389 @@
+openapi: 3.1.0
+info:
+  title: Products API v2
+  version: 2.0.0
+  description: |
+    Version 2 of the Products API with enhanced features and improved performance.
+
+    ## What's New in v2
+    - Enhanced product search capabilities
+    - Category management
+    - Inventory tracking
+    - Batch operations support
+  contact:
+    name: Products Team
+    email: products@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.example.com/v2
+    description: Production server
+  - url: https://staging-api.example.com/v2
+    description: Staging server
+
+tags:
+  - name: Products
+    description: Product management operations
+  - name: Categories
+    description: Product category operations
+  - name: Inventory
+    description: Inventory management
+
+paths:
+  /products:
+    get:
+      summary: Search products
+      description: Search and filter products with advanced criteria
+      tags: [Products]
+      parameters:
+        - name: q
+          in: query
+          description: Search query for product name or description
+          schema:
+            type: string
+            example: 'laptop'
+        - name: category
+          in: query
+          description: Filter by category ID
+          schema:
+            type: integer
+            example: 1
+        - name: minPrice
+          in: query
+          description: Minimum price filter
+          schema:
+            type: number
+            minimum: 0
+            example: 100
+        - name: maxPrice
+          in: query
+          description: Maximum price filter
+          schema:
+            type: number
+            minimum: 0
+            example: 1000
+        - name: inStock
+          in: query
+          description: Filter by availability
+          schema:
+            type: boolean
+            example: true
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Items per page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: List of products matching the search criteria
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  products:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                  filters:
+                    $ref: '#/components/schemas/AppliedFilters'
+
+    post:
+      summary: Create a new product
+      description: Add a new product to the catalog
+      tags: [Products]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProduct'
+      responses:
+        '201':
+          description: Product created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Invalid product data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /products/{productId}:
+    get:
+      summary: Get product details
+      description: Retrieve detailed information about a specific product
+      tags: [Products]
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          description: Product ID
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Product details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDetails'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /categories:
+    get:
+      summary: Get all categories
+      description: Retrieve all product categories
+      tags: [Categories]
+      responses:
+        '200':
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+
+  /products/{productId}/inventory:
+    get:
+      summary: Get product inventory
+      description: Get current inventory status for a product
+      tags: [Inventory]
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          description: Product ID
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Inventory information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Inventory'
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique product identifier
+          example: 1
+        name:
+          type: string
+          description: Product name
+          example: 'MacBook Pro 14-inch'
+        description:
+          type: string
+          description: Product description
+          example: 'Powerful laptop with M2 chip'
+        price:
+          type: number
+          description: Product price
+          example: 1999.99
+        categoryId:
+          type: integer
+          description: Category ID
+          example: 1
+        sku:
+          type: string
+          description: Stock keeping unit
+          example: 'MBP-14-M2-512'
+        inStock:
+          type: boolean
+          description: Whether the product is in stock
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+          example: '2023-01-15T10:30:00Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2023-01-20T15:45:00Z'
+      required: [id, name, price, categoryId, sku, inStock]
+
+    ProductDetails:
+      allOf:
+        - $ref: '#/components/schemas/Product'
+        - type: object
+          properties:
+            category:
+              $ref: '#/components/schemas/Category'
+            inventory:
+              $ref: '#/components/schemas/Inventory'
+            images:
+              type: array
+              items:
+                type: string
+                format: uri
+              example: ['https://example.com/images/product1.jpg']
+            specifications:
+              type: object
+              additionalProperties:
+                type: string
+              example:
+                processor: 'Apple M2'
+                memory: '16GB'
+                storage: '512GB SSD'
+
+    CreateProduct:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Product name
+          example: 'MacBook Pro 14-inch'
+        description:
+          type: string
+          description: Product description
+          example: 'Powerful laptop with M2 chip'
+        price:
+          type: number
+          minimum: 0
+          description: Product price
+          example: 1999.99
+        categoryId:
+          type: integer
+          description: Category ID
+          example: 1
+        sku:
+          type: string
+          description: Stock keeping unit
+          example: 'MBP-14-M2-512'
+        initialStock:
+          type: integer
+          minimum: 0
+          description: Initial stock quantity
+          example: 50
+      required: [name, price, categoryId, sku]
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Category ID
+          example: 1
+        name:
+          type: string
+          description: Category name
+          example: 'Laptops'
+        description:
+          type: string
+          description: Category description
+          example: 'Portable computers and laptops'
+        parentId:
+          type: integer
+          nullable: true
+          description: Parent category ID
+          example: null
+      required: [id, name]
+
+    Inventory:
+      type: object
+      properties:
+        productId:
+          type: integer
+          example: 1
+        quantity:
+          type: integer
+          minimum: 0
+          description: Current stock quantity
+          example: 25
+        reserved:
+          type: integer
+          minimum: 0
+          description: Reserved quantity
+          example: 5
+        available:
+          type: integer
+          minimum: 0
+          description: Available quantity
+          example: 20
+        lastUpdated:
+          type: string
+          format: date-time
+          example: '2023-01-20T15:45:00Z'
+      required: [productId, quantity, reserved, available, lastUpdated]
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 20
+        total:
+          type: integer
+          example: 150
+        totalPages:
+          type: integer
+          example: 8
+      required: [page, limit, total, totalPages]
+
+    AppliedFilters:
+      type: object
+      properties:
+        category:
+          type: integer
+          nullable: true
+          example: 1
+        priceRange:
+          type: object
+          properties:
+            min:
+              type: number
+              example: 100
+            max:
+              type: number
+              example: 1000
+        inStock:
+          type: boolean
+          nullable: true
+          example: true
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: 'Product not found'
+        code:
+          type: string
+          example: 'PRODUCT_NOT_FOUND'
+        details:
+          type: object
+          additionalProperties: true
+      required: [error, code]

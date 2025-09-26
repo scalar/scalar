@@ -1,0 +1,485 @@
+openapi: 3.1.0
+info:
+  title: Admin API
+  version: 1.0.0
+  description: |
+    Internal administration API for system management and monitoring.
+
+    **⚠️ Warning: This API is for internal use only and should not be exposed publicly.**
+
+    ## Features
+    - User management
+    - System monitoring
+    - Configuration management
+    - Audit logs
+  contact:
+    name: Platform Team
+    email: platform@example.com
+
+servers:
+  - url: https://admin-api.internal.example.com/v1
+    description: Internal admin server
+
+security:
+  - AdminAuth: []
+
+tags:
+  - name: Users
+    description: User administration
+  - name: System
+    description: System monitoring and health
+  - name: Config
+    description: Configuration management
+  - name: Audit
+    description: Audit logs and monitoring
+
+paths:
+  /admin/users:
+    get:
+      summary: List all users
+      description: Get a paginated list of all users in the system
+      tags: [Users]
+      security:
+        - AdminAuth: [admin:read]
+      parameters:
+        - name: status
+          in: query
+          description: Filter by user status
+          schema:
+            type: string
+            enum: [active, inactive, suspended]
+        - name: role
+          in: query
+          description: Filter by user role
+          schema:
+            type: string
+            enum: [admin, user, moderator]
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AdminUser'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+  /admin/users/{userId}:
+    patch:
+      summary: Update user
+      description: Update user status, role, or other administrative properties
+      tags: [Users]
+      security:
+        - AdminAuth: [admin:write]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUser'
+
+    delete:
+      summary: Delete user
+      description: Permanently delete a user account
+      tags: [Users]
+      security:
+        - AdminAuth: [admin:delete]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: User deleted successfully
+        '404':
+          description: User not found
+
+  /admin/system/health:
+    get:
+      summary: System health check
+      description: Get comprehensive system health information
+      tags: [System]
+      security:
+        - AdminAuth: [system:read]
+      responses:
+        '200':
+          description: System health information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemHealth'
+
+  /admin/system/metrics:
+    get:
+      summary: System metrics
+      description: Get system performance metrics
+      tags: [System]
+      security:
+        - AdminAuth: [system:read]
+      parameters:
+        - name: timeRange
+          in: query
+          description: Time range for metrics
+          schema:
+            type: string
+            enum: [1h, 6h, 24h, 7d, 30d]
+            default: 24h
+      responses:
+        '200':
+          description: System metrics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemMetrics'
+
+  /admin/config:
+    get:
+      summary: Get system configuration
+      description: Retrieve current system configuration
+      tags: [Config]
+      security:
+        - AdminAuth: [config:read]
+      responses:
+        '200':
+          description: System configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemConfig'
+
+    patch:
+      summary: Update system configuration
+      description: Update system configuration settings
+      tags: [Config]
+      security:
+        - AdminAuth: [config:write]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigUpdate'
+      responses:
+        '200':
+          description: Configuration updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemConfig'
+
+  /admin/audit/logs:
+    get:
+      summary: Get audit logs
+      description: Retrieve system audit logs with filtering
+      tags: [Audit]
+      security:
+        - AdminAuth: [audit:read]
+      parameters:
+        - name: action
+          in: query
+          description: Filter by action type
+          schema:
+            type: string
+        - name: userId
+          in: query
+          description: Filter by user ID
+          schema:
+            type: integer
+        - name: startDate
+          in: query
+          description: Start date for log filtering
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          description: End date for log filtering
+          schema:
+            type: string
+            format: date-time
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+      responses:
+        '200':
+          description: Audit logs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  logs:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AuditLog'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+components:
+  securitySchemes:
+    AdminAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Admin JWT token with appropriate scopes
+
+  schemas:
+    AdminUser:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 123
+        name:
+          type: string
+          example: 'John Doe'
+        email:
+          type: string
+          format: email
+          example: 'john.doe@example.com'
+        role:
+          type: string
+          enum: [admin, user, moderator]
+          example: 'user'
+        status:
+          type: string
+          enum: [active, inactive, suspended]
+          example: 'active'
+        createdAt:
+          type: string
+          format: date-time
+        lastLoginAt:
+          type: string
+          format: date-time
+          nullable: true
+        loginCount:
+          type: integer
+          example: 42
+      required: [id, name, email, role, status, createdAt]
+
+    UserUpdate:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [admin, user, moderator]
+        status:
+          type: string
+          enum: [active, inactive, suspended]
+        notes:
+          type: string
+          description: Admin notes about the user
+
+    SystemHealth:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+          example: 'healthy'
+        version:
+          type: string
+          example: '1.2.3'
+        uptime:
+          type: integer
+          description: Uptime in seconds
+          example: 86400
+        services:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              status:
+                type: string
+                enum: [up, down, degraded]
+              responseTime:
+                type: number
+                description: Response time in milliseconds
+              lastChecked:
+                type: string
+                format: date-time
+        database:
+          type: object
+          properties:
+            status:
+              type: string
+              enum: [connected, disconnected, error]
+            connectionCount:
+              type: integer
+            queryTime:
+              type: number
+              description: Average query time in milliseconds
+
+    SystemMetrics:
+      type: object
+      properties:
+        timeRange:
+          type: string
+          example: '24h'
+        cpu:
+          type: object
+          properties:
+            average:
+              type: number
+              example: 45.2
+            peak:
+              type: number
+              example: 89.1
+        memory:
+          type: object
+          properties:
+            used:
+              type: number
+              description: Memory used in GB
+              example: 2.4
+            total:
+              type: number
+              description: Total memory in GB
+              example: 8.0
+        requests:
+          type: object
+          properties:
+            total:
+              type: integer
+              example: 15420
+            averageResponseTime:
+              type: number
+              description: Average response time in milliseconds
+              example: 245.6
+            errorRate:
+              type: number
+              description: Error rate as percentage
+              example: 0.12
+
+    SystemConfig:
+      type: object
+      properties:
+        maintenance:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+            message:
+              type: string
+        features:
+          type: object
+          additionalProperties:
+            type: boolean
+        limits:
+          type: object
+          properties:
+            maxUsers:
+              type: integer
+            maxRequestsPerHour:
+              type: integer
+
+    ConfigUpdate:
+      type: object
+      properties:
+        maintenance:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+            message:
+              type: string
+        features:
+          type: object
+          additionalProperties:
+            type: boolean
+        limits:
+          type: object
+          properties:
+            maxUsers:
+              type: integer
+            maxRequestsPerHour:
+              type: integer
+
+    AuditLog:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 'audit-123456'
+        timestamp:
+          type: string
+          format: date-time
+        userId:
+          type: integer
+          nullable: true
+        action:
+          type: string
+          example: 'user.update'
+        resource:
+          type: string
+          example: 'user:123'
+        details:
+          type: object
+          additionalProperties: true
+        ipAddress:
+          type: string
+          example: '192.168.1.100'
+        userAgent:
+          type: string
+          example: 'Mozilla/5.0...'
+      required: [id, timestamp, action, resource]
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 20
+        total:
+          type: integer
+          example: 150
+        totalPages:
+          type: integer
+          example: 8
+      required: [page, limit, total, totalPages]
