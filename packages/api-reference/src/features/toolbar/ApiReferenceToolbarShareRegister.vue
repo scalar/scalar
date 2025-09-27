@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { ScalarButton, useLoadingState } from '@scalar/components'
 import {
   ScalarIconBracketsCurly,
   ScalarIconFileMd,
@@ -9,13 +8,10 @@ import {
   ScalarIconWarningOctagon,
 } from '@scalar/icons'
 import { type ScalarIconComponent } from '@scalar/icons/types'
-import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { nextTick } from 'vue'
 
-import { DASHBOARD_REGISTER_URL } from '@/consts/urls'
 import ApiReferenceToolbarBlurb from '@/features/toolbar/ApiReferenceToolbarBlurb.vue'
-import { uploadTempDocument } from '@/features/toolbar/uploadTempDocument'
+import ApiReferenceToolbarRegisterButton from '@/features/toolbar/ApiReferenceToolbarRegisterButton.vue'
 
 const FEATURES = [
   { icon: ScalarIconLockSimple, label: 'Password Protected' },
@@ -30,56 +26,8 @@ const FEATURES = [
 }>
 
 const { workspace } = defineProps<{
-  workspace?: WorkspaceStore
+  workspace: WorkspaceStore
 }>()
-
-const tempDocUrl = defineModel<string>('url')
-
-const { toast } = useToasts()
-const loading = useLoadingState()
-
-function openRegisterLink(docUrl: string) {
-  const url = new URL(DASHBOARD_REGISTER_URL)
-  url.searchParams.set('url', docUrl)
-  window.open(url.toString(), '_blank')
-  return
-}
-
-async function generateRegisterLink() {
-  if (loading.isLoading || !workspace) {
-    return
-  }
-
-  if (tempDocUrl.value) {
-    openRegisterLink(tempDocUrl.value)
-    return
-  }
-
-  loading.startLoading()
-
-  const document = workspace.exportActiveDocument('json')
-
-  if (!document) {
-    toast('Unable to export active document', 'error')
-    loading.invalidate()
-    return
-  }
-
-  try {
-    tempDocUrl.value = await uploadTempDocument(document)
-    await loading.validate(600)
-    openRegisterLink(tempDocUrl.value)
-
-    await nextTick()
-
-    loading.clear()
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'An unknown error occurred'
-    toast(message, 'error')
-    loading.invalidate()
-  }
-}
 </script>
 <template>
   <ul class="text-c-2 grid grid-cols-2 gap-2.5 font-medium">
@@ -94,12 +42,7 @@ async function generateRegisterLink() {
       {{ feature.label }}
     </li>
   </ul>
-  <ScalarButton
-    class="h-auto p-2.5"
-    :loading
-    @click="generateRegisterLink">
-    Generate
-  </ScalarButton>
+  <ApiReferenceToolbarRegisterButton :workspace />
   <ApiReferenceToolbarBlurb>
     Uploading links to Scalar Registry, is part of Scalar's Premium features.
     Explore all features on our

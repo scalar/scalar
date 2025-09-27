@@ -6,11 +6,12 @@ import {
   ScalarToggleInput,
   type Icon as LegacyIcon,
 } from '@scalar/components'
-import type { ApiReferenceConfiguration } from '@scalar/types'
-import { computed, ref } from 'vue'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { ref } from 'vue'
 
 import ApiReferenceToolbarBlurb from '@/features/toolbar/ApiReferenceToolbarBlurb.vue'
 import ApiReferenceToolbarPopover from '@/features/toolbar/ApiReferenceToolbarPopover.vue'
+import ApiReferenceToolbarRegisterButton from '@/features/toolbar/ApiReferenceToolbarRegisterButton.vue'
 
 const LANGUAGES = [
   {
@@ -32,20 +33,11 @@ const LANGUAGES = [
 
 type LanguageKey = (typeof LANGUAGES)[number]['key']
 
-const { configuration } = defineProps<{
-  configuration?: Partial<ApiReferenceConfiguration>
+const { workspace } = defineProps<{
+  workspace: WorkspaceStore
 }>()
 
 const selectedLanguages = ref<LanguageKey[]>([])
-
-const registrySignupHref = computed<string>(() => {
-  const url = new URL('https://dashboard.scalar.com/register')
-  url.searchParams.set('url', configuration?.url ?? '')
-  selectedLanguages.value.forEach((lang) =>
-    url.searchParams.append('sdk', lang),
-  )
-  return url.toString()
-})
 </script>
 <template>
   <ApiReferenceToolbarPopover class="w-110">
@@ -73,13 +65,9 @@ const registrySignupHref = computed<string>(() => {
           </span>
         </ScalarToggleInput>
       </ScalarFormInputGroup>
-      <a
-        :href="registrySignupHref"
-        target="_blank"
-        rel="noopener"
-        class="bg-b-btn text-c-btn hover:bg-h-btn mt-1 flex items-center justify-center rounded p-2.5 text-sm font-medium">
-        Generate
-      </a>
+      <ApiReferenceToolbarRegisterButton
+        :sdks="selectedLanguages"
+        :workspace="workspace" />
       <ApiReferenceToolbarBlurb>
         Generating SDKs is a paid feature starting at $100/mo, learn more in our
         <a

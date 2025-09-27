@@ -15,7 +15,7 @@ import ApiReferenceToolbarBlurb from '@/features/toolbar/ApiReferenceToolbarBlur
 import { uploadTempDocument } from '@/features/toolbar/uploadTempDocument'
 
 const { workspace } = defineProps<{
-  workspace?: WorkspaceStore
+  workspace: WorkspaceStore
 }>()
 
 const { toast } = useToasts()
