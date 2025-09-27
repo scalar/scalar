@@ -462,8 +462,17 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
 @layer scalar-config {
   .scalar-api-reference {
     --refs-sidebar-width: var(--scalar-sidebar-width, 0px);
+    /* The header height */
     --refs-header-height: calc(
       var(--scalar-y-offset) + var(--scalar-header-height, 0px)
+    );
+    /* The offset of visible references content (minus headers) */
+    --refs-viewport-offset: calc(
+      var(--refs-header-height, 0px) + var(--refs-content-offset, 0px)
+    );
+    /* The calculated height of visible references content (minus headers) */
+    --refs-viewport-height: calc(
+      var(--full-height, 100dvh) - var(--refs-viewport-offset, 0px)
     );
     --refs-content-max-width: var(--scalar-content-max-width, 1540px);
   }
@@ -473,6 +482,11 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
     --refs-content-max-width: var(--scalar-content-max-width, 1420px);
     min-height: 100dvh;
     --refs-sidebar-width: 0;
+  }
+
+  /* When the toolbar is present, we need to offset the content */
+  .scalar-api-reference:has(.api-reference-toolbar) {
+    --refs-content-offset: 48px;
   }
 }
 

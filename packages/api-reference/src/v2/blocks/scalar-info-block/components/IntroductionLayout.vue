@@ -88,6 +88,6 @@ onMounted(() => onLoaded?.())
   display: flex;
   flex-direction: column;
   position: sticky;
-  top: calc(var(--refs-header-height) + 24px);
+  top: calc(var(--refs-viewport-offset) + 24px);
 }
 </style>

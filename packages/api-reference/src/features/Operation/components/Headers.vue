@@ -24,7 +24,7 @@ const { headers, breadcrumb } = defineProps<{
         <DisclosureButton
           class="headers-card-title headers-card-title--compact"
           :style="{
-            top: `calc(var(--refs-header-height)))`,
+            top: `calc(var(--refs-viewport-offset)))`,
           }">
           <ScalarIcon
             class="headers-card-title-icon"

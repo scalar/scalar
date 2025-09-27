@@ -189,13 +189,11 @@ const labelId = useId()
 <style scoped>
 .examples {
   position: sticky;
-  top: calc(var(--refs-header-height) + 24px);
+  top: calc(var(--refs-viewport-offset) + 24px);
 }
 
 .examples > * {
-  max-height: calc(
-    ((var(--full-height) - var(--refs-header-height)) - 60px) / 2
-  );
+  max-height: calc((var(--refs-viewport-height) - 60px) / 2);
   position: relative;
 }
 

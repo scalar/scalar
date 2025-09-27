@@ -1,7 +1,10 @@
 import './style.css'
 
+export { compose, cva, cx, tw, useBindCx } from '@scalar/use-hooks/useBindCx'
+
 export * from './components/ScalarButton'
 export * from './components/ScalarCard'
+export * from './components/ScalarCheckboxInput'
 export * from './components/ScalarCodeBlock'
 export * from './components/ScalarColorModeToggle'
 export * from './components/ScalarCombobox'
@@ -30,6 +33,4 @@ export * from './components/ScalarTextInput'
 export * from './components/ScalarToggle'
 export * from './components/ScalarTooltip'
 export * from './components/ScalarVirtualText'
-
-export { useBindCx, cva, cx, compose, tw } from '@scalar/use-hooks/useBindCx'
 export * from './helpers'

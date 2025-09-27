@@ -146,7 +146,7 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
           class="schema-card-title"
           :class="{ 'schema-card-title--compact': compact }"
           :style="{
-            top: `calc(var(--refs-header-height) +  calc(var(--schema-title-height) * ${level}))`,
+            top: `calc(var(--refs-viewport-offset) +  calc(var(--schema-title-height) * ${level}))`,
           }"
           @click.capture="handleClick">
           <template v-if="compact">
