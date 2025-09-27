@@ -1,12 +1,7 @@
 <script lang="ts" setup>
-import {
-  ScalarFormSection,
-  ScalarIconButton,
-  ScalarTextInput,
-} from '@scalar/components'
+import { ScalarFormSection } from '@scalar/components'
 import {
   ScalarIconBracketsCurly,
-  ScalarIconCopy,
   ScalarIconFileMd,
   ScalarIconGitBranch,
   ScalarIconGlobeSimple,
@@ -15,12 +10,13 @@ import {
 } from '@scalar/icons'
 import { type ScalarIconComponent } from '@scalar/icons/types'
 import type { ApiReferenceConfiguration } from '@scalar/types'
-import { useClipboard } from '@scalar/use-hooks/useClipboard'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { computed } from 'vue'
 
-import { DASHBOARD_REGISTER_URL, EDITOR_PREVIEW_URL } from '@/consts/urls'
+import { DASHBOARD_REGISTER_URL } from '@/consts/urls'
 import ApiReferenceToolbarBlurb from '@/features/toolbar/ApiReferenceToolbarBlurb.vue'
 import ApiReferenceToolbarPopover from '@/features/toolbar/ApiReferenceToolbarPopover.vue'
+import ApiReferenceToolbarShareTemporary from '@/features/toolbar/ApiReferenceToolbarShareTemporary.vue'
 
 const FEATURES = [
   { icon: ScalarIconLockSimple, label: 'Password Protected' },
@@ -34,16 +30,10 @@ const FEATURES = [
   label: string
 }>
 
-const { configuration } = defineProps<{
+const { configuration, workspace } = defineProps<{
+  workspace?: WorkspaceStore
   configuration?: Partial<ApiReferenceConfiguration>
 }>()
-
-const editorShareHref = computed<string>(() => {
-  const encodedConfig = encodeURIComponent(JSON.stringify(configuration))
-  const url = new URL(EDITOR_PREVIEW_URL)
-  url.searchParams.append('config', encodedConfig)
-  return url.toString()
-})
 
 const registrySignupHref = computed<string>(() => {
   const urlEncodedDocument = encodeURIComponent(configuration?.url ?? '')
@@ -51,31 +41,13 @@ const registrySignupHref = computed<string>(() => {
   url.searchParams.append('url', urlEncodedDocument)
   return url.toString()
 })
-
-const { copyToClipboard } = useClipboard()
 </script>
 <template>
   <ApiReferenceToolbarPopover class="w-120">
     <template #label>Share</template>
     <ScalarFormSection>
       <template #label>Temporary Link</template>
-      <ScalarTextInput
-        readonly
-        :modelValue="editorShareHref"
-        @click="copyToClipboard(editorShareHref)">
-        <template #aside>
-          <ScalarIconButton
-            :icon="ScalarIconCopy"
-            label="Copy link to clipboard"
-            class="-m-1 -mr-1.5"
-            size="sm"
-            @click="copyToClipboard(editorShareHref)" />
-        </template>
-      </ScalarTextInput>
-      <ApiReferenceToolbarBlurb class="-mt-1">
-        Currently sharing is only available for hosted specifications configured
-        with a <code>URL</code>.
-      </ApiReferenceToolbarBlurb>
+      <ApiReferenceToolbarShareTemporary :workspace />
     </ScalarFormSection>
     <ScalarFormSection>
       <template #label>Permanent Link</template>

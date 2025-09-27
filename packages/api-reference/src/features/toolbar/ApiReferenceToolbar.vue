@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
 import type { ApiReferenceConfiguration } from '@scalar/types'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { computed } from 'vue'
 
 import ApiReferenceToolbarConfig from '@/features/toolbar/ApiReferenceToolbarConfig.vue'
@@ -8,9 +9,10 @@ import ApiReferenceToolbarSdks from '@/features/toolbar/ApiReferenceToolbarSdks.
 import ApiReferenceToolbarShare from '@/features/toolbar/ApiReferenceToolbarShare.vue'
 
 /** Turn this on to enabled the localhost toolbar */
-const FEATURE_FLAG = false as const
+const FEATURE_FLAG = true as const
 
 defineProps<{
+  workspace?: WorkspaceStore
   configuration?: Partial<ApiReferenceConfiguration>
 }>()
 
@@ -29,7 +31,9 @@ const showToolbar = computed<boolean>(() => {
     class="api-reference-toolbar h-header bg-b-1 sticky top-0 z-10 flex justify-center border-b px-15">
     <div
       class="flex max-w-(--refs-content-max-width) flex-1 items-center justify-end">
-      <ApiReferenceToolbarShare :configuration />
+      <ApiReferenceToolbarShare
+        :configuration
+        :workspace />
       <ApiReferenceToolbarSdks :configuration />
       <ApiReferenceToolbarConfig
         :configuration
