@@ -1,5 +1,7 @@
 import path from 'node:path'
+
 import type { LoadContext, Plugin } from '@docusaurus/types'
+import { normalizeUrl } from '@docusaurus/utils'
 import type { AnyApiReferenceConfiguration } from '@scalar/types'
 
 export type ScalarOptions = {
@@ -35,6 +37,7 @@ const ScalarDocusaurus = (
   options: ScalarOptions,
 ): Plugin<{ configuration?: AnyApiReferenceConfiguration }> => {
   const defaultOptions = createDefaultScalarOptions(options)
+  const { baseUrl } = context.siteConfig
 
   return {
     name: '@scalar/docusaurus',
@@ -78,7 +81,7 @@ const ScalarDocusaurus = (
 
       // Add the appropriate route based on the module system
       addRoute({
-        path: defaultOptions.route,
+        path: normalizeUrl([baseUrl, defaultOptions.route ?? '/scalar']),
         component: path.resolve(__dirname, './ScalarDocusaurus'),
         exact: true,
         ...content,
