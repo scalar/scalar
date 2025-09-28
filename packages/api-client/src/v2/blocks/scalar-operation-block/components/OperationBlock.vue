@@ -6,6 +6,8 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import type {
   OpenApiDocument,
   OperationObject,
+  ParameterObject,
+  SecuritySchemeObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref, useId, watch } from 'vue'
 
@@ -14,6 +16,7 @@ import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type { ClientLayout } from '@/hooks'
 import type { EnvVariable } from '@/store'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
+import type { UpdateSecuritySchemeEvent } from '@/v2/blocks/scalar-auth-selector-block/event-types'
 import OperationBody from '@/v2/blocks/scalar-operation-block/components/OperationBody.vue'
 import OperationParams from '@/v2/blocks/scalar-operation-block/components/OperationParams.vue'
 import { groupBy } from '@/v2/blocks/scalar-operation-block/helpers/groupBy'
@@ -33,9 +36,73 @@ const { operation, method, layout, securitySchemes, path } = defineProps<{
   envVariables: EnvVariable[]
 }>()
 
-// TODO: emit all events for the block
+/**
+ * All events that are emitted by the operation block
+ *
+ * We prefix all the underlying events by the scope
+ * - scope:action:name
+ */
 const emits = defineEmits<{
-  (e: 'update:RequestName', payload: { name: string }): void
+  (e: 'operation:update:requestName', payload: { name: string }): void
+
+  /** Auth events */
+  (e: 'auth:delete', names: string[]): void
+  (e: 'auth:update:securityScheme', payload: UpdateSecuritySchemeEvent): void
+  (
+    e: 'auth:update:selectedScopes',
+    payload: { id: string[]; name: string; scopes: string[] },
+  ): void
+  (
+    e: 'auth:update:selectedSecurity',
+    payload: {
+      value: NonNullable<OpenApiDocument['x-scalar-selected-security']>
+      create: SecuritySchemeObject[]
+    },
+  ): void
+
+  /** Parameter events */
+  (
+    e: 'parameters:add',
+    payload: {
+      type: ParameterObject['in']
+      payload: Partial<{ key: string; value: string }>
+    },
+  ): void
+  (
+    e: 'parameters:update',
+    payload: {
+      index: number
+      type: ParameterObject['in']
+      payload: Partial<{ key: string; value: string; isEnabled: boolean }>
+    },
+  ): void
+  (
+    e: 'parameters:delete',
+    payload: { type: ParameterObject['in']; index: number },
+  ): void
+  (
+    e: 'parameters:deleteAll',
+    payload: {
+      type: ParameterObject['in']
+    },
+  ): void
+
+  /** Request Body events */
+  (e: 'requestBody:update:contentType', payload: { value: string }): void
+  /** We use this event to update raw values */
+  (e: 'requestBody:update:value', payload: { value?: string | File }): void
+  /** We use this event to update  */
+  (
+    e: 'requestBody:add:formRow',
+    payload: Partial<{ key: string; value?: string | File }>,
+  ): void
+  (
+    e: 'requestBody:update:formRow',
+    payload: {
+      index: number
+      payload: Partial<{ key: string; value?: string | File }>
+    },
+  ): void
 }>()
 
 const sections = groupBy(
@@ -137,7 +204,7 @@ const labelRequestNameId = useId()
           :value="operation.summary"
           @input="
             (event) =>
-              emits('update:RequestName', {
+              emits('operation:update:requestName', {
                 name: (event.target as HTMLInputElement).value,
               })
           " />
@@ -162,7 +229,17 @@ const labelRequestNameId = useId()
       :securitySchemes="securitySchemes"
       :selectedSecurity="selectedSecurity"
       :server="undefined"
-      :title="'Authorization'" />
+      :title="'Authorization'"
+      @deleteOperationAuth="(payload) => emits('auth:delete', payload)"
+      @update:securityScheme="
+        (payload) => emits('auth:update:securityScheme', payload)
+      "
+      @update:selectedScopes="
+        (payload) => emits('auth:update:selectedScopes', payload)
+      "
+      @update:selectedSecurity="
+        (payload) => emits('auth:update:selectedSecurity', payload)
+      " />
     <OperationParams
       v-show="isSectionVisible('Variables') && sections.path?.length"
       :id="filterIds.Variables"
@@ -170,7 +247,34 @@ const labelRequestNameId = useId()
       :environment="environment"
       :exampleKey="exampleKey"
       :parameters="sections.path ?? []"
-      title="Variables" />
+      title="Variables"
+      @add="
+        (payload) =>
+          emits('parameters:add', {
+            type: 'path',
+            payload,
+          })
+      "
+      @delete="
+        (payload) =>
+          emits('parameters:delete', {
+            type: 'path',
+            ...payload,
+          })
+      "
+      @deleteAll="
+        () =>
+          emits('parameters:deleteAll', {
+            type: 'path',
+          })
+      "
+      @update="
+        (payload) =>
+          emits('parameters:update', {
+            type: 'path',
+            ...payload,
+          })
+      " />
     <OperationParams
       v-show="isSectionVisible('Cookies')"
       :id="filterIds.Cookies"
@@ -178,7 +282,34 @@ const labelRequestNameId = useId()
       :environment="environment"
       :exampleKey="exampleKey"
       :parameters="sections.cookie ?? []"
-      title="Cookies" />
+      title="Cookies"
+      @add="
+        (payload) =>
+          emits('parameters:add', {
+            type: 'cookie',
+            payload,
+          })
+      "
+      @delete="
+        (payload) =>
+          emits('parameters:delete', {
+            type: 'cookie',
+            ...payload,
+          })
+      "
+      @deleteAll="
+        () =>
+          emits('parameters:deleteAll', {
+            type: 'cookie',
+          })
+      "
+      @update="
+        (payload) =>
+          emits('parameters:update', {
+            type: 'cookie',
+            ...payload,
+          })
+      " />
     <OperationParams
       v-show="isSectionVisible('Headers')"
       :id="filterIds.Headers"
@@ -186,7 +317,34 @@ const labelRequestNameId = useId()
       :environment="environment"
       :exampleKey="exampleKey"
       :parameters="sections.header ?? []"
-      title="Headers" />
+      title="Headers"
+      @add="
+        (payload) =>
+          emits('parameters:add', {
+            type: 'header',
+            payload,
+          })
+      "
+      @delete="
+        (payload) =>
+          emits('parameters:delete', {
+            type: 'header',
+            ...payload,
+          })
+      "
+      @deleteAll="
+        () =>
+          emits('parameters:deleteAll', {
+            type: 'header',
+          })
+      "
+      @update="
+        (payload) =>
+          emits('parameters:update', {
+            type: 'header',
+            ...payload,
+          })
+      " />
     <OperationParams
       v-show="isSectionVisible('Query')"
       :id="filterIds.Query"
@@ -194,7 +352,34 @@ const labelRequestNameId = useId()
       :environment="environment"
       :exampleKey="exampleKey"
       :parameters="sections.query ?? []"
-      title="Query Parameters" />
+      title="Query Parameters"
+      @add="
+        (payload) =>
+          emits('parameters:add', {
+            type: 'query',
+            payload,
+          })
+      "
+      @delete="
+        (payload) =>
+          emits('parameters:delete', {
+            type: 'query',
+            ...payload,
+          })
+      "
+      @deleteAll="
+        () =>
+          emits('parameters:deleteAll', {
+            type: 'query',
+          })
+      "
+      @update="
+        (payload) =>
+          emits('parameters:update', {
+            type: 'query',
+            ...payload,
+          })
+      " />
     <OperationBody
       v-show="isSectionVisible('Body') && canMethodHaveBody(method)"
       :id="filterIds.Body"
@@ -203,7 +388,15 @@ const labelRequestNameId = useId()
       :exampleKey="exampleKey"
       :requestBody="getResolvedRef(operation.requestBody)"
       :selectedContentType="'application/json'"
-      title="Request Body" />
+      title="Request Body"
+      @add:formRow="(payload) => emits('requestBody:add:formRow', payload)"
+      @update:contentType="
+        (payload) => emits('requestBody:update:contentType', payload)
+      "
+      @update:formRow="
+        (payload) => emits('requestBody:update:formRow', payload)
+      "
+      @update:value="(payload) => emits('requestBody:update:value', payload)" />
   </ViewLayoutSection>
 </template>
 <style scoped>
