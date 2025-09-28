@@ -8,8 +8,8 @@ import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import type { EnvVariable } from '@/store/active-entities'
 import OperationTable from '@/v2/blocks/scalar-operation-block/components/OperationTable.vue'
 import type { TableRow } from '@/v2/blocks/scalar-operation-block/components/OperationTableRow.vue'
-import { getExample } from '@/v2/blocks/scalar-operation-block/helpers/get-parameter-example'
-import { getSchema } from '@/v2/blocks/scalar-operation-block/helpers/get-parameter-schema'
+import { getParameterExample } from '@/v2/blocks/scalar-operation-block/helpers/get-parameter-example'
+import { getParameterSchema } from '@/v2/blocks/scalar-operation-block/helpers/get-parameter-schema'
 
 const {
   parameters,
@@ -45,13 +45,13 @@ const emits = defineEmits<{
 
 const tableRows = computed<TableRow[]>(() =>
   parameters.map((param) => {
-    const example = getExample(param, exampleKey)
+    const example = getParameterExample(param, exampleKey)
 
     return {
       name: param.name,
       value: example?.value,
       globalRoute,
-      schema: getSchema(param),
+      schema: getParameterSchema(param),
       isRequired: param.required,
       isDisabled: example?.['x-is-disabled'] ?? false,
     }

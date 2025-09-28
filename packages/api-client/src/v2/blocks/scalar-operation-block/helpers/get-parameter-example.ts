@@ -6,7 +6,7 @@ import { getParameterContentValue } from './get-parameter-content'
 /**
  * Extract example from parameter object
  */
-export const getExample = (parameter: ParameterObject, exampleKey: string) => {
+export const getParameterExample = (parameter: ParameterObject, exampleKey: string) => {
   if ('examples' in parameter && parameter.examples) {
     return getResolvedRef(parameter.examples[exampleKey])
   }

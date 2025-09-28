@@ -19,7 +19,7 @@ import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 import type { UpdateSecuritySchemeEvent } from '@/v2/blocks/scalar-auth-selector-block/event-types'
 import OperationBody from '@/v2/blocks/scalar-operation-block/components/OperationBody.vue'
 import OperationParams from '@/v2/blocks/scalar-operation-block/components/OperationParams.vue'
-import { groupBy } from '@/v2/blocks/scalar-operation-block/helpers/groupBy'
+import { groupBy } from '@/v2/blocks/scalar-operation-block/helpers/group-by'
 
 const { operation, method, layout, securitySchemes, path } = defineProps<{
   method: HttpMethod

@@ -6,7 +6,7 @@ import { getParameterContentValue } from './get-parameter-content'
 /**
  * Extract the schema from the parameter object
  */
-export const getSchema = (parameter: ParameterObject) => {
+export const getParameterSchema = (parameter: ParameterObject) => {
   if ('schema' in parameter && parameter.schema) {
     return getResolvedRef(parameter.schema)
   }
