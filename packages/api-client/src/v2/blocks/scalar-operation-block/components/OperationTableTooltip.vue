@@ -4,15 +4,15 @@ import { ScalarIconInfo, ScalarIconWarning } from '@scalar/icons'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
-import { parameterIsInvalid } from '@/v2/blocks/scalar-operation-block/helpers/request'
+import { validateParameter } from '@/v2/blocks/scalar-operation-block/helpers/validate-parameter'
 
 const { schema, value } = defineProps<{
   schema?: SchemaObject
   value: string | File | null
 }>()
 
-const invalidParameterMessage = parameterIsInvalid(schema, value)
-const isInvalid = computed(() => !!invalidParameterMessage.value)
+const invalidParameterMessage = validateParameter(schema, value)
+const isInvalid = computed(() => invalidParameterMessage.ok === false)
 </script>
 <template>
   <ScalarPopover

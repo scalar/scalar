@@ -13,8 +13,8 @@ import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useFileDialog } from '@/hooks'
 import type { EnvVariable } from '@/store/active-entities'
 import OperationTable from '@/v2/blocks/scalar-operation-block/components/OperationTable.vue'
-
-import { getExampleFromBody, getFileName } from './../helpers/request'
+import { getFileName } from '@/v2/blocks/scalar-operation-block/helpers/files'
+import { getExampleFromBody } from '@/v2/blocks/scalar-operation-block/helpers/get-request-body-example'
 
 const {
   selectedContentType,
@@ -24,7 +24,7 @@ const {
   envVariables,
   title,
 } = defineProps<{
-  requestBody: RequestBodyObject
+  requestBody?: RequestBodyObject
   selectedContentType: keyof typeof contentTypes & (string & {})
   exampleKey: string
   /** Display title */
@@ -80,11 +80,10 @@ const contentTypeOptions = (
 }))
 
 const selectedContentTypeModel = computed<{ id: string; label: string }>({
-  get: () => ({
-    id: selectedContentType as string,
-    label:
-      contentTypes[selectedContentType] ?? (contentTypes['other'] as string),
-  }),
+  get: () => {
+    const found = contentTypeOptions.find((it) => it.id === selectedContentType)
+    return found ?? contentTypeOptions.at(-1)!
+  },
   set: (v) => {
     emits('update:contentType', { value: v.id })
   },
@@ -104,8 +103,10 @@ function handleFileUpload(callback: (file: File | undefined) => void) {
   open()
 }
 
-const example = computed(() =>
-  getExampleFromBody(requestBody, selectedContentType, exampleKey),
+const example = computed(
+  () =>
+    requestBody &&
+    getExampleFromBody(requestBody, selectedContentType, exampleKey),
 )
 </script>
 <template>

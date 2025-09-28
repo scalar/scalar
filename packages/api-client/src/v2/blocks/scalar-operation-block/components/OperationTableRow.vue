@@ -13,7 +13,7 @@ import {
 } from '@/components/DataTable'
 import type { EnvVariable } from '@/store'
 import OperationTableTooltip from '@/v2/blocks/scalar-operation-block/components/OperationTableTooltip.vue'
-import { parameterIsInvalid } from '@/v2/blocks/scalar-operation-block/helpers/request'
+import { validateParameter } from '@/v2/blocks/scalar-operation-block/helpers/validate-parameter'
 
 const {
   data,
@@ -64,7 +64,7 @@ const typeValue = computed(() =>
   data.schema && 'type' in data.schema ? data.schema.type : undefined,
 )
 
-const errorMessage = parameterIsInvalid(data.schema, data.value)
+const validationResult = validateParameter(data.schema, data.value)
 
 const isFileInstance = (input: unknown): input is File => {
   return input instanceof File
@@ -93,8 +93,8 @@ const valueModel = computed({
   <DataTableRow
     :id="data.name"
     :class="{
-      alert: !!errorMessage,
-      error: !!errorMessage && invalidParams?.has(data.name),
+      alert: validationResult.ok === false,
+      error: validationResult.ok === false && invalidParams?.has(data.name),
     }">
     <template v-if="data.globalRoute !== undefined">
       <RouterLink

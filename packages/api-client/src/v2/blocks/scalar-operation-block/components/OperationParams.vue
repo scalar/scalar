@@ -8,10 +8,8 @@ import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import type { EnvVariable } from '@/store/active-entities'
 import OperationTable from '@/v2/blocks/scalar-operation-block/components/OperationTable.vue'
 import type { TableRow } from '@/v2/blocks/scalar-operation-block/components/OperationTableRow.vue'
-import {
-  getExample,
-  getSchema,
-} from '@/v2/blocks/scalar-operation-block/helpers/request'
+import { getExample } from '@/v2/blocks/scalar-operation-block/helpers/get-parameter-example'
+import { getSchema } from '@/v2/blocks/scalar-operation-block/helpers/get-parameter-schema'
 
 const {
   parameters,
@@ -45,24 +43,20 @@ const emits = defineEmits<{
   (e: 'deleteAll'): void
 }>()
 
-const tableRows = computed<TableRow[]>(() => {
-  return parameters.map((param) => ({
-    name: param.name,
-    value: getExample(param, exampleKey)?.value,
-    globalRoute,
-    schema: getSchema(param),
-    isRequired: param.required,
-    isDisabled: getExample(param, exampleKey)?.['x-is-disabled'] ?? false,
-  }))
-})
+const tableRows = computed<TableRow[]>(() =>
+  parameters.map((param) => {
+    const example = getExample(param, exampleKey)
 
-const addRow = () => {
-  parameters.push({
-    name: 'test',
-    in: 'query',
-    schema: { type: 'string' },
-  })
-}
+    return {
+      name: param.name,
+      value: example?.value,
+      globalRoute,
+      schema: getSchema(param),
+      isRequired: param.required,
+      isDisabled: example?.['x-is-disabled'] ?? false,
+    }
+  }),
+)
 
 const showTooltip = computed(() => parameters.length > 1)
 </script>
@@ -99,7 +93,7 @@ const showTooltip = computed(() => parameters.length > 1)
       :globalRoute="globalRoute"
       :invalidParams="invalidParams"
       :label="label"
-      @addRow="addRow"
+      @addRow="(payload) => emits('add', payload)"
       @deleteRow="(index) => emits('delete', { index })"
       @updateRow="(index, payload) => emits('update', { index, payload })" />
   </ViewLayoutCollapse>

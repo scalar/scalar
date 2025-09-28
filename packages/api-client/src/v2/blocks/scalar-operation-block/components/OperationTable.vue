@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Environment } from '@scalar/oas-utils/entities/environment'
+import { computed } from 'vue'
 
 import DataTable from '@/components/DataTable/DataTable.vue'
 import DataTableHeader from '@/components/DataTable/DataTableHeader.vue'
@@ -15,12 +16,14 @@ const { data, isReadOnly, hasCheckboxDisabled, showUploadButton } =
     isReadOnly?: boolean
     /** Hide the enabled column */
     hasCheckboxDisabled?: boolean
-    // showUploadButton?: boolean
-    environment: Environment
-    envVariables: EnvVariable[]
+
     invalidParams?: Set<string>
     label?: string
     showUploadButton?: boolean
+
+    /** TODO: remove once we migrate */
+    environment: Environment
+    envVariables: EnvVariable[]
   }>()
 
 /**
@@ -55,6 +58,37 @@ const uploadFile = (index?: number) => {
 }
 
 const columns = ['36px', '', '', 'auto']
+
+/** Add the last empty row (for ui purposes only) */
+const displayData = computed(() => {
+  const last = data.at(-1)
+
+  if (!last || (last.name !== '' && last.value !== '')) {
+    return [...data, { name: '', value: '', isDisabled: true }]
+  }
+
+  return data
+})
+
+/**
+ * Detect if the incoming event is an add or update and re-emit the event
+ */
+const updateOrAdd = ({
+  index,
+  payload,
+}: {
+  index: number
+  payload: Partial<{ key: string; value: string; isEnabled: boolean }>
+}) => {
+  /** If the update happen on the last row, it means we need to add a new row */
+  if (index >= data.length) {
+    emits('addRow', payload)
+    return
+  }
+
+  /** Otherwise we just update the existing row */
+  emits('updateRow', index, payload)
+}
 </script>
 <template>
   <DataTable
@@ -66,7 +100,7 @@ const columns = ['36px', '', '', 'auto']
       <DataTableHeader>{{ label }} Value</DataTableHeader>
     </DataTableRow>
     <OperationTableRow
-      v-for="(row, idx) in data"
+      v-for="(row, idx) in displayData"
       :key="idx"
       :data="row"
       :envVariables="envVariables"
@@ -78,15 +112,8 @@ const columns = ['36px', '', '', 'auto']
       :showUploadButton="showUploadButton"
       @deleteRow="emits('deleteRow', idx)"
       @removeFile="emits('removeFile', idx)"
-      @updateRow="(payload) => emits('updateRow', idx, payload)"
+      @updateRow="(payload) => updateOrAdd({ index: idx, payload })"
       @uploadFile="() => uploadFile(idx)" />
-    <OperationTableRow
-      :data="{ name: '', value: '', isDisabled: true }"
-      :envVariables="envVariables"
-      :environment="environment"
-      :showUploadButton="showUploadButton"
-      @updateRow="(payload) => emits('addRow', payload)"
-      @uploadFile="uploadFile" />
   </DataTable>
 </template>
 <style scoped>
