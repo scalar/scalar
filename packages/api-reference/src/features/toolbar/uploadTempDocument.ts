@@ -1,4 +1,6 @@
-import { UPLOAD_TEMP_API_URL } from '@/consts/urls'
+import { redirectToProxy } from '@scalar/oas-utils/helpers'
+
+import { PROXY_URL, UPLOAD_TEMP_API_URL } from '@/consts/urls'
 
 /** Type guard for the response body */
 function isResponseBody(data: unknown): data is { url: string } {
@@ -9,7 +11,8 @@ function isResponseBody(data: unknown): data is { url: string } {
 export async function uploadTempDocument(document: string): Promise<string> {
   const body = JSON.stringify({ document })
 
-  const response = await fetch(UPLOAD_TEMP_API_URL, {
+  // Proxy the request to avoid localhost CORS issues
+  const response = await fetch(redirectToProxy(PROXY_URL, UPLOAD_TEMP_API_URL), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body,
