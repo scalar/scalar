@@ -24,7 +24,7 @@ export const TraversedDescriptionSchemaDefinition = compose(
 
 export type TraversedDescription = BaseSchema & {
   type: 'text'
-  children: TraversedDescription[]
+  children?: TraversedEntry[]
 }
 
 export const TraversedOperationSchemaDefinition = compose(
@@ -45,7 +45,7 @@ export type TraversedOperation = BaseSchema & {
   ref: string
   method: HttpMethod
   path: string
-  isDeprecated: boolean
+  isDeprecated?: boolean
 }
 
 export const TraversedSchemaSchemaDefinition = compose(
@@ -68,9 +68,7 @@ export const TraversedWebhookSchemaDefinition = compose(
   Type.Object({
     type: Type.Literal('webhook'),
     ref: Type.String(),
-    method: Type.Union(
-      Array.from(httpMethods.keys()).map((method) => Type.Literal(method)),
-    ) as unknown as TLiteral<HttpMethod>,
+    method: Type.Union(Array.from(httpMethods.keys()).map((method) => Type.Literal(method))),
     name: Type.String(),
     isDeprecated: Type.Optional(Type.Boolean()),
   }),
@@ -81,7 +79,7 @@ export type TraversedWebhook = BaseSchema & {
   ref: string
   method: HttpMethod
   name: string
-  isDeprecated: boolean
+  isDeprecated?: boolean
 }
 
 export const TraversedTagSchemaDefinition = compose(
@@ -100,11 +98,11 @@ export const TraversedTagSchemaDefinition = compose(
 export type TraversedTag = BaseSchema & {
   type: 'tag'
   name: string
-  description: string
-  children: TraversedEntry[]
+  description?: string
+  children?: TraversedEntry[]
   isGroup: boolean
-  isWebhooks: boolean
-  xKeys: Record<string, unknown>
+  isWebhooks?: boolean
+  xKeys?: Record<string, unknown>
 }
 
 export const TraversedEntrySchemaDefinition = Type.Union([

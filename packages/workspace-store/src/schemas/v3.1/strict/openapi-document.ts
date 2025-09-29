@@ -2,6 +2,7 @@ import { type TSchema, Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
 import { extensions } from '@/schemas/extensions'
+import { type XTagGroups, XTagGroupsSchema } from '@/schemas/extensions/tag/x-tag-groups'
 import {
   TraversedDescriptionSchemaDefinition,
   type TraversedEntry,
@@ -49,7 +50,6 @@ import {
   TagObjectRef,
   TraversedEntryObjectRef,
 } from './ref-definitions'
-import type { ReferenceType } from './reference'
 import { RequestBodyObjectSchemaDefinition } from './request-body'
 import { ResponseObjectSchemaDefinition } from './response'
 import { ResponsesObjectSchemaDefinition } from './responses'
@@ -62,37 +62,33 @@ import { type TagObject, TagObjectSchemaDefinition } from './tag'
 import { XMLObjectSchemaDefinition } from './xml'
 
 const OpenApiExtensionsSchema = Type.Partial(
-  Type.Object({
-    'x-tagGroups': Type.Array(
-      compose(
-        Type.Object({
-          tags: Type.Array(Type.String()),
-        }),
-        TagObjectRef,
-      ),
-    ),
-    'x-scalar-client-config-active-environment': Type.String(),
-    /** A custom icon representing the collection */
-    'x-scalar-client-config-icon': Type.String(),
-    'x-scalar-client-config-environments': xScalarClientConfigEnvironmentsSchema,
-    'x-scalar-client-config-cookies': xScalarClientConfigCookiesSchema,
-    'x-original-oas-version': Type.String(),
-    'x-scalar-selected-security': Type.Optional(Type.Array(SecurityRequirementObjectRef)),
-    [extensions.document.navigation]: Type.Array(TraversedEntryObjectRef),
-  }),
+  compose(
+    Type.Object({
+      'x-scalar-client-config-active-environment': Type.String(),
+      /** A custom icon representing the collection */
+      'x-scalar-client-config-icon': Type.String(),
+      'x-scalar-client-config-environments': xScalarClientConfigEnvironmentsSchema,
+      'x-scalar-client-config-cookies': xScalarClientConfigCookiesSchema,
+      'x-original-oas-version': Type.String(),
+      'x-scalar-selected-security': Type.Optional(Type.Array(SecurityRequirementObjectRef)),
+      [extensions.document.navigation]: Type.Array(TraversedEntryObjectRef),
+    }),
+    XTagGroupsSchema,
+  ),
 )
 
-export type OpenAPIExtensions = {
-  'x-tagGroups': ReferenceType<TagObject>[]
-  'x-scalar-client-config-active-environment': string
-  /** A custom icon representing the collection */
-  'x-scalar-client-config-icon': string
-  'x-scalar-client-config-environments': XScalarClientConfigEnvironments
-  'x-scalar-client-config-cookies': XScalarClientConfigCookies
-  'x-original-oas-version': string
-  'x-scalar-selected-security': SecurityRequirementObject[]
-  [extensions.document.navigation]: TraversedEntry[]
-}
+export type OpenAPIExtensions = Partial<
+  {
+    'x-scalar-client-config-active-environment': string
+    /** A custom icon representing the collection */
+    'x-scalar-client-config-icon': string
+    'x-scalar-client-config-environments': XScalarClientConfigEnvironments
+    'x-scalar-client-config-cookies': XScalarClientConfigCookies
+    'x-original-oas-version': string
+    'x-scalar-selected-security': SecurityRequirementObject[]
+    [extensions.document.navigation]: TraversedEntry[]
+  } & XTagGroups
+>
 
 const OpenApiDocumentSchemaDefinition = compose(
   Type.Object({
@@ -141,7 +137,7 @@ export type OpenApiDocument = {
   tags?: TagObject[]
   /** Additional external documentation. */
   externalDocs?: ExternalDocumentationObject
-}
+} & OpenAPIExtensions
 
 // ----- Module Definition ----
 const module = Type.Module({
