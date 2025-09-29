@@ -1,4 +1,4 @@
-import { type Static, Type } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
 import { type XInternal, XInternalSchema } from '@/schemas/extensions/document/x-internal'
@@ -21,7 +21,7 @@ import {
   SchemaObjectRef,
   XMLObjectRef,
 } from './ref-definitions'
-import { type ReferenceObject, reference } from './reference'
+import { type ReferenceType, reference } from './reference'
 
 const schemaOrReference = Type.Union([SchemaObjectRef, reference(SchemaObjectRef)])
 
@@ -147,7 +147,7 @@ export type CoreProperties = {
   /** Content encoding. */
   contentEncoding?: string
   /** Schema for content validation. */
-  contentSchema?: SchemaObject | ReferenceObject
+  contentSchema?: ReferenceType<SchemaObject>
   /** Whether the schema is deprecated. */
   deprecated?: boolean
   /** Adds support for polymorphism. The discriminator is used to determine which of a set of schemas a payload is expected to satisfy. See Composition and Inheritance for more details. */
@@ -170,15 +170,15 @@ export type CoreProperties = {
    * An array of examples of valid instances for this schema. This keyword follows the JSON Schema Draft 2020-12 specification.
    * Each example should be a valid instance of the schema.
    */
-  examples: unknown[]
+  examples?: unknown[]
   /** All schemas must be valid. */
-  allOf: (SchemaObject | ReferenceObject)[]
+  allOf?: ReferenceType<SchemaObject>[]
   /** Exactly one schema must be valid. */
-  oneOf: (SchemaObject | ReferenceObject)[]
+  oneOf?: ReferenceType<SchemaObject>[]
   /** At least one schema must be valid. */
-  anyOf: (SchemaObject | ReferenceObject)[]
+  anyOf?: ReferenceType<SchemaObject>[]
   /** Schema must not be valid. */
-  not: SchemaObject | ReferenceObject
+  not?: ReferenceType<SchemaObject>
 }
 
 /**
@@ -330,9 +330,9 @@ export type ArrayObject = CoreProperties & {
   /** Whether array items must be unique. */
   uniqueItems?: boolean
   /** Schema for array items. */
-  items?: SchemaObject | ReferenceObject
+  items?: ReferenceType<SchemaObject>
   /** Schema for tuple validation. */
-  prefixItems?: (SchemaObject | ReferenceObject)[]
+  prefixItems?: ReferenceType<SchemaObject>[]
 } & Extensions
 
 const ObjectValidationPropertiesWithSchema = Type.Object({
@@ -360,11 +360,11 @@ export type ObjectObject = CoreProperties & {
   /** Array of required property names. */
   required?: string[]
   /** Object property definitions. */
-  properties?: Record<string, SchemaObject | ReferenceObject>
+  properties?: Record<string, ReferenceType<SchemaObject>>
   /** Schema for additional properties. */
-  additionalProperties?: boolean | SchemaObject | ReferenceObject
+  additionalProperties?: boolean | ReferenceType<SchemaObject>
   /** Properties matching regex patterns. */
-  patternProperties?: Record<string, SchemaObject | ReferenceObject>
+  patternProperties?: Record<string, ReferenceType<SchemaObject>>
 } & Extensions
 
 /** Builds the recursive schema schema */

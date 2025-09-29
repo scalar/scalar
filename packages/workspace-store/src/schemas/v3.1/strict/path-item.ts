@@ -3,7 +3,7 @@ import { Type } from '@scalar/typebox'
 import type { OperationObject } from './operation'
 import type { ParameterObject } from './parameter'
 import { OperationObjectRef, ParameterObjectRef, ServerObjectRef } from './ref-definitions'
-import { type ReferenceObject, reference } from './reference'
+import { type ReferenceType, reference } from './reference'
 import type { ServerObject } from './server'
 
 export const PathItemObjectSchemaDefinition = Type.Object({
@@ -53,25 +53,25 @@ export type PathItemObject = {
   /** An optional string description, intended to apply to all operations in this path. CommonMark syntax MAY be used for rich text representation. */
   description?: string
   /** A definition of a GET operation on this path. */
-  get?: OperationObject | ReferenceObject
+  get?: ReferenceType<OperationObject>
   /** A definition of a PUT operation on this path. */
-  put?: OperationObject | ReferenceObject
+  put?: ReferenceType<OperationObject>
   /** A definition of a POST operation on this path. */
-  post?: OperationObject | ReferenceObject
+  post?: ReferenceType<OperationObject>
   /** A definition of a DELETE operation on this path. */
-  delete?: OperationObject | ReferenceObject
+  delete?: ReferenceType<OperationObject>
   /** A definition of a PATCH operation on this path. */
-  patch?: OperationObject | ReferenceObject
+  patch?: ReferenceType<OperationObject>
   /** A definition of a CONNECT operation on this path. */
-  connect?: OperationObject | ReferenceObject
+  connect?: ReferenceType<OperationObject>
   /** A definition of a OPTIONS operation on this path. */
-  options?: OperationObject | ReferenceObject
+  options?: ReferenceType<OperationObject>
   /** A definition of a HEAD operation on this path. */
-  head?: OperationObject | ReferenceObject
+  head?: ReferenceType<OperationObject>
   /** A definition of a TRACE operation on this path. */
-  trace?: OperationObject | ReferenceObject
+  trace?: ReferenceType<OperationObject>
   /** An alternative servers array to service all operations in this path. If a servers array is specified at the OpenAPI Object level, it will be overridden by this value. */
   servers?: ServerObject[]
   /** A list of parameters that are applicable for all the operations described under this path. These parameters can be overridden at the operation level, but cannot be removed there. The list MUST NOT include duplicated parameters. A unique parameter is defined by a combination of a name and location. The list can use the Reference Object to link to parameters that are defined in the OpenAPI Object's components.parameters. */
-  parameters?: (ParameterObject | ReferenceObject)[]
+  parameters?: ReferenceType<ParameterObject>[]
 }

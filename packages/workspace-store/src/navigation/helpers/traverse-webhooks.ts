@@ -5,7 +5,8 @@ import { objectKeys } from '@scalar/helpers/object/object-keys'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { isDeprecatedOperation } from '@/navigation/helpers/traverse-paths'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
-import type { OpenApiDocument, TagObject, TraversedWebhook } from '@/schemas/v3.1/strict/openapi-document'
+import type { TraversedWebhook } from '@/schemas/navigation'
+import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
 
 import { getTag } from './get-tag'
 
@@ -38,7 +39,7 @@ const createWebhookEntry = (
     ref,
     method: method,
     type: 'webhook',
-    isDeprecated: isDeprecated ? isDeprecated : undefined,
+    isDeprecated: isDeprecated ?? false,
   } satisfies TraversedWebhook
 
   return entry

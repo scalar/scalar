@@ -7,7 +7,6 @@ import { upgrade } from '@scalar/openapi-upgrader'
 import type { Record } from '@scalar/typebox'
 import { Value } from '@scalar/typebox/value'
 import type { PartialDeep } from 'type-fest/source/partial-deep'
-import type { RequiredDeep } from 'type-fest/source/required-deep'
 import { reactive } from 'vue'
 import YAML from 'yaml'
 
@@ -39,7 +38,7 @@ type ExtraDocumentConfigurations = Record<
   }
 >
 
-const defaultConfig: RequiredDeep<Config> = {
+const defaultConfig: Config = {
   'x-scalar-reference-config': defaultReferenceConfig,
 }
 
@@ -843,7 +842,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       safeAssign(originalDocuments, result.originalDocuments)
       safeAssign(intermediateDocuments, result.intermediateDocuments)
-      safeAssign(documentConfigs, result.documentConfigs)
+      safeAssign(documentConfigs, result.documentConfigs as Record<string, Config>)
       safeAssign(overrides, result.overrides)
       safeAssign(workspace, result.meta)
       safeAssign(documentMeta, result.documentMeta)

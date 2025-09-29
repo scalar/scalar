@@ -1,11 +1,11 @@
 import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
-import { XInternalSchema } from '@/schemas/extensions/document/x-internal'
-import { XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
-import { XBadgesSchema } from '@/schemas/extensions/operation/x-badge'
-import { XCodeSamplesSchema } from '@/schemas/extensions/operation/x-code-samples'
-import { XScalarStabilitySchema } from '@/schemas/extensions/operation/x-scalar-stability'
+import { type XInternal, XInternalSchema } from '@/schemas/extensions/document/x-internal'
+import { type XScalarIgnore, XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
+import { type XBadges, XBadgesSchema } from '@/schemas/extensions/operation/x-badge'
+import { type XCodeSamples, XCodeSamplesSchema } from '@/schemas/extensions/operation/x-code-samples'
+import { type XScalarStability, XScalarStabilitySchema } from '@/schemas/extensions/operation/x-scalar-stability'
 
 import type { CallbackObject } from './callback'
 import type { ExternalDocumentationObject } from './external-documentation'
@@ -19,7 +19,7 @@ import {
   SecurityRequirementObjectRef,
   ServerObjectRef,
 } from './ref-definitions'
-import { type ReferenceObject, reference } from './reference'
+import { type ReferenceType, reference } from './reference'
 import type { RequestBodyObject } from './request-body'
 import type { ResponsesObject } from './responses'
 import type { SecurityRequirementObject } from './security-requirement'
@@ -30,6 +30,10 @@ const OperationExtensionsSchema = Type.Partial(
     'x-scalar-selected-security': Type.Optional(Type.Array(SecurityRequirementObjectRef)),
   }),
 )
+
+type OperationExtensions = {
+  'x-scalar-selected-security'?: SecurityRequirementObject[]
+}
 
 export const OperationObjectSchemaDefinition = compose(
   Type.Object({
@@ -78,9 +82,9 @@ export type OperationObject = {
   /** Unique string used to identify the operation. The id MUST be unique among all operations described in the API. The operationId value is case-sensitive. Tools and libraries MAY use the operationId to uniquely identify an operation, therefore, it is RECOMMENDED to follow common programming naming conventions. */
   operationId?: string
   /** A list of parameters that are applicable for this operation. If a parameter is already defined at the Path Item, the new definition will override it but can never remove it. The list MUST NOT include duplicated parameters. A unique parameter is defined by a combination of a name and location. The list can use the Reference Object to link to parameters that are defined in the OpenAPI Object's components.parameters. */
-  parameters?: (ParameterObject | ReferenceObject)[]
+  parameters?: ReferenceType<ParameterObject>[]
   /** The request body applicable for this operation. The requestBody is fully supported in HTTP methods where the HTTP 1.1 specification RFC7231 has explicitly defined semantics for request bodies. In other cases where the HTTP spec is vague (such as GET, HEAD and DELETE), requestBody is permitted but does not have well-defined semantics and SHOULD be avoided if possible. */
-  requestBody?: RequestBodyObject | ReferenceObject
+  requestBody?: ReferenceType<RequestBodyObject>
   /** The list of possible responses as they are returned from executing this operation. */
   responses?: ResponsesObject
   /** Declares this operation to be deprecated. Consumers SHOULD refrain from usage of the declared operation. Default value is false. */
@@ -90,5 +94,10 @@ export type OperationObject = {
   /** An alternative servers array to service this operation. If a servers array is specified at the Path Item Object or OpenAPI Object level, it will be overridden by this value. */
   servers?: ServerObject[]
   /** A map of possible out-of band callbacks related to the parent operation. The key is a unique identifier for the Callback Object. Each value in the map is a Callback Object that describes a request that may be initiated by the API provider and the expected responses. */
-  callbacks?: Record<string, CallbackObject | ReferenceObject>
-}
+  callbacks?: Record<string, ReferenceType<CallbackObject>>
+} & OperationExtensions &
+  XBadges &
+  XInternal &
+  XScalarIgnore &
+  XCodeSamples &
+  XScalarStability

@@ -33,7 +33,7 @@ export const ReferenceObjectSchema = compose(
  * The $ref string value contains a URI RFC3986, which identifies the value being referenced.
  *
  * See the rules for resolving Relative References. */
-export type ReferenceObject = {
+type ReferenceObject = {
   /** REQUIRED. The reference identifier. This MUST be in the form of a URI. */
   '$ref': string
   /** A short summary which by default SHOULD override that of the referenced component. If the referenced object-type does not allow a summary field, then this field has no effect. */

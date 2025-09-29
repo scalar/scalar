@@ -4,7 +4,7 @@ import { compose } from '@/schemas/compose'
 import { extensions } from '@/schemas/extensions'
 import {
   TraversedDescriptionSchemaDefinition,
-  type TraversedEntryObject,
+  type TraversedEntry,
   TraversedEntrySchemaDefinition,
   TraversedOperationSchemaDefinition,
   TraversedSchemaSchemaDefinition,
@@ -35,7 +35,7 @@ import { MediaTypeObjectSchemaDefinition } from './media-type'
 import { OAuthFlowsObjectSchemaDefinition } from './oauthflows'
 import { OperationObjectSchemaDefinition } from './operation'
 import { ParameterObjectSchemaDefinition } from './parameter'
-import { type PathItemObject, PathItemObjectSchemaDefinition } from './path-item'
+import { PathItemObjectSchemaDefinition } from './path-item'
 import { type PathsObject, PathsObjectSchemaDefinition } from './paths'
 import {
   ComponentsObjectRef,
@@ -49,7 +49,7 @@ import {
   TagObjectRef,
   TraversedEntryObjectRef,
 } from './ref-definitions'
-import type { ReferenceObject } from './reference'
+import type { ReferenceType } from './reference'
 import { RequestBodyObjectSchemaDefinition } from './request-body'
 import { ResponseObjectSchemaDefinition } from './response'
 import { ResponsesObjectSchemaDefinition } from './responses'
@@ -83,7 +83,7 @@ const OpenApiExtensionsSchema = Type.Partial(
 )
 
 export type OpenAPIExtensions = {
-  'x-tagGroups': (TagObject | ReferenceObject)[]
+  'x-tagGroups': ReferenceType<TagObject>[]
   'x-scalar-client-config-active-environment': string
   /** A custom icon representing the collection */
   'x-scalar-client-config-icon': string
@@ -91,7 +91,7 @@ export type OpenAPIExtensions = {
   'x-scalar-client-config-cookies': XScalarClientConfigCookies
   'x-original-oas-version': string
   'x-scalar-selected-security': SecurityRequirementObject[]
-  [extensions.document.navigation]: TraversedEntryObject[]
+  [extensions.document.navigation]: TraversedEntry[]
 }
 
 const OpenApiDocumentSchemaDefinition = compose(
@@ -231,3 +231,33 @@ export const TraversedTagSchema = module.Import('TraversedTagObject')
 export const TraversedOperationSchema = module.Import('TraversedOperationObject')
 export const TraversedSchemaSchema = module.Import('TraversedSchemaObject')
 export const TraversedWebhookSchema = module.Import('TraversedWebhookObject')
+
+//  ----- Type re-exports ----
+export type { ExternalDocumentationObject }
+export type { InfoObject }
+export type { PathsObject }
+export type { SecurityRequirementObject }
+export type { ServerObject }
+export type { TagObject }
+
+export type { CallbackObject } from './callback'
+export type { ComponentsObject } from './components'
+export type { ContactObject } from './contact'
+export type { DiscriminatorObject } from './discriminator'
+export type { EncodingObject } from './encoding'
+export type { ExampleObject } from './example'
+export type { HeaderObject } from './header'
+export type { LicenseObject } from './license'
+export type { LinkObject } from './link'
+export type { MediaTypeObject } from './media-type'
+export type { OAuthFlowsObject } from './oauthflows'
+export type { OperationObject } from './operation'
+export type { ParameterObject } from './parameter'
+export type { PathItemObject } from './path-item'
+export type { RequestBodyObject } from './request-body'
+export type { ResponseObject } from './response'
+export type { ResponsesObject } from './responses'
+export type { SchemaObject } from './schema'
+export type { SecuritySchemeObject } from './security-scheme'
+export type { ServerVariableObject } from './server-variable'
+export type { XMLObject } from './xml'

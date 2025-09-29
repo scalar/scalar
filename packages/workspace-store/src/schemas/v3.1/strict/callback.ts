@@ -2,7 +2,7 @@ import { Type } from '@scalar/typebox'
 
 import type { PathItemObject } from './path-item'
 import { PathItemObjectRef } from './ref-definitions'
-import { type ReferenceObject, reference } from './reference'
+import { type ReferenceType, reference } from './reference'
 
 export const CallbackObjectSchemaDefinition = Type.Record(
   Type.String(),
@@ -11,4 +11,4 @@ export const CallbackObjectSchemaDefinition = Type.Record(
 )
 
 /** A Path Item Object used to define a callback request and expected responses. A complete example is available. */
-export type CallbackObject = Record<string, PathItemObject | ReferenceObject>
+export type CallbackObject = Record<string, ReferenceType<PathItemObject>>

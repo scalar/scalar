@@ -40,7 +40,7 @@ export const TraversedOperationSchemaDefinition = compose(
   }),
 )
 
-type TraversedOperation = BaseSchema & {
+export type TraversedOperation = BaseSchema & {
   type: 'operation'
   ref: string
   method: HttpMethod
@@ -57,7 +57,7 @@ export const TraversedSchemaSchemaDefinition = compose(
   }),
 )
 
-type TraversedSchema = BaseSchema & {
+export type TraversedSchema = BaseSchema & {
   type: 'model'
   ref: string
   name: string
@@ -101,7 +101,7 @@ export type TraversedTag = BaseSchema & {
   type: 'tag'
   name: string
   description: string
-  children: TraversedEntryObject[]
+  children: TraversedEntry[]
   isGroup: boolean
   isWebhooks: boolean
   xKeys: Record<string, unknown>
@@ -115,7 +115,7 @@ export const TraversedEntrySchemaDefinition = Type.Union([
   TraversedWebhookSchemaDefinition,
 ])
 
-export type TraversedEntryObject =
+export type TraversedEntry =
   | TraversedTag
   | TraversedDescription
   | TraversedOperation

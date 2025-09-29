@@ -1,8 +1,6 @@
 import { Type } from '@scalar/typebox'
 import { AVAILABLE_CLIENTS } from '@scalar/types/snippetz'
 
-import type { MutableArray } from '@/types'
-
 import { type Appearance, AppearanceSchema, defaultAppearance } from './appearance'
 import { type Features, FeaturesSchema, defaultFeatures } from './features'
 import { type Meta, MetaSchema, defaultMeta } from './meta'
@@ -43,7 +41,7 @@ export type ReferenceConfig = {
   appearance: Appearance
   features: Features
   meta: Meta
-  httpClients: MutableArray<typeof AVAILABLE_CLIENTS>
+  httpClients: typeof AVAILABLE_CLIENTS
 }
 
 export const defaultReferenceConfig: ReferenceConfig = {
@@ -77,5 +75,5 @@ export const defaultReferenceConfig: ReferenceConfig = {
   /**
    * Default HTTP clients for the API reference.
    */
-  httpClients: AVAILABLE_CLIENTS as MutableArray<typeof AVAILABLE_CLIENTS>,
+  httpClients: AVAILABLE_CLIENTS,
 }

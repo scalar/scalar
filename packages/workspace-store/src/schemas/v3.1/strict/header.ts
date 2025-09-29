@@ -4,7 +4,7 @@ import { compose } from '@/schemas/compose'
 
 import type { MediaTypeObject } from './media-type'
 import { ExampleObjectRef, MediaTypeObjectRef, SchemaObjectRef } from './ref-definitions'
-import { type ReferenceObject, reference } from './reference'
+import { type ReferenceType, reference } from './reference'
 import type { SchemaObject } from './schema'
 
 export const HeaderObjectSchemaBase = Type.Object({
@@ -68,7 +68,7 @@ type HeaderWithSchemaObject = HeaderBase & {
   /** When this is true, header values of type array or object generate a single header whose value is a comma-separated list of the array items or key-value pairs of the map, see Style Examples. For other data types this field has no effect. The default value is false. */
   explode?: boolean
   /** The schema defining the type used for the header. */
-  schema?: SchemaObject | ReferenceObject
+  schema?: ReferenceType<SchemaObject>
 }
 
 /** Header object that uses content */

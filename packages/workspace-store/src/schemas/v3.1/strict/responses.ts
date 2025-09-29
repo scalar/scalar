@@ -1,7 +1,7 @@
 import { Type } from '@scalar/typebox'
 
 import { ResponseObjectRef } from './ref-definitions'
-import { type ReferenceObject, reference } from './reference'
+import { type ReferenceType, reference } from './reference'
 import type { ResponseObject } from './response'
 
 /**
@@ -27,4 +27,4 @@ export const ResponsesObjectSchemaDefinition = Type.Record(
  *
  * The Responses Object MUST contain at least one response code, and if only one response code is provided it SHOULD be the response for a successful operation call.
  */
-export type ResponsesObject = Record<string, ResponseObject | ReferenceObject>
+export type ResponsesObject = Record<string, ReferenceType<ResponseObject>>

@@ -18,7 +18,7 @@ import {
   SchemaObjectRef,
   SecuritySchemeObjectRef,
 } from './ref-definitions'
-import { type ReferenceObject, reference } from './reference'
+import { type ReferenceType, reference } from './reference'
 import type { RequestBodyObject } from './request-body'
 import type { ResponsesObject } from './responses'
 import type { SchemaObject } from './schema'
@@ -57,23 +57,23 @@ export const ComponentsObjectSchemaDefinition = Type.Object({
 /** Holds a set of reusable objects for different aspects of the OAS. All objects defined within the Components Object will have no effect on the API unless they are explicitly referenced from outside the Components Object. */
 export type ComponentsObject = {
   /** An object to hold reusable Schema Objects. */
-  schemas?: Record<string, SchemaObject | ReferenceObject>
+  schemas?: Record<string, ReferenceType<SchemaObject>>
   /** An object to hold reusable Response Objects. */
   responses?: ResponsesObject
   /** An object to hold reusable Parameter Objects. */
-  parameters?: Record<string, ParameterObject | ReferenceObject>
+  parameters?: Record<string, ReferenceType<ParameterObject>>
   /** An object to hold reusable Example Objects. */
-  examples?: Record<string, ExampleObject | ReferenceObject>
+  examples?: Record<string, ReferenceType<ExampleObject>>
   /** An object to hold reusable Request Body Objects. */
-  requestBodies?: Record<string, RequestBodyObject | ReferenceObject>
+  requestBodies?: Record<string, ReferenceType<RequestBodyObject>>
   /** An object to hold reusable Header Objects. */
-  headers?: Record<string, HeaderObject | ReferenceObject>
+  headers?: Record<string, ReferenceType<HeaderObject>>
   /** An object to hold reusable Security Scheme Objects. */
-  securitySchemes?: Record<string, SecuritySchemeObject | ReferenceObject>
+  securitySchemes?: Record<string, ReferenceType<SecuritySchemeObject>>
   /** An object to hold reusable Link Objects. */
-  links?: Record<string, LinkObject | ReferenceObject>
+  links?: Record<string, ReferenceType<LinkObject>>
   /** An object to hold reusable Callback Objects. */
-  callbacks?: Record<string, CallbackObject | ReferenceObject>
+  callbacks?: Record<string, ReferenceType<CallbackObject>>
   /** An object to hold reusable Path Item Objects. */
-  pathItems?: Record<string, PathItemObject | ReferenceObject>
+  pathItems?: Record<string, ReferenceType<PathItemObject>>
 }

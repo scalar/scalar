@@ -11,7 +11,7 @@ export const ConfigSchema = Type.Partial(
 )
 
 export type Config = {
-  'x-scalar-reference-config': ReferenceConfig
+  'x-scalar-reference-config'?: ReferenceConfig
 }
 
 export type DocumentConfiguration = Config &

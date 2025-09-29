@@ -11,9 +11,15 @@ import {
   type XScalarClientConfigEnvironments,
   xScalarClientConfigEnvironmentsSchema,
 } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-environments'
+import type { SecuritySchemeObject } from '@/schemas/v3.1/strict/security-scheme'
 import type { ServerObject } from '@/schemas/v3.1/strict/server'
 
-import { OpenAPIDocumentSchema, SecuritySchemeObjectSchema, ServerObjectSchema } from './v3.1/strict/openapi-document'
+import {
+  OpenAPIDocumentSchema,
+  type OpenApiDocument,
+  SecuritySchemeObjectSchema,
+  ServerObjectSchema,
+} from './v3.1/strict/openapi-document'
 
 export const WorkspaceDocumentMetaSchema = Type.Partial(
   Type.Object({
@@ -30,7 +36,7 @@ export type WorkspaceDocumentMeta = {
 // Note: use Type.Intersect to combine schemas here because Type.Compose does not work as expected with Modules
 export const WorkspaceDocumentSchema = Type.Intersect([WorkspaceDocumentMetaSchema, OpenAPIDocumentSchema])
 
-export type WorkspaceDocument = WorkspaceDocumentMeta & OpenAPIDocument
+export type WorkspaceDocument = WorkspaceDocumentMeta & OpenApiDocument
 
 export const WorkspaceMetaSchema = Type.Partial(
   Type.Object({
@@ -43,7 +49,7 @@ export const WorkspaceMetaSchema = Type.Partial(
 
 export type WorkspaceMeta = {
   [extensions.workspace.darkMode]?: boolean
-  [extensions.workspace.defaultClient]?: AvailableClients
+  [extensions.workspace.defaultClient]?: AvailableClients[number]
   [extensions.workspace.activeDocument]?: string
   [extensions.workspace.theme]?: string
 }

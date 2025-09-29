@@ -4,7 +4,7 @@ import { compose } from '@/schemas/compose'
 import type { ExampleObject } from '@/schemas/v3.1/strict/example'
 import type { MediaTypeObject } from '@/schemas/v3.1/strict/media-type'
 import { ExampleObjectRef, MediaTypeObjectRef, SchemaObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
-import { type ReferenceObject, reference } from '@/schemas/v3.1/strict/reference'
+import { type ReferenceType, reference } from '@/schemas/v3.1/strict/reference'
 import type { SchemaObject } from '@/schemas/v3.1/strict/schema'
 
 export const ParameterObjectBaseSchema = Type.Object({
@@ -65,11 +65,11 @@ export type ParameterWithSchemaObject = ParameterObjectBase & {
   /** When this is true, header values of type array or object generate a single header whose value is a comma-separated list of the array items or key-value pairs of the map, see Style Examples. For other data types this field has no effect. The default value is false. */
   explode?: boolean
   /** The schema defining the type used for the header. */
-  schema?: SchemaObject | ReferenceObject
+  schema?: ReferenceType<SchemaObject>
   /** Example of the header's potential value; see Working With Examples. https://swagger.io/specification/#working-with-examples */
   example?: any
   /** Examples of the header's potential value; see Working With Examples. https://swagger.io/specification/#working-with-examples */
-  examples?: Record<string, ExampleObject | ReferenceObject>
+  examples?: Record<string, ReferenceType<ExampleObject>>
 }
 
 export const ParameterObjectWithContentSchema = compose(
