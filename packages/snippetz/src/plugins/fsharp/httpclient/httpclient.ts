@@ -99,6 +99,8 @@ function turnPostDataToCode(postData: any): string {
     code += turnPostDataMultiPartToCode(postData)
   } else if (postData.mimeType === 'application/x-www-form-urlencoded') {
     code += turnPostDataUrlEncodeToCode(postData)
+  } else if (postData.mimeType === 'application/json') {
+    code += turnPostDataJsonToCode(postData)
   } else {
     code += turnPostDataToCodeUsingMimeType(postData, postData.mimeType)
   }
@@ -131,6 +133,11 @@ function turnPostDataMultiPartToCode(postData: any): string {
   return code
 }
 
+function turnPostDataJsonToCode(postData: any): string {
+  const prettyJson = `${JSON.stringify(JSON.parse(postData.text), null, 2)}\n`
+  return `let content = new StringContent("${escapeStringLite(prettyJson)}", Encoding.UTF8, "application/json")\n`
+}
+
 function turnPostDataUrlEncodeToCode(postData: any): string {
   let code = 'let formUrlEncodedContentDictionary = new Dictionary<string, string>()\n'
   for (const data of postData.params) {
@@ -148,4 +155,10 @@ function escapeString(str: string): string {
     .replace(/\n/g, '\\n') // Escape newlines
     .replace(/\r/g, '\\r') // Escape carriage returns
     .replace(/\t/g, '\\t') // Escape tabs
+}
+
+function escapeStringLite(str: string): string {
+  return str
+    .replace(/\\/g, '\\\\') // Escape backslashes
+    .replace(/"/g, "'") // replace double quotes with single quotes
 }
