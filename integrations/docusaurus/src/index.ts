@@ -5,8 +5,8 @@ import { normalizeUrl } from '@docusaurus/utils'
 import type { AnyApiReferenceConfiguration } from '@scalar/types'
 
 export type ScalarOptions = {
-  label: string
-  route: string
+  label?: string
+  route?: string
   /**
    * If you wish to pin a specific CDN version instead of the latest (default)
    * @example https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.28.11

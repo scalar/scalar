@@ -44,14 +44,14 @@
   "devDependencies": {
     "@docusaurus/types": "^3.7.0",
     "@docusaurus/utils": "^3.7.0",
-    "@scalar/build-tooling": "workspace:*",
     "@types/react": "catalog:*",
     "@types/react-dom": "catalog:*",
     "path": "^0.12.7",
     "postcss": "catalog:*",
     "postcss-cli": "^11.0.0",
     "postcss-nesting": "^12.1.5",
-    "react": "catalog:*"
+    "react": "catalog:*",
+    "vite": "catalog:*"
   },
   "peerDependencies": {
     "@docusaurus/utils": "^3.7.0",
