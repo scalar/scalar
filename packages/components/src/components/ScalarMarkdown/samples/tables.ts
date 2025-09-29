@@ -1,10 +1,11 @@
 export default /* md */ `
 Basic Table
 
-| Syntax      | Description |
-| ----------- | ----------- |
-| Header      | Title       |
-| Paragraph   | Text        |
+| Syntax                                            | Description |
+| ------------------------------------------------- | ----------- |
+| Header                                            | Title       |
+| Paragraph                                         | Text        |
+| Superlongtextinasinglecolumnshouldwrapatsomepoint | Text        |
 
 
 ---

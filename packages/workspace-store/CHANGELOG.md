@@ -1,5 +1,17 @@
 # @scalar/workspace-store
 
+## 0.16.0
+
+### Minor Changes
+
+- db5b649: feat: auth selector block
+
+### Patch Changes
+
+- b858566: chore: moved api client code sample to new store
+- Updated dependencies [6462733]
+  - @scalar/json-magic@0.5.2
+
 ## 0.15.8
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @scalar/openapi-to-markdown
 
+## 0.2.40
+
+### Patch Changes
+
+- b858566: chore: moved api client code sample to new store
+- Updated dependencies [db5b649]
+  - @scalar/components@0.14.37
+  - @scalar/oas-utils@0.4.32
+  - @scalar/openapi-parser@0.21.2
+
 ## 0.2.39
 
 ### Patch Changes

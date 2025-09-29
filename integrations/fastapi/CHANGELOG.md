@@ -1,5 +1,11 @@
 # scalar-fastapi
 
+## 1.4.3
+
+### Patch Changes
+
+- 186b1ea: not include tests package in wheel and tgz
+
 ## 1.4.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/json-magic
 
+## 0.5.2
+
+### Patch Changes
+
+- 6462733: fix: comment out flaky test for now
+
 ## 0.5.1
 
 ### Patch Changes

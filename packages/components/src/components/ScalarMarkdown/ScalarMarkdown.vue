@@ -260,7 +260,8 @@ const html = computed(() => {
     padding: 8.5px 16px;
     line-height: var(--markdown-line-height);
     position: relative;
-    word-break: initial;
+    /** Break long words in tables */
+    word-break: break-word;
     font-size: var(--scalar-small);
     color: var(--scalar-color-1);
     border-right: var(--markdown-border);

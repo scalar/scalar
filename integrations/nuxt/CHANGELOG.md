@@ -1,5 +1,17 @@
 # @scalar/nuxt
 
+## 0.5.16
+
+### Patch Changes
+
+- Updated dependencies [b858566]
+- Updated dependencies [77337d3]
+- Updated dependencies [170b890]
+- Updated dependencies [db5b649]
+  - @scalar/workspace-store@0.16.0
+  - @scalar/api-client@2.6.0
+  - @scalar/api-reference@1.36.1
+
 ## 0.5.15
 
 ### Patch Changes
