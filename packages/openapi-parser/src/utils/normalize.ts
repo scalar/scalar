@@ -2,6 +2,7 @@ import type { UnknownObject } from '@scalar/types/utils'
 import { parse } from 'yaml'
 
 import type { Filesystem } from '@/types/index'
+
 import { isFilesystem } from './is-filesystem'
 
 /**
@@ -32,6 +33,7 @@ export function normalize(content: string | UnknownObject | Filesystem): Unknown
 
       return parse(content, {
         maxAliasCount: 10000,
+        merge: true,
       })
     }
   }
