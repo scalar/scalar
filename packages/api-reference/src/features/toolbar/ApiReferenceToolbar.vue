@@ -7,6 +7,7 @@ import { computed } from 'vue'
 import ApiReferenceToolbarConfig from '@/features/toolbar/ApiReferenceToolbarConfig.vue'
 import ApiReferenceToolbarSdks from '@/features/toolbar/ApiReferenceToolbarSdks.vue'
 import ApiReferenceToolbarShare from '@/features/toolbar/ApiReferenceToolbarShare.vue'
+import ApiReferenceToolbarTitle from '@/features/toolbar/ApiReferenceToolbarTitle.vue'
 
 const { configuration } = defineProps<{
   workspace?: WorkspaceStore
@@ -37,7 +38,10 @@ const showToolbar = computed<boolean>(() => {
     aria-label="Configuration Toolbar"
     class="api-reference-toolbar h-header bg-b-1 sticky top-0 z-10 flex justify-center border-b px-15">
     <div
-      class="flex max-w-(--refs-content-max-width) flex-1 items-center justify-end">
+      class="-mx-2 flex max-w-(--refs-content-max-width) flex-1 items-center">
+      <div class="flex flex-1 items-center">
+        <ApiReferenceToolbarTitle />
+      </div>
       <template v-if="workspace">
         <ApiReferenceToolbarShare :workspace />
         <ApiReferenceToolbarSdks :workspace />
