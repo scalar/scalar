@@ -110,7 +110,7 @@ describe('ScalarDocusaurus', () => {
         label: 'Custom Label',
         route: '/custom-route',
         configuration: {
-          theme: 'dark',
+          theme: 'purple',
         },
       })
 
@@ -122,7 +122,7 @@ describe('ScalarDocusaurus', () => {
         showNavLink: true,
         configuration: {
           _integration: 'docusaurus',
-          theme: 'dark',
+          theme: 'purple',
         },
       })
     })
@@ -172,7 +172,7 @@ describe('ScalarDocusaurus', () => {
         label: 'Test',
         route: '/test',
         configuration: {
-          theme: 'light',
+          theme: 'kepler',
           layout: 'modern',
         },
       })
@@ -181,7 +181,7 @@ describe('ScalarDocusaurus', () => {
 
       expect(content?.configuration).toEqual({
         _integration: 'docusaurus',
-        theme: 'light',
+        theme: 'kepler',
         layout: 'modern',
       })
     })
@@ -391,7 +391,7 @@ describe('ScalarDocusaurus', () => {
 
       const testContent = {
         configuration: {
-          theme: 'dark',
+          theme: 'purple',
         },
       }
 
@@ -405,7 +405,7 @@ describe('ScalarDocusaurus', () => {
           path: '/scalar',
           exact: true,
           configuration: {
-            theme: 'dark',
+            theme: 'purple',
           },
         }),
       )
