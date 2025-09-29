@@ -64,6 +64,36 @@ const selectedSecuritySchemeUids = computed(
 )
 
 /**
+ * Get invalid request parameters
+ * 
+ * Get all invalid parameters (required parameters without values)
+ */
+
+const getInvalidParameters = (): Set<string> => {
+ if (!activeExample.value) {
+    return new Set()
+  }
+
+  return validateParameters(activeExample.value)
+}
+
+/**
+ * Check if there are invalid path parameters
+ * 
+ * Filter through path parameters and check if there are invalid parameters
+ * This will be used to prevent request initiation if present
+ */
+const isPathInvalid = computed(() => {
+  if (!activeExample.value) {
+    return false
+  }
+
+  return activeExample.value.parameters.path.some(
+    param => invalidParams.value.has(param.key)
+  )
+})
+
+/**
  * Execute the request
  * called from the send button as well as keyboard shortcuts
  */
@@ -72,7 +102,14 @@ const executeRequest = async () => {
     return
   }
 
-  invalidParams.value = validateParameters(activeExample.value)
+  invalidParams.value = getInvalidParameters()
+
+  if (isPathInvalid.value) {
+    /** Reset states listening to request */
+    events.requestStatus.emit('abort')
+    toast(ERRORS.INVALID_PATH_PARAMETER, 'error')
+    return
+  }
 
   const environmentValue =
     typeof activeEnvironment.value === 'object'
@@ -144,6 +181,8 @@ onMounted(() => {
   events.executeRequest.on(executeRequest)
   events.executeRequest.on(logRequest)
   events.cancelRequest.on(cancelRequest)
+
+  invalidParams.value = getInvalidParameters()
 })
 
 useOpenApiWatcher()
@@ -162,7 +201,7 @@ onBeforeUnmount(() => {
 watch(
   () => activeExample.value?.parameters,
   () => {
-    invalidParams.value.clear()
+    invalidParams.value = getInvalidParameters()
   },
   { deep: true },
 )
@@ -222,6 +261,7 @@ const cloneRequestResult = (result: any) => {
       <div class="flex h-full flex-1 flex-col">
         <RouterView
           :invalidParams="invalidParams"
+          :isPathInvalid="isPathInvalid"
           :requestResult="requestResult"
           :selectedSecuritySchemeUids="selectedSecuritySchemeUids" />
       </div>

@@ -16,9 +16,10 @@ import { useSidebar } from '@/hooks/useSidebar'
 import { useWorkspace } from '@/store'
 import type { EnvVariable } from '@/store/active-entities'
 
-const { collection, operation, server, environment, envVariables, workspace } =
+const { collection, isPathInvalid, operation, server, environment, envVariables, workspace } =
   defineProps<{
     collection: Collection
+    isPathInvalid: boolean
     operation: Operation
     server: Server | undefined
     environment: Environment
@@ -53,6 +54,7 @@ const { currentRoute } = useRouter()
       :collection="collection"
       :envVariables="envVariables"
       :environment="environment"
+      :isPathInvalid="isPathInvalid"
       :operation="operation"
       :server="server"
       :workspace="workspace"
