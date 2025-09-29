@@ -25,6 +25,7 @@ const { target, server, servers } = defineProps<{
 
 const emits = defineEmits<{
   /** Update a server variable for the selected server */
+  (e: 'update:selectedServer', payload: { id: string }): void
   (e: 'update:variable', payload: { key: string; value: string }): void
   (e: 'addServer'): void
 }>()
@@ -77,6 +78,7 @@ const serverUrlWithoutTrailingSlash = computed(() => {
           :server="server"
           :serverOption="serverOption"
           type="request"
+          @update:selectedServer="emits('update:selectedServer', $event)"
           @update:variable="
             (key, value) => emits('update:variable', { key, value })
           " />

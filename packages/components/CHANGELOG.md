@@ -1,5 +1,12 @@
 # @scalar/components
 
+## 0.14.37
+
+### Patch Changes
+
+- db5b649: feat: auth selector block
+  - @scalar/oas-utils@0.4.32
+
 ## 0.14.36
 
 ### Patch Changes

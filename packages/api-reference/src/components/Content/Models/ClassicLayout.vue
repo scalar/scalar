@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
@@ -13,6 +14,7 @@ import {
 import { SchemaHeading, SchemaProperty } from '../Schema'
 
 defineProps<{
+  config: ApiReferenceConfiguration
   schemas: { id: string; name: string; schema: SchemaObject }[]
 }>()
 </script>
@@ -48,11 +50,20 @@ defineProps<{
           v-for="[property, value] in Object.entries(schema.properties ?? {})"
           :key="property"
           :name="property"
+          :options="{
+            orderRequiredPropertiesFirst: config.orderRequiredPropertiesFirst,
+            orderSchemaPropertiesBy: config.orderSchemaPropertiesBy,
+          }"
           :required="schema.required?.includes(property)"
-          :value="getResolvedRef(value)" />
+          :schema="getResolvedRef(value)" />
       </div>
       <div v-else>
-        <SchemaProperty :value="schema" />
+        <SchemaProperty
+          :options="{
+            orderRequiredPropertiesFirst: config.orderRequiredPropertiesFirst,
+            orderSchemaPropertiesBy: config.orderSchemaPropertiesBy,
+          }"
+          :schema="schema" />
       </div>
     </SectionAccordion>
   </SectionContainerAccordion>

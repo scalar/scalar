@@ -16,7 +16,7 @@
     "openapi",
     "scalar"
   ],
-  "version": "0.15.8",
+  "version": "0.16.0",
   "engines": {
     "node": ">=18"
   },
@@ -59,20 +59,15 @@
       "types": "./dist/helpers/*.d.ts",
       "default": "./dist/helpers/*.js"
     },
-    "./schemas/extensions/*": {
-      "import": "./dist/schemas/extensions/*.js",
-      "types": "./dist/schemas/extensions/*.d.ts",
-      "default": "./dist/schemas/extensions/*.js"
+    "./schemas/extensions/operation": {
+      "import": "./dist/schemas/extensions/operation/index.js",
+      "types": "./dist/schemas/extensions/operation/index.d.ts",
+      "default": "./dist/schemas/extensions/operation/index.js"
     },
     "./schemas/v3.1/*": {
       "import": "./dist/schemas/v3.1/*.js",
       "types": "./dist/schemas/v3.1/*.d.ts",
       "default": "./dist/schemas/v3.1/*.js"
-    },
-    "./schemas/v3.1/strict/*": {
-      "import": "./dist/schemas/v3.1/strict/*.js",
-      "types": "./dist/schemas/v3.1/strict/*.d.ts",
-      "default": "./dist/schemas/v3.1/strict/*.js"
     },
     "./server": {
       "import": "./dist/server.js",

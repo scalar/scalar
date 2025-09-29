@@ -16,7 +16,7 @@
     "swagger",
     "cli"
   ],
-  "version": "0.5.34",
+  "version": "0.5.35",
   "engines": {
     "node": ">=20"
   },

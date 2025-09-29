@@ -12,6 +12,7 @@ import type {
 import { computed, ref } from 'vue'
 
 import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
+import { useConfig } from '@/hooks/useConfig'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 import Headers from './Headers.vue'
@@ -29,6 +30,8 @@ const {
   withExamples?: boolean
   breadcrumb?: string[]
 }>()
+
+const config = useConfig()
 
 /** Responses and params may both have a schema */
 const schema = computed<SchemaObject | null>(() =>
@@ -115,6 +118,7 @@ const shouldCollapse = computed<boolean>(() =>
         <Headers
           v-if="headers"
           :breadcrumb="breadcrumb"
+          :config="config"
           :headers="headers" />
 
         <!-- Schema -->
@@ -126,8 +130,13 @@ const shouldCollapse = computed<boolean>(() =>
           :hideWriteOnly="true"
           :name="shouldCollapse ? '' : name"
           :noncollapsible="true"
+          :options="{
+            hideWriteOnly: true,
+            orderRequiredPropertiesFirst: config.orderRequiredPropertiesFirst,
+            orderSchemaPropertiesBy: config.orderSchemaPropertiesBy,
+          }"
           :required="'required' in parameter && parameter.required"
-          :value="value"
+          :schema="value"
           :withExamples="withExamples" />
       </DisclosurePanel>
     </Disclosure>

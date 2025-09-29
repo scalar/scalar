@@ -30,6 +30,7 @@
     "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
+    "test": "vitest",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
   "main": "./dist/index.js",
@@ -42,15 +43,18 @@
   },
   "devDependencies": {
     "@docusaurus/types": "^3.7.0",
+    "@docusaurus/utils": "^3.7.0",
     "@types/react": "catalog:*",
     "@types/react-dom": "catalog:*",
     "path": "^0.12.7",
     "postcss": "catalog:*",
     "postcss-cli": "^11.0.0",
     "postcss-nesting": "^12.1.5",
-    "react": "catalog:*"
+    "react": "catalog:*",
+    "vite": "catalog:*"
   },
   "peerDependencies": {
+    "@docusaurus/utils": "^3.7.0",
     "react": "^18.0.0 || ^19.0.0"
   }
 }

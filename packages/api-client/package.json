@@ -18,7 +18,7 @@
     "rest",
     "testing"
   ],
-  "version": "2.5.35",
+  "version": "2.6.0",
   "engines": {
     "node": ">=20"
   },
@@ -32,6 +32,9 @@
     "playground:web": "vite ./playground/web -c ./vite.config.ts",
     "preview": "vite preview",
     "test": "vitest",
+    "test:benchmark": "vitest bench",
+    "test:benchmark:compare": "vitest bench --compare test/results/main.json",
+    "test:benchmark:save": "vitest bench --outputJson test/results/branch.json",
     "types:build": "scalar-types-build-vue",
     "types:check": "scalar-types-check-vue"
   },
@@ -208,6 +211,7 @@
     "@scalar/helpers": "workspace:*",
     "@scalar/icons": "workspace:*",
     "@scalar/import": "workspace:*",
+    "@scalar/json-magic": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/object-utils": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",

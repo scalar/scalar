@@ -9,6 +9,8 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref } from 'vue'
 
+import type { SchemaOptions } from '@/components/Content/Schema/types'
+
 import { getSchemaType } from './helpers/get-schema-type'
 import { mergeAllOfSchemas } from './helpers/merge-all-of-schemas'
 import { type CompositionKeyword } from './helpers/schema-composition'
@@ -23,19 +25,17 @@ const props = withDefaults(
     /** Optional name for the schema */
     name?: string
     /** The schema value containing the composition */
-    value: SchemaObject
+    schema: SchemaObject
     /** Nesting level for proper indentation */
     level: number
     /** Whether to use compact layout */
     compact?: boolean
     /** Whether to hide the heading */
     hideHeading?: boolean
-    /** Whether to hide read-only properties */
-    hideReadOnly?: boolean
-    /** Hide write-only properties */
-    hideWriteOnly?: boolean
     /** Breadcrumb for navigation */
     breadcrumb?: string[]
+    /** Move the options into  single prop so they are easy to pass around */
+    options: SchemaOptions
   }>(),
   {
     compact: false,
@@ -45,7 +45,7 @@ const props = withDefaults(
 
 /** The current composition */
 const composition = computed(() =>
-  [props.value[props.composition]]
+  [props.schema[props.composition]]
     .flat()
     .map((schema) => ({ value: getResolvedRef(schema), original: schema }))
     .filter((it) => isDefined(it.value)),
@@ -94,12 +94,11 @@ const selectedComposition = computed(
       :compact="compact"
       :discriminator="discriminator"
       :hideHeading="hideHeading"
-      :hideReadOnly="hideReadOnly"
-      :hideWriteOnly="hideWriteOnly"
       :level="level"
       :name="name"
       :noncollapsible="true"
-      :schema="mergeAllOfSchemas(props.value)" />
+      :options="options"
+      :schema="mergeAllOfSchemas(schema)" />
 
     <template v-else>
       <!-- Composition selector and panel for nested compositions -->
@@ -134,11 +133,10 @@ const selectedComposition = computed(
           :compact="compact"
           :discriminator="discriminator"
           :hideHeading="hideHeading"
-          :hideReadOnly="hideReadOnly"
-          :hideWriteOnly="hideWriteOnly"
           :level="level + 1"
           :name="name"
           :noncollapsible="true"
+          :options="options"
           :schema="selectedComposition" />
       </div>
     </template>

@@ -5,7 +5,7 @@
   "tasks": {
     "lint:fix": {},
     "build": {
-      "outputs": ["dist/**", "storybook-static/**", ".output", ".nuxt", ".next", "build"],
+      "outputs": ["dist/**", "storybook-static/**", ".output", ".nuxt", ".next", "build", "target/**"],
       "dependsOn": ["^build"]
     },
     "types:check": {
@@ -35,6 +35,12 @@
       "cache": false,
       "persistent": true,
       "dependsOn": ["^build"]
+    },
+    "@scalarapi/docker-api-reference#build": {
+      "outputs": []
+    },
+    "proxy-scalar-com#build": {
+      "outputs": []
     }
   }
 }

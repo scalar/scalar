@@ -495,7 +495,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
     --scalar-toc-width: 0;
   }
   .hero.hero {
-    margin-top: 80px;
+    margin-top: 88px;
   }
   .small-test {
     max-width: 440px;
@@ -541,7 +541,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
     overflow: scroll;
     scroll-snap-type: both mandatory;
     scrollbar-width: none;
-    padding-left: max(var(--scalar-container-sidebar-gap) - 70px, 50px);
+    padding-left: max(var(--scalar-container-sidebar-gap) - 70px, 50px) !important;
     position: relative;
     margin-top: 32px;
   }
