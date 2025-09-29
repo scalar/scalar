@@ -1,0 +1,22 @@
+import { expect, test } from '@playwright/test'
+import { serveExample } from '@test/utils/serve-example'
+
+test.describe('showToolbar', () => {
+  test('shows toolbar on localhost by default', async ({ page }) => {
+    const example = await serveExample()
+
+    await page.goto(example)
+
+    await expect(page.getByLabel('Configuration Toolbar')).toBeVisible()
+  })
+
+  test('hides toolbar if set to never', async ({ page }) => {
+    const example = await serveExample({
+      showToolbar: 'never',
+    })
+
+    await page.goto(example)
+
+    await expect(page.getByLabel('Configuration Toolbar')).toBeHidden()
+  })
+})
