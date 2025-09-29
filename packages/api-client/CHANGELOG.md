@@ -1,5 +1,18 @@
 # @scalar/api-client
 
+## 2.6.1
+
+### Patch Changes
+
+- eadd229: fix: long header names break the response headers table
+- Updated dependencies [0b3c6fa]
+- Updated dependencies [bbceb27]
+  - @scalar/components@0.14.38
+  - @scalar/themes@0.13.19
+  - @scalar/use-codemirror@0.12.39
+  - @scalar/oas-utils@0.4.33
+  - @scalar/postman-to-openapi@0.3.36
+
 ## 2.6.0
 
 ### Minor Changes

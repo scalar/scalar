@@ -1,5 +1,11 @@
 # @scalar/docusaurus
 
+## 0.7.17
+
+### Patch Changes
+
+- 947a844: Fixed a bug where baseURL was not included when adding a route.
+
 ## 0.7.16
 
 ### Patch Changes
