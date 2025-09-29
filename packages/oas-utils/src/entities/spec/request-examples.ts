@@ -202,7 +202,7 @@ export const requestExampleSchema = z.object({
     .default({
       path: [],
       query: [],
-      headers: [],
+      headers: [{ key: 'Accept', value: '*/*', enabled: true }],
       cookies: [],
     }),
   /** TODO: Should this be deprecated? */
