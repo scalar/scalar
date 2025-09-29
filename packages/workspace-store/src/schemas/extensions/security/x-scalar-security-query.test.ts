@@ -1,11 +1,11 @@
 import { Value } from '@scalar/typebox/value'
 import { describe, expect, it } from 'vitest'
 
-import { XScalarSecurityQuery } from './x-scalar-security-query'
+import { XScalarSecurityQuerySchema } from './x-scalar-security-query'
 
 describe('XScalarSecurityQuery', () => {
   it('allows any property', () => {
-    const result = Value.Parse(XScalarSecurityQuery, {
+    const result = Value.Parse(XScalarSecurityQuerySchema, {
       'x-scalar-security-query': {
         prompt: 'consent',
       },
@@ -19,7 +19,7 @@ describe('XScalarSecurityQuery', () => {
   })
 
   it('allows more than one property', () => {
-    const result = Value.Parse(XScalarSecurityQuery, {
+    const result = Value.Parse(XScalarSecurityQuerySchema, {
       'x-scalar-security-query': {
         prompt: 'consent',
         audience: 'scalar',
@@ -35,7 +35,7 @@ describe('XScalarSecurityQuery', () => {
   })
 
   it('can be empty, not required', () => {
-    const result = Value.Parse(XScalarSecurityQuery, {})
+    const result = Value.Parse(XScalarSecurityQuerySchema, {})
 
     expect(result).toEqual({})
   })

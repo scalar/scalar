@@ -1,11 +1,11 @@
 import { Value } from '@scalar/typebox/value'
 import { describe, expect, it } from 'vitest'
 
-import { XTokenName } from './x-tokenName'
+import { XTokenNameSchema } from './x-tokenName'
 
 describe('XTokenName', () => {
   it('allows string value', () => {
-    const result = Value.Parse(XTokenName, {
+    const result = Value.Parse(XTokenNameSchema, {
       'x-tokenName': 'custom_access_token',
     })
 
@@ -15,7 +15,7 @@ describe('XTokenName', () => {
   })
 
   it('allows different token names', () => {
-    const result = Value.Parse(XTokenName, {
+    const result = Value.Parse(XTokenNameSchema, {
       'x-tokenName': 'bearer_token',
     })
 
@@ -25,13 +25,13 @@ describe('XTokenName', () => {
   })
 
   it('can be empty, not required', () => {
-    const result = Value.Parse(XTokenName, {})
+    const result = Value.Parse(XTokenNameSchema, {})
 
     expect(result).toEqual({})
   })
 
   it('coerces non-string values', () => {
-    const result = Value.Parse(XTokenName, {
+    const result = Value.Parse(XTokenNameSchema, {
       'x-tokenName': 123,
     })
 

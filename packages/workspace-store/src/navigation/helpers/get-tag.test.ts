@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import type { TagObject, TraversedEntry } from '@/schemas/v3.1/strict/openapi-document'
+import type { TraversedEntry } from '@/schemas/navigation'
+import type { TagObject } from '@/schemas/v3.1/strict/openapi-document'
 
 import { getTag } from './get-tag'
 

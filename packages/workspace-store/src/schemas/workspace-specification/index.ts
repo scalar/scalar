@@ -28,7 +28,7 @@ export const WorkspaceSpecificationSchema = compose(
 export type WorkspaceSpecification = {
   workspace: 'draft'
   info: Info
-  documents: Record<string, { $ref: string }>
-  overrides: Record<string, PartialDeep<OpenApiDocument>>
+  documents?: Record<string, { $ref: string }>
+  overrides?: Record<string, PartialDeep<OpenApiDocument>>
 } & Config &
   WorkspaceMeta

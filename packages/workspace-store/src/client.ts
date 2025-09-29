@@ -7,6 +7,7 @@ import { upgrade } from '@scalar/openapi-upgrader'
 import type { Record } from '@scalar/typebox'
 import { Value } from '@scalar/typebox/value'
 import type { PartialDeep } from 'type-fest/source/partial-deep'
+import type { RequiredDeep } from 'type-fest/source/required-deep'
 import { reactive } from 'vue'
 import YAML from 'yaml'
 
@@ -38,7 +39,7 @@ type ExtraDocumentConfigurations = Record<
   }
 >
 
-const defaultConfig: Config = {
+const defaultConfig: RequiredDeep<Config> = {
   'x-scalar-reference-config': defaultReferenceConfig,
 }
 

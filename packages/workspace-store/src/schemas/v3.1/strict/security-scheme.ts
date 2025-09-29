@@ -41,7 +41,7 @@ export type ApiKeyObject = Description & {
   name: string
   /** REQUIRED. The location of the API key. Valid values are "query", "header", or "cookie". */
   in: string
-}
+} & XScalarSecretToken
 
 export const HttpSchema = compose(
   DescriptionSchema,
