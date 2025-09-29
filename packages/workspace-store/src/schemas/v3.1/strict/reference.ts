@@ -49,4 +49,4 @@ type ReferenceObject = {
 export const reference = <T extends TSchema>(schema: T) =>
   compose(ReferenceObjectSchema, Type.Object({ '$ref-value': schema }))
 
-export type ReferenceType<Value> = ReferenceObject & { '$ref-value': Value }
+export type ReferenceType<Value> = Value | (ReferenceObject & { '$ref-value': Value })
