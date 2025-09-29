@@ -21,7 +21,7 @@ export function parseYaml(): LoaderPlugin {
       try {
         return {
           ok: true,
-          data: YAML.parse(value),
+          data: YAML.parse(value, { merge: true, maxAliasCount: 10000 }),
         }
       } catch {
         return {
