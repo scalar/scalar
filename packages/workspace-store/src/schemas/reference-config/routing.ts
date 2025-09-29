@@ -8,11 +8,11 @@ export const RoutingSchema = Type.Partial(
 )
 
 export type Routing = {
-  basePath: string
-  pathNotFound: string
+  basePath?: string
+  pathNotFound?: string
 }
 
-export const defaultRouting: Routing = {
+export const defaultRouting: Required<Routing> = {
   basePath: '/',
   pathNotFound: '/',
 }

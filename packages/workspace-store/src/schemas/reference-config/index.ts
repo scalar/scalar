@@ -1,5 +1,6 @@
 import { Type } from '@scalar/typebox'
 import { AVAILABLE_CLIENTS } from '@scalar/types/snippetz'
+import type { RequiredDeep } from 'type-fest/source/required-deep'
 
 import { type Appearance, AppearanceSchema, defaultAppearance } from './appearance'
 import { type Features, FeaturesSchema, defaultFeatures } from './features'
@@ -34,17 +35,17 @@ export const ReferenceConfigSchema = Type.Partial(
 )
 
 export type ReferenceConfig = {
-  title: string
-  slug: string
-  settings: Settings
-  routing: Routing
-  appearance: Appearance
-  features: Features
-  meta: Meta
-  httpClients: typeof AVAILABLE_CLIENTS
+  title?: string
+  slug?: string
+  settings?: Settings
+  routing?: Routing
+  appearance?: Appearance
+  features?: Features
+  meta?: Meta
+  httpClients?: typeof AVAILABLE_CLIENTS
 }
 
-export const defaultReferenceConfig: ReferenceConfig = {
+export const defaultReferenceConfig: RequiredDeep<ReferenceConfig> = {
   title: 'Scalar API Reference',
   slug: 'scalar-api-reference',
 

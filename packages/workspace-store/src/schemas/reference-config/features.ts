@@ -15,18 +15,18 @@ export const FeaturesSchema = Type.Partial(
 )
 
 export type Features = {
-  showSidebar: boolean
-  showModels: boolean
-  showDownload: boolean
-  showTestRequestButton: boolean
-  showSearch: boolean
-  showApiClientImport: boolean
-  showDarkModeToggle: boolean
-  expandAllTagSections: boolean
-  persistAuthenticationState: boolean
+  showSidebar?: boolean
+  showModels?: boolean
+  showDownload?: boolean
+  showTestRequestButton?: boolean
+  showSearch?: boolean
+  showApiClientImport?: boolean
+  showDarkModeToggle?: boolean
+  expandAllTagSections?: boolean
+  persistAuthenticationState?: boolean
 }
 
-export const defaultFeatures: Features = {
+export const defaultFeatures: Required<Features> = {
   showSidebar: true,
   showModels: true,
   showDownload: true,

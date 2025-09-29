@@ -134,7 +134,7 @@ type WorkspaceProps = {
   /** Optional metadata for the workspace including theme, active document, etc */
   meta?: WorkspaceMeta
   /** Workspace configuration */
-  config?: Config
+  config?: PartialDeep<Config>
   /** Fetch function for retrieving documents */
   fetch?: WorkspaceDocumentInput['fetch']
 }

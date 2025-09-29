@@ -12,15 +12,15 @@ export const MetaSchema = Type.Partial(
 )
 
 export type Meta = {
-  title: string
-  description: string
-  ogTitle: string
-  ogDescription: string
-  ogImage: string
-  twitterCard: string
+  title?: string
+  description?: string
+  ogTitle?: string
+  ogDescription?: string
+  ogImage?: string
+  twitterCard?: string
 }
 
-export const defaultMeta: Meta = {
+export const defaultMeta: Required<Meta> = {
   title: 'Scalar API Reference',
   description: 'Scalar API Reference',
   ogTitle: 'Scalar API Reference',

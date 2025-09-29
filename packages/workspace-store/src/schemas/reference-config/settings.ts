@@ -1,4 +1,5 @@
 import { Type } from '@scalar/typebox'
+import type { RequiredDeep } from 'type-fest/source/required-deep'
 
 import { ServerObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
 import type { ServerObject } from '@/schemas/v3.1/strict/server'
@@ -15,13 +16,13 @@ export const SettingsSchema = Type.Partial(
 )
 
 export type Settings = {
-  proxyUrl: string
-  searchKey: string
-  servers: ServerObject[]
-  baseServerUrl: string
+  proxyUrl?: string
+  searchKey?: string
+  servers?: ServerObject[]
+  baseServerUrl?: string
 }
 
-export const defaultSettings: Settings = {
+export const defaultSettings: RequiredDeep<Settings> = {
   proxyUrl: 'https://proxy.scalar.com',
   searchKey: 'k',
   servers: [],
