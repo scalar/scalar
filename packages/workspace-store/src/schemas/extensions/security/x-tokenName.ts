@@ -8,6 +8,18 @@ import { Type } from '@scalar/typebox'
  * x-tokenName: 'custom_access_token'
  * ```
  */
-export const XTokenName = Type.Object({
+export const XTokenNameSchema = Type.Object({
   'x-tokenName': Type.Optional(Type.String()),
 })
+
+/**
+ * An OpenAPI extension to specify a custom token name for OAuth2 flows
+ *
+ * @example
+ * ```yaml
+ * x-tokenName: 'custom_access_token'
+ * ```
+ */
+export type XTokenName = {
+  'x-tokenName'?: string
+}

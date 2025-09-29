@@ -1,11 +1,11 @@
 import { Value } from '@scalar/typebox/value'
 import { describe, expect, it } from 'vitest'
 
-import { XScalarSecurityBody } from './x-scalar-security-body'
+import { XScalarSecurityBodySchema } from './x-scalar-security-body'
 
-describe('XScalarSecurityBody', () => {
+describe('XScalarSecurityBodySchema', () => {
   it('allows multiple properties', () => {
-    const result = Value.Parse(XScalarSecurityBody, {
+    const result = Value.Parse(XScalarSecurityBodySchema, {
       'x-scalar-security-body': {
         audience: 'https://api.example.com',
         resource: 'user-profile',
@@ -21,7 +21,7 @@ describe('XScalarSecurityBody', () => {
   })
 
   it('can be empty, not required', () => {
-    const result = Value.Parse(XScalarSecurityBody, {})
+    const result = Value.Parse(XScalarSecurityBodySchema, {})
 
     expect(result).toEqual({})
   })

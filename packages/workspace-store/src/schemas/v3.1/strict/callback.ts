@@ -1,10 +1,14 @@
 import { Type } from '@scalar/typebox'
 
-import { PathItemObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
-import { reference } from '@/schemas/v3.1/strict/reference'
+import type { PathItemObject } from './path-item'
+import { PathItemObjectRef } from './ref-definitions'
+import { type ReferenceObject, reference } from './reference'
 
 export const CallbackObjectSchemaDefinition = Type.Record(
   Type.String(),
   /** A Path Item Object used to define a callback request and expected responses. A complete example is available. */
   Type.Union([PathItemObjectRef, reference(PathItemObjectRef)]),
 )
+
+/** A Path Item Object used to define a callback request and expected responses. A complete example is available. */
+export type CallbackObject = Record<string, PathItemObject | ReferenceObject>
