@@ -1,10 +1,12 @@
 import path from 'node:path'
+
 import type { LoadContext, Plugin } from '@docusaurus/types'
+import { normalizeUrl } from '@docusaurus/utils'
 import type { AnyApiReferenceConfiguration } from '@scalar/types'
 
 export type ScalarOptions = {
-  label: string
-  route: string
+  label?: string
+  route?: string
   /**
    * If you wish to pin a specific CDN version instead of the latest (default)
    * @example https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.28.11
@@ -20,11 +22,11 @@ export type ScalarOptions = {
  */
 const createDefaultScalarOptions = (options: ScalarOptions): ScalarOptions => ({
   showNavLink: true,
+  ...options,
   configuration: {
     _integration: 'docusaurus',
     ...(options.configuration ?? {}),
   },
-  ...options,
 })
 
 /**
@@ -35,6 +37,7 @@ const ScalarDocusaurus = (
   options: ScalarOptions,
 ): Plugin<{ configuration?: AnyApiReferenceConfiguration }> => {
   const defaultOptions = createDefaultScalarOptions(options)
+  const { baseUrl } = context.siteConfig
 
   return {
     name: '@scalar/docusaurus',
@@ -70,7 +73,7 @@ const ScalarDocusaurus = (
             items: Record<string, string>[]
           }
         ).items.push({
-          to: defaultOptions.route ?? '/scalar',
+          to: normalizeUrl([baseUrl, defaultOptions.route ?? '/scalar']),
           label: defaultOptions.label ?? 'Scalar',
           position: 'left',
         })
@@ -78,7 +81,7 @@ const ScalarDocusaurus = (
 
       // Add the appropriate route based on the module system
       addRoute({
-        path: defaultOptions.route,
+        path: normalizeUrl([baseUrl, defaultOptions.route ?? '/scalar']),
         component: path.resolve(__dirname, './ScalarDocusaurus'),
         exact: true,
         ...content,
