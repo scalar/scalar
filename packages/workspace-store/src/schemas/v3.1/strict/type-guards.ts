@@ -27,3 +27,5 @@ export const isNumberSchema = (
       (Array.isArray(schema.type) && schema.type.includes('integer')))
   )
 }
+
+export const isSchemaObject = (schema: SchemaObject): schema is Exclude<SchemaObject, { _: string }> => 'type' in schema

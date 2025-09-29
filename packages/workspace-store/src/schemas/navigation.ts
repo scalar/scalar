@@ -9,6 +9,11 @@ export const NavigationBaseSchemaDefinition = Type.Object({
   title: Type.String(),
 })
 
+type BaseSchema = {
+  id: string
+  title: string
+}
+
 export const TraversedDescriptionSchemaDefinition = compose(
   NavigationBaseSchemaDefinition,
   Type.Object({
@@ -16,6 +21,11 @@ export const TraversedDescriptionSchemaDefinition = compose(
     children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
   }),
 )
+
+export type TraversedDescription = BaseSchema & {
+  type: 'text'
+  children: TraversedDescription[]
+}
 
 export const TraversedOperationSchemaDefinition = compose(
   NavigationBaseSchemaDefinition,
@@ -30,6 +40,14 @@ export const TraversedOperationSchemaDefinition = compose(
   }),
 )
 
+type TraversedOperation = BaseSchema & {
+  type: 'operation'
+  ref: string
+  method: HttpMethod
+  path: string
+  isDeprecated: boolean
+}
+
 export const TraversedSchemaSchemaDefinition = compose(
   NavigationBaseSchemaDefinition,
   Type.Object({
@@ -38,6 +56,12 @@ export const TraversedSchemaSchemaDefinition = compose(
     name: Type.String(),
   }),
 )
+
+type TraversedSchema = BaseSchema & {
+  type: 'model'
+  ref: string
+  name: string
+}
 
 export const TraversedWebhookSchemaDefinition = compose(
   NavigationBaseSchemaDefinition,
@@ -52,6 +76,14 @@ export const TraversedWebhookSchemaDefinition = compose(
   }),
 )
 
+export type TraversedWebhook = BaseSchema & {
+  type: 'webhook'
+  ref: string
+  method: HttpMethod
+  name: string
+  isDeprecated: boolean
+}
+
 export const TraversedTagSchemaDefinition = compose(
   NavigationBaseSchemaDefinition,
   Type.Object({
@@ -65,6 +97,16 @@ export const TraversedTagSchemaDefinition = compose(
   }),
 )
 
+export type TraversedTag = BaseSchema & {
+  type: 'tag'
+  name: string
+  description: string
+  children: TraversedEntryObject[]
+  isGroup: boolean
+  isWebhooks: boolean
+  xKeys: Record<string, unknown>
+}
+
 export const TraversedEntrySchemaDefinition = Type.Union([
   TraversedTagObjectRef,
   TraversedDescriptionSchemaDefinition,
@@ -72,3 +114,10 @@ export const TraversedEntrySchemaDefinition = Type.Union([
   TraversedSchemaSchemaDefinition,
   TraversedWebhookSchemaDefinition,
 ])
+
+export type TraversedEntryObject =
+  | TraversedTag
+  | TraversedDescription
+  | TraversedOperation
+  | TraversedSchema
+  | TraversedWebhook

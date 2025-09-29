@@ -4,27 +4,39 @@ import { compose } from '@/schemas/compose'
 import { extensions } from '@/schemas/extensions'
 import {
   TraversedDescriptionSchemaDefinition,
+  type TraversedEntryObject,
   TraversedEntrySchemaDefinition,
   TraversedOperationSchemaDefinition,
   TraversedSchemaSchemaDefinition,
   TraversedTagSchemaDefinition,
   TraversedWebhookSchemaDefinition,
 } from '@/schemas/navigation'
-import { CallbackObjectSchemaDefinition } from '@/schemas/v3.1/strict/callback'
-import { xScalarClientConfigCookiesSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-cookies'
-import { xScalarClientConfigEnvironmentsSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-environments'
-import { ContactObjectSchemaDefinition } from '@/schemas/v3.1/strict/contact'
-import { DiscriminatorObjectSchemaDefinition } from '@/schemas/v3.1/strict/discriminator'
-import { EncodingObjectSchemaDefinition } from '@/schemas/v3.1/strict/encoding'
-import { ExampleObjectSchemaDefinition } from '@/schemas/v3.1/strict/example'
-import { HeaderObjectSchemaDefinition } from '@/schemas/v3.1/strict/header'
-import { LicenseObjectSchemaDefinition } from '@/schemas/v3.1/strict/license'
-import { LinkObjectSchemaDefinition } from '@/schemas/v3.1/strict/link'
-import { MediaTypeObjectSchemaDefinition } from '@/schemas/v3.1/strict/media-type'
-import { OAuthFlowsObjectSchemaDefinition } from '@/schemas/v3.1/strict/oauthflows'
-import { OperationObjectSchemaDefinition } from '@/schemas/v3.1/strict/operation'
-import { ParameterObjectSchemaDefinition } from '@/schemas/v3.1/strict/parameter'
-import { PathItemObjectSchemaDefinition } from '@/schemas/v3.1/strict/path-item'
+
+import { CallbackObjectSchemaDefinition } from './callback'
+import {
+  type XScalarClientConfigCookies,
+  xScalarClientConfigCookiesSchema,
+} from './client-config-extensions/x-scalar-client-config-cookies'
+import {
+  type XScalarClientConfigEnvironments,
+  xScalarClientConfigEnvironmentsSchema,
+} from './client-config-extensions/x-scalar-client-config-environments'
+import { type ComponentsObject, ComponentsObjectSchemaDefinition } from './components'
+import { ContactObjectSchemaDefinition } from './contact'
+import { DiscriminatorObjectSchemaDefinition } from './discriminator'
+import { EncodingObjectSchemaDefinition } from './encoding'
+import { ExampleObjectSchemaDefinition } from './example'
+import { type ExternalDocumentationObject, ExternalDocumentationObjectSchemaDefinition } from './external-documentation'
+import { HeaderObjectSchemaDefinition } from './header'
+import { type InfoObject, InfoObjectSchemaDefinition } from './info'
+import { LicenseObjectSchemaDefinition } from './license'
+import { LinkObjectSchemaDefinition } from './link'
+import { MediaTypeObjectSchemaDefinition } from './media-type'
+import { OAuthFlowsObjectSchemaDefinition } from './oauthflows'
+import { OperationObjectSchemaDefinition } from './operation'
+import { ParameterObjectSchemaDefinition } from './parameter'
+import { type PathItemObject, PathItemObjectSchemaDefinition } from './path-item'
+import { type PathsObject, PathsObjectSchemaDefinition } from './paths'
 import {
   ComponentsObjectRef,
   ExternalDocumentationObjectRef,
@@ -36,22 +48,18 @@ import {
   ServerObjectRef,
   TagObjectRef,
   TraversedEntryObjectRef,
-} from '@/schemas/v3.1/strict/ref-definitions'
-import { RequestBodyObjectSchemaDefinition } from '@/schemas/v3.1/strict/request-body'
-import { ResponseObjectSchemaDefinition } from '@/schemas/v3.1/strict/response'
-import { ResponsesObjectSchemaDefinition } from '@/schemas/v3.1/strict/responses'
-import { SchemaObjectSchemaDefinition } from '@/schemas/v3.1/strict/schema'
-import { SecuritySchemeObjectSchemaDefinition } from '@/schemas/v3.1/strict/security-scheme'
-import { ServerVariableObjectSchemaDefinition } from '@/schemas/v3.1/strict/server-variable'
-import { XMLObjectSchemaDefinition } from '@/schemas/v3.1/strict/xml'
-
-import { ComponentsObjectSchemaDefinition } from './components'
-import { ExternalDocumentationObjectSchemaDefinition } from './external-documentation'
-import { InfoObjectSchemaDefinition } from './info'
-import { PathsObjectSchemaDefinition } from './paths'
-import { SecurityRequirementObjectSchemaDefinition } from './security-requirement'
-import { ServerObjectSchemaDefinition } from './server'
-import { TagObjectSchemaDefinition } from './tag'
+} from './ref-definitions'
+import type { ReferenceObject } from './reference'
+import { RequestBodyObjectSchemaDefinition } from './request-body'
+import { ResponseObjectSchemaDefinition } from './response'
+import { ResponsesObjectSchemaDefinition } from './responses'
+import { SchemaObjectSchemaDefinition } from './schema'
+import { type SecurityRequirementObject, SecurityRequirementObjectSchemaDefinition } from './security-requirement'
+import { SecuritySchemeObjectSchemaDefinition } from './security-scheme'
+import { type ServerObject, ServerObjectSchemaDefinition } from './server'
+import { ServerVariableObjectSchemaDefinition } from './server-variable'
+import { type TagObject, TagObjectSchemaDefinition } from './tag'
+import { XMLObjectSchemaDefinition } from './xml'
 
 const OpenApiExtensionsSchema = Type.Partial(
   Type.Object({
@@ -73,6 +81,18 @@ const OpenApiExtensionsSchema = Type.Partial(
     [extensions.document.navigation]: Type.Array(TraversedEntryObjectRef),
   }),
 )
+
+export type OpenAPIExtensions = {
+  'x-tagGroups': (TagObject | ReferenceObject)[]
+  'x-scalar-client-config-active-environment': string
+  /** A custom icon representing the collection */
+  'x-scalar-client-config-icon': string
+  'x-scalar-client-config-environments': XScalarClientConfigEnvironments
+  'x-scalar-client-config-cookies': XScalarClientConfigCookies
+  'x-original-oas-version': string
+  'x-scalar-selected-security': SecurityRequirementObject[]
+  [extensions.document.navigation]: TraversedEntryObject[]
+}
 
 const OpenApiDocumentSchemaDefinition = compose(
   Type.Object({
@@ -99,6 +119,29 @@ const OpenApiDocumentSchemaDefinition = compose(
   }),
   OpenApiExtensionsSchema,
 )
+
+export type OpenApiDocument = {
+  /** REQUIRED. This string MUST be the version number of the OpenAPI Specification that the OpenAPI Document uses. The openapi field SHOULD be used by tooling to interpret the OpenAPI Document. This is not related to the API info.version string. */
+  openapi: string
+  /** REQUIRED. Provides metadata about the API. The metadata MAY be used by tooling as required. */
+  info: InfoObject
+  /** The default value for the $schema keyword within Schema Objects contained within this OAS document. This MUST be in the form of a URI. */
+  jsonSchemaDialect?: string
+  /** An array of Server Objects, which provide connectivity information to a target server. If the servers field is not provided, or is an empty array, the default value would be a Server Object with a url value of /. */
+  servers?: ServerObject[]
+  /** The available paths and operations for the API. */
+  paths?: PathsObject
+  /** The incoming webhooks that MAY be received as part of this API and that the API consumer MAY choose to implement. Closely related to the callbacks feature, this section describes requests initiated other than by an API call, for example by an out of band registration. The key name is a unique string to refer to each webhook, while the (optionally referenced) Path Item Object describes a request that may be initiated by the API provider and the expected responses. An example is available. */
+  webhooks?: PathsObject
+  /** An element to hold various Objects for the OpenAPI Description. */
+  components?: ComponentsObject
+  /** A declaration of which security mechanisms can be used across the API. The list of values includes alternative Security Requirement Objects that can be used. Only one of the Security Requirement Objects need to be satisfied to authorize a request. Individual operations can override this definition. The list can be incomplete, up to being empty or absent. To make security explicitly optional, an empty security requirement ({}) can be included in the array. */
+  security?: SecurityRequirementObject[]
+  /** A list of tags used by the OpenAPI Description with additional metadata. The order of the tags can be used to reflect on their order by the parsing tools. Not all tags that are used by the Operation Object must be declared. The tags that are not declared MAY be organized randomly or based on the tools' logic. Each tag name in the list MUST be unique. */
+  tags?: TagObject[]
+  /** Additional external documentation. */
+  externalDocs?: ExternalDocumentationObject
+}
 
 // ----- Module Definition ----
 const module = Type.Module({
