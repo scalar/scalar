@@ -1,13 +1,15 @@
 import { readFileSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
-import yaml from 'yaml'
-import { z } from 'zod'
+
 import as from 'ansis'
+import { Command } from 'commander'
 import pm from 'picomatch'
 import { format } from 'prettier'
-import { Command } from 'commander'
-import { getWorkspaceRoot } from '@/helpers'
 import semver, { type ReleaseType } from 'semver'
+import yaml from 'yaml'
+import { z } from 'zod'
+
+import { getWorkspaceRoot } from '@/helpers'
 import { latestVersion } from '@/helpers/npm-version'
 
 export const outdated = new Command('outdated')
@@ -73,7 +75,7 @@ function loadWorkspace() {
   console.log(as.green(`Loading ${filepath}...`))
   const packages = readFileSync(filepath, 'utf8')
 
-  return pnpmWorkspaceSchema.parse(yaml.parse(packages))
+  return pnpmWorkspaceSchema.parse(yaml.parse(packages, { merge: true, maxAliasCount: 10000 }))
 }
 
 /** Check each catalog version to see if there is a newer version available */
