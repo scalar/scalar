@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Mock the URL constant used by the module under test
 vi.mock('@/consts/urls', () => ({
+  PROXY_URL: 'https://proxy.example.test',
   UPLOAD_TEMP_API_URL: 'https://example.test/share/upload/apis',
 }))
 
@@ -39,11 +40,14 @@ describe('uploadTempDocument', () => {
     expect(result).toBe(url)
 
     expect(globalThis.fetch).toHaveBeenCalledTimes(1)
-    expect(globalThis.fetch).toHaveBeenCalledWith('https://example.test/share/upload/apis', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ document }),
-    })
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      'https://proxy.example.test/?scalar_url=https%3A%2F%2Fexample.test%2Fshare%2Fupload%2Fapis',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ document }),
+      },
+    )
   })
 
   it('throws with status when server responds with non-ok', async () => {
