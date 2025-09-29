@@ -209,469 +209,11 @@ It is completely up to you whether you want to pass JSON or YAML. None of the di
 
 ## Configuration Options
 
-### content
+### Properties
 
-**Type:** `string | Record<string, any> | () => Record<string, any>`
+Configuration properties to customize the behavior and appearance of your API reference.
 
-Directly pass an OpenAPI/Swagger document (JSON or YAML) as a string:
-
-```js
-{
-  content: '{ "openapi": "3.1.1" }'
-}
-```
-
-Or as a JavaScript object:
-
-```js
-{
-  content: {
-    openapi: '3.1.1',
-  }
-}
-```
-
-Or as a callback returning the actual document:
-
-```js
-{
-  content() {
-    return {
-      openapi: '3.1.1',
-    }
-  }
-}
-```
-
-### url
-
-**Type:** `string`
-
-Pass the URL of an OpenAPI document (JSON or YAML).
-
-```js
-{
-  url: '/openapi.json'
-}
-```
-
-### proxyUrl
-
-**Type:** `string`
-
-Making requests to other domains is restricted in the browser and requires [CORS headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS). It's recommended to use a proxy to send requests to other origins.
-
-```js
-{
-  proxyUrl: 'https://proxy.example.com'
-}
-```
-
-You can use our hosted proxy:
-
-```js
-{
-  proxyUrl: 'https://proxy.scalar.com'
-}
-```
-
-If you like to run your own, check out our [example proxy written in Go](https://github.com/scalar/scalar/tree/main/projects/proxy-scalar-com).
-
-### fetch
-
-**Type:** `fetch(input: string | URL | globalThis.Request, init?: RequestInit): Promise<Response>`
-
-Custom [fetch function](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) to fetch documents with a custom logic. Can be used to add custom headers, handle auth, etc.
-
-```js
-{
-  fetch: (input: string | URL | globalThis.Request, init?: RequestInit) => {
-    return window.fetch(input, init)
-  }
-}
-```
-
-### plugins
-
-**Type:** `ApiReferencePlugin[]`
-
-Pass an array of custom plugins that you want. [Read more about plugins here.](https://guides.scalar.com/scalar/scalar-api-references/plugins)
-
-```js
-{
-  plugins: [
-    XCustomExtensionPlugin(),
-  ],
-}
-```
-
-### showSidebar
-
-**Type:** `boolean`
-
-Whether the sidebar should be shown.
-
-**Default:** `true`
-
-```js
-{
-  showSidebar: true
-}
-```
-
-### operationTitleSource
-
-**Type:** `'summary' | 'path'`
-
-Whether the sidebar display text and search should use the operation summary or the operation path.
-
-**Default:** `'summary'`
-
-```js
-{
-  operationTitleSource: 'summary' // Use operation summary
-}
-```
-
-```js
-{
-  operationTitleSource: 'path' // Use operation path
-}
-```
-
-### hideModels
-
-**Type:** `boolean`
-
-Whether models (`components.schemas` or `definitions`) should be shown in the sidebar, search and content.
-
-**Default:** `false`
-
-```js
-{
-  hideModels: true
-}
-```
-
-### documentDownloadType
-
-**Type:** `'json' | 'yaml' | 'both' | 'direct' | 'none'`
-
-Sets the file type of the document to download, set to `'none'` to hide the download button.
-
-**Default:** `'both'`
-
-```js
-{
-  documentDownloadType: 'json'
-}
-```
-
-When `'direct'` is passed, it just outputs a regular link to the passed URL.
-
-### hideDownloadButton
-
-**Type:** `boolean`
-
-Whether to show the "Download OpenAPI Document" button.
-
-**Default:** `false`
-
-**@deprecated** Use `documentDownloadType: 'none'` instead
-
-```js
-{
-  hideDownloadButton: true
-}
-```
-
-### hideTestRequestButton
-
-**Type:** `boolean`
-
-Whether to show the "Test Request" button.
-
-**Default:** `false`
-
-```js
-{
-  hideTestRequestButton: true
-}
-```
-
-### hideSearch
-
-**Type:** `boolean`
-
-Whether to show the sidebar search bar.
-
-**Default:** `false`
-
-```js
-{
-  hideSearch: true
-}
-```
-
-### darkMode
-
-**Type:** `boolean`
-
-Whether dark mode is on or off initially (light mode).
-
-```js
-{
-  darkMode: true
-}
-```
-
-### forceDarkModeState
-
-**Type:** `'dark' | 'light'`
-
-Force dark mode to always be this state no matter what.
-
-```js
-{
-  forceDarkModeState: 'dark'
-}
-```
-
-### hideDarkModeToggle
-
-**Type:** `boolean`
-
-Whether to show the dark mode toggle.
-
-```js
-{
-  hideDarkModeToggle: true
-}
-```
-
-### layout
-
-**Type:** `'modern' | 'classic'`
-
-The layout style to use for the API reference.
-
-**Default:** `'modern'`
-
-```js
-{
-  layout: 'modern' // or 'classic'
-}
-```
-
-### isLoading
-
-**Type:** `boolean`
-
-Controls whether the references show a loading state in the intro section. Useful when you want to indicate that content is being loaded.
-
-**Default:** `false`
-
-```js
-{
-  isLoading: true
-}
-```
-
-### customCss
-
-**Type:** `string`
-
-You can pass custom CSS directly to the component. This is helpful for the integrations for Fastify, Express, Hono and others where it's easier to add CSS to the configuration.
-
-In Vue or React you'd probably use other ways to add custom CSS.
-
-```js
-{
-  customCss: `* { font-family: "Comic Sans MS", cursive, sans-serif; }`
-}
-```
-
-### searchHotKey
-
-**Type:** `string`
-
-Key used with CTRL/CMD to open the search modal.
-
-**Default:** `'k'` (e.g. CMD+k)
-
-```js
-{
-  searchHotKey: 'l'
-}
-```
-
-### baseServerURL
-
-**Type:** `string`
-
-If you want to prefix all relative servers with a base URL, you can do so here.
-
-```js
-{
-  baseServerURL: 'https://scalar.com'
-}
-```
-
-### servers
-
-**Type:** `Server[]`
-
-Pass a list of servers to override the servers in your OpenAPI document.
-
-```js
-{
-  servers: [
-    {
-      url: 'https://api.scalar.com',
-      description: 'Production',
-    },
-    {
-      url: 'https://sandbox.scalar.com:{port}',
-      description: 'Development sandboxes',
-      variables: {
-        port: {
-          default: '8080',
-        }
-      }
-    },
-  ]
-}
-```
-
-### metaData
-
-**Type:** `object`
-
-You can pass information to the config object to configure meta information out of the box.
-
-```js
-{
-  metaData: {
-    title: 'Page title',
-    description: 'My page description',
-    ogDescription: 'Still about my my page',
-    ogTitle: 'Page title',
-    ogImage: 'https://example.com/image.png',
-    twitterCard: 'summary_large_image',
-    // Add more...
-  }
-}
-```
-
-### favicon
-
-**Type:** `string`
-
-You can specify the path to a favicon to be used for the documentation.
-
-```js
-{
-  favicon: '/favicon.svg'
-}
-```
-
-### defaultHttpClient
-
-**Type:** `HttpClientState`
-
-By default, we're using Shell/curl as the default HTTP client. Or, if that's disabled (through `hiddenClients`), we're just using the first available HTTP client.
-
-You can explicitly set the default HTTP client, though:
-
-```js
-{
-  defaultHttpClient: {
-    targetKey: 'node',
-    clientKey: 'undici',
-  }
-}
-```
-
-### hiddenClients
-
-**Type:** `array | true`
-
-We're generating code examples for a long list of popular HTTP clients. You can control which are shown by passing an array of clients, to hide the given clients.
-
-Pass an empty array `[]` to show all available clients:
-
-```js
-{
-  hiddenClients: []
-}
-```
-
-Pass an array of individual clients to hide just those clients:
-
-```js
-{
-  hiddenClients: ['fetch']
-}
-```
-
-Here's a list of all clients that you can potentially hide:
-
-```js
-{
-  hiddenClients: [
-    'libcurl', 'clj_http', 'httpclient', 'restsharp', 'native', 'http1.1',
-    'asynchttp', 'nethttp', 'okhttp', 'unirest', 'xhr', 'axios', 'fetch',
-    'jquery', 'okhttp', 'native', 'request', 'unirest', 'axios', 'fetch',
-    'nsurlsession', 'cohttp', 'curl', 'guzzle', 'http1', 'http2',
-    'webrequest', 'restmethod', 'python3', 'requests', 'httr', 'native',
-    'curl', 'httpie', 'wget', 'nsurlsession', 'undici'
-  ],
-}
-```
-
-But you can also pass `true` to **hide all** HTTP clients. If you have any custom code examples (`x-scalar-examples`) in your API definition, these still render:
-
-```js
-{
-  hiddenClients: true
-}
-```
-
-### onDocumentSelect
-
-**Type:** `() => void`
-
-Triggered when multiple documents are configured and the users switches between them.
-
-### onSpecUpdate
-
-**Type:** `(spec: string) => void`
-
-You can listen to changes with onSpecUpdate that runs on spec/swagger content change.
-
-```js
-{
-  onSpecUpdate: (value: string) => {
-    console.log('Content updated:', value)
-  }
-}
-```
-
-### onServerChange
-
-**Type:** `(server: string) => void`
-
-You can listen to changes with onServerChange that runs on server change.
-
-```js
-{
-  onServerChange: (value: string) => {
-    console.log('Server updated:', value)
-  }
-}
-```
-
-### authentication
+#### authentication
 
 **Type:** `AuthenticationConfiguration`
 
@@ -789,7 +331,572 @@ The `authentication` configuration accepts:
   - An array containing strings or arrays of strings (AND/OR relationship)
 - `securitySchemes`: An object mapping security scheme names to their configurations. Each security scheme can be configured with type-specific options.
 
-### generateHeadingSlug
+#### baseServerURL
+
+**Type:** `string`
+
+If you want to prefix all relative servers with a base URL, you can do so here.
+
+```js
+{
+  baseServerURL: 'https://scalar.com'
+}
+```
+
+#### content
+
+**Type:** `string | Record<string, any> | () => Record<string, any>`
+
+Directly pass an OpenAPI/Swagger document (JSON or YAML) as a string:
+
+```js
+{
+  content: '{ "openapi": "3.1.1" }'
+}
+```
+
+Or as a JavaScript object:
+
+```js
+{
+  content: {
+    openapi: '3.1.1',
+  }
+}
+```
+
+Or as a callback returning the actual document:
+
+```js
+{
+  content() {
+    return {
+      openapi: '3.1.1',
+    }
+  }
+}
+```
+
+#### customCss
+
+**Type:** `string`
+
+You can pass custom CSS directly to the component. This is helpful for the integrations for Fastify, Express, Hono and others where it's easier to add CSS to the configuration.
+
+In Vue or React you'd probably use other ways to add custom CSS.
+
+```js
+{
+  customCss: `* { font-family: "Comic Sans MS", cursive, sans-serif; }`
+}
+```
+
+#### darkMode
+
+**Type:** `boolean`
+
+Whether dark mode is on or off initially (light mode).
+
+**Default:** `false`
+
+```js
+{
+  darkMode: true
+}
+```
+
+#### defaultHttpClient
+
+**Type:** `HttpClientState`
+
+By default, we're using Shell/curl as the default HTTP client. Or, if that's disabled (through `hiddenClients`), we're just using the first available HTTP client.
+
+**Default:** `{ targetKey: 'shell', clientKey: 'curl' }`
+
+You can explicitly set the default HTTP client, though:
+
+```js
+{
+  defaultHttpClient: {
+    targetKey: 'node',
+    clientKey: 'undici',
+  }
+}
+```
+
+#### defaultOpenAllTags
+
+**Type:** `boolean`
+
+By default we only open the relevant tag based on the url, however if you want all the tags open by default then set this configuration option.
+
+**Default:** `false`
+
+```js
+{
+  defaultOpenAllTags: true
+}
+```
+
+#### documentDownloadType
+
+**Type:** `'json' | 'yaml' | 'both' | 'direct' | 'none'`
+
+Sets the file type of the document to download, set to `'none'` to hide the download button.
+
+**Default:** `'both'`
+
+```js
+{
+  documentDownloadType: 'json'
+}
+```
+
+When `'direct'` is passed, it just outputs a regular link to the passed URL.
+
+#### expandAllModelSections
+
+**Type:** `boolean`
+
+By default the models are all closed in the model section at the bottom, this flag will open them all by default.
+
+**Default:** `false`
+
+```js
+{
+  expandAllModelSections: true
+}
+```
+
+#### expandAllResponses
+
+**Type:** `boolean`
+
+By default response sections are closed in the operations. This flag will open them by default.
+
+**Default:** `false`
+
+```js
+{
+  expandAllResponses: true
+}
+```
+
+#### favicon
+
+**Type:** `string`
+
+You can specify the path to a favicon to be used for the documentation.
+
+```js
+{
+  favicon: '/favicon.svg'
+}
+```
+
+#### forceDarkModeState
+
+**Type:** `'dark' | 'light'`
+
+Force dark mode to always be this state no matter what.
+
+```js
+{
+  forceDarkModeState: 'dark'
+}
+```
+
+#### hideClientButton
+
+**Type:** `boolean`
+
+Whether to show the client button from the reference sidebar and modal.
+
+**Default:** `false`
+
+```js
+{
+  hideClientButton: true
+}
+```
+
+#### hideDarkModeToggle
+
+**Type:** `boolean`
+
+Whether to show the dark mode toggle.
+
+**Default:** `false`
+
+```js
+{
+  hideDarkModeToggle: true
+}
+```
+
+#### hideModels
+
+**Type:** `boolean`
+
+Whether models (`components.schemas` or `definitions`) should be shown in the sidebar, search and content.
+
+**Default:** `false`
+
+```js
+{
+  hideModels: true
+}
+```
+
+#### hideSearch
+
+**Type:** `boolean`
+
+Whether to show the sidebar search bar.
+
+**Default:** `false`
+
+```js
+{
+  hideSearch: true
+}
+```
+
+#### hideTestRequestButton
+
+**Type:** `boolean`
+
+Whether to show the "Test Request" button.
+
+**Default:** `false`
+
+```js
+{
+  hideTestRequestButton: true
+}
+```
+
+#### hiddenClients
+
+**Type:** `array | true`
+
+We're generating code examples for a long list of popular HTTP clients. You can control which are shown by passing an array of clients, to hide the given clients.
+
+Pass an empty array `[]` to show all available clients:
+
+```js
+{
+  hiddenClients: []
+}
+```
+
+Pass an array of individual clients to hide just those clients:
+
+```js
+{
+  hiddenClients: ['fetch']
+}
+```
+
+Here's a list of all clients that you can potentially hide:
+
+```js
+{
+  hiddenClients: [
+    'libcurl', 'clj_http', 'httpclient', 'restsharp', 'native', 'http1.1',
+    'asynchttp', 'nethttp', 'okhttp', 'unirest', 'xhr', 'axios', 'fetch',
+    'jquery', 'okhttp', 'native', 'request', 'unirest', 'axios', 'fetch',
+    'nsurlsession', 'cohttp', 'curl', 'guzzle', 'http1', 'http2',
+    'webrequest', 'restmethod', 'python3', 'requests', 'httr', 'native',
+    'curl', 'httpie', 'wget', 'nsurlsession', 'undici'
+  ],
+}
+```
+
+But you can also pass `true` to **hide all** HTTP clients. If you have any custom code examples (`x-scalar-examples`) in your API definition, these still render:
+
+```js
+{
+  hiddenClients: true
+}
+```
+
+#### isLoading
+
+**Type:** `boolean`
+
+Controls whether the references show a loading state in the intro section. Useful when you want to indicate that content is being loaded.
+
+**Default:** `false`
+
+```js
+{
+  isLoading: true
+}
+```
+
+#### layout
+
+**Type:** `'modern' | 'classic'`
+
+The layout style to use for the API reference.
+
+**Default:** `'modern'`
+
+```js
+{
+  layout: 'modern' // or 'classic'
+}
+```
+
+#### metaData
+
+**Type:** `object`
+
+You can pass information to the config object to configure meta information out of the box.
+
+```js
+{
+  metaData: {
+    title: 'Page title',
+    description: 'My page description',
+    ogDescription: 'Still about my my page',
+    ogTitle: 'Page title',
+    ogImage: 'https://example.com/image.png',
+    twitterCard: 'summary_large_image',
+    // Add more...
+  }
+}
+```
+
+#### operationTitleSource
+
+**Type:** `'summary' | 'path'`
+
+Whether the sidebar display text and search should use the operation summary or the operation path.
+
+**Default:** `'summary'`
+
+```js
+{
+  operationTitleSource: 'path'
+}
+```
+
+#### orderRequiredPropertiesFirst
+
+**Type:** `boolean`
+
+Whether to order required properties first in schema objects. When enabled, required properties will be displayed before optional properties in model definitions.
+
+**Default:** `true`
+
+```js
+{
+  orderRequiredPropertiesFirst: true
+}
+```
+
+#### orderSchemaPropertiesBy
+
+**Type:** `'alpha' | 'preserve'`
+
+Control how schema properties are ordered in model definitions. Can be set to:
+
+- `'alpha'`: Sort properties alphabetically by name
+- `'preserve'`: Preserve the order from the OpenAPI Document
+
+**Default:** `'alpha'`
+
+```js
+// Preserve original ordering
+{
+  orderSchemaPropertiesBy: 'preserve'
+}
+```
+
+#### pathRouting
+
+**Type:** `{ basePath: string }`
+
+Configuration for path-based routing instead of hash-based routing. Your server must support this routing method.
+
+```js
+{
+  pathRouting: {
+    basePath: '/standalone-api-reference'
+  }
+}
+```
+
+#### persistAuth
+
+**Type:** `boolean`
+
+Whether to persist authentication credentials in local storage. This allows the authentication state to be maintained across page reloads.
+
+**Default:** `false`
+
+```js
+{
+  persistAuth: true
+}
+```
+
+> [!WARNING]
+> Persisting authentication information in the browser's local storage may present security risks in certain environments. Use this feature with caution based on your security requirements.
+
+#### plugins
+
+**Type:** `ApiReferencePlugin[]`
+
+Pass an array of custom plugins that you want. [Read more about plugins here.](https://guides.scalar.com/scalar/scalar-api-references/plugins)
+
+```js
+{
+  plugins: [
+    XCustomExtensionPlugin(),
+  ],
+}
+```
+
+#### proxyUrl
+
+**Type:** `string`
+
+Making requests to other domains is restricted in the browser and requires [CORS headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS). It's recommended to use a proxy to send requests to other origins.
+
+```js
+{
+  proxyUrl: 'https://proxy.example.com'
+}
+```
+
+You can use our hosted proxy:
+
+```js
+{
+  proxyUrl: 'https://proxy.scalar.com'
+}
+```
+
+If you like to run your own, check out our [example proxy written in Go](https://github.com/scalar/scalar/tree/main/projects/proxy-scalar-com).
+
+#### searchHotKey
+
+**Type:** `string`
+
+Key used with CTRL/CMD to open the search modal.
+
+**Default:** `'k'` (e.g. CMD+k)
+
+```js
+{
+  searchHotKey: 'l'
+}
+```
+
+#### servers
+
+**Type:** `Server[]`
+
+Pass a list of servers to override the servers in your OpenAPI document.
+
+```js
+{
+  servers: [
+    {
+      url: 'https://api.scalar.com',
+      description: 'Production',
+    },
+    {
+      url: 'https://sandbox.scalar.com:{port}',
+      description: 'Development sandboxes',
+      variables: {
+        port: {
+          default: '8080',
+        }
+      }
+    },
+  ]
+}
+```
+
+#### showSidebar
+
+**Type:** `boolean`
+
+Whether the sidebar should be shown.
+
+**Default:** `true`
+
+```js
+{
+  showSidebar: true
+}
+```
+
+#### theme
+
+**Type:** `string`
+
+You don't like the color scheme? We've prepared some themes for you:
+
+Can be one of: **alternate**, **default**, **moon**, **purple**, **solarized**, **bluePlanet**, **saturn**, **kepler**, **mars**, **deepSpace**, **laserwave**, **none**
+
+**Default:** `'default'`
+
+```js
+{
+  theme: 'default'
+}
+```
+
+#### url
+
+**Type:** `string`
+
+Pass the URL of an OpenAPI document (JSON or YAML).
+
+```js
+{
+  url: '/openapi.json'
+}
+```
+
+#### withDefaultFonts
+
+**Type:** `boolean`
+
+By default we're using Inter and JetBrains Mono, served from our fonts CDN at `https://fonts.scalar.com`. If you use a different font or just don't want to load web fonts, pass `withDefaultFonts: false` to the configuration.
+
+**Default:** `true`
+
+```js
+{
+  withDefaultFonts: false
+}
+```
+
+### Methods
+
+Custom functions to control specific behaviors and URL generation.
+
+#### fetch
+
+**Type:** `(input: string | URL | globalThis.Request, init?: RequestInit) => Promise<Response>`
+
+Custom [fetch function](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) to fetch documents with a custom logic. Can be used to add custom headers, handle auth, etc.
+
+```js
+{
+  fetch: (input: string | URL | globalThis.Request, init?: RequestInit) => {
+    return window.fetch(input, init)
+  }
+}
+```
+
+#### generateHeadingSlug
 
 **Type:** `(heading: Heading) => string`
 
@@ -809,7 +916,7 @@ Customize how heading URLs are generated. This function receives the heading and
 }
 ```
 
-### generateModelSlug
+#### generateModelSlug
 
 **Type:** `(model: { name: string }) => string`
 
@@ -829,27 +936,7 @@ Customize how model URLs are generated. This function receives the model object 
 }
 ```
 
-### generateTagSlug
-
-**Type:** `(tag: Tag) => string`
-
-Customize how tag URLs are generated. This function receives the tag object and returns a string ID. Note that `tag/` will automatically be prepended to the result.
-
-> Note: This must be passed through JavaScript, setting a data attribute will not work.
-
-```js
-// Default behavior - results in hash: #tag/tag-name
-{
-  generateTagSlug: (tag) => slug(tag.name)
-}
-
-// Custom example - results in hash: #tag/v1-tag-name
-{
-  generateTagSlug: (tag) => `v1-${tag.name.toLowerCase()}`
-}
-```
-
-### generateOperationSlug
+#### generateOperationSlug
 
 **Type:** `(operation: Operation) => string`
 
@@ -870,7 +957,27 @@ Customize how operation URLs are generated. This function receives the operation
 }
 ```
 
-### generateWebhookSlug
+#### generateTagSlug
+
+**Type:** `(tag: Tag) => string`
+
+Customize how tag URLs are generated. This function receives the tag object and returns a string ID. Note that `tag/` will automatically be prepended to the result.
+
+> Note: This must be passed through JavaScript, setting a data attribute will not work.
+
+```js
+// Default behavior - results in hash: #tag/tag-name
+{
+  generateTagSlug: (tag) => slug(tag.name)
+}
+
+// Custom example - results in hash: #tag/v1-tag-name
+{
+  generateTagSlug: (tag) => `v1-${tag.name.toLowerCase()}`
+}
+```
+
+#### generateWebhookSlug
 
 **Type:** `(webhook: { name: string; method?: string }) => string`
 
@@ -891,226 +998,13 @@ Customize how webhook URLs are generated. This function receives the webhook obj
 }
 ```
 
-### pathRouting
-
-**Type:** `{ basePath: string }`
-
-Configuration for path-based routing instead of hash-based routing. Your server must support this routing method.
-
-```js
-{
-  pathRouting: {
-    basePath: '/standalone-api-reference'
-  }
-}
-```
-
-### redirect
-
-**Type:** `(path: string) => string | null | undefined`
-
-Function to handle redirects in the API reference. Receives either:
-- The current path with hash if pathRouting is enabled
-- The current hash if using hashRouting (default)
-
-```js
-// Example for hashRouting (default)
-{
-  redirect: (hash) => hash.replace('#v1/old-path', '#v2/new-path')
-}
-
-// Example for pathRouting
-{
-  redirect: (pathWithHash) => {
-    if (pathWithHash.includes('#')) {
-      return pathWithHash.replace('/v1/tags/user#operation/get-user', '/v1/tags/user/operation/get-user')
-    }
-    return null
-  }
-}
-```
-
-### onBeforeRequest
-
-**Type:** `({ request: Request }) => void | Promise<void>`
-
-Callback function that is fired before a request is sent through the API client.
-
-The function receives the request object and can be used to modify the request before it is sent.
-
-```js
-{
-  onBeforeRequest: ({ request }) => {
-    // Add a custom header to all requests
-    request.headers.set('X-Custom-Header', 'test')
-  }
-}
-```
-
-### onLoaded
-
-**Type:** `() => void`
-
-Callback that triggers as soon as the references are lazy loaded.
-
-> Note: This must be passed through JavaScript, setting a data attribute will not work.
-
-```js
-{
-  onLoaded: () => {
-    console.log('References loaded')
-  }
-}
-```
-
-### onShowMore
-
-**Type:** `(tagId: string) => void | Promise<void>`
-
-Callback function that is triggered when a user clicks the "Show more" button in the references. The function receives the ID of the tag that was clicked.
-
-```js
-{
-  onShowMore: (tagId) => {
-    console.log('Show more clicked for tag:', tagId)
-  }
-}
-```
-
-### onSidebarClick
-
-**Type:** `(href: string) => void | Promise<void>`
-
-Callback function that is triggered when a user clicks on any item in the sidebar. The function receives the href of the clicked item.
-
-```js
-{
-  onSidebarClick: (href) => {
-    console.log('Sidebar item clicked:', href)
-  }
-}
-```
-
-### onRequestSent
-
-**Type:** `(request: string) => void`
-
-Callback function that is triggered when a request is sent through the API client. The function receives the request details as a string.
-
-```js
-{
-  onRequestSent: (request) => {
-    console.log('Request sent:', request)
-  }
-}
-```
-
-### persistAuth
-
-**Type:** `boolean`
-
-Whether to persist authentication credentials in local storage. This allows the authentication state to be maintained across page reloads.
-
-**Default:** `false`
-
-```js
-{
-  persistAuth: true
-}
-```
-
-> [!WARNING]
-> Persisting authentication information in the browser's local storage may present security risks in certain environments. Use this feature with caution based on your security requirements.
-
-### withDefaultFonts
-
-**Type:** `boolean`
-
-By default we're using Inter and JetBrains Mono, served from our fonts CDN at `https://fonts.scalar.com`. If you use a different font or just don't want to load web fonts, pass `withDefaultFonts: false` to the configuration.
-
-**Default:** `true`
-
-```js
-{
-  withDefaultFonts: false
-}
-```
-
-### defaultOpenAllTags
-
-**Type:** `boolean`
-
-By default we only open the relevant tag based on the url, however if you want all the tags open by default then set this configuration option.
-
-**Default:** `false`
-
-```js
-{
-  defaultOpenAllTags: true
-}
-```
-
-### expandAllModelSections
-
-**Type:** `boolean`
-
-By default the models are all closed in the model section at the bottom, this flag will open them all by default.
-
-**Default:** `false`
-
-```js
-{
-  expandAllModelSections: true
-}
-```
-
-### expandAllResponses
-
-**Type:** `boolean`
-
-By default response sections are closed in the operations. This flag will open them by default.
-
-**Default:** `false`
-
-```js
-{
-  expandAllResponses: true
-}
-```
-
-### tagsSorter
-
-**Type:** `'alpha' | (a: Tag, b: Tag) => number`
-
-Sort tags alphanumerically (`'alpha'`):
-
-```js
-{
-  tagsSorter: 'alpha'
-}
-```
-
-Or specify a custom function to sort the tags.
-
-> Note: Most of our integrations pass the configuration as JSON and you can't use custom sort functions there. It will work in Vue, Nuxt, React, Next and all integrations that don't need to pass the configuration as a JSON string.
-
-```js
-{
-  /** @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort */
-  tagsSorter: (a, b) => {
-    if (a.name === 'Super Important Tag') return -1
-    return 1
-  }
-}
-```
-
-Learn more about Array sort functions: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
-
-### operationsSorter
+#### operationsSorter
 
 **Type:** `'alpha' | 'method' | ((a: OperationSortValue, b: OperationSortValue) => number)`
 
 Sort operations alphanumerically (`'alpha'`) or by HTTP method (`'method'`):
+
+**Default:** `'alpha'`
 
 ```js
 {
@@ -1137,64 +1031,140 @@ Or specify a custom function to sort the operations:
 
 > Note: `method` is the HTTP method of the operation, represented as a lowercase string.
 
-### orderRequiredPropertiesFirst
+#### redirect
 
-**Type:** `boolean`
+**Type:** `(path: string) => string | null | undefined`
 
-Whether to order required properties first in schema objects. When enabled, required properties will be displayed before optional properties in model definitions.
-
-**Default:** `true`
+Function to handle redirects in the API reference. Receives either:
+- The current path with hash if pathRouting is enabled
+- The current hash if using hashRouting (default)
 
 ```js
+// Example for hashRouting (default)
 {
-  orderRequiredPropertiesFirst: true
+  redirect: (hash) => hash.replace('#v1/old-path', '#v2/new-path')
+}
+
+// Example for pathRouting
+{
+  redirect: (pathWithHash) => {
+    if (pathWithHash.includes('#')) {
+      return pathWithHash.replace('/v1/tags/user#operation/get-user', '/v1/tags/user/operation/get-user')
+    }
+    return null
+  }
 }
 ```
 
-### orderSchemaPropertiesBy
+### Events
 
-**Type:** `'alpha' | 'preserve'`
+Callback functions that are triggered by user interactions and system events.
 
-Control how schema properties are ordered in model definitions. Can be set to:
+#### onBeforeRequest
 
-- `'alpha'`: Sort properties alphabetically by name
-- `'preserve'`: Preserve the order from the OpenAPI Document
+**Type:** `({ request: Request }) => void | Promise<void>`
 
-**Default:** `'alpha'`
+Callback function that is fired before a request is sent through the API client.
+
+The function receives the request object and can be used to modify the request before it is sent.
 
 ```js
-// Preserve original ordering
 {
-  orderSchemaPropertiesBy: 'preserve'
+  onBeforeRequest: ({ request }) => {
+    // Add a custom header to all requests
+    request.headers.set('X-Custom-Header', 'test')
+  }
 }
 ```
 
-### theme
+#### onDocumentSelect
 
-**Type:** `string`
+**Type:** `() => void`
 
-You don't like the color scheme? We've prepared some themes for you:
+Triggered when multiple documents are configured and the users switches between them.
 
-Can be one of: **alternate**, **default**, **moon**, **purple**, **solarized**, **bluePlanet**, **saturn**, **kepler**, **mars**, **deepSpace**, **laserwave**, **none**
+#### onLoaded
 
-**Default:** `'default'`
+**Type:** `() => void`
+
+Callback that triggers as soon as the references are lazy loaded.
+
+> Note: This must be passed through JavaScript, setting a data attribute will not work.
 
 ```js
 {
-  theme: 'default'
+  onLoaded: () => {
+    console.log('References loaded')
+  }
 }
 ```
 
-### hideClientButton
+#### onRequestSent
 
-**Type:** `boolean`
+**Type:** `(request: string) => void`
 
-Whether to show the client button from the reference sidebar and modal.
-
-**Default:** `false`
+Callback function that is triggered when a request is sent through the API client. The function receives the request details as a string.
 
 ```js
 {
-  hideClientButton: true
+  onRequestSent: (request) => {
+    console.log('Request sent:', request)
+  }
+}
+```
+
+#### onServerChange
+
+**Type:** `(server: string) => void`
+
+You can listen to changes with onServerChange that runs on server change.
+
+```js
+{
+  onServerChange: (value: string) => {
+    console.log('Server updated:', value)
+  }
+}
+```
+
+#### onShowMore
+
+**Type:** `(tagId: string) => void | Promise<void>`
+
+Callback function that is triggered when a user clicks the "Show more" button in the references. The function receives the ID of the tag that was clicked.
+
+```js
+{
+  onShowMore: (tagId) => {
+    console.log('Show more clicked for tag:', tagId)
+  }
+}
+```
+
+#### onSidebarClick
+
+**Type:** `(href: string) => void | Promise<void>`
+
+Callback function that is triggered when a user clicks on any item in the sidebar. The function receives the href of the clicked item.
+
+```js
+{
+  onSidebarClick: (href) => {
+    console.log('Sidebar item clicked:', href)
+  }
+}
+```
+
+#### onSpecUpdate
+
+**Type:** `(spec: string) => void`
+
+You can listen to changes with onSpecUpdate that runs on spec/swagger content change.
+
+```js
+{
+  onSpecUpdate: (value: string) => {
+    console.log('Content updated:', value)
+  }
 }
 ```
