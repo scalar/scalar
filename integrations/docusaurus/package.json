@@ -30,6 +30,7 @@
     "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
+    "test": "vitest",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
   "main": "./dist/index.js",
@@ -43,6 +44,7 @@
   "devDependencies": {
     "@docusaurus/types": "^3.7.0",
     "@docusaurus/utils": "^3.7.0",
+    "@scalar/build-tooling": "workspace:*",
     "@types/react": "catalog:*",
     "@types/react-dom": "catalog:*",
     "path": "^0.12.7",

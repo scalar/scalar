@@ -815,6 +815,9 @@ importers:
       '@docusaurus/utils':
         specifier: ^3.7.0
         version: 3.8.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../../packages/build-tooling
       '@types/react':
         specifier: catalog:*
         version: 19.1.8
