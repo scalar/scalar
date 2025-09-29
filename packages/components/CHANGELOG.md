@@ -1,5 +1,16 @@
 # @scalar/components
 
+## 0.14.38
+
+### Patch Changes
+
+- 0b3c6fa: feat(api-reference): localhost development toolbar
+- bbceb27: fix: long words break markdown table layout
+- Updated dependencies [0b3c6fa]
+  - @scalar/themes@0.13.19
+  - @scalar/code-highlight@0.2.0
+  - @scalar/oas-utils@0.4.33
+
 ## 0.14.37
 
 ### Patch Changes

@@ -1,5 +1,19 @@
 # @scalar/api-reference
 
+## 1.36.2
+
+### Patch Changes
+
+- 0b3c6fa: feat(api-reference): localhost development toolbar
+- Updated dependencies [0b3c6fa]
+- Updated dependencies [bbceb27]
+- Updated dependencies [eadd229]
+  - @scalar/components@0.14.38
+  - @scalar/themes@0.13.19
+  - @scalar/api-client@2.6.1
+  - @scalar/code-highlight@0.2.0
+  - @scalar/oas-utils@0.4.33
+
 ## 1.36.1
 
 ### Patch Changes
