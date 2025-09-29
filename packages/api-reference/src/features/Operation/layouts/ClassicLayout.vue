@@ -435,8 +435,8 @@ const { copyToClipboard } = useClipboard()
 
 .operation-example-card {
   position: sticky;
-  top: calc(var(--refs-header-height) + 24px);
-  max-height: calc(((var(--full-height) - var(--refs-header-height)) - 48px));
+  top: calc(var(--refs-viewport-offset) + 24px);
+  max-height: calc(var(--refs-viewport-height) - 48px);
 }
 
 @media (max-width: 600px) {

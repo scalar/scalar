@@ -48,7 +48,7 @@ const operationsAndWebhooks = computed(() => {
 <style scoped>
 .endpoints-card {
   position: sticky;
-  top: calc(var(--refs-header-height) + 24px);
+  top: calc(var(--refs-viewport-offset) + 24px);
   font-size: var(--scalar-font-size-3);
 }
 .endpoints {

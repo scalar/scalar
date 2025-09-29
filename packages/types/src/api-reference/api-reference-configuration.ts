@@ -211,6 +211,11 @@ export const apiClientConfigurationSchema = z.object({
    */
   showSidebar: z.boolean().optional().default(true).catch(true),
   /**
+   * Sets the visibility of the configuration toolbar
+   * @default 'localhost' to only show the toolbar on localhost or similar hosts
+   */
+  showToolbar: z.enum(['always', 'localhost', 'never']).optional().default('localhost').catch('localhost'),
+  /**
    * Whether to use the operation summary or the operation path for the sidebar and search
    * @default 'summary'
    */

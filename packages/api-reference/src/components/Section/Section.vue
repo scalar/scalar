@@ -39,7 +39,7 @@ function handleScroll() {
   padding: 90px 0;
 
   /* Offset by header height to line up scroll position */
-  scroll-margin-top: var(--refs-header-height);
+  scroll-margin-top: var(--refs-viewport-offset);
 }
 .section:has(~ div.contents) {
   border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
