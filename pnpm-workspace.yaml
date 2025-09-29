@@ -9,6 +9,17 @@ packages:
   - '!**/dist/**'
   - '!**/.output/**'
   - '!**/target/**'
+
+# To reduce the risk of installing compromised packages, we delay the installation of newly published versions.
+minimumReleaseAge: 10080 # 1 week
+
+minimumReleaseAgeExclude:
+  - rollup
+  - vite
+  - vue
+  - vite-node
+  - vitest
+
 catalogs:
   '*':
     '@electron-toolkit/preload': ^3.0.0
@@ -70,3 +81,24 @@ catalogs:
     vue-tsc: ^2.2.0
     yaml: 2.8.0
     zod: 4.1.11
+
+ignoredBuiltDependencies:
+  - '@firebase/util'
+  - core-js
+  - core-js-pure
+  - dtrace-provider
+  - protobufjs
+  - sharp
+  - unrs-resolver
+  - vue-demi
+  - workerd
+
+onlyBuiltDependencies:
+  - '@nestjs/core'
+  - '@parcel/watcher'
+  - '@swc/core'
+  - '@tailwindcss/oxide'
+  - '@todesktop/cli'
+  - electron
+  - esbuild
+  - lefthook
