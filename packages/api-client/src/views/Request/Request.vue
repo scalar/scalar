@@ -15,9 +15,10 @@ import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
 import RequestSubpageHeader from '@/views/Request/RequestSubpageHeader.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
 
-const { invalidParams, selectedSecuritySchemeUids, requestResult } =
+const { invalidParams, isPathInvalid, selectedSecuritySchemeUids, requestResult } =
   defineProps<{
     invalidParams: Set<string>
+    isPathInvalid: boolean
     selectedSecuritySchemeUids: SelectedSecuritySchemeUids
     requestResult?: SendRequestResult | null
   }>()
@@ -74,6 +75,7 @@ function handleCurlImport(curl: string) {
           :collection="activeCollection"
           :envVariables="activeEnvVariables"
           :environment="activeEnvironment"
+          :isPathInvalid="isPathInvalid"
           :operation="activeRequest"
           :server="activeServer"
           :workspace="activeWorkspace"
