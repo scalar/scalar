@@ -393,7 +393,7 @@ describe('ScalarDocusaurus', () => {
         configuration: {
           theme: 'purple',
         },
-      }
+      } as const
 
       plugin.contentLoaded?.({
         content: testContent,
