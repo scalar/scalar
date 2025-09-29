@@ -22,11 +22,11 @@ export type ScalarOptions = {
  */
 const createDefaultScalarOptions = (options: ScalarOptions): ScalarOptions => ({
   showNavLink: true,
+  ...options,
   configuration: {
     _integration: 'docusaurus',
     ...(options.configuration ?? {}),
   },
-  ...options,
 })
 
 /**
