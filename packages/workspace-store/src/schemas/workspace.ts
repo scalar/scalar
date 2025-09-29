@@ -1,10 +1,17 @@
-import { type Static, Type } from '@scalar/typebox'
-import { AVAILABLE_CLIENTS } from '@scalar/types/snippetz'
+import { Type } from '@scalar/typebox'
+import { AVAILABLE_CLIENTS, type AvailableClients } from '@scalar/types/snippetz'
 
 import { compose } from '@/schemas/compose'
 import { extensions } from '@/schemas/extensions'
-import { xScalarClientConfigCookiesSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-cookies'
-import { xScalarClientConfigEnvironmentsSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-environments'
+import {
+  type XScalarClientConfigCookies,
+  xScalarClientConfigCookiesSchema,
+} from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-cookies'
+import {
+  type XScalarClientConfigEnvironments,
+  xScalarClientConfigEnvironmentsSchema,
+} from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-environments'
+import type { ServerObject } from '@/schemas/v3.1/strict/server'
 
 import { OpenAPIDocumentSchema, SecuritySchemeObjectSchema, ServerObjectSchema } from './v3.1/strict/openapi-document'
 
@@ -15,12 +22,15 @@ export const WorkspaceDocumentMetaSchema = Type.Partial(
   }),
 )
 
-export type WorkspaceDocumentMeta = Static<typeof WorkspaceDocumentMetaSchema>
+export type WorkspaceDocumentMeta = {
+  [extensions.document.activeAuth]?: string
+  [extensions.document.activeServer]?: string
+}
 
 // Note: use Type.Intersect to combine schemas here because Type.Compose does not work as expected with Modules
 export const WorkspaceDocumentSchema = Type.Intersect([WorkspaceDocumentMetaSchema, OpenAPIDocumentSchema])
 
-export type WorkspaceDocument = Static<typeof WorkspaceDocumentSchema>
+export type WorkspaceDocument = WorkspaceDocumentMeta & OpenAPIDocument
 
 export const WorkspaceMetaSchema = Type.Partial(
   Type.Object({
@@ -31,7 +41,12 @@ export const WorkspaceMetaSchema = Type.Partial(
   }),
 )
 
-export type WorkspaceMeta = Static<typeof WorkspaceMetaSchema>
+export type WorkspaceMeta = {
+  [extensions.workspace.darkMode]?: boolean
+  [extensions.workspace.defaultClient]?: AvailableClients
+  [extensions.workspace.activeDocument]?: string
+  [extensions.workspace.theme]?: string
+}
 
 export const WorkspaceExtensionsSchema = Type.Partial(
   Type.Object({
@@ -42,7 +57,12 @@ export const WorkspaceExtensionsSchema = Type.Partial(
   }),
 )
 
-export type WorkspaceExtensions = Static<typeof WorkspaceExtensionsSchema>
+export type WorkspaceExtensions = {
+  'x-scalar-client-config-environments'?: XScalarClientConfigEnvironments
+  'x-scalar-client-config-cookies'?: XScalarClientConfigCookies
+  'x-scalar-client-config-servers'?: ServerObject[]
+  'x-scalar-client-config-security-schemes'?: Record<string, SecuritySchemeObject>
+}
 
 export const WorkspaceSchema = compose(
   WorkspaceMetaSchema,
@@ -54,4 +74,7 @@ export const WorkspaceSchema = compose(
   WorkspaceExtensionsSchema,
 )
 
-export type Workspace = Static<typeof WorkspaceSchema>
+export type Workspace = WorkspaceMeta & {
+  documents: Record<string, WorkspaceDocument>
+  activeDocument: WorkspaceDocument | undefined
+} & WorkspaceExtensions

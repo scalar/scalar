@@ -1,9 +1,9 @@
-import { type Static, Type } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
-import { WorkspaceMetaSchema } from '@/schemas/workspace'
-import { ConfigSchema } from '@/schemas/workspace-specification/config'
-import { InfoSchema } from '@/schemas/workspace-specification/info'
+import { type WorkspaceMeta, WorkspaceMetaSchema } from '@/schemas/workspace'
+import { type Config, ConfigSchema } from '@/schemas/workspace-specification/config'
+import { type Info, InfoSchema } from '@/schemas/workspace-specification/info'
 
 export const WorkspaceSpecificationSchema = compose(
   Type.Object({
@@ -23,4 +23,10 @@ export const WorkspaceSpecificationSchema = compose(
   WorkspaceMetaSchema,
 )
 
-export type WorkspaceSpecification = Static<typeof WorkspaceSpecificationSchema>
+export type WorkspaceSpecification = {
+  workspace: 'draft'
+  info: Info
+  documents: Record<string, { $ref: string }>
+  overrides: Record<string, unknown>
+} & Config &
+  WorkspaceMeta

@@ -1,4 +1,4 @@
-import { type Static, Type } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 
 export const AppearanceSchema = Type.Partial(
   Type.Object({
@@ -12,9 +12,17 @@ export const AppearanceSchema = Type.Partial(
   }),
 )
 
-export type Appearance = Static<typeof AppearanceSchema>
+export type Appearance = {
+  layout: 'modern' | 'classic'
+  theme: string
+  favicon: string
+  initialColorMode: 'auto' | 'dark' | 'light'
+  forceColorMode: 'dark' | 'light'
+  css: string
+  loadDefaultFonts: boolean
+}
 
-export const defaultAppearance: Required<Appearance> = {
+export const defaultAppearance: Appearance = {
   layout: 'modern',
   theme: 'default',
   favicon: '',

@@ -1,4 +1,4 @@
-import { type Static, Type } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
 import {
@@ -130,7 +130,6 @@ export type OAuthFlowAuthorizationCode = OAuthFlowCommon & {
 } & XScalarSecretClientSecret &
   XScalarSecretRedirectUri &
   XusePkce
-)
 
 /** Union of all OAuth flow schemas */
 export const OAuthFlowObjectSchemaDefinition = Type.Union([
