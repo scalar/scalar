@@ -10,6 +10,10 @@ import type { ReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/
  * @example SchemaName from #/components/schemas/SchemaName
  */
 export const getRefName = (schema: ReferenceType<SchemaObject>) => {
+  if (!('$ref' in schema)) {
+    return null
+  }
+
   const ref = schema.$ref
 
   if (!ref) {

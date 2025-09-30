@@ -1,7 +1,12 @@
-import { type Static, Type } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 
-import { WorkspaceDocumentSchema, WorkspaceMetaSchema } from '@/schemas/workspace'
-import { ConfigSchema } from '@/schemas/workspace-specification/config'
+import {
+  type WorkspaceDocument,
+  WorkspaceDocumentSchema,
+  type WorkspaceMeta,
+  WorkspaceMetaSchema,
+} from '@/schemas/workspace'
+import { type Config, ConfigSchema } from '@/schemas/workspace-specification/config'
 
 const UnknownObjectSchema = Type.Record(Type.String(), Type.Unknown())
 
@@ -22,4 +27,12 @@ export const InMemoryWorkspaceSchema = Type.Object({
   ),
 })
 
-export type InMemoryWorkspace = Static<typeof InMemoryWorkspaceSchema>
+export type InMemoryWorkspace = {
+  meta: WorkspaceMeta
+  documentConfigs: Record<string, Config>
+  documents: Record<string, WorkspaceDocument>
+  originalDocuments: Record<string, unknown>
+  intermediateDocuments: Record<string, unknown>
+  overrides: Record<string, any>
+  documentMeta: Record<string, { documentSource?: string }>
+}

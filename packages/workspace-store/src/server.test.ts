@@ -95,6 +95,7 @@ describe('create-server-store', () => {
             'id': 'tag/default/get/planets',
             method: 'get',
             type: 'operation',
+            isDeprecated: false,
             'ref': '#/paths/~1planets/get',
             path: '/planets',
             title: 'List planets',
@@ -183,6 +184,7 @@ describe('create-server-store', () => {
         'x-scalar-navigation': [
           {
             'id': 'tag/default/get/planets',
+            isDeprecated: false,
             method: 'get',
             type: 'operation',
             'ref': '#/paths/~1planets/get',
@@ -215,6 +217,7 @@ describe('create-server-store', () => {
         'x-scalar-navigation': [
           {
             'id': 'tag/default/get/planets',
+            isDeprecated: false,
             method: 'get',
             type: 'operation',
             'ref': '#/paths/~1planets/get',
@@ -289,6 +292,7 @@ describe('create-server-store', () => {
             'x-scalar-navigation': [
               {
                 'id': 'tag/default/get/planets',
+                isDeprecated: false,
                 method: 'get',
                 path: '/planets',
                 title: 'List planets',
@@ -318,6 +322,7 @@ describe('create-server-store', () => {
             'x-scalar-navigation': [
               {
                 'id': 'tag/default/get/planets',
+                isDeprecated: false,
                 method: 'get',
                 type: 'operation',
                 'ref': '#/paths/~1planets/get',

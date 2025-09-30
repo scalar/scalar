@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
-import type { OpenApiDocument, TagObject, TraversedEntry } from '@/schemas/v3.1/strict/openapi-document'
+import type { TraversedEntry } from '@/schemas/navigation'
+import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
 
 import { traverseWebhooks } from './traverse-webhooks'
 
@@ -54,6 +55,7 @@ describe('traverse-webhooks', () => {
       expect(tagsMap.get('webhook-tag')?.entries[0]).toEqual({
         type: 'webhook',
         ref: '#/webhooks/test-webhook/post',
+        isDeprecated: false,
         id: 'webhook-tag-post-test-webhook',
         title: 'Test Webhook',
         name: 'test-webhook',
@@ -84,6 +86,7 @@ describe('traverse-webhooks', () => {
       expect(result[0]).toEqual({
         id: 'untagged-post-untagged-webhook',
         title: 'Untagged Webhook',
+        isDeprecated: false,
         name: 'untagged-webhook',
         method: 'post',
         type: 'webhook',
@@ -200,6 +203,7 @@ describe('traverse-webhooks', () => {
           {
             type: 'webhook',
             ref: '#/webhooks/multi-method-webhook/post',
+            isDeprecated: false,
             id: 'untagged-post-multi-method-webhook',
             title: 'POST Webhook',
             name: 'multi-method-webhook',
@@ -208,6 +212,7 @@ describe('traverse-webhooks', () => {
           {
             type: 'webhook',
             ref: '#/webhooks/multi-method-webhook/get',
+            isDeprecated: false,
             id: 'untagged-get-multi-method-webhook',
             title: 'GET Webhook',
             name: 'multi-method-webhook',

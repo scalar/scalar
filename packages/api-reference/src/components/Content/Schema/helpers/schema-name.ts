@@ -1,6 +1,7 @@
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { ReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/reference'
+import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 
 import { getRefName } from './get-ref-name'
 
@@ -60,7 +61,7 @@ export const getModelName = (value: SchemaObject, hideModelNames = false): strin
   }
 
   // Handle array types with item references only if no full schema match was found
-  if (valueType === 'array' && value.items) {
+  if (isArraySchema(value) && value.items) {
     const items = getResolvedRef(value.items)
 
     // Handle title/name

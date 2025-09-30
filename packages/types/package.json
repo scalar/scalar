@@ -74,12 +74,12 @@
   "dependencies": {
     "@scalar/openapi-types": "workspace:*",
     "nanoid": "catalog:*",
+    "type-fest": "catalog:*",
     "zod": "catalog:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@types/har-format": "^1.2.15",
-    "type-fest": "catalog:*",
     "vite": "catalog:*"
   }
 }

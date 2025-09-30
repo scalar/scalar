@@ -212,7 +212,7 @@ const mergePropertiesIntoResult = (
       // Handle new property with allOf
       if (schema.allOf) {
         result[key] = mergeAllOfSchemas(schema)
-      } else if ('type' in schema && schema.type === 'array' && getResolvedRef(schema.items)?.allOf) {
+      } else if (isArraySchema(schema) && getResolvedRef(schema.items)?.allOf) {
         result[key] = {
           ...schema,
           items: mergeAllOfSchemas(getResolvedRef(schema.items)),

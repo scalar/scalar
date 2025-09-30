@@ -11,6 +11,17 @@ export const XTagGroupSchema = Type.Object({
   tags: Type.Array(Type.String()),
 })
 
+export type XTagGroup = {
+  /**
+   * The group name.
+   */
+  name: string
+  /**
+   * List of tags to include in this group.
+   */
+  tags: string[]
+}
+
 /**
  * x-tagGroups
  *
@@ -19,3 +30,12 @@ export const XTagGroupSchema = Type.Object({
 export const XTagGroupsSchema = Type.Object({
   'x-tagGroups': Type.Optional(Type.Array(XTagGroupSchema)),
 })
+
+export type XTagGroups = {
+  /**
+   * x-tagGroups
+   *
+   * List of tags to include in this group.
+   */
+  'x-tagGroups'?: XTagGroup[]
+}

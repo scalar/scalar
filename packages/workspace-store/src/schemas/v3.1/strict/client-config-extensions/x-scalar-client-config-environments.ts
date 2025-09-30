@@ -1,4 +1,4 @@
-import { type Static, Type } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 
 export const xScalarClientConfigEnvVarSchema = Type.Union([
   Type.Partial(
@@ -10,7 +10,12 @@ export const xScalarClientConfigEnvVarSchema = Type.Union([
   Type.String(),
 ])
 
-export type xScalarClientConfigEnvVar = Static<typeof xScalarClientConfigEnvVarSchema>
+export type xScalarClientConfigEnvVar =
+  | {
+      description?: string
+      default?: string
+    }
+  | string
 
 export const xScalarClientConfigEnvironmentSchema = Type.Object({
   description: Type.Optional(Type.String()),
@@ -19,8 +24,12 @@ export const xScalarClientConfigEnvironmentSchema = Type.Object({
   variables: Type.Record(Type.String(), xScalarClientConfigEnvVarSchema),
 })
 
-export type xScalarClientConfigEnvironment = Static<typeof xScalarClientConfigEnvironmentSchema>
+export type xScalarClientConfigEnvironment = {
+  description?: string
+  color?: string
+  variables: Record<string, xScalarClientConfigEnvVar>
+}
 
 export const xScalarClientConfigEnvironmentsSchema = Type.Record(Type.String(), xScalarClientConfigEnvironmentSchema)
 
-export type XScalarClientConfigEnvironments = Static<typeof xScalarClientConfigEnvironmentsSchema>
+export type XScalarClientConfigEnvironments = Record<string, xScalarClientConfigEnvironment>

@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
+import type { TraversedTag } from '@/schemas/navigation'
 import { coerceValue } from '@/schemas/typebox-coerce'
-import { type OpenApiDocument, SchemaObjectSchema, type TraversedTag } from '@/schemas/v3.1/strict/openapi-document'
+import { type OpenApiDocument, SchemaObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
 import type { DocumentConfiguration } from '@/schemas/workspace-specification/config'
 
 import { traverseDocument } from './traverse-document'
@@ -98,6 +99,7 @@ describe('traverseDocument', () => {
         'isGroup': false,
         'name': 'test',
         'title': 'test',
+        isWebhooks: false,
         'type': 'tag',
         xKeys: {},
         'children': [
@@ -105,6 +107,7 @@ describe('traverseDocument', () => {
             'id': 'Test Operation',
             'method': 'get',
             'path': '/test',
+            isDeprecated: false,
             'ref': '#/paths/~1test/get',
             'title': 'Test Operation',
             'type': 'operation',
@@ -140,7 +143,7 @@ describe('traverseDocument', () => {
     expect((result.entries[0] as TraversedTag).children).toHaveLength(1)
     expect((result.entries[0] as TraversedTag).children?.[0]).toEqual({
       'id': 'test-webhook',
-      'isDeprecated': undefined,
+      'isDeprecated': false,
       'method': 'post',
       'name': 'test-webhook',
       'ref': '#/webhooks/test-webhook/post',
@@ -267,6 +270,7 @@ describe('traverseDocument', () => {
         'id': 'tag1',
         'isGroup': false,
         'name': 'tag1',
+        isWebhooks: false,
         'title': 'tag1',
         'type': 'tag',
         xKeys: {},
@@ -275,6 +279,7 @@ describe('traverseDocument', () => {
             'id': 'Test Operation 1',
             'method': 'get',
             'path': '/test1',
+            isDeprecated: false,
             'ref': '#/paths/~1test1/get',
             'title': 'Test Operation 1',
             'type': 'operation',
@@ -286,6 +291,7 @@ describe('traverseDocument', () => {
         'id': 'tag2',
         'isGroup': false,
         'name': 'tag2',
+        isWebhooks: false,
         'title': 'tag2',
         'type': 'tag',
         xKeys: {},
@@ -294,6 +300,7 @@ describe('traverseDocument', () => {
             'id': 'Test Operation 2',
             'method': 'post',
             'path': '/test2',
+            isDeprecated: false,
             'ref': '#/paths/~1test2/post',
             'title': 'Test Operation 2',
             'type': 'operation',
@@ -329,7 +336,7 @@ describe('traverseDocument', () => {
     expect(result.entries).toEqual([
       {
         'id': 'Untagged Operation',
-        'isDeprecated': undefined,
+        'isDeprecated': false,
         'method': 'get',
         'path': '/test',
         'ref': '#/paths/~1test/get',

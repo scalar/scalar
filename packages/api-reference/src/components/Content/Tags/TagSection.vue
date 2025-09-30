@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
-import type { TraversedTag } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 
 import { Anchor } from '@/components/Anchor'
 import { OperationsList } from '@/components/OperationsList'

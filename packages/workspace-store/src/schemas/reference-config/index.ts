@@ -1,13 +1,12 @@
-import { type Static, Type } from '@scalar/typebox'
-import { AVAILABLE_CLIENTS } from '@scalar/types/snippetz'
-import type { RequiredDeep } from 'type-fest'
+import { Type } from '@scalar/typebox'
+import { AVAILABLE_CLIENTS, type AvailableClientsArray } from '@scalar/types/snippetz'
+import type { RequiredDeep } from 'type-fest/source/required-deep'
 
-import { AppearanceSchema, defaultAppearance } from '@/schemas/reference-config/appearance'
-import { FeaturesSchema, defaultFeatures } from '@/schemas/reference-config/features'
-import { MetaSchema, defaultMeta } from '@/schemas/reference-config/meta'
-import { RoutingSchema, defaultRouting } from '@/schemas/reference-config/routing'
-import { SettingsSchema, defaultSettings } from '@/schemas/reference-config/settings'
-import type { MutableArray } from '@/types'
+import { type Appearance, AppearanceSchema, defaultAppearance } from './appearance'
+import { type Features, FeaturesSchema, defaultFeatures } from './features'
+import { type Meta, MetaSchema, defaultMeta } from './meta'
+import { type Routing, RoutingSchema, defaultRouting } from './routing'
+import { type Settings, SettingsSchema, defaultSettings } from './settings'
 
 /**
  * ReferenceConfigSchema defines the shape of the configuration object
@@ -35,7 +34,16 @@ export const ReferenceConfigSchema = Type.Partial(
   }),
 )
 
-export type ReferenceConfig = Static<typeof ReferenceConfigSchema>
+export type ReferenceConfig = {
+  title?: string
+  slug?: string
+  settings?: Settings
+  routing?: Routing
+  appearance?: Appearance
+  features?: Features
+  meta?: Meta
+  httpClients?: AvailableClientsArray | typeof AVAILABLE_CLIENTS
+}
 
 export const defaultReferenceConfig: RequiredDeep<ReferenceConfig> = {
   title: 'Scalar API Reference',
@@ -68,5 +76,5 @@ export const defaultReferenceConfig: RequiredDeep<ReferenceConfig> = {
   /**
    * Default HTTP clients for the API reference.
    */
-  httpClients: AVAILABLE_CLIENTS as MutableArray<typeof AVAILABLE_CLIENTS>,
+  httpClients: AVAILABLE_CLIENTS,
 }

@@ -8,6 +8,7 @@ import { upgrade } from '@scalar/openapi-upgrader'
 import { keyOf } from '@/helpers/general'
 import { createNavigation } from '@/navigation'
 import { extensions } from '@/schemas/extensions'
+import type { TraversedEntry } from '@/schemas/navigation'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import {
   type ComponentsObject,
@@ -15,7 +16,6 @@ import {
   type OpenApiDocument,
   type OperationObject,
   type PathsObject,
-  type TraversedEntry,
 } from '@/schemas/v3.1/strict/openapi-document'
 import type { DocumentConfiguration } from '@/schemas/workspace-specification/config'
 

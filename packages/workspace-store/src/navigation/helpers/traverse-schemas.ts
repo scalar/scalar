@@ -1,7 +1,8 @@
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { getTag } from '@/navigation/helpers/get-tag'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
-import type { OpenApiDocument, SchemaObject, TagObject, TraversedSchema } from '@/schemas/v3.1/strict/openapi-document'
+import type { TraversedSchema } from '@/schemas/navigation'
+import type { OpenApiDocument, SchemaObject, TagObject } from '@/schemas/v3.1/strict/openapi-document'
 
 /** Creates a traversed schema entry from an OpenAPI schema object.
  *
