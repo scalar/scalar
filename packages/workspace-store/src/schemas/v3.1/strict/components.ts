@@ -75,5 +75,5 @@ export type ComponentsObject = {
   /** An object to hold reusable Callback Objects. */
   callbacks?: Record<string, ReferenceType<CallbackObject>>
   /** An object to hold reusable Path Item Objects. */
-  pathItems?: Record<string, ReferenceType<PathItemObject>>
+  pathItems?: Record<string, PathItemObject>
 }

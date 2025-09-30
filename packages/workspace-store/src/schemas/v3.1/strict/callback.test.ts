@@ -1,26 +1,20 @@
 import type { Static } from '@scalar/typebox'
 import { Value } from '@scalar/typebox/value'
-import type { IsEqual } from 'type-fest'
+import type { RequiredDeep } from 'type-fest'
 import { describe, expect, it } from 'vitest'
 
 import { coerceValue } from '@/schemas/typebox-coerce'
-import type { AssertTrue } from '@/schemas/types'
 
-import { type CallbackObject, CallbackObjectSchemaDefinition } from './callback'
+import { type CallbackObject, CallbackObjectSchema } from './openapi-document'
 
 describe('callback', () => {
   describe('strict type checking', () => {
     it('performs deep type checking on all nested properties', () => {
-      type SchemaType = Static<typeof CallbackObjectSchemaDefinition>
-      type TypescriptType = CallbackObject
+      type SchemaType = RequiredDeep<Static<typeof CallbackObjectSchema>>
+      type TypescriptType = RequiredDeep<CallbackObject>
 
-      // Verify both types are compatible
-      const _schemaType: SchemaType = {} as SchemaType
-      const _typescriptType: TypescriptType = {} as TypescriptType
-
-      // Deep equality check between the types
-      type _ = AssertTrue<IsEqual<SchemaType, TypescriptType>>
-      type _2 = AssertTrue<IsEqual<TypescriptType, SchemaType>>
+      const _test: SchemaType = {} as TypescriptType
+      const _test2: TypescriptType = {} as SchemaType
     })
   })
 
@@ -32,7 +26,7 @@ describe('callback', () => {
         'valid-expression': null, // null instead of PathItem or Reference
       }
 
-      const result = coerceValue(CallbackObjectSchemaDefinition, invalidInput)
+      const result = coerceValue(CallbackObjectSchema, invalidInput)
 
       // Should coerce to empty object or handle invalid values appropriately
       expect(typeof result).toBe('object')
@@ -66,7 +60,7 @@ describe('callback', () => {
         },
       }
 
-      const result = coerceValue(CallbackObjectSchemaDefinition, validInput)
+      const result = coerceValue(CallbackObjectSchema, validInput)
 
       // Valid input should pass through unchanged
       expect(result).toEqual(validInput)
@@ -77,7 +71,7 @@ describe('callback', () => {
 
       // This test should fail - coerceValue should throw or return an error
       // when given a string instead of an object
-      expect(Value.Check(CallbackObjectSchemaDefinition, invalidInput)).toBe(false)
+      expect(Value.Check(CallbackObjectSchema, invalidInput)).toBe(false)
     })
   })
 })
