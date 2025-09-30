@@ -190,14 +190,10 @@ export const traverseZodSchema = (schema: ZodSchema, path: (string | number)[]):
         return null
       }
       if (typeof key === 'string') {
-        // For string keys, we're accessing a property of the record value
+        // For string keys, we're accessing a value in the record
         currentSchema = valueSchema
         // Unwrap optional/default wrappers around the value schema
         currentSchema = unwrapSchema(currentSchema)
-        // If the value schema is an object, try to access the property
-        if (currentSchema instanceof z.ZodObject && key in currentSchema.shape) {
-          currentSchema = currentSchema.shape[key] as ZodSchema
-        }
       } else if (typeof key === 'number') {
         // For number keys, we're accessing an element of an array within the record value
         currentSchema = valueSchema
