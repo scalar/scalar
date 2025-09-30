@@ -2,6 +2,7 @@ import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
 
+import type { ExampleObject } from './example'
 import type { MediaTypeObject } from './media-type'
 import { ExampleObjectRef, MediaTypeObjectRef, SchemaObjectRef } from './ref-definitions'
 import { type ReferenceType, reference } from './reference'
@@ -15,6 +16,16 @@ export const HeaderObjectSchemaBase = Type.Object({
   /** Specifies that the header is deprecated and SHOULD be transitioned out of usage. Default value is false. */
   deprecated: Type.Optional(Type.Boolean()),
 })
+
+/** Common properties in both sides of the union */
+type HeaderBase = {
+  /** A brief description of the header. This could contain examples of use. CommonMark syntax MAY be used for rich text representation. */
+  description?: string
+  /** Determines whether this header is mandatory. The default value is false. */
+  required?: boolean
+  /** Specifies that the header is deprecated and SHOULD be transitioned out of usage. Default value is false. */
+  deprecated?: boolean
+}
 
 export const HeaderObjectWithSchemaSchema = compose(
   HeaderObjectSchemaBase,
@@ -31,6 +42,20 @@ export const HeaderObjectWithSchemaSchema = compose(
     examples: Type.Optional(Type.Record(Type.String(), Type.Union([ExampleObjectRef, reference(ExampleObjectRef)]))),
   }),
 )
+
+/** Header object that uses schema */
+type HeaderWithSchemaObject = HeaderBase & {
+  /** Describes how the header value will be serialized. The default (and only legal value for headers) is "simple". */
+  style?: string
+  /** When this is true, header values of type array or object generate a single header whose value is a comma-separated list of the array items or key-value pairs of the map, see Style Examples. For other data types this field has no effect. The default value is false. */
+  explode?: boolean
+  /** The schema defining the type used for the header. */
+  schema?: ReferenceType<SchemaObject>
+  /** Example of the header's potential value; see Working With Examples. https://swagger.io/specification/#working-with-examples */
+  example?: any
+  /** Examples of the header's potential value; see Working With Examples. https://swagger.io/specification/#working-with-examples */
+  examples?: Record<string, ReferenceType<ExampleObject>>
+}
 
 /**
  * Describes a single header for HTTP responses and for individual parts in multipart representations; see the relevant Response Object and Encoding Object documentation for restrictions on which headers can be described.
@@ -50,26 +75,6 @@ export const HeaderObjectSchemaDefinition = Type.Union([
     }),
   ),
 ])
-
-/** Common properties in both sides of the union */
-type HeaderBase = {
-  /** A brief description of the header. This could contain examples of use. CommonMark syntax MAY be used for rich text representation. */
-  description?: string
-  /** Determines whether this header is mandatory. The default value is false. */
-  required?: boolean
-  /** Specifies that the header is deprecated and SHOULD be transitioned out of usage. Default value is false. */
-  deprecated?: boolean
-}
-
-/** Header object that uses schema */
-type HeaderWithSchemaObject = HeaderBase & {
-  /** Describes how the header value will be serialized. The default (and only legal value for headers) is "simple". */
-  style?: string
-  /** When this is true, header values of type array or object generate a single header whose value is a comma-separated list of the array items or key-value pairs of the map, see Style Examples. For other data types this field has no effect. The default value is false. */
-  explode?: boolean
-  /** The schema defining the type used for the header. */
-  schema?: ReferenceType<SchemaObject>
-}
 
 /** Header object that uses content */
 type HeaderWithContent = HeaderBase & {

@@ -1,5 +1,5 @@
-import { HTTP_METHODS, type HttpMethod, httpMethods } from '@scalar/helpers/http/http-methods'
-import { type TLiteral, Type } from '@scalar/typebox'
+import { HTTP_METHODS, type HttpMethod } from '@scalar/helpers/http/http-methods'
+import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
 import { TraversedEntryObjectRef } from '@/schemas/v3.1/strict/ref-definitions'

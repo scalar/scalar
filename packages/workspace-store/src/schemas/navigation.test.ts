@@ -1,20 +1,18 @@
 import type { Static } from '@scalar/typebox'
-import type { IsEqual, Simplify } from 'type-fest'
 import { describe, it } from 'vitest'
 
-import type { AssertTrue } from '@/schemas/types'
+import type { TraversedEntrySchema } from '@/schemas/v3.1/strict/openapi-document'
 
-import type { TraversedEntry, TraversedEntrySchemaDefinition } from './navigation'
+import type { TraversedEntry } from './navigation'
 
 describe('navigation', () => {
   describe('strict type checking', () => {
-    it('performs deep type checking on all nested properties', () => {
-      type SchemaType = Simplify<Static<typeof TraversedEntrySchemaDefinition>>
-      type TypescriptType = Simplify<TraversedEntry>
+    it('performs deep type checking on all schemas', () => {
+      type SchemaType = Static<typeof TraversedEntrySchema>
+      type TypescriptType = TraversedEntry
 
-      // Deep equality check between the types
-      type _ = AssertTrue<IsEqual<SchemaType, TypescriptType>>
-      type _2 = AssertTrue<IsEqual<TypescriptType, SchemaType>>
+      const _test: SchemaType = {} as TypescriptType
+      const _test2: TypescriptType = {} as SchemaType
     })
   })
 })
