@@ -18,7 +18,7 @@ const { workspace } = defineProps<{
       <ApiReferenceToolbarShareTemporary :workspace />
     </ScalarFormSection>
     <ScalarFormSection>
-      <template #label>Permanent Link</template>
+      <template #label>Cloud Hosting</template>
       <ApiReferenceToolbarShareRegister :workspace />
     </ScalarFormSection>
   </ApiReferenceToolbarPopover>
