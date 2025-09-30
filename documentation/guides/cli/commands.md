@@ -118,6 +118,8 @@ Commands:
   bundle [options] [file|url]   Bundle an OpenAPI specification by resolving all
                                 references and external dependencies
   split [options] [file|url]    Split your OpenAPI documents on small chunks
+  join [options] <files...>     Merge multiple OpenAPI documents into a single
+                                unified document
   format [options] [file|url]   Format an OpenAPI file
   mock [options] [file|url]     Mock an API from an OpenAPI file
   serve [options] [file|url]    Serve an API Reference from an OpenAPI file
@@ -160,6 +162,21 @@ Arguments:
 Options:
   -o, --output <path>  Path to save the chunks
   -h, --help           display help for command
+```
+
+### join
+```
+Usage: scalar document join [options] <files...>
+
+Merge multiple OpenAPI documents into a single unified document
+
+Arguments:
+  files                                          Paths to the OpenAPI files to merge
+
+Options:
+  --output -o <file>                             Path to save the merged output file
+  --prefix-components-with-path-value -p <path>  Dot-separated path to extract a prefix value from each input file for component names
+  -h, --help                                     display help for command
 ```
 
 ### format
@@ -304,7 +321,6 @@ Create a new `scalar.config.json` file to configure where your OpenAPI file is
 placed.
 
 Options:
-  -f, --file [file]      your OpenAPI file
   -s, --subdomain [url]  subdomain to publish on
   --force                override existing configuration
   -h, --help             display help for command
