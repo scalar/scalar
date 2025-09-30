@@ -16,7 +16,7 @@
       async function loadConfiguration() {
         let mountedSources = [];
         let envConfiguration = null;
-        
+
         // First, try to load mounted documents configuration
         try {
           const response = await fetch('/scalar-config.json');
@@ -29,13 +29,13 @@
         } catch (error) {
           // No mounted documents found
         }
-        
+
         // Get environment configuration
         const envConfig = {{env "API_REFERENCE_CONFIG"}};
         if (envConfig && envConfig !== 'undefined') {
           envConfiguration = envConfig;
         }
-        
+
         // Create final configuration
         if (mountedSources.length > 0) {
           // Use mounted sources with environment config
@@ -49,22 +49,22 @@
           showErrorMessage();
         }
       }
-      
+
       // Show error message when no configuration is found
       function showErrorMessage() {
         document.getElementById('app').innerHTML = `
           <div style="padding: 3rem; text-align: center; font-family: system-ui, sans-serif;">
             <h2 style="color: #666; margin-bottom: 1rem;">Configuration Required</h2>
             <p style="margin-bottom: 2rem; color: #999;">Please configure your API reference to get started.</p>
-            <a href="https://guides.scalar.com/scalar/scalar-api-references/integrations/docker" 
-               target="_blank" 
+            <a href="https://guides.scalar.com/scalar/scalar-api-references/integrations/docker"
+               target="_blank"
                style="color: #1976d2; text-decoration: none; font-weight: 500;">
               View Documentation →
             </a>
           </div>
         `;
       }
-      
+
       // Load configuration when the page loads
       loadConfiguration();
     </script>
