@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type {
-  ComponentsObject,
-  TraversedDescription,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { TraversedDescription } from '@scalar/workspace-store/schemas/navigation'
+import type { ComponentsObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import { Lazy } from '@/components/Lazy'
@@ -23,11 +21,12 @@ const { hash } = useNavState()
 
 const { items } = useSidebar()
 
-const modelEntry = computed(() => {
-  return items.value.entries.find(
-    (item) => item.type === 'text' && item.id === 'models',
-  ) as TraversedDescription | undefined
-})
+const modelEntry = computed(
+  () =>
+    items.value.entries.find(
+      (item) => item.type === 'text' && item.id === 'models',
+    ) as TraversedDescription,
+)
 
 /** Array of the name and value of all component schemas */
 const flatSchemas = computed(() => {

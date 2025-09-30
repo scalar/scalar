@@ -3,12 +3,12 @@ import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type {
-  OpenApiDocument,
   TraversedEntry,
   TraversedOperation,
   TraversedTag,
   TraversedWebhook,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/navigation'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import { getCurrentIndex } from '@/components/Content/Operations/get-current-index'
