@@ -856,7 +856,7 @@ Whether the sidebar should be shown.
 
 **Type:** `'always' | 'localhost' | 'never'`
 
-Sets the visibility the configuration toolbar, by default only shows on localhost or similar hosts.
+Sets the visibility the developer tools, by default only shows on localhost or similar hosts.
 
 **Default:** `'localhost'`
 
