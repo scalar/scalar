@@ -115,6 +115,72 @@ describe('useDocumentFetcher', () => {
     })
   })
 
+  it('resolves relative URLs to absolute URLs before fetching', async () => {
+    // Mock window.location for browser environment
+    Object.defineProperty(global, 'window', {
+      value: { location: { href: 'https://example.com/docs/' } },
+      writable: true,
+    })
+
+    // @ts-expect-error
+    fetch.mockResolvedValue(createFetchResponse(EXAMPLE_DOCUMENT_STRING))
+
+    const { originalDocument } = useDocumentFetcher({
+      configuration: {
+        url: 'openapi.json', // relative URL
+      },
+    })
+
+    await nextTick()
+
+    // Should resolve relative URL to absolute URL
+    expect(fetch).toHaveBeenCalledWith('https://example.com/docs/openapi.json')
+
+    await new Promise((resolve) => {
+      watch(originalDocument, (value) => {
+        if (!value) {
+          return
+        }
+
+        expect(value).toBe(EXAMPLE_DOCUMENT_STRING)
+        resolve(null)
+      })
+    })
+  })
+
+  it('handles relative URLs with different base paths', async () => {
+    // Mock window.location for browser environment
+    Object.defineProperty(global, 'window', {
+      value: { location: { href: 'https://api.example.com/v1/' } },
+      writable: true,
+    })
+
+    // @ts-expect-error
+    fetch.mockResolvedValue(createFetchResponse(EXAMPLE_DOCUMENT_STRING))
+
+    const { originalDocument } = useDocumentFetcher({
+      configuration: {
+        url: '../spec/openapi.yaml', // relative URL with parent directory
+      },
+    })
+
+    await nextTick()
+
+    // Should resolve relative URL to absolute URL
+    expect(fetch).toHaveBeenCalledWith('https://api.example.com/spec/openapi.yaml')
+
+    await new Promise((resolve) => {
+      watch(originalDocument, (value) => {
+        if (!value) {
+          return
+        }
+
+        expect(value).toBe(EXAMPLE_DOCUMENT_STRING)
+        resolve(null)
+      })
+    })
+  })
+
   it('handles reactive configuration', async () => {
     const configurationRef = reactive<SpecConfiguration>({
       content: EXAMPLE_DOCUMENT,
