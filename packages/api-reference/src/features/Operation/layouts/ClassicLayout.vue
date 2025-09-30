@@ -114,13 +114,20 @@ const { copyToClipboard } = useClipboard()
       <XBadges
         :badges="operation['x-badges']"
         position="after" />
-      <TestRequestButton
-        v-if="active && !isWebhook"
-        :method="method"
-        :path="path" />
-      <ScalarIconPlay
-        v-else-if="!config?.hideTestRequestButton"
-        class="endpoint-try-hint size-4.5" />
+      <template v-if="!config?.hideTestRequestButton">
+        <TestRequestButton
+          v-if="active && !isWebhook"
+          :method="method"
+          :path="path" />
+        <ScalarIconPlay
+          v-else
+          class="endpoint-try-hint size-4.5" />
+      </template>
+      <span
+        v-if="config.showOperationId && operation.operationId"
+        class="font-code text-sm">
+        {{ operation.operationId }}
+      </span>
       <ScalarIconButton
         class="endpoint-copy p-0.5"
         :icon="ScalarIconCopy"
@@ -183,10 +190,10 @@ const { copyToClipboard } = useClipboard()
             class="operation-example-card"
             :clientOptions="clientOptions"
             fallback
+            :isWebhook="isWebhook"
             :method="method"
             :operation="operation"
             :path="path"
-            :isWebhook="isWebhook"
             :securitySchemes="securitySchemes"
             :selectedClient="store.workspace['x-scalar-default-client']"
             :selectedServer="server" />
