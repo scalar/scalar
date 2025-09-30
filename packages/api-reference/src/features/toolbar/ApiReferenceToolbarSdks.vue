@@ -20,7 +20,7 @@ const LANGUAGES = [
     icon: 'programming-language-typescript',
   },
   { key: 'python', label: 'Python', icon: 'programming-language-python' },
-  { key: 'csharp', label: 'C', icon: 'programming-language-csharp' },
+  { key: 'csharp', label: 'C#', icon: 'programming-language-csharp' },
   { key: 'java', label: 'Java', icon: 'programming-language-java' },
   { key: 'ruby', label: 'Ruby', icon: 'programming-language-ruby' },
   { key: 'php', label: 'PHP', icon: 'programming-language-php' },
