@@ -24,7 +24,7 @@ export const OpenApiExtensionSchema = z.object({
 })
 
 export const ApiReferencePluginSchema = z.function({
-  input: [z.void()],
+  input: [],
   output: z.object({
     name: z.string(),
     extensions: z.array(OpenApiExtensionSchema),

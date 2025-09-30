@@ -28,7 +28,7 @@ export const HooksSchema = z.object({
 })
 
 export const ApiClientPluginSchema = z.function({
-  input: [z.void()],
+  input: [],
   output: z.object({
     name: z.string(),
     views: ViewsSchema.optional(),

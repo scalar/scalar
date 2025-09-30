@@ -132,7 +132,7 @@ export const specConfigurationSchema = z.object({
       z.null(),
       z.record(z.string(), z.any()),
       z.function({
-        input: [z.void()],
+        input: [],
         output: z.record(z.string(), z.any()),
       }),
     ])
@@ -184,7 +184,7 @@ export const apiClientConfigurationSchema = z.object({
       z.null(),
       z.record(z.string(), z.any()),
       z.function({
-        input: [z.void()],
+        input: [],
         output: z.record(z.string(), z.any()),
       }),
     ])
