@@ -1,7 +1,6 @@
 import { Type } from '@scalar/typebox'
-import { AVAILABLE_CLIENTS, type AvailableClients, type AvailableClientsArray } from '@scalar/types/snippetz'
+import { AVAILABLE_CLIENTS, type AvailableClientsArray } from '@scalar/types/snippetz'
 import type { RequiredDeep } from 'type-fest/source/required-deep'
-import type { Writable } from 'type-fest/source/writable'
 
 import { type Appearance, AppearanceSchema, defaultAppearance } from './appearance'
 import { type Features, FeaturesSchema, defaultFeatures } from './features'
