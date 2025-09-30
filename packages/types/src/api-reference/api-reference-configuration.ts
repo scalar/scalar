@@ -383,11 +383,11 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
     /** onDocumentSelect is fired when the config is selected */
     onDocumentSelect: z.function().optional() as z.ZodType<(() => Promise<void> | void) | undefined>,
     /** Callback fired when the reference is fully loaded */
-    onLoaded: z.function().optional() as z.ZodType<() => Promise<void> | void> | undefined,
+    onLoaded: z.function().optional() as z.ZodType<(() => Promise<void> | void) | undefined>,
     /** onBeforeRequest is fired before the request is sent. You can modify the request here. */
     onBeforeRequest: z
       .function({ input: [z.object({ request: z.instanceof(Request) })], output: z.void() })
-      .optional() as z.ZodType<(a: { request: Request }) => Promise<void> | void>,
+      .optional() as z.ZodType<((a: { request: Request }) => Promise<void> | void) | undefined>,
     /**
      * onShowMore is fired when the user clicks the "Show more" button on the references
      * @param tagId - The ID of the tag that was clicked
@@ -397,7 +397,7 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
         input: [z.string()],
         output: z.void(),
       })
-      .optional() as z.ZodType<(a: string) => Promise<void> | void>,
+      .optional() as z.ZodType<((a: string) => Promise<void> | void) | undefined>,
     /**
      * onSidebarClick is fired when the user clicks on a sidebar item
      * @param href - The href of the sidebar item that was clicked
@@ -407,7 +407,7 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
         input: [z.string()],
         output: z.void(),
       })
-      .optional() as z.ZodType<(a: string) => Promise<void> | void>,
+      .optional() as z.ZodType<((a: string) => Promise<void> | void) | undefined>,
     /**
      * Route using paths instead of hashes, your server MUST support this
      * @example '/standalone-api-reference/:custom(.*)?'
