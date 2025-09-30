@@ -1,6 +1,7 @@
 import { Type } from '@scalar/typebox'
-import { AVAILABLE_CLIENTS } from '@scalar/types/snippetz'
+import { AVAILABLE_CLIENTS, type AvailableClients, type AvailableClientsArray } from '@scalar/types/snippetz'
 import type { RequiredDeep } from 'type-fest/source/required-deep'
+import type { Writable } from 'type-fest/source/writable'
 
 import { type Appearance, AppearanceSchema, defaultAppearance } from './appearance'
 import { type Features, FeaturesSchema, defaultFeatures } from './features'
@@ -42,7 +43,7 @@ export type ReferenceConfig = {
   appearance?: Appearance
   features?: Features
   meta?: Meta
-  httpClients?: typeof AVAILABLE_CLIENTS
+  httpClients?: AvailableClientsArray
 }
 
 export const defaultReferenceConfig: RequiredDeep<ReferenceConfig> = {
@@ -76,5 +77,5 @@ export const defaultReferenceConfig: RequiredDeep<ReferenceConfig> = {
   /**
    * Default HTTP clients for the API reference.
    */
-  httpClients: AVAILABLE_CLIENTS,
+  httpClients: [...AVAILABLE_CLIENTS],
 }
