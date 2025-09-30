@@ -4,16 +4,17 @@ import { describe, expect, it } from 'vitest'
 
 import { coerceValue } from '@/schemas/typebox-coerce'
 
-import { type OpenAPIDocument, OpenAPIDocumentSchema } from './openapi-document'
+import { OpenAPIDocumentSchema, type OpenApiDocument } from './openapi-document'
 
 describe('openapi-document', () => {
   describe('strict type checking', () => {
     it('performs deep type checking on all nested properties', () => {
       type SchemaType = RequiredDeep<Static<typeof OpenAPIDocumentSchema>>
-      type TypescriptType = RequiredDeep<OpenAPIDocument>
+      type TypescriptType = RequiredDeep<OpenApiDocument>
 
       const _test: SchemaType = {} as TypescriptType
       const _test2: TypescriptType = {} as SchemaType
+      expect(_test).toEqual(_test2)
     })
   })
 

@@ -23,6 +23,7 @@ describe('reference', () => {
 
         const _test: SchemaType = {} as TypescriptType
         const _test2: TypescriptType = {} as SchemaType
+        expect(_test).toEqual(_test2)
       })
     })
 
@@ -39,6 +40,7 @@ describe('reference', () => {
 
         const _test: SchemaType = {} as TypescriptType
         const _test2: TypescriptType = {} as SchemaType
+        expect(_test).toEqual(_test2)
       })
     })
 
