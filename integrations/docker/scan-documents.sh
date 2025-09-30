@@ -5,7 +5,7 @@
 
 MOUNT_DIR="/api-docs"
 BASE_URL="/openapi"
-CONFIG_FILE="/tmp/scalar-config.json"
+CONFIG_FILE="/tmp/configuration.json"
 
 echo "Scanning for OpenAPI documents in: $MOUNT_DIR"
 
@@ -19,7 +19,7 @@ fi
 is_openapi_doc() {
     file="$1"
     ext="${file##*.}"
-    
+
     case "$ext" in
         json|yaml|yml)
             if [ "$ext" = "json" ]; then
@@ -42,7 +42,7 @@ generate_title() {
     filename=$(basename "$filepath")
     name="${filename%.*}"
     dirname=$(dirname "$filepath")
-    
+
     if [ "$dirname" != "$MOUNT_DIR" ] && [ "$dirname" != "." ]; then
         parent_dir=$(basename "$dirname")
         echo "${parent_dir} - ${name}"
@@ -57,7 +57,7 @@ generate_slug() {
     filename=$(basename "$filepath")
     name="${filename%.*}"
     dirname=$(dirname "$filepath")
-    
+
     if [ "$dirname" != "$MOUNT_DIR" ] && [ "$dirname" != "." ]; then
         parent_dir=$(basename "$dirname")
         echo "${parent_dir}-${name}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g'
@@ -82,19 +82,19 @@ for file in $(find "$MOUNT_DIR" -type f \( -name "*.json" -o -name "*.yaml" -o -
         title=$(generate_title "$file")
         slug=$(generate_slug "$file")
         url="${BASE_URL}/${relative_path}"
-        
+
         # Escape for JSON
         escaped_title=$(escape_json "$title")
         escaped_slug=$(escape_json "$slug")
         escaped_url=$(escape_json "$url")
-        
+
         # Found OpenAPI document: $relative_path -> $title ($slug)
-        
+
         # Add comma if not first
         if [ "$FIRST" = "false" ]; then
             SOURCES="${SOURCES},"
         fi
-        
+
         # Set first doc as default
         if [ "$FIRST" = "true" ]; then
             default="true"
@@ -102,7 +102,7 @@ for file in $(find "$MOUNT_DIR" -type f \( -name "*.json" -o -name "*.yaml" -o -
         else
             default="false"
         fi
-        
+
         # Add source
         SOURCES="${SOURCES}{\"title\":\"${escaped_title}\",\"slug\":\"${escaped_slug}\",\"url\":\"${escaped_url}\",\"default\":${default}}"
     fi

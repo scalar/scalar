@@ -19,7 +19,7 @@
 	}
 
 	# API endpoint to get dynamic configuration
-	handle /scalar-config.json {
+	handle /configuration.json {
 		root * /tmp
 		file_server
 	}

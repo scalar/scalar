@@ -19,7 +19,7 @@
 
         // First, try to load mounted documents configuration
         try {
-          const response = await fetch('/scalar-config.json');
+          const response = await fetch('/configuration.json');
           if (response.ok) {
             const mountedConfig = await response.json();
             if (mountedConfig && mountedConfig.sources && mountedConfig.sources.length > 0) {
