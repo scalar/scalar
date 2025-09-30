@@ -116,7 +116,7 @@ const OpenApiDocumentSchemaDefinition = compose(
   OpenApiExtensionsSchema,
 )
 
-export type OpenAPIDocument = {
+export type OpenApiDocument = {
   /** REQUIRED. This string MUST be the version number of the OpenAPI Specification that the OpenAPI Document uses. The openapi field SHOULD be used by tooling to interpret the OpenAPI Document. This is not related to the API info.version string. */
   openapi: string
   /** REQUIRED. Provides metadata about the API. The metadata MAY be used by tooling as required. */
