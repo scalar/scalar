@@ -76,7 +76,7 @@ SOURCES=""
 FIRST=true
 
 # Find and process OpenAPI documents
-for file in $(find "$MOUNT_DIR" -type f \( -name "*.json" -o -name "*.yaml" -o -name "*.yml" \)); do
+find "$MOUNT_DIR" -type f \( -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) -print0 | while IFS= read -r -d '' file; do
     if is_openapi_doc "$file"; then
         relative_path="${file#$MOUNT_DIR/}"
         title=$(generate_title "$file")
