@@ -22,7 +22,7 @@ RUN chmod +x /usr/local/bin/start.sh
 RUN mkdir -p /api-docs
 
 # Set proper ownership of all Caddy directories
-RUN chown -R caddy:caddy /usr/share/caddy /etc/caddy /config/caddy /data/caddy
+RUN chown -R caddy:caddy /usr/share/caddy /etc/caddy /config/caddy /data/caddy /api-docs
 
 # Switch to the non-root user
 USER caddy
