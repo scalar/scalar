@@ -10,9 +10,55 @@ docker run -p 8080:8080 -e API_REFERENCE_CONFIG='{"sources":[{"url": "https://re
 
 Visit `http://localhost:8080` to see your API reference.
 
-## Using Docker Compose
+## Configuration
 
-Create a `docker-compose.yml` file:
+The Docker image supports two configuration methods:
+
+### 1. Environment Variable
+
+Set the `API_REFERENCE_CONFIG` environment variable with your Scalar configuration:
+
+```bash
+docker run -p 8080:8080 \
+  -e API_REFERENCE_CONFIG='{"sources":[{"url":"https://api.example.com/openapi.json"}],"theme":"purple"}' \
+  scalarapi/api-reference:latest
+```
+
+### 2. Document Mounting
+
+Mount OpenAPI documents directly into the container for automatic discovery:
+
+```bash
+docker run -p 8080:8080 \
+  -v /path/to/your/openapi-docs:/docs \
+  scalarapi/api-reference:latest
+```
+
+The container automatically:
+- Scans for OpenAPI documents (`.json`, `.yaml`, `.yml` files)
+- Serves documents at `/openapi/{filename}`
+- Generates titles from directory structure
+
+**Directory structure example:**
+```
+/docs/
+├── api-v1.json
+├── internal/admin-api.yaml
+└── external/partner-api.json
+```
+
+### 3. Combined Configuration
+
+You can combine both approaches:
+
+```bash
+docker run -p 8080:8080 \
+  -v /path/to/your/openapi-docs:/docs \
+  -e API_REFERENCE_CONFIG='{"theme": "purple"}' \
+  scalarapi/api-reference:latest
+```
+
+## Docker Compose
 
 ```yaml
 services:
@@ -20,55 +66,29 @@ services:
     image: scalarapi/api-reference:latest
     ports:
       - "8080:8080"
+    volumes:
+      # Mount your OpenAPI documents directory
+      - ./docs:/docs
     environment:
-      API_REFERENCE_CONFIG: |
-        {
-          "sources": [
-            {
-              "url": "https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json"
-            }
-          ],
-          "theme": "purple"
-        }
+      # Optional: Add global configuration like theme
+      # API_REFERENCE_CONFIG: |
+      #   {
+      #     "theme": "purple"
+      #   }
+    restart: unless-stopped
 ```
 
-Run with:
+## Environment Variables
 
-```bash
-docker-compose up
-```
+| Variable               | Description                                     | Default     |
+| ---------------------- | ----------------------------------------------- | ----------- |
+| `API_REFERENCE_CONFIG` | JSON configuration for the Scalar API Reference | -           |
+| `CDN_URL`              | URL for the API Reference CDN                   | `scalar.js` |
 
-## Configuration
-
-The Docker image is configured via the `API_REFERENCE_CONFIG` environment variable, which should contain a JSON string with your Scalar configuration.
-
-## Available Tags
-
-- `latest` - Latest stable release
-- `{version}` - Specific version (e.g., `0.2.0`)
+**Note:** Either `API_REFERENCE_CONFIG` must be set OR documents must be mounted to `/docs`
 
 ## Health Check
 
 The container includes a health check endpoint at `/health` that returns `OK` with a `200` status code.
 
-## Environment Variables
-
-| Variable               | Description                                                    | Required |
-| ---------------------- | -------------------------------------------------------------- | -------- |
-| `API_REFERENCE_CONFIG` | JSON configuration for the Scalar API Reference                | Yes      |
-| `CDN_URL`              | URL for the API Reference CDN (default: local `scalar.js`)     | No       |
-
-## Configuration Options
-
 For detailed configuration options, refer to the [main Scalar documentation](https://guides.scalar.com/scalar/scalar-api-references/configuration).
-
-## Building from Source
-
-```bash
-# Clone the repository
-git clone https://github.com/scalar/scalar.git
-cd scalar/integrations/docker
-
-# Build the Docker image
-docker build -t scalarapi/api-reference:latest .
-```

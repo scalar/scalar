@@ -1,0 +1,15 @@
+services:
+  api-reference:
+    image: scalarapi/api-reference:latest
+    ports:
+      - '8080:8080'
+    volumes:
+      # Mount the API documents directory
+      - ./docs:/docs:ro
+    environment:
+      # Optional: Add global configuration like theme
+      API_REFERENCE_CONFIG: |
+        {
+          "theme": "purple"
+        }
+    restart: unless-stopped
