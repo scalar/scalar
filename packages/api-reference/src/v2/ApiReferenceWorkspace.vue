@@ -22,6 +22,7 @@ import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { redirectToProxy } from '@scalar/oas-utils/helpers'
 import type {
   AnyApiReferenceConfiguration,
+  ApiReferenceConfiguration,
   ApiReferenceConfigurationWithSources,
 } from '@scalar/types'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
@@ -43,6 +44,7 @@ import {
   DocumentSelector,
   useMultipleDocuments,
 } from '@/features/multiple-documents'
+import ApiReferenceToolbar from '@/features/toolbar/ApiReferenceToolbar.vue'
 import { NAV_STATE_SYMBOL } from '@/hooks/useNavState'
 import { isClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import { getDocumentName } from '@/v2/helpers/get-document-name'
@@ -65,6 +67,8 @@ defineEmits<{
  *
  */
 
+/** Configuration overrides to apply to the selected document (from the localhost toolbar) */
+const configurationOverrides = ref<Partial<ApiReferenceConfiguration>>({})
 const {
   availableDocuments,
   selectedConfiguration,
@@ -74,6 +78,7 @@ const {
   hashPrefix,
 } = useMultipleDocuments({
   configuration: toRef(props, 'configuration'),
+  configurationOverrides,
   isIntersectionEnabled: ref(false),
   hash: ref(''),
   hashPrefix: ref(''),
@@ -298,7 +303,14 @@ useFavicon(favicon)
           :options="availableDocuments" />
       </template>
       <!-- Pass through content, sidebar and footer slots -->
-      <template #content-start><slot name="content-start" /></template>
+      <template #content-start>
+        <!-- Only appears on localhost -->
+        <ApiReferenceToolbar
+          :workspace="store"
+          :configuration="selectedConfiguration"
+          v-model:overrides="configurationOverrides" />
+        <slot name="content-start" />
+      </template>
       <template #content-end><slot name="content-end" /></template>
       <template #sidebar-start><slot name="sidebar-start" /></template>
       <template #sidebar-end><slot name="sidebar-end" /></template>

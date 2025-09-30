@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { ref } from 'vue'
+import { nextTick, ref } from 'vue'
+
 import { normalizeConfigurations, useMultipleDocuments } from './useMultipleDocuments'
 
 describe('useMultipleDocuments', () => {
@@ -10,7 +11,13 @@ describe('useMultipleDocuments', () => {
   beforeEach(() => {
     mockUrl = new URL('http://example.com')
     vi.spyOn(window, 'location', 'get').mockReturnValue(mockUrl as any)
-    replaceStateSpy = vi.spyOn(window.history, 'replaceState').mockImplementation(() => {})
+    replaceStateSpy = vi.spyOn(window.history, 'replaceState').mockImplementation(() => {
+      return
+    })
+    // Silence jsdom's not implemented error for scrollTo
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => {
+      return
+    })
   })
 
   describe('document selection', () => {
@@ -612,6 +619,61 @@ describe('useMultipleDocuments', () => {
       expect(availableDocuments.value[1].slug).toBe('second-api')
       expect(availableDocuments.value[0].title).toBe('First API')
       expect(availableDocuments.value[1].title).toBe('Second API')
+    })
+  })
+
+  describe('configuration overrides', () => {
+    it('applies overrides over base and source configuration', () => {
+      const overrides = ref({ hideClientButton: false })
+
+      const multipleConfigurations = {
+        configuration: ref({
+          hideClientButton: true,
+          sources: [
+            { url: '/openapi-1.yaml', slug: 'first-api', hideClientButton: true },
+            { url: '/openapi-2.yaml', slug: 'second-api' },
+          ],
+        }),
+        configurationOverrides: overrides,
+        hash: ref(''),
+        hashPrefix: ref(''),
+        isIntersectionEnabled: ref(false),
+      }
+
+      const { selectedConfiguration } = useMultipleDocuments(multipleConfigurations)
+
+      expect(selectedConfiguration.value.url).toBe('/openapi-1.yaml')
+      expect(selectedConfiguration.value.slug).toBe('first-api')
+      // Override should take precedence over both parent and source values
+      expect(selectedConfiguration.value.hideClientButton).toBe(false)
+    })
+
+    it('reacts when overrides change', async () => {
+      const overrides = ref({ hideClientButton: false })
+
+      const multipleConfigurations = {
+        configuration: ref({
+          hideClientButton: true,
+          sources: [
+            { url: '/openapi-1.yaml', slug: 'first-api' },
+            { url: '/openapi-2.yaml', slug: 'second-api' },
+          ],
+        }),
+        configurationOverrides: overrides,
+        hash: ref(''),
+        hashPrefix: ref(''),
+        isIntersectionEnabled: ref(false),
+      }
+
+      const { selectedConfiguration } = useMultipleDocuments(multipleConfigurations)
+
+      expect(selectedConfiguration.value.hideClientButton).toBe(false)
+
+      // Update the override and verify reactivity
+      overrides.value.hideClientButton = true
+      await nextTick()
+
+      expect(selectedConfiguration.value.hideClientButton).toBe(true)
     })
   })
 

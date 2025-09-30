@@ -80,7 +80,7 @@ import { ScalarIconCaretRight } from '@scalar/icons'
     top: 14px;
   }
   .section-accordion-wrapper {
-    padding: calc(var(--refs-header-height)) 24px 0 24px;
+    padding: calc(var(--refs-viewport-offset)) 24px 0 24px;
   }
 }
 </style>

@@ -26,6 +26,7 @@ export function normalize(content: any) {
 
       return parse(content, {
         maxAliasCount: 10000,
+        merge: true,
       })
     }
   }

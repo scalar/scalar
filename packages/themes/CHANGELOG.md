@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.13.19
+
+### Patch Changes
+
+- 0b3c6fa: feat(api-reference): localhost development toolbar
+
 ## 0.13.18
 
 ### Patch Changes

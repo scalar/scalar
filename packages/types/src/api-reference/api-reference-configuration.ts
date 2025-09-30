@@ -211,6 +211,11 @@ export const apiClientConfigurationSchema = z.object({
    */
   showSidebar: z.boolean().optional().default(true).catch(true),
   /**
+   * Sets the visibility of the developer tools
+   * @default 'localhost' to only show the toolbar on localhost or similar hosts
+   */
+  showToolbar: z.enum(['always', 'localhost', 'never']).optional().default('localhost').catch('localhost'),
+  /**
    * Whether to use the operation summary or the operation path for the sidebar and search
    * @default 'summary'
    */
@@ -296,6 +301,12 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
      * @default false
      */
     hideSearch: z.boolean().optional().default(false).catch(false),
+    /**
+     * Whether to show the operationId
+     *
+     * @default false
+     */
+    showOperationId: z.boolean().optional().default(false).catch(false),
     /** Whether dark mode is on or off initially (light mode) */
     darkMode: z.boolean().optional(),
     /** forceDarkModeState makes it always this state no matter what */

@@ -534,6 +534,22 @@ Whether to show the dark mode toggle.
 }
 ```
 
+### showOperationId
+
+**Type:** `boolean`
+
+Every operation can have a `operationId`, a unique string used to identify the operation, but it's optional.
+
+By default we don't render it in the UI. If it's helpful to show it to your users, enable it like this:
+
+`@default false`
+
+```js
+{
+  showOperationId: true
+}
+```
+
 #### hideModels
 
 **Type:** `boolean`
@@ -833,6 +849,22 @@ Whether the sidebar should be shown.
 ```js
 {
   showSidebar: true
+}
+```
+
+#### showToolbar
+
+**Type:** `'always' | 'localhost' | 'never'`
+
+Sets the visibility the developer tools, by default only shows on localhost or similar hosts.
+
+**Default:** `'localhost'`
+
+To disable the toolbar set:
+
+```js
+{
+  showToolbar: 'never'
 }
 ```
 

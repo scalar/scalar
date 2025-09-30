@@ -12,6 +12,18 @@
 	header -Server
 	header Cache-Control "no-cache"
 
+	# Serve mounted OpenAPI documents
+	handle_path /openapi/* {
+		root * /docs
+		file_server
+	}
+
+	# API endpoint to get dynamic configuration
+	handle /configuration.json {
+		root * /tmp
+		file_server
+	}
+
 	handle /health {
 		respond "OK" 200
 	}

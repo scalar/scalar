@@ -12,13 +12,65 @@
     <div id="app"></div>
     <script src="{{env "CDN_URL"}}"></script>
     <script>
-      const configuration = {{env "API_REFERENCE_CONFIG"}}
-      if(configuration) {
-        Scalar.createApiReference('#app', configuration)
+      async function init() {
+        let mountedDocuments = []
+
+        // First, try to load the generated configuration
+        try {
+          const response = await fetch('/configuration.json')
+
+          if (response.ok) {
+            const mountedConfig = await response.json()
+
+            if (mountedConfig && mountedConfig.sources && mountedConfig.sources.length > 0) {
+              mountedDocuments = mountedConfig.sources
+            }
+          }
+        } catch (error) {
+          // No mounted documents found
+        }
+
+        // Then, get environment configuration
+        const configuration = {{env "API_REFERENCE_CONFIG"}}
+
+        // Merge configuration with the mounted sources
+        if (mountedDocuments.length > 0) {
+          const mergedConfiguration = Object.assign({}, configuration || {}, { sources: mountedDocuments })
+          Scalar.createApiReference('#app', mergedConfiguration)
+        }
+        // Use environment configuration only
+        else if (configuration) {
+          Scalar.createApiReference('#app', configuration)
+        }
+        // No configuration at all
+        else {
+          showErrorMessage('Configuration Missing', 'Add the <code>API_REFERENCE_CONFIG</code> environment variable or mount OpenAPI documents to <code>/docs</code>.')
+        }
       }
-      else {
-        console.error('API Reference configuration is not provided. Please set the API_REFERENCE_CONFIG environment variable.')
+
+      // Show error message when no configuration is found
+      function showErrorMessage(title, message) {
+        document.getElementById('app').innerHTML = `
+          <div class="scalar-app" style="display: flex; align-items: center; justify-content: center; height: 100vh;">
+            <div style="max-width: 500px; border: 1px solid var(--scalar-border-color); border-radius: var(--scalar-radius);">
+              <div class="markdown" style="background-color: var(--scalar-background-2); padding: 0.75rem 1rem; border-bottom: 1px solid var(--scalar-border-color)">
+                <strong>${title}</strong>
+              </div>
+              <div style="padding: 1rem;">
+                <div class="markdown">
+                  <p>${message}</p>
+                  <a href="https://guides.scalar.com/scalar/scalar-api-references/integrations/docker" target="_blank">
+                    Read the Documentation →
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        `
       }
+
+      // Load configuration when the page loads
+      init()
     </script>
   </body>
 </html>
