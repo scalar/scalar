@@ -1,4 +1,4 @@
-import { HTTP_METHODS, type HttpMethod, httpMethods } from '@scalar/helpers/http/http-methods'
+import { HTTP_METHODS, type HttpMethod } from '@scalar/helpers/http/http-methods'
 import { type TLiteral, Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
