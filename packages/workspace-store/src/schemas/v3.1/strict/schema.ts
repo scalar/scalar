@@ -41,11 +41,6 @@ const OtherTypes = Type.Object({
   type: Type.Union([
     Type.Literal('null'),
     Type.Literal('boolean'),
-    Type.Literal('string'),
-    Type.Literal('number'),
-    Type.Literal('integer'),
-    Type.Literal('object'),
-    Type.Literal('array'),
     Type.Array(
       Type.Union([
         Type.Literal('null'),
@@ -60,10 +55,10 @@ const OtherTypes = Type.Object({
   ]),
 })
 
-type OtherType = 'null' | 'boolean' | 'string' | 'number' | 'integer' | 'object' | 'array'
+type OtherType = 'null' | 'boolean' | ('string' | 'number' | 'integer' | 'object' | 'array')[]
 
 type OtherTypes = CoreProperties & {
-  type: OtherType | OtherType[]
+  type: OtherType
 } & Extensions
 
 const Extensions = compose(
