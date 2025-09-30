@@ -39,7 +39,7 @@ const createWebhookEntry = (
     ref,
     method: method,
     type: 'webhook',
-    isDeprecated: isDeprecated ?? false,
+    isDeprecated,
   } satisfies TraversedWebhook
 
   return entry

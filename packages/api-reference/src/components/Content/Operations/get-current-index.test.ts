@@ -1,4 +1,4 @@
-import type { TraversedEntry } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { describe, expect, it } from 'vitest'
 
 import { getCurrentIndex } from './get-current-index'

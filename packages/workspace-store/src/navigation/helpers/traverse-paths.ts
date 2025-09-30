@@ -47,7 +47,7 @@ const createOperationEntry = (
     method,
     ref,
     type: 'operation',
-    isDeprecated: isDeprecated ?? false,
+    isDeprecated,
   } satisfies TraversedOperation
 
   return entry

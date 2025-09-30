@@ -23,9 +23,9 @@ const { items } = useSidebar()
 
 const modelEntry = computed(
   () =>
-    items.value.entries.find(
-      (item) => item.type === 'text' && item.id === 'models',
-    ) as TraversedDescription,
+    items.value.entries.find((item) => item.id === 'models') as
+      | TraversedDescription
+      | undefined,
 )
 
 /** Array of the name and value of all component schemas */
