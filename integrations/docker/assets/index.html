@@ -12,55 +12,55 @@
     <div id="app"></div>
     <script src="{{env "CDN_URL"}}"></script>
     <script>
-      // Load configuration dynamically
-      async function loadConfiguration() {
-        let mountedSources = [];
-        let envConfiguration = null;
+      async function init() {
+        let mountedDocuments = []
 
-        // First, try to load mounted documents configuration
+        // First, try to load the generated configuration
         try {
-          const response = await fetch('/configuration.json');
+          const response = await fetch('/configuration.json')
+
+          console.log('Response:', response)
+
           if (response.ok) {
-            const mountedConfig = await response.json();
+            const mountedConfig = await response.json()
+
             if (mountedConfig && mountedConfig.sources && mountedConfig.sources.length > 0) {
-              mountedSources = mountedConfig.sources;
+              mountedDocuments = mountedConfig.sources
             }
           }
         } catch (error) {
           // No mounted documents found
         }
 
-        // Get environment configuration
-        const envConfig = {{env "API_REFERENCE_CONFIG"}};
-        if (envConfig && envConfig !== 'undefined') {
-          envConfiguration = envConfig;
-        }
+        // Then, get environment configuration
+        const configuration = {{env "API_REFERENCE_CONFIG"}}
 
-        // Create final configuration
-        if (mountedSources.length > 0) {
-          // Use mounted sources with environment config
-          const config = Object.assign({}, envConfiguration || {}, { sources: mountedSources });
-          Scalar.createApiReference('#app', config);
-        } else if (envConfiguration) {
-          // Use environment config only
-          Scalar.createApiReference('#app', envConfiguration);
-        } else {
-          // No configuration at all
-          showErrorMessage();
+        // Merge configuration with the mounted sources
+        if (mountedDocuments.length > 0) {
+          const mergedConfiguration = Object.assign({}, configuration || {}, { sources: mountedDocuments })
+          Scalar.createApiReference('#app', mergedConfiguration)
+        }
+        // Use environment configuration only
+        else if (configuration) {
+          Scalar.createApiReference('#app', configuration)
+        }
+        // No configuration at all
+        else {
+          showErrorMessage('Configuration Missing', 'Add the <code>API_REFERENCE_CONFIG</code> environment variable or mount OpenAPI documents to <code>/docs</code>.')
         }
       }
 
       // Show error message when no configuration is found
-      function showErrorMessage() {
+      function showErrorMessage(title, message) {
         document.getElementById('app').innerHTML = `
           <div class="scalar-app" style="display: flex; align-items: center; justify-content: center; height: 100vh;">
             <div style="max-width: 500px; border: 1px solid var(--scalar-border-color); border-radius: var(--scalar-radius);">
               <div class="markdown" style="background-color: var(--scalar-background-2); padding: 0.75rem 1rem; border-bottom: 1px solid var(--scalar-border-color)">
-                <strong>Configuration Missing</strong>
+                <strong>${title}</strong>
               </div>
               <div style="padding: 1rem;">
                 <div class="markdown">
-                  <p>Add the <code>API_REFERENCE_CONFIG</code> environment variable or mount OpenAPI documents to <code>/docs</code>.</p>
+                  <p>${message}</p>
                   <a href="https://guides.scalar.com/scalar/scalar-api-references/integrations/docker" target="_blank">
                     Read the Documentation →
                   </a>
@@ -68,11 +68,11 @@
               </div>
             </div>
           </div>
-        `;
+        `
       }
 
       // Load configuration when the page loads
-      loadConfiguration();
+      init()
     </script>
   </body>
 </html>
