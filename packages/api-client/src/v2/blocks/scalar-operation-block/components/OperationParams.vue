@@ -49,7 +49,7 @@ const tableRows = computed<TableRow[]>(() =>
 
     return {
       name: param.name,
-      value: example?.value,
+      value: example?.value ?? '',
       globalRoute,
       schema: getParameterSchema(param),
       isRequired: param.required,

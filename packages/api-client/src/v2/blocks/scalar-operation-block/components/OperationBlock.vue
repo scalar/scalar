@@ -8,6 +8,7 @@ import type {
   OperationObject,
   ParameterObject,
   SecuritySchemeObject,
+  ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref, useId, watch } from 'vue'
 
@@ -28,6 +29,7 @@ const { operation, method, layout, securitySchemes, path } = defineProps<{
   exampleKey: string
   securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
   selectedSecurity: OpenApiDocument['security']
+  server?: ServerObject
 
   layout: ClientLayout
 
@@ -228,7 +230,7 @@ const labelRequestNameId = useId()
       :security="operation.security"
       :securitySchemes="securitySchemes"
       :selectedSecurity="selectedSecurity"
-      :server="undefined"
+      :server="server"
       :title="'Authorization'"
       @deleteOperationAuth="(payload) => emits('auth:delete', payload)"
       @update:securityScheme="

@@ -232,7 +232,7 @@ const example = computed(
             "
             lineNumbers
             lint
-            :modelValue="example?.value"
+            :modelValue="example?.value ?? ''"
             @update:modelValue="
               () => emits('update:value', { value: example?.value })
             " />
