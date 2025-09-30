@@ -1,6 +1,6 @@
 import type { Static } from '@scalar/typebox'
 import { Value } from '@scalar/typebox/value'
-import type { RequiredDeep, Simplify } from 'type-fest'
+import type { RequiredDeep } from 'type-fest'
 import { describe, expect, it } from 'vitest'
 
 import { coerceValue } from '@/schemas/typebox-coerce'
@@ -10,11 +10,11 @@ import { type SchemaObject, SchemaObjectSchema } from './openapi-document'
 describe('schema', () => {
   describe('strict type checking', () => {
     it('performs deep type checking on all schemas', () => {
-      type SchemaType = Simplify<Static<typeof SchemaObjectSchema>>
-      type TypescriptType = Simplify<SchemaObject>
+      type SchemaType = RequiredDeep<Static<typeof SchemaObjectSchema>>
+      type TypescriptType = RequiredDeep<SchemaObject>
 
-      const _test: RequiredDeep<SchemaType> = {} as RequiredDeep<TypescriptType>
-      const _test2: RequiredDeep<TypescriptType> = {} as RequiredDeep<SchemaType>
+      const _test: SchemaType = {} as TypescriptType
+      const _test2: TypescriptType = {} as SchemaType
     })
   })
 
