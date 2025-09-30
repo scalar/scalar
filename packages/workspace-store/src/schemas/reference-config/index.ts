@@ -42,7 +42,7 @@ export type ReferenceConfig = {
   appearance?: Appearance
   features?: Features
   meta?: Meta
-  httpClients?: AvailableClientsArray
+  httpClients?: AvailableClientsArray | typeof AVAILABLE_CLIENTS
 }
 
 export const defaultReferenceConfig: RequiredDeep<ReferenceConfig> = {
@@ -76,5 +76,5 @@ export const defaultReferenceConfig: RequiredDeep<ReferenceConfig> = {
   /**
    * Default HTTP clients for the API reference.
    */
-  httpClients: [...AVAILABLE_CLIENTS],
+  httpClients: AVAILABLE_CLIENTS,
 }
