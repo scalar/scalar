@@ -19,8 +19,6 @@
         try {
           const response = await fetch('/configuration.json')
 
-          console.log('Response:', response)
-
           if (response.ok) {
             const mountedConfig = await response.json()
 
