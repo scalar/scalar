@@ -35,7 +35,7 @@ const showToolbar = computed<boolean>(() => {
 <template>
   <header
     v-if="showToolbar"
-    aria-label="Configuration Toolbar"
+    aria-label="Developer Tools"
     class="api-reference-toolbar h-header bg-b-1 sticky top-0 z-10 flex justify-center border-b px-15">
     <div
       class="-mx-2 flex max-w-(--refs-content-max-width) flex-1 items-center">
@@ -47,8 +47,8 @@ const showToolbar = computed<boolean>(() => {
         <ApiReferenceToolbarSdks :workspace />
       </template>
       <ApiReferenceToolbarConfig
-        :configuration
-        v-model:overrides="overrides" />
+        v-model:overrides="overrides"
+        :configuration />
     </div>
   </header>
 </template>

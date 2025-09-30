@@ -7,7 +7,7 @@ test.describe('showToolbar', () => {
 
     await page.goto(example)
 
-    await expect(page.getByLabel('Configuration Toolbar')).toBeVisible()
+    await expect(page.getByLabel('Developer Tools')).toBeVisible()
   })
 
   test('hides toolbar if set to never', async ({ page }) => {
@@ -17,6 +17,6 @@ test.describe('showToolbar', () => {
 
     await page.goto(example)
 
-    await expect(page.getByLabel('Configuration Toolbar')).toBeHidden()
+    await expect(page.getByLabel('Developer Tools')).toBeHidden()
   })
 })
