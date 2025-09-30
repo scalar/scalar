@@ -75,8 +75,8 @@ escape_json() {
 SOURCES=""
 FIRST=true
 
-# Find and process OpenAPI documents
-find "$MOUNT_DIR" -type f \( -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) -print0 | while IFS= read -r -d '' file; do
+# Find and process OpenAPI documents using process substitution to avoid subshell
+while IFS= read -r -d '' file; do
     if is_openapi_doc "$file"; then
         relative_path="${file#$MOUNT_DIR/}"
         title=$(generate_title "$file")
@@ -106,7 +106,7 @@ find "$MOUNT_DIR" -type f \( -name "*.json" -o -name "*.yaml" -o -name "*.yml" \
         # Add source
         SOURCES="${SOURCES}{\"title\":\"${escaped_title}\",\"slug\":\"${escaped_slug}\",\"url\":\"${escaped_url}\",\"default\":${default}}"
     fi
-done
+done < <(find "$MOUNT_DIR" -type f \( -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) -print0)
 
 # Generate final JSON
 if [ -n "$SOURCES" ]; then
