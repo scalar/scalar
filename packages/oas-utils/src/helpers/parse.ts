@@ -7,7 +7,7 @@ type PrimitiveOrObject = object | string | null | number | boolean | undefined
 export const yaml = {
   /** Parse and throw if the return value is not an object */
   parse: (val: string) => {
-    const yamlObject = parse(val)
+    const yamlObject = parse(val, { merge: true, maxAliasCount: 10000 })
     if (typeof yamlObject !== 'object') {
       throw Error('Invalid YAML object')
     }
