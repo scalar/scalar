@@ -1,5 +1,5 @@
-import { HTTP_METHODS, type HttpMethod } from '@scalar/helpers/http/http-methods'
-import { Type } from '@scalar/typebox'
+import { HTTP_METHODS, type HttpMethod, httpMethods } from '@scalar/helpers/http/http-methods'
+import { type TLiteral, Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
 import { TraversedEntryObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
@@ -32,7 +32,7 @@ export const TraversedOperationSchemaDefinition = compose(
   Type.Object({
     type: Type.Literal('operation'),
     ref: Type.String(),
-    method: Type.Union(HTTP_METHODS.map((method) => Type.Literal(method))),
+    method: Type.Union(HTTP_METHODS.map((method) => Type.Literal(method))) as unknown as TLiteral<HttpMethod>,
     path: Type.String(),
     isDeprecated: Type.Optional(Type.Boolean()),
   }),
@@ -66,7 +66,7 @@ export const TraversedWebhookSchemaDefinition = compose(
   Type.Object({
     type: Type.Literal('webhook'),
     ref: Type.String(),
-    method: Type.Union(HTTP_METHODS.map((method) => Type.Literal(method))),
+    method: Type.Union(HTTP_METHODS.map((method) => Type.Literal(method))) as unknown as TLiteral<HttpMethod>,
     name: Type.String(),
     isDeprecated: Type.Optional(Type.Boolean()),
   }),
