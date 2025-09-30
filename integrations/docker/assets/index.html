@@ -53,14 +53,20 @@
       // Show error message when no configuration is found
       function showErrorMessage() {
         document.getElementById('app').innerHTML = `
-          <div style="padding: 3rem; text-align: center; font-family: system-ui, sans-serif;">
-            <h2 style="color: #666; margin-bottom: 1rem;">No Configuration Provided</h2>
-            <p style="margin-bottom: 2rem; color: #999;">Please configure your API reference to get started.</p>
-            <a href="https://guides.scalar.com/scalar/scalar-api-references/integrations/docker"
-               target="_blank"
-               style="color: #1976d2; text-decoration: none; font-weight: 500;">
-              Read the Documentation →
-            </a>
+          <div class="scalar-app" style="display: flex; align-items: center; justify-content: center; height: 100vh;">
+            <div style="max-width: 500px; border: 1px solid var(--scalar-border-color); border-radius: var(--scalar-radius);">
+              <div class="markdown" style="background-color: var(--scalar-background-2); padding: 0.75rem 1rem; border-bottom: 1px solid var(--scalar-border-color)">
+                <strong>Configuration Missing</strong>
+              </div>
+              <div style="padding: 1rem;">
+                <div class="markdown">
+                  <p>Add the <code>API_REFERENCE_CONFIG</code> environment variable or mount OpenAPI documents to <code>/docs</code>.</p>
+                  <a href="https://guides.scalar.com/scalar/scalar-api-references/integrations/docker" target="_blank">
+                    Read the Documentation →
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         `;
       }

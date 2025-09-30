@@ -14,7 +14,7 @@
 
 	# Serve mounted OpenAPI documents
 	handle_path /openapi/* {
-		root * /api-docs
+		root * /docs
 		file_server
 	}
 

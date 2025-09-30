@@ -19,10 +19,10 @@ COPY start.sh /usr/local/bin/start.sh
 RUN chmod +x /usr/local/bin/start.sh
 
 # Create mount point for OpenAPI documents
-RUN mkdir -p /api-docs
+RUN mkdir -p /docs
 
 # Set proper ownership of all Caddy directories
-RUN chown -R caddy:caddy /usr/share/caddy /etc/caddy /config/caddy /data/caddy /api-docs
+RUN chown -R caddy:caddy /usr/share/caddy /etc/caddy /config/caddy /data/caddy /docs
 
 # Switch to the non-root user
 USER caddy

@@ -5,7 +5,7 @@ services:
       - '8080:8080'
     volumes:
       # Mount the API documents directory
-      - ./api-docs:/api-docs:ro
+      - ./docs:/docs:ro
     environment:
       # Optional: Add global configuration like theme
       API_REFERENCE_CONFIG: |

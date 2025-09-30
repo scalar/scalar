@@ -3,7 +3,7 @@
 # Document scanning script for Scalar Docker integration
 # Scans mounted directories for OpenAPI documents and generates configuration
 
-MOUNT_DIR="/api-docs"
+MOUNT_DIR="/docs"
 BASE_URL="/openapi"
 CONFIG_FILE="/tmp/configuration.json"
 

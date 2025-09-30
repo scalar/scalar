@@ -30,7 +30,7 @@ Mount OpenAPI documents directly into the container for automatic discovery:
 
 ```bash
 docker run -p 8080:8080 \
-  -v /path/to/your/openapi-docs:/api-docs \
+  -v /path/to/your/openapi-docs:/docs \
   scalarapi/api-reference:latest
 ```
 
@@ -41,7 +41,7 @@ The container automatically:
 
 **Directory structure example:**
 ```
-/api-docs/
+/docs/
 ├── api-v1.json
 ├── internal/admin-api.yaml
 └── external/partner-api.json
@@ -53,7 +53,7 @@ You can combine both approaches:
 
 ```bash
 docker run -p 8080:8080 \
-  -v /path/to/your/openapi-docs:/api-docs \
+  -v /path/to/your/openapi-docs:/docs \
   -e API_REFERENCE_CONFIG='{"theme": "purple"}' \
   scalarapi/api-reference:latest
 ```
@@ -68,7 +68,7 @@ services:
       - "8080:8080"
     volumes:
       # Mount your OpenAPI documents directory
-      - ./api-docs:/api-docs
+      - ./docs:/docs
     environment:
       # Optional: Add global configuration like theme
       # API_REFERENCE_CONFIG: |
@@ -80,12 +80,12 @@ services:
 
 ## Environment Variables
 
-| Variable               | Description                                                    | Default |
-| ---------------------- | -------------------------------------------------------------- | ------- |
-| `API_REFERENCE_CONFIG` | JSON configuration for the Scalar API Reference                | - |
-| `CDN_URL`              | URL for the API Reference CDN                                 | `scalar.js` |
+| Variable               | Description                                     | Default     |
+| ---------------------- | ----------------------------------------------- | ----------- |
+| `API_REFERENCE_CONFIG` | JSON configuration for the Scalar API Reference | -           |
+| `CDN_URL`              | URL for the API Reference CDN                   | `scalar.js` |
 
-**Note:** Either `API_REFERENCE_CONFIG` must be set OR documents must be mounted to `/api-docs`
+**Note:** Either `API_REFERENCE_CONFIG` must be set OR documents must be mounted to `/docs`
 
 ## Health Check
 
