@@ -75,7 +75,10 @@ escape_json() {
 SOURCES=""
 FIRST=true
 
-# Find and process OpenAPI documents using process substitution to avoid subshell
+# Find and process OpenAPI documents using a temporary file for POSIX compatibility
+TEMP_FILE=$(mktemp)
+find "$MOUNT_DIR" -type f \( -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) -print0 > "$TEMP_FILE"
+
 while IFS= read -r -d '' file; do
     if is_openapi_doc "$file"; then
         relative_path="${file#$MOUNT_DIR/}"
@@ -106,7 +109,10 @@ while IFS= read -r -d '' file; do
         # Add source
         SOURCES="${SOURCES}{\"title\":\"${escaped_title}\",\"slug\":\"${escaped_slug}\",\"url\":\"${escaped_url}\",\"default\":${default}}"
     fi
-done < <(find "$MOUNT_DIR" -type f \( -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) -print0)
+done < "$TEMP_FILE"
+
+# Clean up temporary file
+rm -f "$TEMP_FILE"
 
 # Generate final JSON
 if [ -n "$SOURCES" ]; then
