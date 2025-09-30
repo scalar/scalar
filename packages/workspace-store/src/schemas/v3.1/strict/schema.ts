@@ -55,7 +55,7 @@ const OtherTypes = Type.Object({
   ]),
 })
 
-type OtherType = 'null' | 'boolean' | ('string' | 'number' | 'integer' | 'object' | 'array')[]
+type OtherType = 'boolean' | 'null' | ('string' | 'number' | 'boolean' | 'object' | 'null' | 'integer' | 'array')[]
 
 type OtherTypes = CoreProperties & {
   type: OtherType
