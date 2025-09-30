@@ -534,7 +534,9 @@ Whether to show the dark mode toggle.
 }
 ```
 
-### showOperationId?: boolean
+### showOperationId
+
+**Type:** `boolean`
 
 Every operation can have a `operationId`, a unique string used to identify the operation, but it's optional.
 
