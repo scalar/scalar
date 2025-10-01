@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
+
 import { fsharpHttpclient } from './httpclient'
 
 describe('fsharpHttpclient.generate', () => {
@@ -114,7 +115,7 @@ describe('fsharpHttpclient.generate - postData', () => {
     } as any
     const result = fsharpHttpclient.generate(request, {})
     expect(result).toContain(
-      'let content = new StringContent("{\\"key\\":\\"value\\"}", Encoding.UTF8, "application/json")',
+      'let content = new StringContent("{\\n  \\"key\\": \\"value\\"\\n}", Encoding.UTF8, "application/json")',
     )
     expect(result).toContain('httpRequestMessage.Content <- content')
   })
