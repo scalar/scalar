@@ -100,6 +100,7 @@ describe('TraversedEntry', async () => {
     components: {
       schemas: {},
     },
+    security: [],
   }
 
   const mockConfig = apiReferenceConfigurationSchema.parse({
@@ -193,14 +194,22 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          hash: useNavState().hash.value,
           rootIndex: 0,
-          clientOptions: [],
           entries,
-          document: mockDocument,
-          config: mockConfig,
+          paths: mockDocument.paths,
+          webhooks: mockDocument.webhooks,
+          security: mockDocument.security,
           activeCollection: mockCollection,
           activeServer: mockServer,
           store: mockStore,
+          options: {
+            layout: mockConfig.layout,
+            showOperationId: mockConfig.showOperationId,
+            hideTestRequestButton: mockConfig.hideTestRequestButton,
+            expandAllResponses: mockConfig.expandAllResponses,
+            clientOptions: [],
+          },
         },
       })
 
@@ -217,14 +226,22 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          hash: useNavState().hash.value,
           rootIndex: 0,
-          clientOptions: [],
           entries: operations,
-          document: mockDocument,
-          config: mockConfig,
+          paths: mockDocument.paths,
+          webhooks: mockDocument.webhooks,
+          security: mockDocument.security,
           activeCollection: mockCollection,
           activeServer: mockServer,
           store: mockStore,
+          options: {
+            layout: mockConfig.layout,
+            showOperationId: mockConfig.showOperationId,
+            hideTestRequestButton: mockConfig.hideTestRequestButton,
+            expandAllResponses: mockConfig.expandAllResponses,
+            clientOptions: [],
+          },
         },
       })
 
@@ -242,14 +259,22 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          hash: useNavState().hash.value,
           rootIndex: 0,
-          clientOptions: [],
           entries,
-          document: mockDocument,
-          config: mockConfig,
+          paths: mockDocument.paths,
+          webhooks: mockDocument.webhooks,
+          security: mockDocument.security,
           activeCollection: mockCollection,
           activeServer: mockServer,
           store: mockStore,
+          options: {
+            layout: mockConfig.layout,
+            showOperationId: mockConfig.showOperationId,
+            hideTestRequestButton: mockConfig.hideTestRequestButton,
+            expandAllResponses: mockConfig.expandAllResponses,
+            clientOptions: [],
+          },
         },
       })
 
@@ -266,14 +291,22 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          hash: useNavState().hash.value,
           rootIndex: 0,
-          clientOptions: [],
           entries: webhooks,
-          document: mockDocument,
-          config: mockConfig,
+          paths: mockDocument.paths,
+          webhooks: mockDocument.webhooks,
+          security: mockDocument.security,
           activeCollection: mockCollection,
           activeServer: mockServer,
           store: mockStore,
+          options: {
+            layout: mockConfig.layout,
+            showOperationId: mockConfig.showOperationId,
+            hideTestRequestButton: mockConfig.hideTestRequestButton,
+            expandAllResponses: mockConfig.expandAllResponses,
+            clientOptions: [],
+          },
         },
       })
 
@@ -291,14 +324,22 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          hash: useNavState().hash.value,
           rootIndex: 0,
-          clientOptions: [],
           entries,
-          document: mockDocument,
-          config: mockConfig,
+          paths: mockDocument.paths,
+          webhooks: mockDocument.webhooks,
+          security: mockDocument.security,
           activeCollection: mockCollection,
           activeServer: mockServer,
           store: mockStore,
+          options: {
+            layout: mockConfig.layout,
+            showOperationId: mockConfig.showOperationId,
+            hideTestRequestButton: mockConfig.hideTestRequestButton,
+            expandAllResponses: mockConfig.expandAllResponses,
+            clientOptions: [],
+          },
         },
       })
 
@@ -315,14 +356,22 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          hash: useNavState().hash.value,
           rootIndex: 0,
-          clientOptions: [],
           entries,
-          document: mockDocument,
-          config: mockConfig,
+          paths: mockDocument.paths,
+          webhooks: mockDocument.webhooks,
+          security: mockDocument.security,
           activeCollection: mockCollection,
           activeServer: mockServer,
           store: mockStore,
+          options: {
+            layout: mockConfig.layout,
+            showOperationId: mockConfig.showOperationId,
+            hideTestRequestButton: mockConfig.hideTestRequestButton,
+            expandAllResponses: mockConfig.expandAllResponses,
+            clientOptions: [],
+          },
         },
       })
 
@@ -337,14 +386,22 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          hash: useNavState().hash.value,
           rootIndex: 0,
-          clientOptions: [],
           entries,
-          document: mockDocument,
-          config: mockConfig,
+          paths: mockDocument.paths,
+          webhooks: mockDocument.webhooks,
+          security: mockDocument.security,
           activeCollection: mockCollection,
           activeServer: mockServer,
           store: mockStore,
+          options: {
+            layout: mockConfig.layout,
+            showOperationId: mockConfig.showOperationId,
+            hideTestRequestButton: mockConfig.hideTestRequestButton,
+            expandAllResponses: mockConfig.expandAllResponses,
+            clientOptions: [],
+          },
         },
       })
 
@@ -362,14 +419,22 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          hash: useNavState().hash.value,
           rootIndex: 0,
-          clientOptions: [],
           entries,
-          document: mockDocument,
-          config: mockConfig,
+          paths: mockDocument.paths,
+          webhooks: mockDocument.webhooks,
+          security: mockDocument.security,
           activeCollection: mockCollection,
           activeServer: mockServer,
           store: mockStore,
+          options: {
+            layout: mockConfig.layout,
+            showOperationId: mockConfig.showOperationId,
+            hideTestRequestButton: mockConfig.hideTestRequestButton,
+            expandAllResponses: mockConfig.expandAllResponses,
+            clientOptions: [],
+          },
         },
       })
 
@@ -384,14 +449,22 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          hash: useNavState().hash.value,
           rootIndex: 0,
-          clientOptions: [],
           entries,
-          document: mockDocument,
-          config: mockConfig,
+          paths: mockDocument.paths,
+          webhooks: mockDocument.webhooks,
+          security: mockDocument.security,
           activeCollection: mockCollection,
           activeServer: mockServer,
           store: mockStore,
+          options: {
+            layout: mockConfig.layout,
+            showOperationId: mockConfig.showOperationId,
+            hideTestRequestButton: mockConfig.hideTestRequestButton,
+            expandAllResponses: mockConfig.expandAllResponses,
+            clientOptions: [],
+          },
         },
       })
 
@@ -409,14 +482,22 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          hash: useNavState().hash.value,
           rootIndex: 0,
-          clientOptions: [],
           entries,
-          document: mockDocument,
-          config: mockConfig,
+          paths: mockDocument.paths,
+          webhooks: mockDocument.webhooks,
+          security: mockDocument.security,
           activeCollection: mockCollection,
           activeServer: mockServer,
           store: mockStore,
+          options: {
+            layout: mockConfig.layout,
+            showOperationId: mockConfig.showOperationId,
+            hideTestRequestButton: mockConfig.hideTestRequestButton,
+            expandAllResponses: mockConfig.expandAllResponses,
+            clientOptions: [],
+          },
         },
       })
 
@@ -431,14 +512,22 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          hash: useNavState().hash.value,
           rootIndex: 0,
-          clientOptions: [],
           entries,
-          document: mockDocument,
-          config: mockConfig,
+          paths: mockDocument.paths,
+          webhooks: mockDocument.webhooks,
+          security: mockDocument.security,
           activeCollection: mockCollection,
           activeServer: mockServer,
           store: mockStore,
+          options: {
+            layout: mockConfig.layout,
+            showOperationId: mockConfig.showOperationId,
+            hideTestRequestButton: mockConfig.hideTestRequestButton,
+            expandAllResponses: mockConfig.expandAllResponses,
+            clientOptions: [],
+          },
         },
       })
 
@@ -461,14 +550,22 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          hash: useNavState().hash.value,
           rootIndex: 0,
-          clientOptions: [],
           entries,
-          document: mockDocument,
-          config: mockConfig,
+          paths: mockDocument.paths,
+          webhooks: mockDocument.webhooks,
+          security: mockDocument.security,
           activeCollection: mockCollection,
           activeServer: mockServer,
           store: mockStore,
+          options: {
+            layout: mockConfig.layout,
+            showOperationId: mockConfig.showOperationId,
+            hideTestRequestButton: mockConfig.hideTestRequestButton,
+            expandAllResponses: mockConfig.expandAllResponses,
+            clientOptions: [],
+          },
         },
       })
 
@@ -492,14 +589,22 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          hash: useNavState().hash.value,
           rootIndex: 0,
-          clientOptions: [],
           entries,
-          document: mockDocument,
-          config: mockConfig,
+          paths: mockDocument.paths,
+          webhooks: mockDocument.webhooks,
+          security: mockDocument.security,
           activeCollection: mockCollection,
           activeServer: mockServer,
           store: mockStore,
+          options: {
+            layout: mockConfig.layout,
+            showOperationId: mockConfig.showOperationId,
+            hideTestRequestButton: mockConfig.hideTestRequestButton,
+            expandAllResponses: mockConfig.expandAllResponses,
+            clientOptions: [],
+          },
         },
       })
 
@@ -517,14 +622,22 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          hash: useNavState().hash.value,
           rootIndex: 0,
-          clientOptions: [],
           entries,
-          document: mockDocument,
-          config: mockConfig,
+          paths: mockDocument.paths,
+          webhooks: mockDocument.webhooks,
+          security: mockDocument.security,
           activeCollection: mockCollection,
           activeServer: mockServer,
           store: mockStore,
+          options: {
+            layout: mockConfig.layout,
+            showOperationId: mockConfig.showOperationId,
+            hideTestRequestButton: mockConfig.hideTestRequestButton,
+            expandAllResponses: mockConfig.expandAllResponses,
+            clientOptions: [],
+          },
         },
       })
 
@@ -540,14 +653,22 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          hash: useNavState().hash.value,
           rootIndex: 0,
-          clientOptions: [],
           entries,
-          document: mockDocument,
-          config: mockConfig,
+          paths: mockDocument.paths,
+          webhooks: mockDocument.webhooks,
+          security: mockDocument.security,
           activeCollection: mockCollection,
           activeServer: mockServer,
           store: mockStore,
+          options: {
+            layout: mockConfig.layout,
+            showOperationId: mockConfig.showOperationId,
+            hideTestRequestButton: mockConfig.hideTestRequestButton,
+            expandAllResponses: mockConfig.expandAllResponses,
+            clientOptions: [],
+          },
         },
       })
 
@@ -561,14 +682,22 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          hash: useNavState().hash.value,
           rootIndex: 0,
-          clientOptions: [],
           entries,
-          document: mockDocument,
-          config: mockConfig,
+          paths: mockDocument.paths,
+          webhooks: mockDocument.webhooks,
+          security: mockDocument.security,
           activeCollection: mockCollection,
           activeServer: mockServer,
           store: mockStore,
+          options: {
+            layout: mockConfig.layout,
+            showOperationId: mockConfig.showOperationId,
+            hideTestRequestButton: mockConfig.hideTestRequestButton,
+            expandAllResponses: mockConfig.expandAllResponses,
+            clientOptions: [],
+          },
         },
       })
 
@@ -582,14 +711,22 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          hash: useNavState().hash.value,
           rootIndex: 0,
-          clientOptions: [],
           entries,
-          document: mockDocument,
-          config: mockConfig,
+          paths: mockDocument.paths,
+          webhooks: mockDocument.webhooks,
+          security: mockDocument.security,
           activeCollection: mockCollection,
           activeServer: mockServer,
           store: mockStore,
+          options: {
+            layout: mockConfig.layout,
+            showOperationId: mockConfig.showOperationId,
+            hideTestRequestButton: mockConfig.hideTestRequestButton,
+            expandAllResponses: mockConfig.expandAllResponses,
+            clientOptions: [],
+          },
         },
       })
 
@@ -604,14 +741,22 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          hash: useNavState().hash.value,
           rootIndex: 0,
-          clientOptions: [],
           entries,
-          document: mockDocument,
-          config: mockConfig,
+          paths: mockDocument.paths,
+          webhooks: mockDocument.webhooks,
+          security: mockDocument.security,
           activeCollection: mockCollection,
           activeServer: mockServer,
           store: mockStore,
+          options: {
+            layout: mockConfig.layout,
+            showOperationId: mockConfig.showOperationId,
+            hideTestRequestButton: mockConfig.hideTestRequestButton,
+            expandAllResponses: mockConfig.expandAllResponses,
+            clientOptions: [],
+          },
         },
       })
 
@@ -629,14 +774,22 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          hash: useNavState().hash.value,
           rootIndex: 0,
-          clientOptions: [],
           entries,
-          document: mockDocument,
-          config: mockConfig,
+          paths: mockDocument.paths,
+          webhooks: mockDocument.webhooks,
+          security: mockDocument.security,
           activeCollection: mockCollection,
           activeServer: mockServer,
           store: mockStore,
+          options: {
+            layout: mockConfig.layout,
+            showOperationId: mockConfig.showOperationId,
+            hideTestRequestButton: mockConfig.hideTestRequestButton,
+            expandAllResponses: mockConfig.expandAllResponses,
+            clientOptions: [],
+          },
         },
       })
 
@@ -694,14 +847,22 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          hash: useNavState().hash.value,
           rootIndex: 0,
-          clientOptions: [],
           entries,
-          document: mockDocument,
-          config: mockConfig,
+          paths: mockDocument.paths,
+          webhooks: mockDocument.webhooks,
+          security: mockDocument.security,
           activeCollection: mockCollection,
           activeServer: mockServer,
           store: mockStore,
+          options: {
+            layout: mockConfig.layout,
+            showOperationId: mockConfig.showOperationId,
+            hideTestRequestButton: mockConfig.hideTestRequestButton,
+            expandAllResponses: mockConfig.expandAllResponses,
+            clientOptions: [],
+          },
         },
       })
 
@@ -721,14 +882,22 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          hash: useNavState().hash.value,
           rootIndex: 0,
-          clientOptions: [],
           entries,
-          document: mockDocument,
-          config: mockConfig,
+          paths: mockDocument.paths,
+          webhooks: mockDocument.webhooks,
+          security: mockDocument.security,
           activeCollection: mockCollection,
           activeServer: mockServer,
           store: mockStore,
+          options: {
+            layout: mockConfig.layout,
+            showOperationId: mockConfig.showOperationId,
+            hideTestRequestButton: mockConfig.hideTestRequestButton,
+            expandAllResponses: mockConfig.expandAllResponses,
+            clientOptions: [],
+          },
         },
       })
 
@@ -745,14 +914,22 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          hash: useNavState().hash.value,
           rootIndex: 0,
-          clientOptions: [],
           entries,
-          document: mockDocument,
-          config: mockConfig,
+          paths: mockDocument.paths,
+          webhooks: mockDocument.webhooks,
+          security: mockDocument.security,
           activeCollection: mockCollection,
           activeServer: mockServer,
           store: mockStore,
+          options: {
+            layout: mockConfig.layout,
+            showOperationId: mockConfig.showOperationId,
+            hideTestRequestButton: mockConfig.hideTestRequestButton,
+            expandAllResponses: mockConfig.expandAllResponses,
+            clientOptions: [],
+          },
         },
       })
 
@@ -775,14 +952,22 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
+          hash: useNavState().hash.value,
           rootIndex: 1, // Current index is 1 (operation-2)
-          clientOptions: [],
           entries,
-          document: mockDocument,
-          config: mockConfig,
+          paths: mockDocument.paths,
+          webhooks: mockDocument.webhooks,
+          security: mockDocument.security,
           activeCollection: mockCollection,
           activeServer: mockServer,
           store: mockStore,
+          options: {
+            layout: mockConfig.layout,
+            showOperationId: mockConfig.showOperationId,
+            hideTestRequestButton: mockConfig.hideTestRequestButton,
+            expandAllResponses: mockConfig.expandAllResponses,
+            clientOptions: [],
+          },
         },
       })
 

@@ -11,7 +11,6 @@ import {
   getOperationStabilityColor,
   isOperationDeprecated,
 } from '@scalar/oas-utils/helpers'
-import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
@@ -42,18 +41,23 @@ import OperationResponses from '@/features/Operation/components/OperationRespons
 import { TestRequestButton } from '@/features/test-request-button'
 import { XBadges } from '@/features/x-badges'
 
-const { path, config, operation, method, isWebhook } = defineProps<{
+const { path, operation, method } = defineProps<{
   id: string
   path: string
-  clientOptions: ClientOptionGroup[]
-  config: ApiReferenceConfiguration
   method: HttpMethodType
   operation: OperationObject
-  // pathServers: ServerObject[] | undefined
-  isWebhook: boolean
   securitySchemes: SecuritySchemeObject[]
   server: ServerObject | undefined
   store: WorkspaceStore
+  /** Global options that can be derived from the top level config or assigned at a block level */
+  options: {
+    /** Sets some additional display properties when an operation is a webhook */
+    isWebhook: boolean
+    showOperationId: boolean | undefined
+    hideTestRequestButton: boolean | undefined
+    expandAllResponses: boolean | undefined
+    clientOptions: ClientOptionGroup[]
+  }
 }>()
 
 const operationTitle = computed(() => operation.summary || path || '')
@@ -67,12 +71,12 @@ const labelId = useId()
     :aria-labelledby="labelId"
     :label="operationTitle"
     tabindex="-1">
-    <SectionContent :loading="config.isLoading">
+    <SectionContent>
       <div class="flex flex-row justify-between gap-1">
         <!-- Left -->
         <div class="flex gap-1">
           <!-- Operation ID -->
-          <Badge v-if="config.showOperationId && operation.operationId">
+          <Badge v-if="options?.showOperationId && operation.operationId">
             {{ operation.operationId }}
           </Badge>
           <!-- Stability badge -->
@@ -84,7 +88,7 @@ const labelId = useId()
           </Badge>
           <!-- Webhook badge -->
           <Badge
-            v-if="isWebhook"
+            v-if="options.isWebhook"
             class="font-code text-green flex w-fit items-center justify-center gap-1">
             <ScalarIconWebhooksLogo weight="bold" />Webhook
           </Badge>
@@ -130,7 +134,7 @@ const labelId = useId()
               :requestBody="getResolvedRef(operation.requestBody)" />
             <OperationResponses
               :breadcrumb="[id]"
-              :collapsableItems="!config.expandAllResponses"
+              :collapsableItems="!options.expandAllResponses"
               :responses="operation.responses" />
 
             <!-- Callbacks -->
@@ -154,9 +158,9 @@ const labelId = useId()
             <!-- New Example Request -->
             <ScalarErrorBoundary>
               <OperationCodeSample
-                :clientOptions="clientOptions"
+                :clientOptions="options.clientOptions"
                 fallback
-                :isWebhook="isWebhook"
+                :isWebhook="options.isWebhook"
                 :method="method"
                 :operation="operation"
                 :path="path"
@@ -170,7 +174,7 @@ const labelId = useId()
                     :path="path" />
                 </template>
                 <template
-                  v-if="!isWebhook"
+                  v-if="!options.isWebhook"
                   #footer>
                   <TestRequestButton
                     :method="method"

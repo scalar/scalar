@@ -58,6 +58,8 @@ describe('IntroductionLayout', () => {
 
     const wrapper = mount(IntroductionLayout, {
       props: {
+        id: '',
+        oasVersion: undefined,
         info: example.info,
         externalDocs: example.externalDocs,
         getOriginalDocument: () => '{}',
@@ -85,6 +87,8 @@ describe('IntroductionLayout', () => {
 
     const wrapper = mount(IntroductionLayout, {
       props: {
+        id: '',
+        oasVersion: undefined,
         info: example.info,
         externalDocs: example.externalDocs,
         getOriginalDocument: () => '{}',
@@ -110,6 +114,8 @@ describe('IntroductionLayout', () => {
 
     const wrapper = mount(IntroductionLayout, {
       props: {
+        id: '',
+        oasVersion: undefined,
         info: example.info,
         externalDocs: example.externalDocs,
         getOriginalDocument: () => '{}',
@@ -119,28 +125,6 @@ describe('IntroductionLayout', () => {
     const section = wrapper.get('.introduction-section')
 
     expect(section.html()).toContain('Hello World')
-  })
-
-  it('generates filename from title', () => {
-    const example: OpenApiDocument = {
-      openapi: '3.1.1',
-      info: {
-        title: 'Hello World API!',
-        description: '',
-        version: '1.0.0',
-      },
-    }
-
-    const wrapper = mount(IntroductionLayout, {
-      props: {
-        info: example.info,
-        externalDocs: example.externalDocs,
-        getOriginalDocument: () => '{}',
-      },
-    })
-
-    const downloadLink = wrapper.findComponent(DownloadLink)
-    expect(downloadLink.props('title')).toBe('Hello World API!')
   })
 
   it('shows version badge when version exists', () => {
@@ -155,6 +139,8 @@ describe('IntroductionLayout', () => {
 
     const wrapper = mount(IntroductionLayout, {
       props: {
+        id: '',
+        oasVersion: undefined,
         info: example.info,
         externalDocs: example.externalDocs,
         getOriginalDocument: () => '{}',
@@ -176,6 +162,8 @@ describe('IntroductionLayout', () => {
 
     const wrapper = mount(IntroductionLayout, {
       props: {
+        id: '',
+        oasVersion: undefined,
         info: example.info,
         externalDocs: example.externalDocs,
         getOriginalDocument: () => '{}',
@@ -198,6 +186,8 @@ describe('IntroductionLayout', () => {
 
     const wrapper = mount(IntroductionLayout, {
       props: {
+        id: '',
+        oasVersion: undefined,
         info: example.info,
         externalDocs: example.externalDocs,
         getOriginalDocument: () => '{}',
@@ -220,6 +210,8 @@ describe('IntroductionLayout', () => {
 
     const wrapper = mount(IntroductionLayout, {
       props: {
+        id: '',
+        oasVersion: undefined,
         info: example.info,
         externalDocs: example.externalDocs,
         getOriginalDocument: () => '{}',

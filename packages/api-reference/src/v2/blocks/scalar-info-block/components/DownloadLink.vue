@@ -1,17 +1,17 @@
 <script lang="ts" setup>
+import type { ApiReferenceConfiguration } from '@scalar/types'
 import GitHubSlugger from 'github-slugger'
 import { computed } from 'vue'
 
 import Badge from '@/components/Badge/Badge.vue'
-import { useConfig } from '@/hooks/useConfig'
 import { downloadDocument } from '@/libs/download'
 
 const { title, getOriginalDocument } = defineProps<{
   title?: string
   getOriginalDocument: () => string
+  url: string | undefined
+  documentDownloadType: ApiReferenceConfiguration['documentDownloadType']
 }>()
-
-const config = useConfig()
 
 // Format the title to be displayed in the badge.
 const slugger = new GitHubSlugger()
@@ -19,22 +19,19 @@ const filename = computed(() => slugger.slug(title ?? ''))
 
 // The id is retrieved at the layout level.
 const handleDownloadClick = (format: 'json' | 'yaml') => {
-  downloadDocument(getOriginalDocument(), filename.value, format)
+  downloadDocument(getOriginalDocument?.() ?? '', filename.value, format)
 }
 </script>
 <template>
   <div
-    v-if="['yaml', 'json', 'both'].includes(config?.documentDownloadType)"
+    v-if="['yaml', 'json', 'both'].includes(documentDownloadType)"
     class="download-container group"
     :class="{
-      'download-both': config?.documentDownloadType === 'both',
+      'download-both': documentDownloadType === 'both',
     }">
     <!-- JSON  -->
     <button
-      v-if="
-        config?.documentDownloadType === 'json' ||
-        config?.documentDownloadType === 'both'
-      "
+      v-if="documentDownloadType === 'json' || documentDownloadType === 'both'"
       class="download-button"
       type="button"
       @click.prevent="handleDownloadClick('json')">
@@ -44,10 +41,7 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
 
     <!-- YAML -->
     <button
-      v-if="
-        config?.documentDownloadType === 'yaml' ||
-        config?.documentDownloadType === 'both'
-      "
+      v-if="documentDownloadType === 'yaml' || documentDownloadType === 'both'"
       class="download-button"
       type="button"
       @click.prevent="handleDownloadClick('yaml')">
@@ -55,11 +49,11 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
       <Badge class="extension hidden group-hover:flex">yaml</Badge>
     </button>
   </div>
-  <template v-else-if="config?.documentDownloadType === 'direct'">
+  <template v-else-if="documentDownloadType === 'direct'">
     <a
-      v-if="config.url"
+      v-if="url"
       class="download-link"
-      :href="config.url">
+      :href="url">
       Download OpenAPI Document
     </a>
     <a

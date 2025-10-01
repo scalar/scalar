@@ -4,11 +4,11 @@ import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-c
 import { filterSecurityRequirements } from '@scalar/api-client/views/Request/RequestSection'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
-import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
-  OpenApiDocument,
+  PathItemObject,
+  SecurityRequirementObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
@@ -20,44 +20,47 @@ import { getFirstServer } from './helpers/get-first-server'
 import ClassicLayout from './layouts/ClassicLayout.vue'
 import ModernLayout from './layouts/ModernLayout.vue'
 
-const { server, config, document, isWebhook, collection, path, method, store } =
-  defineProps<{
-    path: string
-    method: HttpMethod
-    clientOptions: ClientOptionGroup[]
-    config: ApiReferenceConfiguration
-    document: OpenApiDocument
-    isWebhook: boolean
-    id: string
-    server: Server | undefined
-    store: WorkspaceStore
-    /** @deprecated Use `document` instead, we just need the selected security scheme uids for now */
-    collection: Collection
-  }>()
+const { server, pathValue, method, security, collection, store } = defineProps<{
+  id: string
+  method: HttpMethod
+  /** Key of the operations path in the document.paths object */
+  path: string
+  /** OpenAPI path object that will include the operation */
+  pathValue: PathItemObject | undefined
+  /** Active server*/
+  server: Server | undefined
+  /** Document level security requirements */
+  security: SecurityRequirementObject[] | undefined
 
-/** Grab the pathItem from either webhooks or paths */
-const pathItem = computed(() => {
-  const initialKey = isWebhook ? 'webhooks' : 'paths'
-  return document[initialKey]?.[path]
-})
+  // ---------------------------------------------
+  store: WorkspaceStore
+  /** @deprecated Use `document` instead, we just need the selected security scheme uids for now */
+  collection: Collection
+  options: {
+    layout: 'classic' | 'modern'
+    /** Sets some additional display properties when an operation is a webhook */
+    isWebhook: boolean
+    showOperationId: boolean | undefined
+    hideTestRequestButton: boolean | undefined
+    expandAllResponses: boolean | undefined
+    clientOptions: ClientOptionGroup[]
+  }
+}>()
 
 /**
- * Operation from the new workspace store, ensure we are de-referenced
+ * Operation from the new workspace store, ensure we are de-reference
  *
  * Also adds in params from the pathItemObject
  */
 const operation = computed(() => {
-  const entity = getResolvedRef(pathItem.value?.[method])
+  const entity = getResolvedRef(pathValue?.[method])
 
   if (!entity) {
     return null
   }
 
   // Combine params from the pathItem and the operation
-  const parameters = combineParams(
-    pathItem.value?.parameters,
-    entity.parameters,
-  )
+  const parameters = combineParams(pathValue?.parameters, entity.parameters)
 
   return { ...entity, parameters }
 })
@@ -69,7 +72,7 @@ const operation = computed(() => {
 const { securitySchemes } = useWorkspace()
 const selectedSecuritySchemes = computed(() =>
   filterSecurityRequirements(
-    operation.value?.security || document.security || [],
+    operation.value?.security || security || [],
     collection.selectedSecuritySchemeUids,
     securitySchemes,
   ).map(convertSecurityScheme),
@@ -83,7 +86,7 @@ const selectedServer = computed<ServerObject | undefined>(() =>
     // 1) Operation
     operation.value?.servers,
     // 2) Path Item
-    pathItem.value?.servers,
+    pathValue?.servers,
     // 3) Document
     server,
   ),
@@ -92,14 +95,12 @@ const selectedServer = computed<ServerObject | undefined>(() =>
 
 <template>
   <template v-if="operation">
-    <template v-if="config.layout === 'classic'">
+    <template v-if="options?.layout === 'classic'">
       <ClassicLayout
         :id="id"
-        :clientOptions="clientOptions"
-        :config="config"
-        :isWebhook
         :method="method"
         :operation="operation"
+        :options="options"
         :path="path"
         :securitySchemes="selectedSecuritySchemes"
         :server="selectedServer"
@@ -108,11 +109,9 @@ const selectedServer = computed<ServerObject | undefined>(() =>
     <template v-else>
       <ModernLayout
         :id="id"
-        :clientOptions="clientOptions"
-        :config="config"
-        :isWebhook="isWebhook"
         :method="method"
         :operation="operation"
+        :options="options"
         :path="path"
         :securitySchemes="selectedSecuritySchemes"
         :server="selectedServer"

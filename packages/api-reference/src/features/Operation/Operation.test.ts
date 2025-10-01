@@ -1,7 +1,6 @@
 import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { enableConsoleError, enableConsoleWarn } from '@scalar/helpers/testing/console-spies'
 import { collectionSchema } from '@scalar/oas-utils/entities/spec'
-import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
@@ -73,13 +72,20 @@ const mountOperationWithConfig = (config: Record<string, unknown>) => {
       id: 'test-operation',
       path: '/users/{userId}',
       method: 'get',
-      clientOptions,
-      isWebhook: false,
-      config: apiReferenceConfigurationSchema.parse(config),
+      pathValue: document.paths?.['/users/{userId}'],
+      security: document.security,
       server: undefined,
       store,
       collection: mockCollection,
-      document,
+      options: {
+        layout: 'modern',
+        isWebhook: false,
+        clientOptions,
+        showOperationId: undefined,
+        hideTestRequestButton: undefined,
+        expandAllResponses: undefined,
+        ...config,
+      },
     },
   })
 }
@@ -147,18 +153,25 @@ describe('Operation', () => {
     })
 
   it('renders path parameters from pathItem parameters', () => {
+    const document = createMockDocument()
     const wrapper = mount(Operation, {
       props: {
         id: 'test-operation',
         path: '/users/{userId}',
         method: 'get',
-        clientOptions,
-        config: apiReferenceConfigurationSchema.parse({}),
-        isWebhook: false,
+        pathValue: document.paths?.['/users/{userId}'],
+        security: document.security,
         server: undefined,
-        store: createMockStore(createMockDocument()),
+        store: createMockStore(document),
         collection: mockCollection,
-        document: createMockDocument(),
+        options: {
+          layout: 'modern',
+          isWebhook: false,
+          clientOptions,
+          showOperationId: undefined,
+          hideTestRequestButton: undefined,
+          expandAllResponses: undefined,
+        },
       },
     })
 
@@ -223,13 +236,19 @@ describe('Operation', () => {
         id: 'test-operation',
         path: '/users/{userId}',
         method: 'get',
-        clientOptions,
-        isWebhook: false,
-        config: apiReferenceConfigurationSchema.parse({}),
+        pathValue: documentWithOnlyOperationParams.paths?.['/users/{userId}'],
+        security: documentWithOnlyOperationParams.security,
         server: undefined,
         store: storeWithOnlyOperationParams,
         collection: mockCollection,
-        document: documentWithOnlyOperationParams,
+        options: {
+          layout: 'modern',
+          isWebhook: false,
+          clientOptions,
+          showOperationId: undefined,
+          hideTestRequestButton: undefined,
+          expandAllResponses: undefined,
+        },
       },
     })
 
@@ -276,13 +295,19 @@ describe('Operation', () => {
         id: 'test-webhook',
         path: '/webhook/user-updated',
         method: 'post',
-        clientOptions,
-        isWebhook: true,
-        config: apiReferenceConfigurationSchema.parse({}),
+        pathValue: documentWithWebhooks.webhooks?.['/webhook/user-updated'],
+        security: documentWithWebhooks.security,
         server: undefined,
         store: storeWithWebhooks,
         collection: mockCollection,
-        document: documentWithWebhooks,
+        options: {
+          layout: 'modern',
+          isWebhook: true,
+          clientOptions,
+          showOperationId: undefined,
+          hideTestRequestButton: undefined,
+          expandAllResponses: undefined,
+        },
       },
     })
 
@@ -332,13 +357,19 @@ describe('Operation', () => {
         id: 'test-operation',
         path: '/users/{userId}',
         method: 'get',
-        clientOptions,
-        isWebhook: false,
-        config: apiReferenceConfigurationSchema.parse({}),
+        pathValue: documentWithRefs.paths?.['/users/{userId}'],
+        security: documentWithRefs.security,
         server: undefined,
         store: storeWithRefs,
         collection: mockCollection,
-        document: documentWithRefs,
+        options: {
+          layout: 'modern',
+          isWebhook: false,
+          clientOptions,
+          showOperationId: undefined,
+          hideTestRequestButton: undefined,
+          expandAllResponses: undefined,
+        },
       },
     })
 
@@ -424,13 +455,19 @@ describe('Operation', () => {
         id: 'test-operation',
         path: '/users/{userId}',
         method: 'get',
-        clientOptions,
-        isWebhook: false,
-        config: apiReferenceConfigurationSchema.parse({}),
+        pathValue: documentWithOverridingParams.paths?.['/users/{userId}'],
+        security: documentWithOverridingParams.security,
         server: undefined,
         store: storeWithOverridingParams,
         collection: mockCollection,
-        document: documentWithOverridingParams,
+        options: {
+          layout: 'modern',
+          isWebhook: false,
+          clientOptions,
+          showOperationId: undefined,
+          hideTestRequestButton: undefined,
+          expandAllResponses: undefined,
+        },
       },
     })
 
@@ -456,20 +493,25 @@ describe('Operation', () => {
   })
 
   it('renders classic layout when specified', () => {
+    const document = createMockDocument()
     const wrapper = mount(Operation, {
       props: {
         id: 'test-operation',
         path: '/users/{userId}',
         method: 'get',
-        clientOptions,
-        isWebhook: false,
-        config: apiReferenceConfigurationSchema.parse({
-          layout: 'classic',
-        }),
+        pathValue: document.paths?.['/users/{userId}'],
+        security: document.security,
         server: undefined,
-        store: createMockStore(createMockDocument() as WorkspaceDocument),
+        store: createMockStore(document as WorkspaceDocument),
         collection: mockCollection,
-        document: createMockDocument(),
+        options: {
+          layout: 'classic',
+          isWebhook: false,
+          clientOptions,
+          showOperationId: undefined,
+          hideTestRequestButton: undefined,
+          expandAllResponses: undefined,
+        },
       },
     })
 
@@ -490,7 +532,7 @@ describe('Operation', () => {
   })
 
   it('does not render when operation is not available', () => {
-    const storeWithoutOperation = createMockStore({
+    const documentWithoutOperation = {
       openapi: '3.1.0',
       info: {
         title: 'Test API',
@@ -501,20 +543,27 @@ describe('Operation', () => {
           // No get operation
         },
       },
-    })
+    }
+    const storeWithoutOperation = createMockStore(documentWithoutOperation)
 
     const wrapper = mount(Operation, {
       props: {
         id: 'test-operation',
         path: '/users/{userId}',
         method: 'get',
-        clientOptions,
-        isWebhook: false,
-        config: apiReferenceConfigurationSchema.parse({}),
+        pathValue: documentWithoutOperation.paths?.['/users/{userId}'],
+        security: undefined,
         server: undefined,
         store: storeWithoutOperation,
         collection: mockCollection,
-        document: {} as WorkspaceDocument,
+        options: {
+          layout: 'modern',
+          isWebhook: false,
+          clientOptions,
+          showOperationId: undefined,
+          hideTestRequestButton: undefined,
+          expandAllResponses: undefined,
+        },
       },
     })
 
@@ -561,16 +610,19 @@ describe('Operation', () => {
         id: 'test-operation',
         path: '/users/{userId}',
         method: 'get',
-        clientOptions,
-        isWebhook: false,
-        config: apiReferenceConfigurationSchema.parse({
-          expandAllResponses: true,
-          layout: 'modern',
-        }),
+        pathValue: documentWithResponses.paths?.['/users/{userId}'],
+        security: documentWithResponses.security,
         server: undefined,
         store: storeWithResponses,
         collection: mockCollection,
-        document: documentWithResponses,
+        options: {
+          layout: 'modern',
+          isWebhook: false,
+          clientOptions,
+          showOperationId: undefined,
+          hideTestRequestButton: undefined,
+          expandAllResponses: true,
+        },
       },
     })
 
@@ -590,13 +642,19 @@ describe('Operation', () => {
         id: 'test-operation',
         path: '/users/{userId}',
         method: 'get',
-        clientOptions,
-        isWebhook: false,
-        config: apiReferenceConfigurationSchema.parse({}),
+        pathValue: doc.paths?.['/users/{userId}'],
+        security: doc.security,
         server: undefined,
         store: createMockStore(doc),
         collection: mockCollection,
-        document: doc,
+        options: {
+          layout: 'modern',
+          isWebhook: false,
+          clientOptions,
+          showOperationId: undefined,
+          hideTestRequestButton: undefined,
+          expandAllResponses: undefined,
+        },
       },
     })
 
@@ -634,13 +692,19 @@ describe('Operation', () => {
         id: 'test-operation',
         path: '/users',
         method: 'get',
-        clientOptions,
-        isWebhook: false,
-        config: apiReferenceConfigurationSchema.parse({}),
+        pathValue: doc.paths?.['/users'],
+        security: doc.security,
         server: undefined,
         store: createMockStore(doc),
         collection: mockCollection,
-        document: doc,
+        options: {
+          layout: 'modern',
+          isWebhook: false,
+          clientOptions,
+          showOperationId: undefined,
+          hideTestRequestButton: undefined,
+          expandAllResponses: undefined,
+        },
       },
     })
 

@@ -1,22 +1,21 @@
 <script setup lang="ts">
+import type { ApiReferenceConfiguration } from '@scalar/types'
 import type {
   ExternalDocumentationObject,
   InfoObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
+import DownloadLink from '@/v2/blocks/scalar-info-block/components/DownloadLink.vue'
+
 import IntroductionCard from './IntroductionCard.vue'
 import IntroductionLayout from './IntroductionLayout.vue'
 
-const { layout } = defineProps<{
+const { options } = defineProps<{
   /** Optional unique identifier for the info block. */
   id?: string
-  /** Determines the layout style for the info block ('modern' or 'classic'). */
-  layout?: 'modern' | 'classic'
   /** Original openapi version of the input document */
   oasVersion?: string
-  /** The original document content. */
-  getOriginalDocument: () => string
   /** The Info object from the OpenAPI document. */
   info: InfoObject
   /** The external documentation object from the OpenAPI document, if present. */
@@ -25,10 +24,21 @@ const { layout } = defineProps<{
   documentExtensions?: Record<string, unknown>
   /** OpenAPI extension fields at the info object level. */
   infoExtensions?: Record<string, unknown>
-  /** Indicates if the info block is in a loading state. */
-  isLoading?: boolean
-  /** Optional callback invoked when the component has finished loading. */
-  onLoaded?: () => void
+
+  options: {
+    /** Indicates if the info block is in a loading state. */
+    isLoading?: boolean
+    /** Determines the layout style for the info block ('modern' or 'classic'). */
+    layout?: 'modern' | 'classic'
+    /** The document download type. */
+    documentDownloadType?: ApiReferenceConfiguration['documentDownloadType']
+    /** The URL of the OpenAPI document. */
+    url?: string | undefined
+    /** Optional callback invoked when the component has finished loading. */
+    onLoaded?: () => void
+    /** The original document content. */
+    getOriginalDocument: () => string
+  }
 }>()
 
 /**
@@ -37,7 +47,7 @@ const { layout } = defineProps<{
  * - and the aside slot for other layouts.
  */
 const introCardsSlot = computed(() =>
-  layout === 'classic' ? 'after' : 'aside',
+  options.layout === 'classic' ? 'after' : 'aside',
 )
 </script>
 
@@ -46,16 +56,22 @@ const introCardsSlot = computed(() =>
     :id
     :documentExtensions
     :externalDocs
-    :getOriginalDocument
     :info
     :infoExtensions
-    :isLoading
+    :isLoading="options.isLoading"
     :oasVersion
-    :onLoaded>
+    :onLoaded="options.onLoaded">
     <template #[introCardsSlot]>
-      <IntroductionCard :row="layout === 'classic'">
+      <IntroductionCard :row="options.layout === 'classic'">
         <slot name="selectors" />
       </IntroductionCard>
+    </template>
+    <template #download-link>
+      <DownloadLink
+        :documentDownloadType="options.documentDownloadType ?? 'both'"
+        :getOriginalDocument="options.getOriginalDocument"
+        :title="info?.title"
+        :url="options.url" />
     </template>
   </IntroductionLayout>
 </template>

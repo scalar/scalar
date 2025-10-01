@@ -114,6 +114,8 @@ const navState = useNavState(configuration)
 const { isSidebarOpen, setCollapsedSidebarItem, scrollToOperation, items } =
   useSidebar(store)
 
+const contentId = computed(() => items.value.entries[0]?.id ?? '')
+
 const {
   getReferenceId,
   getPathRoutingId,
@@ -390,7 +392,25 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
         :aria-label="`Open API Documentation for ${dereferencedDocument?.info?.title}`"
         class="references-rendered">
         <Content
-          :config="configuration"
+          :contentId="contentId"
+          :options="{
+            isLoading: configuration.isLoading,
+            slug: configuration.slug,
+            hiddenClients: configuration.hiddenClients,
+            layout: configuration.layout,
+            onLoaded: configuration.onLoaded,
+            persistAuth: configuration.persistAuth,
+            showOperationId: configuration.showOperationId,
+            hideTestRequestButton: configuration.hideTestRequestButton,
+            expandAllResponses: configuration.expandAllResponses,
+            hideModels: configuration.hideModels,
+            expandAllModelSections: configuration.expandAllModelSections,
+            orderRequiredPropertiesFirst:
+              configuration.orderRequiredPropertiesFirst,
+            orderSchemaPropertiesBy: configuration.orderSchemaPropertiesBy,
+            documentDownloadType: configuration.documentDownloadType,
+            url: configuration.url,
+          }"
           :store="store">
           <template #start>
             <slot
