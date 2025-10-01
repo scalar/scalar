@@ -24,11 +24,15 @@ const {
   envVariables,
   title,
 } = defineProps<{
+  /** Request body */
   requestBody?: RequestBodyObject
-  selectedContentType: keyof typeof contentTypes & (string & {})
+  /** Currently selected content type for the current operation */
+  selectedContentType: keyof typeof contentTypes | (string & {})
+  /** Currently selected example key for the current operation */
   exampleKey: string
   /** Display title */
   title: string
+
   /** TODO: remove when we do the migration */
   environment: Environment
   envVariables: EnvVariable[]
@@ -193,7 +197,7 @@ const example = computed(
             @uploadFile="
               (index) =>
                 handleFileUpload((file) => {
-                  if (index) {
+                  if (index !== undefined) {
                     return emits('update:formRow', {
                       index,
                       payload: { value: file ?? undefined },
@@ -233,9 +237,7 @@ const example = computed(
             lineNumbers
             lint
             :modelValue="example?.value ?? ''"
-            @update:modelValue="
-              () => emits('update:value', { value: example?.value })
-            " />
+            @update:modelValue="(value) => emits('update:value', { value })" />
         </template>
       </DataTableRow>
     </DataTable>

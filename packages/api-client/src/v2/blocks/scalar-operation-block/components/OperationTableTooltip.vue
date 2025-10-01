@@ -11,8 +11,8 @@ const { schema, value } = defineProps<{
   value: string | File | null
 }>()
 
-const invalidParameterMessage = validateParameter(schema, value)
-const isInvalid = computed(() => invalidParameterMessage.ok === false)
+const invalidParameterMessage = computed(() => validateParameter(schema, value))
+const isInvalid = computed(() => invalidParameterMessage.value.ok === false)
 </script>
 <template>
   <ScalarPopover
@@ -35,9 +35,9 @@ const isInvalid = computed(() => invalidParameterMessage.ok === false)
       <div
         class="w-content text-xxs text-c-1 grid min-w-48 gap-1.5 rounded px-1.5 pt-2 pb-1.5 leading-none">
         <div
-          v-if="isInvalid"
+          v-if="invalidParameterMessage.ok === false"
           class="text-error-1">
-          {{ invalidParameterMessage }}
+          {{ invalidParameterMessage.message }}
         </div>
         <div
           v-else-if="

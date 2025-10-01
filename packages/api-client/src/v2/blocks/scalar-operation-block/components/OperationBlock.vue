@@ -22,15 +22,34 @@ import OperationBody from '@/v2/blocks/scalar-operation-block/components/Operati
 import OperationParams from '@/v2/blocks/scalar-operation-block/components/OperationParams.vue'
 import { groupBy } from '@/v2/blocks/scalar-operation-block/helpers/group-by'
 
-const { operation, method, layout, securitySchemes, path } = defineProps<{
+const {
+  operation,
+  method,
+  layout,
+  securitySchemes,
+  path,
+  security,
+  selectedContentType,
+} = defineProps<{
+  /** Operation method */
   method: HttpMethod
+  /** Operation path */
   path: string
+  /** Operation object */
   operation: OperationObject
+  /** Currently selected example key for the current operation */
   exampleKey: string
+  /** Currently selected content type for the current operation example */
+  selectedContentType?: string
+  /** Document defined security schemes */
   securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
-  selectedSecurity: OpenApiDocument['security']
+  /** Currently selected security for the current operation */
+  selectedSecurity: OpenApiDocument['x-scalar-selected-security']
+  /** Required security for the operation/document */
+  security: OpenApiDocument['security']
+  /** Currently selected server for the current operation/document/workspace */
   server?: ServerObject
-
+  /** Client layout */
   layout: ClientLayout
 
   /** TODO: remove when we migrate */
@@ -227,7 +246,7 @@ const labelRequestNameId = useId()
       :envVariables="envVariables"
       :environment="environment"
       :layout="'client'"
-      :security="operation.security"
+      :security="security"
       :securitySchemes="securitySchemes"
       :selectedSecurity="selectedSecurity"
       :server="server"
@@ -389,7 +408,7 @@ const labelRequestNameId = useId()
       :environment="environment"
       :exampleKey="exampleKey"
       :requestBody="getResolvedRef(operation.requestBody)"
-      :selectedContentType="'application/json'"
+      :selectedContentType="selectedContentType ?? 'other'"
       title="Request Body"
       @add:formRow="(payload) => emits('requestBody:add:formRow', payload)"
       @update:contentType="
