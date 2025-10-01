@@ -190,7 +190,6 @@ const shouldCollapse = computed<boolean>(() =>
   white-space: nowrap;
   text-overflow: ellipsis;
   width: 100%;
-  overflow: hidden;
 }
 
 .parameter-item-trigger-open .parameter-item-type {
