@@ -402,4 +402,18 @@ describe('fsharpHttpclient.generate - edge cases', () => {
       'let content = new StringContent("""{\n  "nested": {\n    "array": [\n      1,\n      2,\n      3\n    ],\n    "object": {\n      "foo": "bar"\n    }\n  },\n  "simple": "value"\n}""", Encoding.UTF8, "application/json")',
     )
   })
+
+  it('handles invalid JSON gracefully', () => {
+    const request = {
+      url: 'https://api.com/',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/json',
+        text: '{invalid json}',
+      },
+    } as any
+    const result = fsharpHttpclient.generate(request, {})
+    expect(result).toContain('let content = new StringContent("""{invalid json}""", Encoding.UTF8, "application/json")')
+    expect(result).toContain('httpRequestMessage.Content <- content')
+  })
 })

@@ -170,7 +170,13 @@ function generateMultipartFormDataCode(postData: any): string {
  * Generates code for JSON content
  */
 function generateJsonContentCode(postData: any): string {
-  const prettyJson = JSON.stringify(JSON.parse(postData.text ?? '{}'), null, 2)
+  let prettyJson: string
+  try {
+    prettyJson = JSON.stringify(JSON.parse(postData.text ?? '{}'), null, 2)
+  } catch {
+    // If JSON parsing fails, use the raw text as-is
+    prettyJson = postData.text ?? '{}'
+  }
   return `let content = new StringContent("""${prettyJson}""", Encoding.UTF8, "application/json")\n`
 }
 
