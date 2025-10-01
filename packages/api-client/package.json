@@ -34,7 +34,7 @@
     "test": "vitest",
     "test:benchmark": "vitest bench",
     "test:benchmark:compare": "vitest bench --compare test/results/main.json",
-    "test:benchmark:save": "vitest bench --outputJson test/results/branch.json",
+    "test:benchmark:save": "vitest bench --outputJson test/results/main.json",
     "types:build": "scalar-types-build-vue",
     "types:check": "scalar-types-check-vue"
   },
