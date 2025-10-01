@@ -1,8 +1,4 @@
-import type {
-  TraversedOperation,
-  TraversedTag,
-  TraversedWebhook,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { TraversedOperation, TraversedTag, TraversedWebhook } from '@scalar/workspace-store/schemas/navigation'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 

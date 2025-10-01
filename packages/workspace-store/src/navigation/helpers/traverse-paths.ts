@@ -6,12 +6,8 @@ import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointe
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import { XScalarStabilityValues } from '@/schemas/extensions/operation/x-scalar-stability'
-import type {
-  OpenApiDocument,
-  OperationObject,
-  TagObject,
-  TraversedOperation,
-} from '@/schemas/v3.1/strict/openapi-document'
+import type { TraversedOperation } from '@/schemas/navigation'
+import type { OpenApiDocument, OperationObject, TagObject } from '@/schemas/v3.1/strict/openapi-document'
 
 import { getTag } from './get-tag'
 
@@ -51,7 +47,7 @@ const createOperationEntry = (
     method,
     ref,
     type: 'operation',
-    isDeprecated: isDeprecated ? isDeprecated : undefined,
+    isDeprecated,
   } satisfies TraversedOperation
 
   return entry

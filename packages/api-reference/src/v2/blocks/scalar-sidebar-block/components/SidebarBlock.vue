@@ -4,7 +4,7 @@ import type {
   TraversedDescription,
   TraversedEntry,
   TraversedTag,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/navigation'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 
 import { useNavState } from '@/hooks/useNavState'

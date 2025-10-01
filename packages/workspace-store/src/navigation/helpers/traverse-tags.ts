@@ -1,6 +1,7 @@
 import { getXKeysFromObject } from '@/navigation/helpers/get-x-keys'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
-import type { OpenApiDocument, TagObject, TraversedEntry, TraversedTag } from '@/schemas/v3.1/strict/openapi-document'
+import type { TraversedEntry, TraversedTag } from '@/schemas/navigation'
+import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
 
 import { getTag } from './get-tag'
 
@@ -31,6 +32,7 @@ const createTagEntry = (
     description: tag.description,
     children,
     isGroup,
+    isWebhooks: false,
     type: 'tag',
     xKeys: getXKeysFromObject(tag),
   } satisfies TraversedTag

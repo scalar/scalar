@@ -1,6 +1,6 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import type { TraversedEntry } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, inject, provide, ref } from 'vue'
 

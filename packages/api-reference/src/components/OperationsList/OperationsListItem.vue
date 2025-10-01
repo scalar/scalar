@@ -5,7 +5,7 @@ import type {
   TraversedEntry,
   TraversedOperation,
   TraversedWebhook,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/navigation'
 import { computed } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'

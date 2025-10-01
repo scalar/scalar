@@ -21,3 +21,15 @@ export const XScalarStabilitySchema = Type.Object({
     Type.Union([Type.Literal('deprecated'), Type.Literal('experimental'), Type.Literal('stable')]),
   ),
 })
+
+export type XScalarStability = {
+  /**
+   * An OpenAPI extension to indicate the stability of the operation
+   *
+   * @example
+   * ```yaml
+   * x-scalar-stability: deprecated
+   * ```
+   */
+  'x-scalar-stability'?: XScalarStabilityValues
+}

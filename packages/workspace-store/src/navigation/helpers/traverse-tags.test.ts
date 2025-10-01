@@ -1,13 +1,8 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { describe, expect, it } from 'vitest'
 
-import type {
-  OpenApiDocument,
-  TagObject,
-  TraversedEntry,
-  TraversedOperation,
-  TraversedTag,
-} from '@/schemas/v3.1/strict/openapi-document'
+import type { TraversedEntry, TraversedOperation, TraversedTag } from '@/schemas/navigation'
+import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
 
 import { traverseTags } from './traverse-tags'
 
@@ -85,6 +80,8 @@ describe('traverseTags', () => {
         id: 'tag1',
         title: 'tag1',
         name: 'tag1',
+        isWebhooks: false,
+        description: undefined,
         children: [createMockEntry('Test Operation')],
         isGroup: false,
         xKeys: {},
@@ -94,6 +91,8 @@ describe('traverseTags', () => {
         id: 'default',
         title: 'default',
         name: 'default',
+        isWebhooks: false,
+        description: undefined,
         children: [createMockEntry('Test Operation')],
         isGroup: false,
         xKeys: {},
