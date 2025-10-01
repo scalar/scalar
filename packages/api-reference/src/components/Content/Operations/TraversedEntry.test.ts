@@ -40,6 +40,13 @@ vi.mock('@scalar/api-client/store', () => ({
   }),
 }))
 
+const defaultOptions = {
+  orderRequiredPropertiesFirst: undefined,
+  orderSchemaPropertiesBy: undefined,
+  onShowMore: undefined,
+  clientOptions: [],
+}
+
 describe('TraversedEntry', async () => {
   const mockDocument = {
     openapi: '3.1.0' as const,
@@ -208,7 +215,7 @@ describe('TraversedEntry', async () => {
             showOperationId: mockConfig.showOperationId,
             hideTestRequestButton: mockConfig.hideTestRequestButton,
             expandAllResponses: mockConfig.expandAllResponses,
-            clientOptions: [],
+            ...defaultOptions,
           },
         },
       })
@@ -240,7 +247,7 @@ describe('TraversedEntry', async () => {
             showOperationId: mockConfig.showOperationId,
             hideTestRequestButton: mockConfig.hideTestRequestButton,
             expandAllResponses: mockConfig.expandAllResponses,
-            clientOptions: [],
+            ...defaultOptions,
           },
         },
       })
@@ -273,7 +280,7 @@ describe('TraversedEntry', async () => {
             showOperationId: mockConfig.showOperationId,
             hideTestRequestButton: mockConfig.hideTestRequestButton,
             expandAllResponses: mockConfig.expandAllResponses,
-            clientOptions: [],
+            ...defaultOptions,
           },
         },
       })
@@ -305,7 +312,7 @@ describe('TraversedEntry', async () => {
             showOperationId: mockConfig.showOperationId,
             hideTestRequestButton: mockConfig.hideTestRequestButton,
             expandAllResponses: mockConfig.expandAllResponses,
-            clientOptions: [],
+            ...defaultOptions,
           },
         },
       })
@@ -338,7 +345,7 @@ describe('TraversedEntry', async () => {
             showOperationId: mockConfig.showOperationId,
             hideTestRequestButton: mockConfig.hideTestRequestButton,
             expandAllResponses: mockConfig.expandAllResponses,
-            clientOptions: [],
+            ...defaultOptions,
           },
         },
       })
@@ -370,7 +377,7 @@ describe('TraversedEntry', async () => {
             showOperationId: mockConfig.showOperationId,
             hideTestRequestButton: mockConfig.hideTestRequestButton,
             expandAllResponses: mockConfig.expandAllResponses,
-            clientOptions: [],
+            ...defaultOptions,
           },
         },
       })
@@ -400,7 +407,7 @@ describe('TraversedEntry', async () => {
             showOperationId: mockConfig.showOperationId,
             hideTestRequestButton: mockConfig.hideTestRequestButton,
             expandAllResponses: mockConfig.expandAllResponses,
-            clientOptions: [],
+            ...defaultOptions,
           },
         },
       })
@@ -433,7 +440,7 @@ describe('TraversedEntry', async () => {
             showOperationId: mockConfig.showOperationId,
             hideTestRequestButton: mockConfig.hideTestRequestButton,
             expandAllResponses: mockConfig.expandAllResponses,
-            clientOptions: [],
+            ...defaultOptions,
           },
         },
       })
@@ -463,7 +470,7 @@ describe('TraversedEntry', async () => {
             showOperationId: mockConfig.showOperationId,
             hideTestRequestButton: mockConfig.hideTestRequestButton,
             expandAllResponses: mockConfig.expandAllResponses,
-            clientOptions: [],
+            ...defaultOptions,
           },
         },
       })
@@ -496,7 +503,7 @@ describe('TraversedEntry', async () => {
             showOperationId: mockConfig.showOperationId,
             hideTestRequestButton: mockConfig.hideTestRequestButton,
             expandAllResponses: mockConfig.expandAllResponses,
-            clientOptions: [],
+            ...defaultOptions,
           },
         },
       })
@@ -526,7 +533,7 @@ describe('TraversedEntry', async () => {
             showOperationId: mockConfig.showOperationId,
             hideTestRequestButton: mockConfig.hideTestRequestButton,
             expandAllResponses: mockConfig.expandAllResponses,
-            clientOptions: [],
+            ...defaultOptions,
           },
         },
       })
@@ -564,7 +571,7 @@ describe('TraversedEntry', async () => {
             showOperationId: mockConfig.showOperationId,
             hideTestRequestButton: mockConfig.hideTestRequestButton,
             expandAllResponses: mockConfig.expandAllResponses,
-            clientOptions: [],
+            ...defaultOptions,
           },
         },
       })
@@ -603,7 +610,7 @@ describe('TraversedEntry', async () => {
             showOperationId: mockConfig.showOperationId,
             hideTestRequestButton: mockConfig.hideTestRequestButton,
             expandAllResponses: mockConfig.expandAllResponses,
-            clientOptions: [],
+            ...defaultOptions,
           },
         },
       })
@@ -636,7 +643,7 @@ describe('TraversedEntry', async () => {
             showOperationId: mockConfig.showOperationId,
             hideTestRequestButton: mockConfig.hideTestRequestButton,
             expandAllResponses: mockConfig.expandAllResponses,
-            clientOptions: [],
+            ...defaultOptions,
           },
         },
       })
@@ -667,7 +674,7 @@ describe('TraversedEntry', async () => {
             showOperationId: mockConfig.showOperationId,
             hideTestRequestButton: mockConfig.hideTestRequestButton,
             expandAllResponses: mockConfig.expandAllResponses,
-            clientOptions: [],
+            ...defaultOptions,
           },
         },
       })
@@ -696,7 +703,7 @@ describe('TraversedEntry', async () => {
             showOperationId: mockConfig.showOperationId,
             hideTestRequestButton: mockConfig.hideTestRequestButton,
             expandAllResponses: mockConfig.expandAllResponses,
-            clientOptions: [],
+            ...defaultOptions,
           },
         },
       })
@@ -725,7 +732,7 @@ describe('TraversedEntry', async () => {
             showOperationId: mockConfig.showOperationId,
             hideTestRequestButton: mockConfig.hideTestRequestButton,
             expandAllResponses: mockConfig.expandAllResponses,
-            clientOptions: [],
+            ...defaultOptions,
           },
         },
       })
@@ -755,7 +762,7 @@ describe('TraversedEntry', async () => {
             showOperationId: mockConfig.showOperationId,
             hideTestRequestButton: mockConfig.hideTestRequestButton,
             expandAllResponses: mockConfig.expandAllResponses,
-            clientOptions: [],
+            ...defaultOptions,
           },
         },
       })
@@ -788,7 +795,7 @@ describe('TraversedEntry', async () => {
             showOperationId: mockConfig.showOperationId,
             hideTestRequestButton: mockConfig.hideTestRequestButton,
             expandAllResponses: mockConfig.expandAllResponses,
-            clientOptions: [],
+            ...defaultOptions,
           },
         },
       })
@@ -861,7 +868,7 @@ describe('TraversedEntry', async () => {
             showOperationId: mockConfig.showOperationId,
             hideTestRequestButton: mockConfig.hideTestRequestButton,
             expandAllResponses: mockConfig.expandAllResponses,
-            clientOptions: [],
+            ...defaultOptions,
           },
         },
       })
@@ -896,7 +903,7 @@ describe('TraversedEntry', async () => {
             showOperationId: mockConfig.showOperationId,
             hideTestRequestButton: mockConfig.hideTestRequestButton,
             expandAllResponses: mockConfig.expandAllResponses,
-            clientOptions: [],
+            ...defaultOptions,
           },
         },
       })
@@ -928,7 +935,7 @@ describe('TraversedEntry', async () => {
             showOperationId: mockConfig.showOperationId,
             hideTestRequestButton: mockConfig.hideTestRequestButton,
             expandAllResponses: mockConfig.expandAllResponses,
-            clientOptions: [],
+            ...defaultOptions,
           },
         },
       })
@@ -967,6 +974,9 @@ describe('TraversedEntry', async () => {
             hideTestRequestButton: mockConfig.hideTestRequestButton,
             expandAllResponses: mockConfig.expandAllResponses,
             clientOptions: [],
+            orderRequiredPropertiesFirst: undefined,
+            orderSchemaPropertiesBy: undefined,
+            onShowMore: undefined,
           },
         },
       })

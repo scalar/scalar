@@ -18,6 +18,7 @@ const { schemas = {}, models } = defineProps<{
     expandAllModelSections: boolean | undefined
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
+    onShowMore: ((id: string) => void) | undefined
   }
 }>()
 
@@ -41,18 +42,11 @@ const flatSchemas = computed(() => {
     :isLazy="Boolean(hash) && !hash.startsWith('model')">
     <ClassicLayout
       v-if="options?.layout === 'classic'"
-      :options="{
-        orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
-        orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
-      }"
+      :options="options"
       :schemas="flatSchemas" />
     <ModernLayout
       v-else
-      :options="{
-        expandAllModelSections: options.expandAllModelSections,
-        orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
-        orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
-      }"
+      :options="options"
       :schemas="flatSchemas" />
   </Lazy>
 </template>

@@ -1,9 +1,8 @@
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
-import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { downloadDocument } from '@/libs/download'
 
 import DownloadLink from './DownloadLink.vue'

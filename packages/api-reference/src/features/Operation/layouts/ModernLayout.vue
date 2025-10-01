@@ -191,6 +191,7 @@ const labelId = useId()
                   v-if="!options.isWebhook"
                   #footer>
                   <TestRequestButton
+                    v-if="!options.hideTestRequestButton"
                     :method="method"
                     :path="path" />
                 </template>

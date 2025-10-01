@@ -4,7 +4,6 @@ import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, reactive, ref } from 'vue'
 
-import DownloadLink from '@/v2/blocks/scalar-info-block/components/DownloadLink.vue'
 import { useSidebar } from '@/v2/blocks/scalar-sidebar-block/hooks/useSidebar'
 
 import IntroductionLayout from './IntroductionLayout.vue'

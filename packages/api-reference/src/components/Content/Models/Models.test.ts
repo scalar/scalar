@@ -1,4 +1,3 @@
-import type { ApiReferenceConfiguration } from '@scalar/types'
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -63,13 +62,21 @@ describe('Models', async () => {
 
   const store = createWorkspaceStore()
 
-  const mockConfigClassic: ApiReferenceConfiguration = {
-    layout: 'classic',
-  } as ApiReferenceConfiguration
+  const mockConfigClassic = {
+    layout: 'classic' as const,
+    onShowMore: undefined,
+    orderRequiredPropertiesFirst: undefined,
+    orderSchemaPropertiesBy: undefined,
+    expandAllModelSections: undefined,
+  }
 
-  const mockConfigModern: ApiReferenceConfiguration = {
-    layout: 'modern',
-  } as ApiReferenceConfiguration
+  const mockConfigModern = {
+    layout: 'modern' as const,
+    onShowMore: undefined,
+    orderRequiredPropertiesFirst: undefined,
+    orderSchemaPropertiesBy: undefined,
+    expandAllModelSections: undefined,
+  }
 
   beforeEach(async () => {
     vi.clearAllMocks()
@@ -202,10 +209,10 @@ describe('Models', async () => {
 
   describe('expandAllModelSections config', () => {
     it('expands all model sections when expandAllModelSections is true', () => {
-      const configWithExpandAll: ApiReferenceConfiguration = {
-        layout: 'modern',
+      const configWithExpandAll = {
+        ...mockConfigModern,
         expandAllModelSections: true,
-      } as ApiReferenceConfiguration
+      }
 
       const wrapper = mount(Models, {
         props: {
@@ -234,9 +241,10 @@ describe('Models', async () => {
     })
 
     it('ensures all model sections are closed when expandAllModelSections is false', () => {
-      const configWithExpandAll: ApiReferenceConfiguration = {
-        layout: 'modern',
-      } as ApiReferenceConfiguration
+      const configWithExpandAll = {
+        ...mockConfigModern,
+        expandAllModelSections: false,
+      }
 
       const wrapper = mount(Models, {
         props: {

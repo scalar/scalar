@@ -15,6 +15,7 @@ import SidebarGroup from './SidebarGroup.vue'
 
 const { title } = defineProps<{
   title: string
+  // options: {}
 }>()
 
 const { hash, isIntersectionEnabled } = useNavState()

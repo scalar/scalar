@@ -42,6 +42,7 @@ const { store, options } = defineProps<{
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
     documentDownloadType: ApiReferenceConfiguration['documentDownloadType']
     url: string | undefined
+    onShowMore: ((id: string) => void) | undefined
   }
 }>()
 
@@ -223,6 +224,7 @@ const models = computed<TraversedDescription | undefined>(() => {
           clientOptions: clientOptions,
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
+          onShowMore: options.onShowMore,
         }"
         :paths="store.workspace.activeDocument?.paths ?? {}"
         :rootIndex
@@ -241,6 +243,7 @@ const models = computed<TraversedDescription | undefined>(() => {
         expandAllModelSections: options.expandAllModelSections,
         orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
         orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
+        onShowMore: options.onShowMore,
       }"
       :schemas="store.workspace.activeDocument.components?.schemas" />
 

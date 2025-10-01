@@ -1,5 +1,5 @@
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
-import type { InfoObject, OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { InfoObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, reactive, ref } from 'vue'

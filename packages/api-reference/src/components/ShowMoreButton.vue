@@ -1,19 +1,18 @@
 <script setup lang="ts">
 import { ScalarIconCaretDown } from '@scalar/icons'
 
-import { useConfig } from '@/hooks/useConfig'
 import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
 
-const { id } = defineProps<{
+const { id, onShowMore } = defineProps<{
   id: string
+  onShowMore: ((id: string) => void) | undefined
 }>()
 
 const { setCollapsedSidebarItem } = useSidebar()
-const config = useConfig()
 
 const handleClick = () => {
   setCollapsedSidebarItem(id, true)
-  config.value.onShowMore?.(id)
+  onShowMore?.(id)
 }
 </script>
 

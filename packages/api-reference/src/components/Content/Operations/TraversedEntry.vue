@@ -50,6 +50,7 @@ const {
     clientOptions: ClientOptionGroup[]
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
+    onShowMore: ((id: string) => void) | undefined
   }
 }>()
 
@@ -145,8 +146,10 @@ defineExpose({
     <!-- Webhook Group or Tag -->
     <template v-else-if="isTag(entry)">
       <Tag
+        :isLoading="false"
         :layout="options.layout"
         :moreThanOneTag="entries.filter(isTag).length > 1"
+        :onShowMore="options.onShowMore"
         :tag="entry">
         <template v-if="'children' in entry && entry.children?.length">
           <TraversedEntry

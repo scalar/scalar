@@ -410,6 +410,7 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
             orderSchemaPropertiesBy: configuration.orderSchemaPropertiesBy,
             documentDownloadType: configuration.documentDownloadType,
             url: configuration.url,
+            onShowMore: configuration.onShowMore,
           }"
           :store="store">
           <template #start>

@@ -20,6 +20,7 @@ const { options, schemas = [] } = defineProps<{
     expandAllModelSections: boolean | undefined
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
+    onShowMore: ((id: string) => void) | undefined
   }
   schemas: { id: string; name: string; schema: SchemaObject }[]
 }>()
@@ -93,7 +94,8 @@ const models = computed(() => {
       <ShowMoreButton
         v-if="!showAllModels"
         id="models"
-        class="show-more-models" />
+        class="show-more-models"
+        :onShowMore="options.onShowMore" />
     </Section>
   </SectionContainer>
 </template>

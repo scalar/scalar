@@ -42,7 +42,11 @@ describe('ModernLayout', () => {
 
   const mountComponent = (props: { tag: TraversedTag; moreThanOneTag: boolean }, options = {}) => {
     return mount(ModernLayout, {
-      props,
+      props: {
+        ...props,
+        isLoading: false,
+        onShowMore: vi.fn(),
+      },
       ...options,
     })
   }

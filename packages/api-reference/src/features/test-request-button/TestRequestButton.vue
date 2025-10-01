@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { ScalarIconPlay } from '@scalar/icons'
-import { computed } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
 import { useApiClient } from '@/features/api-client-modal'
-import { useConfig } from '@/hooks/useConfig'
 
 const { method, path } = defineProps<{
   method: HttpMethod
@@ -13,11 +11,6 @@ const { method, path } = defineProps<{
 }>()
 
 const { client } = useApiClient()
-const config = useConfig()
-
-const isButtonVisible = computed(
-  () => config.value.hideTestRequestButton !== true,
-)
 
 const handleClick = () => {
   client.value?.open({
@@ -29,7 +22,6 @@ const handleClick = () => {
 <template>
   <!-- Render the Test Request Button -->
   <button
-    v-if="isButtonVisible"
     class="show-api-client-button"
     :method="method"
     type="button"
@@ -40,8 +32,6 @@ const handleClick = () => {
     <span>Test Request</span>
     <ScreenReader>({{ method }} {{ path }})</ScreenReader>
   </button>
-  <!-- Render whitespace, so the container doesn't collapse -->
-  <template v-else>&nbsp;</template>
 </template>
 <style scoped>
 .show-api-client-button {

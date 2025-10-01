@@ -10,16 +10,17 @@ import {
   reduceNamesToObject,
   sortPropertyNames,
 } from '@/components/Content/Schema/helpers/sort-property-names'
-import { useConfig } from '@/hooks/useConfig'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 
-const { requestBody } = defineProps<{
+const { requestBody, options } = defineProps<{
   breadcrumb?: string[]
   requestBody?: RequestBodyObject
+  options: {
+    orderRequiredPropertiesFirst: boolean | undefined
+    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
+  }
 }>()
-
-const config = useConfig()
 
 /**
  * The maximum number of properties to show in the request body schema.
@@ -58,8 +59,8 @@ const partitionedSchema = computed(() => {
     schema.value.discriminator,
     {
       hideReadOnly: true,
-      orderSchemaPropertiesBy: config.value.orderSchemaPropertiesBy,
-      orderRequiredPropertiesFirst: config.value.orderRequiredPropertiesFirst,
+      orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
+      orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
     },
   )
 
@@ -125,8 +126,8 @@ const partitionedSchema = computed(() => {
         noncollapsible
         :options="{
           hideReadOnly: true,
-          orderRequiredPropertiesFirst: config.orderRequiredPropertiesFirst,
-          orderSchemaPropertiesBy: config.orderSchemaPropertiesBy,
+          orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
+          orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
         }"
         :schema="partitionedSchema.visibleProperties" />
 
@@ -137,8 +138,8 @@ const partitionedSchema = computed(() => {
         name="Request Body"
         :options="{
           hideReadOnly: true,
-          orderRequiredPropertiesFirst: config.orderRequiredPropertiesFirst,
-          orderSchemaPropertiesBy: config.orderSchemaPropertiesBy,
+          orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
+          orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
         }"
         :schema="partitionedSchema.collapsedProperties" />
     </div>
@@ -155,8 +156,8 @@ const partitionedSchema = computed(() => {
         noncollapsible
         :options="{
           hideReadOnly: true,
-          orderRequiredPropertiesFirst: config.orderRequiredPropertiesFirst,
-          orderSchemaPropertiesBy: config.orderSchemaPropertiesBy,
+          orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
+          orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
         }"
         :schema />
     </div>
