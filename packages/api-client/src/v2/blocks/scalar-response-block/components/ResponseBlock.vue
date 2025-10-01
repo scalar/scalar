@@ -120,6 +120,15 @@ const requestHeaders = computed(() =>
       }))
     : [],
 )
+
+const isSectionVisible = (
+  section: (typeof responseSections)[number] | 'All',
+) => {
+  if (section === 'All' || activeFilter.value === section) {
+    return true
+  }
+  return false
+}
 </script>
 <template>
   <ViewLayoutSection aria-label="Response">
@@ -162,22 +171,25 @@ const requestHeaders = computed(() =>
           @sendRequest="emits('sendRequest')" />
       </template>
       <template v-else>
+        <!-- Cookies section -->
         <ResponseCookies
-          v-if="activeFilter === 'All' || activeFilter === 'Cookies'"
+          v-if="isSectionVisible('Cookies')"
           :id="filterIds.Cookies"
           class="response-section-content-cookies"
           :cookies="responseCookies"
           :role="activeFilter === 'All' ? 'none' : 'tabpanel'" />
+        <!-- Request headers section -->
         <Headers
-          v-if="activeFilter === 'All' || activeFilter === 'Headers'"
+          v-if="isSectionVisible('Headers')"
           :id="filterIds.Headers"
           class="response-section-content-headers"
           :headers="requestHeaders"
           :role="activeFilter === 'All' ? 'none' : 'tabpanel'">
           <template #title>Request Headers</template>
         </Headers>
+        <!-- Response headers section -->
         <Headers
-          v-if="activeFilter === 'All' || activeFilter === 'Headers'"
+          v-if="isSectionVisible('Headers')"
           :id="filterIds.Headers"
           class="response-section-content-headers"
           :headers="responseHeaders"
