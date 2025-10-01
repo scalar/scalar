@@ -231,4 +231,163 @@ describe('fsharpHttpclient.generate - cookies', () => {
     expect(result).toContain('handler.CookieContainer <- cookieContainer')
     expect(result).toContain('let client = new HttpClient(handler)')
   })
+
+  it('handles cookies with special characters', () => {
+    const request = {
+      url: 'https://api.com/',
+      method: 'GET',
+      cookies: [
+        {
+          name: 'special;cookie',
+          value: 'value with spaces',
+        },
+      ],
+    } as any
+    const result = fsharpHttpclient.generate(request, {})
+    expect(result).toContain(
+      'cookieContainer.Add(Uri("https://api.com/"), Cookie("special;cookie", "value with spaces"))',
+    )
+  })
+})
+
+describe('fsharpHttpclient.generate - edge cases', () => {
+  it('handles empty URL', () => {
+    const request = { url: '', method: 'GET' } as any
+    const result = fsharpHttpclient.generate(request, {})
+    expect(result).toContain('let httpRequestMessage = new HttpRequestMessage( HttpMethod("GET"), new Uri(""))')
+  })
+
+  it('handles extremely long URLs', () => {
+    const longUrl = 'https://example.com/' + 'a'.repeat(2000)
+    const request = { url: longUrl, method: 'GET' } as any
+    const result = fsharpHttpclient.generate(request, {})
+    expect(result).toContain(`new Uri("${longUrl}")`)
+  })
+
+  it('handles special characters in URL', () => {
+    const request = { url: 'https://example.com/path with spaces/[brackets]', method: 'GET' } as any
+    const result = fsharpHttpclient.generate(request, {})
+    expect(result).toContain('new Uri("https://example.com/path with spaces/[brackets]")')
+  })
+
+  it('handles special characters in query parameters', () => {
+    const request = {
+      url: 'https://example.com',
+      method: 'GET',
+      queryString: [
+        { name: 'q', value: 'hello world & more' },
+        { name: 'special', value: '!@#$%^&*()' },
+      ],
+    } as any
+    const result = fsharpHttpclient.generate(request, {})
+    expect(result).toContain('new Uri("https://example.com?q=hello world & more&special=!@#$%^&*()")')
+  })
+
+  it('handles URLs with dollar signs', () => {
+    const request = { url: 'https://example.com/path$with$dollars', method: 'GET' } as any
+    const result = fsharpHttpclient.generate(request, {})
+    expect(result).toContain('new Uri("https://example.com/path$with$dollars")')
+  })
+
+  it('handles URLs with dollar signs in query parameters', () => {
+    const request = {
+      url: 'https://example.com',
+      method: 'GET',
+      queryString: [
+        { name: 'price', value: '$100' },
+        { name: 'currency', value: 'USD$' },
+      ],
+    } as any
+    const result = fsharpHttpclient.generate(request, {})
+    expect(result).toContain('new Uri("https://example.com?price=$100&currency=USD$")')
+  })
+
+  it('handles URLs with dollar signs in path and query', () => {
+    const request = {
+      url: 'https://example.com/api$v1/prices',
+      method: 'GET',
+      queryString: [{ name: 'amount', value: '$50.00' }],
+    } as any
+    const result = fsharpHttpclient.generate(request, {})
+    expect(result).toContain('new Uri("https://example.com/api$v1/prices?amount=$50.00")')
+  })
+
+  it('handles multiple headers with same name', () => {
+    const request = {
+      url: 'https://api.com/',
+      method: 'GET',
+      headers: [
+        { name: 'X-Custom', value: 'value1' },
+        { name: 'X-Custom', value: 'value2' },
+      ],
+    } as any
+    const result = fsharpHttpclient.generate(request, {})
+    expect(result).toContain('httpRequestMessage.Headers.Add("X-Custom", "value1")')
+    expect(result).toContain('httpRequestMessage.Headers.Add("X-Custom", "value2")')
+  })
+
+  it('handles headers with empty values', () => {
+    const request = {
+      url: 'https://api.com/',
+      method: 'GET',
+      headers: [{ name: 'X-Empty', value: '' }],
+    } as any
+    const result = fsharpHttpclient.generate(request, {})
+    expect(result).toContain('httpRequestMessage.Headers.Add("X-Empty", "")')
+  })
+
+  it('handles multipart form data with empty file names', () => {
+    const request = {
+      url: 'https://api.com/',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [{ name: 'file', fileName: '', value: 'BINARY' }],
+      },
+    } as any
+    const result = fsharpHttpclient.generate(request, {})
+    expect(result).toContain('let fileStreamContent_0 = new StreamContent(File.OpenRead(""))')
+    expect(result).toContain('content.Add(fileStreamContent_0, "", "")')
+  })
+
+  it('handles JSON body with special characters', () => {
+    const request = {
+      url: 'https://api.com/',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/json',
+        text: JSON.stringify({
+          key: '"quotes" and \\backslashes\\',
+          nested: {
+            array: ['item1', null, undefined],
+          },
+        }),
+      },
+    } as any
+    const result = fsharpHttpclient.generate(request, {})
+    expect(result).toContain(
+      'let content = new StringContent("{\\n  \\"key\\": \\"\\\\\\"quotes\\\\\\" and \\\\\\\\backslashes\\\\\\\\\\",\\n  \\"nested\\": {\\n    \\"array\\": [\\n      \\"item1\\",\\n      null,\\n      null\\n    ]\\n  }\\n}", Encoding.UTF8, "application/json")',
+    )
+  })
+
+  it('prettifies JSON body', () => {
+    const request = {
+      url: 'https://api.com/',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/json',
+        text: JSON.stringify({
+          nested: {
+            array: [1, 2, 3],
+            object: { foo: 'bar' },
+          },
+          simple: 'value',
+        }),
+      },
+    } as any
+    const result = fsharpHttpclient.generate(request, {})
+    expect(result).toContain(
+      'let content = new StringContent("{\\n  \\"nested\\": {\\n    \\"array\\": [\\n      1,\\n      2,\\n      3\\n    ],\\n    \\"object\\": {\\n      \\"foo\\": \\"bar\\"\\n    }\\n  },\\n  \\"simple\\": \\"value\\"\\n}", Encoding.UTF8, "application/json")',
+    )
+  })
 })
