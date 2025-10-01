@@ -122,7 +122,8 @@ const cache = (schema: SchemaObject, result: unknown) => {
   if (typeof result !== 'object' || result === null) {
     return result
   }
-  resultCache.set(schema, result)
+  // Store the result in the cache using the raw schema object as the key
+  resultCache.set(getRaw(unpackOverridesProxy(schema)), result)
   return result
 }
 
@@ -193,7 +194,7 @@ const handleObjectSchema = (
   schema: SchemaObject,
   options: Parameters<typeof getExampleFromSchema>[1],
   level: number,
-  seen: Set<object>,
+  seen: WeakSet<object>,
 ): unknown => {
   const response: Record<string, unknown> = {}
 
@@ -315,7 +316,7 @@ const handleArraySchema = (
   schema: SchemaObject,
   options: Parameters<typeof getExampleFromSchema>[1],
   level: number,
-  seen: Set<object>,
+  seen: WeakSet<object>,
 ) => {
   const items = 'items' in schema ? getResolvedRef(schema.items) : undefined
   const itemsXmlTagName = items && typeof items === 'object' && 'xml' in items ? items.xml?.name : undefined
@@ -465,10 +466,10 @@ export const getExampleFromSchema = (
     level: number
     parentSchema: SchemaObject
     name: string
-    seen: Set<object>
+    seen: WeakSet<object>
   }>,
 ): unknown => {
-  const { level = 0, parentSchema, name, seen = new Set<object>() } = args ?? {}
+  const { level = 0, parentSchema, name, seen = new WeakSet() } = args ?? {}
 
   // Resolve any $ref references to get the actual schema
   const _schema = getResolvedRef(schema)
@@ -476,20 +477,22 @@ export const getExampleFromSchema = (
     return undefined
   }
 
+  // Unpack from all proxies to get the raw schema object for cycle detection
   const targetValue = getRaw(unpackOverridesProxy(_schema))
   if (seen.has(targetValue)) {
     return '[Circular Reference]'
   }
-  console.log('not seen, processing', seen.size)
   seen.add(targetValue)
 
   // Check cache first for performance - avoid recomputing the same schema
-  if (resultCache.has(_schema)) {
-    return resultCache.get(_schema)
+  if (resultCache.has(targetValue)) {
+    seen.delete(targetValue)
+    return resultCache.get(targetValue)
   }
 
   // Prevent infinite recursion in circular references
   if (level > MAX_LEVELS_DEEP) {
+    seen.delete(targetValue)
     return '[Max Depth Exceeded]'
   }
 
@@ -503,6 +506,7 @@ export const getExampleFromSchema = (
     (options?.mode === 'read' && _schema.writeOnly) ||
     shouldOmitProperty(_schema, parentSchema, name, options)
   ) {
+    seen.delete(targetValue)
     return undefined
   }
 
@@ -512,42 +516,54 @@ export const getExampleFromSchema = (
     if (value !== undefined) {
       // Type coercion for numeric types
       if ('type' in _schema && (_schema.type === 'number' || _schema.type === 'integer')) {
+        seen.delete(targetValue)
         return cache(_schema, Number(value))
       }
+      seen.delete(targetValue)
       return cache(_schema, value)
     }
   }
 
   // Priority order: examples > example > default > const > enum
   if (Array.isArray(_schema.examples) && _schema.examples.length > 0) {
+    seen.delete(targetValue)
     return cache(_schema, _schema.examples[0])
   }
   if (_schema.example !== undefined) {
+    seen.delete(targetValue)
     return cache(_schema, _schema.example)
   }
   if (_schema.default !== undefined) {
+    seen.delete(targetValue)
     return cache(_schema, _schema.default)
   }
   if (_schema.const !== undefined) {
+    seen.delete(targetValue)
     return cache(_schema, _schema.const)
   }
   if (Array.isArray(_schema.enum) && _schema.enum.length > 0) {
+    seen.delete(targetValue)
     return cache(_schema, _schema.enum[0])
   }
 
   // Handle object types - check for properties to identify objects
   if ('properties' in _schema || ('type' in _schema && _schema.type === 'object')) {
-    return handleObjectSchema(schema, options, level, seen)
+    const result = handleObjectSchema(schema, options, level, seen)
+    seen.delete(targetValue)
+    return result
   }
 
   // Handle array types
   if (('type' in _schema && _schema.type === 'array') || 'items' in _schema) {
-    return handleArraySchema(_schema, options, level, seen)
+    const result = handleArraySchema(_schema, options, level, seen)
+    seen.delete(targetValue)
+    return result
   }
 
   // Handle primitive types without allocating temporary objects
   const primitive = getPrimitiveValue(_schema, makeUpRandomData, options?.emptyString)
   if (primitive !== undefined) {
+    seen.delete(targetValue)
     return cache(_schema, primitive)
   }
 
@@ -558,6 +574,7 @@ export const getExampleFromSchema = (
     for (const item of discriminate) {
       const resolved = getResolvedRef(item)
       if (resolved && (!('type' in resolved) || resolved.type !== 'null')) {
+        seen.delete(targetValue)
         return cache(
           _schema,
           getExampleFromSchema(resolved, options, {
@@ -567,6 +584,7 @@ export const getExampleFromSchema = (
         )
       }
     }
+    seen.delete(targetValue)
     return cache(_schema, null)
   }
 
@@ -589,15 +607,18 @@ export const getExampleFromSchema = (
         merged = ex
       }
     }
+    seen.delete(targetValue)
     return cache(_schema, merged ?? null)
   }
 
   // Handle union types (array of types)
   const unionPrimitive = getUnionPrimitiveValue(_schema, makeUpRandomData, options?.emptyString)
   if (unionPrimitive !== undefined) {
+    seen.delete(targetValue)
     return cache(_schema, unionPrimitive)
   }
 
   // Default fallback
+  seen.delete(targetValue)
   return cache(_schema, null)
 }
