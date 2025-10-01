@@ -1,25 +1,25 @@
+import { ScalarIconAcorn } from '@scalar/icons'
 import type { Meta, StoryObj } from '@storybook/vue3'
+
 import { useLoadingState } from '../ScalarLoading'
 import ScalarButton from './ScalarButton.vue'
-import { ScalarIconAcorn } from '@scalar/icons'
 
-/**
- * - Default slot must be text only as it becomes the [aria]-label
- * - If you are looking for an icon only button, use ScalarIconButton instead, its a helpful wrapper around this component
- */
+const sizes = ['sm', 'md'] as const
+const variants = ['solid', 'outlined', 'ghost', 'danger'] as const
+
 const meta = {
   component: ScalarButton,
   tags: ['autodocs'],
+  parameters: {
+    layout: 'fullscreen',
+  },
   argTypes: {
     class: { control: 'text' },
-    size: { control: 'select', options: ['md'] },
+    size: { control: 'select', options: sizes, mapping: Object.fromEntries(sizes.map((size) => [size, size])) },
     variant: {
       control: 'select',
-      options: ['solid', 'outlined', 'ghost', 'danger'],
-    },
-    type: {
-      control: 'select',
-      options: ['button', 'submit', 'reset'],
+      options: variants,
+      mapping: Object.fromEntries(variants.map((variant) => [variant, variant])),
     },
   },
   render: (args) => ({
@@ -27,7 +27,10 @@ const meta = {
     setup() {
       return { args }
     },
-    template: `<ScalarButton v-bind="args">Button</ScalarButton>`,
+    template: `
+<div class="w-fit p-2">
+  <ScalarButton v-bind="args">Button</ScalarButton>
+</div>`,
   }),
 } satisfies Meta<typeof ScalarButton>
 
@@ -36,43 +39,19 @@ type Story = StoryObj<typeof meta>
 
 export const Base: Story = {}
 
-export const FullWidth: Story = { args: { fullWidth: true } }
-
-export const Ghost: Story = { args: { variant: 'ghost' } }
-
-export const Danger: Story = {
-  args: { variant: 'danger' },
-
-  render: (args) => ({
-    components: { ScalarButton },
-    setup() {
-      return { args }
-    },
-    template: `<ScalarButton v-bind="args">Delete</ScalarButton>`,
-  }),
-}
-
 export const Disabled: Story = { args: { disabled: true } }
 
 export const Loading: Story = {
-  render: () => ({
+  render: (args) => ({
     components: { ScalarButton },
     setup() {
       const loadingState = useLoadingState()
-      return { loadingState }
+      return { args, loadingState }
     },
-    template: `<ScalarButton @click="loadingState.startLoading()" :loading="loadingState">Click me</ScalarButton>`,
-  }),
-}
-
-export const LoadingFullWidth: Story = {
-  render: () => ({
-    components: { ScalarButton },
-    setup() {
-      const loadingState = useLoadingState()
-      return { loadingState }
-    },
-    template: `<ScalarButton @click="loadingState.startLoading()" :loading="loadingState" fullWidth>Click me</ScalarButton>`,
+    template: `
+<div class="w-fit p-2">
+  <ScalarButton v-bind="args" @click="loadingState.startLoading()" :loading="loadingState">Click me</ScalarButton>
+</div>`,
   }),
 }
 
@@ -83,19 +62,18 @@ export const WithIcon: Story = {
       return { args }
     },
     template: `
-      <ScalarButton :variant="args.variant">
-        <template #icon>
-          <ScalarIconAcorn class="size-full" />
-        </template>
-        Button
-      </ScalarButton>
+<div class="w-fit p-2">
+  <ScalarButton v-bind="args">
+    <template #icon>
+      <ScalarIconAcorn class="size-full" />
+    </template>
+    Button
+  </ScalarButton>
+</div>
     `,
   }),
 }
 
 export const CustomClasses: Story = {
-  render: () => ({
-    components: { ScalarButton },
-    template: `<ScalarButton class="items-start font-normal px-9 py-1">I am a weird button</ScalarButton>`,
-  }),
+  args: { class: 'items-start font-normal px-9 py-1' },
 }
