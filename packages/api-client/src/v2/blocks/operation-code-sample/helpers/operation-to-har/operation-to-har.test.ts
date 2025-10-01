@@ -181,8 +181,27 @@ describe('operationToHar', () => {
               type: 'string',
             }),
             examples: {
-              'number': {
+              'other': {
+                value: '999',
+              },
+              'stuff': {
                 value: '123',
+              },
+            },
+          },
+          {
+            name: 'test',
+            in: 'query',
+            required: true,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'string',
+            }),
+            examples: {
+              'other': {
+                value: 'abc',
+              },
+              'stuff': {
+                value: 'def',
               },
             },
           },
@@ -208,10 +227,11 @@ describe('operationToHar', () => {
         method: 'get',
         path: '/users/{userId}',
         server,
-        example: 'number',
+        example: 'stuff',
       })
 
       expect(result.url).toBe('https://api.example.com/users/123')
+      expect(result.queryString).toContainEqual({ name: 'test', value: 'def' })
     })
 
     it('should handle server with variables and query parameters', () => {

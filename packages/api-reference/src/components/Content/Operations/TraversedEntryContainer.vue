@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
+import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
@@ -8,7 +9,6 @@ import { computed } from 'vue'
 
 import { getCurrentIndex } from '@/components/Content/Operations/get-current-index'
 import { useNavState } from '@/hooks/useNavState'
-import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
 
 import TraversedEntry from './TraversedEntry.vue'

@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import { TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
+import {
+  DEFAULT_CLIENT,
+  type ClientOptionGroup,
+} from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { ScalarCodeBlock, ScalarMarkdown } from '@scalar/components'
 import type { AvailableClients } from '@scalar/snippetz'
 import { emitCustomEvent } from '@scalar/workspace-store/events'
@@ -10,8 +14,6 @@ import {
   getFeaturedClients,
   isFeaturedClient,
 } from '@/v2/blocks/scalar-client-selector-block/helpers/featured-clients'
-import { DEFAULT_CLIENT } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
-import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
 import ClientDropdown from './ClientDropdown.vue'
 

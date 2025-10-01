@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
@@ -17,7 +18,6 @@ import { Lazy } from '@/components/Lazy'
 import { SectionContainer } from '@/components/Section'
 import { Operation } from '@/features/Operation'
 import { useNavState } from '@/hooks/useNavState'
-import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
 const {
   level = 0,

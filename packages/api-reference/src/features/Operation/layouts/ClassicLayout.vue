@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import {
+  OperationCodeSample,
+  type ClientOptionGroup,
+} from '@scalar/api-client/v2/blocks/operation-code-sample'
+import {
   ScalarErrorBoundary,
   ScalarIconButton,
   ScalarMarkdown,
@@ -40,8 +44,6 @@ import OperationParameters from '@/features/Operation/components/OperationParame
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
 import { TestRequestButton } from '@/features/test-request-button'
 import { XBadges } from '@/features/x-badges'
-import { RequestExample } from '@/v2/blocks/scalar-request-example-block'
-import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
 const { operation, path, config, isWebhook } = defineProps<{
   id: string
@@ -186,7 +188,7 @@ const { copyToClipboard } = useClipboard()
         </LinkList>
         <!-- Request Example -->
         <ScalarErrorBoundary>
-          <RequestExample
+          <OperationCodeSample
             class="operation-example-card"
             :clientOptions="clientOptions"
             fallback

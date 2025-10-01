@@ -1,3 +1,4 @@
+import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { enableConsoleError, enableConsoleWarn } from '@scalar/helpers/testing/console-spies'
 import { collectionSchema } from '@scalar/oas-utils/entities/spec'
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
@@ -8,7 +9,6 @@ import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createMockSidebar, createMockStore } from '@/helpers/test-utils'
-import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
 import Operation from './Operation.vue'
 
