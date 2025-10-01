@@ -131,16 +131,28 @@ export const findResource = <T>(
 /** Helper function to unwrap optional and default schemas */
 const unwrapSchema = (schema: ZodSchema): ZodSchema => {
   if (schema instanceof z.ZodOptional) {
-    return unwrapSchema(schema.unwrap() as ZodSchema)
+    const unwrapped = schema.unwrap()
+    if (unwrapped instanceof z.ZodType) {
+      return unwrapSchema(unwrapped)
+    }
   }
   if (schema instanceof z.ZodDefault) {
-    return unwrapSchema(schema._zod.def.innerType as ZodSchema)
+    const innerType = schema._zod.def.innerType
+    if (innerType instanceof z.ZodType) {
+      return unwrapSchema(innerType)
+    }
   }
   if (schema instanceof z.ZodCatch) {
-    return unwrapSchema(schema._zod.def.innerType as ZodSchema)
+    const innerType = schema._zod.def.innerType
+    if (innerType instanceof z.ZodType) {
+      return unwrapSchema(innerType)
+    }
   }
   if (schema instanceof z.ZodPipe) {
-    return unwrapSchema(schema._zod.def.in as ZodSchema)
+    const inType = schema._zod.def.in
+    if (inType instanceof z.ZodType) {
+      return unwrapSchema(inType)
+    }
   }
   return schema
 }
@@ -163,18 +175,36 @@ export const traverseZodSchema = (schema: ZodSchema, path: (string | number)[]):
 
     // Traverse an object
     if (currentSchema instanceof z.ZodObject && typeof key === 'string' && key in currentSchema.shape) {
-      currentSchema = currentSchema.shape[key] as ZodSchema
+      const shapeValue = currentSchema.shape[key]
+      if (shapeValue instanceof z.ZodType) {
+        currentSchema = shapeValue
+      } else {
+        return null
+      }
     }
     // Traverse into an array
     else if (currentSchema instanceof z.ZodArray) {
       if (typeof key === 'number') {
         // If the key is a number, we're accessing an array element
-        currentSchema = currentSchema.element as ZodSchema
+        if (currentSchema.element instanceof z.ZodType) {
+          currentSchema = currentSchema.element
+        } else {
+          return null
+        }
       } else if (typeof key === 'string') {
         // If the key is a string, we're accessing a property of the array elements
-        currentSchema = currentSchema.element as ZodSchema
+        if (currentSchema.element instanceof z.ZodType) {
+          currentSchema = currentSchema.element
+        } else {
+          return null
+        }
         if (currentSchema instanceof z.ZodObject && key in currentSchema.shape) {
-          currentSchema = currentSchema.shape[key] as ZodSchema
+          const shapeValue = currentSchema.shape[key]
+          if (shapeValue instanceof z.ZodType) {
+            currentSchema = shapeValue
+          } else {
+            return null
+          }
         } else {
           return null
         }
@@ -184,9 +214,8 @@ export const traverseZodSchema = (schema: ZodSchema, path: (string | number)[]):
     }
     // Traverse into a record
     else if (currentSchema instanceof z.ZodRecord) {
-      // In Zod 4, access the value schema through _zod.def.valueType
-      const valueSchema = currentSchema._zod.def.valueType as ZodSchema
-      if (!valueSchema) {
+      const valueSchema = currentSchema._zod.def.valueType
+      if (!valueSchema || !(valueSchema instanceof z.ZodType)) {
         return null
       }
       if (typeof key === 'string') {
@@ -201,7 +230,11 @@ export const traverseZodSchema = (schema: ZodSchema, path: (string | number)[]):
         currentSchema = unwrapSchema(currentSchema)
         // If the value schema is an array, get the element type
         if (currentSchema instanceof z.ZodArray) {
-          currentSchema = currentSchema.element as ZodSchema
+          if (currentSchema.element instanceof z.ZodType) {
+            currentSchema = currentSchema.element
+          } else {
+            return null
+          }
         }
       } else {
         // For other keys, just return the value schema
@@ -603,7 +636,10 @@ export const narrowUnionSchema = (schema: ZodSchema, key: string, value: string)
 
   if (_schema instanceof z.ZodUnion || _schema instanceof z.ZodDiscriminatedUnion) {
     for (const option of _schema.options) {
-      const unwrappedOption = unwrapSchema(option as ZodSchema)
+      if (!(option instanceof z.ZodType)) {
+        continue
+      }
+      const unwrappedOption = unwrapSchema(option)
       if (unwrappedOption instanceof z.ZodObject && key in unwrappedOption.shape) {
         const fieldSchema = unwrapSchema(unwrappedOption.shape[key])
         // Handle both ZodLiteral and wrapped ZodLiteral (e.g., ZodDefault, ZodOptional)
