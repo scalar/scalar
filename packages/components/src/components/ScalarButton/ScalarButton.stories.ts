@@ -1,11 +1,13 @@
-import { ScalarIconAcorn } from '@scalar/icons'
+import { ScalarIconCube } from '@scalar/icons'
 import type { Meta, StoryObj } from '@storybook/vue3'
+
+import type { ButtonSize, ButtonVariant } from '@/components/ScalarButton/types'
 
 import { useLoadingState } from '../ScalarLoading'
 import ScalarButton from './ScalarButton.vue'
 
-const sizes = ['sm', 'md'] as const
-const variants = ['solid', 'outlined', 'ghost', 'danger'] as const
+const sizes = ['xs', 'sm', 'md'] as const satisfies ButtonSize[]
+const variants = ['solid', 'outlined', 'ghost', 'danger'] as const satisfies ButtonVariant[]
 
 const meta = {
   component: ScalarButton,
@@ -59,7 +61,7 @@ export const Loading: Story = {
 }
 
 export const WithIcon: Story = {
-  args: { icon: ScalarIconAcorn as any },
+  args: { icon: ScalarIconCube as any },
 }
 
 export const CustomClasses: Story = {

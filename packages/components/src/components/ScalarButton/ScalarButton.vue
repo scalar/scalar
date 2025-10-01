@@ -30,13 +30,15 @@ const {
   type = 'button',
 } = defineProps<ScalarButtonProps>()
 
-const variants = cva({
+/** Variant styles for the button (wrapper) */
+const buttonVariants = cva({
   base: 'scalar-button flex cursor-pointer items-center justify-center rounded font-medium -outline-offset-1',
   variants: {
     disabled: { true: 'bg-b-2 text-color-3 shadow-none' },
     fullWidth: { true: 'w-full' },
     size: {
-      sm: 'px-2 py-1 text-xs',
+      xs: 'px-2 py-1 text-xs leading-5',
+      sm: 'px-3.5 py-2 text-sm leading-5',
       md: 'px-5 py-3 text-sm leading-5',
     } satisfies Record<ButtonSize, ClassList>,
     variant: BUTTON_VARIANT_STYLES,
@@ -51,6 +53,29 @@ const variants = cva({
   ],
 })
 
+/** Variant styles for the button icon */
+const iconVariants = cva({
+  base: 'shrink-0',
+  variants: {
+    size: {
+      xs: 'size-2.75 -ml-0.25 mr-1',
+      sm: 'size-3.25 -ml-0.5 mr-1.5',
+      md: 'size-3.5 -ml-0.5 mr-1.5',
+    } satisfies Record<ButtonSize, ClassList>,
+  },
+})
+
+/** Variant styles for the loading icon */
+const loadingVariants = cva({
+  variants: {
+    size: {
+      xs: 'size-4',
+      sm: 'size-5',
+      md: 'size-6',
+    } satisfies Record<ButtonSize, ClassList>,
+  },
+})
+
 defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 </script>
@@ -59,14 +84,13 @@ const { cx } = useBindCx()
     :aria-disabled="disabled || undefined"
     :type="type"
     v-bind="
-      cx(variants({ fullWidth, disabled, size, variant }), {
+      cx(buttonVariants({ fullWidth, disabled, size, variant }), {
         relative: loading?.isLoading,
       })
     ">
     <div
       v-if="$slots.icon || icon"
-      class="-ml-0.5 mr-1.5 size-3.5 shrink-0"
-      :class="{ invisible: loading?.isLoading }">
+      :class="[iconVariants({ size }), { invisible: loading?.isLoading }]">
       <slot name="icon">
         <component
           :is="icon"
@@ -83,8 +107,8 @@ const { cx } = useBindCx()
       v-if="loading?.isLoading"
       class="centered">
       <ScalarLoading
-        :loadingState="loading"
-        size="xl" />
+        :class="loadingVariants({ size })"
+        :loadingState="loading" />
     </div>
   </button>
 </template>

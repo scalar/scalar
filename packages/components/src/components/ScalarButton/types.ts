@@ -6,7 +6,7 @@ import type { LoadingState } from '@/components/ScalarLoading'
 export type ButtonVariant = 'solid' | 'outlined' | 'ghost' | 'danger'
 
 /** Sizes for the ScalarButton component */
-export type ButtonSize = 'sm' | 'md'
+export type ButtonSize = 'xs' | 'sm' | 'md'
 
 /** Utility type for class names */
 export type ClassList = string | string[]
