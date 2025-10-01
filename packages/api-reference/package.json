@@ -41,7 +41,7 @@
     "test:benchmark": "vitest bench",
     "test:benchmark:compare": "vitest bench --compare test/results/main.json",
     "test:benchmark:format": "vite-node test/scripts/format-benchmark-results.ts",
-    "test:benchmark:save": "vitest bench --outputJson test/results/branch.json",
+    "test:benchmark:save": "vitest bench",
     "test:e2e": "playwright test",
     "test:e2e:playwright": "docker run --network=host -e PORT=5001 -p 5001:5001 scalarapi/playwright:1.55.0",
     "test:e2e:report": "playwright show-report",
