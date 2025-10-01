@@ -74,7 +74,10 @@ function buildUrlWithQueryString(baseUrl: string | undefined, queryParams?: { na
  * Generates the HttpRequestMessage initialization code
  */
 function generateHttpRequestMessage(method: string | undefined, url: string): string {
-  return `let httpRequestMessage = new HttpRequestMessage( HttpMethod("${method}"), new Uri("${escapeString(url)}"))\n\n`
+  return `let httpRequestMessage = new HttpRequestMessage(
+  HttpMethod("${method}"),
+  new Uri("${escapeString(url)}")
+)\n\n`
 }
 
 /**
@@ -168,7 +171,7 @@ function generateMultipartFormDataCode(postData: any): string {
  */
 function generateJsonContentCode(postData: any): string {
   const prettyJson = JSON.stringify(JSON.parse(postData.text ?? '{}'), null, 2)
-  return `let content = new StringContent("${escapeString(prettyJson)}", Encoding.UTF8, "application/json")\n`
+  return `let content = new StringContent("""${prettyJson}""", Encoding.UTF8, "application/json")\n`
 }
 
 /**

@@ -46,7 +46,10 @@ describe('fsharpHttpclient.generate - HttpRequestMessage initialization', () => 
     const request = { url: 'https://api.com/', method: 'GET' } as any
     const result = fsharpHttpclient.generate(request, {})
     expect(result).toContain(
-      'let httpRequestMessage = new HttpRequestMessage( HttpMethod("GET"), new Uri("https://api.com/"))',
+      `let httpRequestMessage = new HttpRequestMessage(
+  HttpMethod("GET"),
+  new Uri("https://api.com/")
+)`,
     )
   })
 
@@ -54,7 +57,10 @@ describe('fsharpHttpclient.generate - HttpRequestMessage initialization', () => 
     const request = { url: 'https://api.com/resource', method: 'POST' } as any
     const result = fsharpHttpclient.generate(request, {})
     expect(result).toContain(
-      'let httpRequestMessage = new HttpRequestMessage( HttpMethod("POST"), new Uri("https://api.com/resource"))',
+      `let httpRequestMessage = new HttpRequestMessage(
+  HttpMethod("POST"),
+  new Uri("https://api.com/resource")
+)`,
     )
   })
 
@@ -66,7 +72,10 @@ describe('fsharpHttpclient.generate - HttpRequestMessage initialization', () => 
     } as any
     const result = fsharpHttpclient.generate(request, {})
     expect(result).toContain(
-      'let httpRequestMessage = new HttpRequestMessage( HttpMethod("GET"), new Uri("https://api.com/data?q=search"))',
+      `let httpRequestMessage = new HttpRequestMessage(
+  HttpMethod("GET"),
+  new Uri("https://api.com/data?q=search")
+)`,
     )
   })
 })
@@ -115,7 +124,7 @@ describe('fsharpHttpclient.generate - postData', () => {
     } as any
     const result = fsharpHttpclient.generate(request, {})
     expect(result).toContain(
-      'let content = new StringContent("{\\n  \\"key\\": \\"value\\"\\n}", Encoding.UTF8, "application/json")',
+      'let content = new StringContent("""{\n  "key": "value"\n}""", Encoding.UTF8, "application/json")',
     )
     expect(result).toContain('httpRequestMessage.Content <- content')
   })
@@ -254,7 +263,10 @@ describe('fsharpHttpclient.generate - edge cases', () => {
   it('handles empty URL', () => {
     const request = { url: '', method: 'GET' } as any
     const result = fsharpHttpclient.generate(request, {})
-    expect(result).toContain('let httpRequestMessage = new HttpRequestMessage( HttpMethod("GET"), new Uri(""))')
+    expect(result).toContain(`let httpRequestMessage = new HttpRequestMessage(
+  HttpMethod("GET"),
+  new Uri("")
+)`)
   })
 
   it('handles extremely long URLs', () => {
@@ -309,7 +321,7 @@ describe('fsharpHttpclient.generate - edge cases', () => {
       queryString: [{ name: 'amount', value: '$50.00' }],
     } as any
     const result = fsharpHttpclient.generate(request, {})
-    expect(result).toContain('new Uri("https://example.com/api$v1/prices?amount=$50.00")')
+    expect(result).toContain('new Uri("https://example.com/api$v1/prices?amount=$50.00"')
   })
 
   it('handles multiple headers with same name', () => {
@@ -366,7 +378,7 @@ describe('fsharpHttpclient.generate - edge cases', () => {
     } as any
     const result = fsharpHttpclient.generate(request, {})
     expect(result).toContain(
-      'let content = new StringContent("{\\n  \\"key\\": \\"\\\\\\"quotes\\\\\\" and \\\\\\\\backslashes\\\\\\\\\\",\\n  \\"nested\\": {\\n    \\"array\\": [\\n      \\"item1\\",\\n      null,\\n      null\\n    ]\\n  }\\n}", Encoding.UTF8, "application/json")',
+      'let content = new StringContent("""{\n  "key": "\\"quotes\\" and \\\\backslashes\\\\",\n  "nested": {\n    "array": [\n      "item1",\n      null,\n      null\n    ]\n  }\n}""", Encoding.UTF8, "application/json")',
     )
   })
 
@@ -387,7 +399,7 @@ describe('fsharpHttpclient.generate - edge cases', () => {
     } as any
     const result = fsharpHttpclient.generate(request, {})
     expect(result).toContain(
-      'let content = new StringContent("{\\n  \\"nested\\": {\\n    \\"array\\": [\\n      1,\\n      2,\\n      3\\n    ],\\n    \\"object\\": {\\n      \\"foo\\": \\"bar\\"\\n    }\\n  },\\n  \\"simple\\": \\"value\\"\\n}", Encoding.UTF8, "application/json")',
+      'let content = new StringContent("""{\n  "nested": {\n    "array": [\n      1,\n      2,\n      3\n    ],\n    "object": {\n      "foo": "bar"\n    }\n  },\n  "simple": "value"\n}""", Encoding.UTF8, "application/json")',
     )
   })
 })
