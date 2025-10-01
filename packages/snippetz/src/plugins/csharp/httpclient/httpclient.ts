@@ -1,6 +1,8 @@
 import type { Plugin, PluginConfiguration } from '@scalar/types/snippetz'
 import { encode } from 'js-base64'
 
+import { createSearchParams } from '@/utils/create-search-params'
+
 /**
  * csharp/httpclient
  */
@@ -20,19 +22,11 @@ export const csharpHttpclient: Plugin = {
     normalizedRequest.method = normalizedRequest.method.toUpperCase()
 
     // Build URL with query string
-    const queryString = normalizedRequest.queryString?.length
-      ? '?' +
-        normalizedRequest.queryString
-          .map((param) => {
-            const encodedName = encodeURIComponent(param.name)
-            const encodedValue = encodeURIComponent(param.value)
-            return `${encodedName}=${encodedValue}`
-          })
-          .join('&')
-      : ''
+    const searchParams = createSearchParams(normalizedRequest.queryString)
+    const queryString = searchParams.size ? `?${searchParams.toString()}` : ''
 
     // URL encoding: encode spaces in path but keep brackets as-is
-    const url = `${normalizedRequest.url}${queryString}`.replace(/ /g, '%20').replace(/\[/g, '[').replace(/\]/g, ']')
+    const url = encodeUrl(`${normalizedRequest.url}${queryString}`)
 
     // Start building the snippet
     const lines: string[] = []
@@ -225,6 +219,13 @@ function createRawStringLiteral(text: string): string {
 
   const quotes = '"'.repeat(quoteCount)
   return `${quotes}\n${text}\n${quotes}`
+}
+
+/**
+ * Encode URL with proper handling of spaces and brackets
+ */
+function encodeUrl(url: string): string {
+  return url.replace(/ /g, '%20').replace(/\[/g, '[').replace(/\]/g, ']')
 }
 
 /**
