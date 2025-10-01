@@ -1,0 +1,61 @@
+{
+  "name": "vscode-scalar",
+  "description": "Use Scalar in VS Code",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "integrations/vscode"
+  },
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.102.0"
+  },
+  "scripts": {
+    "compile": "pnpm run copy:standalone && vite build",
+    "compile-tests": "tsc -p . --outDir out",
+    "copy:standalone": "shx cp ../../packages/api-reference/dist/browser/standalone.js ./src/scalar-api-reference.js",
+    "lint": "eslint src",
+    "package": "pnpm run copy:standalone && vite build --mode production",
+    "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
+    "test": "vscode-test",
+    "vscode:prepublish": "pnpm run package",
+    "watch": "pnpm run copy:standalone && vite build --watch",
+    "watch-tests": "tsc -p . -w --outDir out"
+  },
+  "main": "./dist/extension.js",
+  "displayName": "vscode-scalar",
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "contributes": {
+    "commands": [
+      {
+        "command": "vscode-scalar.helloWorld",
+        "title": "Hello World"
+      },
+      {
+        "command": "vscode-scalar.previewOpenAPI",
+        "title": "Preview OpenAPI"
+      }
+    ]
+  },
+  "devDependencies": {
+    "@scalar/api-reference": "workspace:*",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.102.0",
+    "@typescript-eslint/eslint-plugin": "^8.31.1",
+    "@typescript-eslint/parser": "^8.31.1",
+    "@vscode/test-cli": "^0.0.11",
+    "@vscode/test-electron": "^2.5.2",
+    "eslint": "^9.25.1",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.4"
+  }
+}
