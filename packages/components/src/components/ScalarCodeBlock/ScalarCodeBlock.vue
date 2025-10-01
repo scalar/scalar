@@ -10,7 +10,7 @@ import { ScalarCodeBlockCopy } from '../ScalarCodeBlock'
  */
 const props = withDefaults(
   defineProps<{
-    content: string | object
+    content: unknown
     lang?: string
     lineNumbers?: boolean
     hideCredentials?: string | string[]
@@ -26,8 +26,17 @@ const props = withDefaults(
 /** Base id for the code block */
 const id = useId()
 
+/** Formatted the content into an indented json string */
+const prettyContent = computed(() => {
+  const content = props.content
+  if (!content) {
+    return ''
+  }
+  return prettyPrintJson(content)
+})
+
 const highlightedCode = computed(() => {
-  const html = syntaxHighlight(prettyPrintJson(props.content), {
+  const html = syntaxHighlight(prettyContent.value, {
     lang: props.lang.trim(),
     languages: standardLanguages,
     lineNumbers: props.lineNumbers,
@@ -52,7 +61,7 @@ const isContentValid = computed(() => {
     tabindex="0">
     <ScalarCodeBlockCopy
       v-if="copy && isContentValid"
-      :content="prettyPrintJson(props.content)"
+      :content="prettyContent"
       :controls="id" />
     <pre
       :id="id"
