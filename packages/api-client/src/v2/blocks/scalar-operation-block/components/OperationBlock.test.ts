@@ -15,6 +15,7 @@ const defaultProps = {
   exampleKey: 'example-1',
   securitySchemes: {},
   selectedSecurity: [],
+  security: [],
 
   layout: 'web' as const,
 
