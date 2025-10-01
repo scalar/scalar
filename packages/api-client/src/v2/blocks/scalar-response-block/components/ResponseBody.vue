@@ -15,7 +15,7 @@ const props = defineProps<{
   title: string
   layout: 'client' | 'reference'
   data: unknown
-  headers: { name: string; value: string; required: boolean }[]
+  headers: { name: string; value: string }[]
 }>()
 
 /** Preview / Raw toggle */

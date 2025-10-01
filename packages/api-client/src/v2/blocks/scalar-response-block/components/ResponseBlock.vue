@@ -52,7 +52,6 @@ const responseHeaders = computed(() => {
     ? Object.keys(headers).map((key) => ({
         name: key,
         value: headers[key] ?? '',
-        required: false,
       }))
     : []
 })
@@ -67,7 +66,6 @@ const responseCookies = computed(
         ? {
             name: key,
             value,
-            required: false,
           }
         : []
     }) ?? [],

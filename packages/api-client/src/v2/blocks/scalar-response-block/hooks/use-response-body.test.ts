@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 
-import { useResponseBody } from './useResponseBody'
+import { useResponseBody } from './use-response-body'
 
 describe('useResponseBody', () => {
   beforeAll(() => {

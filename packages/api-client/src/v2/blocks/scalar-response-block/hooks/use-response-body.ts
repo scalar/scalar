@@ -8,10 +8,7 @@ import { extractFilename } from './../helpers/extract-filename'
  * Processes the response body of an HTTP request.
  * Extracts MIME type, attachment filename, and generates a data URL.
  */
-export function useResponseBody(props: {
-  data: Ref<unknown>
-  headers: Ref<{ name: string; value: string; required: boolean }[]>
-}) {
+export function useResponseBody(props: { data: Ref<unknown>; headers: Ref<{ name: string; value: string }[]> }) {
   const isBlob = (b: any): b is Blob => b instanceof Blob
 
   // Handle both Ref and direct values

@@ -1,3 +1,6 @@
+/**
+ * Safely decode a URI component, returning the original string if decoding fails
+ */
 const decodeURIComponentSafe = (str: string) => {
   try {
     return decodeURIComponent(str)

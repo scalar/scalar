@@ -11,7 +11,7 @@ import ResponseBodyDownload from './ResponseBodyDownload.vue'
 const props = defineProps<{
   content: string
   data: unknown
-  headers: { name: string; value: string; required: boolean }[]
+  headers: { name: string; value: string }[]
 }>()
 
 const textContent = computed(() => formatJsonOrYamlString(props.content))
