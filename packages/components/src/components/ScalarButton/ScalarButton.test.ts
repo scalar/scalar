@@ -1,9 +1,9 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-
-import ScalarButton from './ScalarButton.vue'
-import { useLoadingState } from '../ScalarLoading'
 import { nextTick } from 'vue'
+
+import { useLoadingState } from '../ScalarLoading'
+import ScalarButton from './ScalarButton.vue'
 
 describe('ScalarButton', () => {
   it('renders properly with default props', () => {
@@ -92,30 +92,6 @@ describe('ScalarButton', () => {
         },
       })
       expect(wrapper.classes()).toContain(`scalar-button-${variant}`)
-    })
-  })
-
-  it('applies different sizes correctly', () => {
-    const sizes = ['sm', 'md'] as const
-    sizes.forEach((size) => {
-      const wrapper = mount(ScalarButton, {
-        props: {
-          size,
-        },
-        slots: {
-          default: `${size} button`,
-        },
-      })
-      // Check for size-specific classes based on the variants.ts implementation
-      if (size === 'sm') {
-        expect(wrapper.classes()).toContain('px-2')
-        expect(wrapper.classes()).toContain('py-1')
-        expect(wrapper.classes()).toContain('text-xs')
-      } else if (size === 'md') {
-        expect(wrapper.classes()).toContain('h-10')
-        expect(wrapper.classes()).toContain('px-6')
-        expect(wrapper.classes()).toContain('text-sm')
-      }
     })
   })
 

@@ -13,9 +13,12 @@ const meta = {
   parameters: {
     layout: 'fullscreen',
   },
+  args: { label: 'Button', size: 'md', variant: 'solid', disabled: false, fullWidth: false },
   argTypes: {
+    label: { control: 'text' },
     class: { control: 'text' },
     size: { control: 'select', options: sizes, mapping: Object.fromEntries(sizes.map((size) => [size, size])) },
+    loading: { control: false },
     variant: {
       control: 'select',
       options: variants,
@@ -29,10 +32,10 @@ const meta = {
     },
     template: `
 <div class="w-fit p-2">
-  <ScalarButton v-bind="args">Button</ScalarButton>
+  <ScalarButton v-bind="args">{{ args.label }}</ScalarButton>
 </div>`,
   }),
-} satisfies Meta<typeof ScalarButton>
+} satisfies Meta
 
 export default meta
 type Story = StoryObj<typeof meta>
@@ -56,24 +59,9 @@ export const Loading: Story = {
 }
 
 export const WithIcon: Story = {
-  render: (args) => ({
-    components: { ScalarButton, ScalarIconAcorn },
-    setup() {
-      return { args }
-    },
-    template: `
-<div class="w-fit p-2">
-  <ScalarButton v-bind="args">
-    <template #icon>
-      <ScalarIconAcorn class="size-full" />
-    </template>
-    Button
-  </ScalarButton>
-</div>
-    `,
-  }),
+  args: { icon: ScalarIconAcorn as any },
 }
 
 export const CustomClasses: Story = {
-  args: { class: 'items-start font-normal px-9 py-1' },
+  args: { class: 'font-normal px-9 py-1' },
 }

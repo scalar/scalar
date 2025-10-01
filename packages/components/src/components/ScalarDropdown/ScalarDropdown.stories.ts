@@ -32,7 +32,7 @@ const meta = {
       return { args }
     },
     template: `
-<div class="flex justify-center w-full min-h-96">
+<div class="flex flex-col items-center w-full min-h-96">
   <ScalarDropdown v-bind="args">
     <ScalarButton>Click Me</ScalarButton>
     <template #items>
