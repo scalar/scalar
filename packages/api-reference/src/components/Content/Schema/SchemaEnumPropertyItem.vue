@@ -22,6 +22,13 @@ defineProps<{
 
 <style scoped>
 .property-enum-value {
+  /**
+   * Firefox might not render values below 1px correctly on low-resolution displays.
+   * We want to make sure we use a value that's at least 1px.
+   * To make it look lighter/thinner, we lower the opacity.
+  */
+  --enum-border-width: 1px;
+  --enum-border-opacity: 0.5;
   color: var(--scalar-color-3);
   line-height: 1.5;
   word-break: break-word;
@@ -50,7 +57,8 @@ defineProps<{
 .property-enum-value::before {
   content: '';
   margin-right: 12px;
-  width: var(--scalar-border-width);
+  width: var(--enum-border-width);
+  opacity: var(--enum-border-opacity);
   display: block;
   background: currentColor;
   color: var(--scalar-color-3);
@@ -65,7 +73,8 @@ defineProps<{
 .property-enum-value:not(:last-child)::before {
   content: '';
   margin-right: 12px;
-  width: var(--scalar-border-width);
+  width: var(--enum-border-width);
+  opacity: var(--enum-border-opacity);
   display: block;
   background: currentColor;
   color: var(--scalar-color-3);
@@ -77,15 +86,17 @@ defineProps<{
   top: 50%;
   left: -12px;
   width: 8px;
-  height: var(--scalar-border-width);
+  height: var(--enum-border-width);
   background: var(--scalar-color-2);
+  opacity: var(--enum-border-opacity);
 }
 
 .property-enum-value:last-of-type::after {
   bottom: 0;
   height: 50%;
   background: var(--scalar-background-1);
-  border-top: var(--scalar-border-width) solid currentColor;
+  border-top: var(--enum-border-width) solid currentColor;
+  opacity: var(--enum-border-opacity);
 }
 
 .property-enum-value-description {
