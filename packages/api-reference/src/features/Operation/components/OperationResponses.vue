@@ -4,10 +4,14 @@ import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/stric
 
 import ParameterListItem from './ParameterListItem.vue'
 
-const { responses, collapsableItems = true } = defineProps<{
+const { responses } = defineProps<{
   responses: OperationObject['responses']
-  collapsableItems?: boolean
   breadcrumb?: string[]
+  options: {
+    collapsableItems?: boolean | undefined
+    orderRequiredPropertiesFirst: boolean | undefined
+    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
+  }
 }>()
 </script>
 <template>
@@ -20,10 +24,9 @@ const { responses, collapsableItems = true } = defineProps<{
         v-for="(response, status) in responses"
         :key="status"
         :breadcrumb="breadcrumb"
-        :collapsableItems="collapsableItems"
         :name="status"
-        :parameter="getResolvedRef(response)"
-        :withExamples="false" />
+        :options="options"
+        :parameter="getResolvedRef(response)" />
     </ul>
   </div>
 </template>

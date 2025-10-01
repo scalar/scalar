@@ -48,6 +48,8 @@ const {
     hideTestRequestButton: boolean | undefined
     expandAllResponses: boolean | undefined
     clientOptions: ClientOptionGroup[]
+    orderRequiredPropertiesFirst: boolean | undefined
+    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   }
 }>()
 

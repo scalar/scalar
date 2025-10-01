@@ -60,6 +60,8 @@ const { operation, path } = defineProps<{
     clientOptions: ClientOptionGroup[]
     showOperationId: boolean | undefined
     hideTestRequestButton: boolean | undefined
+    orderRequiredPropertiesFirst: boolean | undefined
+    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   }
 }>()
 
@@ -156,6 +158,7 @@ const { copyToClipboard } = useClipboard()
       <div class="operation-details-card">
         <div class="operation-details-card-item">
           <OperationParameters
+            :options="options"
             :parameters="
               // These have been resolved in the Operation.vue component
               operation.parameters as ParameterObject[]
@@ -164,7 +167,11 @@ const { copyToClipboard } = useClipboard()
         </div>
         <div class="operation-details-card-item">
           <OperationResponses
-            :collapsableItems="false"
+            :options="{
+              orderRequiredPropertiesFirst:
+                options.orderRequiredPropertiesFirst,
+              orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
+            }"
             :responses="operation.responses" />
         </div>
 
@@ -175,6 +182,7 @@ const { copyToClipboard } = useClipboard()
           <Callbacks
             :callbacks="operation.callbacks"
             :method="method"
+            :options="options"
             :path="path" />
         </div>
       </div>

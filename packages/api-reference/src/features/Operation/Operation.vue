@@ -44,6 +44,8 @@ const { server, pathValue, method, security, collection, store } = defineProps<{
     hideTestRequestButton: boolean | undefined
     expandAllResponses: boolean | undefined
     clientOptions: ClientOptionGroup[]
+    orderRequiredPropertiesFirst: boolean | undefined
+    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   }
 }>()
 

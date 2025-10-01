@@ -57,6 +57,8 @@ const { path, operation, method } = defineProps<{
     hideTestRequestButton: boolean | undefined
     expandAllResponses: boolean | undefined
     clientOptions: ClientOptionGroup[]
+    orderRequiredPropertiesFirst: boolean | undefined
+    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   }
 }>()
 
@@ -127,14 +129,25 @@ const labelId = useId()
               withImages />
             <OperationParameters
               :breadcrumb="[id]"
+              :options="{
+                orderRequiredPropertiesFirst:
+                  options.orderRequiredPropertiesFirst,
+                orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
+              }"
               :parameters="
                 // These have been resolved in the Operation.vue component
                 operation.parameters as ParameterObject[]
               "
               :requestBody="getResolvedRef(operation.requestBody)" />
+            <!-- TODO: why collapsableItems being set here? -->
             <OperationResponses
               :breadcrumb="[id]"
-              :collapsableItems="!options.expandAllResponses"
+              :options="{
+                collapsableItems: !options.expandAllResponses,
+                orderRequiredPropertiesFirst:
+                  options.orderRequiredPropertiesFirst,
+                orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
+              }"
               :responses="operation.responses" />
 
             <!-- Callbacks -->
@@ -144,6 +157,7 @@ const labelId = useId()
                 :callbacks="operation.callbacks"
                 class="mt-6"
                 :method="method"
+                :options="options"
                 :path="path" />
             </ScalarErrorBoundary>
           </div>

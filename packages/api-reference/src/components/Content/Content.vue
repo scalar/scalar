@@ -221,6 +221,8 @@ const models = computed<TraversedDescription | undefined>(() => {
           hideTestRequestButton: options.hideTestRequestButton,
           expandAllResponses: options.expandAllResponses,
           clientOptions: clientOptions,
+          orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
+          orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
         }"
         :paths="store.workspace.activeDocument?.paths ?? {}"
         :rootIndex
