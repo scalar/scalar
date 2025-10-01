@@ -171,7 +171,7 @@ var body = await response.Content.ReadAsStringAsync();`)
       ],
     })
 
-    expect(result).toContain('"https://example.com/api?param1=value1&param2=special%20value&param3=123"')
+    expect(result).toContain('"https://example.com/api?param1=value1&param2=special+value&param3=123"')
   })
 
   it('handles special characters in URL', () => {
