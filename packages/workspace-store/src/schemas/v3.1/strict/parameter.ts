@@ -1,6 +1,8 @@
 import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
+import { XIsGlobal } from '@/schemas/extensions/parameter/x-is-global'
+import { XIsReadonly } from '@/schemas/extensions/parameter/x-is-readonly'
 import type { ExampleObject } from '@/schemas/v3.1/strict/example'
 import type { MediaTypeObject } from '@/schemas/v3.1/strict/media-type'
 import { ExampleObjectRef, MediaTypeObjectRef, SchemaObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
@@ -45,8 +47,9 @@ type ParameterObjectBase = {
   deprecated?: boolean
   /** If true, clients MAY pass a zero-length string value in place of parameters that would otherwise be omitted entirely, which the server SHOULD interpret as the parameter being unused. Default value is false. If style is used, and if behavior is n/a (cannot be serialized), the value of allowEmptyValue SHALL be ignored. Interactions between this field and the parameter's Schema Object are implementation-defined. This field is valid only for query parameters. Use of this field is NOT RECOMMENDED, and it is likely to be removed in a later revision. */
   allowEmptyValue?: boolean
-  /** Extension properties */
+  /** An OpenAPI extension to mark parameters as read-only */
   'x-is-readonly'?: boolean
+  /** An OpenAPI extension to mark parameters as global */
   'x-is-global'?: boolean
 }
 

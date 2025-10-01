@@ -36,6 +36,6 @@ export type ExampleObject = {
   value?: any
   /** A URI that identifies the literal example. This provides the capability to reference examples that cannot easily be included in JSON or YAML documents. The value field and externalValue field are mutually exclusive. See the rules for resolving Relative References. */
   externalValue?: string
-  /** Extension keys */
+  /** An OpenAPI extension to mark examples as enabled or disabled */
   'x-is-disabled'?: boolean
 }
