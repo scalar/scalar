@@ -1,9 +1,8 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
 /**
- * fsharp/httpClient
+ * F# HttpClient plugin for generating HTTP request code
  */
-
 export const fsharpHttpclient: Plugin = {
   target: 'fsharp',
   client: 'httpclient',
@@ -13,76 +12,90 @@ export const fsharpHttpclient: Plugin = {
       return ''
     }
 
-    let urlWithPotentialQueryString = request.url
-    // handle url
-    if (request.url) {
-      if (request.queryString && request.queryString.length > 0) {
-        const queryString = extractQueryString(request.queryString)
-        urlWithPotentialQueryString = `${request.url}${queryString}`
-      }
-    } else {
-      urlWithPotentialQueryString = ''
-    }
-
-    // Generate the fsharp code
+    const finalUrl = buildUrlWithQueryString(request.url, request.queryString)
     let code = ''
 
-    // Init the HttpRequestMessage
-    code += `let httpRequestMessage = new HttpRequestMessage( HttpMethod("${request.method}"), new Uri("${urlWithPotentialQueryString}"))\n\n`
+    // Initialize HttpRequestMessage
+    code += generateHttpRequestMessage(request.method, finalUrl)
 
-    // Headers
-    if (request.headers) {
-      code += turnHeadersToCode(request.headers)
+    // Add headers if present
+    if (request.headers && request.headers.length > 0) {
+      code += generateHeadersCode(request.headers)
     }
 
-    // PostData
+    // Add request body if present
     if (request.postData) {
-      code += turnPostDataToCode(request.postData)
+      code += generatePostDataCode(request.postData)
     }
 
-    // Cookies
+    // Configure client with cookies if present
     if (request.cookies && request.cookies.length > 0 && request.url) {
-      code += turnCookiesToCode(request.cookies, request.url)
-
+      code += generateCookiesCode(request.cookies, request.url)
       code += 'let client = new HttpClient(handler)\n'
     } else {
       code += 'let client = new HttpClient()\n'
     }
 
+    // Send the request
     code += 'let! result = client.SendAsync(httpRequestMessage)\n'
 
     return code
   },
 }
 
-function extractQueryString(queryStringArray: { name: string; value: string }[]): string {
-  let queryString = ''
-  let itteration = 0
-  queryStringArray.forEach((param) => {
-    if (itteration === 0) {
-      queryString += '?'
-    } else {
-      queryString += '&'
-    }
-    queryString += `${param.name}=${param.value}`
-    itteration++
-  })
-  return queryString
+/**
+ * Builds a query string from an array of query parameters
+ */
+function buildQueryString(queryParams: { name: string; value: string }[]): string {
+  if (!queryParams || queryParams.length === 0) {
+    return ''
+  }
+
+  const params = queryParams.map((param) => `${param.name}=${param.value}`)
+  return '?' + params.join('&')
 }
 
-function turnHeadersToCode(headersArray: { name: string; value: string }[]): string {
+/**
+ * Combines base URL with query string if present
+ */
+function buildUrlWithQueryString(baseUrl: string | undefined, queryParams?: { name: string; value: string }[]): string {
+  if (!baseUrl) {
+    return ''
+  }
+
+  if (!queryParams || queryParams.length === 0) {
+    return baseUrl
+  }
+
+  return baseUrl + buildQueryString(queryParams)
+}
+
+/**
+ * Generates the HttpRequestMessage initialization code
+ */
+function generateHttpRequestMessage(method: string | undefined, url: string): string {
+  return `let httpRequestMessage = new HttpRequestMessage( HttpMethod("${method}"), new Uri("${escapeString(url)}"))\n\n`
+}
+
+/**
+ * Generates code to add headers to the HttpRequestMessage
+ */
+function generateHeadersCode(headers: { name: string; value: string }[]): string {
   let code = ''
-  for (const header of headersArray) {
-    code += `httpRequestMessage.Headers.Add("${header.name}", "${header.value}")\n`
+  for (const header of headers) {
+    code += `httpRequestMessage.Headers.Add("${escapeString(header.name ?? '')}", "${escapeString(header.value ?? '')}")\n`
   }
   code += '\n'
   return code
 }
 
-function turnCookiesToCode(cookies: { name: string; value: string }[], url: string): string {
+/**
+ * Generates code to configure cookies for the HttpClient
+ */
+function generateCookiesCode(cookies: { name: string; value: string }[], url: string): string {
   let code = 'let cookieContainer = CookieContainer()\n'
   for (const cookie of cookies) {
-    code += `cookieContainer.Add(Uri("${escapeString(url)}"), Cookie("${escapeString(cookie.name)}", "${escapeString(cookie.value)}"))\n`
+    code += `cookieContainer.Add(Uri("${escapeString(url)}"), Cookie("${escapeString(cookie.name ?? '')}", "${escapeString(cookie.value ?? '')}"))\n`
   }
 
   code += 'use handler = new HttpClientHandler()\n'
@@ -91,64 +104,93 @@ function turnCookiesToCode(cookies: { name: string; value: string }[], url: stri
   return code
 }
 
-function turnPostDataToCode(postData: any): string {
-  if (!postData) return ''
+/**
+ * Generates code to set the request content based on postData
+ */
+function generatePostDataCode(postData: any): string {
+  if (!postData) {
+    return ''
+  }
+
   let code = ''
 
-  if (postData.mimeType === 'multipart/form-data') {
-    code += turnPostDataMultiPartToCode(postData)
-  } else if (postData.mimeType === 'application/x-www-form-urlencoded') {
-    code += turnPostDataUrlEncodeToCode(postData)
-  } else if (postData.mimeType === 'application/json') {
-    code += turnPostDataJsonToCode(postData)
-  } else {
-    code += turnPostDataToCodeUsingMimeType(postData, postData.mimeType)
+  switch (postData.mimeType) {
+    case 'multipart/form-data':
+      code += generateMultipartFormDataCode(postData)
+      break
+    case 'application/x-www-form-urlencoded':
+      code += generateUrlEncodedFormDataCode(postData)
+      break
+    case 'application/json':
+      code += generateJsonContentCode(postData)
+      break
+    default:
+      code += generateGenericContentCode(postData, postData.mimeType)
+      break
   }
 
   code += 'httpRequestMessage.Content <- content\n\n'
   return code
 }
 
-function turnPostDataToCodeUsingMimeType(postData: any, contentType: string): string {
-  let code = `let content = new StringContent("${escapeString(postData.text)}", Encoding.UTF8, "${contentType}")\n`
-  code += `content.Headers.ContentType <- MediaTypeHeaderValue("${contentType}")\n`
+/**
+ * Generates code for generic content types
+ */
+function generateGenericContentCode(postData: any, contentType: string): string {
+  let code = `let content = new StringContent("${escapeString(postData.text ?? '')}", Encoding.UTF8, "${escapeString(contentType ?? '')}")\n`
+  code += `content.Headers.ContentType <- MediaTypeHeaderValue("${escapeString(contentType ?? '')}")\n`
   return code
 }
 
-function turnPostDataMultiPartToCode(postData: any): string {
+/**
+ * Generates code for multipart/form-data content
+ */
+function generateMultipartFormDataCode(postData: any): string {
   let code = 'let content = new MultipartFormDataContent()\n'
 
-  let fileCount = 0
-  for (const data of postData.params) {
-    if (data.value === 'BINARY') {
-      const escapedFileName = escapeString(data.fileName)
-      code += `let fileStreamContent_${fileCount} = new StreamContent(File.OpenRead("${escapedFileName}"))\n`
-      code += `fileStreamContent_${fileCount}.Headers.ContentType <- MediaTypeHeaderValue("${data.contentType}")\n`
-      code += `content.Add(fileStreamContent_${fileCount}, "${escapedFileName}", "${escapedFileName}")\n`
-      fileCount++
+  let fileIndex = 0
+  for (const param of postData.params) {
+    if (param.value === 'BINARY') {
+      const escapedFileName = escapeString(param.fileName ?? '')
+      code += `let fileStreamContent_${fileIndex} = new StreamContent(File.OpenRead("${escapedFileName}"))\n`
+      code += `fileStreamContent_${fileIndex}.Headers.ContentType <- MediaTypeHeaderValue("${escapeString(param.contentType ?? '')}")\n`
+      code += `content.Add(fileStreamContent_${fileIndex}, "${escapedFileName}", "${escapedFileName}")\n`
+      fileIndex++
     } else {
-      code += `content.Add(new StringContent("${escapeString(data.value)}"), "${escapeString(data.name)}")\n`
+      code += `content.Add(new StringContent("${escapeString(param.value ?? '')}"), "${escapeString(param.name ?? '')}")\n`
     }
   }
   return code
 }
 
-function turnPostDataJsonToCode(postData: any): string {
-  const prettyJson = JSON.stringify(JSON.parse(postData.text), null, 2)
+/**
+ * Generates code for JSON content
+ */
+function generateJsonContentCode(postData: any): string {
+  const prettyJson = JSON.stringify(JSON.parse(postData.text ?? '{}'), null, 2)
   return `let content = new StringContent("${escapeString(prettyJson)}", Encoding.UTF8, "application/json")\n`
 }
 
-function turnPostDataUrlEncodeToCode(postData: any): string {
+/**
+ * Generates code for application/x-www-form-urlencoded content
+ */
+function generateUrlEncodedFormDataCode(postData: any): string {
   let code = 'let formUrlEncodedContentDictionary = new Dictionary<string, string>()\n'
-  for (const data of postData.params) {
-    code += `formUrlEncodedContentDictionary.Add("${escapeString(data.name)}", "${escapeString(data.value)}")\n`
+  for (const param of postData.params) {
+    code += `formUrlEncodedContentDictionary.Add("${escapeString(param.name ?? '')}", "${escapeString(param.value ?? '')}")\n`
   }
 
   code += 'let content = new FormUrlEncodedContent(formUrlEncodedContentDictionary)\n'
   return code
 }
 
-function escapeString(str: string): string {
+/**
+ * Escapes special characters for F# string literals
+ */
+function escapeString(str: string | undefined): string {
+  if (str == null) {
+    return ''
+  }
   return str
     .replace(/\\/g, '\\\\') // Escape backslashes
     .replace(/"/g, '\\"') // Escape double quotes
