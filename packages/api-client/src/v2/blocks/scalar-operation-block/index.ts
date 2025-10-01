@@ -1,2 +1,2 @@
-// biome-ignore lint/correctness/noUnusedImports: It's a block
-import { default as OperationBlock } from './components/OperationBlock.vue'
+// biome-ignore lint/performance/noBarrelFile: It's a block
+export { default as OperationBlock } from './components/OperationBlock.vue'
