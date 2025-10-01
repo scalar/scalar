@@ -134,8 +134,8 @@ function turnPostDataMultiPartToCode(postData: any): string {
 }
 
 function turnPostDataJsonToCode(postData: any): string {
-  const prettyJson = `${JSON.stringify(JSON.parse(postData.text), null, 2)}\n`
-  return `let content = new StringContent("${escapeStringLite(prettyJson)}", Encoding.UTF8, "application/json")\n`
+  const prettyJson = JSON.stringify(JSON.parse(postData.text), null, 2)
+  return `let content = new StringContent("${escapeString(prettyJson)}", Encoding.UTF8, "application/json")\n`
 }
 
 function turnPostDataUrlEncodeToCode(postData: any): string {
@@ -155,10 +155,4 @@ function escapeString(str: string): string {
     .replace(/\n/g, '\\n') // Escape newlines
     .replace(/\r/g, '\\r') // Escape carriage returns
     .replace(/\t/g, '\\t') // Escape tabs
-}
-
-function escapeStringLite(str: string): string {
-  return str
-    .replace(/\\/g, '\\\\') // Escape backslashes
-    .replace(/"/g, "'") // replace double quotes with single quotes
 }
