@@ -1,5 +1,7 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
+import { getRaw } from '@scalar/json-magic/magic-proxy'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { unpackOverridesProxy } from '@scalar/workspace-store/helpers/overrides-proxy'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 /** Maximum recursion depth to prevent infinite loops in circular references */
@@ -191,6 +193,7 @@ const handleObjectSchema = (
   schema: SchemaObject,
   options: Parameters<typeof getExampleFromSchema>[1],
   level: number,
+  seen: Set<object>,
 ): unknown => {
   const response: Record<string, unknown> = {}
 
@@ -206,7 +209,12 @@ const handleObjectSchema = (
       }
 
       const propertyXmlName = options?.xml && 'xml' in propertySchema ? propertySchema.xml?.name : undefined
-      const value = getExampleFromSchema(propertySchema, options, level + 1, schema, propertyName)
+      const value = getExampleFromSchema(propertySchema, options, {
+        level: level + 1,
+        parentSchema: schema,
+        name: propertyName,
+        seen,
+      })
 
       if (typeof value !== 'undefined') {
         response[propertyXmlName ?? propertyName] = value
@@ -224,7 +232,12 @@ const handleObjectSchema = (
       if (!propertySchema) {
         continue
       }
-      response[pattern] = getExampleFromSchema(propertySchema, options, level + 1, schema, pattern)
+      response[pattern] = getExampleFromSchema(propertySchema, options, {
+        level: level + 1,
+        parentSchema: schema,
+        name: pattern,
+        seen,
+      })
     }
   }
 
@@ -245,23 +258,42 @@ const handleObjectSchema = (
     response[additionalName] = isAnyType
       ? 'anything'
       : typeof additional === 'object'
-        ? getExampleFromSchema(additional, options, level + 1)
+        ? getExampleFromSchema(additional, options, {
+            level: level + 1,
+            seen,
+          })
         : 'anything'
   }
 
   // onOf
   if (schema.oneOf?.[0]) {
-    Object.assign(response, getExampleFromSchema(getResolvedRef(schema.oneOf[0]), options, level + 1))
+    Object.assign(
+      response,
+      getExampleFromSchema(getResolvedRef(schema.oneOf[0]), options, {
+        level: level + 1,
+        seen,
+      }),
+    )
   }
   // anyOf
   else if (schema.anyOf?.[0]) {
-    Object.assign(response, getExampleFromSchema(getResolvedRef(schema.anyOf[0]), options, level + 1))
+    Object.assign(
+      response,
+      getExampleFromSchema(getResolvedRef(schema.anyOf[0]), options, {
+        level: level + 1,
+        seen,
+      }),
+    )
   }
   // allOf
   else if (Array.isArray(schema.allOf) && schema.allOf.length > 0) {
     let merged: unknown = response
     for (const item of schema.allOf) {
-      const ex = getExampleFromSchema(getResolvedRef(item), options, level + 1, schema)
+      const ex = getExampleFromSchema(getResolvedRef(item), options, {
+        level: level + 1,
+        parentSchema: schema,
+        seen,
+      })
       merged = mergeExamples(merged, ex)
     }
     if (merged && typeof merged === 'object') {
@@ -283,6 +315,7 @@ const handleArraySchema = (
   schema: SchemaObject,
   options: Parameters<typeof getExampleFromSchema>[1],
   level: number,
+  seen: Set<object>,
 ) => {
   const items = 'items' in schema ? getResolvedRef(schema.items) : undefined
   const itemsXmlTagName = items && typeof items === 'object' && 'xml' in items ? items.xml?.name : undefined
@@ -299,12 +332,22 @@ const handleArraySchema = (
 
       if (first && typeof first === 'object' && 'type' in first && first.type === 'object') {
         const combined: SchemaObject = { type: 'object', allOf }
-        const merged = getExampleFromSchema(combined, options, level + 1, schema)
+        const merged = getExampleFromSchema(combined, options, {
+          level: level + 1,
+          parentSchema: schema,
+          seen,
+        })
         return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: merged }] : [merged])
       }
 
       const examples = allOf
-        .map((s: any) => getExampleFromSchema(getResolvedRef(s), options, level + 1, schema))
+        .map((s: any) =>
+          getExampleFromSchema(getResolvedRef(s), options, {
+            level: level + 1,
+            parentSchema: schema,
+            seen,
+          }),
+        )
         .filter(isDefined)
       return cache(
         schema,
@@ -315,7 +358,11 @@ const handleArraySchema = (
     const union = items.anyOf || items.oneOf
     if (union && union.length > 0) {
       const first = union[0] as SchemaObject
-      const ex = getExampleFromSchema(getResolvedRef(first), options, level + 1, schema)
+      const ex = getExampleFromSchema(getResolvedRef(first), options, {
+        level: level + 1,
+        parentSchema: schema,
+        seen,
+      })
       return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: ex }] : [ex])
     }
   }
@@ -326,7 +373,10 @@ const handleArraySchema = (
     items && typeof items === 'object' && (('type' in items && items.type === 'array') || 'items' in items)
 
   if (items && typeof items === 'object' && (('type' in items && items.type) || isObject || isArray)) {
-    const ex = getExampleFromSchema(items as SchemaObject, options, level + 1)
+    const ex = getExampleFromSchema(items as SchemaObject, options, {
+      level: level + 1,
+      seen,
+    })
     return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: ex }] : [ex])
   }
 
@@ -411,15 +461,27 @@ export const getExampleFromSchema = (
     /** Whether to omit empty and optional properties. */
     omitEmptyAndOptionalProperties?: boolean
   },
-  level: number = 0,
-  parentSchema?: SchemaObject,
-  name?: string,
+  args?: Partial<{
+    level: number
+    parentSchema: SchemaObject
+    name: string
+    seen: Set<object>
+  }>,
 ): unknown => {
+  const { level = 0, parentSchema, name, seen = new Set<object>() } = args ?? {}
+
   // Resolve any $ref references to get the actual schema
   const _schema = getResolvedRef(schema)
   if (!isDefined(_schema)) {
     return undefined
   }
+
+  const targetValue = getRaw(unpackOverridesProxy(_schema))
+  if (seen.has(targetValue)) {
+    return '[Circular Reference]'
+  }
+  console.log('not seen, processing', seen.size)
+  seen.add(targetValue)
 
   // Check cache first for performance - avoid recomputing the same schema
   if (resultCache.has(_schema)) {
@@ -475,12 +537,12 @@ export const getExampleFromSchema = (
 
   // Handle object types - check for properties to identify objects
   if ('properties' in _schema || ('type' in _schema && _schema.type === 'object')) {
-    return handleObjectSchema(schema, options, level)
+    return handleObjectSchema(schema, options, level, seen)
   }
 
   // Handle array types
   if (('type' in _schema && _schema.type === 'array') || 'items' in _schema) {
-    return handleArraySchema(_schema, options, level)
+    return handleArraySchema(_schema, options, level, seen)
   }
 
   // Handle primitive types without allocating temporary objects
@@ -496,7 +558,13 @@ export const getExampleFromSchema = (
     for (const item of discriminate) {
       const resolved = getResolvedRef(item)
       if (resolved && (!('type' in resolved) || resolved.type !== 'null')) {
-        return cache(_schema, getExampleFromSchema(resolved, options, level + 1))
+        return cache(
+          _schema,
+          getExampleFromSchema(resolved, options, {
+            level: level + 1,
+            seen,
+          }),
+        )
       }
     }
     return cache(_schema, null)
@@ -507,7 +575,11 @@ export const getExampleFromSchema = (
     let merged: unknown = undefined
     const items = _schema.allOf
     for (const item of items) {
-      const ex = getExampleFromSchema(item as SchemaObject, options, level + 1, _schema)
+      const ex = getExampleFromSchema(item as SchemaObject, options, {
+        level: level + 1,
+        parentSchema: _schema,
+        seen,
+      })
       if (merged === undefined) {
         merged = ex
       } else if (merged && typeof merged === 'object' && ex && typeof ex === 'object') {
