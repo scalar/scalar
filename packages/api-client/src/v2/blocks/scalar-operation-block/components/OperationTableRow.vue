@@ -64,7 +64,9 @@ const typeValue = computed(() =>
   data.schema && 'type' in data.schema ? data.schema.type : undefined,
 )
 
-const validationResult = validateParameter(data.schema, data.value)
+const validationResult = computed(() =>
+  validateParameter(data.schema, data.value),
+)
 
 const isFileInstance = (input: unknown): input is File => {
   return input instanceof File

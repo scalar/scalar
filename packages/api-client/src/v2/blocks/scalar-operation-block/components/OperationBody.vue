@@ -185,7 +185,7 @@ const example = computed(
           <OperationTable
             :data="
               Object.entries(
-                typeof example?.value === 'object' ? example.value : {},
+                typeof example?.value === 'object' ? (example.value ?? {}) : {},
               ).map(([key, value]) => ({
                 name: key,
                 value: value as any,
