@@ -9,7 +9,9 @@ defineProps<{
 }>()
 </script>
 <template>
-  <ViewLayoutCollapse :defaultOpen="false">
+  <ViewLayoutCollapse
+    :defaultOpen="false"
+    :itemCount="cookies.length">
     <template #title>Cookies</template>
     <template v-if="true">
       <DataTable
