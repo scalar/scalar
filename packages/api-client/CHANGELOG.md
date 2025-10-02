@@ -1,5 +1,29 @@
 # @scalar/api-client
 
+## 2.7.0
+
+### Minor Changes
+
+- 008a0f3: feat: migrate to Zod 4
+
+### Patch Changes
+
+- f833196: fix: performance issues on references
+- Updated dependencies [008a0f3]
+- Updated dependencies [f833196]
+- Updated dependencies [a9f8d56]
+  - @scalar/openapi-types@0.4.0
+  - @scalar/oas-utils@0.5.0
+  - @scalar/types@0.3.0
+  - @scalar/components@0.14.40
+  - @scalar/openapi-parser@0.22.1
+  - @scalar/postman-to-openapi@0.3.38
+  - @scalar/snippetz@0.4.11
+  - @scalar/themes@0.13.20
+  - @scalar/workspace-store@0.16.2
+  - @scalar/use-codemirror@0.12.41
+  - @scalar/import@0.4.29
+
 ## 2.6.2
 
 ### Patch Changes

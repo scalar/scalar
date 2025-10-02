@@ -1,5 +1,29 @@
 # @scalar/api-reference
 
+## 1.37.0
+
+### Minor Changes
+
+- 008a0f3: feat: migrate to Zod 4
+
+### Patch Changes
+
+- f833196: fix: performance issues on references
+- Updated dependencies [008a0f3]
+- Updated dependencies [f833196]
+- Updated dependencies [a9f8d56]
+  - @scalar/openapi-types@0.4.0
+  - @scalar/api-client@2.7.0
+  - @scalar/oas-utils@0.5.0
+  - @scalar/types@0.3.0
+  - @scalar/components@0.14.40
+  - @scalar/openapi-parser@0.22.1
+  - @scalar/openapi-upgrader@0.1.1
+  - @scalar/snippetz@0.4.11
+  - @scalar/themes@0.13.20
+  - @scalar/workspace-store@0.16.2
+  - @scalar/code-highlight@0.2.0
+
 ## 1.36.3
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @scalar/workspace-store
 
+## 0.16.2
+
+### Patch Changes
+
+- Updated dependencies [008a0f3]
+  - @scalar/types@0.3.0
+  - @scalar/openapi-upgrader@0.1.1
+  - @scalar/snippetz@0.4.11
+  - @scalar/code-highlight@0.2.0
+
 ## 0.16.1
 
 ### Patch Changes
