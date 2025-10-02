@@ -90,6 +90,7 @@ const configuration = computed(() => ({
   layout: providedConfiguration.layout ?? 'modern',
   persistAuth: providedConfiguration.persistAuth ?? false,
   documentDownloadType: providedConfiguration.documentDownloadType ?? 'both',
+  onBeforeRequest: providedConfiguration.onBeforeRequest,
 }))
 
 // ---------------------------------------------------------------------------
