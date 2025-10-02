@@ -28,7 +28,7 @@ import { ScalarIconCaretDown, ScalarIconInfo } from '@scalar/icons'
         <ScalarIconInfo class="size-3.5 shrink-0" />
         <div>
           <slot name="info">
-            "<slot name="label" />" will only appear when running on localhost
+            "<slot name="label" />" will only appear when running on localhost.
           </slot>
         </div>
       </div>

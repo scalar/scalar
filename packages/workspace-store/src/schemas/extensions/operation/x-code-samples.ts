@@ -1,4 +1,4 @@
-import { type Static, Type } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 
 export const XCodeSampleSchema = Type.Object({
   lang: Type.Optional(Type.String()),
@@ -12,4 +12,14 @@ export const XCodeSamplesSchema = Type.Object({
   'x-custom-examples': Type.Optional(Type.Array(XCodeSampleSchema)),
 })
 
-export type XCodeSample = Static<typeof XCodeSampleSchema>
+export type XCodeSample = {
+  lang?: string
+  label?: string
+  source: string
+}
+
+export type XCodeSamples = {
+  'x-codeSamples'?: XCodeSample[]
+  'x-code-samples'?: XCodeSample[]
+  'x-custom-examples'?: XCodeSample[]
+}

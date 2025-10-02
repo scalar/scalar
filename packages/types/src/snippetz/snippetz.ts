@@ -1,6 +1,7 @@
 import type { Request as HarRequest } from 'har-format'
+import type { Writable } from 'type-fest/source/writable'
 
-export type { Request as HarRequest, Param as FormDataParam } from 'har-format'
+export type { Param as FormDataParam, Request as HarRequest } from 'har-format'
 
 /**
  * List of available clients
@@ -46,7 +47,12 @@ export const AVAILABLE_CLIENTS = [
   'swift/nsurlsession',
 ] as const
 
-export type AvailableClients = typeof AVAILABLE_CLIENTS
+/** Non read only tuple of available clients */
+export type AvailableClients = Writable<typeof AVAILABLE_CLIENTS>
+/** A union for a single available client */
+export type AvailableClient = AvailableClients[number]
+/** A non read only array of available clients */
+export type AvailableClientsArray = AvailableClients[number][]
 
 /** Programming language */
 export type TargetId = AvailableClients[number] extends `${infer T}/${string}` ? T : never

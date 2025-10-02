@@ -1,4 +1,4 @@
-import type { SchemaObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { SchemaObject } from './schema'
 
 export const isObjectSchema = (schema: SchemaObject): schema is Extract<SchemaObject, { type: 'object' }> => {
   return (

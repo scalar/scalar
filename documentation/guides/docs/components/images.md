@@ -4,7 +4,8 @@ Images display visual content with support for light/dark mode variants, clickab
 
 ## Properties
 
-### src `string` _required_
+### src
+`string` _required_
 
 The primary image source URL. This is the image that will be displayed in light mode or as the fallback.
 

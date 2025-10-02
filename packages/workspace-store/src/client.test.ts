@@ -539,6 +539,7 @@ describe('create-workspace-store', () => {
           'id': 'tag/default/get/todos',
           'method': 'get',
           'path': '/todos',
+          'isDeprecated': false,
           'title': 'List all todos',
           ref: '#/paths/~1todos/get',
           type: 'operation',
@@ -842,6 +843,7 @@ describe('create-workspace-store', () => {
           'id': 'tag/default/get/users',
           method: 'get',
           path: '/users',
+          isDeprecated: false,
           ref: '#/paths/~1users/get',
           title: 'Get all users',
           type: 'operation',
@@ -891,7 +893,7 @@ describe('create-workspace-store', () => {
     })
 
     expect(client.exportWorkspace()).toBe(
-      '{"documents":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/$defs/usersRequestBody"}}}},"$defs":{"usersRequestBody":{"description":"Some description","content":{}}},"x-original-oas-version":"3.1.1","x-ext-urls":{},"info":{"title":"","version":""},"x-scalar-navigation":[{"id":"tag/default/get/users","title":"/users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation"}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/$defs/usersRequestBody"}}}},"$defs":{"usersRequestBody":{"description":"Some description"}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/$defs/usersRequestBody"}}}},"$defs":{"usersRequestBody":{"description":"Some description"}}}},"overrides":{"default":{}},"documentMeta":{"default":{}}}',
+      '{"documents":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/$defs/usersRequestBody"}}}},"$defs":{"usersRequestBody":{"description":"Some description","content":{}}},"x-original-oas-version":"3.1.1","x-ext-urls":{},"info":{"title":"","version":""},"x-scalar-navigation":[{"id":"tag/default/get/users","title":"/users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation","isDeprecated":false}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/$defs/usersRequestBody"}}}},"$defs":{"usersRequestBody":{"description":"Some description"}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/$defs/usersRequestBody"}}}},"$defs":{"usersRequestBody":{"description":"Some description"}}}},"overrides":{"default":{}},"documentMeta":{"default":{}}}',
     )
   })
 
@@ -918,7 +920,7 @@ describe('create-workspace-store', () => {
     })
 
     expect(client.exportWorkspace()).toBe(
-      '{"documents":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/x-ext/c766ed8"}}}},"x-original-oas-version":"3.1.1","x-ext-urls":{"c766ed8":"http://localhost:9988"},"x-ext":{"c766ed8":{"description":"Some description","content":{}}},"info":{"title":"","version":""},"x-scalar-navigation":[{"id":"tag/default/get/users","title":"/users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation"}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988"}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988"}}}}}},"overrides":{"default":{}},"documentMeta":{"default":{}}}',
+      '{"documents":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/x-ext/c766ed8"}}}},"x-original-oas-version":"3.1.1","x-ext-urls":{"c766ed8":"http://localhost:9988"},"x-ext":{"c766ed8":{"description":"Some description","content":{}}},"info":{"title":"","version":""},"x-scalar-navigation":[{"id":"tag/default/get/users","title":"/users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation","isDeprecated":false}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988"}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988"}}}}}},"overrides":{"default":{}},"documentMeta":{"default":{}}}',
     )
   })
 
@@ -947,7 +949,7 @@ describe('create-workspace-store', () => {
     })
 
     expect(client.exportWorkspace()).toBe(
-      '{"documents":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/$defs/usersRequestBody"}}}},"$defs":{"usersRequestBody":{"description":"Some description","content":{}}},"x-original-oas-version":"3.1.1","x-ext-urls":{},"info":{"title":"","version":""},"x-scalar-navigation":[{"id":"tag/default/get/users","title":"/users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation"}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/$defs/usersRequestBody"}}}},"$defs":{"usersRequestBody":{"description":"Some description"}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/$defs/usersRequestBody"}}}},"$defs":{"usersRequestBody":{"description":"Some description"}}}},"overrides":{"default":{}},"documentMeta":{"default":{}}}',
+      '{"documents":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/$defs/usersRequestBody"}}}},"$defs":{"usersRequestBody":{"description":"Some description","content":{}}},"x-original-oas-version":"3.1.1","x-ext-urls":{},"info":{"title":"","version":""},"x-scalar-navigation":[{"id":"tag/default/get/users","title":"/users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation","isDeprecated":false}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/$defs/usersRequestBody"}}}},"$defs":{"usersRequestBody":{"description":"Some description"}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/$defs/usersRequestBody"}}}},"$defs":{"usersRequestBody":{"description":"Some description"}}}},"overrides":{"default":{}},"documentMeta":{"default":{}}}',
     )
   })
 
@@ -974,7 +976,7 @@ describe('create-workspace-store', () => {
     })
 
     expect(client.exportWorkspace()).toBe(
-      '{"documents":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/x-ext/c766ed8"}}}},"x-original-oas-version":"3.1.1","x-ext-urls":{"c766ed8":"http://localhost:9988"},"x-ext":{"c766ed8":{"description":"Some description","content":{}}},"info":{"title":"","version":""},"x-scalar-navigation":[{"id":"tag/default/get/users","title":"/users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation"}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988"}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988"}}}}}},"overrides":{"default":{}},"documentMeta":{"default":{}}}',
+      '{"documents":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/x-ext/c766ed8"}}}},"x-original-oas-version":"3.1.1","x-ext-urls":{"c766ed8":"http://localhost:9988"},"x-ext":{"c766ed8":{"description":"Some description","content":{}}},"info":{"title":"","version":""},"x-scalar-navigation":[{"id":"tag/default/get/users","title":"/users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation","isDeprecated":false}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988"}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988"}}}}}},"overrides":{"default":{}},"documentMeta":{"default":{}}}',
     )
   })
 
@@ -1088,7 +1090,7 @@ describe('create-workspace-store', () => {
       },
     })
     expect(JSON.stringify(getRaw(store.workspace.activeDocument))).toBe(
-      '{"openapi":"3.1.0","info":{"title":"Hello World","version":"1.0.0"},"components":{"schemas":{"JsonObject":{"additionalProperties":{"$ref":"#/components/schemas/JsonValue","_":""},"type":"object"},"JsonValue":{"anyOf":[{"type":"string"},{"type":"number","format":"double"},{"type":"boolean"},{"$ref":"#/components/schemas/JsonObject","_":""}],"_":""}}},"paths":{"/get":{"get":{"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/JsonObject","_":""}}},"description":""}}}}},"x-original-oas-version":"3.1.0","x-ext-urls":{},"x-scalar-navigation":[{"id":"tag/default/get/get","title":"/get","path":"/get","method":"get","ref":"#/paths/~1get/get","type":"operation"},{"type":"text","id":"models","title":"Models","children":[{"id":"model/jsonobject","title":"JsonObject","name":"JsonObject","ref":"#/components/schemas/JsonObject","type":"model"},{"id":"model/jsonvalue","title":"JsonValue","name":"JsonValue","ref":"#/components/schemas/JsonValue","type":"model"}]}]}',
+      '{"openapi":"3.1.0","info":{"title":"Hello World","version":"1.0.0"},"components":{"schemas":{"JsonObject":{"additionalProperties":{"$ref":"#/components/schemas/JsonValue","_":""},"type":"object"},"JsonValue":{"anyOf":[{"type":"string"},{"type":"number","format":"double"},{"type":"boolean"},{"$ref":"#/components/schemas/JsonObject","_":""}],"_":""}}},"paths":{"/get":{"get":{"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/JsonObject","_":""}}},"description":""}}}}},"x-original-oas-version":"3.1.0","x-ext-urls":{},"x-scalar-navigation":[{"id":"tag/default/get/get","title":"/get","path":"/get","method":"get","ref":"#/paths/~1get/get","type":"operation","isDeprecated":false},{"type":"text","id":"models","title":"Models","children":[{"id":"model/jsonobject","title":"JsonObject","name":"JsonObject","ref":"#/components/schemas/JsonObject","type":"model"},{"id":"model/jsonvalue","title":"JsonValue","name":"JsonValue","ref":"#/components/schemas/JsonValue","type":"model"}]}]}',
     )
   })
 
@@ -1179,7 +1181,7 @@ describe('create-workspace-store', () => {
       },
     })
     expect(JSON.stringify(getRaw(store.workspace.activeDocument))).toBe(
-      '{"openapi":"3.1.0","paths":{"/test":{"post":{"operationId":"post","parameters":[{"name":"","required":true,"in":"query","schema":{"$ref":"#/components/schemas/FilterSet"}}],"responses":{}}}},"info":{"title":"API Reference","description":"API Reference","version":"1.0.0","contact":{}},"tags":[],"servers":[],"components":{"schemas":{"FilterSet":{"$schema":"https://json-schema.org/draft/2020-12/schema","id":"FilterSet","type":"object","properties":{"type":{"type":"string","const":"nested"},"conjunction":{"type":"string","enum":["and","or"]},"conditions":{"type":"array","items":{"anyOf":[{"anyOf":[{"type":"object","properties":{"type":{"type":"string","const":"single"},"field":{"type":"string"},"operator":{"type":"string","enum":["eq","ne","gt","lt","gte","lte","like","nlike"]},"value":{"type":"string"}}}]},{"$ref":"#/components/schemas/FilterSet"}]}}}}}},"x-original-oas-version":"3.1.0","x-ext-urls":{},"x-scalar-navigation":[{"id":"description/introduction","title":"Introduction","type":"text"},{"id":"tag/default/post/test","title":"/test","path":"/test","method":"post","ref":"#/paths/~1test/post","type":"operation"},{"type":"text","id":"models","title":"Models","children":[{"id":"model/filterset","title":"FilterSet","name":"FilterSet","ref":"#/components/schemas/FilterSet","type":"model"}]}]}',
+      '{"openapi":"3.1.0","paths":{"/test":{"post":{"operationId":"post","parameters":[{"name":"","required":true,"in":"query","schema":{"$ref":"#/components/schemas/FilterSet"}}],"responses":{}}}},"info":{"title":"API Reference","description":"API Reference","version":"1.0.0","contact":{}},"tags":[],"servers":[],"components":{"schemas":{"FilterSet":{"$schema":"https://json-schema.org/draft/2020-12/schema","id":"FilterSet","type":"object","properties":{"type":{"type":"string","const":"nested"},"conjunction":{"type":"string","enum":["and","or"]},"conditions":{"type":"array","items":{"anyOf":[{"anyOf":[{"type":"object","properties":{"type":{"type":"string","const":"single"},"field":{"type":"string"},"operator":{"type":"string","enum":["eq","ne","gt","lt","gte","lte","like","nlike"]},"value":{"type":"string"}}}]},{"$ref":"#/components/schemas/FilterSet"}]}}}}}},"x-original-oas-version":"3.1.0","x-ext-urls":{},"x-scalar-navigation":[{"id":"description/introduction","title":"Introduction","type":"text"},{"id":"tag/default/post/test","title":"/test","path":"/test","method":"post","ref":"#/paths/~1test/post","type":"operation","isDeprecated":false},{"type":"text","id":"models","title":"Models","children":[{"id":"model/filterset","title":"FilterSet","name":"FilterSet","ref":"#/components/schemas/FilterSet","type":"model"}]}]}',
     )
   })
 
@@ -1222,7 +1224,7 @@ describe('create-workspace-store', () => {
     })
 
     expect(JSON.stringify(getRaw(store.workspace.activeDocument))).toEqual(
-      '{"openapi":"3.1.1","info":{"title":"Missing Object Type Example","version":"1.0.0"},"paths":{"/user":{"get":{"summary":"Get user info","responses":{"200":{"description":"User object without explicit type: object","content":{"application/json":{"schema":{"items":{"properties":{"id":{"type":"string"},"name":{"type":"string"}},"type":"object"},"type":"array"}}}}}}}},"x-original-oas-version":"3.1.1","x-ext-urls":{},"x-scalar-navigation":[{"id":"tag/default/get/user","title":"Get user info","path":"/user","method":"get","ref":"#/paths/~1user/get","type":"operation"}]}',
+      '{"openapi":"3.1.1","info":{"title":"Missing Object Type Example","version":"1.0.0"},"paths":{"/user":{"get":{"summary":"Get user info","responses":{"200":{"description":"User object without explicit type: object","content":{"application/json":{"schema":{"items":{"properties":{"id":{"type":"string"},"name":{"type":"string"}},"type":"object"},"type":"array"}}}}}}}},"x-original-oas-version":"3.1.1","x-ext-urls":{},"x-scalar-navigation":[{"id":"tag/default/get/user","title":"Get user info","path":"/user","method":"get","ref":"#/paths/~1user/get","type":"operation","isDeprecated":false}]}',
     )
   })
 
@@ -1254,19 +1256,19 @@ describe('create-workspace-store', () => {
     })
 
     expect(store.exportWorkspace()).toEqual(
-      '{"documents":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/x-ext/8fad302"}}}},"x-original-oas-version":"3.1.1","x-ext-urls":{"8fad302":"http://localhost:9988/a"},"x-ext":{"8fad302":{"description":"Some description","content":{}}},"info":{"title":"","version":""},"x-scalar-navigation":[{"id":"tag/default/get/users","title":"/users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation"}],"servers":[{"url":"http://localhost:9988"}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988/a"}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988/a"}}}}}},"overrides":{"default":{}},"documentMeta":{"default":{"documentSource":"http://localhost:9988"}}}',
+      '{"documents":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/x-ext/8fad302"}}}},"x-original-oas-version":"3.1.1","x-ext-urls":{"8fad302":"http://localhost:9988/a"},"x-ext":{"8fad302":{"description":"Some description","content":{}}},"info":{"title":"","version":""},"x-scalar-navigation":[{"id":"tag/default/get/users","title":"/users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation","isDeprecated":false}],"servers":[{"url":"http://localhost:9988"}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988/a"}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988/a"}}}}}},"overrides":{"default":{}},"documentMeta":{"default":{"documentSource":"http://localhost:9988"}}}',
     )
 
     await store.revertDocumentChanges('default')
 
     expect(store.exportWorkspace()).toEqual(
-      '{"documents":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/x-ext/8fad302"}}}},"x-original-oas-version":"3.1.1","x-ext-urls":{"8fad302":"http://localhost:9988/a"},"x-ext":{"8fad302":{"description":"Some description","content":{}}},"info":{"title":"","version":""},"x-scalar-navigation":[{"id":"tag/default/get/users","title":"/users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation"}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988/a"}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988/a"}}}}}},"overrides":{"default":{}},"documentMeta":{"default":{"documentSource":"http://localhost:9988"}}}',
+      '{"documents":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/x-ext/8fad302"}}}},"x-original-oas-version":"3.1.1","x-ext-urls":{"8fad302":"http://localhost:9988/a"},"x-ext":{"8fad302":{"description":"Some description","content":{}}},"info":{"title":"","version":""},"x-scalar-navigation":[{"id":"tag/default/get/users","title":"/users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation","isDeprecated":false}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988/a"}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988/a"}}}}}},"overrides":{"default":{}},"documentMeta":{"default":{"documentSource":"http://localhost:9988"}}}',
     )
 
     await store.replaceDocument('default', getRaw(store.workspace.documents['default'] ?? {}))
 
     expect(store.exportWorkspace()).toEqual(
-      '{"documents":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/x-ext/8fad302"}}}},"x-original-oas-version":"3.1.1","x-ext-urls":{"8fad302":"http://localhost:9988/a"},"x-ext":{"8fad302":{"description":"Some description","content":{}}},"info":{"title":"","version":""},"x-scalar-navigation":[{"id":"tag/default/get/users","title":"/users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation"}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988/a"}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988/a"}}}}}},"overrides":{"default":{}},"documentMeta":{"default":{"documentSource":"http://localhost:9988"}}}',
+      '{"documents":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/x-ext/8fad302"}}}},"x-original-oas-version":"3.1.1","x-ext-urls":{"8fad302":"http://localhost:9988/a"},"x-ext":{"8fad302":{"description":"Some description","content":{}}},"info":{"title":"","version":""},"x-scalar-navigation":[{"id":"tag/default/get/users","title":"/users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation","isDeprecated":false}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988/a"}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988/a"}}}}}},"overrides":{"default":{}},"documentMeta":{"default":{"documentSource":"http://localhost:9988"}}}',
     )
   })
 
@@ -1337,11 +1339,13 @@ describe('create-workspace-store', () => {
       'x-ext-urls': {
         'a327830': 'http://localhost:9988/path',
       },
+      'x-original-oas-version': undefined,
       'x-scalar-navigation': [
         {
           'id': 'tag/default/get/users',
           'method': 'get',
           'path': '/users',
+          'isDeprecated': false,
           'ref': '#/paths/~1users/get',
           'title': 'User path',
           'type': 'operation',
@@ -1419,6 +1423,7 @@ describe('create-workspace-store', () => {
           'summary': 'User path',
         },
       },
+      'x-original-oas-version': undefined,
       'x-ext-urls': {
         'a327830': 'http://localhost:9988/path',
       },
@@ -1426,6 +1431,7 @@ describe('create-workspace-store', () => {
         {
           'id': 'tag/default/get/users',
           'method': 'get',
+          'isDeprecated': false,
           'path': '/users',
           'ref': '#/paths/~1users/get',
           'title': 'User path',
@@ -1699,7 +1705,7 @@ describe('create-workspace-store', () => {
       })
 
       expect(store.exportWorkspace()).toEqual(
-        '{"documents":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}},"/external":{"get":{"$ref":"#/x-ext/c766ed8"}}},"x-original-oas-version":"3.0.0","x-ext-urls":{"c766ed8":"http://localhost:9988"},"x-ext":{"c766ed8":{"description":"This is an external document"}},"x-scalar-navigation":[{"id":"tag/default/get/users","title":"Get all users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation"},{"id":"tag/default/get/external","title":"/external","path":"/external","method":"get","ref":"#/paths/~1external/get","type":"operation"},{"type":"text","id":"models","title":"Models","children":[{"id":"model/user","title":"User","name":"User","ref":"#/components/schemas/User","type":"model"}]}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}},"/external":{"get":{"$ref":"http://localhost:9988"}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}},"/external":{"get":{"$ref":"http://localhost:9988"}}}}},"overrides":{"default":{}},"documentMeta":{"default":{}}}',
+        '{"documents":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}},"/external":{"get":{"$ref":"#/x-ext/c766ed8"}}},"x-original-oas-version":"3.0.0","x-ext-urls":{"c766ed8":"http://localhost:9988"},"x-ext":{"c766ed8":{"description":"This is an external document"}},"x-scalar-navigation":[{"id":"tag/default/get/users","title":"Get all users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation","isDeprecated":false},{"id":"tag/default/get/external","title":"/external","path":"/external","method":"get","ref":"#/paths/~1external/get","type":"operation","isDeprecated":false},{"type":"text","id":"models","title":"Models","children":[{"id":"model/user","title":"User","name":"User","ref":"#/components/schemas/User","type":"model"}]}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}},"/external":{"get":{"$ref":"http://localhost:9988"}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}},"/external":{"get":{"$ref":"http://localhost:9988"}}}}},"overrides":{"default":{}},"documentMeta":{"default":{}}}',
       )
 
       await store.replaceDocument('default', {
@@ -1715,7 +1721,7 @@ describe('create-workspace-store', () => {
       })
 
       expect(store.exportWorkspace()).toEqual(
-        '{"documents":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}},"/external":{"get":{"$ref":"#/x-ext/29442af"}}},"x-original-oas-version":"3.0.0","x-ext-urls":{"29442af":"http://localhost:9988/some-other-path"},"x-ext":{"29442af":{"description":"New content"}},"x-scalar-navigation":[{"id":"tag/default/get/users","title":"Get all users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation"},{"id":"tag/default/get/external","title":"/external","path":"/external","method":"get","ref":"#/paths/~1external/get","type":"operation"},{"type":"text","id":"models","title":"Models","children":[{"id":"model/user","title":"User","name":"User","ref":"#/components/schemas/User","type":"model"}]}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}},"/external":{"get":{"$ref":"http://localhost:9988"}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}},"/external":{"get":{"$ref":"http://localhost:9988"}}}}},"overrides":{"default":{}},"documentMeta":{"default":{}}}',
+        '{"documents":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}},"/external":{"get":{"$ref":"#/x-ext/29442af"}}},"x-original-oas-version":"3.0.0","x-ext-urls":{"29442af":"http://localhost:9988/some-other-path"},"x-ext":{"29442af":{"description":"New content"}},"x-scalar-navigation":[{"id":"tag/default/get/users","title":"Get all users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation","isDeprecated":false},{"id":"tag/default/get/external","title":"/external","path":"/external","method":"get","ref":"#/paths/~1external/get","type":"operation","isDeprecated":false},{"type":"text","id":"models","title":"Models","children":[{"id":"model/user","title":"User","name":"User","ref":"#/components/schemas/User","type":"model"}]}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}},"/external":{"get":{"$ref":"http://localhost:9988"}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}},"/external":{"get":{"$ref":"http://localhost:9988"}}}}},"overrides":{"default":{}},"documentMeta":{"default":{}}}',
       )
     })
   })
@@ -1842,6 +1848,7 @@ describe('create-workspace-store', () => {
                   'method': 'get',
                   'ref': '#/paths/~1users/get',
                   'type': 'operation',
+                  'isDeprecated': false,
                 },
               ],
             },
@@ -2167,7 +2174,7 @@ describe('create-workspace-store', () => {
       })
 
       expect(store.exportWorkspace()).toBe(
-        '{"documents":{"default":{"openapi":"3.1.1","paths":{"/":{"get":{"requestBody":{"$ref":"#/x-ext/c766ed8"}}}},"x-original-oas-version":"3.1.1","x-ext-urls":{"c766ed8":"http://localhost:9988"},"x-ext":{"c766ed8":{"description":"some description","content":{}}},"info":{"title":"","version":""},"x-scalar-navigation":[{"id":"tag/default/get/","title":"/","path":"/","method":"get","ref":"#/paths/~1/get","type":"operation"}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","paths":{"/":{"get":{"requestBody":{"$ref":"http://localhost:9988"}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","paths":{"/":{"get":{"requestBody":{"$ref":"http://localhost:9988"}}}}}},"overrides":{"default":{}},"documentMeta":{"default":{}}}',
+        '{"documents":{"default":{"openapi":"3.1.1","paths":{"/":{"get":{"requestBody":{"$ref":"#/x-ext/c766ed8"}}}},"x-original-oas-version":"3.1.1","x-ext-urls":{"c766ed8":"http://localhost:9988"},"x-ext":{"c766ed8":{"description":"some description","content":{}}},"info":{"title":"","version":""},"x-scalar-navigation":[{"id":"tag/default/get/","title":"/","path":"/","method":"get","ref":"#/paths/~1/get","type":"operation","isDeprecated":false}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","paths":{"/":{"get":{"requestBody":{"$ref":"http://localhost:9988"}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","paths":{"/":{"get":{"requestBody":{"$ref":"http://localhost:9988"}}}}}},"overrides":{"default":{}},"documentMeta":{"default":{}}}',
       )
 
       await store.replaceDocument('default', {
@@ -2183,13 +2190,13 @@ describe('create-workspace-store', () => {
         },
       })
       expect(store.exportWorkspace()).toBe(
-        '{"documents":{"default":{"openapi":"3.1.1","paths":{"/":{"get":{"requestBody":{"$ref":"#/x-ext/8fad302"}}}},"x-original-oas-version":"3.1.1","x-ext-urls":{"8fad302":"http://localhost:9988/a"},"x-ext":{"8fad302":{"description":"updated","content":{}}},"info":{"title":"","version":""},"x-scalar-navigation":[{"id":"tag/default/get/","title":"/","path":"/","method":"get","ref":"#/paths/~1/get","type":"operation"}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","paths":{"/":{"get":{"requestBody":{"$ref":"http://localhost:9988"}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","paths":{"/":{"get":{"requestBody":{"$ref":"http://localhost:9988"}}}}}},"overrides":{"default":{}},"documentMeta":{"default":{}}}',
+        '{"documents":{"default":{"openapi":"3.1.1","paths":{"/":{"get":{"requestBody":{"$ref":"#/x-ext/8fad302"}}}},"x-original-oas-version":"3.1.1","x-ext-urls":{"8fad302":"http://localhost:9988/a"},"x-ext":{"8fad302":{"description":"updated","content":{}}},"info":{"title":"","version":""},"x-scalar-navigation":[{"id":"tag/default/get/","title":"/","path":"/","method":"get","ref":"#/paths/~1/get","type":"operation","isDeprecated":false}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","paths":{"/":{"get":{"requestBody":{"$ref":"http://localhost:9988"}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","paths":{"/":{"get":{"requestBody":{"$ref":"http://localhost:9988"}}}}}},"overrides":{"default":{}},"documentMeta":{"default":{}}}',
       )
 
       await store.revertDocumentChanges('default')
 
       expect(store.exportWorkspace()).toBe(
-        '{"documents":{"default":{"openapi":"3.1.1","paths":{"/":{"get":{"requestBody":{"$ref":"#/x-ext/c766ed8"}}}},"x-original-oas-version":"3.1.1","x-ext-urls":{"c766ed8":"http://localhost:9988"},"x-ext":{"c766ed8":{"description":"some description","content":{}}},"info":{"title":"","version":""},"x-scalar-navigation":[{"id":"tag/default/get/","title":"/","path":"/","method":"get","ref":"#/paths/~1/get","type":"operation"}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","paths":{"/":{"get":{"requestBody":{"$ref":"http://localhost:9988"}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","paths":{"/":{"get":{"requestBody":{"$ref":"http://localhost:9988"}}}}}},"overrides":{"default":{}},"documentMeta":{"default":{}}}',
+        '{"documents":{"default":{"openapi":"3.1.1","paths":{"/":{"get":{"requestBody":{"$ref":"#/x-ext/c766ed8"}}}},"x-original-oas-version":"3.1.1","x-ext-urls":{"c766ed8":"http://localhost:9988"},"x-ext":{"c766ed8":{"description":"some description","content":{}}},"info":{"title":"","version":""},"x-scalar-navigation":[{"id":"tag/default/get/","title":"/","path":"/","method":"get","ref":"#/paths/~1/get","type":"operation","isDeprecated":false}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","paths":{"/":{"get":{"requestBody":{"$ref":"http://localhost:9988"}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","paths":{"/":{"get":{"requestBody":{"$ref":"http://localhost:9988"}}}}}},"overrides":{"default":{}},"documentMeta":{"default":{}}}',
       )
     })
   })
@@ -2229,7 +2236,7 @@ describe('create-workspace-store', () => {
       })
 
       expect(store.exportWorkspace()).toBe(
-        '{"documents":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}},"x-original-oas-version":"3.0.0","x-ext-urls":{},"x-scalar-navigation":[{"id":"tag/default/get/users","title":"Get all users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation"},{"type":"text","id":"models","title":"Models","children":[{"id":"model/user","title":"User","name":"User","ref":"#/components/schemas/User","type":"model"}]}],"servers":[{"url":"http://localhost:9989"}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}},"overrides":{"default":{}},"documentMeta":{"default":{"documentSource":"http://localhost:9989/default"}}}',
+        '{"documents":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}},"x-original-oas-version":"3.0.0","x-ext-urls":{},"x-scalar-navigation":[{"id":"tag/default/get/users","title":"Get all users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation","isDeprecated":false},{"type":"text","id":"models","title":"Models","children":[{"id":"model/user","title":"User","name":"User","ref":"#/components/schemas/User","type":"model"}]}],"servers":[{"url":"http://localhost:9989"}]}},"meta":{},"documentConfigs":{"default":{}},"originalDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}},"overrides":{"default":{}},"documentMeta":{"default":{"documentSource":"http://localhost:9989/default"}}}',
       )
     })
 
@@ -2471,6 +2478,7 @@ describe('create-workspace-store', () => {
           {
             'id': 'tag/default/get/users',
             'title': 'Get all users',
+            'isDeprecated': false,
             'path': '/users',
             'method': 'get',
             'ref': '#/paths/~1users/get',
@@ -2606,11 +2614,14 @@ describe('create-workspace-store', () => {
         },
         'x-ext-urls': {},
         'x-original-oas-version': '3.0.0',
+        'x-scalar-active-auth': undefined,
+        'x-scalar-active-server': undefined,
         'x-scalar-navigation': [
           {
             id: 'tag/default/get/users-v2',
             method: 'get',
             path: '/users-v2',
+            isDeprecated: false,
             ref: '#/paths/~1users-v2/get',
             title: 'Get all users',
             type: 'operation',

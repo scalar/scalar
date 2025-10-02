@@ -1,11 +1,11 @@
 import { Value } from '@scalar/typebox/value'
 import { describe, expect, it } from 'vitest'
 
-import { BadgeSchema, XBadgesSchema } from './x-badge'
+import { XBadgeSchema, XBadgesSchema } from './x-badge'
 
 describe('x-badge', () => {
   it('validates minimal badge with only required name', () => {
-    const result = Value.Parse(BadgeSchema, { name: 'Deprecated' })
+    const result = Value.Parse(XBadgeSchema, { name: 'Deprecated' })
     expect(result).toEqual({
       name: 'Deprecated',
       position: 'after',
@@ -13,11 +13,11 @@ describe('x-badge', () => {
   })
 
   it('throws when badge without required name field', () => {
-    expect(() => Value.Parse(BadgeSchema, { position: 'after', color: 'red' })).toThrow()
+    expect(() => Value.Parse(XBadgeSchema, { position: 'after', color: 'red' })).toThrow()
   })
 
   it('validates badge with all optional properties', () => {
-    const result = Value.Parse(BadgeSchema, {
+    const result = Value.Parse(XBadgeSchema, {
       name: 'Beta',
       position: 'before',
       color: '#ff6b6b',

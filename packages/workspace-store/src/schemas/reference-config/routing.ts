@@ -1,4 +1,4 @@
-import { type Static, Type } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 
 export const RoutingSchema = Type.Partial(
   Type.Object({
@@ -7,7 +7,10 @@ export const RoutingSchema = Type.Partial(
   }),
 )
 
-export type Routing = Static<typeof RoutingSchema>
+export type Routing = {
+  basePath?: string
+  pathNotFound?: string
+}
 
 export const defaultRouting: Required<Routing> = {
   basePath: '/',

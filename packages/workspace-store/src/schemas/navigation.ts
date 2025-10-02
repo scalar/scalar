@@ -1,13 +1,18 @@
-import { type HttpMethod, httpMethods } from '@scalar/helpers/http/http-methods'
+import { HTTP_METHODS, type HttpMethod } from '@scalar/helpers/http/http-methods'
 import { type TLiteral, Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
-import { TraversedEntryObjectRef, TraversedTagObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
+import { TraversedEntryObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 
 export const NavigationBaseSchemaDefinition = Type.Object({
   id: Type.String(),
   title: Type.String(),
 })
+
+type BaseSchema = {
+  id: string
+  title: string
+}
 
 export const TraversedDescriptionSchemaDefinition = compose(
   NavigationBaseSchemaDefinition,
@@ -17,18 +22,29 @@ export const TraversedDescriptionSchemaDefinition = compose(
   }),
 )
 
+export type TraversedDescription = BaseSchema & {
+  type: 'text'
+  children?: TraversedEntry[]
+}
+
 export const TraversedOperationSchemaDefinition = compose(
   NavigationBaseSchemaDefinition,
   Type.Object({
     type: Type.Literal('operation'),
     ref: Type.String(),
-    method: Type.Union(
-      Array.from(httpMethods.keys()).map((method) => Type.Literal(method)),
-    ) as unknown as TLiteral<HttpMethod>,
+    method: Type.Union(HTTP_METHODS.map((method) => Type.Literal(method))) as unknown as TLiteral<HttpMethod>,
     path: Type.String(),
     isDeprecated: Type.Optional(Type.Boolean()),
   }),
 )
+
+export type TraversedOperation = BaseSchema & {
+  type: 'operation'
+  ref: string
+  method: HttpMethod
+  path: string
+  isDeprecated?: boolean
+}
 
 export const TraversedSchemaSchemaDefinition = compose(
   NavigationBaseSchemaDefinition,
@@ -39,18 +55,30 @@ export const TraversedSchemaSchemaDefinition = compose(
   }),
 )
 
+export type TraversedSchema = BaseSchema & {
+  type: 'model'
+  ref: string
+  name: string
+}
+
 export const TraversedWebhookSchemaDefinition = compose(
   NavigationBaseSchemaDefinition,
   Type.Object({
     type: Type.Literal('webhook'),
     ref: Type.String(),
-    method: Type.Union(
-      Array.from(httpMethods.keys()).map((method) => Type.Literal(method)),
-    ) as unknown as TLiteral<HttpMethod>,
+    method: Type.Union(HTTP_METHODS.map((method) => Type.Literal(method))) as unknown as TLiteral<HttpMethod>,
     name: Type.String(),
     isDeprecated: Type.Optional(Type.Boolean()),
   }),
 )
+
+export type TraversedWebhook = BaseSchema & {
+  type: 'webhook'
+  ref: string
+  method: HttpMethod
+  name: string
+  isDeprecated?: boolean
+}
 
 export const TraversedTagSchemaDefinition = compose(
   NavigationBaseSchemaDefinition,
@@ -65,10 +93,27 @@ export const TraversedTagSchemaDefinition = compose(
   }),
 )
 
+export type TraversedTag = BaseSchema & {
+  type: 'tag'
+  name: string
+  description?: string
+  children?: TraversedEntry[]
+  isGroup: boolean
+  isWebhooks?: boolean
+  xKeys?: Record<string, unknown>
+}
+
 export const TraversedEntrySchemaDefinition = Type.Union([
-  TraversedTagObjectRef,
   TraversedDescriptionSchemaDefinition,
   TraversedOperationSchemaDefinition,
   TraversedSchemaSchemaDefinition,
+  TraversedTagSchemaDefinition,
   TraversedWebhookSchemaDefinition,
 ])
+
+export type TraversedEntry =
+  | TraversedDescription
+  | TraversedOperation
+  | TraversedSchema
+  | TraversedTag
+  | TraversedWebhook

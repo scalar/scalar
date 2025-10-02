@@ -1,8 +1,8 @@
-import { type Static, Type } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 import type { PartialDeep } from 'type-fest'
 
 import type { TraverseSpecOptions } from '@/navigation/types'
-import { ReferenceConfigSchema } from '@/schemas/reference-config'
+import { type ReferenceConfig, ReferenceConfigSchema } from '@/schemas/reference-config'
 
 export const ConfigSchema = Type.Partial(
   Type.Object({
@@ -10,7 +10,9 @@ export const ConfigSchema = Type.Partial(
   }),
 )
 
-export type Config = Static<typeof ConfigSchema>
+export type Config = {
+  'x-scalar-reference-config'?: PartialDeep<ReferenceConfig>
+}
 
 export type DocumentConfiguration = Config &
   PartialDeep<{

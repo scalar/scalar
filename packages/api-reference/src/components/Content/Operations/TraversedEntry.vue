@@ -1,14 +1,15 @@
 <script setup lang="ts">
+import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type {
-  OpenApiDocument,
   TraversedEntry,
   TraversedOperation,
   TraversedTag,
   TraversedWebhook,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/navigation'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import { getCurrentIndex } from '@/components/Content/Operations/get-current-index'
@@ -17,7 +18,6 @@ import { Lazy } from '@/components/Lazy'
 import { SectionContainer } from '@/components/Section'
 import { Operation } from '@/features/Operation'
 import { useNavState } from '@/hooks/useNavState'
-import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
 const {
   level = 0,

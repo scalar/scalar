@@ -1,30 +1,43 @@
-import { type Static, type TSchema, Type } from '@scalar/typebox'
+import { type TSchema, Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
 import { extensions } from '@/schemas/extensions'
+import { type XTagGroups, XTagGroupsSchema } from '@/schemas/extensions/tag/x-tag-groups'
 import {
   TraversedDescriptionSchemaDefinition,
+  type TraversedEntry,
   TraversedEntrySchemaDefinition,
   TraversedOperationSchemaDefinition,
   TraversedSchemaSchemaDefinition,
   TraversedTagSchemaDefinition,
   TraversedWebhookSchemaDefinition,
 } from '@/schemas/navigation'
-import { CallbackObjectSchemaDefinition } from '@/schemas/v3.1/strict/callback'
-import { xScalarClientConfigCookiesSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-cookies'
-import { xScalarClientConfigEnvironmentsSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-environments'
-import { ContactObjectSchemaDefinition } from '@/schemas/v3.1/strict/contact'
-import { DiscriminatorObjectSchemaDefinition } from '@/schemas/v3.1/strict/discriminator'
-import { EncodingObjectSchemaDefinition } from '@/schemas/v3.1/strict/encoding'
-import { ExampleObjectSchemaDefinition } from '@/schemas/v3.1/strict/example'
-import { HeaderObjectSchemaDefinition } from '@/schemas/v3.1/strict/header'
-import { LicenseObjectSchemaDefinition } from '@/schemas/v3.1/strict/license'
-import { LinkObjectSchemaDefinition } from '@/schemas/v3.1/strict/link'
-import { MediaTypeObjectSchemaDefinition } from '@/schemas/v3.1/strict/media-type'
-import { OAuthFlowsObjectSchemaDefinition } from '@/schemas/v3.1/strict/oauthflows'
-import { OperationObjectSchemaDefinition } from '@/schemas/v3.1/strict/operation'
-import { ParameterObjectSchemaDefinition } from '@/schemas/v3.1/strict/parameter'
-import { PathItemObjectSchemaDefinition } from '@/schemas/v3.1/strict/path-item'
+
+import { CallbackObjectSchemaDefinition } from './callback'
+import {
+  type XScalarClientConfigCookies,
+  xScalarClientConfigCookiesSchema,
+} from './client-config-extensions/x-scalar-client-config-cookies'
+import {
+  type XScalarClientConfigEnvironments,
+  xScalarClientConfigEnvironmentsSchema,
+} from './client-config-extensions/x-scalar-client-config-environments'
+import { type ComponentsObject, ComponentsObjectSchemaDefinition } from './components'
+import { ContactObjectSchemaDefinition } from './contact'
+import { DiscriminatorObjectSchemaDefinition } from './discriminator'
+import { EncodingObjectSchemaDefinition } from './encoding'
+import { ExampleObjectSchemaDefinition } from './example'
+import { type ExternalDocumentationObject, ExternalDocumentationObjectSchemaDefinition } from './external-documentation'
+import { HeaderObjectSchemaDefinition } from './header'
+import { type InfoObject, InfoObjectSchemaDefinition } from './info'
+import { LicenseObjectSchemaDefinition } from './license'
+import { LinkObjectSchemaDefinition } from './link'
+import { MediaTypeObjectSchemaDefinition } from './media-type'
+import { OAuthFlowsObjectSchemaDefinition } from './oauthflows'
+import { OperationObjectSchemaDefinition } from './operation'
+import { ParameterObjectSchemaDefinition } from './parameter'
+import { PathItemObjectSchemaDefinition } from './path-item'
+import { type PathsObject, PathsObjectSchemaDefinition } from './paths'
 import {
   ComponentsObjectRef,
   ExternalDocumentationObjectRef,
@@ -36,43 +49,46 @@ import {
   ServerObjectRef,
   TagObjectRef,
   TraversedEntryObjectRef,
-} from '@/schemas/v3.1/strict/ref-definitions'
-import { RequestBodyObjectSchemaDefinition } from '@/schemas/v3.1/strict/request-body'
-import { ResponseObjectSchemaDefinition } from '@/schemas/v3.1/strict/response'
-import { ResponsesObjectSchemaDefinition } from '@/schemas/v3.1/strict/responses'
-import { SchemaObjectSchemaDefinition } from '@/schemas/v3.1/strict/schema'
-import { SecuritySchemeObjectSchemaDefinition } from '@/schemas/v3.1/strict/security-scheme'
-import { ServerVariableObjectSchemaDefinition } from '@/schemas/v3.1/strict/server-variable'
-import { XMLObjectSchemaDefinition } from '@/schemas/v3.1/strict/xml'
-
-import { ComponentsObjectSchemaDefinition } from './components'
-import { ExternalDocumentationObjectSchemaDefinition } from './external-documentation'
-import { InfoObjectSchemaDefinition } from './info'
-import { PathsObjectSchemaDefinition } from './paths'
-import { SecurityRequirementObjectSchemaDefinition } from './security-requirement'
-import { ServerObjectSchemaDefinition } from './server'
-import { TagObjectSchemaDefinition } from './tag'
+} from './ref-definitions'
+import { RequestBodyObjectSchemaDefinition } from './request-body'
+import { ResponseObjectSchemaDefinition } from './response'
+import { ResponsesObjectSchemaDefinition } from './responses'
+import { SchemaObjectSchemaDefinition } from './schema'
+import { type SecurityRequirementObject, SecurityRequirementObjectSchemaDefinition } from './security-requirement'
+import { SecuritySchemeObjectSchemaDefinition } from './security-scheme'
+import { type ServerObject, ServerObjectSchemaDefinition } from './server'
+import { ServerVariableObjectSchemaDefinition } from './server-variable'
+import { type TagObject, TagObjectSchemaDefinition } from './tag'
+import { XMLObjectSchemaDefinition } from './xml'
 
 const OpenApiExtensionsSchema = Type.Partial(
-  Type.Object({
-    'x-tagGroups': Type.Array(
-      compose(
-        Type.Object({
-          tags: Type.Array(Type.String()),
-        }),
-        TagObjectRef,
-      ),
-    ),
-    'x-scalar-client-config-active-environment': Type.String(),
-    /** A custom icon representing the collection */
-    'x-scalar-client-config-icon': Type.String(),
-    'x-scalar-client-config-environments': xScalarClientConfigEnvironmentsSchema,
-    'x-scalar-client-config-cookies': xScalarClientConfigCookiesSchema,
-    'x-original-oas-version': Type.String(),
-    'x-scalar-selected-security': Type.Optional(Type.Array(SecurityRequirementObjectRef)),
-    [extensions.document.navigation]: Type.Array(TraversedEntryObjectRef),
-  }),
+  compose(
+    Type.Object({
+      'x-scalar-client-config-active-environment': Type.String(),
+      /** A custom icon representing the collection */
+      'x-scalar-client-config-icon': Type.String(),
+      'x-scalar-client-config-environments': xScalarClientConfigEnvironmentsSchema,
+      'x-scalar-client-config-cookies': xScalarClientConfigCookiesSchema,
+      'x-original-oas-version': Type.String(),
+      'x-scalar-selected-security': Type.Optional(Type.Array(SecurityRequirementObjectRef)),
+      [extensions.document.navigation]: Type.Array(TraversedEntryObjectRef),
+    }),
+    XTagGroupsSchema,
+  ),
 )
+
+export type OpenAPIExtensions = Partial<
+  {
+    'x-scalar-client-config-active-environment': string
+    /** A custom icon representing the collection */
+    'x-scalar-client-config-icon': string
+    'x-scalar-client-config-environments': XScalarClientConfigEnvironments
+    'x-scalar-client-config-cookies': XScalarClientConfigCookies
+    'x-original-oas-version': string
+    'x-scalar-selected-security': SecurityRequirementObject[]
+    [extensions.document.navigation]: TraversedEntry[]
+  } & XTagGroups
+>
 
 const OpenApiDocumentSchemaDefinition = compose(
   Type.Object({
@@ -99,6 +115,29 @@ const OpenApiDocumentSchemaDefinition = compose(
   }),
   OpenApiExtensionsSchema,
 )
+
+export type OpenApiDocument = {
+  /** REQUIRED. This string MUST be the version number of the OpenAPI Specification that the OpenAPI Document uses. The openapi field SHOULD be used by tooling to interpret the OpenAPI Document. This is not related to the API info.version string. */
+  openapi: string
+  /** REQUIRED. Provides metadata about the API. The metadata MAY be used by tooling as required. */
+  info: InfoObject
+  /** The default value for the $schema keyword within Schema Objects contained within this OAS document. This MUST be in the form of a URI. */
+  jsonSchemaDialect?: string
+  /** An array of Server Objects, which provide connectivity information to a target server. If the servers field is not provided, or is an empty array, the default value would be a Server Object with a url value of /. */
+  servers?: ServerObject[]
+  /** The available paths and operations for the API. */
+  paths?: PathsObject
+  /** The incoming webhooks that MAY be received as part of this API and that the API consumer MAY choose to implement. Closely related to the callbacks feature, this section describes requests initiated other than by an API call, for example by an out of band registration. The key name is a unique string to refer to each webhook, while the (optionally referenced) Path Item Object describes a request that may be initiated by the API provider and the expected responses. An example is available. */
+  webhooks?: PathsObject
+  /** An element to hold various Objects for the OpenAPI Description. */
+  components?: ComponentsObject
+  /** A declaration of which security mechanisms can be used across the API. The list of values includes alternative Security Requirement Objects that can be used. Only one of the Security Requirement Objects need to be satisfied to authorize a request. Individual operations can override this definition. The list can be incomplete, up to being empty or absent. To make security explicitly optional, an empty security requirement ({}) can be included in the array. */
+  security?: SecurityRequirementObject[]
+  /** A list of tags used by the OpenAPI Description with additional metadata. The order of the tags can be used to reflect on their order by the parsing tools. Not all tags that are used by the Operation Object must be declared. The tags that are not declared MAY be organized randomly or based on the tools' logic. Each tag name in the list MUST be unique. */
+  tags?: TagObject[]
+  /** Additional external documentation. */
+  externalDocs?: ExternalDocumentationObject
+} & OpenAPIExtensions
 
 // ----- Module Definition ----
 const module = Type.Module({
@@ -189,97 +228,32 @@ export const TraversedOperationSchema = module.Import('TraversedOperationObject'
 export const TraversedSchemaSchema = module.Import('TraversedSchemaObject')
 export const TraversedWebhookSchema = module.Import('TraversedWebhookObject')
 
-// ----- Type Definitions ----
-export type OpenApiDocument = Static<typeof OpenAPIDocumentSchema>
+//  ----- Type re-exports ----
+export type { ExternalDocumentationObject }
+export type { InfoObject }
+export type { PathsObject }
+export type { SecurityRequirementObject }
+export type { ServerObject }
+export type { TagObject }
 
-export type ComponentsObject = Static<typeof ComponentsObjectSchema>
-export type SecurityRequirementObject = Static<typeof SecurityRequirementObjectSchema>
-export type TagObject = Static<typeof TagObjectSchema>
-
-export type CallbackObject = Static<typeof CallbackObjectSchema>
-export type PathItemObject = Static<typeof PathItemObjectSchema>
-export type PathsObject = Static<typeof PathsObjectSchema>
-export type OperationObject = Static<typeof OperationObjectSchema>
-
-/**
- * Supported string formats in OpenAPI schemas.
- *
- * These provide better type safety for string format validation. We wanted to allow any arbitrary string
- * in the schema, so we type it in typescript instead. This gives us autocomplete while allowing any string!
- */
-export type StringFormat =
-  // Date and time formats
-  | 'date'
-  | 'date-time'
-  | 'date-time-local'
-  | 'time'
-  | 'time-local'
-  | 'duration'
-  | 'http-date'
-  // Network formats
-  | 'email'
-  | 'idn-email'
-  | 'hostname'
-  | 'idn-hostname'
-  | 'ipv4'
-  | 'ipv6'
-  | 'uri'
-  | 'uri-reference'
-  | 'uri-template'
-  | 'iri'
-  | 'iri-reference'
-  | 'uuid'
-  // Content formats
-  | 'binary'
-  | 'byte'
-  | 'base64url'
-  | 'html'
-  | 'commonmark'
-  | 'password'
-  | 'regex'
-  | 'json-pointer'
-  | 'relative-json-pointer'
-  | 'media-range'
-  // Character formats
-  | 'char'
-  // Structured field string formats
-  | 'sf-string'
-  | 'sf-token'
-  | 'sf-binary'
-  | 'sf-boolean'
-  | (string & {})
-
-export type SchemaObject =
-  | Exclude<Static<typeof SchemaObjectSchema>, { type: 'string' }>
-  | (Omit<Extract<Static<typeof SchemaObjectSchema>, { type: 'string' }>, 'format'> & {
-      format?: StringFormat
-    })
-
-export type EncodingObject = Static<typeof EncodingObjectSchema>
-export type MediaTypeObject = Static<typeof MediaTypeObjectSchema>
-export type HeaderObject = Static<typeof HeaderObjectSchema>
-
-export type ServerObject = Static<typeof ServerObjectSchema>
-export type ExternalDocumentationObject = Static<typeof ExternalDocumentationObjectSchema>
-
-export type InfoObject = Static<typeof InfoObjectSchema>
-export type ContactObject = Static<typeof ContactObjectSchema>
-export type LicenseObject = Static<typeof LicenseObjectSchema>
-export type ResponseObject = Static<typeof ResponseObjectSchema>
-export type ResponsesObject = Static<typeof ResponsesObjectSchema>
-export type ParameterObject = Static<typeof ParameterObjectSchema>
-export type ExampleObject = Static<typeof ExampleObjectSchema>
-export type RequestBodyObject = Static<typeof RequestBodyObjectSchema>
-export type SecuritySchemeObject = Static<typeof SecuritySchemeObjectSchema>
-export type LinkObject = Static<typeof LinkObjectSchema>
-export type XMLObject = Static<typeof XMLObjectSchema>
-export type DiscriminatorObject = Static<typeof DiscriminatorObjectSchema>
-export type OAuthFlowsObject = Static<typeof OAuthFlowsObjectSchema>
-export type ServerVariableObject = Static<typeof ServerVariableObjectSchema>
-
-export type TraversedDescription = Static<typeof TraversedDescriptionSchema>
-export type TraversedEntry = Static<typeof TraversedEntrySchema>
-export type TraversedTag = Static<typeof TraversedTagSchema>
-export type TraversedOperation = Static<typeof TraversedOperationSchema>
-export type TraversedSchema = Static<typeof TraversedSchemaSchema>
-export type TraversedWebhook = Static<typeof TraversedWebhookSchema>
+export type { CallbackObject } from './callback'
+export type { ComponentsObject } from './components'
+export type { ContactObject } from './contact'
+export type { DiscriminatorObject } from './discriminator'
+export type { EncodingObject } from './encoding'
+export type { ExampleObject } from './example'
+export type { HeaderObject } from './header'
+export type { LicenseObject } from './license'
+export type { LinkObject } from './link'
+export type { MediaTypeObject } from './media-type'
+export type { OAuthFlowsObject } from './oauthflows'
+export type { OperationObject } from './operation'
+export type { ParameterObject } from './parameter'
+export type { PathItemObject } from './path-item'
+export type { RequestBodyObject } from './request-body'
+export type { ResponseObject } from './response'
+export type { ResponsesObject } from './responses'
+export type { SchemaObject } from './schema'
+export type { SecuritySchemeObject } from './security-scheme'
+export type { ServerVariableObject } from './server-variable'
+export type { XMLObject } from './xml'

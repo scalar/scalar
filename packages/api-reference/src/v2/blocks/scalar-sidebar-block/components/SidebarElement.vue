@@ -5,7 +5,7 @@ import { getHttpMethodInfo } from '@scalar/helpers/http/http-info'
 import { sleep } from '@scalar/helpers/testing/sleep'
 import { ScalarIconWebhooksLogo } from '@scalar/icons'
 import { combineUrlAndPath } from '@scalar/oas-utils/helpers'
-import type { TraversedEntry } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 
 import { useConfig } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'

@@ -1,6 +1,6 @@
 import { getHeadingsFromMarkdown, getLowestHeadingLevel } from '@/navigation/helpers/utils'
 import type { Heading } from '@/navigation/types'
-import type { TraversedDescription } from '@/schemas/v3.1/strict/openapi-document'
+import type { TraversedDescription } from '@/schemas/navigation'
 
 export const DEFAULT_INTRODUCTION_SLUG = 'introduction'
 

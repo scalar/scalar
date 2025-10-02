@@ -1,4 +1,4 @@
-import type { TraversedEntry, TraversedOperation } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { TraversedEntry, TraversedOperation } from '@scalar/workspace-store/schemas/navigation'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'

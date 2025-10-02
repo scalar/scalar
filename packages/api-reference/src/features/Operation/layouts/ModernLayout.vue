@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import {
+  OperationCodeSample,
+  type ClientOptionGroup,
+} from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { ScalarErrorBoundary, ScalarMarkdown } from '@scalar/components'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { ScalarIconWebhooksLogo } from '@scalar/icons'
@@ -37,8 +41,6 @@ import OperationParameters from '@/features/Operation/components/OperationParame
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
 import { TestRequestButton } from '@/features/test-request-button'
 import { XBadges } from '@/features/x-badges'
-import { RequestExample } from '@/v2/blocks/scalar-request-example-block'
-import type { ClientOptionGroup } from '@/v2/blocks/scalar-request-example-block/types'
 
 const { path, config, operation, method, isWebhook } = defineProps<{
   id: string
@@ -69,6 +71,10 @@ const labelId = useId()
       <div class="flex flex-row justify-between gap-1">
         <!-- Left -->
         <div class="flex gap-1">
+          <!-- Operation ID -->
+          <Badge v-if="config.showOperationId && operation.operationId">
+            {{ operation.operationId }}
+          </Badge>
           <!-- Stability badge -->
           <Badge
             v-if="getOperationStability(operation)"
@@ -147,13 +153,13 @@ const labelId = useId()
 
             <!-- New Example Request -->
             <ScalarErrorBoundary>
-              <RequestExample
+              <OperationCodeSample
                 :clientOptions="clientOptions"
                 fallback
+                :isWebhook="isWebhook"
                 :method="method"
                 :operation="operation"
                 :path="path"
-                :isWebhook="isWebhook"
                 :securitySchemes="securitySchemes"
                 :selectedClient="store.workspace['x-scalar-default-client']"
                 :selectedServer="server">
@@ -170,7 +176,7 @@ const labelId = useId()
                     :method="method"
                     :path="path" />
                 </template>
-              </RequestExample>
+              </OperationCodeSample>
             </ScalarErrorBoundary>
 
             <ScalarErrorBoundary>

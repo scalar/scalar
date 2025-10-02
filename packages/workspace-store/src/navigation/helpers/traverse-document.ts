@@ -1,6 +1,7 @@
 import { getNavigationOptions } from '@/navigation/get-navigation-options'
 import type { TagsMap } from '@/navigation/types'
-import type { OpenApiDocument, TraversedEntry } from '@/schemas/v3.1/strict/openapi-document'
+import type { TraversedEntry } from '@/schemas/navigation'
+import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import type { DocumentConfiguration } from '@/schemas/workspace-specification/config'
 
 import { traverseDescription } from './traverse-description'

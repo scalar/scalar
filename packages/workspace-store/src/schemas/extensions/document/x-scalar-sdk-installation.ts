@@ -1,4 +1,3 @@
-import type { Static } from '@scalar/typebox'
 import { Type } from '@scalar/typebox'
 
 export const XScalarSdkInstallationSchema = Type.Object({
@@ -13,4 +12,11 @@ export const XScalarSdkInstallationSchema = Type.Object({
   ),
 })
 
-export type XScalarSdkInstallation = Static<typeof XScalarSdkInstallationSchema>
+export type XScalarSdkInstallation = {
+  /** Scalar SDK installation information. */
+  'x-scalar-sdk-installation'?: {
+    lang: string
+    source?: string
+    description?: string
+  }[]
+}

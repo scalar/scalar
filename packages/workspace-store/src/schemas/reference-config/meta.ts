@@ -1,4 +1,4 @@
-import { type Static, Type } from '@scalar/typebox'
+import { Type } from '@scalar/typebox'
 
 export const MetaSchema = Type.Partial(
   Type.Object({
@@ -11,7 +11,14 @@ export const MetaSchema = Type.Partial(
   }),
 )
 
-export type Meta = Static<typeof MetaSchema>
+export type Meta = {
+  title?: string
+  description?: string
+  ogTitle?: string
+  ogDescription?: string
+  ogImage?: string
+  twitterCard?: string
+}
 
 export const defaultMeta: Required<Meta> = {
   title: 'Scalar API Reference',

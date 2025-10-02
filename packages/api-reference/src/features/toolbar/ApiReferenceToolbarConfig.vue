@@ -40,7 +40,7 @@ const layout = computed<'modern' | 'classic'>({
 </script>
 <template>
   <ApiReferenceToolbarPopover class="w-120">
-    <template #label> Configure </template>
+    <template #label>Configure</template>
     <ScalarFormSection>
       <template #label>Scalar Configuration</template>
       <ScalarCodeBlock

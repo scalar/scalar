@@ -1,4 +1,5 @@
-import type { OpenApiDocument, TraversedEntry } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 /**
  * Generate a reverse index for fast lookups of entities by their IDs.

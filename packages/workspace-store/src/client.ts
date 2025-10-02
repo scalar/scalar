@@ -135,7 +135,7 @@ type WorkspaceProps = {
   /** Optional metadata for the workspace including theme, active document, etc */
   meta?: WorkspaceMeta
   /** Workspace configuration */
-  config?: Config
+  config?: PartialDeep<Config>
   /** Fetch function for retrieving documents */
   fetch?: WorkspaceDocumentInput['fetch']
 }
@@ -843,7 +843,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       safeAssign(originalDocuments, result.originalDocuments)
       safeAssign(intermediateDocuments, result.intermediateDocuments)
-      safeAssign(documentConfigs, result.documentConfigs)
+      safeAssign(documentConfigs, result.documentConfigs as Record<string, Config>)
       safeAssign(overrides, result.overrides)
       safeAssign(workspace, result.meta)
       safeAssign(documentMeta, result.documentMeta)
