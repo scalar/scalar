@@ -186,7 +186,7 @@ describe('extractFilename', () => {
     })
 
     it('handles RFC 6266 format', () => {
-      const result = extractFilename("attachment; filename=\"EURO rates\"; filename*=UTF-8''%E2%82%AC%20rates")
+      const result = extractFilename('attachment; filename="EURO rates"; filename*=UTF-8\'\'%E2%82%AC%20rates')
       expect(result).toBe('€ rates')
     })
 
@@ -237,4 +237,3 @@ describe('extractFilename', () => {
     })
   })
 })
-
