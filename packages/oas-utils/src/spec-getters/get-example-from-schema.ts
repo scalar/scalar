@@ -3,7 +3,6 @@ import { getRaw } from '@scalar/json-magic/magic-proxy'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackOverridesProxy } from '@scalar/workspace-store/helpers/overrides-proxy'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 /** Maximum recursion depth to prevent infinite loops in circular references */
 const MAX_LEVELS_DEEP = 10
@@ -332,7 +331,7 @@ const handleArraySchema = (
       const first = getResolvedRef(allOf[0])
 
       if (first && typeof first === 'object' && 'type' in first && first.type === 'object') {
-        const combined: SchemaObject = { type: 'object', allOf }
+        const combined: OpenAPIV3_1.SchemaObject = { type: 'object', allOf }
         const merged = getExampleFromSchema(combined, options, {
           level: level + 1,
           parentSchema: schema,
@@ -358,7 +357,7 @@ const handleArraySchema = (
 
     const union = items.anyOf || items.oneOf
     if (union && union.length > 0) {
-      const first = union[0] as SchemaObject
+      const first = union[0] as OpenAPIV3_1.SchemaObject
       const ex = getExampleFromSchema(getResolvedRef(first), options, {
         level: level + 1,
         parentSchema: schema,
@@ -374,7 +373,7 @@ const handleArraySchema = (
     items && typeof items === 'object' && (('type' in items && items.type === 'array') || 'items' in items)
 
   if (items && typeof items === 'object' && (('type' in items && items.type) || isObject || isArray)) {
-    const ex = getExampleFromSchema(items as SchemaObject, options, {
+    const ex = getExampleFromSchema(items as OpenAPIV3_1.SchemaObject, options, {
       level: level + 1,
       seen,
     })
@@ -556,7 +555,7 @@ export const getExampleFromSchema = (
 
   // Handle object types - check for properties to identify objects
   if ('properties' in _schema || ('type' in _schema && _schema.type === 'object')) {
-    const result = handleObjectSchema(schema, options, level, seen)
+    const result = handleObjectSchema(_schema, options, level, seen)
     seen.delete(targetValue)
     return result
   }
@@ -601,7 +600,7 @@ export const getExampleFromSchema = (
     let merged: unknown = undefined
     const items = _schema.allOf
     for (const item of items) {
-      const ex = getExampleFromSchema(item as SchemaObject, options, {
+      const ex = getExampleFromSchema(item as OpenAPIV3_1.SchemaObject, options, {
         level: level + 1,
         parentSchema: _schema,
         seen,

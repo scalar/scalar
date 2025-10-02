@@ -548,7 +548,7 @@ export const getExampleFromSchema = (
 
   // Handle object types - check for properties to identify objects
   if ('properties' in _schema || ('type' in _schema && _schema.type === 'object')) {
-    const result = handleObjectSchema(schema, options, level, seen)
+    const result = handleObjectSchema(_schema, options, level, seen)
     seen.delete(targetValue)
     return result
   }
