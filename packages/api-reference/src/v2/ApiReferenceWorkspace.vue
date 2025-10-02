@@ -306,9 +306,9 @@ useFavicon(favicon)
       <template #content-start>
         <!-- Only appears on localhost -->
         <ApiReferenceToolbar
-          :workspace="store"
+          v-model:overrides="configurationOverrides"
           :configuration="selectedConfiguration"
-          v-model:overrides="configurationOverrides" />
+          :workspace="store" />
         <slot name="content-start" />
       </template>
       <template #content-end><slot name="content-end" /></template>
