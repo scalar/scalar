@@ -11,9 +11,6 @@ export default mergeConfig(
       environment: 'jsdom',
       root: fileURLToPath(new URL('./', import.meta.url)),
       setupFiles: './src/vitest.setup.ts',
-      benchmark: {
-        outputJson: './test/results/main.json',
-      },
     },
   }),
 )
