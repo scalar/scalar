@@ -129,6 +129,15 @@ const isSectionVisible = (
   }
   return false
 }
+
+defineExpose({
+  responseHeaders,
+  responseCookies,
+  requestHeaders,
+  shouldVirtualize,
+  activeFilter,
+  filters,
+})
 </script>
 <template>
   <ViewLayoutSection aria-label="Response">
