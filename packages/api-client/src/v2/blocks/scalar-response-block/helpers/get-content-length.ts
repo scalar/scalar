@@ -8,5 +8,9 @@ export const getContentLength = (response: ResponseInstance) => {
     10,
   )
 
-  return contentLength ? prettyBytes(contentLength) : undefined
+  if (isNaN(contentLength) || contentLength <= 0) {
+    return undefined
+  }
+
+  return prettyBytes(contentLength)
 }
