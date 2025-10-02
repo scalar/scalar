@@ -73,5 +73,4 @@ export type ScalarButtonProps = {
    * </ScalarButton>
    */
   loading?: LoadingState
-  fullWidth?: boolean
 }

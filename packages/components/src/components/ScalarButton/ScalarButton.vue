@@ -7,9 +7,9 @@
  * it's a helpful wrapper around this component
  *
  * @example
- *   <ScalarButton>
- *     <!-- Button label -->
- *   </ScalarButton>
+ * <ScalarButton>
+ *   <!-- Button label -->
+ * </ScalarButton>
  */
 export default {}
 </script>
@@ -35,7 +35,6 @@ const buttonVariants = cva({
   base: 'scalar-button flex cursor-pointer items-center justify-center rounded font-medium -outline-offset-1',
   variants: {
     disabled: { true: 'bg-b-2 text-color-3 shadow-none' },
-    fullWidth: { true: 'w-full' },
     size: {
       xs: 'px-2 py-1 text-xs leading-5',
       sm: 'px-3.5 py-2 text-sm leading-5',
@@ -91,7 +90,7 @@ const { cx } = useBindCx()
     :aria-disabled="disabled || undefined"
     :type="is === 'button' ? 'button' : undefined"
     v-bind="
-      cx(buttonVariants({ fullWidth, disabled, size, variant }), {
+      cx(buttonVariants({ disabled, size, variant }), {
         relative: loading?.isLoading,
       })
     ">

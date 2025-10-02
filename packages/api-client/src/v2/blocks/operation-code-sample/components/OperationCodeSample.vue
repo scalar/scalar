@@ -352,7 +352,6 @@ const id = useId()
           <ScalarButton
             class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-0.5 py-0 text-base font-normal"
             data-testid="client-picker"
-            fullWidth
             variant="ghost">
             {{ localSelectedClient?.title }}
             <ScalarIconCaretDown

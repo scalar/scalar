@@ -118,16 +118,4 @@ describe('ScalarButton', () => {
       expect(wrapper.classes()).toContain(`scalar-button-${variant}`)
     })
   })
-
-  it('applies fullWidth prop correctly', () => {
-    const wrapper = mount(ScalarButton, {
-      props: {
-        fullWidth: true,
-      },
-      slots: {
-        default: 'Full Width Button',
-      },
-    })
-    expect(wrapper.classes()).toContain('w-full')
-  })
 })
