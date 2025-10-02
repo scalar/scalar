@@ -25,8 +25,7 @@ export const csharpHttpclient: Plugin = {
     const searchParams = createSearchParams(normalizedRequest.queryString)
     const queryString = searchParams.size ? `?${searchParams.toString()}` : ''
 
-    // URL encoding: encode spaces in path but keep brackets as-is
-    const url = encodeUrl(`${normalizedRequest.url}${queryString}`)
+    const url = `${normalizedRequest.url}${queryString}`
 
     // Start building the snippet
     const lines: string[] = []
@@ -219,13 +218,6 @@ function createRawStringLiteral(text: string): string {
 
   const quotes = '"'.repeat(quoteCount)
   return `${quotes}\n${text}\n${quotes}`
-}
-
-/**
- * Encode URL with proper handling of spaces and brackets
- */
-function encodeUrl(url: string): string {
-  return url.replace(/ /g, '%20').replace(/\[/g, '[').replace(/\]/g, ']')
 }
 
 /**

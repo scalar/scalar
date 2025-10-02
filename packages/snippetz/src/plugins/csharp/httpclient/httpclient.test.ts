@@ -174,14 +174,6 @@ var body = await response.Content.ReadAsStringAsync();`)
     expect(result).toContain('"https://example.com/api?param1=value1&param2=special+value&param3=123"')
   })
 
-  it('handles special characters in URL', () => {
-    const result = csharpHttpclient.generate({
-      url: 'https://example.com/path with spaces/[brackets]',
-    })
-
-    expect(result).toContain('"https://example.com/path%20with%20spaces/[brackets]"')
-  })
-
   it('handles JSON body with raw string literal', () => {
     const result = csharpHttpclient.generate({
       url: 'https://example.com',
