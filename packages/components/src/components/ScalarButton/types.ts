@@ -1,4 +1,5 @@
 import type { ScalarIconComponent } from '@scalar/icons/types'
+import type { Component } from 'vue'
 
 import type { LoadingState } from '@/components/ScalarLoading'
 
@@ -13,6 +14,17 @@ export type ClassList = string | string[]
 
 /** Props for the ScalarButton component */
 export type ScalarButtonProps = {
+  /**
+   * Overrides the rendered element
+   *
+   * @default 'button'
+   *
+   * @example
+   * <ScalarButton is="a" href="https://scalar.com">
+   *   I'm a link!
+   * </ScalarButton>
+   */
+  is?: string | Component
   /**
    * The variant of the button
    *
@@ -62,5 +74,4 @@ export type ScalarButtonProps = {
    */
   loading?: LoadingState
   fullWidth?: boolean
-  type?: 'button' | 'submit' | 'reset'
 }

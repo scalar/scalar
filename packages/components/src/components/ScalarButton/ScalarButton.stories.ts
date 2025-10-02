@@ -15,9 +15,8 @@ const meta = {
   parameters: {
     layout: 'fullscreen',
   },
-  args: { label: 'Button', size: 'md', variant: 'solid', disabled: false, fullWidth: false },
+  args: { size: 'md', variant: 'solid', disabled: false, fullWidth: false },
   argTypes: {
-    label: { control: 'text' },
     class: { control: 'text' },
     size: { control: 'select', options: sizes, mapping: Object.fromEntries(sizes.map((size) => [size, size])) },
     loading: { control: false },
@@ -34,7 +33,7 @@ const meta = {
     },
     template: `
 <div class="w-fit p-2">
-  <ScalarButton v-bind="args">{{ args.label }}</ScalarButton>
+  <ScalarButton v-bind="args">Button</ScalarButton>
 </div>`,
   }),
 } satisfies Meta
@@ -62,6 +61,19 @@ export const Loading: Story = {
 
 export const WithIcon: Story = {
   args: { icon: ScalarIconCube as any },
+}
+
+export const AsLink: Story = {
+  render: (args) => ({
+    components: { ScalarButton },
+    setup() {
+      return { args }
+    },
+    template: `
+<div class="w-fit p-2">
+  <ScalarButton  is="a" href="#" v-bind="args">Button</ScalarButton>
+</div>`,
+  }),
 }
 
 export const CustomClasses: Story = {

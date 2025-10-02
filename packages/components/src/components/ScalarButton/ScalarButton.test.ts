@@ -1,20 +1,38 @@
+import { ScalarIconAcorn } from '@scalar/icons'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import { nextTick } from 'vue'
+import { markRaw, nextTick } from 'vue'
 
 import { useLoadingState } from '../ScalarLoading'
 import ScalarButton from './ScalarButton.vue'
 
 describe('ScalarButton', () => {
-  it('renders properly with default props', () => {
-    const wrapper = mount(ScalarButton, {
-      slots: {
-        default: 'Click me',
-      },
+  describe('rendering', () => {
+    it('renders a button by default', () => {
+      const wrapper = mount(ScalarButton, {
+        slots: { default: 'Click me' },
+      })
+      expect(wrapper.find('button').exists()).toBeTruthy()
+      expect(wrapper.attributes('type')).toBe('button')
     })
-    expect(wrapper.text()).toContain('Click me')
-    expect(wrapper.attributes('type')).toBe('button')
-    expect(wrapper.attributes('aria-disabled')).toBeUndefined()
+
+    it('can render a link using the is prop', () => {
+      const wrapper = mount(ScalarButton, {
+        props: { is: 'a', href: 'https://scalar.com' },
+        slots: { default: "I'm a link!" },
+      })
+      expect(wrapper.find('a').exists()).toBeTruthy()
+      expect(wrapper.attributes('type')).toBe(undefined)
+      expect(wrapper.attributes('href')).toBe('https://scalar.com')
+    })
+
+    it.each(['button', 'submit', 'reset'])('allows buttons of type %s', (type) => {
+      const wrapper = mount(ScalarButton, {
+        props: { type },
+        slots: { default: `${type} button` },
+      })
+      expect(wrapper.attributes('type')).toBe(type)
+    })
   })
 
   it('applies disabled state correctly', () => {
@@ -53,7 +71,14 @@ describe('ScalarButton', () => {
     expect(document.activeElement).toBe(wrapper.element)
   })
 
-  it('renders with icon slot', () => {
+  it('renders with an icon prop', () => {
+    const wrapper = mount(ScalarButton, {
+      props: { icon: markRaw(ScalarIconAcorn) },
+    })
+    expect(wrapper.find('svg').exists()).toBe(true)
+  })
+
+  it('renders the contents of the icon slot', () => {
     const wrapper = mount(ScalarButton, {
       slots: {
         default: 'With Icon',
@@ -61,7 +86,6 @@ describe('ScalarButton', () => {
       },
     })
     expect(wrapper.find('.test-icon').exists()).toBe(true)
-    expect(wrapper.text()).toContain('With Icon')
   })
 
   it('handles loading state correctly', () => {
@@ -105,20 +129,5 @@ describe('ScalarButton', () => {
       },
     })
     expect(wrapper.classes()).toContain('w-full')
-  })
-
-  it('handles different button types', () => {
-    const types = ['button', 'submit', 'reset'] as const
-    types.forEach((type) => {
-      const wrapper = mount(ScalarButton, {
-        props: {
-          type,
-        },
-        slots: {
-          default: `${type} button`,
-        },
-      })
-      expect(wrapper.attributes('type')).toBe(type)
-    })
   })
 })

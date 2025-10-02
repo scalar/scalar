@@ -25,9 +25,9 @@ import { ScalarLoading } from '../ScalarLoading'
 import { BUTTON_VARIANT_STYLES } from './constants'
 
 const {
+  is = 'button',
   size = 'md',
   variant = 'solid',
-  type = 'button',
 } = defineProps<ScalarButtonProps>()
 
 /** Variant styles for the button (wrapper) */
@@ -86,9 +86,10 @@ defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 </script>
 <template>
-  <button
+  <component
+    :is="is"
     :aria-disabled="disabled || undefined"
-    :type="type"
+    :type="is === 'button' ? 'button' : undefined"
     v-bind="
       cx(buttonVariants({ fullWidth, disabled, size, variant }), {
         relative: loading?.isLoading,
@@ -116,5 +117,5 @@ const { cx } = useBindCx()
         :class="loadingVariants({ size })"
         :loadingState="loading" />
     </div>
-  </button>
+  </component>
 </template>
