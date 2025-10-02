@@ -7,10 +7,19 @@ import type {
 import ParameterList from './ParameterList.vue'
 import RequestBody from './RequestBody.vue'
 
-const { parameters = [], requestBody } = defineProps<{
+const {
+  parameters = [],
+  requestBody,
+  selectedContentType,
+} = defineProps<{
   breadcrumb?: string[]
   parameters?: ParameterObject[]
   requestBody?: RequestBodyObject | undefined
+  selectedContentType?: string
+}>()
+
+const emit = defineEmits<{
+  'update:selectedContentType': [value: string]
 }>()
 
 const filterParameters = (where: 'path' | 'query' | 'header' | 'cookie') =>
@@ -49,7 +58,9 @@ const filterParameters = (where: 'path' | 'query' | 'header' | 'cookie') =>
   <RequestBody
     v-if="requestBody"
     :breadcrumb="breadcrumb ? [...breadcrumb, 'body'] : undefined"
-    :requestBody="requestBody">
+    :requestBody="requestBody"
+    :selectedContentType="selectedContentType"
+    @update:selectedContentType="emit('update:selectedContentType', $event)">
     <template #title>Body</template>
   </RequestBody>
 </template>

@@ -29,7 +29,7 @@ import type {
   SecuritySchemeObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { Badge } from '@/components/Badge'
@@ -60,6 +60,18 @@ const { operation, path, config, isWebhook } = defineProps<{
 }>()
 
 const operationTitle = computed(() => operation.summary || path || '')
+
+/** The selected content type for request body and code samples */
+const selectedContentType = ref<string>('application/json')
+
+// Initialize selectedContentType with the first available content type
+const requestBodyContent = getResolvedRef(operation.requestBody)?.content
+if (requestBodyContent) {
+  const availableContentTypes = Object.keys(requestBodyContent)
+  if (availableContentTypes.length > 0) {
+    selectedContentType.value = availableContentTypes[0]
+  }
+}
 
 const { copyToClipboard } = useClipboard()
 </script>
@@ -156,7 +168,9 @@ const { copyToClipboard } = useClipboard()
               // These have been resolved in the Operation.vue component
               operation.parameters as ParameterObject[]
             "
-            :requestBody="getResolvedRef(operation.requestBody)" />
+            :requestBody="getResolvedRef(operation.requestBody)"
+            :selectedContentType="selectedContentType"
+            @update:selectedContentType="selectedContentType = $event" />
         </div>
         <div class="operation-details-card-item">
           <OperationResponses
@@ -198,6 +212,7 @@ const { copyToClipboard } = useClipboard()
             :path="path"
             :securitySchemes="securitySchemes"
             :selectedClient="store.workspace['x-scalar-default-client']"
+            :selectedContentType="selectedContentType"
             :selectedServer="server" />
         </ScalarErrorBoundary>
       </div>
