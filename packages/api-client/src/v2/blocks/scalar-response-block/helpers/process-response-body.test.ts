@@ -13,7 +13,7 @@ describe('processResponseBody', () => {
       headers: [{ name: 'Content-Type', value: 'application/json', required: true }],
     }
     const { mimeType } = processResponseBody(props)
-    expect(mimeType.essence).toBe('application/json')
+    expect(mimeType?.essence).toBe('application/json')
   })
 
   it('extracts the correct attachment filename from headers', () => {

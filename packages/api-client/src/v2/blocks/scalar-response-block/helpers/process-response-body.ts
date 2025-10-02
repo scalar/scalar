@@ -9,7 +9,8 @@ const isBlob = (b: any): b is Blob => b instanceof Blob
  * Extracts MIME type, attachment filename, and generates a data URL.
  */
 export function processResponseBody({ data, headers }: { data: unknown; headers: { name: string; value: string }[] }) {
-  const mimeType = new MimeType(headers.find((header) => header.name.toLowerCase() === 'content-type')?.value ?? '')
+  const contentType = headers.find((header) => header.name.toLowerCase() === 'content-type')
+  const mimeType = contentType?.value ? new MimeType(contentType.value) : undefined
   const attachmentFilename = extractFilename(
     headers.find((header) => header.name.toLowerCase() === 'content-disposition')?.value ?? '',
   )
@@ -19,12 +20,12 @@ export function processResponseBody({ data, headers }: { data: unknown; headers:
       return URL.createObjectURL(data)
     }
     if (typeof data === 'string') {
-      return URL.createObjectURL(new Blob([data], { type: mimeType.toString() }))
+      return URL.createObjectURL(new Blob([data], { type: mimeType ? mimeType.toString() : undefined }))
     }
     if (data instanceof Object && Object.keys(data).length) {
       return URL.createObjectURL(
         new Blob([JSON.stringify(data)], {
-          type: mimeType.toString(),
+          type: mimeType ? mimeType.toString() : undefined,
         }),
       )
     }

@@ -36,7 +36,7 @@ const responseBody = computed(() =>
 )
 
 const mediaConfig = computed(() =>
-  getMediaTypeConfig(responseBody.value.mimeType.essence),
+  getMediaTypeConfig(responseBody.value.mimeType?.essence ?? ''),
 )
 </script>
 <template>
@@ -50,7 +50,7 @@ const mediaConfig = computed(() =>
       <ResponseBodyDownload
         :filename="responseBody.attachmentFilename"
         :href="responseBody.dataUrl"
-        :type="responseBody.mimeType.essence" />
+        :type="responseBody.mimeType?.essence" />
     </template>
     <div
       v-if="data"
@@ -58,7 +58,7 @@ const mediaConfig = computed(() =>
       <div
         class="box-content flex min-h-8 items-center justify-between border-y px-3">
         <span class="text-xxs font-code leading-3">
-          {{ responseBody.mimeType.essence }}
+          {{ responseBody.mimeType?.essence }}
         </span>
         <ResponseBodyToggle
           v-if="showToggle"
@@ -75,7 +75,7 @@ const mediaConfig = computed(() =>
         :alpha="mediaConfig.alpha"
         :mode="mediaConfig.preview"
         :src="responseBody.dataUrl"
-        :type="responseBody.mimeType.essence" />
+        :type="responseBody.mimeType?.essence ?? ''" />
       <ResponseBodyInfo v-if="!mediaConfig?.raw && !mediaConfig?.preview">
         Binary file
       </ResponseBodyInfo>

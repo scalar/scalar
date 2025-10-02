@@ -33,7 +33,7 @@ const responseBody = computed(() =>
       <ResponseBodyDownload
         :filename="responseBody.attachmentFilename"
         :href="responseBody.dataUrl"
-        :type="responseBody.mimeType.essence" />
+        :type="responseBody.mimeType?.essence" />
     </template>
     <div class="font-code text-xxs rounded-t border border-b-0 px-2.5 py-1.5">
       This response body is massive! Syntax highlighting won't work here.
