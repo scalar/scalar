@@ -77,11 +77,11 @@ watch(content, (v) => {
 </script>
 <template>
   <ApiReferenceLayout
-    :store="store"
-    :isDark="isDarkMode"
-    @toggleDarkMode="() => toggleColorMode()"
     :configuration="configuration"
+    :isDark="isDarkMode"
+    :store="store"
     @changeTheme="configuration.theme = $event.id"
+    @toggleDarkMode="() => toggleColorMode()"
     @updateContent="(v: string) => (content = v)">
     <template #header>
       <DevToolbar>

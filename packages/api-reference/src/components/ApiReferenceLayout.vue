@@ -82,7 +82,15 @@ defineSlots<
 /**
  * For unknown reasons the configuration does not perform reactively without this wrapper
  */
-const configuration = computed(() => providedConfiguration)
+const configuration = computed(() => ({
+  ...providedConfiguration,
+  hideClientButton: providedConfiguration.hideClientButton ?? false,
+  showSidebar: providedConfiguration.showSidebar ?? true,
+  theme: providedConfiguration.theme ?? 'none',
+  layout: providedConfiguration.layout ?? 'modern',
+  persistAuth: providedConfiguration.persistAuth ?? false,
+  documentDownloadType: providedConfiguration.documentDownloadType ?? 'both',
+}))
 
 // ---------------------------------------------------------------------------
 // Date injection for global state
