@@ -1,7 +1,7 @@
 import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
-import { XIsDisabled } from '@/schemas/extensions/example/x-is-disabled'
+import { XDisabled } from '@/schemas/extensions/example/x-disabled'
 
 /**
  * An object grouping an internal or external example value with basic summary and description metadata. This object is typically used in fields named examples (plural), and is a referenceable alternative to older example (singular) fields that do not support referencing or metadata.
@@ -19,7 +19,7 @@ export const ExampleObjectSchemaDefinition = compose(
     /** A URI that identifies the literal example. This provides the capability to reference examples that cannot easily be included in JSON or YAML documents. The value field and externalValue field are mutually exclusive. See the rules for resolving Relative References. */
     externalValue: Type.Optional(Type.String()),
   }),
-  XIsDisabled,
+  XDisabled,
 )
 
 /**
@@ -36,6 +36,13 @@ export type ExampleObject = {
   value?: any
   /** A URI that identifies the literal example. This provides the capability to reference examples that cannot easily be included in JSON or YAML documents. The value field and externalValue field are mutually exclusive. See the rules for resolving Relative References. */
   externalValue?: string
-  /** An OpenAPI extension to mark examples as enabled or disabled */
-  'x-is-disabled'?: boolean
+  /**
+   * OpenAPI extension to control whether a parameter example is enabled (checkbox on) or disabled (checkbox off).
+   *
+   * This extension is typically used in API tools to determine if a parameter (such as a header, query, or cookie)
+   * should be included in the request when sending an example. If `x-disabled: true`, the parameter example is considered
+   * "off" (checkbox unchecked) and will not be sent with the request. If `x-disabled: false` or omitted, the parameter
+   * example is "on" (checkbox checked) and will be sent.
+   */
+  'x-disabled'?: boolean
 }

@@ -53,7 +53,7 @@ const tableRows = computed<TableRow[]>(() =>
       globalRoute,
       schema: getParameterSchema(param),
       isRequired: param.required,
-      isDisabled: example?.['x-is-disabled'] ?? false,
+      isDisabled: example?.['x-disabled'] ?? false,
     }
   }),
 )
