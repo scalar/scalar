@@ -63,8 +63,7 @@ const handleCreateWorkspace = () => {
   <div class="flex w-[inherit] items-center text-base">
     <ScalarDropdown>
       <ScalarButton
-        class="text-c-1 hover:bg-b-2 text-c-3 line-clamp-1 h-full w-fit justify-start px-1.5 py-1 font-normal"
-        fullWidth
+        class="hover:bg-b-2 text-c-3 line-clamp-1 h-full w-fit justify-start px-1.5 py-1 font-normal"
         variant="ghost">
         <div class="m-0 flex items-center gap-1 text-sm font-medium">
           <h2 class="line-clamp-1 w-[calc(100%-10px)] text-left text-xs">

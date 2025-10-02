@@ -94,7 +94,7 @@ export const Base: Story = {
       return { args, selected }
     },
     template: `
-<div class="flex justify-center w-full min-h-96">
+<div class="flex flex-col items-center w-full min-h-96">
   <ScalarCombobox v-model="selected" placeholder="Change fruit..." v-bind="args">
     <ScalarButton class="w-48 px-3" variant="outlined">
       <div class="flex flex-1 items-center min-w-0">
@@ -121,7 +121,7 @@ export const Groups: Story = {
       return { args, selected }
     },
     template: `
-<div class="flex justify-center w-full min-h-96">
+<div class="flex flex-col items-center w-full min-h-96">
   <ScalarCombobox v-model="selected" placeholder="Change city..." v-bind="args">
     <ScalarButton class="w-48 px-3" variant="outlined">
       <div class="flex flex-1 items-center min-w-0">
@@ -148,7 +148,7 @@ export const Multiselect: Story = {
       return { args, selected }
     },
     template: `
-<div class="flex justify-center w-full min-h-96">
+<div class="flex flex-col items-center w-full min-h-96">
   <ScalarComboboxMultiselect v-model="selected" placeholder="Select fruits..." v-bind="args">
     <ScalarButton class="w-48 px-3" variant="outlined">
       <div class="flex flex-1 items-center min-w-0">
@@ -175,7 +175,7 @@ export const MultiselectGroups: Story = {
       return { args, selected }
     },
     template: `
-<div class="flex justify-center w-full min-h-96">
+<div class="flex flex-col items-center w-full min-h-96">
   <ScalarComboboxMultiselect v-model="selected" placeholder="Select cities..." v-bind="args">
     <ScalarButton class="w-48 px-3" variant="outlined">
       <div class="flex flex-1 items-center min-w-0">
@@ -213,7 +213,7 @@ export const WithAddNew: Story = {
       return { args, selected, add, opts }
     },
     template: `
-<div class="flex justify-center w-full min-h-96">
+<div class="flex flex-col items-center w-full min-h-96">
   <ScalarComboboxMultiselect v-model="selected" v-bind="args" :options="opts" @add="add">
     <ScalarButton class="w-48 px-3" variant="outlined">
       <div class="flex flex-1 items-center min-w-0">
@@ -249,7 +249,7 @@ export const CustomClasses: Story = {
       return { args, selected }
     },
     template: `
-<div class="flex justify-center w-full min-h-96">
+<div class="flex flex-col items-center w-full min-h-96">
   <ScalarCombobox v-model="selected" placeholder="Change fruit..." v-bind="args">
     <ScalarButton class="w-48 px-3" variant="outlined">
       <div class="flex flex-1 items-center min-w-0">

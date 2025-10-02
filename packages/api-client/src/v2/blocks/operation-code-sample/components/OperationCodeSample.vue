@@ -360,13 +360,10 @@ const id = useId()
           teleport
           @update:modelValue="selectClient($event as ClientOption)">
           <ScalarButton
-            class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-0.5"
+            class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-0.5 py-0 text-base font-normal"
             data-testid="client-picker"
-            fullWidth
             variant="ghost">
-            <span class="text-base font-normal">{{
-              localSelectedClient?.title
-            }}</span>
+            {{ localSelectedClient?.title }}
             <ScalarIconCaretDown
               class="ui-open:rotate-180 mt-0.25 size-3 transition-transform duration-100"
               weight="bold" />

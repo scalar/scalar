@@ -44,12 +44,12 @@ const { cx } = useBindCx()
     </ul>
     <div class="flex items-center gap-1.5">
       <ScalarButton
-        size="sm"
+        size="xs"
         @click="$emit('upload')">
         Upload
       </ScalarButton>
       <ScalarButton
-        size="sm"
+        size="xs"
         variant="outlined"
         @click="files = []">
         Clear

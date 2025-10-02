@@ -15,19 +15,45 @@
 export default {}
 </script>
 <script setup lang="ts">
-import { useBindCx } from '@scalar/use-hooks/useBindCx'
+import { cva, useBindCx } from '@scalar/use-hooks/useBindCx'
 import { computed, useTemplateRef } from 'vue'
 
+import { BUTTON_VARIANT_STYLES } from '../ScalarButton/constants'
 import { ScalarIconLegacyAdapter } from '../ScalarIcon'
 import { useTooltip } from '../ScalarTooltip'
 import type { ScalarIconButtonProps } from './types'
-import { variants } from './variants'
 
 const {
   label,
   variant = 'ghost',
+  size = 'md',
   tooltip,
 } = defineProps<ScalarIconButtonProps>()
+
+const variants = cva({
+  base: 'scalar-icon-button grid aspect-square cursor-pointer rounded',
+  variants: {
+    size: {
+      xxs: 'size-3.5 p-0.5',
+      xs: 'size-5 p-1',
+      sm: 'size-6 p-1',
+      md: 'size-10 p-3',
+      full: 'size-full',
+    },
+    disabled: {
+      true: 'cursor-not-allowed shadow-none',
+    },
+    // We use the same button styles for the icon buttons
+    variant: BUTTON_VARIANT_STYLES,
+  },
+  compoundVariants: [
+    {
+      size: 'md',
+      variant: 'ghost',
+      class: 'size-8 p-2 m-1 -outline-offset-2 rounded-lg',
+    },
+  ],
+})
 
 defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()

@@ -282,8 +282,7 @@ const openAuthCombobox = (event: Event) => {
           <ScalarButton
             ref="comboboxButtonRef"
             :aria-describedby="titleId"
-            class="group/combobox-button hover:text-c-1 text-c-2 flex h-fit items-center gap-1 px-0.75 py-0.25 text-base font-normal transition-transform"
-            fullWidth
+            class="group/combobox-button hover:text-c-1 text-c-2 flex h-fit w-full items-center gap-1 px-0.75 py-0.25 text-base font-normal transition-transform"
             variant="ghost">
             <template v-if="selectedSchemeOptions.length === 1">
               <span class="sr-only">Selected Auth Type:</span>

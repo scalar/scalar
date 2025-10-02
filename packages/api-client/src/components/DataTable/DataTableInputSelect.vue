@@ -126,8 +126,7 @@ const updateSelectedOptions = (selectedOptions: any) => {
         resize
         :value="initialValue">
         <ScalarButton
-          class="h-full justify-start gap-1.5 overflow-auto px-2 py-1.5 font-normal whitespace-nowrap outline-none"
-          fullWidth
+          class="size-full justify-start gap-1.5 overflow-auto px-2 py-1.5 font-normal whitespace-nowrap outline-none"
           variant="ghost">
           <span class="text-c-1 overflow-hidden text-ellipsis">{{
             initialValue || 'Select a value'

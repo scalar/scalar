@@ -34,7 +34,7 @@ const { cx } = useBindCx()
         <span class="text-c-3"> or</span>
       </span>
       <ScalarButton
-        size="sm"
+        size="xs"
         tabindex="-1"
         variant="outlined"
         @click="$emit('click', $event)">

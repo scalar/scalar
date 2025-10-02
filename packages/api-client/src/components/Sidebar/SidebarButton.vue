@@ -17,7 +17,6 @@ const handleClick = () => {
 <template>
   <ScalarButton
     class="bg-b-1 text-c-1 hover:bg-b-2 group relative h-auto w-auto border px-2 py-1 md:w-full md:p-1.5"
-    icon="Plus"
     variant="outlined"
     @click="handleClick">
     <slot name="title" />

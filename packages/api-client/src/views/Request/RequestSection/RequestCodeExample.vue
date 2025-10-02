@@ -233,7 +233,6 @@ const customCodeContent = computed(() => {
             @update:modelValue="selectClient">
             <ScalarButton
               class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-1.25 py-0.75 font-normal"
-              fullWidth
               variant="ghost">
               <span>{{ selectedPlugin?.label }}</span>
               <ScalarIcon
