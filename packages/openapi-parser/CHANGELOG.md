@@ -1,5 +1,13 @@
 # @scalar/openapi-parser
 
+## 0.22.1
+
+### Patch Changes
+
+- Updated dependencies [008a0f3]
+  - @scalar/openapi-types@0.4.0
+  - @scalar/openapi-upgrader@0.1.1
+
 ## 0.22.0
 
 ### Minor Changes

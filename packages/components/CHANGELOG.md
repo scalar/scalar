@@ -1,5 +1,16 @@
 # @scalar/components
 
+## 0.14.40
+
+### Patch Changes
+
+- a9f8d56: test(components): expand markdown lists test baselines
+- Updated dependencies [008a0f3]
+- Updated dependencies [f833196]
+  - @scalar/oas-utils@0.5.0
+  - @scalar/themes@0.13.20
+  - @scalar/code-highlight@0.2.0
+
 ## 0.14.39
 
 ### Patch Changes

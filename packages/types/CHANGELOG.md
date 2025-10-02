@@ -1,5 +1,16 @@
 # @scalar/types
 
+## 0.3.0
+
+### Minor Changes
+
+- 008a0f3: feat: migrate to Zod 4
+
+### Patch Changes
+
+- Updated dependencies [008a0f3]
+  - @scalar/openapi-types@0.4.0
+
 ## 0.2.16
 
 ### Patch Changes
