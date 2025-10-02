@@ -1,37 +1,39 @@
 <script setup lang="ts">
 import { ScalarVirtualText } from '@scalar/components'
 import { formatJsonOrYamlString } from '@scalar/oas-utils/helpers'
-import { computed, toRef } from 'vue'
+import { computed } from 'vue'
 
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
-import { useResponseBody } from '@/v2/blocks/scalar-response-block/hooks/use-response-body'
+import { processResponseBody } from '@/v2/blocks/scalar-response-block/helpers/process-response-body'
 
 import ResponseBodyDownload from './ResponseBodyDownload.vue'
 
-const props = defineProps<{
+const { content, data, headers } = defineProps<{
   content: string
   data: unknown
   headers: { name: string; value: string }[]
 }>()
 
-const textContent = computed(() => formatJsonOrYamlString(props.content))
+const textContent = computed(() => formatJsonOrYamlString(content))
 
-const { mimeType, attachmentFilename, dataUrl } = useResponseBody({
-  data: toRef(props, 'data'),
-  headers: toRef(props, 'headers'),
-})
+const responseBody = computed(() =>
+  processResponseBody({
+    data,
+    headers,
+  }),
+)
 </script>
 
 <template>
   <ViewLayoutCollapse class="!max-h-100% response-body-virtual overflow-x-auto">
     <template #title>Body</template>
     <template
-      v-if="dataUrl"
+      v-if="responseBody.dataUrl"
       #actions>
       <ResponseBodyDownload
-        :filename="attachmentFilename"
-        :href="dataUrl"
-        :type="mimeType.essence" />
+        :filename="responseBody.attachmentFilename"
+        :href="responseBody.dataUrl"
+        :type="responseBody.mimeType.essence" />
     </template>
     <div class="font-code text-xxs rounded-t border border-b-0 px-2.5 py-1.5">
       This response body is massive! Syntax highlighting won't work here.

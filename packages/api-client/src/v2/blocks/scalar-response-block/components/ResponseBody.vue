@@ -1,17 +1,17 @@
 <script lang="ts" setup>
-import { computed, ref, toRef } from 'vue'
+import { computed, ref } from 'vue'
 
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
+import { processResponseBody } from '@/v2/blocks/scalar-response-block/helpers/process-response-body'
 
 import { getMediaTypeConfig } from './../helpers/media-types'
-import { useResponseBody } from './../hooks/use-response-body'
 import ResponseBodyDownload from './ResponseBodyDownload.vue'
 import ResponseBodyInfo from './ResponseBodyInfo.vue'
 import ResponseBodyPreview from './ResponseBodyPreview.vue'
 import ResponseBodyRaw from './ResponseBodyRaw.vue'
 import ResponseBodyToggle from './ResponseBodyToggle.vue'
 
-const props = defineProps<{
+const { data, headers } = defineProps<{
   title: string
   layout: 'client' | 'reference'
   data: unknown
@@ -28,12 +28,16 @@ const showToggle = computed(
 const showPreview = computed(() => toggle.value || !showToggle.value)
 const showRaw = computed(() => !toggle.value || !showToggle.value)
 
-const { mimeType, attachmentFilename, dataUrl } = useResponseBody({
-  data: toRef(props, 'data'),
-  headers: toRef(props, 'headers'),
-})
+const responseBody = computed(() =>
+  processResponseBody({
+    data,
+    headers,
+  }),
+)
 
-const mediaConfig = computed(() => getMediaTypeConfig(mimeType.value.essence))
+const mediaConfig = computed(() =>
+  getMediaTypeConfig(responseBody.value.mimeType.essence),
+)
 </script>
 <template>
   <ViewLayoutCollapse
@@ -41,12 +45,12 @@ const mediaConfig = computed(() => getMediaTypeConfig(mimeType.value.essence))
     :layout="layout">
     <template #title>{{ title }}</template>
     <template
-      v-if="data && dataUrl"
+      v-if="data && responseBody.dataUrl"
       #actions>
       <ResponseBodyDownload
-        :filename="attachmentFilename"
-        :href="dataUrl"
-        :type="mimeType.essence" />
+        :filename="responseBody.attachmentFilename"
+        :href="responseBody.dataUrl"
+        :type="responseBody.mimeType.essence" />
     </template>
     <div
       v-if="data"
@@ -54,7 +58,7 @@ const mediaConfig = computed(() => getMediaTypeConfig(mimeType.value.essence))
       <div
         class="box-content flex min-h-8 items-center justify-between border-y px-3">
         <span class="text-xxs font-code leading-3">
-          {{ mimeType.essence }}
+          {{ responseBody.mimeType.essence }}
         </span>
         <ResponseBodyToggle
           v-if="showToggle"
@@ -62,16 +66,16 @@ const mediaConfig = computed(() => getMediaTypeConfig(mimeType.value.essence))
       </div>
       <ResponseBodyRaw
         v-if="mediaConfig?.raw && showRaw"
-        :key="dataUrl"
+        :key="responseBody.dataUrl"
         :content="data"
         :language="mediaConfig.language" />
       <ResponseBodyPreview
         v-if="mediaConfig?.preview && showPreview"
-        :key="dataUrl"
+        :key="responseBody.dataUrl"
         :alpha="mediaConfig.alpha"
         :mode="mediaConfig.preview"
-        :src="dataUrl"
-        :type="mimeType.essence" />
+        :src="responseBody.dataUrl"
+        :type="responseBody.mimeType.essence" />
       <ResponseBodyInfo v-if="!mediaConfig?.raw && !mediaConfig?.preview">
         Binary file
       </ResponseBodyInfo>
