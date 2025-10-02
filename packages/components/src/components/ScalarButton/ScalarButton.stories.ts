@@ -7,7 +7,7 @@ import { useLoadingState } from '../ScalarLoading'
 import ScalarButton from './ScalarButton.vue'
 
 const sizes = ['xs', 'sm', 'md'] as const satisfies ButtonSize[]
-const variants = ['solid', 'outlined', 'ghost', 'danger'] as const satisfies ButtonVariant[]
+const variants = ['solid', 'outlined', 'ghost', 'gradient', 'danger'] as const satisfies ButtonVariant[]
 
 const meta = {
   component: ScalarButton,

@@ -46,9 +46,15 @@ const buttonVariants = cva({
   compoundVariants: [
     {
       disabled: true,
-      variant: ['solid', 'outlined', 'ghost', 'danger'],
+      variant: ['solid', 'outlined', 'ghost', 'gradient', 'danger'],
       class:
         'bg-b-2 text-c-3 shadow-none hover:bg-b-[_] cursor-not-allowed active:bg-b-[_] hover:text-c-[_] active:text-c-[_]',
+    },
+    {
+      disabled: true,
+      variant: ['gradient'],
+      class:
+        'to-b-1.5 bg-linear-to-b hover:bg-linear-to-b dark:hover:bg-linear-to-t',
     },
   ],
 })

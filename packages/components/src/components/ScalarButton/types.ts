@@ -3,7 +3,7 @@ import type { ScalarIconComponent } from '@scalar/icons/types'
 import type { LoadingState } from '@/components/ScalarLoading'
 
 /** Styles for the ScalarButton component */
-export type ButtonVariant = 'solid' | 'outlined' | 'ghost' | 'danger'
+export type ButtonVariant = 'solid' | 'outlined' | 'ghost' | 'gradient' | 'danger'
 
 /** Sizes for the ScalarButton component */
 export type ButtonSize = 'xs' | 'sm' | 'md'

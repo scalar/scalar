@@ -2,7 +2,13 @@ import { test } from '@test/helpers'
 
 const stories = ['Base', 'With Icon']
 const sizes = { 'Extra Small': 'xs', 'Small': 'sm', 'Medium': 'md' } as const
-const variants = { 'Solid': 'solid', 'Outlined': 'outlined', 'Ghost': 'ghost', 'Danger': 'danger' } as const
+const variants = {
+  'Solid': 'solid',
+  'Outlined': 'outlined',
+  'Ghost': 'ghost',
+  'Gradient': 'gradient',
+  'Danger': 'danger',
+} as const
 
 test.describe('ScalarButton', () => {
   test.use({ component: 'ScalarButton', crop: true, background: true })
