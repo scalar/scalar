@@ -2659,6 +2659,56 @@ describe('create-workspace-store', () => {
       expect(consoleErrorSpy).toHaveBeenCalledWith("Document 'non-existing' does not exist in the workspace.")
       expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
     })
+
+    it('does persist document configuration when adding a new document and replacing the old one', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          openapi: '3.0.0',
+          info: {
+            title: 'My API',
+            version: '1.0.0',
+          },
+        },
+        config: {
+          'x-scalar-reference-config': {
+            settings: {
+              servers: [{ url: 'http://some-custom-server.com' }],
+            },
+          },
+        },
+      })
+
+      await store.addDocument({
+        name: 'pet-store',
+        document: {
+          openapi: '3.0.0',
+          info: {
+            title: 'Pet Store API',
+            version: '1.0.0',
+          },
+        },
+        config: {
+          'x-scalar-reference-config': {
+            settings: {
+              servers: [{ url: 'http://pet-store-server.com' }],
+            },
+          },
+        },
+      })
+
+      await store.replaceDocument('default', {
+        openapi: '3.0.0',
+        info: {
+          title: 'My Updated API',
+          version: '2.0.0',
+        },
+      })
+
+      expect(store.workspace.documents.default?.servers).toEqual([{ url: 'http://some-custom-server.com' }])
+    })
   })
 
   describe('rebaseDocument', () => {
