@@ -1,5 +1,11 @@
 # @scalar/json-magic
 
+## 0.6.0
+
+### Minor Changes
+
+- 4951456: feat: merge yaml aliases for in-mem representation
+
 ## 0.5.2
 
 ### Patch Changes
