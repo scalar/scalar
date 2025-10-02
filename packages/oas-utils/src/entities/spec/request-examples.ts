@@ -1,12 +1,13 @@
-import { schemaModel } from '@/helpers/schema-model'
-import { getServerVariableExamples } from '@/spec-getters/get-server-variable-examples'
+import { isDefined } from '@scalar/helpers/array/is-defined'
+import { objectKeys } from '@scalar/helpers/object/object-keys'
 import { keysOf } from '@scalar/object-utils/arrays'
 import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
 import { z } from 'zod'
 
+import { schemaModel } from '@/helpers/schema-model'
 import { getRequestBodyFromOperation } from '@/spec-getters/get-request-body-from-operation'
-import { isDefined } from '@scalar/helpers/array/is-defined'
-import { objectKeys } from '@scalar/helpers/object/object-keys'
+import { getServerVariableExamples } from '@/spec-getters/get-server-variable-examples'
+
 import type { ParameterContent, RequestParameter } from './parameters'
 import type { Request } from './requests'
 import type { Server } from './server'
@@ -189,7 +190,7 @@ export const requestExampleSchema = z.object({
   type: z.literal('requestExample').optional().default('requestExample'),
   requestUid: z.string().brand<ENTITY_BRANDS['OPERATION']>().optional(),
   name: z.string().optional().default('Name'),
-  body: exampleRequestBodySchema.optional().default({}),
+  body: exampleRequestBodySchema.optional().default({ activeBody: 'raw' }),
   parameters: z
     .object({
       path: requestExampleParametersSchema.array().default([]),
@@ -198,7 +199,12 @@ export const requestExampleSchema = z.object({
       cookies: requestExampleParametersSchema.array().default([]),
     })
     .optional()
-    .default({}),
+    .default({
+      path: [],
+      query: [],
+      headers: [{ key: 'Accept', value: '*/*', enabled: true }],
+      cookies: [],
+    }),
   /** TODO: Should this be deprecated? */
   serverVariables: z.record(z.string(), z.array(z.string())).optional(),
 })
@@ -287,7 +293,7 @@ export function convertExampleToXScalar(example: RequestExample) {
 // Example Helpers
 
 /** Create new instance parameter from a request parameter */
-export function createParamInstance(param: RequestParameter) {
+export function createParamInstance(param: RequestParameter): RequestExampleParameter {
   const schema = param.schema as any
 
   const firstExample = (() => {

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+
 import { SchemaObjectSchema as OriginalSchemaObjectSchema } from '../processed/schema-object'
 import { ReferenceObjectSchema } from './reference-object'
 
@@ -15,7 +16,12 @@ export const SchemaObjectSchema: z.ZodType<any> = z.lazy(() =>
       $ref: z.string().optional(),
       $id: z.string().optional(),
       $schema: z.string().optional(),
-      $defs: z.record(z.lazy(() => SchemaObjectSchema)).optional(),
+      $defs: z
+        .record(
+          z.string(),
+          z.lazy(() => SchemaObjectSchema),
+        )
+        .optional(),
       $dynamicRef: z.string().optional(),
       $dynamicAnchor: z.string().optional(),
 

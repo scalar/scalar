@@ -23,12 +23,13 @@ export const OpenApiExtensionSchema = z.object({
   renderer: z.unknown().optional(),
 })
 
-export const ApiReferencePluginSchema = z.function().returns(
-  z.object({
+export const ApiReferencePluginSchema = z.function({
+  input: [],
+  output: z.object({
     name: z.string(),
     extensions: z.array(OpenApiExtensionSchema),
   }),
-)
+})
 
 // Infer the types from the schemas
 export type SpecificationExtension = z.infer<typeof OpenApiExtensionSchema>

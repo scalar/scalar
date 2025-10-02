@@ -245,7 +245,9 @@ export const useMultipleDocuments = ({
       }
 
       // Fire the onDocumentSelect event
-      selectedConfiguration.value.onDocumentSelect?.()
+      if (typeof selectedConfiguration.value.onDocumentSelect === 'function') {
+        selectedConfiguration.value.onDocumentSelect?.()
+      }
     },
     { flush: 'sync' },
   )

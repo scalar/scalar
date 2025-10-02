@@ -1429,6 +1429,18 @@ describe('traverseZodSchema', () => {
     const result = traverseZodSchema(testSchema, ['formBody', 0, 'more', 0])
     expect(result).toBeInstanceOf(z.ZodAny)
   })
+
+  it('returns the value schema for a record string key', () => {
+    const recordSchema = z.record(z.string(), z.object({ prop: z.string() }))
+    const result = traverseZodSchema(recordSchema, ['someKey'])
+    expect(result).toBeInstanceOf(z.ZodObject)
+  })
+
+  it('returns the correct schema for a property of a record value', () => {
+    const recordSchema = z.record(z.string(), z.object({ prop: z.string() }))
+    const result = traverseZodSchema(recordSchema, ['someKey', 'prop'])
+    expect(result).toBeInstanceOf(z.ZodString)
+  })
 })
 
 describe('parseDiff', () => {

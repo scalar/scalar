@@ -35,7 +35,7 @@ const { options } = defineProps<{
     /** The URL of the OpenAPI document. */
     url?: string | undefined
     /** Optional callback invoked when the component has finished loading. */
-    onLoaded?: () => void
+    onLoaded?: (() => void) | unknown
     /** The original document content. */
     getOriginalDocument: () => string
   }

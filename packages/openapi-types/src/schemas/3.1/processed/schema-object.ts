@@ -1,4 +1,5 @@
 import { z } from 'zod'
+
 import { DiscriminatorObjectSchema } from './discriminator-object'
 import { ExternalDocumentationObjectSchema } from './external-documentation-object'
 import { XmlObjectSchema } from './xml-object'
@@ -55,7 +56,12 @@ export const SchemaObjectSchema: z.ZodType<Record<string, any>> = z.object({
   $ref: z.string().optional(),
   $id: z.string().optional(),
   $schema: z.string().optional(),
-  $defs: z.record(z.lazy(() => SchemaObjectSchema)).optional(),
+  $defs: z
+    .record(
+      z.string(),
+      z.lazy(() => SchemaObjectSchema),
+    )
+    .optional(),
   const: z.any().optional(),
   $dynamicRef: z.string().optional(),
   $dynamicAnchor: z.string().optional(),

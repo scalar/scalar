@@ -1,5 +1,3 @@
-import type { WorkspaceStore } from '@/store'
-import type { ActiveEntitiesStore } from '@/store/active-entities'
 import {
   type Request,
   type RequestParameterPayload,
@@ -17,7 +15,10 @@ import { isHttpMethod, schemaModel } from '@scalar/oas-utils/helpers'
 import { type Path, type PathValue, getNestedValue } from '@scalar/object-utils/nested'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import microdiff, { type Difference } from 'microdiff'
-import { type ZodSchema, type ZodTypeDef, z } from 'zod'
+import { type ZodSchema, z } from 'zod'
+
+import type { WorkspaceStore } from '@/store'
+import type { ActiveEntitiesStore } from '@/store/active-entities'
 
 /**
  * Combine Rename Diffs
@@ -130,16 +131,28 @@ export const findResource = <T>(
 /** Helper function to unwrap optional and default schemas */
 const unwrapSchema = (schema: ZodSchema): ZodSchema => {
   if (schema instanceof z.ZodOptional) {
-    return unwrapSchema(schema.unwrap())
+    const unwrapped = schema.unwrap()
+    if (unwrapped instanceof z.ZodType) {
+      return unwrapSchema(unwrapped)
+    }
   }
   if (schema instanceof z.ZodDefault) {
-    return unwrapSchema(schema._def.innerType)
-  }
-  if (schema instanceof z.ZodEffects) {
-    return unwrapSchema(schema._def.schema)
+    const innerType = schema._zod.def.innerType
+    if (innerType instanceof z.ZodType) {
+      return unwrapSchema(innerType)
+    }
   }
   if (schema instanceof z.ZodCatch) {
-    return unwrapSchema(schema._def.innerType)
+    const innerType = schema._zod.def.innerType
+    if (innerType instanceof z.ZodType) {
+      return unwrapSchema(innerType)
+    }
+  }
+  if (schema instanceof z.ZodPipe) {
+    const inType = schema._zod.def.in
+    if (inType instanceof z.ZodType) {
+      return unwrapSchema(inType)
+    }
   }
   return schema
 }
@@ -162,18 +175,36 @@ export const traverseZodSchema = (schema: ZodSchema, path: (string | number)[]):
 
     // Traverse an object
     if (currentSchema instanceof z.ZodObject && typeof key === 'string' && key in currentSchema.shape) {
-      currentSchema = currentSchema.shape[key]
+      const shapeValue = currentSchema.shape[key]
+      if (shapeValue instanceof z.ZodType) {
+        currentSchema = shapeValue
+      } else {
+        return null
+      }
     }
     // Traverse into an array
     else if (currentSchema instanceof z.ZodArray) {
       if (typeof key === 'number') {
         // If the key is a number, we're accessing an array element
-        currentSchema = currentSchema.element
+        if (currentSchema.element instanceof z.ZodType) {
+          currentSchema = currentSchema.element
+        } else {
+          return null
+        }
       } else if (typeof key === 'string') {
         // If the key is a string, we're accessing a property of the array elements
-        currentSchema = currentSchema.element
+        if (currentSchema.element instanceof z.ZodType) {
+          currentSchema = currentSchema.element
+        } else {
+          return null
+        }
         if (currentSchema instanceof z.ZodObject && key in currentSchema.shape) {
-          currentSchema = currentSchema.shape[key]
+          const shapeValue = currentSchema.shape[key]
+          if (shapeValue instanceof z.ZodType) {
+            currentSchema = shapeValue
+          } else {
+            return null
+          }
         } else {
           return null
         }
@@ -183,7 +214,32 @@ export const traverseZodSchema = (schema: ZodSchema, path: (string | number)[]):
     }
     // Traverse into a record
     else if (currentSchema instanceof z.ZodRecord) {
-      currentSchema = currentSchema.valueSchema
+      const valueSchema = currentSchema._zod.def.valueType
+      if (!valueSchema || !(valueSchema instanceof z.ZodType)) {
+        return null
+      }
+      if (typeof key === 'string') {
+        // For string keys, we're accessing a value in the record
+        currentSchema = valueSchema
+        // Unwrap optional/default wrappers around the value schema
+        currentSchema = unwrapSchema(currentSchema)
+      } else if (typeof key === 'number') {
+        // For number keys, we're accessing an element of an array within the record value
+        currentSchema = valueSchema
+        // Unwrap optional/default wrappers around the array
+        currentSchema = unwrapSchema(currentSchema)
+        // If the value schema is an array, get the element type
+        if (currentSchema instanceof z.ZodArray) {
+          if (currentSchema.element instanceof z.ZodType) {
+            currentSchema = currentSchema.element
+          } else {
+            return null
+          }
+        }
+      } else {
+        // For other keys, just return the value schema
+        currentSchema = valueSchema
+      }
     } else {
       // Path doesn't exist in the schema
       return null
@@ -203,7 +259,7 @@ export const traverseZodSchema = (schema: ZodSchema, path: (string | number)[]):
  * We return a tuple to make it easier to pass into the mutators
  */
 export const parseDiff = <T>(
-  schema: ZodSchema<T, ZodTypeDef, any>,
+  schema: ZodSchema<T, any>,
   diff: Difference,
 ): {
   /** Typed path as it has been checked agains the schema */
@@ -231,7 +287,7 @@ export const parseDiff = <T>(
   }
 
   // Safe parse the value as well
-  const parsedValue = schemaModel<T>(diff.value, parsedSchema, false)
+  const parsedValue = schemaModel(diff.value, parsedSchema, false)
   if (typeof parsedValue === 'undefined' || parsedValue === null) {
     return null
   }
@@ -580,13 +636,40 @@ export const narrowUnionSchema = (schema: ZodSchema, key: string, value: string)
 
   if (_schema instanceof z.ZodUnion || _schema instanceof z.ZodDiscriminatedUnion) {
     for (const option of _schema.options) {
-      if (
-        option instanceof z.ZodObject &&
-        key in option.shape &&
-        option.shape[key] instanceof z.ZodLiteral &&
-        option.shape[key].value === value
-      ) {
-        return option
+      if (!(option instanceof z.ZodType)) {
+        continue
+      }
+      const unwrappedOption = unwrapSchema(option)
+      if (unwrappedOption instanceof z.ZodObject && key in unwrappedOption.shape) {
+        const fieldSchema = unwrapSchema(unwrappedOption.shape[key])
+        // Handle both ZodLiteral and wrapped ZodLiteral (e.g., ZodDefault, ZodOptional)
+        if (fieldSchema instanceof z.ZodLiteral && fieldSchema.value === value) {
+          return unwrappedOption
+        }
+        // Also check if the field schema is wrapped and contains a literal
+        if (
+          fieldSchema instanceof z.ZodDefault &&
+          fieldSchema._zod.def.innerType instanceof z.ZodLiteral &&
+          fieldSchema._zod.def.innerType.value === value
+        ) {
+          return unwrappedOption
+        }
+        if (
+          fieldSchema instanceof z.ZodOptional &&
+          fieldSchema._zod.def.innerType instanceof z.ZodLiteral &&
+          fieldSchema._zod.def.innerType.value === value
+        ) {
+          return unwrappedOption
+        }
+        // Handle deeply nested wrapping - check if the inner type is also wrapped
+        if (
+          fieldSchema instanceof z.ZodDefault &&
+          fieldSchema._zod.def.innerType instanceof z.ZodOptional &&
+          fieldSchema._zod.def.innerType._zod.def.innerType instanceof z.ZodLiteral &&
+          fieldSchema._zod.def.innerType._zod.def.innerType.value === value
+        ) {
+          return unwrappedOption
+        }
       }
     }
   }
