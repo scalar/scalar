@@ -14,6 +14,12 @@ const {
   path: string
   method: HttpMethod
   callbacks: CallbackObject
+  options: {
+    collapsableItems?: boolean
+    withExamples?: boolean
+    orderRequiredPropertiesFirst: boolean | undefined
+    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
+  }
 }>()
 </script>
 
@@ -31,14 +37,15 @@ const {
       <template v-for="(methods, url) in getResolvedRef(pathItem)">
         <!-- Only HTTP Methods -->
         <template
-          v-for="(callback, method) in methods"
-          :key="method">
+          v-for="(callback, callbackMethod) in methods"
+          :key="callbackMethod">
           <Callback
-            v-if="isHttpMethod(method)"
+            v-if="isHttpMethod(callbackMethod)"
             :callback="callback"
-            :method="method"
+            :method="callbackMethod"
             :name="name"
             :operationMethod="operationMethod"
+            :options="options"
             :path="path"
             :url="url" />
         </template>

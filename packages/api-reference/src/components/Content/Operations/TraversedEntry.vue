@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
-import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type {
   TraversedEntry,
@@ -9,7 +8,10 @@ import type {
   TraversedTag,
   TraversedWebhook,
 } from '@scalar/workspace-store/schemas/navigation'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type {
+  PathsObject,
+  SecurityRequirementObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import { getCurrentIndex } from '@/components/Content/Operations/get-current-index'
@@ -17,22 +19,39 @@ import { Tag } from '@/components/Content/Tags'
 import { Lazy } from '@/components/Lazy'
 import { SectionContainer } from '@/components/Section'
 import { Operation } from '@/features/Operation'
-import { useNavState } from '@/hooks/useNavState'
 
 const {
   level = 0,
   entries,
   rootIndex,
+  paths,
+  webhooks,
+  security,
+  hash,
 } = defineProps<{
   level?: number
+  hash: string
   rootIndex: number
   entries: TraversedEntry[]
-  config: ApiReferenceConfiguration
-  document: OpenApiDocument
-  clientOptions: ClientOptionGroup[]
+  /** The path entries from the document `document.paths` */
+  paths: PathsObject
+  /** The webhook path entries from the document `document.webhooks` */
+  webhooks: PathsObject
+  /** The security requirements from the document `document.security` */
+  security: SecurityRequirementObject[] | undefined
   activeCollection: Collection
   activeServer: Server | undefined
   store: WorkspaceStore
+  options: {
+    layout: 'classic' | 'modern'
+    showOperationId: boolean | undefined
+    hideTestRequestButton: boolean | undefined
+    expandAllResponses: boolean | undefined
+    clientOptions: ClientOptionGroup[]
+    orderRequiredPropertiesFirst: boolean | undefined
+    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
+    onShowMore: ((id: string) => void) | undefined
+  }
 }>()
 
 /**
@@ -55,7 +74,6 @@ const isWebhook = (entry: TraversedEntry): entry is TraversedWebhook =>
   entry['type'] === 'webhook'
 
 const isRootLevel = computed(() => level === 0)
-const { hash } = useNavState()
 
 /** The index of the current entry */
 const currentIndex = computed(() => {
@@ -63,7 +81,7 @@ const currentIndex = computed(() => {
     return rootIndex
   }
 
-  return getCurrentIndex(hash.value, entries)
+  return getCurrentIndex(hash, entries)
 })
 
 /**
@@ -89,6 +107,10 @@ const isLazy = (entry: TraversedEntry, index: number) => {
   return null
 }
 
+function getPathValue(entry: TraversedOperation | TraversedWebhook) {
+  return isWebhook(entry) ? webhooks[entry.name] : paths[entry.path]
+}
+
 defineExpose({
   currentIndex,
   isLazy,
@@ -107,13 +129,15 @@ defineExpose({
       <SectionContainer :omit="!isRootLevel">
         <Operation
           :id="entry.id"
-          :clientOptions
           :collection="activeCollection"
-          :config="config"
-          :document
-          :isWebhook="isWebhook(entry)"
           :method="entry.method"
+          :options="{
+            ...options,
+            isWebhook: isWebhook(entry),
+          }"
           :path="isWebhook(entry) ? entry.name : entry.path"
+          :pathValue="getPathValue(entry)"
+          :security="security"
           :server="activeServer"
           :store />
       </SectionContainer>
@@ -122,20 +146,24 @@ defineExpose({
     <!-- Webhook Group or Tag -->
     <template v-else-if="isTag(entry)">
       <Tag
-        :layout="config.layout"
+        :isLoading="false"
+        :layout="options.layout"
         :moreThanOneTag="entries.filter(isTag).length > 1"
+        :onShowMore="options.onShowMore"
         :tag="entry">
         <template v-if="'children' in entry && entry.children?.length">
           <TraversedEntry
             :activeCollection
             :activeServer
-            :clientOptions
-            :config
-            :document
             :entries="entry.children"
+            :hash="hash"
             :level="level + 1"
+            :options
+            :paths="paths"
             :rootIndex
-            :store />
+            :security="security"
+            :store
+            :webhooks="webhooks" />
         </template>
       </Tag>
     </template>
@@ -145,13 +173,15 @@ defineExpose({
       <TraversedEntry
         :activeCollection
         :activeServer
-        :clientOptions
-        :config
-        :document
         :entries="entry.children || []"
+        :hash="hash"
         :level="level + 1"
+        :options
+        :paths="paths"
         :rootIndex
-        :store />
+        :security="security"
+        :store
+        :webhooks="webhooks" />
     </template>
   </Lazy>
 </template>

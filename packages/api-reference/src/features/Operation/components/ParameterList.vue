@@ -3,15 +3,15 @@ import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/stric
 
 import ParameterListItem from './ParameterListItem.vue'
 
-const {
-  parameters,
-  collapsableItems = false,
-  withExamples = true,
-} = defineProps<{
+defineProps<{
   parameters: ParameterObject[]
-  collapsableItems?: boolean
-  withExamples?: boolean
   breadcrumb?: string[]
+  options: {
+    collapsableItems?: boolean
+    withExamples?: boolean
+    orderRequiredPropertiesFirst: boolean | undefined
+    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
+  }
 }>()
 </script>
 <template>
@@ -26,10 +26,9 @@ const {
         v-for="item in parameters"
         :key="item.name"
         :breadcrumb="breadcrumb"
-        :collapsableItems="collapsableItems"
         :name="item.name"
-        :parameter="item"
-        :withExamples="withExamples" />
+        :options="options"
+        :parameter="item" />
     </ul>
   </div>
 </template>

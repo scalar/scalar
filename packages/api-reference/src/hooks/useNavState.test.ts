@@ -1,9 +1,6 @@
-import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import type { Heading } from '@scalar/types/legacy'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { computed, inject, ref } from 'vue'
-
-import { useConfig } from '@/hooks/useConfig'
+import { inject, ref } from 'vue'
 
 import { useNavState } from './useNavState'
 
@@ -12,11 +9,6 @@ declare global {
     location: Location
   }
 }
-
-// Mock the useConfig hook
-vi.mock('@/hooks/useConfig', () => ({
-  useConfig: vi.fn().mockReturnValue({ value: {} }),
-}))
 
 // Mock vue's inject
 vi.mock('vue', () => {
@@ -50,6 +42,8 @@ describe('useNavState', () => {
       isIntersectionEnabled: ref(false),
       hash: ref(''),
       hashPrefix: ref(''),
+      basePath: undefined,
+      generateHeadingSlug: undefined,
     })
 
     navState = useNavState()
@@ -60,147 +54,127 @@ describe('useNavState', () => {
     window.location = originalLocation
   })
 
-  describe('hash management', () => {
-    it('should handle custom hash prefix', () => {
-      vi.mocked(inject).mockReturnValue({
-        isIntersectionEnabled: ref(false),
-        hash: ref('test-hash'),
-        hashPrefix: ref('custom-prefix-'),
-      })
-
-      const navState = useNavState()
-      expect(navState.getFullHash('test')).toBe('custom-prefix-test')
+  it('should handle custom hash prefix', () => {
+    vi.mocked(inject).mockReturnValue({
+      isIntersectionEnabled: ref(false),
+      hash: ref('test-hash'),
+      hashPrefix: ref('custom-prefix-'),
     })
 
-    it('should update hash correctly', () => {
-      window.location.hash = '#test-hash'
-      navState.updateHash()
-      expect(navState.hash.value).toBe('test-hash')
-    })
-
-    it('should set hash prefix', () => {
-      navState.setHashPrefix('prefix-')
-      expect(navState.getFullHash('test')).toBe('prefix-test')
-    })
-
-    it('should get reference hash without prefix', () => {
-      navState.setHashPrefix('prefix-')
-      window.location.hash = '#prefix-test-hash'
-      expect(navState.getReferenceId()).toBe('test-hash')
-    })
+    const navState = useNavState()
+    expect(navState.getFullHash('test')).toBe('custom-prefix-test')
   })
 
-  describe('ID generation', () => {
-    it('should generate heading ID', () => {
-      const heading = {
-        depth: 0,
-        value: 'Test Heading',
-        slug: 'test-heading',
-      } satisfies Heading
-      expect(navState.getHeadingId(heading)).toBe('description/test-heading')
-    })
+  it('should update hash correctly', () => {
+    window.location.hash = '#test-hash'
+    navState.updateHash()
+    expect(navState.hash.value).toBe('test-hash')
   })
 
-  describe('custom slug generation', () => {
-    beforeEach(() => {
-      const mockConfig = computed(() =>
-        apiReferenceConfigurationSchema.parse({
-          generateHeadingSlug: vi.fn().mockReturnValue('custom-heading'),
-          generateModelSlug: vi.fn().mockReturnValue('custom-model'),
-          generateTagSlug: vi.fn().mockReturnValue('custom-tag'),
-          generateOperationSlug: vi.fn().mockReturnValue('custom-operation'),
-          generateWebhookSlug: vi.fn().mockReturnValue('custom-webhook'),
-        }),
-      )
-      vi.mocked(useConfig).mockReturnValue(mockConfig)
-      navState = useNavState()
-    })
-
-    it('should use custom heading slug generator', () => {
-      const heading = {
-        depth: 0,
-        value: 'Test Heading',
-        slug: 'test-heading',
-      } satisfies Heading
-      expect(navState.getHeadingId(heading)).toBe('custom-heading')
-    })
+  it('should set hash prefix', () => {
+    navState.setHashPrefix('prefix-')
+    expect(navState.getFullHash('test')).toBe('prefix-test')
   })
 
-  describe('path routing', () => {
-    it('should handle path routing ID extraction', () => {
-      const mockConfig = computed(() => {
-        return apiReferenceConfigurationSchema.parse({
-          pathRouting: {
-            basePath: '/docs',
-          },
-        })
-      })
-      vi.mocked(useConfig).mockReturnValue(mockConfig)
-      navState = useNavState()
-
-      expect(navState.getPathRoutingId('/docs/test-path')).toBe('test-path')
-    })
-
-    it('should handle path routing ID extraction with getReferenceId', () => {
-      const mockConfig = computed(() => {
-        return apiReferenceConfigurationSchema.parse({
-          pathRouting: {
-            basePath: '/docs',
-          },
-        })
-      })
-      vi.mocked(useConfig).mockReturnValue(mockConfig)
-      navState = useNavState()
-      window.location.pathname = '/docs/test-path'
-
-      expect(navState.getReferenceId()).toBe('test-path')
-    })
+  it('should get reference hash without prefix', () => {
+    navState.setHashPrefix('prefix-')
+    window.location.hash = '#prefix-test-hash'
+    expect(navState.getReferenceId()).toBe('test-hash')
   })
 
-  describe('getHashedUrl', () => {
-    it('should generate URL with hash routing', () => {
-      const mockConfig = computed(() => apiReferenceConfigurationSchema.parse({}))
-      vi.mocked(useConfig).mockReturnValue(mockConfig)
+  it('should generate heading ID', () => {
+    const heading = {
+      depth: 0,
+      value: 'Test Heading',
+      slug: 'test-heading',
+    } satisfies Heading
+    expect(navState.getHeadingId(heading)).toBe('description/test-heading')
+  })
 
-      vi.mocked(inject).mockReturnValue({
-        isIntersectionEnabled: ref(false),
-        hash: ref(''),
-        hashPrefix: ref('prefix-'),
-      })
-      navState = useNavState()
+  it('should use custom heading slug generator', () => {
+    const heading = {
+      depth: 0,
+      value: 'Test Heading',
+      slug: 'test-heading',
+    } satisfies Heading
 
-      const result = navState.getHashedUrl('test-hash', 'https://example.com', '?param=value')
-      expect(result).toBe('https://example.com/?param=value#prefix-test-hash')
+    vi.mocked(inject).mockReturnValue({
+      isIntersectionEnabled: ref(false),
+      hash: ref(''),
+      hashPrefix: ref(''),
+      basePath: undefined,
+      generateHeadingSlug: ref(() => 'custom-heading'),
     })
+    navState = useNavState()
+    expect(navState.getHeadingId(heading)).toBe('custom-heading')
+  })
 
-    it('should generate URL with path routing', () => {
-      const mockConfig = computed(() => {
-        return apiReferenceConfigurationSchema.parse({
-          pathRouting: {
-            basePath: '/docs',
-          },
-        })
-      })
-      vi.mocked(useConfig).mockReturnValue(mockConfig)
-      navState = useNavState()
-
-      const result = navState.getHashedUrl('test-path', 'https://example.com', '?param=value')
-      expect(result).toBe('https://example.com/docs/test-path?param=value')
+  it('should handle path routing ID extraction', () => {
+    vi.mocked(inject).mockReturnValue({
+      isIntersectionEnabled: ref(false),
+      hash: ref(''),
+      hashPrefix: ref(''),
+      basePath: '/docs',
+      generateHeadingSlug: undefined,
     })
+    navState = useNavState()
 
-    it('should preserve search params when using path routing', () => {
-      const mockConfig = computed(() => {
-        return apiReferenceConfigurationSchema.parse({
-          pathRouting: {
-            basePath: '/docs',
-          },
-        })
-      })
-      vi.mocked(useConfig).mockReturnValue(mockConfig)
-      navState = useNavState()
+    expect(navState.getPathRoutingId('/docs/test-path')).toBe('test-path')
+  })
 
-      const result = navState.getHashedUrl('test-path', 'https://example.com', '?param1=value1&param2=value2')
-      expect(result).toBe('https://example.com/docs/test-path?param1=value1&param2=value2')
+  it('should handle path routing ID extraction with getReferenceId', () => {
+    vi.mocked(inject).mockReturnValue({
+      isIntersectionEnabled: ref(false),
+      hash: ref(''),
+      hashPrefix: ref(''),
+      basePath: '/docs',
+      generateHeadingSlug: undefined,
     })
+    navState = useNavState()
+    window.location.pathname = '/docs/test-path'
+
+    expect(navState.getReferenceId()).toBe('test-path')
+  })
+
+  it('should generate URL with hash routing', () => {
+    vi.mocked(inject).mockReturnValue({
+      isIntersectionEnabled: ref(false),
+      hash: ref(''),
+      hashPrefix: ref('prefix-'),
+      basePath: undefined,
+      generateHeadingSlug: undefined,
+    })
+    navState = useNavState()
+
+    const result = navState.getHashedUrl('test-hash', 'https://example.com', '?param=value')
+    expect(result).toBe('https://example.com/?param=value#prefix-test-hash')
+  })
+
+  it('should generate URL with path routing', () => {
+    vi.mocked(inject).mockReturnValue({
+      isIntersectionEnabled: ref(false),
+      hash: ref(''),
+      hashPrefix: ref(''),
+      basePath: '/docs',
+      generateHeadingSlug: undefined,
+    })
+    navState = useNavState()
+
+    const result = navState.getHashedUrl('test-path', 'https://example.com', '?param=value')
+    expect(result).toBe('https://example.com/docs/test-path?param=value')
+  })
+
+  it('should preserve search params when using path routing', () => {
+    vi.mocked(inject).mockReturnValue({
+      isIntersectionEnabled: ref(false),
+      hash: ref(''),
+      hashPrefix: ref(''),
+      basePath: '/docs',
+      generateHeadingSlug: undefined,
+    })
+    navState = useNavState()
+
+    const result = navState.getHashedUrl('test-path', 'https://example.com', '?param1=value1&param2=value2')
+    expect(result).toBe('https://example.com/docs/test-path?param1=value1&param2=value2')
   })
 })

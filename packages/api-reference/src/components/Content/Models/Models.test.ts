@@ -1,5 +1,4 @@
-import type { ApiReferenceConfiguration } from '@scalar/types'
-import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
@@ -12,6 +11,14 @@ import Models from './Models.vue'
 
 // Mock useSidebar composable
 vi.mock('@/v2/blocks/scalar-sidebar-block')
+
+function getModels(workspace: WorkspaceStore) {
+  const { items } = useSidebar(workspace)
+
+  const item = items.value.entries.find((i) => i.id === 'models')
+
+  return item && item.type === 'text' ? item : undefined
+}
 
 describe('Models', async () => {
   const mockDocument = coerceValue(OpenAPIDocumentSchema, {
@@ -55,13 +62,21 @@ describe('Models', async () => {
 
   const store = createWorkspaceStore()
 
-  const mockConfigClassic: ApiReferenceConfiguration = {
-    layout: 'classic',
-  } as ApiReferenceConfiguration
+  const mockConfigClassic = {
+    layout: 'classic' as const,
+    onShowMore: undefined,
+    orderRequiredPropertiesFirst: undefined,
+    orderSchemaPropertiesBy: undefined,
+    expandAllModelSections: undefined,
+  }
 
-  const mockConfigModern: ApiReferenceConfiguration = {
-    layout: 'modern',
-  } as ApiReferenceConfiguration
+  const mockConfigModern = {
+    layout: 'modern' as const,
+    onShowMore: undefined,
+    orderRequiredPropertiesFirst: undefined,
+    orderSchemaPropertiesBy: undefined,
+    expandAllModelSections: undefined,
+  }
 
   beforeEach(async () => {
     vi.clearAllMocks()
@@ -78,8 +93,10 @@ describe('Models', async () => {
     it('renders ClassicLayout when config.layout is classic', () => {
       const wrapper = mount(Models, {
         props: {
+          models: getModels(store),
+          hash: '',
+          options: mockConfigClassic,
           schemas: mockDocument.components?.schemas,
-          config: mockConfigClassic,
         },
       })
 
@@ -96,8 +113,10 @@ describe('Models', async () => {
     it('renders ModernLayout when config.layout is modern', () => {
       const wrapper = mount(Models, {
         props: {
+          models: getModels(store),
+          hash: '',
+          options: mockConfigModern,
           schemas: mockDocument.components?.schemas,
-          config: mockConfigModern,
         },
       })
 
@@ -116,8 +135,10 @@ describe('Models', async () => {
     it('passes schemas to ClassicLayout', async () => {
       const wrapper = mount(Models, {
         props: {
+          models: getModels(store),
+          hash: '',
+          options: mockConfigClassic,
           schemas: mockDocument.components?.schemas,
-          config: mockConfigClassic,
         },
       })
 
@@ -130,8 +151,10 @@ describe('Models', async () => {
     it('passes schemas to ModernLayout', () => {
       const wrapper = mount(Models, {
         props: {
+          models: getModels(store),
+          hash: '',
+          options: mockConfigModern,
           schemas: mockDocument.components?.schemas,
-          config: mockConfigModern,
         },
       })
 
@@ -169,13 +192,14 @@ describe('Models', async () => {
       name: 'default',
       document: documentWithIgnoredSchema,
     })
-
     vi.mocked(useSidebar).mockReturnValue(createSidebar(store))
 
     const wrapper = mount(Models, {
       props: {
+        models: getModels(store),
+        hash: '',
+        options: mockConfigModern,
         schemas: documentWithIgnoredSchema.components?.schemas,
-        config: mockConfigModern,
       },
     })
 
@@ -185,15 +209,17 @@ describe('Models', async () => {
 
   describe('expandAllModelSections config', () => {
     it('expands all model sections when expandAllModelSections is true', () => {
-      const configWithExpandAll: ApiReferenceConfiguration = {
-        layout: 'modern',
+      const configWithExpandAll = {
+        ...mockConfigModern,
         expandAllModelSections: true,
-      } as ApiReferenceConfiguration
+      }
 
       const wrapper = mount(Models, {
         props: {
+          models: getModels(store),
+          hash: '',
+          options: configWithExpandAll,
           schemas: mockDocument.components?.schemas,
-          config: configWithExpandAll,
         },
       })
 
@@ -215,14 +241,17 @@ describe('Models', async () => {
     })
 
     it('ensures all model sections are closed when expandAllModelSections is false', () => {
-      const configWithExpandAll: ApiReferenceConfiguration = {
-        layout: 'modern',
-      } as ApiReferenceConfiguration
+      const configWithExpandAll = {
+        ...mockConfigModern,
+        expandAllModelSections: false,
+      }
 
       const wrapper = mount(Models, {
         props: {
+          models: getModels(store),
+          hash: '',
+          options: configWithExpandAll,
           schemas: mockDocument.components?.schemas,
-          config: configWithExpandAll,
         },
       })
 
@@ -259,8 +288,10 @@ describe('Models', async () => {
 
       const wrapper = mount(Models, {
         props: {
+          models: getModels(store),
+          hash: '',
+          options: mockConfigClassic,
           schemas: document.components?.schemas,
-          config: mockConfigClassic,
         },
       })
 

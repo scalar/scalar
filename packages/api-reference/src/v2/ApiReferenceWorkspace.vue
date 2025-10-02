@@ -104,7 +104,13 @@ const proxy = (
 }
 
 // Provide the intersection observer which has defaults
-provide(NAV_STATE_SYMBOL, { isIntersectionEnabled, hash, hashPrefix })
+provide(NAV_STATE_SYMBOL, {
+  isIntersectionEnabled,
+  hash,
+  hashPrefix,
+  basePath: () => selectedConfiguration.value.pathRouting?.basePath,
+  generateHeadingSlug: () => selectedConfiguration.value.generateHeadingSlug,
+})
 
 // ---------------------------------------------------------------------------
 

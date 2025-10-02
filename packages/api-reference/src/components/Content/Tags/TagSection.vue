@@ -14,15 +14,13 @@ import {
   SectionHeaderTag,
 } from '@/components/Section'
 import { SpecificationExtension } from '@/features/specification-extension'
-import { useConfig } from '@/hooks/useConfig'
 
 const { tag, headerId, isCollapsed } = defineProps<{
   tag: TraversedTag
   headerId?: string
   isCollapsed?: boolean
+  isLoading?: boolean
 }>()
-
-const config = useConfig()
 </script>
 <template>
   <Section
@@ -30,7 +28,7 @@ const config = useConfig()
     :id="tag.id"
     :label="tag.title?.toUpperCase()"
     role="none">
-    <SectionHeader v-show="!config.isLoading">
+    <SectionHeader v-show="!isLoading">
       <Anchor :id="tag.id">
         <SectionHeaderTag
           :id="headerId"
@@ -40,7 +38,7 @@ const config = useConfig()
         </SectionHeaderTag>
       </Anchor>
     </SectionHeader>
-    <SectionContent :loading="config.isLoading">
+    <SectionContent :loading="isLoading">
       <SectionColumns>
         <SectionColumn>
           <ScalarMarkdown

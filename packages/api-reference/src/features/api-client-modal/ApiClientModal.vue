@@ -11,10 +11,9 @@ import type {
 import { emitCustomEvent } from '@scalar/workspace-store/events'
 import { watchDebounced } from '@vueuse/core'
 import microdiff from 'microdiff'
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 import { useNavState } from '@/hooks/useNavState'
-import { useExampleStore } from '@/legacy/stores'
 
 import { useApiClient } from './useApiClient'
 
@@ -28,7 +27,6 @@ const { configuration, dereferencedDocument } = defineProps<{
 const el = ref<HTMLDivElement | null>(null)
 
 const { client, init } = useApiClient()
-const { selectedExampleKey, operationId } = useExampleStore()
 const activeEntities = useActiveEntities()
 const store = useWorkspace()
 const { isIntersectionEnabled } = useNavState()
@@ -110,10 +108,10 @@ watchDebounced(
     }
     // Or we handle the specific diff changes, just auth and servers for now
     else {
-      diff.forEach((diff) => {
+      diff.forEach((d) => {
         // Auth - TODO preferredSecurityScheme
-        if (diff.path[0] === 'authentication') {
-          mutateSecuritySchemeDiff(diff, activeEntities, store)
+        if (d.path[0] === 'authentication') {
+          mutateSecuritySchemeDiff(d, activeEntities, store)
         }
       })
 
@@ -144,12 +142,6 @@ watchDebounced(
   },
   { deep: true, debounce: 300 },
 )
-
-watch(selectedExampleKey, (newKey) => {
-  if (client.value && newKey && operationId.value) {
-    client.value.updateExample(newKey, operationId.value)
-  }
-})
 
 onBeforeUnmount(() => client.value?.app.unmount())
 </script>

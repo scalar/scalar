@@ -13,6 +13,8 @@ import TagSection from './TagSection.vue'
 const { tag, moreThanOneTag } = defineProps<{
   tag: TraversedTag
   moreThanOneTag: boolean
+  isLoading: boolean
+  onShowMore: ((id: string) => void) | undefined
 }>()
 
 const sectionContainerRef = ref<HTMLElement>()
@@ -51,11 +53,13 @@ const isCollapsed = (tagId: string) => {
         v-if="moreThanOneDefaultTag"
         :headerId="headerId"
         :isCollapsed="isCollapsed(tag.id)"
+        :isLoading="isLoading"
         :tag="tag" />
       <ShowMoreButton
         v-if="isCollapsed(tag.id) && moreThanOneTag"
         :id="tag.id"
         :aria-label="`Show all ${tag.title} endpoints`"
+        :onShowMore="onShowMore"
         @click="focusContents" />
     </Lazy>
 

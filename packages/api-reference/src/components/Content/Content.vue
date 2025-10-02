@@ -5,13 +5,17 @@ import { ScalarErrorBoundary } from '@scalar/components'
 import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { TraversedDescription } from '@scalar/workspace-store/schemas/navigation'
 import { computed } from 'vue'
 
 import IntroductionSection from '@/components/Content/IntroductionSection.vue'
 import { Models } from '@/components/Content/Models'
+import { getCurrentIndex } from '@/components/Content/Operations/get-current-index'
+import TraversedEntry from '@/components/Content/Operations/TraversedEntry.vue'
 import { SectionFlare } from '@/components/SectionFlare'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import { useFreezing } from '@/hooks/useFreezing'
+import { useNavState } from '@/hooks/useNavState'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 import { ClientSelector } from '@/v2/blocks/scalar-client-selector-block'
 import { InfoBlock } from '@/v2/blocks/scalar-info-block'
@@ -19,11 +23,27 @@ import { IntroductionCardItem } from '@/v2/blocks/scalar-info-block/'
 import { ServerSelector } from '@/v2/blocks/scalar-server-selector-block'
 import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
 
-import { TraversedEntryContainer } from './Operations'
-
-const { store, config } = defineProps<{
-  config: ApiReferenceConfiguration
+const { store, options } = defineProps<{
+  contentId: string
   store: WorkspaceStore
+  options: {
+    isLoading: boolean | undefined
+    slug: string | undefined
+    hiddenClients: ApiReferenceConfiguration['hiddenClients']
+    layout: 'modern' | 'classic'
+    onLoaded: (() => void) | undefined
+    persistAuth: boolean
+    showOperationId?: boolean | undefined
+    hideTestRequestButton: boolean | undefined
+    expandAllResponses?: boolean
+    hideModels: boolean | undefined
+    expandAllModelSections: boolean | undefined
+    orderRequiredPropertiesFirst: boolean | undefined
+    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
+    documentDownloadType: ApiReferenceConfiguration['documentDownloadType']
+    url: string | undefined
+    onShowMore: ((id: string) => void) | undefined
+  }
 }>()
 
 useFreezing()
@@ -32,11 +52,8 @@ useFreezing()
  * Generate all client options so that it can be shared between the top client picker and the operations
  */
 const clientOptions = computed(() =>
-  generateClientOptions(config.hiddenClients),
+  generateClientOptions(options.hiddenClients),
 )
-
-const { items } = useSidebar()
-const id = computed(() => items.value.entries[0]?.id)
 
 // Computed property to get all OpenAPI extension fields from the root document object
 const documentExtensions = computed(() =>
@@ -61,8 +78,8 @@ const {
 
 /** Match the collection by slug if provided */
 const activeCollection = computed(() => {
-  if (config.slug) {
-    const collection = collections[getSlugUid(config.slug)]
+  if (options.slug) {
+    const collection = collections[getSlugUid(options.slug)]
     if (collection) {
       return collection
     }
@@ -70,7 +87,11 @@ const activeCollection = computed(() => {
   return _activeCollection.value
 })
 
-/** Ensure the server is the one selected in the collection */
+/**
+ * Ensure the server is the one selected in the collection
+ *
+ * @deprecated
+ **/
 const activeServer = computed(() => {
   if (!activeCollection.value) {
     return undefined
@@ -87,6 +108,23 @@ const activeServer = computed(() => {
 })
 
 const getOriginalDocument = () => store.exportActiveDocument('json') ?? '{}'
+
+// const { collections, servers } = useWorkspace()
+// const { activeCollection: _activeCollection } = useActiveEntities()
+
+const { items } = useSidebar()
+const { hash } = useNavState()
+
+/** The index of the root entry */
+const rootIndex = computed(() =>
+  getCurrentIndex(hash.value, items.value.entries),
+)
+
+const models = computed<TraversedDescription | undefined>(() => {
+  const item = items.value.entries.find((i) => i.id === 'models')
+
+  return item && item.type === 'text' ? item : undefined
+})
 </script>
 <template>
   <SectionFlare />
@@ -98,16 +136,21 @@ const getOriginalDocument = () => store.exportActiveDocument('json') ?? '{}'
     <IntroductionSection :showEmptyState="!store.workspace.activeDocument">
       <InfoBlock
         v-if="store.workspace.activeDocument"
-        :id
+        :id="contentId"
         :documentExtensions
         :externalDocs="store.workspace.activeDocument.externalDocs"
-        :getOriginalDocument
         :info="store.workspace.activeDocument.info"
         :infoExtensions
-        :isLoading="config.isLoading"
-        :layout="config.layout"
+        :layout="options.layout"
         :oasVersion="store.workspace.activeDocument?.['x-original-oas-version']"
-        :onLoaded="config.onLoaded">
+        :options="{
+          documentDownloadType: options.documentDownloadType,
+          url: options.url,
+          getOriginalDocument,
+          isLoading: options.isLoading,
+          layout: options.layout,
+          onLoaded: options.onLoaded,
+        }">
         <template #selectors>
           <ScalarErrorBoundary>
             <IntroductionCardItem
@@ -133,7 +176,7 @@ const getOriginalDocument = () => store.exportActiveDocument('json') ?? '{}'
                 :envVariables="activeEnvVariables"
                 :environment="activeEnvironment"
                 layout="reference"
-                :persistAuth="config?.persistAuth"
+                :persistAuth="options.persistAuth"
                 :selectedSecuritySchemeUids="
                   activeCollection?.selectedSecuritySchemeUids ?? []
                 "
@@ -144,7 +187,7 @@ const getOriginalDocument = () => store.exportActiveDocument('json') ?? '{}'
           </ScalarErrorBoundary>
           <ScalarErrorBoundary>
             <IntroductionCardItem
-              v-if="config?.hiddenClients !== true && clientOptions.length"
+              v-if="options.hiddenClients !== true && clientOptions.length"
               class="introduction-card-item scalar-reference-intro-clients">
               <ClientSelector
                 class="introduction-card-item scalar-reference-intro-clients"
@@ -165,18 +208,43 @@ const getOriginalDocument = () => store.exportActiveDocument('json') ?? '{}'
       </template>
     </IntroductionSection>
 
-    <!-- Loop on traversed entries -->
-    <TraversedEntryContainer
-      v-if="store.workspace.activeDocument"
-      :clientOptions
-      :config
-      :document="store.workspace.activeDocument"
-      :store />
+    <!-- Render traversed operations and webhooks -->
+    <div v-if="items.entries.length && activeCollection">
+      <!-- Use recursive component for cleaner rendering -->
+      <TraversedEntry
+        :activeCollection
+        :activeServer
+        :entries="items.entries"
+        :hash="hash"
+        :options="{
+          layout: options.layout ?? 'modern',
+          showOperationId: options.showOperationId,
+          hideTestRequestButton: options.hideTestRequestButton,
+          expandAllResponses: options.expandAllResponses,
+          clientOptions: clientOptions,
+          orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
+          orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
+          onShowMore: options.onShowMore,
+        }"
+        :paths="store.workspace.activeDocument?.paths ?? {}"
+        :rootIndex
+        :security="store.workspace.activeDocument?.security"
+        :store
+        :webhooks="store.workspace.activeDocument?.webhooks ?? {}" />
+    </div>
 
     <!-- Models -->
     <Models
-      v-if="!config?.hideModels && store.workspace.activeDocument"
-      :config
+      v-if="!options.hideModels && store.workspace.activeDocument"
+      :hash
+      :models
+      :options="{
+        layout: options.layout ?? 'modern',
+        expandAllModelSections: options.expandAllModelSections,
+        orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
+        orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
+        onShowMore: options.onShowMore,
+      }"
       :schemas="store.workspace.activeDocument.components?.schemas" />
 
     <slot name="end" />

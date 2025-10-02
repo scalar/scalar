@@ -18,7 +18,20 @@ export function useDocumentSource({
 }: {
   originalDocument?: MaybeRefOrGetter<string>
   dereferencedDocument?: MaybeRefOrGetter<OpenAPIV3_1.Document>
-  configuration?: MaybeRefOrGetter<ApiReferenceConfiguration>
+  configuration?: MaybeRefOrGetter<
+    Pick<
+      ApiReferenceConfiguration,
+      | 'url'
+      | 'content'
+      | 'proxyUrl'
+      | 'fetch'
+      | 'proxyUrl'
+      | 'showSidebar'
+      | 'hideClientButton'
+      | 'theme'
+      | '_integration'
+    >
+  >
 }): {
   originalDocument: Ref<string>
   originalOpenApiVersion: Ref<string>

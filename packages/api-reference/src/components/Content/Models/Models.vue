@@ -1,36 +1,30 @@
 <script setup lang="ts">
-import type { ApiReferenceConfiguration } from '@scalar/types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { TraversedDescription } from '@scalar/workspace-store/schemas/navigation'
 import type { ComponentsObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import { Lazy } from '@/components/Lazy'
-import { useNavState } from '@/hooks/useNavState'
-import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
 
 import ClassicLayout from './ClassicLayout.vue'
 import ModernLayout from './ModernLayout.vue'
 
-const { schemas = {} } = defineProps<{
+const { schemas = {}, models } = defineProps<{
   schemas: ComponentsObject['schemas']
-  config: ApiReferenceConfiguration
+  models: TraversedDescription | undefined
+  hash: string
+  options: {
+    layout: 'classic' | 'modern'
+    expandAllModelSections: boolean | undefined
+    orderRequiredPropertiesFirst: boolean | undefined
+    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
+    onShowMore: ((id: string) => void) | undefined
+  }
 }>()
-
-const { hash } = useNavState()
-
-const { items } = useSidebar()
-
-const modelEntry = computed(
-  () =>
-    items.value.entries.find((item) => item.id === 'models') as
-      | TraversedDescription
-      | undefined,
-)
 
 /** Array of the name and value of all component schemas */
 const flatSchemas = computed(() => {
-  const schemaEntries = modelEntry.value?.children ?? []
+  const schemaEntries = models?.children ?? []
 
   return schemaEntries
     .filter((it) => it.type === 'model')
@@ -47,12 +41,12 @@ const flatSchemas = computed(() => {
     id="models"
     :isLazy="Boolean(hash) && !hash.startsWith('model')">
     <ClassicLayout
-      v-if="config?.layout === 'classic'"
-      :config="config"
+      v-if="options?.layout === 'classic'"
+      :options="options"
       :schemas="flatSchemas" />
     <ModernLayout
       v-else
-      :config="config"
+      :options="options"
       :schemas="flatSchemas" />
   </Lazy>
 </template>

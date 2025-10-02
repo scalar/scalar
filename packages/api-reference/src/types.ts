@@ -1,7 +1,6 @@
 import type { AnyApiReferenceConfiguration, ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { OpenAPIV3_1 } from '@scalar/types/legacy'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-
 export type { ApiReferenceConfiguration }
 
 export type ReferenceProps = {

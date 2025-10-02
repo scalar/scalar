@@ -19,7 +19,6 @@ import {
   getOperationStabilityColor,
   isOperationDeprecated,
 } from '@scalar/oas-utils/helpers'
-import type { ApiReferenceConfiguration } from '@scalar/types'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -45,18 +44,25 @@ import OperationResponses from '@/features/Operation/components/OperationRespons
 import { TestRequestButton } from '@/features/test-request-button'
 import { XBadges } from '@/features/x-badges'
 
-const { operation, path, config, isWebhook } = defineProps<{
+const { operation, path } = defineProps<{
   id: string
   path: string
-  clientOptions: ClientOptionGroup[]
   method: HttpMethodType
-  config: ApiReferenceConfiguration
   operation: OperationObject
   // pathServers: ServerObject[] | undefined
-  isWebhook: boolean
   server: ServerObject | undefined
   securitySchemes: SecuritySchemeObject[]
   store: WorkspaceStore
+  /** Global options that can be derived from the top level config or assigned at a block level */
+  options: {
+    /** Sets some additional display properties when an operation is a webhook */
+    isWebhook: boolean
+    clientOptions: ClientOptionGroup[]
+    showOperationId: boolean | undefined
+    hideTestRequestButton: boolean | undefined
+    orderRequiredPropertiesFirst: boolean | undefined
+    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
+  }
 }>()
 
 const operationTitle = computed(() => operation.summary || path || '')
@@ -97,7 +103,7 @@ const { copyToClipboard } = useClipboard()
 
               <!-- Webhook badge -->
               <Badge
-                v-if="isWebhook"
+                v-if="options.isWebhook"
                 class="font-code text-green flex w-fit items-center justify-center gap-1">
                 <ScalarIconWebhooksLogo weight="bold" />Webhook
               </Badge>
@@ -116,9 +122,9 @@ const { copyToClipboard } = useClipboard()
       <XBadges
         :badges="operation['x-badges']"
         position="after" />
-      <template v-if="!config?.hideTestRequestButton">
+      <template v-if="!options?.hideTestRequestButton">
         <TestRequestButton
-          v-if="active && !isWebhook"
+          v-if="active && !options.isWebhook"
           :method="method"
           :path="path" />
         <ScalarIconPlay
@@ -126,7 +132,7 @@ const { copyToClipboard } = useClipboard()
           class="endpoint-try-hint size-4.5" />
       </template>
       <span
-        v-if="config.showOperationId && operation.operationId"
+        v-if="options?.showOperationId && operation.operationId"
         class="font-code text-sm">
         {{ operation.operationId }}
       </span>
@@ -152,6 +158,7 @@ const { copyToClipboard } = useClipboard()
       <div class="operation-details-card">
         <div class="operation-details-card-item">
           <OperationParameters
+            :options="options"
             :parameters="
               // These have been resolved in the Operation.vue component
               operation.parameters as ParameterObject[]
@@ -160,7 +167,11 @@ const { copyToClipboard } = useClipboard()
         </div>
         <div class="operation-details-card-item">
           <OperationResponses
-            :collapsableItems="false"
+            :options="{
+              orderRequiredPropertiesFirst:
+                options.orderRequiredPropertiesFirst,
+              orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
+            }"
             :responses="operation.responses" />
         </div>
 
@@ -171,6 +182,7 @@ const { copyToClipboard } = useClipboard()
           <Callbacks
             :callbacks="operation.callbacks"
             :method="method"
+            :options="options"
             :path="path" />
         </div>
       </div>
@@ -190,9 +202,9 @@ const { copyToClipboard } = useClipboard()
         <ScalarErrorBoundary>
           <OperationCodeSample
             class="operation-example-card"
-            :clientOptions="clientOptions"
+            :clientOptions="options.clientOptions"
             fallback
-            :isWebhook="isWebhook"
+            :isWebhook="options.isWebhook"
             :method="method"
             :operation="operation"
             :path="path"

@@ -14,6 +14,10 @@ const { method, name, url } = defineProps<{
   name: string
   url: string
   breadcrumb?: string[]
+  options: {
+    orderRequiredPropertiesFirst: boolean | undefined
+    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
+  }
 }>()
 </script>
 
@@ -40,6 +44,7 @@ const { method, name, url } = defineProps<{
     <!-- Body -->
     <div class="callback-operation-container flex flex-col gap-2">
       <OperationParameters
+        :options="options"
         :parameters="
           callback.parameters?.map((param) => getResolvedRef(param)) ?? []
         "
@@ -48,6 +53,11 @@ const { method, name, url } = defineProps<{
       <!-- Responses -->
       <OperationResponses
         :collapsableItems="false"
+        :options="{
+          collapsableItems: true,
+          orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
+          orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
+        }"
         :responses="callback.responses" />
     </div>
   </details>

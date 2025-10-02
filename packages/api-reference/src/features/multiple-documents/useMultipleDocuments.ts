@@ -3,12 +3,12 @@ import {
   type AnyApiReferenceConfiguration,
   type ApiReferenceConfiguration,
   type SpecConfiguration,
+  apiReferenceConfigurationSchema,
   isConfigurationWithSources,
 } from '@scalar/types/api-reference'
 import GithubSlugger from 'github-slugger'
-import { type Ref, computed, ref, watch } from 'vue'
-
-import type { NavState } from '@/hooks/useNavState'
+import { type ComputedRef, type Ref, computed, ref, watch } from 'vue'
+import type { z } from 'zod'
 
 /** URL parameter name for the selected API document */
 const QUERY_PARAMETER = 'api'
@@ -23,7 +23,10 @@ type UseMultipleDocumentsProps = {
   configurationOverrides?: Ref<Partial<ApiReferenceConfiguration> | undefined>
   /** The initial index to pre-select a document, if there is no query parameter available */
   initialIndex?: number
-} & NavState
+  isIntersectionEnabled: Ref<boolean>
+  hash: Ref<string>
+  hashPrefix: Ref<string>
+}
 
 const slugger = new GithubSlugger()
 
@@ -116,7 +119,7 @@ export const useMultipleDocuments = ({
   hash,
   hashPrefix,
 }: UseMultipleDocumentsProps): {
-  selectedConfiguration: Ref<Partial<ApiReferenceConfiguration> & SpecConfiguration>
+  selectedConfiguration: ComputedRef<z.infer<typeof apiReferenceConfigurationSchema>>
   availableDocuments: Ref<SpecConfiguration[]>
   selectedDocumentIndex: Ref<number>
   isIntersectionEnabled: Ref<boolean>
@@ -179,24 +182,24 @@ export const useMultipleDocuments = ({
    * The currently selected API configuration
    * we also add the source options (slug, title, etc) to the configuration
    */
-  const selectedConfiguration = computed(() => {
+  const selectedConfiguration = computed((): z.infer<typeof apiReferenceConfigurationSchema> => {
     const overrides = configurationOverrides?.value ?? {}
     // Multiple sources
     if (configuration.value && isConfigurationWithSources(configuration.value)) {
-      return {
+      return apiReferenceConfigurationSchema.parse({
         ...configuration.value,
         ...configuration.value?.sources?.[selectedDocumentIndex.value],
         ...availableDocuments.value[selectedDocumentIndex.value],
         ...overrides,
-      }
+      })
     }
 
     const flattenedConfig = [configuration.value].flat()[selectedDocumentIndex.value] ?? {}
-    return {
+    return apiReferenceConfigurationSchema.parse({
       ...flattenedConfig,
       ...availableDocuments.value[selectedDocumentIndex.value],
       ...overrides,
-    }
+    })
   })
 
   // Update URL when selection changes, also clear global state

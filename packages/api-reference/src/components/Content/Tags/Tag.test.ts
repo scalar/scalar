@@ -31,6 +31,8 @@ describe('Tag', () => {
           tag: mockTag,
           layout: 'classic',
           moreThanOneTag: true,
+          isLoading: false,
+          onShowMore: undefined,
         },
       })
 
@@ -45,6 +47,8 @@ describe('Tag', () => {
           tag: mockTag,
           layout: 'modern',
           moreThanOneTag: true,
+          isLoading: false,
+          onShowMore: undefined,
         },
       })
 
@@ -61,6 +65,8 @@ describe('Tag', () => {
           tag: mockTag,
           layout: 'classic',
           moreThanOneTag: true,
+          isLoading: false,
+          onShowMore: undefined,
         },
       })
 
@@ -74,6 +80,8 @@ describe('Tag', () => {
           tag: mockTag,
           layout: 'modern',
           moreThanOneTag: false,
+          isLoading: false,
+          onShowMore: undefined,
         },
       })
 
@@ -90,6 +98,8 @@ describe('Tag', () => {
           tag: mockTag,
           layout: 'classic',
           moreThanOneTag: true,
+          isLoading: false,
+          onShowMore: undefined,
         },
         slots: {
           default: '<div data-testid="slot-content">Slot content</div>',
@@ -106,6 +116,8 @@ describe('Tag', () => {
           tag: mockTag,
           layout: 'modern',
           moreThanOneTag: false, // Set to false so slot is rendered
+          isLoading: false,
+          onShowMore: undefined,
         },
         slots: {
           default: '<div data-testid="slot-content">Modern slot content</div>',

@@ -1,24 +1,13 @@
 <script setup lang="ts">
 import { provideUseId } from '@headlessui/vue'
-import { OpenApiClientButton } from '@scalar/api-client/components'
 import { LAYOUT_SYMBOL } from '@scalar/api-client/hooks'
 import {
   ACTIVE_ENTITIES_SYMBOL,
   WORKSPACE_SYMBOL,
 } from '@scalar/api-client/store'
-import {
-  addScalarClassesToHeadless,
-  ScalarColorModeToggleButton,
-  ScalarColorModeToggleIcon,
-  ScalarErrorBoundary,
-  ScalarSidebarFooter,
-} from '@scalar/components'
+import { addScalarClassesToHeadless } from '@scalar/components'
 import { sleep } from '@scalar/helpers/testing/sleep'
-import {
-  getThemeStyles,
-  hasObtrusiveScrollbars,
-  type ThemeId,
-} from '@scalar/themes'
+import { type ThemeId } from '@scalar/themes'
 import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { useDebounceFn, useResizeObserver } from '@vueuse/core'
@@ -33,14 +22,10 @@ import {
   watch,
 } from 'vue'
 
-import ClassicHeader from '@/components/ClassicHeader.vue'
 import { Content } from '@/components/Content'
-import GettingStarted from '@/components/GettingStarted.vue'
 import { hasLazyLoaded } from '@/components/Lazy/lazyBus'
-import MobileHeader from '@/components/MobileHeader.vue'
 import { ApiClientModal } from '@/features/api-client-modal'
 import { useDocumentSource } from '@/features/document-source'
-import { SearchButton } from '@/features/Search'
 import { useNavState } from '@/hooks/useNavState'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import type {
@@ -48,7 +33,7 @@ import type {
   ReferenceLayoutSlot,
   ReferenceSlotProps,
 } from '@/types'
-import { SidebarBlock, useSidebar } from '@/v2/blocks/scalar-sidebar-block'
+import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
 import { useLegacyStoreEvents } from '@/v2/hooks/use-legacy-store-events'
 
 // ---------------------------------------------------------------------------
@@ -79,6 +64,9 @@ defineSlots<
   } & { 'document-selector': any }
 >()
 
+/**
+ * For unknown reasons the configuration does not perform reactively without this wrapper
+ */
 /**
  * For unknown reasons the configuration does not perform reactively without this wrapper
  */
@@ -143,18 +131,6 @@ const {
   updateHash,
   replaceUrlState,
 } = useNavState()
-
-/** This is passed into all of the slots so they have access to the references data */
-const breadcrumb = computed(
-  () => items.value.entities?.get(hash.value)?.title ?? '',
-)
-
-const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
-  breadcrumb: breadcrumb.value,
-}))
-
-// Check for Obtrusive Scrollbars
-const obtrusiveScrollbars = computed(hasObtrusiveScrollbars)
 
 // ---------------------------------------------------------------------------
 // Scroll management
@@ -266,18 +242,10 @@ useResizeObserver(documentEl, (entries) => {
     : '100dvh'
 })
 
-const themeStyleTag = computed(
-  () => `<style>
-  ${getThemeStyles(configuration.value.theme, {
-    fonts: configuration.value.withDefaultFonts,
-  })}</style>`,
-)
-
 // ---------------------------------------------------------------------------
 // TODO: Code below is copied from ModernLayout.vue. Find a better location for this.
 
 const { mediaQueries } = useBreakpoints()
-const isDevelopment = import.meta.env.MODE === 'development'
 
 watch(mediaQueries.lg, (newValue, oldValue) => {
   // Close the drawer when we go from desktop to mobile
@@ -298,191 +266,38 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
 // ---------------------------------------------------------------------------
 </script>
 <template>
-  <div v-html="themeStyleTag" />
-  <div
-    ref="documentEl"
-    class="scalar-app scalar-api-reference references-layout"
-    :class="[
-      {
-        'scalar-api-references-standalone-mobile':
-          configuration.showSidebar ?? true,
-        'scalar-scrollbars-obtrusive': obtrusiveScrollbars,
-        'references-editable': configuration.isEditable,
-        'references-sidebar': configuration.showSidebar,
-        'references-sidebar-mobile-open': isSidebarOpen,
-        'references-classic': configuration.layout === 'classic',
-      },
-      $attrs.class,
-    ]"
-    :style="{
-      '--scalar-y-offset': `var(--scalar-custom-header-height, ${yPosition}px)`,
-    }">
-    <!-- Header -->
-    <div class="references-header">
-      <MobileHeader
-        v-if="
-          configuration.layout === 'modern' &&
-          (configuration.showSidebar ?? true)
-        "
-        :breadcrumb="referenceSlotProps.breadcrumb" />
-      <slot
-        v-bind="referenceSlotProps"
-        name="header" />
-    </div>
-    <!-- Navigation (sidebar) wrapper -->
-    <aside
-      v-if="configuration.showSidebar"
-      :aria-label="`Sidebar for ${dereferencedDocument?.info?.title}`"
-      class="references-navigation t-doc__sidebar">
-      <!-- Navigation tree / Table of Contents -->
-      <div class="references-navigation-list">
-        <ScalarErrorBoundary>
-          <!-- TODO: @brynn should this be conditional based on classic/modern layout? -->
-          <SidebarBlock
-            :options="{
-              pathRouting: configuration.pathRouting,
-              onSidebarClick: configuration.onSidebarClick,
-              operationTitleSource: configuration.operationTitleSource,
-              defaultOpenAllTags: configuration.defaultOpenAllTags,
-            }"
-            :title="dereferencedDocument?.info?.title ?? 'The OpenAPI Schema'">
-            <template #sidebar-start>
-              <!-- Wrap in a div when slot is filled -->
-              <div v-if="$slots['document-selector']">
-                <slot name="document-selector" />
-              </div>
-              <!-- Search -->
-              <div
-                v-if="!configuration.hideSearch"
-                class="scalar-api-references-standalone-search">
-                <SearchButton
-                  :document="store.workspace.activeDocument"
-                  :hideModels="configuration?.hideModels"
-                  :searchHotKey="configuration?.searchHotKey" />
-              </div>
-              <!-- Sidebar Start -->
-              <slot
-                name="sidebar-start"
-                v-bind="referenceSlotProps" />
-            </template>
-            <template #sidebar-end>
-              <slot
-                v-bind="referenceSlotProps"
-                name="sidebar-end">
-                <ScalarSidebarFooter class="darklight-reference">
-                  <OpenApiClientButton
-                    v-if="!configuration.hideClientButton"
-                    buttonSource="sidebar"
-                    :integration="configuration._integration"
-                    :isDevelopment="isDevelopment"
-                    :url="configuration.url" />
-                  <!-- Override the dark mode toggle slot to hide it -->
-                  <template #toggle>
-                    <ScalarColorModeToggleButton
-                      v-if="!configuration.hideDarkModeToggle"
-                      :modelValue="isDark"
-                      @update:modelValue="$emit('toggleDarkMode')" />
-                    <span v-else />
-                  </template>
-                </ScalarSidebarFooter>
-              </slot>
-            </template>
-          </SidebarBlock>
-        </ScalarErrorBoundary>
-      </div>
-    </aside>
-    <!-- Slot for an Editor -->
-    <div
-      v-show="configuration.isEditable"
-      class="references-editor">
-      <div class="references-editor-textarea">
-        <slot
-          v-bind="referenceSlotProps"
-          name="editor" />
-      </div>
-    </div>
-    <!-- The Content -->
+  <main
+    :aria-label="`Open API Documentation for ${dereferencedDocument?.info?.title}`"
+    class="references-rendered">
+    <Content
+      :contentId="contentId"
+      :options="{
+        isLoading: configuration.isLoading,
+        slug: configuration.slug,
+        hiddenClients: configuration.hiddenClients,
+        layout: configuration.layout,
+        onLoaded: configuration.onLoaded,
+        persistAuth: configuration.persistAuth,
+        showOperationId: configuration.showOperationId,
+        hideTestRequestButton: configuration.hideTestRequestButton,
+        expandAllResponses: configuration.expandAllResponses,
+        hideModels: configuration.hideModels,
+        expandAllModelSections: configuration.expandAllModelSections,
+        orderRequiredPropertiesFirst:
+          configuration.orderRequiredPropertiesFirst,
+        orderSchemaPropertiesBy: configuration.orderSchemaPropertiesBy,
+        documentDownloadType: configuration.documentDownloadType,
+        url: configuration.url,
+        onShowMore: configuration.onShowMore,
+      }"
+      :store="store">
+    </Content>
+  </main>
 
-    <main
-      :aria-label="`Open API Documentation for ${dereferencedDocument?.info?.title}`"
-      class="references-rendered">
-      <Content
-        :contentId="contentId"
-        :options="{
-          isLoading: configuration.isLoading,
-          slug: configuration.slug,
-          hiddenClients: configuration.hiddenClients,
-          layout: configuration.layout,
-          onLoaded: configuration.onLoaded,
-          persistAuth: configuration.persistAuth,
-          showOperationId: configuration.showOperationId,
-          hideTestRequestButton: configuration.hideTestRequestButton,
-          expandAllResponses: configuration.expandAllResponses,
-          hideModels: configuration.hideModels,
-          expandAllModelSections: configuration.expandAllModelSections,
-          orderRequiredPropertiesFirst:
-            configuration.orderRequiredPropertiesFirst,
-          orderSchemaPropertiesBy: configuration.orderSchemaPropertiesBy,
-          documentDownloadType: configuration.documentDownloadType,
-          url: configuration.url,
-          onShowMore: configuration.onShowMore,
-        }"
-        :store="store">
-        <template #start>
-          <slot
-            v-bind="referenceSlotProps"
-            name="content-start" />
-          <ClassicHeader v-if="configuration.layout === 'classic'">
-            <div
-              v-if="$slots['document-selector']"
-              class="w-64 *:!p-0 empty:hidden">
-              <slot name="document-selector" />
-            </div>
-            <SearchButton
-              v-if="!configuration.hideSearch"
-              class="t-doc__sidebar max-w-64"
-              :hideModels="configuration?.hideModels"
-              :searchHotKey="configuration.searchHotKey" />
-            <template #dark-mode-toggle>
-              <ScalarColorModeToggleIcon
-                v-if="!configuration.hideDarkModeToggle"
-                class="text-c-2 hover:text-c-1"
-                :mode="isDark ? 'dark' : 'light'"
-                style="transform: scale(1.4)"
-                variant="icon"
-                @click="$emit('toggleDarkMode')" />
-            </template>
-          </ClassicHeader>
-        </template>
-        <template
-          v-if="configuration?.isEditable"
-          #empty-state>
-          <GettingStarted
-            :theme="configuration?.theme || 'default'"
-            @changeTheme="$emit('changeTheme', $event)"
-            @linkSwaggerFile="$emit('linkSwaggerFile')"
-            @loadSwaggerFile="$emit('loadSwaggerFile')"
-            @updateContent="$emit('updateContent', $event)" />
-        </template>
-        <template #end>
-          <slot
-            v-bind="referenceSlotProps"
-            name="content-end" />
-        </template>
-      </Content>
-    </main>
-    <div
-      v-if="$slots.footer"
-      class="references-footer">
-      <slot
-        v-bind="referenceSlotProps"
-        name="footer" />
-    </div>
+  <ApiClientModal
+    :configuration="configuration"
+    :dereferencedDocument="dereferencedDocument" />
 
-    <ApiClientModal
-      :configuration="configuration"
-      :dereferencedDocument="dereferencedDocument" />
-  </div>
   <ScalarToasts />
 </template>
 <style>
@@ -688,28 +503,5 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
     display: flex;
     flex-direction: column;
   }
-}
-</style>
-<style scoped>
-/**
-* Sidebar CSS for standalone
-* TODO: @brynn move this to the sidebar block OR the ApiReferenceStandalone component
-* when the new elements are available
-*/
-@media (max-width: 1000px) {
-  .scalar-api-references-standalone-mobile {
-    --scalar-header-height: 50px;
-  }
-}
-</style>
-<style scoped>
-.scalar-api-references-standalone-search {
-  display: flex;
-  flex-direction: column;
-  padding: 12px 12px 6px 12px;
-}
-.darklight-reference {
-  width: 100%;
-  margin-top: auto;
 }
 </style>

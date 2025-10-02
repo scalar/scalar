@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ScalarErrorBoundary } from '@scalar/components'
-import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, useId } from 'vue'
 
@@ -16,8 +15,13 @@ import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
 
 import { Schema, SchemaHeading } from '../Schema'
 
-const { config, schemas = [] } = defineProps<{
-  config: ApiReferenceConfiguration
+const { options, schemas = [] } = defineProps<{
+  options: {
+    expandAllModelSections: boolean | undefined
+    orderRequiredPropertiesFirst: boolean | undefined
+    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
+    onShowMore: ((id: string) => void) | undefined
+  }
   schemas: { id: string; name: string; schema: SchemaObject }[]
 }>()
 
@@ -29,7 +33,7 @@ const { collapsedSidebarItems } = useSidebar()
 
 const showAllModels = computed(
   () =>
-    config.expandAllModelSections ||
+    options.expandAllModelSections ||
     schemas.length <= MAX_MODELS_INITIALLY_SHOWN ||
     collapsedSidebarItems['models'],
 )
@@ -63,7 +67,7 @@ const models = computed(() => {
           :id="id"
           :key="name"
           class="models-list-item"
-          :defaultOpen="config.expandAllModelSections"
+          :defaultOpen="options.expandAllModelSections"
           :label="name">
           <template #heading>
             <SectionHeaderTag :level="3">
@@ -80,8 +84,8 @@ const models = computed(() => {
               noncollapsible
               :options="{
                 orderRequiredPropertiesFirst:
-                  config.orderRequiredPropertiesFirst,
-                orderSchemaPropertiesBy: config.orderSchemaPropertiesBy,
+                  options.orderRequiredPropertiesFirst,
+                orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
               }"
               :schema />
           </ScalarErrorBoundary>
@@ -90,7 +94,8 @@ const models = computed(() => {
       <ShowMoreButton
         v-if="!showAllModels"
         id="models"
-        class="show-more-models" />
+        class="show-more-models"
+        :onShowMore="options.onShowMore" />
     </Section>
   </SectionContainer>
 </template>

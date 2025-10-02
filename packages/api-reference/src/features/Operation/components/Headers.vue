@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
-import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { HeaderObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
@@ -10,7 +9,8 @@ import Header from './Header.vue'
 const { headers, breadcrumb } = defineProps<{
   headers: Record<string, HeaderObject>
   breadcrumb?: string[]
-  config: ApiReferenceConfiguration
+  orderRequiredPropertiesFirst: boolean | undefined
+  orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
 }>()
 </script>
 <template>
@@ -40,9 +40,10 @@ const { headers, breadcrumb } = defineProps<{
             :key="key">
             <Header
               :breadcrumb="breadcrumb ? [...breadcrumb, 'headers'] : undefined"
-              :config="config"
               :header="getResolvedRef(header)"
-              :name="key" />
+              :name="key"
+              :orderRequiredPropertiesFirst="orderRequiredPropertiesFirst"
+              :orderSchemaPropertiesBy="orderSchemaPropertiesBy" />
           </template>
         </DisclosurePanel>
       </div>

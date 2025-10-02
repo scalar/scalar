@@ -12,26 +12,21 @@ import type {
 import { computed, ref } from 'vue'
 
 import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
-import { useConfig } from '@/hooks/useConfig'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 import Headers from './Headers.vue'
 
-const {
-  collapsableItems = false,
-  withExamples = true,
-  name,
-  parameter,
-  breadcrumb,
-} = defineProps<{
+const { name, parameter, options } = defineProps<{
   parameter: ParameterObject | ResponseObject
   name: string
-  collapsableItems?: boolean
-  withExamples?: boolean
   breadcrumb?: string[]
+  options: {
+    collapsableItems?: boolean
+    withExamples?: boolean
+    orderRequiredPropertiesFirst: boolean | undefined
+    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
+  }
 }>()
-
-const config = useConfig()
 
 /** Responses and params may both have a schema */
 const schema = computed<SchemaObject | null>(() =>
@@ -87,7 +82,10 @@ const value = computed(() => {
  * content to display (content types, headers, or schema details).
  */
 const shouldCollapse = computed<boolean>(() =>
-  Boolean(collapsableItems && (content.value || headers.value || schema.value)),
+  Boolean(
+    options.collapsableItems &&
+      (content.value || headers.value || schema.value),
+  ),
 )
 </script>
 <template>
@@ -118,8 +116,9 @@ const shouldCollapse = computed<boolean>(() =>
         <Headers
           v-if="headers"
           :breadcrumb="breadcrumb"
-          :config="config"
-          :headers="headers" />
+          :headers="headers"
+          :orderRequiredPropertiesFirst="options.orderRequiredPropertiesFirst"
+          :orderSchemaPropertiesBy="options.orderSchemaPropertiesBy" />
 
         <!-- Schema -->
         <SchemaProperty
@@ -132,12 +131,16 @@ const shouldCollapse = computed<boolean>(() =>
           :noncollapsible="true"
           :options="{
             hideWriteOnly: true,
-            orderRequiredPropertiesFirst: config.orderRequiredPropertiesFirst,
-            orderSchemaPropertiesBy: config.orderSchemaPropertiesBy,
+            orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
+            orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
           }"
           :required="'required' in parameter && parameter.required"
           :schema="value"
-          :withExamples="withExamples" />
+          :withExamples="
+            typeof options.withExamples === 'boolean'
+              ? options.withExamples
+              : true
+          " />
       </DisclosurePanel>
     </Disclosure>
 

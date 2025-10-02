@@ -4,6 +4,7 @@ import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, reactive, ref } from 'vue'
 
+import DownloadLink from '@/v2/blocks/scalar-info-block/components/DownloadLink.vue'
 import { useSidebar } from '@/v2/blocks/scalar-sidebar-block/hooks/useSidebar'
 
 import InfoBlock from './InfoBlock.vue'
@@ -42,8 +43,10 @@ describe('InfoBlock', () => {
       props: {
         info: mockInfo,
         layout: 'classic',
-        getOriginalDocument() {
-          return '{}'
+        options: {
+          getOriginalDocument() {
+            return '{}'
+          },
         },
       },
       slots: {
@@ -59,8 +62,10 @@ describe('InfoBlock', () => {
       props: {
         info: mockInfo,
         layout: 'modern',
-        getOriginalDocument() {
-          return '{}'
+        options: {
+          getOriginalDocument() {
+            return '{}'
+          },
         },
       },
       slots: {
@@ -69,5 +74,29 @@ describe('InfoBlock', () => {
     })
 
     expect(wrapper.find('[data-testid="selectors"]').exists()).toBe(true)
+  })
+
+  it('generates filename from title', () => {
+    const wrapper = mount(InfoBlock, {
+      props: {
+        info: {
+          title: 'Hello World API!',
+          description: '',
+          version: '1.0.0',
+        },
+        layout: 'modern',
+        options: {
+          getOriginalDocument() {
+            return '{}'
+          },
+        },
+      },
+      slots: {
+        selectors: '<div data-testid="selectors">Selectors Content</div>',
+      },
+    })
+
+    const downloadLink = wrapper.findComponent(DownloadLink)
+    expect(downloadLink.props('title')).toBe('Hello World API!')
   })
 })

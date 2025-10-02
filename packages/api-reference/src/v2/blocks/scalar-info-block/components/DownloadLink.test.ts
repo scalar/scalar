@@ -1,9 +1,8 @@
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
-import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { downloadDocument } from '@/libs/download'
 
 import DownloadLink from './DownloadLink.vue'
@@ -37,12 +36,9 @@ describe('DownloadLink', () => {
       props: {
         title: 'Test API',
         getOriginalDocument: mockGetOriginalDocument,
+        url: config.value.url,
+        documentDownloadType: config.value.documentDownloadType,
         ...props,
-      },
-      global: {
-        provide: {
-          [CONFIGURATION_SYMBOL]: config,
-        },
       },
     })
   }
@@ -315,45 +311,6 @@ describe('DownloadLink', () => {
       await link.trigger('click', mockEvent)
 
       expect(mockEvent.preventDefault).toHaveBeenCalled()
-    })
-  })
-
-  describe('Reactivity', () => {
-    it('reacts to config changes', async () => {
-      const configSource = ref(
-        apiReferenceConfigurationSchema.parse({
-          documentDownloadType: 'json',
-        }),
-      )
-
-      const config = computed(() => configSource.value)
-
-      const wrapper = mount(DownloadLink, {
-        props: {
-          title: 'Test API',
-          getOriginalDocument: mockGetOriginalDocument,
-        },
-        global: {
-          provide: {
-            [CONFIGURATION_SYMBOL]: config,
-          },
-        },
-      })
-
-      // Initially should show JSON button
-      expect(wrapper.find('.download-button').exists()).toBe(true)
-
-      // Change config to YAML
-      configSource.value = {
-        ...configSource.value,
-        documentDownloadType: 'yaml',
-      }
-
-      await wrapper.vm.$nextTick()
-
-      // Should now show YAML button
-      expect(wrapper.find('.download-button').exists()).toBe(true)
-      expect(wrapper.find('.extension').text()).toBe('yaml')
     })
   })
 })
