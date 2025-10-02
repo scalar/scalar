@@ -20,7 +20,7 @@ import type {
   SecuritySchemeObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, useId } from 'vue'
+import { computed, ref, useId } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { Badge } from '@/components/Badge'
@@ -59,6 +59,18 @@ const { path, config, operation, method, isWebhook } = defineProps<{
 const operationTitle = computed(() => operation.summary || path || '')
 
 const labelId = useId()
+
+/** The selected content type for request body and code samples */
+const selectedContentType = ref<string>('application/json')
+
+// Initialize selectedContentType with the first available content type
+const requestBodyContent = getResolvedRef(operation.requestBody)?.content
+if (requestBodyContent) {
+  const availableContentTypes = Object.keys(requestBodyContent)
+  if (availableContentTypes.length > 0) {
+    selectedContentType.value = availableContentTypes[0]
+  }
+}
 </script>
 
 <template>
@@ -127,7 +139,9 @@ const labelId = useId()
                 // These have been resolved in the Operation.vue component
                 operation.parameters as ParameterObject[]
               "
-              :requestBody="getResolvedRef(operation.requestBody)" />
+              :requestBody="getResolvedRef(operation.requestBody)"
+              :selectedContentType="selectedContentType"
+              @update:selectedContentType="selectedContentType = $event" />
             <OperationResponses
               :breadcrumb="[id]"
               :collapsableItems="!config.expandAllResponses"
@@ -162,6 +176,7 @@ const labelId = useId()
                 :path="path"
                 :securitySchemes="securitySchemes"
                 :selectedClient="store.workspace['x-scalar-default-client']"
+                :selectedContentType="selectedContentType"
                 :selectedServer="server">
                 <template #header>
                   <OperationPath

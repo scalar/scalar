@@ -2,7 +2,7 @@
 import { ScalarMarkdown } from '@scalar/components'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
 import { Schema } from '@/components/Content/Schema'
 import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
@@ -14,9 +14,14 @@ import { useConfig } from '@/hooks/useConfig'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 
-const { requestBody } = defineProps<{
+const { requestBody, selectedContentType } = defineProps<{
   breadcrumb?: string[]
   requestBody?: RequestBodyObject
+  selectedContentType?: string
+}>()
+
+const emit = defineEmits<{
+  'update:selectedContentType': [value: string]
 }>()
 
 const config = useConfig()
@@ -30,16 +35,23 @@ const availableContentTypes = computed(() =>
   Object.keys(requestBody?.content ?? {}),
 )
 
-const selectedContentType = ref<string>('application/json')
-
-if (requestBody?.content) {
-  if (availableContentTypes.value.length > 0) {
-    selectedContentType.value = availableContentTypes.value[0]
-  }
-}
+// Use the selectedContentType prop if provided, otherwise fall back to the first available content type
+const currentContentType = computed({
+  get: () => {
+    if (selectedContentType) {
+      return selectedContentType
+    }
+    return availableContentTypes.value.length > 0
+      ? availableContentTypes.value[0]
+      : 'application/json'
+  },
+  set: (value: string) => {
+    emit('update:selectedContentType', value)
+  },
+})
 
 const schema = computed(() =>
-  getResolvedRef(requestBody?.content?.[selectedContentType.value]?.schema),
+  getResolvedRef(requestBody?.content?.[currentContentType.value]?.schema),
 )
 
 /**
@@ -105,7 +117,7 @@ const partitionedSchema = computed(() => {
         </div>
       </span>
       <ContentTypeSelect
-        v-model="selectedContentType"
+        v-model="currentContentType"
         :content="requestBody.content" />
       <div
         v-if="requestBody.description"
