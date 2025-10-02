@@ -15,7 +15,14 @@ import SidebarGroup from './SidebarGroup.vue'
 
 const { title } = defineProps<{
   title: string
-  // options: {}
+  options: {
+    pathRouting?: {
+      basePath?: string
+    }
+    onSidebarClick: ((id: string) => void) | undefined
+    operationTitleSource: 'path' | 'summary' | undefined
+    defaultOpenAllTags: boolean | undefined
+  }
 }>()
 
 const { hash, isIntersectionEnabled } = useNavState()
@@ -151,6 +158,7 @@ const hasChildren = (
                 :isActive="isItemActive(group.id)"
                 :item="group"
                 :open="collapsedSidebarItems[group.id] ?? false"
+                :options="options"
                 @toggleOpen="
                   async () => {
                     disableScroll = true
@@ -167,7 +175,8 @@ const hasChildren = (
                       <SidebarElement
                         :id="`sidebar-${child.id}`"
                         :isActive="isItemActive(child.id)"
-                        :item="child" />
+                        :item="child"
+                        :options="options" />
                     </template>
                   </SidebarGroup>
                 </template>
@@ -182,6 +191,7 @@ const hasChildren = (
               :isActive="isItemActive(item.id)"
               :item="item"
               :open="collapsedSidebarItems[item.id] ?? false"
+              :options="options"
               @toggleOpen="
                 async () => {
                   disableScroll = true
@@ -198,7 +208,8 @@ const hasChildren = (
                     <SidebarElement
                       :id="`sidebar-${child.id}`"
                       :isActive="isItemActive(child.id)"
-                      :item="child" />
+                      :item="child"
+                      :options="options" />
                   </template>
                 </SidebarGroup>
               </template>

@@ -10,16 +10,6 @@ vi.mock('@scalar/oas-utils/helpers', () => ({
   isOperationDeprecated: vi.fn(),
 }))
 
-vi.mock('@/hooks/useConfig', () => ({
-  useConfig: () => ({
-    value: {
-      pathRouting: false,
-      defaultOpenAllTags: false,
-      onSidebarClick: vi.fn(),
-    },
-  }),
-}))
-
 vi.mock('@/hooks/useNavState', () => ({
   useNavState: () => ({
     getFullHash: vi.fn((id: string) => `#${id}`),
@@ -35,6 +25,12 @@ vi.mock('@scalar/helpers/dom/scroll-to-id', () => ({
 vi.mock('@scalar/helpers/testing/sleep', () => ({
   sleep: vi.fn(() => Promise.resolve()),
 }))
+
+const defaultOptions = {
+  onSidebarClick: undefined,
+  operationTitleSource: undefined,
+  defaultOpenAllTags: undefined,
+}
 
 describe('SidebarElement', () => {
   // Reset all mocks before each test
@@ -66,6 +62,9 @@ describe('SidebarElement', () => {
       props: {
         id: 'test-id',
         item,
+        options: {
+          ...defaultOptions,
+        },
       },
     })
 
@@ -79,6 +78,9 @@ describe('SidebarElement', () => {
       props: {
         id: 'test-id',
         item,
+        options: {
+          ...defaultOptions,
+        },
       },
     })
 
@@ -94,6 +96,9 @@ describe('SidebarElement', () => {
       props: {
         id: 'test-id',
         item,
+        options: {
+          ...defaultOptions,
+        },
       },
     })
 
@@ -108,6 +113,9 @@ describe('SidebarElement', () => {
       props: {
         id: 'test-id',
         item,
+        options: {
+          ...defaultOptions,
+        },
       },
     })
 
@@ -123,6 +131,9 @@ describe('SidebarElement', () => {
       props: {
         id: 'test-id',
         item,
+        options: {
+          ...defaultOptions,
+        },
       },
     })
 
@@ -138,6 +149,9 @@ describe('SidebarElement', () => {
       props: {
         id: 'test-id',
         item,
+        options: {
+          ...defaultOptions,
+        },
       },
     })
 
@@ -152,6 +166,9 @@ describe('SidebarElement', () => {
         id: 'test-id',
         item,
         isActive: true,
+        options: {
+          ...defaultOptions,
+        },
       },
     })
 
@@ -165,6 +182,9 @@ describe('SidebarElement', () => {
         id: 'test-id',
         item,
         hasChildren: true,
+        options: {
+          ...defaultOptions,
+        },
       },
     })
 
@@ -179,6 +199,9 @@ describe('SidebarElement', () => {
         id: 'test-id',
         item,
         hasChildren: true,
+        options: {
+          ...defaultOptions,
+        },
       },
     })
 
@@ -193,6 +216,9 @@ describe('SidebarElement', () => {
       props: {
         id: 'test-id',
         item,
+        options: {
+          ...defaultOptions,
+        },
       },
     })
 
@@ -211,6 +237,9 @@ describe('SidebarElement', () => {
         item: {
           ...item,
         },
+        options: {
+          ...defaultOptions,
+        },
       },
     })
 
@@ -223,6 +252,9 @@ describe('SidebarElement', () => {
       props: {
         id: 'test-id',
         item,
+        options: {
+          ...defaultOptions,
+        },
       },
       slots: {
         'action-menu': '<div class="test-action">Action</div>',
@@ -240,6 +272,9 @@ describe('SidebarElement', () => {
         id: 'test-id',
         item,
         open: true,
+        options: {
+          ...defaultOptions,
+        },
       },
       slots: {
         default: '<div class="test-child">Child</div>',
@@ -256,6 +291,9 @@ describe('SidebarElement', () => {
         id: 'test-id',
         item,
         open: false,
+        options: {
+          ...defaultOptions,
+        },
       },
       slots: {
         default: '<div class="test-child">Child</div>',

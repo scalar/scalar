@@ -7,7 +7,6 @@ import { ScalarIconWebhooksLogo } from '@scalar/icons'
 import { combineUrlAndPath } from '@scalar/oas-utils/helpers'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 
-import { useConfig } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
 
 import SidebarHttpBadge from './SidebarHttpBadge.vue'
@@ -18,6 +17,14 @@ const props = defineProps<{
   isActive?: boolean
   hasChildren?: boolean
   open?: boolean
+  options: {
+    pathRouting?: {
+      basePath?: string
+    }
+    onSidebarClick: ((id: string) => void) | undefined
+    operationTitleSource: 'path' | 'summary' | undefined
+    defaultOpenAllTags: boolean | undefined
+  }
 }>()
 
 const emit = defineEmits<{
@@ -25,9 +32,6 @@ const emit = defineEmits<{
 }>()
 
 const { getFullHash, isIntersectionEnabled, replaceUrlState } = useNavState()
-
-const config = useConfig()
-
 const getPathOrTitle = (item: TraversedEntry): string => {
   if ('path' in item) {
     // Insert zero-width space after every slash, to give line-break opportunity.
@@ -52,8 +56,11 @@ const handleClick = async () => {
 
 // Build relative URL and add hash
 const generateLink = () => {
-  if (config.value.pathRouting) {
-    return combineUrlAndPath(config.value.pathRouting.basePath, props.item.id)
+  if (props.options.pathRouting) {
+    return combineUrlAndPath(
+      props.options.pathRouting?.basePath ?? '',
+      props.item.id,
+    )
   }
   if (typeof window !== 'undefined') {
     const newUrl = new URL(window.location.href)
@@ -66,9 +73,9 @@ const generateLink = () => {
 
 // For path routing we want to handle the clicks
 const onAnchorClick = async (ev: Event) => {
-  config.value.onSidebarClick?.(props.item.id)
+  props.options.onSidebarClick?.(props.item.id)
 
-  if (config.value.pathRouting) {
+  if (props.options.pathRouting) {
     ev.preventDefault()
 
     // Due to the prevent default
@@ -105,7 +112,7 @@ const onAnchorClick = async (ev: Event) => {
       <!-- If children are detected then show the nesting icon -->
       <!-- Use &hairsp; to vertically center scalar icon button to the first line of text in the sidebar heading link -->
       <p
-        v-if="hasChildren && !config.defaultOpenAllTags"
+        v-if="hasChildren && !options.defaultOpenAllTags"
         class="sidebar-heading-chevron">
         <button
           :aria-expanded="open"
@@ -127,7 +134,7 @@ const onAnchorClick = async (ev: Event) => {
         @click="onAnchorClick">
         <p class="sidebar-heading-link-title">
           <span
-            v-if="config.operationTitleSource === 'path'"
+            v-if="options.operationTitleSource === 'path'"
             class="hanging-indent">
             {{ getPathOrTitle(item) }}
           </span>

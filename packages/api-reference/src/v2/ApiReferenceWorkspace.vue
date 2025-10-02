@@ -104,7 +104,13 @@ const proxy = (
 }
 
 // Provide the intersection observer which has defaults
-provide(NAV_STATE_SYMBOL, { isIntersectionEnabled, hash, hashPrefix })
+provide(NAV_STATE_SYMBOL, {
+  isIntersectionEnabled,
+  hash,
+  hashPrefix,
+  basePath: () => selectedConfiguration.value.pathRouting?.basePath,
+  generateHeadingSlug: () => selectedConfiguration.value.generateHeadingSlug,
+})
 
 // ---------------------------------------------------------------------------
 
@@ -306,9 +312,9 @@ useFavicon(favicon)
       <template #content-start>
         <!-- Only appears on localhost -->
         <ApiReferenceToolbar
-          :workspace="store"
+          v-model:overrides="configurationOverrides"
           :configuration="selectedConfiguration"
-          v-model:overrides="configurationOverrides" />
+          :workspace="store" />
         <slot name="content-start" />
       </template>
       <template #content-end><slot name="content-end" /></template>

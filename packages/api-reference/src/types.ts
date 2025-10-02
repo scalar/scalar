@@ -1,7 +1,11 @@
-import type { AnyApiReferenceConfiguration, ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import type {
+  AnyApiReferenceConfiguration,
+  ApiReferenceConfiguration,
+  apiReferenceConfigurationSchema,
+} from '@scalar/types/api-reference'
 import type { OpenAPIV3_1 } from '@scalar/types/legacy'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-
+import type { z } from 'zod'
 export type { ApiReferenceConfiguration }
 
 export type ReferenceProps = {
@@ -12,7 +16,7 @@ export type ReferenceProps = {
  * Before the configuration is parsed, we can use the broader types.
  */
 export type ReferenceLayoutProps = {
-  configuration: Partial<ApiReferenceConfiguration>
+  configuration: z.output<typeof apiReferenceConfigurationSchema>
   /**
    *
    * The OpenAPI 3.1 document, but all $ref's are resolved already.

@@ -1,9 +1,7 @@
 import { combineUrlAndPath } from '@scalar/helpers/url/merge-urls'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { Heading } from '@scalar/types/legacy'
-import { type InjectionKey, type Ref, inject, ref } from 'vue'
-
-import { useConfig } from '@/hooks/useConfig'
+import { type InjectionKey, type MaybeRefOrGetter, type Ref, inject, ref, toValue } from 'vue'
 
 export type NavState = {
   /** The URL hash without the #, also the "hash" pulled from pathRouting */
@@ -12,6 +10,8 @@ export type NavState = {
   hashPrefix: Ref<string>
   /** Whether the intersection observer is enabled and updating the hash as we scroll */
   isIntersectionEnabled: Ref<boolean>
+  basePath: MaybeRefOrGetter<string | undefined>
+  generateHeadingSlug: MaybeRefOrGetter<ApiReferenceConfiguration['generateHeadingSlug']>
 }
 export const NAV_STATE_SYMBOL = Symbol() as InjectionKey<NavState>
 
@@ -29,21 +29,21 @@ const hashPrefixBackup = ref('')
  *
  * @param _config this is used to pass in the config if we have not provided it yet to the useConfig hook such as in ApiReferenceLayout
  */
-export const useNavState = (_config?: Ref<ApiReferenceConfiguration>) => {
-  const { isIntersectionEnabled, hash, hashPrefix } = inject(NAV_STATE_SYMBOL, {
+export const useNavState = () => {
+  const { isIntersectionEnabled, hash, hashPrefix, basePath, generateHeadingSlug } = inject(NAV_STATE_SYMBOL, {
     isIntersectionEnabled: isIntersectionEnabledBackup,
     hash: hashBackup,
     hashPrefix: hashPrefixBackup,
+    basePath: undefined,
+    generateHeadingSlug: undefined,
   })
 
-  const config = _config ?? useConfig()
-
   const getPathRoutingId = (pathName: string) => {
-    if (!config.value.pathRouting) {
+    if (!toValue(basePath)) {
       return ''
     }
 
-    const reggy = new RegExp('^' + config.value.pathRouting?.basePath + '/?')
+    const reggy = new RegExp('^' + toValue(basePath) + '/?')
     return decodeURIComponent(pathName.replace(reggy, ''))
   }
 
@@ -53,7 +53,7 @@ export const useNavState = (_config?: Ref<ApiReferenceConfiguration>) => {
    * @returns The id without the prefix
    */
   const getReferenceId = () =>
-    config.value.pathRouting
+    toValue(basePath)
       ? getPathRoutingId(window.location.pathname)
       : // Must remove the prefix from the hash as the internal hash value should be pure
         decodeURIComponent(window.location.hash.replace(/^#/, '')).slice(hashPrefix.value.length)
@@ -64,9 +64,10 @@ export const useNavState = (_config?: Ref<ApiReferenceConfiguration>) => {
   const replaceUrlState = (replacementHash: string, url = window.location.href) => {
     const newUrl = new URL(url)
 
+    const base = toValue(basePath)
     // If we are pathrouting, set path instead of hash
-    if (config.value.pathRouting) {
-      newUrl.pathname = combineUrlAndPath(config.value.pathRouting.basePath, replacementHash)
+    if (typeof base === 'string') {
+      newUrl.pathname = combineUrlAndPath(base, replacementHash)
     } else {
       newUrl.hash = hashPrefix.value + replacementHash
     }
@@ -82,9 +83,10 @@ export const useNavState = (_config?: Ref<ApiReferenceConfiguration>) => {
   const getHashedUrl = (replacementHash: string, url = window.location.href, search = window.location.search) => {
     const newUrl = new URL(url)
 
+    const base = toValue(basePath)
     // Path routing
-    if (config.value.pathRouting) {
-      newUrl.pathname = combineUrlAndPath(config.value.pathRouting.basePath, replacementHash)
+    if (typeof base === 'string') {
+      newUrl.pathname = combineUrlAndPath(base, replacementHash)
     }
     // Hash routing
     else {
@@ -102,8 +104,10 @@ export const useNavState = (_config?: Ref<ApiReferenceConfiguration>) => {
    * ID creation methods
    */
   const getHeadingId = (heading: Heading) => {
-    if (typeof config.value.generateHeadingSlug === 'function') {
-      return `${config.value.generateHeadingSlug(heading)}`
+    const slugGenerator = toValue(generateHeadingSlug)
+
+    if (typeof slugGenerator === 'function') {
+      return `${slugGenerator(heading)}`
     }
 
     if (heading.slug) {
