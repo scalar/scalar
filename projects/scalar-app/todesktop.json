@@ -24,6 +24,7 @@
     "devDependencies": {
       "@types/node": null,
       "@vitejs/plugin-vue": null,
+      "@playwright/test": null,
       "vite": null,
       "vue": null
     }
