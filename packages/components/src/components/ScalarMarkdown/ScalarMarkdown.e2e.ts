@@ -1,13 +1,14 @@
 import { test } from '@test/helpers'
+
 import { samples } from './samples'
 
 test.describe('ScalarMarkdown', () => {
   test.use({ background: true })
 
-  samples.forEach(({ label }) => {
+  samples.forEach(({ label, key }) => {
     test.describe(() => {
       test.use({ story: 'Base', args: { value: label } })
-      test(label, ({ snapshot }) => snapshot(label.toLocaleLowerCase()))
+      test(label, ({ snapshot }) => snapshot(key))
     })
   })
 

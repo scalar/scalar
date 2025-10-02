@@ -26,10 +26,10 @@ test.describe('ScalarMarkdownSummary', () => {
     await snapshot('2-closed-narrow')
   })
 
-  samples.forEach(({ label }) => {
+  samples.forEach(({ label, key }) => {
     test.describe(() => {
       test.use({ args: { value: label } })
-      test(label, ({ snapshot }) => snapshot(label.toLocaleLowerCase()))
+      test(label, ({ snapshot }) => snapshot(key))
     })
   })
 })
