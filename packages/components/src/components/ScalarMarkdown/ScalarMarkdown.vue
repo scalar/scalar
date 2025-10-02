@@ -151,73 +151,56 @@ const html = computed(() => {
   .markdown ol {
     display: flex;
     flex-direction: column;
+    padding-left: 1.6em;
     gap: 2px;
-  }
-
-  .markdown ul:not(.contains-task-list) {
-    margin-left: 29px;
-  }
-
-  .markdown ul:not(.contains-task-list) li {
-    padding-left: calc(var(--markdown-spacing-md) / 2);
-  }
-
-  .markdown ul {
-    list-style-type: disc;
+    line-height: var(--markdown-line-height);
   }
 
   .markdown li {
-    line-height: var(--markdown-line-height);
+    margin-top: 2px;
+    padding-left: 7px;
   }
 
-  .markdown ul li {
-    padding-left: var(--markdown-spacing-md);
-  }
-
-  .markdown ol {
-    counter-reset: item;
-    padding-left: 5px;
-  }
-
-  .markdown ol li {
-    display: flex;
-    gap: 5px;
-    padding-left: 3px;
-  }
-
-  .markdown ol li::before {
-    content: counter(item) '\002E';
-    counter-increment: item;
-    display: flex;
+  ol > li::marker,
+  ol > * > li::marker {
     font: var(--scalar-font);
     font-variant-numeric: tabular-nums;
     font-weight: var(--scalar-semibold);
-    justify-content: center;
-    line-height: var(--markdown-line-height);
-    width: 24px;
     white-space: nowrap;
   }
 
-  .markdown ol li::before,
-  .markdown ol ol ol li::before,
-  .markdown ol ol ol ol ol ol li::before {
-    content: counter(item, decimal) '\002E';
+  /* Level 1, 4, 7 → decimal */
+  .markdown ol {
+    list-style-type: decimal;
+  }
+  /* Level 2, 5, 8 → lower-alpha */
+  .markdown ol ol {
+    list-style-type: lower-alpha;
   }
 
-  .markdown ol ol li::before,
-  .markdown ol ol ol ol li::before,
-  .markdown ol ol ol ol ol ol ol li::before {
-    content: counter(item, lower-alpha) '\002E';
+  .markdown ol ol ol ol,
+  .markdown ol ol ol ol ol ol ol {
+    list-style-type: decimal;
   }
 
-  .markdown ol ol li::before,
-  .markdown ol ol ol ol ol li::before,
-  .markdown ol ol ol ol ol ol ol ol li::before {
-    content: counter(item, lower-roman) '\002E';
+  .markdown ol ol ol ol ol,
+  .markdown ol ol ol ol ol ol ol ol {
+    list-style-type: lower-alpha;
   }
 
-  .markdown ul:first-of-type li:first-of-type {
-    margin-top: 0;
+  /* Level 3, 6, 9 → lower-roman */
+  .markdown ol ol ol {
+    list-style-type: lower-roman;
+  }
+
+  .markdown ol ol ol ol ol ol,
+  .markdown ol ol ol ol ol ol ol ol ol {
+    list-style-type: lower-roman;
+  }
+
+  .markdown ul > li,
+  .markdown ul > * > li {
+    list-style-type: disc;
   }
 
   /* Tables */
