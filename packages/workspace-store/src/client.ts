@@ -640,7 +640,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       // Do some document processing
       processDocument(getRaw(strictDocument as OpenApiDocument), {
-        ...input.config,
+        ...(documentConfigs[name] ?? {}),
         documentSource: input.documentSource,
       })
     }
@@ -708,7 +708,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   // merging (in order of increasing priority): the default config, workspace-level config, and document-specific config.
   const getDocumentConfiguration = (name: string) => {
     return mergeObjects<typeof defaultConfig>(
-      mergeObjects(defaultConfig, workspaceProps?.config ?? {}),
+      mergeObjects(deepClone(defaultConfig), workspaceProps?.config ?? {}),
       documentConfigs[name] ?? {},
     )
   }
