@@ -1,5 +1,14 @@
 # @scalar/workspace-store
 
+## 0.16.1
+
+### Patch Changes
+
+- 2b98503: fix: configuration handling and server list reset on document replacement
+- c6736fd: chore: hard code openapi types
+- Updated dependencies [4951456]
+  - @scalar/json-magic@0.6.0
+
 ## 0.16.0
 
 ### Minor Changes

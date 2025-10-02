@@ -1,5 +1,23 @@
 # @scalar/api-client
 
+## 2.6.2
+
+### Patch Changes
+
+- 8ad6af0: feat: integrate new code sample block
+- a46a700: Export API reference content and simplify child components of layout
+- Updated dependencies [2b98503]
+- Updated dependencies [c6736fd]
+- Updated dependencies [4951456]
+  - @scalar/workspace-store@0.16.1
+  - @scalar/openapi-parser@0.22.0
+  - @scalar/json-magic@0.6.0
+  - @scalar/oas-utils@0.4.34
+  - @scalar/import@0.4.28
+  - @scalar/components@0.14.39
+  - @scalar/postman-to-openapi@0.3.37
+  - @scalar/use-codemirror@0.12.40
+
 ## 2.6.1
 
 ### Patch Changes

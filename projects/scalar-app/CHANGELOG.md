@@ -1,5 +1,16 @@
 # scalar-app
 
+## 0.1.236
+
+### Patch Changes
+
+- 4cdcfe4: fix: missing dependency breaks todesktop build
+- Updated dependencies [8ad6af0]
+- Updated dependencies [a46a700]
+  - @scalar/api-client@2.6.2
+  - @scalar/import@0.4.28
+  - @scalar/components@0.14.39
+
 ## 0.1.235
 
 ### Patch Changes
