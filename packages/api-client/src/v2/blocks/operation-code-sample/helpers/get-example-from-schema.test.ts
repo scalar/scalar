@@ -1506,27 +1506,7 @@ describe('getExampleFromSchema', () => {
 
       // 10 levels deep, that's enough. It should hit the max depth limit and return '[Max Depth Exceeded]'
       expect(getExampleFromSchema(schema)).toStrictEqual({
-        foobar: {
-          foobar: {
-            foobar: {
-              foobar: {
-                foobar: {
-                  foobar: {
-                    foobar: {
-                      foobar: {
-                        foobar: {
-                          foobar: {
-                            foobar: '[Max Depth Exceeded]',
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
+        'foobar': '[Circular Reference]',
       })
     })
 
