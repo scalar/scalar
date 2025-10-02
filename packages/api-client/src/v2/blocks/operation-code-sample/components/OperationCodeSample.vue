@@ -101,6 +101,7 @@ import {
   ScalarCardSection,
   ScalarCodeBlock,
   ScalarCombobox,
+  ScalarVirtualText,
 } from '@scalar/components'
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
@@ -320,6 +321,15 @@ const selectClient = (option: ClientOption) => {
   }
 }
 
+// Virtualize the code block if it's too large
+// This prevents the entire app from freezing up if there's a massive example
+// We set a lower threshold here as code examples can get quite large
+const VIRTUALIZATION_THRESHOLD = 30_000
+
+const shouldVirtualize = computed(() => {
+  return (generatedCode.value.length ?? 0) > VIRTUALIZATION_THRESHOLD
+})
+
 const id = useId()
 </script>
 <template>
@@ -371,11 +381,18 @@ const id = useId()
         :id="`${id}-example`"
         class="code-snippet">
         <ScalarCodeBlock
+          v-if="!shouldVirtualize"
           class="bg-b-2 !min-h-full -outline-offset-2"
           :content="generatedCode"
           :hideCredentials="secretCredentials"
           :lang="codeBlockLanguage"
           lineNumbers />
+        <ScalarVirtualText
+          v-else
+          containerClass="custom-scroll scalar-code-block border rounded-b flex flex-1 max-h-screen"
+          contentClass="language-plaintext whitespace-pre font-code text-base"
+          :lineHeight="20"
+          :text="generatedCode" />
       </div>
     </ScalarCardSection>
 

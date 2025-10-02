@@ -1,11 +1,13 @@
 <script lang="ts" setup>
-import { ScalarCodeBlock } from '@scalar/components'
+import { ScalarCodeBlock, ScalarVirtualText } from '@scalar/components'
+import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   ExampleObject,
   MediaTypeObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { computed } from 'vue'
 
 import { getResolvedRefDeep } from './helpers/get-resolved-ref-deep'
 
@@ -13,26 +15,60 @@ const { example, response } = defineProps<{
   response: MediaTypeObject | undefined
   example: ExampleObject | undefined
 }>()
+
+const VIRTUALIZATION_THRESHOLD = 30_000
+
+// Virtualize the code block if it's too large
+const shouldVirtualize = (content: string | object | undefined) => {
+  if (typeof content === 'string') {
+    return content.length > VIRTUALIZATION_THRESHOLD
+  }
+
+  if (typeof content === 'object' && content !== null) {
+    return JSON.stringify(content).length > VIRTUALIZATION_THRESHOLD
+  }
+
+  return false
+}
+
+const content = computed<string | object>(() => {
+  if (example !== undefined) {
+    return getResolvedRefDeep(example)?.value ?? ''
+  }
+
+  if (response?.schema) {
+    return getExampleFromSchema(getResolvedRef(response.schema), {
+      emptyString: 'string',
+      mode: 'read',
+    })
+  }
+
+  return ''
+})
 </script>
 <template>
   <!-- Example -->
   <ScalarCodeBlock
-    v-if="example !== undefined"
+    v-if="example !== undefined && !shouldVirtualize(content)"
     class="bg-b-2 -outline-offset-2"
-    :content="getResolvedRefDeep(example)?.value"
+    :content="content"
     lang="json" />
 
   <!-- Schema -->
   <ScalarCodeBlock
-    v-else-if="response?.schema"
+    v-else-if="response?.schema && !shouldVirtualize(content)"
     class="bg-b-2 -outline-offset-2"
-    :content="
-      getExampleFromSchema(getResolvedRef(response.schema), {
-        emptyString: 'string',
-        mode: 'read',
-      })
-    "
+    :content="content"
     lang="json" />
+
+  <ScalarVirtualText
+    v-else-if="
+      (example !== undefined || response?.schema) && shouldVirtualize(content)
+    "
+    containerClass="custom-scroll scalar-code-block border rounded-b flex flex-1 max-h-screen"
+    contentClass="language-plaintext whitespace-pre font-code text-base"
+    :lineHeight="20"
+    :text="prettyPrintJson(content)" />
 
   <div
     v-else
