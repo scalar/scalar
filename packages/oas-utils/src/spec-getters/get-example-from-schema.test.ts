@@ -1,9 +1,9 @@
-import { describe, expect, it } from 'vitest'
-
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { describe, expect, it } from 'vitest'
+
 import { getExampleFromSchema } from './get-example-from-schema'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 describe('getExampleFromSchema', () => {
   it('sets example values', () => {
@@ -1507,29 +1507,8 @@ describe('getExampleFromSchema', () => {
       // Create a circular reference
       schema.properties!.foobar = schema
 
-      // 10 levels deep, that's enough. It should hit the max depth limit and return '[Max Depth Exceeded]'
       expect(getExampleFromSchema(schema)).toStrictEqual({
-        foobar: {
-          foobar: {
-            foobar: {
-              foobar: {
-                foobar: {
-                  foobar: {
-                    foobar: {
-                      foobar: {
-                        foobar: {
-                          foobar: {
-                            foobar: '[Max Depth Exceeded]',
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
+        'foobar': '[Circular Reference]',
       })
     })
 

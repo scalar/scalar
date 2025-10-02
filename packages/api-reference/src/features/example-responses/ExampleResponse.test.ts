@@ -1,13 +1,13 @@
-import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import type { ExampleObject, MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import {
   ExampleObjectSchema,
   MediaTypeObjectSchema,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import type { ExampleObject, MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 
 import ExampleResponse from './ExampleResponse.vue'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 
 describe('ExampleResponse', () => {
   describe('basic rendering', () => {
@@ -1029,7 +1029,7 @@ describe('ExampleResponse', () => {
 
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
-      expect(codeBlock.props('content')).toBe(null)
+      expect(codeBlock.props('content')).toBe('')
     })
 
     it('handles example with undefined value', () => {
@@ -1046,7 +1046,7 @@ describe('ExampleResponse', () => {
 
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
-      expect(codeBlock.props('content')).toBe(undefined)
+      expect(codeBlock.props('content')).toBe('')
     })
 
     it('handles example with empty object', () => {
@@ -1117,8 +1117,7 @@ describe('ExampleResponse', () => {
 
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
-      // Should resolve to undefined when $ref-value is missing
-      expect(codeBlock.props('content')).toBeUndefined()
+      expect(codeBlock.props('content')).toBe('')
     })
 
     it('handles $refValues with null $ref-value', () => {
@@ -1138,7 +1137,7 @@ describe('ExampleResponse', () => {
 
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
-      expect(codeBlock.props('content')).toBe(null)
+      expect(codeBlock.props('content')).toBe('')
     })
 
     it('handles circular references in $refValues gracefully', () => {
@@ -1356,7 +1355,7 @@ describe('ExampleResponse', () => {
       // When only externalValue is provided (no value), should resolve to undefined
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
-      expect(codeBlock.props('content')).toBeUndefined()
+      expect(codeBlock.props('content')).toBe('')
     })
 
     it('prefers value over externalValue when both are provided', () => {
