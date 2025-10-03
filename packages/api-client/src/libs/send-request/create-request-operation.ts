@@ -1,3 +1,14 @@
+import type { Cookie } from '@scalar/oas-utils/entities/cookie'
+import type {
+  Operation,
+  RequestExample,
+  ResponseInstance,
+  SecurityScheme,
+  Server,
+} from '@scalar/oas-utils/entities/spec'
+import { httpStatusCodes, isDefined, mergeUrls, redirectToProxy, shouldUseProxy } from '@scalar/oas-utils/helpers'
+
+import { isElectron } from '@/libs/electron'
 import { ERRORS, type ErrorResponse, normalizeError } from '@/libs/errors'
 import type { EventBus } from '@/libs/event-bus'
 import { normalizeHeaders } from '@/libs/normalize-headers'
@@ -8,17 +19,7 @@ import { decodeBuffer } from '@/libs/send-request/decode-buffer'
 import { getCookieHeader, setRequestCookies } from '@/libs/send-request/set-request-cookies'
 import { replaceTemplateVariables } from '@/libs/string-template'
 import type { PluginManager } from '@/plugins'
-import type { Cookie } from '@scalar/oas-utils/entities/cookie'
-import type {
-  Operation,
-  RequestExample,
-  ResponseInstance,
-  SecurityScheme,
-  Server,
-} from '@scalar/oas-utils/entities/spec'
 
-import { isElectron } from '@/libs/electron'
-import { httpStatusCodes, isDefined, mergeUrls, redirectToProxy, shouldUseProxy } from '@scalar/oas-utils/helpers'
 import { buildRequestSecurity } from './build-request-security'
 
 export type RequestStatus = 'start' | 'stop' | 'abort'
