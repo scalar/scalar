@@ -147,7 +147,7 @@ const html = computed(() => {
   }
 
   /* Lists */
-  .markdown ul:not(.contains-task-list),
+  .markdown ul,
   .markdown ol {
     display: flex;
     flex-direction: column;
@@ -480,39 +480,29 @@ const html = computed(() => {
   }
 
   /* Markdown Checklist */
-  .markdown .contains-task-list {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+  .markdown li.task-list-item {
+    position: relative;
     list-style: none;
   }
 
-  .markdown .contains-task-list li {
-    align-items: center;
-    display: flex;
-    gap: 10.5px;
-    padding-left: 10.5px;
-  }
-
-  .markdown .contains-task-list input {
-    position: relative;
+  .markdown li.task-list-item > input {
+    display: inline;
+    position: absolute;
+    top: 0.225em;
+    left: -1.4em;
     appearance: none;
-    -webkit-appearance: none;
-    display: flex;
     width: var(--markdown-spacing-md);
     height: var(--markdown-spacing-md);
-    align-content: center;
-    justify-content: center;
     border: 1px solid var(--scalar-color-3);
     border-radius: var(--scalar-radius);
   }
 
-  .markdown .contains-task-list input:checked {
+  .markdown li.task-list-item > input[type='checkbox']:checked {
     background-color: var(--scalar-color-1);
     border-color: var(--scalar-color-1);
   }
 
-  .markdown .contains-task-list input[type='checkbox']::before {
+  .markdown li.task-list-item > input[type='checkbox']::before {
     content: '';
     position: absolute;
     left: 5px;
@@ -525,7 +515,7 @@ const html = computed(() => {
     opacity: 0;
   }
 
-  .markdown .contains-task-list input[type='checkbox']:checked::before {
+  .markdown li.task-list-item > input[type='checkbox']:checked::before {
     opacity: 1;
   }
 

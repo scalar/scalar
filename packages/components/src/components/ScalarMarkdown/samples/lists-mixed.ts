@@ -18,7 +18,10 @@ With task lists
 - [x] Completed task
 - [ ] Incomplete task
     1. Ordered item
+    - [x] Completed sub-task
     2. Ordered item
         - [x] Completed sub-task
         - [ ] Incomplete sub-Task
+    - Unordered item
+    - [ ] Incomplete sub-Task
 `
