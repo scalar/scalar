@@ -8,6 +8,7 @@
   "subdomain": "guides",
   "customDomain": "guides.scalar.com",
   "assetsDir": "documentation/assets",
+  "insertPageTitles": false,
   "theme": "default",
   "guides": [
     {

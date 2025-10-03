@@ -122,9 +122,7 @@ Defaults to `actual`.
 ::scalar-image{ src="https://avatars.githubusercontent.com/u/6176314?v=4" alt="System architecture diagram" caption="High-level system architecture showing data flow" }
 
 ```html
-::scalar-image{ src="https://avatars.githubusercontent.com/u/6176314?v=4"
-alt="System architecture diagram" caption="High-level system architecture
-showing data flow" }
+::scalar-image{ src="https://avatars.githubusercontent.com/u/6176314?v=4" alt="System architecture diagram" caption="High-level system architecture showing data flow" }
 ```
 
 </scalar-tab>

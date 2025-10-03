@@ -1,4 +1,3 @@
-<h1>Scalar - The OpenAPI Company</h1>
 <div class="flex flex-col gap-3 hero small-test">
   <h2 class="text-balance">
     Pricing
