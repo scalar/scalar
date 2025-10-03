@@ -143,7 +143,7 @@ export default tslint.config(
           multiline: 'never',
         },
       ],
-      'vue/custom-event-name-casing': ['warn', 'camelCase'],
+      'vue/custom-event-name-casing': ['off', 'camelCase'],
       'no-array-constructor': 'off',
       '@typescript-eslint/no-array-constructor': 'warn',
       'no-shadow': 'off',
