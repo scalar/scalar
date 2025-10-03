@@ -67,7 +67,7 @@ const columns = ['32px', '1fr', '1fr', '1fr', '36px']
 </script>
 <template>
   <DataTable
-    class="group/table h-min flex-1"
+    class="group/table data-table h-min flex-1 rounded border"
     :columns="columns">
     <DataTableRow class="sr-only !block">
       <DataTableHeader>Enabled</DataTableHeader>
@@ -141,3 +141,8 @@ const columns = ['32px', '1fr', '1fr', '1fr', '36px']
     </DataTableRow>
   </DataTable>
 </template>
+<style scoped>
+.data-table tr:nth-child(2) td {
+  border-top: none !important;
+}
+</style>

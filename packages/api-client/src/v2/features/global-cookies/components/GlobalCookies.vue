@@ -2,7 +2,6 @@
 import { ScalarIconCookie } from '@scalar/icons'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 
-import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import type { EnvVariable } from '@/store'
 import CookiesTable from '@/v2/features/global-cookies/components/CookiesTable.vue'
 
@@ -29,11 +28,10 @@ const emits = defineEmits<{
 </script>
 
 <template>
-  <ViewLayout class="bg-b-1 h-full w-full overflow-auto">
-    <div
-      class="mr-auto ml-auto flex w-full max-w-[720px] !flex-col gap-8 px-5 py-5">
+  <div class="bg-b-1 h-[100%] w-full! overflow-auto! px-5 py-15">
+    <div class="mx-auto flex w-full max-w-[720px] !flex-col gap-8">
       <div class="flex flex-col gap-2">
-        <h2 class="mt-10 flex items-center gap-2 text-xl font-bold">
+        <h2 class="flex items-center gap-2 text-xl font-bold">
           <ScalarIconCookie />Global cookies
         </h2>
         <p class="text-c-2 mb-4 text-sm">Manage your global cookies here.</p>
@@ -49,7 +47,7 @@ const emits = defineEmits<{
           (index, payload) => emits('updateCookie', index, payload)
         " />
     </div>
-  </ViewLayout>
+  </div>
 </template>
 
 <style scoped>
