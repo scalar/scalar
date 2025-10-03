@@ -147,77 +147,60 @@ const html = computed(() => {
   }
 
   /* Lists */
-  .markdown ul:not(.contains-task-list),
+  .markdown ul,
   .markdown ol {
     display: flex;
     flex-direction: column;
+    padding-left: 1.6em;
     gap: 2px;
-  }
-
-  .markdown ul:not(.contains-task-list) {
-    margin-left: 29px;
-  }
-
-  .markdown ul:not(.contains-task-list) li {
-    padding-left: calc(var(--markdown-spacing-md) / 2);
-  }
-
-  .markdown ul {
-    list-style-type: disc;
+    line-height: var(--markdown-line-height);
   }
 
   .markdown li {
-    line-height: var(--markdown-line-height);
+    margin-top: 2px;
+    padding-left: 7px;
   }
 
-  .markdown ul li {
-    padding-left: var(--markdown-spacing-md);
-  }
-
-  .markdown ol {
-    counter-reset: item;
-    padding-left: 5px;
-  }
-
-  .markdown ol li {
-    display: flex;
-    gap: 5px;
-    padding-left: 3px;
-  }
-
-  .markdown ol li::before {
-    content: counter(item) '\002E';
-    counter-increment: item;
-    display: flex;
+  ol > li::marker,
+  ol > * > li::marker {
     font: var(--scalar-font);
     font-variant-numeric: tabular-nums;
     font-weight: var(--scalar-semibold);
-    justify-content: center;
-    line-height: var(--markdown-line-height);
-    width: 24px;
     white-space: nowrap;
   }
 
-  .markdown ol li::before,
-  .markdown ol ol ol li::before,
-  .markdown ol ol ol ol ol ol li::before {
-    content: counter(item, decimal) '\002E';
+  /* Level 1, 4, 7 → decimal */
+  .markdown ol {
+    list-style-type: decimal;
+  }
+  /* Level 2, 5, 8 → lower-alpha */
+  .markdown ol ol {
+    list-style-type: lower-alpha;
   }
 
-  .markdown ol ol li::before,
-  .markdown ol ol ol ol li::before,
-  .markdown ol ol ol ol ol ol ol li::before {
-    content: counter(item, lower-alpha) '\002E';
+  .markdown ol ol ol ol,
+  .markdown ol ol ol ol ol ol ol {
+    list-style-type: decimal;
   }
 
-  .markdown ol ol li::before,
-  .markdown ol ol ol ol ol li::before,
-  .markdown ol ol ol ol ol ol ol ol li::before {
-    content: counter(item, lower-roman) '\002E';
+  .markdown ol ol ol ol ol,
+  .markdown ol ol ol ol ol ol ol ol {
+    list-style-type: lower-alpha;
   }
 
-  .markdown ul:first-of-type li:first-of-type {
-    margin-top: 0;
+  /* Level 3, 6, 9 → lower-roman */
+  .markdown ol ol ol {
+    list-style-type: lower-roman;
+  }
+
+  .markdown ol ol ol ol ol ol,
+  .markdown ol ol ol ol ol ol ol ol ol {
+    list-style-type: lower-roman;
+  }
+
+  .markdown ul > li,
+  .markdown ul > * > li {
+    list-style-type: disc;
   }
 
   /* Tables */
@@ -497,39 +480,29 @@ const html = computed(() => {
   }
 
   /* Markdown Checklist */
-  .markdown .contains-task-list {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+  .markdown li.task-list-item {
+    position: relative;
     list-style: none;
   }
 
-  .markdown .contains-task-list li {
-    align-items: center;
-    display: flex;
-    gap: 10.5px;
-    padding-left: 10.5px;
-  }
-
-  .markdown .contains-task-list input {
-    position: relative;
+  .markdown li.task-list-item > input {
+    display: inline;
+    position: absolute;
+    top: 0.225em;
+    left: -1.4em;
     appearance: none;
-    -webkit-appearance: none;
-    display: flex;
     width: var(--markdown-spacing-md);
     height: var(--markdown-spacing-md);
-    align-content: center;
-    justify-content: center;
     border: 1px solid var(--scalar-color-3);
     border-radius: var(--scalar-radius);
   }
 
-  .markdown .contains-task-list input:checked {
+  .markdown li.task-list-item > input[type='checkbox']:checked {
     background-color: var(--scalar-color-1);
     border-color: var(--scalar-color-1);
   }
 
-  .markdown .contains-task-list input[type='checkbox']::before {
+  .markdown li.task-list-item > input[type='checkbox']::before {
     content: '';
     position: absolute;
     left: 5px;
@@ -542,7 +515,7 @@ const html = computed(() => {
     opacity: 0;
   }
 
-  .markdown .contains-task-list input[type='checkbox']:checked::before {
+  .markdown li.task-list-item > input[type='checkbox']:checked::before {
     opacity: 1;
   }
 
