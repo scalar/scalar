@@ -74,6 +74,8 @@ internal sealed class ScalarConfiguration
     public required bool OrderRequiredPropertiesFirst { get; init; }
 
     public required PropertyOrder? OrderSchemaPropertiesBy { get; init; }
+
+    public required bool? ShowOperationId { get; init; }
 }
 
 [JsonSerializable(typeof(ScalarConfiguration))]

@@ -223,4 +223,19 @@ public abstract class ScalarOptions
     /// </summary>
     /// <value>The default value is <c>null</c>.</value>
     public PropertyOrder? SchemaPropertyOrder { get; set; }
+
+    /// <summary>
+    /// Gets or sets the visibility of the configuration toolbar.
+    /// </summary>
+    /// <value>The default value is <c>null</c>.</value>
+    /// <remarks>
+    /// When set to <c>null</c>, the toolbar will use the default behavior (show on localhost).
+    /// </remarks>
+    internal ToolbarVisibility? ShowToolbar { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether to show the operation ID in the UI.
+    /// </summary>
+    /// <value>The default value is <c>false</c>.</value>
+    public bool ShowOperationId { get; set; }
 }
