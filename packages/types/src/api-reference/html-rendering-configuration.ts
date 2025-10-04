@@ -1,5 +1,6 @@
 import { z } from 'zod'
-import type { ApiReferenceConfigurationWithSources } from './api-reference-configuration'
+
+import type { ApiReferenceConfigurationWithMultipleSources } from './api-reference-configuration'
 
 /**
  * Zod schema for HTML rendering configuration
@@ -26,5 +27,5 @@ export const htmlRenderingConfigurationSchema = z.object({
  *
  * It's the ApiReferenceConfiguration, but extended with the `pageTitle` and `cdn` options.
  */
-export type HtmlRenderingConfiguration = Partial<ApiReferenceConfigurationWithSources> &
+export type HtmlRenderingConfiguration = Partial<ApiReferenceConfigurationWithMultipleSources> &
   z.infer<typeof htmlRenderingConfigurationSchema>

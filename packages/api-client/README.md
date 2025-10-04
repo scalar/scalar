@@ -97,7 +97,7 @@ open()
 /** Configuration options for the Scalar API client */
 export type ClientConfiguration = {
   /** The Swagger/OpenAPI document to render */
-  spec: SpecConfiguration
+  spec: SourceConfiguration
   /** Pass in a proxy to the API client */
   proxyUrl?: string
   /** Pass in a theme API client */

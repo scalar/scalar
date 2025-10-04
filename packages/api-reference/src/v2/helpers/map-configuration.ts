@@ -2,7 +2,7 @@ import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { DocumentConfiguration } from '@scalar/workspace-store/schemas/workspace-specification/config'
 
 /**
- * Maps a partial ApiReferenceConfigurationWithSources object to a DocumentConfiguration
+ * Maps a partial ApiReferenceConfigurationWithMultipleSources object to a DocumentConfiguration
  * for use in the API Reference. This function transforms configuration options
  * into the expected structure for the 'x-scalar-reference-config' property.
  *

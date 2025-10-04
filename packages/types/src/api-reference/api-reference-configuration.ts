@@ -1,595 +1,374 @@
-import { z } from 'zod'
+import { type ZodType, z } from 'zod'
 
-import { ApiClientPluginSchema } from '../api-client'
 import type { TargetId } from '../snippetz'
-import { ApiReferencePluginSchema } from './api-reference-plugin'
+import { apiReferencePluginSchema } from './api-reference-plugin'
 import type { AuthenticationConfiguration } from './authentication-configuration'
+import { NEW_PROXY_URL, OLD_PROXY_URL, baseConfigurationSchema } from './base-configuration'
+import { type SourceConfiguration, sourceConfigurationSchema } from './source-configuration'
 
-/** Available theme presets for the API reference */
-const themeIdEnum = z.enum([
-  'alternate',
-  'default',
-  'moon',
-  'purple',
-  'solarized',
-  'bluePlanet',
-  'deepSpace',
-  'saturn',
-  'kepler',
-  'elysiajs',
-  'fastify',
-  'mars',
-  'laserwave',
-  'none',
-])
+// Zod Schemas don't work well with async functions, so we use a custom type instead.
+const fetchLikeSchema = z.custom<(input: string | URL | Request, init?: RequestInit) => Promise<Response>>()
 
-/** Whether to use the operation summary or the operation path for the sidebar and search */
-const operationTitleEnum = z.enum(['summary', 'path'])
-
-/** Valid keys that can be used with CTRL/CMD to open the search modal */
-const searchHotKeyEnum = z.enum([
-  'a',
-  'b',
-  'c',
-  'd',
-  'e',
-  'f',
-  'g',
-  'h',
-  'i',
-  'j',
-  'k',
-  'l',
-  'm',
-  'n',
-  'o',
-  'p',
-  'q',
-  'r',
-  's',
-  't',
-  'u',
-  'v',
-  'w',
-  'x',
-  'y',
-  'z',
-])
-
-/** Supported integration types */
-const integrationEnum = z
-  .enum([
-    'adonisjs',
-    'docusaurus',
-    'dotnet',
-    'elysiajs',
-    'express',
-    'fastapi',
-    'fastify',
-    'go',
-    'hono',
-    'html',
-    'laravel',
-    'litestar',
-    'nestjs',
-    'nextjs',
-    'nitro',
-    'nuxt',
-    'platformatic',
-    'react',
-    'rust',
-    'svelte',
-    'vue',
-  ])
-  .nullable()
-
-/** Configuration for the OpenAPI/Swagger specification */
-export const specConfigurationSchema = z.object({
+/**
+ * Standard configuration for the Api Reference.
+ *
+ * This is used internally to the configure the applications and does not include the sources.
+ *
+ * Sources should only be specified in the user facing configurations.
+ *
+ * In the the future it is likely sources will be removed completely from the configuration and instead
+ * specified through a separate addDocument interface.
+ */
+export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
   /**
-   * URL to an OpenAPI/Swagger document
-   *
-   * @deprecated Please move `url` to the top level and remove the `spec` prefix.
-   *
-   * @example
-   * ```ts
-   * const oldConfiguration = {
-   *   spec: {
-   *     url: 'https://example.com/openapi.json',
-   *   },
-   * }
-   *
-   * const newConfiguration = {
-   *   url: 'https://example.com/openapi.json',
-   * }
-   * ```
-   **/
-  url: z.string().optional(),
-  /**
-   * Directly embed the OpenAPI document.
-   * Can be a string, object, function returning an object, or null.
-   *
-   * @remarks It's recommended to pass a URL instead of content.
-   *
-   * @deprecated Please move `content` to the top level and remove the `spec` prefix.
-   *
-   * @example
-   * ```ts
-   * const oldConfiguration = {
-   *   spec: {
-   *     content: '…',
-   *   },
-   * }
-   *
-   * const newConfiguration = {
-   *   content: '…',
-   * }
-   * ```
-   **/
-
-  content: z
-    .union([
-      z.string(),
-      z.null(),
-      z.record(z.string(), z.any()),
-      z.function({
-        input: [],
-        output: z.record(z.string(), z.any()),
-      }),
-    ])
-    .optional(),
-  /**
-   * The title of the OpenAPI document.
-   *
-   * @example 'Scalar Galaxy'
-   *
-   * @deprecated Please move `title` to the top level and remove the `spec` prefix.
+   * The layout to use for the references
+   * @default 'modern'
    */
-  title: z.string().optional(),
+  layout: z.enum(['modern', 'classic']).optional().default('modern').catch('modern'),
   /**
-   * The slug of the OpenAPI document used in the URL.
-   *
-   * If none is passed, the title will be used.
-   *
-   * If no title is used, it'll just use the index.
-   *
-   * @example 'scalar-galaxy'
-   *
-   * @deprecated Please move `slug` to the top level and remove the `spec` prefix.
+   * URL to a request proxy for the API client
+   * @deprecated Use proxyUrl instead
    */
-  slug: z.string().optional(),
-})
-export type SpecConfiguration = z.infer<typeof specConfigurationSchema>
-
-/** Configuration for path-based routing */
-const pathRoutingSchema = z.object({
-  /** Base path for the API reference */
-  basePath: z.string(),
-})
-
-/** Configuration for the Api Client */
-export const apiClientConfigurationSchema = z.object({
+  proxy: z.string().optional(),
   /**
-   * URL to an OpenAPI/Swagger document
-   **/
-  url: z.string().optional(),
-  /**
-   * Directly embed the OpenAPI document.
-   * Can be a string, object, function returning an object, or null.
+   * Custom fetch function for custom logic
    *
-   * @remarks It's recommended to pass a URL instead of content.
-   **/
-  content: z
-    .union([
-      z.string(),
-      z.null(),
-      z.record(z.string(), z.any()),
-      z.function({
-        input: [],
-        output: z.record(z.string(), z.any()),
-      }),
-    ])
-    .optional(),
-  /**
-   * The title of the OpenAPI document.
-   *
-   * @example 'Scalar Galaxy'
+   * Can be used to add custom headers, handle auth, etc.
    */
-  title: z.string().optional(),
+  fetch: fetchLikeSchema.optional(),
   /**
-   * The slug of the OpenAPI document used in the URL.
-   *
-   * If none is passed, the title will be used.
-   *
-   * If no title is used, it'll just use the index.
-   *
-   * @example 'scalar-galaxy'
+   * Plugins for the API reference
    */
-  slug: z.string().optional(),
+  plugins: z.array(apiReferencePluginSchema).optional(),
   /**
-   * The OpenAPI/Swagger document to render
-   *
-   * @deprecated Use `url` and `content` on the top level instead.
-   **/
-  spec: specConfigurationSchema.optional(),
-  /** Prefill authentication */
-  authentication: z.any().optional(), // Temp until we bring in the new auth
-  /** Base URL for the API server */
-  baseServerURL: z.string().optional(),
-  /**
-   * Whether to hide the client button
+   * Allows the user to inject an editor for the spec
    * @default false
    */
-  hideClientButton: z.boolean().optional().default(false).catch(false),
-  /** URL to a request proxy for the API client */
-  proxyUrl: z.string().optional(),
-  /** Key used with CTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */
-  searchHotKey: searchHotKeyEnum.optional(),
-  /** List of OpenAPI server objects */
-  servers: z.array(z.any()).optional(), // Using any for OpenAPIV3_1.ServerObject
+  isEditable: z.boolean().optional().default(false).catch(false),
   /**
-   * Whether to show the sidebar
-   * @default true
+   * Controls whether the references show a loading state in the intro
+   * @default false
    */
-  showSidebar: z.boolean().optional().default(true).catch(true),
+  isLoading: z.boolean().optional().default(false).catch(false),
   /**
-   * Sets the visibility of the developer tools
-   * @default 'localhost' to only show the toolbar on localhost or similar hosts
+   * Whether to show models in the sidebar, search, and content.
+   * @default false
    */
-  showToolbar: z.enum(['always', 'localhost', 'never']).optional().default('localhost').catch('localhost'),
+  hideModels: z.boolean().optional().default(false).catch(false),
   /**
-   * Whether to use the operation summary or the operation path for the sidebar and search
-   * @default 'summary'
+   * Sets the file type of the document to download, set to `none` to hide the download button
+   * @default 'both'
    */
-  operationTitleSource: operationTitleEnum.optional().default('summary').catch('summary'),
-  /** A string to use one of the color presets */
-  theme: themeIdEnum.optional().default('default').catch('default'),
-  /** Integration type identifier */
-  _integration: integrationEnum.optional(),
-  /** onRequestSent is fired when a request is sent */
-  onRequestSent: z
+  documentDownloadType: z.enum(['yaml', 'json', 'both', 'direct', 'none']).optional().default('both').catch('both'),
+  /**
+   * Whether to show the "Download OpenAPI Document" button
+   * @default false
+   * @deprecated Use `documentDownloadType: 'none'` instead
+   */
+  hideDownloadButton: z.boolean().optional(),
+  /**
+   * Whether to show the "Test Request" button
+   * @default false
+   */
+  hideTestRequestButton: z.boolean().optional().default(false).catch(false),
+  /**
+   * Whether to show the sidebar search bar
+   * @default false
+   */
+  hideSearch: z.boolean().optional().default(false).catch(false),
+  /**
+   * Whether to show the operationId
+   *
+   * @default false
+   */
+  showOperationId: z.boolean().optional().default(false).catch(false),
+  /** Whether dark mode is on or off initially (light mode) */
+  darkMode: z.boolean().optional(),
+  /** forceDarkModeState makes it always this state no matter what */
+  forceDarkModeState: z.enum(['dark', 'light']).optional(),
+  /**
+   * Whether to show the dark mode toggle
+   * @default false
+   */
+  hideDarkModeToggle: z.boolean().optional().default(false).catch(false),
+  /**
+   * If used, passed data will be added to the HTML header
+   * @see https://unhead.unjs.io/usage/composables/use-seo-meta
+   */
+  metaData: z.any().optional(), // Using any for UseSeoMetaInput since it's an external type
+  /**
+   * Path to a favicon image
+   * @default undefined
+   * @example '/favicon.svg'
+   */
+  favicon: z.string().optional(),
+  /**
+   * List of httpsnippet clients to hide from the clients menu
+   * By default hides Unirest, pass `[]` to show all clients
+   */
+  hiddenClients: z
+    .union([z.record(z.string(), z.union([z.boolean(), z.array(z.string())])), z.array(z.string()), z.literal(true)])
+    .optional(),
+  /** Determine the HTTP client that's selected by default */
+  defaultHttpClient: z
+    .object({
+      targetKey: z.custom<TargetId>(),
+      clientKey: z.string(),
+    })
+    .optional(),
+  /** Custom CSS to be added to the page */
+  customCss: z.string().optional(),
+  /** onSpecUpdate is fired on spec/swagger content change */
+  onSpecUpdate: z
     .function({
       input: [z.string()],
       output: z.void(),
     })
     .optional(),
-  /** Whether to persist auth to local storage */
-  persistAuth: z.boolean().optional().default(false).catch(false),
-  /** Plugins for the API client */
-  plugins: z.array(ApiClientPluginSchema).optional(),
-  /** Enables / disables telemetry*/
-  telemetry: z.boolean().optional().default(true),
+  /** onServerChange is fired on selected server change */
+  onServerChange: z
+    .function({
+      input: [z.string()],
+      output: z.void(),
+    })
+    .optional(),
+  /** onDocumentSelect is fired when the config is selected */
+  onDocumentSelect: z.function().optional() as z.ZodType<(() => Promise<void> | void) | undefined>,
+  /** Callback fired when the reference is fully loaded */
+  onLoaded: z.function().optional() as z.ZodType<(() => Promise<void> | void) | undefined>,
+  /** onBeforeRequest is fired before the request is sent. You can modify the request here. */
+  onBeforeRequest: z
+    .function({ input: [z.object({ request: z.instanceof(Request) })], output: z.void() })
+    .optional() as z.ZodType<((a: { request: Request }) => Promise<void> | void) | undefined>,
+  /**
+   * onShowMore is fired when the user clicks the "Show more" button on the references
+   * @param tagId - The ID of the tag that was clicked
+   */
+  onShowMore: z
+    .function({
+      input: [z.string()],
+      output: z.void(),
+    })
+    .optional() as z.ZodType<((a: string) => Promise<void> | void) | undefined>,
+  /**
+   * onSidebarClick is fired when the user clicks on a sidebar item
+   * @param href - The href of the sidebar item that was clicked
+   */
+  onSidebarClick: z
+    .function({
+      input: [z.string()],
+      output: z.void(),
+    })
+    .optional() as z.ZodType<((a: string) => Promise<void> | void) | undefined>,
+  /**
+   * Route using paths instead of hashes, your server MUST support this
+   * @example '/standalone-api-reference/:custom(.*)?'
+   * @experimental
+   * @default undefined
+   */
+  pathRouting: z
+    .object({
+      basePath: z.string(),
+    })
+    .optional(),
+  /**
+   * Customize the heading portion of the hash
+   * @param heading - The heading object
+   * @returns A string ID used to generate the URL hash
+   * @default (heading) => `#description/${heading.slug}`
+   */
+  generateHeadingSlug: z
+    .function({
+      input: [z.object({ slug: z.string().default('headingSlug') })],
+      output: z.string(),
+    })
+    .optional(),
+  /**
+   * Customize the model portion of the hash
+   * @param model - The model object with a name property
+   * @returns A string ID used to generate the URL hash
+   * @default (model) => slug(model.name)
+   */
+  generateModelSlug: z
+    .function({
+      input: [z.object({ name: z.string().default('modelName') })],
+      output: z.string(),
+    })
+    .optional(),
+  /**
+   * Customize the tag portion of the hash
+   * @param tag - The tag object
+   * @returns A string ID used to generate the URL hash
+   * @default (tag) => slug(tag.name)
+   */
+  generateTagSlug: z
+    .function({
+      input: [z.object({ name: z.string().default('tagName') })],
+      output: z.string(),
+    })
+    .optional(),
+  /**
+   * Customize the operation portion of the hash
+   * @param operation - The operation object
+   * @returns A string ID used to generate the URL hash
+   * @default (operation) => `${operation.method}${operation.path}`
+   */
+  generateOperationSlug: z
+    .function({
+      input: [
+        z.object({
+          path: z.string(),
+          operationId: z.string().optional(),
+          method: z.string(),
+          summary: z.string().optional(),
+        }),
+      ],
+      output: z.string(),
+    })
+    .optional(),
+  /**
+   * Customize the webhook portion of the hash
+   * @param webhook - The webhook object
+   * @returns A string ID used to generate the URL hash
+   * @default (webhook) => slug(webhook.name)
+   */
+  generateWebhookSlug: z
+    .function({
+      input: [
+        z.object({
+          name: z.string(),
+          method: z.string().optional(),
+        }),
+      ],
+      output: z.string(),
+    })
+    .optional(),
+  /**
+   * To handle redirects, pass a function that will recieve:
+   * - The current path with hash if pathRouting is enabled
+   * - The current hash if hashRouting (default)
+   * And then passes that to history.replaceState
+   *
+   * @example hashRouting (default)
+   * ```ts
+   * redirect: (hash: string) => hash.replace('#v1/old-path', '#v2/new-path')
+   * ```
+   * @example pathRouting
+   * ```ts
+   * redirect: (pathWithHash: string) => {
+   *   if (pathWithHash.includes('#')) {
+   *     return pathWithHash.replace('/v1/tags/user#operation/get-user', '/v1/tags/user/operation/get-user')
+   *   }
+   *   return null
+   * }
+   * ```
+   */
+  redirect: z
+    .function({
+      input: [z.string()],
+      output: z.string().nullable().optional(),
+    })
+    .optional(),
+  /**
+   * Whether to include default fonts
+   * @default true
+   */
+  withDefaultFonts: z.boolean().optional().default(true).catch(true),
+  /**
+   * Whether to expand all tags by default
+   *
+   * Warning this can cause performance issues on big documents
+   * @default false
+   */
+  defaultOpenAllTags: z.boolean().optional().default(false).catch(false),
+  /**
+   * Whether to expand all models by default
+   *
+   * Warning this can cause performance issues on big documents
+   * @default false
+   */
+  expandAllModelSections: z.boolean().optional().default(false).catch(false),
+  /**
+   * Whether to expand all responses by default
+   *
+   * Warning this can cause performance issues on big documents
+   * @default false
+   */
+  expandAllResponses: z.boolean().optional().default(false).catch(false),
+  /**
+   * Function to sort tags
+   * @default 'alpha' for alphabetical sorting
+   */
+  tagsSorter: z
+    .union([
+      z.literal('alpha'),
+      z.function({
+        input: [z.any(), z.any()],
+        output: z.number(),
+      }),
+    ])
+    .optional(),
+  /**
+   * Function to sort operations
+   * @default 'alpha' for alphabetical sorting
+   */
+  operationsSorter: z
+    .union([
+      z.literal('alpha'),
+      z.literal('method'),
+      z.function({
+        input: [z.any(), z.any()],
+        output: z.number(),
+      }),
+    ])
+    .optional(),
+  /**
+   * Order the schema properties by
+   * @default 'alpha' for alphabetical sorting
+   */
+  orderSchemaPropertiesBy: z
+    .union([z.literal('alpha'), z.literal('preserve')])
+    .optional()
+    .default('alpha')
+    .catch('alpha'),
+  /**
+   * Sort the schema properties by required ones first
+   * @default true
+   */
+  orderRequiredPropertiesFirst: z.boolean().optional().default(true).catch(true),
 })
 
-export type ApiClientConfiguration = z.infer<typeof apiClientConfigurationSchema>
-
-// Zod Schemas don't work well with async functions, so we use a custom type instead.
-const FetchLikeSchema = z.custom<(input: string | URL | Request, init?: RequestInit) => Promise<Response>>()
-
-/** Configuration for the Api Client without the transform since it cannot be merged */
-const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
-  z.object({
-    /**
-     * The layout to use for the references
-     * @default 'modern'
-     */
-    layout: z.enum(['modern', 'classic']).optional().default('modern').catch('modern'),
-    /**
-     * URL to a request proxy for the API client
-     * @deprecated Use proxyUrl instead
-     */
-    proxy: z.string().optional(),
-    /**
-     * Custom fetch function for custom logic
-     *
-     * Can be used to add custom headers, handle auth, etc.
-     */
-    fetch: FetchLikeSchema.optional(),
-    /**
-     * Plugins for the API reference
-     */
-    plugins: z.array(ApiReferencePluginSchema).optional(),
-    /**
-     * Allows the user to inject an editor for the spec
-     * @default false
-     */
-    isEditable: z.boolean().optional().default(false).catch(false),
-    /**
-     * Controls whether the references show a loading state in the intro
-     * @default false
-     */
-    isLoading: z.boolean().optional().default(false).catch(false),
-    /**
-     * Whether to show models in the sidebar, search, and content.
-     * @default false
-     */
-    hideModels: z.boolean().optional().default(false).catch(false),
-    /**
-     * Sets the file type of the document to download, set to `none` to hide the download button
-     * @default 'both'
-     */
-    documentDownloadType: z.enum(['yaml', 'json', 'both', 'direct', 'none']).optional().default('both').catch('both'),
-    /**
-     * Whether to show the "Download OpenAPI Document" button
-     * @default false
-     * @deprecated Use `documentDownloadType: 'none'` instead
-     */
-    hideDownloadButton: z.boolean().optional(),
-    /**
-     * Whether to show the "Test Request" button
-     * @default false
-     */
-    hideTestRequestButton: z.boolean().optional().default(false).catch(false),
-    /**
-     * Whether to show the sidebar search bar
-     * @default false
-     */
-    hideSearch: z.boolean().optional().default(false).catch(false),
-    /**
-     * Whether to show the operationId
-     *
-     * @default false
-     */
-    showOperationId: z.boolean().optional().default(false).catch(false),
-    /** Whether dark mode is on or off initially (light mode) */
-    darkMode: z.boolean().optional(),
-    /** forceDarkModeState makes it always this state no matter what */
-    forceDarkModeState: z.enum(['dark', 'light']).optional(),
-    /**
-     * Whether to show the dark mode toggle
-     * @default false
-     */
-    hideDarkModeToggle: z.boolean().optional().default(false).catch(false),
-    /**
-     * If used, passed data will be added to the HTML header
-     * @see https://unhead.unjs.io/usage/composables/use-seo-meta
-     */
-    metaData: z.any().optional(), // Using any for UseSeoMetaInput since it's an external type
-    /**
-     * Path to a favicon image
-     * @default undefined
-     * @example '/favicon.svg'
-     */
-    favicon: z.string().optional(),
-    /**
-     * List of httpsnippet clients to hide from the clients menu
-     * By default hides Unirest, pass `[]` to show all clients
-     */
-    hiddenClients: z
-      .union([z.record(z.string(), z.union([z.boolean(), z.array(z.string())])), z.array(z.string()), z.literal(true)])
-      .optional(),
-    /** Determine the HTTP client that's selected by default */
-    defaultHttpClient: z
-      .object({
-        targetKey: z.custom<TargetId>(),
-        clientKey: z.string(),
-      })
-      .optional(),
-    /** Custom CSS to be added to the page */
-    customCss: z.string().optional(),
-    /** onSpecUpdate is fired on spec/swagger content change */
-    onSpecUpdate: z
-      .function({
-        input: [z.string()],
-        output: z.void(),
-      })
-      .optional(),
-    /** onServerChange is fired on selected server change */
-    onServerChange: z
-      .function({
-        input: [z.string()],
-        output: z.void(),
-      })
-      .optional(),
-    /** onDocumentSelect is fired when the config is selected */
-    onDocumentSelect: z.function().optional() as z.ZodType<(() => Promise<void> | void) | undefined>,
-    /** Callback fired when the reference is fully loaded */
-    onLoaded: z.function().optional() as z.ZodType<(() => Promise<void> | void) | undefined>,
-    /** onBeforeRequest is fired before the request is sent. You can modify the request here. */
-    onBeforeRequest: z
-      .function({ input: [z.object({ request: z.instanceof(Request) })], output: z.void() })
-      .optional() as z.ZodType<((a: { request: Request }) => Promise<void> | void) | undefined>,
-    /**
-     * onShowMore is fired when the user clicks the "Show more" button on the references
-     * @param tagId - The ID of the tag that was clicked
-     */
-    onShowMore: z
-      .function({
-        input: [z.string()],
-        output: z.void(),
-      })
-      .optional() as z.ZodType<((a: string) => Promise<void> | void) | undefined>,
-    /**
-     * onSidebarClick is fired when the user clicks on a sidebar item
-     * @param href - The href of the sidebar item that was clicked
-     */
-    onSidebarClick: z
-      .function({
-        input: [z.string()],
-        output: z.void(),
-      })
-      .optional() as z.ZodType<((a: string) => Promise<void> | void) | undefined>,
-    /**
-     * Route using paths instead of hashes, your server MUST support this
-     * @example '/standalone-api-reference/:custom(.*)?'
-     * @experimental
-     * @default undefined
-     */
-    pathRouting: pathRoutingSchema.optional(),
-    /**
-     * Customize the heading portion of the hash
-     * @param heading - The heading object
-     * @returns A string ID used to generate the URL hash
-     * @default (heading) => `#description/${heading.slug}`
-     */
-    generateHeadingSlug: z
-      .function({
-        input: [z.object({ slug: z.string().default('headingSlug') })],
-        output: z.string(),
-      })
-      .optional(),
-    /**
-     * Customize the model portion of the hash
-     * @param model - The model object with a name property
-     * @returns A string ID used to generate the URL hash
-     * @default (model) => slug(model.name)
-     */
-    generateModelSlug: z
-      .function({
-        input: [z.object({ name: z.string().default('modelName') })],
-        output: z.string(),
-      })
-      .optional(),
-    /**
-     * Customize the tag portion of the hash
-     * @param tag - The tag object
-     * @returns A string ID used to generate the URL hash
-     * @default (tag) => slug(tag.name)
-     */
-    generateTagSlug: z
-      .function({
-        input: [z.object({ name: z.string().default('tagName') })],
-        output: z.string(),
-      })
-      .optional(),
-    /**
-     * Customize the operation portion of the hash
-     * @param operation - The operation object
-     * @returns A string ID used to generate the URL hash
-     * @default (operation) => `${operation.method}${operation.path}`
-     */
-    generateOperationSlug: z
-      .function({
-        input: [
-          z.object({
-            path: z.string(),
-            operationId: z.string().optional(),
-            method: z.string(),
-            summary: z.string().optional(),
-          }),
-        ],
-        output: z.string(),
-      })
-      .optional(),
-    /**
-     * Customize the webhook portion of the hash
-     * @param webhook - The webhook object
-     * @returns A string ID used to generate the URL hash
-     * @default (webhook) => slug(webhook.name)
-     */
-    generateWebhookSlug: z
-      .function({
-        input: [
-          z.object({
-            name: z.string(),
-            method: z.string().optional(),
-          }),
-        ],
-        output: z.string(),
-      })
-      .optional(),
-    /**
-     * To handle redirects, pass a function that will recieve:
-     * - The current path with hash if pathRouting is enabled
-     * - The current hash if hashRouting (default)
-     * And then passes that to history.replaceState
-     *
-     * @example hashRouting (default)
-     * ```ts
-     * redirect: (hash: string) => hash.replace('#v1/old-path', '#v2/new-path')
-     * ```
-     * @example pathRouting
-     * ```ts
-     * redirect: (pathWithHash: string) => {
-     *   if (pathWithHash.includes('#')) {
-     *     return pathWithHash.replace('/v1/tags/user#operation/get-user', '/v1/tags/user/operation/get-user')
-     *   }
-     *   return null
-     * }
-     * ```
-     */
-    redirect: z
-      .function({
-        input: [z.string()],
-        output: z.string().nullable().optional(),
-      })
-      .optional(),
-    /**
-     * Whether to include default fonts
-     * @default true
-     */
-    withDefaultFonts: z.boolean().optional().default(true).catch(true),
-    /**
-     * Whether to expand all tags by default
-     *
-     * Warning this can cause performance issues on big documents
-     * @default false
-     */
-    defaultOpenAllTags: z.boolean().optional().default(false).catch(false),
-    /**
-     * Whether to expand all models by default
-     *
-     * Warning this can cause performance issues on big documents
-     * @default false
-     */
-    expandAllModelSections: z.boolean().optional().default(false).catch(false),
-    /**
-     * Whether to expand all responses by default
-     *
-     * Warning this can cause performance issues on big documents
-     * @default false
-     */
-    expandAllResponses: z.boolean().optional().default(false).catch(false),
-    /**
-     * Function to sort tags
-     * @default 'alpha' for alphabetical sorting
-     */
-    tagsSorter: z
-      .union([
-        z.literal('alpha'),
-        z.function({
-          input: [z.any(), z.any()],
-          output: z.number(),
-        }),
-      ])
-      .optional(),
-    /**
-     * Function to sort operations
-     * @default 'alpha' for alphabetical sorting
-     */
-    operationsSorter: z
-      .union([
-        z.literal('alpha'),
-        z.literal('method'),
-        z.function({
-          input: [z.any(), z.any()],
-          output: z.number(),
-        }),
-      ])
-      .optional(),
-    /**
-     * Order the schema properties by
-     * @default 'alpha' for alphabetical sorting
-     */
-    orderSchemaPropertiesBy: z
-      .union([z.literal('alpha'), z.literal('preserve')])
-      .optional()
-      .default('alpha')
-      .catch('alpha'),
-    /**
-     * Sort the schema properties by required ones first
-     * @default true
-     */
-    orderRequiredPropertiesFirst: z.boolean().optional().default(true).catch(true),
-  }),
-)
-
-const OLD_PROXY_URL = 'https://api.scalar.com/request-proxy'
-const NEW_PROXY_URL = 'https://proxy.scalar.com'
+/**
+ * Configuration for the Scalar Api Reference integrations
+ *
+ * See the type `ApiReferenceConfigurationWithSource` or `AnyApiReferenceConfiguration`\
+ * for the configuration that includes the sources for you OpenAPI documents
+ */
+export type ApiReferenceConfiguration = Omit<
+  z.infer<typeof apiReferenceConfigurationSchema>, // Remove deprecated attributes
+  'proxy' | 'spec' | 'authentication'
+> & {
+  authentication?: AuthenticationConfiguration
+} & {
+  /** @deprecated
+   * This type now refers to the base configuration that does not include the sources.
+   * Use the type `ApiReferenceConfigurationWithSource` instead.
+   */
+  url?: SourceConfiguration['url']
+  /** @deprecated
+   * This type now refers to the base configuration that does not include the sources.
+   * Use the type `ApiReferenceConfigurationWithSource` instead.
+   */
+  content?: SourceConfiguration['content']
+}
 
 /** Migrate the configuration through a transform */
-const migrateConfiguration = <T extends z.infer<typeof _apiReferenceConfigurationSchema>>(_configuration: T): T => {
-  const configuration = { ..._configuration }
+// const migrateConfiguration = <T extends z.infer<typeof _apiReferenceConfigurationSchema>>
 
+/** Configuration for the Api Reference */
+export const apiReferenceConfigurationWithSourceSchema: ZodType<
+  Omit<ApiReferenceConfiguration, 'url' | 'content'> & SourceConfiguration
+> = apiReferenceConfigurationSchema.extend(sourceConfigurationSchema.shape).transform((configuration) => {
   // Migrate hideDownloadButton to documentDownloadType
   if (configuration.hideDownloadButton) {
     console.warn(
@@ -642,40 +421,45 @@ const migrateConfiguration = <T extends z.infer<typeof _apiReferenceConfiguratio
   }
 
   return configuration
-}
+})
 
-/** Configuration for the Api Reference */
-export const apiReferenceConfigurationSchema = _apiReferenceConfigurationSchema.transform(migrateConfiguration)
-
-/** Configuration after parsing, this is the main type */
-export type ApiReferenceConfiguration = Omit<
-  z.infer<typeof _apiReferenceConfigurationSchema>,
+/**
+ * User facing configuration that includes the document source configuration
+ */
+export type ApiReferenceConfigurationWithSource = Omit<
+  z.infer<typeof apiReferenceConfigurationWithSourceSchema>,
   // Remove deprecated attributes
   'proxy' | 'spec' | 'authentication'
 > & {
   authentication?: AuthenticationConfiguration
 }
 
-/** Api Config which includes the default config */
-type ApiReferenceConfigurationWithDefault = ApiReferenceConfiguration & {
+/**
+ * When providing an array of configurations we extend with the default attribute
+ * which indicates which configuration should be used as the default one
+ */
+export type ApiReferenceConfigurationWithDefault = ApiReferenceConfigurationWithSource & {
   /** Whether to use this config as the default one */
   default?: boolean
 }
 
-/** Configuration for a single config with sources */
-export type ApiReferenceConfigurationWithSources = Omit<ApiReferenceConfigurationWithDefault, 'default'> & {
-  sources: (SpecConfiguration & { default?: boolean })[]
+/**
+ * Configuration for a single config with multiple sources
+ * The configuration will be shared between the documents
+ */
+export type ApiReferenceConfigurationWithMultipleSources = ApiReferenceConfigurationWithSource & {
+  sources: (SourceConfiguration & { default?: boolean })[]
 }
 
 /** Configuration for multiple Api References */
 export type AnyApiReferenceConfiguration =
-  | Partial<ApiReferenceConfiguration>
-  | Partial<ApiReferenceConfigurationWithSources>
+  | Partial<ApiReferenceConfigurationWithSource>
+  | Partial<ApiReferenceConfigurationWithMultipleSources>
   | Partial<ApiReferenceConfigurationWithDefault>[]
-  | Partial<ApiReferenceConfigurationWithSources>[]
+  | Partial<ApiReferenceConfigurationWithMultipleSources>[]
 
 /** Typeguard to check to narrow the configs to the one with sources */
 export const isConfigurationWithSources = (
   config: AnyApiReferenceConfiguration,
-): config is Partial<ApiReferenceConfigurationWithSources> =>
+): config is Partial<ApiReferenceConfigurationWithMultipleSources> =>
   Boolean(!Array.isArray(config) && config && 'sources' in config && Array.isArray(config.sources))

@@ -1,9 +1,6 @@
-// TODO: Oh, do we really want to make this a dependency?
-// import type { Component } from 'vue'
-
 import { z } from 'zod'
 
-export const OpenApiExtensionSchema = z.object({
+export const openApiExtensionSchema = z.object({
   /**
    * Name of specification extension property. Has to start with `x-`.
    *
@@ -23,14 +20,14 @@ export const OpenApiExtensionSchema = z.object({
   renderer: z.unknown().optional(),
 })
 
-export const ApiReferencePluginSchema = z.function({
+export const apiReferencePluginSchema = z.function({
   input: [],
   output: z.object({
     name: z.string(),
-    extensions: z.array(OpenApiExtensionSchema),
+    extensions: z.array(openApiExtensionSchema),
   }),
 })
 
 // Infer the types from the schemas
-export type SpecificationExtension = z.infer<typeof OpenApiExtensionSchema>
-export type ApiReferencePlugin = z.infer<typeof ApiReferencePluginSchema>
+export type SpecificationExtension = z.infer<typeof openApiExtensionSchema>
+export type ApiReferencePlugin = z.infer<typeof apiReferencePluginSchema>

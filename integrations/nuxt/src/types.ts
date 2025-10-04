@@ -1,7 +1,7 @@
-import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import type { ApiReferenceConfiguration, ApiReferenceConfigurationWithSource } from '@scalar/types/api-reference'
 
 export type Configuration = Omit<
-  Partial<ApiReferenceConfiguration>,
+  Partial<ApiReferenceConfigurationWithSource>,
   'layout' | 'isEditable' | 'onSpecUpdate' | 'theme'
 > & {
   /**
