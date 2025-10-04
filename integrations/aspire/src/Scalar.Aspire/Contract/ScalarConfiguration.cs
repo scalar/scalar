@@ -71,4 +71,9 @@ internal sealed class ScalarConfiguration
     public required bool OrderRequiredPropertiesFirst { get; init; }
 
     public required string? OrderSchemaPropertiesBy { get; init; }
+
+    [JsonIgnore]
+    public required string? ShowToolbar { get; init; }
+
+    public required bool? ShowOperationId { get; init; }
 }

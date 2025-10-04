@@ -940,4 +940,28 @@ public static class ScalarOptionsExtensions
         options.SchemaPropertyOrder = orderBy;
         return options;
     }
+
+    /// <summary>
+    /// Sets the visibility of the configuration toolbar.
+    /// </summary>
+    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
+    /// <param name="toolbarVisibility">The visibility setting for the configuration toolbar.</param>
+    /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
+    internal static ScalarOptions WithShowToolbar(this ScalarOptions options, ToolbarVisibility? toolbarVisibility)
+    {
+        options.ShowToolbar = toolbarVisibility;
+        return options;
+    }
+
+    /// <summary>
+    /// Sets whether to show the operation ID in the UI.
+    /// </summary>
+    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
+    /// <param name="showOperationId">Whether to show the operation ID.</param>
+    /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
+    public static ScalarOptions WithShowOperationId(this ScalarOptions options, bool showOperationId = true)
+    {
+        options.ShowOperationId = showOperationId;
+        return options;
+    }
 }

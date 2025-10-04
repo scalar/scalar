@@ -47,6 +47,7 @@ public class ScalarOptionsMapperTests
         configuration.Sources.Should().BeEmpty();
         configuration.PersistAuth.Should().BeFalse();
         configuration.DocumentDownloadType.Should().BeNull();
+        configuration.ShowToolbar.Should().BeNull();
     }
 
     [Fact]
@@ -77,7 +78,8 @@ public class ScalarOptionsMapperTests
             OperationSorter = OperationSorter.Method,
             HideClientButton = true,
             PersistentAuthentication = true,
-            DocumentDownloadType = DocumentDownloadType.Json
+            DocumentDownloadType = DocumentDownloadType.Json,
+            ShowToolbar = ToolbarVisibility.Never
         };
         options.AddDocument("v2");
 
@@ -110,6 +112,7 @@ public class ScalarOptionsMapperTests
         configuration.Sources.Should().ContainSingle().Which.Url.Should().Be("openapi/v2.json");
         configuration.PersistAuth.Should().BeTrue();
         configuration.DocumentDownloadType.Should().Be("json");
+        configuration.ShowToolbar.Should().Be("never");
     }
 
     [Fact]
