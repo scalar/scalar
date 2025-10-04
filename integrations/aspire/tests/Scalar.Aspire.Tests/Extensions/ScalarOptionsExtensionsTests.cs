@@ -38,7 +38,8 @@ public class ScalarOptionsExtensionsTests
             .AddDocuments(new ScalarDocument("v4"))
             .WithBaseServerUrl("https://example.com")
             .WithDocumentDownloadType(DocumentDownloadType.Yaml)
-            .WithPersistentAuthentication();
+            .WithPersistentAuthentication()
+            .WithShowOperationId();
 
         // Assert
         options.HideModels.Should().BeTrue();
@@ -70,6 +71,7 @@ public class ScalarOptionsExtensionsTests
         options.BaseServerUrl.Should().Be("https://example.com");
         options.PersistentAuthentication.Should().BeTrue();
         options.DocumentDownloadType.Should().Be(DocumentDownloadType.Yaml);
+        options.ShowOperationId.Should().BeTrue();
     }
 
     [Fact]
@@ -426,5 +428,31 @@ public class ScalarOptionsExtensionsTests
         authorizationCodeFlow!.ClientId.Should().Be("clientId");
         authorizationCodeFlow.AuthorizationUrl.Should().Be("https://example.com/authorize");
         oauth2Scheme.DefaultScopes.Should().BeEquivalentTo("scope1", "scope2");
+    }
+
+    [Fact]
+    public void WithShowToolbar_ShouldSetProperty()
+    {
+        // Arrange
+        var options = new ScalarTestOptions();
+
+        // Act
+        options.WithShowToolbar(ToolbarVisibility.Never);
+
+        // Assert
+        options.ShowToolbar.Should().Be(ToolbarVisibility.Never);
+    }
+
+    [Fact]
+    public void WithShowToolbar_ShouldSetNullProperty()
+    {
+        // Arrange
+        var options = new ScalarTestOptions();
+
+        // Act
+        options.WithShowToolbar(null);
+
+        // Assert
+        options.ShowToolbar.Should().BeNull();
     }
 }
