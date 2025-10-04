@@ -59,6 +59,11 @@
       "types": "./dist/plugins/dart/http/index.d.ts",
       "default": "./dist/plugins/dart/http/index.js"
     },
+    "./plugins/fsharp/httpclient": {
+      "import": "./dist/plugins/fsharp/httpclient/index.js",
+      "types": "./dist/plugins/fsharp/httpclient/index.d.ts",
+      "default": "./dist/plugins/fsharp/httpclient/index.js"
+    },
     "./plugins/go/native": {
       "import": "./dist/plugins/go/native/index.js",
       "types": "./dist/plugins/go/native/index.d.ts",
