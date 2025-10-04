@@ -1,4 +1,3 @@
-<h1>Getting Started</h1>
 <div class="hero-animation container-full">
   <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/v1Pu6_BCmly6VhPAuotVZ.svg"></scalar-icon>
 </div>

@@ -5,46 +5,55 @@ Images display visual content with support for light/dark mode variants, clickab
 ## Properties
 
 ### src
+
 `string` _required_
 
 The primary image source URL. This is the image that will be displayed in light mode or as the fallback.
 
 ### activeSrc
+
 `string` _optional_
 
 An alternative image source that takes precedence over `src`. Useful for dynamic image switching or when you need to override the primary source.
 
-### darkModeSrc
+### src-dark
+
 `string` _optional_
 
 A separate image source for dark mode. When provided, this image will be displayed when the user's theme is set to dark mode.
 
 ### width
+
 `number` _optional_
 
 The width of the image in pixels. When specified, the image size will automatically be set to `custom`.
 
 ### height
+
 `number` _optional_
 
 The height of the image in pixels. When specified, the image size will automatically be set to `custom`.
 
 ### alt
+
 `string` _optional_
 
 Alternative text for accessibility. This describes the image for screen readers and other assistive technologies.
 
 ### caption
+
 `string` _optional_
 
 A descriptive caption for the image. This appears below the image and provides context or explanation.
 
 ### href
+
 `string` _optional_
 
 A URL that the image links to. When provided, the image becomes clickable and opens the link in a new tab.
 
 ### size
+
 `'actual' | 'custom' | 'full'` _optional_
 
 The display size of the image:
@@ -73,6 +82,7 @@ Defaults to `actual`.
   alt="Application screenshot">
 </scalar-image>
 ```
+
 </scalar-tab>
 
 <scalar-tab title="Directive">
@@ -82,6 +92,7 @@ Defaults to `actual`.
 ```markdown
 ::scalar-image{ src="https://avatars.githubusercontent.com/u/6176314?v=4" alt="Application screenshot" }
 ```
+
 </scalar-tab>
 </scalar-tabs>
 
@@ -103,6 +114,7 @@ Defaults to `actual`.
   caption="High-level system architecture showing data flow">
 </scalar-image>
 ```
+
 </scalar-tab>
 
 <scalar-tab title="Directive">
@@ -112,6 +124,7 @@ Defaults to `actual`.
 ```html
 ::scalar-image{ src="https://avatars.githubusercontent.com/u/6176314?v=4" alt="System architecture diagram" caption="High-level system architecture showing data flow" }
 ```
+
 </scalar-tab>
 </scalar-tabs>
 
@@ -135,6 +148,7 @@ Defaults to `actual`.
   caption="Click to access the link">
 </scalar-image>
 ```
+
 </scalar-tab>
 
 <scalar-tab title="Directive">
@@ -144,6 +158,7 @@ Defaults to `actual`.
 ```markdown
 ::scalar-image{ src="https://avatars.githubusercontent.com/u/301879?s=200&v=4" alt="Click to view full size" href="https://github.com/scalar/scalar" caption="Click to access the link" }
 ```
+
 </scalar-tab>
 </scalar-tabs>
 
@@ -169,6 +184,7 @@ Defaults to `actual`.
   caption="Company branding">
 </scalar-image>
 ```
+
 </scalar-tab>
 
 <scalar-tab title="Directive">
@@ -178,6 +194,7 @@ Defaults to `actual`.
 ```markdown
 ::scalar-image{ src="https://avatars.githubusercontent.com/u/301879?s=200&v=4" alt="Company logo" width="200" height="100" caption="Company branding" }
 ```
+
 </scalar-tab>
 </scalar-tabs>
 
@@ -188,7 +205,7 @@ Defaults to `actual`.
 
 <scalar-image
   src="https://avatars.githubusercontent.com/u/301879?s=200&v=4"
-  darkModeSrc="https://avatars.githubusercontent.com/u/6176314?s=200&v=4"
+  src-dark="https://avatars.githubusercontent.com/u/6176314?s=200&v=4"
   alt="Theme-aware illustration"
   caption="Automatically adapts to user's theme preference">
 </scalar-image>
@@ -196,20 +213,22 @@ Defaults to `actual`.
 ```html
 <scalar-image
   src="https://avatars.githubusercontent.com/u/301879?s=200&v=4"
-  darkModeSrc="https://avatars.githubusercontent.com/u/6176314?s=200&v=4"
+  src-dark="https://avatars.githubusercontent.com/u/6176314?s=200&v=4"
   alt="Theme-aware illustration"
   caption="Automatically adapts to user's theme preference">
 </scalar-image>
 ```
+
 </scalar-tab>
 
 <scalar-tab title="Directive">
 
-::scalar-image{ src="https://avatars.githubusercontent.com/u/301879?s=200&v=4" darkModeSrc="https://avatars.githubusercontent.com/u/6176314?s=200&v=4" alt="Theme-aware illustration" caption="Automatically adapts to user's theme preference" }
+::scalar-image{ src="https://avatars.githubusercontent.com/u/301879?s=200&v=4" src-dark="https://avatars.githubusercontent.com/u/6176314?s=200&v=4" alt="Theme-aware illustration" caption="Automatically adapts to user's theme preference" }
 
 ```markdown
-::scalar-image{ src="https://avatars.githubusercontent.com/u/301879?s=200&v=4" darkModeSrc="https://avatars.githubusercontent.com/u/6176314?s=200&v=4" alt="Theme-aware illustration" caption="Automatically adapts to user's theme preference" }
+::scalar-image{ src="https://avatars.githubusercontent.com/u/301879?s=200&v=4" src-dark="https://avatars.githubusercontent.com/u/6176314?s=200&v=4" alt="Theme-aware illustration" caption="Automatically adapts to user's theme preference" }
 ```
+
 </scalar-tab>
 </scalar-tabs>
 
@@ -233,13 +252,16 @@ Defaults to `actual`.
   caption="Full-width hero image">
 </scalar-image>
 ```
+
 </scalar-tab>
 
 <scalar-tab title="Directive">
 
 ::scalar-image{ src="https://pbs.twimg.com/profile_banners/1599772885857538051/1740351609/1500x500" alt="Hero section background" size="full" caption="Full-width hero image" }
+
 ```markdown
 ::scalar-image{ src="https://pbs.twimg.com/profile_banners/1599772885857538051/1740351609/1500x500" alt="Hero section background" size="full" caption="Full-width hero image" }
 ```
+
 </scalar-tab>
 </scalar-tabs>
