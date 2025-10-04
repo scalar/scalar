@@ -7214,6 +7214,111 @@
         }
       }
     },
+    "/api/overview/open-interest": {
+      "get": {
+        "tags": ["perps"],
+        "summary": "List all open interest dex exchanges along with summaries of their open interest",
+        "parameters": [
+          {
+            "name": "excludeTotalDataChart",
+            "in": "query",
+            "required": true,
+            "description": "true to exclude aggregated chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          },
+          {
+            "name": "excludeTotalDataChartBreakdown",
+            "in": "query",
+            "required": true,
+            "description": "true to exclude broken down chart from response",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Overview of all open interest DEXs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "protocols": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "example": "Hyperliquid Perps"
+                          },
+                          "displayName": {
+                            "type": "string",
+                            "example": "Hyperliquid Perps"
+                          },
+                          "total24h": {
+                            "type": "number",
+                            "example": 14304709847
+                          },
+                          "total7d": {
+                            "type": "number",
+                            "example": 93112774041
+                          },
+                          "change_1d": {
+                            "type": "number",
+                            "example": 3.62
+                          },
+                          "change_7d": {
+                            "type": "number",
+                            "example": 12.63
+                          },
+                          "chains": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "example": ["Hyperliquid L1"]
+                          }
+                        }
+                      }
+                    },
+                    "totalDataChart": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "oneOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "object"
+                            }
+                          ]
+                        },
+                        "example": [1654819200, 607785941]
+                      }
+                    },
+                    "allChains": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": ["Hyperliquid L1", "Off Chain", "zkLighter"]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/overview/fees": {
       "get": {
         "tags": ["fees and revenue"],
