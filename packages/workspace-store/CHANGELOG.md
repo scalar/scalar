@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.17.0
+
+### Minor Changes
+
+- 5d99cad: feat: operation block
+
 ## 0.16.2
 
 ### Patch Changes

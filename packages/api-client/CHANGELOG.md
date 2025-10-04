@@ -1,5 +1,20 @@
 # @scalar/api-client
 
+## 2.8.0
+
+### Minor Changes
+
+- 5d99cad: feat: operation block
+
+### Patch Changes
+
+- Updated dependencies [5d99cad]
+  - @scalar/workspace-store@0.17.0
+  - @scalar/oas-utils@0.5.1
+  - @scalar/components@0.14.41
+  - @scalar/postman-to-openapi@0.3.39
+  - @scalar/use-codemirror@0.12.42
+
 ## 2.7.0
 
 ### Minor Changes

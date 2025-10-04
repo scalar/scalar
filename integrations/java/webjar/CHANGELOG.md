@@ -1,5 +1,11 @@
 # @scalar/webjar
 
+## 0.3.11
+
+### Patch Changes
+
+- @scalar/api-reference@1.37.1
+
 ## 0.3.10
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # scalar-app
 
+## 0.1.238
+
+### Patch Changes
+
+- Updated dependencies [5d99cad]
+  - @scalar/api-client@2.8.0
+  - @scalar/components@0.14.41
+
 ## 0.1.237
 
 ### Patch Changes

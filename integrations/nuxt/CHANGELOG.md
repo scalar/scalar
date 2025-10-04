@@ -1,5 +1,14 @@
 # @scalar/nuxt
 
+## 0.5.20
+
+### Patch Changes
+
+- Updated dependencies [5d99cad]
+  - @scalar/workspace-store@0.17.0
+  - @scalar/api-client@2.8.0
+  - @scalar/api-reference@1.37.1
+
 ## 0.5.19
 
 ### Patch Changes

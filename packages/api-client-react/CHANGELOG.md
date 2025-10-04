@@ -1,5 +1,12 @@
 # @scalar/api-client-react
 
+## 1.3.45
+
+### Patch Changes
+
+- Updated dependencies [5d99cad]
+  - @scalar/api-client@2.8.0
+
 ## 1.3.44
 
 ### Patch Changes
