@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 1.37.1
+
+### Patch Changes
+
+- Updated dependencies [5d99cad]
+  - @scalar/workspace-store@0.17.0
+  - @scalar/api-client@2.8.0
+  - @scalar/oas-utils@0.5.1
+  - @scalar/components@0.14.41
+
 ## 1.37.0
 
 ### Minor Changes
