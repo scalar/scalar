@@ -39,7 +39,6 @@ public class ScalarOptionsMapperTests
         configuration.PersistAuth.Should().BeFalse();
         configuration.OrderRequiredPropertiesFirst.Should().BeFalse();
         configuration.OrderSchemaPropertiesBy.Should().BeNull();
-        configuration.ShowToolbar.Should().BeNull();
     }
 
     [Fact]
@@ -125,7 +124,6 @@ public class ScalarOptionsMapperTests
         configuration.PersistAuth.Should().BeTrue();
         configuration.OrderRequiredPropertiesFirst.Should().BeTrue();
         configuration.OrderSchemaPropertiesBy.Should().Be(PropertyOrder.Alpha);
-        configuration.ShowToolbar.Should().Be(ToolbarVisibility.Never);
     }
 
     [Fact]

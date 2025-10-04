@@ -75,7 +75,6 @@ internal static class ScalarOptionsMapper
             DocumentDownloadType = options.DocumentDownloadType?.ToStringFast(true),
             OrderRequiredPropertiesFirst = options.OrderRequiredPropertiesFirst,
             OrderSchemaPropertiesBy = options.SchemaPropertyOrder?.ToStringFast(true),
-            ShowToolbar = options.ShowToolbar?.ToStringFast(true),
             ShowOperationId = options.ShowOperationId
         };
     }
