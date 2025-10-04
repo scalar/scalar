@@ -1,5 +1,6 @@
-import type { ApiClientPlugin } from '@scalar/types/api-client'
+import type { ApiClientPlugin } from '@scalar/types/api-reference'
 import { ref } from 'vue'
+
 import { type TestResult, executePostResponseScript } from '../../libs/execute-scripts'
 import { PostResponseScripts } from './components/PostResponseScripts'
 import { TestResults } from './components/TestResults'

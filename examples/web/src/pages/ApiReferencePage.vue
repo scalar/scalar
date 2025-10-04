@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import {
-  ApiReferenceLayout,
-  type ApiReferenceConfiguration,
-} from '@scalar/api-reference'
+import { ApiReferenceLayout } from '@scalar/api-reference'
+import type { ApiReferenceConfigurationWithSource } from '@scalar/types'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { computed, reactive, ref, watch } from 'vue'
@@ -35,7 +33,7 @@ const DEFAULT_CONTENT = {
 
 const content = ref(JSON.stringify(DEFAULT_CONTENT, null, 2))
 
-const configuration = reactive<Partial<ApiReferenceConfiguration>>({
+const configuration = reactive<Partial<ApiReferenceConfigurationWithSource>>({
   theme: 'default',
   proxyUrl: import.meta.env.VITE_REQUEST_PROXY_URL,
   isEditable: true,

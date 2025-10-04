@@ -1,23 +1,29 @@
+// biome-ignore lint/performance/noBarrelFile: exporting from a block
 export {
   type ApiClientConfiguration,
-  type ApiReferenceConfiguration,
-  type ApiReferenceConfigurationWithSources,
-  type AnyApiReferenceConfiguration,
-  type SpecConfiguration,
   apiClientConfigurationSchema,
+} from './api-client-configuration'
+export { type ApiClientPlugin, apiClientPluginSchema, hooksSchema } from './api-client-plugin'
+export {
+  type AnyApiReferenceConfiguration,
+  type ApiReferenceConfiguration,
+  type ApiReferenceConfigurationWithDefault,
+  type ApiReferenceConfigurationWithMultipleSources,
+  type ApiReferenceConfigurationWithSource,
   apiReferenceConfigurationSchema,
-  specConfigurationSchema,
+  apiReferenceConfigurationWithSourceSchema,
   isConfigurationWithSources,
 } from './api-reference-configuration'
-
+export type {
+  ApiReferencePlugin,
+  SpecificationExtension,
+} from './api-reference-plugin'
+export type { ApiReferenceInstance, CreateApiReference } from './html-api'
 export {
   type HtmlRenderingConfiguration,
   htmlRenderingConfigurationSchema,
 } from './html-rendering-configuration'
-
-export type {
-  SpecificationExtension,
-  ApiReferencePlugin,
-} from './api-reference-plugin'
-
-export type { ApiReferenceInstance, CreateApiReference } from './html-api'
+export {
+  type SourceConfiguration,
+  sourceConfigurationSchema,
+} from './source-configuration'

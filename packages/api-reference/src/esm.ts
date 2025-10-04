@@ -1,9 +1,9 @@
-import type { ApiReferenceConfiguration, SpecConfiguration } from '@scalar/types/api-reference'
+import { objectReplace } from '@scalar/helpers/object/object-replace'
+import type { ApiReferenceConfiguration, SourceConfiguration } from '@scalar/types/api-reference'
 import { createHead } from '@unhead/vue'
 import { createApp, reactive } from 'vue'
 
 import ApiReference from './components/ApiReference.vue'
-import { objectReplace } from '@scalar/helpers/object/object-replace'
 
 /**
  * Initialize Scalar References
@@ -54,7 +54,7 @@ export function createScalarReferences(
         objectReplace(configuration, newConfig)
       }
     },
-    updateSpec(spec: SpecConfiguration) {
+    updateSpec(spec: SourceConfiguration) {
       if (Array.isArray(configuration)) {
         console.error('Cannot update the content for multiple configurations.')
       } else {

@@ -1,5 +1,5 @@
 import { prettyPrintJson } from '@scalar/oas-utils/helpers'
-import type { SpecConfiguration } from '@scalar/types/api-reference'
+import type { SourceConfiguration } from '@scalar/types/api-reference'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, nextTick, reactive, watch } from 'vue'
 
@@ -182,7 +182,7 @@ describe('useDocumentFetcher', () => {
   })
 
   it('handles reactive configuration', async () => {
-    const configurationRef = reactive<SpecConfiguration>({
+    const configurationRef = reactive<SourceConfiguration>({
       content: EXAMPLE_DOCUMENT,
     })
 
@@ -211,7 +211,7 @@ describe('useDocumentFetcher', () => {
   })
 
   it('handles computed configuration', async () => {
-    const configurationRef = reactive<SpecConfiguration>({
+    const configurationRef = reactive<SourceConfiguration>({
       content: EXAMPLE_DOCUMENT,
     })
 
@@ -240,7 +240,7 @@ describe('useDocumentFetcher', () => {
   })
 
   it('preserves content when configuration is undefined', async () => {
-    const configurationRef = reactive<SpecConfiguration>({
+    const configurationRef = reactive<SourceConfiguration>({
       content: EXAMPLE_DOCUMENT,
     })
 

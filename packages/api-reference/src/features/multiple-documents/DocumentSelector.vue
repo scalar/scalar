@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ScalarListbox, type ScalarListboxOption } from '@scalar/components'
 import { ScalarIconCaretUpDown } from '@scalar/icons'
-import type { SpecConfiguration } from '@scalar/types/api-reference'
+import type { SourceConfiguration } from '@scalar/types/api-reference'
 import { computed } from 'vue'
 
 const { options, modelValue } = defineProps<{
-  options?: SpecConfiguration[]
+  options?: SourceConfiguration[]
   modelValue?: number
 }>()
 

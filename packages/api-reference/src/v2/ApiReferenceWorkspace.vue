@@ -24,7 +24,7 @@ import { redirectToProxy } from '@scalar/oas-utils/helpers'
 import type {
   AnyApiReferenceConfiguration,
   ApiReferenceConfiguration,
-  ApiReferenceConfigurationWithSources,
+  ApiReferenceConfigurationWithMultipleSources,
 } from '@scalar/types'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { type WorkspaceStore } from '@scalar/workspace-store/client'
@@ -136,7 +136,7 @@ onBeforeMount(() => {
  * @returns The result of adding the document to the store, or undefined if skipped
  */
 const addOrUpdateDocument = async (
-  config: Partial<ApiReferenceConfigurationWithSources>,
+  config: Partial<ApiReferenceConfigurationWithMultipleSources>,
 ) => {
   const document = normalizeContent(config.content)
 

@@ -1,5 +1,5 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+import { apiReferenceConfigurationWithSourceSchema } from '@scalar/types/api-reference'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { inject, nextTick, ref } from 'vue'
 
@@ -25,7 +25,7 @@ describe('useDocumentSource', () => {
     paths: {},
   }
 
-  const mockConfiguration = apiReferenceConfigurationSchema.parse({
+  const mockConfiguration = apiReferenceConfigurationWithSourceSchema.parse({
     content: {
       openapi: '3.1.0',
       info: {

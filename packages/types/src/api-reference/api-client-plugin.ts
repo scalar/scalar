@@ -1,18 +1,18 @@
 import { z } from 'zod'
 
-const SectionViewSchema = z.object({
+const sectionViewSchema = z.object({
   title: z.string().optional(),
   // Since this is meant to be a Vue component, we'll use unknown
   component: z.unknown(),
   props: z.record(z.string(), z.any()).optional(),
 })
 
-const ViewsSchema = z.object({
-  'request.section': z.array(SectionViewSchema).optional(),
-  'response.section': z.array(SectionViewSchema).optional(),
+const viewsSchema = z.object({
+  'request.section': z.array(sectionViewSchema).optional(),
+  'response.section': z.array(sectionViewSchema).optional(),
 })
 
-export const HooksSchema = z.object({
+export const hooksSchema = z.object({
   onBeforeRequest: z
     .function({
       input: [z.object({ request: z.instanceof(Request) })],
@@ -27,13 +27,16 @@ export const HooksSchema = z.object({
     .optional(),
 })
 
-export const ApiClientPluginSchema = z.function({
+/**
+ * An API client plugin that can connect into request and response hooks
+ */
+export const apiClientPluginSchema = z.function({
   input: [],
   output: z.object({
     name: z.string(),
-    views: ViewsSchema.optional(),
-    hooks: HooksSchema.optional(),
+    views: viewsSchema.optional(),
+    hooks: hooksSchema.optional(),
   }),
 })
 
-export type ApiClientPlugin = z.infer<typeof ApiClientPluginSchema>
+export type ApiClientPlugin = z.infer<typeof apiClientPluginSchema>

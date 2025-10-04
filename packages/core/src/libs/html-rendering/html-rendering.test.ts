@@ -1,6 +1,6 @@
 import {
-  type ApiReferenceConfiguration,
-  apiReferenceConfigurationSchema,
+  type ApiReferenceConfigurationWithSource,
+  apiReferenceConfigurationWithSourceSchema,
   htmlRenderingConfigurationSchema,
 } from '@scalar/types/api-reference'
 import { describe, expect, it } from 'vitest'
@@ -99,7 +99,7 @@ describe('html-rendering', () => {
   describe('getScriptTags', () => {
     it('returns script tags with default CDN', () => {
       const tags = getScriptTags(
-        apiReferenceConfigurationSchema.parse({}),
+        apiReferenceConfigurationWithSourceSchema.parse({}),
         'https://cdn.jsdelivr.net/npm/@scalar/api-reference',
       )
       expect(tags).toContain('<!-- Load the Script -->')
@@ -108,7 +108,7 @@ describe('html-rendering', () => {
     })
 
     it('uses custom CDN when provided', () => {
-      const tags = getScriptTags(apiReferenceConfigurationSchema.parse({}), 'https://example.com/script.js')
+      const tags = getScriptTags(apiReferenceConfigurationWithSourceSchema.parse({}), 'https://example.com/script.js')
       expect(tags).toContain('https://example.com/script.js')
     })
 
@@ -130,7 +130,7 @@ describe('html-rendering', () => {
         onShowMore: (tagId) => console.log('show more', tagId),
         onSidebarClick: (href) => console.log('sidebar click', href),
         onRequestSent: (request) => console.log('request sent', request),
-      } satisfies Partial<ApiReferenceConfiguration>
+      } satisfies Partial<ApiReferenceConfigurationWithSource>
 
       const tags = getScriptTags(config, 'https://example.com/script.js')
 
@@ -245,19 +245,19 @@ describe('html-rendering', () => {
 
   describe('getConfiguration', () => {
     it('returns configuration object', () => {
-      const config = getConfiguration({ theme: 'kepler' } as ApiReferenceConfiguration)
+      const config = getConfiguration({ theme: 'kepler' } as ApiReferenceConfigurationWithSource)
       expect(config).toEqual({ theme: 'kepler' })
     })
 
     it('does not remove content when url is not provided', () => {
       const content = { foo: 'bar' }
-      const config = getConfiguration(apiReferenceConfigurationSchema.parse({ content }))
+      const config = getConfiguration(apiReferenceConfigurationWithSourceSchema.parse({ content }))
       expect(config).toMatchObject({ content })
     })
 
     it('removes content only when url is provided', () => {
       const config = getConfiguration(
-        apiReferenceConfigurationSchema.parse({
+        apiReferenceConfigurationWithSourceSchema.parse({
           url: 'https://api.example.com/spec',
           content: { foo: 'bar' },
         }),
@@ -268,7 +268,7 @@ describe('html-rendering', () => {
 
     it('executes content when it is a function', () => {
       const contentFn = () => ({ foo: 'bar' })
-      const config = getConfiguration(apiReferenceConfigurationSchema.parse({ content: contentFn }))
+      const config = getConfiguration(apiReferenceConfigurationWithSourceSchema.parse({ content: contentFn }))
       expect(config).toMatchObject({ content: { foo: 'bar' } })
     })
   })

@@ -1,4 +1,4 @@
-import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+import { apiReferenceConfigurationWithSourceSchema } from '@scalar/types/api-reference'
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed } from 'vue'
@@ -26,7 +26,7 @@ describe('DownloadLink', () => {
 
   const createWrapper = (configOverrides = {}, props = {}) => {
     const config = computed(() =>
-      apiReferenceConfigurationSchema.parse({
+      apiReferenceConfigurationWithSourceSchema.parse({
         documentDownloadType: 'json',
         ...configOverrides,
       }),

@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from './api-reference-configuration'
+
+import {
+  type ApiReferenceConfiguration,
+  apiReferenceConfigurationSchema,
+  apiReferenceConfigurationWithSourceSchema,
+} from './api-reference-configuration'
 
 describe('api-reference-configuration', () => {
   describe('schema', () => {
@@ -217,7 +222,7 @@ describe('api-reference-configuration', () => {
         },
       }
 
-      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+      const migratedConfig = apiReferenceConfigurationWithSourceSchema.parse(config)
 
       expect(migratedConfig.spec).toBeUndefined()
       expect(migratedConfig.url).toBe('https://example.com/openapi.json')
@@ -230,7 +235,7 @@ describe('api-reference-configuration', () => {
         },
       }
 
-      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+      const migratedConfig = apiReferenceConfigurationWithSourceSchema.parse(config)
 
       expect(migratedConfig.spec).toBeUndefined()
       expect(migratedConfig.content).toBe('{"openapi": "3.1.0"}')

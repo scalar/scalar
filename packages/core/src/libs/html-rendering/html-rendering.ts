@@ -1,4 +1,4 @@
-import type { ApiReferenceConfiguration, HtmlRenderingConfiguration } from '@scalar/types/api-reference'
+import type { ApiReferenceConfigurationWithSource, HtmlRenderingConfiguration } from '@scalar/types/api-reference'
 
 // Re-export the type for convenience
 export type { HtmlRenderingConfiguration }
@@ -90,7 +90,7 @@ const serializeArrayWithFunctions = (arr: unknown[]): string => {
 /**
  * The script tags to load the @scalar/api-reference package from the CDN.
  */
-export function getScriptTags(configuration: Partial<ApiReferenceConfiguration>, cdn?: string) {
+export function getScriptTags(configuration: Partial<ApiReferenceConfigurationWithSource>, cdn?: string) {
   const restConfig = { ...configuration }
 
   const functionProps: string[] = []
@@ -129,8 +129,8 @@ export function getScriptTags(configuration: Partial<ApiReferenceConfiguration>,
  * The configuration to pass to the @scalar/api-reference package.
  */
 export const getConfiguration = (
-  givenConfiguration: Partial<ApiReferenceConfiguration>,
-): Partial<ApiReferenceConfiguration> => {
+  givenConfiguration: Partial<ApiReferenceConfigurationWithSource>,
+): Partial<ApiReferenceConfigurationWithSource> => {
   // Clone the given configuration
   const configuration = {
     ...givenConfiguration,

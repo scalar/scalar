@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
+
 import { serve } from '@hono/node-server'
 import { getHtmlDocument } from '@scalar/core/libs/html-rendering'
 import type { HtmlRenderingConfiguration } from '@scalar/types/api-reference'

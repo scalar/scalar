@@ -1,6 +1,6 @@
 import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { fetchDocument, prettyPrintJson } from '@scalar/oas-utils/helpers'
-import type { ApiReferenceConfiguration, SpecConfiguration } from '@scalar/types/api-reference'
+import type { ApiReferenceConfigurationWithSource, SourceConfiguration } from '@scalar/types/api-reference'
 import { type MaybeRefOrGetter, ref, toValue, watch } from 'vue'
 
 /**
@@ -9,7 +9,7 @@ import { type MaybeRefOrGetter, ref, toValue, watch } from 'vue'
 export function useDocumentFetcher({
   configuration,
 }: {
-  configuration?: MaybeRefOrGetter<Pick<ApiReferenceConfiguration, 'url' | 'content' | 'proxyUrl' | 'fetch'>>
+  configuration?: MaybeRefOrGetter<Pick<ApiReferenceConfigurationWithSource, 'url' | 'content' | 'proxyUrl' | 'fetch'>>
 }) {
   /** OpenAPI document as a string */
   const originalDocument = ref<string>('')
@@ -45,7 +45,7 @@ export function useDocumentFetcher({
  * 5. Otherwise, return an empty string.
  */
 const getContent = async (
-  { url, content }: SpecConfiguration,
+  { url, content }: SourceConfiguration,
   proxyUrl?: string,
   fetch?: (input: string | URL | globalThis.Request, init?: RequestInit) => Promise<Response>,
 ): Promise<string | undefined> => {
