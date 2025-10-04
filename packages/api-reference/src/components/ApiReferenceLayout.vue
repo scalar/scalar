@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { provideUseId } from '@headlessui/vue'
 import { OpenApiClientButton } from '@scalar/api-client/components'
+import { EnvironmentManagementButton } from '@/features/environment-management'
 import { LAYOUT_SYMBOL } from '@scalar/api-client/hooks'
 import {
   ACTIVE_ENTITIES_SYMBOL,
@@ -91,6 +92,7 @@ const configuration = computed(() => ({
   persistAuth: providedConfiguration.persistAuth ?? false,
   documentDownloadType: providedConfiguration.documentDownloadType ?? 'both',
   onBeforeRequest: providedConfiguration.onBeforeRequest,
+  allowEnvironmentManagement: providedConfiguration.allowEnvironmentManagement ?? false,
 }))
 
 // ---------------------------------------------------------------------------
@@ -377,6 +379,7 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
                     :integration="configuration._integration"
                     :isDevelopment="isDevelopment"
                     :url="configuration.url" />
+                  <EnvironmentManagementButton />
                   <!-- Override the dark mode toggle slot to hide it -->
                   <template #toggle>
                     <ScalarColorModeToggleButton
