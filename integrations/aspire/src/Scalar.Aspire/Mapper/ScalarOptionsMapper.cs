@@ -74,7 +74,8 @@ internal static class ScalarOptionsMapper
             PersistAuth = options.PersistentAuthentication,
             DocumentDownloadType = options.DocumentDownloadType?.ToStringFast(true),
             OrderRequiredPropertiesFirst = options.OrderRequiredPropertiesFirst,
-            OrderSchemaPropertiesBy = options.SchemaPropertyOrder?.ToStringFast(true)
+            OrderSchemaPropertiesBy = options.SchemaPropertyOrder?.ToStringFast(true),
+            ShowOperationId = options.ShowOperationId
         };
     }
 
