@@ -1,4 +1,8 @@
-import type { AnyApiReferenceConfiguration, ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import type {
+  AnyApiReferenceConfiguration,
+  ApiReferenceConfiguration,
+  ApiReferenceConfigurationWithSource,
+} from '@scalar/types/api-reference'
 import type { OpenAPIV3_1 } from '@scalar/types/legacy'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 export type { ApiReferenceConfiguration }
@@ -11,7 +15,7 @@ export type ReferenceProps = {
  * Before the configuration is parsed, we can use the broader types.
  */
 export type ReferenceLayoutProps = {
-  configuration: Partial<ApiReferenceConfiguration>
+  configuration: Partial<ApiReferenceConfigurationWithSource>
   /**
    *
    * The OpenAPI 3.1 document, but all $ref's are resolved already.

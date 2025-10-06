@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import type { ThemeId } from '@scalar/types'
-import type { ApiReferenceConfigurationWithSources } from '@scalar/types/api-reference'
+import type { ApiReferenceConfigurationWithMultipleSources } from '@scalar/types/api-reference'
 
 import { sources } from '../content/sources'
 
 defineProps<{
-  modelValue: Partial<ApiReferenceConfigurationWithSources>
+  modelValue: Partial<ApiReferenceConfigurationWithMultipleSources>
 }>()
 
 defineEmits<{
   (
     e: 'update:modelValue',
-    value: Partial<ApiReferenceConfigurationWithSources>,
+    value: Partial<ApiReferenceConfigurationWithMultipleSources>,
   ): void
 }>()
 

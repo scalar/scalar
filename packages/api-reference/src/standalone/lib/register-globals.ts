@@ -1,5 +1,6 @@
-import { createApiReference } from '@/standalone/lib/html-api'
 import type { CreateApiReference } from '@scalar/types/api-reference'
+
+import { createApiReference } from '@/standalone/lib/html-api'
 
 // Register the createApiReference function in the global Scalar object (new)
 declare global {

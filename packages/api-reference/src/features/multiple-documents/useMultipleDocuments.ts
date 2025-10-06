@@ -2,8 +2,8 @@ import { isDefined } from '@scalar/oas-utils/helpers'
 import {
   type AnyApiReferenceConfiguration,
   type ApiReferenceConfiguration,
-  type SpecConfiguration,
-  apiReferenceConfigurationSchema,
+  type SourceConfiguration,
+  apiReferenceConfigurationWithSourceSchema,
   isConfigurationWithSources,
 } from '@scalar/types/api-reference'
 import GithubSlugger from 'github-slugger'
@@ -35,7 +35,7 @@ const slugger = new GithubSlugger()
  */
 export const normalizeConfigurations = (
   configuration: AnyApiReferenceConfiguration | undefined,
-): SpecConfiguration[] => {
+): SourceConfiguration[] => {
   if (!configuration) {
     return []
   }
@@ -67,10 +67,10 @@ export const normalizeConfigurations = (
 }
 
 /** Process a single spec configuration so that it has a title and a slug */
-const addSlugAndTitle = (_source: SpecConfiguration, index = 0): SpecConfiguration | undefined => {
+const addSlugAndTitle = (_source: SourceConfiguration, index = 0): SourceConfiguration | undefined => {
   const source = {
     ..._source,
-    // @ts-expect-error this is before parsing so we transform the old style
+    // this is before parsing so we transform the old style
     ...(_source.spec ?? {}),
   }
 
@@ -119,8 +119,8 @@ export const useMultipleDocuments = ({
   hash,
   hashPrefix,
 }: UseMultipleDocumentsProps): {
-  selectedConfiguration: ComputedRef<z.infer<typeof apiReferenceConfigurationSchema>>
-  availableDocuments: Ref<SpecConfiguration[]>
+  selectedConfiguration: ComputedRef<z.infer<typeof apiReferenceConfigurationWithSourceSchema>>
+  availableDocuments: Ref<SourceConfiguration[]>
   selectedDocumentIndex: Ref<number>
   isIntersectionEnabled: Ref<boolean>
   hash: Ref<string>
@@ -129,7 +129,7 @@ export const useMultipleDocuments = ({
   /**
    * All available documents that can be selected
    */
-  const availableDocuments = computed((): SpecConfiguration[] => normalizeConfigurations(configuration.value))
+  const availableDocuments = computed((): SourceConfiguration[] => normalizeConfigurations(configuration.value))
 
   /**
    * Determines the initially selected API definition from the URL
@@ -182,11 +182,11 @@ export const useMultipleDocuments = ({
    * The currently selected API configuration
    * we also add the source options (slug, title, etc) to the configuration
    */
-  const selectedConfiguration = computed((): z.infer<typeof apiReferenceConfigurationSchema> => {
+  const selectedConfiguration = computed((): z.infer<typeof apiReferenceConfigurationWithSourceSchema> => {
     const overrides = configurationOverrides?.value ?? {}
     // Multiple sources
     if (configuration.value && isConfigurationWithSources(configuration.value)) {
-      return apiReferenceConfigurationSchema.parse({
+      return apiReferenceConfigurationWithSourceSchema.parse({
         ...configuration.value,
         ...configuration.value?.sources?.[selectedDocumentIndex.value],
         ...availableDocuments.value[selectedDocumentIndex.value],
@@ -195,7 +195,7 @@ export const useMultipleDocuments = ({
     }
 
     const flattenedConfig = [configuration.value].flat()[selectedDocumentIndex.value] ?? {}
-    return apiReferenceConfigurationSchema.parse({
+    return apiReferenceConfigurationWithSourceSchema.parse({
       ...flattenedConfig,
       ...availableDocuments.value[selectedDocumentIndex.value],
       ...overrides,

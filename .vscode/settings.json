@@ -89,5 +89,5 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "vitest.commandLine": "pnpm vitest",
   "vitest.enable": true,
-  "cSpell.words": ["microdiff"]
+  "cSpell.words": ["microdiff", "Typeguard"]
 }
