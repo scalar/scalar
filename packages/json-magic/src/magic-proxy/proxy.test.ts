@@ -1955,5 +1955,33 @@ describe('createMagicProxy', () => {
       // __scalar_ properties in referenced objects should be hidden
       expect(result.publicRef['$ref-value'].__scalar_internal).toBe(undefined)
     })
+
+    it('preserves regular underscore properties', () => {
+      const input = {
+        _id: 'user123',
+        user_name: 'john',
+        __version: '1.0',
+        normal_property: 'visible',
+      }
+
+      const result = createMagicProxy(input)
+
+      // Regular underscore properties should be visible
+      expect(result._id).toBe('user123')
+      expect(result.user_name).toBe('john')
+      expect(result.__version).toBe('1.0')
+      expect(result.normal_property).toBe('visible')
+
+      // Should be included in enumeration and "in" checks
+      expect('_id' in result).toBe(true)
+      expect('user_name' in result).toBe(true)
+      expect('__version' in result).toBe(true)
+
+      const keys = Object.keys(result)
+      expect(keys).toContain('_id')
+      expect(keys).toContain('user_name')
+      expect(keys).toContain('__version')
+      expect(keys).toContain('normal_property')
+    })
   })
 })
