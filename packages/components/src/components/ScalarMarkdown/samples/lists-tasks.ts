@@ -10,14 +10,14 @@ Task list
 Task list with nested lists
 
 - [x] Write the press release
-  - [x] Draft the content
-  - [x] Review with the team
+    - [x] Draft the content
+    - [x] Review with the team
 - [ ] Update the website
-  - Unordered sublist item
-  - Another sublist item
+    - Unordered sublist item
+    - Another sublist item
 - [ ] Update the website
-  1. Ordered sublist item
-  2. Another sublist item
+    1. Ordered sublist item
+    2. Another sublist item
 - [ ] Contact the media
 
 ---

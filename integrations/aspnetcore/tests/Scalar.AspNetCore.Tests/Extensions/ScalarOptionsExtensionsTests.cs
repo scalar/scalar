@@ -65,7 +65,9 @@ public class ScalarOptionsExtensionsTests
             .WithJavaScriptConfiguration("/scalar/config.js")
             .WithPersistentAuthentication()
             .WithOrderRequiredPropertiesFirst()
-            .WithSchemaPropertyOrder(PropertyOrder.Alpha);
+            .WithSchemaPropertyOrder(PropertyOrder.Alpha)
+            .WithShowToolbar(ToolbarVisibility.Always)
+            .WithShowOperationId();
 
         // Assert
         options.Title.Should().Be("My title");
@@ -116,6 +118,8 @@ public class ScalarOptionsExtensionsTests
         options.PersistentAuthentication.Should().BeTrue();
         options.OrderRequiredPropertiesFirst.Should().BeTrue();
         options.SchemaPropertyOrder.Should().Be(PropertyOrder.Alpha);
+        options.ShowToolbar.Should().Be(ToolbarVisibility.Always);
+        options.ShowOperationId.Should().BeTrue();
 
 #pragma warning restore CS0618 // Type or member is obsolete
     }

@@ -38,6 +38,13 @@ internal static class ServiceCollectionExtensions
                     document.Components ??= new OpenApiComponents();
                     document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
                     document.Components.SecuritySchemes.Add(AuthConstants.ApiKeyScheme, securityScheme);
+
+                    var schemeReference = new OpenApiSecuritySchemeReference(AuthConstants.ApiKeyScheme, document);
+                    var securityRequirement = new OpenApiSecurityRequirement
+                    {
+                        [schemeReference] = []
+                    };
+                    document.Security = [securityRequirement];
                     return Task.CompletedTask;
                 });
 

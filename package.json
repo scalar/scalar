@@ -99,6 +99,7 @@
     "types:check:raw": "pnpm run -r --parallel types:check",
     "types:build": "turbo types:build",
     "markdown:check": "remark --frail .",
+    "renovate:validate": "pnpm dlx --package renovate renovate-config-validator",
     "script": "pnpm --filter @scalar-internal/build-scripts start"
   },
   "exports": {

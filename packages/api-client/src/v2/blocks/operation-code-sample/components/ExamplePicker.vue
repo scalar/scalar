@@ -39,7 +39,6 @@ const selectedExample = computed<ScalarListboxOption | undefined>({
     <ScalarButton
       class="text-c-2 hover:text-c-1 flex h-full w-fit min-w-0 gap-1.5 px-1.5 py-0.75 text-base font-normal"
       data-testid="example-picker"
-      fullWidth
       variant="ghost">
       <div class="min-w-0 flex-1 truncate">
         {{ selectedExample?.label ?? 'Select an example' }}
