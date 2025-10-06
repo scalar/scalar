@@ -27,7 +27,7 @@ const schemaOrReference = Type.Union([SchemaObjectRef, reference(SchemaObjectRef
 
 /** We use this type to ensure that we are parsing a schema object as every property can be optional */
 type _InternalType = CoreProperties & {
-  _: string
+  __scalar_: string
 } & Extensions
 
 /**
