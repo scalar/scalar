@@ -147,7 +147,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
   </p>
   <div class="flex gap-2 mb-11">
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
-    <a class="t-editor__button" href="https://cal.com/scalar/30min" target="_blank">Book a Demo</a>
+    <a class="t-editor__button" href="https://scalar.cal.com/shane/projectsuccess" target="_blank">Book a Demo</a>
   </div>
   <a class="expander-hover-link" href="https://discord.gg/scalar" target="_blank">Community →</a>
   <a class="expander-hover-link" href="https://github.com/scalar/scalar" target="_blank">GitHub →</a>
