@@ -373,7 +373,7 @@ export const SchemaObjectSchemaDefinition = Type.Union([
   // Make sure there is always a required field so not all properties are optional
   // When all properties are optional (1) typescript will not throw any warnings/error and accepts anything
   // even a non resolved ref and (2) it will match any schema so it will not validate the refs correctly
-  compose(Type.Object({ _: Type.String() }), CorePropertiesWithSchema, Extensions),
+  compose(Type.Object({ __scalar_: Type.String() }), CorePropertiesWithSchema, Extensions),
   compose(OtherTypes, CorePropertiesWithSchema, Extensions),
   compose(NumericProperties, CorePropertiesWithSchema, Extensions),
   compose(StringValidationProperties, CorePropertiesWithSchema, Extensions),
