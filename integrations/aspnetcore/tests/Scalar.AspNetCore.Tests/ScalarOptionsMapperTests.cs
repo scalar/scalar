@@ -13,31 +13,30 @@ public class ScalarOptionsMapperTests
 
         // Assert
         configuration.ProxyUrl.Should().BeNull();
-        configuration.ShowSidebar.Should().BeTrue();
+        configuration.ShowSidebar.Should().BeNull();
         configuration.OperationTitleSource.Should().BeNull();
-        configuration.HideModels.Should().BeFalse();
+        configuration.HideModels.Should().BeNull();
         configuration.DocumentDownloadType.Should().BeNull();
-        configuration.HideTestRequestButton.Should().BeFalse();
-        configuration.DarkMode.Should().BeTrue();
+        configuration.HideTestRequestButton.Should().BeNull();
+        configuration.DarkMode.Should().BeNull();
         configuration.ForceDarkModeState.Should().BeNull();
-        configuration.HideDarkModeToggle.Should().BeFalse();
+        configuration.HideDarkModeToggle.Should().BeNull();
         configuration.CustomCss.Should().BeNull();
         configuration.SearchHotKey.Should().BeNull();
         configuration.Servers.Should().BeNull();
         configuration.MetaData.Should().BeNull();
-        configuration.DefaultHttpClient!.TargetKey.Should().Be(ScalarTarget.Shell);
-        configuration.DefaultHttpClient!.ClientKey.Should().Be(ScalarClient.Curl);
+        configuration.DefaultHttpClient.Should().BeNull();
         configuration.HiddenClients.Should().BeNull();
         configuration.Authentication.Should().BeNull();
-        configuration.WithDefaultFonts.Should().BeTrue();
-        configuration.DefaultOpenAllTags.Should().BeFalse();
+        configuration.WithDefaultFonts.Should().BeNull();
+        configuration.DefaultOpenAllTags.Should().BeNull();
         configuration.TagSorter.Should().BeNull();
         configuration.OperationsSorter.Should().BeNull();
-        configuration.Theme.Should().Be(ScalarTheme.Purple);
+        configuration.Theme.Should().BeNull();
         configuration.Integration.Should().Be("dotnet");
         configuration.Sources.Should().BeEmpty();
-        configuration.PersistAuth.Should().BeFalse();
-        configuration.OrderRequiredPropertiesFirst.Should().BeFalse();
+        configuration.PersistAuth.Should().BeNull();
+        configuration.OrderRequiredPropertiesFirst.Should().BeNull();
         configuration.OrderSchemaPropertiesBy.Should().BeNull();
     }
 
@@ -83,7 +82,6 @@ public class ScalarOptionsMapperTests
             PersistentAuthentication = true,
             OrderRequiredPropertiesFirst = true,
             SchemaPropertyOrder = PropertyOrder.Alpha,
-            ShowToolbar = ToolbarVisibility.Never
         };
         options.AddDocument("v2");
 
