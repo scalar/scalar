@@ -3,7 +3,7 @@ import { createApiReference } from '../../../src/index'
 
 import '@scalar/api-reference/style.css'
 
-import type { ApiReferenceConfigurationWithSources } from '@scalar/types/api-reference'
+import type { ApiReferenceConfigurationWithSource } from '@scalar/types/api-reference'
 import { onMounted, reactive, ref } from 'vue'
 
 import DebugBar from './components/DebugBar.vue'
@@ -30,7 +30,7 @@ onMounted(async () => {
 })
 
 const updateConfiguration = (
-  newConfiguration: Partial<ApiReferenceConfigurationWithSources>,
+  newConfiguration: Partial<ApiReferenceConfigurationWithSource>,
 ) => {
   Object.assign(configuration, newConfiguration)
   app?.updateConfiguration({

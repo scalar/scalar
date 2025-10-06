@@ -12,7 +12,7 @@ import {
   useSeoMeta,
   useState,
 } from '#imports'
-import { onMounted, ref, toRaw, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 
 import type { Configuration } from '../../types'
 
@@ -23,7 +23,7 @@ const props = defineProps<{
 const isDark = ref(props.configuration.darkMode)
 const forcedMode = props.configuration.forceDarkModeState
 
-const { colorMode, toggleColorMode } = useColorMode({
+const { colorMode } = useColorMode({
   initialColorMode: props.configuration.darkMode ? 'dark' : 'light',
   overrideColorMode: props.configuration.forceDarkModeState,
 })
@@ -162,8 +162,8 @@ store.addDocument({
 
 <template>
   <ApiReferenceWorkspace
-    :store
-    :configuration="config" />
+    :configuration="config"
+    :store />
 </template>
 
 <style>

@@ -1,5 +1,5 @@
 import { collectionSchema, serverSchema } from '@scalar/oas-utils/entities/spec'
-import { apiReferenceConfigurationSchema } from '@scalar/types'
+import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import type {
   TraversedEntry,

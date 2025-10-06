@@ -1,5 +1,6 @@
-import type { ApiClientPlugin } from '@scalar/types/api-client'
+import type { ApiClientPlugin } from '@scalar/types/api-reference'
 import { describe, expect, it, vi } from 'vitest'
+
 import { createPluginManager } from './plugin-manager'
 
 describe('plugin-manager', () => {

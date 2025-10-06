@@ -1,4 +1,3 @@
-<h1>Scalar - The OpenAPI Company</h1>
 <div class="flex flex-col gap-3 hero small-test">
   <h2 class="text-balance">
     Pricing
@@ -39,7 +38,7 @@
                 <b class="text-sm">Enterprise</b>
                 <p class="text-xl font-bold ">Custom Pricing</p>
                 <p class=" text-c-2 text-sm font-normal">* Custom pricing tailored to your API & business needs</p>
-                <a href="https://cal.com/scalar/30min" class="pricing-cta">Contact Sales</a>
+                <a href="https://scalar.cal.com/shane/projectsuccess" class="pricing-cta">Contact Sales</a>
               </div>
             </div>
           </header>
@@ -509,7 +508,7 @@
   </p>
   <div class="flex gap-2 mb-11">
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
-    <a class="t-editor__button" href="https://cal.com/scalar/30min" target="_blank">Book a Demo</a>
+    <a class="t-editor__button" href="https://scalar.cal.com/shane/projectsuccess" target="_blank">Book a Demo</a>
   </div>
   <a class="expander-hover-link" href="https://discord.gg/scalar" target="_blank">Community →</a>
   <a class="expander-hover-link" href="https://github.com/scalar/scalar" target="_blank">GitHub →</a>

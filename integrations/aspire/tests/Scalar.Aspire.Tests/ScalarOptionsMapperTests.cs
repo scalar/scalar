@@ -77,7 +77,8 @@ public class ScalarOptionsMapperTests
             OperationSorter = OperationSorter.Method,
             HideClientButton = true,
             PersistentAuthentication = true,
-            DocumentDownloadType = DocumentDownloadType.Json
+            DocumentDownloadType = DocumentDownloadType.Json,
+            ShowToolbar = ToolbarVisibility.Never
         };
         options.AddDocument("v2");
 

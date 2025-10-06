@@ -57,12 +57,12 @@ async function fetchExampleSpecification() {
       </p>
       <div class="start-cta">
         <ScalarButton
-          fullWidth
+          class="w-full"
           @click="fetchExampleSpecification">
           Show Example
         </ScalarButton>
         <ScalarButton
-          fullWidth
+          class="w-full"
           variant="outlined"
           @click="$emit('loadSwaggerFile')">
           Upload File

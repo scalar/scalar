@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from './api-reference-configuration'
+
+import {
+  type ApiReferenceConfiguration,
+  apiReferenceConfigurationSchema,
+  apiReferenceConfigurationWithSourceSchema,
+} from './api-reference-configuration'
 
 describe('api-reference-configuration', () => {
   describe('schema', () => {
@@ -105,7 +110,7 @@ describe('api-reference-configuration', () => {
       const invalidConfigs = [{ url: 999 }, { content: 123 }]
 
       invalidConfigs.forEach((config) => {
-        expect(() => apiReferenceConfigurationSchema.parse(config)).toThrow()
+        expect(() => apiReferenceConfigurationWithSourceSchema.parse(config)).toThrow()
       })
     })
 
@@ -183,9 +188,10 @@ describe('api-reference-configuration', () => {
         proxy: 'https://proxy.example.com',
       }
 
-      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+      const migratedConfig = apiReferenceConfigurationWithSourceSchema.parse(config)
 
       expect(migratedConfig.proxyUrl).toBe('https://proxy.example.com')
+      // @ts-expect-error proxy is not in the type
       expect(migratedConfig.proxy).toBeUndefined()
     })
 
@@ -195,8 +201,9 @@ describe('api-reference-configuration', () => {
         proxyUrl: 'https://existing.example.com',
       }
 
-      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+      const migratedConfig = apiReferenceConfigurationWithSourceSchema.parse(config)
       expect(migratedConfig.proxyUrl).toBe('https://existing.example.com')
+      // @ts-expect-error proxy is not in the type
       expect(migratedConfig.proxy).toBeUndefined()
     })
 
@@ -205,8 +212,10 @@ describe('api-reference-configuration', () => {
         proxyUrl: 'https://api.scalar.com/request-proxy',
       }
 
-      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+      const migratedConfig = apiReferenceConfigurationWithSourceSchema.parse(config)
       expect(migratedConfig.proxyUrl).toBe('https://proxy.scalar.com')
+
+      // @ts-expect-error proxy is not in the type
       expect(migratedConfig.proxy).toBeUndefined()
     })
 
@@ -217,7 +226,7 @@ describe('api-reference-configuration', () => {
         },
       }
 
-      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+      const migratedConfig = apiReferenceConfigurationWithSourceSchema.parse(config)
 
       expect(migratedConfig.spec).toBeUndefined()
       expect(migratedConfig.url).toBe('https://example.com/openapi.json')
@@ -230,7 +239,7 @@ describe('api-reference-configuration', () => {
         },
       }
 
-      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+      const migratedConfig = apiReferenceConfigurationWithSourceSchema.parse(config)
 
       expect(migratedConfig.spec).toBeUndefined()
       expect(migratedConfig.content).toBe('{"openapi": "3.1.0"}')

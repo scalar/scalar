@@ -1,21 +1,21 @@
-import type { ReferenceProps } from '@/types'
-import {
-  type AnyApiReferenceConfiguration,
-  type ApiReferenceConfiguration,
-  type CreateApiReference,
-  apiReferenceConfigurationSchema,
+import { apiReferenceConfigurationWithSourceSchema } from '@scalar/types'
+import type {
+  AnyApiReferenceConfiguration,
+  ApiReferenceConfigurationWithSource,
+  CreateApiReference,
 } from '@scalar/types/api-reference'
 import { createHead } from '@unhead/vue'
 import { createApp, h, reactive } from 'vue'
 
 import { default as ApiReference } from '@/components/ApiReference.vue'
+import type { ReferenceProps } from '@/types'
 
 const getSpecScriptTag = (doc: Document) => doc.getElementById('api-reference')
 
 /**
  * Reading the configuration from the data-attributes.
  */
-export function getConfigurationFromDataAttributes(doc: Document): ApiReferenceConfiguration {
+export function getConfigurationFromDataAttributes(doc: Document): ApiReferenceConfigurationWithSource {
   const specElement = doc.querySelector('[data-spec]')
   const specUrlElement = doc.querySelector('[data-spec-url]')
   const configurationScriptElement = doc.querySelector('#api-reference[data-configuration]')
@@ -33,7 +33,7 @@ export function getConfigurationFromDataAttributes(doc: Document): ApiReferenceC
       }
     }
 
-    return apiReferenceConfigurationSchema.parse({ _integration: 'html' })
+    return apiReferenceConfigurationWithSourceSchema.parse({ _integration: 'html' })
   }
 
   const getUrl = () => {
@@ -117,7 +117,7 @@ export function getConfigurationFromDataAttributes(doc: Document): ApiReferenceC
   } else {
     const urlOrContent = getContent() ? { content: getContent() } : { url: getUrl() }
 
-    return apiReferenceConfigurationSchema.parse({
+    return apiReferenceConfigurationWithSourceSchema.parse({
       _integration: 'html',
       proxyUrl: getProxyUrl(),
       ...getConfiguration(),
@@ -125,14 +125,14 @@ export function getConfigurationFromDataAttributes(doc: Document): ApiReferenceC
     })
   }
 
-  return apiReferenceConfigurationSchema.parse({ _integration: 'html' })
+  return apiReferenceConfigurationWithSourceSchema.parse({ _integration: 'html' })
 }
 
 /**
  * Mount the Scalar API Reference on a given document.
  * Read the HTML data-attributes for configuration.
  */
-export function findDataAttributes(doc: Document, configuration: ApiReferenceConfiguration) {
+export function findDataAttributes(doc: Document, configuration: ApiReferenceConfigurationWithSource) {
   /** @deprecated Use the new <script id="api-reference" data-url="/scalar.json" /> API instead. */
   const specElement = doc.querySelector('[data-spec]')
   /** @deprecated Use the new <script id="api-reference" data-url="/scalar.json" /> API instead. */
