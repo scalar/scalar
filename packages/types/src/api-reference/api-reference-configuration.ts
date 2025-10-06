@@ -220,6 +220,11 @@ export const apiClientConfigurationSchema = z.object({
    * @default false
    */
   hideClientButton: z.boolean().optional().default(false).catch(false),
+  /**
+   * Whether to allow the environment variablesmanagement
+   * @default false
+   */
+  allowEnvironmentManagement: z.boolean().optional().default(false).catch(false),
   /** URL to a request proxy for the API client */
   proxyUrl: z.string().optional(),
   /** Key used with CTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */
