@@ -380,7 +380,7 @@
     },
 
     {
-      "description": "Disable any docker updates for Aspire",
+      "description": "Disable any docker updates for .NET Aspire",
       "matchFileNames": ["**/aspire/**"],
       "matchDatasources": ["docker"],
       "enabled": false
