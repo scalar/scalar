@@ -12,28 +12,28 @@
   },
   "recreateWhen": "never",
   "packageRules": [
-    // Keep this in sync with package.json minimumReleaseAge
     {
+      "description": "Keep this in sync with package.json minimumReleaseAge",
       "matchDatasources": ["npm"],
       "minimumReleaseAge": "7 days"
     },
 
-    // Group major dependencies
     {
+      "description": "Group major dependencies",
       "matchUpdateTypes": ["major"],
       "matchPackageNames": ["*"],
       "groupName": "major dependencies"
     },
 
-    // group minor and patch dependencies
     {
+      "description": "Group minor and patch dependencies",
       "matchUpdateTypes": ["patch", "minor"],
       "matchPackageNames": ["*"],
       "groupName": "dependencies"
     },
 
-    // Update commit prefix for separate scope
     {
+      "description": "Update commit prefix for separate scope",
       "matchFileNames": [
         "packages/**",
         "package.json",
@@ -49,298 +49,351 @@
       "semanticCommitType": "chore"
     },
 
-    // Packages
     {
+      "description": "Packages - API Client",
       "matchFileNames": ["packages/api-client/**"],
       "additionalBranchPrefix": "api-client"
     },
     {
+      "description": "Packages - API Client React",
       "matchFileNames": ["packages/api-client-react/**"],
       "additionalBranchPrefix": "api-client-react"
     },
     {
+      "description": "Packages - API Reference",
       "matchFileNames": ["packages/api-reference/**"],
       "additionalBranchPrefix": "api-reference"
     },
     {
+      "description": "Packages - API Reference React",
       "matchFileNames": ["packages/api-reference-react/**"],
       "additionalBranchPrefix": "api-reference-react"
     },
     {
+      "description": "Packages - Build Tooling",
       "matchFileNames": ["packages/build-tooling/**"],
       "additionalBranchPrefix": "build-tooling"
     },
     {
+      "description": "Packages - Code Highlight",
       "matchFileNames": ["packages/code-highlight/**"],
       "additionalBranchPrefix": "code-highlight"
     },
     {
+      "description": "Packages - Components",
       "matchFileNames": ["packages/components/**"],
       "additionalBranchPrefix": "components"
     },
     {
+      "description": "Packages - Config",
       "matchFileNames": ["packages/config/**"],
       "additionalBranchPrefix": "config"
     },
     {
+      "description": "Packages - Core",
       "matchFileNames": ["packages/core/**"],
       "additionalBranchPrefix": "core"
     },
     {
+      "description": "Packages - Draggable",
       "matchFileNames": ["packages/draggable/**"],
       "additionalBranchPrefix": "draggable"
     },
     {
+      "description": "Packages - Galaxy",
       "matchFileNames": ["packages/galaxy/**"],
       "additionalBranchPrefix": "galaxy"
     },
     {
+      "description": "Packages - Helpers",
       "matchFileNames": ["packages/helpers/**"],
       "additionalBranchPrefix": "helpers"
     },
     {
+      "description": "Packages - Icons",
       "matchFileNames": ["packages/icons/**"],
       "additionalBranchPrefix": "icons"
     },
     {
+      "description": "Packages - Import",
       "matchFileNames": ["packages/import/**"],
       "additionalBranchPrefix": "import"
     },
     {
+      "description": "Packages - JSON Diff",
       "matchFileNames": ["packages/json-diff/**"],
       "additionalBranchPrefix": "json-diff"
     },
     {
+      "description": "Packages - Mock Server",
       "matchFileNames": ["packages/mock-server/**"],
       "additionalBranchPrefix": "mock-server"
     },
     {
+      "description": "Packages - NextJS OpenAPI",
       "matchFileNames": ["packages/nextjs-openapi/**"],
       "additionalBranchPrefix": "nextjs-openapi"
     },
     {
+      "description": "Packages - OAS Utils",
       "matchFileNames": ["packages/oas-utils/**"],
       "additionalBranchPrefix": "oas-utils"
     },
     {
+      "description": "Packages - Object Utils",
       "matchFileNames": ["packages/object-utils/**"],
       "additionalBranchPrefix": "object-utils"
     },
     {
+      "description": "Packages - OpenAPI Parser",
       "matchFileNames": ["packages/openapi-parser/**"],
       "additionalBranchPrefix": "openapi-parser"
     },
     {
+      "description": "Packages - OpenAPI to Markdown",
       "matchFileNames": ["packages/openapi-to-markdown/**"],
       "additionalBranchPrefix": "openapi-to-markdown"
     },
     {
+      "description": "Packages - OpenAPI Types",
       "matchFileNames": ["packages/openapi-types/**"],
       "additionalBranchPrefix": "openapi-types"
     },
     {
+      "description": "Packages - Postman to OpenAPI",
       "matchFileNames": ["packages/postman-to-openapi/**"],
       "additionalBranchPrefix": "postman-to-openapi"
     },
     {
+      "description": "Packages - React Renderer",
       "matchFileNames": ["packages/react-renderer/**"],
       "additionalBranchPrefix": "react-renderer"
     },
     {
+      "description": "Packages - Scripts",
       "matchFileNames": ["packages/scripts/**"],
       "additionalBranchPrefix": "scripts"
     },
     {
+      "description": "Packages - Snippetz",
       "matchFileNames": ["packages/snippetz/**"],
       "additionalBranchPrefix": "snippetz"
     },
     {
+      "description": "Packages - Themes",
       "matchFileNames": ["packages/themes/**"],
       "additionalBranchPrefix": "themes"
     },
     {
+      "description": "Packages - TypeScript to OpenAPI",
       "matchFileNames": ["packages/ts-to-openapi/**"],
       "additionalBranchPrefix": "ts-to-openapi"
     },
     {
+      "description": "Packages - Types",
       "matchFileNames": ["packages/types/**"],
       "additionalBranchPrefix": "types"
     },
     {
+      "description": "Packages - Use CodeMirror",
       "matchFileNames": ["packages/use-codemirror/**"],
       "additionalBranchPrefix": "use-codemirror"
     },
     {
+      "description": "Packages - Use Hooks",
       "matchFileNames": ["packages/use-hooks/**"],
       "additionalBranchPrefix": "use-hooks"
     },
     {
+      "description": "Packages - Use Toasts",
       "matchFileNames": ["packages/use-toasts/**"],
       "additionalBranchPrefix": "use-toasts"
     },
     {
+      "description": "Packages - Void Server",
       "matchFileNames": ["packages/void-server/**"],
       "additionalBranchPrefix": "void-server"
     },
     {
+      "description": "Packages - Workspace Store",
       "matchFileNames": ["packages/workspace-store/**"],
       "additionalBranchPrefix": "workspace-store"
     },
 
-    // Global dependencies
     {
+      "description": "Global dependencies",
       "matchFileNames": ["package.json", "pnpm-workspace.yaml"],
       "additionalBranchPrefix": "global"
     },
 
-    // Tooling
     {
+      "description": "Tooling",
       "matchFileNames": ["tooling/**"],
       "additionalBranchPrefix": "tooling"
     },
 
-    // Integrations
     {
+      "description": "Integrations - Aspire",
       "matchFileNames": ["integrations/aspire/**"],
       "additionalBranchPrefix": "aspire"
     },
     {
+      "description": "Integrations - ASP.NET Core",
       "matchFileNames": ["integrations/aspnetcore/**"],
       "additionalBranchPrefix": "aspnetcore"
     },
     {
+      "description": "Integrations - Django Ninja",
       "matchFileNames": ["integrations/django-ninja/**"],
       "additionalBranchPrefix": "django-ninja"
     },
     {
+      "description": "Integrations - Docker",
       "matchFileNames": ["integrations/docker/**"],
       "additionalBranchPrefix": "docker"
     },
     {
+      "description": "Integrations - Docusaurus",
       "matchFileNames": ["integrations/docusaurus/**", "examples/docusaurus/**"],
       "additionalBranchPrefix": "docusaurus"
     },
     {
+      "description": "Integrations - FastAPI",
       "matchFileNames": ["integrations/fastapi/**"],
       "additionalBranchPrefix": "fastapi"
     },
     {
+      "description": "Integrations - Fastify",
       "matchFileNames": ["integrations/fastify/**", "examples/fastify/**"],
       "additionalBranchPrefix": "fastify"
     },
     {
+      "description": "Integrations - Hono",
       "matchFileNames": ["integrations/hono/**"],
       "additionalBranchPrefix": "hono"
     },
     {
+      "description": "Integrations - Java",
       "matchFileNames": ["integrations/java/**"],
       "additionalBranchPrefix": "java"
     },
     {
+      "description": "Integrations - NestJS",
       "matchFileNames": ["integrations/nestjs/**", "examples/nestjs/**"],
       "additionalBranchPrefix": "nestjs"
     },
     {
+      "description": "Integrations - Next.js",
       "matchFileNames": ["integrations/nextjs/**", "examples/nextjs-api-reference/**"],
       "additionalBranchPrefix": "nextjs"
     },
     {
+      "description": "Integrations - Nuxt",
       "matchFileNames": ["integrations/nuxt/**", "examples/nuxt/**"],
       "additionalBranchPrefix": "nuxt"
     },
     {
+      "description": "Integrations - Rust",
+      "matchFileNames": ["integrations/rust/**"],
+      "additionalBranchPrefix": "rust"
+    },
+    {
+      "description": "Integrations - SvelteKit",
       "matchFileNames": ["integrations/sveltekit/**", "examples/sveltekit/**"],
       "additionalBranchPrefix": "sveltekit"
     },
 
-    // Projects
     {
+      "description": "Projects - Client Scalar.com",
       "matchFileNames": ["projects/client-scalar-com/**"],
       "additionalBranchPrefix": "client-scalar-com"
     },
     {
+      "description": "Projects - Proxy Scalar.com",
       "matchFileNames": ["projects/proxy-scalar-com/**"],
       "additionalBranchPrefix": "proxy-scalar-com"
     },
     {
+      "description": "Projects - Scalar App",
       "matchFileNames": ["projects/scalar-app/**"],
       "additionalBranchPrefix": "scalar-app"
     },
 
-    // Playwright
     {
+      "description": "Playwright",
       "matchFileNames": ["playwright/**"],
       "additionalBranchPrefix": "playwright"
     },
 
-    // Scripts
     {
+      "description": "Scripts",
       "matchFileNames": ["scripts/**"],
       "additionalBranchPrefix": "scripts-root"
     },
 
-    // Examples without corresponding integrations
     {
+      "description": "Examples - CDN API Reference",
       "matchFileNames": ["examples/cdn-api-reference/**"],
       "additionalBranchPrefix": "api-reference-example"
     },
     {
+      "description": "Examples - React",
       "matchFileNames": ["examples/react/**", "examples/react-webpack/**"],
       "additionalBranchPrefix": "react-example"
     },
     {
+      "description": "Examples - SSG",
       "matchFileNames": ["examples/ssg/**"],
       "additionalBranchPrefix": "ssg-example"
     },
     {
+      "description": "Examples - Web",
       "matchFileNames": ["examples/web/**"],
       "additionalBranchPrefix": "web-example"
     },
 
-    // Do not group GitHub actions
     {
+      "description": "Do not group GitHub actions",
       "matchDepTypes": ["action"],
       "groupName": null
     },
 
-    // Disable engine updates like node
-    // Disable github runner
-    // Disable uses-with
     {
+      "description": "Disable engine updates like node, github runner, and uses-with",
       "matchDepTypes": ["engines", "github-runner", "uses-with"],
       "enabled": false
     },
 
-    // Keep these package as low as possible for best compatibility
     {
+      "description": "Keep these packages as low as possible for best compatibility",
       "matchFileNames": ["**/Scalar.AspNetCore.*.csproj"],
       "matchPackageNames": ["Microsoft.AspNetCore.OpenApi", "Swashbuckle.AspNetCore.SwaggerGen"],
       "enabled": false
     },
 
-    // Disable patch updates for Aspire.Hosting for best compatibility
     {
+      "description": "Disable patch updates for Aspire.Hosting for best compatibility",
       "matchFileNames": ["**/Scalar.Aspire.csproj"],
       "matchPackageNames": ["Aspire.Hosting"],
       "matchUpdateTypes": ["patch"],
       "enabled": false
     },
 
-    // Disable node updates for Aspire playground image
     {
-      "matchFileNames": ["**/aspire/playground/**"],
+      "description": "Disable any docker updates for Aspire",
+      "matchFileNames": ["**/aspire/**"],
       "matchDatasources": ["docker"],
       "enabled": false
     },
 
-    // Disable .NET SDK updates
     {
+      "description": "Disable .NET SDK updates",
       "matchFileNames": ["**/global.json"],
       "enabled": false
     },
 
-    // Disable major updates for Microsoft.AspNetCore packages
     {
+      "description": "Disable major updates for Microsoft.AspNetCore packages",
       "matchPackageNames": ["Microsoft.AspNetCore**"],
       "matchUpdateTypes": ["major"],
       "enabled": false
