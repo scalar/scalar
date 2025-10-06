@@ -27,6 +27,19 @@ export type TraversedDescription = BaseSchema & {
   children?: TraversedEntry[]
 }
 
+export const TraversedExampleSchemaDefinition = compose(
+  NavigationBaseSchemaDefinition,
+  Type.Object({
+    type: Type.Literal('example'),
+    name: Type.String(),
+  }),
+)
+
+export type TraversedExample = BaseSchema & {
+  type: 'example'
+  name: string
+}
+
 export const TraversedOperationSchemaDefinition = compose(
   NavigationBaseSchemaDefinition,
   Type.Object({
@@ -35,6 +48,7 @@ export const TraversedOperationSchemaDefinition = compose(
     method: Type.Union(HTTP_METHODS.map((method) => Type.Literal(method))) as unknown as TLiteral<HttpMethod>,
     path: Type.String(),
     isDeprecated: Type.Optional(Type.Boolean()),
+    children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
   }),
 )
 
@@ -44,6 +58,7 @@ export type TraversedOperation = BaseSchema & {
   method: HttpMethod
   path: string
   isDeprecated?: boolean
+  children?: TraversedEntry[]
 }
 
 export const TraversedSchemaSchemaDefinition = compose(
@@ -109,6 +124,7 @@ export const TraversedEntrySchemaDefinition = Type.Union([
   TraversedSchemaSchemaDefinition,
   TraversedTagSchemaDefinition,
   TraversedWebhookSchemaDefinition,
+  TraversedExampleSchemaDefinition,
 ])
 
 export type TraversedEntry =
@@ -117,3 +133,4 @@ export type TraversedEntry =
   | TraversedSchema
   | TraversedTag
   | TraversedWebhook
+  | TraversedExample
