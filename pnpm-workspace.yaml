@@ -22,8 +22,6 @@ minimumReleaseAgeExclude:
 
 catalogs:
   '*':
-    '@electron-toolkit/preload': ^3.0.0
-    '@electron-toolkit/utils': ^3.0.0
     '@fastify/swagger': ^8.10.1
     '@floating-ui/utils': 0.2.10
     '@floating-ui/vue': 1.1.9
@@ -48,13 +46,9 @@ catalogs:
     chokidar: 4.0.3
     commander: 13.1.0
     concurrently: 9.1.2
-    electron: 37.3.1
-    electron-vite: 4.0.0
-    electron-window-state: ^5.0.3
     esbuild: 0.25.6
     express: 5.1.0
     fastify: ^5.3.3
-    fathom-client: ^3.7.2
     flatted: ^3.3.3
     fuse.js: ^7.1.0
     hono: 4.9.7
