@@ -141,8 +141,8 @@ test.describe('hiddenClients', () => {
     // XHR should be visible
     await expect(page.getByRole('listbox').getByRole('option', { name: 'XHR', exact: true })).toHaveCount(1)
 
-    // C# should have HttpClient but not have RestSharp
-    await expect(page.getByRole('listbox').getByRole('option', { name: 'HttpClient', exact: true })).toHaveCount(1)
+    // C# and F# should have HttpClient but not have RestSharp
+    await expect(page.getByRole('listbox').getByRole('option', { name: 'HttpClient', exact: true })).toHaveCount(2)
     await expect(page.getByRole('listbox').getByRole('option', { name: 'RestSharp', exact: true })).toHaveCount(0)
   })
 

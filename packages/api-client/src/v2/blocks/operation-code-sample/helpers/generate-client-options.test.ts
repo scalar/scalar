@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest'
-import { generateClientOptions, generateCustomId } from './generate-client-options'
 import type { XCodeSample } from '@scalar/openapi-types/schemas/extensions'
+import { describe, expect, it } from 'vitest'
+
+import { generateClientOptions, generateCustomId } from './generate-client-options'
 
 describe('generateClientOptions', () => {
   describe('when hiddenClients is true', () => {
@@ -150,7 +151,7 @@ describe('generateClientOptions', () => {
         python: ['requests'], // Hide only requests from python
       })
 
-      expect(result).toHaveLength(19) // js is completely hidden
+      expect(result).toHaveLength(20) // js is completely hidden
       expect(result.map((group) => group.label)).not.toContain('JavaScript')
 
       // Check node group - axios, ofetch, and undici should remain
@@ -240,7 +241,7 @@ describe('generateClientOptions', () => {
         js: ['fetch', 'axios', 'ofetch', 'jquery', 'xhr'], // Hide all js clients
       })
 
-      expect(result).toHaveLength(19) // js group should be removed
+      expect(result).toHaveLength(20) // js group should be removed
       expect(result.map((group) => group.label)).not.toContain('JavaScript')
     })
 
