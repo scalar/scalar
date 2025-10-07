@@ -137,6 +137,23 @@ const handleDragEnd = (
           :item="item"
           name="aside" />
       </div>
+      <p
+        v-if="item.type === 'operation' || item.type === 'webhook'"
+        class="sidebar-heading-link-method">
+        &hairsp;
+        <span class="sr-only">HTTP Method:&nbsp;</span>
+        <SidebarHttpBadge
+          :active="selectedItems[item.id] ?? false"
+          class="min-w-9.75 justify-end text-right"
+          :method="item.method">
+          <ScalarIconWebhooksLogo
+            v-if="item.type === 'webhook'"
+            :style="{
+              color: getHttpMethodInfo(item.method).colorVar,
+            }"
+            weight="bold" />
+        </SidebarHttpBadge>
+      </p>
       <template
         v-if="item.type === 'document'"
         #icon="{ open }">
