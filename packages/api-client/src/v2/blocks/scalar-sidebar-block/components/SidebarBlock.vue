@@ -24,6 +24,13 @@ const emit = defineEmits<{
   (e: 'reorder', draggingItem: DraggingItem, hoveredItem: HoveredItem): void
 }>()
 
+defineSlots<{
+  aside?(props: { item: TraversedEntry }): unknown
+  footer?(): unknown
+  search?(): unknown
+  default?(): unknown
+}>()
+
 const filteredItems = (items: TraversedEntry[]) => {
   if (layout === 'reference') {
     return items
@@ -79,11 +86,10 @@ const handleDragEnd = (
             :selectedItems="state.selectedItems.value"
             @click="handleClick"
             @onDragEnd="handleDragEnd">
-            <template #aside>
-              <div
-                class="hover:bg-b-3 rounded opacity-0 transition-opacity group-hover/entry:opacity-100">
-                ...
-              </div>
+            <template #aside="props">
+              <slot
+                name="aside"
+                v-bind="props" />
             </template>
           </SidebarItem>
         </div>
