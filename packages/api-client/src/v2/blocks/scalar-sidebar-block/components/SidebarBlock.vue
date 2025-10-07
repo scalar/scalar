@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarSidebar } from '@scalar/components'
+import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 
 import { createSidebarState } from '@/v2/blocks/scalar-sidebar-block/helpers/create-sidebar-state'
@@ -17,6 +18,10 @@ const {
   indent?: number
   /** Layout type */
   layout: 'client' | 'reference'
+}>()
+
+const emit = defineEmits<{
+  (e: 'reorder', draggingItem: DraggingItem, hoveredItem: HoveredItem): void
 }>()
 
 const filteredItems = (items: TraversedEntry[]) => {
@@ -41,6 +46,17 @@ const handleClick = (id: string) => {
   state.setSelected(id)
   state.setExpanded(id, !state.expandedItems.value[id])
 }
+
+/**
+ * Handle drag and drop reordering of sidebar items.
+ * Emit the reorder event to the parent component for handling.
+ */
+const handleDragEnd = (
+  draggingItem: DraggingItem,
+  hoveredItem: HoveredItem,
+) => {
+  emit('reorder', draggingItem, hoveredItem)
+}
 </script>
 <template>
   <ScalarSidebar
@@ -61,7 +77,15 @@ const handleClick = (id: string) => {
             :item="item"
             :layout="layout"
             :selectedItems="state.selectedItems.value"
-            @click="handleClick" />
+            @click="handleClick"
+            @onDragEnd="handleDragEnd">
+            <template #aside>
+              <div
+                class="hover:bg-b-3 rounded opacity-0 transition-opacity group-hover/entry:opacity-100">
+                ...
+              </div>
+            </template>
+          </SidebarItem>
         </div>
         <!-- Spacer -->
         <div class="flex-1"></div>

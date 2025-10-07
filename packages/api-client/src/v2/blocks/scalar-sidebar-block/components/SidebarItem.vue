@@ -4,6 +4,11 @@ import {
   ScalarSidebarItem,
   ScalarSidebarSection,
 } from '@scalar/components'
+import {
+  Draggable,
+  type DraggingItem,
+  type HoveredItem,
+} from '@scalar/draggable'
 import { getHttpMethodInfo } from '@scalar/helpers/http/http-info'
 import { ScalarIconWebhooksLogo } from '@scalar/icons'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
@@ -23,6 +28,11 @@ const { item, layout, selectedItems, expandedItems } = defineProps<{
 
 const emits = defineEmits<{
   (e: 'click', id: string): void
+  (e: 'onDragEnd', draggingItem: DraggingItem, hoveredItem: HoveredItem): void
+}>()
+
+defineSlots<{
+  aside?(props: { item: TraversedEntry }): unknown
 }>()
 
 const hasChildren = (
@@ -66,77 +76,112 @@ const filterItems = (items: TraversedEntry[]) => {
       c.type === 'webhook' || c.type === 'operation' || c.type === 'example',
   )
 }
+
+/**
+ * Handle drag end event and bubble it up to parent.
+ */
+const handleDragEnd = (
+  draggingItem: DraggingItem,
+  hoveredItem: HoveredItem,
+) => {
+  emits('onDragEnd', draggingItem, hoveredItem)
+}
 </script>
 <template>
-  <ScalarSidebarSection v-if="hasChildren(item) && isGroup(item)">
-    {{ item.title }}
-    <template #items>
-      <SidebarItem
-        v-for="child in filterItems(item.children)"
-        :key="child.id"
-        :expandedItems="expandedItems"
-        :item="child"
-        :layout="layout"
-        :options="options"
-        :selectedItems="selectedItems"
-        @click="(id) => emits('click', id)" />
-    </template>
-  </ScalarSidebarSection>
-  <ScalarSidebarGroup
-    v-else-if="hasChildren(item)"
-    v-model="groupModelValue"
-    :active="selectedItems[item.id] ?? false">
-    <div class="flex justify-center">
-      <div class="flex-1">{{ item.title }}</div>
-      <slot name="aside" />
-    </div>
-    <template #items>
-      <SidebarItem
-        v-for="child in filterItems(item.children)"
-        :key="child.id"
-        :expandedItems="expandedItems"
-        :item="child"
-        :layout="layout"
-        :options="options"
-        :selectedItems="selectedItems"
-        @click="(id) => emits('click', id)" />
-    </template>
-  </ScalarSidebarGroup>
-  <ScalarSidebarItem
-    is="button"
-    v-else
-    class="text-left"
-    :selected="selectedItems[item.id] ?? false"
-    @click="() => emits('click', item.id)">
-    <div class="flex justify-center">
-      <div class="flex-1">
-        <template v-if="options?.operationTitleSource === 'path'">
-          {{ getPathOrTitle(item) }}
-        </template>
-        <template v-else>
-          {{ item.title }}
-        </template>
+  <Draggable
+    :id="item.id"
+    class="grid flex-1"
+    :parentIds="[]"
+    @onDragEnd="handleDragEnd">
+    <ScalarSidebarSection v-if="hasChildren(item) && isGroup(item)">
+      {{ item.title }}
+      <template #items>
+        <SidebarItem
+          v-for="child in filterItems(item.children)"
+          :key="child.id"
+          :expandedItems="expandedItems"
+          :item="child"
+          :layout="layout"
+          :options="options"
+          :selectedItems="selectedItems"
+          @click="(id) => emits('click', id)"
+          @onDragEnd="handleDragEnd">
+          <template #aside="slotProps">
+            <slot
+              v-bind="slotProps"
+              name="aside" />
+          </template>
+        </SidebarItem>
+      </template>
+    </ScalarSidebarSection>
+    <ScalarSidebarGroup
+      v-else-if="hasChildren(item)"
+      v-model="groupModelValue"
+      :active="selectedItems[item.id] ?? false">
+      <div class="group/entry flex flex-1 items-center justify-center">
+        <div class="flex-1 text-left">{{ item.title }}</div>
+        <slot
+          :item="item"
+          name="aside" />
       </div>
-      <slot name="aside" />
-    </div>
-    <template
-      v-if="'method' in item"
-      #aside>
-      <p class="sidebar-heading-link-method">
-        &hairsp;
-        <span class="sr-only">HTTP Method:&nbsp;</span>
-        <SidebarHttpBadge
-          :active="selectedItems[item.id] ?? false"
-          class="min-w-9.75 justify-end text-right"
-          :method="item.method">
-          <ScalarIconWebhooksLogo
-            v-if="item.type === 'webhook'"
-            :style="{
-              color: getHttpMethodInfo(item.method).colorVar,
-            }"
-            weight="bold" />
-        </SidebarHttpBadge>
-      </p>
-    </template>
-  </ScalarSidebarItem>
+      <template #items>
+        <SidebarItem
+          v-for="child in filterItems(item.children)"
+          :key="child.id"
+          :expandedItems="expandedItems"
+          :item="child"
+          :layout="layout"
+          :options="options"
+          :parentIds="[]"
+          :selectedItems="selectedItems"
+          @click="(id) => emits('click', id)"
+          @onDragEnd="handleDragEnd">
+          <template #aside="slotProps">
+            <slot
+              v-bind="slotProps"
+              name="aside" />
+          </template>
+        </SidebarItem>
+      </template>
+    </ScalarSidebarGroup>
+    <ScalarSidebarItem
+      is="button"
+      v-else
+      class="text-left"
+      :selected="selectedItems[item.id] ?? false"
+      @click="() => emits('click', item.id)">
+      <div class="group/entry flex flex-1 items-center justify-center">
+        <div class="flex-1">
+          <template v-if="options?.operationTitleSource === 'path'">
+            {{ getPathOrTitle(item) }}
+          </template>
+          <template v-else>
+            {{ item.title }}
+          </template>
+        </div>
+        <slot
+          :item="item"
+          name="aside" />
+      </div>
+      <template
+        v-if="'method' in item"
+        #aside>
+        <p class="sidebar-heading-link-method">
+          &hairsp;
+          <span class="sr-only">HTTP Method:&nbsp;</span>
+          <SidebarHttpBadge
+            :active="selectedItems[item.id] ?? false"
+            class="min-w-9.75 justify-end text-right"
+            :method="item.method">
+            <ScalarIconWebhooksLogo
+              v-if="item.type === 'webhook'"
+              :style="{
+                color: getHttpMethodInfo(item.method).colorVar,
+              }"
+              weight="bold" />
+          </SidebarHttpBadge>
+        </p>
+      </template>
+    </ScalarSidebarItem>
+  </Draggable>
 </template>
