@@ -1,10 +1,10 @@
 # @scalar/workspace-store
 
-A powerful data store for managing OpenAPI documents. This package provides a flexible solution for handling multiple OpenAPI documents in a workspace environment
+A powerful data store for managing OpenAPI and AsyncAPI documents. This package provides a flexible solution for handling multiple API definitions in a workspace environment, supporting both REST APIs (OpenAPI) and event-driven APIs (AsyncAPI).
 
 ## Server-Side workspace store
 
-Server side data store which enables document chunking to reduce initial loading time specially when working with large openapi documents
+Server side data store which enables document chunking to reduce initial loading time specially when working with large API definitions
 
 #### Usage
 Create a new store in SSR mode
@@ -68,13 +68,38 @@ await store.addDocument({
   "x-scalar-active-server": "server1"
 })
 
+// Add an AsyncAPI document to the store
+await store.addDocument({
+  asyncapi: '3.0.0',
+  info: {
+    title: 'Event API',
+    version: '1.0.0',
+  },
+  channels: {
+    'user/created': {
+      title: 'User Created Events',
+      operations: {
+        publish: 'publishUserCreated'
+      }
+    }
+  },
+  operations: {
+    publishUserCreated: {
+      action: 'publish',
+      channel: 'user/created',
+      title: 'Publish User Created Event'
+    }
+  }
+}, {
+  name: 'event-api',
+})
+
 // Get the workspace
 // Workspace is going to keep all the sparse documents
 const workspace = store.getWorkspace()
 
 // Get chucks using json pointers
 const chunk = store.get('#/document-name/components/schemas/Person')
-
 ```
 
 
@@ -162,16 +187,16 @@ const store = await createServerWorkspaceStore({
   ]
 })
 
-// Output: { openapi: 'x.x.x', ... }
+// Output: { openapi: 'x.x.x', ... } or { asyncapi: 'x.x.x', ... }
 console.log(store.getWorkspace().documents.remoteFile)
 
-// Output: { openapi: 'x.x.x', ... }
+// Output: { openapi: 'x.x.x', ... } or { asyncapi: 'x.x.x', ... }
 console.log(store.getWorkspace().documents.fsFile)
 ```
 
 ## Client-Side Workspace Store
 
-A reactive workspace store for managing OpenAPI documents with automatic reference resolution and chunked loading capabilities. Works seamlessly with server-side stores to handle large documents efficiently.
+A reactive workspace store for managing OpenAPI and AsyncAPI documents with automatic reference resolution and chunked loading capabilities. Works seamlessly with server-side stores to handle large documents efficiently.
 
 #### Usage
 
@@ -206,11 +231,39 @@ await store.addDocument({
   name: 'document',
 })
 
+// Add an AsyncAPI document to the workspace
+await store.addDocument({
+  document: {
+    asyncapi: '3.0.0',
+    info: {
+      title: 'Event API',
+      version: '1.0.0',
+    },
+    channels: {
+      'user/signup': {
+        title: 'User Signup Events',
+        operations: {
+          publish: 'publishUserSignup'
+        }
+      }
+    },
+    operations: {
+      publishUserSignup: {
+        action: 'publish',
+        channel: 'user/signup',
+        title: 'Publish User Signup Event'
+      }
+    }
+  },
+  name: 'events',
+})
+
 // Get the currently active document
 store.workspace.activeDocument
 
 // Retrieve a specific document by name
 store.workspace.documents['document']
+store.workspace.documents['events']
 
 // Update global workspace settings
 store.update('x-scalar-dark-mode', true)
@@ -219,7 +272,8 @@ store.update('x-scalar-dark-mode', true)
 store.updateDocument('active', "x-scalar-active-auth", '<value>')
 
 // Resolve and load document chunks including any $ref references
-await store.resolve(['paths', '/users', 'get'])
+await store.resolve(['paths', '/users', 'get']) // For OpenAPI
+await store.resolve(['channels', 'user/signup', 'operations', 'publish']) // For AsyncAPI
 ```
 
 #### Load documents from external sources
@@ -235,8 +289,65 @@ await store.addDocument({
   url: 'http://localhost/document.json'
 })
 
-// Output: { openapi: 'x.x.x', ... }
+// Output: { openapi: 'x.x.x', ... } or { asyncapi: 'x.x.x', ... }
 console.log(store.workspace.documents.default)
+```
+
+#### Working with Mixed Document Types
+
+The workspace store supports both OpenAPI and AsyncAPI documents in the same workspace. Use type guards to safely access document-specific properties:
+
+```ts
+import { isOpenApiDocument, isAsyncApiDocument } from '@scalar/workspace-store/schemas'
+
+const store = createWorkspaceStore({
+  documents: [
+    {
+      name: 'rest-api',
+      document: {
+        openapi: '3.0.0',
+        info: { title: 'REST API', version: '1.0.0' },
+        paths: {}
+      }
+    },
+    {
+      name: 'events',
+      document: {
+        asyncapi: '3.0.0',
+        info: { title: 'Events API', version: '1.0.0' },
+        channels: {
+          'user/created': {
+            operations: { publish: 'publishUserCreated' }
+          }
+        },
+        operations: {
+          publishUserCreated: {
+            action: 'publish',
+            channel: 'user/created'
+          }
+        }
+      }
+    }
+  ]
+})
+
+// Type-safe access to documents
+const restApi = store.workspace.documents['rest-api']
+const events = store.workspace.documents['events']
+
+if (isOpenApiDocument(restApi)) {
+  // TypeScript knows this is OpenAPI:
+  console.log(restApi.paths)
+  // TypeScript error:
+  console.log(restApi.channels)
+}
+
+if (isAsyncApiDocument(events)) {
+  // TypeScript knows this is AsyncAPI:
+  console.log(events.channels)
+  // TypeScript error:
+  console.log(events.paths)
+}
 ```
 
 #### Configuration
@@ -372,7 +483,7 @@ client.loadWorkspace(currentWorkspaceState)
 
 ### Replace the Entire Document
 
-When you have a new or updated OpenAPI document and want to overwrite the existing one—regardless of which parts have changed—you can use the `replaceDocument` method. This method efficiently and atomically updates the entire document in place, ensuring that only the necessary changes are applied for optimal performance.
+When you have a new or updated API document and want to overwrite the existing one—regardless of which parts have changed—you can use the `replaceDocument` method. This method efficiently and atomically updates the entire document in place, ensuring that only the necessary changes are applied for optimal performance.
 
 ```ts
 const client = createWorkspaceStore({
@@ -421,6 +532,7 @@ await store.importWorkspaceFromSpecification({
   documents: {
     api: { $ref: '/examples/api.yaml' },
     petstore: { $ref: '/examples/petstore.yaml' },
+    events: { $ref: '/examples/events.yaml' },
   },
   overrides: {
     api: {
