@@ -665,10 +665,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map
     // We create a new proxy here in order to hide internal properties after validation and processing
-    // This ensures that the workspace document only exposes the intended OpenAPI properties and extensions
-    // TODO: Handle AsyncAPI documents properly in the type system
+    // This ensures that the workspace document only exposes the intended API properties and extensions
     workspace.documents[name] = createOverridesProxy(
-      createMagicProxy(getRaw(strictDocument)) as OpenApiDocument,
+      createMagicProxy(getRaw(strictDocument)) as ApiDefinition,
       overrides[name],
     )
   }
@@ -859,7 +858,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         Object.fromEntries(
           Object.entries(result.documents).map(([name, doc]) => [
             name,
-            createOverridesProxy(createMagicProxy(doc), result.overrides[name]),
+            createOverridesProxy(createMagicProxy(doc) as ApiDefinition, result.overrides[name]),
           ]),
         ),
       )
