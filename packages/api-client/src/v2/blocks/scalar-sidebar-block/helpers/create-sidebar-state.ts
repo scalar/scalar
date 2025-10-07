@@ -76,6 +76,7 @@ export const createSidebarState = <T extends { id: string }>(items: T[], options
   }
 
   return {
+    items,
     index,
     selectedItems,
     expandedItems,
@@ -83,3 +84,5 @@ export const createSidebarState = <T extends { id: string }>(items: T[], options
     setExpanded,
   }
 }
+
+export type SidebarState<Item extends { id: string }> = ReturnType<typeof createSidebarState<Item>>

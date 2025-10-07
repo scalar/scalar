@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import {
   ScalarSidebarGroup,
+  ScalarSidebarGroupToggle,
   ScalarSidebarItem,
   ScalarSidebarSection,
 } from '@scalar/components'
@@ -10,14 +11,18 @@ import {
   type HoveredItem,
 } from '@scalar/draggable'
 import { getHttpMethodInfo } from '@scalar/helpers/http/http-info'
-import { ScalarIconWebhooksLogo } from '@scalar/icons'
+import { ScalarIconFolder, ScalarIconWebhooksLogo } from '@scalar/icons'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { computed } from 'vue'
 
 import SidebarHttpBadge from './SidebarHttpBadge.vue'
 
+export type Item =
+  | TraversedEntry
+  | { id: string; title: string; children: TraversedEntry[]; type: 'document' }
+
 const { item, layout, selectedItems, expandedItems } = defineProps<{
-  item: TraversedEntry
+  item: Item
   layout: 'client' | 'reference'
   selectedItems: Record<string, boolean>
   expandedItems: Record<string, boolean>
@@ -32,12 +37,12 @@ const emits = defineEmits<{
 }>()
 
 defineSlots<{
-  aside?(props: { item: TraversedEntry }): unknown
+  aside?(props: { item: Item }): unknown
 }>()
 
 const hasChildren = (
-  currentItem: TraversedEntry,
-): currentItem is TraversedEntry & { children: TraversedEntry[] } => {
+  currentItem: Item,
+): currentItem is Item & { children: TraversedEntry[] } => {
   return (
     'children' in currentItem &&
     Array.isArray(currentItem.children) &&
@@ -46,13 +51,13 @@ const hasChildren = (
 }
 
 const isGroup = (
-  currentItem: TraversedEntry,
-): currentItem is TraversedEntry & { isGroup: true } => {
+  currentItem: Item,
+): currentItem is Item & { isGroup: true } => {
   return 'isGroup' in currentItem && currentItem.isGroup
 }
 
 /** Extract the path or title from a TraversedEntry */
-const getPathOrTitle = (currentItem: TraversedEntry): string => {
+const getPathOrTitle = (currentItem: Item): string => {
   if ('path' in currentItem) {
     // Insert zero-width space after every slash, to give line-break opportunity.
     return currentItem.path.replace(/\//g, '/\u200B')
@@ -65,7 +70,7 @@ const groupModelValue = computed({
   set: () => emits('click', item.id),
 })
 
-const filterItems = (items: TraversedEntry[]) => {
+const filterItems = (items: Item[]) => {
   if (layout === 'reference') {
     return items
   }
@@ -73,7 +78,10 @@ const filterItems = (items: TraversedEntry[]) => {
   // For client layout, filter to only show webhooks and operations
   return items.filter(
     (c) =>
-      c.type === 'webhook' || c.type === 'operation' || c.type === 'example',
+      c.type === 'webhook' ||
+      c.type === 'operation' ||
+      c.type === 'example' ||
+      c.type === 'tag',
   )
 }
 
@@ -124,6 +132,15 @@ const handleDragEnd = (
           :item="item"
           name="aside" />
       </div>
+      <template
+        v-if="item.type === 'document'"
+        #icon="{ open }">
+        <ScalarIconFolder
+          class="text-c-3 block group-hover/group-button:hidden" />
+        <ScalarSidebarGroupToggle
+          class="text-c-3 hidden group-hover/group-button:block"
+          :open="open" />
+      </template>
       <template #items>
         <SidebarItem
           v-for="child in filterItems(item.children)"

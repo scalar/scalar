@@ -1,23 +1,21 @@
 <script setup lang="ts">
 import { ScalarSidebar } from '@scalar/components'
 import type { DraggingItem, HoveredItem } from '@scalar/draggable'
-import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 
-import { createSidebarState } from '@/v2/blocks/scalar-sidebar-block/helpers/create-sidebar-state'
-
-import SidebarItem from './SidebarItem.vue'
+import { type SidebarState } from '../helpers/create-sidebar-state'
+import SidebarItem, { type Item } from './SidebarItem.vue'
 
 const {
-  xNavigation,
   layout,
   indent = 20,
+  state,
 } = defineProps<{
-  /** Precomputed navigation structure for the document */
-  xNavigation: TraversedEntry[]
   /** Indentation size in pixels */
   indent?: number
   /** Layout type */
   layout: 'client' | 'reference'
+  /** Sidebar state */
+  state: SidebarState<Item>
 }>()
 
 const emit = defineEmits<{
@@ -25,13 +23,13 @@ const emit = defineEmits<{
 }>()
 
 defineSlots<{
-  aside?(props: { item: TraversedEntry }): unknown
+  aside?(props: { item: Item }): unknown
   footer?(): unknown
   search?(): unknown
   default?(): unknown
 }>()
 
-const filteredItems = (items: TraversedEntry[]) => {
+const filteredItems = (items: Item[]) => {
   if (layout === 'reference') {
     return items
   }
@@ -42,12 +40,13 @@ const filteredItems = (items: TraversedEntry[]) => {
       'children' in c &&
       c.children?.length &&
       c.children.some(
-        (child) => child.type === 'webhook' || child.type === 'operation',
+        (child) =>
+          child.type === 'webhook' ||
+          child.type === 'operation' ||
+          child.type === 'tag',
       ),
   )
 }
-
-const state = createSidebarState(xNavigation)
 
 const handleClick = (id: string) => {
   state.setSelected(id)
@@ -78,7 +77,7 @@ const handleDragEnd = (
       <slot>
         <div class="grid p-3">
           <SidebarItem
-            v-for="item in filteredItems(xNavigation)"
+            v-for="item in filteredItems(state.items)"
             :key="item.id"
             :expandedItems="state.expandedItems.value"
             :item="item"
