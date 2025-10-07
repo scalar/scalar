@@ -2,6 +2,17 @@ import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
 
+import type { ExternalDocumentationObject } from '../v3.1/strict/external-documentation'
+import {
+  ExternalDocumentationObjectRef,
+  SecurityRequirementObjectRef,
+  TagObjectRef,
+} from '../v3.1/strict/ref-definitions'
+import type { SecurityRequirementObject } from '../v3.1/strict/security-requirement'
+import type { TagObject } from '../v3.1/strict/tag'
+import type { Binding } from './binding'
+import { BindingSchema } from './binding'
+
 // Server Variable Schema
 const ServerVariableSchemaDefinition = compose(
   Type.Object({
@@ -45,13 +56,13 @@ const ServerSchemaDefinition = compose(
     /** A map between a variable name and its value. The value is used for substitution in the server's URL template. */
     variables: Type.Optional(Type.Record(Type.String(), ServerVariableSchemaDefinition)),
     /** A declaration of which security mechanisms can be used with this server. The list of values includes alternative security requirement objects that can be used. Only one of the security requirement objects need to be satisfied to authorize a connection or operation. */
-    security: Type.Optional(Type.Array(Type.Any())), // Will be replaced with SecurityRequirementObjectRef
+    security: Type.Optional(Type.Array(SecurityRequirementObjectRef)),
     /** A list of tags for logical grouping and categorization of servers. */
-    tags: Type.Optional(Type.Array(Type.Any())), // Will be replaced with TagObjectRef
+    tags: Type.Optional(Type.Array(TagObjectRef)),
     /** Additional external documentation for this server. */
-    externalDocs: Type.Optional(Type.Any()), // Will be replaced with ExternalDocumentationObjectRef
+    externalDocs: Type.Optional(ExternalDocumentationObjectRef),
     /** A map of bindings for this server. */
-    bindings: Type.Optional(Type.Record(Type.String(), Type.Any())), // Protocol-specific bindings
+    bindings: Type.Optional(BindingSchema),
   }),
 )
 
@@ -71,13 +82,13 @@ export type Server = {
   /** A map between a variable name and its value. The value is used for substitution in the server's URL template. */
   variables?: Record<string, ServerVariable>
   /** A declaration of which security mechanisms can be used with this server. The list of values includes alternative security requirement objects that can be used. Only one of the security requirement objects need to be satisfied to authorize a connection or operation. */
-  security?: any[] // Will be replaced with SecurityRequirementObject[]
+  security?: SecurityRequirementObject[]
   /** A list of tags for logical grouping and categorization of servers. */
-  tags?: any[] // Will be replaced with TagObject[]
+  tags?: TagObject[]
   /** Additional external documentation for this server. */
-  externalDocs?: any // Will be replaced with ExternalDocumentationObject
+  externalDocs?: ExternalDocumentationObject
   /** A map of bindings for this server. */
-  bindings?: Record<string, any> // Protocol-specific bindings
+  bindings?: Binding
 }
 
 // Module definition
