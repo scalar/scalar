@@ -1,9 +1,10 @@
-import { PathId } from '@/router'
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { Collection, Request, RequestExample, Server } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import type { Router } from 'vue-router'
+
+import { PathId } from '@/routes'
 
 /** Getter function for router parameters */
 export function getRouterParams(router?: Router) {

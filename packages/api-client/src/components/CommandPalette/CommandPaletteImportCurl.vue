@@ -16,7 +16,7 @@ import { useRouter } from 'vue-router'
 
 import CommandActionForm from '@/components/CommandPalette/CommandActionForm.vue'
 import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
-import { PathId } from '@/router'
+import { PathId } from '@/routes'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 

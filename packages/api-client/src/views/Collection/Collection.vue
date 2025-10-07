@@ -5,7 +5,7 @@ import { RouterView, useRouter } from 'vue-router'
 
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
-import { PathId } from '@/router'
+import { PathId } from '@/routes'
 import { useActiveEntities } from '@/store'
 import CollectionNavigation from '@/views/Collection/CollectionNavigation.vue'
 
