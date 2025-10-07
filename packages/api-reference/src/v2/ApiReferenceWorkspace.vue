@@ -28,8 +28,8 @@ import type {
 } from '@scalar/types'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { type WorkspaceStore } from '@scalar/workspace-store/client'
-import { useSeoMeta } from '@unhead/vue'
 import { useFavicon } from '@vueuse/core'
+import { useSeoMeta } from 'unhead'
 import {
   computed,
   onBeforeMount,

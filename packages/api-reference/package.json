@@ -88,7 +88,7 @@
     "@scalar/use-hooks": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
-    "@unhead/vue": "^1.11.20",
+    "@unhead/vue": "^2.0.17",
     "@vueuse/core": "catalog:*",
     "flatted": "catalog:*",
     "fuse.js": "catalog:*",
@@ -97,6 +97,7 @@
     "microdiff": "catalog:*",
     "nanoid": "catalog:*",
     "type-fest": "^4.41.0",
+    "unhead": "catalog:*",
     "vue": "catalog:*",
     "zod": "catalog:*"
   },

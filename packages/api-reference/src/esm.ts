@@ -1,6 +1,6 @@
 import { objectReplace } from '@scalar/helpers/object/object-replace'
 import type { ApiReferenceConfiguration, SourceConfiguration } from '@scalar/types/api-reference'
-import { createHead } from '@unhead/vue'
+import { createHead } from '@unhead/vue/client'
 import { createApp, reactive } from 'vue'
 
 import ApiReference from './components/ApiReference.vue'

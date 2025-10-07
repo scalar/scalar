@@ -12,7 +12,7 @@ import ApiReferenceWorkspace from './ApiReferenceWorkspace.vue'
 //   redirectToProxy: vi.fn((proxyUrl, url) => `${proxyUrl}?url=${encodeURIComponent(url)}`),
 // }))
 
-vi.mock('@unhead/vue', () => ({
+vi.mock('unhead', () => ({
   useSeoMeta: vi.fn(),
 }))
 
@@ -342,7 +342,7 @@ describe('ApiReferenceWorkspace', () => {
 
   describe('SEO and favicon', () => {
     it('sets SEO meta when metadata is provided', async () => {
-      const { useSeoMeta } = await import('@unhead/vue')
+      const { useSeoMeta } = await import('unhead')
       const configWithMeta = {
         ...mockConfiguration,
         metaData: {

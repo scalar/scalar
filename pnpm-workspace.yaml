@@ -67,6 +67,7 @@ catalogs:
     stdout-update: 4.0.1
     tailwindcss: ^4.1.7
     type-fest: 4.41.0
+    unhead: ^2.0.17
     vite: 7.1.5
     vite-node: 3.2.4
     vite-ssg: 28.1.0
