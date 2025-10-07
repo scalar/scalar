@@ -16,10 +16,10 @@ import { type UnknownObject, isObject, safeAssign } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
 import { createOverridesProxy, unpackOverridesProxy } from '@/helpers/overrides-proxy'
-import { createNavigation } from '@/navigation'
+import { createAsyncApiNavigation, createNavigation } from '@/navigation'
 import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
 import { getServersFromDocument } from '@/preprocessing/server'
-import { AsyncApiDocumentSchemaStrict } from '@/schemas/asyncapi'
+import { type AsyncApiDocument, AsyncApiDocumentSchemaStrict } from '@/schemas/asyncapi'
 import { extensions } from '@/schemas/extensions'
 import { type InMemoryWorkspace, InMemoryWorkspaceSchema } from '@/schemas/inmemory-workspace'
 import { defaultReferenceConfig } from '@/schemas/reference-config'
@@ -649,9 +649,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (strictDocument[extensions.document.navigation] === undefined) {
       if (isAsyncApi) {
-        // TODO: Implement AsyncAPI navigation generation
-        // For now, create a basic navigation structure
-        strictDocument[extensions.document.navigation] = []
+        const navigation = createAsyncApiNavigation(strictDocument as AsyncApiDocument, input.config)
+        strictDocument[extensions.document.navigation] = navigation.entries
       } else {
         const navigation = createNavigation(strictDocument as OpenApiDocument, input.config)
         strictDocument[extensions.document.navigation] = navigation.entries
