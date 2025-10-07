@@ -1,4 +1,4 @@
-import { collectionSchema, requestExampleSchema } from '@scalar/oas-utils/entities/spec'
+import { type RequestExample, collectionSchema, requestExampleSchema } from '@scalar/oas-utils/entities/spec'
 import { mount } from '@vue/test-utils'
 import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
@@ -50,7 +50,7 @@ vi.mock('@/store/active-entities', () => ({
 const mockUseActiveEntities = useActiveEntities as Mock
 const mockActiveEntities = {
   activeRequest: ref(null),
-  activeExample: ref(null),
+  activeExample: ref<RequestExample | null>(null),
   activeCollection: ref(collectionSchema.parse({ watchMode: false })),
   activeEnvironment: ref(null),
   activeWorkspace: ref(null),
