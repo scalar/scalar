@@ -6,7 +6,7 @@ namespace Scalar.AspNetCore;
 /// Provides fluent extension methods for configuring <see cref="ScalarOptions" />.
 /// These methods focus on behavior descriptions rather than property setters.
 /// </summary>
-internal static class ScalarOptionsFluentExtensions
+public static partial class ScalarOptionsExtensions
 {
     /// <summary>
     /// Hides the models section from the sidebar, search, and content.
@@ -241,7 +241,7 @@ internal static class ScalarOptionsFluentExtensions
     }
 
     /// <summary>
-    /// Disables ordering required properties first (overrides the default behavior).
+    /// Disables ordering required properties first.
     /// </summary>
     /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
     /// <returns>The configured <see cref="ScalarOptions" />.</returns>

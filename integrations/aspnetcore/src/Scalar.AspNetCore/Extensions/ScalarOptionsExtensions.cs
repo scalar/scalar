@@ -5,7 +5,7 @@ namespace Scalar.AspNetCore;
 /// <summary>
 /// Provides extension methods for configuring <see cref="ScalarOptions" />.
 /// </summary>
-public static class ScalarOptionsExtensions
+public static partial class ScalarOptionsExtensions
 {
     /// <summary>
     /// Controls the title of the HTML document.
