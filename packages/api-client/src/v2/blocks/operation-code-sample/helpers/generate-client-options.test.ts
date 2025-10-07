@@ -15,13 +15,14 @@ describe('generateClientOptions', () => {
     it('should return all available clients', () => {
       const result = generateClientOptions(undefined)
 
-      expect(result).toHaveLength(20)
+      expect(result).toHaveLength(21)
       // Test the group labels
       expect(result.map((group) => group.label)).toEqual([
         'C',
         'C#',
         'Clojure',
         'Dart',
+        'F#',
         'Go',
         'HTTP',
         'Java',
@@ -122,7 +123,7 @@ describe('generateClientOptions', () => {
     it('should hide entire categories when value is true', () => {
       const result = generateClientOptions({ js: true, python: true })
 
-      expect(result).toHaveLength(18) // 20 - 2 hidden groups
+      expect(result).toHaveLength(19) // 20 - 2 hidden groups
       expect(result.map((group) => group.label)).not.toContain('JavaScript')
       expect(result.map((group) => group.label)).not.toContain('Python')
     })
@@ -172,9 +173,9 @@ describe('generateClientOptions', () => {
     it('should handle empty object (show all clients)', () => {
       const result = generateClientOptions({})
 
-      expect(result).toHaveLength(20)
+      expect(result).toHaveLength(21)
       const allOptions = result.flatMap((group) => group.options)
-      expect(allOptions).toHaveLength(38) // All clients should be present
+      expect(allOptions).toHaveLength(39) // All clients should be present
     })
   })
 
@@ -182,9 +183,9 @@ describe('generateClientOptions', () => {
     it('should handle non-existent client names in arrays', () => {
       const result = generateClientOptions(['nonexistent', 'also-nonexistent'])
 
-      expect(result).toHaveLength(20)
+      expect(result).toHaveLength(21)
       const allOptions = result.flatMap((group) => group.options)
-      expect(allOptions).toHaveLength(38) // All clients should still be present
+      expect(allOptions).toHaveLength(39) // All clients should still be present
     })
 
     it('should handle non-existent category names in objects', () => {
@@ -193,9 +194,9 @@ describe('generateClientOptions', () => {
         alsoNonexistent: ['fetch'],
       })
 
-      expect(result).toHaveLength(20)
+      expect(result).toHaveLength(21)
       const allOptions = result.flatMap((group) => group.options)
-      expect(allOptions).toHaveLength(38) // All clients should still be present
+      expect(allOptions).toHaveLength(39) // All clients should still be present
     })
 
     it('should handle non-existent client names in object arrays', () => {
@@ -250,7 +251,7 @@ describe('generateClientOptions', () => {
         js: ['fetch', 'axios'], // Hide only fetch and axios, keep ofetch, jquery, xhr
       })
 
-      expect(result).toHaveLength(20) // All groups should remain
+      expect(result).toHaveLength(21) // All groups should remain
       const jsGroup = result.find((group) => group.label === 'JavaScript')
       expect(jsGroup?.options).toHaveLength(3) // Only ofetch, jquery, xhr should remain
     })
