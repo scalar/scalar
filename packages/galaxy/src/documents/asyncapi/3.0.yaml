@@ -1,0 +1,1859 @@
+asyncapi: 3.0.0
+info:
+  title: Scalar Galaxy Events
+  version: 1.0.0
+  description: |
+    The Scalar Galaxy Events provides real-time notifications and event-driven capabilities for the Scalar Galaxy API. This AsyncAPI document complements the [REST API](https://galaxy.scalar.com) by enabling event-driven interactions.
+
+    ## Event-Driven Features
+
+    * Real-time Planet Updates: Get notified when planets are created, updated, or experience cosmic events
+    * User Activity Streams: Track user signups, authentication events, and profile changes
+    * Celestial Body Monitoring: Monitor changes to satellites, asteroids, and other celestial objects
+    * System Notifications: Receive alerts about system maintenance, rate limits, and security events
+
+    ## Resources
+
+    * https://github.com/scalar/scalar
+    * https://github.com/asyncapi/specification
+    * https://scalar.com
+  contact:
+    name: Scalar Support
+    url: https://scalar.com
+    email: marc@scalar.com
+  license:
+    name: MIT
+    url: https://opensource.org/license/MIT
+externalDocs:
+  description: Documentation
+  url: https://github.com/scalar/scalar
+servers:
+  production:
+    host: galaxy.scalar.com
+    protocol: wss
+    description: Production WebSocket server for real-time events
+    security:
+      - $ref: '#/components/securitySchemes/bearerAuth'
+      - $ref: '#/components/securitySchemes/apiKeyQuery'
+    tags:
+      - name: production
+        description: Production environment
+  development:
+    host: localhost:8080
+    protocol: ws
+    description: Local development server
+    security: []
+    tags:
+      - name: development
+        description: Development environment
+defaultContentType: application/json
+channels:
+  planetEvents:
+    address: 'planets/{planetId}/events'
+    description: |
+      Real-time events related to specific planets. Subscribe to get notified about:
+
+      * Planet creation and updates
+      * Atmospheric changes
+      * Discovery of new satellites
+      * Cosmic events (explosions, collisions, etc.)
+      * Image uploads and media updates
+    parameters:
+      planetId:
+        $ref: '#/components/parameters/planetId'
+    messages:
+      planetCreated:
+        $ref: '#/components/messages/PlanetCreated'
+      planetUpdated:
+        $ref: '#/components/messages/PlanetUpdated'
+      planetDeleted:
+        $ref: '#/components/messages/PlanetDeleted'
+      planetExploded:
+        $ref: '#/components/messages/PlanetExploded'
+      satelliteDiscovered:
+        $ref: '#/components/messages/SatelliteDiscovered'
+      atmosphereChanged:
+        $ref: '#/components/messages/AtmosphereChanged'
+      imageUploaded:
+        $ref: '#/components/messages/ImageUploaded'
+    bindings:
+      ws:
+        method: GET
+        query:
+          type: object
+          properties:
+            includeHistory:
+              type: boolean
+              description: Include historical events
+              default: false
+            eventTypes:
+              type: array
+              items:
+                type: string
+              description: Filter by specific event types
+  userEvents:
+    address: 'users/{userId}/events'
+    description: |
+      User-related events including authentication, profile changes, and activity tracking.
+
+      Security Note: These events contain sensitive user information and require proper authentication.
+    parameters:
+      userId:
+        $ref: '#/components/parameters/userId'
+    messages:
+      userSignedUp:
+        $ref: '#/components/messages/UserSignedUp'
+      userAuthenticated:
+        $ref: '#/components/messages/UserAuthenticated'
+      userProfileUpdated:
+        $ref: '#/components/messages/UserProfileUpdated'
+      userDeleted:
+        $ref: '#/components/messages/UserDeleted'
+      loginAttempt:
+        $ref: '#/components/messages/LoginAttempt'
+    bindings:
+      ws:
+        method: GET
+        security:
+          - $ref: '#/components/securitySchemes/bearerAuth'
+  systemEvents:
+    address: 'system/events'
+    description: |
+      System-wide events including maintenance notifications, rate limit alerts, and security events.
+
+      These events are broadcast to all connected clients and don't require specific subscriptions.
+    messages:
+      systemMaintenance:
+        $ref: '#/components/messages/SystemMaintenance'
+      rateLimitExceeded:
+        $ref: '#/components/messages/RateLimitExceeded'
+      securityAlert:
+        $ref: '#/components/messages/SecurityAlert'
+      apiVersionDeprecated:
+        $ref: '#/components/messages/ApiVersionDeprecated'
+    bindings:
+      ws:
+        method: GET
+  celestialBodyEvents:
+    address: 'celestial-bodies/events'
+    description: |
+      Events related to all types of celestial bodies (planets, satellites, asteroids, comets).
+
+      This is a general channel for monitoring the entire galaxy's celestial activity.
+    messages:
+      celestialBodyCreated:
+        $ref: '#/components/messages/CelestialBodyCreated'
+      celestialBodyUpdated:
+        $ref: '#/components/messages/CelestialBodyUpdated'
+      orbitalCollision:
+        $ref: '#/components/messages/OrbitalCollision'
+      newDiscovery:
+        $ref: '#/components/messages/NewDiscovery'
+    bindings:
+      ws:
+        method: GET
+        query:
+          type: object
+          properties:
+            bodyType:
+              type: string
+              enum: [planet, satellite, asteroid, comet]
+              description: Filter by celestial body type
+            minHabitability:
+              type: number
+              minimum: 0
+              maximum: 1
+              description: Filter by minimum habitability index
+operations:
+  subscribeToPlanetEvents:
+    action: receive
+    channel:
+      $ref: '#/channels/planetEvents'
+    title: Subscribe to Planet Events
+    description: Subscribe to real-time events for a specific planet
+    traits:
+      - $ref: '#/components/operationTraits/authenticated'
+    bindings:
+      ws:
+        bindingVersion: 0.1.0
+        method: GET
+  subscribeToUserEvents:
+    action: receive
+    channel:
+      $ref: '#/channels/userEvents'
+    title: Subscribe to User Events
+    description: Subscribe to events for a specific user (requires authentication)
+    traits:
+      - $ref: '#/components/operationTraits/authenticated'
+      - $ref: '#/components/operationTraits/rateLimited'
+    bindings:
+      ws:
+        bindingVersion: 0.1.0
+        method: GET
+  subscribeToSystemEvents:
+    action: receive
+    channel:
+      $ref: '#/channels/systemEvents'
+    title: Subscribe to System Events
+    description: Subscribe to system-wide notifications and alerts
+    bindings:
+      ws:
+        bindingVersion: 0.1.0
+        method: GET
+  subscribeToCelestialBodyEvents:
+    action: receive
+    channel:
+      $ref: '#/channels/celestialBodyEvents'
+    title: Subscribe to Celestial Body Events
+    description: Subscribe to events for all celestial bodies in the galaxy
+    traits:
+      - $ref: '#/components/operationTraits/rateLimited'
+    bindings:
+      ws:
+        bindingVersion: 0.1.0
+        method: GET
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT Bearer token authentication for WebSocket connections
+    apiKeyQuery:
+      type: apiKey
+      in: query
+      name: api_key
+      description: API key for WebSocket authentication
+    oAuth2:
+      type: oauth2
+      description: OAuth 2.0 authentication for WebSocket connections
+      flows:
+        authorizationCode:
+          authorizationUrl: https://galaxy.scalar.com/oauth/authorize
+          tokenUrl: https://galaxy.scalar.com/oauth/token
+          scopes:
+            read:events: Subscribe to events
+            write:events: Publish events (admin only)
+            read:user:events: Subscribe to user events
+  parameters:
+    planetId:
+      description: The ID of the planet
+      schema:
+        type: integer
+        format: int64
+        examples: [1, 42, 1337]
+    userId:
+      description: The ID of the user
+      schema:
+        type: integer
+        format: int64
+        examples: [1, 100, 999]
+  operationTraits:
+    authenticated:
+      description: This operation requires authentication
+      security:
+        - $ref: '#/components/securitySchemes/bearerAuth'
+        - $ref: '#/components/securitySchemes/apiKeyQuery'
+    rateLimited:
+      description: This operation is subject to rate limiting
+      bindings:
+        ws:
+          bindingVersion: 0.1.0
+          headers:
+            type: object
+            properties:
+              X-RateLimit-Limit:
+                type: integer
+                description: Maximum requests per minute
+              X-RateLimit-Remaining:
+                type: integer
+                description: Remaining requests in current window
+  messages:
+    PlanetCreated:
+      name: PlanetCreated
+      title: Planet Created Event
+      summary: A new planet has been discovered or created
+      description: |
+        This event is published when a new planet is added to the Scalar Galaxy.
+
+        Event Flow:
+        1. Planet creation request via REST API
+        2. Planet validation and storage
+        3. This event published to subscribers
+        4. Optional webhook callbacks triggered
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/PlanetCreatedEvent'
+      examples:
+        - name: Mars Discovery
+          summary: Mars was just added to the galaxy
+          payload:
+            eventId: 'evt_1234567890'
+            eventType: 'planet.created'
+            timestamp: '2024-01-15T14:30:00Z'
+            planet:
+              id: 4
+              name: 'Mars'
+              description: 'The red planet'
+              type: 'terrestrial'
+              habitabilityIndex: 0.68
+              physicalProperties:
+                mass: 0.107
+                radius: 0.532
+                gravity: 0.378
+              atmosphere:
+                - compound: 'CO2'
+                  percentage: 95.3
+              discoveredAt: '1610-01-07T00:00:00Z'
+              creator:
+                id: 1
+                name: 'Marc'
+            metadata:
+              source: 'rest-api'
+              userId: 1
+              requestId: 'req_abc123'
+      bindings:
+        ws:
+          bindingVersion: 0.1.0
+          message:
+            type: object
+            properties:
+              eventId:
+                type: string
+                description: Unique event identifier
+              eventType:
+                type: string
+                description: Type of event
+              timestamp:
+                type: string
+                format: date-time
+                description: When the event occurred
+    PlanetUpdated:
+      name: PlanetUpdated
+      title: Planet Updated Event
+      summary: An existing planet has been modified
+      description: Published when planet properties are updated via the REST API
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/PlanetUpdatedEvent'
+      examples:
+        - name: Mars Atmosphere Update
+          summary: Mars atmosphere composition was updated
+          payload:
+            eventId: 'evt_1234567891'
+            eventType: 'planet.updated'
+            timestamp: '2024-01-15T15:45:00Z'
+            planet:
+              id: 4
+              name: 'Mars'
+              atmosphere:
+                - compound: 'CO2'
+                  percentage: 95.3
+                - compound: 'N2'
+                  percentage: 2.7
+            changes:
+              - field: 'atmosphere'
+                oldValue: [{ 'compound': 'CO2', 'percentage': 95.3 }]
+                newValue:
+                  [
+                    { 'compound': 'CO2', 'percentage': 95.3 },
+                    { 'compound': 'N2', 'percentage': 2.7 },
+                  ]
+            metadata:
+              source: 'rest-api'
+              userId: 1
+              requestId: 'req_def456'
+      bindings:
+        ws:
+          bindingVersion: 0.1.0
+    PlanetDeleted:
+      name: PlanetDeleted
+      title: Planet Deleted Event
+      summary: A planet has been removed from the galaxy
+      description: |
+        ⚠️ Warning: This event indicates a planet has been deleted.
+
+        This is a destructive operation that may affect related celestial bodies and data.
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/PlanetDeletedEvent'
+      examples:
+        - name: Planet Destruction
+          summary: A planet was deleted (hopefully by accident!)
+          payload:
+            eventId: 'evt_1234567892'
+            eventType: 'planet.deleted'
+            timestamp: '2024-01-15T16:00:00Z'
+            planetId: 999
+            planetName: 'Test Planet'
+            reason: 'Experimental deletion'
+            metadata:
+              source: 'rest-api'
+              userId: 1
+              requestId: 'req_ghi789'
+      bindings:
+        ws:
+          bindingVersion: 0.1.0
+    PlanetExploded:
+      name: PlanetExploded
+      title: Planet Exploded Event
+      summary: A planet has experienced a cosmic explosion
+      description: |
+        🚨 Cosmic Event: A planet has exploded due to natural or artificial causes.
+
+        This is a rare but dramatic event that may create new celestial bodies or affect nearby objects.
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/PlanetExplodedEvent'
+      examples:
+        - name: Supernova Event
+          summary: A planet went supernova
+          payload:
+            eventId: 'evt_1234567893'
+            eventType: 'planet.exploded'
+            timestamp: '2024-01-15T16:30:00Z'
+            planet:
+              id: 42
+              name: 'Krypton'
+              type: 'super_earth'
+            explosion:
+              type: 'supernova'
+              intensity: 9.8
+              energyReleased: '1.2e44'
+              newCelestialBodies:
+                - type: 'asteroid'
+                  name: 'Krypton Fragment Alpha'
+                - type: 'asteroid'
+                  name: 'Krypton Fragment Beta'
+            affectedObjects:
+              - planetId: 41
+                distance: 1500000
+                impact: 'moderate'
+            metadata:
+              source: 'cosmic-simulator'
+              severity: 'critical'
+      bindings:
+        ws:
+          bindingVersion: 0.1.0
+    SatelliteDiscovered:
+      name: SatelliteDiscovered
+      title: Satellite Discovered Event
+      summary: A new satellite has been discovered orbiting a planet
+      description: Published when a new moon, asteroid, or other satellite is found
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/SatelliteDiscoveredEvent'
+      examples:
+        - name: New Moon Discovery
+          summary: A new moon was discovered around Mars
+          payload:
+            eventId: 'evt_1234567894'
+            eventType: 'satellite.discovered'
+            timestamp: '2024-01-15T17:00:00Z'
+            satellite:
+              id: 15
+              name: 'Deimos II'
+              type: 'moon'
+              diameter: 12.4
+              orbit:
+                planet:
+                  id: 4
+                  name: 'Mars'
+                orbitalPeriod: 1.26
+                distance: 23460
+            discoveryMethod: 'telescope_observation'
+            metadata:
+              source: 'astronomical-survey'
+              observerId: 2
+      bindings:
+        ws:
+          bindingVersion: 0.1.0
+    AtmosphereChanged:
+      name: AtmosphereChanged
+      title: Atmosphere Changed Event
+      summary: A planet's atmosphere composition has changed
+      description: Published when atmospheric properties are modified
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/AtmosphereChangedEvent'
+      examples:
+        - name: Terraforming Progress
+          summary: Mars atmosphere is being terraformed
+          payload:
+            eventId: 'evt_1234567895'
+            eventType: 'atmosphere.changed'
+            timestamp: '2024-01-15T17:30:00Z'
+            planet:
+              id: 4
+              name: 'Mars'
+            atmosphere:
+              - compound: 'CO2'
+                percentage: 95.3
+              - compound: 'O2'
+                percentage: 2.1
+              - compound: 'N2'
+                percentage: 2.6
+            change:
+              type: 'terraforming'
+              progress: 0.15
+              estimatedCompletion: '2050-12-31T00:00:00Z'
+            metadata:
+              source: 'terraforming-station'
+              stationId: 'mars-alpha-1'
+      bindings:
+        ws:
+          bindingVersion: 0.1.0
+    ImageUploaded:
+      name: ImageUploaded
+      title: Image Uploaded Event
+      summary: A new image has been uploaded for a planet
+      description: Published when a planet image is successfully uploaded
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/ImageUploadedEvent'
+      examples:
+        - name: Mars Photo Upload
+          summary: A new photo of Mars was uploaded
+          payload:
+            eventId: 'evt_1234567896'
+            eventType: 'image.uploaded'
+            timestamp: '2024-01-15T18:00:00Z'
+            planet:
+              id: 4
+              name: 'Mars'
+            image:
+              url: 'https://cdn.scalar.com/images/mars-latest.jpg'
+              fileSize: 2048576
+              mimeType: 'image/jpeg'
+              uploadedAt: '2024-01-15T18:00:00Z'
+            uploader:
+              id: 1
+              name: 'Marc'
+            metadata:
+              source: 'rest-api'
+              requestId: 'req_jkl012'
+      bindings:
+        ws:
+          bindingVersion: 0.1.0
+    UserSignedUp:
+      name: UserSignedUp
+      title: User Signed Up Event
+      summary: A new user has registered in the Scalar Galaxy
+      description: Published when a user successfully creates an account
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/UserSignedUpEvent'
+      examples:
+        - name: New User Registration
+          summary: A new user joined the galaxy
+          payload:
+            eventId: 'evt_1234567897'
+            eventType: 'user.signed_up'
+            timestamp: '2024-01-15T18:30:00Z'
+            user:
+              id: 100
+              name: 'Alice'
+              email: 'alice@example.com'
+            registration:
+              method: 'email'
+              source: 'web'
+              ipAddress: '192.168.1.100'
+            metadata:
+              source: 'rest-api'
+              requestId: 'req_mno345'
+      bindings:
+        ws:
+          bindingVersion: 0.1.0
+    UserAuthenticated:
+      name: UserAuthenticated
+      title: User Authenticated Event
+      summary: A user has successfully authenticated
+      description: Published when a user logs in or refreshes their token
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/UserAuthenticatedEvent'
+      examples:
+        - name: Successful Login
+          summary: User logged in successfully
+          payload:
+            eventId: 'evt_1234567898'
+            eventType: 'user.authenticated'
+            timestamp: '2024-01-15T19:00:00Z'
+            user:
+              id: 1
+              name: 'Marc'
+            authentication:
+              method: 'bearer_token'
+              tokenType: 'JWT'
+              expiresAt: '2024-01-16T19:00:00Z'
+            session:
+              id: 'sess_abc123'
+              ipAddress: '192.168.1.100'
+              userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)'
+            metadata:
+              source: 'auth-service'
+              requestId: 'req_pqr678'
+      bindings:
+        ws:
+          bindingVersion: 0.1.0
+    UserProfileUpdated:
+      name: UserProfileUpdated
+      title: User Profile Updated Event
+      summary: A user's profile information has been modified
+      description: Published when user profile data is updated
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/UserProfileUpdatedEvent'
+      examples:
+        - name: Profile Update
+          summary: User updated their profile
+          payload:
+            eventId: 'evt_1234567899'
+            eventType: 'user.profile_updated'
+            timestamp: '2024-01-15T19:30:00Z'
+            user:
+              id: 1
+              name: 'Marc Updated'
+            changes:
+              - field: 'name'
+                oldValue: 'Marc'
+                newValue: 'Marc Updated'
+            metadata:
+              source: 'rest-api'
+              userId: 1
+              requestId: 'req_stu901'
+      bindings:
+        ws:
+          bindingVersion: 0.1.0
+    UserDeleted:
+      name: UserDeleted
+      title: User Deleted Event
+      summary: A user account has been deleted
+      description: Published when a user account is permanently removed
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/UserDeletedEvent'
+      examples:
+        - name: Account Deletion
+          summary: A user deleted their account
+          payload:
+            eventId: 'evt_1234567900'
+            eventType: 'user.deleted'
+            timestamp: '2024-01-15T20:00:00Z'
+            user:
+              id: 99
+              name: 'Deleted User'
+            deletion:
+              reason: 'user_request'
+              dataRetention: '30_days'
+            metadata:
+              source: 'user-service'
+              adminId: 1
+              requestId: 'req_vwx234'
+      bindings:
+        ws:
+          bindingVersion: 0.1.0
+    LoginAttempt:
+      name: LoginAttempt
+      title: Login Attempt Event
+      summary: A user login attempt has been made
+      description: Published for both successful and failed login attempts
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/LoginAttemptEvent'
+      examples:
+        - name: Failed Login
+          summary: Someone tried to log in with wrong credentials
+          payload:
+            eventId: 'evt_1234567901'
+            eventType: 'login.attempt'
+            timestamp: '2024-01-15T20:30:00Z'
+            attempt:
+              email: 'marc@scalar.com'
+              success: false
+              reason: 'invalid_credentials'
+              ipAddress: '192.168.1.200'
+              userAgent: 'curl/7.68.0'
+            security:
+              riskScore: 0.3
+              suspiciousActivity: false
+            metadata:
+              source: 'auth-service'
+              requestId: 'req_yza567'
+      bindings:
+        ws:
+          bindingVersion: 0.1.0
+    SystemMaintenance:
+      name: SystemMaintenance
+      title: System Maintenance Event
+      summary: System maintenance has been scheduled or is in progress
+      description: Published for planned and emergency maintenance events
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/SystemMaintenanceEvent'
+      examples:
+        - name: Scheduled Maintenance
+          summary: System maintenance is starting
+          payload:
+            eventId: 'evt_1234567902'
+            eventType: 'system.maintenance'
+            timestamp: '2024-01-15T21:00:00Z'
+            maintenance:
+              type: 'scheduled'
+              status: 'starting'
+              duration: 'PT2H'
+              description: 'Database optimization and security updates'
+              affectedServices:
+                - 'api'
+                - 'events'
+                - 'storage'
+            schedule:
+              startTime: '2024-01-15T21:00:00Z'
+              endTime: '2024-01-15T23:00:00Z'
+            metadata:
+              source: 'system-monitor'
+              maintenanceId: 'maint_20240115'
+      bindings:
+        ws:
+          bindingVersion: 0.1.0
+    RateLimitExceeded:
+      name: RateLimitExceeded
+      title: Rate Limit Exceeded Event
+      summary: A user or system has exceeded rate limits
+      description: Published when rate limits are exceeded
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/RateLimitExceededEvent'
+      examples:
+        - name: API Rate Limit Hit
+          summary: A user hit the API rate limit
+          payload:
+            eventId: 'evt_1234567903'
+            eventType: 'rate_limit.exceeded'
+            timestamp: '2024-01-15T21:30:00Z'
+            rateLimit:
+              limit: 1000
+              window: 'PT1H'
+              exceededBy: 50
+            user:
+              id: 1
+              name: 'Marc'
+            request:
+              endpoint: '/planets'
+              method: 'GET'
+              ipAddress: '192.168.1.100'
+            metadata:
+              source: 'rate-limiter'
+              requestId: 'req_bcd890'
+      bindings:
+        ws:
+          bindingVersion: 0.1.0
+    SecurityAlert:
+      name: SecurityAlert
+      title: Security Alert Event
+      summary: A security-related event has been detected
+      description: Published for security incidents and suspicious activity
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/SecurityAlertEvent'
+      examples:
+        - name: Suspicious Activity
+          summary: Suspicious login pattern detected
+          payload:
+            eventId: 'evt_1234567904'
+            eventType: 'security.alert'
+            timestamp: '2024-01-15T22:00:00Z'
+            alert:
+              severity: 'medium'
+              type: 'suspicious_login_pattern'
+              description: 'Multiple failed login attempts from different IP addresses'
+            activity:
+              attempts: 15
+              timeWindow: 'PT5M'
+              ipAddresses:
+                - '192.168.1.100'
+                - '192.168.1.101'
+                - '10.0.0.50'
+            actions:
+              - 'account_temporarily_locked'
+              - 'admin_notified'
+            metadata:
+              source: 'security-monitor'
+              alertId: 'alert_sec_001'
+      bindings:
+        ws:
+          bindingVersion: 0.1.0
+    ApiVersionDeprecated:
+      name: ApiVersionDeprecated
+      title: API Version Deprecated Event
+      summary: An API version has been deprecated
+      description: Published when API versions are marked as deprecated
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/ApiVersionDeprecatedEvent'
+      examples:
+        - name: Version Deprecation
+          summary: API version 1.0 is being deprecated
+          payload:
+            eventId: 'evt_1234567905'
+            eventType: 'api.version_deprecated'
+            timestamp: '2024-01-15T22:30:00Z'
+            deprecation:
+              version: '1.0'
+              deprecatedAt: '2024-01-15T22:30:00Z'
+              sunsetAt: '2024-07-15T22:30:00Z'
+              migrationGuide: 'https://docs.scalar.com/migration/v1-to-v2'
+            impact:
+              affectedEndpoints:
+                - '/planets'
+                - '/users'
+              breakingChanges: true
+            metadata:
+              source: 'api-gateway'
+              deprecationId: 'dep_20240115'
+      bindings:
+        ws:
+          bindingVersion: 0.1.0
+    CelestialBodyCreated:
+      name: CelestialBodyCreated
+      title: Celestial Body Created Event
+      summary: A new celestial body has been added to the galaxy
+      description: Published when any type of celestial body is created
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/CelestialBodyCreatedEvent'
+      examples:
+        - name: New Asteroid
+          summary: A new asteroid was discovered
+          payload:
+            eventId: 'evt_1234567906'
+            eventType: 'celestial_body.created'
+            timestamp: '2024-01-15T23:00:00Z'
+            celestialBody:
+              type: 'satellite'
+              satellite:
+                id: 16
+                name: 'Asteroid X-2024'
+                type: 'asteroid'
+                diameter: 1.2
+            discovery:
+              method: 'automated_survey'
+              observatory: 'Hubble Space Telescope'
+            metadata:
+              source: 'astronomical-survey'
+              surveyId: 'survey_20240115'
+      bindings:
+        ws:
+          bindingVersion: 0.1.0
+    CelestialBodyUpdated:
+      name: CelestialBodyUpdated
+      title: Celestial Body Updated Event
+      summary: An existing celestial body has been modified
+      description: Published when celestial body properties are updated
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/CelestialBodyUpdatedEvent'
+      examples:
+        - name: Orbit Update
+          summary: A satellite's orbit was recalculated
+          payload:
+            eventId: 'evt_1234567907'
+            eventType: 'celestial_body.updated'
+            timestamp: '2024-01-15T23:30:00Z'
+            celestialBody:
+              type: 'satellite'
+              satellite:
+                id: 15
+                name: 'Deimos II'
+                orbit:
+                  orbitalPeriod: 1.28
+                  distance: 23500
+            changes:
+              - field: 'orbit.orbitalPeriod'
+                oldValue: 1.26
+                newValue: 1.28
+              - field: 'orbit.distance'
+                oldValue: 23460
+                newValue: 23500
+            metadata:
+              source: 'orbital-mechanics'
+              calculationId: 'calc_20240115'
+      bindings:
+        ws:
+          bindingVersion: 0.1.0
+    OrbitalCollision:
+      name: OrbitalCollision
+      title: Orbital Collision Event
+      summary: Two celestial bodies have collided
+      description: Published when orbital collisions occur
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/OrbitalCollisionEvent'
+      examples:
+        - name: Asteroid Impact
+          summary: An asteroid collided with a planet
+          payload:
+            eventId: 'evt_1234567908'
+            eventType: 'orbital.collision'
+            timestamp: '2024-01-16T00:00:00Z'
+            collision:
+              type: 'asteroid_planet'
+              severity: 'minor'
+              energy: '1.2e12'
+            objects:
+              - type: 'satellite'
+                id: 17
+                name: 'Asteroid Y-2024'
+                mass: 1.5e12
+              - type: 'planet'
+                id: 4
+                name: 'Mars'
+            impact:
+              location: 'Valles Marineris'
+              craterSize: 150
+              atmosphericEffects: 'dust_cloud'
+            metadata:
+              source: 'collision-detector'
+              simulationId: 'sim_20240116'
+      bindings:
+        ws:
+          bindingVersion: 0.1.0
+    NewDiscovery:
+      name: NewDiscovery
+      title: New Discovery Event
+      summary: A significant astronomical discovery has been made
+      description: Published for major discoveries and breakthroughs
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/NewDiscoveryEvent'
+      examples:
+        - name: Habitable Planet
+          summary: A potentially habitable planet was discovered
+          payload:
+            eventId: 'evt_1234567909'
+            eventType: 'discovery.new'
+            timestamp: '2024-01-16T00:30:00Z'
+            discovery:
+              type: 'habitable_planet'
+              significance: 'high'
+              description: 'Earth-like planet with liquid water detected'
+            celestialBody:
+              type: 'planet'
+              planet:
+                id: 50
+                name: 'Kepler-442b'
+                type: 'super_earth'
+                habitabilityIndex: 0.84
+                physicalProperties:
+                  mass: 2.36
+                  radius: 1.34
+                  temperature:
+                    average: 233
+            research:
+              method: 'transit_photometry'
+              observatory: 'Kepler Space Telescope'
+              paper: 'https://arxiv.org/abs/2401.15000'
+            metadata:
+              source: 'research-team'
+              discoveryId: 'disc_20240116'
+      bindings:
+        ws:
+          bindingVersion: 0.1.0
+  schemas:
+    PlanetCreatedEvent:
+      type: object
+      required: [eventId, eventType, timestamp, planet]
+      properties:
+        eventId:
+          type: string
+          format: uuid
+          description: Unique identifier for this event
+          examples: ['evt_1234567890']
+        eventType:
+          type: string
+          enum: ['planet.created']
+          description: Type of event
+        timestamp:
+          type: string
+          format: date-time
+          description: When the event occurred
+          examples: ['2024-01-15T14:30:00Z']
+        planet:
+          $ref: '#/components/schemas/Planet'
+        metadata:
+          $ref: '#/components/schemas/EventMetadata'
+    PlanetUpdatedEvent:
+      type: object
+      required: [eventId, eventType, timestamp, planet, changes]
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        eventType:
+          type: string
+          enum: ['planet.updated']
+        timestamp:
+          type: string
+          format: date-time
+        planet:
+          $ref: '#/components/schemas/Planet'
+        changes:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldChange'
+          description: List of fields that were modified
+        metadata:
+          $ref: '#/components/schemas/EventMetadata'
+    PlanetDeletedEvent:
+      type: object
+      required: [eventId, eventType, timestamp, planetId, planetName]
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        eventType:
+          type: string
+          enum: ['planet.deleted']
+        timestamp:
+          type: string
+          format: date-time
+        planetId:
+          type: integer
+          format: int64
+        planetName:
+          type: string
+        reason:
+          type: string
+          description: Reason for deletion
+        metadata:
+          $ref: '#/components/schemas/EventMetadata'
+    PlanetExplodedEvent:
+      type: object
+      required: [eventId, eventType, timestamp, planet, explosion]
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        eventType:
+          type: string
+          enum: ['planet.exploded']
+        timestamp:
+          type: string
+          format: date-time
+        planet:
+          $ref: '#/components/schemas/Planet'
+        explosion:
+          type: object
+          required: [type, intensity]
+          properties:
+            type:
+              type: string
+              enum: ['supernova', 'nova', 'collision', 'artificial']
+            intensity:
+              type: number
+              minimum: 0
+              maximum: 10
+              description: Explosion intensity on a scale of 0-10
+            energyReleased:
+              type: string
+              description: Energy released in joules (scientific notation)
+            newCelestialBodies:
+              type: array
+              items:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    enum: ['asteroid', 'comet', 'planet']
+                  name:
+                    type: string
+        affectedObjects:
+          type: array
+          items:
+            type: object
+            properties:
+              planetId:
+                type: integer
+                format: int64
+              distance:
+                type: number
+                description: Distance in kilometers
+              impact:
+                type: string
+                enum: ['none', 'minor', 'moderate', 'severe']
+        metadata:
+          $ref: '#/components/schemas/EventMetadata'
+    SatelliteDiscoveredEvent:
+      type: object
+      required: [eventId, eventType, timestamp, satellite]
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        eventType:
+          type: string
+          enum: ['satellite.discovered']
+        timestamp:
+          type: string
+          format: date-time
+        satellite:
+          $ref: '#/components/schemas/Satellite'
+        discoveryMethod:
+          type: string
+          enum:
+            [
+              'telescope_observation',
+              'space_probe',
+              'mathematical_prediction',
+              'collision_remnant',
+            ]
+        metadata:
+          $ref: '#/components/schemas/EventMetadata'
+    AtmosphereChangedEvent:
+      type: object
+      required: [eventId, eventType, timestamp, planet, atmosphere]
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        eventType:
+          type: string
+          enum: ['atmosphere.changed']
+        timestamp:
+          type: string
+          format: date-time
+        planet:
+          type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+            name:
+              type: string
+        atmosphere:
+          type: array
+          items:
+            type: object
+            properties:
+              compound:
+                type: string
+              percentage:
+                type: number
+                format: float
+        change:
+          type: object
+          properties:
+            type:
+              type: string
+              enum: ['terraforming', 'natural', 'pollution', 'atmospheric_loss']
+            progress:
+              type: number
+              minimum: 0
+              maximum: 1
+              description: Progress of the change (0-1)
+            estimatedCompletion:
+              type: string
+              format: date-time
+        metadata:
+          $ref: '#/components/schemas/EventMetadata'
+    ImageUploadedEvent:
+      type: object
+      required: [eventId, eventType, timestamp, planet, image]
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        eventType:
+          type: string
+          enum: ['image.uploaded']
+        timestamp:
+          type: string
+          format: date-time
+        planet:
+          type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+            name:
+              type: string
+        image:
+          type: object
+          required: [url, fileSize, mimeType, uploadedAt]
+          properties:
+            url:
+              type: string
+              format: uri
+            fileSize:
+              type: integer
+              description: File size in bytes
+            mimeType:
+              type: string
+            uploadedAt:
+              type: string
+              format: date-time
+        uploader:
+          $ref: '#/components/schemas/User'
+        metadata:
+          $ref: '#/components/schemas/EventMetadata'
+    UserSignedUpEvent:
+      type: object
+      required: [eventId, eventType, timestamp, user]
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        eventType:
+          type: string
+          enum: ['user.signed_up']
+        timestamp:
+          type: string
+          format: date-time
+        user:
+          $ref: '#/components/schemas/User'
+        registration:
+          type: object
+          properties:
+            method:
+              type: string
+              enum: ['email', 'oauth', 'sso']
+            source:
+              type: string
+              enum: ['web', 'mobile', 'api']
+            ipAddress:
+              type: string
+              format: ipv4
+        metadata:
+          $ref: '#/components/schemas/EventMetadata'
+    UserAuthenticatedEvent:
+      type: object
+      required: [eventId, eventType, timestamp, user, authentication]
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        eventType:
+          type: string
+          enum: ['user.authenticated']
+        timestamp:
+          type: string
+          format: date-time
+        user:
+          $ref: '#/components/schemas/User'
+        authentication:
+          type: object
+          required: [method, tokenType]
+          properties:
+            method:
+              type: string
+              enum: ['bearer_token', 'basic_auth', 'oauth', 'api_key']
+            tokenType:
+              type: string
+              enum: ['JWT', 'OAuth', 'Basic']
+            expiresAt:
+              type: string
+              format: date-time
+        session:
+          type: object
+          properties:
+            id:
+              type: string
+            ipAddress:
+              type: string
+              format: ipv4
+            userAgent:
+              type: string
+        metadata:
+          $ref: '#/components/schemas/EventMetadata'
+    UserProfileUpdatedEvent:
+      type: object
+      required: [eventId, eventType, timestamp, user, changes]
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        eventType:
+          type: string
+          enum: ['user.profile_updated']
+        timestamp:
+          type: string
+          format: date-time
+        user:
+          $ref: '#/components/schemas/User'
+        changes:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldChange'
+        metadata:
+          $ref: '#/components/schemas/EventMetadata'
+    UserDeletedEvent:
+      type: object
+      required: [eventId, eventType, timestamp, user]
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        eventType:
+          type: string
+          enum: ['user.deleted']
+        timestamp:
+          type: string
+          format: date-time
+        user:
+          $ref: '#/components/schemas/User'
+        deletion:
+          type: object
+          properties:
+            reason:
+              type: string
+              enum:
+                ['user_request', 'admin_action', 'policy_violation', 'inactive']
+            dataRetention:
+              type: string
+              enum: ['immediate', '30_days', '90_days', '1_year']
+        metadata:
+          $ref: '#/components/schemas/EventMetadata'
+    LoginAttemptEvent:
+      type: object
+      required: [eventId, eventType, timestamp, attempt]
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        eventType:
+          type: string
+          enum: ['login.attempt']
+        timestamp:
+          type: string
+          format: date-time
+        attempt:
+          type: object
+          required: [email, success]
+          properties:
+            email:
+              type: string
+              format: email
+            success:
+              type: boolean
+            reason:
+              type: string
+              enum:
+                [
+                  'invalid_credentials',
+                  'account_locked',
+                  'rate_limited',
+                  'success',
+                ]
+            ipAddress:
+              type: string
+              format: ipv4
+            userAgent:
+              type: string
+        security:
+          type: object
+          properties:
+            riskScore:
+              type: number
+              minimum: 0
+              maximum: 1
+            suspiciousActivity:
+              type: boolean
+        metadata:
+          $ref: '#/components/schemas/EventMetadata'
+    SystemMaintenanceEvent:
+      type: object
+      required: [eventId, eventType, timestamp, maintenance]
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        eventType:
+          type: string
+          enum: ['system.maintenance']
+        timestamp:
+          type: string
+          format: date-time
+        maintenance:
+          type: object
+          required: [type, status, duration]
+          properties:
+            type:
+              type: string
+              enum: ['scheduled', 'emergency', 'hotfix']
+            status:
+              type: string
+              enum:
+                ['scheduled', 'starting', 'in_progress', 'completed', 'failed']
+            duration:
+              type: string
+              format: duration
+              description: Expected duration in ISO 8601 format
+            description:
+              type: string
+            affectedServices:
+              type: array
+              items:
+                type: string
+        schedule:
+          type: object
+          properties:
+            startTime:
+              type: string
+              format: date-time
+            endTime:
+              type: string
+              format: date-time
+        metadata:
+          $ref: '#/components/schemas/EventMetadata'
+    RateLimitExceededEvent:
+      type: object
+      required: [eventId, eventType, timestamp, rateLimit]
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        eventType:
+          type: string
+          enum: ['rate_limit.exceeded']
+        timestamp:
+          type: string
+          format: date-time
+        rateLimit:
+          type: object
+          required: [limit, window, exceededBy]
+          properties:
+            limit:
+              type: integer
+            window:
+              type: string
+              format: duration
+            exceededBy:
+              type: integer
+        user:
+          $ref: '#/components/schemas/User'
+        request:
+          type: object
+          properties:
+            endpoint:
+              type: string
+            method:
+              type: string
+            ipAddress:
+              type: string
+              format: ipv4
+        metadata:
+          $ref: '#/components/schemas/EventMetadata'
+    SecurityAlertEvent:
+      type: object
+      required: [eventId, eventType, timestamp, alert]
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        eventType:
+          type: string
+          enum: ['security.alert']
+        timestamp:
+          type: string
+          format: date-time
+        alert:
+          type: object
+          required: [severity, type, description]
+          properties:
+            severity:
+              type: string
+              enum: ['low', 'medium', 'high', 'critical']
+            type:
+              type: string
+              enum:
+                [
+                  'suspicious_login_pattern',
+                  'brute_force',
+                  'data_breach',
+                  'malware_detected',
+                ]
+            description:
+              type: string
+        activity:
+          type: object
+          properties:
+            attempts:
+              type: integer
+            timeWindow:
+              type: string
+              format: duration
+            ipAddresses:
+              type: array
+              items:
+                type: string
+                format: ipv4
+        actions:
+          type: array
+          items:
+            type: string
+        metadata:
+          $ref: '#/components/schemas/EventMetadata'
+    ApiVersionDeprecatedEvent:
+      type: object
+      required: [eventId, eventType, timestamp, deprecation]
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        eventType:
+          type: string
+          enum: ['api.version_deprecated']
+        timestamp:
+          type: string
+          format: date-time
+        deprecation:
+          type: object
+          required: [version, deprecatedAt, sunsetAt]
+          properties:
+            version:
+              type: string
+            deprecatedAt:
+              type: string
+              format: date-time
+            sunsetAt:
+              type: string
+              format: date-time
+            migrationGuide:
+              type: string
+              format: uri
+        impact:
+          type: object
+          properties:
+            affectedEndpoints:
+              type: array
+              items:
+                type: string
+            breakingChanges:
+              type: boolean
+        metadata:
+          $ref: '#/components/schemas/EventMetadata'
+    CelestialBodyCreatedEvent:
+      type: object
+      required: [eventId, eventType, timestamp, celestialBody]
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        eventType:
+          type: string
+          enum: ['celestial_body.created']
+        timestamp:
+          type: string
+          format: date-time
+        celestialBody:
+          $ref: '#/components/schemas/CelestialBody'
+        discovery:
+          type: object
+          properties:
+            method:
+              type: string
+              enum:
+                [
+                  'telescope_observation',
+                  'space_probe',
+                  'mathematical_prediction',
+                  'collision_remnant',
+                ]
+            observatory:
+              type: string
+        metadata:
+          $ref: '#/components/schemas/EventMetadata'
+    CelestialBodyUpdatedEvent:
+      type: object
+      required: [eventId, eventType, timestamp, celestialBody, changes]
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        eventType:
+          type: string
+          enum: ['celestial_body.updated']
+        timestamp:
+          type: string
+          format: date-time
+        celestialBody:
+          $ref: '#/components/schemas/CelestialBody'
+        changes:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldChange'
+        metadata:
+          $ref: '#/components/schemas/EventMetadata'
+    OrbitalCollisionEvent:
+      type: object
+      required: [eventId, eventType, timestamp, collision, objects]
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        eventType:
+          type: string
+          enum: ['orbital.collision']
+        timestamp:
+          type: string
+          format: date-time
+        collision:
+          type: object
+          required: [type, severity, energy]
+          properties:
+            type:
+              type: string
+              enum:
+                [
+                  'asteroid_planet',
+                  'planet_planet',
+                  'satellite_planet',
+                  'asteroid_asteroid',
+                ]
+            severity:
+              type: string
+              enum: ['minor', 'moderate', 'major', 'catastrophic']
+            energy:
+              type: string
+              description: Energy released in joules (scientific notation)
+        objects:
+          type: array
+          minItems: 2
+          maxItems: 2
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum: ['planet', 'satellite']
+              id:
+                type: integer
+                format: int64
+              name:
+                type: string
+              mass:
+                type: number
+                description: Mass in kilograms
+        impact:
+          type: object
+          properties:
+            location:
+              type: string
+            craterSize:
+              type: number
+              description: Crater size in meters
+            atmosphericEffects:
+              type: string
+              enum:
+                [
+                  'none',
+                  'dust_cloud',
+                  'atmospheric_heating',
+                  'atmospheric_loss',
+                ]
+        metadata:
+          $ref: '#/components/schemas/EventMetadata'
+    NewDiscoveryEvent:
+      type: object
+      required: [eventId, eventType, timestamp, discovery, celestialBody]
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        eventType:
+          type: string
+          enum: ['discovery.new']
+        timestamp:
+          type: string
+          format: date-time
+        discovery:
+          type: object
+          required: [type, significance, description]
+          properties:
+            type:
+              type: string
+              enum:
+                [
+                  'habitable_planet',
+                  'new_element',
+                  'alien_life',
+                  'wormhole',
+                  'black_hole',
+                ]
+            significance:
+              type: string
+              enum: ['low', 'medium', 'high', 'revolutionary']
+            description:
+              type: string
+        celestialBody:
+          $ref: '#/components/schemas/CelestialBody'
+        research:
+          type: object
+          properties:
+            method:
+              type: string
+            observatory:
+              type: string
+            paper:
+              type: string
+              format: uri
+        metadata:
+          $ref: '#/components/schemas/EventMetadata'
+    # Shared schemas
+    EventMetadata:
+      type: object
+      properties:
+        source:
+          type: string
+          description: Source system that generated the event
+        userId:
+          type: integer
+          format: int64
+          description: ID of the user who triggered the event (if applicable)
+        requestId:
+          type: string
+          description: ID of the request that triggered the event
+        correlationId:
+          type: string
+          description: Correlation ID for tracing related events
+        severity:
+          type: string
+          enum: ['info', 'warning', 'error', 'critical']
+          description: Event severity level
+    FieldChange:
+      type: object
+      required: [field, oldValue, newValue]
+      properties:
+        field:
+          type: string
+          description: Name of the field that changed
+        oldValue:
+          description: Previous value of the field
+        newValue:
+          description: New value of the field
+    # Reuse schemas from OpenAPI document
+    Planet:
+      description: A planet in the Scalar Galaxy
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum: [terrestrial, gas_giant, ice_giant, dwarf, super_earth]
+        habitabilityIndex:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        physicalProperties:
+          type: object
+          properties:
+            mass:
+              type: number
+              format: float
+            radius:
+              type: number
+              format: float
+            gravity:
+              type: number
+              format: float
+            temperature:
+              type: object
+              properties:
+                min:
+                  type: number
+                  format: float
+                max:
+                  type: number
+                  format: float
+                average:
+                  type: number
+                  format: float
+        atmosphere:
+          type: array
+          items:
+            type: object
+            properties:
+              compound:
+                type: string
+              percentage:
+                type: number
+                format: float
+        discoveredAt:
+          type: string
+          format: date-time
+        image:
+          type: string
+          nullable: true
+        satellites:
+          type: array
+          items:
+            $ref: '#/components/schemas/Satellite'
+        creator:
+          $ref: '#/components/schemas/User'
+        tags:
+          type: array
+          items:
+            type: string
+        lastUpdated:
+          type: string
+          format: date-time
+          readOnly: true
+    Satellite:
+      description: Every satellite in the Scalar Galaxy
+      type: object
+      required: [name]
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        name:
+          type: string
+        description:
+          type: string
+        diameter:
+          type: number
+          format: float
+        type:
+          type: string
+          enum: [moon, asteroid, comet]
+        orbit:
+          type: object
+          properties:
+            planet:
+              $ref: '#/components/schemas/Planet'
+            orbitalPeriod:
+              type: number
+              format: float
+            distance:
+              type: number
+              format: float
+    CelestialBody:
+      oneOf:
+        - $ref: '#/components/schemas/Planet'
+        - $ref: '#/components/schemas/Satellite'
+      discriminator:
+        propertyName: type
+        mapping:
+          planet: '#/components/schemas/Planet'
+          satellite: '#/components/schemas/Satellite'
+      description: A celestial body which can be either a planet or a satellite
+    User:
+      description: A user
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        name:
+          type: string
