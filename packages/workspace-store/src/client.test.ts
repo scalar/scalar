@@ -7,6 +7,7 @@ import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createWorkspaceStore } from '@/client'
 import { defaultReferenceConfig } from '@/schemas/reference-config'
+import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import { createServerWorkspaceStore } from '@/server'
 
 // Test document
@@ -248,8 +249,9 @@ describe('create-workspace-store', () => {
     })
 
     expect(
-      (store?.workspace?.activeDocument?.paths?.['/users']?.get as any)?.responses?.[200]?.content['application/json']
-        .schema.items['$ref-value'].properties.name,
+      ((store?.workspace?.activeDocument as OpenApiDocument)?.paths?.['/users']?.get as any)?.responses?.[200]?.content[
+        'application/json'
+      ].schema.items['$ref-value'].properties.name,
     ).toEqual({
       type: 'string',
       description: 'The user name',
@@ -285,7 +287,7 @@ describe('create-workspace-store', () => {
     })
 
     // The operation should not be resolved on the fly
-    expect(store.workspace.activeDocument?.paths?.['/users']?.get).toEqual({
+    expect((store.workspace.activeDocument as OpenApiDocument)?.paths?.['/users']?.get).toEqual({
       '$ref': 'http://localhost:9988/default/operations/~1users/get#',
       $global: true,
     })
@@ -294,14 +296,13 @@ describe('create-workspace-store', () => {
     await store.resolve(['paths', '/users', 'get'])
 
     // We expect the ref to have been resolved with the correct contents
-    expect((store.workspace.activeDocument?.paths?.['/users']?.get as any)['$ref-value'].summary).toEqual(
-      getDocument().paths['/users'].get.summary,
-    )
+    expect(
+      ((store.workspace.activeDocument as OpenApiDocument)?.paths?.['/users']?.get as any)['$ref-value'].summary,
+    ).toEqual(getDocument().paths['/users'].get.summary)
 
     expect(
-      (store.workspace.activeDocument?.paths?.['/users']?.get as any)['$ref-value']?.responses?.[200]?.content[
-        'application/json'
-      ]?.schema?.items['$ref-value']['$ref-value'],
+      ((store.workspace.activeDocument as OpenApiDocument)?.paths?.['/users']?.get as any)['$ref-value']
+        ?.responses?.[200]?.content['application/json']?.schema?.items['$ref-value']['$ref-value'],
     ).toEqual({
       ...getDocument().components.schemas.User,
     })
@@ -413,7 +414,7 @@ describe('create-workspace-store', () => {
     })
 
     // The operation should not be resolved on the fly
-    expect(store.workspace.activeDocument?.paths?.['/users']?.get).toEqual({
+    expect((store.workspace.activeDocument as OpenApiDocument)?.paths?.['/users']?.get).toEqual({
       '$ref': `${url}/default/operations/~1users/get#`,
       $global: true,
     })
@@ -1489,7 +1490,7 @@ describe('create-workspace-store', () => {
       },
     })
 
-    expect(store.workspace.activeDocument?.['x-original-oas-version']).toBe('2.0')
+    expect((store.workspace.activeDocument as OpenApiDocument)?.['x-original-oas-version']).toBe('2.0')
   })
 
   it('add the original oas version on the consuming document #2', async () => {
@@ -1530,7 +1531,7 @@ describe('create-workspace-store', () => {
       },
     })
 
-    expect(store.workspace.activeDocument?.['x-original-oas-version']).toBe('3.0.0')
+    expect((store.workspace.activeDocument as OpenApiDocument)?.['x-original-oas-version']).toBe('3.0.0')
   })
 
   describe('download original document', () => {
@@ -2019,7 +2020,7 @@ describe('create-workspace-store', () => {
 
       expect(store.workspace.documents['default']?.info?.title).toBe('My Updated API')
       expect(store.workspace.documents['default']?.info?.version).toBe('2.0.0')
-      expect(store.workspace.documents['default']?.openapi).toBe('3.1.1')
+      expect((store.workspace.documents['default'] as OpenApiDocument)?.openapi).toBe('3.1.1')
     })
 
     it('edit the override values', async () => {
@@ -2046,7 +2047,7 @@ describe('create-workspace-store', () => {
 
       expect(defaultDocument.info.title).toBe('Edited title')
       expect(defaultDocument.info.version).toBe('2.0.0')
-      expect(defaultDocument.openapi).toBe('3.1.1')
+      expect((defaultDocument as OpenApiDocument).openapi).toBe('3.1.1')
     })
 
     it('does not write back the overrides to the intermediate object', async () => {
@@ -2073,7 +2074,7 @@ describe('create-workspace-store', () => {
 
       expect(defaultDocument.info.title).toBe('Edited title')
       expect(defaultDocument.info.version).toBe('2.0.0')
-      expect(defaultDocument.openapi).toBe('3.1.1')
+      expect((defaultDocument as OpenApiDocument).openapi).toBe('3.1.1')
 
       await store.saveDocument('default')
       expect(store.exportDocument('default', 'json', true)).toBe(
@@ -2105,7 +2106,7 @@ describe('create-workspace-store', () => {
 
       expect(defaultDocument.info.title).toBe('Edited title')
       expect(defaultDocument.info.version).toBe('2.0.0')
-      expect(defaultDocument.openapi).toBe('3.1.1')
+      expect((defaultDocument as OpenApiDocument).openapi).toBe('3.1.1')
 
       await store.saveDocument('default')
       const exported = store.exportWorkspace()
@@ -2116,7 +2117,7 @@ describe('create-workspace-store', () => {
 
       expect(newStore.workspace.documents['default']?.info.title).toBe('Edited title')
       expect(newStore.workspace.documents['default']?.info.version).toBe('2.0.0')
-      expect(newStore.workspace.documents['default']?.openapi).toBe('3.1.1')
+      expect((newStore.workspace.documents['default'] as OpenApiDocument)?.openapi).toBe('3.1.1')
     })
 
     it('revert should never change the overrides fields', async () => {
@@ -2143,14 +2144,14 @@ describe('create-workspace-store', () => {
 
       expect(defaultDocument.info.title).toBe('Edited title')
       expect(defaultDocument.info.version).toBe('2.0.0')
-      expect(defaultDocument.openapi).toBe('3.1.1')
+      expect((defaultDocument as OpenApiDocument).openapi).toBe('3.1.1')
 
       // Revert the changes
       await store.revertDocumentChanges('default')
 
       expect(defaultDocument.info.title).toBe('Edited title')
       expect(defaultDocument.info.version).toBe('2.0.0')
-      expect(defaultDocument.openapi).toBe('3.1.1')
+      expect((defaultDocument as OpenApiDocument).openapi).toBe('3.1.1')
     })
 
     it('correctly reverts back the document while preserving external references', async () => {
