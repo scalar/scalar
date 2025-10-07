@@ -557,14 +557,13 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   // Add a document to the store synchronously from an in-memory OpenAPI document
   async function addInMemoryDocument(input: ObjectDoc & { initialize?: boolean; documentSource?: string }) {
     const { name, meta } = input
-    const cloned = measureSync('deepClone', () => deepClone(input.document))
-    const inputDocument = measureSync('upgrade', () => upgrade(cloned, '3.1'))
+    const clonedRawInputDocument = measureSync('deepClone', () => deepClone(input.document))
 
     measureSync('initialize', () => {
       if (input.initialize !== false) {
         // Store the original document in the originalDocuments map
         // This is used to track the original state of the document as it was loaded into the workspace
-        originalDocuments[name] = deepClone({ ...inputDocument })
+        originalDocuments[name] = deepClone({ ...clonedRawInputDocument })
 
         // Store the intermediate document state for local edits
         // This is used to track the last saved state of the document
@@ -572,7 +571,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         // This is important for local edits that are not yet synced with the remote registry
         // The intermediate document is used to store the latest saved state of the document
         // This allows us to track changes and revert to the last saved state if needed
-        intermediateDocuments[name] = deepClone({ ...inputDocument })
+        intermediateDocuments[name] = deepClone({ ...clonedRawInputDocument })
         // Add the document config to the documentConfigs map
         documentConfigs[name] = input.config ?? {}
         // Store the overrides for this document, or an empty object if none are provided
@@ -583,6 +582,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         extraDocumentConfigurations[name] = { fetch: input.fetch }
       }
     })
+
+    const inputDocument = measureSync('upgrade', () => upgrade(clonedRawInputDocument, '3.1'))
 
     const strictDocument: UnknownObject = createMagicProxy({ ...inputDocument, ...meta }, { showInternal: true })
 
