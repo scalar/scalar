@@ -99,6 +99,7 @@ const handleDragEnd = (
   <Draggable
     :id="item.id"
     class="grid flex-1"
+    :isDraggable="layout === 'client'"
     :parentIds="[]"
     @onDragEnd="handleDragEnd">
     <ScalarSidebarSection v-if="hasChildren(item) && isGroup(item)">

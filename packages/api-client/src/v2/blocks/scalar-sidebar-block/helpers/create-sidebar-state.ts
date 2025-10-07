@@ -3,6 +3,9 @@ import { ref } from 'vue'
 import { generateReverseIndex } from '@/v2/blocks/scalar-sidebar-block/helpers/generate-reverse-index'
 
 type SidebarStateOptions = Partial<{
+  /** Child items key defaults to "children" */
+  key: string
+  /** Different hooks for sidebar item events */
   hooks: {
     onBeforeExpand: (id: string) => void | Promise<void>
     onAfterExpand: (id: string) => void | Promise<void>
@@ -12,7 +15,7 @@ type SidebarStateOptions = Partial<{
 }>
 
 export const createSidebarState = <T extends { id: string }>(items: T[], options?: SidebarStateOptions) => {
-  const index = generateReverseIndex(items)
+  const index = generateReverseIndex(items, options?.key ?? 'children')
   const selectedItems = ref<Record<string, boolean>>({})
   const expandedItems = ref<Record<string, boolean>>({})
 
