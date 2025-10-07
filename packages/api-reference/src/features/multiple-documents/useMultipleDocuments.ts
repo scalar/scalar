@@ -28,44 +28,54 @@ type UseMultipleDocumentsProps = {
   hashPrefix: Ref<string>
 }
 
-const slugger = new GithubSlugger()
+// const slugger = new GithubSlugger()
 
 /**
  * Take any configuration and return a flat array of configurations.
  */
-export const normalizeConfigurations = (
-  configuration: AnyApiReferenceConfiguration | undefined,
-): SourceConfiguration[] => {
-  if (!configuration) {
-    return []
-  }
+// export const normalizeConfigurations = (
+//   configuration: AnyApiReferenceConfiguration | undefined,
+// ): SourceConfiguration[] => {
+//   if (!configuration) {
+//     return []
+//   }
+// /**
+//  * Take any configuration and return a flat array of configurations.
+//  */
+// export const normalizeConfigurations = (
+//   configuration: AnyApiReferenceConfiguration | undefined,
+// ): SpecConfiguration[] => {
+//   if (!configuration) {
+//     return []
+//   }
 
-  // Make it an array, even if it's a single configuration
-  const configs = Array.isArray(configuration) ? configuration : [configuration]
+//   // Make it an array, even if it's a single configuration
+//   const configs = Array.isArray(configuration) ? configuration : [configuration]
 
-  // Flatten all configurations and their sources into a single array
+//   // Flatten all configurations and their sources into a single array
 
-  // Process each configuration to extract and normalize sources
-  const sources = configs.flatMap((config) => {
-    // Check if this config has a 'sources' array property
-    if (isConfigurationWithSources(config)) {
-      // Destructure to separate sources array from other config properties
-      const { sources: configSources, ...rest } = config
+//   // Process each configuration to extract and normalize sources
+//   const sources = configs.flatMap((config) => {
+//     // Check if this config has a 'sources' array property
+//     if (isConfigurationWithSources(config)) {
+//       // Destructure to separate sources array from other config properties
+//       const { sources: configSources, ...rest } = config
 
-      // For each source in the array:
-      // - Merge the source with the parent config properties
-      // - Handle undefined sources by returning empty array via ?? []
-      return configSources?.map((source) => ({ ...rest, ...source })) ?? []
-    }
+//       // For each source in the array:
+//       // - Merge the source with the parent config properties
+//       // - Handle undefined sources by returning empty array via ?? []
+//       return configSources?.map((source) => ({ ...rest, ...source })) ?? []
+//     }
 
-    // If config doesn't have sources array, treat the config itself as a source
-    return [config]
-  })
+//     // If config doesn't have sources array, treat the config itself as a source
+//     return [config]
+//   })
 
-  // Process them
-  return sources.map((source, index) => source && addSlugAndTitle(source, index)).filter(isDefined)
-}
+//   // Process them
+//   return sources.map((source, index) => source && addSlugAndTitle(source, index)).filter(isDefined)
+// }
 
+<<<<<<< HEAD
 /** Process a single spec configuration so that it has a title and a slug */
 const addSlugAndTitle = (_source: SourceConfiguration, index = 0): SourceConfiguration | undefined => {
   const source = {
@@ -73,38 +83,47 @@ const addSlugAndTitle = (_source: SourceConfiguration, index = 0): SourceConfigu
     // this is before parsing so we transform the old style
     ...(_source.spec ?? {}),
   }
+=======
+// /** Process a single spec configuration so that it has a title and a slug */
+// const addSlugAndTitle = (_source: SpecConfiguration, index = 0): SpecConfiguration | undefined => {
+//   const source = {
+//     ..._source,
+//     // @ts-expect-error this is before parsing so we transform the old style
+//     ...(_source.spec ?? {}),
+//   }
+>>>>>>> 23fc421dd (WIP)
 
-  if (!source?.url && !source?.content) {
-    return undefined
-  }
+//   if (!source?.url && !source?.content) {
+//     return undefined
+//   }
 
-  // Reset slugger to avoid duplicate handling
-  slugger.reset()
+//   // Reset slugger to avoid duplicate handling
+//   slugger.reset()
 
-  // Case 1: Title exists, generate slug from it
-  if (source.title) {
-    return {
-      ...source,
-      slug: source.slug || slugger.slug(source.title),
-      title: source.title,
-    }
-  }
+//   // Case 1: Title exists, generate slug from it
+//   if (source.title) {
+//     return {
+//       ...source,
+//       slug: source.slug || slugger.slug(source.title),
+//       title: source.title,
+//     }
+//   }
 
-  // Case 2: Slug exists but no title, use slug as title
-  if (source.slug) {
-    return {
-      ...source,
-      title: source.slug,
-    }
-  }
+//   // Case 2: Slug exists but no title, use slug as title
+//   if (source.slug) {
+//     return {
+//       ...source,
+//       title: source.slug,
+//     }
+//   }
 
-  // Case 3: Neither exists, use index
-  return {
-    ...source,
-    slug: `api-${index + 1}`,
-    title: `API #${index + 1}`,
-  }
-}
+//   // Case 3: Neither exists, use index
+//   return {
+//     ...source,
+//     slug: `api-${index + 1}`,
+//     title: `API #${index + 1}`,
+//   }
+// }
 
 /**
  * DEPRECATED: This is a temporary state solution while we migrate to the new workspace store

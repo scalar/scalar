@@ -1,9 +1,7 @@
 <script lang="ts" setup>
-import { useWorkspace } from '@scalar/api-client/store'
 import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
-import { filterSecurityRequirements } from '@scalar/api-client/views/Request/RequestSection'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
+import type { Server } from '@scalar/oas-utils/entities/spec'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
@@ -14,40 +12,40 @@ import type {
 import { computed } from 'vue'
 
 import { combineParams } from '@/features/Operation/helpers/combine-params'
-import { convertSecurityScheme } from '@/helpers/convert-security-scheme'
+import type { SecuritySchemeGetter } from '@/v2/helpers/map-config-to-client-store'
 
 import { getFirstServer } from './helpers/get-first-server'
 import ClassicLayout from './layouts/ClassicLayout.vue'
 import ModernLayout from './layouts/ModernLayout.vue'
 
-const { server, pathValue, method, security, collection, store } = defineProps<{
-  id: string
-  method: HttpMethod
-  /** Key of the operations path in the document.paths object */
-  path: string
-  /** OpenAPI path object that will include the operation */
-  pathValue: PathItemObject | undefined
-  /** Active server*/
-  server: Server | undefined
-  /** Document level security requirements */
-  security: SecurityRequirementObject[] | undefined
-
-  // ---------------------------------------------
-  store: WorkspaceStore
-  /** @deprecated Use `document` instead, we just need the selected security scheme uids for now */
-  collection: Collection
-  options: {
-    layout: 'classic' | 'modern'
-    /** Sets some additional display properties when an operation is a webhook */
-    isWebhook: boolean
-    showOperationId: boolean | undefined
-    hideTestRequestButton: boolean | undefined
-    expandAllResponses: boolean | undefined
-    clientOptions: ClientOptionGroup[]
-    orderRequiredPropertiesFirst: boolean | undefined
-    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
-  }
-}>()
+const { server, pathValue, method, security, getSecurityScheme, store } =
+  defineProps<{
+    id: string
+    method: HttpMethod
+    /** Key of the operations path in the document.paths object */
+    path: string
+    /** OpenAPI path object that will include the operation */
+    pathValue: PathItemObject | undefined
+    /** Active server*/
+    server: Server | undefined
+    /** Document level security requirements */
+    security: SecurityRequirementObject[] | undefined
+    /** Temporary getter function to handle overlap with the client store */
+    getSecurityScheme: SecuritySchemeGetter
+    xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
+    // ---------------------------------------------
+    options: {
+      layout: 'classic' | 'modern'
+      /** Sets some additional display properties when an operation is a webhook */
+      isWebhook: boolean
+      showOperationId: boolean | undefined
+      hideTestRequestButton: boolean | undefined
+      expandAllResponses: boolean | undefined
+      clientOptions: ClientOptionGroup[]
+      orderRequiredPropertiesFirst: boolean | undefined
+      orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
+    }
+  }>()
 
 /**
  * Operation from the new workspace store, ensure we are de-reference
@@ -71,13 +69,8 @@ const operation = computed(() => {
  * TEMP
  * This still uses the client store and formats it into the new store format
  */
-const { securitySchemes } = useWorkspace()
 const selectedSecuritySchemes = computed(() =>
-  filterSecurityRequirements(
-    operation.value?.security || security || [],
-    collection.selectedSecuritySchemeUids,
-    securitySchemes,
-  ).map(convertSecurityScheme),
+  getSecurityScheme(operation.value?.security, security || []),
 )
 
 /**
@@ -106,7 +99,7 @@ const selectedServer = computed<ServerObject | undefined>(() =>
         :path="path"
         :securitySchemes="selectedSecuritySchemes"
         :server="selectedServer"
-        :store="store" />
+        :xScalarDefaultClient="xScalarDefaultClient" />
     </template>
     <template v-else>
       <ModernLayout
@@ -117,7 +110,7 @@ const selectedServer = computed<ServerObject | undefined>(() =>
         :path="path"
         :securitySchemes="selectedSecuritySchemes"
         :server="selectedServer"
-        :store="store" />
+        :xScalarDefaultClient="xScalarDefaultClient" />
     </template>
   </template>
 </template>

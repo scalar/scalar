@@ -38,7 +38,6 @@ import { Content } from '@/components/Content'
 import GettingStarted from '@/components/GettingStarted.vue'
 import { hasLazyLoaded } from '@/components/Lazy/lazyBus'
 import MobileHeader from '@/components/MobileHeader.vue'
-import { ApiClientModal } from '@/features/api-client-modal'
 import { useDocumentSource } from '@/features/document-source'
 import { SearchButton } from '@/features/Search'
 import { useNavState } from '@/hooks/useNavState'
@@ -427,8 +426,7 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
           documentDownloadType: configuration.documentDownloadType,
           url: configuration.url,
           onShowMore: configuration.onShowMore,
-        }"
-        :store="store">
+        }">
         <template #start>
           <slot
             v-bind="referenceSlotProps"

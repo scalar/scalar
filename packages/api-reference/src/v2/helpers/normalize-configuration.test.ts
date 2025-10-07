@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { normalizeContent } from './normalize-content'
+
+import { normalizeContent } from './normalize-configurations'
 
 describe('normalizeContent', () => {
   describe('function input', () => {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
-import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
+import type { Server } from '@scalar/oas-utils/entities/spec'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type {
   TraversedEntry,
@@ -19,6 +19,7 @@ import { Tag } from '@/components/Content/Tags'
 import { Lazy } from '@/components/Lazy'
 import { SectionContainer } from '@/components/Section'
 import { Operation } from '@/features/Operation'
+import type { SecuritySchemeGetter } from '@/v2/helpers/map-config-to-client-store'
 
 const {
   level = 0,
@@ -39,9 +40,9 @@ const {
   webhooks: PathsObject
   /** The security requirements from the document `document.security` */
   security: SecurityRequirementObject[] | undefined
-  activeCollection: Collection
   activeServer: Server | undefined
-  store: WorkspaceStore
+  getSecuritySchemes: SecuritySchemeGetter
+  xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
   options: {
     layout: 'classic' | 'modern'
     showOperationId: boolean | undefined
@@ -129,7 +130,7 @@ defineExpose({
       <SectionContainer :omit="!isRootLevel">
         <Operation
           :id="entry.id"
-          :collection="activeCollection"
+          :getSecurityScheme="getSecuritySchemes"
           :method="entry.method"
           :options="{
             ...options,
@@ -139,7 +140,7 @@ defineExpose({
           :pathValue="getPathValue(entry)"
           :security="security"
           :server="activeServer"
-          :store />
+          :xScalarDefaultClient="xScalarDefaultClient" />
       </SectionContainer>
     </template>
 
@@ -153,17 +154,17 @@ defineExpose({
         :tag="entry">
         <template v-if="'children' in entry && entry.children?.length">
           <TraversedEntry
-            :activeCollection
             :activeServer
             :entries="entry.children"
+            :getSecuritySchemes="getSecuritySchemes"
             :hash="hash"
             :level="level + 1"
             :options
             :paths="paths"
             :rootIndex
             :security="security"
-            :store
-            :webhooks="webhooks" />
+            :webhooks="webhooks"
+            :xScalarDefaultClient="xScalarDefaultClient" />
         </template>
       </Tag>
     </template>
@@ -171,17 +172,17 @@ defineExpose({
     <template v-else-if="isTagGroup(entry)">
       <!-- Tag Group -->
       <TraversedEntry
-        :activeCollection
         :activeServer
         :entries="entry.children || []"
+        :getSecuritySchemes="getSecuritySchemes"
         :hash="hash"
         :level="level + 1"
         :options
         :paths="paths"
         :rootIndex
         :security="security"
-        :store
-        :webhooks="webhooks" />
+        :webhooks="webhooks"
+        :xScalarDefaultClient="xScalarDefaultClient" />
     </template>
   </Lazy>
 </template>
