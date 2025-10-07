@@ -2,3 +2,4 @@
 
 export { default as ScalarSidebar } from './components/ScalarSidebar.vue'
 export { type SidebarState, createSidebarState } from './helpers/create-sidebar-state'
+export { generateReverseIndex } from './helpers/generate-reverse-index'
