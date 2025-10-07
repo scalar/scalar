@@ -93,7 +93,7 @@
     "svglint": "^2.7.1",
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",
-    "vite-svg-loader": "^5.1.0",
+    "vite-svg-loader": "catalog:*",
     "vitest": "catalog:*"
   }
 }
