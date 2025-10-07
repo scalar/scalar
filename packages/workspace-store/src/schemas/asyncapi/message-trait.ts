@@ -2,23 +2,8 @@ import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
 
-import type { ExampleObject } from '../v3.1/strict/example'
-import type { ExternalDocumentationObject } from '../v3.1/strict/external-documentation'
-import {
-  ExampleObjectRef,
-  ExternalDocumentationObjectRef,
-  SchemaObjectRef,
-  TagObjectRef,
-} from '../v3.1/strict/ref-definitions'
-import type { SchemaObject } from '../v3.1/strict/schema'
-import type { TagObject } from '../v3.1/strict/tag'
-import type { CorrelationId } from './correlation-id'
-import { CorrelationIdSchema } from './correlation-id'
-import type { MessageTrait } from './message-trait'
-import { MessageTraitSchema } from './message-trait'
-
-// Message Schema
-const MessageSchemaDefinition = compose(
+// Message Trait Schema
+const MessageTraitSchemaDefinition = compose(
   Type.Object({
     /** A human-friendly title for the message. */
     title: Type.Optional(Type.String()),
@@ -27,27 +12,23 @@ const MessageSchemaDefinition = compose(
     /** A verbose explanation of the message. CommonMark syntax MAY be used for rich text representation. */
     description: Type.Optional(Type.String()),
     /** A list of tags for logical grouping and categorization of messages. */
-    tags: Type.Optional(Type.Array(TagObjectRef)),
+    tags: Type.Optional(Type.Array(Type.Any())), // Will be replaced with TagObjectRef
     /** Additional external documentation for this message. */
-    externalDocs: Type.Optional(ExternalDocumentationObjectRef),
-    /** The message payload. */
-    payload: Type.Optional(SchemaObjectRef),
+    externalDocs: Type.Optional(Type.Any()), // Will be replaced with ExternalDocumentationObjectRef
     /** The message headers. */
-    headers: Type.Optional(SchemaObjectRef),
+    headers: Type.Optional(Type.Any()), // Will be replaced with proper schema reference
     /** The message correlation ID. */
-    correlationId: Type.Optional(CorrelationIdSchema),
+    correlationId: Type.Optional(Type.Any()), // Will be replaced with CorrelationIdObjectRef
     /** The content type of the message payload. */
     contentType: Type.Optional(Type.String()),
     /** The name of the message. */
     name: Type.Optional(Type.String()),
     /** A list of examples of the message. */
-    examples: Type.Optional(Type.Array(ExampleObjectRef)),
-    /** A list of traits to apply to the message. */
-    traits: Type.Optional(Type.Array(MessageTraitSchema)),
+    examples: Type.Optional(Type.Array(Type.Any())), // Will be replaced with ExampleObjectRef
   }),
 )
 
-export type Message = {
+export type MessageTrait = {
   /** A human-friendly title for the message. */
   title?: string
   /** A short summary of what the message is about. */
@@ -55,29 +36,25 @@ export type Message = {
   /** A verbose explanation of the message. CommonMark syntax MAY be used for rich text representation. */
   description?: string
   /** A list of tags for logical grouping and categorization of messages. */
-  tags?: TagObject[]
+  tags?: any[] // Will be replaced with TagObject[]
   /** Additional external documentation for this message. */
-  externalDocs?: ExternalDocumentationObject
-  /** The message payload. */
-  payload?: SchemaObject
+  externalDocs?: any // Will be replaced with ExternalDocumentationObject
   /** The message headers. */
-  headers?: SchemaObject
+  headers?: any // Will be replaced with proper schema reference
   /** The message correlation ID. */
-  correlationId?: CorrelationId
+  correlationId?: any // Will be replaced with CorrelationIdObject
   /** The content type of the message payload. */
   contentType?: string
   /** The name of the message. */
   name?: string
   /** A list of examples of the message. */
-  examples?: ExampleObject[]
-  /** A list of traits to apply to the message. */
-  traits?: MessageTrait[]
+  examples?: any[] // Will be replaced with ExampleObject[]
 }
 
 // Module definition
 const module = Type.Module({
-  Message: MessageSchemaDefinition,
+  MessageTrait: MessageTraitSchemaDefinition,
 })
 
 // Export schemas
-export const MessageSchema = module.Import('Message')
+export const MessageTraitSchema = module.Import('MessageTrait')
