@@ -1,24 +1,38 @@
 <script setup lang="ts">
+import { getHttpMethodInfo } from '@scalar/helpers/http/http-info'
+import { ScalarIconWebhooksLogo } from '@scalar/icons'
+
 import HttpMethod from './HttpMethod.vue'
 
 defineProps<{
   method: string
   active?: boolean
+  webhook?: boolean
 }>()
 </script>
-
 <template>
-  <HttpMethod
-    :class="[
-      'sidebar-heading-type',
-      `sidebar-heading-type--${method.toLowerCase()}`,
-      { 'sidebar-heading-type-active': active },
-    ]"
-    :method="method"
-    property="--method-color"
-    short>
-    <slot />
-  </HttpMethod>
+  <div>
+    &hairsp;
+    <span class="sr-only">HTTP Method:&nbsp;</span>
+    <HttpMethod
+      :class="[
+        'sidebar-heading-type',
+        `sidebar-heading-type--${method.toLowerCase()}`,
+        { 'sidebar-heading-type-active': active },
+      ]"
+      :method="method"
+      property="--method-color"
+      short>
+      <slot>
+        <ScalarIconWebhooksLogo
+          v-if="webhook"
+          :style="{
+            color: getHttpMethodInfo(method).colorVar,
+          }"
+          weight="bold" />
+      </slot>
+    </HttpMethod>
+  </div>
 </template>
 
 <style scoped>

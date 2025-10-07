@@ -10,8 +10,7 @@ import {
   type DraggingItem,
   type HoveredItem,
 } from '@scalar/draggable'
-import { getHttpMethodInfo } from '@scalar/helpers/http/http-info'
-import { ScalarIconFolder, ScalarIconWebhooksLogo } from '@scalar/icons'
+import { ScalarIconFolder } from '@scalar/icons'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { computed } from 'vue'
 
@@ -138,23 +137,12 @@ const handleDragEnd = (
           :item="item"
           name="aside" />
       </div>
-      <p
-        v-if="item.type === 'operation' || item.type === 'webhook'"
-        class="sidebar-heading-link-method">
-        &hairsp;
-        <span class="sr-only">HTTP Method:&nbsp;</span>
-        <SidebarHttpBadge
-          :active="selectedItems[item.id] ?? false"
-          class="min-w-9.75 justify-end text-right"
-          :method="item.method">
-          <ScalarIconWebhooksLogo
-            v-if="item.type === 'webhook'"
-            :style="{
-              color: getHttpMethodInfo(item.method).colorVar,
-            }"
-            weight="bold" />
-        </SidebarHttpBadge>
-      </p>
+      <SidebarHttpBadge
+        v-if="'method' in item"
+        :active="selectedItems[item.id] ?? false"
+        class="min-w-9.75 justify-end text-right"
+        :method="item.method"
+        :webhook="item.type === 'webhook'" />
       <template
         v-if="item.type === 'document'"
         #icon="{ open }">
@@ -206,21 +194,11 @@ const handleDragEnd = (
       <template
         v-if="'method' in item"
         #aside>
-        <p class="sidebar-heading-link-method">
-          &hairsp;
-          <span class="sr-only">HTTP Method:&nbsp;</span>
-          <SidebarHttpBadge
-            :active="selectedItems[item.id] ?? false"
-            class="min-w-9.75 justify-end text-right"
-            :method="item.method">
-            <ScalarIconWebhooksLogo
-              v-if="item.type === 'webhook'"
-              :style="{
-                color: getHttpMethodInfo(item.method).colorVar,
-              }"
-              weight="bold" />
-          </SidebarHttpBadge>
-        </p>
+        <SidebarHttpBadge
+          :active="selectedItems[item.id] ?? false"
+          class="min-w-9.75 justify-end text-right"
+          :method="item.method"
+          :webhook="item.type === 'webhook'" />
       </template>
     </ScalarSidebarItem>
   </Draggable>
