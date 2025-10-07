@@ -14,12 +14,25 @@ import {
 import type { SecuritySchemeObject } from '@/schemas/v3.1/strict/security-scheme'
 import type { ServerObject } from '@/schemas/v3.1/strict/server'
 
+import type { AsyncApiDocument } from './asyncapi'
 import {
   OpenAPIDocumentSchema,
   type OpenApiDocument,
   SecuritySchemeObjectSchema,
   ServerObjectSchema,
 } from './v3.1/strict/openapi-document'
+
+// Union type for API documents (OpenAPI or AsyncAPI)
+export type ApiDefinition = OpenApiDocument | AsyncApiDocument
+
+// Type guards
+export function isOpenApiDocument(doc: ApiDefinition): doc is OpenApiDocument {
+  return 'openapi' in doc
+}
+
+export function isAsyncApiDocument(doc: ApiDefinition): doc is AsyncApiDocument {
+  return 'asyncapi' in doc
+}
 
 export const WorkspaceDocumentMetaSchema = Type.Partial(
   Type.Object({
@@ -34,6 +47,7 @@ export type WorkspaceDocumentMeta = {
 }
 
 // Note: use Type.Intersect to combine schemas here because Type.Compose does not work as expected with Modules
+// For now, keep OpenAPI schema for backward compatibility - will be updated to union in future
 export const WorkspaceDocumentSchema = Type.Intersect([WorkspaceDocumentMetaSchema, OpenAPIDocumentSchema])
 
 export type WorkspaceDocument = WorkspaceDocumentMeta & OpenApiDocument
