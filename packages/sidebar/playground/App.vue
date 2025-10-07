@@ -1,4 +1,9 @@
 <script lang="ts" setup>
+import {
+  ScalarSidebarFooter,
+  ScalarSidebarSearchInput,
+} from '@scalar/components'
+
 import { createSidebarState, ScalarSidebar, type Item } from '@/index'
 
 import { galaxySidebar } from './sidebar-data'
@@ -24,11 +29,29 @@ const log = (name: string, ...args: any[]) => {
 <template>
   <ScalarSidebar
     layout="reference"
-    :state="reference" />
+    :state="reference">
+    <template #search>
+      <div class="bg-sidebar-b-1 sticky top-0 z-1 px-3 pt-3">
+        <ScalarSidebarSearchInput />
+      </div>
+    </template>
+    <template #footer>
+      <ScalarSidebarFooter />
+    </template>
+  </ScalarSidebar>
   <ScalarSidebar
     layout="client"
     :state="client"
-    @reorder="(...args) => log('reorder', ...args)" />
+    @reorder="(...args) => log('reorder', ...args)">
+    <template #search>
+      <div class="bg-sidebar-b-1 sticky top-0 z-1 px-3 pt-3">
+        <ScalarSidebarSearchInput />
+      </div>
+    </template>
+    <template #footer>
+      <ScalarSidebarFooter />
+    </template>
+  </ScalarSidebar>
 </template>
 
 <style>
