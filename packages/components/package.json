@@ -29,7 +29,7 @@
     "test": "vitest",
     "test:e2e": "PW_TEST_CONNECT_WS_ENDPOINT=ws://127.0.0.1:5001/ playwright test",
     "test:e2e:ci": "CI=1 playwright test",
-    "test:e2e:playwright": "pnpm playwright:cleanup-docker && docker run --network=host -e PORT=5001 --rm --name scalar-playwright scalarapi/playwright:1.55.1",
+    "test:e2e:playwright": "pnpm playwright:cleanup-docker && docker run --network=host -e PORT=5001 --rm --tty --name scalar-playwright scalarapi/playwright:1.56.0",
     "test:e2e:report": "playwright show-report",
     "test:e2e:ui": "pnpm test:e2e --ui",
     "test:e2e:update": "pnpm test:e2e --update-snapshots",

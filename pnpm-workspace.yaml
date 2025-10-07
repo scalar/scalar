@@ -28,7 +28,7 @@ catalogs:
     '@google-cloud/storage': 7.16.0
     '@headlessui/tailwindcss': ^0.2.2
     '@headlessui/vue': 1.7.23
-    '@playwright/test': 1.55.0
+    '@playwright/test': 1.56.0
     '@scalar/typebox': 0.1.1
     '@tailwindcss/vite': ^4.1.7
     '@types/express': 5.0.3
