@@ -3,6 +3,7 @@ import { clojureCljhttp } from '@/plugins/clojure/clj_http'
 import { csharpHttpclient } from '@/plugins/csharp/httpclient'
 import { csharpRestsharp } from '@/plugins/csharp/restsharp'
 import { dartHttp } from '@/plugins/dart/http'
+import { fsharpHttpclient } from '@/plugins/fsharp/httpclient/httpclient'
 import { goNative } from '@/plugins/go/native'
 import { httpHttp11 } from '@/plugins/http/http11'
 import { javaAsynchttp } from '@/plugins/java/asynchttp'
@@ -64,6 +65,12 @@ export const clients: Target[] = [
     title: 'Dart',
     default: 'http',
     clients: [dartHttp],
+  },
+  {
+    key: 'fsharp',
+    title: 'F#',
+    default: 'httpclient',
+    clients: [fsharpHttpclient],
   },
   {
     key: 'go',
