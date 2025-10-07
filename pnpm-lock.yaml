@@ -2409,9 +2409,6 @@ importers:
 
   packages/sidebar:
     dependencies:
-      '@floating-ui/utils':
-        specifier: catalog:*
-        version: 0.2.10
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
@@ -2424,12 +2421,12 @@ importers:
       '@scalar/icons':
         specifier: workspace:*
         version: link:../icons
+      '@scalar/themes':
+        specifier: workspace:*
+        version: link:../themes
       '@scalar/workspace-store':
         specifier: workspace:*
         version: link:../workspace-store
-      nanoid:
-        specifier: catalog:*
-        version: 5.1.5
       vue:
         specifier: catalog:*
         version: 3.5.17(typescript@5.8.3)
