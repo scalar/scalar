@@ -49,11 +49,13 @@ import ApiReferenceToolbar from '@/features/toolbar/ApiReferenceToolbar.vue'
 import { NAV_STATE_SYMBOL } from '@/hooks/useNavState'
 import { getDocumentName } from '@/v2/helpers/get-document-name'
 import { mapConfiguration } from '@/v2/helpers/map-configuration'
+import { getConfigurations } from '@/v2/helpers/normalize-configurations'
 import { normalizeContent } from '@/v2/helpers/normalize-content'
 import { useWorkspaceStoreEvents } from '@/v2/hooks/use-workspace-store-events'
+import type { SpecConfigurationWithSlugAndTitle } from '@/v2/state/types'
 
 const props = defineProps<{
-  configuration?: AnyApiReferenceConfiguration
+  configuration: SpecConfigurationWithSlugAndTitle
   store: WorkspaceStore
 }>()
 
@@ -68,21 +70,15 @@ defineEmits<{
  */
 
 /** Configuration overrides to apply to the selected document (from the localhost toolbar) */
-const configurationOverrides = ref<Partial<ApiReferenceConfiguration>>({})
-const {
-  availableDocuments,
-  selectedConfiguration,
-  selectedDocumentIndex,
-  isIntersectionEnabled,
-  hash,
-  hashPrefix,
-} = useMultipleDocuments({
-  configuration: toRef(props, 'configuration'),
-  configurationOverrides,
-  isIntersectionEnabled: ref(false),
-  hash: ref(''),
-  hashPrefix: ref(''),
-})
+const configurationOverrides = ref<
+  Partial<Omit<ApiReferenceConfiguration, 'slug' | 'title' | ''>>
+>({})
+
+// const configurations = computed(() => getConfigurations(props.configuration))
+
+const activeDocument = computed(
+  () => store.workspace['x-scalar-active-document'],
+)
 
 /**
  * Creates a proxy function that redirects requests through a proxy URL.
@@ -115,15 +111,17 @@ provide(NAV_STATE_SYMBOL, {
 // ---------------------------------------------------------------------------
 
 const root = useTemplateRef<HTMLElement>('root')
-const store = props.store
 
 // Do this a bit quicker than onMounted
 onBeforeMount(() => {
   const storedClient = safeLocalStorage().getItem(
     REFERENCE_LS_KEYS.SELECTED_CLIENT,
   )
-  if (isClient(storedClient) && !store.workspace['x-scalar-default-client']) {
-    store.update('x-scalar-default-client', storedClient)
+  if (
+    isClient(storedClient) &&
+    !props.store.workspace['x-scalar-default-client']
+  ) {
+    props.store.update('x-scalar-default-client', storedClient)
   }
 })
 
@@ -202,21 +200,6 @@ const addOrUpdateDocument = async (
   return
 }
 
-/** Watch for changes to the slug, url, or content */
-watch(
-  [
-    () => selectedConfiguration.value.slug,
-    () => selectedConfiguration.value.url,
-    () => selectedConfiguration.value.content,
-  ],
-  ([newSlug, newUrl, newContent]) => {
-    if (newSlug || newUrl || newContent) {
-      addOrUpdateDocument(selectedConfiguration.value)
-    }
-  },
-  { immediate: true },
-)
-
 /** Set up event listeners for client store events */
 useWorkspaceStoreEvents(store, root, selectedConfiguration.value)
 
@@ -275,17 +258,6 @@ watch(
 watch(
   () => isDarkMode.value,
   (newValue) => store.update('x-scalar-dark-mode', newValue),
-  { immediate: true },
-)
-
-// Temporary mapping of active document until we update the standalone component
-watch(
-  () => selectedDocumentIndex.value,
-  (newValue) =>
-    store.update(
-      'x-scalar-active-document',
-      availableDocuments.value[newValue]?.slug,
-    ),
   { immediate: true },
 )
 

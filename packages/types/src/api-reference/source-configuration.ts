@@ -6,6 +6,7 @@ import z from 'zod'
  * or used independently. Some configurations may have multiple sources.
  */
 export const sourceConfigurationSchema = z.object({
+  default: z.boolean().default(false).optional().catch(false),
   /**
    * URL to an OpenAPI/Swagger document
    * @example

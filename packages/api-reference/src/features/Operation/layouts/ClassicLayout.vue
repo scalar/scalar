@@ -52,7 +52,7 @@ const { operation, path } = defineProps<{
   // pathServers: ServerObject[] | undefined
   server: ServerObject | undefined
   securitySchemes: SecuritySchemeObject[]
-  store: WorkspaceStore
+  xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
   /** Global options that can be derived from the top level config or assigned at a block level */
   options: {
     /** Sets some additional display properties when an operation is a webhook */
@@ -209,7 +209,7 @@ const { copyToClipboard } = useClipboard()
             :operation="operation"
             :path="path"
             :securitySchemes="securitySchemes"
-            :selectedClient="store.workspace['x-scalar-default-client']"
+            :selectedClient="xScalarDefaultClient"
             :selectedServer="server" />
         </ScalarErrorBoundary>
       </div>
