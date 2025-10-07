@@ -9,7 +9,7 @@ import {
 import { useRouter } from 'vue-router'
 
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
-import { PathId } from '@/router'
+import { PathId } from '@/routes'
 import { useActiveEntities, useWorkspace } from '@/store'
 
 const { activeCollection, activeWorkspace, activeWorkspaceCollections } =

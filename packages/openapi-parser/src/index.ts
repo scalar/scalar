@@ -8,7 +8,7 @@ export { upgradeFromTwoToThree } from '@scalar/openapi-upgrader/2.0-to-3.0'
 export { upgradeFromThreeToThreeOne } from '@scalar/openapi-upgrader/3.0-to-3.1'
 
 export type { AnyObject, ErrorObject, Filesystem, LoadResult } from './types'
-export { dereference } from './utils/dereference'
+export { dereference, dereferenceSync } from './utils/dereference'
 export { filter } from './utils/filter'
 export { isJson } from './utils/is-json'
 export { isYaml } from './utils/is-yaml'
