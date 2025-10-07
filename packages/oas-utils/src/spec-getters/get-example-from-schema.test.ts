@@ -1276,6 +1276,22 @@ describe('getExampleFromSchema', () => {
       })
     })
 
+    it('does not add additional properties when additionalProperties is false', () => {
+      expect(
+        getExampleFromSchema(
+          coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+            },
+            additionalProperties: false,
+          }),
+        ),
+      ).toEqual({
+        name: '',
+      })
+    })
+
     it('coerces the type when x-additionalPropertiesName is not a string', () => {
       expect(
         getExampleFromSchema(
