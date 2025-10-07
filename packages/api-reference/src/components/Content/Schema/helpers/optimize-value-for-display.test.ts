@@ -288,7 +288,7 @@ describe('optimizeValueForDisplay', () => {
       },
       oneOf: [
         {
-          '_': '',
+          '__scalar_': '',
           title: 'FirstSchema',
           allOf: [
             { required: ['id'], type: 'object' },
@@ -296,7 +296,7 @@ describe('optimizeValueForDisplay', () => {
           ],
         },
         {
-          '_': '',
+          '__scalar_': '',
           title: 'SecondSchema',
           allOf: [
             { required: ['id'], type: 'object' },
@@ -311,7 +311,7 @@ describe('optimizeValueForDisplay', () => {
     expect(result).toEqual({
       oneOf: [
         {
-          '_': '',
+          '__scalar_': '',
           type: 'object',
           properties: {
             id: { type: 'string' },
@@ -328,7 +328,7 @@ describe('optimizeValueForDisplay', () => {
             id: { type: 'string' },
           },
           title: 'SecondSchema',
-          '_': '',
+          '__scalar_': '',
           allOf: [
             { required: ['id'], 'type': 'object' },
             { properties: { email: { type: 'string' } }, type: 'object' },
