@@ -99,7 +99,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      * Proxy "get" trap for magic proxy.
      * - If accessing the special isMagicProxy symbol, return true to identify proxy.
      * - If accessing the magicProxyTarget symbol, return the original target object.
-     * - Hide properties starting with underscore by returning undefined.
+     * - Hide properties starting with __scalar_ by returning undefined.
      * - If accessing "$ref-value" and the object has a local $ref, resolve and return the referenced value as a new magic proxy.
      * - For all other properties, recursively wrap the returned value in a magic proxy (if applicable).
      */
@@ -215,7 +215,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      * - Pretend that "$ref-value" exists if "$ref" exists on the target.
      *   This allows expressions like `"$ref-value" in obj` to return true for objects with a $ref,
      *   even though "$ref-value" is a virtual property provided by the proxy.
-     * - Hide properties starting with underscore by returning false.
+     * - Hide properties starting with __scalar_ by returning false.
      * - For all other properties, defer to the default Reflect.has behavior.
      */
     has(target, prop) {
@@ -236,7 +236,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      * - If the object has a "$ref" property, ensures that "$ref-value" is also included in the keys,
      *   even though "$ref-value" is a virtual property provided by the proxy.
      *   This allows Object.keys, Reflect.ownKeys, etc. to include "$ref-value" for objects with $ref.
-     * - Filters out properties starting with underscore.
+     * - Filters out properties starting with __scalar_.
      */
     ownKeys(target) {
       const keys = Reflect.ownKeys(target)
@@ -255,7 +255,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
     /**
      * Proxy "getOwnPropertyDescriptor" trap for magic proxy.
      * - For the virtual "$ref-value" property, returns a descriptor that makes it appear as a regular property.
-     * - Hide properties starting with underscore by returning undefined.
+     * - Hide properties starting with __scalar_ by returning undefined.
      * - For all other properties, delegates to the default Reflect.getOwnPropertyDescriptor behavior.
      * - This ensures that Object.getOwnPropertyDescriptor and similar methods work correctly with the virtual property.
      */
