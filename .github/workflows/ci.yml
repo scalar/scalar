@@ -773,8 +773,12 @@ jobs:
         name: Login to Scalar Registry
         run: npx @scalar/cli auth login --token ${{ secrets.SCALAR_API_KEY }}
       - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
-        name: Push to Scalar Registry
+        name: Push OpenAPI Example to Scalar Registry
         run: npx @scalar/cli registry publish --namespace scalar --slug galaxy --version ${{ env.VERSION }} packages/galaxy/dist/latest.yaml
+      # TODO: The Scalar Registry does not support AsyncAPI yet.
+      # - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
+      #   name: Push AsyncAPI Example to Scalar Registry
+      #   run: npx @scalar/cli registry publish --namespace scalar --slug asyncapi --version ${{ env.VERSION }} packages/galaxy/dist/asyncapi/latest.yaml
 
   deploy-examples:
     # Main Branch or PR from the same repository
