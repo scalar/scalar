@@ -14,8 +14,10 @@ import IntroductionLayout from './IntroductionLayout.vue'
 const { options } = defineProps<{
   /** Optional unique identifier for the info block. */
   id?: string
-  /** Original openapi version of the input document */
+  /** Original OpenAPI version of the input document */
   oasVersion?: string
+  /** Original AsyncAPI version of the input document */
+  aasVersion?: string
   /** The Info object from the OpenAPI document. */
   info: InfoObject
   /** The external documentation object from the OpenAPI document, if present. */
@@ -54,6 +56,7 @@ const introCardsSlot = computed(() =>
 <template>
   <IntroductionLayout
     :id
+    :aasVersion
     :documentExtensions
     :externalDocs
     :info
