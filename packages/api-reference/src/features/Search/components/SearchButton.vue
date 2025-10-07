@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ScalarSidebarSearchButton, useModal } from '@scalar/components'
 import { isMacOS } from '@scalar/helpers/general/is-mac-os'
+import type { AsyncApiDocument } from '@scalar/workspace-store/schemas/asyncapi/asyncapi-document'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
@@ -9,7 +10,7 @@ import SearchModal from './SearchModal.vue'
 const { searchHotKey = 'k', hideModels = false } = defineProps<{
   searchHotKey?: string
   hideModels?: boolean
-  document?: OpenApiDocument
+  document?: OpenApiDocument | AsyncApiDocument
 }>()
 
 const button = ref<InstanceType<typeof ScalarSidebarSearchButton>>()
