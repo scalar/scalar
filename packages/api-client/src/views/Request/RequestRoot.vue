@@ -2,7 +2,7 @@
 import { isDefined } from '@scalar/oas-utils/helpers'
 import { safeJSON } from '@scalar/object-utils/parse'
 import { useToasts } from '@scalar/use-toasts'
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterView } from 'vue-router'
 
 import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
@@ -45,7 +45,6 @@ const pluginManager = usePluginManager()
 const element = ref<HTMLDivElement>()
 
 const requestAbortController = ref<AbortController>()
-const invalidParams = ref<Set<string>>(new Set())
 const requestResult = ref<SendRequestResult | null>(null)
 
 /**
@@ -67,15 +66,15 @@ const selectedSecuritySchemeUids = computed(
  * Get invalid request parameters
  *
  * Get all invalid parameters (required parameters without values)
+ * This is now a computed property to ensure it's always reactive
  */
-
-const getInvalidParameters = (): Set<string> => {
+const invalidParams = computed(() => {
   if (!activeExample.value) {
-    return new Set()
+    return new Set<string>()
   }
 
   return validateParameters(activeExample.value)
-}
+})
 
 /**
  * Check if there are invalid path parameters
@@ -101,8 +100,6 @@ const executeRequest = async () => {
   if (!activeRequest.value || !activeExample.value || !activeCollection.value) {
     return
   }
-
-  invalidParams.value = getInvalidParameters()
 
   if (isPathInvalid.value) {
     /** Reset states listening to request */
@@ -181,8 +178,6 @@ onMounted(() => {
   events.executeRequest.on(executeRequest)
   events.executeRequest.on(logRequest)
   events.cancelRequest.on(cancelRequest)
-
-  invalidParams.value = getInvalidParameters()
 })
 
 useOpenApiWatcher()
@@ -197,20 +192,11 @@ onBeforeUnmount(() => {
   events.executeRequest.off(logRequest)
 })
 
-// Clear invalid params on parameter update
-watch(
-  () => activeExample.value?.parameters,
-  () => {
-    invalidParams.value = getInvalidParameters()
-  },
-  { deep: true },
-)
-
 const cloneRequestResult = (result: any) => {
   // Create a structured clone that can handle Blobs, ArrayBuffers, etc.
   try {
     return structuredClone(result)
-  } catch (error) {
+  } catch {
     // Fallback to a custom cloning approach if structuredClone fails
     // or isn't available in the environment
     const clone = { ...result }
