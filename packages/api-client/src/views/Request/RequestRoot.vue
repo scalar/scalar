@@ -102,8 +102,6 @@ const executeRequest = async () => {
   }
 
   if (isPathInvalid.value) {
-    /** Reset states listening to request */
-    events.requestStatus.emit('abort')
     toast(ERRORS.INVALID_PATH_PARAMETER, 'error')
     return
   }
