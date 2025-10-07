@@ -51,13 +51,13 @@ const { cx } = useBindCx()
       :open="!!open">
       <ScalarSidebarButton
         is="button"
-        class="group/group-button"
-        :aria-expanded="open"
-        :indent="level"
         :active
-        :selected
+        :aria-expanded="open"
+        class="group/group-button"
         :disabled
         :icon
+        :indent="level"
+        :selected
         @click="open = !open">
         <template #indent>
           <ScalarSidebarIndent
