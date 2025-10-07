@@ -1,33 +1,33 @@
-import { Type, type TSchema } from '@scalar/typebox'
+import { type TSchema, Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
 import { extensions } from '@/schemas/extensions'
-import { XTagGroupsSchema, type XTagGroups } from '@/schemas/extensions/tag/x-tag-groups'
+import { type XTagGroups, XTagGroupsSchema } from '@/schemas/extensions/tag/x-tag-groups'
 import {
   TraversedDescriptionSchemaDefinition,
+  type TraversedEntry,
   TraversedEntrySchemaDefinition,
   TraversedOperationSchemaDefinition,
   TraversedSchemaSchemaDefinition,
   TraversedTagSchemaDefinition,
   TraversedWebhookSchemaDefinition,
-  type TraversedEntry,
 } from '@/schemas/navigation'
 
 import {
-  xScalarClientConfigCookiesSchema,
   type XScalarClientConfigCookies,
+  xScalarClientConfigCookiesSchema,
 } from '../v3.1/strict/client-config-extensions/x-scalar-client-config-cookies'
 import {
-  xScalarClientConfigEnvironmentsSchema,
   type XScalarClientConfigEnvironments,
+  xScalarClientConfigEnvironmentsSchema,
 } from '../v3.1/strict/client-config-extensions/x-scalar-client-config-environments'
-import { ComponentsObjectSchemaDefinition, type ComponentsObject } from '../v3.1/strict/components'
+import { type ComponentsObject, ComponentsObjectSchemaDefinition } from '../v3.1/strict/components'
 import { ContactObjectSchemaDefinition } from '../v3.1/strict/contact'
 import {
-  ExternalDocumentationObjectSchemaDefinition,
   type ExternalDocumentationObject,
+  ExternalDocumentationObjectSchemaDefinition,
 } from '../v3.1/strict/external-documentation'
-import { InfoObjectSchemaDefinition, type InfoObject } from '../v3.1/strict/info'
+import { type InfoObject, InfoObjectSchemaDefinition } from '../v3.1/strict/info'
 import { LicenseObjectSchemaDefinition } from '../v3.1/strict/license'
 import {
   ComponentsObjectRef,
@@ -40,14 +40,16 @@ import {
   TraversedEntryObjectRef,
 } from '../v3.1/strict/ref-definitions'
 import {
-  SecurityRequirementObjectSchemaDefinition,
   type SecurityRequirementObject,
+  SecurityRequirementObjectSchemaDefinition,
 } from '../v3.1/strict/security-requirement'
-import { ServerObjectSchemaDefinition, type ServerObject } from '../v3.1/strict/server'
-import { TagObjectSchemaDefinition, type TagObject } from '../v3.1/strict/tag'
+import { type ServerObject, ServerObjectSchemaDefinition } from '../v3.1/strict/server'
+import { type TagObject, TagObjectSchemaDefinition } from '../v3.1/strict/tag'
 // AsyncAPI-specific imports
 import type { ChannelsObject } from './channels'
+import { ChannelsObjectSchema } from './channels'
 import type { OperationsObject } from './operations'
+import { OperationsObjectSchema } from './operations'
 
 // AsyncAPI Extensions Schema
 const AsyncApiExtensionsSchema = Type.Partial(
@@ -91,9 +93,9 @@ const AsyncApiDocumentSchemaDefinition = compose(
     /** An array of Server Objects, which provide connectivity information to a target server. If the servers field is not provided, or is an empty array, the default value would be a Server Object with a url value of /. */
     servers: Type.Optional(Type.Array(ServerObjectRef)),
     /** The available channels and operations for the API. */
-    channels: Type.Optional(Type.Record(Type.String(), Type.Any())), // Will be replaced with proper ChannelsObjectRef
+    channels: Type.Optional(ChannelsObjectSchema),
     /** The operations supported by the API. */
-    operations: Type.Optional(Type.Record(Type.String(), Type.Any())), // Will be replaced with proper OperationsObjectRef
+    operations: Type.Optional(OperationsObjectSchema),
     /** An element to hold various Objects for the AsyncAPI Description. */
     components: Type.Optional(ComponentsObjectRef),
     /** A declaration of which security mechanisms can be used across the API. The list of values includes alternative Security Requirement Objects that can be used. Only one of the Security Requirement Objects need to be satisfied to authorize a request. Individual operations can override this definition. The list can be incomplete, up to being empty or absent. To make security explicitly optional, an empty security requirement ({}) can be included in the array. */
