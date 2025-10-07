@@ -142,15 +142,23 @@ app.MapScalarApiReference("/docs", (options, httpContext) =>
 
 ## Configuration Options
 
-The `options` parameter provides a fluent API to customize Scalar:
+The `options` parameter provides a fluent API to customize Scalar. The fluent methods make configuration more intuitive and readable:
 
 ```csharp
 app.MapScalarApiReference(options =>
 {
-    options.WithTitle("My API")
-           .WithSidebar(false)
-           .WithDarkMode(true)
-           .WithDefaultOpenAllTags(true);
+    options.WithTitle("E-Commerce API")
+           .WithClassicLayout()
+           .ForceDarkMode()
+           .HideSearch()
+           .ShowOperationId()
+           .ExpandAllTags()
+           .SortTagsAlphabetically()
+           .SortOperationsByMethod()
+           .PreserveSchemaPropertyOrder()
+           .WithProxy("https://api-gateway.company.com")
+           .AddServer("https://api.company.com", "Production")
+           .AddServer("https://staging-api.company.com", "Staging");
 });
 ```
 
@@ -414,7 +422,7 @@ app.MapScalarApiReference(options => options
     {
         flow.ClientId = "persistent-client-id";
     })
-    .WithPersistentAuthentication());
+    .EnablePersistentAuthentication());
 ```
 
 :::scalar-callout{ type=danger }
@@ -439,12 +447,12 @@ Scalar uses local assets by default. To load assets from a different location:
 ```csharp
 app.MapScalarApiReference(options =>
 {
-    options.WithCdnUrl("https://cdn.jsdelivr.net/npm/@scalar/api-reference");
+    options.WithBundleUrl("https://cdn.jsdelivr.net/npm/@scalar/api-reference");
 });
 ```
 
 :::scalar-callout{ type=info }
-Fonts are loaded from a CDN by default. To disable this, set `DefaultFonts` to `false`.
+Fonts are loaded from a CDN by default. To disable this, use `DisableDefaultFonts()`.
 :::
 
 ### Custom JavaScript Configuration
