@@ -16,16 +16,23 @@ import { useSidebar } from '@/hooks/useSidebar'
 import { useWorkspace } from '@/store'
 import type { EnvVariable } from '@/store/active-entities'
 
-const { collection, isPathInvalid, operation, server, environment, envVariables, workspace } =
-  defineProps<{
-    collection: Collection
-    isPathInvalid: boolean
-    operation: Operation
-    server: Server | undefined
-    environment: Environment
-    envVariables: EnvVariable[]
-    workspace: Workspace
-  }>()
+const {
+  collection,
+  isPathInvalid,
+  operation,
+  server,
+  environment,
+  envVariables,
+  workspace,
+} = defineProps<{
+  collection: Collection
+  isPathInvalid: boolean
+  operation: Operation
+  server: Server | undefined
+  environment: Environment
+  envVariables: EnvVariable[]
+  workspace: Workspace
+}>()
 
 defineEmits<{
   (e: 'hideModal'): void

@@ -65,12 +65,12 @@ const selectedSecuritySchemeUids = computed(
 
 /**
  * Get invalid request parameters
- * 
+ *
  * Get all invalid parameters (required parameters without values)
  */
 
 const getInvalidParameters = (): Set<string> => {
- if (!activeExample.value) {
+  if (!activeExample.value) {
     return new Set()
   }
 
@@ -79,7 +79,7 @@ const getInvalidParameters = (): Set<string> => {
 
 /**
  * Check if there are invalid path parameters
- * 
+ *
  * Filter through path parameters and check if there are invalid parameters
  * This will be used to prevent request initiation if present
  */
@@ -88,8 +88,8 @@ const isPathInvalid = computed(() => {
     return false
   }
 
-  return activeExample.value.parameters.path.some(
-    param => invalidParams.value.has(param.key)
+  return activeExample.value.parameters.path.some((param) =>
+    invalidParams.value.has(param.key),
   )
 })
 
