@@ -563,7 +563,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       if (input.initialize !== false) {
         // Store the original document in the originalDocuments map
         // This is used to track the original state of the document as it was loaded into the workspace
-        originalDocuments[name] = deepClone({ ...clonedRawInputDocument })
+        originalDocuments[name] = deepClone(clonedRawInputDocument)
 
         // Store the intermediate document state for local edits
         // This is used to track the last saved state of the document
@@ -571,7 +571,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         // This is important for local edits that are not yet synced with the remote registry
         // The intermediate document is used to store the latest saved state of the document
         // This allows us to track changes and revert to the last saved state if needed
-        intermediateDocuments[name] = deepClone({ ...clonedRawInputDocument })
+        intermediateDocuments[name] = deepClone(clonedRawInputDocument)
         // Add the document config to the documentConfigs map
         documentConfigs[name] = input.config ?? {}
         // Store the overrides for this document, or an empty object if none are provided
@@ -583,7 +583,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       }
     })
 
-    const inputDocument = measureSync('upgrade', () => upgrade(clonedRawInputDocument, '3.1'))
+    const inputDocument = measureSync('upgrade', () => upgrade(deepClone(clonedRawInputDocument), '3.1'))
 
     const strictDocument: UnknownObject = createMagicProxy({ ...inputDocument, ...meta }, { showInternal: true })
 
