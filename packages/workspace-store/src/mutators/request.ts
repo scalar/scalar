@@ -1,5 +1,7 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
+import { isOpenApiDocument } from '@/schemas'
+import type { AsyncApiDocument } from '@/schemas/asyncapi/asyncapi-document'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
 export type OperationIdentifier = {
@@ -15,7 +17,7 @@ export type OperationIdentifier = {
  * @param document - The OpenAPI document to operate on
  * @returns Object containing mutator functions for request operations
  */
-export const requestMutators = (document?: OpenApiDocument) => {
+export const requestMutators = (document?: OpenApiDocument | AsyncApiDocument) => {
   /**
    * Moves an operation from one path/method to another within the OpenAPI document.
    * This function handles the relocation of API operations while preserving their configuration
@@ -39,7 +41,7 @@ export const requestMutators = (document?: OpenApiDocument) => {
     source: OperationIdentifier
     destination: OperationIdentifier
   }) => {
-    if (!document || !document.paths) {
+    if (!document || !isOpenApiDocument(document) || !document.paths) {
       return false
     }
 
@@ -92,7 +94,7 @@ export const requestMutators = (document?: OpenApiDocument) => {
    * deleteRequest({ path: '/auth/login', method: 'post' })
    */
   const deleteRequest = ({ path, method }: OperationIdentifier) => {
-    if (!document) {
+    if (!document || !isOpenApiDocument(document)) {
       return false
     }
 

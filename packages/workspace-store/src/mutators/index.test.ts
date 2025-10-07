@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { createWorkspaceStore, generateClientMutators } from '@/client'
 import type { OAuthFlowAuthorizationCode } from '@/schemas/v3.1/strict/oauth-flow'
+import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
 describe('generateClientMutators', () => {
   describe('cookieMutators', () => {
@@ -444,7 +445,7 @@ describe('generateClientMutators', () => {
         },
       })
 
-      expect(store.workspace.documents['test-doc']?.paths?.['/old-path']?.get).toBeDefined()
+      expect((store.workspace.documents['test-doc'] as OpenApiDocument)?.paths?.['/old-path']?.get).toBeDefined()
 
       expect(
         mutators.doc('test-doc').requestMutators.moveRequest({
@@ -453,8 +454,8 @@ describe('generateClientMutators', () => {
         }),
       ).toBe(true)
 
-      expect(store.workspace.documents['test-doc']?.paths?.['/old-path']).toEqual({})
-      expect(store.workspace.documents['test-doc']?.paths?.['/new-path']?.post).toBeDefined()
+      expect((store.workspace.documents['test-doc'] as OpenApiDocument)?.paths?.['/old-path']).toEqual({})
+      expect((store.workspace.documents['test-doc'] as OpenApiDocument)?.paths?.['/new-path']?.post).toBeDefined()
     })
 
     it('should delete request', async () => {
@@ -480,7 +481,7 @@ describe('generateClientMutators', () => {
         },
       })
 
-      expect(store.workspace.documents['test-doc']?.paths?.['/test']?.get).toBeDefined()
+      expect((store.workspace.documents['test-doc'] as OpenApiDocument)?.paths?.['/test']?.get).toBeDefined()
 
       expect(
         mutators.doc('test-doc').requestMutators.deleteRequest({
@@ -489,7 +490,7 @@ describe('generateClientMutators', () => {
         }),
       ).toBe(true)
 
-      expect(store.workspace.documents['test-doc']?.paths?.['/test']).toEqual({})
+      expect((store.workspace.documents['test-doc'] as OpenApiDocument)?.paths?.['/test']).toEqual({})
     })
   })
 })
