@@ -123,7 +123,12 @@ const handleDragEnd = (
       </template>
     </ScalarSidebarSection>
     <ScalarSidebarGroup
-      v-else-if="hasChildren(item)"
+      v-else-if="
+        hasChildren(item) &&
+        ((layout === 'reference' &&
+          !(item.type === 'operation' || item.type === 'webhook')) ||
+          layout === 'client')
+      "
       v-model="groupModelValue"
       :active="selectedItems[item.id] ?? false">
       <div class="group/entry flex flex-1 items-center justify-center">
