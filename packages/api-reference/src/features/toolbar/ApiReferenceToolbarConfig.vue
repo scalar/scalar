@@ -1,14 +1,11 @@
 <script lang="ts" setup>
-import {
-  ScalarCodeBlock,
-  ScalarFormField,
-  ScalarFormSection,
-} from '@scalar/components'
+import { ScalarFormField, ScalarFormSection } from '@scalar/components'
 import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { type ThemeId } from '@scalar/themes'
 import type { ApiReferenceConfiguration } from '@scalar/types'
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 
+import ApiReferenceToolbarConfigEditor from '@/features/toolbar/ApiReferenceToolbarConfigEditor.vue'
 import ApiReferenceToolbarConfigLayout from '@/features/toolbar/ApiReferenceToolbarConfigLayout.vue'
 import ApiReferenceToolbarConfigLayoutOptions from '@/features/toolbar/ApiReferenceToolbarConfigLayoutOptions.vue'
 import ApiReferenceToolbarConfigTheme from '@/features/toolbar/ApiReferenceToolbarConfigTheme.vue'
@@ -20,12 +17,21 @@ const { configuration } = defineProps<{
 
 const overrides = defineModel<Partial<ApiReferenceConfiguration>>('overrides')
 
-const snippet = computed<string>(() => {
-  return prettyPrintJson({
+const tempConfig = ref<string>(
+  prettyPrintJson({
     ...overrides.value, // Make sure the overrides are first
     ...configuration,
     ...overrides.value, // But also that they override the configuration
-  })
+  }),
+)
+
+watch(tempConfig, (newValue) => {
+  try {
+    overrides.value = JSON.parse(newValue || '{}')
+  } catch (e) {
+    // Invalid JSON, do not update overrides
+    return
+  }
 })
 
 const theme = computed<ThemeId>({
@@ -39,14 +45,11 @@ const layout = computed<'modern' | 'classic'>({
 })
 </script>
 <template>
-  <ApiReferenceToolbarPopover class="w-120">
+  <ApiReferenceToolbarPopover class="w-160">
     <template #label>Configure</template>
     <ScalarFormSection>
       <template #label>Scalar Configuration</template>
-      <ScalarCodeBlock
-        class="bg-b-1.5 max-h-40 rounded border text-sm"
-        :content="snippet"
-        lang="json" />
+      <ApiReferenceToolbarConfigEditor v-model="tempConfig" />
     </ScalarFormSection>
     <div class="flex flex-col gap-4">
       <ScalarFormField>
