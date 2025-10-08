@@ -1,17 +1,11 @@
 <script setup lang="ts">
-import { ScalarSidebar } from '@scalar/components'
+import { ScalarSidebar, ScalarSidebarItems } from '@scalar/components'
 import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 
 import { type SidebarState } from '../helpers/create-sidebar-state'
 import SidebarItem, { type Item } from './SidebarItem.vue'
 
-const {
-  layout,
-  indent = 20,
-  state,
-} = defineProps<{
-  /** Indentation size in pixels */
-  indent?: number
+const { layout, state } = defineProps<{
   /** Layout type */
   layout: 'client' | 'reference'
   /** Sidebar state */
@@ -65,17 +59,11 @@ const handleDragEnd = (
 }
 </script>
 <template>
-  <ScalarSidebar
-    class="t-doc__sidebar"
-    :style="{
-      '--scalar-sidebar-indent': indent + 'px',
-      '--scalar-sidebar-indent-border-hover': 'var(--scalar-color-3)',
-      '--scalar-sidebar-indent-border-active': 'var(--scalar-color-accent)',
-    }">
+  <ScalarSidebar>
     <div class="custom-scroll flex min-h-0 flex-1 flex-col overflow-x-clip">
       <slot name="search" />
       <slot>
-        <div class="grid p-3">
+        <ScalarSidebarItems>
           <SidebarItem
             v-for="item in filteredItems(state.items)"
             :key="item.id"
@@ -91,7 +79,7 @@ const handleDragEnd = (
                 v-bind="props" />
             </template>
           </SidebarItem>
-        </div>
+        </ScalarSidebarItems>
         <!-- Spacer -->
         <div class="flex-1"></div>
       </slot>
