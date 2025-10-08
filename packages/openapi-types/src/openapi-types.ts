@@ -268,7 +268,9 @@ export namespace OpenAPIV3_2 {
   export type ApiKeySecurityScheme = OpenAPIV3_1.ApiKeySecurityScheme
 
   export type OAuthFlows = OpenAPIV3_1.OAuthFlows & {
-    deviceAuthorization?: AnyOtherAttribute & OpenAPIV3.OAuthFlowBase & OpenAPIV3.OAuthFlowTokenUrlTrait
+    deviceAuthorization?: AnyOtherAttribute & OpenAPIV3.OAuthFlowBase & OpenAPIV3.OAuthFlowTokenUrlTrait & {
+      deviceAuthorizationUrl?: string
+    }
   }
 
   export type OAuth2SecurityScheme = OpenAPIV3_1.OAuth2SecurityScheme
