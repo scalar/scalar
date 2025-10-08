@@ -352,9 +352,18 @@ function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): O
   }, {} as OpenAPIV3.SchemaObject)
 }
 
+function getParameterLocation(location: OpenAPIV2.ParameterLocation): OpenAPIV3.ParameterLocation {
+  if (location === 'formData') {
+    return 'query'
+  }
+  return location
+}
+
 function transformParameterObject(parameter: OpenAPIV2.ParameterObject): OpenAPIV3.ParameterObject {
   if (Object.hasOwn(parameter, '$ref')) {
-    return parameter
+    return {
+      $ref: parameter.$ref,
+    }
   }
 
   // it is important to call getParameterSerializationStyle first because transformItemsObject modifies properties on which getParameterSerializationStyle rely on
@@ -368,12 +377,13 @@ function transformParameterObject(parameter: OpenAPIV2.ParameterObject): OpenAPI
     schema,
     ...serializationStyle,
     ...parameter,
+    in: getParameterLocation(parameter.in),
   }
 }
 
 type CollectionFormat = 'csv' | 'ssv' | 'tsv' | 'pipes' | 'multi'
 
-type ParameterSerializationStyle = { style?: string; explode?: boolean }
+type ParameterSerializationStyle = { style?: OpenAPIV3.ParameterStyle; explode?: boolean }
 
 const querySerialization: Record<CollectionFormat, ParameterSerializationStyle> = {
   ssv: {
