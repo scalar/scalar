@@ -23,25 +23,6 @@ defineSlots<{
   default?(): unknown
 }>()
 
-const filteredItems = (items: Item[]) => {
-  if (layout === 'reference') {
-    return items
-  }
-
-  // For client layout, filter to only show webhooks and operations with children
-  return items.filter(
-    (c) =>
-      'children' in c &&
-      c.children?.length &&
-      c.children.some(
-        (child) =>
-          child.type === 'webhook' ||
-          child.type === 'operation' ||
-          child.type === 'tag',
-      ),
-  )
-}
-
 const handleClick = (id: string) => {
   state.setSelected(id)
   state.setExpanded(id, !state.expandedItems.value[id])
@@ -65,7 +46,7 @@ const handleDragEnd = (
       <slot>
         <ScalarSidebarItems>
           <SidebarItem
-            v-for="item in filteredItems(state.items)"
+            v-for="item in state.items"
             :key="item.id"
             :expandedItems="state.expandedItems.value"
             :item="item"
