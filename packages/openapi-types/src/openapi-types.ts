@@ -64,10 +64,207 @@ export namespace OpenAPI {
 }
 
 // biome-ignore lint/style/noNamespace: We want it to be a module here.
+export namespace OpenAPIV3_2 {
+  type Modify<T, R> = Omit<T, keyof R> & R
+
+  type PathsWebhooksComponents<T = {}> = Modify<
+    OpenAPIV3_1.PathsWebhooksComponents<T>,
+    {
+      mediaTypes?: Record<string, MediaTypeObject | ReferenceObject>
+    }
+  >
+
+  export type Document<T = {}> = Modify<
+    Omit<OpenAPIV3_1.Document<T>, 'paths' | 'components'>,
+    {
+      /**
+       * Version of the OpenAPI specification
+       * @see https://github.com/OAI/OpenAPI-Specification/tree/main/versions
+       */
+      openapi?: '3.2.0'
+      swagger?: undefined
+      info?: InfoObject
+      jsonSchemaDialect?: string
+      servers?: ServerObject[]
+    } & (
+      | (Pick<PathsWebhooksComponents<T>, 'paths'> & Omit<Partial<PathsWebhooksComponents<T>>, 'paths'>)
+      | (Pick<PathsWebhooksComponents<T>, 'webhooks'> & Omit<Partial<PathsWebhooksComponents<T>>, 'webhooks'>)
+      | (Pick<PathsWebhooksComponents<T>, 'components'> & Omit<Partial<PathsWebhooksComponents<T>>, 'components'>)
+    ) &
+      T &
+      AnyOtherAttribute
+  >
+
+  export type InfoObject = OpenAPIV3_1.InfoObject
+
+  export type ContactObject = OpenAPIV3_1.ContactObject
+
+  export type LicenseObject = OpenAPIV3_1.LicenseObject
+
+  export type ServerObject = Modify<
+    OpenAPIV3_1.ServerObject,
+    {
+      name?: string
+    }
+  >
+
+  export type ServerVariableObject = OpenAPIV3_1.ServerVariableObject
+
+  export type PathsObject<T = {}, P extends {} = {}> = Record<string, (PathItemObject<T> & P) | undefined>
+
+  export type HttpMethods = OpenAPIV3_1.HttpMethods | 'query'
+
+  export type PathItemObject<T = {}> = Modify<
+    OpenAPIV3_1.PathItemObject<T>,
+    {
+      [method in HttpMethods]?: OperationObject<T>
+    }
+  > & {
+    additionalOperations?: Record<string, OperationObject<T>>
+  }
+
+  export type OperationObject<T = {}> = Modify<
+    OpenAPIV3_1.OperationObject<T>,
+    {
+      parameters?: (ReferenceObject | ParameterObject)[]
+      requestBody?: ReferenceObject | RequestBodyObject
+      responses?: ResponsesObject
+      callbacks?: Record<string, ReferenceObject | CallbackObject>
+      servers?: ServerObject[]
+    }
+  > &
+    T
+
+  export type ExternalDocumentationObject = OpenAPIV3_1.ExternalDocumentationObject
+
+  export type ParameterObject = OpenAPIV3_1.ParameterObject
+
+  export type HeaderObject = OpenAPIV3_1.HeaderObject
+
+  export type ParameterBaseObject = OpenAPIV3_1.ParameterBaseObject
+
+  export type NonArraySchemaObjectType = OpenAPIV3_1.NonArraySchemaObjectType
+
+  export type ArraySchemaObjectType = OpenAPIV3_1.ArraySchemaObjectType
+
+  /**
+   * There is no way to tell typescript to require items when type is either 'array' or array containing 'array' type
+   * 'items' will be always visible as optional
+   * Casting schema object to ArraySchemaObject or NonArraySchemaObject will work fine
+   */
+  export type SchemaObject = (ArraySchemaObject | NonArraySchemaObject | MixedSchemaObject | boolean) &
+    AnyOtherAttribute
+
+  export type ArraySchemaObject = {
+    type?: ArraySchemaObjectType
+    items?: ReferenceObject | SchemaObject
+  } & BaseSchemaObject
+
+  export type NonArraySchemaObject = {
+    type?: NonArraySchemaObjectType
+  } & BaseSchemaObject
+
+  type MixedSchemaObject = {
+    type?: (ArraySchemaObjectType | NonArraySchemaObjectType)[]
+    items?: ReferenceObject | SchemaObject
+  } & BaseSchemaObject
+
+  export type BaseSchemaObject = Modify<
+    OpenAPIV3_1.BaseSchemaObject,
+    {
+      examples?: ExampleObject[]
+      discriminator?: DiscriminatorObject
+    }
+  >
+
+  export type DiscriminatorObject = OpenAPIV3_1.DiscriminatorObject & {
+    defaultMapping?: string
+  }
+
+  export type XMLNodeType = 'element' | 'attribute' | 'text' | 'cdata' | 'comment'
+
+  export type XMLObject = Omit<OpenAPIV3_1.XMLObject, 'wrapped' | 'attribute'> & {
+    nodeType?: XMLNodeType
+  }
+
+  export type ReferenceObject = OpenAPIV3_1.ReferenceObject
+
+  export type ExampleObject = OpenAPIV3_1.ExampleObject & {
+    dataValue?: any
+    serializedValue?: string
+  }
+
+  export type MediaTypeObject = OpenAPIV3_1.MediaTypeObject
+
+  export type EncodingObject = OpenAPIV3_1.EncodingObject
+
+  export type RequestBodyObject = Modify<
+    OpenAPIV3.RequestBodyObject,
+    {
+      content?: { [media: string]: ReferenceObject | MediaTypeObject }
+    }
+  >
+
+  export type ResponsesObject = Record<string, ReferenceObject | ResponseObject>
+
+  export type ResponseObject = Modify<
+    OpenAPIV3_1.ResponseObject,
+    {
+      headers?: { [header: string]: ReferenceObject | HeaderObject }
+      content?: { [media: string]: ReferenceObject | MediaTypeObject }
+      links?: { [link: string]: ReferenceObject | LinkObject }
+    }
+  > & {
+    summary?: string
+  }
+
+  export type LinkObject = OpenAPIV3_1.LinkObject
+
+  export type CallbackObject = OpenAPIV3_1.CallbackObject
+
+  export type SecurityRequirementObject = OpenAPIV3_1.SecurityRequirementObject
+
+  export type ComponentsObject = Modify<
+    OpenAPIV3_1.ComponentsObject,
+    {
+      schemas?: Record<string, SchemaObject>
+      responses?: Record<string, ReferenceObject | ResponseObject>
+      parameters?: Record<string, ReferenceObject | ParameterObject>
+      examples?: Record<string, ReferenceObject | ExampleObject>
+      requestBodies?: Record<string, ReferenceObject | RequestBodyObject>
+      headers?: Record<string, ReferenceObject | HeaderObject>
+      securitySchemes?: Record<string, ReferenceObject | SecuritySchemeObject>
+      links?: Record<string, ReferenceObject | LinkObject>
+      callbacks?: Record<string, ReferenceObject | CallbackObject>
+      pathItems?: Record<string, ReferenceObject | PathItemObject>
+      mediaTypes?: Record<string, MediaTypeObject | ReferenceObject>
+    }
+  >
+
+  export type SecuritySchemeObject = OpenAPIV3_1.SecuritySchemeObject & {
+    deprecated?: boolean
+  }
+
+  export type HttpSecurityScheme = OpenAPIV3_1.HttpSecurityScheme
+
+  export type ApiKeySecurityScheme = OpenAPIV3_1.ApiKeySecurityScheme
+
+  export type OAuth2SecurityScheme = OpenAPIV3_1.OAuth2SecurityScheme
+
+  export type OpenIdSecurityScheme = OpenAPIV3_1.OpenIdSecurityScheme
+
+  export type TagObject = OpenAPIV3_1.TagObject & {
+    summary?: string
+    parent?: string
+    kind?: string
+  }
+}
+
+// biome-ignore lint/style/noNamespace: We want it to be a module here.
 export namespace OpenAPIV3_1 {
   type Modify<T, R> = Omit<T, keyof R> & R
 
-  type PathsWebhooksComponents<T = {}> = {
+  export type PathsWebhooksComponents<T = {}> = {
     paths?: PathsObject<T>
     webhooks?: Record<string, PathItemObject | ReferenceObject>
     components?: ComponentsObject
