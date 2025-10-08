@@ -359,7 +359,7 @@ function getParameterLocation(location: OpenAPIV2.ParameterLocation): OpenAPIV3.
   return location as OpenAPIV3.ParameterLocation
 }
 
-function transformParameterObject(parameter: OpenAPIV2.ParameterObject | OpenAPIV2.ReferenceObject): OpenAPIV3.ParameterObject {
+function transformParameterObject(parameter: OpenAPIV2.ParameterObject | OpenAPIV2.ReferenceObject): OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject {
   if (Object.hasOwn(parameter, '$ref') && '$ref' in parameter) {
     return {
       $ref: parameter.$ref,
@@ -519,7 +519,7 @@ function migrateParameters(parameters: OpenAPIV2.ParameterObject[], consumes: st
   }
 
   const bodyParameter = structuredClone(
-    parameters.find((parameter: OpenAPIV3.ParameterObject) => parameter.in === 'body') ?? {},
+    parameters.find((parameter: OpenAPIV2.ParameterObject) => parameter.in === 'body') ?? {},
   )
 
   if (bodyParameter && Object.keys(bodyParameter).length) {
