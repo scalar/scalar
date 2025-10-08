@@ -12,8 +12,12 @@ const emit = defineEmits<{
   (e: 'update:modelValue', id: string): void
 }>()
 
+const formattedOptions = computed(() =>
+  props.options.map((o) => ({ id: o.id, label: o.label })),
+)
+
 const selected = computed(() =>
-  props.options.find((o) => o.id === props.modelValue),
+  formattedOptions.value.find((o) => o.id === props.modelValue),
 )
 </script>
 
@@ -22,7 +26,7 @@ const selected = computed(() =>
     <div class="document-selector -mb-1 p-3 pb-0">
       <ScalarListbox
         :modelValue="selected"
-        :options="options.map((o) => ({ id: o.id, label: o.label }))"
+        :options="formattedOptions"
         resize
         @update:modelValue="(e) => emit('update:modelValue', e.id)">
         <button

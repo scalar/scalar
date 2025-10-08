@@ -86,8 +86,8 @@ const { cx } = useBindCx()
               <ScalarListboxOption
                 v-for="option in options"
                 :key="option.id"
-                :option="option"
-                :multiselect="multiple" />
+                :multiselect="multiple"
+                :option="option" />
             </ListboxOptions>
           </div>
           <ScalarFloatingBackdrop />
