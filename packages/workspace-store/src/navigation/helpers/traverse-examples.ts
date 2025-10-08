@@ -13,8 +13,10 @@ export const traverseOperationExamples = (operation: OperationObject) => {
   if (operation.requestBody) {
     const requestBody = getResolvedRef(operation.requestBody)
 
-    Object.values(requestBody.content).forEach((mediaType) => {
-      Object.keys(mediaType.examples ?? {}).forEach(examples.add)
+    Object.values(requestBody.content ?? {}).forEach((mediaType) => {
+      Object.keys(mediaType.examples ?? {}).forEach((key) => {
+        examples.add(key)
+      })
     })
   }
 
@@ -32,7 +34,7 @@ export const traverseOperationExamples = (operation: OperationObject) => {
       }
 
       if ('examples' in parameter && parameter.examples) {
-        Object.keys(parameter.examples).forEach((key) => {
+        Object.keys(parameter.examples ?? {}).forEach((key) => {
           examples.add(key)
         })
       }
@@ -45,7 +47,7 @@ export const traverseOperationExamples = (operation: OperationObject) => {
       const resolvedResponse = getResolvedRef(response)
 
       if ('content' in resolvedResponse && resolvedResponse.content) {
-        Object.values(resolvedResponse.content).forEach((mediaType) => {
+        Object.values(resolvedResponse.content ?? {}).forEach((mediaType) => {
           Object.keys(mediaType.examples ?? {}).forEach((key) => {
             examples.add(key)
           })
