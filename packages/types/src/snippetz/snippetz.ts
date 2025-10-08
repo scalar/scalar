@@ -12,6 +12,7 @@ export const AVAILABLE_CLIENTS = [
   'csharp/httpclient',
   'csharp/restsharp',
   'dart/http',
+  'fsharp/httpclient',
   'go/native',
   'http/http1.1',
   'java/asynchttp',

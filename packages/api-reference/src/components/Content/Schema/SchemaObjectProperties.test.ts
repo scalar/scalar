@@ -160,6 +160,26 @@ describe('SchemaObjectProperties', () => {
     expect(wrapper.findAll('.schema-property')).toHaveLength(0)
   })
 
+  it('does not render additionalProperties when set to false', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+      },
+      additionalProperties: false,
+    })
+
+    const wrapper = mount(SchemaObjectProperties, {
+      props: { schema, options: {} },
+    })
+
+    const props = wrapper.findAll('.schema-property')
+    expect(props).toHaveLength(1)
+    expect(props[0].attributes('data-name')).toBe('name')
+    // Should not have any additional properties rendered
+    expect(wrapper.find('[data-name="propertyName"]').exists()).toBe(false)
+  })
+
   it('sorts properties alphabetically when all have same required status', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: 'object',

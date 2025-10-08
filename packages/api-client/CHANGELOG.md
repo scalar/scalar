@@ -1,5 +1,40 @@
 # @scalar/api-client
 
+## 2.8.0
+
+### Minor Changes
+
+- 63ff417: feat: sidebar package
+- 5d99cad: feat: operation block
+- b998d57: feat: response block
+
+### Patch Changes
+
+- debdcf6: Correctly handle additionalProperties when set to false
+- a747da6: feat(components): overhaul and polish ScalarButton ✨
+- 1e01464: Adds a new ApiReferenceConfigWithSource type and make the base ApiReferenceConfig type agnostic of any document sources.
+- Updated dependencies [15c4240]
+- Updated dependencies [debdcf6]
+- Updated dependencies [13dcd89]
+- Updated dependencies [63ff417]
+- Updated dependencies [5d99cad]
+- Updated dependencies [e0cdd9a]
+- Updated dependencies [a747da6]
+- Updated dependencies [1e01464]
+- Updated dependencies [c69cb71]
+- Updated dependencies [90d54b6]
+  - @scalar/openapi-types@0.4.1
+  - @scalar/oas-utils@0.5.1
+  - @scalar/themes@0.13.21
+  - @scalar/workspace-store@0.17.0
+  - @scalar/components@0.15.0
+  - @scalar/snippetz@0.5.0
+  - @scalar/types@0.3.1
+  - @scalar/openapi-parser@0.22.2
+  - @scalar/postman-to-openapi@0.3.39
+  - @scalar/use-codemirror@0.12.42
+  - @scalar/import@0.4.30
+
 ## 2.7.0
 
 ### Minor Changes

@@ -36,6 +36,8 @@ defineSlots<{
   button?(props: { open: boolean; level: SidebarGroupLevel }): unknown
   /** The list of sidebar subitems */
   items?(props: { open: boolean }): unknown
+  /** Side icon for the sidebar group */
+  icon?(props: { open: boolean }): unknown
 }>()
 
 const { level } = useSidebarGroups({ increment: true })
@@ -51,13 +53,12 @@ const { cx } = useBindCx()
       :open="!!open">
       <ScalarSidebarButton
         is="button"
-        class="group/group-button"
-        :aria-expanded="open"
-        :indent="level"
         :active
-        :selected
+        :aria-expanded="open"
+        class="group/group-button"
         :disabled
-        :icon
+        :indent="level"
+        :selected
         @click="open = !open">
         <template #indent>
           <ScalarSidebarIndent
@@ -65,9 +66,13 @@ const { cx } = useBindCx()
             :indent="level" />
         </template>
         <template #icon>
-          <ScalarSidebarGroupToggle
-            class="text-c-3"
-            :open="open" />
+          <slot
+            name="icon"
+            :open="open">
+            <ScalarSidebarGroupToggle
+              class="text-c-3"
+              :open="open" />
+          </slot>
         </template>
         <slot :open="!!open" />
       </ScalarSidebarButton>

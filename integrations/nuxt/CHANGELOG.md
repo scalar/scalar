@@ -1,5 +1,22 @@
 # @scalar/nuxt
 
+## 0.5.20
+
+### Patch Changes
+
+- 1e01464: Adds a new ApiReferenceConfigWithSource type and make the base ApiReferenceConfig type agnostic of any document sources.
+- Updated dependencies [debdcf6]
+- Updated dependencies [63ff417]
+- Updated dependencies [5d99cad]
+- Updated dependencies [a747da6]
+- Updated dependencies [1e01464]
+- Updated dependencies [90d54b6]
+- Updated dependencies [b998d57]
+  - @scalar/api-reference@1.38.0
+  - @scalar/api-client@2.8.0
+  - @scalar/workspace-store@0.17.0
+  - @scalar/types@0.3.1
+
 ## 0.5.19
 
 ### Patch Changes
