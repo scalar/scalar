@@ -135,11 +135,11 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
     }
 
     if (Object.keys(params).length > 0) {
-      ;(document.components as UnknownObject).parameters = params
+      (document.components as UnknownObject).parameters = params
     }
 
     if (Object.keys(bodyParams).length > 0) {
-      ;(document.components as UnknownObject).requestBodies = bodyParams
+      (document.components as UnknownObject).requestBodies = bodyParams
     }
 
     delete document.parameters
@@ -356,11 +356,11 @@ function getParameterLocation(location: OpenAPIV2.ParameterLocation): OpenAPIV3.
   if (location === 'formData') {
     return 'query'
   }
-  return location
+  return location as OpenAPIV3.ParameterLocation
 }
 
-function transformParameterObject(parameter: OpenAPIV2.ParameterObject): OpenAPIV3.ParameterObject {
-  if (Object.hasOwn(parameter, '$ref')) {
+function transformParameterObject(parameter: OpenAPIV2.ParameterObject | OpenAPIV2.ReferenceObject): OpenAPIV3.ParameterObject {
+  if (Object.hasOwn(parameter, '$ref') && '$ref' in parameter) {
     return {
       $ref: parameter.$ref,
     }
@@ -372,6 +372,10 @@ function transformParameterObject(parameter: OpenAPIV2.ParameterObject): OpenAPI
 
   delete parameter.collectionFormat
   delete parameter.default
+
+  if (!parameter.in) {
+    throw new Error('Parameter object must have an "in" property')
+  }
 
   return {
     schema,
