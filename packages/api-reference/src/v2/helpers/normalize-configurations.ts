@@ -17,7 +17,7 @@ type NormalizedConfigurations = Record<
     slug: string
     config: ApiReferenceConfigurationRaw
     default: boolean
-    source: { url: string } | { content: Record<string, unknown> }
+    source: { url: string; content?: never } | { content: Record<string, unknown>; url?: never }
   }
 >
 

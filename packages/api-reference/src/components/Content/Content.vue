@@ -36,7 +36,6 @@ const { options, document } = defineProps<{
     slug: string | undefined
     hiddenClients: ApiReferenceConfiguration['hiddenClients']
     layout: 'modern' | 'classic'
-    onLoaded: (() => void) | undefined
     persistAuth: boolean
     showOperationId?: boolean | undefined
     hideTestRequestButton: boolean | undefined
@@ -46,7 +45,6 @@ const { options, document } = defineProps<{
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
     documentDownloadType: ApiReferenceConfiguration['documentDownloadType']
-    onShowMore: ((id: string) => void) | undefined
   }
 }>()
 
@@ -91,15 +89,13 @@ const models = computed<TraversedDescription | undefined>(() => {
         :id="contentId"
         :documentExtensions
         :externalDocs="document?.externalDocs"
-        :info="document?.info ?? { title: 'Loading...', version: 'Loading...' }"
+        :info="document?.info"
         :infoExtensions
         :layout="options.layout"
         :oasVersion="document?.['x-original-oas-version']"
         :options="{
           documentDownloadType: options.documentDownloadType,
-          isLoading: !document,
           layout: options.layout,
-          onLoaded: options.onLoaded,
         }">
         <template #selectors>
           <ScalarErrorBoundary>
@@ -171,7 +167,6 @@ const models = computed<TraversedDescription | undefined>(() => {
           clientOptions: clientOptions,
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
-          onShowMore: options.onShowMore,
         }"
         :paths="document?.paths ?? {}"
         :rootIndex
@@ -190,7 +185,6 @@ const models = computed<TraversedDescription | undefined>(() => {
         expandAllModelSections: options.expandAllModelSections,
         orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
         orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
-        onShowMore: options.onShowMore,
       }"
       :schemas="document?.components?.schemas" />
 

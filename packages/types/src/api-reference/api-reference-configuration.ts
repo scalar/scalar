@@ -136,7 +136,7 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
   /** onDocumentSelect is fired when the config is selected */
   onDocumentSelect: z.function().optional() as z.ZodType<(() => Promise<void> | void) | undefined>,
   /** Callback fired when the reference is fully loaded */
-  onLoaded: z.function().optional() as z.ZodType<(() => Promise<void> | void) | undefined>,
+  onLoaded: z.function().optional() as z.ZodType<((slug: string) => Promise<void> | void) | undefined>,
   /** onBeforeRequest is fired before the request is sent. You can modify the request here. */
   onBeforeRequest: z
     .function({ input: [z.object({ request: z.instanceof(Request) })], output: z.void() })

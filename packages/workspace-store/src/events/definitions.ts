@@ -117,7 +117,7 @@ export type ApiReferenceEvents<T extends keyof ServerObject = keyof ServerObject
       }
     }
   }
-
+  // ---------------------------------------------------------------------------
   /** Auth events */
   'scalar-select-security-schemes': {
     detail: {
@@ -151,6 +151,9 @@ export type ApiReferenceEvents<T extends keyof ServerObject = keyof ServerObject
       uid: string
     }
   }
+  // ---------------------------------------------------------------------------
+  // UI Events. Allows users to tie into UI events as needed
+
   /** Download the document from the store */
   'scalar-download-document': {
     detail: {
@@ -159,6 +162,15 @@ export type ApiReferenceEvents<T extends keyof ServerObject = keyof ServerObject
   }
   /** Add a new document to the store */
   'scalar-open-client': {
+    detail: {}
+  }
+  /** Fired when the user clicks the "Show more" button on the references */
+  'scalar-on-show-more': {
+    detail: {
+      id: string
+    }
+  }
+  'scalar-on-loaded': {
     detail: {}
   }
 }

@@ -9,7 +9,6 @@ defineProps<{
   layout: 'classic' | 'modern'
   moreThanOneTag: boolean
   isLoading: boolean
-  onShowMore: ((id: string) => void) | undefined
 }>()
 </script>
 

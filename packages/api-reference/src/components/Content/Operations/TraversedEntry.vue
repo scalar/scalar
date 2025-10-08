@@ -51,7 +51,6 @@ const {
     clientOptions: ClientOptionGroup[]
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
-    onShowMore: ((id: string) => void) | undefined
   }
 }>()
 
@@ -150,7 +149,6 @@ defineExpose({
         :isLoading="false"
         :layout="options.layout"
         :moreThanOneTag="entries.filter(isTag).length > 1"
-        :onShowMore="options.onShowMore"
         :tag="entry">
         <template v-if="'children' in entry && entry.children?.length">
           <TraversedEntry

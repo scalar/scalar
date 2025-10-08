@@ -18,7 +18,6 @@ const { schemas = {}, models } = defineProps<{
     expandAllModelSections: boolean | undefined
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
-    onShowMore: ((id: string) => void) | undefined
   }
 }>()
 
