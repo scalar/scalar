@@ -2,9 +2,9 @@ import { createApiClientModal } from '@scalar/api-client/layouts/Modal'
 import type { ApiClient } from '@scalar/api-client/libs'
 import {
   ACTIVE_ENTITIES_SYMBOL,
-  type WorkspaceStore as ClientStore,
   WORKSPACE_SYMBOL,
   createActiveEntitiesStore,
+  createWorkspaceStore as createClientStore,
 } from '@scalar/api-client/store'
 import { mutateSecuritySchemeDiff } from '@scalar/api-client/views/Request/libs'
 import { filterSecurityRequirements } from '@scalar/api-client/views/Request/RequestSection'
@@ -21,9 +21,11 @@ import { type Ref, computed, provide, toRaw, toValue, watch } from 'vue'
 import { convertSecurityScheme } from '@/helpers/convert-security-scheme'
 import { useLegacyStoreEvents } from '@/v2/hooks/use-legacy-store-events'
 
+/**
+ * Temporary state mapping factory to handle syncing the client store with the workspace store.
+ */
 export function mapConfigToClientStore({
   config,
-  clientStore: store,
   workspaceStore,
   el,
   isIntersectionEnabled,
@@ -34,12 +36,24 @@ export function mapConfigToClientStore({
   /** Configuration object for API client */
   config: MaybeRefOrGetter<ApiReferenceConfigurationRaw>
   /** Instantiated client store */
-  clientStore: ClientStore
-  /** Instantiated client store */
   workspaceStore: WorkspaceStore
   isIntersectionEnabled: Ref<boolean>
   dereferencedDocument: MaybeRefOrGetter<OpenAPIV3_1.Document | null>
 }) {
+  /**
+   * Legacy API Client Store
+   *
+   * In a future release this will be removed and the logic merged into the workspace store.
+   */
+  const store = createClientStore({
+    useLocalStorage: false,
+    proxyUrl: toValue(config).proxyUrl,
+    theme: toValue(config).theme,
+    showSidebar: toValue(config).showSidebar,
+    hideClientButton: toValue(config).hideClientButton,
+    _integration: toValue(config)._integration,
+  })
+
   let client: ApiClient | null = null
 
   /**
@@ -166,25 +180,18 @@ export function mapConfigToClientStore({
         return
       }
 
-      console.log('resetting client store', toRaw(newDocument))
-
       // If we already have a collection, remove the store
       if (activeEntities.activeCollection.value) {
-        console.log('resetting client store')
-        // client?.resetStore()
+        client?.resetStore()
       }
 
       // [re]Import the store
-      store
-        .importSpecFile(newDocument, 'other-workspace', {
-          // shouldLoad: false,
-          documentUrl: undefined,
-          useCollectionSecurity: true,
-          ...toValue(config),
-        })
-        .then(() => {
-          console.log('client store reset', store)
-        })
+      store.importSpecFile(undefined, 'default', {
+        dereferencedDocument: toRaw(newDocument),
+        shouldLoad: true,
+        documentUrl: undefined,
+        useCollectionSecurity: true,
+      })
     },
   )
 

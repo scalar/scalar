@@ -52,7 +52,7 @@ export const addOrUpdateDocument = async ({
   if (source.content) {
     if (store.workspace.documents[slug]) {
       // Disable intersection observer to prevent url changing
-      store.replaceDocument(slug, source.content)
+      store.rebaseDocument(slug, source.content)
     } else {
       return await store.addDocument({
         name: slug,

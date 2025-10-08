@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { createWorkspaceStore as createClientStore } from '@scalar/api-client/store'
 import { dereferenceSync } from '@scalar/openapi-parser'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type {
   AnyApiReferenceConfiguration,
   ApiReferenceConfiguration,
@@ -10,15 +8,7 @@ import type {
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { onCustomEvent } from '@scalar/workspace-store/events'
-import {
-  computed,
-  nextTick,
-  provide,
-  ref,
-  useTemplateRef,
-  watch,
-  watchEffect,
-} from 'vue'
+import { computed, provide, ref, useTemplateRef, watch } from 'vue'
 
 import ApiReferenceLayout from '@/components/ApiReferenceLayout.vue'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
@@ -150,21 +140,10 @@ mapConfigToWorkspaceStore({
 const activeDocument = computed(() => workspaceStore.workspace.activeDocument)
 
 // --------------------------------------------------------------------------- */
-/**
- * Legacy API Client Store
- *
- * In a future release this will be removed and the logic merged into the workspace store.
- */
-const clientStore = createClientStore({
-  useLocalStorage: false,
-  proxyUrl: active.value.config.proxyUrl,
-  theme: mergedConfig.value.theme,
-  showSidebar: mergedConfig.value.showSidebar,
-  hideClientButton: mergedConfig.value.hideClientButton,
-  _integration: mergedConfig.value._integration,
-})
 
-const dereferenced = ref<OpenAPIV3_1.Document | null>(null)
+const dereferenced = ref<ReturnType<typeof dereferenceSync>['schema'] | null>(
+  null,
+)
 
 const modal = useTemplateRef('modal')
 
@@ -181,7 +160,6 @@ const {
   getSecuritySchemes,
   openClient,
 } = mapConfigToClientStore({
-  clientStore,
   workspaceStore,
   config: mergedConfig,
   el: modal,
@@ -228,7 +206,7 @@ watch(
 
     // Map the document to the client store for now
     const raw = JSON.parse(workspaceStore.exportActiveDocument('json') ?? '{}')
-    dereferenced.value = dereferenceSync(raw)
+    dereferenced.value = dereferenceSync(raw).schema
   },
   {
     immediate: true,
