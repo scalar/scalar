@@ -144,9 +144,12 @@ export namespace OpenAPIV3_2 {
 
   export type ParameterStyle = OpenAPIV3_1.ParameterStyle | 'cookie'
 
+  export type ParameterLocation = OpenAPIV3_1.ParameterLocation | 'querystring'
+
   export type ParameterObject = Modify<OpenAPIV3_1.ParameterObject,
   {
-    style?: ParameterStyle
+    style?: ParameterStyle,
+    in?: ParameterLocation
   }>
 
   export type HeaderObject = OpenAPIV3_1.HeaderObject
@@ -363,6 +366,8 @@ export namespace OpenAPIV3_1 {
   export type ExternalDocumentationObject = OpenAPIV3.ExternalDocumentationObject
 
   export type ParameterStyle = OpenAPIV3.ParameterStyle
+
+  export type ParameterLocation = OpenAPIV3.ParameterLocation
 
   export type ParameterObject = OpenAPIV3.ParameterObject
 
@@ -597,9 +602,11 @@ export namespace OpenAPIV3 {
     url?: string
   }
 
+  export type ParameterLocation = 'query' | 'header' | 'path' | 'cookie'
+
   export type ParameterObject = {
     name?: string
-    in?: string
+    in?: ParameterLocation
   } & ParameterBaseObject
 
   export type HeaderObject = {} & ParameterBaseObject
@@ -1010,9 +1017,11 @@ export namespace OpenAPIV2 {
     [index: string]: ParameterObject
   }
 
+  export type ParameterLocation = 'query' | 'header' | 'path' | 'formData' | 'body'
+
   export type ParameterObject = {
     name?: string
-    in?: string
+    in?: ParameterLocation
     description?: string
     required?: boolean
     [index: string]: any
