@@ -32,12 +32,8 @@ const { options } = defineProps<{
     layout?: 'modern' | 'classic'
     /** The document download type. */
     documentDownloadType?: ApiReferenceConfiguration['documentDownloadType']
-    /** The URL of the OpenAPI document. */
-    url?: string | undefined
     /** Optional callback invoked when the component has finished loading. */
     onLoaded?: (() => void) | unknown
-    /** The original document content. */
-    getOriginalDocument: () => string
   }
 }>()
 
@@ -68,10 +64,7 @@ const introCardsSlot = computed(() =>
     </template>
     <template #download-link>
       <DownloadLink
-        :documentDownloadType="options.documentDownloadType ?? 'both'"
-        :getOriginalDocument="options.getOriginalDocument"
-        :title="info?.title"
-        :url="options.url" />
+        :documentDownloadType="options.documentDownloadType ?? 'both'" />
     </template>
   </IntroductionLayout>
 </template>

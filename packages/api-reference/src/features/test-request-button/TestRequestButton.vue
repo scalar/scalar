@@ -1,27 +1,25 @@
 <script setup lang="ts">
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { ScalarIconPlay } from '@scalar/icons'
+import { emitCustomEvent } from '@scalar/workspace-store/events'
+import { ref } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
-import { useApiClient } from '@/features/api-client-modal'
 
 const { method, path } = defineProps<{
   method: HttpMethod
   path: string
 }>()
 
-const { client } = useApiClient()
-
+const el = ref<HTMLElement | null>(null)
 const handleClick = () => {
-  client.value?.open({
-    method,
-    path,
-  })
+  emitCustomEvent(el.value, 'scalar-open-client', {})
 }
 </script>
 <template>
   <!-- Render the Test Request Button -->
   <button
+    ref="el"
     class="show-api-client-button"
     :method="method"
     type="button"

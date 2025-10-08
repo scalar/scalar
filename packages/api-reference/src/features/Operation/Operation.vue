@@ -18,34 +18,33 @@ import { getFirstServer } from './helpers/get-first-server'
 import ClassicLayout from './layouts/ClassicLayout.vue'
 import ModernLayout from './layouts/ModernLayout.vue'
 
-const { server, pathValue, method, security, getSecurityScheme, store } =
-  defineProps<{
-    id: string
-    method: HttpMethod
-    /** Key of the operations path in the document.paths object */
-    path: string
-    /** OpenAPI path object that will include the operation */
-    pathValue: PathItemObject | undefined
-    /** Active server*/
-    server: Server | undefined
-    /** Document level security requirements */
-    security: SecurityRequirementObject[] | undefined
-    /** Temporary getter function to handle overlap with the client store */
-    getSecurityScheme: SecuritySchemeGetter
-    xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
-    // ---------------------------------------------
-    options: {
-      layout: 'classic' | 'modern'
-      /** Sets some additional display properties when an operation is a webhook */
-      isWebhook: boolean
-      showOperationId: boolean | undefined
-      hideTestRequestButton: boolean | undefined
-      expandAllResponses: boolean | undefined
-      clientOptions: ClientOptionGroup[]
-      orderRequiredPropertiesFirst: boolean | undefined
-      orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
-    }
-  }>()
+const { server, pathValue, method, security, getSecurityScheme } = defineProps<{
+  id: string
+  method: HttpMethod
+  /** Key of the operations path in the document.paths object */
+  path: string
+  /** OpenAPI path object that will include the operation */
+  pathValue: PathItemObject | undefined
+  /** Active server*/
+  server: Server | undefined
+  /** Document level security requirements */
+  security: SecurityRequirementObject[] | undefined
+  /** Temporary getter function to handle overlap with the client store */
+  getSecurityScheme: SecuritySchemeGetter
+  xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
+  // ---------------------------------------------
+  options: {
+    layout: 'classic' | 'modern'
+    /** Sets some additional display properties when an operation is a webhook */
+    isWebhook: boolean
+    showOperationId: boolean | undefined
+    hideTestRequestButton: boolean | undefined
+    expandAllResponses: boolean | undefined
+    clientOptions: ClientOptionGroup[]
+    orderRequiredPropertiesFirst: boolean | undefined
+    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
+  }
+}>()
 
 /**
  * Operation from the new workspace store, ensure we are de-reference

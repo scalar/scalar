@@ -5,12 +5,12 @@ import {
   type WorkspaceStore as ClientStore,
   WORKSPACE_SYMBOL,
   createActiveEntitiesStore,
-  useWorkspace,
 } from '@scalar/api-client/store'
 import { mutateSecuritySchemeDiff } from '@scalar/api-client/views/Request/libs'
 import { filterSecurityRequirements } from '@scalar/api-client/views/Request/RequestSection'
 import { getServersFromDocument } from '@scalar/oas-utils/helpers'
 import type { ApiReferenceConfigurationRaw, OpenAPIV3_1 } from '@scalar/types'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { emitCustomEvent } from '@scalar/workspace-store/events'
 import type { SecurityRequirementObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-requirement'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
@@ -19,11 +19,12 @@ import microdiff from 'microdiff'
 import { type Ref, computed, provide, toValue, watch } from 'vue'
 
 import { convertSecurityScheme } from '@/helpers/convert-security-scheme'
+import { useLegacyStoreEvents } from '@/v2/hooks/use-legacy-store-events'
 
 export function mapConfigToClientStore({
   config,
-  store,
-  activeEntities,
+  clientStore: store,
+  workspaceStore,
   el,
   isIntersectionEnabled,
   dereferencedDocument,
@@ -33,13 +34,30 @@ export function mapConfigToClientStore({
   /** Configuration object for API client */
   config: MaybeRefOrGetter<ApiReferenceConfigurationRaw>
   /** Instantiated client store */
-  store: ClientStore
-  activeEntities: ReturnType<typeof createActiveEntitiesStore>
-
+  clientStore: ClientStore
+  /** Instantiated client store */
+  workspaceStore: WorkspaceStore
   isIntersectionEnabled: Ref<boolean>
   dereferencedDocument: MaybeRefOrGetter<OpenAPIV3_1.Document | null>
 }) {
   let client: ApiClient | null = null
+
+  /**
+   * Active Entities Store
+   * Required while we are migrating to the new store
+   */
+  const activeEntities = createActiveEntitiesStore(store)
+
+  /** @deprecated Injected to provision api-client */
+  provide(WORKSPACE_SYMBOL, store)
+
+  /** @deprecated Injected to provision api-client */
+  provide(ACTIVE_ENTITIES_SYMBOL, activeEntities)
+
+  /** Update the old store to keep it in sync with the new store */
+  useLegacyStoreEvents(workspaceStore, store, activeEntities, el)
+
+  // ---------------------------------------------------------------------------
 
   watch(el, () => {
     console.debug(`[CLIENT]: Client element changed. ${el.value ? 'Mounting client...' : 'Unmounting client...'}`)
@@ -148,8 +166,7 @@ export function mapConfigToClientStore({
       }
 
       // [re]Import the store
-      store.importSpecFile(undefined, 'default', {
-        dereferencedDocument: newDocument,
+      store.importSpecFile(newDocument, 'default', {
         shouldLoad: false,
         documentUrl: undefined,
         useCollectionSecurity: true,
@@ -157,29 +174,11 @@ export function mapConfigToClientStore({
       })
     },
   )
-  // ---------------------------------------------------------------------------
-
-  /**
-   * Active Entities Store
-   * Required while we are migrating to the new store
-   */
-  const activeEntitiesStore = createActiveEntitiesStore(store)
-
-  /** @deprecated Injected to provision api-client */
-  provide(WORKSPACE_SYMBOL, store)
-
-  /** @deprecated Injected to provision api-client */
-  provide(ACTIVE_ENTITIES_SYMBOL, activeEntitiesStore)
 
   // ---------------------------------------------------------------------------
   // Some compute properties while we migrate
 
-  const { activeCollection, activeEnvVariables, activeEnvironment, activeWorkspace } = activeEntitiesStore
-
-  /**
-   * Should be removed after we migrate auth selector
-   */
-  const { securitySchemes, servers } = useWorkspace()
+  const { activeCollection, activeEnvVariables, activeEnvironment, activeWorkspace } = activeEntities
 
   /**
    * Ensure the server is the one selected in the collection
@@ -192,13 +191,13 @@ export function mapConfigToClientStore({
     }
 
     if (activeCollection.value.selectedServerUid) {
-      const server = servers[activeCollection.value.selectedServerUid]
+      const server = store.servers[activeCollection.value.selectedServerUid]
       if (server) {
         return server
       }
     }
 
-    return servers[activeCollection.value.servers[0]]
+    return store.servers[activeCollection.value.servers[0] ?? '']
   })
 
   /** Gets the security schemes for a target operation */
@@ -206,11 +205,18 @@ export function mapConfigToClientStore({
     return filterSecurityRequirements(
       operationSecurity || documentSecurity || [],
       activeCollection.value?.selectedSecuritySchemeUids || [],
-      securitySchemes,
+      store.securitySchemes,
     ).map(convertSecurityScheme)
   }
 
-  return { activeServer, activeEnvVariables, activeEnvironment, activeWorkspace, getSecuritySchemes }
+  return {
+    activeServer,
+    activeEnvVariables,
+    activeEnvironment,
+    activeWorkspace,
+    getSecuritySchemes,
+    openClient: () => client?.open(),
+  }
 }
 
 export type SecuritySchemeGetter = (

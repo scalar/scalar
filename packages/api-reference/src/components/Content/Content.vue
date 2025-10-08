@@ -29,11 +29,10 @@ import type { SecuritySchemeGetter } from '@/v2/helpers/map-config-to-client-sto
 const { options, document } = defineProps<{
   contentId: string
   activeServer: Server | undefined
-  document: WorkspaceDocument
+  document: WorkspaceDocument | undefined
   xScalarDefaultClient: Workspace['x-scalar-default-client']
   getSecuritySchemes: SecuritySchemeGetter
   options: {
-    isLoading: boolean | undefined
     slug: string | undefined
     hiddenClients: ApiReferenceConfiguration['hiddenClients']
     layout: 'modern' | 'classic'
@@ -47,7 +46,6 @@ const { options, document } = defineProps<{
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
     documentDownloadType: ApiReferenceConfiguration['documentDownloadType']
-    url: string | undefined
     onShowMore: ((id: string) => void) | undefined
   }
 }>()
@@ -66,8 +64,6 @@ const documentExtensions = computed(() => getXKeysFromObject(document))
 
 // Computed property to get all OpenAPI extension fields from the document's info object
 const infoExtensions = computed(() => getXKeysFromObject(document?.info))
-
-const getOriginalDocument = () => store.exportActiveDocument('json') ?? '{}'
 
 const { items } = useSidebar()
 const { hash } = useNavState()
@@ -90,21 +86,18 @@ const models = computed<TraversedDescription | undefined>(() => {
     <slot name="start" />
 
     <!-- Introduction -->
-    <IntroductionSection :showEmptyState="!document">
+    <IntroductionSection :showEmptyState="false">
       <InfoBlock
-        v-if="document"
         :id="contentId"
         :documentExtensions
-        :externalDocs="document.externalDocs"
-        :info="document.info"
+        :externalDocs="document?.externalDocs"
+        :info="document?.info ?? { title: 'Loading...', version: 'Loading...' }"
         :infoExtensions
         :layout="options.layout"
         :oasVersion="document?.['x-original-oas-version']"
         :options="{
           documentDownloadType: options.documentDownloadType,
-          url: options.url,
-          getOriginalDocument,
-          isLoading: options.isLoading,
+          isLoading: !document,
           layout: options.layout,
           onLoaded: options.onLoaded,
         }">
