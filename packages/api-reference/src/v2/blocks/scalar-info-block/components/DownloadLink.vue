@@ -1,37 +1,36 @@
 <script lang="ts" setup>
 import type { ApiReferenceConfiguration } from '@scalar/types'
-import GitHubSlugger from 'github-slugger'
-import { computed } from 'vue'
+import { emitCustomEvent } from '@scalar/workspace-store/events'
+import { useTemplateRef } from 'vue'
 
 import Badge from '@/components/Badge/Badge.vue'
-import { downloadDocument } from '@/libs/download'
 
-const { title, getOriginalDocument } = defineProps<{
-  title?: string
-  getOriginalDocument: () => string
-  url: string | undefined
+defineProps<{
   documentDownloadType: ApiReferenceConfiguration['documentDownloadType']
 }>()
 
-// Format the title to be displayed in the badge.
-const slugger = new GitHubSlugger()
-const filename = computed(() => slugger.slug(title ?? ''))
+const el = useTemplateRef('el')
 
 // The id is retrieved at the layout level.
 const handleDownloadClick = (format: 'json' | 'yaml') => {
-  downloadDocument(getOriginalDocument?.() ?? '', filename.value, format)
+  emitCustomEvent(el.value, 'scalar-download-document', { format })
 }
 </script>
 <template>
   <div
-    v-if="['yaml', 'json', 'both'].includes(documentDownloadType)"
+    v-if="['yaml', 'json', 'both', 'direct'].includes(documentDownloadType)"
+    ref="el"
     class="download-container group"
     :class="{
       'download-both': documentDownloadType === 'both',
     }">
     <!-- JSON  -->
     <button
-      v-if="documentDownloadType === 'json' || documentDownloadType === 'both'"
+      v-if="
+        documentDownloadType === 'json' ||
+        documentDownloadType === 'both' ||
+        documentDownloadType === 'direct'
+      "
       class="download-button"
       type="button"
       @click.prevent="handleDownloadClick('json')">
@@ -49,21 +48,6 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
       <Badge class="extension hidden group-hover:flex">yaml</Badge>
     </button>
   </div>
-  <template v-else-if="documentDownloadType === 'direct'">
-    <a
-      v-if="url"
-      class="download-link"
-      :href="url">
-      Download OpenAPI Document
-    </a>
-    <a
-      v-else
-      class="download-link"
-      href="#"
-      @click.prevent="handleDownloadClick('json')">
-      Download OpenAPI Document
-    </a>
-  </template>
 </template>
 
 <style scoped>

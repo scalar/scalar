@@ -13,6 +13,7 @@ const slugger = new GithubSlugger()
 type NormalizedConfigurations = Record<
   string,
   {
+    title: string
     slug: string
     config: ApiReferenceConfigurationRaw
     default: boolean
@@ -68,6 +69,7 @@ export const normalizeConfigurations = (
       const { url, content, ...config } = c
       normalized[c.slug] = {
         config,
+        title: c.title,
         slug: c.slug,
         default: !!c?.default,
         source: content ? { content: normalizeContent(content) } : { url },

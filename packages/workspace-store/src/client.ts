@@ -501,7 +501,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     }
 
     if (format === 'json') {
-      return JSON.stringify(intermediateDocument)
+      return JSON.stringify(intermediateDocument, null, 2)
     }
 
     return YAML.stringify(intermediateDocument)

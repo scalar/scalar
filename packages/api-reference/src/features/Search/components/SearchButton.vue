@@ -4,8 +4,6 @@ import { isMacOS } from '@scalar/helpers/general/is-mac-os'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
-import { useApiClient } from '@/features/api-client-modal'
-
 import SearchModal from './SearchModal.vue'
 
 const { searchHotKey = 'k', hideModels = false } = defineProps<{
@@ -16,14 +14,9 @@ const { searchHotKey = 'k', hideModels = false } = defineProps<{
 
 const button = ref<InstanceType<typeof ScalarSidebarSearchButton>>()
 const modalState = useModal()
-const { client } = useApiClient()
 
 const handleHotKey = (e: KeyboardEvent) => {
-  if (
-    (isMacOS() ? e.metaKey : e.ctrlKey) &&
-    e.key === searchHotKey &&
-    !client.value?.modalState.open
-  ) {
+  if ((isMacOS() ? e.metaKey : e.ctrlKey) && e.key === searchHotKey) {
     e.preventDefault()
     e.stopPropagation()
 

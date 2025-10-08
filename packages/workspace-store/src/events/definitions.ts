@@ -151,6 +151,16 @@ export type ApiReferenceEvents<T extends keyof ServerObject = keyof ServerObject
       uid: string
     }
   }
+  /** Download the document from the store */
+  'scalar-download-document': {
+    detail: {
+      format: 'json' | 'yaml'
+    }
+  }
+  /** Add a new document to the store */
+  'scalar-open-client': {
+    detail: {}
+  }
 }
 
 export type ApiReferenceEvent = Simplify<keyof ApiReferenceEvents>
