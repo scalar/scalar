@@ -5,12 +5,12 @@ import { createCodeMirrorTheme } from './createCodeMirrorTheme'
 export const customTheme = createCodeMirrorTheme({
   theme: 'light',
   settings: {
-    background: 'var(--scalar-background-2)',
+    background: 'var(--scalar-codemirror-background, var(--scalar-background-2))',
     foreground: 'var(--scalar-color-1)',
     caret: 'var(--scalar-color-1)',
     // Selection likely needs a hardcoded color due to it not accepting variables
     selectionMatch: '#e3dcce',
-    gutterBackground: 'var(--scalar-background-2)',
+    gutterBackground: 'var(--scalar-codemirror-background, var(--scalar-background-2))',
     gutterForeground: 'var(--scalar-color-3)',
     gutterBorder: 'transparent',
     lineHighlight: 'var(--scalar-background-3)',
