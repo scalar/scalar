@@ -91,6 +91,7 @@ export namespace OpenAPIV3_2 {
       info?: InfoObject
       jsonSchemaDialect?: string
       servers?: ServerObject[]
+      $self?: string
     } & (
       | (Pick<PathsWebhooksComponents<T>, 'paths'> & Omit<Partial<PathsWebhooksComponents<T>>, 'paths'>)
       | (Pick<PathsWebhooksComponents<T>, 'webhooks'> & Omit<Partial<PathsWebhooksComponents<T>>, 'webhooks'>)
