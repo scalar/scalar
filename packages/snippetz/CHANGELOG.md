@@ -1,5 +1,16 @@
 # @scalar/snippetz
 
+## 0.5.0
+
+### Minor Changes
+
+- e0cdd9a: Added f# support in code snippets
+
+### Patch Changes
+
+- Updated dependencies [1e01464]
+  - @scalar/types@0.3.1
+
 ## 0.4.11
 
 ### Patch Changes

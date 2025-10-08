@@ -1,5 +1,13 @@
 # @scalar/types
 
+## 0.3.1
+
+### Patch Changes
+
+- 1e01464: Adds a new ApiReferenceConfigWithSource type and make the base ApiReferenceConfig type agnostic of any document sources.
+- Updated dependencies [15c4240]
+  - @scalar/openapi-types@0.4.1
+
 ## 0.3.0
 
 ### Minor Changes

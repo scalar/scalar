@@ -1,5 +1,18 @@
 # @scalar/api-client-react
 
+## 1.3.45
+
+### Patch Changes
+
+- Updated dependencies [debdcf6]
+- Updated dependencies [63ff417]
+- Updated dependencies [5d99cad]
+- Updated dependencies [a747da6]
+- Updated dependencies [1e01464]
+- Updated dependencies [b998d57]
+  - @scalar/api-client@2.8.0
+  - @scalar/types@0.3.1
+
 ## 1.3.44
 
 ### Patch Changes

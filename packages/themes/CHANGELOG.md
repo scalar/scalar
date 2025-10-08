@@ -1,5 +1,13 @@
 # @scalar/themes
 
+## 0.13.21
+
+### Patch Changes
+
+- 13dcd89: feat(themes): add text align to global reset
+- Updated dependencies [1e01464]
+  - @scalar/types@0.3.1
+
 ## 0.13.20
 
 ### Patch Changes
