@@ -137,8 +137,7 @@ export const galaxySidebar = [
     id: 'tag/celestial-bodies',
     title: 'Celestial Bodies',
     name: 'Celestial Bodies',
-    description:
-      'Celestial bodies are the planets and satellites in the Scalar Galaxy.',
+    description: 'Celestial bodies are the planets and satellites in the Scalar Galaxy.',
     children: [
       {
         id: 'tag/celestial-bodies/post/celestial-bodies',

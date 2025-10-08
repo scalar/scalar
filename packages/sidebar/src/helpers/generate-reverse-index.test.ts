@@ -52,9 +52,7 @@ describe('generateReverseIndex', () => {
     expect(result.get('root')).toMatchObject(node)
     expect(result.get('child1')).toMatchObject(node.children?.[0] as any)
     expect(result.get('child2')).toMatchObject(node.children?.[1] as any)
-    expect(result.get('grandchild')).toMatchObject(
-      (node.children?.[1] as any).children?.[0],
-    )
+    expect(result.get('grandchild')).toMatchObject((node.children?.[1] as any).children?.[0])
   })
 
   it('indexes multiple top-level nodes', () => {

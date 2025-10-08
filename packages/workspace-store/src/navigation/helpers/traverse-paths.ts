@@ -41,10 +41,9 @@ const createOperationEntry = (
 
   const isDeprecated = isDeprecatedOperation(operation)
 
-  // TODO: update the id for the example to be unique if there are multiple examples
   const examples: TraversedExample[] = traverseOperationExamples(operation).map((example) => ({
     type: 'example',
-    id: example,
+    id: `${id}/example-${example}`,
     title: example,
     name: example,
   }))
@@ -57,7 +56,7 @@ const createOperationEntry = (
     ref,
     type: 'operation',
     isDeprecated,
-    children: examples,
+    children: examples.length ? examples : undefined,
   } satisfies TraversedOperation
 
   return entry
