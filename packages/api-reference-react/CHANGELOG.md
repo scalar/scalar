@@ -1,5 +1,20 @@
 # @scalar/api-reference-react
 
+## 0.8.0
+
+### Minor Changes
+
+- 1e01464: Adds a new ApiReferenceConfigWithSource type and make the base ApiReferenceConfig type agnostic of any document sources.
+
+### Patch Changes
+
+- Updated dependencies [debdcf6]
+- Updated dependencies [a747da6]
+- Updated dependencies [1e01464]
+- Updated dependencies [90d54b6]
+  - @scalar/api-reference@1.38.0
+  - @scalar/types@0.3.1
+
 ## 0.7.55
 
 ### Patch Changes

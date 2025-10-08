@@ -1,5 +1,12 @@
 # @scalar/openapi-upgrader
 
+## 0.1.2
+
+### Patch Changes
+
+- Updated dependencies [15c4240]
+  - @scalar/openapi-types@0.4.1
+
 ## 0.1.1
 
 ### Patch Changes
