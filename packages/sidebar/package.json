@@ -19,8 +19,8 @@
     "playground": "vite ./playground -c ./vite.config.ts",
     "format": "pnpm prettier --write .",
     "format:check": "pnpm prettier --check .",
-    "lint:check": "eslint . && pnpm lint:icons",
-    "lint:fix": "eslint . --fix",
+    "lint:check": "scalar-lint-check",
+    "lint:fix": "scalar-lint-fix",
     "test": "vitest",
     "types:build": "scalar-types-build-vue",
     "types:check": "scalar-types-check-vue"
@@ -46,20 +46,7 @@
     "@scalar/helpers": "workspace:*",
     "@scalar/icons": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
-    "vue": "catalog:*",
-    "@floating-ui/utils": "catalog:*",
-    "@floating-ui/vue": "catalog:*",
-    "@headlessui/vue": "catalog:*",
-    "@scalar/code-highlight": "workspace:*",
-    "@scalar/oas-utils": "workspace:*",
-    "@scalar/use-hooks": "workspace:*",
-    "@scalar/use-toasts": "workspace:*",
-    "@vueuse/core": "catalog:*",
-    "cva": "1.0.0-beta.2",
-    "nanoid": "catalog:*",
-    "pretty-bytes": "^6.1.1",
-    "radix-vue": "^1.9.3",
-    "vue-component-type-helpers": "^3.0.4"
+    "vue": "catalog:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
@@ -72,19 +59,6 @@
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",
     "vite-svg-loader": "catalog:*",
-    "vitest": "catalog:*",
-    "@headlessui/tailwindcss": "catalog:*",
-    "@playwright/test": "catalog:*",
-    "@storybook/addon-essentials": "^8.0.8",
-    "@storybook/addon-interactions": "^8.0.8",
-    "@storybook/addon-links": "^8.0.8",
-    "@storybook/blocks": "^8.0.8",
-    "@storybook/test": "^8.0.8",
-    "@storybook/vue3": "^8.0.8",
-    "@storybook/vue3-vite": "^8.0.8",
-    "plugins": "^0.4.2",
-    "storybook": "^8.0.8",
-    "storybook-dark-mode": "^4.0.1",
-    "svglint": "^2.7.1"
+    "vitest": "catalog:*"
   }
 }
