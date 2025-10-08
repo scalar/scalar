@@ -47,6 +47,12 @@ public enum ScalarTarget
     Dart,
 
     /// <summary>
+    /// F#.
+    /// </summary>
+    [Description("fsharp")]
+    Fsharp,
+
+    /// <summary>
     /// Go.
     /// </summary>
     [Description("go")]

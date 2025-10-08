@@ -24,6 +24,7 @@ internal static partial class ScalarOptionsMapper
         { ScalarTarget.Clojure, [ScalarClient.CljHttp] },
         { ScalarTarget.CSharp, [ScalarClient.HttpClient, ScalarClient.RestSharp] },
         { ScalarTarget.Dart, [ScalarClient.Http] },
+        { ScalarTarget.Fsharp, [ScalarClient.HttpClient] },
         { ScalarTarget.Go, [ScalarClient.Native] },
         { ScalarTarget.Http, [ScalarClient.Http11] },
         { ScalarTarget.Java, [ScalarClient.AsyncHttp, ScalarClient.NetHttp, ScalarClient.OkHttp, ScalarClient.Unirest] },
