@@ -208,7 +208,11 @@ export namespace OpenAPIV3_2 {
     serializedValue?: string
   }
 
-  export type MediaTypeObject = OpenAPIV3_1.MediaTypeObject
+  export type MediaTypeObject = OpenAPIV3_1.MediaTypeObject & {
+    itemSchema?: ReferenceObject | SchemaObject
+    itemEncoding?: EncodingObject
+    prefixEncoding?: EncodingObject[]
+  }
 
   export type EncodingObject = OpenAPIV3_1.EncodingObject
 
