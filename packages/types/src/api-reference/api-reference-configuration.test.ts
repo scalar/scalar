@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import {
   type ApiReferenceConfiguration,
@@ -244,18 +244,12 @@ describe('api-reference-configuration', () => {
       expect(migratedConfig.spec).toBeUndefined()
       expect(migratedConfig.content).toBe('{"openapi": "3.1.0"}')
     })
+  })
 
+  describe('hooks', () => {
     it('allows a function as onDocumentSelect', () => {
       const config = {
-        onDocumentSelect: () => console.log('selected'),
-      }
-      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
-      expect(migratedConfig.onDocumentSelect).toBeInstanceOf(Function)
-    })
-
-    it('allows a function as onDocumentSelect', () => {
-      const config = {
-        onDocumentSelect: () => console.log('selected'),
+        onDocumentSelect: vi.fn().mockReturnValue(undefined),
       } satisfies Partial<ApiReferenceConfiguration>
       const migratedConfig = apiReferenceConfigurationSchema.parse(config)
       expect(migratedConfig.onDocumentSelect).toBeInstanceOf(Function)
@@ -263,11 +257,62 @@ describe('api-reference-configuration', () => {
 
     it('allows an async function as onDocumentSelect', async () => {
       const config = {
-        onDocumentSelect: async () => console.log('selected'),
+        onDocumentSelect: vi.fn().mockResolvedValue(undefined),
       } satisfies Partial<ApiReferenceConfiguration>
       const migratedConfig = apiReferenceConfigurationSchema.parse(config)
 
       expect(migratedConfig.onDocumentSelect?.()).toBeInstanceOf(Promise)
+    })
+
+    it('allows a function as onBeforeRequest', () => {
+      const config = {
+        onBeforeRequest: vi.fn().mockReturnValue(undefined),
+      } satisfies Partial<ApiReferenceConfiguration>
+      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+      expect(migratedConfig.onBeforeRequest).toBeInstanceOf(Function)
+    })
+
+    it('allows an async function as onBeforeRequest', async () => {
+      const config = {
+        onBeforeRequest: vi.fn().mockResolvedValue(undefined),
+      } satisfies Partial<ApiReferenceConfiguration>
+      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+
+      expect(migratedConfig.onBeforeRequest?.({ request: new Request('http://example.org') })).toBeInstanceOf(Promise)
+    })
+
+    it('allows a function as onShowMore', () => {
+      const config = {
+        onShowMore: vi.fn().mockReturnValue(undefined),
+      } satisfies Partial<ApiReferenceConfiguration>
+      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+      expect(migratedConfig.onShowMore).toBeInstanceOf(Function)
+    })
+
+    it('allows an async function as onShowMore', async () => {
+      const config = {
+        onShowMore: vi.fn().mockResolvedValue(undefined),
+      } satisfies Partial<ApiReferenceConfiguration>
+      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+
+      expect(migratedConfig.onShowMore?.('a')).toBeInstanceOf(Promise)
+    })
+
+    it('allows a function as onSidebarClick', () => {
+      const config = {
+        onSidebarClick: vi.fn().mockReturnValue(undefined),
+      } satisfies Partial<ApiReferenceConfiguration>
+      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+      expect(migratedConfig.onSidebarClick).toBeInstanceOf(Function)
+    })
+
+    it('allows an async function as onSidebarClick', async () => {
+      const config = {
+        onSidebarClick: vi.fn().mockResolvedValue(undefined),
+      } satisfies Partial<ApiReferenceConfiguration>
+      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+
+      expect(migratedConfig.onSidebarClick?.('a')).toBeInstanceOf(Promise)
     })
   })
 })
