@@ -26,11 +26,13 @@ export namespace OpenAPI {
     | OpenAPIV2.Document<T>
     | OpenAPIV3.Document<T>
     | OpenAPIV3_1.Document<T>
+    | OpenAPIV3_2.Document<T>
 
   export type Operation<T = {}> =
     | OpenAPIV2.OperationObject<T>
     | OpenAPIV3.OperationObject<T>
     | OpenAPIV3_1.OperationObject<T>
+    | OpenAPIV3_2.OperationObject<T>
 
   export type Request = {
     body?: any
@@ -39,11 +41,13 @@ export namespace OpenAPI {
     query?: object
   }
 
-  export type ResponseObject = OpenAPIV2.ResponseObject | OpenAPIV3.ResponseObject | OpenAPIV3_1.ResponseObject
+  export type ResponseObject = OpenAPIV2.ResponseObject | OpenAPIV3.ResponseObject | OpenAPIV3_1.ResponseObject | OpenAPIV3_2.ResponseObject
 
-  export type HeaderObject = OpenAPIV2.HeaderObject | OpenAPIV3.HeaderObject | OpenAPIV3_1.HeaderObject
+  export type HeaderObject = OpenAPIV2.HeaderObject | OpenAPIV3.HeaderObject | OpenAPIV3_1.HeaderObject | OpenAPIV3_2.HeaderObject
 
   export type Parameter =
+    | OpenAPIV3_2.ReferenceObject
+    | OpenAPIV3_2.ParameterObject
     | OpenAPIV3_1.ReferenceObject
     | OpenAPIV3_1.ParameterObject
     | OpenAPIV3.ReferenceObject
@@ -52,15 +56,16 @@ export namespace OpenAPI {
     | OpenAPIV2.Parameter
 
   export type Parameters =
+    | (OpenAPIV3_2.ReferenceObject | OpenAPIV3_2.ParameterObject)[]
     | (OpenAPIV3_1.ReferenceObject | OpenAPIV3_1.ParameterObject)[]
     | (OpenAPIV3.ReferenceObject | OpenAPIV3.ParameterObject)[]
     | (OpenAPIV2.ReferenceObject | OpenAPIV2.Parameter)[]
 
-  export type ExampleObject = OpenAPIV2.ExampleObject | OpenAPIV3.ExampleObject | OpenAPIV3_1.ExampleObject
+  export type ExampleObject = OpenAPIV2.ExampleObject | OpenAPIV3.ExampleObject | OpenAPIV3_1.ExampleObject | OpenAPIV3_2.ExampleObject
 
-  export type SchemaObject = OpenAPIV2.SchemaObject | OpenAPIV3.SchemaObject | OpenAPIV3_1.SchemaObject
+  export type SchemaObject = OpenAPIV2.SchemaObject | OpenAPIV3.SchemaObject | OpenAPIV3_1.SchemaObject | OpenAPIV3_2.SchemaObject
 
-  export type HttpMethod = keyof typeof OpenAPIV2.HttpMethods | OpenAPIV3.HttpMethods | OpenAPIV3_1.HttpMethods
+  export type HttpMethod = keyof typeof OpenAPIV2.HttpMethods | OpenAPIV3.HttpMethods | OpenAPIV3_1.HttpMethods | OpenAPIV3_2.HttpMethods
 }
 
 // biome-ignore lint/style/noNamespace: We want it to be a module here.
