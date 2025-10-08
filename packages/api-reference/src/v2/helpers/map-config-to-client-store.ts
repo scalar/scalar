@@ -16,7 +16,7 @@ import type { SecurityRequirementObject } from '@scalar/workspace-store/schemas/
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import { type MaybeRefOrGetter, watchDebounced } from '@vueuse/core'
 import microdiff from 'microdiff'
-import { type Ref, computed, provide, toValue, watch } from 'vue'
+import { type Ref, computed, provide, toRaw, toValue, watch } from 'vue'
 
 import { convertSecurityScheme } from '@/helpers/convert-security-scheme'
 import { useLegacyStoreEvents } from '@/v2/hooks/use-legacy-store-events'
@@ -59,38 +59,44 @@ export function mapConfigToClientStore({
 
   // ---------------------------------------------------------------------------
 
-  watch(el, () => {
-    console.debug(`[CLIENT]: Client element changed. ${el.value ? 'Mounting client...' : 'Unmounting client...'}`)
+  watch(
+    el,
+    () => {
+      console.info(`[CLIENT]: Client element changed. ${el.value ? 'Mounting client...' : 'Unmounting client...'}`)
 
-    if (!el.value) {
-      client?.app?.unmount()
-      return
-    }
+      if (!el.value) {
+        client?.app?.unmount()
+        return
+      }
 
-    const clientConfig = toValue(config)
+      const clientConfig = toValue(config)
 
-    /** Initialize the client */
-    const mount = createApiClientModal({
-      el: el.value,
-      configuration: {
-        ...clientConfig,
-        plugins:
-          typeof clientConfig.onBeforeRequest === 'function'
-            ? [
-                () => ({
-                  name: 'on-before-request',
-                  hooks: {
-                    onBeforeRequest: clientConfig.onBeforeRequest,
-                  },
-                }),
-              ]
-            : [],
-      },
-      store,
-    })
+      /** Initialize the client */
+      const mount = createApiClientModal({
+        el: el.value,
+        configuration: {
+          ...clientConfig,
+          plugins:
+            typeof clientConfig.onBeforeRequest === 'function'
+              ? [
+                  () => ({
+                    name: 'on-before-request',
+                    hooks: {
+                      onBeforeRequest: clientConfig.onBeforeRequest,
+                    },
+                  }),
+                ]
+              : [],
+        },
+        store,
+      })
 
-    client = mount.client
-  })
+      client = mount.client
+    },
+    {
+      immediate: true,
+    },
+  )
 
   /**
    * Handle mapping the security schemes to the client store.
@@ -160,18 +166,25 @@ export function mapConfigToClientStore({
         return
       }
 
+      console.log('resetting client store', toRaw(newDocument))
+
       // If we already have a collection, remove the store
       if (activeEntities.activeCollection.value) {
-        client?.resetStore()
+        console.log('resetting client store')
+        // client?.resetStore()
       }
 
       // [re]Import the store
-      store.importSpecFile(newDocument, 'default', {
-        shouldLoad: false,
-        documentUrl: undefined,
-        useCollectionSecurity: true,
-        ...toValue(config),
-      })
+      store
+        .importSpecFile(newDocument, 'other-workspace', {
+          // shouldLoad: false,
+          documentUrl: undefined,
+          useCollectionSecurity: true,
+          ...toValue(config),
+        })
+        .then(() => {
+          console.log('client store reset', store)
+        })
     },
   )
 

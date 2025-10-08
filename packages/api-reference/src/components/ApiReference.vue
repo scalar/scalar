@@ -79,7 +79,6 @@ const documentOptionList = computed(() =>
 )
 
 const changeSelectedDocument = (slug: string) => {
-  console.log('changeSelectedDocument', slug)
   activeSlug.value = slug
 }
 
@@ -106,8 +105,8 @@ provide(NAV_STATE_SYMBOL, {
   isIntersectionEnabled,
   hash,
   hashPrefix,
-  basePath: () => active.value.config.pathRouting?.basePath,
-  generateHeadingSlug: () => active.value.config.generateHeadingSlug,
+  basePath: () => mergedConfig.value.pathRouting?.basePath,
+  generateHeadingSlug: () => mergedConfig.value.generateHeadingSlug,
 })
 
 // ---------------------------------------------------------------------------
@@ -132,28 +131,23 @@ const colorModes = {
 // Client side integrations will want to handle dark mode externally
 const { toggleColorMode, isDarkMode } = useColorMode({
   initialColorMode:
-    colorModes[String(active.value.config.darkMode) as keyof typeof colorModes],
-  overrideColorMode: active.value.config.forceDarkModeState,
+    colorModes[String(mergedConfig.value.darkMode) as keyof typeof colorModes],
+  overrideColorMode: mergedConfig.value.forceDarkModeState,
 })
 /** Initialize the sidebar */
-useSidebar(workspaceStore)
+const { setCollapsedSidebarItem } = useSidebar(workspaceStore)
 
 /** Set up event listeners for client store events */
 useWorkspaceStoreEvents(workspaceStore, root)
 
 /** Maps some config values to the workspace store to keep it reactive */
 mapConfigToWorkspaceStore({
-  config: () => active.value.config,
+  config: () => mergedConfig.value,
   store: workspaceStore,
   isDarkMode,
 })
 
 const activeDocument = computed(() => workspaceStore.workspace.activeDocument)
-
-watchEffect(() => {
-  console.log('active', active.value)
-  console.log('document', activeDocument.value)
-})
 
 // --------------------------------------------------------------------------- */
 /**
@@ -164,10 +158,10 @@ watchEffect(() => {
 const clientStore = createClientStore({
   useLocalStorage: false,
   proxyUrl: active.value.config.proxyUrl,
-  theme: active.value.config.theme,
-  showSidebar: active.value.config.showSidebar,
-  hideClientButton: active.value.config.hideClientButton,
-  _integration: active.value.config._integration,
+  theme: mergedConfig.value.theme,
+  showSidebar: mergedConfig.value.showSidebar,
+  hideClientButton: mergedConfig.value.hideClientButton,
+  _integration: mergedConfig.value._integration,
 })
 
 const dereferenced = ref<OpenAPIV3_1.Document | null>(null)
@@ -195,9 +189,15 @@ const {
   dereferencedDocument: dereferenced,
 })
 
-onCustomEvent(root, 'scalar-open-client', (event) => {
+/** Open the client modal on the custom event */
+onCustomEvent(root, 'scalar-open-client', () => {
   openClient()
-  console.log('scalar-open-client', event)
+})
+
+/** Set the sidebar item to open and run any config handlers */
+onCustomEvent(root, 'scalar-on-show-more', (event) => {
+  setCollapsedSidebarItem(event.detail.id, true)
+  mergedConfig.value.onShowMore?.(event.detail.id)
 })
 
 // ---------------------------------------------------------------------------
@@ -211,6 +211,8 @@ watch(
       return
     }
 
+    const isFirstLoad = !workspaceStore.workspace.documents[newSlug]
+
     await addOrUpdateDocument({
       slug: newSlug,
       config: normalized.config,
@@ -218,6 +220,11 @@ watch(
       store: workspaceStore,
       isIntersectionEnabled,
     })
+
+    // The first time we load a document, run the onLoaded callback
+    if (isFirstLoad) {
+      mergedConfig.value.onLoaded?.(newSlug)
+    }
 
     // Map the document to the client store for now
     const raw = JSON.parse(workspaceStore.exportActiveDocument('json') ?? '{}')
@@ -227,6 +234,8 @@ watch(
     immediate: true,
   },
 )
+
+const isDevelopment = import.meta.env.DEV
 </script>
 
 <template>
@@ -244,6 +253,8 @@ watch(
       :document="activeDocument"
       :getSecuritySchemes="getSecuritySchemes"
       :isDark="!!workspaceStore.workspace['x-scalar-dark-mode']"
+      :isDevelopment="isDevelopment"
+      :url="active.source.url"
       :xScalarDefaultClient="
         workspaceStore.workspace['x-scalar-default-client']
       "
@@ -268,7 +279,7 @@ watch(
       <template #sidebar-end><slot name="sidebar-end" /></template>
       <template #footer><slot name="footer" /></template>
       <!-- Client modal element -->
-      <template #client><div ref="modal" /></template>
+      <template #client-modal><div ref="modal" /></template>
     </ApiReferenceLayout>
   </div>
 </template>

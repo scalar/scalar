@@ -2,7 +2,6 @@ import { type Router, createMemoryHistory, createRouter } from 'vue-router'
 
 import { type ApiClient, type CreateApiClientParams, createApiClient } from '@/libs'
 import { modalRoutes } from '@/routes'
-import type { WorkspaceStore } from '@/store'
 
 import ApiClientModal from './ApiClientModal.vue'
 
@@ -19,8 +18,6 @@ export const createApiClientModal = ({
 }: Partial<Pick<CreateApiClientParams, 'el' | 'configuration' | 'mountOnInitialize' | 'store'>>): {
   client: ApiClient
   router: Router
-  importFromUrl: (url: string) => ReturnType<WorkspaceStore['importSpecFromUrl']>
-  importFromFile: (file: File) => ReturnType<WorkspaceStore['importSpecFile']>
 } => {
   const router = createRouter({
     history: createMemoryHistory(),
@@ -42,18 +39,5 @@ export const createApiClientModal = ({
   return {
     client,
     router,
-    importFromUrl: (url: string) => {
-      return client.store.importSpecFromUrl(url, 'default', {
-        proxyUrl: configuration.proxyUrl,
-        useCollectionSecurity: true,
-        ...configuration,
-      })
-    },
-    importFromFile: (file: File) => {
-      return client.store.importSpecFile(file, 'default', {
-        useCollectionSecurity: true,
-        ...configuration,
-      })
-    },
   }
 }

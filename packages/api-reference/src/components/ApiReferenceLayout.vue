@@ -57,6 +57,8 @@ const { configuration, document, isDark } = defineProps<{
   getSecuritySchemes: SecuritySchemeGetter
   xScalarDefaultClient: Workspace['x-scalar-default-client']
   isDark: boolean
+  isDevelopment: boolean
+  url?: string
 }>()
 
 defineEmits<{
@@ -74,7 +76,7 @@ defineOptions({
 defineSlots<
   {
     [x in ReferenceLayoutSlot]: (props: ReferenceSlotProps) => any
-  } & { 'document-selector': any } & { client: any }
+  } & { 'document-selector': any } & { 'client-modal': any }
 >()
 
 // ---------------------------------------------------------------------------
@@ -337,12 +339,12 @@ watch(hash, (newHash, oldHash) => {
                 v-bind="referenceSlotProps"
                 name="sidebar-end">
                 <ScalarSidebarFooter class="darklight-reference">
-                  <!-- <OpenApiClientButton
+                  <OpenApiClientButton
                     v-if="!configuration.hideClientButton"
                     buttonSource="sidebar"
                     :integration="configuration._integration"
                     :isDevelopment="isDevelopment"
-                    :url="configuration.url" /> -->
+                    :url="url" />
                   <!-- Override the dark mode toggle slot to hide it -->
                   <template #toggle>
                     <ScalarColorModeToggleButton
@@ -382,7 +384,6 @@ watch(hash, (newHash, oldHash) => {
           slug: configuration.slug,
           hiddenClients: configuration.hiddenClients,
           layout: configuration.layout,
-          onLoaded: configuration.onLoaded,
           persistAuth: configuration.persistAuth,
           showOperationId: configuration.showOperationId,
           hideTestRequestButton: configuration.hideTestRequestButton,
@@ -393,7 +394,6 @@ watch(hash, (newHash, oldHash) => {
             configuration.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: configuration.orderSchemaPropertiesBy,
           documentDownloadType: configuration.documentDownloadType,
-          onShowMore: configuration.onShowMore,
         }"
         :xScalarDefaultClient="xScalarDefaultClient">
         <template #start>
@@ -446,7 +446,7 @@ watch(hash, (newHash, oldHash) => {
         v-bind="referenceSlotProps"
         name="footer" />
     </div>
-    <slot name="client" />
+    <slot name="client-modal" />
   </div>
   <ScalarToasts />
 </template>

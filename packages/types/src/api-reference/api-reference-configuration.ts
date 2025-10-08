@@ -142,13 +142,7 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
     })
     .optional() as z.ZodType<(() => Promise<void> | void) | undefined>,
   /** Callback fired when the reference is fully loaded */
-  onLoaded: z
-    .function({
-      input: [],
-      // Why no output? https://github.com/scalar/scalar/pull/7047
-      // output: z.union([z.void(), z.promise(z.void())]),
-    })
-    .optional() as z.ZodType<(() => Promise<void> | void) | undefined>,
+  onLoaded: z.function().optional() as z.ZodType<((slug: string) => Promise<void> | void) | undefined>,
   /** onBeforeRequest is fired before the request is sent. You can modify the request here. */
   onBeforeRequest: z
     .function({

@@ -14,7 +14,6 @@ const { tag, moreThanOneTag } = defineProps<{
   tag: TraversedTag
   moreThanOneTag: boolean
   isLoading: boolean
-  onShowMore: ((id: string) => void) | undefined
 }>()
 
 const sectionContainerRef = ref<HTMLElement>()
@@ -59,7 +58,6 @@ const isCollapsed = (tagId: string) => {
         v-if="isCollapsed(tag.id) && moreThanOneTag"
         :id="tag.id"
         :aria-label="`Show all ${tag.title} endpoints`"
-        :onShowMore="onShowMore"
         @click="focusContents" />
     </Lazy>
 
