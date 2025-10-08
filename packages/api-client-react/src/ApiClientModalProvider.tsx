@@ -1,6 +1,6 @@
 'use client'
 
-import type { createApiClientModalSync as CreateApiClientModalSync } from '@scalar/api-client/layouts/Modal'
+import type { ApiClient } from '@scalar/api-client/layouts/Modal'
 import type { OpenClientPayload } from '@scalar/api-client/libs'
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 import type { PropsWithChildren } from 'react'
@@ -12,7 +12,7 @@ import { clientStore } from './client-store'
 
 import './style.css'
 
-const ApiClientModalContext = createContext<ReturnType<typeof CreateApiClientModalSync> | null>(null)
+const ApiClientModalContext = createContext<ApiClient | null>(null)
 
 type Props = PropsWithChildren<{
   /** Choose a request to initially route to */
@@ -25,7 +25,7 @@ type Props = PropsWithChildren<{
 let isLoading = false
 
 /** Hack: this is strictly to prevent creation of extra clients as the store lags a bit */
-const clientDict: Record<string, ReturnType<typeof CreateApiClientModalSync>> = {}
+const clientDict: Record<string, ApiClient> = {}
 
 /**
  * Api Client Modal React
@@ -43,8 +43,8 @@ export const ApiClientModalProvider = ({ children, initialRequest, configuration
   useEffect(() => {
     const loadApiClientJs = async () => {
       isLoading = true
-      const { createApiClientModalSync } = await import('@scalar/api-client/layouts/Modal')
-      clientStore.setCreateClient(createApiClientModalSync)
+      const { createApiClientModal } = await import('@scalar/api-client/layouts/Modal')
+      clientStore.setCreateClient(createApiClientModal)
     }
     if (!isLoading) {
       loadApiClientJs()
@@ -57,7 +57,7 @@ export const ApiClientModalProvider = ({ children, initialRequest, configuration
     }
 
     // Check for cached client first
-    const _client = state.createClient({
+    const { client: _client } = state.createClient({
       el: el.current,
       configuration,
     })
@@ -95,5 +95,4 @@ export const ApiClientModalProvider = ({ children, initialRequest, configuration
   )
 }
 
-export const useApiClientModal = (): ReturnType<typeof CreateApiClientModalSync> | null =>
-  useContext(ApiClientModalContext)
+export const useApiClientModal = (): ApiClient | null => useContext(ApiClientModalContext)
