@@ -209,11 +209,11 @@ const html = computed(() => {
     table-layout: fixed;
     overflow-x: auto;
     position: relative;
-    border-collapse: collapse;
     width: 100%;
     margin: 1em 0;
-    box-shadow: 0 0 0 var(--scalar-border-width) var(--scalar-border-color);
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
     border-radius: var(--scalar-radius);
+    border-spacing: 0;
   }
 
   .markdown tbody,
