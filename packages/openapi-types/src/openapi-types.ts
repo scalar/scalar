@@ -267,6 +267,10 @@ export namespace OpenAPIV3_2 {
 
   export type ApiKeySecurityScheme = OpenAPIV3_1.ApiKeySecurityScheme
 
+  export type OAuthFlows = OpenAPIV3_1.OAuthFlows & {
+    deviceAuthorization?: AnyOtherAttribute & OpenAPIV3.OAuthFlowBase & OpenAPIV3.OAuthFlowTokenUrlTrait
+  }
+
   export type OAuth2SecurityScheme = OpenAPIV3_1.OAuth2SecurityScheme
 
   export type OpenIdSecurityScheme = OpenAPIV3_1.OpenIdSecurityScheme
@@ -506,6 +510,8 @@ export namespace OpenAPIV3_1 {
   export type HttpSecurityScheme = OpenAPIV3.HttpSecurityScheme
 
   export type ApiKeySecurityScheme = OpenAPIV3.ApiKeySecurityScheme
+
+  export type OAuthFlows = OpenAPIV3.OAuthFlows
 
   export type OAuth2SecurityScheme = OpenAPIV3.OAuth2SecurityScheme
 
@@ -793,32 +799,30 @@ export namespace OpenAPIV3 {
     in?: string
   } & AnyOtherAttribute
 
+  export type OAuthFlowBase = {
+    scopes?: { [scope: string]: string }
+    refreshUrl?: string
+  }
+
+  type OAuthFlowAuthorizationUrlTrait = {
+    authorizationUrl?: string
+  }
+
+  export type OAuthFlowTokenUrlTrait = {
+    tokenUrl?: string
+  }
+
+  export type OAuthFlows = {
+    implicit?: AnyOtherAttribute & OAuthFlowBase & OAuthFlowAuthorizationUrlTrait
+    password?: AnyOtherAttribute & OAuthFlowBase & OAuthFlowTokenUrlTrait
+    clientCredentials?: AnyOtherAttribute & OAuthFlowBase & OAuthFlowTokenUrlTrait
+    authorizationCode?: AnyOtherAttribute & OAuthFlowBase & OAuthFlowAuthorizationUrlTrait & OAuthFlowTokenUrlTrait
+  }
+
   export type OAuth2SecurityScheme = {
     type?: 'oauth2'
     description?: string
-    flows?: {
-      implicit?: {
-        authorizationUrl?: string
-        refreshUrl?: string
-        scopes?: { [scope: string]: string }
-      } & AnyOtherAttribute
-      password?: {
-        tokenUrl?: string
-        refreshUrl?: string
-        scopes?: { [scope: string]: string }
-      } & AnyOtherAttribute
-      clientCredentials?: {
-        tokenUrl?: string
-        refreshUrl?: string
-        scopes?: { [scope: string]: string }
-      } & AnyOtherAttribute
-      authorizationCode?: {
-        authorizationUrl?: string
-        tokenUrl?: string
-        refreshUrl?: string
-        scopes?: { [scope: string]: string }
-      } & AnyOtherAttribute
-    }
+    flows?: OAuthFlows
   }
 
   export type OpenIdSecurityScheme = {
