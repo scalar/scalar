@@ -142,7 +142,12 @@ export namespace OpenAPIV3_2 {
 
   export type ExternalDocumentationObject = OpenAPIV3_1.ExternalDocumentationObject
 
-  export type ParameterObject = OpenAPIV3_1.ParameterObject
+  export type ParameterStyle = OpenAPIV3_1.ParameterStyle | 'cookie'
+
+  export type ParameterObject = Modify<OpenAPIV3_1.ParameterObject,
+  {
+    style?: ParameterStyle
+  }>
 
   export type HeaderObject = OpenAPIV3_1.HeaderObject
 
@@ -356,6 +361,8 @@ export namespace OpenAPIV3_1 {
     T
 
   export type ExternalDocumentationObject = OpenAPIV3.ExternalDocumentationObject
+
+  export type ParameterStyle = OpenAPIV3.ParameterStyle
 
   export type ParameterObject = OpenAPIV3.ParameterObject
 
@@ -597,12 +604,14 @@ export namespace OpenAPIV3 {
 
   export type HeaderObject = {} & ParameterBaseObject
 
+  export type ParameterStyle = 'matrix' | 'label' | 'form' | 'simple' | 'spaceDelimited' | 'pipeDelimited' | 'deepObject'
+
   export type ParameterBaseObject = {
     description?: string
     required?: boolean
     deprecated?: boolean
     allowEmptyValue?: boolean
-    style?: string
+    style?: ParameterStyle
     explode?: boolean
     allowReserved?: boolean
     schema?: ReferenceObject | SchemaObject
