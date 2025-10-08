@@ -68,7 +68,10 @@ type SidebarStateOptions = Partial<{
  * await sidebarState.setExpanded('child2', true)
  * ```
  */
-export const createSidebarState = <T extends { id: string }>(items: T[], options?: SidebarStateOptions) => {
+export const createSidebarState = <T extends { id: string }>(
+  items: T[],
+  options?: SidebarStateOptions,
+) => {
   // Reverse index for quick lookup of items and their parents
   const index = generateReverseIndex(items, options?.key ?? 'children')
   // Reactive record of selected item ids
@@ -181,4 +184,6 @@ export const createSidebarState = <T extends { id: string }>(items: T[], options
   }
 }
 
-export type SidebarState<Item extends { id: string }> = ReturnType<typeof createSidebarState<Item>>
+export type SidebarState<Item extends { id: string }> = ReturnType<
+  typeof createSidebarState<Item>
+>

@@ -1,212 +1,214 @@
-import type { TraversedEntry } from "@scalar/workspace-store/schemas/navigation";
+import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 
 export const galaxySidebar = [
-    {
-        "id": "description/introduction",
-        "title": "Introduction",
-        "type": "text"
-    },
-    {
-        "id": "description/resources",
-        "title": "Resources",
-        "type": "text",
-        "children": []
-    },
-    {
-        "id": "description/markdown-support",
-        "title": "Markdown Support",
-        "type": "text",
-        "children": []
-    },
-    {
-        "id": "tag/authentication",
-        "title": "Authentication",
-        "name": "Authentication",
-        "description": "Some endpoints are public, but some require authentication. We provide all the required endpoints to create an account and authorize yourself.",
-        "children": [
-            {
-                "id": "tag/authentication/post/user/signup",
-                "title": "Create a user",
-                "path": "/user/signup",
-                "method": "post",
-                "ref": "#/paths/~1user~1signup/post",
-                "type": "operation",
-                "isDeprecated": false
-            },
-            {
-                "id": "tag/authentication/post/auth/token",
-                "title": "Get a token",
-                "path": "/auth/token",
-                "method": "post",
-                "ref": "#/paths/~1auth~1token/post",
-                "type": "operation",
-                "isDeprecated": false
-            },
-            {
-                "id": "tag/authentication/get/me",
-                "title": "Get authenticated user",
-                "path": "/me",
-                "method": "get",
-                "ref": "#/paths/~1me/get",
-                "type": "operation",
-                "isDeprecated": false
-            }
-        ],
-        "isGroup": false,
-        "isWebhooks": false,
-        "type": "tag",
-        "xKeys": {}
-    },
-    {
-        "id": "tag/planets",
-        "title": "Planets",
-        "name": "Planets",
-        "description": "Everything about planets",
-        "children": [
-            {
-                "id": "tag/planets/get/planets",
-                "title": "Get all planets",
-                "path": "/planets",
-                "method": "get",
-                "ref": "#/paths/~1planets/get",
-                "type": "operation",
-                "isDeprecated": false
-            },
-            {
-                "id": "tag/planets/post/planets",
-                "title": "Create a planet",
-                "path": "/planets",
-                "method": "post",
-                "ref": "#/paths/~1planets/post",
-                "type": "operation",
-                "isDeprecated": false
-            },
-            {
-                "id": "tag/planets/get/planets/{planetId}",
-                "title": "Get a planet",
-                "path": "/planets/{planetId}",
-                "method": "get",
-                "ref": "#/paths/~1planets~1{planetId}/get",
-                "type": "operation",
-                "isDeprecated": false
-            },
-            {
-                "id": "tag/planets/put/planets/{planetId}",
-                "title": "Update a planet",
-                "path": "/planets/{planetId}",
-                "method": "put",
-                "ref": "#/paths/~1planets~1{planetId}/put",
-                "type": "operation",
-                "isDeprecated": false
-            },
-            {
-                "id": "tag/planets/delete/planets/{planetId}",
-                "title": "Delete a planet",
-                "path": "/planets/{planetId}",
-                "method": "delete",
-                "ref": "#/paths/~1planets~1{planetId}/delete",
-                "type": "operation",
-                "isDeprecated": false
-            },
-            {
-                "id": "tag/planets/post/planets/{planetId}/image",
-                "title": "Upload an image to a planet",
-                "path": "/planets/{planetId}/image",
-                "method": "post",
-                "ref": "#/paths/~1planets~1{planetId}~1image/post",
-                "type": "operation",
-                "isDeprecated": false
-            },
-            {
-                "id": "tag/planets/webhook/post/newplanet",
-                "title": "newPlanet",
-                "name": "newPlanet",
-                "ref": "#/webhooks/newPlanet/post",
-                "method": "post",
-                "type": "webhook",
-                "isDeprecated": false
-            }
-        ],
-        "isGroup": false,
-        "isWebhooks": false,
-        "type": "tag",
-        "xKeys": {}
-    },
-    {
-        "id": "tag/celestial-bodies",
-        "title": "Celestial Bodies",
-        "name": "Celestial Bodies",
-        "description": "Celestial bodies are the planets and satellites in the Scalar Galaxy.",
-        "children": [
-            {
-                "id": "tag/celestial-bodies/post/celestial-bodies",
-                "title": "Create a celestial body",
-                "path": "/celestial-bodies",
-                "method": "post",
-                "ref": "#/paths/~1celestial-bodies/post",
-                "type": "operation",
-                "isDeprecated": false
-            }
-        ],
-        "isGroup": false,
-        "isWebhooks": false,
-        "type": "tag",
-        "xKeys": {}
-    },
-    {
-        "type": "text",
-        "id": "models",
-        "title": "Models",
-        "children": [
-            {
-                "id": "model/user",
-                "title": "User",
-                "name": "User",
-                "ref": "#/components/schemas/User",
-                "type": "model"
-            },
-            {
-                "id": "model/credentials",
-                "title": "Credentials",
-                "name": "Credentials",
-                "ref": "#/components/schemas/Credentials",
-                "type": "model"
-            },
-            {
-                "id": "model/token",
-                "title": "Token",
-                "name": "Token",
-                "ref": "#/components/schemas/Token",
-                "type": "model"
-            },
-            {
-                "id": "model/celestialbody",
-                "title": "CelestialBody",
-                "name": "CelestialBody",
-                "ref": "#/components/schemas/CelestialBody",
-                "type": "model"
-            },
-            {
-                "id": "model/planet",
-                "title": "Planet",
-                "name": "Planet",
-                "ref": "#/components/schemas/Planet",
-                "type": "model"
-            },
-            {
-                "id": "model/satellite",
-                "title": "Satellite",
-                "name": "Satellite",
-                "ref": "#/components/schemas/Satellite",
-                "type": "model"
-            },
-            {
-                "id": "model/paginatedresource",
-                "title": "PaginatedResource",
-                "name": "PaginatedResource",
-                "ref": "#/components/schemas/PaginatedResource",
-                "type": "model"
-            }
-        ]
-    }
+  {
+    id: 'description/introduction',
+    title: 'Introduction',
+    type: 'text',
+  },
+  {
+    id: 'description/resources',
+    title: 'Resources',
+    type: 'text',
+    children: [],
+  },
+  {
+    id: 'description/markdown-support',
+    title: 'Markdown Support',
+    type: 'text',
+    children: [],
+  },
+  {
+    id: 'tag/authentication',
+    title: 'Authentication',
+    name: 'Authentication',
+    description:
+      'Some endpoints are public, but some require authentication. We provide all the required endpoints to create an account and authorize yourself.',
+    children: [
+      {
+        id: 'tag/authentication/post/user/signup',
+        title: 'Create a user',
+        path: '/user/signup',
+        method: 'post',
+        ref: '#/paths/~1user~1signup/post',
+        type: 'operation',
+        isDeprecated: false,
+      },
+      {
+        id: 'tag/authentication/post/auth/token',
+        title: 'Get a token',
+        path: '/auth/token',
+        method: 'post',
+        ref: '#/paths/~1auth~1token/post',
+        type: 'operation',
+        isDeprecated: false,
+      },
+      {
+        id: 'tag/authentication/get/me',
+        title: 'Get authenticated user',
+        path: '/me',
+        method: 'get',
+        ref: '#/paths/~1me/get',
+        type: 'operation',
+        isDeprecated: false,
+      },
+    ],
+    isGroup: false,
+    isWebhooks: false,
+    type: 'tag',
+    xKeys: {},
+  },
+  {
+    id: 'tag/planets',
+    title: 'Planets',
+    name: 'Planets',
+    description: 'Everything about planets',
+    children: [
+      {
+        id: 'tag/planets/get/planets',
+        title: 'Get all planets',
+        path: '/planets',
+        method: 'get',
+        ref: '#/paths/~1planets/get',
+        type: 'operation',
+        isDeprecated: false,
+      },
+      {
+        id: 'tag/planets/post/planets',
+        title: 'Create a planet',
+        path: '/planets',
+        method: 'post',
+        ref: '#/paths/~1planets/post',
+        type: 'operation',
+        isDeprecated: false,
+      },
+      {
+        id: 'tag/planets/get/planets/{planetId}',
+        title: 'Get a planet',
+        path: '/planets/{planetId}',
+        method: 'get',
+        ref: '#/paths/~1planets~1{planetId}/get',
+        type: 'operation',
+        isDeprecated: false,
+      },
+      {
+        id: 'tag/planets/put/planets/{planetId}',
+        title: 'Update a planet',
+        path: '/planets/{planetId}',
+        method: 'put',
+        ref: '#/paths/~1planets~1{planetId}/put',
+        type: 'operation',
+        isDeprecated: false,
+      },
+      {
+        id: 'tag/planets/delete/planets/{planetId}',
+        title: 'Delete a planet',
+        path: '/planets/{planetId}',
+        method: 'delete',
+        ref: '#/paths/~1planets~1{planetId}/delete',
+        type: 'operation',
+        isDeprecated: false,
+      },
+      {
+        id: 'tag/planets/post/planets/{planetId}/image',
+        title: 'Upload an image to a planet',
+        path: '/planets/{planetId}/image',
+        method: 'post',
+        ref: '#/paths/~1planets~1{planetId}~1image/post',
+        type: 'operation',
+        isDeprecated: false,
+      },
+      {
+        id: 'tag/planets/webhook/post/newplanet',
+        title: 'newPlanet',
+        name: 'newPlanet',
+        ref: '#/webhooks/newPlanet/post',
+        method: 'post',
+        type: 'webhook',
+        isDeprecated: false,
+      },
+    ],
+    isGroup: false,
+    isWebhooks: false,
+    type: 'tag',
+    xKeys: {},
+  },
+  {
+    id: 'tag/celestial-bodies',
+    title: 'Celestial Bodies',
+    name: 'Celestial Bodies',
+    description:
+      'Celestial bodies are the planets and satellites in the Scalar Galaxy.',
+    children: [
+      {
+        id: 'tag/celestial-bodies/post/celestial-bodies',
+        title: 'Create a celestial body',
+        path: '/celestial-bodies',
+        method: 'post',
+        ref: '#/paths/~1celestial-bodies/post',
+        type: 'operation',
+        isDeprecated: false,
+      },
+    ],
+    isGroup: false,
+    isWebhooks: false,
+    type: 'tag',
+    xKeys: {},
+  },
+  {
+    type: 'text',
+    id: 'models',
+    title: 'Models',
+    children: [
+      {
+        id: 'model/user',
+        title: 'User',
+        name: 'User',
+        ref: '#/components/schemas/User',
+        type: 'model',
+      },
+      {
+        id: 'model/credentials',
+        title: 'Credentials',
+        name: 'Credentials',
+        ref: '#/components/schemas/Credentials',
+        type: 'model',
+      },
+      {
+        id: 'model/token',
+        title: 'Token',
+        name: 'Token',
+        ref: '#/components/schemas/Token',
+        type: 'model',
+      },
+      {
+        id: 'model/celestialbody',
+        title: 'CelestialBody',
+        name: 'CelestialBody',
+        ref: '#/components/schemas/CelestialBody',
+        type: 'model',
+      },
+      {
+        id: 'model/planet',
+        title: 'Planet',
+        name: 'Planet',
+        ref: '#/components/schemas/Planet',
+        type: 'model',
+      },
+      {
+        id: 'model/satellite',
+        title: 'Satellite',
+        name: 'Satellite',
+        ref: '#/components/schemas/Satellite',
+        type: 'model',
+      },
+      {
+        id: 'model/paginatedresource',
+        title: 'PaginatedResource',
+        name: 'PaginatedResource',
+        ref: '#/components/schemas/PaginatedResource',
+        type: 'model',
+      },
+    ],
+  },
 ] satisfies TraversedEntry[]
