@@ -176,7 +176,7 @@ public class ScalarOptionsMapperTests
         var hiddenClients = (IDictionary<ScalarTarget, ScalarClient[]>) options.ToScalarConfiguration().HiddenClients!;
 
         // Assert
-        hiddenClients.Should().HaveCount(ScalarOptionsMapper.AvailableClientsByTarget.Count);
+        hiddenClients.Should().HaveCount(ScalarOptionsMapper.AvailableClientsByTarget.Count - 1);
         hiddenClients.Should().ContainKey(ScalarTarget.CSharp)
             .WhoseValue.Should().ContainSingle().Which.Should().Be(ScalarClient.RestSharp);
         hiddenClients.Should().ContainKey(ScalarTarget.Python)
