@@ -2892,6 +2892,79 @@ describe('create-workspace-store', () => {
       expect(fn).toHaveBeenCalledTimes(1)
       expect(store.workspace.documents.default?.info.title).toBe('My API')
     })
+
+    it('should re-build the sidebar when we rebase the document', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'default',
+        document: getDocument(),
+      })
+
+      expect(store.workspace.activeDocument?.['x-scalar-navigation']).toEqual([
+        {
+          'id': 'tag/default/get/users',
+          'isDeprecated': false,
+          'method': 'get',
+          'path': '/users',
+          'ref': '#/paths/~1users/get',
+          'title': 'Get all users',
+          'type': 'operation',
+        },
+        {
+          'children': [
+            {
+              'id': 'model/user',
+              'name': 'User',
+              'ref': '#/components/schemas/User',
+              'title': 'User',
+              'type': 'model',
+            },
+          ],
+          'id': 'models',
+          'title': 'Models',
+          'type': 'text',
+        },
+      ])
+
+      await store.rebaseDocument(
+        {
+          name: 'default',
+          document: {
+            openapi: '3.0.0',
+            info: {
+              title: 'My API',
+              version: '1.0.0',
+            },
+            paths: {
+              '/pets': {
+                get: {
+                  summary: 'Get all pets',
+                  responses: {
+                    '200': {
+                      description: 'Successful response',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        [],
+      )
+
+      expect(store.workspace.activeDocument?.['x-scalar-navigation']).toEqual([
+        {
+          'id': 'tag/default/get/pets',
+          'isDeprecated': false,
+          'method': 'get',
+          'path': '/pets',
+          'ref': '#/paths/~1pets/get',
+          'title': 'Get all pets',
+          'type': 'operation',
+        },
+      ])
+    })
   })
 })
 
