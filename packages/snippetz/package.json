@@ -15,6 +15,8 @@
   },
   "scripts": {
     "build": "scalar-build-esbuild",
+    "postbuild": "vite-node scripts/generate-dotnet-enums.ts",
+    "generate:dotnet-enums": "vite-node scripts/generate-dotnet-enums.ts",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
     "test": "vitest",

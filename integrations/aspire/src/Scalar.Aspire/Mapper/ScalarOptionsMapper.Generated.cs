@@ -10,7 +10,7 @@
 //------------------------------------------------------------------------------
 
 #pragma warning disable CS0618 // Type or member is obsolete
-namespace Scalar.AspNetCore;
+namespace Scalar.Aspire;
 
 /// <summary>
 /// Auto-generated mapping between targets and their available clients.
