@@ -638,7 +638,7 @@ export namespace OpenAPIV3 {
   // See https://swagger.io/specification/#path-item-object
   // You can use keys or values from it in TypeScript code like this:
   //     for (const method of Object.values(OpenAPIV3.HttpMethods)) { … }
-  export type HttpMethods = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace' | 'connect'
+  export type HttpMethods = OpenAPIV2.HttpMethods | 'trace'
 
   export type PathItemObject<T = {}> = {
     $ref?: string
