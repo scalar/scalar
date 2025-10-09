@@ -109,26 +109,15 @@ const models = computed<TraversedDescription | undefined>(() => {
           </ScalarErrorBoundary>
           <ScalarErrorBoundary>
             <!-- Auth selector currently requires an active collection -->
-            <!-- <IntroductionCardItem
-              v-if="
-                activeCollection &&
-                activeWorkspace &&
-                Object.keys(securitySchemes ?? {}).length
-              "
+            <IntroductionCardItem
+              v-if="document"
               class="scalar-reference-intro-auth scalar-client introduction-card-item leading-normal">
               <AuthSelector
-                :collection="activeCollection"
-                :envVariables="activeEnvVariables"
-                :environment="activeEnvironment"
                 layout="reference"
                 :persistAuth="options.persistAuth"
-                :selectedSecuritySchemeUids="
-                  activeCollection?.selectedSecuritySchemeUids ?? []
-                "
                 :server="activeServer"
-                title="Authentication"
-                :workspace="activeWorkspace" />
-            </IntroductionCardItem> -->
+                title="Authentication" />
+            </IntroductionCardItem>
           </ScalarErrorBoundary>
           <ScalarErrorBoundary>
             <IntroductionCardItem

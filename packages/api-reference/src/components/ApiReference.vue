@@ -152,20 +152,15 @@ const modal = useTemplateRef('modal')
  *
  * Handles resetting the client store when the document changes
  */
-const {
-  activeServer,
-  activeEnvVariables,
-  activeEnvironment,
-  activeWorkspace,
-  getSecuritySchemes,
-  openClient,
-} = mapConfigToClientStore({
-  workspaceStore,
-  config: mergedConfig,
-  el: modal,
-  isIntersectionEnabled: ref(true),
-  dereferencedDocument: dereferenced,
-})
+const { activeServer, getSecuritySchemes, openClient } = mapConfigToClientStore(
+  {
+    workspaceStore,
+    config: mergedConfig,
+    el: modal,
+    isIntersectionEnabled: ref(true),
+    dereferencedDocument: dereferenced,
+  },
+)
 
 /** Open the client modal on the custom event */
 onCustomEvent(root, 'scalar-open-client', () => {
