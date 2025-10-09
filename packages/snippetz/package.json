@@ -15,10 +15,10 @@
   },
   "scripts": {
     "build": "scalar-build-esbuild",
-    "postbuild": "vite-node scripts/generate-dotnet-enums.ts",
     "generate:dotnet-enums": "vite-node scripts/generate-dotnet-enums.ts",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
+    "postbuild": "vite-node scripts/generate-dotnet-enums.ts",
     "test": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
