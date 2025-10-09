@@ -92,26 +92,23 @@ export namespace OpenAPI {
 export namespace OpenAPIV3_2 {
   type Modify<T, R> = Omit<T, keyof R> & R
 
-  type PathsWebhooksComponents<T = {}> = Modify<
-    OpenAPIV3_1.PathsWebhooksComponents<T>,
-    {
-      mediaTypes?: Record<string, MediaTypeObject | ReferenceObject>
-    }
-  >
+  export type PathsWebhooksComponents<T = {}> = {
+    paths?: PathsObject<T>
+    webhooks?: Record<string, PathItemObject | ReferenceObject>
+    components?: ComponentsObject
+  }
 
   export type Document<T = {}> = Modify<
-    Omit<OpenAPIV3_1.Document<T>, 'paths' | 'components'>,
+    Omit<OpenAPIV3_1.Document<T>, 'paths' | 'components' | 'webhooks' | 'tags'>,
     {
       /**
        * Version of the OpenAPI specification
        * @see https://github.com/OAI/OpenAPI-Specification/tree/main/versions
        */
       openapi?: '3.2.0'
-      swagger?: undefined
-      info?: InfoObject
-      jsonSchemaDialect?: string
       servers?: ServerObject[]
       $self?: string
+      tags?: TagObject[]
     } & (
       | (Pick<PathsWebhooksComponents<T>, 'paths'> & Omit<Partial<PathsWebhooksComponents<T>>, 'paths'>)
       | (Pick<PathsWebhooksComponents<T>, 'webhooks'> & Omit<Partial<PathsWebhooksComponents<T>>, 'webhooks'>)
@@ -121,20 +118,12 @@ export namespace OpenAPIV3_2 {
       AnyOtherAttribute
   >
 
-  export type InfoObject = OpenAPIV3_1.InfoObject
-
-  export type ContactObject = OpenAPIV3_1.ContactObject
-
-  export type LicenseObject = OpenAPIV3_1.LicenseObject
-
   export type ServerObject = Modify<
     OpenAPIV3_1.ServerObject,
     {
       name?: string
     }
   >
-
-  export type ServerVariableObject = OpenAPIV3_1.ServerVariableObject
 
   export type PathsObject<T = {}, P extends {} = {}> = Record<string, (PathItemObject<T> & P) | undefined>
 
@@ -147,6 +136,7 @@ export namespace OpenAPIV3_2 {
     }
   > & {
     additionalOperations?: Record<string, OperationObject<T>>
+    parameters?: (ReferenceObject | ParameterObject)[]
   }
 
   export type OperationObject<T = {}> = Modify<
@@ -161,8 +151,6 @@ export namespace OpenAPIV3_2 {
   > &
     T
 
-  export type ExternalDocumentationObject = OpenAPIV3_1.ExternalDocumentationObject
-
   export type ParameterStyle = OpenAPIV3_1.ParameterStyle | 'cookie'
 
   export type ParameterLocation = OpenAPIV3_1.ParameterLocation | 'querystring'
@@ -172,12 +160,18 @@ export namespace OpenAPIV3_2 {
     {
       style?: ParameterStyle
       in?: ParameterLocation
+      schema?: ReferenceObject | SchemaObject
+      examples?: { [media: string]: ReferenceObject | ExampleObject }
     }
   >
 
-  export type HeaderObject = OpenAPIV3_1.HeaderObject
-
-  export type ParameterBaseObject = OpenAPIV3_1.ParameterBaseObject
+  export type HeaderObject = Modify<
+    OpenAPIV3_1.HeaderObject,
+    {
+      content?: { [media: string]: ReferenceObject | MediaTypeObject }
+      schema?: ReferenceObject | SchemaObject
+    }
+  >
 
   export type NonArraySchemaObjectType = OpenAPIV3_1.NonArraySchemaObjectType
 
@@ -210,6 +204,7 @@ export namespace OpenAPIV3_2 {
     {
       examples?: ExampleObject[]
       discriminator?: DiscriminatorObject
+      xml?: XMLObject
     }
   >
 
@@ -230,16 +225,32 @@ export namespace OpenAPIV3_2 {
     serializedValue?: string
   }
 
-  export type MediaTypeObject = OpenAPIV3_1.MediaTypeObject & {
+  export type MediaTypeObject = Modify<
+    OpenAPIV3_1.MediaTypeObject,
+    {
+      schema?: ReferenceObject | SchemaObject
+      examples?: Record<string, ReferenceObject | ExampleObject>
+      encoding?: { [media: string]: EncodingObject }
+    }
+  > & {
     itemSchema?: ReferenceObject | SchemaObject
     itemEncoding?: EncodingObject
     prefixEncoding?: EncodingObject[]
   }
 
-  export type EncodingObject = OpenAPIV3_1.EncodingObject
+  export type EncodingObject = Modify<
+    OpenAPIV3_1.EncodingObject,
+    {
+      headers?: { [header: string]: ReferenceObject | HeaderObject }
+    }
+  > & {
+    encoding?: Record<string, EncodingObject>
+    prefixEncoding?: EncodingObject[]
+    itemEncoding?: EncodingObject
+  }
 
   export type RequestBodyObject = Modify<
-    OpenAPIV3.RequestBodyObject,
+    OpenAPIV3_1.RequestBodyObject,
     {
       content?: { [media: string]: ReferenceObject | MediaTypeObject }
     }
@@ -258,11 +269,14 @@ export namespace OpenAPIV3_2 {
     summary?: string
   }
 
-  export type LinkObject = OpenAPIV3_1.LinkObject
+  export type LinkObject = Modify<
+    OpenAPIV3_1.LinkObject,
+    {
+      server?: ServerObject
+    }
+  >
 
-  export type CallbackObject = OpenAPIV3_1.CallbackObject
-
-  export type SecurityRequirementObject = OpenAPIV3_1.SecurityRequirementObject
+  export type CallbackObject = Record<string, PathItemObject | ReferenceObject>
 
   export type ComponentsObject = Modify<
     OpenAPIV3_1.ComponentsObject,
@@ -281,9 +295,13 @@ export namespace OpenAPIV3_2 {
     }
   >
 
-  export type SecuritySchemeObject = OpenAPIV3_1.SecuritySchemeObject & {
-    deprecated?: boolean
-  }
+  export type SecuritySchemeObject =
+    | HttpSecurityScheme
+    | ApiKeySecurityScheme
+    | OAuth2SecurityScheme
+    | (OpenIdSecurityScheme & {
+        deprecated?: boolean
+      })
 
   export type HttpSecurityScheme = OpenAPIV3_1.HttpSecurityScheme
 
@@ -297,7 +315,12 @@ export namespace OpenAPIV3_2 {
       }
   }
 
-  export type OAuth2SecurityScheme = OpenAPIV3_1.OAuth2SecurityScheme
+  export type OAuth2SecurityScheme = Modify<
+    OpenAPIV3_1.OAuth2SecurityScheme,
+    {
+      flows?: OAuthFlows
+    }
+  >
 
   export type OpenIdSecurityScheme = OpenAPIV3_1.OpenIdSecurityScheme
 
@@ -406,9 +429,19 @@ export namespace OpenAPIV3_1 {
 
   export type ParameterObject = OpenAPIV3.ParameterObject
 
-  export type HeaderObject = OpenAPIV3.HeaderObject
+  export type HeaderObject = Modify<
+    OpenAPIV3.HeaderObject,
+    {
+      content?: { [media: string]: ReferenceObject | MediaTypeObject }
+    }
+  >
 
-  export type ParameterBaseObject = OpenAPIV3.ParameterBaseObject
+  export type ParameterBaseObject = Modify<
+    OpenAPIV3.ParameterBaseObject,
+    {
+      content?: { [media: string]: ReferenceObject | MediaTypeObject }
+    }
+  >
 
   export type NonArraySchemaObjectType = OpenAPIV3.NonArraySchemaObjectType | 'null'
 
