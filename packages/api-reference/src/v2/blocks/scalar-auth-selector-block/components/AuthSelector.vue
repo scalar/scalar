@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ViewLayoutCollapse } from '@scalar/api-client/components/ViewLayout'
 import { useLayout } from '@scalar/api-client/hooks'
-import { useWorkspace, type EnvVariable } from '@scalar/api-client/store'
+import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import type { SecuritySchemeOption } from '@scalar/api-client/views/Request/consts'
 import {
   formatComplexScheme,
@@ -23,15 +23,12 @@ import {
   safeLocalStorage,
 } from '@scalar/helpers/object/local-storage'
 import { ScalarIconCaretDown, ScalarIconTrash } from '@scalar/icons'
-import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
 import type {
-  Collection,
   Operation,
   SecurityScheme,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import { emitCustomEvent } from '@scalar/workspace-store/events'
 import { computed, ref, useId, useTemplateRef } from 'vue'
@@ -40,31 +37,35 @@ import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
 import RequestAuthDataTable from './RequestAuthDataTable.vue'
 
 const {
-  collection,
-  environment,
-  envVariables,
   layout,
   operation,
   persistAuth = false,
-  selectedSecuritySchemeUids,
   server,
   title,
-  workspace,
 } = defineProps<{
-  collection: Collection
-  environment: Environment
-  envVariables: EnvVariable[]
   layout: 'client' | 'reference'
   operation?: Operation | undefined
   persistAuth?: boolean
-  selectedSecuritySchemeUids: SelectedSecuritySchemeUids
   server: Server | undefined
   title: string
-  workspace: Workspace
 }>()
 
 const { layout: clientLayout } = useLayout()
 const { securitySchemes } = useWorkspace()
+
+/**
+ * @deprecated Temporary until we fully migrate to the new workspace store
+ */
+const {
+  activeWorkspace: workspace,
+  activeCollection: collection,
+  activeEnvVariables: envVariables,
+  activeEnvironment: environment,
+} = useActiveEntities()
+
+const selectedSecuritySchemeUids = computed(
+  () => collection.value?.selectedSecuritySchemeUids ?? [],
+)
 
 const titleId = useId()
 
@@ -77,7 +78,7 @@ const isViewLayoutOpen = ref(false)
 
 /** Security requirements for the request */
 const securityRequirements = computed(() => {
-  const requirements = getSecurityRequirements(operation, collection)
+  const requirements = getSecurityRequirements(operation, collection.value)
 
   /** Filter out empty objects */
   const filteredRequirements = requirements.filter((r) => Object.keys(r).length)
@@ -115,7 +116,7 @@ const authIndicator = computed(() => {
  * in the string
  */
 const selectedSchemeOptions = computed<SecuritySchemeOption[]>(() =>
-  selectedSecuritySchemeUids
+  selectedSecuritySchemeUids.value
     .map((s) => {
       if (Array.isArray(s)) {
         return formatComplexScheme(s, securitySchemes)
@@ -158,7 +159,7 @@ function updateSelectedAuth(entries: SecuritySchemeOption[]) {
 
 const editSelectedSchemeUids = (uids: SelectedSecuritySchemeUids) => {
   // Set as selected on the collection for the modal
-  if (collection.useCollectionSecurity) {
+  if (collection.value?.useCollectionSecurity) {
     // Update selected security schemes
     emitCustomEvent(wrapperRef.value?.$el, 'scalar-select-security-schemes', {
       uids: uids as string[],
@@ -206,7 +207,7 @@ const unselectAuth = (unSelectUid?: string) => {
   if (!unSelectUid) {
     return
   }
-  const newUids = selectedSecuritySchemeUids.filter((uid) => {
+  const newUids = selectedSecuritySchemeUids.value.filter((uid) => {
     const arr = unSelectUid.split(',')
     // Handle complex auth
     if (arr.length > 1 && Array.isArray(uid) && arr.length === uid.length) {
@@ -224,7 +225,7 @@ const unselectAuth = (unSelectUid?: string) => {
 const schemeOptions = computed(() =>
   getSchemeOptions(
     securityRequirements.value.filteredRequirements,
-    collection?.securitySchemes ?? [],
+    collection.value?.securitySchemes ?? [],
     securitySchemes,
     clientLayout === 'modal' || layout === 'reference',
   ),
@@ -243,6 +244,7 @@ const wrapperRef = useTemplateRef('wrapperRef')
 </script>
 <template>
   <ViewLayoutCollapse
+    v-if="collection && workspace"
     ref="wrapperRef"
     class="group/params relative"
     :itemCount="selectedSchemeOptions.length"
