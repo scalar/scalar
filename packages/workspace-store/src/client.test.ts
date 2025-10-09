@@ -8,6 +8,7 @@ import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createWorkspaceStore } from '@/client'
 import { defaultReferenceConfig } from '@/schemas/reference-config'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
+import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/workspace'
 import { createServerWorkspaceStore } from '@/server'
 
 // Test document
@@ -57,6 +58,49 @@ const getDocument = (version?: string) => ({
         },
       },
     },
+  },
+})
+
+// Test AsyncAPI document
+const getAsyncApiDocument = () => ({
+  asyncapi: '3.0.0' as const,
+  info: {
+    title: 'Test AsyncAPI',
+    version: '1.0.0',
+    description: 'A test AsyncAPI document',
+  },
+  channels: {
+    'user/signedup': {
+      title: 'User signed up',
+      description: 'Channel for user signup events',
+      operations: {
+        publish: 'publishUserSignedUp',
+      },
+    },
+    'user/login': {
+      title: 'User login',
+      description: 'Channel for user login events',
+      operations: {
+        subscribe: 'subscribeUserLogin',
+      },
+    },
+  },
+  operations: {
+    publishUserSignedUp: {
+      action: 'publish' as const,
+      channel: 'user/signedup',
+      title: 'Publish user signed up event',
+      description: 'Publish a user signup event',
+    },
+    subscribeUserLogin: {
+      action: 'subscribe' as const,
+      channel: 'user/login',
+      title: 'Subscribe to user login',
+      description: 'Subscribe to user login events',
+    },
+  },
+  components: {
+    schemas: {},
   },
 })
 
@@ -2972,6 +3016,146 @@ describe('create-workspace-store', () => {
           'type': 'operation',
         },
       ])
+    })
+  })
+
+  describe('AsyncAPI Integration', () => {
+    it('detects AsyncAPI documents correctly when adding to workspace', async () => {
+      const store = createWorkspaceStore()
+      const asyncApiDoc = getAsyncApiDocument()
+
+      await store.addDocument({
+        name: 'asyncapi-test',
+        document: asyncApiDoc,
+      })
+
+      const storedDoc = store.workspace.documents['asyncapi-test']
+      expect(storedDoc).toBeDefined()
+      expect(isAsyncApiDocument(storedDoc!)).toBe(true)
+      expect(isOpenApiDocument(storedDoc!)).toBe(false)
+    })
+
+    it('sets correct original version metadata for AsyncAPI documents', async () => {
+      const store = createWorkspaceStore()
+      const asyncApiDoc = getAsyncApiDocument()
+
+      await store.addDocument({
+        name: 'asyncapi-test',
+        document: asyncApiDoc,
+      })
+
+      const storedDoc = store.workspace.documents['asyncapi-test']
+      expect(storedDoc).toBeDefined()
+
+      if (isAsyncApiDocument(storedDoc!)) {
+        expect(storedDoc['x-original-asyncapi-version']).toBe('3.0.0')
+        expect(storedDoc['x-original-oas-version']).toBeUndefined()
+      } else {
+        throw new Error('Expected AsyncAPI document')
+      }
+    })
+
+    it('generates AsyncAPI navigation structure', async () => {
+      const store = createWorkspaceStore()
+      const asyncApiDoc = getAsyncApiDocument()
+
+      await store.addDocument({
+        name: 'asyncapi-test',
+        document: asyncApiDoc,
+      })
+
+      const storedDoc = store.workspace.documents['asyncapi-test']
+      expect(storedDoc).toBeDefined()
+
+      // Check that navigation was generated
+      const navigation = storedDoc!['x-scalar-navigation']
+      expect(navigation).toBeDefined()
+      expect(Array.isArray(navigation)).toBe(true)
+
+      // Should have description entry and channel entries
+      expect(navigation.length).toBeGreaterThan(0)
+
+      // Find channel entries
+      const channelEntries = navigation.filter((entry: any) => entry.type === 'channel')
+      expect(channelEntries.length).toBe(2) // user/login and user/signedup
+
+      // Check that operations are properly nested under channels
+      const channelWithOperations = channelEntries.find((entry: any) => entry.children && entry.children.length > 0)
+      expect(channelWithOperations).toBeDefined()
+      expect(channelWithOperations.children.length).toBeGreaterThan(0)
+
+      // Check operation types
+      const operation = channelWithOperations.children[0]
+      expect(operation.type).toBe('asyncapi-operation')
+      expect(['publish', 'subscribe']).toContain(operation.action)
+    })
+
+    it('handles mixed OpenAPI and AsyncAPI documents in workspace', async () => {
+      const store = createWorkspaceStore()
+      const openApiDoc = getDocument()
+      const asyncApiDoc = getAsyncApiDocument()
+
+      // Add OpenAPI document
+      await store.addDocument({
+        name: 'openapi-test',
+        document: openApiDoc,
+      })
+
+      // Add AsyncAPI document
+      await store.addDocument({
+        name: 'asyncapi-test',
+        document: asyncApiDoc,
+      })
+
+      const openApiStored = store.workspace.documents['openapi-test']
+      const asyncApiStored = store.workspace.documents['asyncapi-test']
+
+      expect(openApiStored).toBeDefined()
+      expect(asyncApiStored).toBeDefined()
+
+      // Verify type detection
+      expect(isOpenApiDocument(openApiStored!)).toBe(true)
+      expect(isAsyncApiDocument(openApiStored!)).toBe(false)
+
+      expect(isAsyncApiDocument(asyncApiStored!)).toBe(true)
+      expect(isOpenApiDocument(asyncApiStored!)).toBe(false)
+
+      // Verify version metadata
+      if (isOpenApiDocument(openApiStored!)) {
+        expect(openApiStored['x-original-oas-version']).toBe('3.0.0')
+        expect(openApiStored['x-original-asyncapi-version']).toBeUndefined()
+      }
+
+      if (isAsyncApiDocument(asyncApiStored!)) {
+        expect(asyncApiStored['x-original-asyncapi-version']).toBe('3.0.0')
+        expect(asyncApiStored['x-original-oas-version']).toBeUndefined()
+      }
+    })
+
+    it('loads AsyncAPI documents from URL', async () => {
+      const asyncApiDoc = getAsyncApiDocument()
+
+      server.get('/asyncapi.json', async (request, reply) => {
+        return asyncApiDoc
+      })
+
+      await server.listen({ port })
+
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'asyncapi-url-test',
+        url: `${url}/asyncapi.json`,
+      })
+
+      const storedDoc = store.workspace.documents['asyncapi-url-test']
+      expect(storedDoc).toBeDefined()
+      expect(isAsyncApiDocument(storedDoc!)).toBe(true)
+
+      if (isAsyncApiDocument(storedDoc!)) {
+        expect(storedDoc.asyncapi).toBe('3.0.0')
+        expect(storedDoc.info.title).toBe('Test AsyncAPI')
+      }
     })
   })
 })
