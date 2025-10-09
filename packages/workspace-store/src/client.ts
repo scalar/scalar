@@ -34,6 +34,7 @@ import {
   type WorkspaceDocumentMeta,
   type WorkspaceMeta,
   isAsyncApiDocument,
+  isOpenApiDocument,
 } from '@/schemas/workspace'
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
 import type { Config, DocumentConfiguration } from '@/schemas/workspace-specification/config'
@@ -597,8 +598,13 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     const strictDocument: UnknownObject = createMagicProxy({ ...inputDocument, ...meta }, { showInternal: true })
 
-    strictDocument['x-original-oas-version'] = input.document.openapi ?? input.document.swagger
-    strictDocument['x-original-asyncapi-version'] = input.document.asyncapi
+    // Only set the relevant version metadata based on document type
+    if (isOpenApiDocument(strictDocument as ApiDefinition)) {
+      strictDocument['x-original-oas-version'] = input.document.openapi ?? input.document.swagger
+    }
+    if (isAsyncApiDocument(strictDocument as ApiDefinition)) {
+      strictDocument['x-original-asyncapi-version'] = input.document.asyncapi
+    }
 
     // Detect document type and use appropriate schema
     const isAsyncApi = isAsyncApiDocument(strictDocument as ApiDefinition)
