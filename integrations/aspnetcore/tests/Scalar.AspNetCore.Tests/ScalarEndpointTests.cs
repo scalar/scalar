@@ -181,7 +181,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         {
             builder.ConfigureTestServices(services =>
             {
-                services.Configure<ScalarOptions>(options => options.CdnUrl = cdnUrl);
+                services.Configure<ScalarOptions>(options => options.BundleUrl = cdnUrl);
             });
         }).CreateClient();
 

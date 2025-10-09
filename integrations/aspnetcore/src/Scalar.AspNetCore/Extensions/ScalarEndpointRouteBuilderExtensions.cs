@@ -159,7 +159,7 @@ public static class ScalarEndpointRouteBuilderExtensions
             var serializedConfiguration = JsonSerializer.Serialize(configuration, typeof(ScalarConfiguration), ScalarConfigurationSerializerContext.Default);
 
             var title = options.Documents.Count == 1 ? options.Title?.Replace(DocumentName, options.Documents[0].Name) : options.Title;
-            var standaloneResourceUrl = string.IsNullOrEmpty(options.CdnUrl) ? ScalarJavaScriptFile : options.CdnUrl;
+            var standaloneResourceUrl = string.IsNullOrEmpty(options.BundleUrl) ? ScalarJavaScriptFile : options.BundleUrl;
 
             return Results.Content(
                 $$"""
