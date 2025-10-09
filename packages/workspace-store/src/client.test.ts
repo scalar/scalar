@@ -2723,9 +2723,12 @@ describe('create-workspace-store', () => {
       store.workspace.activeDocument!.info.title = 'new title'
       await store.saveDocument(documentName)
 
-      const result = store.rebaseDocument(documentName, {
-        ...getDocument(),
-        info: { title: 'A new title which should conflict', version: '1.0.0' },
+      const result = await store.rebaseDocument({
+        document: {
+          ...getDocument(),
+          info: { title: 'A new title which should conflict', version: '1.0.0' },
+        },
+        name: documentName,
       })
 
       expect(result).toEqual([
@@ -2764,7 +2767,7 @@ describe('create-workspace-store', () => {
         info: { title: 'A new title which should conflict', version: '1.0.0' },
       }
 
-      const result = store.rebaseDocument(documentName, newDocument)
+      const result = await store.rebaseDocument({ name: documentName, document: newDocument })
 
       assert(typeof result === 'object')
 
@@ -2792,9 +2795,8 @@ describe('create-workspace-store', () => {
         '{"openapi":"3.1.1","info":{"title":"new title","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}},"x-original-oas-version":"3.0.0"}',
       )
 
-      store.rebaseDocument(
-        documentName,
-        newDocument,
+      await store.rebaseDocument(
+        { name: documentName, document: newDocument },
         result.flatMap((it) => it[0]),
       )
 
@@ -2824,13 +2826,12 @@ describe('create-workspace-store', () => {
         info: { title: 'A new title which should conflict', version: '1.0.1' },
       }
 
-      const result = store.rebaseDocument(documentName, newDocument)
+      const result = await store.rebaseDocument({ name: documentName, document: newDocument })
 
       assert(typeof result === 'object')
 
-      store.rebaseDocument(
-        documentName,
-        newDocument,
+      await store.rebaseDocument(
+        { name: documentName, document: newDocument },
         result.flatMap((it) => it[0]),
       )
 
@@ -2842,15 +2843,54 @@ describe('create-workspace-store', () => {
       consoleErrorSpy.mockReset()
 
       const store = createWorkspaceStore()
-      store.rebaseDocument('some-document', {
-        openapi: '3.1.1',
-        info: { title: 'API', description: 'My beautiful API' },
+      await store.rebaseDocument({
+        name: 'some-document',
+        document: {
+          openapi: '3.1.1',
+          info: { title: 'API', description: 'My beautiful API' },
+        },
       })
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         '[ERROR]: Specified document is missing or internal corrupted workspace state',
       )
       expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
+    })
+
+    it('should load new origin from a url', async () => {
+      const fn = vi.fn()
+
+      const store = createWorkspaceStore()
+
+      const fetchDocument = async (): Promise<Response> => {
+        fn()
+        return new Response(JSON.stringify(getDocument()))
+      }
+
+      await store.addDocument({
+        name: 'default',
+        document: {
+          ...getDocument(),
+          info: {
+            title: 'Some API',
+            version: '1.0.0',
+          },
+        },
+      })
+
+      expect(store.workspace.documents.default?.info.title).toBe('Some API')
+
+      await store.rebaseDocument(
+        {
+          name: 'default',
+          url: 'https://api.example.com',
+          fetch: fetchDocument,
+        },
+        [],
+      )
+
+      expect(fn).toHaveBeenCalledTimes(1)
+      expect(store.workspace.documents.default?.info.title).toBe('My API')
     })
   })
 })

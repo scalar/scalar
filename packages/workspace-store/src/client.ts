@@ -372,30 +372,30 @@ export type WorkspaceStore = {
    */
   importWorkspaceFromSpecification(specification: WorkspaceSpecification): Promise<void[]>
   /**
-   * Rebases a document in the workspace with a new origin, resolving conflicts if provided.
+   * Rebases a document in the workspace by refetching its origin and merging with local edits.
    *
-   * This method is used to rebase a document (e.g., after pulling remote changes) by applying the changes
-   * from the new origin and merging them with local edits. If there are conflicts, they can be resolved
-   * by providing a list of resolved conflicts.
+   * This method fetches the latest version of the document (optionally with custom fetch/config),
+   * calculates changes relative to the original and locally edited versions,
+   * and attempts to update the workspace document while preserving user edits.
+   * If automatic resolution isn't possible due to conflicts, returns a conflict list for the caller to resolve.
+   * If `resolvedConflicts` are provided (e.g., after user intervention), applies them to complete the rebase.
    *
-   * @param documentName - The name of the document to rebase.
-   * @param newDocumentOrigin - The new origin document (as an object) to rebase onto.
-   * @param resolvedConflicts - (Optional) An array of resolved conflicts to apply.
-   * @returns If there are unresolved conflicts and no resolution is provided, returns the list of conflicts.
+   * @param input - An object specifying which document to rebase, the new origin document, fetch/config info, and overrides.
+   * @param resolvedConflicts - (Optional) Conflict resolutions to apply if rebase hits merge conflicts.
+   * @returns If there are unresolved conflicts and no resolution is provided, resolves to the list of conflicts; otherwise resolves to void.
    *
    * @example
-   * // Example: Rebase a document with a new origin and resolve conflicts
-   * const conflicts = store.rebaseDocument('api', newOriginDoc)
+   * // Example: Rebase a document and handle merge conflicts
+   * const conflicts = await store.rebaseDocument({ name: 'api', document: newOriginDoc, fetch: customFetch })
    * if (conflicts && conflicts.length > 0) {
    *   // User resolves conflicts here...
-   *   store.rebaseDocument('api', newOriginDoc, userResolvedConflicts)
+   *   await store.rebaseDocument({ name: 'api', document: newOriginDoc, fetch: customFetch }, userResolvedConflicts)
    * }
    */
   rebaseDocument: (
-    documentName: string,
-    newDocumentOrigin: Record<string, unknown>,
+    input: WorkspaceDocumentInput,
     resolvedConflicts?: Difference<unknown>[],
-  ) => void | ReturnType<typeof merge>['conflicts']
+  ) => Promise<void | ReturnType<typeof merge>['conflicts']>
 }
 
 /**
@@ -862,20 +862,48 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         ),
       )
     },
-    rebaseDocument: (documentName, newDocumentOrigin, resolvedConflicts) => {
-      const originalDocument = originalDocuments[documentName]
-      const intermediateDocument = intermediateDocuments[documentName]
-      const activeDocument = workspace.documents[documentName]
-        ? toRaw(getRaw(unpackOverridesProxy(workspace.documents[documentName])))
-        : undefined // raw version without any overrides
+    rebaseDocument: async (input, resolvedConflicts) => {
+      const { name } = input
+
+      // ---- Resolve input document
+      const resolve = await measureAsync(
+        'loadDocument',
+        async () => await loadDocument({ ...input, fetch: input.fetch ?? workspaceProps?.fetch }),
+      )
+
+      if (!resolve.ok || !isObject(resolve.data)) {
+        return console.error(`[ERROR]: Failed to load document '${name}': response data is not a valid object`)
+      }
+
+      const newDocumentOrigin = resolve.data
+
+      // ---- Get the current documents
+      const originalDocument = originalDocuments[name]
+      const intermediateDocument = intermediateDocuments[name]
+      // raw version without any proxies
+      const activeDocument = workspace.documents[name]
+        ? toRaw(getRaw(unpackOverridesProxy(workspace.documents[name])))
+        : undefined
 
       if (!originalDocument || !intermediateDocument || !activeDocument) {
         // If any required document state is missing, do nothing
         return console.error('[ERROR]: Specified document is missing or internal corrupted workspace state')
       }
 
+      // ---- Override the configurations and metadata
+      documentConfigs[name] = input.config ?? {}
+      overrides[name] = input.overrides ?? {}
+      documentMeta[name] = { documentSource: getDocumentSource(input) }
+      extraDocumentConfigurations[name] = { fetch: input.fetch }
+
       // ---- Get the new intermediate document
       const changelogAA = diff(originalDocument, newDocumentOrigin)
+
+      // When there are no changes, we can return early since we don't need to do anything
+      if (changelogAA.length === 0) {
+        return
+      }
+
       const changelogAB = diff(originalDocument, intermediateDocument)
 
       const changesA = merge(changelogAA, changelogAB)
@@ -889,10 +917,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       // Apply the changes to the original document to get the new intermediate
       const newIntermediateDocument = apply(deepClone(originalDocument), changesetA)
-      intermediateDocuments[documentName] = newIntermediateDocument
+      intermediateDocuments[name] = newIntermediateDocument
 
       // Update the original document
-      originalDocuments[documentName] = newDocumentOrigin
+      originalDocuments[name] = newDocumentOrigin
 
       // ---- Get the new active document
       const changelogBA = diff(intermediateDocument, newIntermediateDocument)
@@ -910,10 +938,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       )
 
       // Update the active document to the new value
-      workspace.documents[documentName] = createOverridesProxy(
-        createMagicProxy({ ...newActiveDocument }),
-        overrides[documentName],
-      )
+      workspace.documents[name] = createOverridesProxy(createMagicProxy(newActiveDocument), overrides[name])
       return
     },
   }
