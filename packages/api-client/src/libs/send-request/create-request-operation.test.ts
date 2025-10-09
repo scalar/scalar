@@ -1241,12 +1241,61 @@ describe('create-request-operation', () => {
   })
 
   it('executes onBeforeRequest hook before making the request', async () => {
-    let hookExecuted = false
-
     const mockPluginManager = {
-      executeHook: vi.fn().mockImplementation(async () => {
-        hookExecuted = true
-        return Promise.resolve()
+      executeHook: vi.fn().mockResolvedValue(void 0),
+      getViewComponents: vi.fn().mockReturnValue([]),
+    }
+
+    // Store original fetch
+    const originalFetch = global.fetch
+    try {
+      // Mock fetch to return a successful response
+      const mockResponse = new Response('{"test": "data"}', {
+        status: 200,
+        headers: new Headers({
+          'content-type': 'application/json',
+        }),
+      })
+
+      global.fetch = vi.fn().mockResolvedValue(mockResponse)
+
+      const [error, requestOperation] = createRequestOperation({
+        ...createRequestPayload({
+          serverPayload: { url: 'https://api.example.com' },
+          requestPayload: {
+            path: '/test',
+          },
+        }),
+        pluginManager: mockPluginManager,
+      })
+
+      if (error) {
+        throw error
+      }
+
+      await requestOperation.sendRequest()
+
+      expect(mockPluginManager.executeHook).toHaveBeenCalled()
+      expect(mockPluginManager.executeHook).toHaveBeenCalledWith('onBeforeRequest', {
+        request: expect.any(Request),
+      })
+    } finally {
+      // Restore original fetch
+      global.fetch = originalFetch
+    }
+  })
+
+  // https://github.com/scalar/scalar/pull/7047#pullrequestreview-3319608975
+  it('executes onBeforeRequest and await hook execution before sending it', async () => {
+    const HEADER_MOCK_NAME = 'header-request-body'
+    const HEADER_MOCK_VALUE = 'yes'
+    const mockPluginManager = {
+      executeHook: vi.fn().mockImplementation(async (_, { request }: { request: Request }) => {
+        // simulate async code execution
+        await new Promise((resolve) => {
+          setTimeout(resolve, 1)
+        })
+        request.headers.append(HEADER_MOCK_NAME, HEADER_MOCK_VALUE)
       }),
       getViewComponents: vi.fn().mockReturnValue([]),
     }
@@ -1280,10 +1329,11 @@ describe('create-request-operation', () => {
 
       await requestOperation.sendRequest()
 
-      expect(hookExecuted).toBe(true)
+      expect(mockPluginManager.executeHook).toHaveBeenCalled()
       expect(mockPluginManager.executeHook).toHaveBeenCalledWith('onBeforeRequest', {
         request: expect.any(Request),
       })
+      expect(requestOperation.request.headers.get(HEADER_MOCK_NAME)).toBe(HEADER_MOCK_VALUE)
     } finally {
       // Restore original fetch
       global.fetch = originalFetch
