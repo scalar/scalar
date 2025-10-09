@@ -171,13 +171,11 @@ describe('ApiReferenceWorkspace', () => {
       await nextTick()
 
       expect(mockStore.rebaseDocument).toHaveBeenCalledTimes(1)
-      expect(mockStore.rebaseDocument).toHaveBeenCalledWith(
-        {
-          name: 'existing-document',
-          document: mockConfiguration.content,
-          config: expect.anything(),
-        },
-      )
+      expect(mockStore.rebaseDocument).toHaveBeenCalledWith({
+        name: 'existing-document',
+        document: mockConfiguration.content,
+        config: expect.anything(),
+      })
       expect(mockStore.update).toHaveBeenCalledWith('x-scalar-active-document', 'existing-document')
     })
   })
