@@ -200,6 +200,26 @@
       "import": "./dist/v2/blocks/operation-code-sample/index.js",
       "types": "./dist/v2/blocks/operation-code-sample/index.d.ts",
       "default": "./dist/v2/blocks/operation-code-sample/index.js"
+    },
+    "./v2/blocks/scalar-address-bar-block": {
+      "import": "./dist/v2/blocks/scalar-address-bar-block/index.js",
+      "types": "./dist/v2/blocks/scalar-address-bar-block/index.d.ts",
+      "default": "./dist/v2/blocks/scalar-address-bar-block/index.js"
+    },
+    "./v2/blocks/scalar-auth-selector-block": {
+      "import": "./dist/v2/blocks/scalar-auth-selector-block/index.js",
+      "types": "./dist/v2/blocks/scalar-auth-selector-block/index.d.ts",
+      "default": "./dist/v2/blocks/scalar-auth-selector-block/index.js"
+    },
+    "./v2/blocks/scalar-operation-block": {
+      "import": "./dist/v2/blocks/scalar-operation-block/index.js",
+      "types": "./dist/v2/blocks/scalar-operation-block/index.d.ts",
+      "default": "./dist/v2/blocks/scalar-operation-block/index.js"
+    },
+    "./v2/blocks/scalar-response-block": {
+      "import": "./dist/v2/blocks/scalar-response-block/index.js",
+      "types": "./dist/v2/blocks/scalar-response-block/index.d.ts",
+      "default": "./dist/v2/blocks/scalar-response-block/index.js"
     }
   },
   "files": [
