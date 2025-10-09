@@ -1,17 +1,55 @@
 <script lang="ts" setup>
+import { prettyPrintJson } from '@scalar/oas-utils/helpers'
+import type { ApiReferenceConfiguration } from '@scalar/types'
 import { useCodeMirror } from '@scalar/use-codemirror'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
-const model = defineModel<string>()
+/** The current configuration as an object */
+const model = defineModel<Partial<ApiReferenceConfiguration>>()
+
+/** The raw string content of the editor */
+const content = ref<string>('')
+
+/** A copy of the parsed content */
+const parsed = ref<{}>({})
+
+/** Try to parse the content on change */
+function onChange(value: string) {
+  content.value = value
+  try {
+    parsed.value = JSON.parse(value || '{}')
+    // Only update the model if it's actually different
+    if (JSON.stringify(parsed.value) !== JSON.stringify(model.value)) {
+      model.value = parsed.value
+    }
+  } catch (e) {
+    // Invalid JSON, don't emit an update
+    return
+  }
+}
+
+/** If the configuration is changed externally update the content */
+watch(
+  model,
+  (config) => {
+    // Only update the editor content if it's actually different
+    if (config && JSON.stringify(config) !== JSON.stringify(parsed.value)) {
+      content.value = prettyPrintJson(config)
+    }
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
+)
 
 const codeMirrorRef = ref<HTMLDivElement | null>(null)
 
 useCodeMirror({
-  content: model,
-  onChange: (value) => (model.value = value),
+  content,
+  onChange,
   classes: ['h-60 *:overscroll-none'],
   codeMirrorRef,
-  disableTabIndent: true,
   lineNumbers: true,
   language: 'json',
   lint: true,
