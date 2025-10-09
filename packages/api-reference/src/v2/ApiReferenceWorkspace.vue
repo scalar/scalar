@@ -154,7 +154,19 @@ const addOrUpdateDocument = async (
       isIntersectionEnabled.value = false
 
       // Override if we have any conflicts
-      store.rebaseDocument(name, document, [])
+      const conflicts = await store.rebaseDocument({
+        name,
+        document,
+        config: mapConfiguration(config),
+      })
+
+      if (conflicts) {
+        // Resolve any conflicts by picking changes from the new document
+        await store.rebaseDocument(
+          { name, document, config: mapConfiguration(config) },
+          conflicts.flatMap((it) => it[0]),
+        )
+      }
 
       // Lets set it to active as well just in case the name changed
       store.update('x-scalar-active-document', name)

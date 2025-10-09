@@ -651,7 +651,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // This ensures that the workspace document only exposes the intended OpenAPI properties and extensions
     workspace.documents[name] = createOverridesProxy(
       createMagicProxy(getRaw(strictDocument)) as OpenApiDocument,
-      input.overrides,
+      overrides[name],
     )
   }
 
@@ -890,10 +890,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         return console.error('[ERROR]: Specified document is missing or internal corrupted workspace state')
       }
 
+      const documentSource = getDocumentSource(input)
+
       // ---- Override the configurations and metadata
       documentConfigs[name] = input.config ?? {}
       overrides[name] = input.overrides ?? {}
-      documentMeta[name] = { documentSource: getDocumentSource(input) }
+      documentMeta[name] = { documentSource }
       extraDocumentConfigurations[name] = { fetch: input.fetch }
 
       // ---- Get the new intermediate document
@@ -937,8 +939,18 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         apply(deepClone(newIntermediateDocument), changesetB),
       )
 
-      // Update the active document to the new value
-      workspace.documents[name] = createOverridesProxy(createMagicProxy(newActiveDocument), overrides[name])
+      // add the new active document to the workspace but don't re-initialize
+      await addInMemoryDocument({
+        ...input,
+        document: {
+          ...newActiveDocument,
+          // force regeneration of navigation
+          // when we are rebasing, we want to ensure that the navigation is always up to date
+          [extensions.document.navigation]: undefined,
+        },
+        documentSource,
+        initialize: false,
+      })
       return
     },
   }
