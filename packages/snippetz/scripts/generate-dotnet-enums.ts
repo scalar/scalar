@@ -118,8 +118,6 @@ function parseClientsFromImport(): {
   targets: Target[]
   allClients: Array<{ target: string; client: string; title: string }>
 } {
-  console.log('Processing clients from @scalar/snippetz import...')
-
   const targets: Target[] = []
   const allClientsMap = new Map<string, { target: string; client: string; title: string }>()
 
@@ -152,9 +150,6 @@ function parseClientsFromImport(): {
 
   // Sort targets by key for consistent enum order
   targets.sort((a, b) => a.key.localeCompare(b.key))
-
-  console.log(`Processed ${targets.length} targets from import`)
-  console.log(`Found ${allClients.length} unique clients`)
 
   return { targets, allClients }
 }
@@ -323,8 +318,6 @@ function generateForPackage(
   targets: Target[],
   allClients: Array<{ target: string; client: string; title: string }>,
 ): void {
-  console.log(`\nGenerating enums for ${config.name}...`)
-
   // Generate enums
   const scalarTargetEnum = generateScalarTargetEnum(targets, config.namespace)
   const scalarClientEnum = generateScalarClientEnum(allClients, config.namespace)
@@ -338,10 +331,7 @@ function generateForPackage(
   writeFileSync(resolve(enumsDir, 'ScalarClient.Generated.cs'), scalarClientEnum)
   writeFileSync(resolve(mapperDir, 'ScalarOptionsMapper.Generated.cs'), clientOptionsMapping)
 
-  console.log(`Successfully generated for ${config.name}:`)
-  console.log('  - ScalarTarget.Generated.cs')
-  console.log('  - ScalarClient.Generated.cs')
-  console.log('  - ScalarOptionsMapper.Generated.cs')
+  console.log(`Successfully generated for ${config.name}`)
 }
 
 /**
@@ -354,8 +344,6 @@ function main(): void {
     return
   }
 
-  console.log('Generating C# enums from TypeScript clients for all .NET packages...')
-
   try {
     // Parse all client information from the imported clients array
     const { targets, allClients } = parseClientsFromImport()
@@ -364,9 +352,6 @@ function main(): void {
     for (const config of PACKAGE_CONFIGS) {
       generateForPackage(config, targets, allClients)
     }
-
-    console.log(`\nSuccessfully generated enums for ${PACKAGE_CONFIGS.length} packages`)
-    console.log(`Generated ${targets.length} targets and ${allClients.length} clients`)
 
     // Summary of what was found
     console.log('\nSummary:')
