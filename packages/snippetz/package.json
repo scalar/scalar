@@ -18,7 +18,7 @@
     "generate:dotnet-enums": "vite-node scripts/generate-dotnet-enums.ts",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
-    "postbuild": "vite-node scripts/generate-dotnet-enums.ts",
+    "postbuild": "pnpm generate:dotnet-enums",
     "test": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
