@@ -175,7 +175,7 @@ describe('schema', () => {
 
       // Valid input should pass through unchanged
       expect(result).toEqual({
-        _: '',
+        __scalar_: '',
         allOf: [
           {
             type: 'object',
@@ -217,7 +217,7 @@ describe('schema', () => {
 
       // Valid input should pass through unchanged
       expect(result).toEqual({
-        _: '',
+        __scalar_: '',
         oneOf: [
           {
             type: 'string',
@@ -282,7 +282,7 @@ describe('schema', () => {
       const result = coerceValue(SchemaObjectSchema, validInput)
 
       // Should work with empty object since all properties are optional
-      expect(result).toEqual({ _: '' })
+      expect(result).toEqual({ __scalar_: '' })
     })
 
     it('fails when given non-object input', () => {

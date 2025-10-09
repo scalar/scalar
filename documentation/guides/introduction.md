@@ -1,7 +1,7 @@
 <div class="flex flex-col gap-3 hero small-test">
-  <h2 class="text-balance">
+  <scalar-heading level="2" slug="introduction" class="text-balance">
     A modern API platform built for the OpenAPI™ standard.
-  </h2>
+  </scalar-heading>
   <p>
     Industry leading Developer Docs, SDKs, API Client & Registry that your APIs
     deserve
@@ -156,9 +156,9 @@ They are open source. So I can get in on free features and stay with Scalar no m
   <div class="product">
     <div class="product-copy">
       <span class="font-bold text-orange">Scalar API Client</span>
-      <h2 class="c">
+      <scalar-heading level="2" slug="scalar-api-client" class="c">
         The Postman Alternative Your Team Is Dreaming Of
-      </h2>
+      </scalar-heading>
       <p>
         Fully open-source & offline first API Client built on the OpenAPI standard, by us & our community.
       </p>
@@ -203,9 +203,9 @@ They are open source. So I can get in on free features and stay with Scalar no m
   <div class="product product-reversed">
     <div class="product-copy">
       <span class="font-bold text-blue">Scalar Docs</span>
-      <h2>
+      <scalar-heading level="2" slug="scalar-docs" class="c">
         The Modern Documentation Platform for Your API and Everything Else
-      </h2>
+      </scalar-heading>
       <p>
         Write documentation with our WYSIWYG, pull Markdown and MDX files from your repository or generate API References from your OpenAPI documents. No matter how you work, your new documentation will always be up to date.
       </p>
@@ -250,9 +250,9 @@ They are open source. So I can get in on free features and stay with Scalar no m
   <div class="product">
     <div class="product-copy">
       <span class="font-bold text-purple">Scalar SDK Generation</span>
-      <h2 class="c">
+      <scalar-heading level="2" slug="scalar-sdk-generation" class="c">
         One Commit To Update All Your SDKs
-      </h2>
+      </scalar-heading>
       <p>
         Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python, Golang, PHP, Java and Ruby with more languages coming soon.
       </p>
@@ -333,7 +333,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
   </div>
 </div>
 <div class="cta flex flex-col gap-3 small-test">
-  <h2 class="text-balance">What are you waiting for?</h2>
+  <scalar-heading level="2" class="text-balance" slug="what-are-you-waiting-for">What are you waiting for?</scalar-heading>
   <p>
     We're committed to enabling developers and companies to practice the highest
     of API industry standards.

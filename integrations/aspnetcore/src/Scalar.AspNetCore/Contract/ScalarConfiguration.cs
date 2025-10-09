@@ -45,6 +45,12 @@ internal sealed class ScalarConfiguration
 
     public required bool? DefaultOpenAllTags { get; init; }
 
+    public required bool? ExpandAllModelSections { get; init; }
+
+    public required bool? ExpandAllResponses { get; init; }
+
+    public required bool? HideSearch { get; init; }
+
     [JsonPropertyName("tagsSorter")]
     public required TagSorter? TagSorter { get; init; }
 
@@ -60,18 +66,18 @@ internal sealed class ScalarConfiguration
     [JsonPropertyName("_integration")]
     public required string? Integration { get; init; }
 
-    public required bool HideClientButton { get; init; }
+    public required bool? HideClientButton { get; init; }
 
     public required IEnumerable<ScalarSource> Sources { get; init; }
 
     [JsonPropertyName("baseServerURL")]
     public required string? BaseServerUrl { get; init; }
 
-    public required bool PersistAuth { get; init; }
+    public required bool? PersistAuth { get; init; }
 
     public required DocumentDownloadType? DocumentDownloadType { get; init; }
 
-    public required bool OrderRequiredPropertiesFirst { get; init; }
+    public required bool? OrderRequiredPropertiesFirst { get; init; }
 
     public required PropertyOrder? OrderSchemaPropertiesBy { get; init; }
 

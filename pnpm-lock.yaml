@@ -422,7 +422,7 @@ importers:
         version: 6.3.4
       ts-jest:
         specifier: ^29.1.0
-        version: 29.1.4(@babel/core@7.28.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.28.0))(jest@29.7.0(@types/node@22.15.3)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@22.15.3)(typescript@5.8.3)))(typescript@5.8.3)
+        version: 29.1.4(@babel/core@7.28.4)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.28.4))(jest@29.7.0(@types/node@22.15.3)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@22.15.3)(typescript@5.8.3)))(typescript@5.8.3)
       ts-loader:
         specifier: ^9.4.3
         version: 9.5.1(typescript@5.8.3)(webpack@5.96.1(@swc/core@1.5.29(@swc/helpers@0.5.15)))
@@ -495,7 +495,7 @@ importers:
         version: 6.3.4
       ts-jest:
         specifier: ^29.1.0
-        version: 29.1.4(@babel/core@7.28.4)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.28.4))(jest@29.7.0(@types/node@22.15.3)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@22.15.3)(typescript@5.8.3)))(typescript@5.8.3)
+        version: 29.1.4(@babel/core@7.28.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.28.0))(jest@29.7.0(@types/node@22.15.3)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@22.15.3)(typescript@5.8.3)))(typescript@5.8.3)
       ts-loader:
         specifier: ^9.4.3
         version: 9.5.1(typescript@5.8.3)(webpack@5.96.1(@swc/core@1.5.29(@swc/helpers@0.5.15)))
@@ -759,6 +759,9 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../../packages/build-tooling
+      '@scalar/snippetz':
+        specifier: workspace:*
+        version: link:../../packages/snippetz
 
   integrations/aspire/playground/Scalar.Aspire.UserService: {}
 
@@ -1075,7 +1078,7 @@ importers:
         version: 4.0.1
       '@nuxt/test-utils':
         specifier: ^3.19.2
-        version: 3.19.2(@jest/globals@29.7.0)(@playwright/test@1.56.0)(@vue/test-utils@2.4.6)(jsdom@26.1.0)(magicast@0.3.5)(playwright-core@1.56.0)(typescript@5.8.3)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.15.3)(jiti@2.5.1)(jsdom@26.1.0)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))
+        version: 3.19.2(@jest/globals@29.7.0)(@playwright/test@1.56.0)(@vue/test-utils@2.4.6)(jsdom@26.1.0)(magicast@0.3.5)(typescript@5.8.3)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.15.3)(jiti@2.5.1)(jsdom@26.1.0)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))
       '@types/node':
         specifier: catalog:*
         version: 22.15.3
@@ -24962,7 +24965,7 @@ snapshots:
     transitivePeerDependencies:
       - magicast
 
-  '@nuxt/test-utils@3.19.2(@jest/globals@29.7.0)(@playwright/test@1.56.0)(@vue/test-utils@2.4.6)(jsdom@26.1.0)(magicast@0.3.5)(playwright-core@1.56.0)(typescript@5.8.3)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.15.3)(jiti@2.5.1)(jsdom@26.1.0)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))':
+  '@nuxt/test-utils@3.19.2(@jest/globals@29.7.0)(@playwright/test@1.56.0)(@vue/test-utils@2.4.6)(jsdom@26.1.0)(magicast@0.3.5)(typescript@5.8.3)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.15.3)(jiti@2.5.1)(jsdom@26.1.0)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))':
     dependencies:
       '@nuxt/kit': 3.17.7(magicast@0.3.5)
       c12: 3.1.0(magicast@0.3.5)
@@ -24986,14 +24989,13 @@ snapshots:
       tinyexec: 1.0.1
       ufo: 1.6.1
       unplugin: 2.3.5
-      vitest-environment-nuxt: 1.0.1(@jest/globals@29.7.0)(@playwright/test@1.56.0)(@vue/test-utils@2.4.6)(jsdom@26.1.0)(magicast@0.3.5)(playwright-core@1.56.0)(typescript@5.8.3)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.15.3)(jiti@2.5.1)(jsdom@26.1.0)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))
+      vitest-environment-nuxt: 1.0.1(@jest/globals@29.7.0)(@playwright/test@1.56.0)(@vue/test-utils@2.4.6)(jsdom@26.1.0)(magicast@0.3.5)(typescript@5.8.3)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.15.3)(jiti@2.5.1)(jsdom@26.1.0)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))
       vue: 3.5.17(typescript@5.8.3)
     optionalDependencies:
       '@jest/globals': 29.7.0
       '@playwright/test': 1.56.0
       '@vue/test-utils': 2.4.6
       jsdom: 26.1.0
-      playwright-core: 1.56.0
       vitest: 3.2.4(@types/debug@4.1.12)(@types/node@22.15.3)(jiti@2.5.1)(jsdom@26.1.0)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
     transitivePeerDependencies:
       - magicast
@@ -40707,9 +40709,9 @@ snapshots:
     optionalDependencies:
       vite: 7.1.5(@types/node@22.15.3)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
 
-  vitest-environment-nuxt@1.0.1(@jest/globals@29.7.0)(@playwright/test@1.56.0)(@vue/test-utils@2.4.6)(jsdom@26.1.0)(magicast@0.3.5)(playwright-core@1.56.0)(typescript@5.8.3)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.15.3)(jiti@2.5.1)(jsdom@26.1.0)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)):
+  vitest-environment-nuxt@1.0.1(@jest/globals@29.7.0)(@playwright/test@1.56.0)(@vue/test-utils@2.4.6)(jsdom@26.1.0)(magicast@0.3.5)(typescript@5.8.3)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.15.3)(jiti@2.5.1)(jsdom@26.1.0)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)):
     dependencies:
-      '@nuxt/test-utils': 3.19.2(@jest/globals@29.7.0)(@playwright/test@1.56.0)(@vue/test-utils@2.4.6)(jsdom@26.1.0)(magicast@0.3.5)(playwright-core@1.56.0)(typescript@5.8.3)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.15.3)(jiti@2.5.1)(jsdom@26.1.0)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))
+      '@nuxt/test-utils': 3.19.2(@jest/globals@29.7.0)(@playwright/test@1.56.0)(@vue/test-utils@2.4.6)(jsdom@26.1.0)(magicast@0.3.5)(typescript@5.8.3)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.15.3)(jiti@2.5.1)(jsdom@26.1.0)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))
     transitivePeerDependencies:
       - '@cucumber/cucumber'
       - '@jest/globals'

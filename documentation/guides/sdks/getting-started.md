@@ -2,9 +2,9 @@
   <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/v1Pu6_BCmly6VhPAuotVZ.svg"></scalar-icon>
 </div>
 <div class="flex flex-col gap-3 hero small-test">
-  <h2 class="text-balance">
+  <scalar-heading level="2" slug="scalar-sdks" class="text-balance">
     Scalar SDKs
-  </h2>
+  </scalar-heading>
   <p>
     Get started with generating world-class SDKs in minutes on scalar.com in several languages: TypeScript, Python, Golang & more.
   </p>
@@ -115,7 +115,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
     </div>
   </div>
   <div class="cta flex flex-col gap-3 small-test">
-  <h2 class="text-balance">What are you waiting for?</h2>
+    <scalar-heading level="2" class="text-balance" slug="what-are-you-waiting-for">What are you waiting for?</scalar-heading>
   <p>
     We're committed to enabling developers and companies to practice the highest
     of API industry standards.

@@ -38,7 +38,7 @@ public class ScalarOptionsExtensionsTests
             })
             .WithHttpBearerAuthentication(x => x.Token = "my-bearer-token")
             .WithOpenApiRoutePattern("/swagger/{documentName}")
-            .WithCdnUrl("http://localhost:8080")
+            .WithBundleUrl("http://localhost:8080")
             .WithDefaultFonts(false)
             .WithDefaultOpenAllTags(true)
             .WithCustomCss("*{}")
@@ -66,7 +66,6 @@ public class ScalarOptionsExtensionsTests
             .WithPersistentAuthentication()
             .WithOrderRequiredPropertiesFirst()
             .WithSchemaPropertyOrder(PropertyOrder.Alpha)
-            .WithShowToolbar(ToolbarVisibility.Always)
             .WithShowOperationId();
 
         // Assert
@@ -92,14 +91,15 @@ public class ScalarOptionsExtensionsTests
         options.Authentication!.Http!.Basic!.Password.Should().Contain("my-password");
         options.Authentication!.Http!.Bearer!.Token.Should().Contain("my-bearer-token");
         options.OpenApiRoutePattern.Should().Be("/swagger/{documentName}");
-        options.CdnUrl.Should().Be("http://localhost:8080");
+        options.BundleUrl.Should().Be("http://localhost:8080");
         options.DefaultFonts.Should().BeFalse();
         options.DefaultOpenAllTags.Should().BeTrue();
         options.CustomCss.Should().Be("*{}");
         options.HideDarkModeToggle.Should().BeTrue();
         options.ForceThemeMode.Should().Be(ThemeMode.Light);
-        options.DefaultHttpClient.Key.Should().Be(ScalarTarget.CSharp);
-        options.DefaultHttpClient.Value.Should().Be(ScalarClient.HttpClient);
+        options.DefaultHttpClient.Should().NotBeNull();
+        options.DefaultHttpClient!.Value.Key.Should().Be(ScalarTarget.CSharp);
+        options.DefaultHttpClient.Value.Value.Should().Be(ScalarClient.HttpClient);
         options.Servers.Should().HaveCount(2);
         options.Servers.Should().ContainSingle(x => x.Url == "https://example.com");
         options.Servers.Should().ContainSingle(x => x.Url == "https://example.org" && x.Description == "My other server");
@@ -118,7 +118,6 @@ public class ScalarOptionsExtensionsTests
         options.PersistentAuthentication.Should().BeTrue();
         options.OrderRequiredPropertiesFirst.Should().BeTrue();
         options.SchemaPropertyOrder.Should().Be(PropertyOrder.Alpha);
-        options.ShowToolbar.Should().Be(ToolbarVisibility.Always);
         options.ShowOperationId.Should().BeTrue();
 
 #pragma warning restore CS0618 // Type or member is obsolete
@@ -478,70 +477,5 @@ public class ScalarOptionsExtensionsTests
         authorizationCodeFlow!.ClientId.Should().Be("clientId");
         authorizationCodeFlow.AuthorizationUrl.Should().Be("https://example.com/authorize");
         oauth2Scheme.DefaultScopes.Should().BeEquivalentTo("scope1", "scope2");
-    }
-
-    [Fact]
-    public void WithOrderRequiredPropertiesFirst_ShouldSetProperty()
-    {
-        // Arrange
-        var options = new ScalarOptions();
-
-        // Act
-        options.WithOrderRequiredPropertiesFirst();
-
-        // Assert
-        options.OrderRequiredPropertiesFirst.Should().BeTrue();
-    }
-
-    [Fact]
-    public void WithOrderRequiredPropertiesFirst_ShouldSetDefaultValue()
-    {
-        // Arrange
-        var options = new ScalarOptions();
-
-        // Act
-        options.WithOrderRequiredPropertiesFirst();
-
-        // Assert
-        options.OrderRequiredPropertiesFirst.Should().BeTrue();
-    }
-
-    [Fact]
-    public void WithOrderSchemaPropertiesBy_ShouldSetProperty()
-    {
-        // Arrange
-        var options = new ScalarOptions();
-
-        // Act
-        options.WithSchemaPropertyOrder(PropertyOrder.Alpha);
-
-        // Assert
-        options.SchemaPropertyOrder.Should().Be(PropertyOrder.Alpha);
-    }
-
-    [Fact]
-    public void WithOrderSchemaPropertiesBy_ShouldSetPreserveProperty()
-    {
-        // Arrange
-        var options = new ScalarOptions();
-
-        // Act
-        options.WithSchemaPropertyOrder(PropertyOrder.Preserve);
-
-        // Assert
-        options.SchemaPropertyOrder.Should().Be(PropertyOrder.Preserve);
-    }
-
-    [Fact]
-    public void WithOrderSchemaPropertiesBy_ShouldSetNullProperty()
-    {
-        // Arrange
-        var options = new ScalarOptions();
-
-        // Act
-        options.WithSchemaPropertyOrder(null);
-
-        // Assert
-        options.SchemaPropertyOrder.Should().BeNull();
     }
 }
