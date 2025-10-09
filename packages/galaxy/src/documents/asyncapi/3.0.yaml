@@ -24,9 +24,9 @@ info:
   license:
     name: MIT
     url: https://opensource.org/license/MIT
-externalDocs:
-  description: Documentation
-  url: https://github.com/scalar/scalar
+  externalDocs:
+    description: Documentation
+    url: https://github.com/scalar/scalar
 servers:
   production:
     host: galaxy.scalar.com
@@ -219,35 +219,25 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: JWT Bearer token authentication for WebSocket connections
-    apiKeyQuery:
-      type: apiKey
+    httpApiKey:
+      type: httpApiKey
       in: query
       name: api_key
       description: API key for WebSocket authentication
-    oAuth2:
+    oauth2:
       type: oauth2
-      description: OAuth 2.0 authentication for WebSocket connections
       flows:
-        authorizationCode:
+        implicit:
           authorizationUrl: https://galaxy.scalar.com/oauth/authorize
-          tokenUrl: https://galaxy.scalar.com/oauth/token
-          scopes:
+          availableScopes:
             read:events: Subscribe to events
             write:events: Publish events (admin only)
             read:user:events: Subscribe to user events
   parameters:
     planetId:
       description: The ID of the planet
-      schema:
-        type: integer
-        format: int64
-        examples: [1, 42, 1337]
     userId:
       description: The ID of the user
-      schema:
-        type: integer
-        format: int64
-        examples: [1, 100, 999]
   operationTraits:
     authenticated:
       description: This operation requires authentication
