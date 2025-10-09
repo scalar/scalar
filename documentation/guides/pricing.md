@@ -1,7 +1,7 @@
 <div class="flex flex-col gap-3 hero small-test">
-  <h2 class="text-balance">
+  <scalar-heading level="2" slug="pricing" class="text-balance">
     Pricing
-  </h2>
+  </scalar-heading>
   <p>
  One platform for all your API needs: Docs, SDKs, Governance & API Client all based on OpenAPI™. 
   </p>
@@ -44,11 +44,7 @@
           </header>
           <div class="st_wrap_table text-sm" data-table_id="0">
           <div class="pricing-table-group">
-            <header class="pricing-table-group-heading">
-                <h3>
-                Scalar Docs
-                </h3>
-            </header>
+            <header class="pricing-table-group-heading">Scalar Docs</header>
             <div class="pricing-table-row">
               <div class="pricing-table-column">Subdomains</div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
@@ -148,11 +144,7 @@
           </div>
         </div>
         <div class="st_wrap_table" data-table_id="1">
-          <header class="pricing-table-group-heading">
-            <h3>
-              Scalar API Client
-            </h3>
-          </header>
+          <header class="pricing-table-group-heading">Scalar API Client</header>
                     <div class="pricing-table-group">
            <div class="pricing-table-row">
              <div class="pricing-table-column">REST Client</div>
@@ -289,11 +281,7 @@
            </div>
         </div>
         <div class="st_wrap_table" data-table_id="2">
-          <header class="pricing-table-group-heading">
-            <h3>
-              Scalar SDKs
-            </h3>
-          </header>
+          <header class="pricing-table-group-heading">Scalar SDKs</header>
           <div class="pricing-table-group">
             <div class="pricing-table-row">
               <div class="pricing-table-column">TypeScript SDK</div>
@@ -406,11 +394,7 @@
           </div>
         </div>
         <div class="st_wrap_table" data-table_id="3">
-          <header class="pricing-table-group-heading">
-            <h3>
-              Scalar Registry
-            </h3>
-          </header>
+          <header class="pricing-table-group-heading">Scalar Registry</header>
           <div class="pricing-table-group">
             <div class="pricing-table-row">
               <div class="pricing-table-column">OpenAPI, JSON Schema support</div>
@@ -501,7 +485,7 @@
       </main>
     </div>
 <div class="cta flex flex-col gap-3 small-test">
-  <h2 class="text-balance">What are you waiting for?</h2>
+  <scalar-heading level="2" class="text-balance" slug="what-are-you-waiting-for">What are you waiting for?</scalar-heading>
   <p>
     We're committed to enabling developers and companies to practice the highest
     of API industry standards.
@@ -738,13 +722,11 @@ h4.t-editor__heading {
 .pricing-table-group-heading {
     position: sticky;
     top: 228px;
-    background: var(--scalar-background-1)
+    padding: 8px 12px;
+    background: var(--pricing-table-bg);
+    font-weight: var(--scalar-bold);
 }
 .pricing-table-group-heading {
-    padding: 8px 12px;
-    background: var(--pricing-table-bg)
-}
-.pricing-table-group-heading h4 {
     color: var(--scalar-background-1);
     font-size: var(--scalar-font-size-4);
 }
