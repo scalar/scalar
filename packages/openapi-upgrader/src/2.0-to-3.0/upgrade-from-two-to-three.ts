@@ -129,17 +129,19 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
         } else if (param.in === 'formData') {
           bodyParams[name] = migrateFormDataParameter([param as OpenAPIV2.ParameterObject])
         } else {
-          params[name] = transformParameterObject(param as OpenAPIV2.ParameterObject)
+          const convertedParam = transformParameterObject(param as OpenAPIV2.ParameterObject)
+          if ('$ref' in convertedParam) throw new Error('Unexpected $ref in non-body/formData parameter')
+          params[name] = convertedParam as OpenAPIV3.ParameterObject
         }
       }
     }
 
     if (Object.keys(params).length > 0) {
-      (document.components as UnknownObject).parameters = params
+      ;(document.components as UnknownObject).parameters = params
     }
 
     if (Object.keys(bodyParams).length > 0) {
-      (document.components as UnknownObject).requestBodies = bodyParams
+      ;(document.components as UnknownObject).requestBodies = bodyParams
     }
 
     delete document.parameters
@@ -208,7 +210,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
                         }
                         return acc
                       },
-                      {} as Record<string, OpenAPIV3.ParameterObject>,
+                      {} as Record<string, OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject>,
                     )
                   }
                   if (responseItem.schema) {
@@ -359,7 +361,9 @@ function getParameterLocation(location: OpenAPIV2.ParameterLocation): OpenAPIV3.
   return location as OpenAPIV3.ParameterLocation
 }
 
-function transformParameterObject(parameter: OpenAPIV2.ParameterObject | OpenAPIV2.ReferenceObject): OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject {
+function transformParameterObject(
+  parameter: OpenAPIV2.ParameterObject | OpenAPIV2.ReferenceObject,
+): OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject {
   if (Object.hasOwn(parameter, '$ref') && '$ref' in parameter) {
     return {
       $ref: parameter.$ref,
@@ -447,7 +451,7 @@ function getParameterSerializationStyle(parameter: OpenAPIV2.ParameterObject): P
 }
 
 type ParameterMigrationResult = {
-  parameters: OpenAPIV3.ParameterObject[]
+  parameters: (OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject)[]
   requestBody?: OpenAPIV3.RequestBodyObject
 }
 
