@@ -1,6 +1,6 @@
 import { describe, expectTypeOf, it } from 'vitest'
 
-import type { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from './openapi-types'
+import type { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1, OpenAPIV3_2 } from './openapi-types'
 
 describe('OpenAPI', () => {
   it('has a generic type', () => {
@@ -49,6 +49,22 @@ describe('OpenAPI', () => {
     }
 
     expectTypeOf(specification).toMatchTypeOf<OpenAPIV3_1.Document>()
+  })
+
+  it('narrows it down to OpenAPI 3.1.2', () => {
+    const specification: OpenAPI.Document = {
+      openapi: '3.1.2',
+    }
+
+    expectTypeOf(specification).toMatchTypeOf<OpenAPIV3_1.Document>()
+  })
+
+  it('narrows it down to OpenAPI 3.2.0', () => {
+    const specification: OpenAPI.Document = {
+      openapi: '3.2.0',
+    }
+
+    expectTypeOf(specification).toMatchTypeOf<OpenAPIV3_2.Document>()
   })
 
   it('types a custom extension', () => {
