@@ -114,8 +114,6 @@ channels:
     bindings:
       ws:
         method: GET
-        security:
-          - $ref: '#/components/securitySchemes/bearerAuth'
   systemEvents:
     address: 'system/events'
     description: |
