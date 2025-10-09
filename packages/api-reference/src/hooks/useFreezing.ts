@@ -17,9 +17,12 @@ export const useFreezing = () => {
 
   const lazyIds = ref<Set<string>>(new Set())
 
+  /** We don't want to freeze if we have lazy loaded once already */
+  const elemToFreeze = hasLazyLoaded.value ? '' : hash.value
+
   /** Tries to freeze the scroll position of the element */
   // console.log('⏸️ FREEZING', hash.value)
-  const unfreeze = freezeAtTop(hasLazyLoaded.value ? '' : hash.value)
+  const unfreeze = freezeAtTop(elemToFreeze)
 
   /** Resume scrolling */
   const resume = () => {
