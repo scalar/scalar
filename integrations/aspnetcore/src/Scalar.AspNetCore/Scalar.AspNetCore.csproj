@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <!--    <DefineConstants>$(DefineConstants);SCALAR_ASPNETCORE</DefineConstants>-->
   </PropertyGroup>
 
   <PropertyGroup>
@@ -22,6 +23,10 @@
     <InternalsVisibleTo Include="$(AssemblyName).Microsoft" />
     <InternalsVisibleTo Include="$(AssemblyName).Swashbuckle" />
     <InternalsVisibleTo Include="$(AssemblyName).Benchmarks" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../Scalar.Shared/**/*.cs" Exclude="../Scalar.Shared/obj/**/*" Link="Shared/%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>
