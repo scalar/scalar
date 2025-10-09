@@ -19,7 +19,7 @@ export const useFreezing = () => {
 
   /** Tries to freeze the scroll position of the element */
   // console.log('⏸️ FREEZING', hash.value)
-  const unfreeze = hasLazyLoaded.value ? () => null : freezeAtTop(hash.value)
+  const unfreeze = freezeAtTop(hasLazyLoaded.value ? '' : hash.value)
 
   /** Resume scrolling */
   const resume = () => {
