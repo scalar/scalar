@@ -13,7 +13,7 @@ using System.ComponentModel;
 using System.Text.Json.Serialization;
 using NetEscapades.EnumGenerators;
 
-namespace Scalar.AspNetCore;
+namespace Scalar.Aspire;
 
 /// <summary>
 /// Represents the different clients available in Scalar.

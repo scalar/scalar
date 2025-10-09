@@ -10,7 +10,7 @@ public class ScalarOptionsMapperTests
         var configurations = finalOptions.ToScalarConfigurationsAsync(TestContext.Current.CancellationToken).ToBlockingEnumerable(TestContext.Current.CancellationToken);
         return configurations;
     }
-    
+
     [Fact]
     public void ToScalarConfigurations_ShouldReturnCorrectDefaultConfiguration()
     {
@@ -146,11 +146,11 @@ public class ScalarOptionsMapperTests
         var options = new ScalarTestOptions { EnabledTargets = [ScalarTarget.CSharp] };
 
         // Act
-        var hiddenClients = (IDictionary<string, IEnumerable<string>>) options.ToScalarConfiguration().HiddenClients!;
+        var hiddenClients = (IDictionary<ScalarTarget, ScalarClient[]>) options.ToScalarConfiguration().HiddenClients!;
 
         // Assert
-        hiddenClients.Should().HaveCount(ScalarOptionsMapper.ClientOptions.Count - 1);
-        hiddenClients.Should().NotContainKey("csharp");
+        hiddenClients.Should().HaveCount(ScalarOptionsMapper.AvailableClientsByTarget.Count - 1);
+        hiddenClients.Should().NotContainKey(ScalarTarget.CSharp);
     }
 
     [Fact]
@@ -160,14 +160,14 @@ public class ScalarOptionsMapperTests
         var options = new ScalarTestOptions { EnabledClients = [ScalarClient.HttpClient, ScalarClient.Python3] };
 
         // Act
-        var hiddenClients = (IDictionary<string, IEnumerable<string>>) options.ToScalarConfiguration().HiddenClients!;
+        var hiddenClients = (IDictionary<ScalarTarget, ScalarClient[]>) options.ToScalarConfiguration().HiddenClients!;
 
         // Assert
-        hiddenClients.Should().HaveCount(ScalarOptionsMapper.ClientOptions.Count);
-        hiddenClients.Should().ContainKey("csharp")
-            .WhoseValue.Should().ContainSingle().Which.Should().Be("restsharp");
-        hiddenClients.Should().ContainKey("python")
-            .WhoseValue.Should().ContainInOrder("requests", "httpx_sync", "httpx_async");
+        hiddenClients.Should().HaveCount(ScalarOptionsMapper.AvailableClientsByTarget.Count - 1);
+        hiddenClients.Should().ContainKey(ScalarTarget.CSharp)
+            .WhoseValue.Should().ContainSingle().Which.Should().Be(ScalarClient.RestSharp);
+        hiddenClients.Should().ContainKey(ScalarTarget.Python)
+            .WhoseValue.Should().BeEquivalentTo([ScalarClient.Requests, ScalarClient.HttpxSync, ScalarClient.HttpxAsync]);
     }
 
     [Fact]
@@ -177,11 +177,11 @@ public class ScalarOptionsMapperTests
         var options = new ScalarTestOptions { EnabledClients = [ScalarClient.OkHttp] }; // All Kotlin clients are enabled
 
         // Act
-        var hiddenClients = (IDictionary<string, IEnumerable<string>>) options.ToScalarConfiguration().HiddenClients!;
+        var hiddenClients = (IDictionary<ScalarTarget, ScalarClient[]>) options.ToScalarConfiguration().HiddenClients!;
 
         // Assert
-        hiddenClients.Should().HaveCount(ScalarOptionsMapper.ClientOptions.Count - 1);
-        hiddenClients.Should().NotContainKey("kotlin");
+        hiddenClients.Should().HaveCount(ScalarOptionsMapper.AvailableClientsByTarget.Count - 1);
+        hiddenClients.Should().NotContainKey(ScalarTarget.Kotlin);
     }
 
     [Fact]
