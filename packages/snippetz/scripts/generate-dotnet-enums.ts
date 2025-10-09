@@ -8,8 +8,6 @@ import { clients } from '@scalar/snippetz/clients'
  * Generator script to create C# enums from TypeScript clients configuration.
  * This script directly imports the clients array from @scalar/snippetz,
  * ensuring the C# enums stays in perfect sync with the TypeScript source of truth.
- *
- * Supports multiple .NET packages with configurable namespaces and output directories.
  */
 
 /**
@@ -364,5 +362,4 @@ function main(): void {
   }
 }
 
-// Run the generator
 main()
