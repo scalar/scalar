@@ -1,0 +1,81 @@
+name: Scalar Registry Preview
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - closed
+
+jobs:
+  publish-update-preview:
+    if: github.event.action == 'opened' || github.event.action == 'synchronize'
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        node-version: [22]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: Check whether there's a new version of @scalar/galaxy
+        id: changed-files
+        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
+        with:
+          files_yaml: |
+            galaxy:
+              - packages/galaxy/**
+
+      - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
+        name: Build @scalar/galaxy
+        uses: ./.github/actions/build-blacksmith
+        with:
+          node-version: ${{ matrix.node-version }}
+          packages: '@scalar/galaxy...'
+
+      - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
+        name: Extract version and generate preview version
+        working-directory: packages/galaxy
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          BRANCH_NAME=$(echo "${{ github.head_ref }}" | sed 's/[^a-zA-Z0-9-]/-/g')
+          PREVIEW_VERSION="${VERSION}-${BRANCH_NAME}"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          echo "PREVIEW_VERSION=$PREVIEW_VERSION" >> $GITHUB_ENV
+
+      - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
+        name: Login to Scalar Registry
+        run: npx @scalar/cli auth login --token ${{ secrets.SCALAR_API_KEY }}
+
+      - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
+        name: Publish preview version to Scalar Registry
+        run: npx @scalar/cli registry publish --force --namespace scalar --slug galaxy --version ${{ env.PREVIEW_VERSION }} packages/galaxy/dist/latest.yaml
+
+  delete-preview:
+    if: github.event.action == 'closed'
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        node-version: [22]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: Extract version and generate preview version
+        working-directory: packages/galaxy
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          BRANCH_NAME=$(echo "${{ github.head_ref }}" | sed 's/[^a-zA-Z0-9-]/-/g')
+          PREVIEW_VERSION="${VERSION}-${BRANCH_NAME}"
+          echo "PREVIEW_VERSION=$PREVIEW_VERSION" >> $GITHUB_ENV
+
+      - name: Login to Scalar Registry
+        run: npx @scalar/cli auth login --token ${{ secrets.SCALAR_API_KEY }}
+
+      - name: Delete preview version from Scalar Registry
+        run: npx @scalar/cli registry delete --namespace scalar --slug galaxy --version ${{ env.PREVIEW_VERSION }}
