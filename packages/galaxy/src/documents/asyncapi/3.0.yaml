@@ -34,7 +34,7 @@ servers:
     description: Production WebSocket server for real-time events
     security:
       - $ref: '#/components/securitySchemes/bearerAuth'
-      - $ref: '#/components/securitySchemes/apiKeyQuery'
+      - $ref: '#/components/securitySchemes/httpApiKey'
     tags:
       - name: production
         description: Production environment
@@ -1828,14 +1828,19 @@ components:
               type: number
               format: float
     CelestialBody:
-      oneOf:
-        - $ref: '#/components/schemas/Planet'
-        - $ref: '#/components/schemas/Satellite'
-      discriminator:
-        propertyName: type
-        mapping:
-          planet: '#/components/schemas/Planet'
-          satellite: '#/components/schemas/Satellite'
+      type: object
+      required: [type]
+      properties:
+        type:
+          type: string
+          enum: ['planet', 'satellite']
+          description: Type of celestial body
+        planet:
+          $ref: '#/components/schemas/Planet'
+          description: Planet data (when type is 'planet')
+        satellite:
+          $ref: '#/components/schemas/Satellite'
+          description: Satellite data (when type is 'satellite')
       description: A celestial body which can be either a planet or a satellite
     User:
       description: A user
