@@ -78,7 +78,6 @@ const sidebarRef = ref<HTMLElement | null>(null)
   <div
     ref="sidebarRef"
     class="relative"
-    :class="{ dragging: isDragging }"
     :style="{
       width: `${width}px`,
       /** Hide sidebar on smaller screens */
@@ -139,14 +138,19 @@ const sidebarRef = ref<HTMLElement | null>(null)
 .dragging .resizer {
   border-right-color: var(--scalar-background-3);
 }
+</style>
+<style>
 .dragging {
   cursor: col-resize;
 }
-.dragging::before {
+
+.dragging::after {
   content: '';
   display: block;
   position: absolute;
-  width: 100%;
-  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 </style>
