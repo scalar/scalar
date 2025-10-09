@@ -8,7 +8,7 @@ import type { Record } from '@scalar/typebox'
 import { Value } from '@scalar/typebox/value'
 import type { PartialDeep } from 'type-fest/source/partial-deep'
 import type { RequiredDeep } from 'type-fest/source/required-deep'
-import { reactive } from 'vue'
+import { reactive, toRaw } from 'vue'
 import YAML from 'yaml'
 
 import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
@@ -16,7 +16,7 @@ import { deepClone } from '@/helpers/deep-clone'
 import { type UnknownObject, isObject, safeAssign } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
-import { createOverridesProxy } from '@/helpers/overrides-proxy'
+import { createOverridesProxy, unpackOverridesProxy } from '@/helpers/overrides-proxy'
 import { createNavigation } from '@/navigation'
 import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
 import { getServersFromDocument } from '@/preprocessing/server'
@@ -863,11 +863,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       )
     },
     rebaseDocument: (documentName, newDocumentOrigin, resolvedConflicts) => {
-      const newOrigin = upgrade(newDocumentOrigin, '3.1')
-
       const originalDocument = originalDocuments[documentName]
       const intermediateDocument = intermediateDocuments[documentName]
-      const activeDocument = workspace.documents[documentName] ? getRaw(workspace.documents[documentName]) : undefined // raw version without any overrides
+      const activeDocument = workspace.documents[documentName]
+        ? toRaw(getRaw(unpackOverridesProxy(workspace.documents[documentName])))
+        : undefined // raw version without any overrides
 
       if (!originalDocument || !intermediateDocument || !activeDocument) {
         // If any required document state is missing, do nothing
@@ -875,7 +875,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       }
 
       // ---- Get the new intermediate document
-      const changelogAA = diff(originalDocument, newOrigin)
+      const changelogAA = diff(originalDocument, newDocumentOrigin)
       const changelogAB = diff(originalDocument, intermediateDocument)
 
       const changesA = merge(changelogAA, changelogAB)
@@ -892,7 +892,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       intermediateDocuments[documentName] = newIntermediateDocument
 
       // Update the original document
-      originalDocuments[documentName] = newOrigin
+      originalDocuments[documentName] = newDocumentOrigin
 
       // ---- Get the new active document
       const changelogBA = diff(intermediateDocument, newIntermediateDocument)

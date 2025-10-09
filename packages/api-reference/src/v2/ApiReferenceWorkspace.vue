@@ -153,7 +153,8 @@ const addOrUpdateDocument = async (
       // Disable intersection observer to prevent url changing
       isIntersectionEnabled.value = false
 
-      store.replaceDocument(name, document)
+      // Override if we have any conflicts
+      store.rebaseDocument(name, document, [])
 
       // Lets set it to active as well just in case the name changed
       store.update('x-scalar-active-document', name)
