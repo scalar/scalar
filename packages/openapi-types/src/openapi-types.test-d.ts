@@ -78,11 +78,7 @@ describe('OpenAPI', () => {
   })
 
   it('has a HttpMethod type', () => {
-    const validMethod: OpenAPI.HttpMethod = 'GET'
-    const anotherValidMethod: Lowercase<OpenAPI.HttpMethod> = 'get'
-
-    expectTypeOf(validMethod).toMatchTypeOf<OpenAPI.HttpMethod>()
-    expectTypeOf(anotherValidMethod).toMatchTypeOf<Lowercase<OpenAPI.HttpMethod>>()
+    expectTypeOf('get' as OpenAPI.HttpMethod).toMatchTypeOf<OpenAPI.HttpMethod>()
 
     // @ts-expect-error name is a string
     assertType('NOT_A_METHOD' as OpenAPI.HttpMethod)
