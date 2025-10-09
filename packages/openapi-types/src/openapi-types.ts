@@ -432,14 +432,14 @@ export namespace OpenAPIV3_1 {
   export type HeaderObject = Modify<
     OpenAPIV3.HeaderObject,
     {
-      content?: { [media: string]: ReferenceObject | MediaTypeObject }
+      content?: { [media: string]: MediaTypeObject }
     }
   >
 
   export type ParameterBaseObject = Modify<
     OpenAPIV3.ParameterBaseObject,
     {
-      content?: { [media: string]: ReferenceObject | MediaTypeObject }
+      content?: { [media: string]: MediaTypeObject }
     }
   >
 
