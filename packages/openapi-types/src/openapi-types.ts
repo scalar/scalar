@@ -41,9 +41,17 @@ export namespace OpenAPI {
     query?: object
   }
 
-  export type ResponseObject = OpenAPIV2.ResponseObject | OpenAPIV3.ResponseObject | OpenAPIV3_1.ResponseObject | OpenAPIV3_2.ResponseObject
+  export type ResponseObject =
+    | OpenAPIV2.ResponseObject
+    | OpenAPIV3.ResponseObject
+    | OpenAPIV3_1.ResponseObject
+    | OpenAPIV3_2.ResponseObject
 
-  export type HeaderObject = OpenAPIV2.HeaderObject | OpenAPIV3.HeaderObject | OpenAPIV3_1.HeaderObject | OpenAPIV3_2.HeaderObject
+  export type HeaderObject =
+    | OpenAPIV2.HeaderObject
+    | OpenAPIV3.HeaderObject
+    | OpenAPIV3_1.HeaderObject
+    | OpenAPIV3_2.HeaderObject
 
   export type Parameter =
     | OpenAPIV3_2.ReferenceObject
@@ -61,11 +69,23 @@ export namespace OpenAPI {
     | (OpenAPIV3.ReferenceObject | OpenAPIV3.ParameterObject)[]
     | (OpenAPIV2.ReferenceObject | OpenAPIV2.Parameter)[]
 
-  export type ExampleObject = OpenAPIV2.ExampleObject | OpenAPIV3.ExampleObject | OpenAPIV3_1.ExampleObject | OpenAPIV3_2.ExampleObject
+  export type ExampleObject =
+    | OpenAPIV2.ExampleObject
+    | OpenAPIV3.ExampleObject
+    | OpenAPIV3_1.ExampleObject
+    | OpenAPIV3_2.ExampleObject
 
-  export type SchemaObject = OpenAPIV2.SchemaObject | OpenAPIV3.SchemaObject | OpenAPIV3_1.SchemaObject | OpenAPIV3_2.SchemaObject
+  export type SchemaObject =
+    | OpenAPIV2.SchemaObject
+    | OpenAPIV3.SchemaObject
+    | OpenAPIV3_1.SchemaObject
+    | OpenAPIV3_2.SchemaObject
 
-  export type HttpMethod = keyof typeof OpenAPIV2.HttpMethods | OpenAPIV3.HttpMethods | OpenAPIV3_1.HttpMethods | OpenAPIV3_2.HttpMethods
+  export type HttpMethod =
+    | keyof typeof OpenAPIV2.HttpMethods
+    | OpenAPIV3.HttpMethods
+    | OpenAPIV3_1.HttpMethods
+    | OpenAPIV3_2.HttpMethods
 }
 
 // biome-ignore lint/style/noNamespace: We want it to be a module here.
@@ -147,11 +167,13 @@ export namespace OpenAPIV3_2 {
 
   export type ParameterLocation = OpenAPIV3_1.ParameterLocation | 'querystring'
 
-  export type ParameterObject = Modify<OpenAPIV3_1.ParameterObject,
-  {
-    style?: ParameterStyle,
-    in?: ParameterLocation
-  }>
+  export type ParameterObject = Modify<
+    OpenAPIV3_1.ParameterObject,
+    {
+      style?: ParameterStyle
+      in?: ParameterLocation
+    }
+  >
 
   export type HeaderObject = OpenAPIV3_1.HeaderObject
 
@@ -268,9 +290,11 @@ export namespace OpenAPIV3_2 {
   export type ApiKeySecurityScheme = OpenAPIV3_1.ApiKeySecurityScheme
 
   export type OAuthFlows = OpenAPIV3_1.OAuthFlows & {
-    deviceAuthorization?: AnyOtherAttribute & OpenAPIV3.OAuthFlowBase & OpenAPIV3.OAuthFlowTokenUrlTrait & {
-      deviceAuthorizationUrl?: string
-    }
+    deviceAuthorization?: AnyOtherAttribute &
+      OpenAPIV3.OAuthFlowBase &
+      OpenAPIV3.OAuthFlowTokenUrlTrait & {
+        deviceAuthorizationUrl?: string
+      }
   }
 
   export type OAuth2SecurityScheme = OpenAPIV3_1.OAuth2SecurityScheme
@@ -624,7 +648,14 @@ export namespace OpenAPIV3 {
 
   export type HeaderObject = {} & ParameterBaseObject
 
-  export type ParameterStyle = 'matrix' | 'label' | 'form' | 'simple' | 'spaceDelimited' | 'pipeDelimited' | 'deepObject'
+  export type ParameterStyle =
+    | 'matrix'
+    | 'label'
+    | 'form'
+    | 'simple'
+    | 'spaceDelimited'
+    | 'pipeDelimited'
+    | 'deepObject'
 
   export type ParameterBaseObject = {
     description?: string
