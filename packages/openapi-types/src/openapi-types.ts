@@ -82,7 +82,7 @@ export namespace OpenAPI {
     | OpenAPIV3_2.SchemaObject
 
   export type HttpMethod =
-    | keyof typeof OpenAPIV2.HttpMethods
+    | OpenAPIV2.HttpMethods
     | OpenAPIV3.HttpMethods
     | OpenAPIV3_1.HttpMethods
     | OpenAPIV3_2.HttpMethods
@@ -1067,15 +1067,7 @@ export namespace OpenAPIV2 {
   // See https://swagger.io/specification/v2#path-item-object
   // You can use keys or values from it in TypeScript code like this:
   //     for (const method of Object.values(OpenAPIV2.HttpMethods)) { … }
-  export enum HttpMethods {
-    GET = 'get',
-    PUT = 'put',
-    POST = 'post',
-    DELETE = 'delete',
-    OPTIONS = 'options',
-    HEAD = 'head',
-    PATCH = 'patch',
-  }
+  export type HttpMethods = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch'
 
   export type PathItemObject<T = {}> = {
     $ref?: string
