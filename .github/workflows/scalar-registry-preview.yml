@@ -48,11 +48,11 @@ jobs:
 
       - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
         name: Login to Scalar Registry
-        run: npx @scalar/cli auth login --token ${{ secrets.SCALAR_API_KEY }}
+        run: npx @scalar/cli@latest auth login --token ${{ secrets.SCALAR_API_KEY }}
 
       - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
         name: Publish preview version to Scalar Registry
-        run: npx @scalar/cli registry publish --force --namespace scalar --slug galaxy --version ${{ env.PREVIEW_VERSION }} packages/galaxy/dist/latest.yaml
+        run: npx @scalar/cli@latest registry publish --force --namespace scalar --slug galaxy --version ${{ env.PREVIEW_VERSION }} packages/galaxy/dist/latest.yaml
 
   delete-preview:
     if: github.event.action == 'closed'
@@ -75,7 +75,7 @@ jobs:
           echo "PREVIEW_VERSION=$PREVIEW_VERSION" >> $GITHUB_ENV
 
       - name: Login to Scalar Registry
-        run: npx @scalar/cli auth login --token ${{ secrets.SCALAR_API_KEY }}
+        run: npx @scalar/cli@latest auth login --token ${{ secrets.SCALAR_API_KEY }}
 
       - name: Delete preview version from Scalar Registry
-        run: npx @scalar/cli registry delete --namespace scalar --slug galaxy --version ${{ env.PREVIEW_VERSION }}
+        run: npx @scalar/cli@latest registry delete --namespace scalar --slug galaxy --version ${{ env.PREVIEW_VERSION }}
