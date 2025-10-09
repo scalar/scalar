@@ -14,7 +14,7 @@ type LayoutOptions = {
   hideTestRequestButton?: boolean
 }
 
-const { configuration } = defineProps<{
+const { configuration = {} } = defineProps<{
   configuration?: Partial<ApiReferenceConfiguration>
 }>()
 
@@ -26,25 +26,16 @@ function getValue(key: keyof LayoutOptions, defaultValue: boolean = false) {
   return model.value[key] ?? configuration?.[key] ?? defaultValue
 }
 
-function setValue(
-  key: keyof LayoutOptions,
-  value: boolean,
-  defaultValue: boolean = false,
-) {
-  if (value !== defaultValue) {
-    model.value = { ...model.value, [key]: value }
-  } else {
-    model.value = Object.fromEntries(
-      Object.entries(model.value).filter(([k]) => key !== k),
-    )
-  }
+function setValue(key: keyof LayoutOptions, value: boolean) {
+  // Apply the value making sure it's bumped to the top of the list
+  model.value = { [key]: value, ...model.value, [key]: value }
 }
 </script>
 <template>
   <ScalarFormInputGroup>
     <ScalarToggleInput
       :modelValue="getValue('showSidebar', true)"
-      @update:modelValue="(v) => setValue('showSidebar', !!v, true)">
+      @update:modelValue="(v) => setValue('showSidebar', !!v)">
       Show Sidebar
     </ScalarToggleInput>
     <ScalarToggleInput
