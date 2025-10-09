@@ -16,7 +16,7 @@ type Cookie = {
   isDisabled?: boolean
 }
 
-const { sidebarWidth = 300 } = defineProps<{
+const { sidebarWidth } = defineProps<{
   /** Current selected document name or when null it means workspace level cookies */
   documentName: string | null
   /** List of all document names */
