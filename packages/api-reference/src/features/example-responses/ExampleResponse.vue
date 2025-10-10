@@ -32,7 +32,7 @@ const getContent = () => {
   return ''
 }
 
-const VIRTUALIZATION_THRESHOLD = 30_000
+const VIRTUALIZATION_THRESHOLD = 20_000
 
 // Virtualize the code block if it's too large
 const shouldVirtualize = computed(
