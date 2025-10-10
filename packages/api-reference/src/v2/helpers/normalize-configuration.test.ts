@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { normalizeContent } from './normalize-content'
+
+import { normalizeContent } from './normalize-configurations'
 
 describe('normalizeContent', () => {
   describe('function input', () => {
@@ -37,7 +38,7 @@ describe('normalizeContent', () => {
       const content = () => undefined as any
       const result = normalizeContent(content)
 
-      expect(result).toBeUndefined()
+      expect(result).toBeNull()
     })
   })
 
@@ -146,9 +147,9 @@ info:
 
   describe('undefined input', () => {
     it('should return undefined', () => {
-      const result = normalizeContent(undefined)
+      const result = normalizeContent(undefined as any)
 
-      expect(result).toBeUndefined()
+      expect(result).toBeNull()
     })
   })
 
@@ -156,7 +157,7 @@ info:
     it('should handle empty string', () => {
       const content = ''
 
-      expect(normalizeContent(content)).toBeUndefined()
+      expect(normalizeContent(content)).toBeNull()
     })
 
     it('should handle function that throws an error', () => {
@@ -171,7 +172,7 @@ info:
       const content = () => null as any
       const result = normalizeContent(content)
 
-      expect(result).toBeUndefined()
+      expect(result).toBeNull()
     })
 
     it('should handle function that returns primitive values', () => {

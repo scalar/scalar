@@ -1,7 +1,9 @@
 import { REFERENCE_LS_KEYS, safeLocalStorage } from '@scalar/helpers/object/local-storage'
-import { generateClientMutators, type WorkspaceStore } from '@scalar/workspace-store/client'
+import { type WorkspaceStore, generateClientMutators } from '@scalar/workspace-store/client'
 import { onCustomEvent } from '@scalar/workspace-store/events'
 import type { Ref } from 'vue'
+
+import { downloadDocument } from '@/libs/download'
 
 export const useWorkspaceStoreEvents = (store: WorkspaceStore, root: Ref<HTMLElement | null>) => {
   const mutators = generateClientMutators(store)
@@ -104,5 +106,14 @@ export const useWorkspaceStoreEvents = (store: WorkspaceStore, root: Ref<HTMLEle
 
   onCustomEvent(root, 'scalar-delete-server', (event) => {
     mutators.active().serverMutators.deleteServer(event.detail.url)
+  })
+
+  onCustomEvent(root, 'scalar-download-document', (event) => {
+    const format = event.detail.format
+    const document = store.exportActiveDocument(format)
+    if (!document) {
+      return
+    }
+    downloadDocument(document, store.workspace['x-scalar-active-document'] ?? 'openapi', format)
   })
 }

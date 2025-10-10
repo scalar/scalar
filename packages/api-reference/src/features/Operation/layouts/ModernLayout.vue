@@ -48,7 +48,7 @@ const { path, operation, method } = defineProps<{
   operation: OperationObject
   securitySchemes: SecuritySchemeObject[]
   server: ServerObject | undefined
-  store: WorkspaceStore
+  xScalarDefaultClient: WorkspaceStore['workspace']['x-scalar-default-client']
   /** Global options that can be derived from the top level config or assigned at a block level */
   options: {
     /** Sets some additional display properties when an operation is a webhook */
@@ -179,7 +179,7 @@ const labelId = useId()
                 :operation="operation"
                 :path="path"
                 :securitySchemes="securitySchemes"
-                :selectedClient="store.workspace['x-scalar-default-client']"
+                :selectedClient="xScalarDefaultClient"
                 :selectedServer="server">
                 <template #header>
                   <OperationPath

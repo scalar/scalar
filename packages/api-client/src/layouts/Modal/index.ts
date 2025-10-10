@@ -1,2 +1,3 @@
-export { default as ApiClientModal } from './ApiClientModal.vue'
-export { createApiClientModal, createApiClientModalSync } from './create-api-client-modal'
+export type { ApiClient } from '@/libs'
+
+export { createApiClientModal } from './create-api-client-modal'

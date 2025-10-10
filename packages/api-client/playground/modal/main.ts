@@ -1,6 +1,6 @@
 import { createApiClientModal } from '@/index'
 
-const { open } = await createApiClientModal({
+const { client } = await createApiClientModal({
   el: document.getElementById('app'),
   configuration: {
     url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
@@ -9,7 +9,7 @@ const { open } = await createApiClientModal({
 })
 
 // Open the API client right-away
-open()
+client.open()
 
 document.getElementById('button')?.addEventListener('click', () => open())
 

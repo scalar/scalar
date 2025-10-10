@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { createApiClientModal } from './create-api-client-modal'
 import { enableConsoleWarn } from '@/vitest.setup'
+
+import { createApiClientModal } from './create-api-client-modal'
 
 describe('createApiClientModal', () => {
   it('renders something', async () => {

@@ -1,3 +1,14 @@
+import { LS_KEYS } from '@scalar/helpers/object/local-storage'
+import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
+import { type Workspace, workspaceSchema } from '@scalar/oas-utils/entities/workspace'
+import { prettyPrintJson } from '@scalar/oas-utils/helpers'
+import { DATA_VERSION, DATA_VERSION_LS_LEY } from '@scalar/oas-utils/migrations'
+import type { Path, PathValue } from '@scalar/object-utils/nested'
+import { type ApiClientConfiguration, apiClientConfigurationSchema } from '@scalar/types/api-reference'
+import type { OpenAPI } from '@scalar/types/legacy'
+import { type Component, createApp, ref, watch } from 'vue'
+import type { Router } from 'vue-router'
+
 import { CLIENT_CONFIGURATION_SYMBOL } from '@/hooks/useClientConfig'
 import { type ClientLayout, LAYOUT_SYMBOL } from '@/hooks/useLayout'
 import { SIDEBAR_SYMBOL, createSidebarState } from '@/hooks/useSidebar'
@@ -6,16 +17,6 @@ import { loadAllResources } from '@/libs/local-storage'
 import { PLUGIN_MANAGER_SYMBOL, createPluginManager } from '@/plugins'
 import { ACTIVE_ENTITIES_SYMBOL, createActiveEntitiesStore } from '@/store/active-entities'
 import { WORKSPACE_SYMBOL, type WorkspaceStore, createWorkspaceStore } from '@/store/store'
-import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
-import { type Workspace, workspaceSchema } from '@scalar/oas-utils/entities/workspace'
-import { prettyPrintJson } from '@scalar/oas-utils/helpers'
-import { LS_KEYS } from '@scalar/helpers/object/local-storage'
-import { DATA_VERSION, DATA_VERSION_LS_LEY } from '@scalar/oas-utils/migrations'
-import type { Path, PathValue } from '@scalar/object-utils/nested'
-import { type ApiClientConfiguration, apiClientConfigurationSchema } from '@scalar/types/api-reference'
-import type { OpenAPI } from '@scalar/types/legacy'
-import { type Component, createApp, ref, watch } from 'vue'
-import type { Router } from 'vue-router'
 
 export type OpenClientPayload = (
   | {
@@ -62,10 +63,10 @@ export type CreateApiClientParams = {
 /**
  * ApiClient type
  *
- * We need to do this due to some typescript type propogation errors
+ * We need to do this due to some typescript type propagation errors
  * This is pretty much add properties as they are needed
  */
-export type ApiClient = Omit<Awaited<ReturnType<typeof createApiClient>>, 'app' | 'store'> & {
+export type ApiClient = Omit<ReturnType<typeof createApiClient>, 'app' | 'store'> & {
   /** Add properties as they are needed, see above */
   app: { unmount: () => void }
   /**

@@ -1,8 +1,9 @@
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
+import { createRouter, createWebHistory } from 'vue-router'
 
 import { analytics } from '@/analytics'
 import { createApiClient } from '@/libs'
-import { createWebHistoryRouter, saveActiveWorkspace } from '@/router'
+import { routes, saveActiveWorkspace } from '@/routes'
 
 import ApiClientApp from './ApiClientApp.vue'
 
@@ -19,9 +20,12 @@ export const createApiClientApp = async (
    * For SSR this may need to be blocked and done client side
    */
   mountOnInitialize = true,
-  /** Vue router to use */
-  router = createWebHistoryRouter(),
 ) => {
+  const router = createRouter({
+    history: createWebHistory(),
+    routes,
+  })
+
   const client = createApiClient({
     el,
     appComponent: ApiClientApp,
@@ -54,5 +58,8 @@ export const createApiClientApp = async (
     await importSpecFile(configuration.content, 'default')
   }
 
-  return client
+  return {
+    client,
+    router,
+  }
 }

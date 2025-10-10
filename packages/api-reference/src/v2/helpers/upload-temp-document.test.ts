@@ -6,7 +6,7 @@ vi.mock('@/consts/urls', () => ({
   UPLOAD_TEMP_API_URL: 'https://example.test/share/upload/apis',
 }))
 
-import { uploadTempDocument } from './uploadTempDocument'
+import { uploadTempDocument } from './upload-temp-document'
 
 type MockFetchResponse = {
   ok: boolean
