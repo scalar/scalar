@@ -16,13 +16,15 @@ export const hooksSchema = z.object({
   onBeforeRequest: z
     .function({
       input: [z.object({ request: z.instanceof(Request) })],
-      output: z.union([z.void(), z.promise(z.void())]),
+      // Why no output? https://github.com/scalar/scalar/pull/7047
+      // output: z.union([z.void(), z.promise(z.void())]),
     })
     .optional(),
   onResponseReceived: z
     .function({
       input: [z.object({ response: z.instanceof(Response), operation: z.record(z.string(), z.any()) })],
-      output: z.union([z.void(), z.promise(z.void())]),
+      // Why no output? https://github.com/scalar/scalar/pull/7047
+      // output: z.union([z.void(), z.promise(z.void())]),
     })
     .optional(),
 })
