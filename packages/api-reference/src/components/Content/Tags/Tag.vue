@@ -15,13 +15,16 @@ const { tag, layout, moreThanOneTag, isLoading, onShowMore } = defineProps<{
 
 <template>
   <template v-if="layout === 'classic'">
-    <ClassicLayout :tag="tag">
+    <ClassicLayout
+      :layout="layout"
+      :tag="tag">
       <slot />
     </ClassicLayout>
   </template>
   <template v-else>
     <ModernLayout
       :isLoading="isLoading"
+      :layout="layout"
       :moreThanOneTag="moreThanOneTag"
       :onShowMore="onShowMore"
       :tag="tag">
