@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 
-import ClassicLayout from './ClassicLayout.vue'
-import ModernLayout from './ModernLayout.vue'
+import ClassicLayout from './components/ClassicLayout.vue'
+import ModernLayout from './components/ModernLayout.vue'
 
 const { tag, layout, moreThanOneTag, isLoading, onShowMore } = defineProps<{
   tag: TraversedTag

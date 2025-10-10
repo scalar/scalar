@@ -1,23 +1,36 @@
 <script setup lang="ts">
+import { parseJsonOrYaml, redirectToProxy } from '@scalar/oas-utils/helpers'
 import { dereferenceSync } from '@scalar/openapi-parser'
 import type {
   AnyApiReferenceConfiguration,
   ApiReferenceConfiguration,
   ApiReferenceConfigurationRaw,
+  SourceConfiguration,
 } from '@scalar/types/api-reference'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
-import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import {
+  createWorkspaceStore,
+  type UrlDoc,
+} from '@scalar/workspace-store/client'
 import { onCustomEvent } from '@scalar/workspace-store/events'
-import { computed, provide, ref, useTemplateRef, watch } from 'vue'
+import diff from 'microdiff'
+import {
+  computed,
+  onBeforeMount,
+  provide,
+  ref,
+  useTemplateRef,
+  watch,
+} from 'vue'
 
 import ApiReferenceLayout from '@/components/ApiReferenceLayout.vue'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import ApiReferenceToolbar from '@/features/toolbar/ApiReferenceToolbar.vue'
 import { NAV_STATE_SYMBOL } from '@/hooks/useNavState'
 import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
-import { addOrUpdateDocument } from '@/v2/helpers/add-update-document'
 import { mapConfigToClientStore } from '@/v2/helpers/map-config-to-client-store'
 import { mapConfigToWorkspaceStore } from '@/v2/helpers/map-config-to-workspace-store'
+import { mapConfiguration } from '@/v2/helpers/map-configuration'
 import { normalizeConfigurations } from '@/v2/helpers/normalize-configurations'
 import { useWorkspaceStoreEvents } from '@/v2/hooks/use-workspace-store-events'
 
@@ -29,7 +42,7 @@ const props = defineProps<{
   configuration?: AnyApiReferenceConfiguration
 }>()
 
-/** These slots render in their respective slots in the underlying ApiReferenceWorkspace component */
+/** These slots render in their respective slots in the underlying ApiReferenceLayout component */
 defineSlots<{
   'content-start'?(): unknown
   'content-end'?(): unknown
@@ -52,27 +65,22 @@ const root = useTemplateRef('root')
  * We will normalize the configurations and store them in a computed property.
  * The active configuration will be associated with the active document.
  */
-const configs = computed(() => normalizeConfigurations(props.configuration))
+const configList = computed(() => normalizeConfigurations(props.configuration))
 
 /** Search for the source with a default attribute or use the first one */
 const activeSlug = ref<string>(
-  Object.values(configs.value).find((c) => c.default)?.slug ??
-    configs.value[Object.keys(configs.value)?.[0] ?? '']?.slug ??
+  Object.values(configList.value).find((c) => c.default)?.slug ??
+    configList.value[Object.keys(configList.value)?.[0] ?? '']?.slug ??
     '',
 )
 
+/** Computed document options list for the selector logic */
 const documentOptionList = computed(() =>
-  Object.values(configs.value).map((c) => ({
+  Object.values(configList.value).map((c) => ({
     label: c.title,
     id: c.slug,
   })),
 )
-
-const changeSelectedDocument = (slug: string) => {
-  activeSlug.value = slug
-}
-
-const active = computed(() => configs.value[activeSlug.value])
 
 /** Configuration overrides to apply to the selected document (from the localhost toolbar) */
 const configurationOverrides = ref<
@@ -81,9 +89,12 @@ const configurationOverrides = ref<
 
 /** Any dev toolbar modifications are merged with the active configuration */
 const mergedConfig = computed<ApiReferenceConfigurationRaw>(() => ({
-  ...active.value.config,
+  ...configList.value[activeSlug.value].config,
   ...configurationOverrides.value,
 }))
+
+// ---------------------------------------------------------------------------
+/** Navigation State Handling */
 
 // Initialized navigation state
 const isIntersectionEnabled = ref(false)
@@ -99,32 +110,58 @@ provide(NAV_STATE_SYMBOL, {
   generateHeadingSlug: () => mergedConfig.value.generateHeadingSlug,
 })
 
+const QUERY_PARAMETER = 'api'
+
+/** Sync the URL with the selected document slug */
+function syncUrlWithDocument(
+  slug: string,
+  config: ApiReferenceConfigurationRaw,
+) {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  const url = new URL(window.location.href)
+
+  // Clear path if pathRouting is enabled
+  if (config.pathRouting) {
+    url.pathname = config.pathRouting?.basePath ?? ''
+  }
+
+  // Use slug if available, then fallback to index
+  const parameterValue = slug
+
+  url.searchParams.set(QUERY_PARAMETER, parameterValue)
+
+  window.history.replaceState({}, '', url.toString())
+
+  hash.value = ''
+  hashPrefix.value = ''
+  isIntersectionEnabled.value = false
+}
+
 // ---------------------------------------------------------------------------
-/**
- * Store Initialization
- *
- * During migration we must handle mapping between the legacy api-client store and the new workspace store.
- */
+/** Workspace Store Initialization */
 
 /**
  * Initializes the new client workspace store.
  */
 const workspaceStore = createWorkspaceStore()
 
-const colorModes = {
-  true: 'dark',
-  false: 'light',
-  undefined: undefined,
-} as const
-
 // TODO: persistence should be hoisted into standalone
 // Client side integrations will want to handle dark mode externally
 const { toggleColorMode, isDarkMode } = useColorMode({
-  initialColorMode:
-    colorModes[String(mergedConfig.value.darkMode) as keyof typeof colorModes],
+  initialColorMode: {
+    true: 'dark' as const,
+    false: 'light' as const,
+    undefined: 'system' as const,
+  }[String(mergedConfig.value.darkMode)],
   overrideColorMode: mergedConfig.value.forceDarkModeState,
 })
-/** Initialize the sidebar */
+
+/** Initialize the sidebar
+ * @todo Remove hook and do custom events for actions
+ */
 const { setCollapsedSidebarItem } = useSidebar(workspaceStore)
 
 /** Set up event listeners for client store events */
@@ -137,10 +174,161 @@ mapConfigToWorkspaceStore({
   isDarkMode,
 })
 
-const activeDocument = computed(() => workspaceStore.workspace.activeDocument)
+/**
+ * Handle changing the active document
+ *
+ * 1. If the document has not be loaded to the workspace store we set it to empty and asynchronously load it
+ * 2. If the document has been loaded to the workspace store we just set it to active
+ * 3. If the content from the configuration has changes we need to update the document in the workspace store
+ * 4. The API client temporary store will always be reset and re-initialized when the slug changes
+ */
+const changeSelectedDocument = async (slug: string) => {
+  activeSlug.value = slug
+  syncUrlWithDocument(slug, mergedConfig.value)
+
+  // Always set it to active; if the document is null we show a loading state
+  workspaceStore.update('x-scalar-active-document', slug)
+  const normalized = configList.value[slug]
+  if (!normalized) {
+    return
+  }
+  const config = {
+    ...normalized.config,
+    ...configurationOverrides.value,
+  }
+
+  const isFirstLoad = !workspaceStore.workspace.documents[slug]
+
+  isIntersectionEnabled.value = false
+
+  // If the document is not in the store, we asynchronously load it
+  if (isFirstLoad) {
+    const proxy: UrlDoc['fetch'] = (input, init) =>
+      fetch(
+        redirectToProxy(
+          config.proxyUrl ?? 'https://proxy.scalar.com',
+          input.toString(),
+        ),
+        init,
+      )
+
+    await workspaceStore.addDocument(
+      normalized.source.url
+        ? {
+            name: slug,
+            url: normalized.source.url,
+            config: mapConfiguration(config),
+            fetch: config.fetch ?? proxy,
+          }
+        : {
+            name: slug,
+            document: normalized.source.content ?? {},
+            config: mapConfiguration(config),
+          },
+    )
+  }
+
+  // Re-enable intersection observer
+  setTimeout(() => {
+    isIntersectionEnabled.value = true
+
+    // The first time we load a document, run the onLoaded callback
+    if (isFirstLoad) {
+      mergedConfig.value.onLoaded?.(slug)
+    }
+  }, 300)
+
+  // Map the document to the client store for now
+  const raw = JSON.parse(workspaceStore.exportActiveDocument('json') ?? '{}')
+  dereferenced.value = dereferenceSync(raw).schema
+}
+
+/**
+ * TODO:Move this to a dedicated updateDocument function in the future and
+ * away from vue-reactivity based updates
+ */
+watch(
+  () => Object.values(configList.value),
+  async (newConfigList, oldConfigList) => {
+    /** If we have not loaded the document we don't need to handle any updates */
+    if (!workspaceStore.workspace.documents[activeSlug.value]) {
+      return
+    }
+
+    const updateSource = async (
+      slug: string,
+      config: ApiReferenceConfigurationRaw,
+      source: SourceConfiguration,
+      previousSource: SourceConfiguration,
+    ) => {
+      /** If the URL has changed we fetch and rebase */
+      if (source.url && source.url !== previousSource.url) {
+        const proxy: UrlDoc['fetch'] = (input, init) =>
+          fetch(
+            redirectToProxy(
+              config.proxyUrl ?? 'https://proxy.scalar.com',
+              input.toString(),
+            ),
+            init,
+          )
+        const getter = config.fetch ?? proxy
+        const document = await getter(source.url).then((r) => r.text())
+        workspaceStore.rebaseDocument(slug, parseJsonOrYaml(document))
+
+        return
+      }
+
+      /**
+       * We need to deeply check for document changes. Parse documents and then only rebase
+       * if we detect deep changes in the two sources
+       */
+      if (!source.content) {
+        return
+      }
+
+      const document = (
+        typeof source.content === 'string'
+          ? parseJsonOrYaml(source.content)
+          : (source.content ?? {})
+      ) as Record<string, unknown>
+
+      const previousDocument = (
+        typeof previousSource.content === 'string'
+          ? parseJsonOrYaml(previousSource.content)
+          : (previousSource.content ?? {})
+      ) as Record<string, unknown>
+
+      if (diff(document, previousDocument).length) {
+        workspaceStore.rebaseDocument(slug, document)
+      }
+    }
+
+    newConfigList.forEach((newConfig, index) => {
+      updateSource(
+        newConfig.slug,
+        newConfig.config,
+        newConfig.source,
+        oldConfigList[index].source,
+      )
+    })
+  },
+  {
+    deep: true,
+  },
+)
+
+/** Load the first document on page load */
+onBeforeMount(() => {
+  changeSelectedDocument(activeSlug.value)
+})
 
 // --------------------------------------------------------------------------- */
 
+/**
+ * @deprecated
+ * We keep a copy of the workspace store document in dereferenced format
+ * to allow mapping to the legacy client store
+ */
 const dereferenced = ref<ReturnType<typeof dereferenceSync>['schema'] | null>(
   null,
 )
@@ -174,40 +362,12 @@ onCustomEvent(root, 'scalar-on-show-more', (event) => {
 })
 
 // ---------------------------------------------------------------------------
-// Active Document Handling
 
-watch(
-  activeSlug,
-  async (newSlug) => {
-    const normalized = configs.value[newSlug]
-    if (!normalized) {
-      return
-    }
-
-    const isFirstLoad = !workspaceStore.workspace.documents[newSlug]
-
-    await addOrUpdateDocument({
-      slug: newSlug,
-      config: normalized.config,
-      source: normalized.source,
-      store: workspaceStore,
-      isIntersectionEnabled,
-    })
-
-    // The first time we load a document, run the onLoaded callback
-    if (isFirstLoad) {
-      mergedConfig.value.onLoaded?.(newSlug)
-    }
-
-    // Map the document to the client store for now
-    const raw = JSON.parse(workspaceStore.exportActiveDocument('json') ?? '{}')
-    dereferenced.value = dereferenceSync(raw).schema
-  },
-  {
-    immediate: true,
-  },
-)
-
+/**
+ * Used to inject the environment into built packages
+ *
+ * Primary use case is the open-in-client button
+ */
 const isDevelopment = import.meta.env.DEV
 </script>
 
@@ -223,11 +383,11 @@ const isDevelopment = import.meta.env.DEV
     <ApiReferenceLayout
       :activeServer="activeServer"
       :configuration="mergedConfig"
-      :document="activeDocument"
+      :document="workspaceStore.workspace.activeDocument"
       :getSecuritySchemes="getSecuritySchemes"
       :isDark="!!workspaceStore.workspace['x-scalar-dark-mode']"
       :isDevelopment="isDevelopment"
-      :url="active.source.url"
+      :url="configList[activeSlug]?.source?.url"
       :xScalarDefaultClient="
         workspaceStore.workspace['x-scalar-default-client']
       "

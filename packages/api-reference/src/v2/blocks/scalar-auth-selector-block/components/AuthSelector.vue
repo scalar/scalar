@@ -160,6 +160,8 @@ function updateSelectedAuth(entries: SecuritySchemeOption[]) {
 const editSelectedSchemeUids = (uids: SelectedSecuritySchemeUids) => {
   // Set as selected on the collection for the modal
   if (collection.value?.useCollectionSecurity) {
+    console.log('editSelectedSchemeUids', uids)
+
     // Update selected security schemes
     emitCustomEvent(wrapperRef.value?.$el, 'scalar-select-security-schemes', {
       uids: uids as string[],
@@ -186,6 +188,8 @@ const editSelectedSchemeUids = (uids: SelectedSecuritySchemeUids) => {
   }
   // Set as selected on request
   else if (operation?.uid) {
+    console.log('editSelectedSchemeUids', uids)
+
     emitCustomEvent(
       wrapperRef.value?.$el,
       'scalar-select-operation-security-schemes',
