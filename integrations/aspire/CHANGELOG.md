@@ -1,5 +1,16 @@
 # @scalar/aspire
 
+## 0.6.0
+
+### Minor Changes
+
+- 50db06d: feat: auto generated ScalarClient and ScalarTarget enums
+
+### Patch Changes
+
+- Updated dependencies [9c65f51]
+  - @scalar/api-reference@1.38.1
+
 ## 0.5.4
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.3.2
+
+### Patch Changes
+
+- f3e17d8: fix(types): allow async callbacks for event handlers
+
 ## 0.3.1
 
 ### Patch Changes

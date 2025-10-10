@@ -1,5 +1,14 @@
 # @scalar/sidebar
 
+## 0.1.1
+
+### Patch Changes
+
+- Updated dependencies [1335923]
+  - @scalar/workspace-store@0.17.1
+  - @scalar/themes@0.13.22
+  - @scalar/components@0.15.1
+
 ## 0.1.0
 
 ### Minor Changes
