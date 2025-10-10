@@ -78,6 +78,10 @@
                   "type": "page"
                 },
                 {
+                  "path": "documentation/guides/docs/components/icons.md",
+                  "type": "page"
+                },
+                {
                   "path": "documentation/guides/docs/components/tabs.md",
                   "type": "page"
                 },
