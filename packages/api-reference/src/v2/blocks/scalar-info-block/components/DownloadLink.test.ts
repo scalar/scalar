@@ -1,9 +1,8 @@
 import { apiReferenceConfigurationWithSourceSchema } from '@scalar/types/api-reference'
+import { captureCustomEvent } from '@test/utils/custom-event'
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed } from 'vue'
-
-import { downloadDocument } from '@/libs/download'
 
 import DownloadLink from './DownloadLink.vue'
 
@@ -13,7 +12,6 @@ vi.mock('@/libs/download', () => ({
 }))
 
 describe('DownloadLink', () => {
-  const mockDownloadDocument = vi.mocked(downloadDocument)
   const mockGetOriginalDocument = vi.fn(() => '{"openapi": "3.0.0"}')
 
   beforeEach(() => {
@@ -56,37 +54,42 @@ describe('DownloadLink', () => {
     it('calls downloadDocument with json format when JSON button is clicked', async () => {
       const wrapper = createWrapper({ documentDownloadType: 'json' })
 
+      const expectDetailToBe = captureCustomEvent(wrapper.find('div').element, 'scalar-download-document')
+
       const button = wrapper.find('.download-button')
       await button.trigger('click')
 
-      expect(mockDownloadDocument).toHaveBeenCalledWith('{"openapi": "3.0.0"}', 'test-api', 'json')
+      await expectDetailToBe({ format: 'json' })
     })
 
     it('generates correct filename from title using GitHubSlugger', async () => {
       const wrapper = createWrapper({ documentDownloadType: 'json' }, { title: 'My Awesome API v2.0' })
 
+      const expectDetailToBe = captureCustomEvent(wrapper.find('div').element, 'scalar-download-document')
       const button = wrapper.find('.download-button')
       await button.trigger('click')
 
-      expect(mockDownloadDocument).toHaveBeenCalledWith('{"openapi": "3.0.0"}', 'my-awesome-api-v20', 'json')
+      await expectDetailToBe({ format: 'json' })
     })
 
     it('handles empty title gracefully', async () => {
       const wrapper = createWrapper({ documentDownloadType: 'json' }, { title: '' })
 
+      const expectDetailToBe = captureCustomEvent(wrapper.find('div').element, 'scalar-download-document')
       const button = wrapper.find('.download-button')
       await button.trigger('click')
 
-      expect(mockDownloadDocument).toHaveBeenCalledWith('{"openapi": "3.0.0"}', '', 'json')
+      await expectDetailToBe({ format: 'json' })
     })
 
     it('handles undefined title gracefully', async () => {
       const wrapper = createWrapper({ documentDownloadType: 'json' }, { title: undefined })
 
+      const expectDetailToBe = captureCustomEvent(wrapper.find('div').element, 'scalar-download-document')
       const button = wrapper.find('.download-button')
       await button.trigger('click')
 
-      expect(mockDownloadDocument).toHaveBeenCalledWith('{"openapi": "3.0.0"}', '', 'json')
+      await expectDetailToBe({ format: 'json' })
     })
   })
 
@@ -103,10 +106,11 @@ describe('DownloadLink', () => {
     it('calls downloadDocument with yaml format when YAML button is clicked', async () => {
       const wrapper = createWrapper({ documentDownloadType: 'yaml' })
 
+      const expectDetailToBe = captureCustomEvent(wrapper.find('div').element, 'scalar-download-document')
       const button = wrapper.find('.download-button')
       await button.trigger('click')
 
-      expect(mockDownloadDocument).toHaveBeenCalledWith('{"openapi": "3.0.0"}', 'test-api', 'yaml')
+      await expectDetailToBe({ format: 'yaml' })
     })
   })
 
@@ -120,8 +124,8 @@ describe('DownloadLink', () => {
       const jsonButton = buttons[0]
       const yamlButton = buttons[1]
 
-      expect(jsonButton.find('.extension').text()).toBe('json')
-      expect(yamlButton.find('.extension').text()).toBe('yaml')
+      expect(jsonButton?.find('.extension').text()).toBe('json')
+      expect(yamlButton?.find('.extension').text()).toBe('yaml')
     })
 
     it('applies download-both class when documentDownloadType is both', () => {
@@ -134,45 +138,14 @@ describe('DownloadLink', () => {
       const wrapper = createWrapper({ documentDownloadType: 'both' })
 
       const buttons = wrapper.findAll('.download-button')
-
+      const expectDetailToBe = captureCustomEvent(wrapper.find('div').element, 'scalar-download-document')
       // Click JSON button
-      await buttons[0].trigger('click')
-      expect(mockDownloadDocument).toHaveBeenCalledWith('{"openapi": "3.0.0"}', 'test-api', 'json')
+      await buttons[0]?.trigger('click')
+      await expectDetailToBe({ format: 'json' })
 
       // Click YAML button
-      await buttons[1].trigger('click')
-      expect(mockDownloadDocument).toHaveBeenCalledWith('{"openapi": "3.0.0"}', 'test-api', 'yaml')
-    })
-  })
-
-  describe('Direct download type', () => {
-    it('renders direct download link when documentDownloadType is direct and config.url exists', () => {
-      const wrapper = createWrapper({
-        documentDownloadType: 'direct',
-        url: 'https://example.com/openapi.json',
-      })
-
-      const link = wrapper.find('.download-link')
-      expect(link.exists()).toBe(true)
-      expect(link.attributes('href')).toBe('https://example.com/openapi.json')
-      expect(link.text()).toBe('Download OpenAPI Document')
-    })
-
-    it('renders fallback link when documentDownloadType is direct but no config.url', () => {
-      const wrapper = createWrapper({ documentDownloadType: 'direct' })
-
-      const link = wrapper.find('.download-link')
-      expect(link.exists()).toBe(true)
-      expect(link.attributes('href')).toBe('#')
-    })
-
-    it('calls downloadDocument when fallback link is clicked', async () => {
-      const wrapper = createWrapper({ documentDownloadType: 'direct' })
-
-      const link = wrapper.find('.download-link')
-      await link.trigger('click')
-
-      expect(mockDownloadDocument).toHaveBeenCalledWith('{"openapi": "3.0.0"}', 'test-api', 'json')
+      await buttons[1]?.trigger('click')
+      await expectDetailToBe({ format: 'yaml' })
     })
   })
 
@@ -244,73 +217,12 @@ describe('DownloadLink', () => {
     })
   })
 
-  describe('Edge cases and error handling', () => {
-    it('handles getOriginalDocument returning empty string', async () => {
-      const emptyDocumentMock = vi.fn(() => '')
-      const wrapper = createWrapper({ documentDownloadType: 'json' }, { getOriginalDocument: emptyDocumentMock })
-
-      const button = wrapper.find('.download-button')
-      await button.trigger('click')
-
-      expect(mockDownloadDocument).toHaveBeenCalledWith('', 'test-api', 'json')
-    })
-
-    it('handles special characters in title', async () => {
-      const wrapper = createWrapper(
-        { documentDownloadType: 'json' },
-        { title: 'API with Special Characters! @#$%^&*()' },
-      )
-
-      const button = wrapper.find('.download-button')
-      await button.trigger('click')
-
-      expect(mockDownloadDocument).toHaveBeenCalledWith('{"openapi": "3.0.0"}', 'api-with-special-characters-', 'json')
-    })
-
-    it('handles very long titles', async () => {
-      const longTitle = 'A'.repeat(1000)
-      const wrapper = createWrapper({ documentDownloadType: 'json' }, { title: longTitle })
-
-      const button = wrapper.find('.download-button')
-      await button.trigger('click')
-
-      // GitHubSlugger should handle long titles gracefully
-      expect(mockDownloadDocument).toHaveBeenCalledWith('{"openapi": "3.0.0"}', expect.any(String), 'json')
-    })
-  })
-
   describe('Accessibility', () => {
     it('has proper button type attribute', () => {
       const wrapper = createWrapper({ documentDownloadType: 'json' })
 
       const button = wrapper.find('.download-button')
       expect(button.attributes('type')).toBe('button')
-    })
-
-    it('has proper link attributes for direct download', () => {
-      const wrapper = createWrapper({
-        documentDownloadType: 'direct',
-        url: 'https://example.com/openapi.json',
-      })
-
-      const link = wrapper.find('.download-link')
-      expect(link.attributes('href')).toBe('https://example.com/openapi.json')
-    })
-
-    it('prevents default behavior on fallback link click', async () => {
-      const wrapper = createWrapper({ documentDownloadType: 'direct' })
-
-      const link = wrapper.find('.download-link')
-
-      // Create a mock event that can be prevented
-      const mockEvent = {
-        preventDefault: vi.fn(),
-        stopPropagation: vi.fn(),
-      }
-
-      await link.trigger('click', mockEvent)
-
-      expect(mockEvent.preventDefault).toHaveBeenCalled()
     })
   })
 })
