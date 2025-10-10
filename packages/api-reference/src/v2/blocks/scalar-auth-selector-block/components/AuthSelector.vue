@@ -31,7 +31,7 @@ import type {
 } from '@scalar/oas-utils/entities/spec'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import { emitCustomEvent } from '@scalar/workspace-store/events'
-import { computed, ref, useId, useTemplateRef } from 'vue'
+import { computed, onMounted, ref, useId, useTemplateRef } from 'vue'
 
 import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
 import RequestAuthDataTable from './RequestAuthDataTable.vue'
@@ -160,8 +160,6 @@ function updateSelectedAuth(entries: SecuritySchemeOption[]) {
 const editSelectedSchemeUids = (uids: SelectedSecuritySchemeUids) => {
   // Set as selected on the collection for the modal
   if (collection.value?.useCollectionSecurity) {
-    console.log('editSelectedSchemeUids', uids)
-
     // Update selected security schemes
     emitCustomEvent(wrapperRef.value?.$el, 'scalar-select-security-schemes', {
       uids: uids as string[],
@@ -188,8 +186,6 @@ const editSelectedSchemeUids = (uids: SelectedSecuritySchemeUids) => {
   }
   // Set as selected on request
   else if (operation?.uid) {
-    console.log('editSelectedSchemeUids', uids)
-
     emitCustomEvent(
       wrapperRef.value?.$el,
       'scalar-select-operation-security-schemes',

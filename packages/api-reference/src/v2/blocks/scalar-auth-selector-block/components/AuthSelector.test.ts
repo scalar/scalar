@@ -2,12 +2,15 @@ import type { EnvVariable } from '@scalar/api-client/store'
 import { environmentSchema } from '@scalar/oas-utils/entities/environment'
 import { type Collection, collectionSchema, requestSchema, serverSchema } from '@scalar/oas-utils/entities/spec'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
-import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
+import { captureCustomEvent } from '@test/utils/custom-event'
 import type { VueWrapper } from '@vue/test-utils'
+import { mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { computed, nextTick, ref } from 'vue'
 
 import AuthSelector from './AuthSelector.vue'
+
+const selectedSecuritySchemeUids = ref<Collection['selectedSecuritySchemeUids']>([])
 
 // Mock useWorkspace
 vi.mock('@scalar/api-client/store', () => ({
@@ -56,51 +59,58 @@ vi.mock('@scalar/api-client/store', () => ({
       },
     },
   }),
-}))
-
-const emitCustomEvent = vi.fn()
-
-vi.mock('@scalar/workspace-store/events', () => ({
-  emitCustomEvent: (...args: any[]) => emitCustomEvent(...args),
-}))
-
-describe('AuthSelector.vue', () => {
-  const createBaseProps = () =>
-    ({
-      collection: collectionSchema.parse({
+  useActiveEntities: () => ({
+    activeCollection: computed(() =>
+      collectionSchema.parse({
         uid: 'test-collection',
-        securitySchemes: ['bearer-auth', 'api-key-auth', 'basic-auth', 'client-id', 'client-key'],
-        security: [{ bearerAuth: [] }, { apiKeyAuth: [] }, { basicAuth: [] }],
+        securitySchemes: ['bearer-auth', 'api-key', 'basic-auth', 'client-id', 'client-key'],
+        security: [{ bearerAuth: [] }, { apiKey: [] }, { basicAuth: [] }],
+        selectedSecuritySchemeUids: selectedSecuritySchemeUids.value ?? undefined,
       }),
-      operation: requestSchema.parse({
-        uid: 'test-operation',
-        security: [{ bearerAuth: [] }, { apiKeyAuth: [] }],
-      }),
-      selectedSecuritySchemeUids: [] as Collection['selectedSecuritySchemeUids'],
-      server: serverSchema.parse({
-        url: 'https://api.example.com',
-      }),
-      environment: environmentSchema.parse({
+    ),
+    activeEnvironment: computed(() =>
+      environmentSchema.parse({
         uid: 'test-environment',
       }),
-      envVariables: [] as EnvVariable[],
-      title: 'Authentication',
-      layout: 'client',
-      workspace: workspaceSchema.parse({
+    ),
+    activeEnvVariables: computed(() => [] as EnvVariable[]),
+    activeWorkspace: computed(() =>
+      workspaceSchema.parse({
         uid: 'test-workspace',
         proxyUrl: 'https://proxy.scalar.com',
       }),
-    }) as const
+    ),
+  }),
+}))
 
-  const clickAuthSelect = async (wrapper: VueWrapper) => {
-    const dropdownButton = wrapper
-      .findAll('button')
-      .filter((node) => node.text().includes('Auth Type'))
-      .at(0)
-    expect(dropdownButton?.text()).toContain('Auth Type')
-    await dropdownButton?.trigger('click')
-    await nextTick()
-  }
+const createBaseProps = () =>
+  ({
+    operation: requestSchema.parse({
+      uid: 'test-operation',
+      security: [{ bearerAuth: [] }, { apiKeyAuth: [] }],
+    }),
+    selectedSecuritySchemeUids: [] as Collection['selectedSecuritySchemeUids'],
+    server: serverSchema.parse({
+      url: 'https://api.example.com',
+    }),
+    title: 'Authentication',
+    layout: 'client',
+  }) as const
+
+const clickAuthSelect = async (wrapper: VueWrapper) => {
+  const dropdownButton = wrapper
+    .findAll('button')
+    .filter((node) => node.text().includes('Auth Type'))
+    .at(0)
+  expect(dropdownButton?.text()).toContain('Auth Type')
+  await dropdownButton?.trigger('click')
+  await nextTick()
+}
+
+describe('AuthSelector.vue', () => {
+  beforeEach(() => {
+    selectedSecuritySchemeUids.value = []
+  })
 
   it('renders the basics', async () => {
     const wrapper = mount(AuthSelector, {
@@ -114,11 +124,13 @@ describe('AuthSelector.vue', () => {
   })
 
   it('emit correct event when selecting auth scheme', async () => {
+    /** Attach to the body to handle the popover */
     const wrapper = mount(AuthSelector, {
       props: createBaseProps(),
       attachTo: document.body,
     })
 
+    const expectEvent = captureCustomEvent(document.body, 'scalar-select-operation-security-schemes')
     await clickAuthSelect(wrapper)
 
     // Select a security scheme
@@ -132,10 +144,7 @@ describe('AuthSelector.vue', () => {
     bearerAuthOption?.dispatchEvent(new Event('click'))
     await nextTick()
 
-    // Verify mutation
-    // expect(requestMutators.edit).toHaveBeenCalledWith('test-operation', 'selectedSecuritySchemeUids', ['bearer-auth'])
-
-    expect(emitCustomEvent).toHaveBeenCalledWith(expect.anything(), 'scalar-select-operation-security-schemes', {
+    await expectEvent({
       'operationUid': 'test-operation',
       'uids': ['bearer-auth'],
     })
@@ -153,13 +162,12 @@ describe('AuthSelector.vue', () => {
   })
 
   it('displays multiple when multiple schemes are selected', async () => {
-    const props = {
-      ...createBaseProps(),
-      selectedSecuritySchemeUids: ['bearer-auth', 'api-key'] as Collection['selectedSecuritySchemeUids'],
-    }
+    const props = createBaseProps()
+    selectedSecuritySchemeUids.value = ['bearer-auth', 'api-key'] as Collection['selectedSecuritySchemeUids']
 
     const wrapper = mount(AuthSelector, {
       props,
+      attachTo: document.body,
     })
 
     expect(wrapper.text()).toContain('Multiple')
