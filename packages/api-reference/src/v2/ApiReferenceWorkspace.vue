@@ -218,7 +218,7 @@ watch(
 )
 
 /** Set up event listeners for client store events */
-useWorkspaceStoreEvents(store, root)
+useWorkspaceStoreEvents(store, root, selectedConfiguration.value)
 
 // Update the workspace store if default client changes
 watch(

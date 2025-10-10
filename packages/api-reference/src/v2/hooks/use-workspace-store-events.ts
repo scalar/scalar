@@ -1,9 +1,14 @@
 import { REFERENCE_LS_KEYS, safeLocalStorage } from '@scalar/helpers/object/local-storage'
-import { generateClientMutators, type WorkspaceStore } from '@scalar/workspace-store/client'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import { type WorkspaceStore, generateClientMutators } from '@scalar/workspace-store/client'
 import { onCustomEvent } from '@scalar/workspace-store/events'
 import type { Ref } from 'vue'
 
-export const useWorkspaceStoreEvents = (store: WorkspaceStore, root: Ref<HTMLElement | null>) => {
+export const useWorkspaceStoreEvents = (
+  store: WorkspaceStore,
+  root: Ref<HTMLElement | null>,
+  configuration: ApiReferenceConfiguration,
+) => {
   const mutators = generateClientMutators(store)
 
   //------------------------------------------------------------------------------------
@@ -54,6 +59,11 @@ export const useWorkspaceStoreEvents = (store: WorkspaceStore, root: Ref<HTMLEle
 
     if (activeDocument) {
       activeDocument['x-scalar-active-server'] = event.detail.value
+    }
+
+    // Ensure we call the onServerChange callback
+    if (configuration.onServerChange) {
+      configuration.onServerChange(event.detail.value ?? '')
     }
   })
 

@@ -4,7 +4,7 @@ import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import ClassicLayout from './ClassicLayout.vue'
 import ModernLayout from './ModernLayout.vue'
 
-defineProps<{
+const { tag, layout, moreThanOneTag, isLoading, onShowMore } = defineProps<{
   tag: TraversedTag
   layout: 'classic' | 'modern'
   moreThanOneTag: boolean
@@ -15,12 +15,19 @@ defineProps<{
 
 <template>
   <template v-if="layout === 'classic'">
-    <ClassicLayout v-bind="$props">
+    <ClassicLayout
+      :layout="layout"
+      :tag="tag">
       <slot />
     </ClassicLayout>
   </template>
   <template v-else>
-    <ModernLayout v-bind="$props">
+    <ModernLayout
+      :isLoading="isLoading"
+      :layout="layout"
+      :moreThanOneTag="moreThanOneTag"
+      :onShowMore="onShowMore"
+      :tag="tag">
       <slot />
     </ModernLayout>
   </template>
