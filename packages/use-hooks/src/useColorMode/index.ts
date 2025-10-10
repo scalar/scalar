@@ -1,2 +1,1 @@
-export * from './useColorMode'
-export * from './types'
+export { useColorMode } from './useColorMode'

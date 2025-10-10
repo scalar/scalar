@@ -1,16 +1,27 @@
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { z } from 'zod'
 
-import type { ColorMode, DarkLightMode, UseColorModeOptions } from './types'
-
 const colorMode = ref<ColorMode>('dark')
 
 const colorModeSchema = z.enum(['dark', 'light', 'system']).optional().catch(undefined)
 
+/** Possible color modes */
+type ColorMode = 'light' | 'dark' | 'system'
+
+/** Specific dark/light mode */
+type DarkLightMode = 'light' | 'dark'
+
 /**
  * A composable hook that provides color mode (dark/light) functionality.
  */
-export function useColorMode(opts: UseColorModeOptions = {}) {
+export function useColorMode(
+  opts: {
+    /** The initial color mode to use */
+    initialColorMode?: ColorMode
+    /** Override the color mode */
+    overrideColorMode?: ColorMode
+  } = {},
+) {
   const { initialColorMode = 'system', overrideColorMode } = opts
 
   /** Toggles the color mode between light and dark. */

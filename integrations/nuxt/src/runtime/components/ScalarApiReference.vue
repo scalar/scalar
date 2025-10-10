@@ -1,8 +1,7 @@
 <script lang="ts" setup>
-import { ApiReferenceWorkspace } from '@scalar/api-reference'
+import { ApiReference } from '@scalar/api-reference'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
-import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import {
   useAsyncData,
   useFetch,
@@ -76,9 +75,6 @@ if (!document.value) {
   }
 }
 
-// Set the fetched spec to the config content to prevent ApiReferenceLayout from fetching it again on the client side
-props.configuration.content = document.value
-
 // Check for empty spec
 if (!document) {
   throw new Error(
@@ -125,45 +121,22 @@ onMounted(() => {
 // Add baseServerURL and _integration
 const { origin } = useRequestURL()
 
+const route = useRoute()
+
 const config: Partial<ApiReferenceConfiguration> = {
   baseServerURL: origin,
   _integration: 'nuxt',
   layout: 'modern',
   ...props.configuration,
+  // Match the workspace-store name/slug to the route name
+  slug: route.name as string,
+  // Set the fetched spec to the config content to prevent ApiReferenceLayout from fetching it again on the client side
+  content: document.value,
 }
-
-const route = useRoute()
-
-// Lets create the new workspace store as well
-const store = createWorkspaceStore()
-
-// Parse the document if it's a string
-let parsedDocument: Record<string, unknown>
-if (typeof document.value === 'string') {
-  try {
-    parsedDocument = JSON.parse(document.value)
-  } catch (error) {
-    console.error('Failed to parse OpenAPI document:', error)
-    throw new Error('Invalid OpenAPI document format')
-  }
-} else {
-  if (document.value && typeof document.value === 'object') {
-    parsedDocument = document.value
-  } else {
-    throw new Error('Document must be a valid OpenAPI object')
-  }
-}
-
-store.addDocument({
-  name: route.name as string,
-  document: parsedDocument,
-})
 </script>
 
 <template>
-  <ApiReferenceWorkspace
-    :configuration="config"
-    :store />
+  <ApiReference :configuration="config" />
 </template>
 
 <style>

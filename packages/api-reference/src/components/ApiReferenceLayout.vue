@@ -76,7 +76,7 @@ defineOptions({
 defineSlots<
   {
     [x in ReferenceLayoutSlot]: (props: ReferenceSlotProps) => any
-  } & { 'document-selector': any } & { 'client-modal': any }
+  } & { 'document-selector': never } & { 'client-modal': never }
 >()
 
 // ---------------------------------------------------------------------------
