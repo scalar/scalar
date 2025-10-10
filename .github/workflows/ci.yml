@@ -561,6 +561,70 @@ jobs:
             >
             > They can help determine if the changes in the PR are causing any unexpected visual regressions but may be less helpful in isolating the exact cause. For more details see the [readme](https://github.com/scalar/scalar/blob/main/packages/api-reference/test-snapshots/README.md).
 
+  test-cdn-local:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'changeset-release/main' || github.head_ref == 'main'
+    needs: [build]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    permissions:
+      contents: read
+      pull-requests: write
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        node-version: [22]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - name: Generate new DEPLOY_ID
+        run: echo "DEPLOY_ID=$(npx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
+      - name: Build
+        uses: ./.github/actions/build-blacksmith
+        with:
+          node-version: ${{ matrix.node-version }}
+          packages: '@scalar/api-reference...'
+        env:
+          DEPLOY_ID: ${{ env.DEPLOY_ID }}
+      - name: Install playwright
+        uses: ./.github/actions/install-playwright
+        with:
+          with-deps: 'false'
+      - name: Start HTML server
+        run: pnpm --filter @scalar-examples/cdn-api-reference dev &
+      - name: Run e2e tests (local)
+        run: CI=1 pnpm test:e2e:local
+
+  test-nuxt-integration:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'changeset-release/main' || github.head_ref == 'main'
+    needs: [build]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    permissions:
+      contents: read
+      pull-requests: write
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        node-version: [22]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - name: Generate new DEPLOY_ID
+        run: echo "DEPLOY_ID=$(npx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
+      - name: Build
+        uses: ./.github/actions/build-blacksmith
+        with:
+          node-version: ${{ matrix.node-version }}
+          packages: '@scalar/api-reference...'
+        env:
+          DEPLOY_ID: ${{ env.DEPLOY_ID }}
+      - name: Install playwright
+        uses: ./.github/actions/install-playwright
+        with:
+          with-deps: 'false'
+      - name: Start nuxt server
+        run: pnpm --filter nuxt dev --host &
+      - name: Run e2e tests
+        run: CI=1 pnpm -r --parallel test:e2e:nuxt
+
   npm-publish:
     if: github.ref == 'refs/heads/main'
     runs-on: beefcake
