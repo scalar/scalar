@@ -37,7 +37,7 @@ internal static class ScalarResourceConfigurator
 
         var environmentVariables = context.EnvironmentVariables;
         environmentVariables.Add(ApiReferenceConfig, configurations);
-        environmentVariables.Add(CdnUrl, scalarAspireOptions.CdnUrl);
+        environmentVariables.Add(CdnUrl, scalarAspireOptions.BundleUrl);
         environmentVariables.Add(AllowSelfSignedCertificates, scalarAspireOptions.AllowSelfSignedCertificates);
         environmentVariables.Add(DefaultProxy, scalarAspireOptions.DefaultProxy);
     }

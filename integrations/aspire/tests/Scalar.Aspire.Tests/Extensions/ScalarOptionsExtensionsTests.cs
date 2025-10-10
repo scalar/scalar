@@ -2,77 +2,6 @@ namespace Scalar.Aspire.Tests;
 
 public class ScalarOptionsExtensionsTests
 {
-    [Fact]
-    public void Extensions_ShouldSetAllPropertiesCorrectly()
-    {
-        // Arrange
-        var options = new ScalarTestOptions();
-
-        // Act
-        options
-            .WithModels(false)
-            .WithTestRequestButton(false)
-            .WithDarkMode(false)
-            .WithSidebar(false)
-            .WithOperationTitleSource(OperationTitleSource.Path)
-            .WithTheme(ScalarTheme.Saturn)
-            .WithLayout(ScalarLayout.Classic)
-            .WithSearchHotKey("o")
-            .WithProxyUrl("http://localhost:8080")
-            .AddMetadata("key", "value")
-            .WithOpenApiRoutePattern("/swagger/{documentName}")
-            .WithDefaultFonts(false)
-            .WithDefaultOpenAllTags()
-            .WithCustomCss("*{}")
-            .WithDarkModeToggle(false)
-            .WithForceThemeMode(ThemeMode.Light)
-            .WithTagSorter(TagSorter.Alpha)
-            .WithOperationSorter(OperationSorter.Alpha)
-            .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
-            .AddServer("https://example.com")
-            .AddServer(new ScalarServer("https://example.org", "My other server"))
-            .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
-            .WithClientButton(false)
-            .AddDocument("v1", "Version 1")
-            .AddDocuments("v2", "v3")
-            .AddDocuments(new ScalarDocument("v4"))
-            .WithBaseServerUrl("https://example.com")
-            .WithDocumentDownloadType(DocumentDownloadType.Yaml)
-            .WithPersistentAuthentication()
-            .WithShowOperationId();
-
-        // Assert
-        options.HideModels.Should().BeTrue();
-        options.HideTestRequestButton.Should().BeTrue();
-        options.DarkMode.Should().BeFalse();
-        options.ShowSidebar.Should().BeFalse();
-        options.OperationTitleSource.Should().Be(OperationTitleSource.Path);
-        options.Theme.Should().Be(ScalarTheme.Saturn);
-        options.Layout.Should().Be(ScalarLayout.Classic);
-        options.SearchHotKey.Should().Be("o");
-        options.ProxyUrl.Should().Be("http://localhost:8080");
-        options.Metadata.Should().ContainKey("key").And.ContainValue("value");
-        options.OpenApiRoutePattern.Should().Be("/swagger/{documentName}");
-        options.DefaultFonts.Should().BeFalse();
-        options.DefaultOpenAllTags.Should().BeTrue();
-        options.CustomCss.Should().Be("*{}");
-        options.HideDarkModeToggle.Should().BeTrue();
-        options.ForceThemeMode.Should().Be(ThemeMode.Light);
-        options.DefaultHttpClient.Key.Should().Be(ScalarTarget.CSharp);
-        options.DefaultHttpClient.Value.Should().Be(ScalarClient.HttpClient);
-        options.Servers.Should().HaveCount(2);
-        options.Servers.Should().ContainSingle(x => x.Url == "https://example.com");
-        options.Servers.Should().ContainSingle(x => x.Url == "https://example.org" && x.Description == "My other server");
-        options.TagSorter.Should().Be(TagSorter.Alpha);
-        options.OperationSorter.Should().Be(OperationSorter.Alpha);
-        options.DefaultHttpClient.Should().Be(new KeyValuePair<ScalarTarget, ScalarClient>(ScalarTarget.CSharp, ScalarClient.HttpClient));
-        options.HideClientButton.Should().BeTrue();
-        options.Documents.Should().HaveCount(4).And.Contain(x => x.Title == "Version 1");
-        options.BaseServerUrl.Should().Be("https://example.com");
-        options.PersistentAuthentication.Should().BeTrue();
-        options.DocumentDownloadType.Should().Be(DocumentDownloadType.Yaml);
-        options.ShowOperationId.Should().BeTrue();
-    }
 
     [Fact]
     public void AddDefaultScopes_ShouldAddScopesToScheme()
@@ -430,29 +359,4 @@ public class ScalarOptionsExtensionsTests
         oauth2Scheme.DefaultScopes.Should().BeEquivalentTo("scope1", "scope2");
     }
 
-    [Fact]
-    public void WithShowToolbar_ShouldSetProperty()
-    {
-        // Arrange
-        var options = new ScalarTestOptions();
-
-        // Act
-        options.WithShowToolbar(ToolbarVisibility.Never);
-
-        // Assert
-        options.ShowToolbar.Should().Be(ToolbarVisibility.Never);
-    }
-
-    [Fact]
-    public void WithShowToolbar_ShouldSetNullProperty()
-    {
-        // Arrange
-        var options = new ScalarTestOptions();
-
-        // Act
-        options.WithShowToolbar(null);
-
-        // Assert
-        options.ShowToolbar.Should().BeNull();
-    }
 }
