@@ -1,6 +1,6 @@
+import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
+import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { prettyPrintJson } from '@scalar/oas-utils/helpers'
-import { type VueWrapper, flushPromises, mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import ScalarCodeBlock from './ScalarCodeBlock.vue'
 
@@ -113,7 +113,7 @@ describe('ScalarCodeBlock', () => {
 
       await button.trigger('click')
 
-      expect(mockCopyToClipboard).toHaveBeenCalledWith(prettyPrintJson(wrapper.vm.content ?? ''))
+      expect(mockCopyToClipboard).toHaveBeenCalledWith(prettyPrintJson(wrapper.vm.content))
     })
 
     it('does not render the copy button when content is null', async () => {
