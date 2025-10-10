@@ -1290,7 +1290,8 @@ describe('create-request-operation', () => {
     const HEADER_MOCK_NAME = 'header-request-body'
     const HEADER_MOCK_VALUE = 'yes'
     const mockPluginManager = {
-      executeHook: vi.fn().mockImplementation(async (_, { request }: { request: Request }) => {
+      // onBeforeRequest is called first so we need to mock this only once
+      executeHook: vi.fn().mockImplementationOnce(async (_, { request }: { request: Request }) => {
         // simulate async code execution
         await new Promise((resolve) => {
           setTimeout(resolve, 1)
@@ -1375,11 +1376,76 @@ describe('create-request-operation', () => {
 
       await requestOperation.sendRequest()
 
-      expect(mockPluginManager.executeHook).toHaveBeenCalledWith('onResponseReceived', {
+      expect(mockPluginManager.executeHook).toHaveBeenCalledTimes(2) // onBeforeRequest + onResponseReceived
+      expect(mockPluginManager.executeHook).toHaveBeenNthCalledWith(2, 'onResponseReceived', {
         response: expect.any(Response),
         operation: expect.any(Object),
       })
+    } finally {
+      // Restore original fetch
+      global.fetch = originalFetch
+    }
+  })
+
+  it('executes onResponseReceived and await hook execution before moving on', async () => {
+    const HEADER_MOCK_NAME = 'header-request-body'
+    const HEADER_MOCK_VALUE = 'yes'
+
+    // Can't use mock response below since create-operation create a new response
+    let responseFromOperation: Response | undefined
+
+    const mockPluginManager = {
+      executeHook: vi
+        .fn()
+        // first call is for onBeforeRequest which is test previously
+        .mockReturnValueOnce(undefined)
+        // onResponseReceived is called right after
+        .mockImplementationOnce(async (_, { response }: { response: Response }) => {
+          responseFromOperation = response
+          // simulate async code execution
+          await new Promise((resolve) => {
+            setTimeout(resolve, 1)
+          })
+          response.headers.append(HEADER_MOCK_NAME, HEADER_MOCK_VALUE)
+        }),
+      getViewComponents: vi.fn().mockReturnValue([]),
+    }
+
+    // Store original fetch
+    const originalFetch = global.fetch
+    try {
+      // Mock fetch to return a successful response
+      const mockResponse = new Response('{"test": "data"}', {
+        status: 200,
+        headers: new Headers({
+          'content-type': 'application/json',
+        }),
+      })
+
+      global.fetch = vi.fn().mockResolvedValue(mockResponse)
+
+      const [error, requestOperation] = createRequestOperation({
+        ...createRequestPayload({
+          serverPayload: { url: 'https://api.example.com' },
+          requestPayload: {
+            path: '/test',
+          },
+        }),
+        pluginManager: mockPluginManager,
+      })
+
+      if (error) {
+        throw error
+      }
+
+      await requestOperation.sendRequest()
+
       expect(mockPluginManager.executeHook).toHaveBeenCalledTimes(2) // onBeforeRequest + onResponseReceived
+      expect(mockPluginManager.executeHook).toHaveBeenNthCalledWith(2, 'onResponseReceived', {
+        response: expect.any(Response),
+        operation: expect.any(Object),
+      })
+      expect(responseFromOperation!.headers.get(HEADER_MOCK_NAME)).toBe(HEADER_MOCK_VALUE)
     } finally {
       // Restore original fetch
       global.fetch = originalFetch
