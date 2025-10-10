@@ -613,7 +613,7 @@ jobs:
         uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
-          packages: '@scalar/api-reference...'
+          packages: './{packages,integrations}/**'
         env:
           DEPLOY_ID: ${{ env.DEPLOY_ID }}
       - name: Install playwright
