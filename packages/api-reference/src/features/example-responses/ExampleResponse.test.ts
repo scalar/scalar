@@ -1,3 +1,4 @@
+import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { ExampleObject, MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import {
@@ -25,7 +26,9 @@ describe('ExampleResponse', () => {
 
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
-      expect(codeBlock.props('content')).toEqual({ message: 'Hello, World!', status: 'success' })
+      expect(codeBlock.props('prettyPrintedContent')).toEqual(
+        prettyPrintJson({ message: 'Hello, World!', status: 'success' }),
+      )
       expect(codeBlock.props('lang')).toBe('json')
       expect(wrapper.find('.empty-state').exists()).toBe(false)
     })
@@ -46,11 +49,13 @@ describe('ExampleResponse', () => {
 
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
-      expect(codeBlock.props('content')).toEqual({
-        id: 1,
-        name: 'John Doe',
-        email: 'john@example.com',
-      })
+      expect(codeBlock.props('prettyPrintedContent')).toEqual(
+        prettyPrintJson({
+          id: 1,
+          name: 'John Doe',
+          email: 'john@example.com',
+        }),
+      )
     })
 
     it('falls back to schema when no example is provided', () => {
@@ -149,7 +154,7 @@ describe('ExampleResponse', () => {
       expect(codeBlock.exists()).toBe(true)
 
       // The resolved value should be the $ref-value content
-      const expectedContent = {
+      const expectedContent = prettyPrintJson({
         summary: 'The best spot',
         value: {
           id: 'user-123',
@@ -166,9 +171,9 @@ describe('ExampleResponse', () => {
             },
           },
         },
-      }
+      })
 
-      expect(codeBlock.props('content')).toEqual(expectedContent)
+      expect(codeBlock.props('prettyPrintedContent')).toEqual(expectedContent)
     })
 
     it('resolves nested $refValues with user management payload', () => {
@@ -239,7 +244,7 @@ describe('ExampleResponse', () => {
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
 
-      const expectedContent = {
+      const expectedContent = prettyPrintJson({
         users: [
           {
             id: 'user-123',
@@ -277,9 +282,9 @@ describe('ExampleResponse', () => {
           page: 1,
           perPage: 10,
         },
-      }
+      })
 
-      expect(codeBlock.props('content')).toEqual(expectedContent)
+      expect(codeBlock.props('prettyPrintedContent')).toEqual(expectedContent)
     })
 
     it('resolves e-commerce order payload with $refValues', () => {
@@ -371,7 +376,7 @@ describe('ExampleResponse', () => {
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
 
-      const expectedContent = {
+      const expectedContent = prettyPrintJson({
         orderId: 'order-789',
         customer: {
           id: 'cust-456',
@@ -421,9 +426,9 @@ describe('ExampleResponse', () => {
           estimatedDelivery: '2024-01-15',
           trackingNumber: 'TRACK123456',
         },
-      }
+      })
 
-      expect(codeBlock.props('content')).toEqual(expectedContent)
+      expect(codeBlock.props('prettyPrintedContent')).toEqual(expectedContent)
     })
 
     it('resolves API analytics dashboard payload with $refValues', () => {
@@ -497,7 +502,7 @@ describe('ExampleResponse', () => {
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
 
-      const expectedContent = {
+      const expectedContent = prettyPrintJson({
         timeRange: '7d',
         metrics: {
           totalRequests: 150420,
@@ -538,9 +543,9 @@ describe('ExampleResponse', () => {
             { name: 'Asia Pacific', requests: 30084, percentage: 20.0 },
           ],
         },
-      }
+      })
 
-      expect(codeBlock.props('content')).toEqual(expectedContent)
+      expect(codeBlock.props('prettyPrintedContent')).toEqual(expectedContent)
     })
 
     it('resolves IoT device management payload with $refValues', () => {
@@ -625,7 +630,7 @@ describe('ExampleResponse', () => {
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
 
-      const expectedContent = {
+      const expectedContent = prettyPrintJson({
         deviceId: 'iot-device-7834',
         name: 'Smart Thermostat - Living Room',
         status: 'online',
@@ -677,9 +682,9 @@ describe('ExampleResponse', () => {
             temperatureAlert: false,
           },
         },
-      }
+      })
 
-      expect(codeBlock.props('content')).toEqual(expectedContent)
+      expect(codeBlock.props('prettyPrintedContent')).toEqual(expectedContent)
     })
 
     it('resolves financial transaction payload with $refValues', () => {
@@ -752,7 +757,7 @@ describe('ExampleResponse', () => {
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
 
-      const expectedContent = {
+      const expectedContent = prettyPrintJson({
         transactionId: 'txn-fin-90834',
         type: 'transfer',
         amount: 2500.75,
@@ -795,9 +800,9 @@ describe('ExampleResponse', () => {
           factors: ['verified_account', 'regular_transaction', 'known_recipient'],
           flagged: false,
         },
-      }
+      })
 
-      expect(codeBlock.props('content')).toEqual(expectedContent)
+      expect(codeBlock.props('prettyPrintedContent')).toEqual(expectedContent)
     })
 
     it('resolves healthcare patient record with $refValues', () => {
@@ -919,7 +924,7 @@ describe('ExampleResponse', () => {
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
 
-      const expectedContent = {
+      const expectedContent = prettyPrintJson({
         patientId: 'patient-uuid-7890',
         mrn: 'MRN-20240110-001',
         demographics: {
@@ -1008,9 +1013,9 @@ describe('ExampleResponse', () => {
             bmi: 28.3,
           },
         },
-      }
+      })
 
-      expect(codeBlock.props('content')).toEqual(expectedContent)
+      expect(codeBlock.props('prettyPrintedContent')).toEqual(expectedContent)
     })
   })
 
@@ -1029,7 +1034,7 @@ describe('ExampleResponse', () => {
 
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
-      expect(codeBlock.props('content')).toBe('')
+      expect(codeBlock.props('prettyPrintedContent')).toBe('')
     })
 
     it('handles example with undefined value', () => {
@@ -1046,7 +1051,7 @@ describe('ExampleResponse', () => {
 
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
-      expect(codeBlock.props('content')).toBe('')
+      expect(codeBlock.props('prettyPrintedContent')).toBe('')
     })
 
     it('handles example with empty object', () => {
@@ -1063,7 +1068,7 @@ describe('ExampleResponse', () => {
 
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
-      expect(codeBlock.props('content')).toEqual({})
+      expect(codeBlock.props('prettyPrintedContent')).toEqual('{}')
     })
 
     it('handles example with empty array', () => {
@@ -1080,7 +1085,7 @@ describe('ExampleResponse', () => {
 
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
-      expect(codeBlock.props('content')).toEqual([])
+      expect(codeBlock.props('prettyPrintedContent')).toEqual('[]')
     })
 
     it('handles example with primitive values', () => {
@@ -1096,7 +1101,7 @@ describe('ExampleResponse', () => {
 
         const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
         expect(codeBlock.exists()).toBe(true)
-        expect(codeBlock.props('content')).toBe(example.value)
+        expect(codeBlock.props('prettyPrintedContent')).toBe(example.value.toString())
       })
     })
 
@@ -1117,7 +1122,7 @@ describe('ExampleResponse', () => {
 
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
-      expect(codeBlock.props('content')).toBe('')
+      expect(codeBlock.props('prettyPrintedContent')).toBe('')
     })
 
     it('handles $refValues with null $ref-value', () => {
@@ -1137,7 +1142,7 @@ describe('ExampleResponse', () => {
 
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
-      expect(codeBlock.props('content')).toBe('')
+      expect(codeBlock.props('prettyPrintedContent')).toBe('')
     })
 
     it('handles circular references in $refValues gracefully', () => {
@@ -1169,13 +1174,14 @@ describe('ExampleResponse', () => {
       expect(codeBlock.exists()).toBe(true)
 
       // Should handle circular reference gracefully
-      const content = codeBlock.props('content')
-      expect(content).toBeDefined()
-      expect(content.id).toBe('node-1')
-      expect(content.name).toBe('Root Node')
-      expect(Array.isArray(content.children)).toBe(true)
-      // Circular reference should be marked as '[circular]'
-      expect(content.children[0]).toBe('[circular]')
+      const content = codeBlock.props('prettyPrintedContent')
+      expect(content).toBe(
+        prettyPrintJson({
+          id: 'node-1',
+          name: 'Root Node',
+          children: ['[circular]'],
+        }),
+      )
     })
   })
 
@@ -1221,7 +1227,7 @@ describe('ExampleResponse', () => {
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
 
-      const expectedContent = {
+      const expectedContent = prettyPrintJson({
         stringValue: 'Hello World',
         numberValue: 3.14159,
         booleanValue: true,
@@ -1241,9 +1247,9 @@ describe('ExampleResponse', () => {
             },
           },
         },
-      }
+      })
 
-      expect(codeBlock.props('content')).toEqual(expectedContent)
+      expect(codeBlock.props('prettyPrintedContent')).toEqual(expectedContent)
     })
 
     it('handles arrays containing $refValues', () => {
@@ -1302,7 +1308,7 @@ describe('ExampleResponse', () => {
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
 
-      const expectedContent = {
+      const expectedContent = prettyPrintJson({
         tasks: [
           {
             id: 'task-1',
@@ -1331,9 +1337,9 @@ describe('ExampleResponse', () => {
             },
           },
         ],
-      }
+      })
 
-      expect(codeBlock.props('content')).toEqual(expectedContent)
+      expect(codeBlock.props('prettyPrintedContent')).toEqual(expectedContent)
     })
   })
 
@@ -1355,7 +1361,7 @@ describe('ExampleResponse', () => {
       // When only externalValue is provided (no value), should resolve to undefined
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
-      expect(codeBlock.props('content')).toBe('')
+      expect(codeBlock.props('prettyPrintedContent')).toBe('')
     })
 
     it('prefers value over externalValue when both are provided', () => {
@@ -1374,7 +1380,7 @@ describe('ExampleResponse', () => {
 
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
-      expect(codeBlock.props('content')).toEqual({ message: 'Inline value' })
+      expect(codeBlock.props('prettyPrintedContent')).toEqual(prettyPrintJson({ message: 'Inline value' }))
     })
   })
 })

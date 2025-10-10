@@ -5,33 +5,59 @@ import { computed, useId } from 'vue'
 
 import { ScalarCodeBlockCopy } from '../ScalarCodeBlock'
 
+type BaseProps = {
+  content?: string | object
+  prettyPrintedContent?: string
+  lang?: string
+  lineNumbers?: boolean
+  hideCredentials?: string | string[]
+  copy?: boolean
+}
+
 /**
  * Uses highlight.js for syntax highlighting
+ *
+ * Requires at least one of content or prettyPrintedContent
  */
-const props = withDefaults(
-  defineProps<{
-    content: string | object
-    lang?: string
-    lineNumbers?: boolean
-    hideCredentials?: string | string[]
-    copy?: boolean
-  }>(),
-  {
-    lang: 'plaintext',
-    lineNumbers: false,
-    copy: true,
-  },
-)
+const {
+  lang = 'plaintext',
+  lineNumbers = false,
+  copy = true,
+  content,
+  prettyPrintedContent,
+  hideCredentials,
+} = defineProps<
+  BaseProps &
+    (
+      | {
+          /** Raw unformatted object or string content */
+          content: string | object
+        }
+      | {
+          /**
+           * Pre-pretty printed content string for better performance
+           *
+           * Avoids unnecessary costly re-serialization of large content
+           */
+          prettyPrintedContent: string
+        }
+    )
+>()
 
 /** Base id for the code block */
 const id = useId()
 
+/** Formatted the content into an indented json string */
+const prettyContent = computed(
+  () => prettyPrintedContent || prettyPrintJson(content ?? ''),
+)
+
 const highlightedCode = computed(() => {
-  const html = syntaxHighlight(prettyPrintJson(props.content), {
-    lang: props.lang.trim(),
+  const html = syntaxHighlight(prettyContent.value, {
+    lang: lang.trim(),
     languages: standardLanguages,
-    lineNumbers: props.lineNumbers,
-    maskCredentials: props.hideCredentials,
+    lineNumbers: lineNumbers,
+    maskCredentials: hideCredentials,
   })
 
   // Need to remove the wrapping <pre> element so we can use v-html without another wrapper
@@ -40,9 +66,9 @@ const highlightedCode = computed(() => {
 
 const isContentValid = computed(() => {
   return (
-    props.content !== null &&
-    props.content !== 'null' &&
-    props.content !== '404 Not Found'
+    prettyContent.value !== null &&
+    prettyContent.value !== 'null' &&
+    prettyContent.value !== '404 Not Found'
   )
 })
 </script>
@@ -52,7 +78,7 @@ const isContentValid = computed(() => {
     tabindex="0">
     <ScalarCodeBlockCopy
       v-if="copy && isContentValid"
-      :content="prettyPrintJson(props.content)"
+      :content="prettyContent"
       :controls="id" />
     <pre
       :id="id"

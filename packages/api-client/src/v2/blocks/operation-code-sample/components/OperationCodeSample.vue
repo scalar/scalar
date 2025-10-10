@@ -324,7 +324,7 @@ const selectClient = (option: ClientOption) => {
 // Virtualize the code block if it's too large
 // This prevents the entire app from freezing up if there's a massive example
 // We set a lower threshold here as code examples can get quite large
-const VIRTUALIZATION_THRESHOLD = 30_000
+const VIRTUALIZATION_THRESHOLD = 20_000
 
 const shouldVirtualize = computed(() => {
   return (generatedCode.value.length ?? 0) > VIRTUALIZATION_THRESHOLD
