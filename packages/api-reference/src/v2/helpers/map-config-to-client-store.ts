@@ -28,11 +28,14 @@ export function mapConfigToClientStore({
   config,
   workspaceStore,
   el,
+  root,
   isIntersectionEnabled,
   dereferencedDocument,
 }: {
   /** Element the client will be mounted to */
   el: Ref<HTMLElement | null>
+  /** Root element used to capture custom events on */
+  root: Ref<HTMLElement | null>
   /** Configuration object for API client */
   config: MaybeRefOrGetter<ApiReferenceConfigurationRaw>
   /** Instantiated client store */
@@ -69,7 +72,7 @@ export function mapConfigToClientStore({
   provide(ACTIVE_ENTITIES_SYMBOL, activeEntities)
 
   /** Update the old store to keep it in sync with the new store */
-  useLegacyStoreEvents(workspaceStore, store, activeEntities, el)
+  useLegacyStoreEvents(workspaceStore, store, activeEntities, root)
 
   // ---------------------------------------------------------------------------
 

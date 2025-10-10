@@ -345,6 +345,7 @@ const { activeServer, getSecuritySchemes, openClient } = mapConfigToClientStore(
     workspaceStore,
     config: mergedConfig,
     el: modal,
+    root,
     isIntersectionEnabled: ref(true),
     dereferencedDocument: dereferenced,
   },
