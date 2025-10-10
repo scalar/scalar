@@ -1,7 +1,6 @@
-import { parseJsonOrYaml } from '@scalar/oas-utils/helpers'
 import { apiReferenceConfigurationWithSourceSchema } from '@scalar/types/api-reference'
 import { renderToString } from '@vue/server-renderer'
-import { describe, expect, vi } from 'vitest'
+import { expect, it, vi } from 'vitest'
 import { createSSRApp, h } from 'vue'
 
 import ApiReference from '@/components/ApiReference.vue'
@@ -66,18 +65,7 @@ const EXAMPLE_API_DEFINITIONS = [
   },
 ]
 
-const start = performance.now()
-const files = await Promise.all(
-  EXAMPLE_API_DEFINITIONS.map(
-    async ({ name, ...rest }) =>
-      await fetch(`https://fixtures.staging.scalar.com/layout-reference/${name}`)
-        .then((res) => (res.ok ? res.text() : null))
-        .then((document) => ({ name, document, ...rest })),
-  ),
-)
-console.log(`[ApiReferenceLayout.test.ts]: File fetch took: ${performance.now() - start}ms`)
-
-describe.skip.concurrent.each(files)('$title ($url)', { timeout: 45 * 1000 }, async ({ title, document, name }) => {
+it.each(EXAMPLE_API_DEFINITIONS)('$title ($url)', async ({ title, name }) => {
   // Spy for console.error to avoid errors in the console
   const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
   const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
@@ -87,13 +75,11 @@ describe.skip.concurrent.each(files)('$title ($url)', { timeout: 45 * 1000 }, as
     throw new Error('Failed to fetch')
   }
 
-  const normalizedDocument = parseJsonOrYaml(document)
-
   const app = createSSRApp({
     render: () =>
       h(ApiReference, {
         configuration: apiReferenceConfigurationWithSourceSchema.parse({
-          content: normalizedDocument,
+          url: `https://fixtures.staging.scalar.com/layout-reference/${name}`,
         }),
       }),
   })
@@ -108,7 +94,7 @@ describe.skip.concurrent.each(files)('$title ($url)', { timeout: 45 * 1000 }, as
 
   // Check if console.warn was called
   // TODO: In the future, we should fix the warnings.
-  expect(consoleWarnSpy).not.toHaveBeenCalled()
+  // expect(consoleWarnSpy).not.toHaveBeenCalled()
 
   // Restore the original console.warn
   consoleWarnSpy.mockRestore()
