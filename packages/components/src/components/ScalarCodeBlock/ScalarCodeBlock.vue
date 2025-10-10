@@ -27,13 +27,7 @@ const props = withDefaults(
 const id = useId()
 
 /** Formatted the content into an indented json string */
-const prettyContent = computed(() => {
-  const content = props.content
-  if (!content) {
-    return ''
-  }
-  return prettyPrintJson(content)
-})
+const prettyContent = computed(() => prettyPrintJson(props.content ?? ''))
 
 const highlightedCode = computed(() => {
   const html = syntaxHighlight(prettyContent.value, {
