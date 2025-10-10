@@ -12,7 +12,7 @@ internal sealed class ScalarConfiguration
 
     public required bool? ShowSidebar { get; init; }
 
-    public required string? OperationTitleSource { get; init; }
+    public required OperationTitleSource? OperationTitleSource { get; init; }
 
     public required bool? HideModels { get; init; }
 
@@ -20,7 +20,7 @@ internal sealed class ScalarConfiguration
 
     public required bool? DarkMode { get; init; }
 
-    public required string? ForceDarkModeState { get; init; }
+    public required ThemeMode? ForceDarkModeState { get; init; }
 
     public required bool? HideDarkModeToggle { get; init; }
 
@@ -45,32 +45,39 @@ internal sealed class ScalarConfiguration
 
     public required bool? DefaultOpenAllTags { get; init; }
 
-    public required string? TagsSorter { get; init; }
+    public required bool? ExpandAllModelSections { get; init; }
 
-    public required string? OperationsSorter { get; init; }
+    public required bool? ExpandAllResponses { get; init; }
 
-    public required string? Theme { get; init; }
+    public required bool? HideSearch { get; init; }
 
-    public required string? Layout { get; init; }
+    [JsonPropertyName("tagsSorter")]
+    public required TagSorter? TagSorter { get; init; }
+
+    public required OperationSorter? OperationsSorter { get; init; }
+
+    public required ScalarTheme? Theme { get; init; }
+
+    public required ScalarLayout? Layout { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
     [JsonPropertyName("_integration")]
-    public string? Integration { get; } = "dotnet";
+    public required string? Integration { get; init; }
 
-    public required bool HideClientButton { get; init; }
+    public required bool? HideClientButton { get; init; }
 
     public required IEnumerable<ScalarSource> Sources { get; init; }
 
     [JsonPropertyName("baseServerURL")]
     public required string? BaseServerUrl { get; init; }
 
-    public required bool PersistAuth { get; set; }
+    public required bool? PersistAuth { get; init; }
 
-    public required string? DocumentDownloadType { get; init; }
+    public required DocumentDownloadType? DocumentDownloadType { get; init; }
 
-    public required bool OrderRequiredPropertiesFirst { get; init; }
+    public required bool? OrderRequiredPropertiesFirst { get; init; }
 
-    public required string? OrderSchemaPropertiesBy { get; init; }
+    public required PropertyOrder? OrderSchemaPropertiesBy { get; init; }
 
     public required bool? ShowOperationId { get; init; }
 }

@@ -23,29 +23,31 @@ public class ScalarOptionsMapperTests
         // Assert
         var configuration = configurations.First();
         configuration.ProxyUrl.Should().BeNull();
-        configuration.ShowSidebar.Should().BeTrue();
+        configuration.ShowSidebar.Should().BeNull();
         configuration.OperationTitleSource.Should().BeNull();
-        configuration.HideModels.Should().BeFalse();
-        configuration.HideTestRequestButton.Should().BeFalse();
-        configuration.DarkMode.Should().BeTrue();
+        configuration.HideModels.Should().BeNull();
+        configuration.HideTestRequestButton.Should().BeNull();
+        configuration.DarkMode.Should().BeNull();
         configuration.ForceDarkModeState.Should().BeNull();
-        configuration.HideDarkModeToggle.Should().BeFalse();
+        configuration.HideDarkModeToggle.Should().BeNull();
         configuration.CustomCss.Should().BeNull();
         configuration.SearchHotKey.Should().BeNull();
         configuration.Servers.Should().BeNull();
         configuration.MetaData.Should().BeNull();
-        configuration.DefaultHttpClient!.TargetKey.Should().Be("shell");
-        configuration.DefaultHttpClient!.ClientKey.Should().Be("curl");
+        configuration.DefaultHttpClient.Should().BeNull();
         configuration.HiddenClients.Should().BeNull();
         configuration.Authentication.Should().BeNull();
-        configuration.WithDefaultFonts.Should().BeTrue();
-        configuration.DefaultOpenAllTags.Should().BeFalse();
-        configuration.TagsSorter.Should().BeNull();
+        configuration.WithDefaultFonts.Should().BeNull();
+        configuration.DefaultOpenAllTags.Should().BeNull();
+        configuration.ExpandAllModelSections.Should().BeNull();
+        configuration.ExpandAllResponses.Should().BeNull();
+        configuration.HideSearch.Should().BeNull();
+        configuration.TagSorter.Should().BeNull();
         configuration.OperationsSorter.Should().BeNull();
         configuration.Theme.Should().BeNull();
         configuration.Integration.Should().Be("dotnet");
         configuration.Sources.Should().BeEmpty();
-        configuration.PersistAuth.Should().BeFalse();
+        configuration.PersistAuth.Should().BeNull();
         configuration.DocumentDownloadType.Should().BeNull();
     }
 
@@ -77,8 +79,7 @@ public class ScalarOptionsMapperTests
             OperationSorter = OperationSorter.Method,
             HideClientButton = true,
             PersistentAuthentication = true,
-            DocumentDownloadType = DocumentDownloadType.Json,
-            ShowToolbar = ToolbarVisibility.Never
+            DocumentDownloadType = DocumentDownloadType.Json
         };
         options.AddDocument("v2");
 
@@ -87,30 +88,30 @@ public class ScalarOptionsMapperTests
 
         // Assert
         configuration.ProxyUrl.Should().Be("http://localhost:8080");
-        configuration.ShowSidebar.Should().BeFalse();
-        configuration.OperationTitleSource.Should().Be("path");
-        configuration.HideModels.Should().BeTrue();
-        configuration.HideTestRequestButton.Should().BeTrue();
-        configuration.DarkMode.Should().BeFalse();
-        configuration.HideDarkModeToggle.Should().BeTrue();
+        configuration.ShowSidebar.Should().Be(false);
+        configuration.OperationTitleSource.Should().Be(OperationTitleSource.Path);
+        configuration.HideModels.Should().Be(true);
+        configuration.HideTestRequestButton.Should().Be(true);
+        configuration.DarkMode.Should().Be(false);
+        configuration.HideDarkModeToggle.Should().Be(true);
         configuration.CustomCss.Should().Be("*{}");
         configuration.SearchHotKey.Should().Be("o");
         configuration.Servers.Should().ContainSingle().Which.Url.Should().Be("https://example.com");
         configuration.MetaData.Should().ContainKey("key").WhoseValue.Should().Be("value");
-        configuration.DefaultHttpClient!.TargetKey.Should().Be("csharp");
-        configuration.DefaultHttpClient!.ClientKey.Should().Be("httpclient");
+        configuration.DefaultHttpClient!.TargetKey.Should().Be(ScalarTarget.CSharp);
+        configuration.DefaultHttpClient!.ClientKey.Should().Be(ScalarClient.HttpClient);
         ((bool) configuration.HiddenClients!).Should().BeTrue();
-        configuration.WithDefaultFonts.Should().BeFalse();
-        configuration.DefaultOpenAllTags.Should().BeTrue();
-        configuration.TagsSorter.Should().Be("alpha");
-        configuration.OperationsSorter.Should().Be("method");
-        configuration.Theme.Should().Be("saturn");
-        configuration.Layout.Should().Be("classic");
+        configuration.WithDefaultFonts.Should().Be(false);
+        configuration.DefaultOpenAllTags.Should().Be(true);
+        configuration.TagSorter.Should().Be(TagSorter.Alpha);
+        configuration.OperationsSorter.Should().Be(OperationSorter.Method);
+        configuration.Theme.Should().Be(ScalarTheme.Saturn);
+        configuration.Layout.Should().Be(ScalarLayout.Classic);
         configuration.Integration.Should().Be("dotnet");
-        configuration.HideClientButton.Should().BeTrue();
+        configuration.HideClientButton.Should().Be(true);
         configuration.Sources.Should().ContainSingle().Which.Url.Should().Be("openapi/v2.json");
-        configuration.PersistAuth.Should().BeTrue();
-        configuration.DocumentDownloadType.Should().Be("json");
+        configuration.PersistAuth.Should().Be(true);
+        configuration.DocumentDownloadType.Should().Be(DocumentDownloadType.Json);
     }
 
     [Fact]

@@ -23,7 +23,7 @@ var scalar = builder
     .AddScalarApiReference(options =>
     {
         options
-            .WithCdnUrl("https://cdn.jsdelivr.net/npm/@scalar/api-reference")
+            .WithBundleUrl("https://cdn.jsdelivr.net/npm/@scalar/api-reference")
             .PreferHttpsEndpoint()
             .AllowSelfSignedCertificates();
     })

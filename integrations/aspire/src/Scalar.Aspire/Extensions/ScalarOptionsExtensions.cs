@@ -5,7 +5,7 @@ namespace Scalar.Aspire;
 /// <summary>
 /// Provides extension methods for configuring <see cref="ScalarOptions" />.
 /// </summary>
-public static class ScalarOptionsExtensions
+public static partial class ScalarOptionsExtensions
 {
     /// <summary>
     /// Adds the specified OpenAPI document to the Scalar API reference.
@@ -66,6 +66,7 @@ public static class ScalarOptionsExtensions
     /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
     /// <param name="proxyUrl">The proxy URL to set.</param>
     /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
+    [Obsolete("This method is obsolete and will be removed in a future release. Please use WithProxy() instead.")]
     public static TOptions WithProxyUrl<TOptions>(this TOptions options, [StringSyntax(StringSyntaxAttribute.Uri)] string proxyUrl) where TOptions : ScalarOptions
     {
         options.ProxyUrl = proxyUrl;
@@ -78,6 +79,7 @@ public static class ScalarOptionsExtensions
     /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
     /// <param name="showSidebar">Whether to show the sidebar.</param>
     /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
+    [Obsolete("This method is obsolete and will be removed in a future release. Please use HideSidebar() instead. Note: WithSidebar(true) is the default behavior and can be removed entirely.")]
     public static TOptions WithSidebar<TOptions>(this TOptions options, bool showSidebar = true) where TOptions : ScalarOptions
     {
         options.ShowSidebar = showSidebar;
@@ -102,6 +104,7 @@ public static class ScalarOptionsExtensions
     /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
     /// <param name="showModels">Whether to show models.</param>
     /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
+    [Obsolete("This method is obsolete and will be removed in a future release. Please use HideModels() instead. Note: WithModels(true) is the default behavior and can be removed entirely.")]
     public static TOptions WithModels<TOptions>(this TOptions options, bool showModels = true) where TOptions : ScalarOptions
     {
         options.HideModels = !showModels;
@@ -114,6 +117,7 @@ public static class ScalarOptionsExtensions
     /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
     /// <param name="showTestRequestButton">Whether to show the test request button.</param>
     /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
+    [Obsolete("This method is obsolete and will be removed in a future release. Please use HideTestRequestButton() instead. Note: WithTestRequestButton(true) is the default behavior and can be removed entirely.")]
     public static TOptions WithTestRequestButton<TOptions>(this TOptions options, bool showTestRequestButton = true) where TOptions : ScalarOptions
     {
         options.HideTestRequestButton = !showTestRequestButton;
@@ -126,6 +130,7 @@ public static class ScalarOptionsExtensions
     /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
     /// <param name="darkMode">Whether dark mode is on or off initially.</param>
     /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
+    [Obsolete("This method is obsolete and will be removed in a future release. Please use EnableDarkMode() instead. Note: WithDarkMode(false) is the default behavior and can be removed entirely.")]
     public static TOptions WithDarkMode<TOptions>(this TOptions options, bool darkMode = true) where TOptions : ScalarOptions
     {
         options.DarkMode = darkMode;
@@ -138,6 +143,7 @@ public static class ScalarOptionsExtensions
     /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
     /// <param name="forceThemeMode">The theme mode to force.</param>
     /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
+    [Obsolete("This method is obsolete and will be removed in a future release. Please use ForceLightMode() or ForceDarkMode() instead.")]
     public static TOptions WithForceThemeMode<TOptions>(this TOptions options, ThemeMode forceThemeMode) where TOptions : ScalarOptions
     {
         options.ForceThemeMode = forceThemeMode;
@@ -150,6 +156,7 @@ public static class ScalarOptionsExtensions
     /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
     /// <param name="showDarkModeToggle">Whether to show the dark mode toggle.</param>
     /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
+    [Obsolete("This method is obsolete and will be removed in a future release. Please use HideDarkModeToggle() instead. Note: WithDarkModeToggle(true) is the default behavior and can be removed entirely.")]
     public static TOptions WithDarkModeToggle<TOptions>(this TOptions options, bool showDarkModeToggle = true) where TOptions : ScalarOptions
     {
         options.HideDarkModeToggle = !showDarkModeToggle;
@@ -198,6 +205,7 @@ public static class ScalarOptionsExtensions
     /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
     /// <param name="layout">The layout to use.</param>
     /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
+    [Obsolete("This method is obsolete and will be removed in a future release. Please use WithClassicLayout() instead. Note: WithLayout(ScalarLayout.Modern) is the default behavior and can be removed entirely.")]
     public static TOptions WithLayout<TOptions>(this TOptions options, ScalarLayout layout) where TOptions : ScalarOptions
     {
         options.Layout = layout;
@@ -212,6 +220,7 @@ public static class ScalarOptionsExtensions
     /// <param name="useDefaultFonts">Whether to use the default fonts.</param>
     /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
     /// <remarks>If you use a different font or just don't want to use our CDN, set this to <c>false</c>.</remarks>
+    [Obsolete("This method is obsolete and will be removed in a future release. Please use DisableDefaultFonts() instead. Note: WithDefaultFonts(true) is the default behavior and can be removed entirely.")]
     public static TOptions WithDefaultFonts<TOptions>(this TOptions options, bool useDefaultFonts = true) where TOptions : ScalarOptions
     {
         options.DefaultFonts = useDefaultFonts;
@@ -226,6 +235,7 @@ public static class ScalarOptionsExtensions
     /// <param name="useOpenAllTags">Whether to open all tags by default.</param>
     /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
     /// <remarks>If you want all the tags open by default then set this configuration option.</remarks>
+    [Obsolete("This method is obsolete and will be removed in a future release. Please use ExpandAllTags() instead. Note: WithDefaultOpenAllTags(false) is the default behavior and can be removed entirely.")]
     public static TOptions WithDefaultOpenAllTags<TOptions>(this TOptions options, bool useOpenAllTags = true) where TOptions : ScalarOptions
     {
         options.DefaultOpenAllTags = useOpenAllTags;
@@ -282,6 +292,7 @@ public static class ScalarOptionsExtensions
     /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
     /// <param name="tagSorter">The <see cref="TagSorter" /> to use.</param>
     /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
+    [Obsolete("This method is obsolete and will be removed in a future release. Please use SortTagsAlphabetically() instead.")]
     public static TOptions WithTagSorter<TOptions>(this TOptions options, TagSorter tagSorter) where TOptions : ScalarOptions
     {
         options.TagSorter = tagSorter;
@@ -294,6 +305,7 @@ public static class ScalarOptionsExtensions
     /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
     /// <param name="operationSorter">The <see cref="OperationSorter" /> to use.</param>
     /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
+    [Obsolete("This method is obsolete and will be removed in a future release. Please use SortOperationsByMethod() instead. Note: WithOperationSorter(OperationSorter.Alpha) is the default behavior and can be removed entirely.")]
     public static TOptions WithOperationSorter<TOptions>(this TOptions options, OperationSorter operationSorter) where TOptions : ScalarOptions
     {
         options.OperationSorter = operationSorter;
@@ -555,6 +567,7 @@ public static class ScalarOptionsExtensions
     /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
     /// <param name="showButton">Whether to show the client button.</param>
     /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
+    [Obsolete("This method is obsolete and will be removed in a future release. Please use HideClientButton() instead. Note: WithClientButton(true) is the default behavior and can be removed entirely.")]
     public static TOptions WithClientButton<TOptions>(this TOptions options, bool showButton = true) where TOptions : ScalarOptions
     {
         options.HideClientButton = !showButton;
@@ -585,6 +598,7 @@ public static class ScalarOptionsExtensions
     /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
     /// <param name="persistAuth">Whether to persist authentication between page refreshes.</param>
     /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
+    [Obsolete("This method is obsolete and will be removed in a future release. Please use EnablePersistentAuthentication() instead. Note: WithPersistentAuthentication(false) is the default behavior and can be removed entirely.")]
     public static TOptions WithPersistentAuthentication<TOptions>(this TOptions options, bool persistAuth = true) where TOptions : ScalarOptions
     {
         options.PersistentAuthentication = persistAuth;
@@ -620,6 +634,7 @@ public static class ScalarOptionsExtensions
     /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
     /// <param name="orderRequiredFirst">Whether to order required properties first.</param>
     /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
+    [Obsolete("This method is obsolete and will be removed in a future release. Please use DisableRequiredPropertiesFirst() instead. Note: WithOrderRequiredPropertiesFirst(true) is the default behavior and can be removed entirely.")]
     public static TOptions WithOrderRequiredPropertiesFirst<TOptions>(this TOptions options, bool orderRequiredFirst = true) where TOptions : ScalarOptions
     {
         options.OrderRequiredPropertiesFirst = orderRequiredFirst;
@@ -632,23 +647,13 @@ public static class ScalarOptionsExtensions
     /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
     /// <param name="orderBy">The ordering method to use for schema properties.</param>
     /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
+    [Obsolete("This method is obsolete and will be removed in a future release. Please use PreserveSchemaPropertyOrder() instead. Note: WithSchemaPropertyOrder(PropertyOrder.Alpha) is the default behavior and can be removed entirely.")]
     public static TOptions WithSchemaPropertyOrder<TOptions>(this TOptions options, PropertyOrder? orderBy) where TOptions : ScalarOptions
     {
         options.SchemaPropertyOrder = orderBy;
         return options;
     }
 
-    /// <summary>
-    /// Sets the visibility of the configuration toolbar.
-    /// </summary>
-    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
-    /// <param name="showToolbar">The visibility setting for the configuration toolbar.</param>
-    /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
-    internal static TOptions WithShowToolbar<TOptions>(this TOptions options, ToolbarVisibility? showToolbar) where TOptions : ScalarOptions
-    {
-        options.ShowToolbar = showToolbar;
-        return options;
-    }
 
     /// <summary>
     /// Sets whether to show the operation ID in the UI.
@@ -656,6 +661,7 @@ public static class ScalarOptionsExtensions
     /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
     /// <param name="showOperationId">Whether to show the operation ID.</param>
     /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
+    [Obsolete("This method is obsolete and will be removed in a future release. Please use ShowOperationId() instead. Note: WithShowOperationId(false) is the default behavior and can be removed entirely.")]
     public static TOptions WithShowOperationId<TOptions>(this TOptions options, bool showOperationId = true) where TOptions : ScalarOptions
     {
         options.ShowOperationId = showOperationId;

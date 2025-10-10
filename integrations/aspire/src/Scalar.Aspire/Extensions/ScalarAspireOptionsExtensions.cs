@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Scalar.Aspire;
 
 /// <summary>
@@ -6,16 +8,27 @@ namespace Scalar.Aspire;
 public static class ScalarAspireOptionsExtensions
 {
     /// <summary>
-    /// Sets the CDN URL for the Scalar API Reference.
+    /// Controls the bundle URL for the API Reference.
+    /// </summary>
+    /// <param name="options">The <see cref="ScalarAspireOptions" /> to configure.</param>
+    /// <param name="bundleUrl">The bundle URL to set.</param>
+    /// <returns>The <see cref="ScalarAspireOptions" /> so that additional calls can be chained.</returns>
+    /// <remarks>Use this option to load the API Reference from a different bundle or local server.</remarks>
+    public static ScalarAspireOptions WithBundleUrl(this ScalarAspireOptions options, [StringSyntax(StringSyntaxAttribute.Uri)] string bundleUrl)
+    {
+        options.BundleUrl = bundleUrl;
+        return options;
+    }
+
+    /// <summary>
+    /// Controls the CDN URL for the API Reference.
     /// </summary>
     /// <param name="options">The <see cref="ScalarAspireOptions" /> to configure.</param>
     /// <param name="cdnUrl">The CDN URL to set.</param>
     /// <returns>The <see cref="ScalarAspireOptions" /> so that additional calls can be chained.</returns>
-    public static ScalarAspireOptions WithCdnUrl(this ScalarAspireOptions options, string cdnUrl)
-    {
-        options.CdnUrl = cdnUrl;
-        return options;
-    }
+    /// <remarks>Use this option to load the API Reference from a different CDN or local server.</remarks>
+    [Obsolete("This method is obsolete and will be removed in a future release. Please use WithBundleUrl() instead.")]
+    public static ScalarAspireOptions WithCdnUrl(this ScalarAspireOptions options, [StringSyntax(StringSyntaxAttribute.Uri)] string cdnUrl) => options.WithBundleUrl(cdnUrl);
 
     /// <summary>
     /// Disables the default proxy.
