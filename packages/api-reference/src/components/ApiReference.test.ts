@@ -1,10 +1,38 @@
-import { disableConsoleError } from '@scalar/helpers/testing/console-spies'
 import { renderToString } from '@vue/server-renderer'
 import { flushPromises, mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createSSRApp, h } from 'vue'
 
 import ApiReference from '@/components/ApiReference.vue'
+
+// Mock window.location for all tests
+const mockLocation = {
+  href: 'http://localhost:3000/',
+  origin: 'http://localhost:3000',
+  protocol: 'http:',
+  host: 'localhost:3000',
+  hostname: 'localhost',
+  port: '3000',
+  pathname: '/',
+  search: '',
+  hash: '',
+  ancestorOrigins: {} as DOMStringList,
+  assign: vi.fn(),
+  reload: vi.fn(),
+  replace: vi.fn(),
+  toString: () => 'http://localhost:3000/',
+}
+
+beforeEach(() => {
+  vi.resetAllMocks()
+  // Reset location mock before each test
+  mockLocation.href = 'http://localhost:3000/'
+  mockLocation.pathname = '/'
+  mockLocation.search = ''
+  mockLocation.hash = ''
+
+  vi.stubGlobal('location', mockLocation)
+})
 
 describe('multiple configurations', () => {
   it('renders a single API reference', async () => {
@@ -104,7 +132,7 @@ describe('multiple configurations', () => {
     wrapper.unmount()
   })
 
-  it.skip('renders a select with the names', async () => {
+  it('renders a select with the names', async () => {
     const wrapper = mount(ApiReference, {
       props: {
         configuration: [
@@ -230,6 +258,7 @@ describe('multiple sources', () => {
             {
               url: 'https://api.example.com/v1/openapi.yaml',
               slug: 'my-api-1',
+              default: true,
             },
             {
               url: 'https://api.example.com/v2/openapi.yaml',
@@ -244,13 +273,10 @@ describe('multiple sources', () => {
     await flushPromises()
     await wrapper.vm.$nextTick()
 
-    console.log(wrapper.html())
-
     // Check whether it renders the select
     const documentSelector = wrapper.findComponent({ name: 'DocumentSelector' })
     expect(documentSelector.exists()).toBe(true)
     await documentSelector.find('button').trigger('click')
-    expect(documentSelector.html()).not.toBe('<!--v-if-->')
 
     // Check whether it renders the names
     expect(documentSelector.text()).toContain('my-api-2')
