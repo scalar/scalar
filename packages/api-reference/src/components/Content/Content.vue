@@ -6,6 +6,7 @@ import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { TraversedDescription } from '@scalar/workspace-store/schemas/navigation'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/workspace'
 import { computed } from 'vue'
 
 import IntroductionSection from '@/components/Content/IntroductionSection.vue'
@@ -142,7 +143,12 @@ const models = computed<TraversedDescription | undefined>(() => {
         :info="store.workspace.activeDocument.info"
         :infoExtensions
         :layout="options.layout"
-        :oasVersion="store.workspace.activeDocument?.['x-original-oas-version']"
+        :oasVersion="
+          store.workspace.activeDocument &&
+          isOpenApiDocument(store.workspace.activeDocument)
+            ? store.workspace.activeDocument?.['x-original-oas-version']
+            : undefined
+        "
         :options="{
           documentDownloadType: options.documentDownloadType,
           url: options.url,
@@ -209,7 +215,13 @@ const models = computed<TraversedDescription | undefined>(() => {
     </IntroductionSection>
 
     <!-- Render traversed operations and webhooks -->
-    <div v-if="items.entries.length && activeCollection">
+    <div
+      v-if="
+        items.entries.length &&
+        activeCollection &&
+        store.workspace.activeDocument &&
+        isOpenApiDocument(store.workspace.activeDocument)
+      ">
       <!-- Use recursive component for cleaner rendering -->
       <TraversedEntry
         :activeCollection

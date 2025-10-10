@@ -2,8 +2,10 @@ import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-c
 import { enableConsoleError, enableConsoleWarn } from '@scalar/helpers/testing/console-spies'
 import { collectionSchema } from '@scalar/oas-utils/entities/spec'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { OpenAPIDocumentSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
+import {
+  OpenAPIDocumentSchema,
+  type OpenApiDocument,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -98,8 +100,8 @@ describe('Operation', () => {
     enableConsoleError()
   })
 
-  const createMockDocument = (): WorkspaceDocument =>
-    coerceValue(OpenAPIDocumentSchema, {
+  const createMockDocument = (): OpenApiDocument => {
+    const mockDocument = coerceValue(OpenAPIDocumentSchema, {
       openapi: '3.1.0',
       info: {
         title: 'Test API',
@@ -153,6 +155,9 @@ describe('Operation', () => {
         schemas: {},
       },
     })
+
+    return mockDocument
+  }
 
   it('renders path parameters from pathItem parameters', () => {
     const document = createMockDocument()
@@ -519,7 +524,7 @@ describe('Operation', () => {
         pathValue: document.paths?.['/users/{userId}'],
         security: document.security,
         server: undefined,
-        store: createMockStore(document as WorkspaceDocument),
+        store: createMockStore(document),
         collection: mockCollection,
         options: {
           layout: 'classic',

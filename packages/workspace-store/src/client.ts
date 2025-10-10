@@ -17,9 +17,10 @@ import { type UnknownObject, isObject, safeAssign } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
 import { createOverridesProxy } from '@/helpers/overrides-proxy'
-import { createNavigation } from '@/navigation'
+import { createAsyncApiNavigation, createNavigation } from '@/navigation'
 import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
 import { getServersFromDocument } from '@/preprocessing/server'
+import { type AsyncApiDocument, AsyncApiDocumentSchemaStrict } from '@/schemas/asyncapi'
 import { extensions } from '@/schemas/extensions'
 import { type InMemoryWorkspace, InMemoryWorkspaceSchema } from '@/schemas/inmemory-workspace'
 import { defaultReferenceConfig } from '@/schemas/reference-config'
@@ -28,7 +29,14 @@ import {
   OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
   type OpenApiDocument,
 } from '@/schemas/v3.1/strict/openapi-document'
-import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from '@/schemas/workspace'
+import {
+  type ApiDefinition,
+  type Workspace,
+  type WorkspaceDocumentMeta,
+  type WorkspaceMeta,
+  isAsyncApiDocument,
+  isOpenApiDocument,
+} from '@/schemas/workspace'
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
 import type { Config, DocumentConfiguration } from '@/schemas/workspace-specification/config'
 
@@ -548,7 +556,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     })
 
     if (servers.length) {
-      input.servers = servers.map((it) => ({ url: it.url, description: it.description, variables: it.variables }))
+      input.servers = servers.map((it) => ({
+        url: it.url,
+        description: it.description,
+        variables: it.variables,
+      }))
     }
 
     return input
@@ -586,7 +598,17 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     const strictDocument: UnknownObject = createMagicProxy({ ...inputDocument, ...meta }, { showInternal: true })
 
-    strictDocument['x-original-oas-version'] = input.document.openapi ?? input.document.swagger
+    // Only set the relevant version metadata based on document type
+    if (isOpenApiDocument(strictDocument as ApiDefinition)) {
+      strictDocument['x-original-oas-version'] = input.document.openapi ?? input.document.swagger
+    }
+    if (isAsyncApiDocument(strictDocument as ApiDefinition)) {
+      strictDocument['x-original-asyncapi-version'] = input.document.asyncapi
+    }
+
+    // Detect document type and use appropriate schema
+    const isAsyncApi = isAsyncApiDocument(strictDocument as ApiDefinition)
+    const schemaToUse = isAsyncApi ? AsyncApiDocumentSchemaStrict : OpenAPIDocumentSchemaStrict
 
     if (strictDocument[extensions.document.navigation] === undefined) {
       // If the document navigation is not already present, bundle the entire document to resolve all references.
@@ -610,16 +632,14 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       )
 
       // We coerce the values only when the document is not preprocessed by the server-side-store
-      const coerced = measureSync('coerceValue', () =>
-        coerceValue(OpenAPIDocumentSchemaStrict, deepClone(strictDocument)),
-      )
+      const coerced = measureSync('coerceValue', () => coerceValue(schemaToUse, deepClone(strictDocument)))
       measureAsync('mergeObjects', async () => mergeObjects(strictDocument, coerced))
     }
 
-    const isValid = Value.Check(OpenAPIDocumentSchemaStrict, strictDocument)
+    const isValid = Value.Check(schemaToUse, strictDocument)
 
     if (!isValid) {
-      const validationErrors = Array.from(Value.Errors(OpenAPIDocumentSchemaStrict, strictDocument))
+      const validationErrors = Array.from(Value.Errors(schemaToUse, strictDocument))
 
       console.warn('document validation errors: ')
       console.warn(
@@ -634,22 +654,26 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (strictDocument[extensions.document.navigation] === undefined) {
-      const navigation = createNavigation(strictDocument as OpenApiDocument, input.config)
+      if (isAsyncApi) {
+        const navigation = createAsyncApiNavigation(strictDocument as AsyncApiDocument, input.config)
+        strictDocument[extensions.document.navigation] = navigation.entries
+      } else {
+        const navigation = createNavigation(strictDocument as OpenApiDocument, input.config)
+        strictDocument[extensions.document.navigation] = navigation.entries
 
-      strictDocument[extensions.document.navigation] = navigation.entries
-
-      // Do some document processing
-      processDocument(getRaw(strictDocument as OpenApiDocument), {
-        ...(documentConfigs[name] ?? {}),
-        documentSource: input.documentSource,
-      })
+        // Do some document processing
+        processDocument(getRaw(strictDocument as OpenApiDocument), {
+          ...(documentConfigs[name] ?? {}),
+          documentSource: input.documentSource,
+        })
+      }
     }
 
     // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map
     // We create a new proxy here in order to hide internal properties after validation and processing
-    // This ensures that the workspace document only exposes the intended OpenAPI properties and extensions
+    // This ensures that the workspace document only exposes the intended API properties and extensions
     workspace.documents[name] = createOverridesProxy(
-      createMagicProxy(getRaw(strictDocument)) as OpenApiDocument,
+      createMagicProxy(getRaw(strictDocument)) as ApiDefinition,
       input.overrides,
     )
   }
@@ -661,7 +685,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     const resolve = await measureAsync(
       'loadDocument',
-      async () => await loadDocument({ ...input, fetch: input.fetch ?? workspaceProps?.fetch }),
+      async () =>
+        await loadDocument({
+          ...input,
+          fetch: input.fetch ?? workspaceProps?.fetch,
+        }),
     )
 
     // Log the time taken to add a document
@@ -836,7 +864,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         Object.fromEntries(
           Object.entries(result.documents).map(([name, doc]) => [
             name,
-            createOverridesProxy(createMagicProxy(doc), result.overrides[name]),
+            createOverridesProxy(createMagicProxy(doc) as ApiDefinition, result.overrides[name]),
           ]),
         ),
       )
