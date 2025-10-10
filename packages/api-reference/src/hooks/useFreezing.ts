@@ -1,8 +1,9 @@
+import { freezeAtTop } from '@scalar/helpers/dom/freeze-at-top'
+import { ref } from 'vue'
+
 import { lazyBus } from '@/components/Lazy'
 import { hasLazyLoaded } from '@/components/Lazy/lazyBus'
 import { useNavState } from '@/hooks/useNavState'
-import { freezeAtTop } from '@scalar/helpers/dom/freeze-at-top'
-import { ref } from 'vue'
 
 const CHECK_INTERVAL = 25
 const CHECK_TIMEOUT = 500
@@ -16,9 +17,12 @@ export const useFreezing = () => {
 
   const lazyIds = ref<Set<string>>(new Set())
 
+  /** We don't want to freeze if we have lazy loaded once already */
+  const elemToFreeze = hasLazyLoaded.value ? '' : hash.value
+
   /** Tries to freeze the scroll position of the element */
   // console.log('⏸️ FREEZING', hash.value)
-  const unfreeze = freezeAtTop(hash.value)
+  const unfreeze = freezeAtTop(elemToFreeze)
 
   /** Resume scrolling */
   const resume = () => {
