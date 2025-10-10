@@ -90,7 +90,7 @@ const documentOptionList = computed(() =>
     id: c.slug,
   })),
 )
-console.log(documentOptionList.value)
+
 /** Configuration overrides to apply to the selected document (from the localhost toolbar) */
 const configurationOverrides = ref<
   Partial<Omit<ApiReferenceConfiguration, 'slug' | 'title' | ''>>
