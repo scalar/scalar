@@ -292,7 +292,7 @@ export namespace v_2_1_0 {
     type: 'request'
     uid: string
     path: string
-    method: 'connect' | 'delete' | 'get' | 'head' | 'options' | 'patch' | 'post' | 'put' | 'trace'
+    method: 'delete' | 'get' | 'head' | 'options' | 'patch' | 'post' | 'put' | 'trace'
     servers: string[]
     selectedServerUid: string
     examples: string[]

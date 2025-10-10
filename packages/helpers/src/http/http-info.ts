@@ -54,12 +54,6 @@ export const REQUEST_METHODS = {
     colorVar: 'var(--scalar-color-2)',
     backgroundColor: 'bg-c-2/10',
   },
-  connect: {
-    short: 'CONN',
-    colorClass: 'text-c-2',
-    colorVar: 'var(--scalar-color-2)',
-    backgroundColor: 'bg-c-2/10',
-  },
   trace: {
     short: 'TRACE',
     colorClass: 'text-c-2',

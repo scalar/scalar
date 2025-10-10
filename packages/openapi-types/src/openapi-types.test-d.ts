@@ -1,6 +1,6 @@
 import { describe, expectTypeOf, it } from 'vitest'
 
-import type { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from './openapi-types'
+import type { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1, OpenAPIV3_2 } from './openapi-types'
 
 describe('OpenAPI', () => {
   it('has a generic type', () => {
@@ -51,6 +51,22 @@ describe('OpenAPI', () => {
     expectTypeOf(specification).toMatchTypeOf<OpenAPIV3_1.Document>()
   })
 
+  it('narrows it down to OpenAPI 3.1.2', () => {
+    const specification: OpenAPI.Document = {
+      openapi: '3.1.2',
+    }
+
+    expectTypeOf(specification).toMatchTypeOf<OpenAPIV3_1.Document>()
+  })
+
+  it('narrows it down to OpenAPI 3.2.0', () => {
+    const specification: OpenAPI.Document = {
+      openapi: '3.2.0',
+    }
+
+    expectTypeOf(specification).toMatchTypeOf<OpenAPIV3_2.Document>()
+  })
+
   it('types a custom extension', () => {
     const specification: OpenAPI.Document<{
       'x-custom'?: boolean
@@ -62,11 +78,7 @@ describe('OpenAPI', () => {
   })
 
   it('has a HttpMethod type', () => {
-    const validMethod: OpenAPI.HttpMethod = 'GET'
-    const anotherValidMethod: Lowercase<OpenAPI.HttpMethod> = 'get'
-
-    expectTypeOf(validMethod).toMatchTypeOf<OpenAPI.HttpMethod>()
-    expectTypeOf(anotherValidMethod).toMatchTypeOf<Lowercase<OpenAPI.HttpMethod>>()
+    expectTypeOf('get' as OpenAPI.HttpMethod).toMatchTypeOf<OpenAPI.HttpMethod>()
 
     // @ts-expect-error name is a string
     assertType('NOT_A_METHOD' as OpenAPI.HttpMethod)

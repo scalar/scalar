@@ -50,7 +50,6 @@ describe('getHttpMethodInfo', () => {
       { input: 'delete', expectedShort: 'DEL' },
       { input: 'OPTIONS', expectedShort: 'OPTS' },
       { input: 'head', expectedShort: 'HEAD' },
-      { input: 'CONNECT', expectedShort: 'CONN' },
       { input: 'trace', expectedShort: 'TRACE' },
     ]
 

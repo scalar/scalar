@@ -4,7 +4,7 @@ import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
 export type OperationIdentifier = {
   path: string
-  method: Exclude<HttpMethod, 'connect' | 'head' | 'options'>
+  method: Exclude<HttpMethod, 'head' | 'options'>
 }
 
 /**
