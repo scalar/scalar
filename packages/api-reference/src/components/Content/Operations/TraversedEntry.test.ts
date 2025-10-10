@@ -47,102 +47,121 @@ const defaultOptions = {
   clientOptions: [],
 }
 
+const mockDocument = {
+  openapi: '3.1.0' as const,
+  info: {
+    title: 'Test API',
+    version: '1.0.0',
+  },
+  paths: {
+    '/users': {
+      get: {
+        tags: ['users'],
+        summary: 'Get Users',
+        responses: { '200': { description: 'OK' } },
+      },
+      post: {
+        tags: ['users'],
+        summary: 'Create User',
+        responses: { '201': { description: 'Created' } },
+      },
+    },
+    '/planets': {
+      get: {
+        tags: ['planets'],
+        summary: 'Get Planets',
+        responses: { '200': { description: 'OK' } },
+      },
+      post: {
+        tags: ['planets'],
+        summary: 'Create Planet',
+        responses: { '201': { description: 'Created' } },
+      },
+    },
+  },
+  webhooks: {
+    'user.created': {
+      post: {
+        summary: 'User Created',
+        responses: { '200': { description: 'OK' } },
+      },
+    },
+    'user.updated': {
+      put: {
+        summary: 'User Updated',
+        responses: { '200': { description: 'OK' } },
+      },
+    },
+  },
+  tags: [
+    {
+      name: 'users',
+      description: 'User management operations',
+    },
+    {
+      name: 'planets',
+      description: 'Planet management operations',
+    },
+  ],
+  components: {
+    schemas: {},
+  },
+  security: [],
+}
+
+const mockConfig = apiReferenceConfigurationSchema.parse({
+  layout: 'modern',
+  theme: 'default',
+  hideModels: false,
+  tagsSorter: 'alpha',
+  operationsSorter: 'alpha',
+})
+
+const mockCollection = collectionSchema.parse({
+  uid: 'test-collection',
+  name: 'Test Collection',
+  servers: ['server1'],
+  selectedServerUid: 'server1',
+})
+
+const mockServer = serverSchema.parse({
+  uid: 'server1',
+  name: 'Test Server',
+  url: 'https://api.example.com',
+})
+
+// Mock WorkspaceStore with documents
+const mockStore = createWorkspaceStore({
+  meta: {
+    'x-scalar-active-document': 'default',
+  },
+})
+
+await mockStore.addDocument({
+  name: 'default',
+  document: mockDocument,
+})
+
+const makeMockProps = (entries: TraversedEntry[]) => ({
+  hash: useNavState().hash.value,
+  rootIndex: 0,
+  entries,
+  paths: mockDocument.paths,
+  webhooks: mockDocument.webhooks,
+  security: mockDocument.security,
+  activeServer: mockServer,
+  getSecuritySchemes: () => [],
+  xScalarDefaultClient: mockStore.workspace['x-scalar-default-client'],
+  options: {
+    layout: mockConfig.layout,
+    showOperationId: mockConfig.showOperationId,
+    hideTestRequestButton: mockConfig.hideTestRequestButton,
+    expandAllResponses: mockConfig.expandAllResponses,
+    ...defaultOptions,
+  },
+})
+
 describe('TraversedEntry', async () => {
-  const mockDocument = {
-    openapi: '3.1.0' as const,
-    info: {
-      title: 'Test API',
-      version: '1.0.0',
-    },
-    paths: {
-      '/users': {
-        get: {
-          tags: ['users'],
-          summary: 'Get Users',
-          responses: { '200': { description: 'OK' } },
-        },
-        post: {
-          tags: ['users'],
-          summary: 'Create User',
-          responses: { '201': { description: 'Created' } },
-        },
-      },
-      '/planets': {
-        get: {
-          tags: ['planets'],
-          summary: 'Get Planets',
-          responses: { '200': { description: 'OK' } },
-        },
-        post: {
-          tags: ['planets'],
-          summary: 'Create Planet',
-          responses: { '201': { description: 'Created' } },
-        },
-      },
-    },
-    webhooks: {
-      'user.created': {
-        post: {
-          summary: 'User Created',
-          responses: { '200': { description: 'OK' } },
-        },
-      },
-      'user.updated': {
-        put: {
-          summary: 'User Updated',
-          responses: { '200': { description: 'OK' } },
-        },
-      },
-    },
-    tags: [
-      {
-        name: 'users',
-        description: 'User management operations',
-      },
-      {
-        name: 'planets',
-        description: 'Planet management operations',
-      },
-    ],
-    components: {
-      schemas: {},
-    },
-    security: [],
-  }
-
-  const mockConfig = apiReferenceConfigurationSchema.parse({
-    layout: 'modern',
-    theme: 'default',
-    hideModels: false,
-    tagsSorter: 'alpha',
-    operationsSorter: 'alpha',
-  })
-
-  const mockCollection = collectionSchema.parse({
-    uid: 'test-collection',
-    name: 'Test Collection',
-    servers: ['server1'],
-    selectedServerUid: 'server1',
-  })
-
-  const mockServer = serverSchema.parse({
-    uid: 'server1',
-    name: 'Test Server',
-    url: 'https://api.example.com',
-  })
-
-  // Mock WorkspaceStore with documents
-  const mockStore = createWorkspaceStore({
-    meta: {
-      'x-scalar-active-document': 'default',
-    },
-  })
-
-  await mockStore.addDocument({
-    name: 'default',
-    document: mockDocument,
-  })
-
   const createMockOperation = (overrides: Partial<TraversedOperation> = {}): TraversedOperation => ({
     type: 'operation',
     id: 'operation-1',
@@ -200,24 +219,7 @@ describe('TraversedEntry', async () => {
       const entries: TraversedEntry[] = [operation]
 
       const wrapper = mount(TraversedEntryComponent, {
-        props: {
-          hash: useNavState().hash.value,
-          rootIndex: 0,
-          entries,
-          paths: mockDocument.paths,
-          webhooks: mockDocument.webhooks,
-          security: mockDocument.security,
-          activeCollection: mockCollection,
-          activeServer: mockServer,
-          store: mockStore,
-          options: {
-            layout: mockConfig.layout,
-            showOperationId: mockConfig.showOperationId,
-            hideTestRequestButton: mockConfig.hideTestRequestButton,
-            expandAllResponses: mockConfig.expandAllResponses,
-            ...defaultOptions,
-          },
-        },
+        props: makeMockProps(entries),
       })
 
       // Check that Operation component is rendered
@@ -232,24 +234,7 @@ describe('TraversedEntry', async () => {
       ]
 
       const wrapper = mount(TraversedEntryComponent, {
-        props: {
-          hash: useNavState().hash.value,
-          rootIndex: 0,
-          entries: operations,
-          paths: mockDocument.paths,
-          webhooks: mockDocument.webhooks,
-          security: mockDocument.security,
-          activeCollection: mockCollection,
-          activeServer: mockServer,
-          store: mockStore,
-          options: {
-            layout: mockConfig.layout,
-            showOperationId: mockConfig.showOperationId,
-            hideTestRequestButton: mockConfig.hideTestRequestButton,
-            expandAllResponses: mockConfig.expandAllResponses,
-            ...defaultOptions,
-          },
-        },
+        props: makeMockProps(operations),
       })
 
       const operationComponents = wrapper.findAllComponents({ name: 'Operation' })
@@ -265,24 +250,7 @@ describe('TraversedEntry', async () => {
       const entries: TraversedEntry[] = [webhook]
 
       const wrapper = mount(TraversedEntryComponent, {
-        props: {
-          hash: useNavState().hash.value,
-          rootIndex: 0,
-          entries,
-          paths: mockDocument.paths,
-          webhooks: mockDocument.webhooks,
-          security: mockDocument.security,
-          activeCollection: mockCollection,
-          activeServer: mockServer,
-          store: mockStore,
-          options: {
-            layout: mockConfig.layout,
-            showOperationId: mockConfig.showOperationId,
-            hideTestRequestButton: mockConfig.hideTestRequestButton,
-            expandAllResponses: mockConfig.expandAllResponses,
-            ...defaultOptions,
-          },
-        },
+        props: makeMockProps(entries),
       })
 
       // Check that Operation component is rendered for webhooks
@@ -297,24 +265,7 @@ describe('TraversedEntry', async () => {
       ]
 
       const wrapper = mount(TraversedEntryComponent, {
-        props: {
-          hash: useNavState().hash.value,
-          rootIndex: 0,
-          entries: webhooks,
-          paths: mockDocument.paths,
-          webhooks: mockDocument.webhooks,
-          security: mockDocument.security,
-          activeCollection: mockCollection,
-          activeServer: mockServer,
-          store: mockStore,
-          options: {
-            layout: mockConfig.layout,
-            showOperationId: mockConfig.showOperationId,
-            hideTestRequestButton: mockConfig.hideTestRequestButton,
-            expandAllResponses: mockConfig.expandAllResponses,
-            ...defaultOptions,
-          },
-        },
+        props: makeMockProps(webhooks),
       })
 
       const operationComponents = wrapper.findAllComponents({ name: 'Operation' })
@@ -330,24 +281,7 @@ describe('TraversedEntry', async () => {
       const entries: TraversedEntry[] = [tag]
 
       const wrapper = mount(TraversedEntryComponent, {
-        props: {
-          hash: useNavState().hash.value,
-          rootIndex: 0,
-          entries,
-          paths: mockDocument.paths,
-          webhooks: mockDocument.webhooks,
-          security: mockDocument.security,
-          activeCollection: mockCollection,
-          activeServer: mockServer,
-          store: mockStore,
-          options: {
-            layout: mockConfig.layout,
-            showOperationId: mockConfig.showOperationId,
-            hideTestRequestButton: mockConfig.hideTestRequestButton,
-            expandAllResponses: mockConfig.expandAllResponses,
-            ...defaultOptions,
-          },
-        },
+        props: makeMockProps(entries),
       })
 
       // Check that Tag component is rendered
@@ -362,24 +296,7 @@ describe('TraversedEntry', async () => {
       const entries: TraversedEntry[] = [tag]
 
       const wrapper = mount(TraversedEntryComponent, {
-        props: {
-          hash: useNavState().hash.value,
-          rootIndex: 0,
-          entries,
-          paths: mockDocument.paths,
-          webhooks: mockDocument.webhooks,
-          security: mockDocument.security,
-          activeCollection: mockCollection,
-          activeServer: mockServer,
-          store: mockStore,
-          options: {
-            layout: mockConfig.layout,
-            showOperationId: mockConfig.showOperationId,
-            hideTestRequestButton: mockConfig.hideTestRequestButton,
-            expandAllResponses: mockConfig.expandAllResponses,
-            ...defaultOptions,
-          },
-        },
+        props: makeMockProps(entries),
       })
 
       expect(wrapper.findComponent({ name: 'Tag' }).exists()).toBe(true)
@@ -392,24 +309,7 @@ describe('TraversedEntry', async () => {
       const entries: TraversedEntry[] = [tag]
 
       const wrapper = mount(TraversedEntryComponent, {
-        props: {
-          hash: useNavState().hash.value,
-          rootIndex: 0,
-          entries,
-          paths: mockDocument.paths,
-          webhooks: mockDocument.webhooks,
-          security: mockDocument.security,
-          activeCollection: mockCollection,
-          activeServer: mockServer,
-          store: mockStore,
-          options: {
-            layout: mockConfig.layout,
-            showOperationId: mockConfig.showOperationId,
-            hideTestRequestButton: mockConfig.hideTestRequestButton,
-            expandAllResponses: mockConfig.expandAllResponses,
-            ...defaultOptions,
-          },
-        },
+        props: makeMockProps(entries),
       })
 
       expect(wrapper.findComponent({ name: 'Tag' }).exists()).toBe(true)
@@ -425,24 +325,7 @@ describe('TraversedEntry', async () => {
       const entries: TraversedEntry[] = [tagGroup]
 
       const wrapper = mount(TraversedEntryComponent, {
-        props: {
-          hash: useNavState().hash.value,
-          rootIndex: 0,
-          entries,
-          paths: mockDocument.paths,
-          webhooks: mockDocument.webhooks,
-          security: mockDocument.security,
-          activeCollection: mockCollection,
-          activeServer: mockServer,
-          store: mockStore,
-          options: {
-            layout: mockConfig.layout,
-            showOperationId: mockConfig.showOperationId,
-            hideTestRequestButton: mockConfig.hideTestRequestButton,
-            expandAllResponses: mockConfig.expandAllResponses,
-            ...defaultOptions,
-          },
-        },
+        props: makeMockProps(entries),
       })
 
       // Tag groups render their children directly without a Tag wrapper
@@ -455,24 +338,7 @@ describe('TraversedEntry', async () => {
       const entries: TraversedEntry[] = [tagGroup]
 
       const wrapper = mount(TraversedEntryComponent, {
-        props: {
-          hash: useNavState().hash.value,
-          rootIndex: 0,
-          entries,
-          paths: mockDocument.paths,
-          webhooks: mockDocument.webhooks,
-          security: mockDocument.security,
-          activeCollection: mockCollection,
-          activeServer: mockServer,
-          store: mockStore,
-          options: {
-            layout: mockConfig.layout,
-            showOperationId: mockConfig.showOperationId,
-            hideTestRequestButton: mockConfig.hideTestRequestButton,
-            expandAllResponses: mockConfig.expandAllResponses,
-            ...defaultOptions,
-          },
-        },
+        props: makeMockProps(entries),
       })
 
       // Empty tag groups should not render anything
@@ -488,24 +354,7 @@ describe('TraversedEntry', async () => {
       const entries: TraversedEntry[] = [webhookGroup]
 
       const wrapper = mount(TraversedEntryComponent, {
-        props: {
-          hash: useNavState().hash.value,
-          rootIndex: 0,
-          entries,
-          paths: mockDocument.paths,
-          webhooks: mockDocument.webhooks,
-          security: mockDocument.security,
-          activeCollection: mockCollection,
-          activeServer: mockServer,
-          store: mockStore,
-          options: {
-            layout: mockConfig.layout,
-            showOperationId: mockConfig.showOperationId,
-            hideTestRequestButton: mockConfig.hideTestRequestButton,
-            expandAllResponses: mockConfig.expandAllResponses,
-            ...defaultOptions,
-          },
-        },
+        props: makeMockProps(entries),
       })
 
       expect(wrapper.findComponent({ name: 'Tag' }).exists()).toBe(true)
@@ -518,24 +367,7 @@ describe('TraversedEntry', async () => {
       const entries: TraversedEntry[] = [webhookGroup]
 
       const wrapper = mount(TraversedEntryComponent, {
-        props: {
-          hash: useNavState().hash.value,
-          rootIndex: 0,
-          entries,
-          paths: mockDocument.paths,
-          webhooks: mockDocument.webhooks,
-          security: mockDocument.security,
-          activeCollection: mockCollection,
-          activeServer: mockServer,
-          store: mockStore,
-          options: {
-            layout: mockConfig.layout,
-            showOperationId: mockConfig.showOperationId,
-            hideTestRequestButton: mockConfig.hideTestRequestButton,
-            expandAllResponses: mockConfig.expandAllResponses,
-            ...defaultOptions,
-          },
-        },
+        props: makeMockProps(entries),
       })
 
       expect(wrapper.findComponent({ name: 'Tag' }).exists()).toBe(true)
@@ -556,24 +388,7 @@ describe('TraversedEntry', async () => {
       ]
 
       const wrapper = mount(TraversedEntryComponent, {
-        props: {
-          hash: useNavState().hash.value,
-          rootIndex: 0,
-          entries,
-          paths: mockDocument.paths,
-          webhooks: mockDocument.webhooks,
-          security: mockDocument.security,
-          activeCollection: mockCollection,
-          activeServer: mockServer,
-          store: mockStore,
-          options: {
-            layout: mockConfig.layout,
-            showOperationId: mockConfig.showOperationId,
-            hideTestRequestButton: mockConfig.hideTestRequestButton,
-            expandAllResponses: mockConfig.expandAllResponses,
-            ...defaultOptions,
-          },
-        },
+        props: makeMockProps(entries),
       })
 
       const operationComponents = wrapper.findAllComponents({ name: 'Operation' })
@@ -595,24 +410,7 @@ describe('TraversedEntry', async () => {
       ]
 
       const wrapper = mount(TraversedEntryComponent, {
-        props: {
-          hash: useNavState().hash.value,
-          rootIndex: 0,
-          entries,
-          paths: mockDocument.paths,
-          webhooks: mockDocument.webhooks,
-          security: mockDocument.security,
-          activeCollection: mockCollection,
-          activeServer: mockServer,
-          store: mockStore,
-          options: {
-            layout: mockConfig.layout,
-            showOperationId: mockConfig.showOperationId,
-            hideTestRequestButton: mockConfig.hideTestRequestButton,
-            expandAllResponses: mockConfig.expandAllResponses,
-            ...defaultOptions,
-          },
-        },
+        props: makeMockProps(entries),
       })
 
       const tagComponents = wrapper.findAllComponents({ name: 'Tag' })
@@ -628,24 +426,7 @@ describe('TraversedEntry', async () => {
       const entries: TraversedEntry[] = [createMockTag({ id: 'tag-1', title: 'Users' })]
 
       const wrapper = mount(TraversedEntryComponent, {
-        props: {
-          hash: useNavState().hash.value,
-          rootIndex: 0,
-          entries,
-          paths: mockDocument.paths,
-          webhooks: mockDocument.webhooks,
-          security: mockDocument.security,
-          activeCollection: mockCollection,
-          activeServer: mockServer,
-          store: mockStore,
-          options: {
-            layout: mockConfig.layout,
-            showOperationId: mockConfig.showOperationId,
-            hideTestRequestButton: mockConfig.hideTestRequestButton,
-            expandAllResponses: mockConfig.expandAllResponses,
-            ...defaultOptions,
-          },
-        },
+        props: makeMockProps(entries),
       })
 
       const tagComponent = wrapper.findComponent({ name: 'Tag' })
@@ -659,24 +440,7 @@ describe('TraversedEntry', async () => {
       const entries: TraversedEntry[] = []
 
       const wrapper = mount(TraversedEntryComponent, {
-        props: {
-          hash: useNavState().hash.value,
-          rootIndex: 0,
-          entries,
-          paths: mockDocument.paths,
-          webhooks: mockDocument.webhooks,
-          security: mockDocument.security,
-          activeCollection: mockCollection,
-          activeServer: mockServer,
-          store: mockStore,
-          options: {
-            layout: mockConfig.layout,
-            showOperationId: mockConfig.showOperationId,
-            hideTestRequestButton: mockConfig.hideTestRequestButton,
-            expandAllResponses: mockConfig.expandAllResponses,
-            ...defaultOptions,
-          },
-        },
+        props: makeMockProps(entries),
       })
 
       expect(wrapper.findComponent({ name: 'Tag' }).exists()).toBe(false)
@@ -688,24 +452,7 @@ describe('TraversedEntry', async () => {
       const entries: TraversedEntry[] = [tag]
 
       const wrapper = mount(TraversedEntryComponent, {
-        props: {
-          hash: useNavState().hash.value,
-          rootIndex: 0,
-          entries,
-          paths: mockDocument.paths,
-          webhooks: mockDocument.webhooks,
-          security: mockDocument.security,
-          activeCollection: mockCollection,
-          activeServer: mockServer,
-          store: mockStore,
-          options: {
-            layout: mockConfig.layout,
-            showOperationId: mockConfig.showOperationId,
-            hideTestRequestButton: mockConfig.hideTestRequestButton,
-            expandAllResponses: mockConfig.expandAllResponses,
-            ...defaultOptions,
-          },
-        },
+        props: makeMockProps(entries),
       })
 
       expect(wrapper.findComponent({ name: 'Tag' }).exists()).toBe(true)
@@ -717,24 +464,7 @@ describe('TraversedEntry', async () => {
       const entries: TraversedEntry[] = [tagGroup]
 
       const wrapper = mount(TraversedEntryComponent, {
-        props: {
-          hash: useNavState().hash.value,
-          rootIndex: 0,
-          entries,
-          paths: mockDocument.paths,
-          webhooks: mockDocument.webhooks,
-          security: mockDocument.security,
-          activeCollection: mockCollection,
-          activeServer: mockServer,
-          store: mockStore,
-          options: {
-            layout: mockConfig.layout,
-            showOperationId: mockConfig.showOperationId,
-            hideTestRequestButton: mockConfig.hideTestRequestButton,
-            expandAllResponses: mockConfig.expandAllResponses,
-            ...defaultOptions,
-          },
-        },
+        props: makeMockProps(entries),
       })
 
       expect(wrapper.findComponent({ name: 'Operation' }).exists()).toBe(false)
@@ -747,31 +477,13 @@ describe('TraversedEntry', async () => {
       const entries: TraversedEntry[] = [operation]
 
       const wrapper = mount(TraversedEntryComponent, {
-        props: {
-          hash: useNavState().hash.value,
-          rootIndex: 0,
-          entries,
-          paths: mockDocument.paths,
-          webhooks: mockDocument.webhooks,
-          security: mockDocument.security,
-          activeCollection: mockCollection,
-          activeServer: mockServer,
-          store: mockStore,
-          options: {
-            layout: mockConfig.layout,
-            showOperationId: mockConfig.showOperationId,
-            hideTestRequestButton: mockConfig.hideTestRequestButton,
-            expandAllResponses: mockConfig.expandAllResponses,
-            ...defaultOptions,
-          },
-        },
+        props: makeMockProps(entries),
       })
 
       const operationComponent = wrapper.findComponent({ name: 'Operation' })
       expect(operationComponent.props('path')).toBe('/users')
       expect(operationComponent.props('method')).toBe('get')
       expect(operationComponent.props('id')).toBe('operation-1')
-      expect(operationComponent.props('store')).toStrictEqual(mockStore)
       expect(operationComponent.props('server')).toStrictEqual(mockServer)
     })
 
@@ -780,24 +492,7 @@ describe('TraversedEntry', async () => {
       const entries: TraversedEntry[] = [tag]
 
       const wrapper = mount(TraversedEntryComponent, {
-        props: {
-          hash: useNavState().hash.value,
-          rootIndex: 0,
-          entries,
-          paths: mockDocument.paths,
-          webhooks: mockDocument.webhooks,
-          security: mockDocument.security,
-          activeCollection: mockCollection,
-          activeServer: mockServer,
-          store: mockStore,
-          options: {
-            layout: mockConfig.layout,
-            showOperationId: mockConfig.showOperationId,
-            hideTestRequestButton: mockConfig.hideTestRequestButton,
-            expandAllResponses: mockConfig.expandAllResponses,
-            ...defaultOptions,
-          },
-        },
+        props: makeMockProps(entries),
       })
 
       const tagComponent = wrapper.findComponent({ name: 'Tag' })
@@ -853,24 +548,7 @@ describe('TraversedEntry', async () => {
       ]
 
       const wrapper = mount(TraversedEntryComponent, {
-        props: {
-          hash: useNavState().hash.value,
-          rootIndex: 0,
-          entries,
-          paths: mockDocument.paths,
-          webhooks: mockDocument.webhooks,
-          security: mockDocument.security,
-          activeCollection: mockCollection,
-          activeServer: mockServer,
-          store: mockStore,
-          options: {
-            layout: mockConfig.layout,
-            showOperationId: mockConfig.showOperationId,
-            hideTestRequestButton: mockConfig.hideTestRequestButton,
-            expandAllResponses: mockConfig.expandAllResponses,
-            ...defaultOptions,
-          },
-        },
+        props: makeMockProps(entries),
       })
 
       const [tag1, tag2] = wrapper.findAllComponents({ name: 'Lazy' })
@@ -888,24 +566,7 @@ describe('TraversedEntry', async () => {
       ]
 
       const wrapper = mount(TraversedEntryComponent, {
-        props: {
-          hash: useNavState().hash.value,
-          rootIndex: 0,
-          entries,
-          paths: mockDocument.paths,
-          webhooks: mockDocument.webhooks,
-          security: mockDocument.security,
-          activeCollection: mockCollection,
-          activeServer: mockServer,
-          store: mockStore,
-          options: {
-            layout: mockConfig.layout,
-            showOperationId: mockConfig.showOperationId,
-            hideTestRequestButton: mockConfig.hideTestRequestButton,
-            expandAllResponses: mockConfig.expandAllResponses,
-            ...defaultOptions,
-          },
-        },
+        props: makeMockProps(entries),
       })
 
       const component = wrapper.vm
@@ -920,24 +581,7 @@ describe('TraversedEntry', async () => {
       const entries = [createMockTag({ id: 'tag-1', title: 'Users' }), createMockTag({ id: 'tag-2', title: 'Posts' })]
 
       const wrapper = mount(TraversedEntryComponent, {
-        props: {
-          hash: useNavState().hash.value,
-          rootIndex: 0,
-          entries,
-          paths: mockDocument.paths,
-          webhooks: mockDocument.webhooks,
-          security: mockDocument.security,
-          activeCollection: mockCollection,
-          activeServer: mockServer,
-          store: mockStore,
-          options: {
-            layout: mockConfig.layout,
-            showOperationId: mockConfig.showOperationId,
-            hideTestRequestButton: mockConfig.hideTestRequestButton,
-            expandAllResponses: mockConfig.expandAllResponses,
-            ...defaultOptions,
-          },
-        },
+        props: makeMockProps(entries),
       })
 
       const component = wrapper.vm
@@ -959,25 +603,8 @@ describe('TraversedEntry', async () => {
 
       const wrapper = mount(TraversedEntryComponent, {
         props: {
-          hash: useNavState().hash.value,
-          rootIndex: 1, // Current index is 1 (operation-2)
-          entries,
-          paths: mockDocument.paths,
-          webhooks: mockDocument.webhooks,
-          security: mockDocument.security,
-          activeCollection: mockCollection,
-          activeServer: mockServer,
-          store: mockStore,
-          options: {
-            layout: mockConfig.layout,
-            showOperationId: mockConfig.showOperationId,
-            hideTestRequestButton: mockConfig.hideTestRequestButton,
-            expandAllResponses: mockConfig.expandAllResponses,
-            clientOptions: [],
-            orderRequiredPropertiesFirst: undefined,
-            orderSchemaPropertiesBy: undefined,
-            onShowMore: undefined,
-          },
+          ...makeMockProps(entries),
+          rootIndex: 1,
         },
       })
 

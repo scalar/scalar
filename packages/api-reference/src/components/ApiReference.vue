@@ -17,6 +17,7 @@ import diff from 'microdiff'
 import {
   computed,
   onBeforeMount,
+  onServerPrefetch,
   provide,
   ref,
   useTemplateRef,
@@ -74,6 +75,14 @@ const activeSlug = ref<string>(
     '',
 )
 
+if (typeof window !== 'undefined') {
+  const url = new URL(window.location.href)
+  const slug = url.searchParams.get('api')
+  if (slug) {
+    activeSlug.value = slug
+  }
+}
+
 /** Computed document options list for the selector logic */
 const documentOptionList = computed(() =>
   Object.values(configList.value).map((c) => ({
@@ -81,7 +90,7 @@ const documentOptionList = computed(() =>
     id: c.slug,
   })),
 )
-
+console.log(documentOptionList.value)
 /** Configuration overrides to apply to the selected document (from the localhost toolbar) */
 const configurationOverrides = ref<
   Partial<Omit<ApiReferenceConfiguration, 'slug' | 'title' | ''>>
@@ -89,7 +98,7 @@ const configurationOverrides = ref<
 
 /** Any dev toolbar modifications are merged with the active configuration */
 const mergedConfig = computed<ApiReferenceConfigurationRaw>(() => ({
-  ...configList.value[activeSlug.value].config,
+  ...configList.value[activeSlug.value]?.config,
   ...configurationOverrides.value,
 }))
 
@@ -317,10 +326,11 @@ watch(
   },
 )
 
+/** Preload the first document during SSR */
+onServerPrefetch(() => changeSelectedDocument(activeSlug.value))
+
 /** Load the first document on page load */
-onBeforeMount(() => {
-  changeSelectedDocument(activeSlug.value)
-})
+onBeforeMount(() => changeSelectedDocument(activeSlug.value))
 
 // --------------------------------------------------------------------------- */
 
@@ -395,6 +405,7 @@ const isDevelopment = import.meta.env.DEV
       @toggleDarkMode="() => toggleColorMode()">
       <template #document-selector>
         <DocumentSelector
+          v-if="documentOptionList.length > 1"
           :modelValue="activeSlug"
           :options="documentOptionList"
           @update:modelValue="changeSelectedDocument" />

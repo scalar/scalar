@@ -8,8 +8,6 @@ import {
 } from '@scalar/types'
 import GithubSlugger from 'github-slugger'
 
-const slugger = new GithubSlugger()
-
 type NormalizedConfigurations = Record<
   string,
   {
@@ -30,6 +28,8 @@ type ConfigWithRequiredSource = Omit<ApiReferenceConfigurationWithSource, 'url' 
 export const normalizeConfigurations = (
   configuration: AnyApiReferenceConfiguration | undefined,
 ): NormalizedConfigurations => {
+  const slugger = new GithubSlugger()
+
   const normalized: NormalizedConfigurations = {}
 
   if (!configuration) {
@@ -63,7 +63,7 @@ export const normalizeConfigurations = (
     /** Filter out configurations that failed validation or don't have a url or content */
     .filter((c): c is ConfigWithRequiredSource => !!c && (!!c.url || !!c.content))
     /** Add required attributes to the source */
-    .map((source, index) => addSlugAndTitle(source, index))
+    .map((source, index) => addSlugAndTitle(source, index, slugger))
     /** Separate the configuration and sources by slug */
     .forEach((c) => {
       const { url, content, ...config } = c
@@ -103,10 +103,8 @@ export const normalizeContent = (
 export const addSlugAndTitle = (
   source: ConfigWithRequiredSource,
   index = 0,
+  slugger: GithubSlugger,
 ): ConfigWithRequiredSource & { slug: string; title: string } => {
-  // Reset slugger to avoid duplicate handling
-  slugger.reset()
-
   // Case 1: Title exists, generate slug from it
   if (source.title) {
     return {

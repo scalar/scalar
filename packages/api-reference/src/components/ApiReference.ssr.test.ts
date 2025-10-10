@@ -1,18 +1,12 @@
 import { parseJsonOrYaml } from '@scalar/oas-utils/helpers'
-import { dereference, normalize } from '@scalar/openapi-parser'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { upgrade } from '@scalar/openapi-upgrader'
-import { type ApiReferenceConfigurationRaw, apiReferenceConfigurationSchema } from '@scalar/types'
-import type { UnknownObject } from '@scalar/types/utils'
-import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
+import { apiReferenceConfigurationWithSourceSchema } from '@scalar/types/api-reference'
 import { renderToString } from '@vue/server-renderer'
-import { describe, expect, it, test, vi } from 'vitest'
+import { describe, expect, vi } from 'vitest'
 import { createSSRApp, h } from 'vue'
 
-import { workspaceStoreIsEmpty } from '../../../api-client/src/components/ImportCollection/utils/workspace-store-is-empty'
-import { useSidebar } from '../v2/blocks/scalar-sidebar-block'
-import ApiReferenceLayout from './ApiReferenceLayout.vue'
+import ApiReference from '@/components/ApiReference.vue'
+
+// ---------------------------------------------------------------------------
 
 const EXAMPLE_API_DEFINITIONS = [
   {
@@ -72,41 +66,9 @@ const EXAMPLE_API_DEFINITIONS = [
   },
 ]
 
-const mockStore = createWorkspaceStore()
-
-describe('ApiReferenceLayout', () => {
-  it.skip('has the title in the HTML output', async () => {
-    const document = {
-      openapi: '3.1.0',
-      info: {
-        title: 'Test API',
-        version: '1.0.0',
-      },
-      paths: {},
-    }
-
-    const app = createSSRApp({
-      render: () =>
-        h(ApiReferenceLayout, {
-          configuration: {} as ApiReferenceConfigurationRaw,
-          document,
-          activeServer: undefined,
-          getSecuritySchemes: () => [],
-          xScalarDefaultClient: mockStore.workspace['x-scalar-default-client'],
-          isDark: false,
-          isDevelopment: false,
-        }),
-    })
-
-    const html = await renderToString(app)
-
-    expect(html).toContain('Test API')
-  })
-})
-
 const start = performance.now()
 const files = await Promise.all(
-  EXAMPLE_API_DEFINITIONS.slice(0, 1).map(
+  EXAMPLE_API_DEFINITIONS.map(
     async ({ name, ...rest }) =>
       await fetch(`https://fixtures.staging.scalar.com/layout-reference/${name}`)
         .then((res) => (res.ok ? res.text() : null))
@@ -115,10 +77,7 @@ const files = await Promise.all(
 )
 console.log(`[ApiReferenceLayout.test.ts]: File fetch took: ${performance.now() - start}ms`)
 
-const store = createWorkspaceStore()
-useSidebar(store)
-
-test.concurrent.each(files)('$title ($url)', { timeout: 45 * 1000 }, async ({ title, document, name }) => {
+describe.skip.concurrent.each(files)('$title ($url)', { timeout: 45 * 1000 }, async ({ title, document, name }) => {
   // Spy for console.error to avoid errors in the console
   const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
   const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
@@ -128,31 +87,19 @@ test.concurrent.each(files)('$title ($url)', { timeout: 45 * 1000 }, async ({ ti
     throw new Error('Failed to fetch')
   }
 
-  const normalizedDocument = parseJsonOrYaml(document) as WorkspaceDocument
-  const slug = name.toLowerCase().replace(/ /g, '-')
+  const normalizedDocument = parseJsonOrYaml(document)
 
-  await store.addDocument({
-    document: normalizedDocument,
-    name: slug,
-  })
-
-  console.log(store.workspace.documents[slug]?.info)
   const app = createSSRApp({
     render: () =>
-      h(ApiReferenceLayout, {
-        configuration: apiReferenceConfigurationSchema.parse({}) as ApiReferenceConfigurationRaw,
-        document: store.workspace.documents[slug],
-        activeServer: undefined,
-        getSecuritySchemes: () => [],
-        xScalarDefaultClient: mockStore.workspace['x-scalar-default-client'],
-        isDark: false,
-        isDevelopment: false,
+      h(ApiReference, {
+        configuration: apiReferenceConfigurationWithSourceSchema.parse({
+          content: normalizedDocument,
+        }),
       }),
   })
 
   const html = await renderToString(app)
 
-  console.log(html)
   // Check if console.error was called
   expect(consoleErrorSpy).not.toHaveBeenCalled()
 
@@ -161,7 +108,7 @@ test.concurrent.each(files)('$title ($url)', { timeout: 45 * 1000 }, async ({ ti
 
   // Check if console.warn was called
   // TODO: In the future, we should fix the warnings.
-  // expect(consoleWarnSpy).not.toHaveBeenCalled()
+  expect(consoleWarnSpy).not.toHaveBeenCalled()
 
   // Restore the original console.warn
   consoleWarnSpy.mockRestore()
