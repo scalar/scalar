@@ -356,7 +356,7 @@ function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): O
 
 function getParameterLocation(location: OpenAPIV2.ParameterLocation): OpenAPIV3.ParameterLocation {
   if (location === 'formData') {
-    return 'query'
+    throw new Error('Encountered a formData parameter which should have been filtered out by the caller')
   }
   return location as OpenAPIV3.ParameterLocation
 }
