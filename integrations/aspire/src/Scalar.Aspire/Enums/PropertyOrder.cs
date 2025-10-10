@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Text.Json.Serialization;
 using NetEscapades.EnumGenerators;
 
 namespace Scalar.Aspire;
@@ -7,6 +8,7 @@ namespace Scalar.Aspire;
 /// Specifies the ordering options for schema properties in the Scalar API reference.
 /// </summary>
 [EnumExtensions]
+[JsonConverter(typeof(PropertyOrderJsonConverter))]
 public enum PropertyOrder
 {
     /// <summary>

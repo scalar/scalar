@@ -16,14 +16,21 @@ public sealed class ScalarAspireOptions : ScalarOptions
     public bool DefaultProxy { get; set; } = true;
 
     /// <summary>
-    /// Gets or sets the CDN URL for loading Scalar assets.
+    /// Controls the bundle URL for the API Reference.
     /// </summary>
-    /// <value>The default value is <c>"scalar.js"</c>.</value>
-    /// <remarks>
-    /// This URL is used to load the Scalar JavaScript bundle and related assets.
-    /// Can be customized to use a different CDN or local assets.
-    /// </remarks>
-    public string CdnUrl { get; set; } = "scalar.js";
+    /// <remarks>Use this option to load the API Reference from a different bundle or local server.</remarks>
+    public string BundleUrl { get; set; } = "scalar.js";
+
+    /// <summary>
+    /// Controls the CDN URL for the API Reference.
+    /// </summary>
+    /// <remarks>Use this option to load the API Reference from a different CDN or local server.</remarks>
+    [Obsolete("This property is obsolete and will be removed in a future release. Please use BundleUrl instead.")]
+    public string CdnUrl
+    {
+        get => BundleUrl;
+        set => BundleUrl = value;
+    }
 
     /// <summary>
     /// Gets or sets whether to allow self-signed certificates for HTTPS connections.
