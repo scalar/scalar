@@ -137,6 +137,7 @@ const models = computed<TraversedDescription | undefined>(() => {
       <InfoBlock
         v-if="store.workspace.activeDocument"
         :id="contentId"
+        :aasVersion="store.workspace.activeDocument?.['asyncapi']"
         :documentExtensions
         :externalDocs="store.workspace.activeDocument.externalDocs"
         :info="store.workspace.activeDocument.info"
