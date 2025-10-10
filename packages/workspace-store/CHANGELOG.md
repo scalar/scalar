@@ -1,5 +1,19 @@
 # @scalar/workspace-store
 
+## 0.17.1
+
+### Patch Changes
+
+- 1335923: fix: do not upgrade the document for the original documents
+- Updated dependencies [2089748]
+- Updated dependencies [f3e17d8]
+- Updated dependencies [8a7fb2a]
+  - @scalar/json-magic@0.6.1
+  - @scalar/types@0.3.2
+  - @scalar/openapi-upgrader@0.1.2
+  - @scalar/snippetz@0.5.1
+  - @scalar/code-highlight@0.2.0
+
 ## 0.17.0
 
 ### Minor Changes

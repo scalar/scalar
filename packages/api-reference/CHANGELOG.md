@@ -1,5 +1,27 @@
 # @scalar/api-reference
 
+## 1.38.1
+
+### Patch Changes
+
+- 9c65f51: fix: only freeze document when required
+- Updated dependencies [f3e17d8]
+- Updated dependencies [2089748]
+- Updated dependencies [f3e17d8]
+- Updated dependencies [8a7fb2a]
+- Updated dependencies [1335923]
+  - @scalar/api-client@2.8.1
+  - @scalar/json-magic@0.6.1
+  - @scalar/types@0.3.2
+  - @scalar/workspace-store@0.17.1
+  - @scalar/oas-utils@0.5.2
+  - @scalar/openapi-parser@0.22.3
+  - @scalar/openapi-upgrader@0.1.2
+  - @scalar/snippetz@0.5.1
+  - @scalar/themes@0.13.22
+  - @scalar/components@0.15.1
+  - @scalar/code-highlight@0.2.0
+
 ## 1.38.0
 
 ### Minor Changes

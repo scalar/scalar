@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.5.9
+
+### Patch Changes
+
+- c883287: feat: add AsyncAPI example
+
 ## 0.5.8
 
 ### Patch Changes
