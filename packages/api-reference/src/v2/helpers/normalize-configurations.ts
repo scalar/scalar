@@ -72,7 +72,7 @@ export const normalizeConfigurations = (
         title: c.title,
         slug: c.slug,
         default: !!c?.default,
-        source: content ? { content: normalizeContent(content) } : { url },
+        source: content ? { content: normalizeContent(content) ?? {} } : { url },
       }
     })
 
@@ -83,7 +83,11 @@ export const normalizeConfigurations = (
 /** Normalize content into a JS object or return null if it is falsey */
 export const normalizeContent = (
   content: string | Record<string, unknown> | (() => string | Record<string, unknown>),
-): Record<string, unknown> => {
+): Record<string, unknown> | null => {
+  if (!content) {
+    return null
+  }
+
   if (typeof content === 'function') {
     return normalizeContent(content())
   }
