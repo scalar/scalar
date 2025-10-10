@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Text.Json.Serialization;
 using NetEscapades.EnumGenerators;
 
 namespace Scalar.Aspire;
@@ -7,6 +8,7 @@ namespace Scalar.Aspire;
 /// Represents the Proof Key for Code Exchange (PKCE) method types used in the OAuth 2 authorization code flow.
 /// </summary>
 [EnumExtensions]
+[JsonConverter(typeof(PkceJsonConverter))]
 public enum Pkce
 {
     /// <summary>
