@@ -119,6 +119,7 @@ const selectedEnvironment = ref<Environment | null>(null)
             v-for="env in environments"
             :key="env.name"
             :color="env.color"
+            :isReadonly="!documentName"
             :name="env.name"
             @delete="
               () => {
@@ -171,6 +172,7 @@ const selectedEnvironment = ref<Environment | null>(null)
               " />
           </EnvironmentTableWrapper>
           <div
+            v-if="documentName !== null"
             class="text-c-3 flex h-full items-center justify-center rounded-lg border p-4">
             <ScalarButton
               class="hover:bg-b-2 hover:text-c-1 flex items-center gap-2"
