@@ -2,7 +2,7 @@
 import { isDefined } from '@scalar/oas-utils/helpers'
 import { safeJSON } from '@scalar/object-utils/parse'
 import { useToasts } from '@scalar/use-toasts'
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterView } from 'vue-router'
 
 import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
@@ -45,7 +45,6 @@ const pluginManager = usePluginManager()
 const element = ref<HTMLDivElement>()
 
 const requestAbortController = ref<AbortController>()
-const invalidParams = ref<Set<string>>(new Set())
 const requestResult = ref<SendRequestResult | null>(null)
 
 /**
@@ -64,6 +63,36 @@ const selectedSecuritySchemeUids = computed(
 )
 
 /**
+ * Get invalid request parameters
+ *
+ * Get all invalid parameters (required parameters without values)
+ * This is now a computed property to ensure it's always reactive
+ */
+const invalidParams = computed(() => {
+  if (!activeExample.value) {
+    return new Set<string>()
+  }
+
+  return validateParameters(activeExample.value)
+})
+
+/**
+ * Check if there are invalid path parameters
+ *
+ * Filter through path parameters and check if there are invalid parameters
+ * This will be used to prevent request initiation if present
+ */
+const isPathInvalid = computed(() => {
+  if (!activeExample.value) {
+    return false
+  }
+
+  return activeExample.value.parameters.path.some((param) =>
+    invalidParams.value.has(param.key),
+  )
+})
+
+/**
  * Execute the request
  * called from the send button as well as keyboard shortcuts
  */
@@ -72,7 +101,10 @@ const executeRequest = async () => {
     return
   }
 
-  invalidParams.value = validateParameters(activeExample.value)
+  if (isPathInvalid.value) {
+    toast(ERRORS.INVALID_PATH_PARAMETER, 'error')
+    return
+  }
 
   const environmentValue =
     typeof activeEnvironment.value === 'object'
@@ -158,20 +190,11 @@ onBeforeUnmount(() => {
   events.executeRequest.off(logRequest)
 })
 
-// Clear invalid params on parameter update
-watch(
-  () => activeExample.value?.parameters,
-  () => {
-    invalidParams.value.clear()
-  },
-  { deep: true },
-)
-
 const cloneRequestResult = (result: any) => {
   // Create a structured clone that can handle Blobs, ArrayBuffers, etc.
   try {
     return structuredClone(result)
-  } catch (error) {
+  } catch {
     // Fallback to a custom cloning approach if structuredClone fails
     // or isn't available in the environment
     const clone = { ...result }
@@ -222,6 +245,7 @@ const cloneRequestResult = (result: any) => {
       <div class="flex h-full flex-1 flex-col">
         <RouterView
           :invalidParams="invalidParams"
+          :isPathInvalid="isPathInvalid"
           :requestResult="requestResult"
           :selectedSecuritySchemeUids="selectedSecuritySchemeUids" />
       </div>

@@ -9,7 +9,7 @@ import type {
 } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { REQUEST_METHODS } from '@scalar/oas-utils/helpers'
-import { ref, useId, watch } from 'vue'
+import { computed, ref, useId, watch } from 'vue'
 
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
 import { ServerDropdown } from '@/components/Server'
@@ -20,15 +20,23 @@ import type { EnvVariable } from '@/store/active-entities'
 import HttpMethod from '../HttpMethod/HttpMethod.vue'
 import AddressBarHistory from './AddressBarHistory.vue'
 
-const { collection, operation, server, environment, envVariables, workspace } =
-  defineProps<{
-    collection: Collection
-    operation: Operation
-    server: Server | undefined
-    environment: Environment
-    envVariables: EnvVariable[]
-    workspace: Workspace
-  }>()
+const {
+  collection,
+  isPathInvalid,
+  operation,
+  server,
+  environment,
+  envVariables,
+  workspace,
+} = defineProps<{
+  collection: Collection
+  isPathInvalid: boolean
+  operation: Operation
+  server: Server | undefined
+  environment: Environment
+  envVariables: EnvVariable[]
+  workspace: Workspace
+}>()
 
 defineEmits<{
   (e: 'importCurl', value: string): void
@@ -70,6 +78,8 @@ const remaining = ref(0)
 const isRequesting = ref(false)
 /** The loading interval */
 const interval = ref<ReturnType<typeof setInterval>>()
+/** Toggle the send button */
+const isSendButtonDisabled = computed(() => isRequesting.value || isPathInvalid)
 
 function load() {
   if (isRequesting.value) {
@@ -232,7 +242,7 @@ function updateRequestPath(url: string) {
       <ScalarButton
         ref="sendButtonRef"
         class="z-context-plus relative h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold"
-        :disabled="isRequesting"
+        :disabled="isSendButtonDisabled"
         @click="handleExecuteRequest">
         <span
           aria-hidden="true"
