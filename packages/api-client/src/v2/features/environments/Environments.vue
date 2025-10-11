@@ -55,16 +55,20 @@ const emit = defineEmits<{
   ): void
   (
     e: 'environment:update',
-    payload: { name: string; environment: Partial<Environment> },
+    payload: { environmentName: string; environment: Partial<Environment> },
   ): void
   (
     e: 'environment:update:variable',
-    payload: { id: number; environmentVariable: Partial<EnvironmentVariable> },
+    payload: {
+      environmentName: string
+      id: number
+      environmentVariable: Partial<EnvironmentVariable>
+    },
   ): void
   (e: 'environment:delete', payload: { environmentName: string }): void
   (
     e: 'environment:delete:variable',
-    payload: { id: number; environmentName: string },
+    payload: { environmentName: string; id: number },
   ): void
   (
     e: 'environment:reorder',
@@ -167,6 +171,7 @@ const selectedEnvironment = ref<Environment | null>(null)
                 (id, data) =>
                   emit('environment:update:variable', {
                     id: id,
+                    environmentName: env.name,
                     environmentVariable: { name: data.name, value: data.value },
                   })
               " />
@@ -214,7 +219,7 @@ const selectedEnvironment = ref<Environment | null>(null)
           @submit="
             (payload) =>
               emit('environment:update', {
-                name: selectedEnvironment!.name,
+                environmentName: selectedEnvironment!.name,
                 environment: { name: payload.name },
               })
           " />
