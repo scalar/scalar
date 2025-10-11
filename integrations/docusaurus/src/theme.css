@@ -35,6 +35,9 @@ html[data-theme="light"] .scalar-card.dark-mode {
 
   --scalar-border-color: var(--ifm-color-emphasis-300, #ebedf0);
 
+  --scalar-shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.11);
+  --scalar-shadow-2: rgba(0, 0, 0, 0.08) 0px 13px 20px 0px, rgba(0, 0, 0, 0.08) 0px 3px 8px 0px, #eeeeed 0px 0 0 0.5px;
+
   --scalar-color-green: #00a400;
   --scalar-color-red: #fa383e;
   --scalar-color-yellow: #ffba00;
@@ -59,6 +62,10 @@ html[data-theme="dark"] body,
   --scalar-background-accent: var(--ifm-menu-color-background-active, hsla(0, 0%, 100%, 0.05));
 
   --scalar-border-color: var(--ifm-color-emphasis-200, #444950);
+
+  --scalar-shadow-1: 0 1px 3px 0 rgb(0, 0, 0, 0.1);
+  --scalar-shadow-2:
+    0 0 0 0.5px var(--scalar-border-color), rgba(15, 15, 15, 0.2) 0px 3px 6px, rgba(15, 15, 15, 0.4) 0px 9px 24px;
 
   --scalar-color-green: #00a400;
   --scalar-color-red: #fa383e;
@@ -228,6 +235,20 @@ html[data-theme="light"] body .api-client-drawer {
   font-size: var(--scalar-small);
   color: var(--scalar-color-3);
   user-select: none;
+}
+
+/* Docusaurus base style overrides overrides */
+:where(.scalar-app) {
+  ul,
+  ol {
+    /** Docusaurus adds some default margin to lists */
+    margin: 0;
+  }
+
+  table {
+    border-collapse: initial;
+    overflow: initial;
+  }
 }
 
 .scalar-app {
