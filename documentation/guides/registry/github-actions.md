@@ -24,7 +24,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Validate OpenAPI Document
         run: npx @scalar/cli document validate api/openapi.json
@@ -100,7 +100,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Validate OpenAPI Document
         run: npx @scalar/cli document validate api/openapi.json
@@ -143,7 +143,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Validate ${{ matrix.api.name }}
         run: npx @scalar/cli document validate ${{ matrix.api.file }}
