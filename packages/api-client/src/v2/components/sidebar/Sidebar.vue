@@ -34,20 +34,22 @@ const { breakpoints } = useBreakpoints()
     }"
     :width="width"
     @update:width="(value) => emit('update:width', value)">
-    <ScalarSidebar>
-      <div class="custom-scroll flex min-h-0 flex-1 flex-col overflow-x-clip">
-        <slot name="search" />
-        <ScalarSidebarItems>
-          <ScalarSidebarSection>
-            {{ title }}
-            <template #items>
-              <slot name="default" />
-            </template>
-          </ScalarSidebarSection>
-        </ScalarSidebarItems>
-        <div class="flex-1"></div>
-      </div>
-      <slot name="footer" />
-    </ScalarSidebar>
+    <template #default>
+      <ScalarSidebar class="h-full w-full">
+        <div class="custom-scroll flex min-h-0 flex-1 flex-col overflow-x-clip">
+          <slot name="search" />
+          <ScalarSidebarItems>
+            <ScalarSidebarSection>
+              {{ title }}
+              <template #items>
+                <slot name="default" />
+              </template>
+            </ScalarSidebarSection>
+          </ScalarSidebarItems>
+          <div class="flex-1"></div>
+        </div>
+        <slot name="footer" />
+      </ScalarSidebar>
+    </template>
   </Resize>
 </template>
