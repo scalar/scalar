@@ -7,14 +7,16 @@ import {
 } from '@scalar/themes'
 
 import IntegrationLogo from '@/components/ImportCollection/IntegrationLogo.vue'
-import { getThemeColors } from '@/v2/features/settings/helpers/get-theme-colors'
 
 import Appearance from './components/Appearance.vue'
 import Section from './components/Section.vue'
+import { getThemeColors } from './helpers/get-theme-colors'
 
 defineProps<{
   /** Currently active proxy URL, when set to null means no proxy */
   proxyUrl?: string | null
+  /** Custom proxy url, when set to null means no custom proxy */
+  customProxyUrl?: string | null
   /** Currently active theme ID */
   activeThemeId: ThemeId
   /** Currently active color mode */
@@ -109,15 +111,15 @@ const buttonStyles = cva({
 
           <!-- Custom proxy (only if configured) -->
           <ScalarButton
-            v-if="proxyUrl && proxyUrl !== DEFAULT_PROXY_URL"
+            v-if="customProxyUrl && customProxyUrl !== DEFAULT_PROXY_URL"
             :class="
               cx(
                 buttonStyles({
-                  active: true,
+                  active: proxyUrl === customProxyUrl,
                 }),
               )
             "
-            @click="emit('update:proxyUrl', proxyUrl)">
+            @click="emit('update:proxyUrl', customProxyUrl)">
             <div
               class="bg-c-accent text-b-1 flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] border-transparent p-1">
               <ScalarIcon
@@ -126,7 +128,7 @@ const buttonStyles = cva({
                 size="xs"
                 thickness="3.5" />
             </div>
-            Use custom proxy ({{ proxyUrl }})
+            Use custom proxy ({{ customProxyUrl }})
           </ScalarButton>
 
           <!-- No proxy -->
