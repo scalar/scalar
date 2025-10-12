@@ -48,17 +48,27 @@ const emit = defineEmits<{
   (e: 'navigation:update:sidebarWidth', value: number): void
 
   // Environment events
+  (
+    e: 'environment:reorder',
+    payload: {
+      draggingItem: { id: string }
+      hoveredItem: { id: string }
+    },
+  ): void
   (e: 'environment:add', payload: { environment: Environment }): void
+  (
+    e: 'environment:update',
+    payload: { environmentName: string; environment: Partial<Environment> },
+  ): void
+  (e: 'environment:delete', payload: { environmentName: string }): void
+
+  /** Environment variable events */
   (
     e: 'environment:add:variable',
     payload: {
       environmentName: string
       environmentVariable: Partial<EnvironmentVariable>
     },
-  ): void
-  (
-    e: 'environment:update',
-    payload: { environmentName: string; environment: Partial<Environment> },
   ): void
   (
     e: 'environment:update:variable',
@@ -71,7 +81,6 @@ const emit = defineEmits<{
       environmentVariable: Partial<EnvironmentVariable>
     },
   ): void
-  (e: 'environment:delete', payload: { environmentName: string }): void
   (
     e: 'environment:delete:variable',
     payload: {
@@ -79,13 +88,6 @@ const emit = defineEmits<{
       environmentName: string
       /** Row number */
       id: number
-    },
-  ): void
-  (
-    e: 'environment:reorder',
-    payload: {
-      draggingItem: { id: string }
-      hoveredItem: { id: string }
     },
   ): void
 }>()
