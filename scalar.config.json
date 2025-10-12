@@ -44,6 +44,10 @@
               "type": "page"
             },
             {
+              "path": "documentation/guides/docs/github-actions.md",
+              "type": "page"
+            },
+            {
               "name": "Components",
               "type": "folder",
               "defaultOpen": true,
