@@ -118,7 +118,7 @@ describe('Environments', () => {
     expect(wrapper.text()).toContain('{{ variable }}')
   })
 
-  it('renders EnvironmentTableWrapper for each environment', () => {
+  it('renders Environment for each environment', () => {
     const wrapper = mount(Environments, {
       props: {
         documentName: 'My API',
@@ -130,12 +130,12 @@ describe('Environments', () => {
     })
 
     const wrappers = wrapper.findAllComponents({
-      name: 'EnvironmentTableWrapper',
+      name: 'Environment',
     })
     expect(wrappers).toHaveLength(2)
   })
 
-  it('passes correct props to EnvironmentTableWrapper', () => {
+  it('passes correct props to Environment', () => {
     const wrapper = mount(Environments, {
       props: {
         documentName: 'My API',
@@ -147,7 +147,7 @@ describe('Environments', () => {
     })
 
     const wrappers = wrapper.findAllComponents({
-      name: 'EnvironmentTableWrapper',
+      name: 'Environment',
     })
     expect(wrappers[0]?.props('name')).toBe('Production')
     expect(wrappers[0]?.props('color')).toBe('#FF0000')
@@ -170,7 +170,7 @@ describe('Environments', () => {
     })
 
     const wrappers = wrapper.findAllComponents({
-      name: 'EnvironmentTableWrapper',
+      name: 'Environment',
     })
     expect(wrappers[0]?.props('isReadonly')).toBe(true)
     expect(wrappers[1]?.props('isReadonly')).toBe(true)
@@ -297,6 +297,7 @@ describe('Environments', () => {
     expect(wrapper.emitted('environment:add:variable')).toBeTruthy()
     expect(wrapper.emitted('environment:add:variable')?.[0]).toEqual([
       {
+        'environmentName': 'Production',
         environmentVariable: {
           name: 'NEW_VAR',
           value: 'new-value',
@@ -362,7 +363,7 @@ describe('Environments', () => {
     ])
   })
 
-  it('emits environment:reorder when EnvironmentTableWrapper emits reorder', async () => {
+  it('emits environment:reorder when Environment emits reorder', async () => {
     const wrapper = mount(Environments, {
       props: {
         documentName: 'My API',
@@ -374,7 +375,7 @@ describe('Environments', () => {
     })
 
     const wrappers = wrapper.findAllComponents({
-      name: 'EnvironmentTableWrapper',
+      name: 'Environment',
     })
     const draggingItem = { id: 'env-1' }
     const hoveredItem = { id: 'env-2' }
@@ -461,7 +462,7 @@ describe('Environments', () => {
     })
 
     const wrappers = wrapper.findAllComponents({
-      name: 'EnvironmentTableWrapper',
+      name: 'Environment',
     })
     await wrappers[0]?.vm.$emit('delete')
 
@@ -484,7 +485,7 @@ describe('Environments', () => {
     })
 
     const wrappers = wrapper.findAllComponents({
-      name: 'EnvironmentTableWrapper',
+      name: 'Environment',
     })
     await wrappers[0]?.vm.$emit('delete')
     await wrapper.vm.$nextTick()
@@ -512,7 +513,7 @@ describe('Environments', () => {
     })
 
     const wrappers = wrapper.findAllComponents({
-      name: 'EnvironmentTableWrapper',
+      name: 'Environment',
     })
     await wrappers[0]?.vm.$emit('edit:name')
     await wrapper.vm.$nextTick()
@@ -534,7 +535,7 @@ describe('Environments', () => {
     })
 
     const wrappers = wrapper.findAllComponents({
-      name: 'EnvironmentTableWrapper',
+      name: 'Environment',
     })
     await wrappers[0]?.vm.$emit('edit:name')
     await wrapper.vm.$nextTick()
@@ -565,7 +566,7 @@ describe('Environments', () => {
     })
 
     const wrappers = wrapper.findAllComponents({
-      name: 'EnvironmentTableWrapper',
+      name: 'Environment',
     })
     await wrappers[0]?.vm.$emit('edit:color')
     await wrapper.vm.$nextTick()
@@ -596,7 +597,7 @@ describe('Environments', () => {
     })
 
     const wrappers = wrapper.findAllComponents({
-      name: 'EnvironmentTableWrapper',
+      name: 'Environment',
     })
     await wrappers[0]?.vm.$emit('edit:color')
     await wrapper.vm.$nextTick()
@@ -619,7 +620,7 @@ describe('Environments', () => {
     })
 
     const wrappers = wrapper.findAllComponents({
-      name: 'EnvironmentTableWrapper',
+      name: 'Environment',
     })
     expect(wrappers).toHaveLength(0)
     expect(wrapper.text()).toContain('Add Environment')
@@ -681,7 +682,7 @@ describe('Environments', () => {
     })
 
     const wrappers = wrapper.findAllComponents({
-      name: 'EnvironmentTableWrapper',
+      name: 'Environment',
     })
 
     /** Edit first environment */

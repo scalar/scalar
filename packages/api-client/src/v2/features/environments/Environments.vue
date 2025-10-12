@@ -9,13 +9,12 @@ import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type { EnvVariable } from '@/store'
 
+import EnvironmentComponent from './components/Environment.vue'
 import EnvironmentColorUpdateModal from './components/EnvironmentColorUpdateModal.vue'
 import EnvironmentCreateModal from './components/EnvironmentCreateModal.vue'
 import EnvironmentDeleteModal from './components/EnvironmentDeleteModal.vue'
 import EnvironmentNameUpdateModal from './components/EnvironmentNameUpdateModal.vue'
 import EnvironmentsSidebar from './components/EnvironmentsSidebar.vue'
-import EnvironmentTableWrapper from './components/EnvironmentTableWrapper.vue'
-import EnvironmentVariablesTable from './components/EnvironmentVariablesTable.vue'
 
 type EnvironmentVariable = {
   name: string
@@ -52,7 +51,10 @@ const emit = defineEmits<{
   (e: 'environment:add', payload: { environment: Environment }): void
   (
     e: 'environment:add:variable',
-    payload: { environmentVariable: Partial<EnvironmentVariable> },
+    payload: {
+      environmentName: string
+      environmentVariable: Partial<EnvironmentVariable>
+    },
   ): void
   (
     e: 'environment:update',
@@ -61,15 +63,23 @@ const emit = defineEmits<{
   (
     e: 'environment:update:variable',
     payload: {
-      environmentName: string
+      /** Row number */
       id: number
+      /** Environment name */
+      environmentName: string
+      /** Payload */
       environmentVariable: Partial<EnvironmentVariable>
     },
   ): void
   (e: 'environment:delete', payload: { environmentName: string }): void
   (
     e: 'environment:delete:variable',
-    payload: { environmentName: string; id: number },
+    payload: {
+      /** Environment name */
+      environmentName: string
+      /** Row number */
+      id: number
+    },
   ): void
   (
     e: 'environment:reorder',
@@ -120,17 +130,34 @@ const selectedEnvironment = ref<Environment | null>(null)
               request inputs.
             </p>
           </div>
-          <EnvironmentTableWrapper
+          <EnvironmentComponent
             v-for="env in environments"
             :key="env.name"
             :color="env.color"
+            :envVariables="envVariables"
+            :environment="environment"
             :isReadonly="!documentName"
             :name="env.name"
+            :variables="env.variables"
+            @add:variable="
+              (payload) =>
+                emit('environment:add:variable', {
+                  environmentName: env.name,
+                  environmentVariable: payload,
+                })
+            "
             @delete="
               () => {
                 selectedEnvironment = env
                 deleteEnvironmentModalState.show()
               }
+            "
+            @delete:variable="
+              ({ id }) =>
+                emit('environment:delete:variable', {
+                  environmentName: env.name,
+                  id,
+                })
             "
             @edit:color="
               () => {
@@ -150,33 +177,15 @@ const selectedEnvironment = ref<Environment | null>(null)
                   draggingItem,
                   hoveredItem,
                 })
-            ">
-            <EnvironmentVariablesTable
-              :data="env.variables"
-              :envVariables="envVariables"
-              :environment="environment"
-              @addRow="
-                (data) =>
-                  emit('environment:add:variable', {
-                    environmentVariable: { name: data.name, value: data.value },
-                  })
-              "
-              @deleteRow="
-                (id) =>
-                  emit('environment:delete:variable', {
-                    environmentName: env.name,
-                    id: id,
-                  })
-              "
-              @updateRow="
-                (id, data) =>
-                  emit('environment:update:variable', {
-                    id: id,
-                    environmentName: env.name,
-                    environmentVariable: { name: data.name, value: data.value },
-                  })
-              " />
-          </EnvironmentTableWrapper>
+            "
+            @update:variable="
+              ({ id, value }) =>
+                emit('environment:update:variable', {
+                  environmentName: env.name,
+                  id,
+                  environmentVariable: value,
+                })
+            " />
           <div
             v-if="documentName !== null"
             class="text-c-3 flex h-full items-center justify-center rounded-lg border p-4">

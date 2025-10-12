@@ -2,14 +2,35 @@
 import { ScalarButton } from '@scalar/components'
 import { Draggable } from '@scalar/draggable'
 import { ScalarIconTrash } from '@scalar/icons'
+import type { Environment as EntitiesEnvironment } from '@scalar/oas-utils/entities/environment'
+
+import type { EnvVariable } from '@/store'
+import EnvironmentVariablesTable from '@/v2/features/environments/components/EnvironmentVariablesTable.vue'
+
+export type EnvironmentVariable = {
+  name: string
+  value: string
+}
+
+export type Environment = {
+  name: string
+  color?: string
+  variables: EnvironmentVariable[]
+}
 
 const { isReadonly = false } = defineProps<{
   /** Environment name */
   name: string
   /** Environment color */
   color?: string
+  /** List of all environment variables */
+  variables: EnvironmentVariable[]
   /** Marks the environment as readonly */
   isReadonly?: boolean
+
+  /** TODO: remove when we migrate to the new store */
+  environment: EntitiesEnvironment
+  envVariables: EnvVariable[]
 }>()
 
 const emit = defineEmits<{
@@ -21,6 +42,15 @@ const emit = defineEmits<{
     draggingItem: { id: string },
     hoveredItem: { id: string },
   ): void
+  (e: 'add:variable', payload: Partial<EnvironmentVariable>): void
+  (
+    e: 'update:variable',
+    payload: {
+      id: number
+      value: Partial<EnvironmentVariable>
+    },
+  ): void
+  (e: 'delete:variable', payload: { id: number }): void
 }>()
 
 defineSlots<{
@@ -85,6 +115,22 @@ const handleDragEnd = (
         <ScalarIconTrash class="size-3.5" />
       </ScalarButton>
     </div>
-    <slot name="default" />
+    <slot name="default">
+      <EnvironmentVariablesTable
+        :data="variables"
+        :envVariables="envVariables"
+        :environment="environment"
+        @addRow="
+          (data) => emit('add:variable', { name: data.name, value: data.value })
+        "
+        @deleteRow="(id) => emit('delete:variable', { id: id })"
+        @updateRow="
+          (id, data) =>
+            emit('update:variable', {
+              id: id,
+              value: { name: data.name, value: data.value },
+            })
+        " />
+    </slot>
   </Draggable>
 </template>
