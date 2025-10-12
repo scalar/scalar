@@ -133,12 +133,28 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
     })
     .optional(),
   /** onDocumentSelect is fired when the config is selected */
-  onDocumentSelect: z.function().optional() as z.ZodType<(() => Promise<void> | void) | undefined>,
+  onDocumentSelect: z
+    .function({
+      input: [],
+      // Why no output? https://github.com/scalar/scalar/pull/7047
+      // output: z.union([z.void(), z.promise(z.void())]),
+    })
+    .optional() as z.ZodType<(() => Promise<void> | void) | undefined>,
   /** Callback fired when the reference is fully loaded */
-  onLoaded: z.function().optional() as z.ZodType<(() => Promise<void> | void) | undefined>,
+  onLoaded: z
+    .function({
+      input: [],
+      // Why no output? https://github.com/scalar/scalar/pull/7047
+      // output: z.union([z.void(), z.promise(z.void())]),
+    })
+    .optional() as z.ZodType<(() => Promise<void> | void) | undefined>,
   /** onBeforeRequest is fired before the request is sent. You can modify the request here. */
   onBeforeRequest: z
-    .function({ input: [z.object({ request: z.instanceof(Request) })], output: z.void() })
+    .function({
+      input: [z.object({ request: z.instanceof(Request) })],
+      // Why no output? https://github.com/scalar/scalar/pull/7047
+      // output: z.union([z.void(), z.promise(z.void())]),
+    })
     .optional() as z.ZodType<((a: { request: Request }) => Promise<void> | void) | undefined>,
   /**
    * onShowMore is fired when the user clicks the "Show more" button on the references
@@ -147,7 +163,8 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
   onShowMore: z
     .function({
       input: [z.string()],
-      output: z.void(),
+      // Why no output? https://github.com/scalar/scalar/pull/7047
+      // output: z.union([z.void(), z.promise(z.void())]),
     })
     .optional() as z.ZodType<((a: string) => Promise<void> | void) | undefined>,
   /**
@@ -157,7 +174,8 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
   onSidebarClick: z
     .function({
       input: [z.string()],
-      output: z.void(),
+      // Why no output? https://github.com/scalar/scalar/pull/7047
+      // output: z.union([z.void(), z.promise(z.void())]),
     })
     .optional() as z.ZodType<((a: string) => Promise<void> | void) | undefined>,
   /**
