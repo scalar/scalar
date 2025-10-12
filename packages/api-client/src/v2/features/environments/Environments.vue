@@ -8,13 +8,14 @@ import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type { EnvVariable } from '@/store'
-import EnvironmentColorUpdateModal from '@/v2/features/environments/components/EnvironmentColorUpdateModal.vue'
-import EnvironmentCreateModal from '@/v2/features/environments/components/EnvironmentCreateModal.vue'
-import EnvironmentDeleteModal from '@/v2/features/environments/components/EnvironmentDeleteModal.vue'
-import EnvironmentNameUpdateModal from '@/v2/features/environments/components/EnvironmentNameUpdateModal.vue'
-import EnvironmentsSidebar from '@/v2/features/environments/components/EnvironmentsSidebar.vue'
-import EnvironmentTableWrapper from '@/v2/features/environments/components/EnvironmentTableWrapper.vue'
-import EnvironmentVariablesTable from '@/v2/features/environments/components/EnvironmentVariablesTable.vue'
+
+import EnvironmentColorUpdateModal from './components/EnvironmentColorUpdateModal.vue'
+import EnvironmentCreateModal from './components/EnvironmentCreateModal.vue'
+import EnvironmentDeleteModal from './components/EnvironmentDeleteModal.vue'
+import EnvironmentNameUpdateModal from './components/EnvironmentNameUpdateModal.vue'
+import EnvironmentsSidebar from './components/EnvironmentsSidebar.vue'
+import EnvironmentTableWrapper from './components/EnvironmentTableWrapper.vue'
+import EnvironmentVariablesTable from './components/EnvironmentVariablesTable.vue'
 
 type EnvironmentVariable = {
   name: string
@@ -106,7 +107,7 @@ const selectedEnvironment = ref<Environment | null>(null)
           <div class="flex flex-col gap-2">
             <h2 class="flex items-center gap-2 text-xl font-bold">
               <ScalarIconBracketsCurly />
-              <template v-if="!documentName"> Environment Variables </template>
+              Environment Variables
             </h2>
             <p class="text-c-2 mb-4 text-sm">
               Set environment variables at your collection level. Use

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 
 const props = withDefaults(
   defineProps<{
@@ -16,7 +16,22 @@ const emit = defineEmits<{
   (e: 'select', color: string): void
 }>()
 
-const customColor = ref('')
+const customColorRaw = ref('')
+
+/** Make sure to add '#' prefix to the color value */
+const customColor = computed({
+  get: () => customColorRaw.value,
+  set: (value: string) => {
+    if (value && !value.startsWith('#')) {
+      customColorRaw.value = `#${value}`
+    } else {
+      customColorRaw.value = value
+    }
+    if (value) {
+      showCustomInput.value = true
+    }
+  },
+})
 const customColorInputRef = ref<HTMLInputElement | null>(null)
 const showCustomInput = ref(false)
 const showSelector = ref(false)
@@ -51,13 +66,6 @@ const handleClick = () => {
     }
   })
 }
-
-watch(customColor, (newColor) => {
-  if (newColor && !newColor.startsWith('#')) {
-    customColor.value = `#${newColor}`
-  }
-  showCustomInput.value = true
-})
 
 const handleSelectorClick = () => {
   if (props.selector) {
