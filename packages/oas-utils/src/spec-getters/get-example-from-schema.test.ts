@@ -1650,4 +1650,41 @@ describe('getExampleFromSchema', () => {
       },
     ])
   })
+
+  it('returns empty string with binary format without an example', () => {
+    expect(
+      getExampleFromSchema(
+        coerceValue(SchemaObjectSchema, {
+          type: 'string',
+          properties: {
+            file: {
+              type: 'string',
+              format: 'binary',
+            },
+          },
+        }),
+      ),
+    ).toStrictEqual({
+      file: '',
+    })
+  })
+
+  it('returns example with binary format when specified', () => {
+    expect(
+      getExampleFromSchema(
+        coerceValue(SchemaObjectSchema, {
+          type: 'string',
+          properties: {
+            file: {
+              type: 'string',
+              format: 'binary',
+              example: 'file.txt'
+            },
+          },
+        }),
+      ),
+    ).toStrictEqual({
+      file: 'file.txt',
+    })
+  })
 })
