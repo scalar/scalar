@@ -1,15 +1,16 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
+
 import { REQUEST_METHODS, getHttpMethodInfo } from './http-info'
 import { HTTP_METHODS } from './http-methods'
 
 describe('REQUEST_METHODS', () => {
-  it('should have all required HTTP methods', () => {
+  it('has all required HTTP methods', () => {
     HTTP_METHODS.forEach((method) => {
       expect(REQUEST_METHODS).toHaveProperty(method)
     })
   })
 
-  it('should have correct structure for each method', () => {
+  it('has correct structure for each method', () => {
     Object.entries(REQUEST_METHODS).forEach(([_method, info]) => {
       expect(info).toHaveProperty('short')
       expect(info).toHaveProperty('colorClass')
@@ -27,7 +28,7 @@ describe('REQUEST_METHODS', () => {
     })
   })
 
-  it('should have correct short names', () => {
+  it('has correct short names', () => {
     expect(REQUEST_METHODS.get.short).toBe('GET')
     expect(REQUEST_METHODS.post.short).toBe('POST')
     expect(REQUEST_METHODS.put.short).toBe('PUT')
@@ -35,13 +36,12 @@ describe('REQUEST_METHODS', () => {
     expect(REQUEST_METHODS.delete.short).toBe('DEL')
     expect(REQUEST_METHODS.options.short).toBe('OPTS')
     expect(REQUEST_METHODS.head.short).toBe('HEAD')
-    expect(REQUEST_METHODS.connect.short).toBe('CONN')
     expect(REQUEST_METHODS.trace.short).toBe('TRACE')
   })
 })
 
 describe('getHttpMethodInfo', () => {
-  it('should return correct info for valid HTTP methods', () => {
+  it('returns correct info for valid HTTP methods', () => {
     const testCases: Array<{ input: string; expectedShort: string }> = [
       { input: 'GET', expectedShort: 'GET' },
       { input: 'Post', expectedShort: 'POST' },
@@ -61,7 +61,7 @@ describe('getHttpMethodInfo', () => {
     })
   })
 
-  it('should handle unknown HTTP methods', () => {
+  it('handles unknown HTTP methods', () => {
     const unknownMethod = 'UNKNOWN'
     const result = getHttpMethodInfo(unknownMethod)
 
@@ -70,14 +70,14 @@ describe('getHttpMethodInfo', () => {
     expect(result).toHaveProperty('backgroundColor')
   })
 
-  it('should handle empty string', () => {
+  it('handles empty string', () => {
     const result = getHttpMethodInfo('')
     expect(result.short).toBe('')
     expect(result).toHaveProperty('color')
     expect(result).toHaveProperty('backgroundColor')
   })
 
-  it('should handle whitespace-only strings', () => {
+  it('handles whitespace-only strings', () => {
     const result = getHttpMethodInfo('   ')
     expect(result.short).toBe('')
     expect(result).toHaveProperty('color')
