@@ -289,7 +289,7 @@ export namespace v_0_0_0 {
   }
   export type Request = {
     path: string
-    method: 'DELETE' | 'GET' | 'HEAD' | 'OPTIONS' | 'PATCH' | 'POST' | 'PUT' | 'TRACE'
+    method: 'CONNECT' | 'DELETE' | 'GET' | 'HEAD' | 'OPTIONS' | 'PATCH' | 'POST' | 'PUT' | 'TRACE'
     uid: string
     ref: {
       path: string
