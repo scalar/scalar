@@ -279,7 +279,12 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
   const addDocumentSync = (document: Record<string, unknown>, meta: { name: string } & WorkspaceDocumentMeta) => {
     const { name, ...documentMeta } = meta
 
-    const documentV3 = coerceValue(OpenAPIDocumentSchema, upgrade(document, '3.1'))
+    // Detect document type before upgrade
+    const isOpenApi = 'openapi' in document || 'swagger' in document
+
+    // Only upgrade if it is an OpenAPI/Swagger document
+    // AsyncAPI documents are not currently supported in server-side store
+    const documentV3 = isOpenApi ? coerceValue(OpenAPIDocumentSchema, upgrade(document, '3.1')) : (document as any) // Pass through non-OpenAPI documents (will fail validation if not OpenAPI)
 
     // add the assets
     assets[meta.name] = {
