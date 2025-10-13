@@ -1154,41 +1154,41 @@ describe('createMagicProxy', () => {
   })
 
   describe('show underscore properties when specified', () => {
-    it('should not hide properties starting with underscore from direct access', () => {
+    it('should not hide properties starting with __scalar_ from direct access', () => {
       const input = {
         public: 'visible',
-        _private: 'hidden',
-        __internal: 'also hidden',
+        __scalar_private: 'hidden',
+        __scalar_internal: 'also hidden',
         normal_underscore: 'visible with underscore in middle',
       }
 
       const result = createMagicProxy(input, { showInternal: true })
 
       expect(result.public).toBe('visible')
-      expect(result._private).toBe('hidden')
-      expect(result.__internal).toBe('also hidden')
+      expect(result.__scalar_private).toBe('hidden')
+      expect(result.__scalar_internal).toBe('also hidden')
       expect(result.normal_underscore).toBe('visible with underscore in middle')
     })
 
-    it('should not hide underscore properties from "in" operator', () => {
+    it('should not hide __scalar_ properties from "in" operator', () => {
       const input = {
         public: 'visible',
-        _private: 'hidden',
-        __internal: 'also hidden',
+        __scalar_private: 'hidden',
+        __scalar_internal: 'also hidden',
       }
 
       const result = createMagicProxy(input, { showInternal: true })
 
       expect('public' in result).toBe(true)
-      expect('_private' in result).toBe(true)
-      expect('__internal' in result).toBe(true)
+      expect('__scalar_private' in result).toBe(true)
+      expect('__scalar_internal' in result).toBe(true)
     })
 
-    it('should not exclude underscore properties from Object.keys enumeration', () => {
+    it('should not exclude __scalar_ properties from Object.keys enumeration', () => {
       const input = {
         public: 'visible',
-        _private: 'hidden',
-        __internal: 'also hidden',
+        __scalar_private: 'hidden',
+        __scalar_internal: 'also hidden',
         another: 'visible',
       }
 
@@ -1197,79 +1197,79 @@ describe('createMagicProxy', () => {
 
       expect(keys).toContain('public')
       expect(keys).toContain('another')
-      expect(keys).toContain('_private')
-      expect(keys).toContain('__internal')
+      expect(keys).toContain('__scalar_private')
+      expect(keys).toContain('__scalar_internal')
     })
 
-    it('should not hide underscore properties from getOwnPropertyDescriptor', () => {
+    it('should not hide __scalar_ properties from getOwnPropertyDescriptor', () => {
       const input = {
         public: 'visible',
-        _private: 'hidden',
+        __scalar_private: 'hidden',
       }
 
       const result = createMagicProxy(input, { showInternal: true })
 
       expect(Object.getOwnPropertyDescriptor(result, 'public')).toBeDefined()
-      expect(Object.getOwnPropertyDescriptor(result, '_private')).toBeDefined()
+      expect(Object.getOwnPropertyDescriptor(result, '__scalar_private')).toBeDefined()
     })
 
-    it('should not hide underscore properties in nested objects', () => {
+    it('should not hide __scalar_ properties in nested objects', () => {
       const input = {
         nested: {
           public: 'visible',
-          _private: 'hidden',
+          __scalar_private: 'hidden',
           deeper: {
-            _alsoHidden: 'secret',
+            __scalar_alsoHidden: 'secret',
             visible: 'shown',
           },
         },
-        _topLevel: 'hidden',
+        __scalar_topLevel: 'hidden',
       }
 
       const result = createMagicProxy(input, { showInternal: true })
 
-      expect(result._topLevel).toBe('hidden')
+      expect(result.__scalar_topLevel).toBe('hidden')
       expect(result.nested.public).toBe('visible')
-      expect(result.nested._private).toBe('hidden')
-      expect(result.nested.deeper._alsoHidden).toBe('secret')
+      expect(result.nested.__scalar_private).toBe('hidden')
+      expect(result.nested.deeper.__scalar_alsoHidden).toBe('secret')
       expect(result.nested.deeper.visible).toBe('shown')
     })
 
-    it('should show underscore properties with arrays containing objects with underscore properties', () => {
+    it('should show __scalar_ properties with arrays containing objects with __scalar_ properties', () => {
       const input = {
         items: [
-          { public: 'item1', _private: 'hidden1' },
-          { public: 'item2', _private: 'hidden2' },
+          { public: 'item1', __scalar_private: 'hidden1' },
+          { public: 'item2', __scalar_private: 'hidden2' },
         ],
       }
 
       const result = createMagicProxy(input, { showInternal: true })
 
       expect(result.items[0].public).toBe('item1')
-      expect(result.items[0]._private).toBe('hidden1')
+      expect(result.items[0].__scalar_private).toBe('hidden1')
       expect(result.items[1].public).toBe('item2')
-      expect(result.items[1]._private).toBe('hidden2')
+      expect(result.items[1].__scalar_private).toBe('hidden2')
     })
 
-    it('should show underscore ref properties', () => {
+    it('should show __scalar_ ref properties', () => {
       const input = {
         definitions: {
           example: {
             value: 'hello',
-            _internal: 'hidden',
+            __scalar_internal: 'hidden',
           },
         },
-        _hiddenRef: { $ref: '#/definitions/example' },
+        __scalar_hiddenRef: { $ref: '#/definitions/example' },
         publicRef: { $ref: '#/definitions/example' },
       }
 
       const result = createMagicProxy(input, { showInternal: true })
 
-      // Underscore property should be hidden
-      expect(result._hiddenRef).toEqual({
+      // __scalar_ property should be hidden
+      expect(result.__scalar_hiddenRef).toEqual({
         '$ref': '#/definitions/example',
         '$ref-value': {
-          '_internal': 'hidden',
+          '__scalar_internal': 'hidden',
           'value': 'hello',
         },
       })
@@ -1277,8 +1277,8 @@ describe('createMagicProxy', () => {
       // Public ref should work normally
       expect(result.publicRef['$ref-value'].value).toBe('hello')
 
-      // Underscore properties in referenced objects should be hidden
-      expect(result.publicRef['$ref-value']._internal).toBe('hidden')
+      // __scalar_ properties in referenced objects should be hidden
+      expect(result.publicRef['$ref-value'].__scalar_internal).toBe('hidden')
     })
   })
 
@@ -1830,42 +1830,46 @@ describe('createMagicProxy', () => {
     })
   })
 
-  describe('hide underscore properties', () => {
-    it('should hide properties starting with underscore from direct access', () => {
+  describe('hide __scalar_ properties', () => {
+    it('should hide properties starting with __scalar_ from direct access', () => {
       const input = {
         public: 'visible',
-        _private: 'hidden',
-        __internal: 'also hidden',
+        __scalar_private: 'hidden',
+        __scalar_internal: 'also hidden',
         normal_underscore: 'visible with underscore in middle',
+        _id: 'legitimate user property', // This should NOT be hidden
+        _type: 'another legitimate property', // This should NOT be hidden
       }
 
       const result = createMagicProxy(input)
 
       expect(result.public).toBe('visible')
-      expect(result._private).toBe(undefined)
-      expect(result.__internal).toBe(undefined)
+      expect(result.__scalar_private).toBe(undefined)
+      expect(result.__scalar_internal).toBe(undefined)
       expect(result.normal_underscore).toBe('visible with underscore in middle')
+      expect(result._id).toBe('legitimate user property') // Should be visible
+      expect(result._type).toBe('another legitimate property') // Should be visible
     })
 
-    it('should hide underscore properties from "in" operator', () => {
+    it('should hide __scalar_ properties from "in" operator', () => {
       const input = {
         public: 'visible',
-        _private: 'hidden',
-        __internal: 'also hidden',
+        __scalar_private: 'hidden',
+        __scalar_internal: 'also hidden',
       }
 
       const result = createMagicProxy(input)
 
       expect('public' in result).toBe(true)
-      expect('_private' in result).toBe(false)
-      expect('__internal' in result).toBe(false)
+      expect('__scalar_private' in result).toBe(false)
+      expect('__scalar_internal' in result).toBe(false)
     })
 
-    it('should exclude underscore properties from Object.keys enumeration', () => {
+    it('should exclude __scalar_ properties from Object.keys enumeration', () => {
       const input = {
         public: 'visible',
-        _private: 'hidden',
-        __internal: 'also hidden',
+        __scalar_private: 'hidden',
+        __scalar_internal: 'also hidden',
         another: 'visible',
       }
 
@@ -1874,82 +1878,110 @@ describe('createMagicProxy', () => {
 
       expect(keys).toContain('public')
       expect(keys).toContain('another')
-      expect(keys).not.toContain('_private')
-      expect(keys).not.toContain('__internal')
+      expect(keys).not.toContain('__scalar_private')
+      expect(keys).not.toContain('__scalar_internal')
     })
 
-    it('should hide underscore properties from getOwnPropertyDescriptor', () => {
+    it('should hide __scalar_ properties from getOwnPropertyDescriptor', () => {
       const input = {
         public: 'visible',
-        _private: 'hidden',
+        __scalar_private: 'hidden',
       }
 
       const result = createMagicProxy(input)
 
       expect(Object.getOwnPropertyDescriptor(result, 'public')).toBeDefined()
-      expect(Object.getOwnPropertyDescriptor(result, '_private')).toBe(undefined)
+      expect(Object.getOwnPropertyDescriptor(result, '__scalar_private')).toBe(undefined)
     })
 
-    it('should hide underscore properties in nested objects', () => {
+    it('should hide __scalar_ properties in nested objects', () => {
       const input = {
         nested: {
           public: 'visible',
-          _private: 'hidden',
+          __scalar_private: 'hidden',
           deeper: {
-            _alsoHidden: 'secret',
+            __scalar_alsoHidden: 'secret',
             visible: 'shown',
           },
         },
-        _topLevel: 'hidden',
+        __scalar_topLevel: 'hidden',
       }
 
       const result = createMagicProxy(input)
 
-      expect(result._topLevel).toBe(undefined)
+      expect(result.__scalar_topLevel).toBe(undefined)
       expect(result.nested.public).toBe('visible')
-      expect(result.nested._private).toBe(undefined)
-      expect(result.nested.deeper._alsoHidden).toBe(undefined)
+      expect(result.nested.__scalar_private).toBe(undefined)
+      expect(result.nested.deeper.__scalar_alsoHidden).toBe(undefined)
       expect(result.nested.deeper.visible).toBe('shown')
     })
 
-    it('should work with arrays containing objects with underscore properties', () => {
+    it('should work with arrays containing objects with __scalar_ properties', () => {
       const input = {
         items: [
-          { public: 'item1', _private: 'hidden1' },
-          { public: 'item2', _private: 'hidden2' },
+          { public: 'item1', __scalar_private: 'hidden1' },
+          { public: 'item2', __scalar_private: 'hidden2' },
         ],
       }
 
       const result = createMagicProxy(input)
 
       expect(result.items[0].public).toBe('item1')
-      expect(result.items[0]._private).toBe(undefined)
+      expect(result.items[0].__scalar_private).toBe(undefined)
       expect(result.items[1].public).toBe('item2')
-      expect(result.items[1]._private).toBe(undefined)
+      expect(result.items[1].__scalar_private).toBe(undefined)
     })
 
-    it('should still allow refs to work with underscore hiding', () => {
+    it('should still allow refs to work with __scalar_ hiding', () => {
       const input = {
         definitions: {
           example: {
             value: 'hello',
-            _internal: 'hidden',
+            __scalar_internal: 'hidden',
           },
         },
-        _hiddenRef: { $ref: '#/definitions/example' },
+        __scalar_hiddenRef: { $ref: '#/definitions/example' },
         publicRef: { $ref: '#/definitions/example' },
       }
 
       const result = createMagicProxy(input)
 
-      // Underscore property should be hidden
-      expect(result._hiddenRef).toBe(undefined)
+      // __scalar_ property should be hidden
+      expect(result.__scalar_hiddenRef).toBe(undefined)
 
       // Public ref should work normally
       expect(result.publicRef['$ref-value'].value).toBe('hello')
 
-      // Underscore properties in referenced objects should be hidden
-      expect(result.publicRef['$ref-value']._internal).toBe(undefined)
+      // __scalar_ properties in referenced objects should be hidden
+      expect(result.publicRef['$ref-value'].__scalar_internal).toBe(undefined)
+    })
+
+    it('preserves regular underscore properties', () => {
+      const input = {
+        _id: 'user123',
+        user_name: 'john',
+        __version: '1.0',
+        normal_property: 'visible',
+      }
+
+      const result = createMagicProxy(input)
+
+      // Regular underscore properties should be visible
+      expect(result._id).toBe('user123')
+      expect(result.user_name).toBe('john')
+      expect(result.__version).toBe('1.0')
+      expect(result.normal_property).toBe('visible')
+
+      // Should be included in enumeration and "in" checks
+      expect('_id' in result).toBe(true)
+      expect('user_name' in result).toBe(true)
+      expect('__version' in result).toBe(true)
+
+      const keys = Object.keys(result)
+      expect(keys).toContain('_id')
+      expect(keys).toContain('user_name')
+      expect(keys).toContain('__version')
+      expect(keys).toContain('normal_property')
     })
   })
 })

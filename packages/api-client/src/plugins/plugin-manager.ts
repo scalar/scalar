@@ -1,10 +1,10 @@
-import type { ApiClientPlugin, HooksSchema } from '@scalar/types/api-client'
+import type { ApiClientPlugin, hooksSchema } from '@scalar/types/api-reference'
 import type { InjectionKey } from 'vue'
 import type { z } from 'zod'
 
 export type { ApiClientPlugin }
 
-type HookFunctions = z.infer<typeof HooksSchema>
+type HookFunctions = z.infer<typeof hooksSchema>
 
 type CreatePluginManagerParams = {
   plugins?: ApiClientPlugin[]

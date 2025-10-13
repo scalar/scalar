@@ -422,6 +422,7 @@ Options:
   --namespace <namespace>  Scalar team namespace
   --version <version>      API version (e.g. 0.1.0)
   --private                Make API private (default: false)
+  --current                Set as the current active API version (default: true)
   --force                  Force override an existing version (default: false)
   -h, --help               display help for command
 ```

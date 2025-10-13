@@ -3,9 +3,9 @@ import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import { mutateSecuritySchemeDiff } from '@scalar/api-client/views/Request/libs'
 import { getServersFromDocument } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { ApiClientPlugin } from '@scalar/types/api-client'
 import type {
   ApiClientConfiguration,
+  ApiClientPlugin,
   ApiReferenceConfiguration,
 } from '@scalar/types/api-reference'
 import { emitCustomEvent } from '@scalar/workspace-store/events'

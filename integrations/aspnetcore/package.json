@@ -9,7 +9,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/aspnetcore"
   },
-  "version": "2.8.10",
+  "version": "2.8.11",
   "private": true,
   "engines": {
     "node": ">=20"
@@ -19,7 +19,6 @@
     "copy:standalone": "shx cp ../../packages/api-reference/dist/browser/standalone.js ./src/Scalar.AspNetCore/StaticAssets/scalar.js",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
-    "generate:enums": "vite-node scripts/generate-enums.ts",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
     "test": "vitest"

@@ -524,7 +524,6 @@ const selectedExample = computed({
             teleport>
             <ScalarButton
               class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-3 font-normal"
-              fullWidth
               variant="ghost">
               <span>{{ selectedContentType?.label }}</span>
               <ScalarIcon

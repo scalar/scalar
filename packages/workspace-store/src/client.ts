@@ -8,7 +8,7 @@ import type { Record } from '@scalar/typebox'
 import { Value } from '@scalar/typebox/value'
 import type { PartialDeep } from 'type-fest/source/partial-deep'
 import type { RequiredDeep } from 'type-fest/source/required-deep'
-import { reactive } from 'vue'
+import { reactive, toRaw } from 'vue'
 import YAML from 'yaml'
 
 import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
@@ -16,7 +16,7 @@ import { deepClone } from '@/helpers/deep-clone'
 import { type UnknownObject, isObject, safeAssign } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
-import { createOverridesProxy } from '@/helpers/overrides-proxy'
+import { createOverridesProxy, unpackOverridesProxy } from '@/helpers/overrides-proxy'
 import { createNavigation } from '@/navigation'
 import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
 import { getServersFromDocument } from '@/preprocessing/server'
@@ -372,30 +372,30 @@ export type WorkspaceStore = {
    */
   importWorkspaceFromSpecification(specification: WorkspaceSpecification): Promise<void[]>
   /**
-   * Rebases a document in the workspace with a new origin, resolving conflicts if provided.
+   * Rebases a document in the workspace by refetching its origin and merging with local edits.
    *
-   * This method is used to rebase a document (e.g., after pulling remote changes) by applying the changes
-   * from the new origin and merging them with local edits. If there are conflicts, they can be resolved
-   * by providing a list of resolved conflicts.
+   * This method fetches the latest version of the document (optionally with custom fetch/config),
+   * calculates changes relative to the original and locally edited versions,
+   * and attempts to update the workspace document while preserving user edits.
+   * If automatic resolution isn't possible due to conflicts, returns a conflict list for the caller to resolve.
+   * If `resolvedConflicts` are provided (e.g., after user intervention), applies them to complete the rebase.
    *
-   * @param documentName - The name of the document to rebase.
-   * @param newDocumentOrigin - The new origin document (as an object) to rebase onto.
-   * @param resolvedConflicts - (Optional) An array of resolved conflicts to apply.
-   * @returns If there are unresolved conflicts and no resolution is provided, returns the list of conflicts.
+   * @param input - An object specifying which document to rebase, the new origin document, fetch/config info, and overrides.
+   * @param resolvedConflicts - (Optional) Conflict resolutions to apply if rebase hits merge conflicts.
+   * @returns If there are unresolved conflicts and no resolution is provided, resolves to the list of conflicts; otherwise resolves to void.
    *
    * @example
-   * // Example: Rebase a document with a new origin and resolve conflicts
-   * const conflicts = store.rebaseDocument('api', newOriginDoc)
+   * // Example: Rebase a document and handle merge conflicts
+   * const conflicts = await store.rebaseDocument({ name: 'api', document: newOriginDoc, fetch: customFetch })
    * if (conflicts && conflicts.length > 0) {
    *   // User resolves conflicts here...
-   *   store.rebaseDocument('api', newOriginDoc, userResolvedConflicts)
+   *   await store.rebaseDocument({ name: 'api', document: newOriginDoc, fetch: customFetch }, userResolvedConflicts)
    * }
    */
   rebaseDocument: (
-    documentName: string,
-    newDocumentOrigin: Record<string, unknown>,
+    input: WorkspaceDocumentInput,
     resolvedConflicts?: Difference<unknown>[],
-  ) => void | ReturnType<typeof merge>['conflicts']
+  ) => Promise<void | ReturnType<typeof merge>['conflicts']>
 }
 
 /**
@@ -557,14 +557,13 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   // Add a document to the store synchronously from an in-memory OpenAPI document
   async function addInMemoryDocument(input: ObjectDoc & { initialize?: boolean; documentSource?: string }) {
     const { name, meta } = input
-    const cloned = measureSync('deepClone', () => deepClone(input.document))
-    const inputDocument = measureSync('upgrade', () => upgrade(cloned, '3.1'))
+    const clonedRawInputDocument = measureSync('deepClone', () => deepClone(input.document))
 
     measureSync('initialize', () => {
       if (input.initialize !== false) {
         // Store the original document in the originalDocuments map
         // This is used to track the original state of the document as it was loaded into the workspace
-        originalDocuments[name] = deepClone({ ...inputDocument })
+        originalDocuments[name] = deepClone(clonedRawInputDocument)
 
         // Store the intermediate document state for local edits
         // This is used to track the last saved state of the document
@@ -572,7 +571,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         // This is important for local edits that are not yet synced with the remote registry
         // The intermediate document is used to store the latest saved state of the document
         // This allows us to track changes and revert to the last saved state if needed
-        intermediateDocuments[name] = deepClone({ ...inputDocument })
+        intermediateDocuments[name] = deepClone(clonedRawInputDocument)
         // Add the document config to the documentConfigs map
         documentConfigs[name] = input.config ?? {}
         // Store the overrides for this document, or an empty object if none are provided
@@ -583,6 +582,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         extraDocumentConfigurations[name] = { fetch: input.fetch }
       }
     })
+
+    const inputDocument = measureSync('upgrade', () => upgrade(deepClone(clonedRawInputDocument), '3.1'))
 
     const strictDocument: UnknownObject = createMagicProxy({ ...inputDocument, ...meta }, { showInternal: true })
 
@@ -650,7 +651,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // This ensures that the workspace document only exposes the intended OpenAPI properties and extensions
     workspace.documents[name] = createOverridesProxy(
       createMagicProxy(getRaw(strictDocument)) as OpenApiDocument,
-      input.overrides,
+      overrides[name],
     )
   }
 
@@ -861,20 +862,50 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         ),
       )
     },
-    rebaseDocument: (documentName, newDocumentOrigin, resolvedConflicts) => {
-      const newOrigin = upgrade(newDocumentOrigin, '3.1')
+    rebaseDocument: async (input, resolvedConflicts) => {
+      const { name } = input
 
-      const originalDocument = originalDocuments[documentName]
-      const intermediateDocument = intermediateDocuments[documentName]
-      const activeDocument = workspace.documents[documentName] ? getRaw(workspace.documents[documentName]) : undefined // raw version without any overrides
+      // ---- Resolve input document
+      const resolve = await measureAsync(
+        'loadDocument',
+        async () => await loadDocument({ ...input, fetch: input.fetch ?? workspaceProps?.fetch }),
+      )
+
+      if (!resolve.ok || !isObject(resolve.data)) {
+        return console.error(`[ERROR]: Failed to load document '${name}': response data is not a valid object`)
+      }
+
+      const newDocumentOrigin = resolve.data
+
+      // ---- Get the current documents
+      const originalDocument = originalDocuments[name]
+      const intermediateDocument = intermediateDocuments[name]
+      // raw version without any proxies
+      const activeDocument = workspace.documents[name]
+        ? toRaw(getRaw(unpackOverridesProxy(workspace.documents[name])))
+        : undefined
 
       if (!originalDocument || !intermediateDocument || !activeDocument) {
         // If any required document state is missing, do nothing
         return console.error('[ERROR]: Specified document is missing or internal corrupted workspace state')
       }
 
+      const documentSource = getDocumentSource(input)
+
+      // ---- Override the configurations and metadata
+      documentConfigs[name] = input.config ?? {}
+      overrides[name] = input.overrides ?? {}
+      documentMeta[name] = { documentSource }
+      extraDocumentConfigurations[name] = { fetch: input.fetch }
+
       // ---- Get the new intermediate document
-      const changelogAA = diff(originalDocument, newOrigin)
+      const changelogAA = diff(originalDocument, newDocumentOrigin)
+
+      // When there are no changes, we can return early since we don't need to do anything
+      if (changelogAA.length === 0) {
+        return
+      }
+
       const changelogAB = diff(originalDocument, intermediateDocument)
 
       const changesA = merge(changelogAA, changelogAB)
@@ -888,10 +919,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       // Apply the changes to the original document to get the new intermediate
       const newIntermediateDocument = apply(deepClone(originalDocument), changesetA)
-      intermediateDocuments[documentName] = newIntermediateDocument
+      intermediateDocuments[name] = newIntermediateDocument
 
       // Update the original document
-      originalDocuments[documentName] = newOrigin
+      originalDocuments[name] = newDocumentOrigin
 
       // ---- Get the new active document
       const changelogBA = diff(intermediateDocument, newIntermediateDocument)
@@ -908,11 +939,18 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         apply(deepClone(newIntermediateDocument), changesetB),
       )
 
-      // Update the active document to the new value
-      workspace.documents[documentName] = createOverridesProxy(
-        createMagicProxy({ ...newActiveDocument }),
-        overrides[documentName],
-      )
+      // add the new active document to the workspace but don't re-initialize
+      await addInMemoryDocument({
+        ...input,
+        document: {
+          ...newActiveDocument,
+          // force regeneration of navigation
+          // when we are rebasing, we want to ensure that the navigation is always up to date
+          [extensions.document.navigation]: undefined,
+        },
+        documentSource,
+        initialize: false,
+      })
       return
     },
   }

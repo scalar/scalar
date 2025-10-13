@@ -1,5 +1,24 @@
 # scalar-app
 
+## 0.1.238
+
+### Patch Changes
+
+- 49baa78: fix: do not use catalog versions for todesktop build
+- Updated dependencies [debdcf6]
+- Updated dependencies [13dcd89]
+- Updated dependencies [63ff417]
+- Updated dependencies [5d99cad]
+- Updated dependencies [a747da6]
+- Updated dependencies [1e01464]
+- Updated dependencies [c69cb71]
+- Updated dependencies [90d54b6]
+- Updated dependencies [b998d57]
+  - @scalar/api-client@2.8.0
+  - @scalar/themes@0.13.21
+  - @scalar/components@0.15.0
+  - @scalar/import@0.4.30
+
 ## 0.1.237
 
 ### Patch Changes

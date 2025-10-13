@@ -1,2 +1,2 @@
 export { default as ScalarButton } from './ScalarButton.vue'
-export { styles } from './variants'
+export type { ButtonSize as ScalarButtonSize, ButtonVariant as ScalarButtonVariant } from './types'

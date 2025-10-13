@@ -19,22 +19,22 @@ Nested ordered lists
 
 1. Level 1
 1. Level 1
-  1. Level 2
-  1. Level 2
-    1. Level 3
-    1. Level 3
-      1. Level 4
-      1. Level 4
-        1. Level 5
-        1. Level 5
-          1. Level 6
-          1. Level 6
-            1. Level 7
-            1. Level 7
-              1. Level 8
-              1. Level 8
-  1. Level 2
-  1. Level 2
+    1. Level 2
+    1. Level 2
+        1. Level 3
+        1. Level 3
+            1. Level 4
+            1. Level 4
+                1. Level 5
+                1. Level 5
+                    1. Level 6
+                    1. Level 6
+                        1. Level 7
+                        1. Level 7
+                            1. Level 8
+                            1. Level 8
+    1. Level 2
+    1. Level 2
 
 ---
 

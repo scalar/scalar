@@ -1,0 +1,26 @@
+name: Renovate Config Validation
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    paths:
+      - '.github/renovate.json'
+  workflow_dispatch: null
+
+jobs:
+  validate-renovate-config:
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: Setup Node.js
+        uses: useblacksmith/setup-node@65c6ca86fdeb0ab3d85e78f57e4f6a7e4780b391 # v5
+        with:
+          node-version: '22'
+
+      - name: Validate Renovate configuration
+        run: npx --yes --package renovate -- renovate-config-validator

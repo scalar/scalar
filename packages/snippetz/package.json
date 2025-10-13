@@ -9,14 +9,16 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/snippetz"
   },
-  "version": "0.4.11",
+  "version": "0.5.0",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
     "build": "scalar-build-esbuild",
+    "generate:dotnet-enums": "vite-node scripts/generate-dotnet-enums.ts",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
+    "postbuild": "pnpm generate:dotnet-enums",
     "test": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
@@ -58,6 +60,11 @@
       "import": "./dist/plugins/dart/http/index.js",
       "types": "./dist/plugins/dart/http/index.d.ts",
       "default": "./dist/plugins/dart/http/index.js"
+    },
+    "./plugins/fsharp/httpclient": {
+      "import": "./dist/plugins/fsharp/httpclient/index.js",
+      "types": "./dist/plugins/fsharp/httpclient/index.d.ts",
+      "default": "./dist/plugins/fsharp/httpclient/index.js"
     },
     "./plugins/go/native": {
       "import": "./dist/plugins/go/native/index.js",

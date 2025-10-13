@@ -1,5 +1,20 @@
 # @scalar/oas-utils
 
+## 0.5.1
+
+### Patch Changes
+
+- debdcf6: Correctly handle additionalProperties when set to false
+- Updated dependencies [15c4240]
+- Updated dependencies [13dcd89]
+- Updated dependencies [63ff417]
+- Updated dependencies [5d99cad]
+- Updated dependencies [1e01464]
+  - @scalar/openapi-types@0.4.1
+  - @scalar/themes@0.13.21
+  - @scalar/workspace-store@0.17.0
+  - @scalar/types@0.3.1
+
 ## 0.5.0
 
 ### Minor Changes

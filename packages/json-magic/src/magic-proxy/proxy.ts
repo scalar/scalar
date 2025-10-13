@@ -18,7 +18,7 @@ const REF_KEY = '$ref'
  * Features:
  * - If an object contains a `$ref` property, accessing the special `$ref-value` property will resolve and return the referenced value from the root object.
  * - All nested objects and arrays are recursively wrapped in proxies, so reference resolution works at any depth.
- * - Properties starting with an underscore (_) are considered internal and are hidden by default: they return undefined on access, are excluded from enumeration, and `'in'` checks return false. This can be overridden with the `showInternal` option.
+ * - Properties starting with `__scalar_` are considered internal and are hidden by default: they return undefined on access, are excluded from enumeration, and `'in'` checks return false. This can be overridden with the `showInternal` option.
  * - Setting, deleting, and enumerating properties works as expected, including for proxied references.
  * - Ensures referential stability by caching proxies for the same target object.
  *
@@ -33,17 +33,17 @@ const REF_KEY = '$ref'
  *     foo: { bar: 123 }
  *   },
  *   refObj: { $ref: '#/definitions/foo' },
- *   _internal: 'hidden property'
+ *   __scalar_internal: 'hidden property'
  * }
  * const proxy = createMagicProxy(input)
  *
  * // Accessing proxy.refObj['$ref-value'] will resolve to { bar: 123 }
  * console.log(proxy.refObj['$ref-value']) // { bar: 123 }
  *
- * // Properties starting with underscore are hidden
- * console.log(proxy._internal) // undefined
- * console.log('_internal' in proxy) // false
- * console.log(Object.keys(proxy)) // ['definitions', 'refObj'] (no '_internal')
+ * // Properties starting with __scalar_ are hidden
+ * console.log(proxy.__scalar_internal) // undefined
+ * console.log('__scalar_internal' in proxy) // false
+ * console.log(Object.keys(proxy)) // ['definitions', 'refObj'] (no '__scalar_internal')
  *
  * // Setting and deleting properties works as expected
  * proxy.refObj.extra = 'hello'
@@ -99,7 +99,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      * Proxy "get" trap for magic proxy.
      * - If accessing the special isMagicProxy symbol, return true to identify proxy.
      * - If accessing the magicProxyTarget symbol, return the original target object.
-     * - Hide properties starting with underscore by returning undefined.
+     * - Hide properties starting with __scalar_ by returning undefined.
      * - If accessing "$ref-value" and the object has a local $ref, resolve and return the referenced value as a new magic proxy.
      * - For all other properties, recursively wrap the returned value in a magic proxy (if applicable).
      */
@@ -114,9 +114,9 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
         return target
       }
 
-      // Hide properties starting with underscore - these are considered internal/private properties
+      // Hide properties starting with __scalar_ - these are considered internal/private properties
       // and should not be accessible through the magic proxy interface
-      if (typeof prop === 'string' && prop.startsWith('_') && !options?.showInternal) {
+      if (typeof prop === 'string' && prop.startsWith('__scalar_') && !options?.showInternal) {
         return undefined
       }
 
@@ -159,13 +159,13 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      * Allows setting properties on the proxied object.
      * This will update the underlying target object.
      *
-     * Note: it will not update if the property starts with an underscore (_)
+     * Note: it will not update if the property starts with __scalar_
      * Those will be considered private properties by the proxy
      */
     set(target, prop, newValue, receiver) {
       const ref = Reflect.get(target, REF_KEY, receiver)
 
-      if (typeof prop === 'string' && prop.startsWith('_') && !options?.showInternal) {
+      if (typeof prop === 'string' && prop.startsWith('__scalar_') && !options?.showInternal) {
         return true
       }
 
@@ -215,12 +215,12 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      * - Pretend that "$ref-value" exists if "$ref" exists on the target.
      *   This allows expressions like `"$ref-value" in obj` to return true for objects with a $ref,
      *   even though "$ref-value" is a virtual property provided by the proxy.
-     * - Hide properties starting with underscore by returning false.
+     * - Hide properties starting with __scalar_ by returning false.
      * - For all other properties, defer to the default Reflect.has behavior.
      */
     has(target, prop) {
-      // Hide properties starting with underscore
-      if (typeof prop === 'string' && prop.startsWith('_') && !options?.showInternal) {
+      // Hide properties starting with __scalar_
+      if (typeof prop === 'string' && prop.startsWith('__scalar_') && !options?.showInternal) {
         return false
       }
 
@@ -236,14 +236,14 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      * - If the object has a "$ref" property, ensures that "$ref-value" is also included in the keys,
      *   even though "$ref-value" is a virtual property provided by the proxy.
      *   This allows Object.keys, Reflect.ownKeys, etc. to include "$ref-value" for objects with $ref.
-     * - Filters out properties starting with underscore.
+     * - Filters out properties starting with __scalar_.
      */
     ownKeys(target) {
       const keys = Reflect.ownKeys(target)
 
-      // Filter out properties starting with underscore
+      // Filter out properties starting with __scalar_
       const filteredKeys = keys.filter(
-        (key) => typeof key !== 'string' || !(key.startsWith('_') && !options?.showInternal),
+        (key) => typeof key !== 'string' || !(key.startsWith('__scalar_') && !options?.showInternal),
       )
 
       if (REF_KEY in target && !filteredKeys.includes(REF_VALUE)) {
@@ -255,13 +255,13 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
     /**
      * Proxy "getOwnPropertyDescriptor" trap for magic proxy.
      * - For the virtual "$ref-value" property, returns a descriptor that makes it appear as a regular property.
-     * - Hide properties starting with underscore by returning undefined.
+     * - Hide properties starting with __scalar_ by returning undefined.
      * - For all other properties, delegates to the default Reflect.getOwnPropertyDescriptor behavior.
      * - This ensures that Object.getOwnPropertyDescriptor and similar methods work correctly with the virtual property.
      */
     getOwnPropertyDescriptor(target, prop) {
-      // Hide properties starting with underscore
-      if (typeof prop === 'string' && prop.startsWith('_') && !options?.showInternal) {
+      // Hide properties starting with __scalar_
+      if (typeof prop === 'string' && prop.startsWith('__scalar_') && !options?.showInternal) {
         return undefined
       }
 

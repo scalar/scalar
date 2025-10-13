@@ -80,7 +80,7 @@ export namespace OpenAPIV3_1 {
        * Version of the OpenAPI specification
        * @see https://github.com/OAI/OpenAPI-Specification/tree/main/versions
        */
-      openapi?: '3.1.0' | '3.1.1'
+      openapi?: '3.1.0' | '3.1.1' | '3.1.2'
       swagger?: undefined
       info?: InfoObject
       jsonSchemaDialect?: string

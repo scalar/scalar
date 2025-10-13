@@ -1,0 +1,64 @@
+{
+  "name": "@scalar/sidebar",
+  "description": "Scalar sidebar component and sidebar state management",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "packages/sidebar"
+  },
+  "version": "0.1.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "scalar-build-vite",
+    "format": "pnpm prettier --write .",
+    "format:check": "pnpm prettier --check .",
+    "lint:check": "scalar-lint-check",
+    "lint:fix": "scalar-lint-fix",
+    "playground": "vite ./playground -c ./vite.config.ts",
+    "test": "vitest",
+    "types:build": "scalar-types-build-vue",
+    "types:check": "scalar-types-check-vue"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./style.css": "./dist/style.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "module": "./dist/index.js",
+  "dependencies": {
+    "@scalar/components": "workspace:*",
+    "@scalar/draggable": "workspace:*",
+    "@scalar/helpers": "workspace:*",
+    "@scalar/icons": "workspace:*",
+    "@scalar/themes": "workspace:*",
+    "@scalar/workspace-store": "workspace:*",
+    "vue": "catalog:*"
+  },
+  "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
+    "@tailwindcss/vite": "catalog:*",
+    "@types/jsdom": "^21.1.3",
+    "@types/node": "catalog:*",
+    "@vitejs/plugin-vue": "catalog:*",
+    "@vue/test-utils": "^2.4.1",
+    "jsdom": "^22.1.0",
+    "tailwindcss": "catalog:*",
+    "vite": "catalog:*",
+    "vite-svg-loader": "catalog:*",
+    "vitest": "catalog:*"
+  }
+}

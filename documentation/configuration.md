@@ -542,7 +542,7 @@ Every operation can have a `operationId`, a unique string used to identify the o
 
 By default we don't render it in the UI. If it's helpful to show it to your users, enable it like this:
 
-`@default false`
+**Default:** `false`
 
 ```js
 {
@@ -1027,6 +1027,18 @@ Customize how webhook URLs are generated. This function receives the webhook obj
 {
   generateWebhookSlug: (webhook) =>
     `v1-${webhook.method?.toLowerCase()}-${webhook.name}`
+}
+```
+
+#### tagsSorter
+
+**Type:** `'alpha' | (a: Tag, b: Tag) => number`
+
+Sort tags alphanumerically (`'alpha'`):
+
+```js
+{
+  tagsSorter: 'alpha'
 }
 ```
 

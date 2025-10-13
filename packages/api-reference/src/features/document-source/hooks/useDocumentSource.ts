@@ -3,7 +3,7 @@ import { measureAsync } from '@scalar/helpers/testing/measure'
 import { dereference, normalize } from '@scalar/openapi-parser'
 import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
 import { upgrade } from '@scalar/openapi-upgrader'
-import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+import { type ApiReferenceConfigurationWithSource, apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { type MaybeRefOrGetter, type Ref, computed, ref, toValue, watch } from 'vue'
 
 import { useDocumentFetcher } from './useDocumentFetcher'
@@ -20,7 +20,7 @@ export function useDocumentSource({
   dereferencedDocument?: MaybeRefOrGetter<OpenAPIV3_1.Document>
   configuration?: MaybeRefOrGetter<
     Pick<
-      ApiReferenceConfiguration,
+      ApiReferenceConfigurationWithSource,
       | 'url'
       | 'content'
       | 'proxyUrl'
@@ -129,10 +129,16 @@ export function useDocumentSource({
     { immediate: true },
   )
 
+  const config = toValue(configuration) ?? apiReferenceConfigurationSchema.parse({})
+
   /** API Client Store */
   const workspaceStore = createWorkspaceStore({
     useLocalStorage: false,
-    ...(toValue(configuration) ?? apiReferenceConfigurationSchema.parse({})),
+    proxyUrl: config.proxyUrl,
+    theme: config.theme,
+    showSidebar: config.showSidebar,
+    hideClientButton: config.hideClientButton,
+    _integration: config._integration,
   })
 
   /** Active Entities Store */

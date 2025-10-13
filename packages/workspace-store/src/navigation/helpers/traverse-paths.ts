@@ -4,9 +4,10 @@ import { objectKeys } from '@scalar/helpers/object/object-keys'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { traverseOperationExamples } from '@/navigation/helpers/traverse-examples'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import { XScalarStabilityValues } from '@/schemas/extensions/operation/x-scalar-stability'
-import type { TraversedOperation } from '@/schemas/navigation'
+import type { TraversedExample, TraversedOperation } from '@/schemas/navigation'
 import type { OpenApiDocument, OperationObject, TagObject } from '@/schemas/v3.1/strict/openapi-document'
 
 import { getTag } from './get-tag'
@@ -40,6 +41,13 @@ const createOperationEntry = (
 
   const isDeprecated = isDeprecatedOperation(operation)
 
+  const examples: TraversedExample[] = traverseOperationExamples(operation).map((example) => ({
+    type: 'example',
+    id: `${id}/example-${example}`,
+    title: example,
+    name: example,
+  }))
+
   const entry = {
     id,
     title,
@@ -48,6 +56,7 @@ const createOperationEntry = (
     ref,
     type: 'operation',
     isDeprecated,
+    children: examples.length ? examples : undefined,
   } satisfies TraversedOperation
 
   return entry

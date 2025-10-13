@@ -1,8 +1,8 @@
+import { disableConsoleError, enableConsoleError, enableConsoleWarn } from '@scalar/helpers/testing/console-spies'
+import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import ApiReference from '@/components/ApiReference.vue'
-import { disableConsoleError, enableConsoleError, enableConsoleWarn } from '@scalar/helpers/testing/console-spies'
-import { flushPromises, mount } from '@vue/test-utils'
 
 describe('ApiReference', () => {
   beforeEach(() => {
@@ -230,7 +230,7 @@ describe('ApiReference', () => {
   })
 
   describe('multiple sources', () => {
-    it('renders two URLs', async () => {
+    it('renders two documents', async () => {
       // Disable check as these documents do not exist
       disableConsoleError()
 
@@ -239,12 +239,26 @@ describe('ApiReference', () => {
           configuration: {
             sources: [
               {
-                url: 'https://api.example.com/v1/openapi.yaml',
                 slug: 'my-api-1',
+                content: {
+                  openapi: '3.1.0',
+                  info: {
+                    title: 'My API #2',
+                    version: '1.0.0',
+                  },
+                  paths: {},
+                },
               },
               {
-                url: 'https://api.example.com/v2/openapi.yaml',
                 slug: 'my-api-2',
+                content: {
+                  openapi: '3.1.0',
+                  info: {
+                    title: 'My API #2',
+                    version: '1.0.0',
+                  },
+                  paths: {},
+                },
               },
             ],
           },

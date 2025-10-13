@@ -24,6 +24,9 @@ internal static partial class ScalarOptionsMapper
             HideDarkModeToggle = options.HideDarkModeToggle,
             HideTestRequestButton = options.HideTestRequestButton,
             DefaultOpenAllTags = options.DefaultOpenAllTags,
+            ExpandAllModelSections = options.ExpandAllModelSections,
+            ExpandAllResponses = options.ExpandAllResponses,
+            HideSearch = options.HideSearch,
             ForceDarkModeState = options.ForceThemeMode,
             ShowSidebar = options.ShowSidebar,
             OperationTitleSource = options.OperationTitleSource,
@@ -36,11 +39,13 @@ internal static partial class ScalarOptionsMapper
             TagSorter = options.TagSorter,
             OperationsSorter = options.OperationSorter,
             HiddenClients = options.HiddenClients ? options.HiddenClients : GetHiddenClients(options),
-            DefaultHttpClient = new DefaultHttpClient
+            DefaultHttpClient = options.DefaultHttpClient.HasValue
+                ? new DefaultHttpClient
             {
-                ClientKey = options.DefaultHttpClient.Value,
-                TargetKey = options.DefaultHttpClient.Key
-            },
+                ClientKey = options.DefaultHttpClient.Value.Value,
+                TargetKey = options.DefaultHttpClient.Value.Key
+            }
+                : null,
             Integration = options.DotNetFlag ? "dotnet" : null,
             HideClientButton = options.HideClientButton,
             Sources = sources,
@@ -50,7 +55,8 @@ internal static partial class ScalarOptionsMapper
             DocumentDownloadType = options.HideDownloadButton ? DocumentDownloadType.None : options.DocumentDownloadType,
 #pragma warning restore CS0618 // Type or member is obsolete
             OrderRequiredPropertiesFirst = options.OrderRequiredPropertiesFirst,
-            OrderSchemaPropertiesBy = options.SchemaPropertyOrder
+            OrderSchemaPropertiesBy = options.SchemaPropertyOrder,
+            ShowOperationId = options.ShowOperationId
         };
     }
 

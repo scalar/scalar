@@ -8,6 +8,7 @@
   "subdomain": "guides",
   "customDomain": "guides.scalar.com",
   "assetsDir": "documentation/assets",
+  "insertPageTitles": false,
   "theme": "default",
   "guides": [
     {
@@ -43,6 +44,10 @@
               "type": "page"
             },
             {
+              "path": "documentation/guides/docs/github-actions.md",
+              "type": "page"
+            },
+            {
               "name": "Components",
               "type": "folder",
               "defaultOpen": true,
@@ -74,6 +79,10 @@
                 },
                 {
                   "path": "documentation/guides/docs/components/images.md",
+                  "type": "page"
+                },
+                {
+                  "path": "documentation/guides/docs/components/icons.md",
                   "type": "page"
                 },
                 {

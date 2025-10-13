@@ -1,5 +1,11 @@
 # @scalar/openapi-types
 
+## 0.4.1
+
+### Patch Changes
+
+- 15c4240: feat: adds vesion 3.1.2 to the type definitions
+
 ## 0.4.0
 
 ### Minor Changes

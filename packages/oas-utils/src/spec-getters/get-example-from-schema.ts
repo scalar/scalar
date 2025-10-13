@@ -244,7 +244,11 @@ const handleObjectSchema = (
     }
   }
 
-  if ('additionalProperties' in schema && schema.additionalProperties !== undefined) {
+  if (
+    'additionalProperties' in schema &&
+    schema.additionalProperties !== undefined &&
+    schema.additionalProperties !== false
+  ) {
     const additional = getResolvedRef(schema.additionalProperties)
     const isAnyType =
       schema.additionalProperties === true ||

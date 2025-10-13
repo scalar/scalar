@@ -62,10 +62,19 @@ export async function fetchUrl(
       }
     }
 
+    const contentType = result.headers.get('Content-Type') ?? ''
+
+    // Warn if the content type is HTML or XML as we only support JSON/YAML
+    if (['text/html', 'application/xml'].includes(contentType)) {
+      console.warn(`[WARN] We only support JSON/YAML formats, received ${contentType}`)
+    }
+
+    console.warn(`[WARN] Fetch failed with status ${result.status} ${result.statusText} for URL: ${url}`)
     return {
       ok: false,
     }
   } catch {
+    console.warn(`[WARN] Failed to parse JSON/YAML from URL: ${url}`)
     return {
       ok: false,
     }

@@ -22,15 +22,13 @@ minimumReleaseAgeExclude:
 
 catalogs:
   '*':
-    '@electron-toolkit/preload': ^3.0.0
-    '@electron-toolkit/utils': ^3.0.0
     '@fastify/swagger': ^8.10.1
     '@floating-ui/utils': 0.2.10
     '@floating-ui/vue': 1.1.9
     '@google-cloud/storage': 7.16.0
     '@headlessui/tailwindcss': ^0.2.2
     '@headlessui/vue': 1.7.23
-    '@playwright/test': 1.55.0
+    '@playwright/test': 1.56.0
     '@scalar/typebox': 0.1.1
     '@tailwindcss/vite': ^4.1.7
     '@types/express': 5.0.3
@@ -48,13 +46,9 @@ catalogs:
     chokidar: 4.0.3
     commander: 13.1.0
     concurrently: 9.1.2
-    electron: 37.3.1
-    electron-vite: 4.0.0
-    electron-window-state: ^5.0.3
     esbuild: 0.25.6
     express: 5.1.0
     fastify: ^5.3.3
-    fathom-client: ^3.7.2
     flatted: ^3.3.3
     fuse.js: ^7.1.0
     hono: 4.9.7
@@ -75,6 +69,7 @@ catalogs:
     type-fest: 4.41.0
     vite: 7.1.5
     vite-node: 3.2.4
+    vite-svg-loader: 5.1.0
     vite-ssg: 28.1.0
     vitest: 3.2.4
     vue: ^3.5.17

@@ -1,11 +1,10 @@
-<h1>Getting Started</h1>
 <div class="hero-animation container-full">
   <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/v1Pu6_BCmly6VhPAuotVZ.svg"></scalar-icon>
 </div>
 <div class="flex flex-col gap-3 hero small-test">
-  <h2 class="text-balance">
+  <scalar-heading level="2" slug="developer-docs" class="text-balance">
     Developer Docs.
-  </h2>
+  </scalar-heading>
   <p>
     Get started with Scalar Docs, literally in minutes. You don't need anything to get started, not even an account if you just want to play around.
   </p>
@@ -141,14 +140,14 @@ They are open source. So I can get in on free features and stay with Scalar no m
     </div>
   </div>
   <div class="cta flex flex-col gap-3 small-test">
-  <h2 class="text-balance">What are you waiting for?</h2>
+    <scalar-heading level="2" class="text-balance" slug="what-are-you-waiting-for">What are you waiting for?</scalar-heading>
   <p>
     We're committed to enabling developers and companies to practice the highest
     of API industry standards.
   </p>
   <div class="flex gap-2 mb-11">
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
-    <a class="t-editor__button" href="https://cal.com/scalar/30min" target="_blank">Book a Demo</a>
+    <a class="t-editor__button" href="https://scalar.cal.com/shane/projectsuccess" target="_blank">Book a Demo</a>
   </div>
   <a class="expander-hover-link" href="https://discord.gg/scalar" target="_blank">Community →</a>
   <a class="expander-hover-link" href="https://github.com/scalar/scalar" target="_blank">GitHub →</a>

@@ -1,5 +1,22 @@
 # @scalar/components
 
+## 0.15.0
+
+### Minor Changes
+
+- 63ff417: feat: sidebar package
+
+### Patch Changes
+
+- a747da6: feat(components): overhaul and polish ScalarButton ✨
+- c69cb71: fix(components): update list styles to match guides
+- 90d54b6: fix(components): use border to table instead of box shadow
+- Updated dependencies [debdcf6]
+- Updated dependencies [13dcd89]
+  - @scalar/oas-utils@0.5.1
+  - @scalar/themes@0.13.21
+  - @scalar/code-highlight@0.2.0
+
 ## 0.14.40
 
 ### Patch Changes

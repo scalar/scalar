@@ -21,7 +21,7 @@ describe('schema-name', () => {
     })
 
     it('returns null for empty object', () => {
-      const schema: SchemaObject = { _: '' }
+      const schema: SchemaObject = { __scalar_: '' }
       expect(getModelNameFromSchema(schema)).toBe(null)
     })
   })
@@ -95,7 +95,7 @@ describe('schema-name', () => {
     it('handles array with object items fallback', () => {
       const value: SchemaObject = {
         type: 'array',
-        items: { _: 'empty' },
+        items: { __scalar_: 'empty' },
       }
 
       expect(getModelName(value)).toBe('array object[]')

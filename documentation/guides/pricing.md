@@ -1,8 +1,7 @@
-<h1>Scalar - The OpenAPI Company</h1>
 <div class="flex flex-col gap-3 hero small-test">
-  <h2 class="text-balance">
+  <scalar-heading level="2" slug="pricing" class="text-balance">
     Pricing
-  </h2>
+  </scalar-heading>
   <p>
  One platform for all your API needs: Docs, SDKs, Governance & API Client all based on OpenAPI™. 
   </p>
@@ -39,17 +38,13 @@
                 <b class="text-sm">Enterprise</b>
                 <p class="text-xl font-bold ">Custom Pricing</p>
                 <p class=" text-c-2 text-sm font-normal">* Custom pricing tailored to your API & business needs</p>
-                <a href="https://cal.com/scalar/30min" class="pricing-cta">Contact Sales</a>
+                <a href="https://scalar.cal.com/shane/projectsuccess" class="pricing-cta">Contact Sales</a>
               </div>
             </div>
           </header>
           <div class="st_wrap_table text-sm" data-table_id="0">
           <div class="pricing-table-group">
-            <header class="pricing-table-group-heading">
-                <h3>
-                Scalar Docs
-                </h3>
-            </header>
+            <header class="pricing-table-group-heading">Scalar Docs</header>
             <div class="pricing-table-row">
               <div class="pricing-table-column">Subdomains</div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
@@ -149,11 +144,7 @@
           </div>
         </div>
         <div class="st_wrap_table" data-table_id="1">
-          <header class="pricing-table-group-heading">
-            <h3>
-              Scalar API Client
-            </h3>
-          </header>
+          <header class="pricing-table-group-heading">Scalar API Client</header>
                     <div class="pricing-table-group">
            <div class="pricing-table-row">
              <div class="pricing-table-column">REST Client</div>
@@ -290,11 +281,7 @@
            </div>
         </div>
         <div class="st_wrap_table" data-table_id="2">
-          <header class="pricing-table-group-heading">
-            <h3>
-              Scalar SDKs
-            </h3>
-          </header>
+          <header class="pricing-table-group-heading">Scalar SDKs</header>
           <div class="pricing-table-group">
             <div class="pricing-table-row">
               <div class="pricing-table-column">TypeScript SDK</div>
@@ -407,11 +394,7 @@
           </div>
         </div>
         <div class="st_wrap_table" data-table_id="3">
-          <header class="pricing-table-group-heading">
-            <h3>
-              Scalar Registry
-            </h3>
-          </header>
+          <header class="pricing-table-group-heading">Scalar Registry</header>
           <div class="pricing-table-group">
             <div class="pricing-table-row">
               <div class="pricing-table-column">OpenAPI, JSON Schema support</div>
@@ -502,14 +485,14 @@
       </main>
     </div>
 <div class="cta flex flex-col gap-3 small-test">
-  <h2 class="text-balance">What are you waiting for?</h2>
+  <scalar-heading level="2" class="text-balance" slug="what-are-you-waiting-for">What are you waiting for?</scalar-heading>
   <p>
     We're committed to enabling developers and companies to practice the highest
     of API industry standards.
   </p>
   <div class="flex gap-2 mb-11">
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
-    <a class="t-editor__button" href="https://cal.com/scalar/30min" target="_blank">Book a Demo</a>
+    <a class="t-editor__button" href="https://scalar.cal.com/shane/projectsuccess" target="_blank">Book a Demo</a>
   </div>
   <a class="expander-hover-link" href="https://discord.gg/scalar" target="_blank">Community →</a>
   <a class="expander-hover-link" href="https://github.com/scalar/scalar" target="_blank">GitHub →</a>
@@ -739,13 +722,11 @@ h4.t-editor__heading {
 .pricing-table-group-heading {
     position: sticky;
     top: 228px;
-    background: var(--scalar-background-1)
+    padding: 8px 12px;
+    background: var(--pricing-table-bg);
+    font-weight: var(--scalar-bold);
 }
 .pricing-table-group-heading {
-    padding: 8px 12px;
-    background: var(--pricing-table-bg)
-}
-.pricing-table-group-heading h4 {
     color: var(--scalar-background-1);
     font-size: var(--scalar-font-size-4);
 }

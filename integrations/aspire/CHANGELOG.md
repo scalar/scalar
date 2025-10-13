@@ -1,5 +1,16 @@
 # @scalar/aspire
 
+## 0.5.4
+
+### Patch Changes
+
+- cde3c0f: feat: support showOperationId configuration
+- Updated dependencies [debdcf6]
+- Updated dependencies [a747da6]
+- Updated dependencies [1e01464]
+- Updated dependencies [90d54b6]
+  - @scalar/api-reference@1.38.0
+
 ## 0.5.3
 
 ### Patch Changes

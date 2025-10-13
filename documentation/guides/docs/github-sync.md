@@ -1,16 +1,14 @@
 # GitHub Sync
 
-Scalar GitHub Sync allows you to author your documentation as markdown in your own repository and automatically publish it as a beautiful website.
+The GitHub Sync for Scalar Docs allows you to author your documentation as Markdown in your own repository and automatically publish it as a beautiful website.
 
-## Getting started
+The following guide takes you from zero to deployed documentation in just a few minutes:
 
-The following guide takes you from zero to deployed documentation in just a few minutes.
-
-### Set up your docs repository
+## Set up your GitHub repository
 
 Use your existing [GitHub](https://github.com/) repository, or create a new one from our [template repository](https://github.com/scalar/starter). If you're using the template repository, you can skip to "Configuration".
 
-#### Add some content
+## Add content
 
 If you have a few Markdown files already, that's awesome. Otherwise, just create a new `docs` folder and add at least one [Markdown file](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax):
 
@@ -28,9 +26,11 @@ That should be enough to prepare your content. Time to configure your project, l
 touch scalar.config.json
 ```
 
-#### Configuration
+## Configuration
 
-Add the content below to your `scalar.config.json` file. Note: You want to modify the subdomain. The one in the example is already taken. 😉 Your docs site will be automatically available at `https://<subdomain>.apidocumentation.com`, but you can also use a custom domain, see [Advanced configuration](#advanced-configuration__use-a-custom-domain) for more information.
+Add the content below to your `scalar.config.json` file. Note: You want to modify the subdomain. The one in the example is already taken. 😉
+
+Your docs site will be automatically available at `https://<subdomain>.apidocumentation.com`, but you can also use a custom domain, see [Advanced configuration](#advanced-configuration__use-a-custom-domain) for more information.
 
 ```json
 {
@@ -53,7 +53,7 @@ Add the content below to your `scalar.config.json` file. Note: You want to modif
 
 Make sure to commit and push the changes to your repository.
 
-### Connect your repository to Scalar
+## Connect your repository
 
 Create a free Scalar account here: https://dashboard.scalar.com/register
 
@@ -61,11 +61,36 @@ Once signed in, click on “Link GitHub Account”. You'll be redirected to GitH
 
 Find your repository and click on “Link Repository”.
 
-### Publish changes
+## Publish changes
 
-To publish your site for the first time, click on “Publish". Now sit back and relax, your documentation is being generated for you and deployed to our super fast edge servers, this will take a few minutes.
+To publish your site for the first time, click on “Publish". Now sit back and relax, your documentation is being generated for you and deployed to our super fast edge servers. This will take a few minutes.
 
 Once done, you'll see "Deployment Live" in the right hand column and a link to your new documentation site. Congratulations, you've made it!
+
+### Auto-deploy
+
+You can use the UI on https://dashboard.scalar.com or the Scalar configuration file to enable _Publish on Merge_, which – you might have guessed it — publishes your documentation when a branch is merged into the default branch (`main`):
+
+```json
+// scalar.config.json
+{
+  "publishOnMerge": true
+}
+```
+
+### Trigger a deployment using the CLI
+
+You can use the [Scalar CLI](https://guides.scalar.com/scalar/scalar-cli/getting-started) to trigger a deployment:
+
+```bash
+npx @scalar/cli project publish --slug your-project-slug
+```
+
+### Trigger a deployment in CI/CD
+
+You can [use GitHub Actions](https://guides.scalar.com/scalar/scalar-docs/github-actions) to trigger a deployment.
+
+Or [use the Scalar CLI](https://guides.scalar.com/scalar/scalar-cli/getting-started) for any other CI/CD environments.
 
 ## Advanced configuration
 
@@ -87,16 +112,6 @@ Add an OpenAPI/Swagger file to your configuration file:
 ```
 
 That's it. :) The next time your documentation is published, it'll include a super cool API reference.
-
-### Deploy on merge
-
-You can use the UI on https://dashboard.scalar.com or the Scalar configuration file to enable _Publish on Merge_, which – you might have guessed it — publishes your documentation when a branch is merged into the default branch (`main`):
-
-```json
-{
-  "publishOnMerge": true
-}
-```
 
 ### Use a custom theme
 
