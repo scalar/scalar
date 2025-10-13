@@ -52,7 +52,13 @@ jobs:
 
       - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
         name: Publish preview version to Scalar Registry
-        run: npx @scalar/cli@latest registry publish --force --namespace scalar --slug galaxy --version ${{ env.PREVIEW_VERSION }} packages/galaxy/dist/latest.yaml
+        run: npx @scalar/cli@latest registry publish \
+          --namespace scalar \
+          --slug galaxy \
+          --version ${{ env.PREVIEW_VERSION }} \
+          --force \
+          --current false \
+          packages/galaxy/dist/latest.yaml
 
   delete-preview:
     if: github.event.action == 'closed'
