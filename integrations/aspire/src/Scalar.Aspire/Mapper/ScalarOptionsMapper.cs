@@ -26,38 +26,44 @@ internal static partial class ScalarOptionsMapper
         return new ScalarConfiguration
         {
             ProxyUrl = options.ProxyUrl,
-            Theme = options.Theme?.ToStringFast(true),
-            Layout = options.Layout?.ToStringFast(true),
+            Theme = options.Theme,
+            Layout = options.Layout,
             DarkMode = options.DarkMode,
             HideModels = options.HideModels,
             HideDarkModeToggle = options.HideDarkModeToggle,
             HideTestRequestButton = options.HideTestRequestButton,
             DefaultOpenAllTags = options.DefaultOpenAllTags,
-            ForceDarkModeState = options.ForceThemeMode?.ToStringFast(true),
+            ExpandAllModelSections = options.ExpandAllModelSections,
+            ExpandAllResponses = options.ExpandAllResponses,
+            HideSearch = options.HideSearch,
+            ForceDarkModeState = options.ForceThemeMode,
             ShowSidebar = options.ShowSidebar,
-            OperationTitleSource = options.OperationTitleSource?.ToStringFast(true),
+            OperationTitleSource = options.OperationTitleSource,
             WithDefaultFonts = options.DefaultFonts,
             CustomCss = options.CustomCss,
             SearchHotKey = options.SearchHotKey,
             Servers = options.Servers,
             MetaData = options.Metadata,
             Authentication = options.Authentication,
-            TagsSorter = options.TagSorter?.ToStringFast(true),
-            OperationsSorter = options.OperationSorter?.ToStringFast(true),
+            TagSorter = options.TagSorter,
+            OperationsSorter = options.OperationSorter,
             HiddenClients = options.HiddenClients ? options.HiddenClients : GetHiddenClients(options),
-            DefaultHttpClient = new DefaultHttpClient
-            {
-                ClientKey = options.DefaultHttpClient.Value.ToStringFast(true),
-                TargetKey = options.DefaultHttpClient.Key.ToStringFast(true)
-            },
+            DefaultHttpClient = options.DefaultHttpClient.HasValue
+                ? new DefaultHttpClient
+                {
+                    ClientKey = options.DefaultHttpClient.Value.Value,
+                    TargetKey = options.DefaultHttpClient.Value.Key
+                }
+                : null,
             HideClientButton = options.HideClientButton,
             Sources = sources,
             BaseServerUrl = options.BaseServerUrl,
             PersistAuth = options.PersistentAuthentication,
-            DocumentDownloadType = options.DocumentDownloadType?.ToStringFast(true),
+            DocumentDownloadType = options.DocumentDownloadType,
             OrderRequiredPropertiesFirst = options.OrderRequiredPropertiesFirst,
-            OrderSchemaPropertiesBy = options.SchemaPropertyOrder?.ToStringFast(true),
-            ShowOperationId = options.ShowOperationId
+            OrderSchemaPropertiesBy = options.SchemaPropertyOrder,
+            ShowOperationId = options.ShowOperationId,
+            Integration = "dotnet"
         };
     }
 
