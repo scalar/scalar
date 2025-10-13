@@ -113,27 +113,30 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
 
     document.components ??= {}
 
-    const params: Record<string, OpenAPIV3.ParameterObject> = {}
+    const params: Record<string, OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject> = {}
     const bodyParams: Record<string, OpenAPIV3.RequestBodyObject> = {}
     const parameters =
       document.parameters && typeof document.parameters === 'object'
         ? (document.parameters as Record<string, unknown>)
         : {}
     for (const [name, param] of Object.entries(parameters)) {
-      if (param && typeof param === 'object' && 'in' in param) {
-        if (param.in === 'body') {
-          bodyParams[name] = migrateBodyParameter(
-            param as OpenAPIV2.ParameterObject,
-            (document.consumes as string[] | undefined) ?? ['application/json'],
-          )
-        } else if (param.in === 'formData') {
-          bodyParams[name] = migrateFormDataParameter([param as OpenAPIV2.ParameterObject])
-        } else {
-          const convertedParam = transformParameterObject(param as OpenAPIV2.ParameterObject)
-          if ('$ref' in convertedParam) {
-            throw new Error('Unexpected $ref in non-body/formData parameter')
+      if (param && typeof param === 'object') {
+        // Handle reference objects
+        if ('$ref' in param) {
+          const convertedParam = transformParameterObject(param as OpenAPIV2.ReferenceObject)
+          params[name] = convertedParam
+        } else if ('in' in param) {
+          if (param.in === 'body') {
+            bodyParams[name] = migrateBodyParameter(
+              param as OpenAPIV2.ParameterObject,
+              (document.consumes as string[] | undefined) ?? ['application/json'],
+            )
+          } else if (param.in === 'formData') {
+            bodyParams[name] = migrateFormDataParameter([param as OpenAPIV2.ParameterObject])
+          } else {
+            const convertedParam = transformParameterObject(param as OpenAPIV2.ParameterObject)
+            params[name] = convertedParam
           }
-          params[name] = convertedParam as OpenAPIV3.ParameterObject
         }
       }
     }
@@ -359,6 +362,9 @@ function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): O
 function getParameterLocation(location: OpenAPIV2.ParameterLocation): OpenAPIV3.ParameterLocation {
   if (location === 'formData') {
     throw new Error('Encountered a formData parameter which should have been filtered out by the caller')
+  }
+  if (location === 'body') {
+    throw new Error('Encountered a body parameter which should have been filtered out by the caller')
   }
   return location as OpenAPIV3.ParameterLocation
 }
