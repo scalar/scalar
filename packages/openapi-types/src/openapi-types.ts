@@ -106,6 +106,7 @@ export namespace OpenAPIV3_2 {
        * @see https://github.com/OAI/OpenAPI-Specification/tree/main/versions
        */
       openapi?: '3.2.0'
+      swagger?: undefined
       servers?: ServerObject[]
       $self?: string
       tags?: TagObject[]
