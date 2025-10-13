@@ -12,9 +12,7 @@ import { ERRORS } from '@/blocks/constants'
  * ['paths', '/planets/{foo}', 'get'] > '#/paths/~1planets~1{foo}/get'
  * ['components', 'schemas', 'Planet] > '#/components/schemas/Planet'
  */
-type ValidOpenApiPaths =
-  | ['paths' | 'webhooks', string, Lowercase<OpenAPI.HttpMethod> | string]
-  | ['components', 'schemas', string]
+type ValidOpenApiPaths = ['paths' | 'webhooks', string, OpenAPI.HttpMethod | string] | ['components', 'schemas', string]
 
 /**
  * Encodes a location string with paths
