@@ -61,14 +61,14 @@ describe('HttpMethod', () => {
 
     it('displays abbreviated method name for all methods when short is true', () => {
       const testCases = [
-        { method: 'get', expected: 'get' },
-        { method: 'post', expected: 'post' },
-        { method: 'put', expected: 'put' },
-        { method: 'patch', expected: 'patch' },
-        { method: 'delete', expected: 'del' },
-        { method: 'options', expected: 'opts' },
-        { method: 'head', expected: 'head' },
-        { method: 'trace', expected: 'trace' },
+        { method: 'get', expected: 'GET' },
+        { method: 'post', expected: 'POST' },
+        { method: 'put', expected: 'PUT' },
+        { method: 'patch', expected: 'PATCH' },
+        { method: 'delete', expected: 'DEL' },
+        { method: 'options', expected: 'OPTS' },
+        { method: 'head', expected: 'HEAD' },
+        { method: 'trace', expected: 'TRACE' },
       ]
 
       testCases.forEach(({ method, expected }) => {
