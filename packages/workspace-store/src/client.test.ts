@@ -6,6 +6,7 @@ import fastify, { type FastifyInstance } from 'fastify'
 import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createWorkspaceStore } from '@/client'
+import type { TraversedChannel } from '@/schemas/navigation'
 import { defaultReferenceConfig } from '@/schemas/reference-config'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/workspace'
@@ -3049,6 +3050,7 @@ describe('create-workspace-store', () => {
 
       if (isAsyncApiDocument(storedDoc!)) {
         expect(storedDoc['x-original-asyncapi-version']).toBe('3.0.0')
+        // @ts-expect-error
         expect(storedDoc['x-original-oas-version']).toBeUndefined()
       } else {
         throw new Error('Expected AsyncAPI document')
@@ -3073,21 +3075,22 @@ describe('create-workspace-store', () => {
       expect(Array.isArray(navigation)).toBe(true)
 
       // Should have description entry and channel entries
-      expect(navigation.length).toBeGreaterThan(0)
+      expect(navigation?.length).toBeGreaterThan(0)
 
       // Find channel entries
-      const channelEntries = navigation.filter((entry: any) => entry.type === 'channel')
-      expect(channelEntries.length).toBe(2) // user/login and user/signedup
+      const channelEntries = navigation?.filter((entry: any) => entry.type === 'channel')
+      expect(channelEntries?.length).toBe(2) // user/login and user/signedup
 
       // Check that operations are properly nested under channels
-      const channelWithOperations = channelEntries.find((entry: any) => entry.children && entry.children.length > 0)
+      const channelWithOperations = channelEntries?.find((entry: any) => entry.children && entry.children.length > 0)
       expect(channelWithOperations).toBeDefined()
-      expect(channelWithOperations.children.length).toBeGreaterThan(0)
+      expect((channelWithOperations as TraversedChannel)?.children?.length).toBeGreaterThan(0)
 
       // Check operation types
-      const operation = channelWithOperations.children[0]
-      expect(operation.type).toBe('asyncapi-operation')
-      expect(['publish', 'subscribe']).toContain(operation.action)
+      const operation = (channelWithOperations as TraversedChannel)?.children?.[0]
+      expect(operation?.type).toBe('asyncapi-operation')
+      // @ts-expect-error
+      expect(['publish', 'subscribe']).toContain(operation?.action)
     })
 
     it('handles mixed OpenAPI and AsyncAPI documents in workspace', async () => {
@@ -3123,11 +3126,13 @@ describe('create-workspace-store', () => {
       // Verify version metadata
       if (isOpenApiDocument(openApiStored!)) {
         expect(openApiStored['x-original-oas-version']).toBe('3.0.0')
+        // @ts-expect-error
         expect(openApiStored['x-original-asyncapi-version']).toBeUndefined()
       }
 
       if (isAsyncApiDocument(asyncApiStored!)) {
         expect(asyncApiStored['x-original-asyncapi-version']).toBe('3.0.0')
+        // @ts-expect-error
         expect(asyncApiStored['x-original-oas-version']).toBeUndefined()
       }
     })
@@ -3135,7 +3140,7 @@ describe('create-workspace-store', () => {
     it('loads AsyncAPI documents from URL', async () => {
       const asyncApiDoc = getAsyncApiDocument()
 
-      server.get('/asyncapi.json', async (request, reply) => {
+      server.get('/asyncapi.json', async () => {
         return asyncApiDoc
       })
 
