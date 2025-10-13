@@ -28,14 +28,7 @@ import {
   OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
   type OpenApiDocument,
 } from '@/schemas/v3.1/strict/openapi-document'
-import {
-  type ApiDefinition,
-  type Workspace,
-  type WorkspaceDocumentMeta,
-  type WorkspaceMeta,
-  isAsyncApiDocument,
-  isOpenApiDocument,
-} from '@/schemas/workspace'
+import type { ApiDefinition, Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from '@/schemas/workspace'
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
 import type { Config, DocumentConfiguration } from '@/schemas/workspace-specification/config'
 
@@ -594,20 +587,31 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       }
     })
 
-    const inputDocument = measureSync('upgrade', () => upgrade(deepClone(clonedRawInputDocument), '3.1'))
+    // Detect document type from the ORIGINAL document before any transformations
+    const isAsyncApi = 'asyncapi' in clonedRawInputDocument
+    const isOpenApi = 'openapi' in clonedRawInputDocument || 'swagger' in clonedRawInputDocument
+
+    // Store original version info before upgrade
+    const originalVersion = isAsyncApi
+      ? clonedRawInputDocument.asyncapi
+      : (clonedRawInputDocument.openapi ?? clonedRawInputDocument.swagger)
+
+    // Only upgrade OpenAPI/Swagger documents
+    const inputDocument = isOpenApi
+      ? measureSync('upgrade', () => upgrade(deepClone(clonedRawInputDocument), '3.1'))
+      : clonedRawInputDocument
 
     const strictDocument: UnknownObject = createMagicProxy({ ...inputDocument, ...meta }, { showInternal: true })
 
-    // Only set the relevant version metadata based on document type
-    if (isOpenApiDocument(strictDocument as ApiDefinition)) {
-      strictDocument['x-original-oas-version'] = input.document.openapi ?? input.document.swagger
+    // Set version metadata based on document type
+    if (isOpenApi) {
+      strictDocument['x-original-oas-version'] = originalVersion
     }
-    if (isAsyncApiDocument(strictDocument as ApiDefinition)) {
-      strictDocument['x-original-asyncapi-version'] = input.document.asyncapi
+    if (isAsyncApi) {
+      strictDocument['x-original-asyncapi-version'] = originalVersion
     }
 
-    // Detect document type and use appropriate schema
-    const isAsyncApi = isAsyncApiDocument(strictDocument as ApiDefinition)
+    // Use the detected document type to select appropriate schema
     const schemaToUse = isAsyncApi ? AsyncApiDocumentSchemaStrict : OpenAPIDocumentSchemaStrict
 
     if (strictDocument[extensions.document.navigation] === undefined) {
