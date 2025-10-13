@@ -12,6 +12,9 @@ jobs:
     if: github.event.action == 'opened' || github.event.action == 'synchronize'
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
     strategy:
       matrix:
         node-version: [22]
@@ -59,6 +62,16 @@ jobs:
           --force \
           --current false \
           packages/galaxy/dist/latest.yaml
+
+      - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
+        name: Add Scalar Registry Preview URL to the PR
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
+        with:
+          message: |
+            **Scalar Registry Preview**
+
+            https://registry.scalar.com/@scalar/apis/galaxy/${{ env.PREVIEW_VERSION }}
+          comment-tag: 'scalar-registry-preview'
 
   delete-preview:
     if: github.event.action == 'closed'
