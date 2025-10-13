@@ -113,23 +113,30 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
 
     document.components ??= {}
 
-    const params: Record<string, OpenAPIV3.ParameterObject> = {}
+    const params: Record<string, OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject> = {}
     const bodyParams: Record<string, OpenAPIV3.RequestBodyObject> = {}
     const parameters =
       document.parameters && typeof document.parameters === 'object'
         ? (document.parameters as Record<string, unknown>)
         : {}
     for (const [name, param] of Object.entries(parameters)) {
-      if (param && typeof param === 'object' && 'in' in param) {
-        if (param.in === 'body') {
-          bodyParams[name] = migrateBodyParameter(
-            param as OpenAPIV2.ParameterObject,
-            (document.consumes as string[] | undefined) ?? ['application/json'],
-          )
-        } else if (param.in === 'formData') {
-          bodyParams[name] = migrateFormDataParameter([param as OpenAPIV2.ParameterObject])
-        } else {
-          params[name] = transformParameterObject(param as OpenAPIV2.ParameterObject)
+      if (param && typeof param === 'object') {
+        // Handle reference objects
+        if ('$ref' in param) {
+          const convertedParam = transformParameterObject(param as OpenAPIV2.ReferenceObject)
+          params[name] = convertedParam
+        } else if ('in' in param) {
+          if (param.in === 'body') {
+            bodyParams[name] = migrateBodyParameter(
+              param as OpenAPIV2.ParameterObject,
+              (document.consumes as string[] | undefined) ?? ['application/json'],
+            )
+          } else if (param.in === 'formData') {
+            bodyParams[name] = migrateFormDataParameter([param as OpenAPIV2.ParameterObject])
+          } else {
+            const convertedParam = transformParameterObject(param as OpenAPIV2.ParameterObject)
+            params[name] = convertedParam
+          }
         }
       }
     }
@@ -202,13 +209,13 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
                       (acc, [name, header]) => {
                         if (header && typeof header === 'object') {
                           return {
-                            [name]: transformParameterObject(header as OpenAPIV2.ParameterObject),
+                            [name]: transformResponseHeader(header as OpenAPIV2.HeaderObject),
                             ...acc,
                           }
                         }
                         return acc
                       },
-                      {} as Record<string, OpenAPIV3.ParameterObject>,
+                      {} as Record<string, OpenAPIV3.HeaderObject | OpenAPIV3.ReferenceObject>,
                     )
                   }
                   if (responseItem.schema) {
@@ -352,9 +359,23 @@ function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): O
   }, {} as OpenAPIV3.SchemaObject)
 }
 
-function transformParameterObject(parameter: OpenAPIV2.ParameterObject): OpenAPIV3.ParameterObject {
-  if (Object.hasOwn(parameter, '$ref')) {
-    return parameter
+function getParameterLocation(location: OpenAPIV2.ParameterLocation): OpenAPIV3.ParameterLocation {
+  if (location === 'formData') {
+    throw new Error('Encountered a formData parameter which should have been filtered out by the caller')
+  }
+  if (location === 'body') {
+    throw new Error('Encountered a body parameter which should have been filtered out by the caller')
+  }
+  return location as OpenAPIV3.ParameterLocation
+}
+
+function transformParameterObject(
+  parameter: OpenAPIV2.ParameterObject | OpenAPIV2.ReferenceObject,
+): OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject {
+  if (Object.hasOwn(parameter, '$ref') && '$ref' in parameter) {
+    return {
+      $ref: parameter.$ref,
+    }
   }
 
   // it is important to call getParameterSerializationStyle first because transformItemsObject modifies properties on which getParameterSerializationStyle rely on
@@ -364,16 +385,42 @@ function transformParameterObject(parameter: OpenAPIV2.ParameterObject): OpenAPI
   delete parameter.collectionFormat
   delete parameter.default
 
+  if (!parameter.in) {
+    throw new Error('Parameter object must have an "in" property')
+  }
+
   return {
     schema,
     ...serializationStyle,
     ...parameter,
+    in: getParameterLocation(parameter.in),
+  }
+}
+
+/**
+ * Transform OpenAPI 2.0 response header to OpenAPI 3.0 format.
+ * Response headers do not have "in", "name", "style", or "explode" properties.
+ */
+function transformResponseHeader(
+  header: OpenAPIV2.HeaderObject | OpenAPIV2.ReferenceObject,
+): OpenAPIV3.HeaderObject | OpenAPIV3.ReferenceObject {
+  if (Object.hasOwn(header, '$ref') && '$ref' in header) {
+    return {
+      $ref: header.$ref,
+    }
+  }
+
+  const schema = transformItemsObject(header)
+
+  return {
+    ...header,
+    schema,
   }
 }
 
 type CollectionFormat = 'csv' | 'ssv' | 'tsv' | 'pipes' | 'multi'
 
-type ParameterSerializationStyle = { style?: string; explode?: boolean }
+type ParameterSerializationStyle = { style?: OpenAPIV3.ParameterStyle; explode?: boolean }
 
 const querySerialization: Record<CollectionFormat, ParameterSerializationStyle> = {
   ssv: {
@@ -433,7 +480,7 @@ function getParameterSerializationStyle(parameter: OpenAPIV2.ParameterObject): P
 }
 
 type ParameterMigrationResult = {
-  parameters: OpenAPIV3.ParameterObject[]
+  parameters: (OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject)[]
   requestBody?: OpenAPIV3.RequestBodyObject
 }
 
@@ -505,7 +552,7 @@ function migrateParameters(parameters: OpenAPIV2.ParameterObject[], consumes: st
   }
 
   const bodyParameter = structuredClone(
-    parameters.find((parameter: OpenAPIV3.ParameterObject) => parameter.in === 'body') ?? {},
+    parameters.find((parameter: OpenAPIV2.ParameterObject) => parameter.in === 'body') ?? {},
   )
 
   if (bodyParameter && Object.keys(bodyParameter).length) {

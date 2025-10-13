@@ -3,7 +3,7 @@ import { HTTP_METHODS, type HttpMethod, httpMethods } from './http-methods'
 
 describe('HTTP Methods', () => {
   it('should contain all standard HTTP methods', () => {
-    const expectedMethods = ['connect', 'delete', 'get', 'head', 'options', 'patch', 'post', 'put', 'trace']
+    const expectedMethods = ['delete', 'get', 'head', 'options', 'patch', 'post', 'put', 'trace']
 
     expect(HTTP_METHODS).toEqual(expectedMethods)
     expect(HTTP_METHODS).toHaveLength(expectedMethods.length)

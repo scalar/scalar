@@ -50,6 +50,11 @@ export const migrate_v_2_5_0 = (data: v_2_4_0.DataRecord): v_2_5_0['DataRecord']
 
   const requests = Object.entries(data.requests || {}).reduce<Record<string, v_2_5_0['Request']>>(
     (acc, [key, request]) => {
+      // Skip 'connect' operations as they are not supported in v-2.5.0
+      if (request.method === 'connect') {
+        return acc
+      }
+
       acc[key] = {
         ...request,
         uid: request.uid as v_2_5_0['Request']['uid'],
@@ -58,6 +63,7 @@ export const migrate_v_2_5_0 = (data: v_2_4_0.DataRecord): v_2_5_0['DataRecord']
         examples: request.examples as v_2_5_0['Request']['examples'],
         selectedSecuritySchemeUids:
           request.selectedSecuritySchemeUids as v_2_5_0['Request']['selectedSecuritySchemeUids'],
+        method: request.method as v_2_5_0['Request']['method'],
       } satisfies v_2_5_0['Request']
       return acc
     },

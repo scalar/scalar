@@ -7,7 +7,7 @@ describe('HttpMethod', () => {
   describe('rendering', () => {
     it('renders with default span element', () => {
       const wrapper = mount(HttpMethod, {
-        props: { method: 'GET' },
+        props: { method: 'get' },
       })
 
       expect(wrapper.element.tagName).toBe('SPAN')
@@ -16,7 +16,7 @@ describe('HttpMethod', () => {
 
     it('renders with custom element type', () => {
       const wrapper = mount(HttpMethod, {
-        props: { method: 'POST', as: 'div' },
+        props: { method: 'post', as: 'div' },
       })
 
       expect(wrapper.element.tagName).toBe('DIV')
@@ -26,7 +26,7 @@ describe('HttpMethod', () => {
     it('renders with custom component', () => {
       const CustomComponent = { template: '<button><slot /></button>' }
       const wrapper = mount(HttpMethod, {
-        props: { method: 'PUT', as: CustomComponent },
+        props: { method: 'put', as: CustomComponent },
       })
 
       expect(wrapper.element.tagName).toBe('BUTTON')
@@ -37,7 +37,7 @@ describe('HttpMethod', () => {
   describe('HTTP method display', () => {
     it('displays normalized method name when short is false', () => {
       const wrapper = mount(HttpMethod, {
-        props: { method: 'GET' },
+        props: { method: 'get' },
       })
 
       expect(wrapper.text()).toBe('get')
@@ -45,7 +45,7 @@ describe('HttpMethod', () => {
 
     it('displays normalized method name when short is undefined', () => {
       const wrapper = mount(HttpMethod, {
-        props: { method: 'POST' },
+        props: { method: 'post' },
       })
 
       expect(wrapper.text()).toBe('post')
@@ -53,7 +53,7 @@ describe('HttpMethod', () => {
 
     it('displays abbreviated method name when short is true', () => {
       const wrapper = mount(HttpMethod, {
-        props: { method: 'DELETE', short: true },
+        props: { method: 'delete', short: true },
       })
 
       expect(wrapper.text()).toBe('DEL')
@@ -61,15 +61,14 @@ describe('HttpMethod', () => {
 
     it('displays abbreviated method name for all methods when short is true', () => {
       const testCases = [
-        { method: 'GET', expected: 'GET' },
-        { method: 'POST', expected: 'POST' },
-        { method: 'PUT', expected: 'PUT' },
-        { method: 'PATCH', expected: 'PATCH' },
-        { method: 'DELETE', expected: 'DEL' },
-        { method: 'OPTIONS', expected: 'OPTS' },
-        { method: 'HEAD', expected: 'HEAD' },
-        { method: 'CONNECT', expected: 'CONN' },
-        { method: 'TRACE', expected: 'TRACE' },
+        { method: 'get', expected: 'GET' },
+        { method: 'post', expected: 'POST' },
+        { method: 'put', expected: 'PUT' },
+        { method: 'patch', expected: 'PATCH' },
+        { method: 'delete', expected: 'DEL' },
+        { method: 'options', expected: 'OPTS' },
+        { method: 'head', expected: 'HEAD' },
+        { method: 'trace', expected: 'TRACE' },
       ]
 
       testCases.forEach(({ method, expected }) => {
@@ -129,7 +128,7 @@ describe('HttpMethod', () => {
   describe('slot content', () => {
     it('renders slot content before method text', () => {
       const wrapper = mount(HttpMethod, {
-        props: { method: 'GET' },
+        props: { method: 'get' },
         slots: { default: 'API ' },
       })
 
@@ -138,7 +137,7 @@ describe('HttpMethod', () => {
 
     it('renders slot content with abbreviated method', () => {
       const wrapper = mount(HttpMethod, {
-        props: { method: 'DELETE', short: true },
+        props: { method: 'delete', short: true },
         slots: { default: 'Remove ' },
       })
 
@@ -147,7 +146,7 @@ describe('HttpMethod', () => {
 
     it('renders empty slot content', () => {
       const wrapper = mount(HttpMethod, {
-        props: { method: 'POST' },
+        props: { method: 'post' },
         slots: { default: '' },
       })
 
@@ -192,7 +191,7 @@ describe('HttpMethod', () => {
   describe('accessibility', () => {
     it('maintains semantic structure with custom element', () => {
       const wrapper = mount(HttpMethod, {
-        props: { method: 'GET', as: 'strong' },
+        props: { method: 'get', as: 'strong' },
       })
 
       expect(wrapper.element.tagName).toBe('STRONG')
@@ -204,7 +203,7 @@ describe('HttpMethod', () => {
         template: '<code class="custom-class"><slot /></code>',
       }
       const wrapper = mount(HttpMethod, {
-        props: { method: 'POST', as: CustomComponent },
+        props: { method: 'post', as: CustomComponent },
       })
 
       expect(wrapper.element.tagName).toBe('CODE')
