@@ -151,7 +151,7 @@ describe('RequestExample', () => {
 
       expect(wrapper.findComponent({ name: 'Card' })).toBeTruthy()
       expect(wrapper.findComponent({ name: 'HttpMethod' })).toBeTruthy()
-      expect(wrapper.findComponent({ name: 'HttpMethod' }).props('method')).toBe('GET')
+      expect(wrapper.findComponent({ name: 'HttpMethod' }).props('method')).toBe('get')
       expect(wrapper.text()).toContain('/api/test')
     })
 
@@ -240,7 +240,7 @@ describe('RequestExample', () => {
       })
 
       expect(wrapper.findComponent({ name: 'Card' })).toBeTruthy()
-      expect(wrapper.findComponent({ name: 'HttpMethod' }).props('method')).toBe('GET')
+      expect(wrapper.findComponent({ name: 'HttpMethod' }).props('method')).toBe('get')
     })
 
     it('does not render when no clients available and fallback is false', () => {
