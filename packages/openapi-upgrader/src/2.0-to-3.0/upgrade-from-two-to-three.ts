@@ -130,7 +130,9 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
           bodyParams[name] = migrateFormDataParameter([param as OpenAPIV2.ParameterObject])
         } else {
           const convertedParam = transformParameterObject(param as OpenAPIV2.ParameterObject)
-          if ('$ref' in convertedParam) throw new Error('Unexpected $ref in non-body/formData parameter')
+          if ('$ref' in convertedParam) {
+            throw new Error('Unexpected $ref in non-body/formData parameter')
+          }
           params[name] = convertedParam as OpenAPIV3.ParameterObject
         }
       }
@@ -204,13 +206,13 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
                       (acc, [name, header]) => {
                         if (header && typeof header === 'object') {
                           return {
-                            [name]: transformParameterObject(header as OpenAPIV2.ParameterObject),
+                            [name]: transformResponseHeader(header as OpenAPIV2.HeaderObject),
                             ...acc,
                           }
                         }
                         return acc
                       },
-                      {} as Record<string, OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject>,
+                      {} as Record<string, OpenAPIV3.HeaderObject | OpenAPIV3.ReferenceObject>,
                     )
                   }
                   if (responseItem.schema) {
@@ -386,6 +388,27 @@ function transformParameterObject(
     ...serializationStyle,
     ...parameter,
     in: getParameterLocation(parameter.in),
+  }
+}
+
+/**
+ * Transform OpenAPI 2.0 response header to OpenAPI 3.0 format.
+ * Response headers do not have "in", "name", "style", or "explode" properties.
+ */
+function transformResponseHeader(
+  header: OpenAPIV2.HeaderObject | OpenAPIV2.ReferenceObject,
+): OpenAPIV3.HeaderObject | OpenAPIV3.ReferenceObject {
+  if (Object.hasOwn(header, '$ref') && '$ref' in header) {
+    return {
+      $ref: header.$ref,
+    }
+  }
+
+  const schema = transformItemsObject(header)
+
+  return {
+    ...header,
+    schema,
   }
 }
 
