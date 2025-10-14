@@ -20,7 +20,7 @@
     "vue",
     "vue3"
   ],
-  "version": "1.38.0",
+  "version": "1.38.1",
   "engines": {
     "node": ">=20"
   },
@@ -96,7 +96,7 @@
     "js-base64": "catalog:*",
     "microdiff": "catalog:*",
     "nanoid": "catalog:*",
-    "type-fest": "^4.41.0",
+    "type-fest": "catalog:*",
     "vue": "catalog:*",
     "zod": "catalog:*"
   },

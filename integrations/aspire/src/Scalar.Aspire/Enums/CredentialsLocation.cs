@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Text.Json.Serialization;
 using NetEscapades.EnumGenerators;
 
 namespace Scalar.Aspire;
@@ -7,6 +8,7 @@ namespace Scalar.Aspire;
 /// Specifies the location where authentication credentials should be placed in HTTP requests.
 /// </summary>
 [EnumExtensions]
+[JsonConverter(typeof(CredentialsLocationConverter))]
 public enum CredentialsLocation
 {
     /// <summary>

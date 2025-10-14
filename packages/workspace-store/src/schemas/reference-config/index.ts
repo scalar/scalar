@@ -1,6 +1,6 @@
 import { Type } from '@scalar/typebox'
 import { AVAILABLE_CLIENTS, type AvailableClientsArray } from '@scalar/types/snippetz'
-import type { RequiredDeep } from 'type-fest/source/required-deep'
+import type { RequiredDeep } from 'type-fest'
 
 import { type Appearance, AppearanceSchema, defaultAppearance } from './appearance'
 import { type Features, FeaturesSchema, defaultFeatures } from './features'

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarModal, type ModalState } from '@scalar/components'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 import SidebarListElementForm from '@/components/Sidebar/Actions/SidebarListElementForm.vue'
 
@@ -20,9 +20,24 @@ const emit = defineEmits<{
 
 const newColor = ref(color)
 
-const close = () => {
+// Need to use a watcher here because we use the same modal instance for different environments
+watch(
+  () => color,
+  (newVal) => {
+    newColor.value = newVal
+  },
+)
+
+const close = (event?: 'cancel' | 'submit') => {
   state.hide()
-  newColor.value = ''
+
+  if (event === 'cancel') {
+    emit('cancel')
+  }
+
+  if (event === 'submit') {
+    emit('submit', { color: newColor.value })
+  }
 }
 </script>
 
@@ -31,30 +46,15 @@ const close = () => {
     size="xxs"
     :state="state"
     title="Edit Environment Color"
-    @close="
-      () => {
-        emit('cancel')
-        close()
-      }
-    ">
+    @close="() => close('cancel')">
     <div class="flex flex-col gap-4">
       <EnvironmentColors
         :activeColor="newColor"
         class="w-full p-1"
         @select="(value) => (newColor = value)" />
       <SidebarListElementForm
-        @cancel="
-          () => {
-            emit('cancel')
-            close()
-          }
-        "
-        @submit="
-          () => {
-            emit('submit', { color: newColor })
-            close()
-          }
-        ">
+        @cancel="() => close('cancel')"
+        @submit="() => close('submit')">
       </SidebarListElementForm>
     </div>
   </ScalarModal>

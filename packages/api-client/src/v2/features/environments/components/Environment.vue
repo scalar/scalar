@@ -35,14 +35,14 @@ const { isReadonly = false } = defineProps<{
 
 const emit = defineEmits<{
   (e: 'delete'): void
-  (e: 'edit:name'): void
-  (e: 'edit:color'): void
   (
     e: 'reorder',
     draggingItem: { id: string },
     hoveredItem: { id: string },
   ): void
   (e: 'add:variable', payload: Partial<EnvironmentVariable>): void
+  (e: 'update:name'): void
+  (e: 'update:color'): void
   (
     e: 'update:variable',
     payload: {
@@ -80,7 +80,7 @@ const handleDragEnd = (
           class="hover:bg-b-3 flex h-6 w-6 p-1"
           :disabled="isReadonly"
           variant="ghost"
-          @click="emit('edit:color')">
+          @click="emit('update:color')">
           <span
             class="h-2.5 w-2.5 rounded-full"
             :style="{ backgroundColor: color || '#FFFFFF' }"></span>
@@ -97,7 +97,7 @@ const handleDragEnd = (
           class="hover:bg-b-3 rounded px-1 py-0.5 text-sm"
           :disabled="isReadonly"
           variant="ghost"
-          @click="emit('edit:name')">
+          @click="emit('update:name')">
           {{ name }}
         </ScalarButton>
         <span

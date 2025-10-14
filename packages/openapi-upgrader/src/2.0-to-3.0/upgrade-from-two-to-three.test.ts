@@ -1199,4 +1199,73 @@ describe('upgradeFromTwoToThree', () => {
       $ref: '#/components/parameters/planetId',
     })
   })
+
+  it('allows reference objects in global parameters to be stored in components.parameters', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      'swagger': '2.0',
+      'info': { 'version': '1.0.0', 'title': 'API with $ref parameters' },
+      parameters: {
+        reusableHeader: {
+          $ref: '#/someOtherPlace/header',
+        },
+        normalParam: {
+          name: 'id',
+          in: 'query',
+          type: 'string',
+          required: false,
+        },
+      },
+      'paths': {
+        '/test': {
+          'get': {
+            'responses': {
+              '200': { 'description': 'OK' },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.components?.parameters).toMatchObject({
+      reusableHeader: {
+        $ref: '#/someOtherPlace/header',
+      },
+      normalParam: {
+        name: 'id',
+        in: 'query',
+        required: false,
+        schema: {
+          type: 'string',
+        },
+      },
+    })
+  })
+
+  it('validates that body parameters do not reach getParameterLocation', () => {
+    const invalidSpec = {
+      'swagger': '2.0',
+      'info': { 'version': '1.0.0', 'title': 'Invalid API' },
+      'paths': {
+        '/test': {
+          'post': {
+            parameters: [
+              {
+                name: 'bodyParam',
+                in: 'body',
+                schema: {
+                  type: 'object',
+                },
+              },
+            ],
+            'responses': {
+              '200': { 'description': 'OK' },
+            },
+          },
+        },
+      },
+    }
+
+    // This should not throw because body parameters are filtered before reaching getParameterLocation
+    expect(() => upgradeFromTwoToThree(invalidSpec)).not.toThrow()
+  })
 })

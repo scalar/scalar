@@ -1,5 +1,12 @@
 # @scalar/object-utils
 
+## 1.2.8
+
+### Patch Changes
+
+- Updated dependencies [3f6d0b9]
+  - @scalar/helpers@0.0.12
+
 ## 1.2.7
 
 ### Patch Changes

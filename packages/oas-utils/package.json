@@ -16,7 +16,7 @@
     "specification",
     "yaml"
   ],
-  "version": "0.5.1",
+  "version": "0.5.2",
   "engines": {
     "node": ">=20"
   },
@@ -122,7 +122,6 @@
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@types/node": "catalog:*",
-    "type-fest": "^4.20.0",
     "vite": "catalog:*",
     "vitest": "catalog:*",
     "zod-to-ts": "github:amritk/zod-to-ts#build"

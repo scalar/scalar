@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Text.Json.Serialization;
 using NetEscapades.EnumGenerators;
 
 namespace Scalar.Aspire;
@@ -7,6 +8,7 @@ namespace Scalar.Aspire;
 /// Which part of the operation description to display as the operation title.
 /// </summary>
 [EnumExtensions]
+[JsonConverter(typeof(OperationTitleSourceJsonConverter))]
 public enum OperationTitleSource
 {
     /// <summary>

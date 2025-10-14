@@ -1,5 +1,13 @@
 # @scalar/docusaurus
 
+## 0.7.20
+
+### Patch Changes
+
+- 6accdf9: fix(docusaurus): add style resets for Docusaurus issues
+- Updated dependencies [f3e17d8]
+  - @scalar/types@0.3.2
+
 ## 0.7.19
 
 ### Patch Changes

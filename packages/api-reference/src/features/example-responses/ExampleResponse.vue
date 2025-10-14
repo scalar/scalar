@@ -1,7 +1,7 @@
 <script lang="ts" setup>
+import { getExampleFromSchema } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { ScalarCodeBlock, ScalarVirtualText } from '@scalar/components'
 import { prettyPrintJson } from '@scalar/oas-utils/helpers'
-import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   ExampleObject,
@@ -16,22 +16,8 @@ const { example, response } = defineProps<{
   example: ExampleObject | undefined
 }>()
 
-const VIRTUALIZATION_THRESHOLD = 30_000
-
-// Virtualize the code block if it's too large
-const shouldVirtualize = (content: string | object | undefined) => {
-  if (typeof content === 'string') {
-    return content.length > VIRTUALIZATION_THRESHOLD
-  }
-
-  if (typeof content === 'object' && content !== null) {
-    return JSON.stringify(content).length > VIRTUALIZATION_THRESHOLD
-  }
-
-  return false
-}
-
-const content = computed<string | object>(() => {
+/** Get content from the appropriate source */
+const getContent = () => {
   if (example !== undefined) {
     return getResolvedRefDeep(example)?.value ?? ''
   }
@@ -44,31 +30,41 @@ const content = computed<string | object>(() => {
   }
 
   return ''
-})
+}
+
+const VIRTUALIZATION_THRESHOLD = 20_000
+
+// Virtualize the code block if it's too large
+const shouldVirtualize = computed(
+  () => prettyPrintedContent.value.length > VIRTUALIZATION_THRESHOLD,
+)
+
+/** Pre-pretty printed content string, avoids multiple pretty prints*/
+const prettyPrintedContent = computed<string>(() =>
+  prettyPrintJson(getContent()),
+)
 </script>
 <template>
   <!-- Example -->
   <ScalarCodeBlock
-    v-if="example !== undefined && !shouldVirtualize(content)"
+    v-if="example !== undefined && !shouldVirtualize"
     class="bg-b-2 -outline-offset-2"
-    :content="content"
-    lang="json" />
+    lang="json"
+    :prettyPrintedContent="prettyPrintedContent" />
 
   <!-- Schema -->
   <ScalarCodeBlock
-    v-else-if="response?.schema && !shouldVirtualize(content)"
+    v-else-if="response?.schema && !shouldVirtualize"
     class="bg-b-2 -outline-offset-2"
-    :content="content"
-    lang="json" />
+    lang="json"
+    :prettyPrintedContent="prettyPrintedContent" />
 
   <ScalarVirtualText
-    v-else-if="
-      (example !== undefined || response?.schema) && shouldVirtualize(content)
-    "
+    v-else-if="(example !== undefined || response?.schema) && shouldVirtualize"
     containerClass="custom-scroll scalar-code-block border rounded-b flex flex-1 max-h-screen"
     contentClass="language-plaintext whitespace-pre font-code text-base"
     :lineHeight="20"
-    :text="prettyPrintJson(content)" />
+    :text="prettyPrintedContent" />
 
   <div
     v-else

@@ -1,5 +1,14 @@
 # @scalar/json-magic
 
+## 0.6.1
+
+### Patch Changes
+
+- 2089748: chore: add logs when fetching unsupported formats
+- 8a7fb2a: fix: schema properties starting with an underscore are hidden
+- Updated dependencies [3f6d0b9]
+  - @scalar/helpers@0.0.12
+
 ## 0.6.0
 
 ### Minor Changes

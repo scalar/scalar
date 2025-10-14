@@ -238,7 +238,7 @@ export const createRequestOperation = ({
         })
 
         if (pluginManager) {
-          pluginManager.executeHook('onResponseReceived', { response: normalizedResponse, operation: request })
+          await pluginManager.executeHook('onResponseReceived', { response: normalizedResponse, operation: request })
         }
 
         // Safely check for cookie headers
