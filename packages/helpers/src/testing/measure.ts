@@ -12,7 +12,10 @@
  * })
  * ```
  */
-export const measureSync = <T>(name: string, fn: () => T): T => {
+export const measureSync = <F extends () => unknown>(
+  name: string,
+  fn: ReturnType<F> extends Promise<unknown> ? never : F,
+): ReturnType<F> => {
   const start = performance.now()
 
   const result = fn()
@@ -22,7 +25,7 @@ export const measureSync = <T>(name: string, fn: () => T): T => {
 
   console.info(`${name}: ${duration} ms`)
 
-  return result
+  return result as ReturnType<F>
 }
 
 /**
