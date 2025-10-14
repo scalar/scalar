@@ -616,5 +616,33 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
         },
       } as OpenAPIV3_2.SchemaObject)
     })
+
+    it('throws an error when both fields are true', () => {
+      const input = {
+        openapi: '3.1.0',
+        info: {
+          title: 'API',
+          version: '1.0.0',
+        },
+        paths: {},
+        components: {
+          schemas: {
+            SampleSchema: {
+              type: 'object',
+              properties: {
+                sampleProperty: {
+                  type: 'string',
+                  xml: { wrapped: true, attribute: true },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      expect(() => upgradeFromThreeOneToThreeTwo(input)).toThrowError(
+        'Invalid XML configuration: wrapped and attribute cannot be true at the same time.',
+      )
+    })
   })
 })

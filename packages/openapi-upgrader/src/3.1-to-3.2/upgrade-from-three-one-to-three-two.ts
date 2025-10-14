@@ -18,6 +18,10 @@ function migrateXmlObjects(obj: any): void {
 
   // Handle xml property migration
   if (obj.xml && typeof obj.xml === 'object') {
+    if (obj.xml.wrapped === true && obj.xml.attribute === true) {
+      throw new Error('Invalid XML configuration: wrapped and attribute cannot be true at the same time.')
+    }
+
     // Migrate wrapped: true to nodeType: 'element'
     if (obj.xml.wrapped === true) {
       delete obj.xml.wrapped
