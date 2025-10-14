@@ -515,7 +515,7 @@ describe('Environments', () => {
     const wrappers = wrapper.findAllComponents({
       name: 'Environment',
     })
-    await wrappers[0]?.vm.$emit('edit:name')
+    await wrappers[0]?.vm.$emit('update:name')
     await wrapper.vm.$nextTick()
 
     const modal = wrapper.findComponent({ name: 'EnvironmentNameUpdateModal' })
@@ -537,7 +537,7 @@ describe('Environments', () => {
     const wrappers = wrapper.findAllComponents({
       name: 'Environment',
     })
-    await wrappers[0]?.vm.$emit('edit:name')
+    await wrappers[0]?.vm.$emit('update:name')
     await wrapper.vm.$nextTick()
 
     const modal = wrapper.findComponent({ name: 'EnvironmentNameUpdateModal' })
@@ -568,7 +568,7 @@ describe('Environments', () => {
     const wrappers = wrapper.findAllComponents({
       name: 'Environment',
     })
-    await wrappers[0]?.vm.$emit('edit:color')
+    await wrappers[0]?.vm.$emit('update:color')
     await wrapper.vm.$nextTick()
 
     const modal = wrapper.findComponent({
@@ -599,7 +599,7 @@ describe('Environments', () => {
     const wrappers = wrapper.findAllComponents({
       name: 'Environment',
     })
-    await wrappers[0]?.vm.$emit('edit:color')
+    await wrappers[0]?.vm.$emit('update:color')
     await wrapper.vm.$nextTick()
 
     const modal = wrapper.findComponent({
@@ -686,13 +686,13 @@ describe('Environments', () => {
     })
 
     /** Edit first environment */
-    await wrappers[0]?.vm.$emit('edit:name')
+    await wrappers[0]?.vm.$emit('update:name')
     await wrapper.vm.$nextTick()
     let modal = wrapper.findComponent({ name: 'EnvironmentNameUpdateModal' })
     expect(modal.props('name')).toBe('Production')
 
     /** Edit second environment */
-    await wrappers[1]?.vm.$emit('edit:name')
+    await wrappers[1]?.vm.$emit('update:name')
     await wrapper.vm.$nextTick()
     modal = wrapper.findComponent({ name: 'EnvironmentNameUpdateModal' })
     expect(modal.props('name')).toBe('Development')

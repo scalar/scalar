@@ -166,7 +166,7 @@ describe('Environment', () => {
     expect(wrapper.emitted('delete')).toBeTruthy()
   })
 
-  it('emits edit:name event when clicking name button', async () => {
+  it('emits update:name event when clicking name button', async () => {
     const wrapper = mount(Environment, {
       props: {
         name: 'Production',
@@ -179,10 +179,10 @@ describe('Environment', () => {
     const nameButton = wrapper.findAllComponents({ name: 'ScalarButton' })[1]
     await nameButton?.vm.$emit('click')
 
-    expect(wrapper.emitted('edit:name')).toBeTruthy()
+    expect(wrapper.emitted('update:name')).toBeTruthy()
   })
 
-  it('emits edit:color event when clicking color button', async () => {
+  it('emits update:color event when clicking color button', async () => {
     const wrapper = mount(Environment, {
       props: {
         name: 'Production',
@@ -196,7 +196,7 @@ describe('Environment', () => {
     const colorButton = wrapper.findAllComponents({ name: 'ScalarButton' })[0]
     await colorButton?.vm.$emit('click')
 
-    expect(wrapper.emitted('edit:color')).toBeTruthy()
+    expect(wrapper.emitted('update:color')).toBeTruthy()
   })
 
   it('emits add:variable when EnvironmentVariablesTable emits addRow', async () => {

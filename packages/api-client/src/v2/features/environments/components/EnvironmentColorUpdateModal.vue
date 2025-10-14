@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarModal, type ModalState } from '@scalar/components'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 import SidebarListElementForm from '@/components/Sidebar/Actions/SidebarListElementForm.vue'
 
@@ -20,6 +20,14 @@ const emit = defineEmits<{
 
 const newColor = ref(color)
 
+// Need to use a watcher here because we use the same modal instance for different environments
+watch(
+  () => color,
+  (newVal) => {
+    newColor.value = newVal
+  },
+)
+
 const close = (event?: 'cancel' | 'submit') => {
   state.hide()
 
@@ -30,9 +38,6 @@ const close = (event?: 'cancel' | 'submit') => {
   if (event === 'submit') {
     emit('submit', { color: newColor.value })
   }
-
-  // Reset color on close
-  newColor.value = ''
 }
 </script>
 

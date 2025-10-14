@@ -47,12 +47,23 @@ const colorOptions = [
   { color: '#FFC0CB' },
 ]
 
-const backgroundStyle = computed(() => {
-  return (props.activeColor &&
-    !colorOptions.some((option) => option.color === props.activeColor)) ||
+const linearGradient =
+  'linear-gradient(to right, rgb(235, 87, 87), rgb(242, 201, 76), rgb(76, 183, 130), rgb(78, 167, 252), rgb(250, 96, 122));'
+
+const isCustomColor = computed(() => {
+  return (
+    (props.activeColor &&
+      !colorOptions.some((option) => option.color === props.activeColor)) ||
     customColor.value
-    ? `background-color: ${props.activeColor || customColor.value};`
-    : 'background: linear-gradient(to right, rgb(235, 87, 87), rgb(242, 201, 76), rgb(76, 183, 130), rgb(78, 167, 252), rgb(250, 96, 122));'
+  )
+})
+
+const backgroundColor = computed(() => {
+  return `background: ${
+    isCustomColor.value
+      ? (props.activeColor ?? customColor.value)
+      : linearGradient
+  }`
 })
 
 const handleClick = () => {
@@ -87,7 +98,7 @@ const selectColor = (color: string) => {
         v-if="props.selector && !showSelector"
         class="flex cursor-pointer items-center justify-center rounded-full"
         :class="props.selector ? 'h-4 w-4' : 'h-5 w-5'"
-        :style="{ backgroundColor: activeColor }"
+        :style="{ backgroundColor }"
         @click="handleSelectorClick">
         <ScalarIcon
           v-if="activeColor"
@@ -118,7 +129,7 @@ const selectColor = (color: string) => {
         <label
           class="z-10 flex cursor-pointer flex-row items-center justify-center gap-2 rounded-full"
           :class="props.selector ? 'h-4 w-4' : 'h-5 w-5'"
-          :style="backgroundStyle"
+          :style="backgroundColor"
           @click="handleClick">
           <ScalarIcon
             v-if="
@@ -143,7 +154,7 @@ const selectColor = (color: string) => {
       <span
         class="z-[1] rounded-full"
         :class="props.selector ? 'h-4 w-4' : 'h-5 w-5'"
-        :style="backgroundStyle">
+        :style="backgroundColor">
       </span>
       <input
         ref="customColorInputRef"

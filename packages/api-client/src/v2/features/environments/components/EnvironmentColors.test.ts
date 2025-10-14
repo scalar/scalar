@@ -178,8 +178,8 @@ describe('EnvironmentColors', () => {
     const colorPreview = wrapper.findAll('span')[1]
     const style = colorPreview?.attributes('style')
 
-    expect(style).toContain('background-color')
-    /** Vue converts hex colors to RGB, so we just check for background-color property */
+    expect(style).toContain('background')
+    /** Vue converts hex colors to RGB, so we just check for background property */
     expect(style).toBeTruthy()
   })
 
@@ -193,8 +193,8 @@ describe('EnvironmentColors', () => {
     const customColorButton = wrapper.find('label')
     const style = customColorButton.attributes('style')
 
-    expect(style).toContain('background-color')
-    /** Vue converts hex to RGB, so we just verify background-color property exists */
+    expect(style).toContain('background')
+    /** Vue converts hex to RGB, so we just verify background property exists */
     expect(style).toBeTruthy()
   })
 
