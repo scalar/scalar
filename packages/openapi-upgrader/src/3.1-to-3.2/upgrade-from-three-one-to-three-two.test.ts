@@ -539,4 +539,82 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
       })
     })
   })
+
+  describe('xmlNode attribute and element migration', () => {
+    it('migrates xmlNode attribute from wrapped to element', () => {
+      const input = {
+        openapi: '3.1.0',
+        info: {
+          title: 'API',
+          version: '1.0.0',
+        },
+        paths: {},
+        components: {
+          schemas: {
+            SampleSchema: {
+              type: 'object',
+              properties: {
+                sampleProperty: {
+                  type: 'string',
+                  xml: { wrapped: true },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
+
+      expect(result.openapi).toBe('3.2.0')
+      expect(result.components?.schemas?.SampleSchema).toBeDefined()
+      expect(result.components?.schemas?.SampleSchema).toMatchObject({
+        type: 'object',
+        properties: {
+          sampleProperty: {
+            type: 'string',
+            xml: { nodeType: 'element' },
+          },
+        },
+      } as OpenAPIV3_2.SchemaObject)
+    })
+
+    it('migrates xmlNode attribute from attribute to attribute type', () => {
+      const input = {
+        openapi: '3.1.0',
+        info: {
+          title: 'API',
+          version: '1.0.0',
+        },
+        paths: {},
+        components: {
+          schemas: {
+            SampleSchema: {
+              type: 'object',
+              properties: {
+                sampleProperty: {
+                  type: 'string',
+                  xml: { attribute: true },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
+
+      expect(result.openapi).toBe('3.2.0')
+      expect(result.components?.schemas?.SampleSchema).toBeDefined()
+      expect(result.components?.schemas?.SampleSchema).toMatchObject({
+        type: 'object',
+        properties: {
+          sampleProperty: {
+            type: 'string',
+            xml: { nodeType: 'attribute' },
+          },
+        },
+      } as OpenAPIV3_2.SchemaObject)
+    })
+  })
 })
