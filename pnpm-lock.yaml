@@ -94,8 +94,8 @@ catalogs:
       specifier: ^7.1.0
       version: 7.1.0
     hono:
-      specifier: 4.9.7
-      version: 4.9.7
+      specifier: 4.9.11
+      version: 4.9.11
     js-base64:
       specifier: ^3.7.8
       version: 3.7.8
@@ -927,10 +927,10 @@ importers:
     devDependencies:
       '@hono/node-server':
         specifier: catalog:*
-        version: 1.19.5(hono@4.9.7)
+        version: 1.19.5(hono@4.9.11)
       '@hono/zod-openapi':
         specifier: ^0.8.6
-        version: 0.8.6(hono@4.9.7)(zod@4.1.11)
+        version: 0.8.6(hono@4.9.11)(zod@4.1.11)
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../../packages/build-tooling
@@ -939,7 +939,7 @@ importers:
         version: link:../../packages/openapi-to-markdown
       hono:
         specifier: catalog:*
-        version: 4.9.7
+        version: 4.9.11
       vite:
         specifier: catalog:*
         version: 7.1.5(@types/node@22.15.3)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
@@ -1427,7 +1427,7 @@ importers:
     devDependencies:
       '@hono/node-server':
         specifier: catalog:*
-        version: 1.19.5(hono@4.9.7)
+        version: 1.19.5(hono@4.9.11)
       '@playwright/test':
         specifier: catalog:*
         version: 1.56.0
@@ -1463,7 +1463,7 @@ importers:
         version: 2.4.6
       hono:
         specifier: catalog:*
-        version: 4.9.7
+        version: 4.9.11
       react:
         specifier: catalog:*
         version: 19.1.0
@@ -1542,7 +1542,7 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: catalog:*
-        version: 1.19.5(hono@4.9.7)
+        version: 1.19.5(hono@4.9.11)
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../..
@@ -1551,7 +1551,7 @@ importers:
         version: 1.8.0
       hono:
         specifier: catalog:*
-        version: 4.9.7
+        version: 4.9.11
       sirv:
         specifier: ^3.0.1
         version: 3.0.1
@@ -1986,11 +1986,11 @@ importers:
         version: link:../openapi-types
       hono:
         specifier: catalog:*
-        version: 4.9.7
+        version: 4.9.11
     devDependencies:
       '@hono/node-server':
         specifier: catalog:*
-        version: 1.19.5(hono@4.9.7)
+        version: 1.19.5(hono@4.9.11)
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
@@ -2008,7 +2008,7 @@ importers:
     devDependencies:
       '@hono/node-server':
         specifier: catalog:*
-        version: 1.19.5(hono@4.9.7)
+        version: 1.19.5(hono@4.9.11)
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../../build-tooling
@@ -2274,7 +2274,7 @@ importers:
     devDependencies:
       '@hono/node-server':
         specifier: catalog:*
-        version: 1.19.5(hono@4.9.7)
+        version: 1.19.5(hono@4.9.11)
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
@@ -2292,7 +2292,7 @@ importers:
         version: 2.4.6
       hono:
         specifier: catalog:*
-        version: 4.9.7
+        version: 4.9.11
       vite:
         specifier: catalog:*
         version: 7.1.5(@types/node@22.15.3)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
@@ -2698,13 +2698,13 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: catalog:*
-        version: 1.19.5(hono@4.9.7)
+        version: 1.19.5(hono@4.9.11)
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../helpers
       hono:
         specifier: catalog:*
-        version: 4.9.7
+        version: 4.9.11
       js-base64:
         specifier: catalog:*
         version: 3.7.8
@@ -12619,8 +12619,8 @@ packages:
   hoist-non-react-statics@3.3.2:
     resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
 
-  hono@4.9.7:
-    resolution: {integrity: sha512-t4Te6ERzIaC48W3x4hJmBwgNlLhmiEdEE5ViYb02ffw4ignHNHa5IBtPjmbKstmtKa8X6C35iWwK4HaqvrzG9w==}
+  hono@4.9.11:
+    resolution: {integrity: sha512-MyJ4xop3boTyXl8bJBh4i20AAZTLM3AXUJphyrUb0CpgTKYb1N703z53XiKUKchGUpcPqiiYkiLOXA3kqK3icA==}
     engines: {node: '>=16.9.0'}
 
   hookable@5.5.3:
@@ -23738,20 +23738,20 @@ snapshots:
       '@tanstack/vue-virtual': 3.8.5(vue@3.5.17(typescript@5.8.3))
       vue: 3.5.17(typescript@5.8.3)
 
-  '@hono/node-server@1.19.5(hono@4.9.7)':
+  '@hono/node-server@1.19.5(hono@4.9.11)':
     dependencies:
-      hono: 4.9.7
+      hono: 4.9.11
 
-  '@hono/zod-openapi@0.8.6(hono@4.9.7)(zod@4.1.11)':
+  '@hono/zod-openapi@0.8.6(hono@4.9.11)(zod@4.1.11)':
     dependencies:
       '@asteasolutions/zod-to-openapi': 5.5.0(zod@4.1.11)
-      '@hono/zod-validator': 0.1.11(hono@4.9.7)(zod@4.1.11)
-      hono: 4.9.7
+      '@hono/zod-validator': 0.1.11(hono@4.9.11)(zod@4.1.11)
+      hono: 4.9.11
       zod: 4.1.11
 
-  '@hono/zod-validator@0.1.11(hono@4.9.7)(zod@4.1.11)':
+  '@hono/zod-validator@0.1.11(hono@4.9.11)(zod@4.1.11)':
     dependencies:
-      hono: 4.9.7
+      hono: 4.9.11
       zod: 4.1.11
 
   '@humanfs/core@0.19.1': {}
@@ -33021,7 +33021,7 @@ snapshots:
     dependencies:
       react-is: 16.13.1
 
-  hono@4.9.7: {}
+  hono@4.9.11: {}
 
   hookable@5.5.3: {}
 
