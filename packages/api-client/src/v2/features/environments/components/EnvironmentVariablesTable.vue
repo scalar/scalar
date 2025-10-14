@@ -36,7 +36,7 @@ const emit = defineEmits<{
 const displayData = computed(() => {
   const last = data.at(-1)
   if (!last || last.name !== '' || last.value !== '') {
-    return [...data, { name: '', value: '', domain: '', isDisabled: true }]
+    return [...data, { name: '', value: '' }]
   }
   return data
 })
