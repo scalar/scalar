@@ -1,29 +1,9 @@
 import type { UnknownObject } from '@scalar/types/utils'
 
 /**
- * Upgrade OpenAPI 3.1 to 3.2
- *
- * @see https://github.com/OAI/OpenAPI-Specification/compare/main...v3.2-dev
+ * Migrate x-tagGroups to kind property on tags
  */
-export function upgradeFromThreeOneToThreeTwo(originalDocument: UnknownObject) {
-  const document = originalDocument
-
-  // Version
-  if (
-    document !== null &&
-    typeof document === 'object' &&
-    typeof document.openapi === 'string' &&
-    document.openapi?.startsWith('3.1')
-  ) {
-    document.openapi = '3.2.0'
-  } else {
-    // Skip if it's something else than 3.1.x
-    return document
-  }
-
-  console.warn('⚠️ Experimental: Upgrading document from OpenAPI 3.1 to 3.2')
-
-  // Migrate x-tagGroups to kind property
+function migrateTagGroups(document: UnknownObject) {
   if (document['x-tagGroups'] && Array.isArray(document['x-tagGroups'])) {
     const tagGroups = document['x-tagGroups'] as Array<{
       name: string
@@ -70,6 +50,33 @@ export function upgradeFromThreeOneToThreeTwo(originalDocument: UnknownObject) {
     // Remove x-tagGroups
     delete document['x-tagGroups']
   }
+}
+
+/**
+ * Upgrade OpenAPI 3.1 to 3.2
+ *
+ * @see https://github.com/OAI/OpenAPI-Specification/compare/main...v3.2-dev
+ */
+export function upgradeFromThreeOneToThreeTwo(originalDocument: UnknownObject) {
+  const document = originalDocument
+
+  // Version
+  if (
+    document !== null &&
+    typeof document === 'object' &&
+    typeof document.openapi === 'string' &&
+    document.openapi?.startsWith('3.1')
+  ) {
+    document.openapi = '3.2.0'
+  } else {
+    // Skip if it's something else than 3.1.x
+    return document
+  }
+
+  console.warn('⚠️ Experimental: Upgrading document from OpenAPI 3.1 to 3.2')
+
+  // Migrate x-tagGroups to kind property
+  migrateTagGroups(document)
 
   return document
 }
