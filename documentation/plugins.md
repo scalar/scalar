@@ -95,7 +95,7 @@ Plugins can inject components at specific locations in the API Reference using v
 
 ```ts
 import type { ApiReferencePlugin } from '@scalar/types/api-reference'
-import FeedbackWidget from './components/FeedbackWidget.vue'
+import CustomComponent from './components/CustomComponent.vue'
 
 export const FeedbackPlugin = (): ApiReferencePlugin => {
   return () => {
@@ -105,11 +105,7 @@ export const FeedbackPlugin = (): ApiReferencePlugin => {
       views: {
         'content.end': [
           {
-            component: FeedbackWidget,
-            // Optional: Pass custom props
-            props: {
-              apiKey: 'your-api-key',
-            },
+            component: CustomComponent,
           },
         ],
       },
@@ -129,7 +125,7 @@ View components receive:
 
 ```ts
 import { ReactRenderer } from '@scalar/react-renderer'
-import { FeedbackWidget } from './components/FeedbackWidget'
+import { CustomComponent } from './components/CustomComponent'
 
 export const FeedbackPlugin = (): ApiReferencePlugin => {
   return () => {
@@ -139,7 +135,7 @@ export const FeedbackPlugin = (): ApiReferencePlugin => {
       views: {
         'content.end': [
           {
-            component: FeedbackWidget,
+            component: CustomComponent,
             renderer: ReactRenderer,
           },
         ],
