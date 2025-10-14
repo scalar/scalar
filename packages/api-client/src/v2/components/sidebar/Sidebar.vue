@@ -4,7 +4,6 @@ import {
   ScalarSidebarItems,
   ScalarSidebarSection,
 } from '@scalar/components'
-import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 
 import { Resize } from '@/v2/components/resize'
 
@@ -24,14 +23,10 @@ defineSlots<{
   search?(): unknown
   footer?(): unknown
 }>()
-
-const { breakpoints } = useBreakpoints()
 </script>
 <template>
   <Resize
-    :style="{
-      display: breakpoints.lg ? 'block' : 'none',
-    }"
+    class="hidden lg:block"
     :width="width"
     @update:width="(value) => emit('update:width', value)">
     <template #default>
