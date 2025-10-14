@@ -82,3 +82,74 @@ export const XCustomExtensionPlugin = (): ApiReferencePlugin => {
   }
 }
 ```
+
+### View-Based Plugins
+
+Plugins can inject components at specific locations in the API Reference using views.
+
+#### Available Views
+
+- `content.end` - After the Models section
+
+#### Example
+
+For a complete working example, see `ExampleFeedbackPlugin` in the codebase.
+
+#### Creating Your Own Plugin
+
+```ts
+import type { ApiReferencePlugin } from '@scalar/types/api-reference'
+import FeedbackWidget from './components/FeedbackWidget.vue'
+
+export const FeedbackPlugin = (): ApiReferencePlugin => {
+  return () => {
+    return {
+      name: 'feedback-plugin',
+      extensions: [],
+      views: {
+        'content.end': [
+          {
+            component: FeedbackWidget,
+            // Optional: Pass custom props
+            props: {
+              apiKey: 'your-api-key',
+            },
+          },
+        ],
+      },
+    }
+  }
+}
+```
+
+#### Component Props
+
+View components receive:
+
+- `store` - The workspace store
+- `options` - API Reference configuration options
+- Any custom props defined in the plugin
+
+#### Using React Components
+
+```ts
+import { ReactRenderer } from '@scalar/react-renderer'
+import { FeedbackWidget } from './components/FeedbackWidget'
+
+export const FeedbackPlugin = (): ApiReferencePlugin => {
+  return () => {
+    return {
+      name: 'feedback-plugin',
+      extensions: [],
+      views: {
+        'content.end': [
+          {
+            component: FeedbackWidget,
+            renderer: ReactRenderer,
+          },
+        ],
+      },
+    }
+  }
+}
+```
