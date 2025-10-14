@@ -58,7 +58,6 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
   /**
    * Sets the file type of the document to download, set to `none` to hide the download button
    * @default 'both'
-   * @comment 'direct' is deprecated and will be downloaded as JSON
    */
   documentDownloadType: z.enum(['yaml', 'json', 'both', 'direct', 'none']).optional().default('both').catch('both'),
   /**

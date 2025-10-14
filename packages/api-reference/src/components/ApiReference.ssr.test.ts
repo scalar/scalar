@@ -65,40 +65,44 @@ const EXAMPLE_API_DEFINITIONS = [
   },
 ]
 
-it.each(EXAMPLE_API_DEFINITIONS)('$title ($url)', async ({ title, name }) => {
-  // Spy for console.error to avoid errors in the console
-  const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-  const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+it.each(EXAMPLE_API_DEFINITIONS)(
+  '$title ($url)',
+  async ({ title, name }) => {
+    // Spy for console.error to avoid errors in the console
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
-  if (!document) {
-    console.log(`Failed to fetch definition for https://fixtures.staging.scalar.com/layout-reference/${name}`)
-    throw new Error('Failed to fetch')
-  }
+    if (!document) {
+      console.log(`Failed to fetch definition for https://fixtures.staging.scalar.com/layout-reference/${name}`)
+      throw new Error('Failed to fetch')
+    }
 
-  const app = createSSRApp({
-    render: () =>
-      h(ApiReference, {
-        configuration: apiReferenceConfigurationWithSourceSchema.parse({
-          url: `https://fixtures.staging.scalar.com/layout-reference/${name}`,
+    const app = createSSRApp({
+      render: () =>
+        h(ApiReference, {
+          configuration: apiReferenceConfigurationWithSourceSchema.parse({
+            url: `https://fixtures.staging.scalar.com/layout-reference/${name}`,
+          }),
         }),
-      }),
-  })
+    })
 
-  const html = await renderToString(app)
+    const html = await renderToString(app)
 
-  // Check if console.error was called
-  expect(consoleErrorSpy).not.toHaveBeenCalled()
+    // Check if console.error was called
+    expect(consoleErrorSpy).not.toHaveBeenCalled()
 
-  // Restore the original console.error
-  consoleErrorSpy.mockRestore()
+    // Restore the original console.error
+    consoleErrorSpy.mockRestore()
 
-  // Check if console.warn was called
-  // TODO: In the future, we should fix the warnings.
-  // expect(consoleWarnSpy).not.toHaveBeenCalled()
+    // Check if console.warn was called
+    // TODO: In the future, we should fix the warnings.
+    // expect(consoleWarnSpy).not.toHaveBeenCalled()
 
-  // Restore the original console.warn
-  consoleWarnSpy.mockRestore()
+    // Restore the original console.warn
+    consoleWarnSpy.mockRestore()
 
-  // Verify it renders the title in the HTML output
-  expect(html).toContain(title)
-})
+    // Verify it renders the title in the HTML output
+    expect(html).toContain(title)
+  },
+  { timeout: 40000 },
+)

@@ -12,7 +12,7 @@ defineProps<{
 const el = useTemplateRef('el')
 
 // The id is retrieved at the layout level.
-const handleDownloadClick = (format: 'json' | 'yaml') => {
+const handleDownloadClick = (format: 'json' | 'yaml' | 'direct') => {
   emitCustomEvent(el.value, 'scalar-download-document', { format })
 }
 </script>
@@ -33,7 +33,12 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
       "
       class="download-button"
       type="button"
-      @click.prevent="handleDownloadClick('json')">
+      @click.prevent="
+        () =>
+          handleDownloadClick(
+            documentDownloadType === 'direct' ? 'direct' : 'json',
+          )
+      ">
       <span> Download OpenAPI Document </span>
       <Badge class="extension hidden group-hover:flex">json</Badge>
     </button>
@@ -43,7 +48,7 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
       v-if="documentDownloadType === 'yaml' || documentDownloadType === 'both'"
       class="download-button"
       type="button"
-      @click.prevent="handleDownloadClick('yaml')">
+      @click.prevent="() => handleDownloadClick('yaml')">
       <span> Download OpenAPI Document </span>
       <Badge class="extension hidden group-hover:flex">yaml</Badge>
     </button>

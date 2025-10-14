@@ -273,8 +273,7 @@ watch(hash, (newHash, oldHash) => {
     class="scalar-app scalar-api-reference references-layout"
     :class="[
       {
-        'scalar-api-references-standalone-mobile':
-          configuration.showSidebar ?? true,
+        'scalar-api-references-standalone-mobile': configuration.showSidebar,
         'scalar-scrollbars-obtrusive': obtrusiveScrollbars,
         'references-editable': configuration.isEditable,
         'references-sidebar': configuration.showSidebar,
@@ -289,10 +288,7 @@ watch(hash, (newHash, oldHash) => {
     <!-- Header -->
     <div class="references-header">
       <MobileHeader
-        v-if="
-          configuration.layout === 'modern' &&
-          (configuration.showSidebar ?? true)
-        "
+        v-if="configuration.layout === 'modern' && configuration.showSidebar"
         :breadcrumb="referenceSlotProps.breadcrumb" />
       <slot
         v-bind="referenceSlotProps"

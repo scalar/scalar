@@ -21,7 +21,7 @@ const contentsRef = ref<HTMLElement>()
 
 const headerId = useId()
 
-const { collapsedSidebarItems } = useSidebar()
+const { collapsedSidebarItems, setCollapsedSidebarItem } = useSidebar()
 const { hash } = useNavState()
 
 const moreThanOneDefaultTag = computed(
@@ -29,6 +29,7 @@ const moreThanOneDefaultTag = computed(
 )
 
 async function focusContents() {
+  setCollapsedSidebarItem(tag.id, true)
   await nextTick()
   contentsRef.value?.querySelector('button')?.focus()
 }

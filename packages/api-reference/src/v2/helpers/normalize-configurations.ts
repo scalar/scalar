@@ -8,16 +8,21 @@ import {
 } from '@scalar/types'
 import GithubSlugger from 'github-slugger'
 
-type NormalizedConfigurations = Record<
-  string,
-  {
-    title: string
-    slug: string
-    config: ApiReferenceConfigurationRaw
-    default: boolean
-    source: { url: string; content?: never } | { content: Record<string, unknown>; url?: never }
-  }
->
+/** Processed API Reference Configuration
+ *
+ * Creates the required title and slug for the API Reference.
+ * Separate the source into a dedicated object
+ * Returns the raw configuration to pass to components
+ */
+export type NormalizedConfiguration = {
+  title: string
+  slug: string
+  config: ApiReferenceConfigurationRaw
+  default: boolean
+  source: { url: string; content?: never } | { content: Record<string, unknown>; url?: never }
+}
+
+type NormalizedConfigurations = Record<string, NormalizedConfiguration>
 
 type ConfigWithRequiredSource = Omit<ApiReferenceConfigurationWithSource, 'url' | 'content'> &
   ({ url: string; content?: never } | { content: Record<string, unknown>; url?: never })

@@ -1,16 +1,9 @@
 import { REFERENCE_LS_KEYS, safeLocalStorage } from '@scalar/helpers/object/local-storage'
-import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { type WorkspaceStore, generateClientMutators } from '@scalar/workspace-store/client'
 import { onCustomEvent } from '@scalar/workspace-store/events'
 import type { Ref } from 'vue'
 
-import { downloadDocument } from '@/libs/download'
-
-export const useWorkspaceStoreEvents = (
-  store: WorkspaceStore,
-  root: Ref<HTMLElement | null>,
-  configuration: ApiReferenceConfiguration,
-) => {
+export const useWorkspaceStoreEvents = (store: WorkspaceStore, root: Ref<HTMLElement | null>) => {
   const mutators = generateClientMutators(store)
 
   //------------------------------------------------------------------------------------
@@ -62,11 +55,6 @@ export const useWorkspaceStoreEvents = (
     if (activeDocument) {
       activeDocument['x-scalar-active-server'] = event.detail.value
     }
-
-    // Ensure we call the onServerChange callback
-    if (configuration.onServerChange) {
-      configuration.onServerChange(event.detail.value ?? '')
-    }
   })
 
   onCustomEvent(root, 'store-update-selected-server-properties', (event) => {
@@ -116,14 +104,5 @@ export const useWorkspaceStoreEvents = (
 
   onCustomEvent(root, 'scalar-delete-server', (event) => {
     mutators.active().serverMutators.deleteServer(event.detail.url)
-  })
-
-  onCustomEvent(root, 'scalar-download-document', (event) => {
-    const format = event.detail.format
-    const document = store.exportActiveDocument(format)
-    if (!document) {
-      return
-    }
-    downloadDocument(document, store.workspace['x-scalar-active-document'] ?? 'openapi', format)
   })
 }

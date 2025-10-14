@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { parseJsonOrYaml, redirectToProxy } from '@scalar/oas-utils/helpers'
+import { redirectToProxy } from '@scalar/oas-utils/helpers'
 import { dereferenceSync } from '@scalar/openapi-parser'
-import type {
-  AnyApiReferenceConfiguration,
-  ApiReferenceConfiguration,
-  ApiReferenceConfigurationRaw,
-  SourceConfiguration,
+import {
+  apiReferenceConfigurationSchema,
+  type AnyApiReferenceConfiguration,
+  type ApiReferenceConfiguration,
+  type ApiReferenceConfigurationRaw,
 } from '@scalar/types/api-reference'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import {
@@ -28,11 +28,15 @@ import ApiReferenceLayout from '@/components/ApiReferenceLayout.vue'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import ApiReferenceToolbar from '@/features/toolbar/ApiReferenceToolbar.vue'
 import { NAV_STATE_SYMBOL } from '@/hooks/useNavState'
+import { downloadDocument } from '@/libs/download'
 import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
 import { mapConfigToClientStore } from '@/v2/helpers/map-config-to-client-store'
 import { mapConfigToWorkspaceStore } from '@/v2/helpers/map-config-to-workspace-store'
 import { mapConfiguration } from '@/v2/helpers/map-configuration'
-import { normalizeConfigurations } from '@/v2/helpers/normalize-configurations'
+import {
+  normalizeConfigurations,
+  type NormalizedConfiguration,
+} from '@/v2/helpers/normalize-configurations'
 import { useWorkspaceStoreEvents } from '@/v2/hooks/use-workspace-store-events'
 
 const props = defineProps<{
@@ -98,7 +102,11 @@ const configurationOverrides = ref<
 
 /** Any dev toolbar modifications are merged with the active configuration */
 const mergedConfig = computed<ApiReferenceConfigurationRaw>(() => ({
+  // Provides a default set of values when the lookup fails
+  ...apiReferenceConfigurationSchema.parse({}),
+  // The active configuration based on the slug
   ...configList.value[activeSlug.value]?.config,
+  // Any overrides from the localhost toolbar
   ...configurationOverrides.value,
 }))
 
@@ -259,31 +267,41 @@ const changeSelectedDocument = async (slug: string) => {
 watch(
   () => Object.values(configList.value),
   async (newConfigList, oldConfigList) => {
-    /** If we have not loaded the document we don't need to handle any updates */
-    if (!workspaceStore.workspace.documents[activeSlug.value]) {
-      return
-    }
-
+    /**
+     * Handles replacing and updating documents within the workspace store
+     * when we detect configuration changes.
+     */
     const updateSource = async (
-      slug: string,
-      config: ApiReferenceConfigurationRaw,
-      source: SourceConfiguration,
-      previousSource: SourceConfiguration,
+      updated: NormalizedConfiguration,
+      previous: NormalizedConfiguration,
     ) => {
+      /** If we have not loaded the document previously we don't need to handle any updates to store */
+      if (!workspaceStore.workspace.documents[updated.slug]) {
+        return
+      }
       /** If the URL has changed we fetch and rebase */
-      if (source.url && source.url !== previousSource.url) {
+      if (updated.source.url && updated.source.url !== previous.source.url) {
         const proxy: UrlDoc['fetch'] = (input, init) =>
           fetch(
             redirectToProxy(
-              config.proxyUrl ?? 'https://proxy.scalar.com',
+              updated.config.proxyUrl ?? 'https://proxy.scalar.com',
               input.toString(),
             ),
             init,
           )
-        const getter = config.fetch ?? proxy
-        const document = await getter(source.url).then((r) => r.text())
-        workspaceStore.rebaseDocument(slug, parseJsonOrYaml(document))
 
+        await workspaceStore.addDocument({
+          name: updated.slug,
+          url: updated.source.url,
+          config: mapConfiguration(updated.config),
+          fetch: updated.config.fetch ?? proxy,
+        })
+
+        return
+      }
+
+      // If the was not a URL change then we require a document to continue
+      if (!updated.source.content) {
         return
       }
 
@@ -291,35 +309,34 @@ watch(
        * We need to deeply check for document changes. Parse documents and then only rebase
        * if we detect deep changes in the two sources
        */
-      if (!source.content) {
-        return
-      }
-
-      const document = (
-        typeof source.content === 'string'
-          ? parseJsonOrYaml(source.content)
-          : (source.content ?? {})
-      ) as Record<string, unknown>
-
-      const previousDocument = (
-        typeof previousSource.content === 'string'
-          ? parseJsonOrYaml(previousSource.content)
-          : (previousSource.content ?? {})
-      ) as Record<string, unknown>
-
-      if (diff(document, previousDocument).length) {
-        workspaceStore.rebaseDocument(slug, document)
+      if (
+        diff(
+          updated.source.content,
+          'content' in previous.source ? (previous.source.content ?? {}) : {},
+        ).length
+      ) {
+        await workspaceStore.addDocument({
+          name: updated.slug,
+          document: updated.source.content,
+          config: mapConfiguration(updated.config),
+        })
       }
     }
 
     newConfigList.forEach((newConfig, index) => {
-      updateSource(
-        newConfig.slug,
-        newConfig.config,
-        newConfig.source,
-        oldConfigList[index].source,
-      )
+      updateSource(newConfig, oldConfigList[index])
     })
+
+    const newSlugs = newConfigList.map((c) => c.slug)
+    const oldSlugs = oldConfigList.map((c) => c.slug)
+
+    // If the slugs have changed, we need to update the active document and the URL query param
+    if (
+      newSlugs.length !== oldSlugs.length ||
+      !newSlugs.every((slug, index) => slug === oldSlugs[index])
+    ) {
+      changeSelectedDocument(newSlugs[0])
+    }
   },
   {
     deep: true,
@@ -361,6 +378,9 @@ const { activeServer, getSecuritySchemes, openClient } = mapConfigToClientStore(
   },
 )
 
+// ---------------------------------------------------------------------------
+// Top level event handlers and user specified callbacks
+
 /** Open the client modal on the custom event */
 onCustomEvent(root, 'scalar-open-client', () => {
   openClient()
@@ -370,6 +390,43 @@ onCustomEvent(root, 'scalar-open-client', () => {
 onCustomEvent(root, 'scalar-on-show-more', (event) => {
   setCollapsedSidebarItem(event.detail.id, true)
   mergedConfig.value.onShowMore?.(event.detail.id)
+})
+
+onCustomEvent(root, 'scalar-update-selected-server', (event) => {
+  // Ensure we call the onServerChange callback
+  if (mergedConfig.value.onServerChange) {
+    mergedConfig.value.onServerChange(event.detail.value ?? '')
+  }
+})
+
+onCustomEvent(root, 'scalar-download-document', async (event) => {
+  if (event.detail.format === 'direct') {
+    const url = configList.value[activeSlug.value]?.source?.url
+    if (!url) {
+      console.error(
+        'Direct download is not supported for documents without a URL source',
+      )
+      return
+    }
+    const result = await fetch(
+      redirectToProxy(
+        mergedConfig.value.proxyUrl ?? 'https://proxy.scalar.com',
+        url,
+      ),
+    ).then((r) => r.text())
+
+    downloadDocument(result, activeSlug.value ?? 'openapi')
+    // Will be handled in the ApiReference component. Only valid for integrations that rely on a configuration with a URL.
+    return
+  }
+
+  const format = event.detail.format
+  const document = workspaceStore.exportActiveDocument(format)
+  if (!document) {
+    console.error('No document found to download')
+    return
+  }
+  downloadDocument(document, activeSlug.value ?? 'openapi', format)
 })
 
 // ---------------------------------------------------------------------------
@@ -414,6 +471,7 @@ const isDevelopment = import.meta.env.DEV
       <template #content-start>
         <!-- Only appears on localhost -->
         <ApiReferenceToolbar
+          v-if="workspaceStore.workspace.activeDocument"
           v-model:overrides="configurationOverrides"
           :configuration="mergedConfig"
           :workspace="workspaceStore" />

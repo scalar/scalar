@@ -20,12 +20,27 @@
     <script type="module">
       import sources from './test/data/sources.ts'
 
-      Scalar.createApiReference('#app', {
+      const app = Scalar.createApiReference('#app', {
         sources,
         persistAuth: true,
         // Avoid CORS issues
         proxyUrl: 'https://proxy.scalar.com',
       })
+
+      setTimeout(() => {
+        app.updateConfiguration({
+          sources: [
+            {
+              ...sources[0],
+              content: {
+                ...sources[0].content,
+                info: { ...sources[0].content.info, title: 'LETS GO API' },
+              },
+            },
+            ...sources.slice(1),
+          ],
+        })
+      }, 5000)
     </script>
   </body>
 </html>

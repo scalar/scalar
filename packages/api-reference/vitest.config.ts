@@ -13,13 +13,4 @@ export default mergeConfig(
       setupFiles: './src/vitest.setup.ts',
     },
   }),
-  {
-    resolve: {
-      alias: {
-        '@': fileURLToPath(new URL('./src', import.meta.url)),
-        '@v2': fileURLToPath(new URL('./src/v2', import.meta.url)),
-        '@test': fileURLToPath(new URL('./test', import.meta.url)),
-      },
-    },
-  },
 )
