@@ -112,7 +112,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
     <div class="feature-item">
       <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-blue">
         <scalar-icon src="phosphor/bold/github-logo"></scalar-icon>
-        Github Sync
+        GitHub Sync
       </b>
       <p>
         "After years of helping enterprises implemeain points I watched customers struggle with daily. This is the modern API platform developers deserve."
@@ -161,10 +161,10 @@ They are open source. So I can get in on free features and stay with Scalar no m
         <b class="font-medium">Additional Reading</b>
       </p>
       <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/scalar-docs/github-sync"><scalar-icon src="phosphor/bold/git-branch"></scalar-icon> Github Sync</a>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/scalar/scalar-docs/github-sync"><scalar-icon src="phosphor/bold/git-branch"></scalar-icon> GitHub Sync</a>
       </p>
       <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/scalar-docs/components/markdown-support"><scalar-icon src="phosphor/bold/file-md"></scalar-icon> Markdown Support</a>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/scalar/scalar-docs/components/markdown-support"><scalar-icon src="phosphor/bold/file-md"></scalar-icon> Markdown Support</a>
       </p>
       <p class="mt-3 mb-1 pl-2">
         <b class="font-medium">Community</b>
@@ -176,7 +176,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
         <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="https://twitter.com/scalar" target="_blank"><scalar-icon src="phosphor/bold/twitter-logo"></scalar-icon> Twitter</a>
       </p>
       <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="https://github.com/scalar/scalar" target="_blank"><scalar-icon src="phosphor/bold/github-logo"></scalar-icon> Github</a>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="https://github.com/scalar/scalar" target="_blank"><scalar-icon src="phosphor/bold/github-logo"></scalar-icon> GitHub</a>
       </p>
     </div>
   </div>
@@ -287,7 +287,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
         <div class="w-1/3 flex flex-col gap-2">
           <b>Socials</b>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://twitter.com/scalar" target="_blank">x (formerly twitter)</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://github.com/scalar/scalar" target="_blank">Github</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://github.com/scalar/scalar" target="_blank">GitHub</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://discord.gg/scalar" target="_blank">Discord</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://www.linkedin.com/company/scalar-org" target="_blank">Linkedin</a>
         </div>

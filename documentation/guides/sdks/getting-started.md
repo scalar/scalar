@@ -34,12 +34,12 @@ From the [dashboard](https://dashboard.scalar.com) click "Create new SDK".
 If you don't already have an OpenAPI document on our registry, you can import it right in the modal.
 
   </scalar-step>
-  
+
   <scalar-step id="step-2" title="Select Desired Languages">
 Select as many SDKs as you would like, or just one language to start. Once you click "Continue" we will begin generating your SDKs.
 
   </scalar-step>
-  
+
   <scalar-step id="step-3" title="Manage your new SDKs">
 Once created, you will get redirected to the SDK Overview page where you can:
 - Configure your SDK settings
@@ -136,10 +136,10 @@ They are open source. So I can get in on free features and stay with Scalar no m
         <b class="font-medium">Additional Reading</b>
       </p>
       <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/scalar-sdks/configuration/typescript"><scalar-icon src="phosphor/bold/file-ts"></scalar-icon> Typescript SDKs</a>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/scalar/scalar-sdks/configuration/typescript"><scalar-icon src="phosphor/bold/file-ts"></scalar-icon> Typescript SDKs</a>
       </p>
       <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/scalar-regsitry/getting-started"><scalar-icon src="phosphor/bold/seal-check"></scalar-icon> Scalar Registry</a>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/scalar/scalar-registry/getting-started"><scalar-icon src="phosphor/bold/seal-check"></scalar-icon> Scalar Registry</a>
       </p>
       <p class="mt-3 mb-1 pl-2">
         <b class="font-medium">Community</b>
@@ -151,7 +151,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
         <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="https://twitter.com/scalar" target="_blank"><scalar-icon src="phosphor/bold/twitter-logo"></scalar-icon> Twitter</a>
       </p>
       <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="https://github.com/scalar/scalar" target="_blank"><scalar-icon src="phosphor/bold/github-logo"></scalar-icon> Github</a>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="https://github.com/scalar/scalar" target="_blank"><scalar-icon src="phosphor/bold/github-logo"></scalar-icon> GitHub</a>
       </p>
     </div>
   </div>
@@ -262,7 +262,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
         <div class="w-1/3 flex flex-col gap-2">
           <b>Socials</b>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://twitter.com/scalar" target="_blank">x (formerly twitter)</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://github.com/scalar/scalar" target="_blank">Github</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://github.com/scalar/scalar" target="_blank">GitHub</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://discord.gg/scalar" target="_blank">Discord</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://www.linkedin.com/company/scalar-org" target="_blank">Linkedin</a>
         </div>
