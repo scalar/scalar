@@ -2,7 +2,7 @@ import { isDefined } from '@scalar/helpers/array/is-defined'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { keysOf } from '@scalar/object-utils/arrays'
 import { type LoadResult, dereference, load, upgrade } from '@scalar/openapi-parser'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1, OpenAPIV3_2 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { SecuritySchemeOauth2 } from '@scalar/types/entities'
 import {
@@ -32,7 +32,7 @@ const dereferenceDocument = async (
     console.warn('[@scalar/oas-utils] Empty OpenAPI document provided.')
 
     return {
-      schema: {} as OpenAPIV3_1.Document,
+      schema: {} as OpenAPIV3_2.Document,
       errors: [],
     }
   }
@@ -60,7 +60,7 @@ const dereferenceDocument = async (
   const { schema, errors: derefErrors = [] } = await dereference(specification)
 
   return {
-    schema,
+    schema: schema as OpenAPIV3_2.Document,
     errors: [...loadErrors, ...derefErrors],
   }
 }
@@ -72,7 +72,7 @@ export const parseSchema = async (
     shouldLoad = true,
     /** If a dereferenced document is provided, we will skip the dereferencing step. */
     dereferencedDocument = undefined,
-  }: { shouldLoad?: boolean; dereferencedDocument?: OpenAPIV3_1.Document } = {},
+  }: { shouldLoad?: boolean; dereferencedDocument?: OpenAPIV3_2.Document } = {},
 ) => {
   // Skip, if a dereferenced document is provided
   const { schema, errors } = dereferencedDocument
@@ -94,7 +94,7 @@ export const parseSchema = async (
      * Temporary fix for the parser returning an empty array
      * TODO: remove this once the parser is fixed
      */
-    schema: (Array.isArray(schema) ? {} : schema) as OpenAPIV3_1.Document,
+    schema: (Array.isArray(schema) ? {} : schema) as OpenAPIV3_2.Document,
     errors,
   }
 }
@@ -125,7 +125,7 @@ export const getSlugUid = (slug: string) => `slug-uid-${slug}` as Collection['ui
 export type ImportSpecToWorkspaceArgs = Pick<CollectionPayload, 'documentUrl' | 'watchMode'> &
   Pick<ApiReferenceConfiguration, 'authentication' | 'baseServerURL' | 'servers' | 'slug'> & {
     /** The dereferenced document */
-    dereferencedDocument?: OpenAPIV3_1.Document
+    dereferencedDocument?: OpenAPIV3_2.Document
     /** Sets the preferred security scheme on the collection instead of the requests */
     useCollectionSecurity?: boolean
     /** Call the load step from the parser */
@@ -164,7 +164,7 @@ export async function importSpecToWorkspace(
       error: false
       collection: Collection
       requests: Request[]
-      schema: OpenAPIV3_1.Document
+      schema: OpenAPIV3_2.Document
       examples: RequestExample[]
       servers: Server[]
       tags: Tag[]
@@ -210,7 +210,7 @@ export async function importSpecToWorkspace(
     )
   }
 
-  const securitySchemes = (Object.entries(security) as Entries<Record<string, OpenAPIV3_1.SecuritySchemeObject>>)
+  const securitySchemes = (Object.entries(security) as Entries<Record<string, OpenAPIV3_2.SecuritySchemeObject>>)
     .map?.(([nameKey, _scheme]) => {
       // Apply any transforms we need before parsing
       const payload = {
