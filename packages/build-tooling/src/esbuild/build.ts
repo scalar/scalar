@@ -1,11 +1,13 @@
 import fs from 'node:fs/promises'
-import { addPackageFileExports, findEntryPoints } from '../helpers'
-import * as esbuild from 'esbuild'
-import chokidar from 'chokidar'
 import path from 'node:path'
+
 import as from 'ansis'
-import { runCommand } from './helpers'
+import chokidar from 'chokidar'
+import * as esbuild from 'esbuild'
 import { glob } from 'glob'
+
+import { addPackageFileExports, findEntryPoints } from '../helpers'
+import { runCommand } from './helpers'
 
 function makeEntryPoints(allowJs?: boolean) {
   const entryPoints = ['src/**/*.ts']
@@ -139,8 +141,8 @@ export async function build({
   console.log(as.blue('[esbuild]: Initial build complete'))
 
   const start = performance.now()
-  runCommand('tsc       -p tsconfig.build.json --watch', 'tsc')
-  runCommand('tsc-alias -p tsconfig.build.json --watch', 'tsc-alias')
+  void runCommand('tsc       -p tsconfig.build.json --watch', 'tsc')
+  void runCommand('tsc-alias -p tsconfig.build.json --watch', 'tsc-alias')
   const end = performance.now()
   console.log(as.blue(`[esbuild]: Types build completed in ${(end - start).toFixed(0)}ms`))
 

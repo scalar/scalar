@@ -47,7 +47,7 @@ export const ApiClientModalProvider = ({ children, initialRequest, configuration
       clientStore.setCreateClient(createApiClientModalSync)
     }
     if (!isLoading) {
-      loadApiClientJs()
+      void loadApiClientJs()
     }
   }, [])
 
@@ -74,7 +74,7 @@ export const ApiClientModalProvider = ({ children, initialRequest, configuration
     clientDict[key] = _client
 
     // We update the config as we are using the sync version
-    updateConfig()
+    void updateConfig()
 
     // Ensure we unmount the vue app on unmount
     return () => {

@@ -3,7 +3,7 @@ import { setTimeout } from 'node:timers/promises'
 import { bundle } from '@scalar/json-magic/bundle'
 import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
 import { type FastifyInstance, fastify } from 'fastify'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { deepClone } from '@/helpers/general'
 import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
@@ -37,7 +37,7 @@ describe('plugins', () => {
         },
       } as any
 
-      bundle(input, {
+      void bundle(input, {
         plugins: [
           {
             type: 'loader',
@@ -88,7 +88,7 @@ describe('plugins', () => {
 
       const resolveErrored = deferred<null>()
 
-      bundle(input, {
+      void bundle(input, {
         plugins: [
           {
             type: 'loader',
@@ -125,11 +125,11 @@ describe('plugins', () => {
 
     beforeEach(() => {
       server = fastify({ logger: false })
-    })
 
-    afterEach(async () => {
-      await server.close()
-      await setTimeout(100)
+      return async () => {
+        await server.close()
+        await setTimeout(100)
+      }
     })
 
     it('resolves external values', async () => {
@@ -168,11 +168,11 @@ describe('plugins', () => {
 
     beforeEach(() => {
       server = fastify({ logger: false })
-    })
 
-    afterEach(async () => {
-      await server.close()
-      await setTimeout(100)
+      return async () => {
+        await server.close()
+        await setTimeout(100)
+      }
     })
 
     it('inline refs on the info object', async () => {
@@ -244,11 +244,11 @@ describe('plugins', () => {
 
     beforeEach(() => {
       server = fastify({ logger: false })
-    })
 
-    afterEach(async () => {
-      await server.close()
-      await setTimeout(100)
+      return async () => {
+        await server.close()
+        await setTimeout(100)
+      }
     })
 
     it('restores the original references', { timeout: 100000 }, async () => {

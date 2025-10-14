@@ -1,5 +1,6 @@
 // import OriginalSwaggerParser from '@apidevtools/swagger-parser'
 import path from 'node:path'
+
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { fetchUrls } from '../src/plugins/fetch-urls/fetch-urls'
@@ -8,7 +9,7 @@ import { dereference } from '../src/utils/dereference'
 import { load } from '../src/utils/load/load'
 import { validate } from '../src/utils/validate'
 
-global.fetch = vi.fn()
+const globalFetchSpy = vi.spyOn(global, 'fetch').mockImplementation(vi.fn())
 
 const myAPI = JSON.stringify({
   openapi: '3.1.0',
@@ -42,11 +43,10 @@ class SwaggerParser {
         throwOnError: true,
       })
 
-      validate(filesystem, {
+      const result = await validate(filesystem, {
         throwOnError: true,
-      }).then((result) => {
-        callback(null, result.schema)
       })
+      callback(null, result.schema)
     } catch (error) {
       callback(error, null)
     }
@@ -65,43 +65,40 @@ class SwaggerParser {
 // https://github.com/APIDevTools/swagger-parser?tab=readme-ov-file#example
 describe('validate', async () => {
   beforeEach(() => {
-    // @ts-expect-error
-    global.fetch.mockReset()
+    globalFetchSpy.mockReset()
   })
 
-  it('validates', async () => {
-    return new Promise((resolve, reject) => {
-      SwaggerParser.validate(myAPI, (err, api) => {
-        if (err) {
-          reject(err)
-        } else {
-          expect(api.info.title).toBe('Hello World')
-          expect(api.info.version).toBe('1.0.0')
+  it('should validate when providing valid documents', async () => {
+    const callbackSpy = vi.fn()
 
-          resolve(null)
-        }
-      })
-    })
+    await SwaggerParser.validate(myAPI, callbackSpy)
+
+    expect(callbackSpy).toHaveBeenCalledOnce()
+    expect(callbackSpy).toHaveBeenCalledWith(
+      null,
+      expect.objectContaining({
+        info: {
+          'title': 'Hello World',
+          'version': '1.0.0',
+        },
+      }),
+    )
   })
 
   it('throws an error for invalid documents', async () => {
-    return new Promise((resolve, reject) => {
-      SwaggerParser.validate('invalid', (err) => {
-        if (err) {
-          resolve(null)
-        } else {
-          reject()
-        }
-      })
-    })
+    const callbackSpy = vi.fn()
+
+    await SwaggerParser.validate('invalid', callbackSpy)
+
+    expect(callbackSpy).toHaveBeenCalledOnce()
+    expect(callbackSpy).toHaveBeenCalledWith(expect.any(Error), null)
   })
 })
 
 // https://apitools.dev/swagger-parser/docs/swagger-parser.html#dereferenceapi-options-callback
 describe('dereference', () => {
   beforeEach(() => {
-    // @ts-expect-error
-    global.fetch.mockReset()
+    globalFetchSpy.mockReset()
   })
 
   it('dereferences', async () => {
@@ -114,7 +111,7 @@ describe('dereference', () => {
 
   it('dereferences URLs', async () => {
     // @ts-expect-error
-    fetch.mockImplementation(async (url: string) => ({
+    globalFetchSpy.mockImplementation(async (url: string) => ({
       text: async () => {
         if (url === 'http://example.com/specification/openapi.yaml') {
           return myAPI
