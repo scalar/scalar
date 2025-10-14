@@ -22,7 +22,7 @@ export function normalize(content: string | UnknownObject | Filesystem): Unknown
 
     try {
       return JSON.parse(content)
-    } catch (_error) {
+    } catch {
       // Does it look like YAML?
       const hasColon = /^[^:]+:/.test(content)
       const isJson = content.slice(0, 50).trimStart().startsWith('{')
