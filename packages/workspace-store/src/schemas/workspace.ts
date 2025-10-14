@@ -1,6 +1,7 @@
 import { Type } from '@scalar/typebox'
 import { AVAILABLE_CLIENTS, type AvailableClients } from '@scalar/types/snippetz'
 
+import type { UnknownObject } from '@/helpers/general'
 import { compose } from '@/schemas/compose'
 import { extensions } from '@/schemas/extensions'
 import {
@@ -26,11 +27,11 @@ import {
 export type ApiDefinition = OpenApiDocument | AsyncApiDocument
 
 // Type guards
-export function isOpenApiDocument(doc: ApiDefinition): doc is OpenApiDocument {
-  return 'openapi' in doc
+export function isOpenApiDocument(doc: ApiDefinition | UnknownObject): doc is OpenApiDocument {
+  return 'openapi' in doc || 'swagger' in doc
 }
 
-export function isAsyncApiDocument(doc: ApiDefinition): doc is AsyncApiDocument {
+export function isAsyncApiDocument(doc: ApiDefinition | UnknownObject): doc is AsyncApiDocument {
   return 'asyncapi' in doc
 }
 

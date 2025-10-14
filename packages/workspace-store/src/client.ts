@@ -28,7 +28,14 @@ import {
   OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
   type OpenApiDocument,
 } from '@/schemas/v3.1/strict/openapi-document'
-import type { ApiDefinition, Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from '@/schemas/workspace'
+import {
+  type ApiDefinition,
+  type Workspace,
+  type WorkspaceDocumentMeta,
+  type WorkspaceMeta,
+  isAsyncApiDocument,
+  isOpenApiDocument,
+} from '@/schemas/workspace'
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
 import type { Config, DocumentConfiguration } from '@/schemas/workspace-specification/config'
 
@@ -587,32 +594,30 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       }
     })
 
-    // Detect document type from the ORIGINAL document before any transformations
-    const isAsyncApi = 'asyncapi' in clonedRawInputDocument
-    const isOpenApi = 'openapi' in clonedRawInputDocument || 'swagger' in clonedRawInputDocument
-
     // Store original version info before upgrade
-    const originalVersion = isAsyncApi
+    const originalVersion = isAsyncApiDocument(clonedRawInputDocument)
       ? clonedRawInputDocument.asyncapi
       : (clonedRawInputDocument.openapi ?? clonedRawInputDocument.swagger)
 
     // Only upgrade OpenAPI/Swagger documents
-    const inputDocument = isOpenApi
+    const inputDocument = isOpenApiDocument(clonedRawInputDocument)
       ? measureSync('upgrade', () => upgrade(deepClone(clonedRawInputDocument), '3.1'))
       : clonedRawInputDocument
 
     const strictDocument: UnknownObject = createMagicProxy({ ...inputDocument, ...meta }, { showInternal: true })
 
     // Set version metadata based on document type
-    if (isOpenApi) {
+    if (isOpenApiDocument(clonedRawInputDocument)) {
       strictDocument['x-original-oas-version'] = originalVersion
     }
-    if (isAsyncApi) {
+    if (isAsyncApiDocument(clonedRawInputDocument)) {
       strictDocument['x-original-asyncapi-version'] = originalVersion
     }
 
     // Use the detected document type to select appropriate schema
-    const schemaToUse = isAsyncApi ? AsyncApiDocumentSchemaStrict : OpenAPIDocumentSchemaStrict
+    const schemaToUse = isAsyncApiDocument(clonedRawInputDocument)
+      ? AsyncApiDocumentSchemaStrict
+      : OpenAPIDocumentSchemaStrict
 
     if (strictDocument[extensions.document.navigation] === undefined) {
       // If the document navigation is not already present, bundle the entire document to resolve all references.
@@ -658,7 +663,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (strictDocument[extensions.document.navigation] === undefined) {
-      if (isAsyncApi) {
+      if (isAsyncApiDocument(clonedRawInputDocument)) {
         const navigation = createAsyncApiNavigation(strictDocument as AsyncApiDocument, input.config)
         strictDocument[extensions.document.navigation] = navigation.entries
       } else {
