@@ -83,7 +83,7 @@ export const XCustomExtensionPlugin = (): ApiReferencePlugin => {
 }
 ```
 
-### View-Based Plugins
+### Additional Components
 
 Plugins can inject components at specific locations in the API Reference using views.
 
@@ -92,10 +92,6 @@ Plugins can inject components at specific locations in the API Reference using v
 - `content.end` - After the Models section
 
 #### Example
-
-For a complete working example, see `ExampleFeedbackPlugin` in the codebase.
-
-#### Creating Your Own Plugin
 
 ```ts
 import type { ApiReferencePlugin } from '@scalar/types/api-reference'
@@ -128,7 +124,6 @@ View components receive:
 
 - `store` - The workspace store
 - `options` - API Reference configuration options
-- Any custom props defined in the plugin
 
 #### Using React Components
 
