@@ -614,7 +614,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       const coerced = measureSync('coerceValue', () =>
         coerceValue(OpenAPIDocumentSchemaStrict, deepClone(strictDocument)),
       )
-      measureAsync('mergeObjects', async () => mergeObjects(strictDocument, coerced))
+      measureSync('mergeObjects', () => mergeObjects(strictDocument, coerced))
     }
 
     const isValid = Value.Check(OpenAPIDocumentSchemaStrict, strictDocument)
