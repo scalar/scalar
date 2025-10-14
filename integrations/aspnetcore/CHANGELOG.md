@@ -1,5 +1,18 @@
 # @scalar/aspnetcore
 
+## 2.9.0
+
+### Minor Changes
+
+- c3ab5cf: feat: all new extension methods for ScalarOptions
+
+### Patch Changes
+
+- Updated dependencies [ef98f35]
+- Updated dependencies [f8efecd]
+- Updated dependencies [9c65f51]
+  - @scalar/api-reference@1.38.1
+
 ## 2.8.11
 
 ### Patch Changes

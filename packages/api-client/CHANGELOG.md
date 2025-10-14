@@ -1,5 +1,37 @@
 # @scalar/api-client
 
+## 2.8.1
+
+### Patch Changes
+
+- 577150c: fix(api-client): create-request-operation - await from pluginManager onResponseReceived executeHook
+- f3e17d8: fix(api-client): create-request-operation - await Promise from pluginManager.executeHook
+- 8e4c8c0: feat: export all blocks
+- f8efecd: feat: use new schema example generation in the response
+- Updated dependencies [f8efecd]
+- Updated dependencies [3f6d0b9]
+- Updated dependencies [2089748]
+- Updated dependencies [f3e17d8]
+- Updated dependencies [f8efecd]
+- Updated dependencies [8a7fb2a]
+- Updated dependencies [1335923]
+- Updated dependencies [07397c8]
+- Updated dependencies [f69e7cc]
+  - @scalar/components@0.15.1
+  - @scalar/helpers@0.0.12
+  - @scalar/json-magic@0.6.1
+  - @scalar/types@0.3.2
+  - @scalar/oas-utils@0.5.2
+  - @scalar/workspace-store@0.17.1
+  - @scalar/openapi-types@0.5.0
+  - @scalar/use-codemirror@0.12.43
+  - @scalar/import@0.4.31
+  - @scalar/object-utils@1.2.8
+  - @scalar/postman-to-openapi@0.3.40
+  - @scalar/openapi-parser@0.22.3
+  - @scalar/snippetz@0.5.1
+  - @scalar/themes@0.13.22
+
 ## 2.8.0
 
 ### Minor Changes

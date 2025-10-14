@@ -1,5 +1,22 @@
 # @scalar/workspace-store
 
+## 0.17.1
+
+### Patch Changes
+
+- 1335923: fix: do not upgrade the document for the original documents
+- 07397c8: fix(workspace-store): use `measureSync` for `mergeObjects` metric
+- Updated dependencies [3f6d0b9]
+- Updated dependencies [2089748]
+- Updated dependencies [f3e17d8]
+- Updated dependencies [8a7fb2a]
+  - @scalar/helpers@0.0.12
+  - @scalar/json-magic@0.6.1
+  - @scalar/types@0.3.2
+  - @scalar/openapi-upgrader@0.1.3
+  - @scalar/snippetz@0.5.1
+  - @scalar/code-highlight@0.2.0
+
 ## 0.17.0
 
 ### Minor Changes

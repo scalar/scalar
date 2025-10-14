@@ -1,5 +1,17 @@
 # @scalar/components
 
+## 0.15.1
+
+### Patch Changes
+
+- f8efecd: chore: accept unknown in code block
+- Updated dependencies [3f6d0b9]
+- Updated dependencies [f8efecd]
+  - @scalar/helpers@0.0.12
+  - @scalar/oas-utils@0.5.2
+  - @scalar/themes@0.13.22
+  - @scalar/code-highlight@0.2.0
+
 ## 0.15.0
 
 ### Minor Changes
