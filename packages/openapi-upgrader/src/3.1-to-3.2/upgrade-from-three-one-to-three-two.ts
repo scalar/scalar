@@ -116,8 +116,6 @@ export function upgradeFromThreeOneToThreeTwo(originalDocument: UnknownObject) {
     return document
   }
 
-  console.warn('⚠️ Experimental: Upgrading document from OpenAPI 3.1 to 3.2')
-
   // Migrate x-tagGroups to kind property
   migrateTagGroups(document)
 
