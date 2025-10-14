@@ -6,7 +6,9 @@ import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointe
 import { upgrade } from '@scalar/openapi-upgrader'
 
 import { keyOf } from '@/helpers/general'
-import { createNavigation } from '@/navigation'
+import { createAsyncApiNavigation, createNavigation } from '@/navigation'
+import type { AsyncApiDocument } from '@/schemas/asyncapi/asyncapi-document'
+import type { Operation as AsyncApiOperation } from '@/schemas/asyncapi/operation'
 import { extensions } from '@/schemas/extensions'
 import type { TraversedEntry } from '@/schemas/navigation'
 import { coerceValue } from '@/schemas/typebox-coerce'
@@ -197,6 +199,36 @@ export function externalizePathReferences(
 }
 
 /**
+ * Externalizes AsyncAPI operations by turning them into refs.
+ * This is similar to externalizePathReferences but for AsyncAPI's operation structure.
+ */
+export function externalizeAsyncApiOperationReferences(
+  document: AsyncApiDocument,
+  meta: { mode: 'ssr'; name: string; baseUrl: string } | { mode: 'static'; name: string; directory: string },
+) {
+  const result: Record<string, any> = {}
+
+  if (!document.operations) {
+    return result
+  }
+
+  Object.entries(document.operations).forEach(([operationId, operation]) => {
+    if (!operation || typeof operation !== 'object') {
+      return
+    }
+
+    const ref =
+      meta.mode === 'ssr'
+        ? `${meta.baseUrl}/${meta.name}/operations/${operationId}#`
+        : `./chunks/${meta.name}/operations/${operationId}.json#`
+
+    result[operationId] = { '$ref': ref, $global: true }
+  })
+
+  return result
+}
+
+/**
  * Resolves a workspace document from various input sources (URL, local file, or direct document object).
  *
  * @param workspaceDocument - The document input to resolve, which can be:
@@ -233,21 +265,25 @@ async function loadDocument(workspaceDocument: WorkspaceDocumentInput) {
 }
 
 /**
- * Create server state workspace store
+ * Create server state workspace store.
+ * Supports both OpenAPI and AsyncAPI documents.
  */
 export async function createServerWorkspaceStore(workspaceProps: CreateServerWorkspaceStore) {
   /**
    * Base workspace document containing essential metadata and document references.
    *
    * This workspace document provides the minimal information needed for initial rendering.
-   * All components and path operations are replaced with references to enable lazy loading.
+   * All components and operations are replaced with references to enable lazy loading.
    *
    * In SSR mode, references point to API endpoints.
    * In static mode, references point to filesystem chunks.
    */
   const workspace = {
     ...workspaceProps.meta,
-    documents: {} as Record<string, OpenApiDocument & { [extensions.document.navigation]: TraversedEntry[] }>,
+    documents: {} as Record<
+      string,
+      (OpenApiDocument | AsyncApiDocument) & { [extensions.document.navigation]: TraversedEntry[] }
+    >,
   }
 
   /**
@@ -255,62 +291,106 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
    * Each document is split into components and operations to enable lazy loading.
    * The keys are document names and values contain the components and operations
    * for that document.
+   *
+   * For OpenAPI documents, operations are organized by path and HTTP method.
+   * For AsyncAPI documents, operations are organized by operation ID.
    */
   const assets = {} as Record<
     string,
-    { components?: ComponentsObject; operations?: Record<string, Record<string, OperationObject>> }
+    {
+      components?: ComponentsObject
+      operations?: Record<string, Record<string, OperationObject>> // OpenAPI operations
+      asyncApiOperations?: Record<string, AsyncApiOperation> // AsyncAPI operations
+    }
   >
 
   /**
    * Adds a new document to the workspace.
    *
-   * This function processes an OpenAPI document by:
-   * 1. Converting it to OpenAPI 3.1 format if needed
-   * 2. Separating it into reusable components and path operations
-   * 3. Externalizing references based on the workspace mode (SSR or static)
-   * 4. Adding the processed document to the workspace with its metadata
+   * This function processes both OpenAPI and AsyncAPI documents by:
+   * 1. Detecting the document type (OpenAPI, Swagger, or AsyncAPI)
+   * 2. Converting OpenAPI/Swagger to OpenAPI 3.1 format if needed
+   * 3. Separating documents into reusable components and operations
+   * 4. Externalizing references based on the workspace mode (SSR or static)
+   * 5. Generating appropriate navigation structure
+   * 6. Adding the processed document to the workspace with its metadata
    *
    * The resulting document contains minimal information with externalized references
    * that will be resolved on-demand through the workspace's get() method.
    *
-   * @param document - The OpenAPI document to process and add
+   * @param document - The OpenAPI or AsyncAPI document to process and add
    * @param meta - Document metadata containing the required name and optional settings
    */
   const addDocumentSync = (document: Record<string, unknown>, meta: { name: string } & WorkspaceDocumentMeta) => {
     const { name, ...documentMeta } = meta
 
-    // Detect document type before upgrade
+    // Detect document type
     const isOpenApi = 'openapi' in document || 'swagger' in document
-
-    // Only upgrade if it is an OpenAPI/Swagger document
-    // AsyncAPI documents are not currently supported in server-side store
-    const documentV3 = isOpenApi ? coerceValue(OpenAPIDocumentSchema, upgrade(document, '3.1')) : (document as any) // Pass through non-OpenAPI documents (will fail validation if not OpenAPI)
-
-    // add the assets
-    assets[meta.name] = {
-      components: documentV3.components,
-      operations: documentV3.paths && escapePaths(filterHttpMethodsOnly(documentV3.paths)),
-    }
+    const isAsyncApi = 'asyncapi' in document
 
     const options =
       workspaceProps.mode === 'ssr'
         ? { mode: workspaceProps.mode, name, baseUrl: workspaceProps.baseUrl }
         : { mode: workspaceProps.mode, name, directory: workspaceProps.directory ?? DEFAULT_ASSETS_FOLDER }
 
-    const components = externalizeComponentReferences(documentV3, options)
-    const paths = externalizePathReferences(documentV3, options)
+    if (isAsyncApi) {
+      // Handle AsyncAPI documents
+      const asyncApiDoc = document as AsyncApiDocument
 
-    // Build the sidebar entries
-    const { entries } = createNavigation(documentV3, workspaceProps.config ?? {})
+      // Store AsyncAPI assets
+      assets[meta.name] = {
+        components: asyncApiDoc.components,
+        asyncApiOperations: asyncApiDoc.operations,
+      }
 
-    // The document is now a minimal version with externalized references to components and operations.
-    // These references will be resolved asynchronously when needed through the workspace's get() method.
-    workspace.documents[meta.name] = {
-      ...documentMeta,
-      ...documentV3,
-      components,
-      paths,
-      [extensions.document.navigation]: entries,
+      // Externalize component references if components exist
+      const components = asyncApiDoc.components
+        ? externalizeComponentReferences({ components: asyncApiDoc.components } as OpenApiDocument, options)
+        : {}
+
+      // Externalize AsyncAPI operation references
+      const operations = externalizeAsyncApiOperationReferences(asyncApiDoc, options)
+
+      // Build AsyncAPI navigation structure
+      const { entries } = createAsyncApiNavigation(asyncApiDoc, workspaceProps.config ?? {})
+
+      // Store the processed AsyncAPI document
+      workspace.documents[meta.name] = {
+        ...documentMeta,
+        ...asyncApiDoc,
+        components,
+        operations,
+        [extensions.document.navigation]: entries,
+      }
+    } else if (isOpenApi) {
+      // Handle OpenAPI/Swagger documents
+      const documentV3 = coerceValue(OpenAPIDocumentSchema, upgrade(document, '3.1'))
+
+      // Store OpenAPI assets
+      assets[meta.name] = {
+        components: documentV3.components,
+        operations: documentV3.paths && escapePaths(filterHttpMethodsOnly(documentV3.paths)),
+      }
+
+      // Externalize component references
+      const components = externalizeComponentReferences(documentV3, options)
+
+      // Externalize path operation references
+      const paths = externalizePathReferences(documentV3, options)
+
+      // Build OpenAPI navigation structure
+      const { entries } = createNavigation(documentV3, workspaceProps.config ?? {})
+
+      // Store the processed OpenAPI document
+      workspace.documents[meta.name] = {
+        ...documentMeta,
+        ...documentV3,
+        components,
+        paths,
+        [extensions.document.navigation]: entries,
+      }
+    } else {
+      console.warn(`Unsupported document type for "${name}". Expected OpenAPI, Swagger, or AsyncAPI document.`)
     }
   }
 
@@ -357,15 +437,17 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
       }
 
       // Write the workspace document
-      const basePath = `${cwd()}/${workspaceProps.directory ?? DEFAULT_ASSETS_FOLDER}`
+      const directory = workspaceProps.directory ?? DEFAULT_ASSETS_FOLDER
+      // Support both relative and absolute paths
+      const basePath = directory.startsWith('/') ? directory : `${cwd()}/${directory}`
       await fs.mkdir(basePath, { recursive: true })
 
       // Write the workspace contents on the file system
       await fs.writeFile(`${basePath}/${WORKSPACE_FILE_NAME}`, JSON.stringify(workspace))
 
       // Write the chunks
-      for (const [name, { components, operations }] of Object.entries(assets)) {
-        // Write the components chunks
+      for (const [name, { components, operations, asyncApiOperations }] of Object.entries(assets)) {
+        // Write the components chunks (same for both OpenAPI and AsyncAPI)
         if (components) {
           for (const [type, component] of Object.entries(components as Record<string, Record<string, unknown>>)) {
             const componentPath = `${basePath}/chunks/${name}/components/${type}`
@@ -377,7 +459,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
           }
         }
 
-        // Write the operations chunks
+        // Write the OpenAPI operations chunks
         if (operations) {
           for (const [path, methods] of Object.entries(operations)) {
             const operationPath = `${basePath}/chunks/${name}/operations/${path}`
@@ -386,6 +468,16 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
             for (const [method, operation] of Object.entries(methods)) {
               await fs.writeFile(`${operationPath}/${method}.json`, JSON.stringify(operation))
             }
+          }
+        }
+
+        // Write the AsyncAPI operations chunks
+        if (asyncApiOperations) {
+          const operationPath = `${basePath}/chunks/${name}/operations`
+          await fs.mkdir(operationPath, { recursive: true })
+
+          for (const [operationId, operation] of Object.entries(asyncApiOperations)) {
+            await fs.writeFile(`${operationPath}/${operationId}.json`, JSON.stringify(operation))
           }
         }
       }
@@ -415,15 +507,38 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
      * // Get a component
      * get('#/document-name/components/schemas/User')
      *
-     * // Get an operation
+     * // Get an OpenAPI operation
      * get('#/document-name/operations/pets/get')
+     *
+     * // Get an AsyncAPI operation
+     * get('#/document-name/operations/publishUserSignedUp')
      * ```
      *
      * @param pointer - The JSON Pointer string to locate the chunk
      * @returns The chunk data if found, undefined otherwise
      */
     get: (pointer: string) => {
-      return getValueByPath(assets, parseJsonPointer(pointer))
+      const path = parseJsonPointer(pointer)
+
+      // For AsyncAPI operations, we need to check if the document has asyncApiOperations
+      // instead of nested operations (OpenAPI structure)
+      if (path.length >= 2 && path[1] === 'operations') {
+        const documentName = path[0]
+
+        if (documentName && typeof documentName === 'string') {
+          const documentAssets = assets[documentName]
+
+          if (documentAssets?.asyncApiOperations) {
+            // AsyncAPI: operations are flat (e.g., ['doc', 'operations', 'operationId'])
+            if (path.length === 3 && path[2]) {
+              return documentAssets.asyncApiOperations[path[2]]
+            }
+          }
+        }
+      }
+
+      // Default behavior for OpenAPI and components
+      return getValueByPath(assets, path)
     },
     /**
      * Adds a new document to the workspace asynchronously.

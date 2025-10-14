@@ -13,6 +13,7 @@ import { allFilesMatch } from '../test/helpers'
 import {
   createServerWorkspaceStore,
   escapePaths,
+  externalizeAsyncApiOperationReferences,
   externalizeComponentReferences,
   externalizePathReferences,
   filterHttpMethodsOnly,
@@ -661,5 +662,399 @@ describe('externalize-path-references', () => {
     expect(result).toEqual({
       '/test': { get: { '$ref': './chunks/name/operations/~1test/get.json#', $global: true } },
     })
+  })
+})
+
+describe('AsyncAPI Server-Side Processing', () => {
+  const exampleAsyncApiDocument = () => ({
+    'asyncapi': '3.0.0' as const,
+    'info': {
+      'title': 'User Events API',
+      'version': '1.0.0',
+      'description': 'An API for handling user events',
+    },
+    'channels': {
+      'user/signedup': {
+        'title': 'User signed up',
+        'description': 'Channel for user signup events',
+        'operations': {
+          'publish': 'publishUserSignedUp',
+        },
+      },
+      'user/deleted': {
+        'title': 'User deleted',
+        'description': 'Channel for user deletion events',
+        'operations': {
+          'subscribe': 'subscribeUserDeleted',
+        },
+      },
+    },
+    'operations': {
+      'publishUserSignedUp': {
+        'action': 'publish' as const,
+        'channel': 'user/signedup',
+        'title': 'Publish user signed up event',
+        'summary': 'Publish when a user signs up',
+      },
+      'subscribeUserDeleted': {
+        'action': 'subscribe' as const,
+        'channel': 'user/deleted',
+        'title': 'Subscribe to user deleted event',
+        'summary': 'Subscribe to user deletion events',
+      },
+    },
+    'components': {
+      'schemas': {
+        'User': coerceValue(SchemaObjectSchema, {
+          'type': 'object',
+          'properties': {
+            'id': { 'type': 'string' },
+            'email': { 'type': 'string' },
+          },
+        }),
+      },
+    },
+  })
+
+  describe('ssr', () => {
+    it('processes AsyncAPI documents without casting to any', async () => {
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: 'https://example.com',
+        documents: [
+          {
+            name: 'asyncapi-test',
+            document: exampleAsyncApiDocument(),
+          },
+        ],
+      })
+
+      const workspace = store.getWorkspace()
+      const asyncApiDoc = workspace.documents['asyncapi-test']
+
+      expect(asyncApiDoc).toBeDefined()
+
+      // Type guard to check if it's an AsyncAPI document
+      if (asyncApiDoc && 'asyncapi' in asyncApiDoc) {
+        expect(asyncApiDoc.asyncapi).toBe('3.0.0')
+        expect(asyncApiDoc.info.title).toBe('User Events API')
+
+        // Verify operations are externalized
+        expect(asyncApiDoc.operations).toBeDefined()
+        expect(asyncApiDoc.operations!.publishUserSignedUp).toEqual({
+          '$ref': 'https://example.com/asyncapi-test/operations/publishUserSignedUp#',
+          $global: true,
+        })
+      }
+    })
+
+    it('generates correct navigation for AsyncAPI documents', async () => {
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: 'https://example.com',
+        documents: [
+          {
+            name: 'asyncapi-test',
+            document: exampleAsyncApiDocument(),
+          },
+        ],
+      })
+
+      const workspace = store.getWorkspace()
+      const asyncApiDoc = workspace.documents['asyncapi-test']
+
+      // Check navigation structure exists
+      expect(asyncApiDoc).toBeDefined()
+
+      if (asyncApiDoc) {
+        expect(asyncApiDoc['x-scalar-navigation']).toBeDefined()
+        const navigation = asyncApiDoc['x-scalar-navigation']
+
+        // Should have channel entries
+        const channelEntries = navigation.filter((entry) => entry.type === 'channel')
+        expect(channelEntries.length).toBeGreaterThan(0)
+
+        // Verify channel structure
+        const userSignedUpChannel = channelEntries.find(
+          (entry) => entry.type === 'channel' && entry.name === 'user/signedup',
+        )
+        expect(userSignedUpChannel).toBeDefined()
+
+        if (userSignedUpChannel && userSignedUpChannel.type === 'channel') {
+          expect(userSignedUpChannel.title).toBe('User signed up')
+
+          // Should have asyncapi-operation children
+          if (userSignedUpChannel.children && userSignedUpChannel.children.length > 0) {
+            const operations = userSignedUpChannel.children.filter((entry) => entry.type === 'asyncapi-operation')
+            expect(operations.length).toBeGreaterThan(0)
+            if (operations[0] && operations[0].type === 'asyncapi-operation') {
+              expect(operations[0].action).toBe('publish')
+            }
+          }
+        }
+      }
+    })
+
+    it('retrieves AsyncAPI operation chunks correctly', async () => {
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: 'https://example.com',
+        documents: [
+          {
+            name: 'asyncapi-test',
+            document: exampleAsyncApiDocument(),
+          },
+        ],
+      })
+
+      const operation = store.get('#/asyncapi-test/operations/publishUserSignedUp') as {
+        action: string
+        channel: string
+        title: string
+      }
+      expect(operation).toBeDefined()
+      expect(operation.action).toBe('publish')
+      expect(operation.channel).toBe('user/signedup')
+      expect(operation.title).toBe('Publish user signed up event')
+    })
+
+    it('handles mixed OpenAPI and AsyncAPI documents in the same workspace', async () => {
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: 'https://example.com',
+        documents: [
+          {
+            name: 'openapi-doc',
+            document: {
+              'openapi': '3.1.1',
+              'info': { title: 'REST API', version: '1.0.0' },
+              'paths': {
+                '/users': {
+                  get: { summary: 'List users' },
+                },
+              },
+            },
+          },
+          {
+            name: 'asyncapi-doc',
+            document: exampleAsyncApiDocument(),
+          },
+        ],
+      })
+
+      const workspace = store.getWorkspace()
+
+      // Check both documents are present
+      expect(workspace.documents['openapi-doc']).toBeDefined()
+      expect(workspace.documents['asyncapi-doc']).toBeDefined()
+
+      // Verify OpenAPI document has paths
+      const openApiDoc = workspace.documents['openapi-doc']
+      if (openApiDoc && 'openapi' in openApiDoc) {
+        expect(openApiDoc.openapi).toBe('3.1.1')
+        expect(openApiDoc.paths).toBeDefined()
+      }
+
+      // Verify AsyncAPI document has operations
+      const asyncApiDoc = workspace.documents['asyncapi-doc']
+      if (asyncApiDoc && 'asyncapi' in asyncApiDoc) {
+        expect(asyncApiDoc.asyncapi).toBe('3.0.0')
+        expect(asyncApiDoc.operations).toBeDefined()
+      }
+
+      // Verify operations can be retrieved for both
+      const restOperation = store.get('#/openapi-doc/operations/~1users/get')
+      expect(restOperation).toBeDefined()
+
+      const asyncOperation = store.get('#/asyncapi-doc/operations/publishUserSignedUp')
+      expect(asyncOperation).toBeDefined()
+    })
+  })
+
+  describe('static', () => {
+    let tmpDir = ''
+
+    beforeEach(() => {
+      tmpDir = `${cwd()}/tmp-test-${randomUUID()}`
+    })
+
+    afterEach(async () => {
+      await fs.rm(tmpDir, { recursive: true, force: true })
+    })
+
+    it('generates AsyncAPI workspace chunks in static mode', async () => {
+      const store = await createServerWorkspaceStore({
+        mode: 'static',
+        directory: tmpDir,
+        documents: [
+          {
+            name: 'asyncapi-test',
+            document: exampleAsyncApiDocument(),
+          },
+        ],
+      })
+
+      await store.generateWorkspaceChunks()
+
+      // Check that the workspace file exists
+      const workspaceFile = await fs.readFile(`${tmpDir}/scalar-workspace.json`, 'utf-8')
+      expect(workspaceFile).toBeDefined()
+
+      const workspace = JSON.parse(workspaceFile)
+      expect(workspace.documents['asyncapi-test']).toBeDefined()
+
+      // Check that operation chunks are created
+      const publishOperation = await fs.readFile(
+        `${tmpDir}/chunks/asyncapi-test/operations/publishUserSignedUp.json`,
+        'utf-8',
+      )
+      const publishOperationData = JSON.parse(publishOperation)
+      expect(publishOperationData.action).toBe('publish')
+      expect(publishOperationData.channel).toBe('user/signedup')
+
+      const subscribeOperation = await fs.readFile(
+        `${tmpDir}/chunks/asyncapi-test/operations/subscribeUserDeleted.json`,
+        'utf-8',
+      )
+      const subscribeOperationData = JSON.parse(subscribeOperation)
+      expect(subscribeOperationData.action).toBe('subscribe')
+      expect(subscribeOperationData.channel).toBe('user/deleted')
+
+      // Check that component chunks are created (same structure as OpenAPI)
+      const userSchema = await fs.readFile(`${tmpDir}/chunks/asyncapi-test/components/schemas/User.json`, 'utf-8')
+      const userSchemaData = JSON.parse(userSchema)
+      expect(userSchemaData.type).toBe('object')
+      expect(userSchemaData.properties).toBeDefined()
+    })
+
+    it('generates chunks for mixed OpenAPI and AsyncAPI documents', async () => {
+      const store = await createServerWorkspaceStore({
+        mode: 'static',
+        directory: tmpDir,
+        documents: [
+          {
+            name: 'openapi-doc',
+            document: {
+              'openapi': '3.1.1',
+              'info': { title: 'REST API', version: '1.0.0' },
+              'paths': {
+                '/users': {
+                  get: { summary: 'List users' },
+                },
+              },
+            },
+          },
+          {
+            name: 'asyncapi-doc',
+            document: exampleAsyncApiDocument(),
+          },
+        ],
+      })
+
+      await store.generateWorkspaceChunks()
+
+      // Verify OpenAPI operation chunks exist (nested by path and method)
+      const openApiOperation = await fs.readFile(`${tmpDir}/chunks/openapi-doc/operations/~1users/get.json`, 'utf-8')
+      expect(JSON.parse(openApiOperation).summary).toBe('List users')
+
+      // Verify AsyncAPI operation chunks exist (flat by operation ID)
+      const asyncApiOperation = await fs.readFile(
+        `${tmpDir}/chunks/asyncapi-doc/operations/publishUserSignedUp.json`,
+        'utf-8',
+      )
+      expect(JSON.parse(asyncApiOperation).action).toBe('publish')
+    })
+  })
+})
+
+describe('externalize-asyncapi-operation-references', () => {
+  it('externalizes AsyncAPI operations correctly for ssr mode', () => {
+    const result = externalizeAsyncApiOperationReferences(
+      {
+        asyncapi: '3.0.0',
+        info: {
+          title: 'Test AsyncAPI',
+          version: '1.0.0',
+        },
+        operations: {
+          'publishUserSignedUp': {
+            'action': 'publish' as const,
+            'channel': 'user/signedup',
+            'title': 'Publish user signed up event',
+          },
+          'subscribeUserDeleted': {
+            'action': 'subscribe' as const,
+            'channel': 'user/deleted',
+            'title': 'Subscribe to user deleted event',
+          },
+        },
+      },
+      {
+        mode: 'ssr',
+        name: 'asyncapi-test',
+        baseUrl: 'https://example.com',
+      },
+    )
+
+    expect(result).toEqual({
+      'publishUserSignedUp': {
+        '$ref': 'https://example.com/asyncapi-test/operations/publishUserSignedUp#',
+        $global: true,
+      },
+      'subscribeUserDeleted': {
+        '$ref': 'https://example.com/asyncapi-test/operations/subscribeUserDeleted#',
+        $global: true,
+      },
+    })
+  })
+
+  it('externalizes AsyncAPI operations correctly for static mode', () => {
+    const result = externalizeAsyncApiOperationReferences(
+      {
+        asyncapi: '3.0.0',
+        info: {
+          title: 'Test AsyncAPI',
+          version: '1.0.0',
+        },
+        operations: {
+          'publishUserSignedUp': {
+            'action': 'publish' as const,
+            'channel': 'user/signedup',
+            'title': 'Publish user signed up event',
+          },
+        },
+      },
+      {
+        mode: 'static',
+        name: 'asyncapi-test',
+        directory: 'assets',
+      },
+    )
+
+    expect(result).toEqual({
+      'publishUserSignedUp': {
+        '$ref': './chunks/asyncapi-test/operations/publishUserSignedUp.json#',
+        $global: true,
+      },
+    })
+  })
+
+  it('handles AsyncAPI documents without operations', () => {
+    const result = externalizeAsyncApiOperationReferences(
+      {
+        asyncapi: '3.0.0',
+        info: {
+          title: 'Test AsyncAPI',
+          version: '1.0.0',
+        },
+      },
+      {
+        mode: 'ssr',
+        name: 'asyncapi-test',
+        baseUrl: 'https://example.com',
+      },
+    )
+
+    expect(result).toEqual({})
   })
 })
