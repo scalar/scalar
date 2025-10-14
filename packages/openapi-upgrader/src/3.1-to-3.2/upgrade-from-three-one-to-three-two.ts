@@ -1,6 +1,45 @@
 import type { UnknownObject } from '@scalar/types/utils'
 
 /**
+ * Recursively migrate XML object properties from 3.1 to 3.2 format
+ */
+function migrateXmlObjects(obj: any): void {
+  if (obj === null || typeof obj !== 'object') {
+    return
+  }
+
+  // Handle arrays
+  if (Array.isArray(obj)) {
+    for (const item of obj) {
+      migrateXmlObjects(item)
+    }
+    return
+  }
+
+  // Handle xml property migration
+  if (obj.xml && typeof obj.xml === 'object') {
+    // Migrate wrapped: true to nodeType: 'element'
+    if (obj.xml.wrapped === true) {
+      delete obj.xml.wrapped
+      obj.xml.nodeType = 'element'
+    }
+
+    // Migrate attribute: true to nodeType: 'attribute'
+    if (obj.xml.attribute === true) {
+      delete obj.xml.attribute
+      obj.xml.nodeType = 'attribute'
+    }
+  }
+
+  // Recursively process all object properties
+  for (const key in obj) {
+    if (Object.hasOwn(obj, key)) {
+      migrateXmlObjects(obj[key])
+    }
+  }
+}
+
+/**
  * Migrate x-tagGroups to kind property on tags
  */
 function migrateTagGroups(document: UnknownObject) {
@@ -77,6 +116,9 @@ export function upgradeFromThreeOneToThreeTwo(originalDocument: UnknownObject) {
 
   // Migrate x-tagGroups to kind property
   migrateTagGroups(document)
+
+  // Migrate XML object properties
+  migrateXmlObjects(document)
 
   return document
 }
