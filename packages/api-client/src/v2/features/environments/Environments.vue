@@ -161,24 +161,24 @@ const selectedEnvironment = ref<Environment | null>(null)
                   id,
                 })
             "
-            @edit:color="
-              () => {
-                selectedEnvironment = env
-                updateColorEnvironmentModalState.show()
-              }
-            "
-            @edit:name="
-              () => {
-                selectedEnvironment = env
-                updateNameEnvironmentModalState.show()
-              }
-            "
             @reorder="
               (draggingItem, hoveredItem) =>
                 emit('environment:reorder', {
                   draggingItem,
                   hoveredItem,
                 })
+            "
+            @update:color="
+              () => {
+                selectedEnvironment = env
+                updateColorEnvironmentModalState.show()
+              }
+            "
+            @update:name="
+              () => {
+                selectedEnvironment = env
+                updateNameEnvironmentModalState.show()
+              }
             "
             @update:variable="
               ({ id, value }) =>
@@ -238,7 +238,14 @@ const selectedEnvironment = ref<Environment | null>(null)
         <EnvironmentColorUpdateModal
           v-if="selectedEnvironment"
           :color="selectedEnvironment.color || '#FFFFFF'"
-          :state="updateColorEnvironmentModalState" />
+          :state="updateColorEnvironmentModalState"
+          @submit="
+            (payload) =>
+              emit('environment:update', {
+                environmentName: selectedEnvironment!.name,
+                environment: { color: payload.color },
+              })
+          " />
       </ViewLayoutSection>
     </ViewLayoutContent>
   </ViewLayout>
