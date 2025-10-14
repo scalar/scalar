@@ -42,7 +42,7 @@
   ],
   "module": "./dist/index.js",
   "devDependencies": {
-    "@hono/node-server": "^1.11.0",
+    "@hono/node-server": "catalog:*",
     "@scalar/build-tooling": "workspace:*",
     "@scalar/hono-api-reference": "workspace:*",
     "@scalar/mock-server": "workspace:*",

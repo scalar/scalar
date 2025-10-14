@@ -46,7 +46,7 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
-    "@hono/node-server": "^1.11.0",
+    "@hono/node-server": "catalog:*",
     "@scalar/helpers": "workspace:*",
     "hono": "catalog:*",
     "js-base64": "catalog:*"

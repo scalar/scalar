@@ -73,7 +73,7 @@
     "vue": "catalog:*"
   },
   "devDependencies": {
-    "@hono/node-server": "^1.11.0",
+    "@hono/node-server": "catalog:*",
     "@scalar/build-tooling": "workspace:*",
     "@scalar/galaxy": "workspace:*",
     "@types/html-minifier-terser": "^7.0.2",

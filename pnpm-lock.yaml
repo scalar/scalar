@@ -24,6 +24,9 @@ catalogs:
     '@headlessui/vue':
       specifier: 1.7.23
       version: 1.7.23
+    '@hono/node-server':
+      specifier: 1.19.5
+      version: 1.19.5
     '@playwright/test':
       specifier: 1.56.0
       version: 1.56.0
@@ -923,8 +926,8 @@ importers:
         version: link:../../packages/core
     devDependencies:
       '@hono/node-server':
-        specifier: ^1.11.0
-        version: 1.11.3
+        specifier: catalog:*
+        version: 1.19.5(hono@4.9.7)
       '@hono/zod-openapi':
         specifier: ^0.8.6
         version: 0.8.6(hono@4.9.7)(zod@4.1.11)
@@ -1423,8 +1426,8 @@ importers:
         version: 4.1.11
     devDependencies:
       '@hono/node-server':
-        specifier: ^1.11.0
-        version: 1.11.3
+        specifier: catalog:*
+        version: 1.19.5(hono@4.9.7)
       '@playwright/test':
         specifier: catalog:*
         version: 1.56.0
@@ -1538,8 +1541,8 @@ importers:
   packages/api-reference/playground/ssr:
     dependencies:
       '@hono/node-server':
-        specifier: ^1.11.0
-        version: 1.11.3
+        specifier: catalog:*
+        version: 1.19.5(hono@4.9.7)
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../..
@@ -1986,8 +1989,8 @@ importers:
         version: 4.9.7
     devDependencies:
       '@hono/node-server':
-        specifier: ^1.11.0
-        version: 1.11.3
+        specifier: catalog:*
+        version: 1.19.5(hono@4.9.7)
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
@@ -2004,8 +2007,8 @@ importers:
   packages/mock-server/playground:
     devDependencies:
       '@hono/node-server':
-        specifier: ^1.11.0
-        version: 1.11.3
+        specifier: catalog:*
+        version: 1.19.5(hono@4.9.7)
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../../build-tooling
@@ -2270,8 +2273,8 @@ importers:
         version: 3.5.17(typescript@5.8.3)
     devDependencies:
       '@hono/node-server':
-        specifier: ^1.11.0
-        version: 1.11.3
+        specifier: catalog:*
+        version: 1.19.5(hono@4.9.7)
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
@@ -2694,8 +2697,8 @@ importers:
   packages/void-server:
     dependencies:
       '@hono/node-server':
-        specifier: ^1.11.0
-        version: 1.11.3
+        specifier: catalog:*
+        version: 1.19.5(hono@4.9.7)
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../helpers
@@ -5782,9 +5785,11 @@ packages:
     peerDependencies:
       vue: ^3.2.0
 
-  '@hono/node-server@1.11.3':
-    resolution: {integrity: sha512-mFg3qlKkDtMWSalX5Gyh6Zd3MXay0biGobFlyJ49i6R1smBBS1CYkNZbvwLlw+4sSrHO4ZiH7kj4TcLpl2Jr3g==}
+  '@hono/node-server@1.19.5':
+    resolution: {integrity: sha512-iBuhh+uaaggeAuf+TftcjZyWh2GEgZcVGXkNtskLVoWaXhnJtC5HLHrU8W1KHDoucqO1MswwglmkWLFyiDn4WQ==}
     engines: {node: '>=18.14.1'}
+    peerDependencies:
+      hono: ^4
 
   '@hono/zod-openapi@0.8.6':
     resolution: {integrity: sha512-HQNmJoIGyu2kNK9DI8+gIyV4c+bZm5t75PytPSRqMTim9P9HAAPMtepxu44aPZO9ehDxK4KZlRVRqz8OBxOL1A==}
@@ -23733,7 +23738,9 @@ snapshots:
       '@tanstack/vue-virtual': 3.8.5(vue@3.5.17(typescript@5.8.3))
       vue: 3.5.17(typescript@5.8.3)
 
-  '@hono/node-server@1.11.3': {}
+  '@hono/node-server@1.19.5(hono@4.9.7)':
+    dependencies:
+      hono: 4.9.7
 
   '@hono/zod-openapi@0.8.6(hono@4.9.7)(zod@4.1.11)':
     dependencies:
@@ -35907,7 +35914,7 @@ snapshots:
       unctx: 2.4.1
       unimport: 5.2.0
       unplugin: 2.3.10
-      unplugin-vue-router: 0.15.0(@vue/compiler-sfc@3.5.21)(typescript@5.8.3)(vue-router@4.5.1(vue@3.5.21(typescript@5.8.3)))(vue@3.5.21(typescript@5.8.3))
+      unplugin-vue-router: 0.15.0(@vue/compiler-sfc@3.5.21)(typescript@5.8.3)(vue-router@4.5.1(vue@3.5.17(typescript@5.8.3)))(vue@3.5.21(typescript@5.8.3))
       unstorage: 1.17.1(@netlify/blobs@9.1.2)(db0@0.3.2)(ioredis@5.7.0)
       untyped: 2.0.0
       vue: 3.5.21(typescript@5.8.3)
@@ -36030,7 +36037,7 @@ snapshots:
       unctx: 2.4.1
       unimport: 5.2.0
       unplugin: 2.3.10
-      unplugin-vue-router: 0.15.0(@vue/compiler-sfc@3.5.21)(typescript@5.8.3)(vue-router@4.5.1(vue@3.5.21(typescript@5.8.3)))(vue@3.5.21(typescript@5.8.3))
+      unplugin-vue-router: 0.15.0(@vue/compiler-sfc@3.5.21)(typescript@5.8.3)(vue-router@4.5.1(vue@3.5.17(typescript@5.8.3)))(vue@3.5.21(typescript@5.8.3))
       unstorage: 1.17.1(@netlify/blobs@9.1.2)(db0@0.3.2)(ioredis@5.7.0)
       untyped: 2.0.0
       vue: 3.5.21(typescript@5.8.3)
@@ -40266,7 +40273,7 @@ snapshots:
       pathe: 2.0.3
       picomatch: 4.0.3
 
-  unplugin-vue-router@0.15.0(@vue/compiler-sfc@3.5.21)(typescript@5.8.3)(vue-router@4.5.1(vue@3.5.21(typescript@5.8.3)))(vue@3.5.21(typescript@5.8.3)):
+  unplugin-vue-router@0.15.0(@vue/compiler-sfc@3.5.21)(typescript@5.8.3)(vue-router@4.5.1(vue@3.5.17(typescript@5.8.3)))(vue@3.5.21(typescript@5.8.3)):
     dependencies:
       '@vue-macros/common': 3.0.0-beta.16(vue@3.5.21(typescript@5.8.3))
       '@vue/compiler-sfc': 3.5.21
