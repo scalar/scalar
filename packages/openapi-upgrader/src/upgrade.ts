@@ -10,10 +10,7 @@ import { upgradeFromThreeToThreeOne } from './3.0-to-3.1'
  */
 export function upgrade(value: OpenAPIV2.Document, targetVersion: '3.0'): OpenAPIV3.Document
 export function upgrade(value: OpenAPIV2.Document | OpenAPIV3.Document, targetVersion: '3.1'): OpenAPIV3_1.Document
-export function upgrade(
-  value: OpenAPIV2.Document | OpenAPIV3.Document | OpenAPIV3_1.Document,
-  targetVersion: '3.2',
-): OpenAPIV3_2.Document
+export function upgrade(value: OpenAPI.Document, targetVersion: '3.2'): OpenAPIV3_2.Document
 export function upgrade(
   value: OpenAPI.Document,
   targetVersion: '3.0' | '3.1' | '3.2',
