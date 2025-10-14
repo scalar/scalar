@@ -3,6 +3,20 @@ import { describe, expect, it } from 'vitest'
 import { dereference } from './dereference'
 
 describe('dereference', async () => {
+  it('dereferences an OpenAPI 3.2.0 file', async () => {
+    const result = await dereference(`{
+      "openapi": "3.2.0",
+      "info": {
+          "title": "Hello World",
+          "version": "1.0.0"
+      },
+      "paths": {}
+    }`)
+
+    expect(result.errors).toStrictEqual([])
+    expect(result.schema.info.title).toBe('Hello World')
+  })
+
   it('dereferences an OpenAPI 3.1.0 file', async () => {
     const result = await dereference(`{
       "openapi": "3.1.0",
