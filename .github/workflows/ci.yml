@@ -938,7 +938,7 @@ jobs:
             https://${{env.DEPLOY_ID}}--scalar-components.netlify.app
           comment-tag: 'storybook-preview'
 
-  aspnetcore-build-test:
+  dotnet-build-test:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     needs: [build]
@@ -950,14 +950,19 @@ jobs:
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
           name: standalone-js
-          path: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
+          path: temp-assets
 
       - name: Rename standalone.js to scalar.js
-        working-directory: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
+        working-directory: temp-assets
         run: mv standalone.js scalar.js
 
-      - name: Compress static assets
-        working-directory: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
+      - name: Copy scalar.js to aspnetcore and aspire
+        run: |
+          cp temp-assets/scalar.js integrations/dotnet/aspnetcore/src/Scalar.AspNetCore/StaticAssets/
+          cp temp-assets/scalar.js integrations/dotnet/aspire/src/Scalar.Aspire.Service/wwwroot/
+
+      - name: Compress static assets (aspnetcore)
+        working-directory: integrations/dotnet/aspnetcore/src/Scalar.AspNetCore/StaticAssets
         run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js favicon.svg
 
       - name: Setup .NET
@@ -969,52 +974,15 @@ jobs:
             8.x
 
       - name: Restore dependencies
-        working-directory: integrations/aspnetcore
+        working-directory: integrations/dotnet
         run: dotnet restore
 
       - name: Build solution
-        working-directory: integrations/aspnetcore
+        working-directory: integrations/dotnet
         run: dotnet build -c Release --no-restore
 
       - name: Test solution
-        working-directory: integrations/aspnetcore
-        run: dotnet test -c Release --no-build
-
-  aspire-build-test:
-    runs-on: blacksmith-2vcpu-ubuntu-2204
-    timeout-minutes: 10
-    needs: [build]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-
-      - name: Download standalone.js artifact
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
-        with:
-          name: standalone-js
-          path: integrations/aspire/src/Scalar.Aspire.Service/wwwroot
-
-      - name: Rename standalone.js to scalar.js
-        working-directory: integrations/aspire/src/Scalar.Aspire.Service/wwwroot
-        run: mv standalone.js scalar.js
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5
-        with:
-          dotnet-version: |
-            9.x
-            8.x
-
-      - name: Restore dependencies
-        working-directory: integrations/aspire
-        run: dotnet restore
-
-      - name: Build solution
-        working-directory: integrations/aspire
-        run: dotnet build -c Release --no-restore
-
-      - name: Test solution
-        working-directory: integrations/aspire
+        working-directory: integrations/dotnet
         run: dotnet test -c Release --no-build
 
   aspnetcore-publish:
@@ -1032,7 +1000,7 @@ jobs:
         types,
         test-packages,
         test-integrations,
-        aspnetcore-build-test,
+        dotnet-build-test,
       ]
 
     steps:
@@ -1051,11 +1019,11 @@ jobs:
         with:
           files_yaml: |
             aspnetcore_package:
-              - integrations/aspnetcore/package.json
+              - integrations/dotnet/aspnetcore/package.json
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Extract version from package.json
-        working-directory: integrations/aspnetcore
+        working-directory: integrations/dotnet/aspnetcore
         run: |
           VERSION=$(node -p "require('./package.json').version")
           echo "VERSION=$VERSION" >> $GITHUB_ENV
@@ -1065,16 +1033,16 @@ jobs:
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
           name: standalone-js
-          path: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
+          path: integrations/dotnet/aspnetcore/src/Scalar.AspNetCore/StaticAssets
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Rename standalone.js to scalar.js # Lets get rid of this
-        working-directory: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
+        working-directory: integrations/dotnet/aspnetcore/src/Scalar.AspNetCore/StaticAssets
         run: mv standalone.js scalar.js
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Compress static assets
-        working-directory: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
+        working-directory: integrations/dotnet/aspnetcore/src/Scalar.AspNetCore/StaticAssets
         run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js favicon.svg
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
@@ -1085,12 +1053,12 @@ jobs:
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Restore dependencies
-        working-directory: integrations/aspnetcore
+        working-directory: integrations/dotnet/aspnetcore
         run: dotnet restore
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Pack packages
-        working-directory: integrations/aspnetcore
+        working-directory: integrations/dotnet/aspnetcore
         run: |
           dotnet pack src/Scalar.AspNetCore -c Release --no-restore --output nupkgs /p:Version=$VERSION
           dotnet pack src/Scalar.AspNetCore.Microsoft -c Release --no-restore --output nupkgs /p:Version=$VERSION
@@ -1098,7 +1066,7 @@ jobs:
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Publish packages
-        working-directory: integrations/aspnetcore
+        working-directory: integrations/dotnet/aspnetcore
         run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
 
   aspire-publish:
@@ -1115,7 +1083,7 @@ jobs:
         types,
         test-packages,
         test-integrations,
-        aspire-build-test,
+        dotnet-build-test,
       ]
 
     steps:
@@ -1134,11 +1102,11 @@ jobs:
         with:
           files_yaml: |
             aspire_package:
-              - integrations/aspire/package.json
+              - integrations/dotnet/aspire/package.json
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Extract version from package.json
-        working-directory: integrations/aspire
+        working-directory: integrations/dotnet/aspire
         run: |
           VERSION=$(node -p "require('./package.json').version")
           echo "VERSION=$VERSION" >> $GITHUB_ENV
@@ -1148,11 +1116,11 @@ jobs:
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
           name: standalone-js
-          path: integrations/aspire/src/Scalar.Aspire.Service/wwwroot
+          path: integrations/dotnet/aspire/src/Scalar.Aspire.Service/wwwroot
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Rename standalone.js to scalar.js
-        working-directory: integrations/aspire/src/Scalar.Aspire.Service/wwwroot
+        working-directory: integrations/dotnet/aspire/src/Scalar.Aspire.Service/wwwroot
         run: mv standalone.js scalar.js
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
@@ -1178,8 +1146,8 @@ jobs:
         name: Build and push Aspire Docker image
         uses: useblacksmith/build-push-action@30c71162f16ea2c27c3e21523255d209b8b538c1 # v2
         with:
-          context: integrations/aspire
-          file: integrations/aspire/src/Scalar.Aspire.Service/Dockerfile
+          context: integrations/dotnet/aspire
+          file: integrations/dotnet/aspire/src/Scalar.Aspire.Service/Dockerfile
           push: true
           platforms: |
             linux/amd64
@@ -1190,7 +1158,7 @@ jobs:
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Set version in Constants.cs
-        working-directory: integrations/aspire
+        working-directory: integrations/dotnet/aspire
         run: |
           sed -i 's/ImageTag = "latest"/ImageTag = "'$VERSION'"/' src/Scalar.Aspire/Constants.cs
           cat src/Scalar.Aspire/Constants.cs
@@ -1204,17 +1172,17 @@ jobs:
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Restore dependencies
-        working-directory: integrations/aspire/src/Scalar.Aspire
+        working-directory: integrations/dotnet/aspire/src/Scalar.Aspire
         run: dotnet restore
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Pack Scalar.Aspire NuGet package
-        working-directory: integrations/aspire/src/Scalar.Aspire
+        working-directory: integrations/dotnet/aspire/src/Scalar.Aspire
         run: dotnet pack -c Release --no-restore --output nupkgs /p:Version=$VERSION
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Publish Scalar.Aspire NuGet package
-        working-directory: integrations/aspire/src/Scalar.Aspire
+        working-directory: integrations/dotnet/aspire/src/Scalar.Aspire
         run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
 
   fastapi-build-test:
