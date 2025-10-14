@@ -37,7 +37,7 @@ defineSlots<{
         <template #icon>
           <ScalarIconGlobe />
         </template>
-        Workspace cookies
+        Global Environment
       </ScalarSidebarItem>
       <ScalarSidebarItem
         is="button"

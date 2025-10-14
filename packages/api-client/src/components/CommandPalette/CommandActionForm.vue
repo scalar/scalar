@@ -31,7 +31,7 @@ const { cx } = useBindCx()
         <slot name="options" />
       </div>
       <ScalarButton
-        class="max-h-8 p-0 px-3 text-xs"
+        class="max-h-8 px-3 text-xs"
         :disabled="disabled"
         :loading="loading"
         type="submit">

@@ -17,6 +17,10 @@ const { size = 'md' } = defineProps<{
   variant?: ModalVariants['variant']
 }>()
 
+const emit = defineEmits<{
+  (event: 'close'): void
+}>()
+
 const modal = cva({
   base: [
     'scalar-modal',
@@ -76,7 +80,12 @@ export function useModal() {
 <template>
   <Dialog
     :open="state.open"
-    @close="state.hide()">
+    @close="
+      () => {
+        state.hide()
+        emit('close')
+      }
+    ">
     <div
       :class="
         cx(
