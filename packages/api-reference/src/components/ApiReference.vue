@@ -141,14 +141,18 @@ function syncUrlWithDocument(
   const url = new URL(window.location.href)
 
   // Clear path if pathRouting is enabled
-  if (config.pathRouting) {
+  if (config.pathRouting && slug !== url.searchParams.get(QUERY_PARAMETER)) {
     url.pathname = config.pathRouting?.basePath ?? ''
   }
 
   // Use slug if available, then fallback to index
   const parameterValue = slug
 
-  url.searchParams.set(QUERY_PARAMETER, parameterValue)
+  if (Object.keys(configList.value).length > 1) {
+    url.searchParams.set(QUERY_PARAMETER, parameterValue)
+  } else {
+    url.searchParams.delete(QUERY_PARAMETER)
+  }
 
   window.history.replaceState({}, '', url.toString())
 
