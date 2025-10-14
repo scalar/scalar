@@ -148,7 +148,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
         <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="https://twitter.com/scalar" target="_blank"><scalar-icon src="phosphor/bold/twitter-logo"></scalar-icon> Twitter</a>
       </p>
       <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="https://github.com/scalar/scalar" target="_blank"><scalar-icon src="phosphor/bold/github-logo"></scalar-icon> Github</a>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="https://github.com/scalar/scalar" target="_blank"><scalar-icon src="phosphor/bold/github-logo"></scalar-icon> GitHub</a>
       </p>
     </div>
   </div>
@@ -259,7 +259,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
         <div class="w-1/3 flex flex-col gap-2">
           <b>Socials</b>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://twitter.com/scalar" target="_blank">x (formerly twitter)</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://github.com/scalar/scalar" target="_blank">Github</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://github.com/scalar/scalar" target="_blank">GitHub</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://discord.gg/scalar" target="_blank">Discord</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://www.linkedin.com/company/scalar-org" target="_blank">Linkedin</a>
         </div>
