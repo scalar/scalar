@@ -1,4 +1,4 @@
-import type { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1, OpenAPIV3_2 } from '@scalar/openapi-types'
+import type { OpenAPIV3, OpenAPIV3_1, OpenAPIV3_2 } from '@scalar/openapi-types'
 
 import { upgradeFromThreeOneToThreeTwo } from '@/3.1-to-3.2'
 
