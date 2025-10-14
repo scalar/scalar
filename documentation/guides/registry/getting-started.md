@@ -133,10 +133,10 @@ They are open source. So I can get in on free features and stay with Scalar no m
         <b class="font-medium">Additional Reading</b>
       </p>
       <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/scalar-registry/cli"><scalar-icon src="phosphor/bold/brackets-square"></scalar-icon> CLI</a>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/scalar/scalar-registry/cli"><scalar-icon src="phosphor/bold/brackets-square"></scalar-icon> CLI</a>
       </p>
       <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/scalar-registry/upload"><scalar-icon src="phosphor/bold/upload"></scalar-icon> Upload API</a>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/scalar/scalar-registry/upload"><scalar-icon src="phosphor/bold/upload"></scalar-icon> Upload API</a>
       </p>
       <p class="mt-3 mb-1 pl-2">
         <b class="font-medium">Community</b>
