@@ -96,7 +96,7 @@
     "js-base64": "catalog:*",
     "microdiff": "catalog:*",
     "nanoid": "catalog:*",
-    "type-fest": "^4.41.0",
+    "type-fest": "catalog:*",
     "vue": "catalog:*",
     "zod": "catalog:*"
   },
