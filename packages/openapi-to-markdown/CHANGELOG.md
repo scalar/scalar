@@ -1,5 +1,23 @@
 # @scalar/openapi-to-markdown
 
+## 0.2.45
+
+### Patch Changes
+
+- Updated dependencies [f8efecd]
+- Updated dependencies [3f6d0b9]
+- Updated dependencies [f3e17d8]
+- Updated dependencies [f8efecd]
+- Updated dependencies [f69e7cc]
+  - @scalar/components@0.15.1
+  - @scalar/helpers@0.0.12
+  - @scalar/types@0.3.2
+  - @scalar/oas-utils@0.5.2
+  - @scalar/openapi-types@0.5.0
+  - @scalar/openapi-parser@0.22.3
+  - @scalar/openapi-upgrader@0.1.3
+  - @scalar/snippetz@0.5.1
+
 ## 0.2.44
 
 ### Patch Changes

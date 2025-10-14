@@ -1,5 +1,13 @@
 # @scalar/import
 
+## 0.4.31
+
+### Patch Changes
+
+- Updated dependencies [3f6d0b9]
+  - @scalar/helpers@0.0.12
+  - @scalar/openapi-parser@0.22.3
+
 ## 0.4.30
 
 ### Patch Changes

@@ -3,7 +3,7 @@
  *
  * Also focuses the element if the focus flag is true
  */
-export const scrollToId = async (id: string, focus?: boolean) => {
+export const scrollToId = (id: string, focus?: boolean): void => {
   const scrollToElement = (element: HTMLElement) => {
     element.scrollIntoView()
     if (focus) {
@@ -23,7 +23,7 @@ export const scrollToId = async (id: string, focus?: boolean) => {
    */
   const stopTime = Date.now() + 1000
 
-  const tryScroll = () => {
+  const tryScroll = (): void => {
     const element = document.getElementById(id)
     if (element) {
       scrollToElement(element)

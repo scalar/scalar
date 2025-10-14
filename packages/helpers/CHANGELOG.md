@@ -1,5 +1,11 @@
 # @scalar/helpers
 
+## 0.0.12
+
+### Patch Changes
+
+- 3f6d0b9: fix(helpers): `scrollToId` is not an async function
+
 ## 0.0.11
 
 ### Patch Changes

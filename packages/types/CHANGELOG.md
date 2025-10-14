@@ -1,5 +1,13 @@
 # @scalar/types
 
+## 0.3.2
+
+### Patch Changes
+
+- f3e17d8: fix(types): allow async callbacks for event handlers
+- Updated dependencies [f69e7cc]
+  - @scalar/openapi-types@0.5.0
+
 ## 0.3.1
 
 ### Patch Changes

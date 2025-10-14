@@ -135,7 +135,7 @@ describe('RequestExample', () => {
   ]
 
   const defaultProps = {
-    method: 'GET' as HttpMethodType,
+    method: 'get' as HttpMethodType,
     path: '/api/test',
     operation: mockOperation,
     securitySchemes: mockSecuritySchemes,
@@ -151,7 +151,7 @@ describe('RequestExample', () => {
 
       expect(wrapper.findComponent({ name: 'Card' })).toBeTruthy()
       expect(wrapper.findComponent({ name: 'HttpMethod' })).toBeTruthy()
-      expect(wrapper.findComponent({ name: 'HttpMethod' }).props('method')).toBe('GET')
+      expect(wrapper.findComponent({ name: 'HttpMethod' }).props('method')).toBe('get')
       expect(wrapper.text()).toContain('/api/test')
     })
 
@@ -240,7 +240,7 @@ describe('RequestExample', () => {
       })
 
       expect(wrapper.findComponent({ name: 'Card' })).toBeTruthy()
-      expect(wrapper.findComponent({ name: 'HttpMethod' }).props('method')).toBe('GET')
+      expect(wrapper.findComponent({ name: 'HttpMethod' }).props('method')).toBe('get')
     })
 
     it('does not render when no clients available and fallback is false', () => {
@@ -789,7 +789,7 @@ describe('RequestExample', () => {
         props: {
           ...defaultProps,
           isWebhook: true,
-          method: 'POST' as HttpMethodType,
+          method: 'post' as HttpMethodType,
           path: '/webhook/endpoint',
           operation: {
             summary: 'Webhook operation',
@@ -926,7 +926,7 @@ describe('RequestExample', () => {
         props: {
           ...defaultProps,
           isWebhook: true,
-          method: 'POST' as HttpMethodType,
+          method: 'post' as HttpMethodType,
           path: '/webhook/endpoint',
           operation: {
             summary: 'Webhook operation',
@@ -969,7 +969,7 @@ describe('RequestExample', () => {
         props: {
           ...defaultProps,
           isWebhook: true,
-          method: 'POST' as HttpMethodType,
+          method: 'post' as HttpMethodType,
           path: '/webhook/xml',
           operation: {
             summary: 'XML webhook',
@@ -1011,7 +1011,7 @@ describe('RequestExample', () => {
         props: {
           ...defaultProps,
           isWebhook: true,
-          method: 'POST' as HttpMethodType,
+          method: 'post' as HttpMethodType,
           path: '/webhook/secure',
           operation: {
             summary: 'Secure webhook',
@@ -1096,7 +1096,7 @@ describe('RequestExample', () => {
         props: {
           ...defaultProps,
           isWebhook: true,
-          method: 'POST' as HttpMethodType,
+          method: 'post' as HttpMethodType,
           path: '/webhook/orders',
           operation: {
             summary: 'Order webhook',
@@ -1144,7 +1144,7 @@ describe('RequestExample', () => {
         props: {
           ...defaultProps,
           isWebhook: true,
-          method: 'POST' as HttpMethodType,
+          method: 'post' as HttpMethodType,
           path: '/webhook/empty',
           operation: {
             summary: 'Empty webhook',
@@ -1175,7 +1175,7 @@ describe('RequestExample', () => {
         props: {
           ...defaultProps,
           isWebhook: true,
-          method: 'POST' as HttpMethodType,
+          method: 'post' as HttpMethodType,
           path: '/webhook/referenced',
           operation: {
             summary: 'Referenced webhook',

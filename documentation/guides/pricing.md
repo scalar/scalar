@@ -603,7 +603,7 @@
         <div class="w-1/3 flex flex-col gap-2">
           <b>Socials</b>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://twitter.com/scalar" target="_blank">x (formerly twitter)</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://github.com/scalar/scalar" target="_blank">Github</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://github.com/scalar/scalar" target="_blank">GitHub</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://discord.gg/scalar" target="_blank">Discord</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://www.linkedin.com/company/scalar-org" target="_blank">Linkedin</a>
         </div>

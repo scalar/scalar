@@ -39,7 +39,7 @@ describe('getRequestUidByPathMethod', () => {
     const result = getRequestUidByPathMethod(mockRequests, {
       requestUid: 'request-2',
       path: '/users',
-      method: 'GET',
+      method: 'get',
     })
 
     expect(result).toBe('request-2')
@@ -49,7 +49,7 @@ describe('getRequestUidByPathMethod', () => {
     const result = getRequestUidByPathMethod(mockRequests, {
       requestUid: 'non-existent-request',
       path: '/users',
-      method: 'GET',
+      method: 'get',
     })
 
     expect(result).toBe('non-existent-request')
@@ -58,7 +58,7 @@ describe('getRequestUidByPathMethod', () => {
   test('finds request by exact path and method match', () => {
     const result = getRequestUidByPathMethod(mockRequests, {
       path: '/products',
-      method: 'GET',
+      method: 'get',
     })
 
     expect(result).toBe('request-3')
@@ -76,7 +76,7 @@ describe('getRequestUidByPathMethod', () => {
   test('finds request by path and method (case-insensitive for path)', () => {
     const result = getRequestUidByPathMethod(mockRequests, {
       path: '/Users',
-      method: 'GET',
+      method: 'get',
     })
 
     expect(result).toBe('request-1')
@@ -94,7 +94,7 @@ describe('getRequestUidByPathMethod', () => {
   test('returns first request uid when no match found', () => {
     const result = getRequestUidByPathMethod(mockRequests, {
       path: '/nonexistent',
-      method: 'GET',
+      method: 'get',
     })
 
     expect(result).toBe('request-1')
@@ -114,7 +114,7 @@ describe('getRequestUidByPathMethod', () => {
 
   test('handles partial payload with only method', () => {
     const result = getRequestUidByPathMethod(mockRequests, {
-      method: 'POST',
+      method: 'post',
     })
 
     expect(result).toBe('request-1')
@@ -131,7 +131,7 @@ describe('getRequestUidByPathMethod', () => {
   test('handles empty requests object', () => {
     const result = getRequestUidByPathMethod(emptyRequests, {
       path: '/users',
-      method: 'GET',
+      method: 'get',
     })
 
     expect(result).toBe(undefined)
@@ -149,7 +149,7 @@ describe('getRequestUidByPathMethod', () => {
   test('handles null path in payload', () => {
     const result = getRequestUidByPathMethod(mockRequests, {
       path: null as any,
-      method: 'GET',
+      method: 'get',
     })
 
     expect(result).toBe('request-1')
@@ -158,7 +158,7 @@ describe('getRequestUidByPathMethod', () => {
   test('handles path with trailing slash', () => {
     const result = getRequestUidByPathMethod(mockRequests, {
       path: '/users/',
-      method: 'GET',
+      method: 'get',
     })
 
     expect(result).toBe('request-1')
@@ -167,7 +167,7 @@ describe('getRequestUidByPathMethod', () => {
   test('handles path with query parameters', () => {
     const result = getRequestUidByPathMethod(mockRequests, {
       path: '/users?sort=asc',
-      method: 'GET',
+      method: 'get',
     })
 
     expect(result).toBe('request-1')
@@ -177,7 +177,7 @@ describe('getRequestUidByPathMethod', () => {
   test('should match concrete path to templated path with single parameter', () => {
     const result = getRequestUidByPathMethod(mockRequests, {
       path: '/users/123',
-      method: 'GET',
+      method: 'get',
     })
 
     expect(result).toBe('request-4')
@@ -195,7 +195,7 @@ describe('getRequestUidByPathMethod', () => {
 
     const result = getRequestUidByPathMethod(mockRequestsWithMultipleParams, {
       path: '/users/123/orders/456',
-      method: 'GET',
+      method: 'get',
     })
 
     expect(result).toBe('request-6')
@@ -212,7 +212,7 @@ describe('getRequestUidByPathMethod', () => {
 
     const result = getRequestUidByPathMethod(issueExampleRequests, {
       path: '/foo/v3/bar/test',
-      method: 'GET',
+      method: 'get',
     })
 
     expect(result).toBe('request-issue')
@@ -230,7 +230,7 @@ describe('getRequestUidByPathMethod', () => {
 
     const result = getRequestUidByPathMethod(mockRequestsWithExactAndPattern, {
       path: '/users/123',
-      method: 'GET',
+      method: 'get',
     })
 
     expect(result).toBe('request-exact')
@@ -247,7 +247,7 @@ describe('getRequestUidByPathMethod', () => {
 
     const result = getRequestUidByPathMethod(complexRequests, {
       path: '/api/v1/users/789/posts/abc/comments',
-      method: 'GET',
+      method: 'get',
     })
 
     expect(result).toBe('complex-request')
@@ -256,7 +256,7 @@ describe('getRequestUidByPathMethod', () => {
   test('should not match when path segment count differs', () => {
     const result = getRequestUidByPathMethod(mockRequests, {
       path: '/users/123/extra',
-      method: 'GET',
+      method: 'get',
     })
 
     expect(result).toBe('request-1') // Falls back to first request
@@ -273,7 +273,7 @@ describe('getRequestUidByPathMethod', () => {
 
     const result = getRequestUidByPathMethod(specialRequests, {
       path: '/files/my-file.txt',
-      method: 'GET',
+      method: 'get',
     })
 
     expect(result).toBe('special-request')
@@ -295,7 +295,7 @@ describe('getRequestUidByPathMethod', () => {
 
     const result = getRequestUidByPathMethod(githubIssueRequests, {
       path: '/foo/v3/bar/test',
-      method: 'GET',
+      method: 'get',
     })
 
     expect(result).toBe('github-issue-request')

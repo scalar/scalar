@@ -6,8 +6,7 @@ import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 import { upgrade } from '@scalar/openapi-upgrader'
 import type { Record } from '@scalar/typebox'
 import { Value } from '@scalar/typebox/value'
-import type { PartialDeep } from 'type-fest/source/partial-deep'
-import type { RequiredDeep } from 'type-fest/source/required-deep'
+import type { PartialDeep, RequiredDeep } from 'type-fest'
 import { reactive, toRaw } from 'vue'
 import YAML from 'yaml'
 
@@ -614,7 +613,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       const coerced = measureSync('coerceValue', () =>
         coerceValue(OpenAPIDocumentSchemaStrict, deepClone(strictDocument)),
       )
-      measureAsync('mergeObjects', async () => mergeObjects(strictDocument, coerced))
+      measureSync('mergeObjects', () => mergeObjects(strictDocument, coerced))
     }
 
     const isValid = Value.Check(OpenAPIDocumentSchemaStrict, strictDocument)

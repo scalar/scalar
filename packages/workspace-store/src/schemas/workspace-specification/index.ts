@@ -1,5 +1,5 @@
 import { Type } from '@scalar/typebox'
-import type { PartialDeep } from 'type-fest/source/partial-deep'
+import type { PartialDeep } from 'type-fest'
 
 import { compose } from '@/schemas/compose'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'

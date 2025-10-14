@@ -1,5 +1,11 @@
 # @scalar/openapi-types
 
+## 0.5.0
+
+### Minor Changes
+
+- f69e7cc: adds support for OpenAPI 3.2.0 definitions
+
 ## 0.4.1
 
 ### Patch Changes

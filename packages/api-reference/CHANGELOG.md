@@ -1,5 +1,39 @@
 # @scalar/api-reference
 
+## 1.38.1
+
+### Patch Changes
+
+- ef98f35: fix: make onServerChange callback work with new store events
+- f8efecd: feat: use new schema example generation in the response
+- 9c65f51: fix: only freeze document when required
+- Updated dependencies [f8efecd]
+- Updated dependencies [3f6d0b9]
+- Updated dependencies [577150c]
+- Updated dependencies [f3e17d8]
+- Updated dependencies [2089748]
+- Updated dependencies [f3e17d8]
+- Updated dependencies [8e4c8c0]
+- Updated dependencies [f8efecd]
+- Updated dependencies [8a7fb2a]
+- Updated dependencies [1335923]
+- Updated dependencies [07397c8]
+- Updated dependencies [f69e7cc]
+  - @scalar/components@0.15.1
+  - @scalar/helpers@0.0.12
+  - @scalar/api-client@2.8.1
+  - @scalar/json-magic@0.6.1
+  - @scalar/types@0.3.2
+  - @scalar/oas-utils@0.5.2
+  - @scalar/workspace-store@0.17.1
+  - @scalar/openapi-types@0.5.0
+  - @scalar/object-utils@1.2.8
+  - @scalar/openapi-parser@0.22.3
+  - @scalar/openapi-upgrader@0.1.3
+  - @scalar/snippetz@0.5.1
+  - @scalar/themes@0.13.22
+  - @scalar/code-highlight@0.2.0
+
 ## 1.38.0
 
 ### Minor Changes

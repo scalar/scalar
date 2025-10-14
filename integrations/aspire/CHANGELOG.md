@@ -1,5 +1,19 @@
 # @scalar/aspire
 
+## 0.6.0
+
+### Minor Changes
+
+- 50db06d: feat: auto generated ScalarClient and ScalarTarget enums
+- a0ba899: feat: all new fluent extension methods
+
+### Patch Changes
+
+- Updated dependencies [ef98f35]
+- Updated dependencies [f8efecd]
+- Updated dependencies [9c65f51]
+  - @scalar/api-reference@1.38.1
+
 ## 0.5.4
 
 ### Patch Changes

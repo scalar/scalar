@@ -13,7 +13,7 @@ import { oasParameterSchema } from './parameters'
 import { type RequestExample, xScalarExampleSchema } from './request-examples'
 import { oasExternalDocumentationSchema } from './spec-objects'
 
-export const requestMethods = ['connect', 'delete', 'get', 'head', 'options', 'patch', 'post', 'put', 'trace'] as const
+export const requestMethods = ['delete', 'get', 'head', 'options', 'patch', 'post', 'put', 'trace'] as const
 
 export type RequestMethod = (typeof requestMethods)[number]
 

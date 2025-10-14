@@ -1,15 +1,17 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { measureSync, measureAsync } from './measure'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { measureAsync, measureSync } from './measure'
 
 describe('measure', () => {
+  const consoleInfoSpy = vi.spyOn(console, 'info').mockReturnValue(undefined)
   beforeEach(() => {
-    vi.spyOn(console, 'info').mockImplementation(() => {})
+    consoleInfoSpy.mockClear()
   })
 
   it('should measure and log synchronous function execution time', () => {
     const result = measureSync('sync-test', () => 42)
     expect(result).toBe(42)
-    expect(console.info).toHaveBeenCalledWith(expect.stringMatching(/sync-test: \d+ ms/))
+    expect(consoleInfoSpy).toHaveBeenCalledWith(expect.stringMatching(/sync-test: \d+ ms/))
   })
 
   it('should measure and log asynchronous function execution time', async () => {
@@ -18,7 +20,7 @@ describe('measure', () => {
       return 42
     })
     expect(result).toBe(42)
-    expect(console.info).toHaveBeenCalledWith(expect.stringMatching(/async-test: \d+ ms/))
+    expect(consoleInfoSpy).toHaveBeenCalledWith(expect.stringMatching(/async-test: \d+ ms/))
   })
 
   it('should preserve the return type of the measured function', () => {
