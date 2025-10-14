@@ -16,6 +16,7 @@ import {
 } from '@/components/Section'
 import { SpecificationExtension } from '@/features/specification-extension'
 
+import AsyncApiVersion from './AsyncApiVersion.vue'
 import InfoDescription from './InfoDescription.vue'
 import InfoLinks from './InfoLinks.vue'
 import InfoVersion from './InfoVersion.vue'
@@ -24,6 +25,7 @@ import OpenApiVersion from './OpenApiVersion.vue'
 const { onLoaded } = defineProps<{
   id: string | undefined
   oasVersion: string | undefined
+  aasVersion: string | undefined
   info: InfoObject
   externalDocs?: ExternalDocumentationObject
   documentExtensions?: Record<string, unknown>
@@ -47,6 +49,7 @@ onMounted(() => (typeof onLoaded === 'function' ? onLoaded?.() : onLoaded))
         <div class="flex gap-1.5">
           <InfoVersion :version="info?.version" />
           <OpenApiVersion :oasVersion="oasVersion" />
+          <AsyncApiVersion :aasVersion="aasVersion" />
         </div>
         <SectionHeader
           :loading="!info?.title"

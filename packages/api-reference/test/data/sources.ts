@@ -18,6 +18,10 @@ export default [
     layout: 'classic',
   },
   {
+    title: 'Scalar Galaxy (AsyncAPI)',
+    url: '/examples/asyncapi.yaml',
+  },
+  {
     title: 'Relative URL Example',
     slug: 'relative-url',
     url: 'examples/openapi.json',
