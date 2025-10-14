@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { dereference } from './dereference'
+import type { OpenAPIV3_2 } from '../../../openapi-types'
 
 describe('dereference', async () => {
   it('dereferences an OpenAPI 3.2.0 file', async () => {
@@ -343,5 +344,111 @@ describe('dereference', async () => {
 
     expect(result.errors).toStrictEqual([])
     expect(dereferencedSchemas).toHaveLength(1)
+  })
+
+  it('dereferences operations with query operations', async () => {
+    const openapi = {
+      openapi: '3.2.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/test': {
+          query: {
+            responses: {
+              '200': {
+                description: 'foobar',
+                content: {
+                  'application/json': {
+                    schema: {
+                      $ref: '#/components/schemas/Test',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Test: {
+            type: 'object',
+            properties: {
+              id: {
+                type: 'string',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const result = await dereference(openapi)
+
+    expect(result.errors).toStrictEqual([])
+
+    // Original
+    expect(
+      (result.specification as OpenAPIV3_2.Document).paths['/test'].query.responses['200'].content['application/json']
+        .schema,
+    ).toEqual({
+      $ref: '#/components/schemas/Test',
+    })
+  })
+
+  it('dereferences operations with additional operations', async () => {
+    const openapi = {
+      openapi: '3.2.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/test': {
+          additionalOperations: {
+            makeUnicorns: {
+              responses: {
+                '200': {
+                  description: 'foobar',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        $ref: '#/components/schemas/Test',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Test: {
+            type: 'object',
+            properties: {
+              id: {
+                type: 'string',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const result = await dereference(openapi)
+
+    expect(result.errors).toStrictEqual([])
+
+    // Original
+    expect(
+      (result.specification as OpenAPIV3_2.Document).paths['/test'].additionalOperations?.makeUnicorns.responses['200']
+        .content['application/json'].schema,
+    ).toEqual({
+      $ref: '#/components/schemas/Test',
+    })
   })
 })
