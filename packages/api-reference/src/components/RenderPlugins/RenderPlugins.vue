@@ -18,8 +18,8 @@ const components = getViewComponents(viewName)
   <template v-if="components.length">
     <div class="plugin-view">
       <template
-        v-for="(item, index) in components"
-        :key="index">
+        v-for="(item, _index) in components"
+        :key="_index">
         <ScalarErrorBoundary>
           <template v-if="item.renderer">
             <!-- Custom renderer (e.g. React) -->
