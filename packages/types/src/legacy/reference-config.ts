@@ -12,6 +12,7 @@ export type {
   OpenAPIV2,
   OpenAPIV3,
   OpenAPIV3_1,
+  OpenAPIV3_2,
 } from '@scalar/openapi-types'
 
 export type ClientInfo = {
