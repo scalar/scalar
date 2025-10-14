@@ -1,4 +1,4 @@
-FROM node:20-slim AS base
+FROM node:22.20.0-slim AS base
 
 # process init system and install necessary certificates
 RUN apt-get update && apt-get install -y --no-install-recommends dumb-init git ca-certificates && update-ca-certificates
