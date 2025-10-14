@@ -1,5 +1,5 @@
 import type { Request as HarRequest } from 'har-format'
-import type { Writable } from 'type-fest/source/writable'
+import type { Writable } from 'type-fest'
 
 export type { Param as FormDataParam, Request as HarRequest } from 'har-format'
 

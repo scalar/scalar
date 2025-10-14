@@ -1,5 +1,6 @@
+import type { PartialDeep } from 'type-fest'
+
 import type { SecurityScheme } from '../entities/security-scheme'
-import type { PartialDeep } from 'type-fest/source/partial-deep'
 
 /**
  * Authentication configuration for the API reference.

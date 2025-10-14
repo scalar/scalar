@@ -2,7 +2,7 @@ import { isDefined } from '@scalar/helpers/array/is-defined'
 import { CLIENT_LS_KEYS, safeLocalStorage } from '@scalar/helpers/object/local-storage'
 import type { Collection, SecurityScheme } from '@scalar/oas-utils/entities/spec'
 import type { Path } from '@scalar/object-utils/nested'
-import type { Entries } from 'type-fest/source/entries'
+import type { Entries } from 'type-fest'
 
 import type { WorkspaceStore } from '@/store/store'
 import type { Auth } from '@/views/Request/RequestSection/helpers/update-scheme'
