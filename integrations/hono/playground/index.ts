@@ -2,6 +2,7 @@ import { serve } from '@hono/node-server'
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
 import { createMarkdownFromOpenApi } from '@scalar/openapi-to-markdown'
 import { cors } from 'hono/cors'
+
 import { Scalar } from '../src/index'
 
 const PORT = Number(process.env.PORT) || 5054
@@ -29,7 +30,7 @@ app.openapi(
       },
     },
   }),
-  (c): Response => {
+  (c) => {
     return c.json({
       message: 'hello',
     })
@@ -62,7 +63,7 @@ app.openapi(
       },
     },
   }),
-  (c): Response => {
+  (c) => {
     return c.json({
       posts: [
         {
@@ -109,7 +110,7 @@ app.openapi(
       },
     },
   }),
-  (c): Response => {
+  (c) => {
     return c.json({
       id: 123,
       title: 'My Blog Post',
@@ -155,7 +156,7 @@ app.openapi(
       },
     },
   }),
-  (c): Response => {
+  (c) => {
     return c.json({
       status: 'OK',
       message: 'Post deleted',

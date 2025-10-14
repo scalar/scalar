@@ -929,8 +929,8 @@ importers:
         specifier: catalog:*
         version: 1.19.5(hono@4.9.11)
       '@hono/zod-openapi':
-        specifier: ^0.8.6
-        version: 0.8.6(hono@4.9.11)(zod@4.1.11)
+        specifier: ^1.1.3
+        version: 1.1.3(hono@4.9.11)(zod@4.1.11)
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../../packages/build-tooling
@@ -3046,10 +3046,10 @@ packages:
   '@asamuzakjp/css-color@3.2.0':
     resolution: {integrity: sha512-K1A6z8tS3XsmCMM86xoWdn7Fkdn9m6RSVtocUrJYIwZnFVkng/PvkEoWtOWmP+Scc6saYWHWZYbndEEXxl24jw==}
 
-  '@asteasolutions/zod-to-openapi@5.5.0':
-    resolution: {integrity: sha512-d5HwrvM6dOKr3XdeF+DmashGvfEc+1oiEfbscugsiwSTrFtuMa7ETpW9sTNnVgn+hJaz+PRxPQUYD7q9/5dUig==}
+  '@asteasolutions/zod-to-openapi@8.1.0':
+    resolution: {integrity: sha512-tQFxVs05J/6QXXqIzj6rTRk3nj1HFs4pe+uThwE95jL5II2JfpVXkK+CqkO7aT0Do5AYqO6LDrKpleLUFXgY+g==}
     peerDependencies:
-      zod: ^3.20.2
+      zod: ^4.0.0
 
   '@aw-web-design/x-default-browser@1.4.126':
     resolution: {integrity: sha512-Xk1sIhyNC/esHGGVjL/niHLowM0csl/kFO5uawBy4IrWwy0o1G8LGt3jP6nmWGz+USxeeqbihAmp/oVZju6wug==}
@@ -5791,18 +5791,18 @@ packages:
     peerDependencies:
       hono: ^4
 
-  '@hono/zod-openapi@0.8.6':
-    resolution: {integrity: sha512-HQNmJoIGyu2kNK9DI8+gIyV4c+bZm5t75PytPSRqMTim9P9HAAPMtepxu44aPZO9ehDxK4KZlRVRqz8OBxOL1A==}
+  '@hono/zod-openapi@1.1.3':
+    resolution: {integrity: sha512-ikA8p0Jt7yplxOqbYwdh8rCQWaGN4bu8zK1HbCWqfWT9clo87L32D0eAQ/r0tJodtZbTV5d1vPB75FCkUt1Jdg==}
     engines: {node: '>=16.0.0'}
     peerDependencies:
-      hono: '>=3.9.0'
-      zod: 3.*
+      hono: '>=4.3.6'
+      zod: ^4.0.0
 
-  '@hono/zod-validator@0.1.11':
-    resolution: {integrity: sha512-PQXeHUP0+36qpRt8yfeD7N2jbK3ETlGvSN6dMof/HwUC/APRokQRjpXZm4rrlG71Ft0aWE01+Bm4XejqPie5Uw==}
+  '@hono/zod-validator@0.7.3':
+    resolution: {integrity: sha512-uYGdgVib3RlGD698WR5dVM0zB3UuPY5vHKXffGUbUh7r4xY+mFIhF3/v4AcQVLrU5CQdBso8BJr4wuVoCrjTuQ==}
     peerDependencies:
       hono: '>=3.9.0'
-      zod: ^3.19.1
+      zod: ^3.25.0 || ^4.0.0
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -15020,8 +15020,8 @@ packages:
   openapi-types@12.1.3:
     resolution: {integrity: sha512-N4YtSYJqghVu4iek2ZUvcN/0aqH1kRDuNqzcycDxhOUpg7GdvLa2F3DgS6yBNhInhv2r/6I0Flkn7CqL8+nIcw==}
 
-  openapi3-ts@4.3.3:
-    resolution: {integrity: sha512-LKkzBGJcZ6wdvkKGMoSvpK+0cbN5Xc3XuYkJskO+vjEQWJgs1kgtyUk0pjf8KwPuysv323Er62F5P17XQl96Qg==}
+  openapi3-ts@4.5.0:
+    resolution: {integrity: sha512-jaL+HgTq2Gj5jRcfdutgRGLosCy/hT8sQf6VOy+P+g36cZOjI1iukdPnijC+4CmeRzg/jEllJUboEic2FhxhtQ==}
 
   opener@1.5.2:
     resolution: {integrity: sha512-ur5UIdyw5Y7yEj9wLzhqXiy6GZ3Mwx0yGI+5sMn2r0N0v3cKJvUmFH5yPP+WXh9e0xfyzyJX95D8l088DNFj7A==}
@@ -19708,9 +19708,9 @@ snapshots:
       '@csstools/css-tokenizer': 3.0.4
       lru-cache: 10.4.3
 
-  '@asteasolutions/zod-to-openapi@5.5.0(zod@4.1.11)':
+  '@asteasolutions/zod-to-openapi@8.1.0(zod@4.1.11)':
     dependencies:
-      openapi3-ts: 4.3.3
+      openapi3-ts: 4.5.0
       zod: 4.1.11
 
   '@aw-web-design/x-default-browser@1.4.126':
@@ -23742,14 +23742,15 @@ snapshots:
     dependencies:
       hono: 4.9.11
 
-  '@hono/zod-openapi@0.8.6(hono@4.9.11)(zod@4.1.11)':
+  '@hono/zod-openapi@1.1.3(hono@4.9.11)(zod@4.1.11)':
     dependencies:
-      '@asteasolutions/zod-to-openapi': 5.5.0(zod@4.1.11)
-      '@hono/zod-validator': 0.1.11(hono@4.9.11)(zod@4.1.11)
+      '@asteasolutions/zod-to-openapi': 8.1.0(zod@4.1.11)
+      '@hono/zod-validator': 0.7.3(hono@4.9.11)(zod@4.1.11)
       hono: 4.9.11
+      openapi3-ts: 4.5.0
       zod: 4.1.11
 
-  '@hono/zod-validator@0.1.11(hono@4.9.11)(zod@4.1.11)':
+  '@hono/zod-validator@0.7.3(hono@4.9.11)(zod@4.1.11)':
     dependencies:
       hono: 4.9.11
       zod: 4.1.11
@@ -36198,7 +36199,7 @@ snapshots:
 
   openapi-types@12.1.3: {}
 
-  openapi3-ts@4.3.3:
+  openapi3-ts@4.5.0:
     dependencies:
       yaml: 2.8.0
 
