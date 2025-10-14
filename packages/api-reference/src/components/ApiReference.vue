@@ -79,6 +79,7 @@ const activeSlug = ref<string>(
     '',
 )
 
+// If we detect a slug query parameter we set the active slug from that value
 if (typeof window !== 'undefined') {
   const url = new URL(window.location.href)
   const slug = url.searchParams.get('api')
@@ -129,8 +130,10 @@ provide(NAV_STATE_SYMBOL, {
 
 const QUERY_PARAMETER = 'api'
 
-/** Sync the URL with the selected document slug */
-function syncUrlWithDocument(
+/**
+ * Sets the active slug and updates the URL with the selected document slug
+ */
+function syncSlugAndUrlWithDocument(
   slug: string,
   config: ApiReferenceConfigurationRaw,
 ) {
@@ -141,7 +144,7 @@ function syncUrlWithDocument(
   const url = new URL(window.location.href)
 
   // Clear path if pathRouting is enabled
-  if (config.pathRouting && slug !== url.searchParams.get(QUERY_PARAMETER)) {
+  if (config.pathRouting && slug !== activeSlug.value) {
     url.pathname = config.pathRouting?.basePath ?? ''
   }
 
@@ -159,6 +162,9 @@ function syncUrlWithDocument(
   hash.value = ''
   hashPrefix.value = ''
   isIntersectionEnabled.value = false
+
+  // Update the active slug
+  activeSlug.value = slug
 }
 
 // ---------------------------------------------------------------------------
@@ -204,8 +210,8 @@ mapConfigToWorkspaceStore({
  * 4. The API client temporary store will always be reset and re-initialized when the slug changes
  */
 const changeSelectedDocument = async (slug: string) => {
-  activeSlug.value = slug
-  syncUrlWithDocument(slug, mergedConfig.value)
+  // Set the active slug and update any routing
+  syncSlugAndUrlWithDocument(slug, mergedConfig.value)
 
   // Always set it to active; if the document is null we show a loading state
   workspaceStore.update('x-scalar-active-document', slug)
