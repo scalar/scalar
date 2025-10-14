@@ -22,7 +22,7 @@ const components = getViewComponents(viewName)
         :key="index">
         <ScalarErrorBoundary>
           <template v-if="item.renderer">
-            <!-- Custom renderer (e.g., React) -->
+            <!-- Custom renderer (e.g. React) -->
             <component
               :is="item.renderer"
               v-bind="{
