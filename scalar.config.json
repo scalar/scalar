@@ -258,6 +258,11 @@
               "type": "page"
             },
             {
+              "name": "AsyncAPI",
+              "path": "documentation/asyncapi.md",
+              "type": "page"
+            },
+            {
               "name": "Markdown",
               "path": "documentation/markdown.md",
               "type": "page"
