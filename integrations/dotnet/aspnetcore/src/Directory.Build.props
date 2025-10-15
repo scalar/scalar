@@ -19,7 +19,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>Please checkout https://github.com/scalar/scalar/blob/main/integrations/aspnetcore/CHANGELOG.md</PackageReleaseNotes>
+    <PackageReleaseNotes>Please checkout https://github.com/scalar/scalar/blob/main/integrations/dotnet/aspnetcore/CHANGELOG.md</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup>
