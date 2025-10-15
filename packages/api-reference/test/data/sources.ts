@@ -110,6 +110,11 @@ export default [
     url: 'https://developer.spotify.com/reference/web-api/open-api-schema.yaml',
   },
   {
+    title: 'Scalar Galaxy Events (AsyncAPI)',
+    slug: 'asyncapi',
+    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/asyncapi/latest.json',
+  },
+  {
     title: 'Circular',
     slug: 'circular',
     content: {

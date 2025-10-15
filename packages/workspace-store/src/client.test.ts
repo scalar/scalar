@@ -6,10 +6,10 @@ import fastify, { type FastifyInstance } from 'fastify'
 import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createWorkspaceStore } from '@/client'
+import { isAsyncApiDocument, isOpenApiDocument } from '@/helpers/type-guards'
 import type { TraversedChannel } from '@/schemas/navigation'
 import { defaultReferenceConfig } from '@/schemas/reference-config'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
-import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/workspace'
 import { createServerWorkspaceStore } from '@/server'
 
 // Test document
