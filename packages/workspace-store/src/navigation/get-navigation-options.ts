@@ -3,6 +3,9 @@ import { slug } from 'github-slugger'
 import type { TraverseSpecOptions } from '@/navigation/types'
 import type { DocumentConfiguration } from '@/schemas/workspace-specification/config'
 
+/** Utility type to extract the argument types of a function */
+type Args<T> = T extends (...args: infer A) => unknown ? A : never
+
 /**
  * Returns options for traversing an OpenAPI document, allowing customization of
  * how IDs and slugs are generated for tags, headings, models, operations, and webhooks.
@@ -19,9 +22,9 @@ export const getNavigationOptions = (documentName: string, config?: DocumentConf
   const getTagIdDefault: TraverseSpecOptions['getTagId'] = (tag) => {
     const generateTagSlug = referenceConfig?.generateTagSlug
     if (generateTagSlug) {
-      return `${documentName}/tag/${generateTagSlug(tag)}`
+      return `tag/${generateTagSlug(tag)}`
     }
-    return `${documentName}/tag/${slug(tag.name ?? '')}`
+    return `tag/${slug(tag.name ?? '')}`
   }
 
   /**
@@ -34,13 +37,13 @@ export const getNavigationOptions = (documentName: string, config?: DocumentConf
     const generateHeadingSlug = referenceConfig?.generateHeadingSlug
 
     if (generateHeadingSlug) {
-      return `${documentName}/${generateHeadingSlug(heading)}`
+      return `${generateHeadingSlug(heading)}`
     }
 
     if (heading.slug) {
-      return `${documentName}/description/${heading.slug}`
+      return `description/${heading.slug}`
     }
-    return documentName
+    return ''
   }
 
   /**
@@ -53,11 +56,11 @@ export const getNavigationOptions = (documentName: string, config?: DocumentConf
     const generateModelSlug = referenceConfig?.generateModelSlug
 
     if (!model?.name) {
-      return `${documentName}/models`
+      return 'models'
     }
 
     // Prefix with the tag if we have one
-    const prefixTag = parentTag ? `${documentName}/${getTagId(parentTag)}/` : `${documentName}/`
+    const prefixTag = parentTag ? `${getTagId(parentTag)}/` : ''
 
     if (generateModelSlug) {
       return `${prefixTag}model/${generateModelSlug(model)}`
@@ -94,11 +97,11 @@ export const getNavigationOptions = (documentName: string, config?: DocumentConf
     const generateWebhookSlug = referenceConfig?.generateWebhookSlug
 
     if (!webhook?.name) {
-      return `${documentName}/webhooks`
+      return 'webhooks'
     }
 
     // Prefix with the tag if we have one
-    const prefixTag = parentTag ? `${getTagId(parentTag)}/` : `${documentName}/`
+    const prefixTag = parentTag ? `${getTagId(parentTag)}/` : ''
 
     if (generateWebhookSlug) {
       return `${prefixTag}webhook/${generateWebhookSlug(webhook)}`
@@ -106,11 +109,19 @@ export const getNavigationOptions = (documentName: string, config?: DocumentConf
     return `${prefixTag}webhook/${webhook.method}/${slug(webhook.name)}`
   }
 
-  const getHeadingId = referenceConfig?.getHeadingId ?? getHeadingIdDefault
-  const getModelId = referenceConfig?.getModelId ?? getModelIdDefault
-  const getOperationId = referenceConfig?.getOperationId ?? getOperationIdDefault
-  const getWebhookId = referenceConfig?.getWebhookId ?? getWebhookIdDefault
-  const getTagId = referenceConfig?.getTagId ?? getTagIdDefault
+  const wrapper = <T extends ((...args: any[]) => string) | undefined>(fn: T): T => {
+    if (fn === undefined) {
+      return fn
+    }
+    return ((...args: Args<T>) => `${documentName}/${fn(...args)}`) as T
+  }
+
+  // Prefix all IDs with the document name to ensure uniqueness across multiple documents
+  const getHeadingId = wrapper(referenceConfig?.getHeadingId) ?? wrapper(getHeadingIdDefault)
+  const getModelId = wrapper(referenceConfig?.getModelId) ?? wrapper(getModelIdDefault)
+  const getOperationId = wrapper(referenceConfig?.getOperationId) ?? getOperationIdDefault
+  const getWebhookId = wrapper(referenceConfig?.getWebhookId) ?? getWebhookIdDefault
+  const getTagId = wrapper(referenceConfig?.getTagId) ?? wrapper(getTagIdDefault)
 
   const hideModels = referenceConfig?.features?.showModels === false
   const operationsSorter: TraverseSpecOptions['operationsSorter'] = referenceConfig?.operationsSorter

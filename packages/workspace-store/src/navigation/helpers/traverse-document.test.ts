@@ -49,12 +49,12 @@ describe('traverseDocument', () => {
     const result = traverseDocument('doc-1', doc, mockOptions)
     expect(result.entries).toHaveLength(1)
     expect(result.entries[0]).toEqual({
-      'id': 'Test Description',
+      'id': 'doc-1/Test Description',
       title: 'Test Description',
       type: 'text',
       children: [
         {
-          'id': 'Section 1',
+          'id': 'doc-1/Section 1',
           title: 'Section 1',
           type: 'text',
         },
@@ -95,7 +95,7 @@ describe('traverseDocument', () => {
     expect(result.entries).toEqual([
       {
         'description': 'Test Tag',
-        'id': 'test',
+        'id': 'doc-1/test',
         'isGroup': false,
         'name': 'test',
         'title': 'test',
@@ -104,7 +104,7 @@ describe('traverseDocument', () => {
         xKeys: {},
         'children': [
           {
-            'id': 'Test Operation',
+            'id': 'doc-1/Test Operation',
             'method': 'get',
             'path': '/test',
             isDeprecated: false,
@@ -142,7 +142,7 @@ describe('traverseDocument', () => {
     expect(result.entries).toHaveLength(1) // Webhooks section
     expect((result.entries[0] as TraversedTag).children).toHaveLength(1)
     expect((result.entries[0] as TraversedTag).children?.[0]).toEqual({
-      'id': 'test-webhook',
+      'id': 'doc-1/test-webhook',
       'isDeprecated': false,
       'method': 'post',
       'name': 'test-webhook',
@@ -177,7 +177,7 @@ describe('traverseDocument', () => {
     expect(result.entries).toHaveLength(1) // Models section
     expect((result.entries[0] as TraversedTag).children).toHaveLength(1)
     expect((result.entries[0] as TraversedTag).children?.[0]).toEqual({
-      'id': 'TestModel',
+      'id': 'doc-1/TestModel',
       'name': 'TestModel',
       'ref': '#/components/schemas/TestModel',
       'title': 'TestModel',
@@ -266,8 +266,8 @@ describe('traverseDocument', () => {
     expect(result.entries).toHaveLength(2) // Two tag groups
     expect(result.entries).toEqual([
       {
+        'id': 'doc-1/tag1',
         'description': 'Tag 1',
-        'id': 'tag1',
         'isGroup': false,
         'name': 'tag1',
         isWebhooks: false,
@@ -276,7 +276,7 @@ describe('traverseDocument', () => {
         xKeys: {},
         'children': [
           {
-            'id': 'Test Operation 1',
+            'id': 'doc-1/Test Operation 1',
             'method': 'get',
             'path': '/test1',
             isDeprecated: false,
@@ -288,7 +288,7 @@ describe('traverseDocument', () => {
       },
       {
         'description': 'Tag 2',
-        'id': 'tag2',
+        'id': 'doc-1/tag2',
         'isGroup': false,
         'name': 'tag2',
         isWebhooks: false,
@@ -297,7 +297,7 @@ describe('traverseDocument', () => {
         xKeys: {},
         'children': [
           {
-            'id': 'Test Operation 2',
+            'id': 'doc-1/Test Operation 2',
             'method': 'post',
             'path': '/test2',
             isDeprecated: false,
@@ -335,7 +335,7 @@ describe('traverseDocument', () => {
     expect(result.entries).toHaveLength(1) // One tag group for untagged operations
     expect(result.entries).toEqual([
       {
-        'id': 'Untagged Operation',
+        'id': 'doc-1/Untagged Operation',
         'isDeprecated': false,
         'method': 'get',
         'path': '/test',

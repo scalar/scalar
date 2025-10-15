@@ -2973,6 +2973,62 @@ describe('create-workspace-store', () => {
       ])
     })
   })
+
+  describe('navigation generation', () => {
+    it('should prefix navigation id correctly with the document name when providing custom generation id function', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'document-1',
+        config: {
+          'x-scalar-reference-config': {
+            getOperationId: () => 'some-id',
+            getTagId: () => 'some-tag-id',
+          },
+        },
+        document: {
+          openapi: '3.0.0',
+          info: {
+            title: 'Document 1',
+            version: '1.0.0',
+          },
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get all users',
+                tags: ['users'],
+              },
+            },
+          },
+        },
+      })
+
+      expect(store.workspace.activeDocument?.['x-scalar-navigation']).toEqual([
+        {
+          'children': [
+            {
+              'children': undefined,
+              'id': 'document-1/some-id',
+              'isDeprecated': false,
+              'method': 'get',
+              'path': '/users',
+              'ref': '#/paths/~1users/get',
+              'title': 'Get all users',
+              'type': 'operation',
+            },
+          ],
+          'description': undefined,
+          'id': 'document-1/some-tag-id',
+          'isGroup': false,
+          'isWebhooks': false,
+          'name': 'users',
+          'title': 'users',
+          'type': 'tag',
+          'xKeys': {},
+        },
+      ])
+    })
+  })
 })
 
 // Notes:
