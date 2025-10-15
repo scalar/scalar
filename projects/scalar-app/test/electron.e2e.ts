@@ -63,14 +63,14 @@ test.describe('Electron', () => {
       .poll(
         () => {
           const mainWindow = app.windows().find((win) => win.url().includes('index.html'))
-          return mainWindow ? [mainWindow.url()] : app.windows().map((win) => win.url())
+          return mainWindow ? mainWindow.url() : ''
         },
         {
           message: 'Main window should contain index.html',
           timeout: 4_000,
         },
       )
-      .toMatchObject([expect.stringMatching('projects/scalar-app/dist/renderer/index.html')])
+      .toMatch(/projects\/scalar-app\/dist\/renderer\/index.html$/)
 
     await app.close()
   })
