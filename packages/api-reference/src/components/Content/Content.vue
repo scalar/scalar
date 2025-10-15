@@ -180,9 +180,8 @@ const models = computed<TraversedDescription | undefined>(() => {
 
     <!-- Render plugins at content.end view -->
     <RenderPlugins
-      viewName="content.end"
-      :store
-      :options />
+      :options
+      viewName="content.end" />
 
     <slot name="end" />
   </div>

@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { ScalarErrorBoundary } from '@scalar/components'
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
 import { usePluginManager } from '@/plugins'
 
-const { viewName, store, options } = defineProps<{
+const { viewName, options } = defineProps<{
   viewName: string
-  store: WorkspaceStore
   options: Record<string, any>
 }>()
 
@@ -27,7 +25,6 @@ const components = getViewComponents(viewName)
               :is="item.renderer"
               v-bind="{
                 component: item.component,
-                store,
                 options,
                 ...item.props,
               }" />
@@ -36,7 +33,7 @@ const components = getViewComponents(viewName)
             <!-- Vue component -->
             <component
               :is="item.component"
-              v-bind="{ store, options, ...item.props }" />
+              v-bind="{ options, ...item.props }" />
           </template>
         </ScalarErrorBoundary>
       </template>

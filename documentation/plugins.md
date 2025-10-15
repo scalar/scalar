@@ -118,7 +118,6 @@ export const FeedbackPlugin = (): ApiReferencePlugin => {
 
 View components receive:
 
-- `store` - The workspace store
 - `options` - API Reference configuration options
 
 #### Using React Components
