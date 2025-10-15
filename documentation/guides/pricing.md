@@ -439,7 +439,7 @@
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
             </div>
             <div class="pricing-table-row">
-              <div class="pricing-table-column">Bi-directional Git Sync</div>
+              <div class="pricing-table-column">GitHub Sync</div>
               <div class="pricing-table-column"></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
@@ -808,7 +808,7 @@ h4.t-editor__heading {
   }
   .small-test {
     max-width: 440px;
-    margin-top: 80px;
+    margin-top: 44px;
     position: relative;
   }
   .t-editor .editor-static .page-node {
@@ -938,7 +938,7 @@ h4.t-editor__heading {
     gap: 44px;
   }
   .cta {
-    padding: 140px 0;
+    padding: 80px 0;
     margin-top: 0 !important;
   }
   .mb-11 {
