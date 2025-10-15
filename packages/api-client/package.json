@@ -262,7 +262,7 @@
     "shell-quote": "^1.8.1",
     "type-fest": "catalog:*",
     "vue": "catalog:*",
-    "vue-router": "^4.3.0",
+    "vue-router": "catalog:*",
     "whatwg-mimetype": "^4.0.0",
     "yaml": "catalog:*",
     "zod": "catalog:*"
