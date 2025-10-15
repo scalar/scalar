@@ -1,6 +1,7 @@
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { type Component, createApp } from 'vue'
+import { createApp } from 'vue'
 
+import App from '@/v2/App.vue'
 import { createRouter } from '@/v2/helpers/create-router'
 
 /**
@@ -13,8 +14,6 @@ export type ClientLayout = 'modal' | 'web' | 'desktop'
 export type CreateApiClientOptions = {
   /** Element to mount the references to */
   el: HTMLElement | null
-  /** Main vue app component to create the vue app */
-  appComponent: Component
   /** Persist the workspace to indexDB */
   // persistData?: boolean
   /**
@@ -38,14 +37,13 @@ export type CreateApiClientOptions = {
  */
 export const createApiClient = ({
   el,
-  appComponent,
   store,
   mountOnInitialize = true,
   layout = 'desktop',
 }: CreateApiClientOptions) => {
   const router = createRouter({ layout, store })
 
-  const app = createApp(appComponent)
+  const app = createApp(App)
   app.use(router)
 
   // Set an id prefix for useId so we don't have collisions with other Vue apps
