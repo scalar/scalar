@@ -1,7 +1,7 @@
 import { slug } from 'github-slugger'
 
+import type { AsyncApiDocument } from '@/schemas/asyncapi/v3.0/asyncapi-document'
 import type { TraversedEntry } from '@/schemas/navigation'
-import type { AsyncApiDocument } from '@/schemas/v3.0/asyncapi-document'
 import type { DocumentConfiguration } from '@/schemas/workspace-specification/config'
 
 import { traverseDescription } from './traverse-description'
