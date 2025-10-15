@@ -1,10 +1,9 @@
-import assert from 'node:assert'
 import { setTimeout } from 'node:timers/promises'
 
 import { consoleErrorSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import fastify, { type FastifyInstance } from 'fastify'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createWorkspaceStore } from '@/client'
 import { defaultReferenceConfig } from '@/schemas/reference-config'
