@@ -2,7 +2,7 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { createApp } from 'vue'
 
 import App from '@/v2/App.vue'
-import { createRouter } from '@/v2/helpers/create-router'
+import { createRouter } from '@/v2/helpers/routing/create-router'
 
 /**
  * The layout of the client, also defines the router type and routes
