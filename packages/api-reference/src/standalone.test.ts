@@ -23,7 +23,7 @@ describe.sequential('standalone', { retry: 3, timeout: 10000 }, () => {
     await vi.waitFor(() => {
       const reference = document.querySelector('.scalar-api-reference')
       const header = reference?.querySelector('h1')
-      return header?.innerHTML === 'Example'
+      expect(header?.innerHTML).toBe('Example')
     })
   })
 
@@ -39,7 +39,7 @@ describe.sequential('standalone', { retry: 3, timeout: 10000 }, () => {
     await vi.waitFor(() => {
       const reference = document.querySelector('.scalar-api-reference')
       const header = reference?.querySelector('h1')
-      return header?.innerHTML === 'Example'
+      expect(header?.innerHTML).toBe('Example')
     })
   })
 
@@ -59,7 +59,7 @@ describe.sequential('standalone', { retry: 3, timeout: 10000 }, () => {
 
     await vi.waitFor(() => {
       const header = document.querySelector('[data-v-app] h1')
-      return header?.innerHTML === 'Scalar Galaxy'
+      expect(header?.innerHTML).toBe('Scalar Galaxy')
     })
   })
 })
