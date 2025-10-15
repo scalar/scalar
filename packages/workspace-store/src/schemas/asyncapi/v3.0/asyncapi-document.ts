@@ -12,23 +12,22 @@ import {
   TraversedTagSchemaDefinition,
   TraversedWebhookSchemaDefinition,
 } from '@/schemas/navigation'
-
 import {
   type XScalarClientConfigCookies,
   xScalarClientConfigCookiesSchema,
-} from '../v3.1/strict/client-config-extensions/x-scalar-client-config-cookies'
+} from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-cookies'
 import {
   type XScalarClientConfigEnvironments,
   xScalarClientConfigEnvironmentsSchema,
-} from '../v3.1/strict/client-config-extensions/x-scalar-client-config-environments'
-import { type ComponentsObject, ComponentsObjectSchemaDefinition } from '../v3.1/strict/components'
-import { ContactObjectSchemaDefinition } from '../v3.1/strict/contact'
+} from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-environments'
+import { type ComponentsObject, ComponentsObjectSchemaDefinition } from '@/schemas/v3.1/strict/components'
+import { ContactObjectSchemaDefinition } from '@/schemas/v3.1/strict/contact'
 import {
   type ExternalDocumentationObject,
   ExternalDocumentationObjectSchemaDefinition,
-} from '../v3.1/strict/external-documentation'
-import { type InfoObject, InfoObjectSchemaDefinition } from '../v3.1/strict/info'
-import { LicenseObjectSchemaDefinition } from '../v3.1/strict/license'
+} from '@/schemas/v3.1/strict/external-documentation'
+import { type InfoObject, InfoObjectSchemaDefinition } from '@/schemas/v3.1/strict/info'
+import { LicenseObjectSchemaDefinition } from '@/schemas/v3.1/strict/license'
 import {
   ComponentsObjectRef,
   ExternalDocumentationObjectRef,
@@ -38,13 +37,14 @@ import {
   ServerObjectRef,
   TagObjectRef,
   TraversedEntryObjectRef,
-} from '../v3.1/strict/ref-definitions'
+} from '@/schemas/v3.1/strict/ref-definitions'
 import {
   type SecurityRequirementObject,
   SecurityRequirementObjectSchemaDefinition,
-} from '../v3.1/strict/security-requirement'
-import { type ServerObject, ServerObjectSchemaDefinition } from '../v3.1/strict/server'
-import { type TagObject, TagObjectSchemaDefinition } from '../v3.1/strict/tag'
+} from '@/schemas/v3.1/strict/security-requirement'
+import { type ServerObject, ServerObjectSchemaDefinition } from '@/schemas/v3.1/strict/server'
+import { type TagObject, TagObjectSchemaDefinition } from '@/schemas/v3.1/strict/tag'
+
 // AsyncAPI-specific imports
 import type { ChannelsObject } from './channels'
 import { ChannelsObjectSchema } from './channels'
@@ -186,6 +186,6 @@ export type { SecurityRequirementObject }
 export type { ServerObject }
 export type { TagObject }
 
-export type { ComponentsObject } from '../v3.1/strict/components'
-export type { ContactObject } from '../v3.1/strict/contact'
-export type { LicenseObject } from '../v3.1/strict/license'
+export type { ComponentsObject } from '@/schemas/v3.1/strict/components'
+export type { ContactObject } from '@/schemas/v3.1/strict/contact'
+export type { LicenseObject } from '@/schemas/v3.1/strict/license'
