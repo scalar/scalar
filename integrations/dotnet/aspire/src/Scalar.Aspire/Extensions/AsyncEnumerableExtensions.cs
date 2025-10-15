@@ -17,7 +17,7 @@ internal static class AsyncEnumerableExtensions
 
         await foreach (var item in source.WithCancellation(cancellationToken))
         {
-            JsonSerializer.Serialize(writer, typeof(ScalarConfiguration), ScalarConfigurationSerializerContext.Default);
+            JsonSerializer.Serialize(writer, item, typeof(ScalarConfiguration), ScalarConfigurationSerializerContext.Default);
         }
 
         writer.WriteEndArray();
