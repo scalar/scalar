@@ -1,5 +1,4 @@
 import galaxy from '@scalar/galaxy/3.1.json'
-import { waitFor } from '@test/utils/wait-for'
 import { bench, describe, vi } from 'vitest'
 
 describe('standalone', () => {
@@ -17,7 +16,7 @@ describe('standalone', () => {
 
       // We wait for the first operation to be rendered
       // TODO: we should option in disabling lazy loading
-      await waitFor(() => mountPoint.textContent?.includes('Time to create a user account, eh?') ?? false)
+      await vi.waitFor(() => mountPoint.textContent?.includes('Time to create a user account, eh?') ?? false)
     },
     { iterations: 1, warmupIterations: 1 },
   )

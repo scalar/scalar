@@ -1,8 +1,7 @@
 import { statSync } from 'node:fs'
 import { join } from 'node:path'
-import { _electron, expect, test } from '@playwright/test'
 
-import { waitFor } from './utils/wait-for'
+import { _electron, expect, test } from '@playwright/test'
 
 /**
  * Helper function to find the frontend build
@@ -59,31 +58,19 @@ test.describe('Electron', () => {
       cwd,
     })
 
-    // Wait for the main window to be created
-    await waitFor(
-      () => {
-        const mainWindow = app.windows().find((win) => win.url().includes('index.html'))
-
-        if (!mainWindow) {
-          return false
-        }
-
-        expect(mainWindow.url()).toContain('projects/scalar-app/dist/renderer/index.html')
-
-        return true
-      },
-      () => {
-        console.log()
-        console.log('=== App Windows ===')
-        console.log()
-        console.log(
-          app
-            .windows()
-            .map((w) => w.url())
-            .join('\n\n'),
-        )
-      },
-    )
+    // Wait for the main window to load `index.html`
+    await expect
+      .poll(
+        () => {
+          const mainWindow = app.windows().find((win) => win.url().includes('index.html'))
+          return mainWindow ? [mainWindow.url()] : app.windows().map((win) => win.url())
+        },
+        {
+          message: 'Main window should contain index.html',
+          timeout: 4_000,
+        },
+      )
+      .toMatchObject([expect.stringMatching('projects/scalar-app/dist/renderer/index.html')])
 
     await app.close()
   })
