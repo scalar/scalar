@@ -298,7 +298,7 @@ console.log(store.workspace.documents.default)
 The workspace store supports both OpenAPI and AsyncAPI documents in the same workspace. Use type guards to safely access document-specific properties:
 
 ```ts
-import { isOpenApiDocument, isAsyncApiDocument } from '@scalar/workspace-store/schemas'
+import { isOpenApiDocument, isAsyncApiDocument } from '@scalar/workspace-store/helpers/type-guards'
 
 const store = createWorkspaceStore({
   documents: [

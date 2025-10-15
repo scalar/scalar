@@ -16,6 +16,7 @@ import { type UnknownObject, isObject, safeAssign } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
 import { createOverridesProxy, unpackOverridesProxy } from '@/helpers/overrides-proxy'
+import { isAsyncApiDocument, isOpenApiDocument } from '@/helpers/type-guards'
 import { createAsyncApiNavigation, createNavigation } from '@/navigation'
 import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
 import { getServersFromDocument } from '@/preprocessing/server'
@@ -28,14 +29,7 @@ import {
   OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
   type OpenApiDocument,
 } from '@/schemas/v3.1/strict/openapi-document'
-import {
-  type ApiDefinition,
-  type Workspace,
-  type WorkspaceDocumentMeta,
-  type WorkspaceMeta,
-  isAsyncApiDocument,
-  isOpenApiDocument,
-} from '@/schemas/workspace'
+import type { ApiDefinition, Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from '@/schemas/workspace'
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
 import type { Config, DocumentConfiguration } from '@/schemas/workspace-specification/config'
 

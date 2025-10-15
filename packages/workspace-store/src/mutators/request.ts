@@ -1,6 +1,6 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
-import { isOpenApiDocument } from '@/schemas'
+import { isOpenApiDocument } from '@/helpers/type-guards'
 import type { AsyncApiDocument } from '@/schemas/asyncapi/asyncapi-document'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
