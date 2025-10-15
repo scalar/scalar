@@ -50,8 +50,6 @@ const clientOptions = [
   },
 ] as ClientOptionGroup[]
 
-const _mockCollection = collectionSchema.parse({})
-_mockCollection
 const createDocumentWithOperationId = () =>
   coerceValue(OpenAPIDocumentSchema, {
     openapi: '3.1.0',
