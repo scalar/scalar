@@ -66,9 +66,9 @@ const title = computed(
         }">
         {{ transformedOperation.path }}
         <span
-          v-if="transformedOperation.information?.['x-pro-only'] === true"
+          v-if="transformedOperation.information?.['x-api-plan-only'] === true"
           class="pro-indicator">
-          PRO
+          API Plan
         </span>
       </span>
     </a>

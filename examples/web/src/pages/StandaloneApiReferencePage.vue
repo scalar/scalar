@@ -19,14 +19,14 @@ const getUpdatedSpec = (baseUrl: string) => {
     return spec
   }
 
-  // Free plan: merge free spec with x-pro-only endpoints from pro spec
+  // Free plan: merge free spec with x-api-plan-only endpoints from pro spec
   const freeSpec = JSON.parse(JSON.stringify(freeSpecContent))
   const proSpec = JSON.parse(JSON.stringify(proSpecContent))
 
-  // Add pro-only endpoints to the free spec
+  // Add API-Plan-only endpoints to the free spec
   for (const path in proSpec.paths) {
     for (const method in proSpec.paths[path]) {
-      if (proSpec.paths[path][method]['x-pro-only']) {
+      if (proSpec.paths[path][method]['x-api-plan-only']) {
         if (!freeSpec.paths[path]) {
           freeSpec.paths[path] = {}
         }

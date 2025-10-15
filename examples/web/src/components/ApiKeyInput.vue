@@ -111,7 +111,7 @@ const switchToFreeApi = () => {
         <input
           type="text"
           :value="apiKey"
-          placeholder="Enter your DefiLlama Pro API key"
+          placeholder="Enter your DefiLlama (API plan) API key"
           class="api-key-field"
           @input="handleKeyChange" />
       </div>
@@ -173,7 +173,7 @@ const switchToFreeApi = () => {
   line-height: 1.4 !important;
 }
 
-.pro-badge {
+.api-plan-badge {
   display: inline-flex !important;
   align-items: center !important;
   padding: 2px 6px !important;
@@ -373,7 +373,7 @@ const switchToFreeApi = () => {
     box-shadow: 0 0 0 2px var(--scalar-color-accent);
   }
 
-  .pro-badge {
+  .api-plan-badge {
     border: 1px solid var(--scalar-color-orange);
   }
 }

@@ -4,7 +4,7 @@ DefiLlama API – Complete LLM Integration Guide
 ## Overview
 
 This document provides comprehensive guidance for LLMs to interact with ALL DefiLlama APIs.
-Includes pro-only endpoints (marked with 🔒) and free endpoints, with full parameters and responses.
+Includes API-Plan-only endpoints (marked with 🔒) and free endpoints, with full parameters and responses.
 
 ## Base URLs
 

@@ -56,7 +56,7 @@
     "/api/tokenProtocols/{symbol}": {
       "get": {
         "tags": ["TVL"],
-        "x-pro-only": true,
+        "x-api-plan-only": true,
         "summary": "Lists the amount of a certain token within all protocols. Data for the Token Usage page",
         "parameters": [
           {
@@ -111,7 +111,7 @@
     "/api/inflows/{protocol}/{timestamp}": {
       "get": {
         "tags": ["TVL"],
-        "x-pro-only": true,
+        "x-api-plan-only": true,
         "summary": "Lists the amount of inflows and outflows for a protocol at a given date",
         "parameters": [
           {
@@ -365,7 +365,7 @@
             }
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/stablecoins/stablecoindominance/{chain}": {
@@ -449,7 +449,7 @@
             }
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/api/activeUsers": {
@@ -548,7 +548,7 @@
             }
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/api/userData/{type}/{protocolId}": {
@@ -604,7 +604,7 @@
             }
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/api/emissions": {
@@ -719,7 +719,7 @@
             }
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/api/emission/{protocol}": {
@@ -992,7 +992,7 @@
             }
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/api/categories": {
@@ -1128,13 +1128,13 @@
             }
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/api/forks": {
       "get": {
         "tags": ["main page"],
-        "x-pro-only": true,
+        "x-api-plan-only": true,
         "summary": "Overview of all categories accross all protocols",
         "responses": {
           "200": {
@@ -1339,7 +1339,7 @@
             }
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/api/hacks": {
@@ -1414,7 +1414,7 @@
             }
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/api/raises": {
@@ -1504,7 +1504,7 @@
             }
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/api/treasuries": {
@@ -1660,7 +1660,7 @@
             }
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/api/entities": {
@@ -1793,7 +1793,7 @@
             }
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/api/historicalLiquidity/{token}": {
@@ -1817,7 +1817,7 @@
             "description": "successful operation"
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/yields/pools": {
@@ -2176,7 +2176,7 @@
             }
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/yields/chart/{pool}": {
@@ -2444,7 +2444,7 @@
             }
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/yields/chartLendBorrow/{pool}": {
@@ -2521,7 +2521,7 @@
             }
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/yields/perps": {
@@ -2610,7 +2610,7 @@
             }
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/yields/lsdRates": {
@@ -2678,7 +2678,7 @@
             }
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/etfs/snapshot": {
@@ -2761,7 +2761,7 @@
             }
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/etfs/flows": {
@@ -2804,7 +2804,7 @@
             }
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/fdv/performance/{period}": {
@@ -2959,7 +2959,7 @@
             }
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/api/overview/derivatives": {
@@ -3352,7 +3352,7 @@
             }
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/api/summary/derivatives/{protocol}": {
@@ -3675,7 +3675,7 @@
             }
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/bridges": {
@@ -3811,7 +3811,7 @@
             }
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/bridge/{id}": {
@@ -4081,7 +4081,7 @@
             }
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/bridgevolume/{chain}": {
@@ -4168,7 +4168,7 @@
             }
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/bridgedaystats/{timestamp}/{chain}": {
@@ -4365,7 +4365,7 @@
             }
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/transactions/{id}": {
@@ -4847,7 +4847,7 @@
             }
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/usage/APIKEY": {
@@ -4864,7 +4864,7 @@
             "description": "credits left"
           }
         },
-        "x-pro-only": true
+        "x-api-plan-only": true
       }
     },
     "/api/protocols": {

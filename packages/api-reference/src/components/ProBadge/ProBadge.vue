@@ -1,8 +1,8 @@
 <template>
   <Badge
     v-if="showProBadge"
-    class="text-orange pro-badge">
-    PRO
+    class="text-orange api-plan-badge">
+    API Plan
   </Badge>
 </template>
 
@@ -13,19 +13,19 @@ import { Badge } from '@/components/Badge'
 
 const { operation } = defineProps<{
   operation?: {
-    'x-pro-only'?: boolean
+    'x-api-plan-only'?: boolean
     [key: string]: any
   }
 }>()
 
-/** Only show the PRO badge when x-pro-only is explicitly set to "pro" */
+/** Only show the PRO badge when x-api-plan-only is explicitly set to "pro" */
 const showProBadge = computed(() => {
-  return operation?.['x-pro-only'] === true
+  return operation?.['x-api-plan-only'] === true
 })
 </script>
 
 <style scoped>
-.pro-badge {
+.api-plan-badge {
   font-weight: var(--scalar-bold);
   font-size: var(--scalar-micro);
 }
