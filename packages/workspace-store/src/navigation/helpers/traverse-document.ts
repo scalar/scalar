@@ -19,9 +19,9 @@ import { traverseWebhooks } from './traverse-webhooks'
  * - Tag-based organization of operations and webhooks
  * - Optional schema/model documentation
  */
-export const traverseDocument = (document: OpenApiDocument, config?: DocumentConfiguration) => {
+export const traverseDocument = (documentName: string, document: OpenApiDocument, config?: DocumentConfiguration) => {
   const { hideModels, tagsSorter, operationsSorter, getHeadingId, getOperationId, getWebhookId, getModelId, getTagId } =
-    getNavigationOptions(config)
+    getNavigationOptions(documentName, config)
 
   /** Map of tags and their entries */
   const tagsMap: TagsMap = new Map(
@@ -60,7 +60,7 @@ export const traverseDocument = (document: OpenApiDocument, config?: DocumentCon
     if (untaggedModels.length) {
       entries.push({
         type: 'text',
-        id: 'models',
+        id: getModelId({}),
         title: 'Models',
         children: untaggedModels,
       })

@@ -634,7 +634,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (strictDocument[extensions.document.navigation] === undefined) {
-      const navigation = createNavigation(strictDocument as OpenApiDocument, input.config)
+      const navigation = createNavigation(name, strictDocument as OpenApiDocument, input.config)
 
       strictDocument[extensions.document.navigation] = navigation.entries
 

@@ -8,7 +8,7 @@ import type { DocumentConfiguration } from '@/schemas/workspace-specification/co
  * how IDs and slugs are generated for tags, headings, models, operations, and webhooks.
  * The returned options can be influenced by the provided DocumentConfiguration
  */
-export const getNavigationOptions = (config?: DocumentConfiguration): TraverseSpecOptions => {
+export const getNavigationOptions = (documentName: string, config?: DocumentConfiguration): TraverseSpecOptions => {
   const referenceConfig = config?.['x-scalar-reference-config']
 
   /**
@@ -19,9 +19,9 @@ export const getNavigationOptions = (config?: DocumentConfiguration): TraverseSp
   const getTagIdDefault: TraverseSpecOptions['getTagId'] = (tag) => {
     const generateTagSlug = referenceConfig?.generateTagSlug
     if (generateTagSlug) {
-      return `tag/${generateTagSlug(tag)}`
+      return `${documentName}/tag/${generateTagSlug(tag)}`
     }
-    return `tag/${slug(tag.name ?? '')}`
+    return `${documentName}/tag/${slug(tag.name ?? '')}`
   }
 
   /**
@@ -34,13 +34,13 @@ export const getNavigationOptions = (config?: DocumentConfiguration): TraverseSp
     const generateHeadingSlug = referenceConfig?.generateHeadingSlug
 
     if (generateHeadingSlug) {
-      return `${generateHeadingSlug(heading)}`
+      return `${documentName}/${generateHeadingSlug(heading)}`
     }
 
     if (heading.slug) {
-      return `description/${heading.slug}`
+      return `${documentName}/description/${heading.slug}`
     }
-    return ''
+    return documentName
   }
 
   /**
@@ -53,11 +53,11 @@ export const getNavigationOptions = (config?: DocumentConfiguration): TraverseSp
     const generateModelSlug = referenceConfig?.generateModelSlug
 
     if (!model?.name) {
-      return 'models'
+      return `${documentName}/models`
     }
 
     // Prefix with the tag if we have one
-    const prefixTag = parentTag ? `${getTagId(parentTag)}/` : ''
+    const prefixTag = parentTag ? `${documentName}/${getTagId(parentTag)}/` : `${documentName}/`
 
     if (generateModelSlug) {
       return `${prefixTag}model/${generateModelSlug(model)}`
@@ -94,11 +94,11 @@ export const getNavigationOptions = (config?: DocumentConfiguration): TraverseSp
     const generateWebhookSlug = referenceConfig?.generateWebhookSlug
 
     if (!webhook?.name) {
-      return 'webhooks'
+      return `${documentName}/webhooks`
     }
 
     // Prefix with the tag if we have one
-    const prefixTag = parentTag ? `${getTagId(parentTag)}/` : ''
+    const prefixTag = parentTag ? `${getTagId(parentTag)}/` : `${documentName}/`
 
     if (generateWebhookSlug) {
       return `${prefixTag}webhook/${generateWebhookSlug(webhook)}`

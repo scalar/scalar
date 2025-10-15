@@ -92,7 +92,7 @@ describe('create-server-store', () => {
         },
         'x-scalar-navigation': [
           {
-            'id': 'tag/default/get/planets',
+            'id': `${name}/tag/default/get/planets`,
             method: 'get',
             type: 'operation',
             isDeprecated: false,
@@ -183,7 +183,7 @@ describe('create-server-store', () => {
         'x-scalar-active-auth': 'test',
         'x-scalar-navigation': [
           {
-            'id': 'tag/default/get/planets',
+            'id': 'doc-1/tag/default/get/planets',
             isDeprecated: false,
             method: 'get',
             type: 'operation',
@@ -216,7 +216,7 @@ describe('create-server-store', () => {
         'x-scalar-active-auth': 'test',
         'x-scalar-navigation': [
           {
-            'id': 'tag/default/get/planets',
+            'id': 'doc-3/tag/default/get/planets',
             isDeprecated: false,
             method: 'get',
             type: 'operation',
@@ -291,7 +291,7 @@ describe('create-server-store', () => {
             },
             'x-scalar-navigation': [
               {
-                'id': 'tag/default/get/planets',
+                'id': 'doc-1/tag/default/get/planets',
                 isDeprecated: false,
                 method: 'get',
                 path: '/planets',
@@ -321,7 +321,7 @@ describe('create-server-store', () => {
             },
             'x-scalar-navigation': [
               {
-                'id': 'tag/default/get/planets',
+                'id': 'doc-2/tag/default/get/planets',
                 isDeprecated: false,
                 method: 'get',
                 type: 'operation',
