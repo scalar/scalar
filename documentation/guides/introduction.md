@@ -395,7 +395,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
       <object class="sticker-clip-registry" width="136" height="186"
           data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/jgGF_IKsu-T_irS-6MMOy.svg"></object>
       </div>
-      <div class="expander-hover-title">API Registry</div>
+      <div class="expander-hover-title">Scalar Registry</div>
       <div class="expander">
         <div class="expander-content">
           Managing & versioning OpenAPI Documents with a deep Git integration.
@@ -413,7 +413,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
       <div class="expander-hover-sticker">
         <object class="sticker-clip-docs" width="113" height="143" data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/HLhbFqJ4vSzo4UDEZX2dq.svg"></object>
       </div>
-      <div class="expander-hover-title">API Docs</div>
+      <div class="expander-hover-title">Scalar Docs</div>
       <div class="expander">
         <div class="expander-content">
           Write beautiful documentation with Markdown + MDX + Git Sync.
