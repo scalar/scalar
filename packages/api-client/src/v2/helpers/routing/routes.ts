@@ -12,6 +12,7 @@ export const modalRoutes = [
   {
     name: 'example',
     path: '/workspace/:workspaceSlug/document/:documentSlug/path/:pathEncoded/method/:method/example/:exampleName',
+    props: true,
     component: () => import('@/v2/components/TempReplaceMe.vue'),
   },
   // This will redirect to the example page for every incomplete path (just in case)
@@ -31,84 +32,96 @@ export const appRoutes = [
       {
         name: 'workspace.overview',
         path: 'overview',
+        props: true,
         component: () => import('@/v2/components/TempReplaceMe.vue'),
       },
       // Workspace servers
       {
         name: 'workspace.servers',
         path: 'servers',
+        props: true,
         component: () => import('@/v2/components/TempReplaceMe.vue'),
       },
       // Workspace environment
       {
         name: 'workspace.environment',
         path: 'environment',
+        props: true,
         component: () => import('@/v2/components/TempReplaceMe.vue'),
       },
       // Workspace authentication
       {
         name: 'workspace.authentication',
         path: 'authentication',
+        props: true,
         component: () => import('@/v2/components/TempReplaceMe.vue'),
       },
       // Workspace cookies
       {
         name: 'workspace.cookies',
         path: 'cookies',
+        props: true,
         component: () => import('@/v2/components/TempReplaceMe.vue'),
       },
       // Workspace settings
       {
         name: 'workspace.settings',
         path: 'settings',
+        props: true,
         component: () => import('@/v2/components/TempReplaceMe.vue'),
       },
       // Document
       {
         name: 'document',
         path: 'document/:documentSlug',
-        component: () => import('@/v2/components/TempReplaceMe.vue'),
         children: [
           // Document overview
           {
             name: 'document.overview',
             path: 'overview',
+            props: true,
             component: () => import('@/v2/components/TempReplaceMe.vue'),
           },
           // Document servers
           {
             name: 'document.servers',
             path: 'servers',
+            props: true,
             component: () => import('@/v2/components/TempReplaceMe.vue'),
           },
           // Document environment
           {
             name: 'document.environment',
             path: 'environment',
+            props: true,
             component: () => import('@/v2/components/TempReplaceMe.vue'),
           },
           // Document authentication
           {
             name: 'document.authentication',
             path: 'authentication',
+            props: true,
             component: () => import('@/v2/components/TempReplaceMe.vue'),
           },
           // Document cookies
           {
             name: 'document.cookies',
             path: 'cookies',
+            props: true,
             component: () => import('@/v2/components/TempReplaceMe.vue'),
           },
           // Document settings
           {
             name: 'document.settings',
             path: 'settings',
+            props: true,
             component: () => import('@/v2/components/TempReplaceMe.vue'),
           },
           // Example page
           {
             name: 'example',
-            path: '/path/:pathEncoded/method/:method/example/:exampleName',
+            path: 'path/:pathEncoded/method/:method/example/:exampleName',
+            props: true,
             component: () => import('@/v2/components/TempReplaceMe.vue'),
           },
         ],
@@ -200,7 +213,7 @@ type RouteNamedMap = {
     | 'document.authentication'
     | 'document.cookies'
     | 'document.settings'
-    | 'paths'
+    | 'example'
   >
   'document.overview': RouteRecordInfo<
     'document.overview',
