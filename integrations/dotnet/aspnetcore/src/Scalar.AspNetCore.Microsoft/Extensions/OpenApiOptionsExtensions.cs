@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.OpenApi;
-
 namespace Scalar.AspNetCore;
 
 /// <summary>

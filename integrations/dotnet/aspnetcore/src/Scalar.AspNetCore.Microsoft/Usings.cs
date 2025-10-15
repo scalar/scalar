@@ -5,6 +5,7 @@ global using Microsoft.AspNetCore.OpenApi;
 global using Microsoft.OpenApi.Any;
 global using Microsoft.OpenApi.Interfaces;
 global using Microsoft.OpenApi.Models;
+
 #else
 global using Microsoft.OpenApi;
 #endif
