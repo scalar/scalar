@@ -24,7 +24,7 @@ internal static class ScalarResourceConfigurator
         {
             configurations = Convert.ToBase64String(Encoding.UTF8.GetBytes(configurations));
         }
-        
+
         var scalarAspireOptions = serviceProvider.GetRequiredService<IOptionsMonitor<ScalarAspireOptions>>().Get(resource.Name);
 
         var environmentVariables = context.EnvironmentVariables;

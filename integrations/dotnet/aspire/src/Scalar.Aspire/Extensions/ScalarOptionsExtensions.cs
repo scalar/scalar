@@ -5,7 +5,6 @@ namespace Scalar.Aspire;
 /// </summary>
 public static partial class ScalarOptionsExtensions
 {
-
     /// <summary>
     /// Sets whether HTTPS should be preferred over HTTP when both are available.
     /// </summary>

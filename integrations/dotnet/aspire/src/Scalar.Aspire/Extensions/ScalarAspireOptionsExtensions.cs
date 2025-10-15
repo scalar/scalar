@@ -56,5 +56,4 @@ public static class ScalarAspireOptionsExtensions
         options.AllowSelfSignedCertificates = true;
         return options;
     }
-    
 }
