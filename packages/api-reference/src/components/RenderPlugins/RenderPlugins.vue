@@ -4,7 +4,7 @@ import { ScalarErrorBoundary } from '@scalar/components'
 import { usePluginManager } from '@/plugins'
 
 const { viewName, options } = defineProps<{
-  viewName: string
+  viewName: 'content.end'
   options: Record<string, any>
 }>()
 

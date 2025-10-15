@@ -45,7 +45,7 @@ export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams)
     /**
      * Get all components for a specific view from registered plugins
      */
-    getViewComponents: (viewName: string): ViewComponent[] => {
+    getViewComponents: (viewName: 'content.end'): ViewComponent[] => {
       const components: ViewComponent[] = []
 
       for (const plugin of registeredPlugins.values()) {
