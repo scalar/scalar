@@ -8,7 +8,6 @@ internal static class AsyncEnumerableExtensions
 {
     internal static async Task<string> SerializeToJsonAsync<T>(
         this IAsyncEnumerable<T> source,
-        JsonSerializerOptions? options,
         CancellationToken cancellationToken)
     {
         var buffer = new ArrayBufferWriter<byte>();
@@ -18,7 +17,7 @@ internal static class AsyncEnumerableExtensions
 
         await foreach (var item in source.WithCancellation(cancellationToken))
         {
-            JsonSerializer.Serialize(writer, item, options);
+            JsonSerializer.Serialize(writer, typeof(ScalarConfiguration), ScalarConfigurationSerializerContext.Default);
         }
 
         writer.WriteEndArray();

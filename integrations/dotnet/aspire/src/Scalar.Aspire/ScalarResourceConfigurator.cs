@@ -1,7 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Aspire.Hosting.ApplicationModel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -11,12 +9,6 @@ namespace Scalar.Aspire;
 
 internal static class ScalarResourceConfigurator
 {
-    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
-    {
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
-
     public static async Task ConfigureScalarResourceAsync(EnvironmentCallbackContext context)
     {
         var resource = context.Resource;
@@ -25,7 +17,7 @@ internal static class ScalarResourceConfigurator
         var scalarAnnotations = resource.Annotations.OfType<ScalarAnnotation>();
         var scalarConfigurations = CreateConfigurationsAsync(resource.Name, serviceProvider, scalarAnnotations, cancellationToken);
 
-        var configurations = await scalarConfigurations.ToScalarConfigurationsAsync(cancellationToken).SerializeToJsonAsync(JsonSerializerOptions, cancellationToken);
+        var configurations = await scalarConfigurations.ToScalarConfigurationsAsync(cancellationToken).SerializeToJsonAsync(cancellationToken);
 
         // Encode the configurations to Base64 if in publish mode
         if (context.ExecutionContext.IsPublishMode)
