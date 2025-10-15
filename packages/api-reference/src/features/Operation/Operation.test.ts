@@ -11,6 +11,8 @@ import { createMockSidebar, createMockStore } from '@/helpers/test-utils'
 
 import Operation from './Operation.vue'
 
+type ExtractComponentProps<TComponent> = TComponent extends new () => { $props: infer P } ? P : never
+
 // Mock the workspace store
 vi.mock('@scalar/api-client/store', () => ({
   useWorkspace: () => ({
@@ -63,20 +65,24 @@ const createDocumentWithOperationId = () =>
     },
   })
 
-const mountOperationWithConfig = (config: Record<string, unknown>) => {
-  const document = createDocumentWithOperationId()
-  const store = createMockStore(document)
+const mountOperationWithConfig = (
+  config: Omit<Partial<ExtractComponentProps<typeof Operation>>, 'options'> & {
+    options?: Partial<ExtractComponentProps<typeof Operation>['options']>
+  },
+) => {
+  const doc = createDocumentWithOperationId()
 
   return mount(Operation, {
     props: {
       id: 'test-operation',
-      path: '/users/{userId}',
       method: 'get',
-      pathValue: document.paths?.['/users/{userId}'],
-      security: document.security,
+      path: '/users/{userId}',
+      pathValue: doc.paths?.['/users/{userId}'],
+      security: doc.security,
       server: undefined,
-      store,
-      collection: mockCollection,
+      getSecurityScheme: () => [],
+      ...config,
+      xScalarDefaultClient: 'c/libcurl',
       options: {
         layout: 'modern',
         isWebhook: false,
@@ -86,7 +92,7 @@ const mountOperationWithConfig = (config: Record<string, unknown>) => {
         expandAllResponses: undefined,
         orderRequiredPropertiesFirst: undefined,
         orderSchemaPropertiesBy: undefined,
-        ...config,
+        ...config.options,
       },
     },
   })
@@ -156,28 +162,12 @@ describe('Operation', () => {
 
   it('renders path parameters from pathItem parameters', () => {
     const document = createMockDocument()
-    const wrapper = mount(Operation, {
-      props: {
-        id: 'test-operation',
-        path: '/users/{userId}',
-        method: 'get',
-        pathValue: document.paths?.['/users/{userId}'],
-        security: document.security,
-        server: undefined,
-        store: createMockStore(document),
-        collection: mockCollection,
-        options: {
-          layout: 'modern',
-          isWebhook: false,
-          clientOptions,
-          showOperationId: undefined,
-          hideTestRequestButton: undefined,
-          expandAllResponses: undefined,
-
-          orderRequiredPropertiesFirst: undefined,
-          orderSchemaPropertiesBy: undefined,
-        },
-      },
+    const wrapper = mountOperationWithConfig({
+      path: '/users/{userId}',
+      method: 'get',
+      pathValue: document.paths?.['/users/{userId}'],
+      security: document.security,
+      server: undefined,
     })
 
     // Check that the component renders
@@ -234,30 +224,12 @@ describe('Operation', () => {
       },
     })
 
-    const storeWithOnlyOperationParams = createMockStore(documentWithOnlyOperationParams)
-
-    const wrapper = mount(Operation, {
-      props: {
-        id: 'test-operation',
-        path: '/users/{userId}',
-        method: 'get',
-        pathValue: documentWithOnlyOperationParams.paths?.['/users/{userId}'],
-        security: documentWithOnlyOperationParams.security,
-        server: undefined,
-        store: storeWithOnlyOperationParams,
-        collection: mockCollection,
-        options: {
-          layout: 'modern',
-          isWebhook: false,
-          clientOptions,
-          showOperationId: undefined,
-          hideTestRequestButton: undefined,
-          expandAllResponses: undefined,
-
-          orderRequiredPropertiesFirst: undefined,
-          orderSchemaPropertiesBy: undefined,
-        },
-      },
+    const wrapper = mountOperationWithConfig({
+      path: '/users/{userId}',
+      method: 'get',
+      pathValue: documentWithOnlyOperationParams.paths?.['/users/{userId}'],
+      security: documentWithOnlyOperationParams.security,
+      server: undefined,
     })
 
     const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
@@ -296,30 +268,12 @@ describe('Operation', () => {
       },
     })
 
-    const storeWithWebhooks = createMockStore(documentWithWebhooks)
-
-    const wrapper = mount(Operation, {
-      props: {
-        id: 'test-webhook',
-        path: '/webhook/user-updated',
-        method: 'post',
-        pathValue: documentWithWebhooks.webhooks?.['/webhook/user-updated'],
-        security: documentWithWebhooks.security,
-        server: undefined,
-        store: storeWithWebhooks,
-        collection: mockCollection,
-        options: {
-          layout: 'modern',
-          isWebhook: true,
-          clientOptions,
-          showOperationId: undefined,
-          hideTestRequestButton: undefined,
-          expandAllResponses: undefined,
-
-          orderRequiredPropertiesFirst: undefined,
-          orderSchemaPropertiesBy: undefined,
-        },
-      },
+    const wrapper = mountOperationWithConfig({
+      path: '/webhook/user-updated',
+      method: 'post',
+      pathValue: documentWithWebhooks.webhooks?.['/webhook/user-updated'],
+      security: documentWithWebhooks.security,
+      server: undefined,
     })
 
     const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
@@ -361,30 +315,12 @@ describe('Operation', () => {
       },
     })
 
-    const storeWithRefs = createMockStore(documentWithRefs)
-
-    const wrapper = mount(Operation, {
-      props: {
-        id: 'test-operation',
-        path: '/users/{userId}',
-        method: 'get',
-        pathValue: documentWithRefs.paths?.['/users/{userId}'],
-        security: documentWithRefs.security,
-        server: undefined,
-        store: storeWithRefs,
-        collection: mockCollection,
-        options: {
-          layout: 'modern',
-          isWebhook: false,
-          clientOptions,
-          showOperationId: undefined,
-          hideTestRequestButton: undefined,
-          expandAllResponses: undefined,
-
-          orderRequiredPropertiesFirst: undefined,
-          orderSchemaPropertiesBy: undefined,
-        },
-      },
+    const wrapper = mountOperationWithConfig({
+      path: '/users/{userId}',
+      method: 'get',
+      pathValue: documentWithRefs.paths?.['/users/{userId}'],
+      security: documentWithRefs.security,
+      server: undefined,
     })
 
     const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
@@ -462,30 +398,12 @@ describe('Operation', () => {
       },
     })
 
-    const storeWithOverridingParams = createMockStore(documentWithOverridingParams)
-
-    const wrapper = mount(Operation, {
-      props: {
-        id: 'test-operation',
-        path: '/users/{userId}',
-        method: 'get',
-        pathValue: documentWithOverridingParams.paths?.['/users/{userId}'],
-        security: documentWithOverridingParams.security,
-        server: undefined,
-        store: storeWithOverridingParams,
-        collection: mockCollection,
-        options: {
-          layout: 'modern',
-          isWebhook: false,
-          clientOptions,
-          showOperationId: undefined,
-          hideTestRequestButton: undefined,
-          expandAllResponses: undefined,
-
-          orderRequiredPropertiesFirst: undefined,
-          orderSchemaPropertiesBy: undefined,
-        },
-      },
+    const wrapper = mountOperationWithConfig({
+      path: '/users/{userId}',
+      method: 'get',
+      pathValue: documentWithOverridingParams.paths?.['/users/{userId}'],
+      security: documentWithOverridingParams.security,
+      server: undefined,
     })
 
     const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
@@ -511,27 +429,14 @@ describe('Operation', () => {
 
   it('renders classic layout when specified', () => {
     const document = createMockDocument()
-    const wrapper = mount(Operation, {
-      props: {
-        id: 'test-operation',
-        path: '/users/{userId}',
-        method: 'get',
-        pathValue: document.paths?.['/users/{userId}'],
-        security: document.security,
-        server: undefined,
-        store: createMockStore(document as WorkspaceDocument),
-        collection: mockCollection,
-        options: {
-          layout: 'classic',
-          isWebhook: false,
-          clientOptions,
-          showOperationId: undefined,
-          hideTestRequestButton: undefined,
-          expandAllResponses: undefined,
-
-          orderRequiredPropertiesFirst: undefined,
-          orderSchemaPropertiesBy: undefined,
-        },
+    const wrapper = mountOperationWithConfig({
+      path: '/users/{userId}',
+      method: 'get',
+      pathValue: document.paths?.['/users/{userId}'],
+      security: document.security,
+      server: undefined,
+      options: {
+        layout: 'classic',
       },
     })
 
@@ -564,30 +469,13 @@ describe('Operation', () => {
         },
       },
     }
-    const storeWithoutOperation = createMockStore(documentWithoutOperation)
 
-    const wrapper = mount(Operation, {
-      props: {
-        id: 'test-operation',
-        path: '/users/{userId}',
-        method: 'get',
-        pathValue: documentWithoutOperation.paths?.['/users/{userId}'],
-        security: undefined,
-        server: undefined,
-        store: storeWithoutOperation,
-        collection: mockCollection,
-        options: {
-          layout: 'modern',
-          isWebhook: false,
-          clientOptions,
-          showOperationId: undefined,
-          hideTestRequestButton: undefined,
-          expandAllResponses: undefined,
-
-          orderRequiredPropertiesFirst: undefined,
-          orderSchemaPropertiesBy: undefined,
-        },
-      },
+    const wrapper = mountOperationWithConfig({
+      path: '/users/{userId}',
+      method: 'get',
+      pathValue: documentWithoutOperation.paths?.['/users/{userId}'],
+      security: undefined,
+      server: undefined,
     })
 
     // Should not render anything when operation is not available
@@ -612,7 +500,7 @@ describe('Operation', () => {
                   'application/json': {
                     schema: {
                       type: 'string',
-                      default: 'This is the testing string',
+                      default: 'This is the testing string and it is in the document',
                     },
                   },
                 },
@@ -626,28 +514,15 @@ describe('Operation', () => {
       },
     })
 
-    const storeWithResponses = createMockStore(documentWithResponses)
-
-    const wrapper = mount(Operation, {
-      props: {
-        id: 'test-operation',
-        path: '/users/{userId}',
-        method: 'get',
-        pathValue: documentWithResponses.paths?.['/users/{userId}'],
-        security: documentWithResponses.security,
-        server: undefined,
-        store: storeWithResponses,
-        collection: mockCollection,
-        options: {
-          layout: 'modern',
-          isWebhook: false,
-          clientOptions,
-          showOperationId: undefined,
-          hideTestRequestButton: undefined,
-          expandAllResponses: true,
-          orderRequiredPropertiesFirst: undefined,
-          orderSchemaPropertiesBy: undefined,
-        },
+    const wrapper = mountOperationWithConfig({
+      path: '/users/{userId}',
+      method: 'get',
+      pathValue: documentWithResponses.paths?.['/users/{userId}'],
+      security: documentWithResponses.security,
+      server: undefined,
+      options: {
+        layout: 'modern',
+        expandAllResponses: true,
       },
     })
 
@@ -656,33 +531,18 @@ describe('Operation', () => {
 
     // Find the OperationResponses component within ModernLayout
     const operationResponses = modernLayout.findComponent({ name: 'OperationResponses' })
-    expect(operationResponses.text()).toContain('This is the testing string')
+    expect(operationResponses.text()).toContain('This is the testing string and it is in the document')
   })
 
   it('passes operation-level server to ModernLayout', () => {
     const doc = createMockDocument()
 
-    const wrapper = mount(Operation, {
-      props: {
-        id: 'test-operation',
-        path: '/users/{userId}',
-        method: 'get',
-        pathValue: doc.paths?.['/users/{userId}'],
-        security: doc.security,
-        server: undefined,
-        store: createMockStore(doc),
-        collection: mockCollection,
-        options: {
-          layout: 'modern',
-          isWebhook: false,
-          clientOptions,
-          showOperationId: undefined,
-          hideTestRequestButton: undefined,
-          expandAllResponses: undefined,
-          orderRequiredPropertiesFirst: undefined,
-          orderSchemaPropertiesBy: undefined,
-        },
-      },
+    const wrapper = mountOperationWithConfig({
+      path: '/users/{userId}',
+      method: 'get',
+      pathValue: doc.paths?.['/users/{userId}'],
+      security: doc.security,
+      server: undefined,
     })
 
     const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
@@ -714,27 +574,12 @@ describe('Operation', () => {
       },
     })
 
-    const wrapper = mount(Operation, {
-      props: {
-        id: 'test-operation',
-        path: '/users',
-        method: 'get',
-        pathValue: doc.paths?.['/users'],
-        security: doc.security,
-        server: undefined,
-        store: createMockStore(doc),
-        collection: mockCollection,
-        options: {
-          layout: 'modern',
-          isWebhook: false,
-          clientOptions,
-          showOperationId: undefined,
-          hideTestRequestButton: undefined,
-          expandAllResponses: undefined,
-          orderRequiredPropertiesFirst: undefined,
-          orderSchemaPropertiesBy: undefined,
-        },
-      },
+    const wrapper = mountOperationWithConfig({
+      path: '/users',
+      method: 'get',
+      pathValue: doc.paths?.['/users'],
+      security: doc.security,
+      server: undefined,
     })
 
     const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
@@ -746,7 +591,7 @@ describe('Operation', () => {
   describe('showOperationId', () => {
     describe('ModernLayout', () => {
       it('shows operationId when showOperationId is true', () => {
-        const wrapper = mountOperationWithConfig({ showOperationId: true })
+        const wrapper = mountOperationWithConfig({ options: { showOperationId: true } })
         const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
 
         expect(modernLayout.html()).toContain('getUserById')
@@ -762,14 +607,14 @@ describe('Operation', () => {
 
     describe('ClassicLayout', () => {
       it('shows operationId when showOperationId is true', () => {
-        const wrapper = mountOperationWithConfig({ showOperationId: true, layout: 'classic' })
+        const wrapper = mountOperationWithConfig({ options: { showOperationId: true, layout: 'classic' } })
         const classicLayout = wrapper.findComponent({ name: 'ClassicLayout' })
 
         expect(classicLayout.html()).toContain('getUserById')
       })
 
       it('does not show operationId by default', () => {
-        const wrapper = mountOperationWithConfig({ layout: 'classic' })
+        const wrapper = mountOperationWithConfig({ options: { layout: 'classic' } })
         const classicLayout = wrapper.findComponent({ name: 'ClassicLayout' })
 
         expect(classicLayout.html()).not.toContain('getUserById')

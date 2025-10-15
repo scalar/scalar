@@ -1,8 +1,10 @@
 import { URL, fileURLToPath } from 'node:url'
+
 import { autoCSSInject, createViteBuildOptions } from '@scalar/build-tooling'
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
+
 import { version } from './package.json'
 
 export default defineConfig({
@@ -17,6 +19,7 @@ export default defineConfig({
     ...(process.env.REMOTE_CONTAINERS && { host: '127.0.0.1' }),
     allowedHosts: ['localhost', 'host.docker.internal'],
   },
+  minify: false,
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

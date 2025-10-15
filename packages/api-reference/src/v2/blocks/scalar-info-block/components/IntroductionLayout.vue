@@ -3,7 +3,6 @@ import type {
   ExternalDocumentationObject,
   InfoObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { onMounted } from 'vue'
 
 import {
   Section,
@@ -21,19 +20,14 @@ import InfoLinks from './InfoLinks.vue'
 import InfoVersion from './InfoVersion.vue'
 import OpenApiVersion from './OpenApiVersion.vue'
 
-const { onLoaded } = defineProps<{
+defineProps<{
   id: string | undefined
   oasVersion: string | undefined
-  info: InfoObject
+  info: InfoObject | undefined
   externalDocs?: ExternalDocumentationObject
   documentExtensions?: Record<string, unknown>
   infoExtensions?: Record<string, unknown>
-  isLoading?: boolean
-  onLoaded?: (() => void) | unknown
 }>()
-
-/** Trigger the onLoaded event when the component is mounted */
-onMounted(() => (typeof onLoaded === 'function' ? onLoaded?.() : onLoaded))
 </script>
 
 <template>
@@ -42,10 +36,11 @@ onMounted(() => (typeof onLoaded === 'function' ? onLoaded?.() : onLoaded))
     <Section
       :id
       class="introduction-section z-1 gap-12">
-      <SectionContent
-        :loading="isLoading ?? (!info?.description && !info?.title)">
+      <SectionContent :loading="!info">
         <div class="flex gap-1.5">
-          <InfoVersion :version="info?.version" />
+          <InfoVersion
+            v-if="info"
+            :version="info?.version" />
           <OpenApiVersion :oasVersion="oasVersion" />
         </div>
         <SectionHeader
@@ -56,6 +51,7 @@ onMounted(() => (typeof onLoaded === 'function' ? onLoaded?.() : onLoaded))
           </SectionHeaderTag>
           <template #links>
             <InfoLinks
+              v-if="info"
               :externalDocs="externalDocs"
               :info="info" />
           </template>

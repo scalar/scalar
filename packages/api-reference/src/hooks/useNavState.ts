@@ -27,7 +27,6 @@ const hashPrefixBackup = ref('')
  * isIntersectionEnabled is a hack to prevent intersection observer from triggering
  * when clicking on sidebar links or going backwards
  *
- * @param _config this is used to pass in the config if we have not provided it yet to the useConfig hook such as in ApiReferenceLayout
  */
 export const useNavState = () => {
   const { isIntersectionEnabled, hash, hashPrefix, basePath, generateHeadingSlug } = inject(NAV_STATE_SYMBOL, {

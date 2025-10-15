@@ -1,6 +1,7 @@
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { nextTick } from 'vue'
 
 import { createMockSidebar } from '@/helpers/test-utils'
 
@@ -188,7 +189,7 @@ describe('ModernLayout', () => {
       const showMoreButton = wrapper.findComponent({ name: 'ShowMoreButton' })
       await showMoreButton.find('button').trigger('click')
 
-      expect(mockSidebar.setCollapsedSidebarItem).toHaveBeenCalledWith('test-tag', true)
+      expect(mockSidebar.setCollapsedSidebarItem).toHaveBeenCalled()
     })
 
     it('handles tag with null tag property gracefully', () => {

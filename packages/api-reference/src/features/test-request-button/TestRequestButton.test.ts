@@ -1,18 +1,8 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
-import { ref } from 'vue'
+import { describe, expect, it } from 'vitest'
 
+import { captureCustomEvent } from '../../../test/utils/custom-event'
 import TestRequestButton from './TestRequestButton.vue'
-
-const mockClient = ref({
-  open: vi.fn(),
-})
-
-vi.mock('@/features/api-client-modal', () => ({
-  useApiClient: () => ({
-    client: mockClient,
-  }),
-}))
 
 describe('TestRequestButton', () => {
   it('renders button with correct text and icon when operation is provided', () => {
@@ -51,11 +41,9 @@ describe('TestRequestButton', () => {
       },
     })
 
+    const customEvent = captureCustomEvent(wrapper.find('button').element, 'scalar-open-client')
     await wrapper.find('button').trigger('click')
 
-    expect(mockClient.value.open).toHaveBeenCalledWith({
-      method: 'delete',
-      path: '/users/1',
-    })
+    await customEvent({})
   })
 })

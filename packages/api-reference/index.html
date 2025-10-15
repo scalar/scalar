@@ -20,7 +20,7 @@
     <script type="module">
       import sources from './test/data/sources.ts'
 
-      Scalar.createApiReference('#app', {
+      const app = Scalar.createApiReference('#app', {
         sources,
         persistAuth: true,
         // Avoid CORS issues

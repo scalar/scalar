@@ -141,13 +141,7 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
     })
     .optional() as z.ZodType<(() => Promise<void> | void) | undefined>,
   /** Callback fired when the reference is fully loaded */
-  onLoaded: z
-    .function({
-      input: [],
-      // Why no output? https://github.com/scalar/scalar/pull/7047
-      // output: z.union([z.void(), z.promise(z.void())]),
-    })
-    .optional() as z.ZodType<(() => Promise<void> | void) | undefined>,
+  onLoaded: z.function().optional() as z.ZodType<((slug: string) => Promise<void> | void) | undefined>,
   /** onBeforeRequest is fired before the request is sent. You can modify the request here. */
   onBeforeRequest: z
     .function({
@@ -357,17 +351,24 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
 })
 
 /**
+ * Pure configuration without the sources
+ *
+ * @deprecated Remove this once the types have been fully migrated
+ */
+export type ApiReferenceConfigurationRaw = Omit<
+  z.infer<typeof apiReferenceConfigurationSchema>, // Remove deprecated attributes
+  'proxy' | 'spec' | 'authentication'
+> & {
+  authentication?: AuthenticationConfiguration
+}
+
+/**
  * Configuration for the Scalar Api Reference integrations
  *
  * See the type `ApiReferenceConfigurationWithSource` or `AnyApiReferenceConfiguration`\
  * for the configuration that includes the sources for you OpenAPI documents
  */
-export type ApiReferenceConfiguration = Omit<
-  z.infer<typeof apiReferenceConfigurationSchema>, // Remove deprecated attributes
-  'proxy' | 'spec' | 'authentication'
-> & {
-  authentication?: AuthenticationConfiguration
-} & {
+export type ApiReferenceConfiguration = ApiReferenceConfigurationRaw & {
   /** @deprecated
    * This type now refers to the base configuration that does not include the sources.
    * Use the type `ApiReferenceConfigurationWithSource` instead.
@@ -453,27 +454,18 @@ export type ApiReferenceConfigurationWithSource = Omit<
 }
 
 /**
- * When providing an array of configurations we extend with the default attribute
- * which indicates which configuration should be used as the default one
- */
-export type ApiReferenceConfigurationWithDefault = ApiReferenceConfigurationWithSource & {
-  /** Whether to use this config as the default one */
-  default?: boolean
-}
-
-/**
  * Configuration for a single config with multiple sources
  * The configuration will be shared between the documents
  */
 export type ApiReferenceConfigurationWithMultipleSources = ApiReferenceConfigurationWithSource & {
-  sources: (SourceConfiguration & { default?: boolean })[]
+  sources: SourceConfiguration[]
 }
 
 /** Configuration for multiple Api References */
 export type AnyApiReferenceConfiguration =
   | Partial<ApiReferenceConfigurationWithSource>
   | Partial<ApiReferenceConfigurationWithMultipleSources>
-  | Partial<ApiReferenceConfigurationWithDefault>[]
+  | Partial<ApiReferenceConfigurationWithSource>[]
   | Partial<ApiReferenceConfigurationWithMultipleSources>[]
 
 /** Typeguard to check to narrow the configs to the one with sources */

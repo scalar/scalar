@@ -255,7 +255,7 @@ export type WorkspaceStore = {
    * // Export a document as YAML
    * const yamlString = store.exportDocument('api', 'yaml')
    */
-  exportDocument(documentName: string, format: 'json' | 'yaml'): string | undefined
+  exportDocument(documentName: string, format: 'json' | 'yaml', minify?: boolean): string | undefined
   /**
    * Exports the currently active document in the requested format.
    *
@@ -274,7 +274,7 @@ export type WorkspaceStore = {
    * // Export the active document as YAML
    * const yamlString = store.exportActiveDocument('yaml')
    */
-  exportActiveDocument(format: 'json' | 'yaml'): string | undefined
+  exportActiveDocument(format: 'json' | 'yaml', minify?: boolean): string | undefined
   /**
    * Saves the current state of the specified document to the intermediate documents map.
    *
@@ -492,7 +492,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     return workspace[extensions.workspace.activeDocument] ?? Object.keys(workspace.documents)[0] ?? ''
   }
 
-  function exportDocument(documentName: string, format: 'json' | 'yaml') {
+  function exportDocument(documentName: string, format: 'json' | 'yaml', minify?: boolean) {
     const intermediateDocument = intermediateDocuments[documentName]
 
     if (!intermediateDocument) {
@@ -500,7 +500,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     }
 
     if (format === 'json') {
-      return JSON.stringify(intermediateDocument)
+      return minify ? JSON.stringify(intermediateDocument) : JSON.stringify(intermediateDocument, null, 2)
     }
 
     return YAML.stringify(intermediateDocument)
@@ -787,7 +787,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return getDocumentConfiguration(getActiveDocumentName())
     },
     exportDocument,
-    exportActiveDocument: (format) => exportDocument(getActiveDocumentName(), format),
+    exportActiveDocument: (format, minify) => exportDocument(getActiveDocumentName(), format, minify),
     saveDocument,
     async revertDocumentChanges(documentName: string) {
       const workspaceDocument = workspace.documents[documentName]

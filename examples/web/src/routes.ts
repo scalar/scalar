@@ -1,4 +1,3 @@
-import ApiReferencePage from './pages/ApiReferencePage.vue'
 import ApiReferenceTestPage from './pages/ApiReferenceTestPage.vue'
 import ClassicApiReferencePage from './pages/ClassicApiReferencePage.vue'
 import EmbeddedApiReferencePage from './pages/EmbeddedApiReferencePage.vue'
@@ -7,11 +6,6 @@ import StartPage from './pages/StartPage.vue'
 
 export const routes = [
   { path: '/', name: 'home', component: StartPage },
-  {
-    path: '/api-reference',
-    name: 'api-reference',
-    component: ApiReferencePage,
-  },
   {
     path: '/standalone-api-reference',
     name: 'standalone-api-reference',

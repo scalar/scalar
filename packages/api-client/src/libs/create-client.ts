@@ -63,10 +63,10 @@ export type CreateApiClientParams = {
 /**
  * ApiClient type
  *
- * We need to do this due to some typescript type propogation errors
+ * We need to do this due to some typescript type propagation errors
  * This is pretty much add properties as they are needed
  */
-export type ApiClient = Omit<Awaited<ReturnType<typeof createApiClient>>, 'app' | 'store'> & {
+export type ApiClient = Omit<ReturnType<typeof createApiClient>, 'app' | 'store'> & {
   /** Add properties as they are needed, see above */
   app: { unmount: () => void }
   /**
