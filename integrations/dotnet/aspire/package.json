@@ -16,7 +16,7 @@
   },
   "scripts": {
     "build:docker": "docker build --no-cache -t scalarapi/aspire-api-reference:latest -f src/Scalar.Aspire.Service/Dockerfile .",
-    "copy:standalone": "shx cp ../../packages/api-reference/dist/browser/standalone.js ./src/Scalar.Aspire.Service/wwwroot/scalar.js",
+    "copy:standalone": "shx cp ../../../packages/api-reference/dist/browser/standalone.js ./src/Scalar.Aspire.Service/wwwroot/scalar.js",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
@@ -28,7 +28,6 @@
     "@scalar/dotnet-shared": "workspace:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
-    "@scalar/snippetz": "workspace:*"
+    "@scalar/build-tooling": "workspace:*"
   }
 }
