@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarSidebarSearchButton, useModal } from '@scalar/components'
 import { isMacOS } from '@scalar/helpers/general/is-mac-os'
-import type { AsyncApiDocument } from '@scalar/workspace-store/schemas/asyncapi/asyncapi-document'
+import type { AsyncApiDocument } from '@scalar/workspace-store/schemas/v3.0/asyncapi-document'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 

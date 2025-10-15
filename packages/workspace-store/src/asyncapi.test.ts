@@ -2,7 +2,7 @@ import { Value } from '@scalar/typebox/value'
 import { describe, expect, it } from 'vitest'
 
 import { createWorkspaceStore } from './client'
-import { AsyncApiDocumentSchemaStrict } from './schemas/asyncapi'
+import { AsyncApiDocumentSchemaStrict } from './schemas/v3.0'
 import { type WorkspaceDocument, isAsyncApiDocument } from './schemas/workspace'
 
 describe('AsyncAPI 3.0', () => {

@@ -14,7 +14,7 @@ import {
 import type { SecuritySchemeObject } from '@/schemas/v3.1/strict/security-scheme'
 import type { ServerObject } from '@/schemas/v3.1/strict/server'
 
-import { type AsyncApiDocument, AsyncApiDocumentSchema } from './asyncapi'
+import { type AsyncApiDocument, AsyncApiDocumentSchema } from './v3.0'
 import {
   OpenAPIDocumentSchema,
   type OpenApiDocument,

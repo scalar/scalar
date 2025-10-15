@@ -15,7 +15,7 @@ import {
   ScalarIconTextAlignLeft,
 } from '@scalar/icons'
 import type { ScalarIconComponent } from '@scalar/icons/types'
-import type { AsyncApiDocument } from '@scalar/workspace-store/schemas/asyncapi/asyncapi-document'
+import type { AsyncApiDocument } from '@scalar/workspace-store/schemas/v3.0/asyncapi-document'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { FuseResult } from 'fuse.js'
 import { nanoid } from 'nanoid'
