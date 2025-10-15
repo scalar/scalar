@@ -2,9 +2,8 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { createApp } from 'vue'
 
 import App from '@/v2/App.vue'
-
-import { createRouter } from './routing/create-router'
-import { WORKSPACE_SYMBOL } from './store'
+import { createRouter } from '@/v2/helpers/routing/create-router'
+import type { RouteProps } from '@/v2/helpers/routing/routes'
 
 /**
  * The layout of the client, also defines the router type and routes
@@ -22,7 +21,7 @@ export type CreateApiClientOptions = {
    */
   mountOnInitialize?: boolean
   /** The workspace store must be initialized and passed in */
-  store: WorkspaceStore
+  workspaceStore: WorkspaceStore
   /**
    * The layout of the client
    * @see {@link ClientLayout}
@@ -37,17 +36,15 @@ export type CreateApiClientOptions = {
  */
 export const createApiClient = ({
   el,
-  store,
+  workspaceStore,
   mountOnInitialize = true,
   layout = 'desktop',
 }: CreateApiClientOptions) => {
-  const app = createApp(App)
+  // Pass in our initial props at the top level
+  const app = createApp(App, { workspaceStore, layout } satisfies RouteProps)
 
   // Add the correct router based on the layout
   app.use(createRouter(layout))
-
-  // Provide the workspace store so that it can be consumed by the top level components only
-  app.provide(WORKSPACE_SYMBOL, store)
 
   // Set an id prefix for useId so we don't have collisions with other Vue apps
   app.config.idPrefix = 'scalar-client'
@@ -73,8 +70,8 @@ export const createApiClient = ({
     /** The vue app instance for the modal, be careful with this */
     // app,
     /** Route to the specified method and path */
-    route: () => {},
+    // route: () => {},
     /** Mount the client to a given element */
-    mount,
+    // mount,
   }
 }
