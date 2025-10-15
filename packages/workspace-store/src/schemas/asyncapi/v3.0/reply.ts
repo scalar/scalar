@@ -3,7 +3,7 @@ import { Type } from '@scalar/typebox'
 import { compose } from '@/schemas/compose'
 
 // Reply Schema
-const ReplySchemaDefinition = compose(
+export const ReplySchemaDefinition = compose(
   Type.Object({
     /** REQUIRED. A $ref to the operation that this operation is a reply to. */
     address: Type.Optional(Type.Any()), // Will be replaced with proper address object
@@ -22,11 +22,3 @@ export type Reply = {
   /** A map where the keys describe the name of the message and the values describe the message. */
   messages?: string[] // References to messages
 }
-
-// Module definition
-const module = Type.Module({
-  Reply: ReplySchemaDefinition,
-})
-
-// Export schemas
-export const ReplySchema = module.Import('Reply')

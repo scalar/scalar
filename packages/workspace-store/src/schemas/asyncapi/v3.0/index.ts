@@ -5,26 +5,31 @@ export {
   AsyncApiDocumentSchema,
   AsyncApiDocumentSchema as AsyncApiDocumentSchemaStrict,
   type AsyncApiExtensions,
-} from './asyncapi-document'
-// Export new AsyncAPI-specific schemas
-export { type Binding, BindingSchema } from './binding'
-export { type ChannelItem, ChannelItemSchema } from './channel-item'
-export { type ChannelsObject, ChannelsObjectSchema } from './channels'
-export { type CorrelationId, CorrelationIdSchema } from './correlation-id'
-export { type Message, MessageSchema } from './message'
-export { type MessageTrait, MessageTraitSchema } from './message-trait'
-export {
-  type Operation,
-  type OperationAction,
+  // Export AsyncAPI-specific schemas from the module
+  AsyncApiServerSchema,
+  AsyncApiServerVariableSchema,
+  BindingSchema,
+  ChannelItemSchema,
+  ChannelsObjectSchema,
+  CorrelationIdSchema,
+  MessageSchema,
+  MessageTraitSchema,
   OperationSchema,
-} from './operation'
-export { type OperationTrait, OperationTraitSchema } from './operation-trait'
-export { type OperationsObject, OperationsObjectSchema } from './operations'
-export { type Parameter, ParameterSchema } from './parameter'
-export { type Reply, ReplySchema } from './reply'
-export {
-  type Server,
-  ServerSchema,
-  type ServerVariable,
-  ServerVariableSchema,
-} from './server'
+  OperationTraitSchema,
+  OperationsObjectSchema,
+  ParameterSchema,
+  ReplySchema,
+} from './asyncapi-document'
+// Export types from individual files
+export type { Binding } from './binding'
+export type { ChannelItem } from './channel-item'
+export type { ChannelsObject } from './channels'
+export type { CorrelationId } from './correlation-id'
+export type { Message } from './message'
+export type { MessageTrait } from './message-trait'
+export type { Operation, OperationAction } from './operation'
+export type { OperationTrait } from './operation-trait'
+export type { OperationsObject } from './operations'
+export type { Parameter } from './parameter'
+export type { Reply } from './reply'
+export type { Server, ServerVariable } from './server'

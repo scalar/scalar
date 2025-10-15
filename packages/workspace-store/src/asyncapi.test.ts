@@ -2,8 +2,11 @@ import { Value } from '@scalar/typebox/value'
 import { describe, expect, it } from 'vitest'
 
 import { createWorkspaceStore } from './client'
-import { AsyncApiDocumentSchemaStrict } from './schemas/v3.0'
-import { type WorkspaceDocument, isAsyncApiDocument } from './schemas/workspace'
+import { type AsyncApiDocument, AsyncApiDocumentSchemaStrict } from './schemas/asyncapi/v3.0'
+import type { WorkspaceDocument, WorkspaceDocumentMeta } from './schemas/workspace'
+
+const isAsyncApiDocument = (doc: WorkspaceDocument): doc is WorkspaceDocumentMeta & AsyncApiDocument =>
+  'asyncapi' in doc
 
 describe('AsyncAPI 3.0', () => {
   const asyncApiDocument = {

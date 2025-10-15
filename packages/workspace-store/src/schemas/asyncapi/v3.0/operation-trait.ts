@@ -3,7 +3,7 @@ import { Type } from '@scalar/typebox'
 import { compose } from '@/schemas/compose'
 
 // Operation Trait Schema
-const OperationTraitSchemaDefinition = compose(
+export const OperationTraitSchemaDefinition = compose(
   Type.Object({
     /** A human-friendly title for the operation. */
     title: Type.Optional(Type.String()),
@@ -38,11 +38,3 @@ export type OperationTrait = {
   /** A $ref to the operation that this operation is a reply to. */
   reply?: any // Will be replaced with ReplyObject
 }
-
-// Module definition
-const module = Type.Module({
-  OperationTrait: OperationTraitSchemaDefinition,
-})
-
-// Export schemas
-export const OperationTraitSchema = module.Import('OperationTrait')

@@ -3,7 +3,7 @@ import { Type } from '@scalar/typebox'
 import { compose } from '@/schemas/compose'
 
 // Message Trait Schema
-const MessageTraitSchemaDefinition = compose(
+export const MessageTraitSchemaDefinition = compose(
   Type.Object({
     /** A human-friendly title for the message. */
     title: Type.Optional(Type.String()),
@@ -50,11 +50,3 @@ export type MessageTrait = {
   /** A list of examples of the message. */
   examples?: any[] // Will be replaced with ExampleObject[]
 }
-
-// Module definition
-const module = Type.Module({
-  MessageTrait: MessageTraitSchemaDefinition,
-})
-
-// Export schemas
-export const MessageTraitSchema = module.Import('MessageTrait')

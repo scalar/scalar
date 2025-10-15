@@ -11,10 +11,10 @@ import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-r
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
 import type { Binding } from './binding'
-import { BindingSchema } from './binding'
+import { BindingSchemaDefinition } from './binding'
 
 // Server Variable Schema
-const ServerVariableSchemaDefinition = compose(
+export const AsyncApiServerVariableSchemaDefinition = compose(
   Type.Object({
     /** An enumeration of string values to be used if the substitution options are from a limited set. */
     enum: Type.Optional(Type.Array(Type.String())),
@@ -39,7 +39,7 @@ export type ServerVariable = {
 }
 
 // Server Schema - AsyncAPI server with WebSocket protocol support
-const ServerSchemaDefinition = compose(
+export const AsyncApiServerSchemaDefinition = compose(
   Type.Object({
     /** REQUIRED. A URL to the target host. This URL supports Server Variables and MAY be relative, to indicate that the host location is relative to the location where the AsyncAPI document is being served. Variable substitutions will be made when a variable is part of the URL. */
     url: Type.String(),
@@ -54,7 +54,7 @@ const ServerSchemaDefinition = compose(
     /** A verbose explanation of the server behavior. CommonMark syntax MAY be used for rich text representation. */
     description: Type.Optional(Type.String()),
     /** A map between a variable name and its value. The value is used for substitution in the server's URL template. */
-    variables: Type.Optional(Type.Record(Type.String(), ServerVariableSchemaDefinition)),
+    variables: Type.Optional(Type.Record(Type.String(), AsyncApiServerVariableSchemaDefinition)),
     /** A declaration of which security mechanisms can be used with this server. The list of values includes alternative security requirement objects that can be used. Only one of the security requirement objects need to be satisfied to authorize a connection or operation. */
     security: Type.Optional(Type.Array(SecurityRequirementObjectRef)),
     /** A list of tags for logical grouping and categorization of servers. */
@@ -62,7 +62,7 @@ const ServerSchemaDefinition = compose(
     /** Additional external documentation for this server. */
     externalDocs: Type.Optional(ExternalDocumentationObjectRef),
     /** A map of bindings for this server. */
-    bindings: Type.Optional(BindingSchema),
+    bindings: Type.Optional(BindingSchemaDefinition),
   }),
 )
 
@@ -90,13 +90,3 @@ export type Server = {
   /** A map of bindings for this server. */
   bindings?: Binding
 }
-
-// Module definition
-const module = Type.Module({
-  ServerVariable: ServerVariableSchemaDefinition,
-  Server: ServerSchemaDefinition,
-})
-
-// Export schemas
-export const ServerVariableSchema = module.Import('ServerVariable')
-export const ServerSchema = module.Import('Server')

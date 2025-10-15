@@ -6,10 +6,10 @@ import { ExternalDocumentationObjectRef, TagObjectRef } from '@/schemas/v3.1/str
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
 import type { Parameter } from './parameter'
-import { ParameterSchema } from './parameter'
+import { ParameterSchemaDefinition } from './parameter'
 
 // Channel Item Schema - represents an individual channel
-const ChannelItemSchemaDefinition = compose(
+export const ChannelItemSchemaDefinition = compose(
   Type.Object({
     /** A human-friendly title for the channel. */
     title: Type.Optional(Type.String()),
@@ -20,7 +20,7 @@ const ChannelItemSchemaDefinition = compose(
     /** A list of servers to which this channel applies. If servers is not provided, or is an empty array, the channel applies to all servers. */
     servers: Type.Optional(Type.Array(Type.String())),
     /** A map of the parameters included in the channel address. */
-    parameters: Type.Optional(Type.Record(Type.String(), ParameterSchema)),
+    parameters: Type.Optional(Type.Record(Type.String(), ParameterSchemaDefinition)),
     /** A list of tags for logical grouping and categorization of channels. */
     tags: Type.Optional(Type.Array(TagObjectRef)),
     /** Additional external documentation for this channel. */
@@ -48,11 +48,3 @@ export type ChannelItem = {
   /** A map of the operations available on this channel. */
   operations?: Record<string, string> // References to operations
 }
-
-// Module definition
-const module = Type.Module({
-  ChannelItem: ChannelItemSchemaDefinition,
-})
-
-// Export schemas
-export const ChannelItemSchema = module.Import('ChannelItem')

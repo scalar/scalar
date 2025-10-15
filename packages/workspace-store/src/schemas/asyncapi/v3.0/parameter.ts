@@ -3,7 +3,7 @@ import { Type } from '@scalar/typebox'
 import { compose } from '@/schemas/compose'
 
 // AsyncAPI Parameter Schema
-const ParameterSchemaDefinition = compose(
+export const ParameterSchemaDefinition = compose(
   Type.Object({
     /** A verbose explanation of the parameter. CommonMark syntax MAY be used for rich text representation. */
     description: Type.Optional(Type.String()),
@@ -22,11 +22,3 @@ export type Parameter = {
   /** A runtime expression that specifies the location of the parameter value. */
   location?: string
 }
-
-// Module definition
-const module = Type.Module({
-  Parameter: ParameterSchemaDefinition,
-})
-
-// Export schemas
-export const ParameterSchema = module.Import('Parameter')
