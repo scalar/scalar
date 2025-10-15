@@ -835,14 +835,14 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
       - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
         name: Login to Scalar Registry
-        run: npx @scalar/cli auth login --token ${{ secrets.SCALAR_API_KEY }}
+        run: npx @scalar/cli@latest auth login --token ${{ secrets.SCALAR_API_KEY }}
       - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
         name: Push OpenAPI Example to Scalar Registry
-        run: npx @scalar/cli registry publish --namespace scalar --slug galaxy --version ${{ env.VERSION }} packages/galaxy/dist/latest.yaml
+        run: npx @scalar/cli@latest registry publish --namespace scalar --slug galaxy --version ${{ env.VERSION }} packages/galaxy/dist/latest.yaml
       - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
         name: Push AsyncAPI Example to Scalar Registry
         # We're uploading it as a schema, because for documents do not support AsyncAPI yet.
-        run: npx @scalar/cli schema publish --namespace scalar --slug asyncapi --version ${{ env.VERSION }} packages/galaxy/dist/asyncapi/latest.yaml
+        run: npx @scalar/cli@latest schema publish --namespace scalar --slug asyncapi --version ${{ env.VERSION }} packages/galaxy/dist/asyncapi/latest.yaml
 
   deploy-examples:
     # Main Branch or PR from the same repository
