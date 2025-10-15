@@ -1,18 +1,27 @@
-<script setup lang="ts">
-import { TheCommandPalette } from '@/components/CommandPalette'
-import SideNav from '@/components/SideNav/SideNav.vue'
-import { useLayout } from '@/hooks'
-
-const { layout } = useLayout()
+<script lang="ts">
+/**
+ * Main entry point for the API client for all layouts
+ *
+ * Previously we had a separate entry point for each layout
+ */
+export default {}
 </script>
-<template>
-  <!-- Insert topnav here  -->
 
+<script setup lang="ts">
+import type { ClientLayout } from '@/v2/helpers/create-api-client'
+
+const { layout } = defineProps<{
+  layout: ClientLayout
+}>()
+</script>
+
+<template>
   <!-- min-h-0 is to allow scrolling of individual flex children -->
   <main
     class="flex min-h-0 flex-1 flex-col"
     :class="layout === 'web' ? 'sm:flex-col' : 'sm:flex-row'">
-    <SideNav class="sidenav order-last sm:order-none" />
+    <!-- Insert new sidebar here -->
+    <!-- <SideNav class="sidenav order-last sm:order-none" /> -->
 
     <!-- Popup command palette to add resources from anywhere -->
     <TheCommandPalette />
