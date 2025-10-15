@@ -1,6 +1,7 @@
 import { Type } from '@scalar/typebox'
 import { AVAILABLE_CLIENTS, type AvailableClients } from '@scalar/types/snippetz'
 
+import { type AsyncApiDocument, AsyncApiDocumentSchema } from '@/schemas/asyncapi/v3.0'
 import { compose } from '@/schemas/compose'
 import { extensions } from '@/schemas/extensions'
 import {
@@ -14,7 +15,6 @@ import {
 import type { SecuritySchemeObject } from '@/schemas/v3.1/strict/security-scheme'
 import type { ServerObject } from '@/schemas/v3.1/strict/server'
 
-import { type AsyncApiDocument, AsyncApiDocumentSchema } from './v3.0'
 import {
   OpenAPIDocumentSchema,
   type OpenApiDocument,

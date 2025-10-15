@@ -1,10 +1,10 @@
 import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
+import type { ExternalDocumentationObject } from '@/schemas/v3.1/strict/external-documentation'
+import { ExternalDocumentationObjectRef, TagObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
+import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
-import type { ExternalDocumentationObject } from '../v3.1/strict/external-documentation'
-import { ExternalDocumentationObjectRef, TagObjectRef } from '../v3.1/strict/ref-definitions'
-import type { TagObject } from '../v3.1/strict/tag'
 import type { Parameter } from './parameter'
 import { ParameterSchema } from './parameter'
 

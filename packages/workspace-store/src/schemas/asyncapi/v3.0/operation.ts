@@ -1,15 +1,15 @@
 import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
-
-import type { ExternalDocumentationObject } from '../v3.1/strict/external-documentation'
+import type { ExternalDocumentationObject } from '@/schemas/v3.1/strict/external-documentation'
 import {
   ExternalDocumentationObjectRef,
   SecurityRequirementObjectRef,
   TagObjectRef,
-} from '../v3.1/strict/ref-definitions'
-import type { SecurityRequirementObject } from '../v3.1/strict/security-requirement'
-import type { TagObject } from '../v3.1/strict/tag'
+} from '@/schemas/v3.1/strict/ref-definitions'
+import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
+import type { TagObject } from '@/schemas/v3.1/strict/tag'
+
 import type { Reply } from './reply'
 import { ReplySchema } from './reply'
 

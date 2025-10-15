@@ -1,17 +1,17 @@
 import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
-
-import type { ExampleObject } from '../v3.1/strict/example'
-import type { ExternalDocumentationObject } from '../v3.1/strict/external-documentation'
+import type { ExampleObject } from '@/schemas/v3.1/strict/example'
+import type { ExternalDocumentationObject } from '@/schemas/v3.1/strict/external-documentation'
 import {
   ExampleObjectRef,
   ExternalDocumentationObjectRef,
   SchemaObjectRef,
   TagObjectRef,
-} from '../v3.1/strict/ref-definitions'
-import type { SchemaObject } from '../v3.1/strict/schema'
-import type { TagObject } from '../v3.1/strict/tag'
+} from '@/schemas/v3.1/strict/ref-definitions'
+import type { SchemaObject } from '@/schemas/v3.1/strict/schema'
+import type { TagObject } from '@/schemas/v3.1/strict/tag'
+
 import type { CorrelationId } from './correlation-id'
 import { CorrelationIdSchema } from './correlation-id'
 import type { MessageTrait } from './message-trait'
