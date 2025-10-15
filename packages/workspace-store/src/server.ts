@@ -7,11 +7,11 @@ import { upgrade } from '@scalar/openapi-upgrader'
 
 import { keyOf } from '@/helpers/general'
 import { createAsyncApiNavigation, createNavigation } from '@/navigation'
+import type { AsyncApiDocument } from '@/schemas/asyncapi/v3.0/asyncapi-document'
+import type { Operation as AsyncApiOperation } from '@/schemas/asyncapi/v3.0/operation'
 import { extensions } from '@/schemas/extensions'
 import type { TraversedEntry } from '@/schemas/navigation'
 import { coerceValue } from '@/schemas/typebox-coerce'
-import type { AsyncApiDocument } from '@/schemas/v3.0/asyncapi-document'
-import type { Operation as AsyncApiOperation } from '@/schemas/v3.0/operation'
 import {
   type ComponentsObject,
   OpenAPIDocumentSchema,
