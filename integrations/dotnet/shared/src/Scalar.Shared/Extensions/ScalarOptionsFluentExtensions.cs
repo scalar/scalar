@@ -15,9 +15,8 @@ public static partial class ScalarOptionsExtensions
     /// <summary>
     /// Hides the models section from the sidebar, search, and content.
     /// </summary>
-    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
-    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
-    public static ScalarOptions HideModels(this ScalarOptions options)
+    /// <param name="options">The options to configure.</param>
+    public static TOptions HideModels<TOptions>(this TOptions options) where TOptions : ScalarOptions
     {
         options.HideModels = true;
         return options;
@@ -26,9 +25,8 @@ public static partial class ScalarOptionsExtensions
     /// <summary>
     /// Hides the "Test Request" button from the API Reference.
     /// </summary>
-    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
-    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
-    public static ScalarOptions HideTestRequestButton(this ScalarOptions options)
+    /// <param name="options">The options to configure.</param>
+    public static TOptions HideTestRequestButton<TOptions>(this TOptions options) where TOptions : ScalarOptions
     {
         options.HideTestRequestButton = true;
         return options;
@@ -37,9 +35,8 @@ public static partial class ScalarOptionsExtensions
     /// <summary>
     /// Hides the dark mode toggle from the API Reference.
     /// </summary>
-    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
-    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
-    public static ScalarOptions HideDarkModeToggle(this ScalarOptions options)
+    /// <param name="options">The options to configure.</param>
+    public static TOptions HideDarkModeToggle<TOptions>(this TOptions options) where TOptions : ScalarOptions
     {
         options.HideDarkModeToggle = true;
         return options;
@@ -48,9 +45,8 @@ public static partial class ScalarOptionsExtensions
     /// <summary>
     /// Hides the client button from the Reference sidebar.
     /// </summary>
-    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
-    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
-    public static ScalarOptions HideClientButton(this ScalarOptions options)
+    /// <param name="options">The options to configure.</param>
+    public static TOptions HideClientButton<TOptions>(this TOptions options) where TOptions : ScalarOptions
     {
         options.HideClientButton = true;
         return options;
@@ -59,9 +55,8 @@ public static partial class ScalarOptionsExtensions
     /// <summary>
     /// Hides the sidebar from the API Reference.
     /// </summary>
-    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
-    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
-    public static ScalarOptions HideSidebar(this ScalarOptions options)
+    /// <param name="options">The options to configure.</param>
+    public static TOptions HideSidebar<TOptions>(this TOptions options) where TOptions : ScalarOptions
     {
         options.ShowSidebar = false;
         return options;
@@ -70,9 +65,8 @@ public static partial class ScalarOptionsExtensions
     /// <summary>
     /// Hides the download button from the API Reference.
     /// </summary>
-    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
-    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
-    public static ScalarOptions HideDocumentDownload(this ScalarOptions options)
+    /// <param name="options">The options to configure.</param>
+    public static TOptions HideDocumentDownload<TOptions>(this TOptions options) where TOptions : ScalarOptions
     {
         options.DocumentDownloadType = DocumentDownloadType.None;
         return options;
@@ -81,9 +75,8 @@ public static partial class ScalarOptionsExtensions
     /// <summary>
     /// Sets the download button to show only JSON format.
     /// </summary>
-    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
-    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
-    public static ScalarOptions WithJsonDocumentDownload(this ScalarOptions options)
+    /// <param name="options">The options to configure.</param>
+    public static TOptions WithJsonDocumentDownload<TOptions>(this TOptions options) where TOptions : ScalarOptions
     {
         options.DocumentDownloadType = DocumentDownloadType.Json;
         return options;
@@ -92,9 +85,8 @@ public static partial class ScalarOptionsExtensions
     /// <summary>
     /// Sets the download button to show only YAML format.
     /// </summary>
-    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
-    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
-    public static ScalarOptions WithYamlDocumentDownload(this ScalarOptions options)
+    /// <param name="options">The options to configure.</param>
+    public static TOptions WithYamlDocumentDownload<TOptions>(this TOptions options) where TOptions : ScalarOptions
     {
         options.DocumentDownloadType = DocumentDownloadType.Yaml;
         return options;
@@ -103,9 +95,8 @@ public static partial class ScalarOptionsExtensions
     /// <summary>
     /// Sets the download button to show a direct link to the OpenAPI document.
     /// </summary>
-    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
-    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
-    public static ScalarOptions WithDirectDocumentDownload(this ScalarOptions options)
+    /// <param name="options">The options to configure.</param>
+    public static TOptions WithDirectDocumentDownload<TOptions>(this TOptions options) where TOptions : ScalarOptions
     {
         options.DocumentDownloadType = DocumentDownloadType.Direct;
         return options;
@@ -114,9 +105,8 @@ public static partial class ScalarOptionsExtensions
     /// <summary>
     /// Expands all tags by default instead of only the relevant tag based on the URL.
     /// </summary>
-    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
-    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
-    public static ScalarOptions ExpandAllTags(this ScalarOptions options)
+    /// <param name="options">The options to configure.</param>
+    public static TOptions ExpandAllTags<TOptions>(this TOptions options) where TOptions : ScalarOptions
     {
         options.DefaultOpenAllTags = true;
         return options;
@@ -125,9 +115,8 @@ public static partial class ScalarOptionsExtensions
     /// <summary>
     /// Expands all model sections by default instead of keeping them closed.
     /// </summary>
-    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
-    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
-    public static ScalarOptions ExpandAllModelSections(this ScalarOptions options)
+    /// <param name="options">The options to configure.</param>
+    public static TOptions ExpandAllModelSections<TOptions>(this TOptions options) where TOptions : ScalarOptions
     {
         options.ExpandAllModelSections = true;
         return options;
@@ -136,9 +125,8 @@ public static partial class ScalarOptionsExtensions
     /// <summary>
     /// Expands all response sections in operations by default instead of keeping them closed.
     /// </summary>
-    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
-    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
-    public static ScalarOptions ExpandAllResponses(this ScalarOptions options)
+    /// <param name="options">The options to configure.</param>
+    public static TOptions ExpandAllResponses<TOptions>(this TOptions options) where TOptions : ScalarOptions
     {
         options.ExpandAllResponses = true;
         return options;
@@ -147,9 +135,8 @@ public static partial class ScalarOptionsExtensions
     /// <summary>
     /// Hides the sidebar search bar from the API Reference.
     /// </summary>
-    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
-    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
-    public static ScalarOptions HideSearch(this ScalarOptions options)
+    /// <param name="options">The options to configure.</param>
+    public static TOptions HideSearch<TOptions>(this TOptions options) where TOptions : ScalarOptions
     {
         options.HideSearch = true;
         return options;
@@ -158,9 +145,8 @@ public static partial class ScalarOptionsExtensions
     /// <summary>
     /// Enables persistent authentication in local storage.
     /// </summary>
-    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
-    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
-    public static ScalarOptions EnablePersistentAuthentication(this ScalarOptions options)
+    /// <param name="options">The options to configure.</param>
+    public static TOptions EnablePersistentAuthentication<TOptions>(this TOptions options) where TOptions : ScalarOptions
     {
         options.PersistentAuthentication = true;
         return options;
@@ -169,9 +155,8 @@ public static partial class ScalarOptionsExtensions
     /// <summary>
     /// Enables dark mode (overrides the default light mode).
     /// </summary>
-    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
-    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
-    public static ScalarOptions EnableDarkMode(this ScalarOptions options)
+    /// <param name="options">The options to configure.</param>
+    public static TOptions EnableDarkMode<TOptions>(this TOptions options) where TOptions : ScalarOptions
     {
         options.DarkMode = true;
         return options;
@@ -180,9 +165,8 @@ public static partial class ScalarOptionsExtensions
     /// <summary>
     /// Disables the default fonts (Inter and JetBrains Mono from CDN).
     /// </summary>
-    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
-    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
-    public static ScalarOptions DisableDefaultFonts(this ScalarOptions options)
+    /// <param name="options">The options to configure.</param>
+    public static TOptions DisableDefaultFonts<TOptions>(this TOptions options) where TOptions : ScalarOptions
     {
         options.DefaultFonts = false;
         return options;
@@ -191,10 +175,9 @@ public static partial class ScalarOptionsExtensions
     /// <summary>
     /// Sets the proxy URL for API requests.
     /// </summary>
-    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
+    /// <param name="options">The options to configure.</param>
     /// <param name="proxyUrl">The proxy URL to set.</param>
-    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
-    public static ScalarOptions WithProxy(this ScalarOptions options, [StringSyntax(StringSyntaxAttribute.Uri)] string proxyUrl)
+    public static TOptions WithProxy<TOptions>(this TOptions options, [StringSyntax(StringSyntaxAttribute.Uri)] string proxyUrl) where TOptions : ScalarOptions
     {
         options.ProxyUrl = proxyUrl;
         return options;
@@ -203,9 +186,8 @@ public static partial class ScalarOptionsExtensions
     /// <summary>
     /// Sets the layout to classic style.
     /// </summary>
-    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
-    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
-    public static ScalarOptions WithClassicLayout(this ScalarOptions options)
+    /// <param name="options">The options to configure.</param>
+    public static TOptions WithClassicLayout<TOptions>(this TOptions options) where TOptions : ScalarOptions
     {
         options.Layout = ScalarLayout.Classic;
         return options;
@@ -214,9 +196,8 @@ public static partial class ScalarOptionsExtensions
     /// <summary>
     /// Forces light mode regardless of user preference.
     /// </summary>
-    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
-    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
-    public static ScalarOptions ForceLightMode(this ScalarOptions options)
+    /// <param name="options">The options to configure.</param>
+    public static TOptions ForceLightMode<TOptions>(this TOptions options) where TOptions : ScalarOptions
     {
         options.ForceThemeMode = ThemeMode.Light;
         return options;
@@ -225,9 +206,8 @@ public static partial class ScalarOptionsExtensions
     /// <summary>
     /// Forces dark mode regardless of user preference.
     /// </summary>
-    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
-    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
-    public static ScalarOptions ForceDarkMode(this ScalarOptions options)
+    /// <param name="options">The options to configure.</param>
+    public static TOptions ForceDarkMode<TOptions>(this TOptions options) where TOptions : ScalarOptions
     {
         options.ForceThemeMode = ThemeMode.Dark;
         return options;
@@ -236,9 +216,8 @@ public static partial class ScalarOptionsExtensions
     /// <summary>
     /// Preserves the original order of schema properties instead of sorting alphabetically.
     /// </summary>
-    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
-    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
-    public static ScalarOptions PreserveSchemaPropertyOrder(this ScalarOptions options)
+    /// <param name="options">The options to configure.</param>
+    public static TOptions PreserveSchemaPropertyOrder<TOptions>(this TOptions options) where TOptions : ScalarOptions
     {
         options.SchemaPropertyOrder = PropertyOrder.Preserve;
         return options;
@@ -247,9 +226,8 @@ public static partial class ScalarOptionsExtensions
     /// <summary>
     /// Disables ordering required properties first.
     /// </summary>
-    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
-    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
-    public static ScalarOptions DisableRequiredPropertiesFirst(this ScalarOptions options)
+    /// <param name="options">The options to configure.</param>
+    public static TOptions DisableRequiredPropertiesFirst<TOptions>(this TOptions options) where TOptions : ScalarOptions
     {
         options.OrderRequiredPropertiesFirst = false;
         return options;
@@ -258,9 +236,8 @@ public static partial class ScalarOptionsExtensions
     /// <summary>
     /// Shows the operation ID in the API Reference.
     /// </summary>
-    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
-    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
-    public static ScalarOptions ShowOperationId(this ScalarOptions options)
+    /// <param name="options">The options to configure.</param>
+    public static TOptions ShowOperationId<TOptions>(this TOptions options) where TOptions : ScalarOptions
     {
         options.ShowOperationId = true;
         return options;
@@ -269,9 +246,8 @@ public static partial class ScalarOptionsExtensions
     /// <summary>
     /// Sorts tags alphabetically in the API Reference.
     /// </summary>
-    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
-    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
-    public static ScalarOptions SortTagsAlphabetically(this ScalarOptions options)
+    /// <param name="options">The options to configure.</param>
+    public static TOptions SortTagsAlphabetically<TOptions>(this TOptions options) where TOptions : ScalarOptions
     {
         options.TagSorter = TagSorter.Alpha;
         return options;
@@ -280,9 +256,8 @@ public static partial class ScalarOptionsExtensions
     /// <summary>
     /// Sorts operations by HTTP method in the API Reference.
     /// </summary>
-    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
-    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
-    public static ScalarOptions SortOperationsByMethod(this ScalarOptions options)
+    /// <param name="options">The options to configure.</param>
+    public static TOptions SortOperationsByMethod<TOptions>(this TOptions options) where TOptions : ScalarOptions
     {
         options.OperationSorter = OperationSorter.Method;
         return options;

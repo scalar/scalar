@@ -10,12 +10,7 @@ namespace Scalar.AspNetCore;
 /// Represents all available options for the Scalar API Reference.
 /// Based on <a href="https://github.com/scalar/scalar/blob/main/documentation/configuration.md">Configuration</a>.
 /// </summary>
-// ReSharper disable once PartialTypeWithSinglePart
-#if SCALAR_ASPIRE
-public abstract partial class ScalarOptions
-#else
-public sealed partial class ScalarOptions
-#endif
+public partial class ScalarOptions
 {
     internal List<ScalarDocument> Documents { get; } = [];
 
