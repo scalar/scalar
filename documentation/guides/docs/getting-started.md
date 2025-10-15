@@ -3,7 +3,7 @@
 </div>
 <div class="flex flex-col gap-3 hero small-test">
   <scalar-heading level="2" slug="developer-docs" class="text-balance">
-    Developer Docs.
+    Developer Docs
   </scalar-heading>
   <p>
     Get started with Scalar Docs, literally in minutes. You don't need anything to get started, not even an account if you just want to play around.
