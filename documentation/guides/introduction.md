@@ -27,8 +27,8 @@
 </div>
 
 <div class="slider">
-  <button class="active" type="button" data-target="#slide-1">Scalar Docs</button>
-  <button type="button" data-target="#slide-2">Scalar Registry</button>
+  <button class="active" type="button" data-target="#slide-1">Docs</button>
+  <button type="button" data-target="#slide-2">Registry</button>
   <button type="button" data-target="#slide-3">SDKs</button>
   <button type="button" data-target="#slide-4">API Client</button>
   <ul class="gallery container-full" id="gallery">
@@ -357,7 +357,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
         <object class="sticker-clip-client" width="156" height="110"
           data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/JXS6tZ4EbKIkeGpjP6QKc.svg"></object>
       </div>
-      <div class="expander-hover-title">API Client</div>
+      <div class="expander-hover-title">Scalar API Client</div>
       <div class="expander">
         <div class="expander-content">
           Minimal, powerful, fully open-source API Client built on open standards by us + our community.
@@ -376,7 +376,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
         <object class="sticker-clip-sdk" width="145" height="145"
           data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/gM-mqYTBYMkqpnexTIr-r.svg"></object>
       </div>
-      <div class="expander-hover-title">SDKs</div>
+      <div class="expander-hover-title">Scalar SDKs</div>
       <div class="expander">
         <div class="expander-content">
           Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python and more.
