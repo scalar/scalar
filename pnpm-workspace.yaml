@@ -52,7 +52,7 @@ catalogs:
     fastify: ^5.3.3
     flatted: ^3.3.3
     fuse.js: ^7.1.0
-    hono: 4.9.11
+    hono: 4.9.10
     js-base64: ^3.7.8
     microdiff: ^1.5.0
     nanoid: 5.1.5
