@@ -27,8 +27,8 @@
 </div>
 
 <div class="slider">
-  <button class="active" type="button" data-target="#slide-1">API Docs</button>
-  <button type="button" data-target="#slide-2">API Registry</button>
+  <button class="active" type="button" data-target="#slide-1">Scalar Docs</button>
+  <button type="button" data-target="#slide-2">Scalar Registry</button>
   <button type="button" data-target="#slide-3">SDKs</button>
   <button type="button" data-target="#slide-4">API Client</button>
   <ul class="gallery container-full" id="gallery">
