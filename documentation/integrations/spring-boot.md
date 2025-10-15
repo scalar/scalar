@@ -82,7 +82,7 @@ To enable actuator support, add the following configuration:
 # Enable actuator support
 scalar.actuatorEnabled=true
 
-# Expose the scalar endpoint
+# Expose the Scalar endpoint
 management.endpoints.web.exposure.include=scalar
 ```
 
@@ -177,7 +177,7 @@ spring.autoconfigure.exclude=com.scalar.maven.webjar.ScalarAutoConfiguration
 
 | Property                       | Default                                                              | Description                                                                                                                                                      |
 | ------------------------------ | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `scalar.enabled`               | `false`                                                               | Enable or disable the Scalar API reference                                                                                                                       |
+| `scalar.enabled`               | `false`                                                              | Enable or disable the Scalar API reference                                                                                                                       |
 | `scalar.path`                  | `/scalar`                                                            | Path where the API reference will be available                                                                                                                   |
 | `scalar.url`                   | `https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json` | URL of your OpenAPI document                                                                                                                                     |
 | `scalar.showSidebar`           | `true`                                                               | Whether the sidebar should be shown                                                                                                                              |

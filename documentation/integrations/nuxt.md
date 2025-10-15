@@ -16,8 +16,7 @@ That's it! You can now use @scalar/nuxt in your Nuxt app ✨
 
 ## Configuration
 
-If you are using nuxt server routes you can enable scalar simply by enabling openAPI in the nitro
-config in your nuxt.config.ts
+If you are using nuxt server routes you can enable Scalar simply by enabling openAPI in the nitro config in your nuxt.config.ts
 
 ```ts
 export default defineNuxtConfig({
