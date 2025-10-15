@@ -12,7 +12,7 @@ import { appRoutes, modalRoutes } from './routes'
 /**
  * Creates the appropriate router with the appropriate routes based on the layout
  */
-export const createRouter = ({ layout = 'desktop', store }: Pick<CreateApiClientOptions, 'layout' | 'store'>) => {
+export const createRouter = (layout: CreateApiClientOptions['layout']) => {
   switch (layout) {
     // Modal is missing the workspace routes
     case 'modal':

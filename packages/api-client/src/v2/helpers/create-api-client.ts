@@ -2,7 +2,9 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { createApp } from 'vue'
 
 import App from '@/v2/App.vue'
-import { createRouter } from '@/v2/helpers/routing/create-router'
+
+import { createRouter } from './routing/create-router'
+import { WORKSPACE_SYMBOL } from './store'
 
 /**
  * The layout of the client, also defines the router type and routes
@@ -14,8 +16,6 @@ export type ClientLayout = 'modal' | 'web' | 'desktop'
 export type CreateApiClientOptions = {
   /** Element to mount the references to */
   el: HTMLElement | null
-  /** Persist the workspace to indexDB */
-  // persistData?: boolean
   /**
    * Will attempt to mount the references immediately
    * For SSR this may need to be blocked and done client side
@@ -41,10 +41,13 @@ export const createApiClient = ({
   mountOnInitialize = true,
   layout = 'desktop',
 }: CreateApiClientOptions) => {
-  const router = createRouter({ layout, store })
-
   const app = createApp(App)
-  app.use(router)
+
+  // Add the correct router based on the layout
+  app.use(createRouter(layout))
+
+  // Provide the workspace store so that it can be consumed by the top level components only
+  app.provide(WORKSPACE_SYMBOL, store)
 
   // Set an id prefix for useId so we don't have collisions with other Vue apps
   app.config.idPrefix = 'scalar-client'
