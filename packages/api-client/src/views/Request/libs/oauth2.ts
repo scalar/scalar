@@ -1,7 +1,8 @@
-import type { ErrorResponse } from '@/libs/errors'
 import type { Oauth2Flow, Server } from '@scalar/oas-utils/entities/spec'
 import { shouldUseProxy } from '@scalar/oas-utils/helpers'
 import { encode, fromUint8Array } from 'js-base64'
+
+import type { ErrorResponse } from '@/libs/errors'
 
 /** Oauth2 security schemes which are not implicit */
 type NonImplicitFlow = Exclude<Oauth2Flow, { type: 'implicit' }>
@@ -190,6 +191,7 @@ export const authorizeOauth2 = async (
               const _state = new URL(authWindow.location.href).searchParams.get('state')
 
               if (_state === state) {
+                // biome-ignore lint/nursery/noFloatingPromises: output of authorizeServers must be returned
                 authorizeServers(flow as NonImplicitFlow, scopes, {
                   code,
                   pkce,

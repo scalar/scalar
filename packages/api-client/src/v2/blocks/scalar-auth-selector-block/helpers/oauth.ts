@@ -196,6 +196,7 @@ export const authorizeOauth2 = async (
               const _state = new URL(authWindow.location.href).searchParams.get('state')
 
               if (_state === state) {
+                // biome-ignore lint/nursery/noFloatingPromises: output of authorizeServers must be returned
                 authorizeServers(flows, type, scopes, {
                   code,
                   pkce,

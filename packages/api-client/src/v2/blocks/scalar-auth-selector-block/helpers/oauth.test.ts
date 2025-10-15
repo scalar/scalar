@@ -277,7 +277,7 @@ describe('oauth', () => {
         },
       } satisfies OAuthFlowsObject
 
-      authorizeOauth2(flows, 'authorizationCode', selectedScopes, mockServer)
+      void authorizeOauth2(flows, 'authorizationCode', selectedScopes, mockServer)
 
       // Test the window.open call for full redirect
       expect(window.open).toHaveBeenCalledWith(

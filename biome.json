@@ -191,7 +191,9 @@
         "noReExportAll": "warn",
         "noBarrelFile": "warn"
       },
-      "nursery": {}
+      "nursery": {
+        "noFloatingPromises": "warn"
+      }
     }
   },
   "overrides": [

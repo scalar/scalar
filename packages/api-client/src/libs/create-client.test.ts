@@ -1,15 +1,17 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { createApiClient, type CreateApiClientParams, type OpenClientPayload } from './create-client'
-import { createWorkspaceStore, type CreateWorkspaceStoreOptions } from '@/store/store'
-import { createActiveEntitiesStore } from '@/store/active-entities'
-import { createSidebarState } from '@/hooks/useSidebar'
-import { loadAllResources } from '@/libs/local-storage'
 import {
   requestExampleSchema,
   requestSchema,
   securitySchemeSchema,
   serverSchema,
 } from '@scalar/oas-utils/entities/spec'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { createSidebarState } from '@/hooks/useSidebar'
+import { loadAllResources } from '@/libs/local-storage'
+import { createActiveEntitiesStore } from '@/store/active-entities'
+import { type CreateWorkspaceStoreOptions, createWorkspaceStore } from '@/store/store'
+
+import { type CreateApiClientParams, type OpenClientPayload, createApiClient } from './create-client'
 
 // Mock dependencies
 vi.mock('@/store/store', () => ({
@@ -182,11 +184,11 @@ describe('createApiClient', () => {
     expect(loadAllResources).toHaveBeenCalled()
   })
 
-  it('should update config and reset store when spec is provided', () => {
+  it('should update config and reset store when spec is provided', async () => {
     const client = createApiClient(defaultParams)
     const mockStore = client.store
 
-    client.updateConfig({
+    await client.updateConfig({
       url: 'https://example.com/openapi.json',
     })
 

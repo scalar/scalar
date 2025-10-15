@@ -2,7 +2,6 @@ import { readFile } from 'node:fs/promises'
 
 import { serve } from '@hono/node-server'
 import { Scalar } from '@scalar/hono-api-reference'
-
 import { createMockServer } from '@scalar/mock-server'
 import type { Context } from 'hono'
 
@@ -99,5 +98,5 @@ export async function main(): Promise<void> {
 
 // Start the server when this module is executed directly
 if (import.meta.url === `file://${process.argv[1]}`) {
-  main()
+  void main()
 }

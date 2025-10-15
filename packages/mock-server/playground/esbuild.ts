@@ -1,6 +1,6 @@
 import { build } from '@scalar/build-tooling/esbuild'
 
-build({
+await build({
   entries: ['./src/index.ts'],
   platform: 'shared',
 })

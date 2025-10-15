@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
-import { AppModule } from './app.module'
-
 import { apiReference } from '@scalar/nestjs-api-reference'
+
+import { AppModule } from './app.module'
 
 const PORT = Number(process.env.PORT || 5056)
 const HOST = process.env.HOST || '0.0.0.0'
@@ -29,4 +29,4 @@ async function bootstrap() {
     console.log(`🦁 NestJS listening at http://${HOST}:${PORT}/reference`)
   })
 }
-bootstrap()
+void bootstrap()

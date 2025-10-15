@@ -2656,7 +2656,7 @@ describe('create-workspace-store', () => {
       const store = createWorkspaceStore()
 
       // Spy on console.warn
-      store.replaceDocument('non-existing', {
+      void store.replaceDocument('non-existing', {
         openapi: '3.0.0',
         info: {
           title: 'My API',
