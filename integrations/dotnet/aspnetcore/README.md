@@ -10,7 +10,7 @@ The `Scalar.AspNetCore` NuGet package provides an easy way to render beautiful A
 
 [Read the documentation here](https://guides.scalar.com/scalar/scalar-api-references/integrations/net-aspnet-core/integration)
 
-For more realistic examples and advanced usage scenarios, such as authentication, API versioning, and handling multiple documents, check out our [extended examples documentation](https://github.com/scalar/scalar/blob/main/integrations/aspnetcore/docs/README.md).
+For more realistic examples and advanced usage scenarios, such as authentication, API versioning, and handling multiple documents, check out our [extended examples documentation](https://github.com/scalar/scalar/blob/main/integrations/dotnet/aspnetcore/docs/README.md).
 
 ## Community
 
