@@ -6,18 +6,21 @@ import {
 } from 'vue-router'
 
 import type { CreateApiClientOptions } from '@/v2/helpers/create-api-client'
+import { modalRoutes } from '@/v2/helpers/create-routes'
 
 /**
  * Creates the appropriate router with the appropriate routes based on the layout
  */
 export const createRouter = ({ layout = 'desktop', store }: Pick<CreateApiClientOptions, 'layout' | 'store'>) => {
   switch (layout) {
-    case 'web':
-      return createVueRouter({ history: createWebHistory(), routes: [] })
+    // Modal is missing the workspace routes
     case 'modal':
-      return createVueRouter({ history: createMemoryHistory(), routes: [] })
+      return createVueRouter({ history: createMemoryHistory(), routes: modalRoutes })
+    // Deskop and web have the same routes
     case 'desktop':
-    default:
       return createVueRouter({ history: createWebHashHistory(), routes: [] })
+    case 'web':
+    default:
+      return createVueRouter({ history: createWebHistory(), routes: [] })
   }
 }
