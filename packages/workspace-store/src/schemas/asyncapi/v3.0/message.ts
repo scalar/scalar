@@ -13,12 +13,12 @@ import type { SchemaObject } from '@/schemas/v3.1/strict/schema'
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
 import type { CorrelationId } from './correlation-id'
-import { CorrelationIdSchema } from './correlation-id'
+import { CorrelationIdSchemaDefinition } from './correlation-id'
 import type { MessageTrait } from './message-trait'
-import { MessageTraitSchema } from './message-trait'
+import { MessageTraitSchemaDefinition } from './message-trait'
 
 // Message Schema
-const MessageSchemaDefinition = compose(
+export const MessageSchemaDefinition = compose(
   Type.Object({
     /** A human-friendly title for the message. */
     title: Type.Optional(Type.String()),
@@ -35,7 +35,7 @@ const MessageSchemaDefinition = compose(
     /** The message headers. */
     headers: Type.Optional(SchemaObjectRef),
     /** The message correlation ID. */
-    correlationId: Type.Optional(CorrelationIdSchema),
+    correlationId: Type.Optional(CorrelationIdSchemaDefinition),
     /** The content type of the message payload. */
     contentType: Type.Optional(Type.String()),
     /** The name of the message. */
@@ -43,7 +43,7 @@ const MessageSchemaDefinition = compose(
     /** A list of examples of the message. */
     examples: Type.Optional(Type.Array(ExampleObjectRef)),
     /** A list of traits to apply to the message. */
-    traits: Type.Optional(Type.Array(MessageTraitSchema)),
+    traits: Type.Optional(Type.Array(MessageTraitSchemaDefinition)),
   }),
 )
 
@@ -73,11 +73,3 @@ export type Message = {
   /** A list of traits to apply to the message. */
   traits?: MessageTrait[]
 }
-
-// Module definition
-const module = Type.Module({
-  Message: MessageSchemaDefinition,
-})
-
-// Export schemas
-export const MessageSchema = module.Import('Message')

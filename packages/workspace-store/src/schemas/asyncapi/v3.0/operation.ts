@@ -11,15 +11,15 @@ import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-r
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
 import type { Reply } from './reply'
-import { ReplySchema } from './reply'
+import { ReplySchemaDefinition } from './reply'
 
 // Operation Action - publish or subscribe
-const OperationActionSchema = Type.Union([Type.Literal('publish'), Type.Literal('subscribe')])
+export const OperationActionSchema = Type.Union([Type.Literal('publish'), Type.Literal('subscribe')])
 
 export type OperationAction = 'publish' | 'subscribe'
 
 // Operation Schema
-const OperationSchemaDefinition = compose(
+export const OperationSchemaDefinition = compose(
   Type.Object({
     /** REQUIRED. The action that the operation performs. */
     'action': OperationActionSchema,
@@ -40,7 +40,7 @@ const OperationSchemaDefinition = compose(
     /** A map where the keys describe the name of the message and the values describe the message. */
     'messages': Type.Optional(Type.Array(Type.String())), // References to messages
     /** A $ref to the operation that this operation is a reply to. */
-    'reply': Type.Optional(ReplySchema),
+    'reply': Type.Optional(ReplySchemaDefinition),
     /** A list of $ref to the operations that can be performed after this operation. */
     'x-scalar-reply-to': Type.Optional(Type.Array(Type.String())), // Custom extension for reply relationships
   }),
@@ -70,11 +70,3 @@ export type Operation = {
   /** A list of $ref to the operations that can be performed after this operation. */
   'x-scalar-reply-to'?: string[] // Custom extension for reply relationships
 }
-
-// Module definition
-const module = Type.Module({
-  Operation: OperationSchemaDefinition,
-})
-
-// Export schemas
-export const OperationSchema = module.Import('Operation')

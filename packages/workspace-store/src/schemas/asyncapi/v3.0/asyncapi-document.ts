@@ -45,11 +45,21 @@ import {
 import { type ServerObject, ServerObjectSchemaDefinition } from '@/schemas/v3.1/strict/server'
 import { type TagObject, TagObjectSchemaDefinition } from '@/schemas/v3.1/strict/tag'
 
+import { BindingSchemaDefinition } from './binding'
+import { ChannelItemSchemaDefinition } from './channel-item'
 // AsyncAPI-specific imports
 import type { ChannelsObject } from './channels'
-import { ChannelsObjectSchema } from './channels'
+import { ChannelsObjectSchemaDefinition } from './channels'
+import { CorrelationIdSchemaDefinition } from './correlation-id'
+import { MessageSchemaDefinition } from './message'
+import { MessageTraitSchemaDefinition } from './message-trait'
+import { OperationSchemaDefinition } from './operation'
+import { OperationTraitSchemaDefinition } from './operation-trait'
 import type { OperationsObject } from './operations'
-import { OperationsObjectSchema } from './operations'
+import { OperationsObjectSchemaDefinition } from './operations'
+import { ParameterSchemaDefinition } from './parameter'
+import { ReplySchemaDefinition } from './reply'
+import { AsyncApiServerSchemaDefinition, AsyncApiServerVariableSchemaDefinition } from './server'
 
 // AsyncAPI Extensions Schema
 const AsyncApiExtensionsSchema = Type.Partial(
@@ -85,7 +95,7 @@ export type AsyncApiExtensions = Partial<
 const AsyncApiDocumentSchemaDefinition = compose(
   Type.Object({
     /** REQUIRED. This string MUST be the version number of the AsyncAPI Specification that the AsyncAPI Document uses. The asyncapi field SHOULD be used by tooling to interpret the AsyncAPI Document. This is not related to the API info.version string. */
-    asyncapi: Type.Literal('3.0.0'),
+    asyncapi: Type.String(),
     /** REQUIRED. Provides metadata about the API. The metadata MAY be used by tooling as required. */
     info: InfoObjectRef,
     /** The default value for the $schema keyword within Schema Objects contained within this AsyncAPI document. This MUST be in the form of a URI. */
@@ -93,9 +103,9 @@ const AsyncApiDocumentSchemaDefinition = compose(
     /** An array of Server Objects, which provide connectivity information to a target server. If the servers field is not provided, or is an empty array, the default value would be a Server Object with a url value of /. */
     servers: Type.Optional(Type.Array(ServerObjectRef)),
     /** The available channels and operations for the API. */
-    channels: Type.Optional(ChannelsObjectSchema),
+    channels: Type.Optional(ChannelsObjectSchemaDefinition),
     /** The operations supported by the API. */
-    operations: Type.Optional(OperationsObjectSchema),
+    operations: Type.Optional(OperationsObjectSchemaDefinition),
     /** An element to hold various Objects for the AsyncAPI Description. */
     components: Type.Optional(ComponentsObjectRef),
     /** A declaration of which security mechanisms can be used across the API. The list of values includes alternative Security Requirement Objects that can be used. Only one of the Security Requirement Objects need to be satisfied to authorize a request. Individual operations can override this definition. The list can be incomplete, up to being empty or absent. To make security explicitly optional, an empty security requirement ({}) can be included in the array. */
@@ -149,6 +159,21 @@ const module = Type.Module({
 
   AsyncApiDocument: AsyncApiDocumentSchemaDefinition,
 
+  // AsyncAPI-specific schemas
+  AsyncApiServer: AsyncApiServerSchemaDefinition,
+  AsyncApiServerVariable: AsyncApiServerVariableSchemaDefinition,
+  Binding: BindingSchemaDefinition,
+  ChannelItem: ChannelItemSchemaDefinition,
+  ChannelsObject: ChannelsObjectSchemaDefinition,
+  CorrelationId: CorrelationIdSchemaDefinition,
+  Message: MessageSchemaDefinition,
+  MessageTrait: MessageTraitSchemaDefinition,
+  Operation: OperationSchemaDefinition,
+  OperationTrait: OperationTraitSchemaDefinition,
+  OperationsObject: OperationsObjectSchemaDefinition,
+  Parameter: ParameterSchemaDefinition,
+  Reply: ReplySchemaDefinition,
+
   // Navigation schemas
   [REF_DEFINITIONS.TraversedDescriptionObject]: TraversedDescriptionSchemaDefinition,
   [REF_DEFINITIONS.TraversedOperationObject]: TraversedOperationSchemaDefinition,
@@ -171,6 +196,21 @@ export const ExternalDocumentationObjectSchema = module.Import('ExternalDocument
 export const InfoObjectSchema = module.Import('InfoObject')
 export const ContactObjectSchema = module.Import('ContactObject')
 export const LicenseObjectSchema = module.Import('LicenseObject')
+
+// AsyncAPI-specific schema exports
+export const AsyncApiServerSchema = module.Import('AsyncApiServer')
+export const AsyncApiServerVariableSchema = module.Import('AsyncApiServerVariable')
+export const BindingSchema = module.Import('Binding')
+export const ChannelItemSchema = module.Import('ChannelItem')
+export const ChannelsObjectSchema = module.Import('ChannelsObject')
+export const CorrelationIdSchema = module.Import('CorrelationId')
+export const MessageSchema = module.Import('Message')
+export const MessageTraitSchema = module.Import('MessageTrait')
+export const OperationSchema = module.Import('Operation')
+export const OperationTraitSchema = module.Import('OperationTrait')
+export const OperationsObjectSchema = module.Import('OperationsObject')
+export const ParameterSchema = module.Import('Parameter')
+export const ReplySchema = module.Import('Reply')
 
 export const TraversedDescriptionSchema = module.Import('TraversedDescriptionObject')
 export const TraversedEntrySchema = module.Import('TraversedEntryObject')
