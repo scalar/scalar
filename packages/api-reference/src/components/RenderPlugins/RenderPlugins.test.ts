@@ -1,4 +1,3 @@
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { h } from 'vue'
@@ -15,12 +14,6 @@ vi.mock('@/plugins', () => ({
 import { usePluginManager } from '@/plugins'
 
 describe('RenderPlugins', () => {
-  /**
-   * Helper function to create a mock store.
-   * We do not need a full WorkspaceStore implementation for these tests.
-   */
-  const createMockStore = (): WorkspaceStore => ({}) as WorkspaceStore
-
   const mockOptions = { theme: 'dark', layout: 'modern' }
 
   describe('rendering', () => {
@@ -33,7 +26,6 @@ describe('RenderPlugins', () => {
       const wrapper = mount(RenderPlugins, {
         props: {
           viewName: 'content.end',
-          store: createMockStore(),
           options: mockOptions,
         },
       })
@@ -46,7 +38,7 @@ describe('RenderPlugins', () => {
       const TestComponent = {
         name: 'TestComponent',
         template: '<div class="test-component">Test Content</div>',
-        props: ['store', 'options'],
+        props: ['options'],
       }
 
       vi.mocked(usePluginManager).mockReturnValue({
@@ -61,7 +53,6 @@ describe('RenderPlugins', () => {
       const wrapper = mount(RenderPlugins, {
         props: {
           viewName: 'content.end',
-          store: createMockStore(),
           options: mockOptions,
         },
       })
@@ -75,7 +66,7 @@ describe('RenderPlugins', () => {
       const CustomRenderer = {
         name: 'CustomRenderer',
         template: '<div class="custom-renderer">Rendered with custom renderer</div>',
-        props: ['component', 'store', 'options'],
+        props: ['component', 'options'],
       }
 
       const MockReactComponent = 'MockReactComponent'
@@ -93,7 +84,6 @@ describe('RenderPlugins', () => {
       const wrapper = mount(RenderPlugins, {
         props: {
           viewName: 'content.end',
-          store: createMockStore(),
           options: mockOptions,
         },
       })
@@ -105,15 +95,14 @@ describe('RenderPlugins', () => {
   })
 
   describe('props handling', () => {
-    it('passes store and options to Vue components', () => {
+    it('passes options to Vue components', () => {
       const receivedProps: any = {}
 
       const TestComponent = {
         name: 'TestComponent',
         template: '<div class="test-component">Props received</div>',
-        props: ['store', 'options'],
+        props: ['options'],
         setup(props: any) {
-          receivedProps.store = props.store
           receivedProps.options = props.options
           return {}
         },
@@ -128,17 +117,13 @@ describe('RenderPlugins', () => {
         getSpecificationExtensions: vi.fn(),
       })
 
-      const mockStore = createMockStore()
-
       mount(RenderPlugins, {
         props: {
           viewName: 'content.end',
-          store: mockStore,
           options: mockOptions,
         },
       })
 
-      expect(receivedProps.store).toStrictEqual(mockStore)
       expect(receivedProps.options).toStrictEqual(mockOptions)
     })
 
@@ -148,9 +133,8 @@ describe('RenderPlugins', () => {
       const TestComponent = {
         name: 'TestComponent',
         template: '<div class="test-component">Props received</div>',
-        props: ['store', 'options', 'customProp', 'anotherProp'],
+        props: ['options', 'customProp', 'anotherProp'],
         setup(props: any) {
-          receivedProps.store = props.store
           receivedProps.options = props.options
           receivedProps.customProp = props.customProp
           receivedProps.anotherProp = props.anotherProp
@@ -171,17 +155,13 @@ describe('RenderPlugins', () => {
         getSpecificationExtensions: vi.fn(),
       })
 
-      const mockStore = createMockStore()
-
       mount(RenderPlugins, {
         props: {
           viewName: 'content.end',
-          store: mockStore,
           options: mockOptions,
         },
       })
 
-      expect(receivedProps.store).toStrictEqual(mockStore)
       expect(receivedProps.options).toStrictEqual(mockOptions)
       expect(receivedProps.customProp).toBe('custom value')
       expect(receivedProps.anotherProp).toBe(42)
@@ -193,7 +173,7 @@ describe('RenderPlugins', () => {
       const CustomRenderer = {
         name: 'CustomRenderer',
         template: '<div class="custom-renderer">Custom renderer</div>',
-        props: ['component', 'store', 'options', 'extraProp'],
+        props: ['component', 'options', 'extraProp'],
         setup(props: any) {
           receivedProps.component = props.component
           receivedProps.store = props.store
@@ -218,18 +198,14 @@ describe('RenderPlugins', () => {
         getSpecificationExtensions: vi.fn(),
       })
 
-      const mockStore = createMockStore()
-
       mount(RenderPlugins, {
         props: {
           viewName: 'content.end',
-          store: mockStore,
           options: mockOptions,
         },
       })
 
       expect(receivedProps.component).toBe(MockComponent)
-      expect(receivedProps.store).toStrictEqual(mockStore)
       expect(receivedProps.options).toStrictEqual(mockOptions)
       expect(receivedProps.extraProp).toBe('extra value')
     })
@@ -240,19 +216,19 @@ describe('RenderPlugins', () => {
       const TestComponent1 = {
         name: 'TestComponent1',
         template: '<div class="component-1">First Component</div>',
-        props: ['store', 'options'],
+        props: ['options'],
       }
 
       const TestComponent2 = {
         name: 'TestComponent2',
         template: '<div class="component-2">Second Component</div>',
-        props: ['store', 'options'],
+        props: ['options'],
       }
 
       const TestComponent3 = {
         name: 'TestComponent3',
         template: '<div class="component-3">Third Component</div>',
-        props: ['store', 'options'],
+        props: ['options'],
       }
 
       vi.mocked(usePluginManager).mockReturnValue({
@@ -269,7 +245,6 @@ describe('RenderPlugins', () => {
       const wrapper = mount(RenderPlugins, {
         props: {
           viewName: 'content.end',
-          store: createMockStore(),
           options: mockOptions,
         },
       })
@@ -287,13 +262,13 @@ describe('RenderPlugins', () => {
       const VueComponent = {
         name: 'VueComponent',
         template: '<div class="vue-component">Vue Component</div>',
-        props: ['store', 'options'],
+        props: ['options'],
       }
 
       const CustomRenderer = {
         name: 'CustomRenderer',
         template: '<div class="custom-rendered">Custom Rendered</div>',
-        props: ['component', 'store', 'options'],
+        props: ['component', 'options'],
       }
 
       const ReactComponent = 'ReactComponent'
@@ -308,7 +283,6 @@ describe('RenderPlugins', () => {
       const wrapper = mount(RenderPlugins, {
         props: {
           viewName: 'content.end',
-          store: createMockStore(),
           options: mockOptions,
         },
       })
@@ -324,7 +298,7 @@ describe('RenderPlugins', () => {
       const TestComponent = {
         name: 'TestComponent',
         template: '<div class="test-component">Test</div>',
-        props: ['store', 'options'],
+        props: ['options'],
       }
 
       vi.mocked(usePluginManager).mockReturnValue({
@@ -335,7 +309,6 @@ describe('RenderPlugins', () => {
       const wrapper = mount(RenderPlugins, {
         props: {
           viewName: 'content.end',
-          store: createMockStore(),
           options: mockOptions,
         },
       })
@@ -362,7 +335,6 @@ describe('RenderPlugins', () => {
       mount(RenderPlugins, {
         props: {
           viewName: 'content.end',
-          store: createMockStore(),
           options: mockOptions,
         },
       })
@@ -381,8 +353,8 @@ describe('RenderPlugins', () => {
 
       mount(RenderPlugins, {
         props: {
+          // @ts-expect-error just for the test
           viewName: 'custom.view.name',
-          store: createMockStore(),
           options: mockOptions,
         },
       })
@@ -406,7 +378,6 @@ describe('RenderPlugins', () => {
       const wrapper = mount(RenderPlugins, {
         props: {
           viewName: 'content.end',
-          store: createMockStore(),
           options: mockOptions,
         },
       })
@@ -419,7 +390,7 @@ describe('RenderPlugins', () => {
       const TestComponent = {
         name: 'TestComponent',
         template: '<div class="test-component">Test</div>',
-        props: ['store', 'options'],
+        props: ['options'],
       }
 
       vi.mocked(usePluginManager).mockReturnValue({
@@ -430,7 +401,6 @@ describe('RenderPlugins', () => {
       const wrapper = mount(RenderPlugins, {
         props: {
           viewName: 'content.end',
-          store: createMockStore(),
           options: {},
         },
       })
@@ -441,7 +411,7 @@ describe('RenderPlugins', () => {
     it('handles component with render function', () => {
       const TestComponent = {
         name: 'TestComponent',
-        props: ['store', 'options'],
+        props: ['options'],
         render() {
           return h('div', { class: 'render-function-component' }, 'Render function')
         },
@@ -455,7 +425,6 @@ describe('RenderPlugins', () => {
       const wrapper = mount(RenderPlugins, {
         props: {
           viewName: 'content.end',
-          store: createMockStore(),
           options: mockOptions,
         },
       })
