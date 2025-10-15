@@ -1,4 +1,4 @@
-import { fileURLToPath } from 'node:url'
+import { URL, fileURLToPath } from 'node:url'
 
 import { defineConfig, mergeConfig } from 'vitest/config'
 

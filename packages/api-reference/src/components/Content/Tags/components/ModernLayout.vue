@@ -14,7 +14,6 @@ const { tag, moreThanOneTag } = defineProps<{
   tag: TraversedTag
   moreThanOneTag: boolean
   isLoading: boolean
-  onShowMore: ((id: string) => void) | undefined
 }>()
 
 const sectionContainerRef = ref<HTMLElement>()
@@ -22,7 +21,7 @@ const contentsRef = ref<HTMLElement>()
 
 const headerId = useId()
 
-const { collapsedSidebarItems } = useSidebar()
+const { collapsedSidebarItems, setCollapsedSidebarItem } = useSidebar()
 const { hash } = useNavState()
 
 const moreThanOneDefaultTag = computed(
@@ -30,6 +29,7 @@ const moreThanOneDefaultTag = computed(
 )
 
 async function focusContents() {
+  setCollapsedSidebarItem(tag.id, true)
   await nextTick()
   contentsRef.value?.querySelector('button')?.focus()
 }
@@ -59,7 +59,6 @@ const isCollapsed = (tagId: string) => {
         v-if="isCollapsed(tag.id) && moreThanOneTag"
         :id="tag.id"
         :aria-label="`Show all ${tag.title} endpoints`"
-        :onShowMore="onShowMore"
         @click="focusContents" />
     </Lazy>
 

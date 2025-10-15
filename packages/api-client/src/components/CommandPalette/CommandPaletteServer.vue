@@ -5,7 +5,7 @@ import { emitCustomEvent } from '@scalar/workspace-store/events'
 import { computed, ref, useTemplateRef } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { PathId } from '@/router'
+import { PathId } from '@/routes'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 

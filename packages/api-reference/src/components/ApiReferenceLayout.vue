@@ -3,10 +3,6 @@ import { provideUseId } from '@headlessui/vue'
 import { OpenApiClientButton } from '@scalar/api-client/components'
 import { LAYOUT_SYMBOL } from '@scalar/api-client/hooks'
 import {
-  ACTIVE_ENTITIES_SYMBOL,
-  WORKSPACE_SYMBOL,
-} from '@scalar/api-client/store'
-import {
   addScalarClassesToHeadless,
   ScalarColorModeToggleButton,
   ScalarColorModeToggleIcon,
@@ -14,13 +10,19 @@ import {
   ScalarSidebarFooter,
 } from '@scalar/components'
 import { sleep } from '@scalar/helpers/testing/sleep'
+import type { Server } from '@scalar/oas-utils/entities/spec'
 import {
   getThemeStyles,
   hasObtrusiveScrollbars,
   type ThemeId,
 } from '@scalar/themes'
+import type { ApiReferenceConfigurationRaw } from '@scalar/types'
 import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 import { ScalarToasts } from '@scalar/use-toasts'
+import type {
+  Workspace,
+  WorkspaceDocument,
+} from '@scalar/workspace-store/schemas/workspace'
 import { useDebounceFn, useResizeObserver } from '@vueuse/core'
 import {
   computed,
@@ -38,28 +40,26 @@ import { Content } from '@/components/Content'
 import GettingStarted from '@/components/GettingStarted.vue'
 import { hasLazyLoaded } from '@/components/Lazy/lazyBus'
 import MobileHeader from '@/components/MobileHeader.vue'
-import { ApiClientModal } from '@/features/api-client-modal'
-import { useDocumentSource } from '@/features/document-source'
 import { SearchButton } from '@/features/Search'
 import { useNavState } from '@/hooks/useNavState'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
-import type {
-  ReferenceLayoutProps,
-  ReferenceLayoutSlot,
-  ReferenceSlotProps,
-} from '@/types'
+import type { ReferenceLayoutSlot, ReferenceSlotProps } from '@/types'
 import { SidebarBlock, useSidebar } from '@/v2/blocks/scalar-sidebar-block'
-import { useLegacyStoreEvents } from '@/v2/hooks/use-legacy-store-events'
+import type { SecuritySchemeGetter } from '@/v2/helpers/map-config-to-client-store'
 
 // ---------------------------------------------------------------------------
 // Vue Macros
 
-const {
-  configuration: providedConfiguration,
-  originalDocument: providedOriginalDocument,
-  dereferencedDocument: providedDereferencedDocument,
-  store,
-} = defineProps<ReferenceLayoutProps>()
+const { configuration, document, isDark } = defineProps<{
+  configuration: ApiReferenceConfigurationRaw
+  document: WorkspaceDocument | undefined
+  activeServer: Server | undefined
+  getSecuritySchemes: SecuritySchemeGetter
+  xScalarDefaultClient: Workspace['x-scalar-default-client']
+  isDark: boolean
+  isDevelopment: boolean
+  url?: string
+}>()
 
 defineEmits<{
   (e: 'changeTheme', { id, label }: { id: ThemeId; label: string }): void
@@ -76,39 +76,11 @@ defineOptions({
 defineSlots<
   {
     [x in ReferenceLayoutSlot]: (props: ReferenceSlotProps) => any
-  } & { 'document-selector': any }
+  } & { 'document-selector': never } & { 'client-modal': never }
 >()
-
-/**
- * For unknown reasons the configuration does not perform reactively without this wrapper
- */
-const configuration = computed(() => ({
-  ...providedConfiguration,
-  hideClientButton: providedConfiguration.hideClientButton ?? false,
-  showSidebar: providedConfiguration.showSidebar ?? true,
-  theme: providedConfiguration.theme ?? 'none',
-  layout: providedConfiguration.layout ?? 'modern',
-  persistAuth: providedConfiguration.persistAuth ?? false,
-  documentDownloadType: providedConfiguration.documentDownloadType ?? 'both',
-  onBeforeRequest: providedConfiguration.onBeforeRequest,
-}))
 
 // ---------------------------------------------------------------------------
 // Date injection for global state
-
-/** @deprecated Old method of document loading. Move to workspace store and async addDocument */
-const { dereferencedDocument, workspaceStore, activeEntitiesStore } =
-  useDocumentSource({
-    configuration,
-    dereferencedDocument: providedDereferencedDocument,
-    originalDocument: providedOriginalDocument,
-  })
-
-/** @deprecated Injected to provision api-client */
-provide(WORKSPACE_SYMBOL, workspaceStore)
-
-/** @deprecated Injected to provision api-client */
-provide(ACTIVE_ENTITIES_SYMBOL, activeEntitiesStore)
 
 /**
  * Due to a bug in headless UI, we need to set an ID here that can be shared across server/client
@@ -123,7 +95,7 @@ provide(LAYOUT_SYMBOL, 'modal')
 provide(
   PLUGIN_MANAGER_SYMBOL,
   createPluginManager({
-    plugins: configuration.value.plugins,
+    plugins: configuration.plugins,
   }),
 )
 
@@ -131,7 +103,7 @@ provide(
 // Sync sidebar to active document
 
 const { isSidebarOpen, setCollapsedSidebarItem, scrollToOperation, items } =
-  useSidebar(store)
+  useSidebar()
 
 /** Id of the first entry should be the  */
 const contentId = computed(() => items.value.entries[0]?.id ?? '')
@@ -164,9 +136,9 @@ const obtrusiveScrollbars = computed(hasObtrusiveScrollbars)
 const yPosition = ref(0)
 
 // Front-end redirect
-if (configuration.value.redirect && typeof window !== 'undefined') {
-  const newPath = configuration.value.redirect(
-    (configuration.value.pathRouting ? window.location.pathname : '') +
+if (configuration.redirect && typeof window !== 'undefined') {
+  const newPath = configuration.redirect(
+    (configuration.pathRouting ? window.location.pathname : '') +
       window.location.hash,
   )
   if (newPath) {
@@ -215,7 +187,7 @@ onMounted(() => {
   }
   // Handle back for path routing
   window.onpopstate = () =>
-    configuration.value.pathRouting &&
+    configuration.pathRouting &&
     scrollToSection(getPathRoutingId(window.location.pathname))
 
   // Add window scroll listener
@@ -236,7 +208,7 @@ onUnmounted(() => {
 
 // Open a sidebar tag
 watch(
-  () => store.workspace.activeDocument,
+  () => document,
   () => {
     // Scroll to given hash
     if (hash.value) {
@@ -269,8 +241,8 @@ useResizeObserver(documentEl, (entries) => {
 
 const themeStyleTag = computed(
   () => `<style>
-  ${getThemeStyles(configuration.value.theme, {
-    fonts: configuration.value.withDefaultFonts,
+  ${getThemeStyles(configuration.theme, {
+    fonts: configuration.withDefaultFonts,
   })}</style>`,
 )
 
@@ -278,7 +250,6 @@ const themeStyleTag = computed(
 // TODO: Code below is copied from ModernLayout.vue. Find a better location for this.
 
 const { mediaQueries } = useBreakpoints()
-const isDevelopment = import.meta.env.MODE === 'development'
 
 watch(mediaQueries.lg, (newValue, oldValue) => {
   // Close the drawer when we go from desktop to mobile
@@ -293,9 +264,6 @@ watch(hash, (newHash, oldHash) => {
   }
 })
 
-/** Update the old store to keep it in sync with the new store */
-useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
-
 // ---------------------------------------------------------------------------
 </script>
 <template>
@@ -305,8 +273,7 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
     class="scalar-app scalar-api-reference references-layout"
     :class="[
       {
-        'scalar-api-references-standalone-mobile':
-          configuration.showSidebar ?? true,
+        'scalar-api-references-standalone-mobile': configuration.showSidebar,
         'scalar-scrollbars-obtrusive': obtrusiveScrollbars,
         'references-editable': configuration.isEditable,
         'references-sidebar': configuration.showSidebar,
@@ -321,10 +288,7 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
     <!-- Header -->
     <div class="references-header">
       <MobileHeader
-        v-if="
-          configuration.layout === 'modern' &&
-          (configuration.showSidebar ?? true)
-        "
+        v-if="configuration.layout === 'modern' && configuration.showSidebar"
         :breadcrumb="referenceSlotProps.breadcrumb" />
       <slot
         v-bind="referenceSlotProps"
@@ -333,7 +297,7 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
     <!-- Navigation (sidebar) wrapper -->
     <aside
       v-if="configuration.showSidebar"
-      :aria-label="`Sidebar for ${dereferencedDocument?.info?.title}`"
+      :aria-label="`Sidebar for ${document?.info?.title}`"
       class="references-navigation t-doc__sidebar">
       <!-- Navigation tree / Table of Contents -->
       <div class="references-navigation-list">
@@ -346,7 +310,7 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
               operationTitleSource: configuration.operationTitleSource,
               defaultOpenAllTags: configuration.defaultOpenAllTags,
             }"
-            :title="dereferencedDocument?.info?.title ?? 'The OpenAPI Schema'">
+            :title="document?.info?.title ?? 'The OpenAPI Schema'">
             <template #sidebar-start>
               <!-- Wrap in a div when slot is filled -->
               <div v-if="$slots['document-selector']">
@@ -357,7 +321,7 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
                 v-if="!configuration.hideSearch"
                 class="scalar-api-references-standalone-search">
                 <SearchButton
-                  :document="store.workspace.activeDocument"
+                  :document="document"
                   :hideModels="configuration?.hideModels"
                   :searchHotKey="configuration?.searchHotKey" />
               </div>
@@ -376,7 +340,7 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
                     buttonSource="sidebar"
                     :integration="configuration._integration"
                     :isDevelopment="isDevelopment"
-                    :url="configuration.url" />
+                    :url="url" />
                   <!-- Override the dark mode toggle slot to hide it -->
                   <template #toggle>
                     <ScalarColorModeToggleButton
@@ -405,16 +369,17 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
     <!-- The Content -->
 
     <main
-      :aria-label="`Open API Documentation for ${dereferencedDocument?.info?.title}`"
+      :aria-label="`Open API Documentation for ${document?.info?.title}`"
       class="references-rendered">
       <Content
+        :activeServer="activeServer"
         :contentId="contentId"
+        :document="document"
+        :getSecuritySchemes="getSecuritySchemes"
         :options="{
-          isLoading: configuration.isLoading,
           slug: configuration.slug,
           hiddenClients: configuration.hiddenClients,
           layout: configuration.layout,
-          onLoaded: configuration.onLoaded,
           persistAuth: configuration.persistAuth,
           showOperationId: configuration.showOperationId,
           hideTestRequestButton: configuration.hideTestRequestButton,
@@ -425,10 +390,8 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
             configuration.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: configuration.orderSchemaPropertiesBy,
           documentDownloadType: configuration.documentDownloadType,
-          url: configuration.url,
-          onShowMore: configuration.onShowMore,
         }"
-        :store="store">
+        :xScalarDefaultClient="xScalarDefaultClient">
         <template #start>
           <slot
             v-bind="referenceSlotProps"
@@ -479,10 +442,7 @@ useLegacyStoreEvents(store, workspaceStore, activeEntitiesStore, documentEl)
         v-bind="referenceSlotProps"
         name="footer" />
     </div>
-
-    <ApiClientModal
-      :configuration="configuration"
-      :dereferencedDocument="dereferencedDocument" />
+    <slot name="client-modal" />
   </div>
   <ScalarToasts />
 </template>

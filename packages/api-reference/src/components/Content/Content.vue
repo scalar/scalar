@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import { generateClientOptions } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { ScalarErrorBoundary } from '@scalar/components'
-import { getSlugUid } from '@scalar/oas-utils/transforms'
+import type { Server } from '@scalar/oas-utils/entities/spec'
 import type { ApiReferenceConfiguration } from '@scalar/types'
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { TraversedDescription } from '@scalar/workspace-store/schemas/navigation'
+import type {
+  Workspace,
+  WorkspaceDocument,
+} from '@scalar/workspace-store/schemas/workspace'
 import { computed } from 'vue'
 
 import IntroductionSection from '@/components/Content/IntroductionSection.vue'
@@ -22,16 +24,18 @@ import { InfoBlock } from '@/v2/blocks/scalar-info-block'
 import { IntroductionCardItem } from '@/v2/blocks/scalar-info-block/'
 import { ServerSelector } from '@/v2/blocks/scalar-server-selector-block'
 import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
+import type { SecuritySchemeGetter } from '@/v2/helpers/map-config-to-client-store'
 
-const { store, options } = defineProps<{
+const { options, document } = defineProps<{
   contentId: string
-  store: WorkspaceStore
+  activeServer: Server | undefined
+  document: WorkspaceDocument | undefined
+  xScalarDefaultClient: Workspace['x-scalar-default-client']
+  getSecuritySchemes: SecuritySchemeGetter
   options: {
-    isLoading: boolean | undefined
     slug: string | undefined
     hiddenClients: ApiReferenceConfiguration['hiddenClients']
     layout: 'modern' | 'classic'
-    onLoaded: (() => void) | undefined
     persistAuth: boolean
     showOperationId?: boolean | undefined
     hideTestRequestButton: boolean | undefined
@@ -41,8 +45,6 @@ const { store, options } = defineProps<{
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
     documentDownloadType: ApiReferenceConfiguration['documentDownloadType']
-    url: string | undefined
-    onShowMore: ((id: string) => void) | undefined
   }
 }>()
 
@@ -56,61 +58,10 @@ const clientOptions = computed(() =>
 )
 
 // Computed property to get all OpenAPI extension fields from the root document object
-const documentExtensions = computed(() =>
-  getXKeysFromObject(store.workspace.activeDocument),
-)
+const documentExtensions = computed(() => getXKeysFromObject(document))
 
 // Computed property to get all OpenAPI extension fields from the document's info object
-const infoExtensions = computed(() =>
-  getXKeysFromObject(store.workspace.activeDocument?.info),
-)
-
-/**
- * Should be removed after we migrate auth selector
- */
-const { collections, securitySchemes, servers } = useWorkspace()
-const {
-  activeCollection: _activeCollection,
-  activeEnvVariables,
-  activeEnvironment,
-  activeWorkspace,
-} = useActiveEntities()
-
-/** Match the collection by slug if provided */
-const activeCollection = computed(() => {
-  if (options.slug) {
-    const collection = collections[getSlugUid(options.slug)]
-    if (collection) {
-      return collection
-    }
-  }
-  return _activeCollection.value
-})
-
-/**
- * Ensure the server is the one selected in the collection
- *
- * @deprecated
- **/
-const activeServer = computed(() => {
-  if (!activeCollection.value) {
-    return undefined
-  }
-
-  if (activeCollection.value.selectedServerUid) {
-    const server = servers[activeCollection.value.selectedServerUid]
-    if (server) {
-      return server
-    }
-  }
-
-  return servers[activeCollection.value.servers[0]]
-})
-
-const getOriginalDocument = () => store.exportActiveDocument('json') ?? '{}'
-
-// const { collections, servers } = useWorkspace()
-// const { activeCollection: _activeCollection } = useActiveEntities()
+const infoExtensions = computed(() => getXKeysFromObject(document?.info))
 
 const { items } = useSidebar()
 const { hash } = useNavState()
@@ -133,56 +84,39 @@ const models = computed<TraversedDescription | undefined>(() => {
     <slot name="start" />
 
     <!-- Introduction -->
-    <IntroductionSection :showEmptyState="!store.workspace.activeDocument">
+    <IntroductionSection :showEmptyState="false">
       <InfoBlock
-        v-if="store.workspace.activeDocument"
         :id="contentId"
         :documentExtensions
-        :externalDocs="store.workspace.activeDocument.externalDocs"
-        :info="store.workspace.activeDocument.info"
+        :externalDocs="document?.externalDocs"
+        :info="document?.info"
         :infoExtensions
         :layout="options.layout"
-        :oasVersion="store.workspace.activeDocument?.['x-original-oas-version']"
+        :oasVersion="document?.['x-original-oas-version']"
         :options="{
           documentDownloadType: options.documentDownloadType,
-          url: options.url,
-          getOriginalDocument,
-          isLoading: options.isLoading,
           layout: options.layout,
-          onLoaded: options.onLoaded,
         }">
         <template #selectors>
           <ScalarErrorBoundary>
             <IntroductionCardItem
-              v-if="store.workspace.activeDocument?.servers?.length"
+              v-if="document?.servers?.length"
               class="scalar-reference-intro-server scalar-client introduction-card-item text-base leading-normal [--scalar-address-bar-height:0px]">
               <ServerSelector
-                :servers="store.workspace.activeDocument?.servers ?? []"
-                :xSelectedServer="
-                  store.workspace.activeDocument?.['x-scalar-active-server']
-                " />
+                :servers="document?.servers ?? []"
+                :xSelectedServer="document?.['x-scalar-active-server']" />
             </IntroductionCardItem>
           </ScalarErrorBoundary>
           <ScalarErrorBoundary>
+            <!-- Auth selector currently requires an active collection -->
             <IntroductionCardItem
-              v-if="
-                activeCollection &&
-                activeWorkspace &&
-                Object.keys(securitySchemes ?? {}).length
-              "
+              v-if="document"
               class="scalar-reference-intro-auth scalar-client introduction-card-item leading-normal">
               <AuthSelector
-                :collection="activeCollection"
-                :envVariables="activeEnvVariables"
-                :environment="activeEnvironment"
                 layout="reference"
                 :persistAuth="options.persistAuth"
-                :selectedSecuritySchemeUids="
-                  activeCollection?.selectedSecuritySchemeUids ?? []
-                "
                 :server="activeServer"
-                title="Authentication"
-                :workspace="activeWorkspace" />
+                title="Authentication" />
             </IntroductionCardItem>
           </ScalarErrorBoundary>
           <ScalarErrorBoundary>
@@ -193,11 +127,9 @@ const models = computed<TraversedDescription | undefined>(() => {
                 class="introduction-card-item scalar-reference-intro-clients"
                 :clientOptions
                 :xScalarSdkInstallation="
-                  store.workspace.activeDocument?.info?.[
-                    'x-scalar-sdk-installation'
-                  ]
+                  document?.info?.['x-scalar-sdk-installation']
                 "
-                :xSelectedClient="store.workspace['x-scalar-default-client']" />
+                :xSelectedClient="xScalarDefaultClient" />
             </IntroductionCardItem>
           </ScalarErrorBoundary>
         </template>
@@ -209,12 +141,12 @@ const models = computed<TraversedDescription | undefined>(() => {
     </IntroductionSection>
 
     <!-- Render traversed operations and webhooks -->
-    <div v-if="items.entries.length && activeCollection">
+    <div v-if="items.entries.length">
       <!-- Use recursive component for cleaner rendering -->
       <TraversedEntry
-        :activeCollection
         :activeServer
         :entries="items.entries"
+        :getSecuritySchemes="getSecuritySchemes"
         :hash="hash"
         :options="{
           layout: options.layout ?? 'modern',
@@ -224,18 +156,17 @@ const models = computed<TraversedDescription | undefined>(() => {
           clientOptions: clientOptions,
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
-          onShowMore: options.onShowMore,
         }"
-        :paths="store.workspace.activeDocument?.paths ?? {}"
+        :paths="document?.paths ?? {}"
         :rootIndex
-        :security="store.workspace.activeDocument?.security"
-        :store
-        :webhooks="store.workspace.activeDocument?.webhooks ?? {}" />
+        :security="document?.security"
+        :webhooks="document?.webhooks ?? {}"
+        :xScalarDefaultClient="xScalarDefaultClient" />
     </div>
 
     <!-- Models -->
     <Models
-      v-if="!options.hideModels && store.workspace.activeDocument"
+      v-if="!options.hideModels && document"
       :hash
       :models
       :options="{
@@ -243,9 +174,8 @@ const models = computed<TraversedDescription | undefined>(() => {
         expandAllModelSections: options.expandAllModelSections,
         orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
         orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
-        onShowMore: options.onShowMore,
       }"
-      :schemas="store.workspace.activeDocument.components?.schemas" />
+      :schemas="document?.components?.schemas" />
 
     <slot name="end" />
   </div>

@@ -12,7 +12,7 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
 import { REGISTRY_SHARE_URL } from '@/consts/urls'
 import ApiReferenceToolbarBlurb from '@/features/toolbar/ApiReferenceToolbarBlurb.vue'
-import { uploadTempDocument } from '@/features/toolbar/uploadTempDocument'
+import { uploadTempDocument } from '@/v2/helpers/upload-temp-document'
 
 const { workspace } = defineProps<{
   workspace: WorkspaceStore
@@ -54,26 +54,26 @@ const { copyToClipboard } = useClipboard()
 </script>
 <template>
   <ScalarTextInput
-    readonly
-    :placeholder="`${REGISTRY_SHARE_URL}/apis/...`"
     :modelValue="tempDocUrl"
+    :placeholder="`${REGISTRY_SHARE_URL}/apis/...`"
+    readonly
     @click="tempDocUrl && copyToClipboard(tempDocUrl)">
     <template
       v-if="tempDocUrl"
       #aside>
       <ScalarIconButton
+        class="-m-1.5 -ml-1"
         :icon="ScalarIconCopy"
         label="Copy link to clipboard"
-        class="-m-1.5 -ml-1"
         size="sm"
         @click="copyToClipboard(tempDocUrl)" />
     </template>
   </ScalarTextInput>
   <ScalarButton
     class="h-auto p-2.5"
+    :disabled="!!tempDocUrl"
     :loading
     variant="outlined"
-    :disabled="!!tempDocUrl"
     @click="generateTemporaryLink">
     Generate
   </ScalarButton>

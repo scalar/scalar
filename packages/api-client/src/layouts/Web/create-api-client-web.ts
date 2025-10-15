@@ -1,8 +1,9 @@
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
+import { createRouter, createWebHistory } from 'vue-router'
 
 import { analytics } from '@/analytics'
 import { createApiClient } from '@/libs'
-import { createWebHistoryRouter, saveActiveWorkspace } from '@/router'
+import { routes, saveActiveWorkspace } from '@/routes'
 
 import ApiClientWeb from './ApiClientWeb.vue'
 
@@ -20,7 +21,11 @@ export const createApiClientWeb = async (
    */
   mountOnInitialize = true,
 ) => {
-  const router = createWebHistoryRouter()
+  const router = createRouter({
+    history: createWebHistory(),
+    routes,
+  })
+
   const client = createApiClient({
     el,
     appComponent: ApiClientWeb,

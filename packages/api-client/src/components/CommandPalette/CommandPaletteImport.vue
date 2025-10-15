@@ -19,7 +19,7 @@ import {
   isUrl,
 } from '@/libs'
 import { importCurlCommand } from '@/libs/importers/curl'
-import { PathId } from '@/router'
+import { PathId } from '@/routes'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 
