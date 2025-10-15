@@ -6,8 +6,4 @@
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
-  <!--Copy xunit.runner.json to all test projects-->
-  <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
-    <Content Include="../../../xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
 </Project>

@@ -1,5 +1,4 @@
 #if !SCALAR_ASPIRE
-
 namespace Scalar.AspNetCore;
 
 /// <summary>
