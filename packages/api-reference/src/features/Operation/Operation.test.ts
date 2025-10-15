@@ -1,6 +1,5 @@
 import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { enableConsoleError, enableConsoleWarn } from '@scalar/helpers/testing/console-spies'
-import { collectionSchema } from '@scalar/oas-utils/entities/spec'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import {
   OpenAPIDocumentSchema,
@@ -9,7 +8,7 @@ import {
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { createMockSidebar, createMockStore } from '@/helpers/test-utils'
+import { createMockSidebar } from '@/helpers/test-utils'
 
 import Operation from './Operation.vue'
 
@@ -51,8 +50,8 @@ const clientOptions = [
   },
 ] as ClientOptionGroup[]
 
-const mockCollection = collectionSchema.parse({})
-
+const _mockCollection = collectionSchema.parse({})
+_mockCollection
 const createDocumentWithOperationId = () =>
   coerceValue(OpenAPIDocumentSchema, {
     openapi: '3.1.0',
