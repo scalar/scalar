@@ -9,7 +9,7 @@ import {
 import { mutateSecuritySchemeDiff } from '@scalar/api-client/views/Request/libs'
 import { filterSecurityRequirements } from '@scalar/api-client/views/Request/RequestSection'
 import { getServersFromDocument } from '@scalar/oas-utils/helpers'
-import type { ApiReferenceConfigurationRaw, OpenAPIV3_1 } from '@scalar/types'
+import type { ApiReferenceConfigurationRaw, OpenAPIV3_2 } from '@scalar/types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { emitCustomEvent } from '@scalar/workspace-store/events'
 import type { SecurityRequirementObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-requirement'
@@ -41,7 +41,7 @@ export function mapConfigToClientStore({
   /** Instantiated client store */
   workspaceStore: WorkspaceStore
   isIntersectionEnabled: Ref<boolean>
-  dereferencedDocument: MaybeRefOrGetter<OpenAPIV3_1.Document | null>
+  dereferencedDocument: MaybeRefOrGetter<OpenAPIV3_2.Document | null>
 }) {
   /**
    * Legacy API Client Store
