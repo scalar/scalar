@@ -24,7 +24,7 @@ const { layout } = defineProps<{
     <!-- <SideNav class="sidenav order-last sm:order-none" /> -->
 
     <!-- Popup command palette to add resources from anywhere -->
-    <TheCommandPalette />
+    <!-- <TheCommandPalette /> -->
 
     <div
       class="flex min-h-0 min-w-0 flex-1 flex-col"
