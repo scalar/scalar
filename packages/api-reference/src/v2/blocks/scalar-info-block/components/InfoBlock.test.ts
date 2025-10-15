@@ -75,28 +75,4 @@ describe('InfoBlock', () => {
 
     expect(wrapper.find('[data-testid="selectors"]').exists()).toBe(true)
   })
-
-  it('generates filename from title', () => {
-    const wrapper = mount(InfoBlock, {
-      props: {
-        info: {
-          title: 'Hello World API!',
-          description: '',
-          version: '1.0.0',
-        },
-        layout: 'modern',
-        options: {
-          getOriginalDocument() {
-            return '{}'
-          },
-        },
-      },
-      slots: {
-        selectors: '<div data-testid="selectors">Selectors Content</div>',
-      },
-    })
-
-    const downloadLink = wrapper.findComponent(DownloadLink)
-    expect(downloadLink.props('title')).toBe('Hello World API!')
-  })
 })

@@ -15,7 +15,7 @@
     "@scalar/api-reference": "workspace:*",
     "compression": "^1.8.0",
     "hono": "catalog:*",
-    "@hono/node-server": "^1.11.0",
+    "@hono/node-server": "catalog:*",
     "sirv": "^3.0.1",
     "vue": "catalog:*"
   },

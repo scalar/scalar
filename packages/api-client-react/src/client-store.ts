@@ -1,4 +1,4 @@
-import type { createApiClientModalSync as CreateApiClientModalSync } from '@scalar/api-client/layouts/Modal'
+import type { ApiClient, createApiClientModal } from '@scalar/api-client/layouts/Modal'
 
 // These are required for the vue bundler version
 globalThis.__VUE_OPTIONS_API__ = true
@@ -7,8 +7,8 @@ globalThis.__VUE_PROD_DEVTOOLS__ = false
 
 /** Client state */
 let state = {
-  createClient: null as typeof CreateApiClientModalSync | null,
-  clientDict: {} as Record<string, ReturnType<typeof CreateApiClientModalSync>>,
+  createClient: null as typeof createApiClientModal | null,
+  clientDict: {} as Record<string, ApiClient>,
 }
 
 /** Set of listener functions to be called when state changes */
@@ -27,13 +27,13 @@ const getSnapshot = () => state
 const emit = () => listeners.forEach((listener) => listener())
 
 /** Set the create client state */
-const setCreateClient = (client: typeof CreateApiClientModalSync) => {
-  state = { ...state, createClient: client }
+const setCreateClient = (clientFactory: typeof createApiClientModal) => {
+  state = { ...state, createClient: clientFactory }
   emit()
 }
 
 /** Add a client to the client dict */
-const addClient = (url: string, client: ReturnType<typeof CreateApiClientModalSync>) => {
+const addClient = (url: string, client: ApiClient) => {
   state = { ...state, clientDict: { ...state.clientDict, [url]: client } }
   emit()
 }

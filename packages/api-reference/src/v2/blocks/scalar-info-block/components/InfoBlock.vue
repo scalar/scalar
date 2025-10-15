@@ -17,7 +17,7 @@ const { options } = defineProps<{
   /** Original openapi version of the input document */
   oasVersion?: string
   /** The Info object from the OpenAPI document. */
-  info: InfoObject
+  info: InfoObject | undefined
   /** The external documentation object from the OpenAPI document, if present. */
   externalDocs?: ExternalDocumentationObject
   /** OpenAPI extension fields at the document level. */
@@ -26,18 +26,11 @@ const { options } = defineProps<{
   infoExtensions?: Record<string, unknown>
 
   options: {
-    /** Indicates if the info block is in a loading state. */
-    isLoading?: boolean
     /** Determines the layout style for the info block ('modern' or 'classic'). */
     layout?: 'modern' | 'classic'
     /** The document download type. */
     documentDownloadType?: ApiReferenceConfiguration['documentDownloadType']
-    /** The URL of the OpenAPI document. */
-    url?: string | undefined
     /** Optional callback invoked when the component has finished loading. */
-    onLoaded?: (() => void) | unknown
-    /** The original document content. */
-    getOriginalDocument: () => string
   }
 }>()
 
@@ -58,9 +51,7 @@ const introCardsSlot = computed(() =>
     :externalDocs
     :info
     :infoExtensions
-    :isLoading="options.isLoading"
-    :oasVersion
-    :onLoaded="options.onLoaded">
+    :oasVersion>
     <template #[introCardsSlot]>
       <IntroductionCard :row="options.layout === 'classic'">
         <slot name="selectors" />
@@ -68,10 +59,7 @@ const introCardsSlot = computed(() =>
     </template>
     <template #download-link>
       <DownloadLink
-        :documentDownloadType="options.documentDownloadType ?? 'both'"
-        :getOriginalDocument="options.getOriginalDocument"
-        :title="info?.title"
-        :url="options.url" />
+        :documentDownloadType="options.documentDownloadType ?? 'both'" />
     </template>
   </IntroductionLayout>
 </template>

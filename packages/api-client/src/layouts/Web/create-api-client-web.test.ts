@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { createApiClientWeb } from './create-api-client-web'
 import { enableConsoleWarn } from '@/vitest.setup'
+
+import { createApiClientWeb } from './create-api-client-web'
 
 describe('createApiClientWeb', () => {
   it('renders the client with no warnings or errors', async () => {
@@ -16,7 +17,7 @@ describe('createApiClientWeb', () => {
     expect(element).not.toBeNull()
     expect(element.innerHTML).not.toContain('App Navigation')
 
-    createApiClientWeb(element, {
+    await createApiClientWeb(element, {
       proxyUrl: 'https://proxy.scalar.com',
     })
     expect(element.innerHTML).toContain('App Navigation')

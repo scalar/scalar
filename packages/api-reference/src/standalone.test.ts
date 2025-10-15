@@ -1,7 +1,6 @@
 import galaxyContent from '@scalar/galaxy/latest.yaml?raw'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
-import { waitFor } from '@test/utils/wait-for'
 import type { ReferenceProps } from './types'
 
 describe.sequential('standalone', { retry: 3, timeout: 10000 }, () => {
@@ -21,10 +20,10 @@ describe.sequential('standalone', { retry: 3, timeout: 10000 }, () => {
 
     await import('./standalone')
 
-    await waitFor(() => {
+    await vi.waitFor(() => {
       const reference = document.querySelector('.scalar-api-reference')
       const header = reference?.querySelector('h1')
-      return header?.innerHTML === 'Example'
+      expect(header?.innerHTML).toBe('Example')
     })
   })
 
@@ -37,10 +36,10 @@ describe.sequential('standalone', { retry: 3, timeout: 10000 }, () => {
 
     document.dispatchEvent(new Event('scalar:reload-references'))
 
-    await waitFor(() => {
+    await vi.waitFor(() => {
       const reference = document.querySelector('.scalar-api-reference')
       const header = reference?.querySelector('h1')
-      return header?.innerHTML === 'Example'
+      expect(header?.innerHTML).toBe('Example')
     })
   })
 
@@ -58,9 +57,9 @@ describe.sequential('standalone', { retry: 3, timeout: 10000 }, () => {
 
     document.dispatchEvent(event)
 
-    await waitFor(() => {
+    await vi.waitFor(() => {
       const header = document.querySelector('[data-v-app] h1')
-      return header?.innerHTML === 'Scalar Galaxy'
+      expect(header?.innerHTML).toBe('Scalar Galaxy')
     })
   })
 })

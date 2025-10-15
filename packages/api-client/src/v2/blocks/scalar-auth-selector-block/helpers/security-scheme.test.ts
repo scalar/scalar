@@ -1,7 +1,5 @@
-import assert from 'node:assert'
-
 import type { ComponentsObject, OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { describe, expect, it } from 'vitest'
+import { assert, describe, expect, it } from 'vitest'
 
 import {
   type SecuritySchemeGroup,

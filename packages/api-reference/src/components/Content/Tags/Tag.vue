@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 
-import ClassicLayout from './ClassicLayout.vue'
-import ModernLayout from './ModernLayout.vue'
+import ClassicLayout from './components/ClassicLayout.vue'
+import ModernLayout from './components/ModernLayout.vue'
 
-const { tag, layout, moreThanOneTag, isLoading, onShowMore } = defineProps<{
+const { tag, layout, moreThanOneTag, isLoading } = defineProps<{
   tag: TraversedTag
   layout: 'classic' | 'modern'
   moreThanOneTag: boolean
   isLoading: boolean
-  onShowMore: ((id: string) => void) | undefined
 }>()
 </script>
 
@@ -26,7 +25,6 @@ const { tag, layout, moreThanOneTag, isLoading, onShowMore } = defineProps<{
       :isLoading="isLoading"
       :layout="layout"
       :moreThanOneTag="moreThanOneTag"
-      :onShowMore="onShowMore"
       :tag="tag">
       <slot />
     </ModernLayout>

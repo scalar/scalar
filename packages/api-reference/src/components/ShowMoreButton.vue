@@ -1,23 +1,22 @@
 <script setup lang="ts">
 import { ScalarIconCaretDown } from '@scalar/icons'
+import { emitCustomEvent } from '@scalar/workspace-store/events'
+import { useTemplateRef } from 'vue'
 
-import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
-
-const { id, onShowMore } = defineProps<{
+const { id } = defineProps<{
   id: string
-  onShowMore: ((id: string) => void) | undefined
 }>()
 
-const { setCollapsedSidebarItem } = useSidebar()
+const el = useTemplateRef('el')
 
 const handleClick = () => {
-  setCollapsedSidebarItem(id, true)
-  onShowMore?.(id)
+  emitCustomEvent(el.value, 'scalar-on-show-more', { id })
 }
 </script>
 
 <template>
   <button
+    ref="el"
     class="show-more"
     type="button"
     @click="handleClick">

@@ -1,9 +1,9 @@
 import { securityOauthSchema, serverSchema } from '@scalar/oas-utils/entities/spec'
 import { flushPromises } from '@vue/test-utils'
+import { encode } from 'js-base64'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { authorizeOauth2 } from './oauth2'
-import { encode } from 'js-base64'
 
 const baseScheme = {
   uid: 'test-scheme',
@@ -286,7 +286,9 @@ describe('oauth2', () => {
         ...flow,
         'x-scalar-redirect-uri': '/callback',
       } as const
-      authorizeOauth2(_flow, mockServer)
+
+      // voiding since we are testing window.open
+      void authorizeOauth2(_flow, mockServer)
 
       // Test the window.open call for full redirect
       expect(window.open).toHaveBeenCalledWith(

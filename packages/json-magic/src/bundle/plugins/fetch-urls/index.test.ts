@@ -1,8 +1,9 @@
-import { fastify, type FastifyInstance } from 'fastify'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { fetchUrl } from '.'
-import assert from 'node:assert'
 import { setTimeout } from 'node:timers/promises'
+
+import { type FastifyInstance, fastify } from 'fastify'
+import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { fetchUrl } from '.'
 
 describe('fetchUrl', () => {
   const noLimit = <T>(fn: () => Promise<T>) => fn()

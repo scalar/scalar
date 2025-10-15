@@ -1,10 +1,9 @@
-import assert from 'node:assert'
 import { setTimeout } from 'node:timers/promises'
 
 import { consoleErrorSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import fastify, { type FastifyInstance } from 'fastify'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createWorkspaceStore } from '@/client'
 import { defaultReferenceConfig } from '@/schemas/reference-config'
@@ -1556,15 +1555,15 @@ describe('create-workspace-store', () => {
         document: getDocument(),
       })
 
-      expect(store.exportDocument('api-1', 'json')).toBe(
+      expect(store.exportDocument('api-1', 'json', true)).toBe(
         '{"info":{"title":"My API","version":"1.0.0"},"openapi":"3.1.1"}',
       )
 
-      expect(store.exportDocument('api-2', 'json')).toBe(
+      expect(store.exportDocument('api-2', 'json', true)).toBe(
         '{"info":{"title":"My API 2","version":"1.2.0"},"openapi":"3.1.1"}',
       )
 
-      expect(store.exportDocument('api-3', 'json')).toBe(
+      expect(store.exportDocument('api-3', 'json', true)).toBe(
         '{"openapi":"3.0.0","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}',
       )
     })
@@ -1630,16 +1629,16 @@ describe('create-workspace-store', () => {
       await store.saveDocument('api-3')
 
       // Should return the original document without any modifications
-      expect(store.exportDocument('api-1', 'json')).toBe(
+      expect(store.exportDocument('api-1', 'json', true)).toBe(
         '{"info":{"title":"My API","version":"1.0.0"},"openapi":"3.1.1"}',
       )
 
-      expect(store.exportDocument('api-2', 'json')).toBe(
+      expect(store.exportDocument('api-2', 'json', true)).toBe(
         '{"info":{"title":"My API 2","version":"1.2.0"},"openapi":"3.1.1"}',
       )
 
       // Should return the updated document without any extensions
-      expect(store.exportDocument('api-3', 'json')).toEqual(
+      expect(store.exportDocument('api-3', 'json', true)).toEqual(
         '{"openapi":"3.1.1","info":{"title":"Updated API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}},"x-original-oas-version":"3.0.0"}',
       )
     })
@@ -1677,7 +1676,7 @@ describe('create-workspace-store', () => {
       await store.saveDocument('default')
 
       // Should return the updated document without any extensions
-      expect(store.exportDocument('default', 'json')).toEqual(
+      expect(store.exportDocument('default', 'json', true)).toEqual(
         '{"openapi":"3.1.1","info":{"title":"Updated API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}},"/external":{"get":{"$ref":"http://localhost:9988"}}},"x-original-oas-version":"3.0.0"}',
       )
     })
@@ -1766,16 +1765,16 @@ describe('create-workspace-store', () => {
       await store.revertDocumentChanges('api-3')
 
       // Should return the original document without any modifications
-      expect(store.exportDocument('api-1', 'json')).toBe(
+      expect(store.exportDocument('api-1', 'json', true)).toBe(
         '{"info":{"title":"My API","version":"1.0.0"},"openapi":"3.1.1"}',
       )
 
-      expect(store.exportDocument('api-2', 'json')).toBe(
+      expect(store.exportDocument('api-2', 'json', true)).toBe(
         '{"info":{"title":"My API 2","version":"1.2.0"},"openapi":"3.1.1"}',
       )
 
       // Should return the updated document without any extensions
-      expect(store.exportDocument('api-3', 'json')).toEqual(
+      expect(store.exportDocument('api-3', 'json', true)).toEqual(
         '{"openapi":"3.0.0","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}',
       )
     })
@@ -2077,7 +2076,7 @@ describe('create-workspace-store', () => {
       expect(defaultDocument.openapi).toBe('3.1.1')
 
       await store.saveDocument('default')
-      expect(store.exportDocument('default', 'json')).toBe(
+      expect(store.exportDocument('default', 'json', true)).toBe(
         '{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"x-original-oas-version":"3.0.0"}',
       )
     })
@@ -2656,7 +2655,7 @@ describe('create-workspace-store', () => {
       const store = createWorkspaceStore()
 
       // Spy on console.warn
-      store.replaceDocument('non-existing', {
+      void store.replaceDocument('non-existing', {
         openapi: '3.0.0',
         info: {
           title: 'My API',
@@ -2799,7 +2798,7 @@ describe('create-workspace-store', () => {
       ])
 
       // Expect the original
-      expect(store.exportDocument(documentName, 'json')).toEqual(
+      expect(store.exportDocument(documentName, 'json', true)).toEqual(
         '{"openapi":"3.1.1","info":{"title":"new title","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}},"x-original-oas-version":"3.0.0"}',
       )
 
@@ -2809,7 +2808,7 @@ describe('create-workspace-store', () => {
       )
 
       // Check if the new intermediate document is correct
-      expect(store.exportDocument(documentName, 'json')).toEqual(
+      expect(store.exportDocument(documentName, 'json', true)).toEqual(
         '{"openapi":"3.1.1","info":{"title":"A new title which should conflict","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}},"x-original-oas-version":"3.0.0"}',
       )
 

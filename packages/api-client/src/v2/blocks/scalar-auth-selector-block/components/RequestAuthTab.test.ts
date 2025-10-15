@@ -1,7 +1,5 @@
-import assert from 'node:assert'
-
 import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { assert, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import OAuth2 from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'

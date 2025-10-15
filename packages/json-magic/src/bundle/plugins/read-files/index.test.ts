@@ -1,8 +1,9 @@
-import fs from 'node:fs/promises'
 import { randomUUID } from 'node:crypto'
-import { describe, expect, it } from 'vitest'
+import fs from 'node:fs/promises'
+
+import { assert, describe, expect, it } from 'vitest'
+
 import { readFile } from '.'
-import assert from 'node:assert'
 
 describe('readFile', () => {
   it('reads json contents of a file', async () => {

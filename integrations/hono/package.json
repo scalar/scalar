@@ -45,8 +45,8 @@
     "@scalar/core": "workspace:*"
   },
   "devDependencies": {
-    "@hono/node-server": "^1.11.0",
-    "@hono/zod-openapi": "^0.8.6",
+    "@hono/node-server": "catalog:*",
+    "@hono/zod-openapi": "^1.1.3",
     "@scalar/build-tooling": "workspace:*",
     "@scalar/openapi-to-markdown": "workspace:*",
     "hono": "catalog:*",

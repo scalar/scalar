@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core'
 import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fastify'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { apiReference } from '@scalar/nestjs-api-reference'
+
 import { AppModule } from './app.module'
 
 const PORT = Number(process.env.PORT) || 5057
@@ -30,4 +31,4 @@ async function bootstrap() {
     console.log(`🦁 NestJS listening at http://${HOST}:${PORT}/reference`)
   })
 }
-bootstrap()
+void bootstrap()

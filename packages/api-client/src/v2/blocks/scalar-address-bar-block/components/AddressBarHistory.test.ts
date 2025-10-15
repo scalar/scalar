@@ -1,7 +1,5 @@
-import assert from 'node:assert'
-
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { assert, describe, expect, it } from 'vitest'
 
 import AddressBarHistory from './AddressBarHistory.vue'
 

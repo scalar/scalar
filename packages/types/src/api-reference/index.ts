@@ -7,7 +7,7 @@ export { type ApiClientPlugin, apiClientPluginSchema, hooksSchema } from './api-
 export {
   type AnyApiReferenceConfiguration,
   type ApiReferenceConfiguration,
-  type ApiReferenceConfigurationWithDefault,
+  type ApiReferenceConfigurationRaw,
   type ApiReferenceConfigurationWithMultipleSources,
   type ApiReferenceConfigurationWithSource,
   apiReferenceConfigurationSchema,

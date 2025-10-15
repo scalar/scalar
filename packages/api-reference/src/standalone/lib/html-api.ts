@@ -183,7 +183,7 @@ export const createApiReference: CreateApiReference = (
   const idPrefix = 'scalar-refs'
 
   const props = reactive<ReferenceProps>({
-    // Either the configuration will be the second arugment or it MUST be the first (configuration only)
+    // Either the configuration will be the second argument or it MUST be the first (configuration only)
     configuration: optionalConfiguration ?? (elementOrSelectorOrConfig as AnyApiReferenceConfiguration) ?? {},
   })
 
