@@ -1,8 +1,8 @@
 <Solution>
   <Folder Name="/src/">
-    <Project Path="src\Scalar.Shared\Scalar.Shared.csproj" Type="Classic C#" />
+    <Project Path="src/Scalar.Shared/Scalar.Shared.csproj" Type="Classic C#" />
   </Folder>
   <Folder Name="/tests/">
-    <Project Path="tests\Scalar.Shared.Tests\Scalar.Shared.Tests.csproj" Type="Classic C#" />
+    <Project Path="tests/Scalar.Shared.Tests/Scalar.Shared.Tests.csproj" Type="Classic C#" />
   </Folder>
 </Solution>
