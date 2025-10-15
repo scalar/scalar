@@ -20,11 +20,14 @@ import { isAsyncApiDocument, isOpenApiDocument } from '@/helpers/type-guards'
 import { createAsyncApiNavigation, createNavigation } from '@/navigation'
 import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
 import { getServersFromDocument } from '@/preprocessing/server'
+import {
+  type AsyncApiDocument,
+  AsyncApiDocumentSchema as AsyncApiDocumentSchemaStrict,
+} from '@/schemas/asyncapi/v3.0/asyncapi-document'
 import { extensions } from '@/schemas/extensions'
 import { type InMemoryWorkspace, InMemoryWorkspaceSchema } from '@/schemas/inmemory-workspace'
 import { defaultReferenceConfig } from '@/schemas/reference-config'
 import { coerceValue } from '@/schemas/typebox-coerce'
-import { type AsyncApiDocument, AsyncApiDocumentSchemaStrict } from '@/schemas/v3.0'
 import {
   OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
   type OpenApiDocument,

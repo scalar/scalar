@@ -1,7 +1,7 @@
 import { Type } from '@scalar/typebox'
 import { AVAILABLE_CLIENTS, type AvailableClients } from '@scalar/types/snippetz'
 
-import { type AsyncApiDocument, AsyncApiDocumentSchema } from '@/schemas/asyncapi/v3.0'
+import { type AsyncApiDocument, AsyncApiDocumentSchema } from '@/schemas/asyncapi/v3.0/asyncapi-document'
 import { compose } from '@/schemas/compose'
 import { extensions } from '@/schemas/extensions'
 import {

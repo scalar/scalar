@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
 import { traverseAsyncApiDocument } from '@/navigation/helpers/traverse-asyncapi-document'
+import type { AsyncApiDocument } from '@/schemas/asyncapi/v3.0/asyncapi-document'
 import type { TraversedAsyncApiOperation, TraversedChannel } from '@/schemas/navigation'
-import type { AsyncApiDocument } from '@/schemas/v3.0/asyncapi-document'
 
 describe('traverseAsyncApiDocument', () => {
   it('should generate navigation for AsyncAPI document with channels and operations', () => {

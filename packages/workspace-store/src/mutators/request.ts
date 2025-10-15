@@ -1,7 +1,7 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
 import { isOpenApiDocument } from '@/helpers/type-guards'
-import type { AsyncApiDocument } from '@/schemas/v3.0/asyncapi-document'
+import type { AsyncApiDocument } from '@/schemas/asyncapi/v3.0/asyncapi-document'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
 export type OperationIdentifier = {
