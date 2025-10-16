@@ -18,19 +18,18 @@ const DEFAULT_CONFIGURATION: Partial<ApiReferenceConfiguration> = {
  * @params config - the Api Reference config object
  * @params options - reserved for future use to add customization to the response
  */
-export const ApiReference = (givenConfiguration: Partial<ApiReferenceConfiguration>) => {
+export const ApiReference = (givenConfiguration: Partial<ApiReferenceConfiguration>): (() => Response) => {
   // Merge the defaults
-  const configuration = {
+  const configuration: Partial<ApiReferenceConfiguration> = {
     ...DEFAULT_CONFIGURATION,
     ...givenConfiguration,
-  } satisfies Partial<ApiReferenceConfiguration>
+  }
 
-  return async () => {
-    return new Response(getHtmlDocument(configuration, customTheme), {
+  return () => {
+    const referenceDocument = getHtmlDocument(configuration, customTheme)
+    return new Response(referenceDocument, {
       status: 200,
-      headers: {
-        'Content-Type': 'text/html',
-      },
+      headers: { 'Content-Type': 'text/html' },
     })
   }
 }
