@@ -106,10 +106,14 @@ const models = computed<TraversedDescription | undefined>(() => {
         <template #selectors>
           <ScalarErrorBoundary>
             <IntroductionCardItem
-              v-if="document?.servers?.length"
+              v-if="
+                document &&
+                isOpenApiDocument(document) &&
+                document.servers?.length
+              "
               class="scalar-reference-intro-server scalar-client introduction-card-item text-base leading-normal [--scalar-address-bar-height:0px]">
               <ServerSelector
-                :servers="document?.servers ?? []"
+                :servers="document.servers"
                 :xSelectedServer="document?.['x-scalar-active-server']" />
             </IntroductionCardItem>
           </ScalarErrorBoundary>

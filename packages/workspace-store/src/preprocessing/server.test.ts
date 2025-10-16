@@ -1,5 +1,6 @@
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import type { ServerObject } from '@/schemas/v3.1/strict/openapi-document'
 
 import { getServersFromDocument } from './server'
 

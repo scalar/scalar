@@ -17,16 +17,10 @@ describe('traverseAsyncApiDocument', () => {
         'user/signup': {
           title: 'User Signup',
           description: 'Channel for user signup events',
-          operations: {
-            'userSignup': 'userSignup',
-          },
         },
         'user/login': {
           title: 'User Login',
           description: 'Channel for user login events',
-          operations: {
-            'userLogin': 'userLogin',
-          },
         },
       },
       operations: {
@@ -66,7 +60,7 @@ describe('traverseAsyncApiDocument', () => {
 
     const loginOperation = (loginChannel as TraversedChannel)?.children![0] as TraversedAsyncApiOperation
     expect(loginOperation.type).toBe('asyncapi-operation')
-    expect(loginOperation.action).toBe('subscribe')
+    expect(loginOperation.action).toBe('receive')
     expect(loginOperation.channel).toBe('user/login')
 
     // Check second channel (user/signup)
@@ -77,7 +71,7 @@ describe('traverseAsyncApiDocument', () => {
 
     const signupOperation = (signupChannel as TraversedChannel)?.children![0] as TraversedAsyncApiOperation
     expect(signupOperation.type).toBe('asyncapi-operation')
-    expect(signupOperation.action).toBe('publish')
+    expect(signupOperation.action).toBe('send')
     expect(signupOperation.channel).toBe('user/signup')
   })
 
@@ -132,10 +126,6 @@ describe('traverseAsyncApiDocument', () => {
       channels: {
         'test/channel': {
           title: 'Test Channel',
-          operations: {
-            'subscribeOp': 'subscribeOp',
-            'publishOp': 'publishOp',
-          },
         },
       },
       operations: {
@@ -158,15 +148,15 @@ describe('traverseAsyncApiDocument', () => {
     const channelEntry = result.entries[0]
     expect((channelEntry as TraversedChannel)?.children).toHaveLength(2)
 
-    // First operation should be publish
+    // First operation should be send
     const firstOperation = (channelEntry as TraversedChannel)?.children![0] as TraversedAsyncApiOperation
     expect(firstOperation.type).toBe('asyncapi-operation')
-    expect(firstOperation.action).toBe('publish')
+    expect(firstOperation.action).toBe('send')
 
-    // Second operation should be subscribe
+    // Second operation should be receive
     const secondOperation = (channelEntry as TraversedChannel)?.children![1] as TraversedAsyncApiOperation
     expect(secondOperation.type).toBe('asyncapi-operation')
-    expect(secondOperation.action).toBe('subscribe')
+    expect(secondOperation.action).toBe('receive')
   })
 
   it('should handle operations without titles', () => {
@@ -179,9 +169,6 @@ describe('traverseAsyncApiDocument', () => {
       channels: {
         'test/channel': {
           title: 'Test Channel',
-          operations: {
-            'testOp': 'testOp',
-          },
         },
       },
       operations: {
@@ -210,9 +197,6 @@ describe('traverseAsyncApiDocument', () => {
       channels: {
         'test/channel': {
           title: 'Test Channel',
-          operations: {
-            'testOp': 'testOp',
-          },
         },
       },
       operations: {
@@ -227,7 +211,7 @@ describe('traverseAsyncApiDocument', () => {
 
     const channelEntry = result.entries[0]
     const operation = (channelEntry as TraversedChannel)?.children![0] as TraversedAsyncApiOperation
-    expect(operation.title).toBe('publish test/channel')
+    expect(operation.title).toBe('send test/channel')
   })
 
   it('should handle channels without titles', () => {

@@ -116,7 +116,7 @@ const createAsyncApiOperationEntry = (
     id: getOperationId(operation),
     title,
     ref,
-    action: operation.action as 'publish' | 'subscribe',
+    action: operation.action as 'send' | 'receive',
     channel: operation.channel,
     isDeprecated: operation.deprecated,
   }
@@ -141,16 +141,22 @@ export const traverseAsyncApiChannels = (
   // First, collect all operations and group them by channel
   if (document.operations) {
     Object.entries(document.operations).forEach(([operationId, operation]) => {
-      const channelName = operation.channel
-      if (!channelOperationsMap.has(channelName)) {
+      // Handle ReferenceType - operation could be a $ref or the actual operation
+      const actualOperation = '$ref' in operation ? operation['$ref-value'] : operation
+      const channelName = actualOperation?.channel
+      if (channelName && !channelOperationsMap.has(channelName)) {
         channelOperationsMap.set(channelName, [])
       }
-      channelOperationsMap.get(channelName)!.push({ operationId, operation })
+      if (channelName) {
+        channelOperationsMap.get(channelName)!.push({ operationId, operation: actualOperation })
+      }
     })
   }
 
   // Then, create channel entries with their operations
   Object.entries(document.channels).forEach(([channelName, channelItem]) => {
+    // Handle ReferenceType - channelItem could be a $ref or the actual channel
+    const actualChannel = '$ref' in channelItem ? channelItem['$ref-value'] : channelItem
     const channelOperations = channelOperationsMap.get(channelName) || []
 
     const operationEntries: TraversedEntry[] = channelOperations.map(({ operationId, operation }) => {
@@ -158,13 +164,13 @@ export const traverseAsyncApiChannels = (
       return createAsyncApiOperationEntry(ref, operation, getOperationId)
     })
 
-    // Sort operations by action (publish first, then subscribe)
+    // Sort operations by action (send first, then receive)
     operationEntries.sort((a, b) => {
       if (a.type === 'asyncapi-operation' && b.type === 'asyncapi-operation') {
         if (a.action === b.action) {
           return a.title.localeCompare(b.title)
         }
-        return a.action === 'publish' ? -1 : 1
+        return a.action === 'send' ? -1 : 1
       }
       return 0
     })
@@ -172,9 +178,9 @@ export const traverseAsyncApiChannels = (
     const channelEntry: TraversedEntry = {
       type: 'channel',
       id: `channel/${slug(channelName)}`,
-      title: channelItem.title || channelItem.summary || channelName,
+      title: actualChannel?.title || actualChannel?.summary || channelName,
       name: channelName,
-      description: channelItem.description,
+      description: actualChannel?.description,
       children: operationEntries,
       isGroup: false,
     }

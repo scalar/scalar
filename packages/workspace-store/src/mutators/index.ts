@@ -43,7 +43,13 @@ export function generateClientMutators(store: WorkspaceStore) {
       securitySchemeMutators: securitySchemeMutators(document?.components?.securitySchemes),
       environmentMutators: environmentMutators(document),
       cookieMutators: cookieMutators(document),
-      serverMutators: serverMutators(document?.servers),
+      serverMutators: serverMutators(
+        Array.isArray(document?.servers)
+          ? // OpenAPI Servers
+            document.servers
+          : // TODO: AsyncAPI Servers
+            [],
+      ),
     }
   }
 

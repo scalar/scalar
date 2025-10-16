@@ -18,14 +18,11 @@ describe('AsyncAPI 3.0', () => {
     channels: {
       'user/signedup': {
         title: 'User signed up',
-        operations: {
-          publish: 'publishUserSignedUp',
-        },
       },
     },
     operations: {
       publishUserSignedUp: {
-        action: 'publish' as const,
+        action: 'send' as const,
         channel: 'user/signedup',
         title: 'Publish user signed up event',
       },

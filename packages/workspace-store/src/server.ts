@@ -339,8 +339,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
 
       // Store AsyncAPI assets
       assets[meta.name] = {
-        components: asyncApiDoc.components,
-        asyncApiOperations: asyncApiDoc.operations,
+        // TODO: Store AsyncAPI components and operations
       }
 
       // Externalize component references if components exist
