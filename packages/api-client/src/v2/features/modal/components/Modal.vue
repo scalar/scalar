@@ -1,9 +1,8 @@
 <script lang="ts">
 export type ModalProps = {
   activeEntities: ActiveEntities
-  layout: ClientLayout
   workspaceStore: WorkspaceStore
-  isOpen: Ref<boolean>
+  modalState: ModalState
 }
 
 /**
@@ -18,6 +17,7 @@ export default {}
 import {
   addScalarClassesToHeadless,
   ScalarTeleportRoot,
+  type ModalState,
 } from '@scalar/components'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { useFocusTrap } from '@vueuse/integrations/useFocusTrap'
@@ -25,75 +25,64 @@ import {
   nextTick,
   onBeforeMount,
   onBeforeUnmount,
-  onMounted,
   ref,
   useId,
   watch,
-  type Ref,
 } from 'vue'
 
-import { handleHotKeyDown, type HotKeyEvent } from '@/libs'
+import TempReplaceMe from '@/v2/components/TempReplaceMe.vue'
 import type { ActiveEntities } from '@/v2/features/modal/helpers/create-api-client-modal'
-import type { ClientLayout } from '@/v2/helpers/create-api-client'
 
-const { workspaceStore, layout, activeEntities, isOpen } =
-  defineProps<ModalProps>()
-
-console.log({ isOpen: isOpen.value })
+const { workspaceStore, activeEntities, modalState } = defineProps<ModalProps>()
 
 const client = ref<HTMLElement | null>(null)
 const id = useId()
 
-// const { activate: activateFocusTrap, deactivate: deactivateFocusTrap } =
-//   useFocusTrap(client, {
-//     allowOutsideClick: true,
-//     fallbackFocus: `#${id}`,
-//   })
+const { activate: activateFocusTrap, deactivate: deactivateFocusTrap } =
+  useFocusTrap(client, {
+    allowOutsideClick: true,
+    fallbackFocus: `#${id}`,
+  })
 
-/** Handles the hotkey events as well as custom config */
-// const handleKeyDown = (ev: KeyboardEvent) =>
-//   handleHotKeyDown(ev, events.hotKeys, activeWorkspace.value?.hotKeyConfig)
+/** Close the modal on escape */
+const onEscape = (ev: KeyboardEvent) => ev.key === 'Escape' && modalState.hide()
 
-// watch(
-//   () => modalState.open,
-//   (open) => {
-//     if (open) {
-//       // Add the global hotkey listener
-//       window.addEventListener('keydown', handleKeyDown)
-//       // Disable scrolling
-//       document.documentElement.style.overflow = 'hidden'
+/** Clean up listeners on modal close and unmount */
+const cleanUpListeners = () => {
+  window.removeEventListener('keydown', onEscape)
+  document.documentElement.style.removeProperty('overflow')
+  deactivateFocusTrap()
+}
 
-//       // Focus trap the modal
-//       activateFocusTrap({ checkCanFocusTrap: () => nextTick() })
-//     } else {
-//       // Remove the global hotkey listener
-//       window.removeEventListener('keydown', handleKeyDown)
-//       // Restore scrolling
-//       document.documentElement.style.removeProperty('overflow')
-//       // Remove the focus trap
-//       deactivateFocusTrap()
-//     }
-//   },
-// )
+watch(
+  () => modalState.open,
+  (open) => {
+    if (open) {
+      // Add the escape key listener
+      window.addEventListener('keydown', onEscape)
+
+      // Disable scrolling
+      document.documentElement.style.overflow = 'hidden'
+
+      // Focus trap the modal
+      activateFocusTrap({ checkCanFocusTrap: () => nextTick() })
+    } else {
+      cleanUpListeners()
+    }
+  },
+)
 
 // Ensure we add our scalar wrapper class to the headless ui root
-// onBeforeMount(() => addScalarClassesToHeadless())
+onBeforeMount(() => addScalarClassesToHeadless())
 
-// Close on escape
-// const onCloseModal = (event?: HotKeyEvent) =>
-//   event?.closeModal && modalState.open && modalState.hide()
-// onMounted(() => events.hotKeys.on(onCloseModal))
-
-// onBeforeUnmount(() => {
-//   // Make sure scrolling is back!
-//   document.documentElement.style.removeProperty('overflow')
-//   events.hotKeys.off(onCloseModal)
-// })
+onBeforeUnmount(() => {
+  cleanUpListeners()
+})
 </script>
 
 <template>
   <div
-    v-show="isOpen"
+    v-show="modalState.open"
     class="scalar scalar-app">
     <div class="scalar-container">
       <div
@@ -105,16 +94,20 @@ const id = useId()
         role="dialog"
         tabindex="-1">
         <ScalarTeleportRoot>
-          <div></div>
-          <h1>Modal</h1>
-          <pre>{{ activeEntities }}</pre>
-          <pre>{{ workspaceStore.workspace }}</pre>
-          <pre>{{ layout }}</pre>
+          <!-- Insert the operation page here -->
+          <TempReplaceMe
+            :documentSlug="activeEntities.documentSlug"
+            :example="activeEntities.example"
+            layout="modal"
+            :method="activeEntities.method"
+            :path="activeEntities.path"
+            :workspaceStore="workspaceStore"
+            workspaceSlug="default" />
         </ScalarTeleportRoot>
       </div>
       <div
         class="scalar-app-exit"
-        @click="isOpen = false" />
+        @click="modalState.hide()"></div>
     </div>
   </div>
 </template>
@@ -134,10 +127,10 @@ const id = useId()
   border-radius: 8px;
   border: var(--scalar-border-width) solid var(--scalar-border-color);
 }
-/*
-  * Allow the modal to fill more space on
-  * very short (or very zoomed in) screens
-  */
+/**
+ * Allow the modal to fill more space on
+ * very short (or very zoomed in) screens
+ */
 @variant zoomed {
   .scalar .scalar-app-layout {
     height: 100%;

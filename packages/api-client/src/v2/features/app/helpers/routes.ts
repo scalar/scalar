@@ -1,21 +1,21 @@
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { RouteRecordRaw } from 'vue-router'
 
-import type { ClientLayout } from '@/v2/helpers/create-api-client'
+import type { ClientLayout } from '@/v2/types/layout'
 
 /** These props are provided at the route level */
 export type RouteProps = {
   layout: ClientLayout
   workspaceStore: WorkspaceStore
-  workspaceSlug: string
-  documentSlug?: string
+  // workspaceSlug: string
+  // documentSlug?: string
   // pathEncoded?: string
   // method?: string
   // exampleName?: string
 }
 
 /** Routes for the API client app and web, the same as modal + workspace routes */
-export const appRoutes = [
+export const ROUTES = [
   {
     name: 'workspace',
     path: '/workspace/:workspaceSlug',

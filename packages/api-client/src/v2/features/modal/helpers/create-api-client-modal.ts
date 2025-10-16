@@ -1,10 +1,11 @@
+import { useModal } from '@scalar/components'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { createApp, reactive, ref } from 'vue'
+import { createApp, reactive } from 'vue'
 
 import { Modal, type ModalProps } from '@/v2/features/modal/components'
 
 export type CreateApiClientModalOptions = {
-  /** Element to mount the references to */
+  /** Element to mount the client modal to */
   el: HTMLElement | null
   /**
    * Will attempt to mount the references immediately
@@ -41,15 +42,14 @@ export const createApiClientModal = ({ el, workspaceStore, mountOnInitialize = t
   /** Current active entities */
   const activeEntities = reactive(defaultEntities)
 
-  /** Whether the modal is open or not */
-  const isOpen = ref(false)
+  /** Controls the visibility of the modal */
+  const modalState = useModal()
 
   // Pass in our initial props at the top level
   const app = createApp(Modal, {
     workspaceStore,
-    layout: 'modal',
     activeEntities,
-    isOpen,
+    modalState,
   } satisfies ModalProps)
 
   // Set an id prefix for useId so we don't have collisions with other Vue apps
@@ -80,7 +80,7 @@ export const createApiClientModal = ({ el, workspaceStore, mountOnInitialize = t
     app,
     /** Open the API client modal and set the current path, method and example */
     open: (payload?: RoutePayload) => {
-      isOpen.value = true
+      modalState.open = true
       if (payload) {
         route(payload)
       }
@@ -89,7 +89,7 @@ export const createApiClientModal = ({ el, workspaceStore, mountOnInitialize = t
     mount,
     /** "Route" to the specified path, method and example */
     route,
-    /** Whether the modal is open or not */
-    isOpen,
+    /** Controls the visibility of the modal */
+    modalState,
   }
 }
