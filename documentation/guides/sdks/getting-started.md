@@ -390,7 +390,7 @@ Once created, you will get redirected to the SDK Overview page where you can:
     margin-top: 32px;
   }
   .feature-item {
-    flex: 0 0 calc(50% - 44px);
+    flex: 0 0 calc(50% - 6px);
   }
   /* new stuff  */
   .expander {

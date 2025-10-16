@@ -387,7 +387,7 @@ All of this with just a couple clicks or a few API requests! You handle making y
     margin-top: 32px;
   }
   .feature-item {
-    flex: 0 0 calc(50% - 44px);
+    flex: 0 0 calc(50% - 6px);
   }
   /* new stuff  */
   .expander {
