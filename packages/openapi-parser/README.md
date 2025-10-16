@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/npm/l/%40scalar%2Fopenapi-parser)](https://www.npmjs.com/package/@scalar/openapi-parser)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-Modern OpenAPI parser written in TypeScript with support for OpenAPI 3.1, OpenAPI 3.0 and Swagger 2.0.
+Modern OpenAPI parser written in TypeScript with support for OpenAPI 3.2, 3.1, 3.0 and Swagger 2.0.
 
 ## Installation
 
@@ -242,7 +242,7 @@ const { filesystem } = await load(
 
 We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>
 
-## Thank you!
+## Thank you
 
 Thanks a ton for all the help and inspiration:
 

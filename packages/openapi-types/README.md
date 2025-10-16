@@ -5,7 +5,7 @@
 [![GitHub License](https://img.shields.io/github/license/scalar/scalar)](https://github.com/scalar/scalar/blob/main/LICENSE)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-Modern OpenAPI parser written in TypeScript, with support for Swagger 2.0, OpenAPI 3.0 and OpenAPI 3.1
+Modern OpenAPI parser written in TypeScript, with support for Swagger 2.0, OpenAPI 3.0, 3.1 and 3.2
 
 ## Installation
 
@@ -59,7 +59,7 @@ What's “unprocessed”? It's for the content of a “raw” OpenAPI document, 
 We also provide Zod schemas for processed OpenAPI documents, where the `$ref`s are resolved already:
 
 ```ts
-// Impport the Zod Schema without the $ref property:
+// Import the Zod Schema without the $ref property:
 import { OpenApiObjectSchema } from '@scalar/openapi-types/schemas/3.1/processed'
 
 OpenApiObjectSchema.parse({
