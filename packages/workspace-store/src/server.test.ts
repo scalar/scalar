@@ -507,11 +507,6 @@ describe('externalize-component-references', () => {
   it('should convert the components with refs correctly for ssr mode', () => {
     const result = externalizeComponentReferences(
       {
-        info: {
-          title: '',
-          version: '',
-        },
-        openapi: '',
         components: {
           schemas: {
             'User': coerceValue(SchemaObjectSchema, {
@@ -543,11 +538,6 @@ describe('externalize-component-references', () => {
   it('should convert the components with refs correctly for ssg mode', () => {
     const result = externalizeComponentReferences(
       {
-        info: {
-          title: '',
-          version: '',
-        },
-        openapi: '',
         components: {
           schemas: {
             'User': coerceValue(SchemaObjectSchema, {
@@ -962,7 +952,7 @@ describe('AsyncAPI Server-Side Processing', () => {
         `${tmpDir}/chunks/asyncapi-doc/operations/publishUserSignedUp.json`,
         'utf-8',
       )
-      expect(JSON.parse(asyncApiOperation).action).toBe('publish')
+      expect(JSON.parse(asyncApiOperation).action).toBe('send')
     })
   })
 })
