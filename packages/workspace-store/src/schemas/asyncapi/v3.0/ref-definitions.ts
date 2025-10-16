@@ -14,6 +14,7 @@ export const ASYNCAPI_REF_DEFINITIONS = {
   OperationsObject: 'OperationsObject',
   Message: 'Message',
   MessageTrait: 'MessageTrait',
+  MessageExample: 'MessageExample',
   Parameter: 'Parameter',
   CorrelationId: 'CorrelationId',
   OperationTrait: 'OperationTrait',
@@ -53,6 +54,7 @@ export const OperationRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.Operation)
 export const OperationsObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.OperationsObject)
 export const MessageRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.Message)
 export const MessageTraitRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MessageTrait)
+export const MessageExampleRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MessageExample)
 export const ParameterRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.Parameter)
 export const CorrelationIdRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.CorrelationId)
 export const OperationTraitRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.OperationTrait)

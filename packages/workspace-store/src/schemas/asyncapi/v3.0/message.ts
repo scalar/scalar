@@ -1,20 +1,15 @@
 import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
-import type { ExampleObject } from '@/schemas/v3.1/strict/example'
 import type { ExternalDocumentationObject } from '@/schemas/v3.1/strict/external-documentation'
-import {
-  ExampleObjectRef,
-  ExternalDocumentationObjectRef,
-  SchemaObjectRef,
-  TagObjectRef,
-} from '@/schemas/v3.1/strict/ref-definitions'
+import { ExternalDocumentationObjectRef, SchemaObjectRef, TagObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 import type { SchemaObject } from '@/schemas/v3.1/strict/schema'
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
 import type { CorrelationId } from './correlation-id'
+import type { MessageExample } from './message-example'
 import type { MessageTrait } from './message-trait'
-import { CorrelationIdRef, MessageTraitRef } from './ref-definitions'
+import { CorrelationIdRef, MessageExampleRef, MessageTraitRef } from './ref-definitions'
 
 /**
  * Describes a message received on a given channel and operation.
@@ -42,7 +37,7 @@ export const MessageSchemaDefinition = compose(
     /** A machine-friendly name for the message. */
     name: Type.Optional(Type.String()),
     /** List of examples. */
-    examples: Type.Optional(Type.Array(ExampleObjectRef)),
+    examples: Type.Optional(Type.Array(MessageExampleRef)),
     /** A list of traits to apply to the message object. Traits MUST be merged using traits merge mechanism. The resulting object MUST be a valid Message Object. */
     traits: Type.Optional(Type.Array(MessageTraitRef)),
     /** A map where the keys describe the name of the protocol and the values describe protocol-specific definitions for the message. */
@@ -75,7 +70,7 @@ export type Message = {
   /** A machine-friendly name for the message. */
   name?: string
   /** List of examples. */
-  examples?: ExampleObject[]
+  examples?: MessageExample[]
   /** A list of traits to apply to the message object. Traits MUST be merged using traits merge mechanism. The resulting object MUST be a valid Message Object. */
   traits?: MessageTrait[]
   /** A map where the keys describe the name of the protocol and the values describe protocol-specific definitions for the message. */
