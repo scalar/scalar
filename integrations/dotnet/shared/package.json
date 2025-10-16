@@ -1,0 +1,28 @@
+{
+  "name": "@scalar/dotnet-shared",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "integrations/dotnet/shared"
+  },
+  "version": "0.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "format": "scalar-format",
+    "format:check": "scalar-format-check",
+    "lint:check": "scalar-lint-check",
+    "lint:fix": "scalar-lint-fix",
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
+    "@scalar/snippetz": "workspace:*"
+  }
+}
