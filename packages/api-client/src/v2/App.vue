@@ -36,9 +36,7 @@ const { layout } = defineProps<{
         'border sm:mr-1.5 sm:mb-1.5 sm:rounded-lg sm:*:rounded-lg':
           layout === 'desktop',
       }">
-      <!-- Desktop/Web -->
       <RouterView
-        v-if="layout === 'desktop' || layout === 'web'"
         v-slot="{ Component }"
         @newTab="handleNewTab">
         <keep-alive>
@@ -48,13 +46,6 @@ const { layout } = defineProps<{
             :store="store" />
         </keep-alive>
       </RouterView>
-
-      <!-- Modal -->
-      <RouterView
-        v-else
-        :key="route.fullPath"
-        :layout="layout"
-        :store="store" />
     </div>
   </main>
 </template>
