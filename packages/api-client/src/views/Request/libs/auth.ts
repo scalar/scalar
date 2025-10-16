@@ -1,6 +1,7 @@
-import { ADD_AUTH_OPTIONS, type SecuritySchemeGroup, type SecuritySchemeOption } from '@/views/Request/consts'
 import type { Collection, Operation, SecurityScheme } from '@scalar/oas-utils/entities/spec'
 import { isDefined } from '@scalar/oas-utils/helpers'
+
+import { ADD_AUTH_OPTIONS, type SecuritySchemeGroup, type SecuritySchemeOption } from '@/views/Request/consts'
 
 type DisplayScheme = {
   type: SecurityScheme['type'] | 'complex'
@@ -11,7 +12,7 @@ type DisplayScheme = {
 /** Format a scheme object into a display object */
 export const formatScheme = (s: DisplayScheme) => ({
   id: s.uid,
-  label: s.type === 'openIdConnect' ? `${s.nameKey} (coming soon)` : s.nameKey,
+  label: s.nameKey,
 })
 
 /** Formats complex security schemes */

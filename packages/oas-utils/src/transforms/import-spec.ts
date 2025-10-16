@@ -21,6 +21,7 @@ import { type RequestExample, createExampleFromRequest } from '@/entities/spec/r
 import { type Request, type RequestPayload, requestSchema } from '@/entities/spec/requests'
 import { type Server, serverSchema } from '@/entities/spec/server'
 import { type Tag, tagSchema } from '@/entities/spec/spec-objects'
+import { fetchOidcDiscovery, transformOidcToOAuth2 } from '@/helpers/fetch-oidc-discovery'
 import { schemaModel } from '@/helpers/schema-model'
 import { getServersFromDocument } from '@/helpers/servers'
 
@@ -123,7 +124,7 @@ export const getSelectedSecuritySchemeUids = (
 export const getSlugUid = (slug: string) => `slug-uid-${slug}` as Collection['uid']
 
 export type ImportSpecToWorkspaceArgs = Pick<CollectionPayload, 'documentUrl' | 'watchMode'> &
-  Pick<ApiReferenceConfiguration, 'authentication' | 'baseServerURL' | 'servers' | 'slug'> & {
+  Pick<ApiReferenceConfiguration, 'authentication' | 'baseServerURL' | 'servers' | 'slug' | 'proxyUrl'> & {
     /** The dereferenced document */
     dereferencedDocument?: OpenAPIV3_1.Document
     /** Sets the preferred security scheme on the collection instead of the requests */
@@ -158,6 +159,7 @@ export async function importSpecToWorkspace(
     slug,
     shouldLoad,
     watchMode = false,
+    proxyUrl,
   }: ImportSpecToWorkspaceArgs = {},
 ): Promise<
   | {
@@ -208,6 +210,41 @@ export async function importSpecToWorkspace(
     console.warn(
       `DEPRECATION WARNING: It looks like you're using legacy authentication config. Please migrate to use the updated config. See https://github.com/scalar/scalar/blob/main/documentation/configuration.md#authentication-partial This will be removed in a future version.`,
     )
+  }
+
+  // ---------------------------------------------------------------------------
+  // OIDC DISCOVERY: Transform openIdConnect schemes to OAuth2
+  //
+  // This preprocessing step fetches OIDC discovery documents and transforms them to OAuth2
+  // so that the existing OAuth2 UI and flows can be reused.
+  for (const [nameKey, scheme] of Object.entries(security) as Entries<
+    Record<string, OpenAPIV3_1.SecuritySchemeObject>
+  >) {
+    if (scheme.type === 'openIdConnect' && scheme.openIdConnectUrl) {
+      let flows = {}
+
+      try {
+        // Fetch the OIDC discovery document
+        const discovery = await fetchOidcDiscovery(scheme.openIdConnectUrl, proxyUrl)
+
+        // Transform to OAuth2
+        const oauth2Result = transformOidcToOAuth2(discovery)
+        flows = oauth2Result.flows
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error'
+        importWarnings.push(`Failed to fetch OIDC discovery for security scheme "${nameKey}": ${message}`)
+        console.error(`[importSpecToWorkspace] OIDC discovery failed for "${nameKey}":`, error)
+        // Continue with empty flows - the scheme will still be transformed to oauth2
+      }
+
+      // Always transform the scheme to OAuth2, even if discovery fails
+      // This ensures compatibility with existing OAuth2 UI components
+      security[nameKey] = {
+        ...scheme,
+        type: 'oauth2',
+        flows,
+      } as OpenAPIV3_1.SecuritySchemeObject
+    }
   }
 
   const securitySchemes = (Object.entries(security) as Entries<Record<string, OpenAPIV3_1.SecuritySchemeObject>>)

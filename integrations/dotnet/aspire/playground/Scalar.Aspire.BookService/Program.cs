@@ -1,6 +1,7 @@
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddCors();
 
 var keycloakUrl = builder.Configuration["keycloak"];
 builder.Services.AddOpenApi(options =>
@@ -9,21 +10,13 @@ builder.Services.AddOpenApi(options =>
     {
         var securityScheme = new OpenApiSecurityScheme
         {
-            Type = SecuritySchemeType.OAuth2,
-            Flows = new OpenApiOAuthFlows
-            {
-                AuthorizationCode = new OpenApiOAuthFlow
-                {
-                    // localhost for the user interaction
-                    AuthorizationUrl = new Uri($"{keycloakUrl}/realms/scalar/protocol/openid-connect/auth"),
-                    // keycloak for the proxy
-                    TokenUrl = new Uri("http://keycloak/realms/scalar/protocol/openid-connect/token")
-                }
-            }
+            Type = SecuritySchemeType.OpenIdConnect,
+            OpenIdConnectUrl = new Uri($"{keycloakUrl}/realms/scalar/.well-known/openid-configuration"),
+            Description = "My OIDC"
         };
 
         document.Components ??= new OpenApiComponents();
-        document.Components.SecuritySchemes.Add("oauth2", securityScheme);
+        document.Components.SecuritySchemes.Add("oidc", securityScheme);
 
         var securityRequirement = new OpenApiSecurityRequirement
         {
@@ -46,6 +39,13 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+app.UseCors(policy =>
+{
+    policy
+        .AllowAnyOrigin()
+        .AllowAnyHeader()
+        .AllowAnyMethod();
+});
 app.UseHttpsRedirection();
 
 app.MapOpenApi("/swagger/{documentName}.json");

@@ -11,15 +11,13 @@ import { authOptions } from '@/v2/blocks/scalar-auth-selector-block/helpers/auth
 /** Format a scheme object into a display object */
 export const formatScheme = ({
   name,
-  type,
   value,
 }: {
   name: string
-  type: SecuritySchemeObject['type'] | 'complex'
   value: NonNullable<OpenApiDocument['x-scalar-selected-security']>[number]
 }) => ({
   id: name,
-  label: type === 'openIdConnect' ? `${name} (coming soon)` : name,
+  label: name,
   value,
 })
 
@@ -31,7 +29,7 @@ export const formatComplexScheme = (scheme: NonNullable<OpenApiDocument['securit
         acc.name += `${index > 0 ? ' & ' : ''}${name}`
         return acc
       },
-      { type: 'complex', name: '', value: scheme },
+      { name: '', value: scheme },
     ),
   )
 
@@ -76,7 +74,7 @@ export const getSecuritySchemeOptions = (
             return undefined
           }
 
-          return formatScheme({ name: keys[0], type: scheme.type, value: r })
+          return formatScheme({ name: keys[0], value: r })
         }
 
         return undefined
@@ -88,7 +86,7 @@ export const getSecuritySchemeOptions = (
       .map((name) => {
         const scheme = getResolvedRef(securitySchemes[name])
         if (scheme) {
-          return formatScheme({ name, type: scheme.type, value: { [name]: [] } })
+          return formatScheme({ name, value: { [name]: [] } })
         }
         return undefined
       })
