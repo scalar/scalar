@@ -1,7 +1,7 @@
 export default {
-  "$id": "https://spec.openapis.org/oas/3.1/schema/2022-10-07",
+  "$id": "https://spec.openapis.org/oas/3.1/schema/2025-09-15",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "description": "The description of OpenAPI v3.1.x documents without schema validation, as defined by https://spec.openapis.org/oas/v3.1.0",
+  "description": "The description of OpenAPI v3.1.x Documents without Schema Object validation",
   "type": "object",
   "properties": {
     "openapi": {
@@ -14,7 +14,7 @@ export default {
     "jsonSchemaDialect": {
       "type": "string",
       "format": "uri-reference",
-      "default": "https://spec.openapis.org/oas/3.1/dialect/base"
+      "default": "https://spec.openapis.org/oas/3.1/dialect/2024-11-10"
     },
     "servers": {
       "type": "array",
@@ -33,7 +33,7 @@ export default {
     "webhooks": {
       "type": "object",
       "additionalProperties": {
-        "$ref": "#/$defs/path-item-or-reference"
+        "$ref": "#/$defs/path-item"
       }
     },
     "components": {
@@ -71,7 +71,7 @@ export default {
   "unevaluatedProperties": false,
   "$defs": {
     "info": {
-      "$comment": "https://spec.openapis.org/oas/v3.1.0#info-object",
+      "$comment": "https://spec.openapis.org/oas/v3.1#info-object",
       "type": "object",
       "properties": {
         "title": {
@@ -102,7 +102,7 @@ export default {
       "unevaluatedProperties": false
     },
     "contact": {
-      "$comment": "https://spec.openapis.org/oas/v3.1.0#contact-object",
+      "$comment": "https://spec.openapis.org/oas/v3.1#contact-object",
       "type": "object",
       "properties": {
         "name": {
@@ -121,7 +121,7 @@ export default {
       "unevaluatedProperties": false
     },
     "license": {
-      "$comment": "https://spec.openapis.org/oas/v3.1.0#license-object",
+      "$comment": "https://spec.openapis.org/oas/v3.1#license-object",
       "type": "object",
       "properties": {
         "name": {
@@ -147,7 +147,7 @@ export default {
       "unevaluatedProperties": false
     },
     "server": {
-      "$comment": "https://spec.openapis.org/oas/v3.1.0#server-object",
+      "$comment": "https://spec.openapis.org/oas/v3.1#server-object",
       "type": "object",
       "properties": {
         "url": {
@@ -168,7 +168,7 @@ export default {
       "unevaluatedProperties": false
     },
     "server-variable": {
-      "$comment": "https://spec.openapis.org/oas/v3.1.0#server-variable-object",
+      "$comment": "https://spec.openapis.org/oas/v3.1#server-variable-object",
       "type": "object",
       "properties": {
         "enum": {
@@ -190,13 +190,13 @@ export default {
       "unevaluatedProperties": false
     },
     "components": {
-      "$comment": "https://spec.openapis.org/oas/v3.1.0#components-object",
+      "$comment": "https://spec.openapis.org/oas/v3.1#components-object",
       "type": "object",
       "properties": {
         "schemas": {
           "type": "object",
           "additionalProperties": {
-            "$ref": "#/$defs/schema"
+            "$dynamicRef": "#meta"
           }
         },
         "responses": {
@@ -250,12 +250,12 @@ export default {
         "pathItems": {
           "type": "object",
           "additionalProperties": {
-            "$ref": "#/$defs/path-item-or-reference"
+            "$ref": "#/$defs/path-item"
           }
         }
       },
       "patternProperties": {
-        "^(schemas|responses|parameters|examples|requestBodies|headers|securitySchemes|links|callbacks|pathItems)$": {
+        "^(?:schemas|responses|parameters|examples|requestBodies|headers|securitySchemes|links|callbacks|pathItems)$": {
           "$comment": "Enumerating all of the property names in the regex above is necessary for unevaluatedProperties to work as expected",
           "propertyNames": {
             "pattern": "^[a-zA-Z0-9._-]+$"
@@ -266,7 +266,7 @@ export default {
       "unevaluatedProperties": false
     },
     "paths": {
-      "$comment": "https://spec.openapis.org/oas/v3.1.0#paths-object",
+      "$comment": "https://spec.openapis.org/oas/v3.1#paths-object",
       "type": "object",
       "patternProperties": {
         "^/": {
@@ -277,9 +277,13 @@ export default {
       "unevaluatedProperties": false
     },
     "path-item": {
-      "$comment": "https://spec.openapis.org/oas/v3.1.0#path-item-object",
+      "$comment": "https://spec.openapis.org/oas/v3.1#path-item-object",
       "type": "object",
       "properties": {
+        "$ref": {
+          "type": "string",
+          "format": "uri-reference"
+        },
         "summary": {
           "type": "string"
         },
@@ -326,20 +330,8 @@ export default {
       "$ref": "#/$defs/specification-extensions",
       "unevaluatedProperties": false
     },
-    "path-item-or-reference": {
-      "if": {
-        "type": "object",
-        "required": ["$ref"]
-      },
-      "then": {
-        "$ref": "#/$defs/reference"
-      },
-      "else": {
-        "$ref": "#/$defs/path-item"
-      }
-    },
     "operation": {
-      "$comment": "https://spec.openapis.org/oas/v3.1.0#operation-object",
+      "$comment": "https://spec.openapis.org/oas/v3.1#operation-object",
       "type": "object",
       "properties": {
         "tags": {
@@ -399,7 +391,7 @@ export default {
       "unevaluatedProperties": false
     },
     "external-documentation": {
-      "$comment": "https://spec.openapis.org/oas/v3.1.0#external-documentation-object",
+      "$comment": "https://spec.openapis.org/oas/v3.1#external-documentation-object",
       "type": "object",
       "properties": {
         "description": {
@@ -415,7 +407,7 @@ export default {
       "unevaluatedProperties": false
     },
     "parameter": {
-      "$comment": "https://spec.openapis.org/oas/v3.1.0#parameter-object",
+      "$comment": "https://spec.openapis.org/oas/v3.1#parameter-object",
       "type": "object",
       "properties": {
         "name": {
@@ -436,7 +428,7 @@ export default {
           "type": "boolean"
         },
         "schema": {
-          "$ref": "#/$defs/schema"
+          "$dynamicRef": "#meta"
         },
         "content": {
           "$ref": "#/$defs/content",
@@ -458,8 +450,7 @@ export default {
           "in": {
             "const": "query"
           }
-        },
-        "required": ["in"]
+        }
       },
       "then": {
         "properties": {
@@ -496,7 +487,7 @@ export default {
               "$ref": "#/$defs/parameter/dependentSchemas/schema/$defs/styles-for-cookie"
             },
             {
-              "$ref": "#/$defs/parameter/dependentSchemas/schema/$defs/styles-for-form"
+              "$ref": "#/$defs/styles-for-form"
             }
           ],
           "$defs": {
@@ -506,14 +497,10 @@ export default {
                   "in": {
                     "const": "path"
                   }
-                },
-                "required": ["in"]
+                }
               },
               "then": {
                 "properties": {
-                  "name": {
-                    "pattern": "[^/#?]+$"
-                  },
                   "style": {
                     "default": "simple",
                     "enum": ["matrix", "label", "simple"]
@@ -531,8 +518,7 @@ export default {
                   "in": {
                     "const": "header"
                   }
-                },
-                "required": ["in"]
+                }
               },
               "then": {
                 "properties": {
@@ -549,8 +535,7 @@ export default {
                   "in": {
                     "const": "query"
                   }
-                },
-                "required": ["in"]
+                }
               },
               "then": {
                 "properties": {
@@ -571,38 +556,13 @@ export default {
                   "in": {
                     "const": "cookie"
                   }
-                },
-                "required": ["in"]
+                }
               },
               "then": {
                 "properties": {
                   "style": {
                     "default": "form",
                     "const": "form"
-                  }
-                }
-              }
-            },
-            "styles-for-form": {
-              "if": {
-                "properties": {
-                  "style": {
-                    "const": "form"
-                  }
-                },
-                "required": ["style"]
-              },
-              "then": {
-                "properties": {
-                  "explode": {
-                    "default": true
-                  }
-                }
-              },
-              "else": {
-                "properties": {
-                  "explode": {
-                    "default": false
                   }
                 }
               }
@@ -626,7 +586,7 @@ export default {
       }
     },
     "request-body": {
-      "$comment": "https://spec.openapis.org/oas/v3.1.0#request-body-object",
+      "$comment": "https://spec.openapis.org/oas/v3.1#request-body-object",
       "type": "object",
       "properties": {
         "description": {
@@ -657,7 +617,7 @@ export default {
       }
     },
     "content": {
-      "$comment": "https://spec.openapis.org/oas/v3.1.0#fixed-fields-10",
+      "$comment": "https://spec.openapis.org/oas/v3.1#fixed-fields-10",
       "type": "object",
       "additionalProperties": {
         "$ref": "#/$defs/media-type"
@@ -667,11 +627,11 @@ export default {
       }
     },
     "media-type": {
-      "$comment": "https://spec.openapis.org/oas/v3.1.0#media-type-object",
+      "$comment": "https://spec.openapis.org/oas/v3.1#media-type-object",
       "type": "object",
       "properties": {
         "schema": {
-          "$ref": "#/$defs/schema"
+          "$dynamicRef": "#meta"
         },
         "encoding": {
           "type": "object",
@@ -691,7 +651,7 @@ export default {
       "unevaluatedProperties": false
     },
     "encoding": {
-      "$comment": "https://spec.openapis.org/oas/v3.1.0#encoding-object",
+      "$comment": "https://spec.openapis.org/oas/v3.1#encoding-object",
       "type": "object",
       "properties": {
         "contentType": {
@@ -705,15 +665,39 @@ export default {
           }
         },
         "style": {
-          "default": "form",
           "enum": ["form", "spaceDelimited", "pipeDelimited", "deepObject"]
         },
         "explode": {
           "type": "boolean"
         },
         "allowReserved": {
-          "default": false,
           "type": "boolean"
+        }
+      },
+      "dependentSchemas": {
+        "style": {
+          "properties": {
+            "allowReserved": {
+              "default": false
+            }
+          }
+        },
+        "explode": {
+          "properties": {
+            "style": {
+              "default": "form"
+            },
+            "allowReserved": {
+              "default": false
+            }
+          }
+        },
+        "allowReserved": {
+          "properties": {
+            "style": {
+              "default": "form"
+            }
+          }
         }
       },
       "allOf": [
@@ -721,39 +705,13 @@ export default {
           "$ref": "#/$defs/specification-extensions"
         },
         {
-          "$ref": "#/$defs/encoding/$defs/explode-default"
+          "$ref": "#/$defs/styles-for-form"
         }
       ],
-      "unevaluatedProperties": false,
-      "$defs": {
-        "explode-default": {
-          "if": {
-            "properties": {
-              "style": {
-                "const": "form"
-              }
-            },
-            "required": ["style"]
-          },
-          "then": {
-            "properties": {
-              "explode": {
-                "default": true
-              }
-            }
-          },
-          "else": {
-            "properties": {
-              "explode": {
-                "default": false
-              }
-            }
-          }
-        }
-      }
+      "unevaluatedProperties": false
     },
     "responses": {
-      "$comment": "https://spec.openapis.org/oas/v3.1.0#responses-object",
+      "$comment": "https://spec.openapis.org/oas/v3.1#responses-object",
       "type": "object",
       "properties": {
         "default": {
@@ -767,10 +725,19 @@ export default {
       },
       "minProperties": 1,
       "$ref": "#/$defs/specification-extensions",
-      "unevaluatedProperties": false
+      "unevaluatedProperties": false,
+      "if": {
+        "$comment": "either default, or at least one response code property must exist",
+        "patternProperties": {
+          "^[1-5](?:[0-9]{2}|XX)$": false
+        }
+      },
+      "then": {
+        "required": ["default"]
+      }
     },
     "response": {
-      "$comment": "https://spec.openapis.org/oas/v3.1.0#response-object",
+      "$comment": "https://spec.openapis.org/oas/v3.1#response-object",
       "type": "object",
       "properties": {
         "description": {
@@ -809,11 +776,11 @@ export default {
       }
     },
     "callbacks": {
-      "$comment": "https://spec.openapis.org/oas/v3.1.0#callback-object",
+      "$comment": "https://spec.openapis.org/oas/v3.1#callback-object",
       "type": "object",
       "$ref": "#/$defs/specification-extensions",
       "additionalProperties": {
-        "$ref": "#/$defs/path-item-or-reference"
+        "$ref": "#/$defs/path-item"
       }
     },
     "callbacks-or-reference": {
@@ -829,7 +796,7 @@ export default {
       }
     },
     "example": {
-      "$comment": "https://spec.openapis.org/oas/v3.1.0#example-object",
+      "$comment": "https://spec.openapis.org/oas/v3.1#example-object",
       "type": "object",
       "properties": {
         "summary": {
@@ -863,7 +830,7 @@ export default {
       }
     },
     "link": {
-      "$comment": "https://spec.openapis.org/oas/v3.1.0#link-object",
+      "$comment": "https://spec.openapis.org/oas/v3.1#link-object",
       "type": "object",
       "properties": {
         "operationRef": {
@@ -880,7 +847,7 @@ export default {
         "description": {
           "type": "string"
         },
-        "body": {
+        "server": {
           "$ref": "#/$defs/server"
         }
       },
@@ -908,7 +875,7 @@ export default {
       }
     },
     "header": {
-      "$comment": "https://spec.openapis.org/oas/v3.1.0#header-object",
+      "$comment": "https://spec.openapis.org/oas/v3.1#header-object",
       "type": "object",
       "properties": {
         "description": {
@@ -923,7 +890,7 @@ export default {
           "type": "boolean"
         },
         "schema": {
-          "$ref": "#/$defs/schema"
+          "$dynamicRef": "#meta"
         },
         "content": {
           "$ref": "#/$defs/content",
@@ -970,7 +937,7 @@ export default {
       }
     },
     "tag": {
-      "$comment": "https://spec.openapis.org/oas/v3.1.0#tag-object",
+      "$comment": "https://spec.openapis.org/oas/v3.1#tag-object",
       "type": "object",
       "properties": {
         "name": {
@@ -988,7 +955,7 @@ export default {
       "unevaluatedProperties": false
     },
     "reference": {
-      "$comment": "https://spec.openapis.org/oas/v3.1.0#reference-object",
+      "$comment": "https://spec.openapis.org/oas/v3.1#reference-object",
       "type": "object",
       "properties": {
         "$ref": {
@@ -1001,16 +968,15 @@ export default {
         "description": {
           "type": "string"
         }
-      },
-      "unevaluatedProperties": false
+      }
     },
     "schema": {
-      "$comment": "https://spec.openapis.org/oas/v3.1.0#schema-object",
+      "$comment": "https://spec.openapis.org/oas/v3.1#schema-object",
       "$dynamicAnchor": "meta",
       "type": ["object", "boolean"]
     },
     "security-scheme": {
-      "$comment": "https://spec.openapis.org/oas/v3.1.0#security-scheme-object",
+      "$comment": "https://spec.openapis.org/oas/v3.1#security-scheme-object",
       "type": "object",
       "properties": {
         "type": {
@@ -1049,8 +1015,7 @@ export default {
               "type": {
                 "const": "apiKey"
               }
-            },
-            "required": ["type"]
+            }
           },
           "then": {
             "properties": {
@@ -1070,8 +1035,7 @@ export default {
               "type": {
                 "const": "http"
               }
-            },
-            "required": ["type"]
+            }
           },
           "then": {
             "properties": {
@@ -1109,8 +1073,7 @@ export default {
               "type": {
                 "const": "oauth2"
               }
-            },
-            "required": ["type"]
+            }
           },
           "then": {
             "properties": {
@@ -1127,8 +1090,7 @@ export default {
               "type": {
                 "const": "openIdConnect"
               }
-            },
-            "required": ["type"]
+            }
           },
           "then": {
             "properties": {
@@ -1256,7 +1218,7 @@ export default {
       }
     },
     "security-requirement": {
-      "$comment": "https://spec.openapis.org/oas/v3.1.0#security-requirement-object",
+      "$comment": "https://spec.openapis.org/oas/v3.1#security-requirement-object",
       "type": "object",
       "additionalProperties": {
         "type": "array",
@@ -1266,7 +1228,7 @@ export default {
       }
     },
     "specification-extensions": {
-      "$comment": "https://spec.openapis.org/oas/v3.1.0#specification-extensions",
+      "$comment": "https://spec.openapis.org/oas/v3.1#specification-extensions",
       "patternProperties": {
         "^x-": true
       }
@@ -1280,12 +1242,39 @@ export default {
             "$ref": "#/$defs/example-or-reference"
           }
         }
+      },
+      "not": {
+        "required": ["example", "examples"]
       }
     },
     "map-of-strings": {
       "type": "object",
       "additionalProperties": {
         "type": "string"
+      }
+    },
+    "styles-for-form": {
+      "if": {
+        "properties": {
+          "style": {
+            "const": "form"
+          }
+        },
+        "required": ["style"]
+      },
+      "then": {
+        "properties": {
+          "explode": {
+            "default": true
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "explode": {
+            "default": false
+          }
+        }
       }
     }
   }
