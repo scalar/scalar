@@ -508,7 +508,7 @@
   .small-test {
     max-width: 440px;
     text-wrap: balance;
-    margin-top: 88px;
+    margin-top: 44px;
     position: relative;
   }
   .t-editor .editor-static .page-node {
@@ -803,7 +803,7 @@
     gap: 44px;
   }
   .cta {
-    padding: 140px 0;
+    padding: 80px 0;
     margin-top: 0 !important;
   }
   .mb-11 {

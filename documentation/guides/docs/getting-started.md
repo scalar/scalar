@@ -85,58 +85,36 @@
         <scalar-icon src="phosphor/bold/brackets-angle"></scalar-icon>
         Markdown & MDX
       </b>
-      <p>
-        "After years of helping enterprises implemeain points I watched customers struggle with daily. This is the modern API platform developers deserve."
-      </p>
     </div>
     <div class="feature-item">
       <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-blue">
         <scalar-icon src="phosphor/bold/brackets-curly"></scalar-icon>
         Custom HTML/CSS/JS
       </b>
-      <p>
-        "One of my most recent favorites is a in-browser ad hoc testing UI called Scalar.
-One of the things that I really love about Scalar, it's got this modern UI experience, and it
-      </p>
     </div>
     <div class="feature-item">
       <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-blue">
         <scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon>
         OpenAPI Documents
       </b>
-      <p>
-with offerings at every price point.
-They are open source. So I can get in on free features and stay with Scalar no matter how big my API needs blow up."
-      </p>
     </div>
     <div class="feature-item">
       <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-blue">
         <scalar-icon src="phosphor/bold/github-logo"></scalar-icon>
         GitHub Sync
       </b>
-      <p>
-        "After years of helping enterprises implemeain points I watched customers struggle with daily. This is the modern API platform developers deserve."
-      </p>
     </div>
     <div class="feature-item">
       <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-blue">
         <scalar-icon src="phosphor/bold/palette"></scalar-icon>
         Customize Everything
       </b>
-      <p>
-        "One of my most recent favorites is a in-browser ad hoc testing UI called Scalar.
-One of the things that I really love about Scalar, it's got this modern UI experience, and it
-      </p>
     </div>
     <div class="feature-item">
       <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-blue">
         <scalar-icon src="phosphor/bold/users"></scalar-icon>
-        Gine-grained Access
+        Fine-grained Access
       </b>
-      <p>
-with offerings at every price point.
-They are open source. So I can get in on free features and stay with Scalar no matter how big my API needs blow up."
-      </p>
     </div>
   </div>
   <div class="cta flex flex-col gap-3 small-test">
@@ -372,7 +350,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
   .small-test {
     max-width: 680px;
     text-wrap: balance;
-    margin-top: 88px;
+    margin-top: 44px;
     position: relative;
   }
   .t-editor .editor-static .page-node {
@@ -429,11 +407,11 @@ They are open source. So I can get in on free features and stay with Scalar no m
     padding: 60px 0 !important;
   }
   .feature-container {
-    gap: 44px;
+    gap: 6px;
     margin-top: 32px;
   }
   .feature-item {
-    flex: 0 0 calc(50% - 44px);
+    flex: 0 0 calc(50% - 6px);
   }
   /* new stuff  */
   .expander {
@@ -536,7 +514,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
     gap: 44px;
   }
   .cta {
-    padding: 140px 0;
+    padding: 80px 0;
     margin-top: 0 !important;
   }
   .mb-11 {
