@@ -13,9 +13,17 @@
  */
 import { ScalarButton } from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons/library'
+import type { Environment as EnvironmentType } from '@scalar/oas-utils/entities/environment'
+import type {
+  OpenApiDocument,
+  SecuritySchemeObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
 
 import LabelInput from '@/components/Form/LabelInput.vue'
 import IconSelector from '@/components/IconSelector.vue'
+import type { EnvVariable } from '@/store'
+import type { UpdateSecuritySchemeEvent } from '@/v2/blocks/scalar-auth-selector-block/event-types'
 import Overview from '@/v2/features/document/components/Overview.vue'
 
 import Authentication from './components/Authentication.vue'
@@ -25,7 +33,7 @@ import Settings from './components/Settings.vue'
 import Tabs, { type Routes } from './components/Tabs.vue'
 
 const {
-  selectedTab = 'settings',
+  selectedTab = 'authentication',
   title = 'Document Name',
   icon = 'interface-content-folder',
 } = defineProps<{
@@ -35,10 +43,29 @@ const {
   icon?: string
   /** Document title */
   title: string
+
+  // ------- Settings tab props -------
   /** Document source url if available */
   documentUrl?: string
   /** Watch mode status if also document url is provided */
   watchMode?: boolean
+
+  // ------- Authentication tab props -------
+  /** Should use document security */
+  useDocumentSecurity: boolean
+  /** Security requirements for the document */
+  security: OpenApiDocument['security']
+  /** Currently selected security requirements */
+  selectedSecurity: OpenApiDocument['security']
+  /** Security schemes available in the document */
+  securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
+  /** Currently selected server */
+  server: ServerObject | undefined
+
+  // ------- To be removed -------
+  /** TODO: remove when we migrate */
+  environment: EnvironmentType
+  envVariables: EnvVariable[]
 }>()
 
 const emit = defineEmits<{
@@ -46,9 +73,25 @@ const emit = defineEmits<{
   (e: 'update:documentTitle', value: string): void
   (e: 'update:documentIcon', value: string): void
 
-  // Document settings
+  // ------- Settings tab events -------
   (e: 'settings:deleteDocument'): void
   (e: 'settings:update:watchMode', value: boolean): void
+
+  // ------- Authentication tab events -------
+  (e: 'auth:update:useDocumentSecurity', value: boolean): void
+  (e: 'auth:deleteOperationAuth', names: string[]): void
+  (e: 'auth:update:securityScheme', payload: UpdateSecuritySchemeEvent): void
+  (
+    e: 'auth:update:selectedScopes',
+    payload: { id: string[]; name: string; scopes: string[] },
+  ): void
+  (
+    e: 'auth:update:selectedSecurity',
+    payload: {
+      value: NonNullable<OpenApiDocument['x-scalar-selected-security']>
+      create: SecuritySchemeObject[]
+    },
+  ): void
 }>()
 </script>
 
@@ -85,10 +128,36 @@ const emit = defineEmits<{
       :selectedTab="selectedTab"
       @update:selectedTab="(tab) => emit('update:selectedTab', tab)" />
     <!-- Tab views -->
+    <!-- Document Overview -->
     <Overview v-if="selectedTab === 'overview'" />
+    <!-- Document Servers -->
     <Servers v-else-if="selectedTab === 'servers'" />
-    <Authentication v-else-if="selectedTab === 'authentication'" />
+    <!-- Document Authentication -->
+    <Authentication
+      v-else-if="selectedTab === 'authentication'"
+      :envVariables="envVariables"
+      :environment="environment"
+      :security="security"
+      :securitySchemes="securitySchemes"
+      :selectedSecurity="selectedSecurity"
+      :server="server"
+      :useDocumentSecurity="useDocumentSecurity"
+      @deleteOperationAuth="(names) => emit('auth:deleteOperationAuth', names)"
+      @update:securityScheme="
+        (payload) => emit('auth:update:securityScheme', payload)
+      "
+      @update:selectedScopes="
+        (payload) => emit('auth:update:selectedScopes', payload)
+      "
+      @update:selectedSecurity="
+        (payload) => emit('auth:update:selectedSecurity', payload)
+      "
+      @update:useDocumentSecurity="
+        (value) => emit('auth:update:useDocumentSecurity', value)
+      " />
+    <!-- Document Environments -->
     <Environment v-else-if="selectedTab === 'environment'" />
+    <!-- Document Settings -->
     <Settings
       v-else-if="selectedTab === 'settings'"
       :documentUrl="documentUrl"
