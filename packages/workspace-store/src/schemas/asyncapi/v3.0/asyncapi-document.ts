@@ -53,6 +53,7 @@ import { ChannelsObjectSchemaDefinition } from './channels'
 import { ComponentsObjectSchemaDefinition } from './components'
 import { CorrelationIdSchemaDefinition } from './correlation-id'
 import { MessageSchemaDefinition } from './message'
+import { MessageExampleSchemaDefinition } from './message-example'
 import { MessageTraitSchemaDefinition } from './message-trait'
 import { MessagesObjectSchemaDefinition } from './messages'
 import { MultiFormatSchemaSchemaDefinition } from './multi-format-schema'
@@ -172,6 +173,7 @@ const module = Type.Module({
   [ASYNCAPI_REF_DEFINITIONS.OperationsObject]: OperationsObjectSchemaDefinition,
   [ASYNCAPI_REF_DEFINITIONS.Message]: MessageSchemaDefinition,
   [ASYNCAPI_REF_DEFINITIONS.MessageTrait]: MessageTraitSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.MessageExample]: MessageExampleSchemaDefinition,
   [ASYNCAPI_REF_DEFINITIONS.Parameter]: ParameterSchemaDefinition,
   [ASYNCAPI_REF_DEFINITIONS.CorrelationId]: CorrelationIdSchemaDefinition,
   [ASYNCAPI_REF_DEFINITIONS.OperationTrait]: OperationTraitSchemaDefinition,
@@ -236,6 +238,7 @@ export const ChannelsObjectSchema = module.Import('ChannelsObject')
 export const CorrelationIdSchema = module.Import('CorrelationId')
 export const MessageSchema = module.Import('Message')
 export const MessageTraitSchema = module.Import('MessageTrait')
+export const MessageExampleSchema = module.Import('MessageExample')
 export const OperationSchema = module.Import('Operation')
 export const OperationTraitSchema = module.Import('OperationTrait')
 export const OperationsObjectSchema = module.Import('OperationsObject')
@@ -280,6 +283,7 @@ export type { LicenseObject } from '@/schemas/v3.1/strict/license'
 export type { ChannelItem } from './channel-item'
 export type { CorrelationId } from './correlation-id'
 export type { Message } from './message'
+export type { MessageExample } from './message-example'
 export type { MessageTrait } from './message-trait'
 export type {
   OAuthFlow,

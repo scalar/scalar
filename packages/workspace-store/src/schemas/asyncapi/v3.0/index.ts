@@ -14,6 +14,7 @@ export {
   // Protocol-specific bindings
   HttpBindingSchema,
   KafkaBindingSchema,
+  MessageExampleSchema,
   MessageSchema,
   MessageTraitSchema,
   MessagesObjectSchema,
@@ -46,6 +47,7 @@ export type { ChannelsObject } from './channels'
 export type { ComponentsObject } from './components'
 export type { CorrelationId } from './correlation-id'
 export type { Message } from './message'
+export type { MessageExample } from './message-example'
 export type { MessageTrait } from './message-trait'
 export type { MessagesObject } from './messages'
 export type { MultiFormatSchema } from './multi-format-schema'
