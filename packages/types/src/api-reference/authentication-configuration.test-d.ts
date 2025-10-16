@@ -1,4 +1,5 @@
 import { assertType, describe, it } from 'vitest'
+
 import type { AuthenticationConfiguration } from './authentication-configuration'
 
 describe('ApiReferenceConfiguration', () => {

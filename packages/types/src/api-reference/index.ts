@@ -17,6 +17,7 @@ export {
 export type {
   ApiReferencePlugin,
   SpecificationExtension,
+  ViewComponent,
 } from './api-reference-plugin'
 export type { ApiReferenceInstance, CreateApiReference } from './html-api'
 export {
