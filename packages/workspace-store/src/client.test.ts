@@ -88,13 +88,13 @@ const getAsyncApiDocument = () => ({
   },
   operations: {
     publishUserSignedUp: {
-      action: 'publish' as const,
+      action: 'send' as const,
       channel: 'user/signedup',
       title: 'Publish user signed up event',
       description: 'Publish a user signup event',
     },
     subscribeUserLogin: {
-      action: 'subscribe' as const,
+      action: 'receive' as const,
       channel: 'user/login',
       title: 'Subscribe to user login',
       description: 'Subscribe to user login events',
