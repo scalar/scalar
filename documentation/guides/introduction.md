@@ -50,6 +50,7 @@
     </li>
   </ul>
 </div>
+
 <div class="logowall">
   <div class="logowall-item">
     <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-tr.svg"></scalar-icon>
@@ -70,6 +71,7 @@
     <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-sfcompute.svg"></scalar-icon>
   </div>
 </div>
+
 <div class="quotes">
   <h2>Take their word for it</h2>
   <div class="flex flex-wrap quotes-container">
@@ -107,6 +109,7 @@
     </div>
   </div>
 </div>
+
 <div>
   <div class="product product-reversed">
     <div class="product-copy">
@@ -306,6 +309,7 @@
     </div>
   </div>
 </div>
+
 <div class="founder-quote border rounded-lg p-12 relative">
   <scalar-icon src="https://cdn.scalar.com/marketing/landing/scalar-logomark.svg?cache=1234"></scalar-icon>
   <br />
@@ -343,6 +347,7 @@
     <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/jSSY0fRlk7g_HdR7i7BIu.svg"></scalar-icon>
   </div>
 </div>
+
 <div class="cta flex flex-col gap-3 small-test">
   <scalar-heading level="2" class="text-balance" slug="what-are-you-waiting-for">What are you waiting for?</scalar-heading>
   <p>
@@ -357,6 +362,7 @@
   <a class="expander-hover-link" href="https://github.com/scalar/scalar" target="_blank">GitHub →</a>
   <a class="expander-hover-link" href="mailto:support@scalar.com" target="_blank">Contact Us →</a>
 </div>
+
 <div class="expander-container">
   <div class="expander-hover">
     <div class="expander-hover-preview">
@@ -471,9 +477,11 @@
     <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/v1Pu6_BCmly6VhPAuotVZ.svg"></scalar-icon>
   </div>
 </div>
+
 <div class="sticker-filter-effect">
-  <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/utn6gGF3Iucolqx4jmXmY.svg">
+  <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/utn6gGF3Iucolqx4jmXmY.svg"></scalar-icon>
 </div>
+
 <style>
   .t-editor__page-title,
   .layout-aside-right,
