@@ -1,8 +1,8 @@
 <script lang="ts">
 /**
- * Main entry point for the API client for all layouts
+ * Main entry point for the API client for electron and web
  *
- * Previously we had a separate entry point for each layout
+ * This will be the brains of the client, should handle all events and store business logic
  */
 export default {}
 </script>
@@ -11,11 +11,11 @@ export default {}
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { RouterView } from 'vue-router'
 
-import type { ClientLayout } from '@/v2/features/app/helpers/create-api-client-app'
+import type { ClientLayout } from '@/v2/types/layout'
 
 const { layout } = defineProps<{
-  layout: ClientLayout
-  store: WorkspaceStore
+  layout: Exclude<ClientLayout, 'modal'>
+  workspaceStore: WorkspaceStore
 }>()
 </script>
 
@@ -30,20 +30,19 @@ const { layout } = defineProps<{
     <!-- Popup command palette to add resources from anywhere -->
     <!-- <TheCommandPalette /> -->
 
+    <!-- <ImportCollectionListener></ImportCollectionListener> -->
+
     <div
       class="flex min-h-0 min-w-0 flex-1 flex-col"
       :class="{
         'border sm:mr-1.5 sm:mb-1.5 sm:rounded-lg sm:*:rounded-lg':
           layout === 'desktop',
       }">
-      <RouterView
-        v-slot="{ Component }"
-        @newTab="handleNewTab">
+      <RouterView v-slot="{ Component }">
         <keep-alive>
           <component
             :is="Component"
-            :layout="layout"
-            :store="store" />
+            :layout="layout" />
         </keep-alive>
       </RouterView>
     </div>

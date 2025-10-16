@@ -20,7 +20,7 @@ export type CreateApiClientModalOptions = {
 type RoutePayload = {
   path: string
   method: string
-  example: string
+  example?: string
   documentSlug?: string
 }
 
@@ -78,7 +78,7 @@ export const createApiClientModal = ({ el, workspaceStore, mountOnInitialize = t
   return {
     /** The vue app instance for the modal, be careful with this */
     app,
-    /** Open the API client modal and set the current path, method and example */
+    /** Open the API client modal and optionally route to an example */
     open: (payload?: RoutePayload) => {
       modalState.open = true
       if (payload) {
