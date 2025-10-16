@@ -1,4 +1,5 @@
 import type { WorkspaceStore } from '@/client'
+import { isOpenApiDocument } from '@/helpers/type-guards'
 import { cookieMutators } from '@/mutators/cookie'
 import { environmentMutators } from '@/mutators/environment'
 import { getDocument } from '@/mutators/helpers'
@@ -40,7 +41,11 @@ export function generateClientMutators(store: WorkspaceStore) {
 
     return {
       requestMutators: requestMutators(document),
-      securitySchemeMutators: securitySchemeMutators(document?.components?.securitySchemes),
+      securitySchemeMutators:
+        document && isOpenApiDocument(document)
+          ? securitySchemeMutators(document?.components?.securitySchemes)
+          : // TODO: AsyncAPI Security Schemes
+            undefined,
       environmentMutators: environmentMutators(document),
       cookieMutators: cookieMutators(document),
       serverMutators: serverMutators(
