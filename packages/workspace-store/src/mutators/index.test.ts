@@ -268,7 +268,7 @@ describe('generateClientMutators', () => {
       await store.addDocument({ name: 'doc-2', document: {} })
 
       expect(
-        mutators.doc('test-doc').securitySchemeMutators.addSecurityScheme('oauth2', {
+        mutators.doc('test-doc').securitySchemeMutators?.addSecurityScheme('oauth2', {
           type: 'oauth2',
           flows: {
             authorizationCode: {
@@ -312,7 +312,7 @@ describe('generateClientMutators', () => {
 
       // Should not add a security scheme to the active document if it doesn't exist
       expect(
-        mutators.active().securitySchemeMutators.addSecurityScheme('oauth2', {
+        mutators.active().securitySchemeMutators?.addSecurityScheme('oauth2', {
           type: 'oauth2',
           flows: {
             authorizationCode: {
