@@ -57,8 +57,8 @@
     "react": "catalog:*",
     "react-dom": "catalog:*",
     "vite": "catalog:*",
-    "vitest": "catalog:*",
-    "vite-plugin-dts": "^4.3.0"
+    "vite-plugin-dts": "^4.3.0",
+    "vitest": "catalog:*"
   },
   "peerDependencies": {
     "next": "^15.0.0",
