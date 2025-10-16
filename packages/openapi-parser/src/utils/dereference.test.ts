@@ -1,7 +1,7 @@
+import type { OpenAPIV3_2 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 
 import { dereference } from './dereference'
-import type { OpenAPIV3_2 } from '../../../openapi-types'
 
 describe('dereference', async () => {
   it('dereferences an OpenAPI 3.2.0 file', async () => {
