@@ -30,6 +30,7 @@
     "playground:app": "vite ./playground/app -c ./vite.config.ts",
     "playground:modal": "vite ./playground/modal -c ./vite.config.ts",
     "playground:web": "vite ./playground/web -c ./vite.config.ts",
+    "playground:v2:modal": "vite ./playground/v2/modal -c ./vite.config.ts",
     "preview": "vite preview",
     "test": "vitest",
     "test:benchmark": "vitest bench",

@@ -7,28 +7,12 @@ import type { ClientLayout } from '@/v2/helpers/create-api-client'
 export type RouteProps = {
   layout: ClientLayout
   workspaceStore: WorkspaceStore
-  // workspaceSlug: string
-  // documentSlug?: string
+  workspaceSlug: string
+  documentSlug?: string
   // pathEncoded?: string
   // method?: string
   // exampleName?: string
 }
-
-/** Model "routes" are just the example */
-export const modalRoutes = [
-  // Example page
-  {
-    name: 'example',
-    path: '/workspace/:workspaceSlug/document/:documentSlug/path/:pathEncoded/method/:method/example/:exampleName',
-    props: true,
-    component: () => import('@/v2/components/TempReplaceMe.vue'),
-  },
-  // This will redirect to the example page for every incomplete path (just in case)
-  {
-    path: '(.*)',
-    redirect: '/workspace/default/document/default/path/default/method/default/example/default',
-  },
-] satisfies RouteRecordRaw[]
 
 /** Routes for the API client app and web, the same as modal + workspace routes */
 export const appRoutes = [
