@@ -3,6 +3,7 @@ import { generateClientOptions } from '@scalar/api-client/v2/blocks/operation-co
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { Server } from '@scalar/oas-utils/entities/spec'
 import type { ApiReferenceConfiguration } from '@scalar/types'
+import { isOpenApiDocument } from '@scalar/workspace-store/helpers/type-guards'
 import type { TraversedDescription } from '@scalar/workspace-store/schemas/navigation'
 import type {
   Workspace,
@@ -93,7 +94,11 @@ const models = computed<TraversedDescription | undefined>(() => {
         :info="document?.info"
         :infoExtensions
         :layout="options.layout"
-        :oasVersion="document?.['x-original-oas-version']"
+        :oasVersion="
+          document && isOpenApiDocument(document)
+            ? document['x-original-oas-version']
+            : undefined
+        "
         :options="{
           documentDownloadType: options.documentDownloadType,
           layout: options.layout,
@@ -142,7 +147,7 @@ const models = computed<TraversedDescription | undefined>(() => {
     </IntroductionSection>
 
     <!-- Render traversed operations and webhooks -->
-    <div v-if="items.entries.length">
+    <div v-if="document && isOpenApiDocument(document) && items.entries.length">
       <!-- Use recursive component for cleaner rendering -->
       <TraversedEntry
         :activeServer
