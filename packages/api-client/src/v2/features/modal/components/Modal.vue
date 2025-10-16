@@ -44,7 +44,11 @@ const { activate: activateFocusTrap, deactivate: deactivateFocusTrap } =
     fallbackFocus: `#${id}`,
   })
 
-/** Close the modal on escape */
+/**
+ * Close the modal on escape
+ *
+ * We must add a global listener here becuase sometimes the focus will be shifted to the body
+ */
 const onEscape = (ev: KeyboardEvent) => ev.key === 'Escape' && modalState.hide()
 
 /** Clean up listeners on modal close and unmount */
