@@ -1,7 +1,8 @@
-import type { EventBus } from '@/libs'
+import { isMacOS } from '@scalar/helpers/general/is-mac-os'
 import type { HotkeyEventName, KeydownKey } from '@scalar/oas-utils/entities/hotkeys'
 import type { HotKeyConfig, HotKeyModifiers } from '@scalar/oas-utils/entities/workspace'
-import { isMacOS } from '@scalar/helpers/general/is-mac-os'
+
+import type { EventBus } from '@/libs'
 
 export type HotKeyEvent = Partial<Record<HotkeyEventName, KeyboardEvent>>
 

@@ -11,7 +11,7 @@ export default {}
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { RouterView } from 'vue-router'
 
-import type { ClientLayout } from '@/v2/helpers/create-api-client'
+import type { ClientLayout } from '@/v2/features/app/helpers/create-api-client-app'
 
 const { layout } = defineProps<{
   layout: ClientLayout
