@@ -8,7 +8,8 @@ import { upgrade } from '@scalar/openapi-upgrader'
 import { keyOf } from '@/helpers/general'
 import { createAsyncApiNavigation, createNavigation } from '@/navigation'
 import type { AsyncApiDocument } from '@/schemas/asyncapi/v3.0/asyncapi-document'
-import type { Operation as AsyncApiOperation } from '@/schemas/asyncapi/v3.0/operation'
+import type { AsyncApiComponentsObject } from '@/schemas/asyncapi/v3.0/components'
+import type { OperationsObject } from '@/schemas/asyncapi/v3.0/operations'
 import { extensions } from '@/schemas/extensions'
 import type { TraversedEntry } from '@/schemas/navigation'
 import { coerceValue } from '@/schemas/typebox-coerce'
@@ -129,7 +130,7 @@ export function escapePaths(
  * Externalizes components by turning them into refs.
  */
 export function externalizeComponentReferences(
-  document: OpenApiDocument,
+  document: { components?: ComponentsObject | AsyncApiComponentsObject },
   meta: { mode: 'ssr'; name: string; baseUrl: string } | { mode: 'static'; name: string; directory: string },
 ) {
   const result: Record<string, any> = {}
@@ -298,9 +299,9 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
   const assets = {} as Record<
     string,
     {
-      components?: ComponentsObject
+      components?: ComponentsObject | AsyncApiComponentsObject
       operations?: Record<string, Record<string, OperationObject>> // OpenAPI operations
-      asyncApiOperations?: Record<string, AsyncApiOperation> // AsyncAPI operations
+      asyncApiOperations?: OperationsObject // AsyncAPI operations
     }
   >
 
@@ -339,12 +340,13 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
 
       // Store AsyncAPI assets
       assets[meta.name] = {
-        // TODO: Store AsyncAPI components and operations
+        components: asyncApiDoc.components,
+        asyncApiOperations: asyncApiDoc.operations,
       }
 
       // Externalize component references if components exist
       const components = asyncApiDoc.components
-        ? externalizeComponentReferences({ components: asyncApiDoc.components } as OpenApiDocument, options)
+        ? externalizeComponentReferences({ components: asyncApiDoc.components }, options)
         : {}
 
       // Externalize AsyncAPI operation references
