@@ -17,7 +17,7 @@ export const jsonSchemaVersions = {
 }
 
 export class Validator {
-  public version: '2.0' | '3.0' | '3.1'
+  public version: '2.0' | '3.0' | '3.1' | '3.2'
 
   public static supportedVersions = OpenApiVersions
 
@@ -152,6 +152,11 @@ export class Validator {
 
     // OpenAPI 3.1 uses media-range format
     if (version === '3.1') {
+      ajv.addFormat('media-range', true)
+    }
+
+    // OpenAPI 3.2 uses media-range format
+    if (version === '3.2') {
       ajv.addFormat('media-range', true)
     }
 
