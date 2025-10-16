@@ -136,7 +136,7 @@ const selectedSchemeOptions = computed<SecuritySchemeOption[]>(() => {
         return undefined
       }
 
-      return formatScheme({ name, type: scheme.type, value: { [name]: [] } })
+      return formatScheme({ name, value: { [name]: [] } })
     })
     .filter(isDefined)
 })

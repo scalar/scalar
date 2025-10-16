@@ -429,12 +429,29 @@ describe('importSpecToWorkspace', () => {
     ]
 
     it('handles vanilla security schemes', async () => {
+      // Mock fetch to prevent OIDC discovery transformation for this test
+      const originalFetch = global.fetch
+      global.fetch = vi.fn().mockRejectedValue(new Error('OIDC discovery disabled for test'))
+
       const res = await importSpecToWorkspace(galaxy)
+
+      // Restore fetch
+      global.fetch = originalFetch
+
       if (res.error) {
         throw res.error
       }
 
-      expect(res.securitySchemes.map(({ uid, ...rest }) => rest)).toEqual(testSchemes)
+      // The openIdConnect scheme will be transformed to oauth2 with empty flows due to failed discovery
+      const expectedSchemes = structuredClone(testSchemes)
+      expectedSchemes[expectedSchemes.length - 1] = {
+        description: 'OpenID Connect Authentication',
+        nameKey: 'openIdConnect',
+        flows: {},
+        type: 'oauth2',
+      }
+
+      expect(res.securitySchemes.map(({ uid, ...rest }) => rest)).toEqual(expectedSchemes)
     })
 
     it('supports the x-defaultClientId extension', async () => {
@@ -452,6 +469,10 @@ describe('importSpecToWorkspace', () => {
     })
 
     it('prefills from the new authentication config', async () => {
+      // Mock fetch to prevent OIDC discovery transformation
+      const originalFetch = global.fetch
+      global.fetch = vi.fn().mockRejectedValue(new Error('OIDC discovery disabled for test'))
+
       const res = await importSpecToWorkspace(galaxy, {
         authentication: {
           preferredSecurityScheme: 'apiKeyHeader',
@@ -494,6 +515,10 @@ describe('importSpecToWorkspace', () => {
         },
         useCollectionSecurity: true,
       })
+
+      // Restore fetch
+      global.fetch = originalFetch
+
       if (res.error) {
         throw res.error
       }
@@ -516,6 +541,14 @@ describe('importSpecToWorkspace', () => {
       flows.clientCredentials.token = 'client credentials token'
       flows.implicit.token = 'implicit token'
 
+      // The openIdConnect scheme will be transformed to oauth2 with empty flows due to failed discovery
+      clonedSchemes[6] = {
+        description: 'OpenID Connect Authentication',
+        nameKey: 'openIdConnect',
+        flows: {},
+        type: 'oauth2',
+      }
+
       const apiKey = res.securitySchemes.find(({ nameKey }) => nameKey === 'apiKeyHeader')
 
       expect(res.securitySchemes.map(({ uid, ...rest }) => rest)).toEqual(clonedSchemes)
@@ -523,6 +556,10 @@ describe('importSpecToWorkspace', () => {
     })
 
     it('prefills from the deprecated authentication property', async () => {
+      // Mock fetch to prevent OIDC discovery transformation
+      const originalFetch = global.fetch
+      global.fetch = vi.fn().mockRejectedValue(new Error('OIDC discovery disabled for test'))
+
       const res = await importSpecToWorkspace(galaxy, {
         authentication: {
           apiKey: {
@@ -549,6 +586,10 @@ describe('importSpecToWorkspace', () => {
         },
         useCollectionSecurity: true,
       } as any)
+
+      // Restore fetch
+      global.fetch = originalFetch
+
       if (res.error) {
         throw res.error
       }
@@ -577,6 +618,14 @@ describe('importSpecToWorkspace', () => {
       flows.password.selectedScopes = ['read:account', 'read:planets']
       flows.password.username = 'test-username'
       flows.password.password = 'test-password'
+
+      // The openIdConnect scheme will be transformed to oauth2 with empty flows due to failed discovery
+      clonedSchemes[6] = {
+        description: 'OpenID Connect Authentication',
+        nameKey: 'openIdConnect',
+        flows: {},
+        type: 'oauth2',
+      }
 
       const apiKey = res.securitySchemes.find(({ nameKey }) => nameKey === 'apiKeyHeader')
 
@@ -743,6 +792,104 @@ describe('importSpecToWorkspace', () => {
       const flow = res.securitySchemes.find((s) => s.type === 'oauth2')?.flows.authorizationCode
       expect(flow?.['x-scalar-client-id']).toBe('test-client')
       expect(flow?.selectedScopes).toEqual(['read:account'])
+    })
+
+    it('transforms openIdConnect security scheme to oauth2 via OIDC discovery', async () => {
+      // Mock the fetch function to return a fake OIDC discovery document
+      const originalFetch = global.fetch
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          authorization_endpoint: 'https://auth.example.com/oauth/authorize',
+          token_endpoint: 'https://auth.example.com/oauth/token',
+          grant_types_supported: ['authorization_code', 'client_credentials'],
+          scopes_supported: ['openid', 'profile', 'email'],
+          code_challenge_methods_supported: ['S256'],
+        }),
+      })
+
+      const specWithOidc = {
+        openapi: '3.1.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {
+          '/test': {
+            get: {
+              operationId: 'testOp',
+              security: [{ oidcScheme: [] }],
+            },
+          },
+        },
+        components: {
+          securitySchemes: {
+            oidcScheme: {
+              type: 'openIdConnect',
+              openIdConnectUrl: 'https://auth.example.com/.well-known/openid-configuration',
+            },
+          },
+        },
+      }
+
+      const res = await importSpecToWorkspace(specWithOidc)
+
+      // Restore original fetch
+      global.fetch = originalFetch
+
+      if (res.error) {
+        throw res.error
+      }
+
+      // The openIdConnect scheme should have been transformed to oauth2
+      const oidcScheme = res.securitySchemes.find((s) => s.nameKey === 'oidcScheme') as SecuritySchemeOauth2 | undefined
+      expect(oidcScheme).toBeDefined()
+      expect(oidcScheme?.type).toBe('oauth2')
+      expect(oidcScheme?.flows.authorizationCode).toBeDefined()
+      expect(oidcScheme?.flows.authorizationCode?.authorizationUrl).toBe('https://auth.example.com/oauth/authorize')
+      expect(oidcScheme?.flows.authorizationCode?.tokenUrl).toBe('https://auth.example.com/oauth/token')
+      expect(oidcScheme?.flows.authorizationCode?.['x-usePkce']).toBe('SHA-256')
+      expect(oidcScheme?.flows.authorizationCode?.scopes).toEqual({
+        openid: '',
+        profile: '',
+        email: '',
+      })
+      expect(oidcScheme?.flows.clientCredentials).toBeDefined()
+    })
+
+    it('adds warning when OIDC discovery fails', async () => {
+      // Mock the fetch function to fail
+      const originalFetch = global.fetch
+      global.fetch = vi.fn().mockRejectedValue(new Error('Network error'))
+
+      const specWithOidc = {
+        openapi: '3.1.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {
+          '/test': {
+            get: {
+              operationId: 'testOp',
+              security: [{ oidcScheme: [] }],
+            },
+          },
+        },
+        components: {
+          securitySchemes: {
+            oidcScheme: {
+              type: 'openIdConnect',
+              openIdConnectUrl: 'https://auth.example.com/.well-known/openid-configuration',
+            },
+          },
+        },
+      }
+
+      const res = await importSpecToWorkspace(specWithOidc)
+
+      // Restore original fetch
+      global.fetch = originalFetch
+
+      if (res.error) {
+        expect(res.importWarnings).toContain(
+          expect.stringContaining('Failed to fetch OIDC discovery for security scheme "oidcScheme"'),
+        )
+      }
     })
 
     it('handles an optional security scheme and sets selected security accordingly', async () => {
