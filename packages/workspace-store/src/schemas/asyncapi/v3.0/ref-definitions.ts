@@ -33,6 +33,11 @@ export const ASYNCAPI_REF_DEFINITIONS = {
   // Multi-format schemas
   MultiFormatSchema: 'MultiFormatSchema',
 
+  // Security
+  SecuritySchemeObject: 'SecuritySchemeObject',
+  OAuthFlowsObject: 'OAuthFlowsObject',
+  OAuthFlowObject: 'OAuthFlowObject',
+
   // Components
   ComponentsObject: 'ComponentsObject',
 
@@ -66,6 +71,11 @@ export const MqttBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MqttBinding)
 
 // Multi-format schema reference
 export const MultiFormatSchemaRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MultiFormatSchema)
+
+// Security references
+export const SecuritySchemeObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SecuritySchemeObject)
+export const OAuthFlowsObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.OAuthFlowsObject)
+export const OAuthFlowObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.OAuthFlowObject)
 
 // Components reference
 export const ComponentsObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.ComponentsObject)
