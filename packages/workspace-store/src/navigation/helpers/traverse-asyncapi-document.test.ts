@@ -31,13 +31,13 @@ describe('traverseAsyncApiDocument', () => {
       },
       operations: {
         'userSignup': {
-          action: 'publish',
+          action: 'send',
           channel: 'user/signup',
           title: 'Publish User Signup',
           description: 'Publish a user signup event',
         },
         'userLogin': {
-          action: 'subscribe',
+          action: 'receive',
           channel: 'user/login',
           title: 'Subscribe to User Login',
           description: 'Subscribe to user login events',
@@ -140,12 +140,12 @@ describe('traverseAsyncApiDocument', () => {
       },
       operations: {
         'subscribeOp': {
-          action: 'subscribe',
+          action: 'receive',
           channel: 'test/channel',
           title: 'Subscribe Operation',
         },
         'publishOp': {
-          action: 'publish',
+          action: 'send',
           channel: 'test/channel',
           title: 'Publish Operation',
         },
@@ -186,7 +186,7 @@ describe('traverseAsyncApiDocument', () => {
       },
       operations: {
         'testOp': {
-          action: 'publish',
+          action: 'send',
           channel: 'test/channel',
           summary: 'Test operation summary',
         },
@@ -217,7 +217,7 @@ describe('traverseAsyncApiDocument', () => {
       },
       operations: {
         'testOp': {
-          action: 'publish',
+          action: 'send',
           channel: 'test/channel',
         },
       },

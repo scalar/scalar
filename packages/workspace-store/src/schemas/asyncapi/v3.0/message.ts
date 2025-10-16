@@ -13,11 +13,12 @@ import type { SchemaObject } from '@/schemas/v3.1/strict/schema'
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
 import type { CorrelationId } from './correlation-id'
-import { CorrelationIdSchemaDefinition } from './correlation-id'
 import type { MessageTrait } from './message-trait'
-import { MessageTraitSchemaDefinition } from './message-trait'
+import { CorrelationIdRef, MessageTraitRef } from './ref-definitions'
 
-// Message Schema
+/**
+ * Describes a message received on a given channel and operation.
+ */
 export const MessageSchemaDefinition = compose(
   Type.Object({
     /** A human-friendly title for the message. */
@@ -30,23 +31,28 @@ export const MessageSchemaDefinition = compose(
     tags: Type.Optional(Type.Array(TagObjectRef)),
     /** Additional external documentation for this message. */
     externalDocs: Type.Optional(ExternalDocumentationObjectRef),
-    /** The message payload. */
+    /** Definition of the message payload. It can be of any type but defaults to Schema Object. It must match the schema format, including the encoding type. */
     payload: Type.Optional(SchemaObjectRef),
-    /** The message headers. */
+    /** Schema definition of the application headers. Schema MUST be a map of key-value pairs. It MUST NOT define the protocol headers. */
     headers: Type.Optional(SchemaObjectRef),
-    /** The message correlation ID. */
-    correlationId: Type.Optional(CorrelationIdSchemaDefinition),
-    /** The content type of the message payload. */
+    /** Definition of the correlation ID used for message tracing or matching. */
+    correlationId: Type.Optional(CorrelationIdRef),
+    /** The content type to use when encoding/decoding a message's payload. The value MUST be a specific media type (e.g. application/json). */
     contentType: Type.Optional(Type.String()),
-    /** The name of the message. */
+    /** A machine-friendly name for the message. */
     name: Type.Optional(Type.String()),
-    /** A list of examples of the message. */
+    /** List of examples. */
     examples: Type.Optional(Type.Array(ExampleObjectRef)),
-    /** A list of traits to apply to the message. */
-    traits: Type.Optional(Type.Array(MessageTraitSchemaDefinition)),
+    /** A list of traits to apply to the message object. Traits MUST be merged using traits merge mechanism. The resulting object MUST be a valid Message Object. */
+    traits: Type.Optional(Type.Array(MessageTraitRef)),
+    /** A map where the keys describe the name of the protocol and the values describe protocol-specific definitions for the message. */
+    bindings: Type.Optional(Type.Record(Type.String(), Type.Any())),
   }),
 )
 
+/**
+ * Describes a message received on a given channel and operation.
+ */
 export type Message = {
   /** A human-friendly title for the message. */
   title?: string
@@ -58,18 +64,20 @@ export type Message = {
   tags?: TagObject[]
   /** Additional external documentation for this message. */
   externalDocs?: ExternalDocumentationObject
-  /** The message payload. */
+  /** Definition of the message payload. It can be of any type but defaults to Schema Object. It must match the schema format, including the encoding type. */
   payload?: SchemaObject
-  /** The message headers. */
+  /** Schema definition of the application headers. Schema MUST be a map of key-value pairs. It MUST NOT define the protocol headers. */
   headers?: SchemaObject
-  /** The message correlation ID. */
+  /** Definition of the correlation ID used for message tracing or matching. */
   correlationId?: CorrelationId
-  /** The content type of the message payload. */
+  /** The content type to use when encoding/decoding a message's payload. The value MUST be a specific media type (e.g. application/json). */
   contentType?: string
-  /** The name of the message. */
+  /** A machine-friendly name for the message. */
   name?: string
-  /** A list of examples of the message. */
+  /** List of examples. */
   examples?: ExampleObject[]
-  /** A list of traits to apply to the message. */
+  /** A list of traits to apply to the message object. Traits MUST be merged using traits merge mechanism. The resulting object MUST be a valid Message Object. */
   traits?: MessageTrait[]
+  /** A map where the keys describe the name of the protocol and the values describe protocol-specific definitions for the message. */
+  bindings?: Record<string, any>
 }

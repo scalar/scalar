@@ -1,8 +1,19 @@
 import { Type } from '@scalar/typebox'
 
-import { type ChannelItem, ChannelItemSchemaDefinition } from './channel-item'
+import { type ReferenceType, reference } from '@/schemas/v3.1/strict/reference'
 
-// Channels Object Schema - map of channel names to channel items
-export const ChannelsObjectSchemaDefinition = Type.Record(Type.String(), ChannelItemSchemaDefinition)
+import type { ChannelItem } from './channel-item'
+import { ChannelItemRef } from './ref-definitions'
 
-export type ChannelsObject = Record<string, ChannelItem>
+/**
+ * An object to hold a map of Channel Items. The keys are channel identifiers that can be of any string format.
+ */
+export const ChannelsObjectSchemaDefinition = Type.Record(
+  Type.String(),
+  Type.Union([ChannelItemRef, reference(ChannelItemRef)]),
+)
+
+/**
+ * An object to hold a map of Channel Items. The keys are channel identifiers that can be of any string format.
+ */
+export type ChannelsObject = Record<string, ReferenceType<ChannelItem>>

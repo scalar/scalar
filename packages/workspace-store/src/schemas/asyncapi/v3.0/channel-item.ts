@@ -6,45 +6,58 @@ import { ExternalDocumentationObjectRef, TagObjectRef } from '@/schemas/v3.1/str
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
 import type { Parameter } from './parameter'
-import { ParameterSchemaDefinition } from './parameter'
+import { ParameterRef } from './ref-definitions'
 
-// Channel Item Schema - represents an individual channel
+/**
+ * Describes a shared communication channel.
+ */
 export const ChannelItemSchemaDefinition = compose(
   Type.Object({
+    /** An optional string for the channel's address (URL, topic name, queue name, etc.). */
+    address: Type.Optional(Type.String()),
     /** A human-friendly title for the channel. */
     title: Type.Optional(Type.String()),
     /** A short summary of the channel. */
     summary: Type.Optional(Type.String()),
-    /** A verbose explanation of the channel behavior. CommonMark syntax MAY be used for rich text representation. */
+    /** An optional description of this channel. CommonMark syntax MAY be used for rich text representation. */
     description: Type.Optional(Type.String()),
-    /** A list of servers to which this channel applies. If servers is not provided, or is an empty array, the channel applies to all servers. */
+    /** An optional list of servers on which this channel is available. If absent or empty, this channel is available on all servers defined for this application. */
     servers: Type.Optional(Type.Array(Type.String())),
-    /** A map of the parameters included in the channel address. */
-    parameters: Type.Optional(Type.Record(Type.String(), ParameterSchemaDefinition)),
+    /** A map of the parameters included in the channel address. It MUST be present only when the address contains Channel Address Expressions. */
+    parameters: Type.Optional(Type.Record(Type.String(), ParameterRef)),
     /** A list of tags for logical grouping and categorization of channels. */
     tags: Type.Optional(Type.Array(TagObjectRef)),
     /** Additional external documentation for this channel. */
     externalDocs: Type.Optional(ExternalDocumentationObjectRef),
-    /** A map of the operations available on this channel. */
-    operations: Type.Optional(Type.Record(Type.String(), Type.String())), // References to operations
+    /** A map where the keys describe the name of the protocol and the values describe protocol-specific definitions for the channel. */
+    bindings: Type.Optional(Type.Record(Type.String(), Type.Any())),
+    /** An optional array of messages that will be sent to this channel by the application. */
+    messages: Type.Optional(Type.Record(Type.String(), Type.String())),
   }),
 )
 
+/**
+ * Describes a shared communication channel.
+ */
 export type ChannelItem = {
+  /** An optional string for the channel's address (URL, topic name, queue name, etc.). */
+  address?: string
   /** A human-friendly title for the channel. */
   title?: string
   /** A short summary of the channel. */
   summary?: string
-  /** A verbose explanation of the channel behavior. CommonMark syntax MAY be used for rich text representation. */
+  /** An optional description of this channel. CommonMark syntax MAY be used for rich text representation. */
   description?: string
-  /** A list of servers to which this channel applies. If servers is not provided, or is an empty array, the channel applies to all servers. */
+  /** An optional list of servers on which this channel is available. If absent or empty, this channel is available on all servers defined for this application. */
   servers?: string[]
-  /** A map of the parameters included in the channel address. */
+  /** A map of the parameters included in the channel address. It MUST be present only when the address contains Channel Address Expressions. */
   parameters?: Record<string, Parameter>
   /** A list of tags for logical grouping and categorization of channels. */
   tags?: TagObject[]
   /** Additional external documentation for this channel. */
   externalDocs?: ExternalDocumentationObject
-  /** A map of the operations available on this channel. */
-  operations?: Record<string, string> // References to operations
+  /** A map where the keys describe the name of the protocol and the values describe protocol-specific definitions for the channel. */
+  bindings?: Record<string, any>
+  /** An optional array of messages that will be sent to this channel by the application. */
+  messages?: Record<string, string>
 }

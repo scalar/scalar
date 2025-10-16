@@ -1,8 +1,19 @@
 import { Type } from '@scalar/typebox'
 
-import { OperationSchemaDefinition } from './operation'
+import { type ReferenceType, reference } from '@/schemas/v3.1/strict/reference'
 
-// Operations Object Schema - map of operation IDs to operations
-export const OperationsObjectSchemaDefinition = Type.Record(Type.String(), OperationSchemaDefinition)
+import type { Operation } from './operation'
+import { OperationRef } from './ref-definitions'
 
-export type OperationsObject = Record<string, import('./operation').Operation>
+/**
+ * Holds a dictionary with all the operations this application MUST implement.
+ */
+export const OperationsObjectSchemaDefinition = Type.Record(
+  Type.String(),
+  Type.Union([OperationRef, reference(OperationRef)]),
+)
+
+/**
+ * Holds a dictionary with all the operations this application MUST implement.
+ */
+export type OperationsObject = Record<string, ReferenceType<Operation>>
