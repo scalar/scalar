@@ -75,24 +75,35 @@
   <div class="flex flex-wrap quotes-container">
     <div class="quotes-item">
       <p>
-        <b>"After years of helping enterprises implement API strategies at SmartBear, I can confidently say Scalar is what the industry has been waiting for.</b> The strict OpenAPI compliance, robust CLI/API registry, and seamless CI/CD integration solve the exact pain points I watched customers struggle with daily. This is the modern API platform developers deserve."
+        <strong>“After years of helping enterprises implement API strategies at SmartBear, I can confidently say Scalar is what the industry has been waiting for.</strong>
       </p>
-      <p class="mt-3 text-c-3">Michael - Former Solutions Architect @ Smartbear</p>
+      <p>
+        The strict OpenAPI compliance, robust CLI/API registry, and seamless CI/CD integration solve the exact pain points I watched customers struggle with daily. This is the modern API platform developers deserve.”
+      </p>
+      <p class="text-c-3">
+        Michael, Former Solutions Architect @ Smartbear
+      </p>
     </div>
     <div class="quotes-item">
       <p>
-        "One of my most recent favorites is a in-browser ad hoc testing UI called Scalar.
-One of the things that I really love about Scalar, it's got this modern UI experience, and it provides <b>built-in test generation code for a variety of targets, from cURL to HttpClient in C#.</b>"
+        “One of my most recent favorites is a in-browser ad hoc testing UI called Scalar.
       </p>
-      <p class="mt-3 text-c-3">Captain Safia - Engineer @ Microsoft ASP.NET</p>
+      <p>
+        One of the things that I really love about Scalar, it's got this modern UI experience, and it provides <b>built-in test generation code for a variety of targets, from cURL to HttpClient in C#.</b>”
+      </p>
+      <p class="text-c-3">Captain Safia, Engineer @ Microsoft ASP.NET</p>
     </div>
     <div class="quotes-item">
       <p>
-        "Scalar's "golden ticket" is... Scalar!
-<b>They are (in my own words) building a product ecosystem for API design, docs, testing, and governance-</b> with offerings at every price point.
-They are open source. So I can get in on free features and stay with Scalar no matter how big my API needs blow up."
+        “Scalar's ‘golden ticket’ is… Scalar!
       </p>
-      <p class="mt-3 text-c-3">Eron - Documentation Engineer @ Qrvey</p>
+      <p>
+        <strong>They are (in my own words) building a product ecosystem for API design, docs, testing, and governance</strong> – with offerings at every price point.
+      </p>
+      <p>
+        They are open source. So I can get in on free features and stay with Scalar no matter how big my API needs blow up.”
+      </p>
+      <p class="text-c-3">Eron, Documentation Engineer @ Qrvey</p>
     </div>
   </div>
 </div>
@@ -687,6 +698,10 @@ They are open source. So I can get in on free features and stay with Scalar no m
   .quotes-item {
     flex: 0 0 calc(50% - 22px);
   }
+  .quotes-item p {
+    margin-bottom: 10px;
+  }
+
   /* new stuff  */
   .expander {
     display: grid;
