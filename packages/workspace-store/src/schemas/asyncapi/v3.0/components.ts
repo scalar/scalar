@@ -10,6 +10,7 @@ import type { ChannelItem } from './channel-item'
 import type { CorrelationId } from './correlation-id'
 import type { Message } from './message'
 import type { MessageTrait } from './message-trait'
+import type { MultiFormatSchema } from './multi-format-schema'
 import type { Operation } from './operation'
 import type { OperationTrait } from './operation-trait'
 import type { Parameter } from './parameter'
@@ -19,6 +20,7 @@ import {
   CorrelationIdRef,
   MessageRef,
   MessageTraitRef,
+  MultiFormatSchemaRef,
   OperationRef,
   OperationTraitRef,
   ParameterRef,
@@ -39,7 +41,12 @@ import type { Server, ServerVariable } from './server'
  */
 export const ComponentsObjectSchemaDefinition = Type.Object({
   /** An object to hold reusable Schema Objects. */
-  schemas: Type.Optional(Type.Record(Type.String(), Type.Union([SchemaObjectRef, reference(SchemaObjectRef)]))),
+  schemas: Type.Optional(
+    Type.Record(
+      Type.String(),
+      Type.Union([SchemaObjectRef, MultiFormatSchemaRef, reference(SchemaObjectRef), reference(MultiFormatSchemaRef)]),
+    ),
+  ),
   /** An object to hold reusable Server Objects. */
   servers: Type.Optional(Type.Record(Type.String(), Type.Union([ServerRef, reference(ServerRef)]))),
   /** An object to hold reusable Channel Objects. */
@@ -94,7 +101,7 @@ export const ComponentsObjectSchemaDefinition = Type.Object({
  */
 export type ComponentsObject = {
   /** An object to hold reusable Schema Objects. */
-  schemas?: Record<string, ReferenceType<SchemaObject>>
+  schemas?: Record<string, ReferenceType<SchemaObject | MultiFormatSchema>>
   /** An object to hold reusable Server Objects. */
   servers?: Record<string, ReferenceType<Server>>
   /** An object to hold reusable Channel Objects. */

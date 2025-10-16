@@ -21,6 +21,7 @@ import {
   xScalarClientConfigEnvironmentsSchema,
 } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-environments'
 import { ContactObjectSchemaDefinition } from '@/schemas/v3.1/strict/contact'
+import { DiscriminatorObjectSchemaDefinition } from '@/schemas/v3.1/strict/discriminator'
 import {
   type ExternalDocumentationObject,
   ExternalDocumentationObjectSchemaDefinition,
@@ -35,11 +36,13 @@ import {
   TagObjectRef,
   TraversedEntryObjectRef,
 } from '@/schemas/v3.1/strict/ref-definitions'
+import { SchemaObjectSchemaDefinition } from '@/schemas/v3.1/strict/schema'
 import {
   type SecurityRequirementObject,
   SecurityRequirementObjectSchemaDefinition,
 } from '@/schemas/v3.1/strict/security-requirement'
 import { type TagObject, TagObjectSchemaDefinition } from '@/schemas/v3.1/strict/tag'
+import { XMLObjectSchemaDefinition } from '@/schemas/v3.1/strict/xml'
 
 import { BindingSchemaDefinition } from './binding'
 import { AmqpBindingSchemaDefinition } from './bindings/amqp'
@@ -165,6 +168,9 @@ const module = Type.Module({
   [REF_DEFINITIONS.InfoObject]: InfoObjectSchemaDefinition,
   [REF_DEFINITIONS.ContactObject]: ContactObjectSchemaDefinition,
   [REF_DEFINITIONS.LicenseObject]: LicenseObjectSchemaDefinition,
+  [REF_DEFINITIONS.SchemaObject]: SchemaObjectSchemaDefinition,
+  [REF_DEFINITIONS.DiscriminatorObject]: DiscriminatorObjectSchemaDefinition,
+  [REF_DEFINITIONS.XMLObject]: XMLObjectSchemaDefinition,
 
   // AsyncAPI-specific objects
   [ASYNCAPI_REF_DEFINITIONS.ChannelItem]: ChannelItemSchemaDefinition,
