@@ -13,7 +13,7 @@ export function isPostmanCollection(content: string): boolean {
 }
 
 /** Converts a Postman collection JSON string to an OpenAPI JSON string */
-export async function convertPostmanToOpenApi(postmanJson: string): Promise<string> {
+export function convertPostmanToOpenApi(postmanJson: string): string {
   try {
     const postmanCollection = JSON.parse(postmanJson)
     const openApiDoc = convert(postmanCollection)
