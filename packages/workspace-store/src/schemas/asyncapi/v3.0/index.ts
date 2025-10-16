@@ -2,17 +2,14 @@
 // Export strict validation schema for AsyncAPI 3.0 (same as regular schema for now)
 export {
   AmqpBindingSchema,
-  AsyncApiComponentsObjectSchema,
   type AsyncApiDocument,
   AsyncApiDocumentSchema,
   AsyncApiDocumentSchema as AsyncApiDocumentSchemaStrict,
   type AsyncApiExtensions,
-  // Export AsyncAPI-specific schemas from the module
-  AsyncApiServerSchema,
-  AsyncApiServerVariableSchema,
   BindingSchema,
   ChannelItemSchema,
   ChannelsObjectSchema,
+  ComponentsObjectSchema,
   CorrelationIdSchema,
   // Protocol-specific bindings
   HttpBindingSchema,
@@ -28,6 +25,9 @@ export {
   ParameterSchema,
   ReplyAddressSchema,
   ReplySchema,
+  // Export AsyncAPI-specific schemas from the module
+  ServerSchema,
+  ServerVariableSchema,
   ServersObjectSchema,
   WebSocketBindingSchema,
 } from './asyncapi-document'
@@ -40,7 +40,7 @@ export type { MqttBinding } from './bindings/mqtt'
 export type { WebSocketBinding } from './bindings/websocket'
 export type { ChannelItem } from './channel-item'
 export type { ChannelsObject } from './channels'
-export type { AsyncApiComponentsObject } from './components'
+export type { ComponentsObject } from './components'
 export type { CorrelationId } from './correlation-id'
 export type { Message } from './message'
 export type { MessageTrait } from './message-trait'
