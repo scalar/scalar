@@ -29,6 +29,7 @@
     "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
+    "test": "vitest",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
   "type": "module",
@@ -56,6 +57,7 @@
     "react": "catalog:*",
     "react-dom": "catalog:*",
     "vite": "catalog:*",
+    "vitest": "catalog:*",
     "vite-plugin-dts": "^4.3.0"
   },
   "peerDependencies": {
