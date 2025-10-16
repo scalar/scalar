@@ -3090,7 +3090,7 @@ describe('create-workspace-store', () => {
       const operation = (channelWithOperations as TraversedChannel)?.children?.[0]
       expect(operation?.type).toBe('asyncapi-operation')
       // @ts-expect-error
-      expect(['publish', 'subscribe']).toContain(operation?.action)
+      expect(['send', 'receive']).toContain(operation?.action)
     })
 
     it('handles mixed OpenAPI and AsyncAPI documents in workspace', async () => {

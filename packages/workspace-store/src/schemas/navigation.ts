@@ -100,7 +100,7 @@ export const TraversedAsyncApiOperationSchemaDefinition = compose(
   Type.Object({
     type: Type.Literal('asyncapi-operation'),
     ref: Type.String(),
-    action: Type.Union([Type.Literal('publish'), Type.Literal('subscribe')]),
+    action: Type.Union([Type.Literal('send'), Type.Literal('receive')]),
     channel: Type.String(),
     isDeprecated: Type.Optional(Type.Boolean()),
   }),
@@ -109,7 +109,7 @@ export const TraversedAsyncApiOperationSchemaDefinition = compose(
 export type TraversedAsyncApiOperation = BaseSchema & {
   type: 'asyncapi-operation'
   ref: string
-  action: 'publish' | 'subscribe'
+  action: 'send' | 'receive'
   channel: string
   isDeprecated?: boolean
 }

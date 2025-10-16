@@ -691,7 +691,7 @@ describe('AsyncAPI Server-Side Processing', () => {
     },
     'operations': {
       'publishUserSignedUp': {
-        'action': 'publish' as const,
+        'action': 'send' as const,
         'channel': 'user/signedup',
         'title': 'Publish user signed up event',
         'summary': 'Publish when a user signs up',
@@ -788,7 +788,7 @@ describe('AsyncAPI Server-Side Processing', () => {
             const operations = userSignedUpChannel.children.filter((entry) => entry.type === 'asyncapi-operation')
             expect(operations.length).toBeGreaterThan(0)
             if (operations[0] && operations[0].type === 'asyncapi-operation') {
-              expect(operations[0].action).toBe('publish')
+              expect(operations[0].action).toBe('send')
             }
           }
         }
@@ -813,7 +813,7 @@ describe('AsyncAPI Server-Side Processing', () => {
         title: string
       }
       expect(operation).toBeDefined()
-      expect(operation.action).toBe('publish')
+      expect(operation.action).toBe('send')
       expect(operation.channel).toBe('user/signedup')
       expect(operation.title).toBe('Publish user signed up event')
     })
@@ -909,7 +909,7 @@ describe('AsyncAPI Server-Side Processing', () => {
         'utf-8',
       )
       const publishOperationData = JSON.parse(publishOperation)
-      expect(publishOperationData.action).toBe('publish')
+      expect(publishOperationData.action).toBe('send')
       expect(publishOperationData.channel).toBe('user/signedup')
 
       const subscribeOperation = await fs.readFile(
@@ -978,12 +978,12 @@ describe('externalize-asyncapi-operation-references', () => {
         },
         operations: {
           'publishUserSignedUp': {
-            'action': 'publish' as const,
+            'action': 'send' as const,
             'channel': 'user/signedup',
             'title': 'Publish user signed up event',
           },
           'subscribeUserDeleted': {
-            'action': 'subscribe' as const,
+            'action': 'receive' as const,
             'channel': 'user/deleted',
             'title': 'Subscribe to user deleted event',
           },
@@ -1018,7 +1018,7 @@ describe('externalize-asyncapi-operation-references', () => {
         },
         operations: {
           'publishUserSignedUp': {
-            'action': 'publish' as const,
+            'action': 'send' as const,
             'channel': 'user/signedup',
             'title': 'Publish user signed up event',
           },
