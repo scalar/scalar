@@ -150,13 +150,8 @@ export class Validator {
     // https://ajv.js.org/packages/ajv-formats.html#formats
     addFormats(ajv)
 
-    // OpenAPI 3.1 uses media-range format
-    if (version === '3.1') {
-      ajv.addFormat('media-range', true)
-    }
-
-    // OpenAPI 3.2 uses media-range format
-    if (version === '3.2') {
+    // OpenAPI 3.1 and 3.2 uses media-range format
+    if (version === '3.1' || version === '3.2') {
       ajv.addFormat('media-range', true)
     }
 
