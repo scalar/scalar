@@ -594,7 +594,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // Store original version info before upgrade
     const originalVersion = isAsyncApiDocument(clonedRawInputDocument)
       ? clonedRawInputDocument.asyncapi
-      : (clonedRawInputDocument.openapi ?? clonedRawInputDocument.swagger)
+      : (clonedRawInputDocument.openapi ?? clonedRawInputDocument.swagger ?? undefined)
 
     // Only upgrade OpenAPI/Swagger documents
     const inputDocument = isOpenApiDocument(clonedRawInputDocument)
