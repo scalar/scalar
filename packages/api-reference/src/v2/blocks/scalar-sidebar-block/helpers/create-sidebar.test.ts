@@ -405,7 +405,7 @@ describe('createSidebar', () => {
       expect(createSidebar(store).items.value).toMatchObject({
         entries: [
           {
-            id: 'tag/foobar',
+            id: 'default/tag/foobar',
             isGroup: false,
             title: 'Foobar',
             children: [
@@ -698,7 +698,7 @@ describe('createSidebar', () => {
       expect(createSidebar(store).items.value).toMatchObject({
         entries: [
           {
-            id: 'description/foobar',
+            id: 'default/description/foobar',
             title: 'Foobar',
             children: [],
           },
@@ -725,11 +725,11 @@ describe('createSidebar', () => {
       expect(createSidebar(store).items.value).toMatchObject({
         entries: [
           {
-            id: 'description/foobar',
+            id: 'default/description/foobar',
             title: 'Foobar',
             children: [
               {
-                id: 'description/barfoo',
+                id: 'default/description/barfoo',
                 title: 'Barfoo',
               },
             ],
@@ -756,11 +756,11 @@ describe('createSidebar', () => {
       expect(createSidebar(store).items.value).toMatchObject({
         entries: [
           {
-            id: 'description/foobar',
+            id: 'default/description/foobar',
             title: 'Foobar',
             children: [
               {
-                id: 'description/barfoo',
+                id: 'default/description/barfoo',
                 title: 'Barfoo',
               },
             ],
