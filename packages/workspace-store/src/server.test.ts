@@ -668,14 +668,14 @@ describe('AsyncAPI Server-Side Processing', () => {
         'title': 'User signed up',
         'description': 'Channel for user signup events',
         'operations': {
-          'publish': 'publishUserSignedUp',
+          'send': 'publishUserSignedUp',
         },
       },
       'user/deleted': {
         'title': 'User deleted',
         'description': 'Channel for user deletion events',
         'operations': {
-          'subscribe': 'subscribeUserDeleted',
+          'receive': 'subscribeUserDeleted',
         },
       },
     },
@@ -687,7 +687,7 @@ describe('AsyncAPI Server-Side Processing', () => {
         'summary': 'Publish when a user signs up',
       },
       'subscribeUserDeleted': {
-        'action': 'subscribe' as const,
+        'action': 'receive' as const,
         'channel': 'user/deleted',
         'title': 'Subscribe to user deleted event',
         'summary': 'Subscribe to user deletion events',
@@ -907,7 +907,7 @@ describe('AsyncAPI Server-Side Processing', () => {
         'utf-8',
       )
       const subscribeOperationData = JSON.parse(subscribeOperation)
-      expect(subscribeOperationData.action).toBe('subscribe')
+      expect(subscribeOperationData.action).toBe('receive')
       expect(subscribeOperationData.channel).toBe('user/deleted')
 
       // Check that component chunks are created (same structure as OpenAPI)
