@@ -2657,20 +2657,14 @@ describe('bundle', () => {
       expect(exec).toHaveBeenCalledOnce()
 
       expect(onResolveStart).toHaveBeenCalledTimes(2)
-      expect(onResolveStart.mock.calls[0][0]).toEqual({
-        $ref: 'some-value',
-      })
-      expect(onResolveStart.mock.calls[1][0]).toEqual({
-        $ref: '#/x-ext/4e7a208',
-      })
+      expect(onResolveStart).nthCalledWith(1, { $ref: 'some-value' })
+      expect(onResolveStart).nthCalledWith(2, { $ref: '#/x-ext/4e7a208' })
+
       expect(onResolveError).toHaveBeenCalledTimes(1)
-      expect(onResolveError.mock.calls[0][0]).toEqual({
-        $ref: 'some-value',
-      })
+      expect(onResolveError).lastCalledWith({ $ref: 'some-value' })
+
       expect(onResolveSuccess).toHaveBeenCalledTimes(1)
-      expect(onResolveSuccess.mock.calls[0][0]).toEqual({
-        $ref: '#/x-ext/4e7a208',
-      })
+      expect(onResolveSuccess).lastCalledWith({ $ref: '#/x-ext/4e7a208' })
     })
 
     it('correctly provides the parent node in different levels', async () => {
