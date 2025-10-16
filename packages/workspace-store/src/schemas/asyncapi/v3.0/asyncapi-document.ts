@@ -20,7 +20,7 @@ import {
   type XScalarClientConfigEnvironments,
   xScalarClientConfigEnvironmentsSchema,
 } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-environments'
-import { type ComponentsObject, ComponentsObjectSchemaDefinition } from '@/schemas/v3.1/strict/components'
+import { ComponentsObjectSchemaDefinition } from '@/schemas/v3.1/strict/components'
 import { ContactObjectSchemaDefinition } from '@/schemas/v3.1/strict/contact'
 import {
   type ExternalDocumentationObject,
@@ -29,12 +29,10 @@ import {
 import { type InfoObject, InfoObjectSchemaDefinition } from '@/schemas/v3.1/strict/info'
 import { LicenseObjectSchemaDefinition } from '@/schemas/v3.1/strict/license'
 import {
-  ComponentsObjectRef,
   ExternalDocumentationObjectRef,
   InfoObjectRef,
   REF_DEFINITIONS,
   SecurityRequirementObjectRef,
-  ServerObjectRef,
   TagObjectRef,
   TraversedEntryObjectRef,
 } from '@/schemas/v3.1/strict/ref-definitions'
@@ -42,24 +40,35 @@ import {
   type SecurityRequirementObject,
   SecurityRequirementObjectSchemaDefinition,
 } from '@/schemas/v3.1/strict/security-requirement'
-import { type ServerObject, ServerObjectSchemaDefinition } from '@/schemas/v3.1/strict/server'
+import { ServerObjectSchemaDefinition } from '@/schemas/v3.1/strict/server'
 import { type TagObject, TagObjectSchemaDefinition } from '@/schemas/v3.1/strict/tag'
 
 import { BindingSchemaDefinition } from './binding'
+import { AmqpBindingSchemaDefinition } from './bindings/amqp'
+import { HttpBindingSchemaDefinition } from './bindings/http'
+import { KafkaBindingSchemaDefinition } from './bindings/kafka'
+import { MqttBindingSchemaDefinition } from './bindings/mqtt'
+import { WebSocketBindingSchemaDefinition } from './bindings/websocket'
 import { ChannelItemSchemaDefinition } from './channel-item'
-// AsyncAPI-specific imports
 import type { ChannelsObject } from './channels'
 import { ChannelsObjectSchemaDefinition } from './channels'
+import { AsyncApiComponentsObjectSchemaDefinition } from './components'
 import { CorrelationIdSchemaDefinition } from './correlation-id'
 import { MessageSchemaDefinition } from './message'
 import { MessageTraitSchemaDefinition } from './message-trait'
+import { MessagesObjectSchemaDefinition } from './messages'
+import { MultiFormatSchemaSchemaDefinition } from './multi-format-schema'
 import { OperationSchemaDefinition } from './operation'
 import { OperationTraitSchemaDefinition } from './operation-trait'
 import type { OperationsObject } from './operations'
 import { OperationsObjectSchemaDefinition } from './operations'
 import { ParameterSchemaDefinition } from './parameter'
+import { ASYNCAPI_REF_DEFINITIONS } from './ref-definitions'
 import { ReplySchemaDefinition } from './reply'
+import { ReplyAddressSchemaDefinition } from './reply-address'
 import { AsyncApiServerSchemaDefinition, AsyncApiServerVariableSchemaDefinition } from './server'
+import type { ServersObject } from './servers'
+import { ServersObjectSchemaDefinition } from './servers'
 
 // AsyncAPI Extensions Schema
 const AsyncApiExtensionsSchema = Type.Partial(
@@ -100,14 +109,14 @@ const AsyncApiDocumentSchemaDefinition = compose(
     info: InfoObjectRef,
     /** The default value for the $schema keyword within Schema Objects contained within this AsyncAPI document. This MUST be in the form of a URI. */
     jsonSchemaDialect: Type.Optional(Type.String()),
-    /** An array of Server Objects, which provide connectivity information to a target server. If the servers field is not provided, or is an empty array, the default value would be a Server Object with a url value of /. */
-    servers: Type.Optional(Type.Array(ServerObjectRef)),
+    /** A map of Server Objects, which provide connectivity information to a target server. */
+    servers: Type.Optional(ServersObjectSchemaDefinition),
     /** The available channels and operations for the API. */
     channels: Type.Optional(ChannelsObjectSchemaDefinition),
     /** The operations supported by the API. */
     operations: Type.Optional(OperationsObjectSchemaDefinition),
     /** An element to hold various Objects for the AsyncAPI Description. */
-    components: Type.Optional(ComponentsObjectRef),
+    components: Type.Optional(AsyncApiComponentsObjectSchemaDefinition),
     /** A declaration of which security mechanisms can be used across the API. The list of values includes alternative Security Requirement Objects that can be used. Only one of the Security Requirement Objects need to be satisfied to authorize a request. Individual operations can override this definition. The list can be incomplete, up to being empty or absent. To make security explicitly optional, an empty security requirement ({}) can be included in the array. */
     security: Type.Optional(Type.Array(SecurityRequirementObjectRef)),
     /** A list of tags used by the AsyncAPI Description with additional metadata. The order of the tags can be used to reflect on their order by the parsing tools. Not all tags that are used by the Operation Object must be declared. The tags that are not declared MAY be organized randomly or based on the tools' logic. Each tag name in the list MUST be unique. */
@@ -127,14 +136,14 @@ export type AsyncApiDocument = {
   info: InfoObject
   /** The default value for the $schema keyword within Schema Objects contained within this AsyncAPI document. This MUST be in the form of a URI. */
   jsonSchemaDialect?: string
-  /** An array of Server Objects, which provide connectivity information to a target server. If the servers field is not provided, or is an empty array, the default value would be a Server Object with a url value of /. */
-  servers?: ServerObject[]
+  /** A map of Server Objects, which provide connectivity information to a target server. */
+  servers?: ServersObject
   /** The available channels and operations for the API. */
   channels?: ChannelsObject
   /** The operations supported by the API. */
   operations?: OperationsObject
   /** An element to hold various Objects for the AsyncAPI Description. */
-  components?: ComponentsObject
+  components?: import('./components').AsyncApiComponentsObject
   /** A declaration of which security mechanisms can be used across the API. The list of values includes alternative Security Requirement Objects that can be used. Only one of the Security Requirement Objects need to be satisfied to authorize a request. Individual operations can override this definition. The list can be incomplete, up to being empty or absent. To make security explicitly optional, an empty security requirement ({}) can be included in the array. */
   security?: SecurityRequirementObject[]
   /** A list of tags used by the AsyncAPI Description with additional metadata. The order of the tags can be used to reflect on their order by the parsing tools. Not all tags that are used by the Operation Object must be declared. The tags that are not declared MAY be organized randomly or based on the tools' logic. Each tag name in the list MUST be unique. */
@@ -147,32 +156,51 @@ export type AsyncApiDocument = {
 
 // ----- Module Definition ----
 const module = Type.Module({
+  // Reused OpenAPI objects
   [REF_DEFINITIONS.ComponentsObject]: ComponentsObjectSchemaDefinition,
   [REF_DEFINITIONS.SecurityRequirementObject]: SecurityRequirementObjectSchemaDefinition,
   [REF_DEFINITIONS.TagObject]: TagObjectSchemaDefinition,
-
   [REF_DEFINITIONS.ServerObject]: ServerObjectSchemaDefinition,
   [REF_DEFINITIONS.ExternalDocumentationObject]: ExternalDocumentationObjectSchemaDefinition,
   [REF_DEFINITIONS.InfoObject]: InfoObjectSchemaDefinition,
   [REF_DEFINITIONS.ContactObject]: ContactObjectSchemaDefinition,
   [REF_DEFINITIONS.LicenseObject]: LicenseObjectSchemaDefinition,
 
-  AsyncApiDocument: AsyncApiDocumentSchemaDefinition,
+  // AsyncAPI-specific objects
+  [ASYNCAPI_REF_DEFINITIONS.ChannelItem]: ChannelItemSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.ChannelsObject]: ChannelsObjectSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.Operation]: OperationSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.OperationsObject]: OperationsObjectSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.Message]: MessageSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.MessageTrait]: MessageTraitSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.Parameter]: ParameterSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.CorrelationId]: CorrelationIdSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.OperationTrait]: OperationTraitSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.Reply]: ReplySchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.ReplyAddress]: ReplyAddressSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.AsyncApiServer]: AsyncApiServerSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.AsyncApiServerVariable]: AsyncApiServerVariableSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.Binding]: BindingSchemaDefinition,
 
-  // AsyncAPI-specific schemas
-  AsyncApiServer: AsyncApiServerSchemaDefinition,
-  AsyncApiServerVariable: AsyncApiServerVariableSchemaDefinition,
-  Binding: BindingSchemaDefinition,
-  ChannelItem: ChannelItemSchemaDefinition,
-  ChannelsObject: ChannelsObjectSchemaDefinition,
-  CorrelationId: CorrelationIdSchemaDefinition,
-  Message: MessageSchemaDefinition,
-  MessageTrait: MessageTraitSchemaDefinition,
-  Operation: OperationSchemaDefinition,
-  OperationTrait: OperationTraitSchemaDefinition,
-  OperationsObject: OperationsObjectSchemaDefinition,
-  Parameter: ParameterSchemaDefinition,
-  Reply: ReplySchemaDefinition,
+  // Protocol-specific bindings
+  [ASYNCAPI_REF_DEFINITIONS.HttpBinding]: HttpBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.WebSocketBinding]: WebSocketBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.KafkaBinding]: KafkaBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.AmqpBinding]: AmqpBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.MqttBinding]: MqttBindingSchemaDefinition,
+
+  // Multi-format schemas
+  [ASYNCAPI_REF_DEFINITIONS.MultiFormatSchema]: MultiFormatSchemaSchemaDefinition,
+
+  // Components
+  [ASYNCAPI_REF_DEFINITIONS.AsyncApiComponentsObject]: AsyncApiComponentsObjectSchemaDefinition,
+
+  // Object maps
+  [ASYNCAPI_REF_DEFINITIONS.ServersObject]: ServersObjectSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.MessagesObject]: MessagesObjectSchemaDefinition,
+
+  // Document
+  AsyncApiDocument: AsyncApiDocumentSchemaDefinition,
 
   // Navigation schemas
   [REF_DEFINITIONS.TraversedDescriptionObject]: TraversedDescriptionSchemaDefinition,
@@ -211,6 +239,18 @@ export const OperationTraitSchema = module.Import('OperationTrait')
 export const OperationsObjectSchema = module.Import('OperationsObject')
 export const ParameterSchema = module.Import('Parameter')
 export const ReplySchema = module.Import('Reply')
+export const ReplyAddressSchema = module.Import('ReplyAddress')
+export const MultiFormatSchemaSchema = module.Import('MultiFormatSchema')
+export const ServersObjectSchema = module.Import('ServersObject')
+export const MessagesObjectSchema = module.Import('MessagesObject')
+export const AsyncApiComponentsObjectSchema = module.Import('AsyncApiComponentsObject')
+
+// Protocol-specific binding exports
+export const HttpBindingSchema = module.Import('HttpBinding')
+export const WebSocketBindingSchema = module.Import('WebSocketBinding')
+export const KafkaBindingSchema = module.Import('KafkaBinding')
+export const AmqpBindingSchema = module.Import('AmqpBinding')
+export const MqttBindingSchema = module.Import('MqttBinding')
 
 export const TraversedDescriptionSchema = module.Import('TraversedDescriptionObject')
 export const TraversedEntrySchema = module.Import('TraversedEntryObject')
@@ -223,9 +263,20 @@ export const TraversedWebhookSchema = module.Import('TraversedWebhookObject')
 export type { ExternalDocumentationObject }
 export type { InfoObject }
 export type { SecurityRequirementObject }
-export type { ServerObject }
 export type { TagObject }
 
 export type { ComponentsObject } from '@/schemas/v3.1/strict/components'
 export type { ContactObject } from '@/schemas/v3.1/strict/contact'
 export type { LicenseObject } from '@/schemas/v3.1/strict/license'
+
+// AsyncAPI-specific type exports
+export type { ChannelItem } from './channel-item'
+export type { CorrelationId } from './correlation-id'
+export type { Message } from './message'
+export type { MessageTrait } from './message-trait'
+export type { Operation, OperationAction } from './operation'
+export type { OperationTrait } from './operation-trait'
+export type { Parameter } from './parameter'
+export type { Reply } from './reply'
+export type { ReplyAddress } from './reply-address'
+export type { Server, ServerVariable } from './server'

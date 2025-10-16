@@ -1,8 +1,24 @@
 import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
+import type { ExampleObject } from '@/schemas/v3.1/strict/example'
+import type { ExternalDocumentationObject } from '@/schemas/v3.1/strict/external-documentation'
+import {
+  ExampleObjectRef,
+  ExternalDocumentationObjectRef,
+  SchemaObjectRef,
+  TagObjectRef,
+} from '@/schemas/v3.1/strict/ref-definitions'
+import type { SchemaObject } from '@/schemas/v3.1/strict/schema'
+import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
-// Message Trait Schema
+import type { CorrelationId } from './correlation-id'
+import { CorrelationIdRef } from './ref-definitions'
+
+/**
+ * Describes a trait that MAY be applied to a Message Object.
+ * This object MAY contain any property from the Message Object, except payload and traits.
+ */
 export const MessageTraitSchemaDefinition = compose(
   Type.Object({
     /** A human-friendly title for the message. */
@@ -12,22 +28,26 @@ export const MessageTraitSchemaDefinition = compose(
     /** A verbose explanation of the message. CommonMark syntax MAY be used for rich text representation. */
     description: Type.Optional(Type.String()),
     /** A list of tags for logical grouping and categorization of messages. */
-    tags: Type.Optional(Type.Array(Type.Any())), // Will be replaced with TagObjectRef
+    tags: Type.Optional(Type.Array(TagObjectRef)),
     /** Additional external documentation for this message. */
-    externalDocs: Type.Optional(Type.Any()), // Will be replaced with ExternalDocumentationObjectRef
-    /** The message headers. */
-    headers: Type.Optional(Type.Any()), // Will be replaced with proper schema reference
-    /** The message correlation ID. */
-    correlationId: Type.Optional(Type.Any()), // Will be replaced with CorrelationIdObjectRef
-    /** The content type of the message payload. */
+    externalDocs: Type.Optional(ExternalDocumentationObjectRef),
+    /** Schema definition of the application headers. */
+    headers: Type.Optional(SchemaObjectRef),
+    /** Definition of the correlation ID used for message tracing or matching. */
+    correlationId: Type.Optional(CorrelationIdRef),
+    /** The content type to use when encoding/decoding a message's payload. */
     contentType: Type.Optional(Type.String()),
-    /** The name of the message. */
+    /** A machine-friendly name for the message. */
     name: Type.Optional(Type.String()),
-    /** A list of examples of the message. */
-    examples: Type.Optional(Type.Array(Type.Any())), // Will be replaced with ExampleObjectRef
+    /** List of examples. */
+    examples: Type.Optional(Type.Array(ExampleObjectRef)),
   }),
 )
 
+/**
+ * Describes a trait that MAY be applied to a Message Object.
+ * This object MAY contain any property from the Message Object, except payload and traits.
+ */
 export type MessageTrait = {
   /** A human-friendly title for the message. */
   title?: string
@@ -36,17 +56,17 @@ export type MessageTrait = {
   /** A verbose explanation of the message. CommonMark syntax MAY be used for rich text representation. */
   description?: string
   /** A list of tags for logical grouping and categorization of messages. */
-  tags?: any[] // Will be replaced with TagObject[]
+  tags?: TagObject[]
   /** Additional external documentation for this message. */
-  externalDocs?: any // Will be replaced with ExternalDocumentationObject
-  /** The message headers. */
-  headers?: any // Will be replaced with proper schema reference
-  /** The message correlation ID. */
-  correlationId?: any // Will be replaced with CorrelationIdObject
-  /** The content type of the message payload. */
+  externalDocs?: ExternalDocumentationObject
+  /** Schema definition of the application headers. */
+  headers?: SchemaObject
+  /** Definition of the correlation ID used for message tracing or matching. */
+  correlationId?: CorrelationId
+  /** The content type to use when encoding/decoding a message's payload. */
   contentType?: string
-  /** The name of the message. */
+  /** A machine-friendly name for the message. */
   name?: string
-  /** A list of examples of the message. */
-  examples?: any[] // Will be replaced with ExampleObject[]
+  /** List of examples. */
+  examples?: ExampleObject[]
 }

@@ -2,23 +2,31 @@ import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
 
-// Reply Schema
+import { ReplyAddressRef } from './ref-definitions'
+import type { ReplyAddress } from './reply-address'
+
+/**
+ * Describes the reply part of an operation. Used for request-reply operations to describe the expected response.
+ */
 export const ReplySchemaDefinition = compose(
   Type.Object({
-    /** REQUIRED. A $ref to the operation that this operation is a reply to. */
-    address: Type.Optional(Type.Any()), // Will be replaced with proper address object
-    /** A $ref to the Channel that this operation is related to. */
+    /** A Reply Address Object that describes the address to use for the reply. */
+    address: Type.Optional(ReplyAddressRef),
+    /** A $ref pointer to a Channel. The channel used for the reply. If the reply is expected on the same channel as the request was made, this field MAY be omitted. */
     channel: Type.Optional(Type.String()),
-    /** A map where the keys describe the name of the message and the values describe the message. */
-    messages: Type.Optional(Type.Array(Type.String())), // References to messages
+    /** A list of $ref pointers to Message Objects that MAY be sent back. Every message sent back MUST be valid against one of the message schemas in this list. */
+    messages: Type.Optional(Type.Array(Type.String())),
   }),
 )
 
+/**
+ * Describes the reply part of an operation. Used for request-reply operations to describe the expected response.
+ */
 export type Reply = {
-  /** REQUIRED. A $ref to the operation that this operation is a reply to. */
-  address?: any // Will be replaced with proper address object
-  /** A $ref to the Channel that this operation is related to. */
+  /** A Reply Address Object that describes the address to use for the reply. */
+  address?: ReplyAddress
+  /** A $ref pointer to a Channel. The channel used for the reply. If the reply is expected on the same channel as the request was made, this field MAY be omitted. */
   channel?: string
-  /** A map where the keys describe the name of the message and the values describe the message. */
-  messages?: string[] // References to messages
+  /** A list of $ref pointers to Message Objects that MAY be sent back. Every message sent back MUST be valid against one of the message schemas in this list. */
+  messages?: string[]
 }
