@@ -1,7 +1,7 @@
 {
-  "id": "https://spec.openapis.org/oas/3.0/schema/2024-10-18",
+  "id": "https://spec.openapis.org/oas/3.0/schema/2021-09-28",
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "description": "The description of OpenAPI v3.0.x Documents",
+  "description": "The description of OpenAPI v3.0.x documents, as defined by https://spec.openapis.org/oas/v3.0.3",
   "type": "object",
   "required": ["openapi", "info", "paths"],
   "properties": {
@@ -762,30 +762,6 @@
         "description": {
           "type": "string"
         },
-        "get": {
-          "$ref": "#/definitions/Operation"
-        },
-        "put": {
-          "$ref": "#/definitions/Operation"
-        },
-        "post": {
-          "$ref": "#/definitions/Operation"
-        },
-        "delete": {
-          "$ref": "#/definitions/Operation"
-        },
-        "options": {
-          "$ref": "#/definitions/Operation"
-        },
-        "head": {
-          "$ref": "#/definitions/Operation"
-        },
-        "patch": {
-          "$ref": "#/definitions/Operation"
-        },
-        "trace": {
-          "$ref": "#/definitions/Operation"
-        },
         "servers": {
           "type": "array",
           "items": {
@@ -808,6 +784,9 @@
         }
       },
       "patternProperties": {
+        "^(get|put|post|delete|options|head|patch|trace)$": {
+          "$ref": "#/definitions/Operation"
+        },
         "^x-": {}
       },
       "additionalProperties": false
@@ -1097,74 +1076,68 @@
         },
         {
           "$ref": "#/definitions/SchemaXORContent"
-        }
-      ],
-      "oneOf": [
-        {
-          "$ref": "#/definitions/PathParameter"
         },
         {
-          "$ref": "#/definitions/QueryParameter"
-        },
-        {
-          "$ref": "#/definitions/HeaderParameter"
-        },
-        {
-          "$ref": "#/definitions/CookieParameter"
+          "$ref": "#/definitions/ParameterLocation"
         }
       ]
     },
-    "PathParameter": {
-      "description": "Parameter in path",
-      "required": ["required"],
-      "properties": {
-        "in": {
-          "enum": ["path"]
+    "ParameterLocation": {
+      "description": "Parameter location",
+      "oneOf": [
+        {
+          "description": "Parameter in path",
+          "required": ["required"],
+          "properties": {
+            "in": {
+              "enum": ["path"]
+            },
+            "style": {
+              "enum": ["matrix", "label", "simple"],
+              "default": "simple"
+            },
+            "required": {
+              "enum": [true]
+            }
+          }
         },
-        "style": {
-          "enum": ["matrix", "label", "simple"],
-          "default": "simple"
+        {
+          "description": "Parameter in query",
+          "properties": {
+            "in": {
+              "enum": ["query"]
+            },
+            "style": {
+              "enum": ["form", "spaceDelimited", "pipeDelimited", "deepObject"],
+              "default": "form"
+            }
+          }
         },
-        "required": {
-          "enum": [true]
+        {
+          "description": "Parameter in header",
+          "properties": {
+            "in": {
+              "enum": ["header"]
+            },
+            "style": {
+              "enum": ["simple"],
+              "default": "simple"
+            }
+          }
+        },
+        {
+          "description": "Parameter in cookie",
+          "properties": {
+            "in": {
+              "enum": ["cookie"]
+            },
+            "style": {
+              "enum": ["form"],
+              "default": "form"
+            }
+          }
         }
-      }
-    },
-    "QueryParameter": {
-      "description": "Parameter in query",
-      "properties": {
-        "in": {
-          "enum": ["query"]
-        },
-        "style": {
-          "enum": ["form", "spaceDelimited", "pipeDelimited", "deepObject"],
-          "default": "form"
-        }
-      }
-    },
-    "HeaderParameter": {
-      "description": "Parameter in header",
-      "properties": {
-        "in": {
-          "enum": ["header"]
-        },
-        "style": {
-          "enum": ["simple"],
-          "default": "simple"
-        }
-      }
-    },
-    "CookieParameter": {
-      "description": "Parameter in cookie",
-      "properties": {
-        "in": {
-          "enum": ["cookie"]
-        },
-        "style": {
-          "enum": ["form"],
-          "default": "form"
-        }
-      }
+      ]
     },
     "RequestBody": {
       "type": "object",
@@ -1509,9 +1482,6 @@
           "type": "boolean",
           "default": false
         }
-      },
-      "patternProperties": {
-        "^x-": {}
       },
       "additionalProperties": false
     }
