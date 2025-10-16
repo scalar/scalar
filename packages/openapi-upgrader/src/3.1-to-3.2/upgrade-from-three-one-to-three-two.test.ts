@@ -1,5 +1,4 @@
-// TODO: We need OpenAPI 3.2 types
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_2 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 
 import { upgradeFromThreeOneToThreeTwo } from '@/3.1-to-3.2/upgrade-from-three-one-to-three-two'
@@ -7,7 +6,7 @@ import { upgradeFromThreeOneToThreeTwo } from '@/3.1-to-3.2/upgrade-from-three-o
 describe('upgradeFromThreeOneToThreeTwo', () => {
   describe('version', () => {
     it(`doesn't modify Swagger 2.0 files`, async () => {
-      const result: OpenAPIV3_1.Document = upgradeFromThreeOneToThreeTwo({
+      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo({
         swagger: '2.0',
         info: {
           title: 'Hello World',
@@ -20,7 +19,7 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
     })
 
     it('changes the version to from 3.1.0 to 3.2.0', async () => {
-      const result: OpenAPIV3_1.Document = upgradeFromThreeOneToThreeTwo({
+      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo({
         openapi: '3.1.0',
         info: {
           title: 'Hello World',
@@ -33,7 +32,7 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
     })
 
     it('changes the version to 3.1.1 to 3.2.0', async () => {
-      const result: OpenAPIV3_1.Document = upgradeFromThreeOneToThreeTwo({
+      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo({
         openapi: '3.1.1',
         info: {
           title: 'Hello World',
@@ -70,7 +69,7 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
         ],
       }
 
-      const result: OpenAPIV3_1.Document = upgradeFromThreeOneToThreeTwo(input)
+      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
 
       expect(result.openapi).toBe('3.2.0')
       expect(result['x-tagGroups']).toBeUndefined()
@@ -115,7 +114,7 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
         ],
       }
 
-      const result: OpenAPIV3_1.Document = upgradeFromThreeOneToThreeTwo(input)
+      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
 
       expect(result.openapi).toBe('3.2.0')
       expect(result['x-tagGroups']).toBeUndefined()
@@ -161,12 +160,13 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
         ],
       }
 
-      const result: OpenAPIV3_1.Document = upgradeFromThreeOneToThreeTwo(input)
+      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
 
       expect(result.openapi).toBe('3.2.0')
       expect(result['x-tagGroups']).toBeUndefined()
+      expect(result.tags).toBeDefined()
       expect(result.tags).toHaveLength(1)
-      expect(result.tags[0]).toMatchObject({
+      expect(result.tags![0]).toMatchObject({
         name: 'beta',
         summary: 'Beta Features',
         description: 'Experimental features',
@@ -215,7 +215,7 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
         ],
       }
 
-      const result: OpenAPIV3_1.Document = upgradeFromThreeOneToThreeTwo(input)
+      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
 
       expect(result.openapi).toBe('3.2.0')
       expect(result['x-tagGroups']).toBeUndefined()
@@ -257,7 +257,7 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
         ],
       }
 
-      const result: OpenAPIV3_1.Document = upgradeFromThreeOneToThreeTwo(input)
+      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
 
       expect(result.openapi).toBe('3.2.0')
       expect(result['x-tagGroups']).toBeUndefined()
@@ -302,7 +302,7 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
         ],
       }
 
-      const result: OpenAPIV3_1.Document = upgradeFromThreeOneToThreeTwo(input)
+      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
 
       expect(result.openapi).toBe('3.2.0')
       expect(result['x-tagGroups']).toBeUndefined()
@@ -349,7 +349,7 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
         ],
       }
 
-      const result: OpenAPIV3_1.Document = upgradeFromThreeOneToThreeTwo(input)
+      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
 
       expect(result.openapi).toBe('3.2.0')
       expect(result['x-tagGroups']).toBeUndefined()
@@ -392,19 +392,20 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
         ],
       }
 
-      const result: OpenAPIV3_1.Document = upgradeFromThreeOneToThreeTwo(input)
+      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
 
       expect(result.openapi).toBe('3.2.0')
       expect(result['x-tagGroups']).toBeUndefined()
+      expect(result.tags).toBeDefined()
       expect(result.tags).toHaveLength(2)
-      expect(result.tags?.[0]).toMatchObject({
+      expect(result.tags![0]).toMatchObject({
         name: 'ungrouped-tag',
         summary: 'Ungrouped Tag',
         description: 'A tag not in any group',
         // No kind property should be added
       })
-      expect(result.tags?.[0].kind).toBeUndefined()
-      expect(result.tags?.[1]).toMatchObject({
+      expect(result.tags![0]!.kind).toBeUndefined()
+      expect(result.tags![1]).toMatchObject({
         name: 'grouped-tag',
         summary: 'Grouped Tag',
         description: 'A tag in a group',
@@ -429,16 +430,17 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
         ],
       }
 
-      const result: OpenAPIV3_1.Document = upgradeFromThreeOneToThreeTwo(input)
+      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
 
       expect(result.openapi).toBe('3.2.0')
+      expect(result.tags).toBeDefined()
       expect(result.tags).toHaveLength(1)
-      expect(result.tags?.[0]).toMatchObject({
+      expect(result.tags![0]).toMatchObject({
         name: 'simple-tag',
         summary: 'Simple Tag',
         description: 'A simple tag',
       })
-      expect(result.tags?.[0].kind).toBeUndefined()
+      expect(result.tags![0]?.kind).toBeUndefined()
     })
 
     it('handles documents without tags array', () => {
@@ -457,7 +459,7 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
         ],
       }
 
-      const result: OpenAPIV3_1.Document = upgradeFromThreeOneToThreeTwo(input)
+      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
 
       expect(result.openapi).toBe('3.2.0')
       expect(result['x-tagGroups']).toBeUndefined()
@@ -482,12 +484,13 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
         'x-tagGroups': [],
       }
 
-      const result: OpenAPIV3_1.Document = upgradeFromThreeOneToThreeTwo(input)
+      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
 
       expect(result.openapi).toBe('3.2.0')
       expect(result['x-tagGroups']).toBeUndefined()
+      expect(result.tags).toBeDefined()
       expect(result.tags).toHaveLength(1)
-      expect(result.tags?.[0].kind).toBeUndefined()
+      expect(result.tags![0]?.kind).toBeUndefined()
     })
 
     it('preserves existing tag properties when adding kind', () => {
@@ -518,7 +521,7 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
         ],
       }
 
-      const result: OpenAPIV3_1.Document = upgradeFromThreeOneToThreeTwo(input)
+      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
 
       expect(result.openapi).toBe('3.2.0')
       expect(result['x-tagGroups']).toBeUndefined()
@@ -534,6 +537,112 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
         },
         'x-custom-extension': 'custom-value',
       })
+    })
+  })
+
+  describe('xmlNode attribute and element migration', () => {
+    it('migrates xmlNode attribute from wrapped to element', () => {
+      const input = {
+        openapi: '3.1.0',
+        info: {
+          title: 'API',
+          version: '1.0.0',
+        },
+        paths: {},
+        components: {
+          schemas: {
+            SampleSchema: {
+              type: 'object',
+              properties: {
+                sampleProperty: {
+                  type: 'string',
+                  xml: { wrapped: true },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
+
+      expect(result.openapi).toBe('3.2.0')
+      expect(result.components?.schemas?.SampleSchema).toBeDefined()
+      expect(result.components?.schemas?.SampleSchema).toMatchObject({
+        type: 'object',
+        properties: {
+          sampleProperty: {
+            type: 'string',
+            xml: { nodeType: 'element' },
+          },
+        },
+      } as OpenAPIV3_2.SchemaObject)
+    })
+
+    it('migrates xmlNode attribute from attribute to attribute type', () => {
+      const input = {
+        openapi: '3.1.0',
+        info: {
+          title: 'API',
+          version: '1.0.0',
+        },
+        paths: {},
+        components: {
+          schemas: {
+            SampleSchema: {
+              type: 'object',
+              properties: {
+                sampleProperty: {
+                  type: 'string',
+                  xml: { attribute: true },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
+
+      expect(result.openapi).toBe('3.2.0')
+      expect(result.components?.schemas?.SampleSchema).toBeDefined()
+      expect(result.components?.schemas?.SampleSchema).toMatchObject({
+        type: 'object',
+        properties: {
+          sampleProperty: {
+            type: 'string',
+            xml: { nodeType: 'attribute' },
+          },
+        },
+      } as OpenAPIV3_2.SchemaObject)
+    })
+
+    it('throws an error when both fields are true', () => {
+      const input = {
+        openapi: '3.1.0',
+        info: {
+          title: 'API',
+          version: '1.0.0',
+        },
+        paths: {},
+        components: {
+          schemas: {
+            SampleSchema: {
+              type: 'object',
+              properties: {
+                sampleProperty: {
+                  type: 'string',
+                  xml: { wrapped: true, attribute: true },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      expect(() => upgradeFromThreeOneToThreeTwo(input)).toThrowError(
+        'Invalid XML configuration: wrapped and attribute cannot be true at the same time.',
+      )
     })
   })
 })
