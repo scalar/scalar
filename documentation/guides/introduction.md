@@ -126,7 +126,7 @@
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/arrows-clockwise"></scalar-icon>
-          GitHub Sync
+          Bi-directional Git Sync
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
           <scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon>

@@ -61,7 +61,7 @@ All of this with just a couple clicks or a few API requests! You handle making y
     <div class="feature-item">
       <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-green">
         <scalar-icon src="phosphor/bold/arrows-clockwise"></scalar-icon>
-          GitHub Sync
+          Bi-directional Git Sync
       </b>
     </div>
     <div class="feature-item">
