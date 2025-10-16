@@ -19,12 +19,15 @@ export {
   MessagesObjectSchema,
   MqttBindingSchema,
   MultiFormatSchemaSchema,
+  OAuthFlowObjectSchema,
+  OAuthFlowsObjectSchema,
   OperationSchema,
   OperationTraitSchema,
   OperationsObjectSchema,
   ParameterSchema,
   ReplyAddressSchema,
   ReplySchema,
+  SecuritySchemeObjectSchema,
   // Export AsyncAPI-specific schemas from the module
   ServerSchema,
   ServerVariableSchema,
@@ -46,6 +49,14 @@ export type { Message } from './message'
 export type { MessageTrait } from './message-trait'
 export type { MessagesObject } from './messages'
 export type { MultiFormatSchema } from './multi-format-schema'
+export type {
+  OAuthFlow,
+  OAuthFlowAuthorizationCode,
+  OAuthFlowClientCredentials,
+  OAuthFlowImplicit,
+  OAuthFlowPassword,
+} from './oauth-flow'
+export type { OAuthFlowsObject } from './oauth-flows'
 export type { Operation, OperationAction } from './operation'
 export type { OperationTrait } from './operation-trait'
 export type { OperationsObject } from './operations'
@@ -54,5 +65,21 @@ export type { Parameter } from './parameter'
 export { ASYNCAPI_REF_DEFINITIONS } from './ref-definitions'
 export type { Reply } from './reply'
 export type { ReplyAddress } from './reply-address'
+export type {
+  ApiKeyObject,
+  AsymmetricEncryptionObject,
+  GssapiObject,
+  HttpApiKeyObject,
+  HttpObject,
+  OAuth2Object,
+  OpenIdConnectObject,
+  PlainObject,
+  ScramSha256Object,
+  ScramSha512Object,
+  SecuritySchemeObject,
+  SymmetricEncryptionObject,
+  UserPasswordObject,
+  X509Object,
+} from './security-scheme'
 export type { Server, ServerVariable } from './server'
 export type { ServersObject } from './servers'

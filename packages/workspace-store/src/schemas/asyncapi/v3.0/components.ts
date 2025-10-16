@@ -1,15 +1,9 @@
 import { Type } from '@scalar/typebox'
 
 import type { ExternalDocumentationObject } from '@/schemas/v3.1/strict/external-documentation'
-import {
-  ExternalDocumentationObjectRef,
-  SchemaObjectRef,
-  SecuritySchemeObjectRef,
-  TagObjectRef,
-} from '@/schemas/v3.1/strict/ref-definitions'
+import { ExternalDocumentationObjectRef, SchemaObjectRef, TagObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 import { type ReferenceType, reference } from '@/schemas/v3.1/strict/reference'
 import type { SchemaObject } from '@/schemas/v3.1/strict/schema'
-import type { SecuritySchemeObject } from '@/schemas/v3.1/strict/security-scheme'
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
 import type { ChannelItem } from './channel-item'
@@ -30,11 +24,13 @@ import {
   ParameterRef,
   ReplyAddressRef,
   ReplyRef,
+  SecuritySchemeObjectRef,
   ServerRef,
   ServerVariableRef,
 } from './ref-definitions'
 import type { Reply } from './reply'
 import type { ReplyAddress } from './reply-address'
+import type { SecuritySchemeObject } from './security-scheme'
 import type { Server, ServerVariable } from './server'
 
 /**

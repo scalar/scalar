@@ -56,6 +56,8 @@ import { MessageSchemaDefinition } from './message'
 import { MessageTraitSchemaDefinition } from './message-trait'
 import { MessagesObjectSchemaDefinition } from './messages'
 import { MultiFormatSchemaSchemaDefinition } from './multi-format-schema'
+import { OAuthFlowObjectSchemaDefinition } from './oauth-flow'
+import { OAuthFlowsObjectSchemaDefinition } from './oauth-flows'
 import { OperationSchemaDefinition } from './operation'
 import { OperationTraitSchemaDefinition } from './operation-trait'
 import type { OperationsObject } from './operations'
@@ -64,6 +66,7 @@ import { ParameterSchemaDefinition } from './parameter'
 import { ASYNCAPI_REF_DEFINITIONS } from './ref-definitions'
 import { ReplySchemaDefinition } from './reply'
 import { ReplyAddressSchemaDefinition } from './reply-address'
+import { SecuritySchemeObjectSchemaDefinition } from './security-scheme'
 import { ServerSchemaDefinition, ServerVariableSchemaDefinition } from './server'
 import type { ServersObject } from './servers'
 import { ServersObjectSchemaDefinition } from './servers'
@@ -188,6 +191,11 @@ const module = Type.Module({
   // Multi-format schemas
   [ASYNCAPI_REF_DEFINITIONS.MultiFormatSchema]: MultiFormatSchemaSchemaDefinition,
 
+  // Security
+  [ASYNCAPI_REF_DEFINITIONS.SecuritySchemeObject]: SecuritySchemeObjectSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.OAuthFlowsObject]: OAuthFlowsObjectSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.OAuthFlowObject]: OAuthFlowObjectSchemaDefinition,
+
   // Components
   [ASYNCAPI_REF_DEFINITIONS.ComponentsObject]: ComponentsObjectSchemaDefinition,
 
@@ -239,6 +247,11 @@ export const ServersObjectSchema = module.Import('ServersObject')
 export const MessagesObjectSchema = module.Import('MessagesObject')
 export const ComponentsObjectSchema = module.Import('ComponentsObject')
 
+// Security exports
+export const SecuritySchemeObjectSchema = module.Import('SecuritySchemeObject')
+export const OAuthFlowsObjectSchema = module.Import('OAuthFlowsObject')
+export const OAuthFlowObjectSchema = module.Import('OAuthFlowObject')
+
 // Protocol-specific binding exports
 export const HttpBindingSchema = module.Import('HttpBinding')
 export const WebSocketBindingSchema = module.Import('WebSocketBinding')
@@ -268,9 +281,33 @@ export type { ChannelItem } from './channel-item'
 export type { CorrelationId } from './correlation-id'
 export type { Message } from './message'
 export type { MessageTrait } from './message-trait'
+export type {
+  OAuthFlow,
+  OAuthFlowAuthorizationCode,
+  OAuthFlowClientCredentials,
+  OAuthFlowImplicit,
+  OAuthFlowPassword,
+} from './oauth-flow'
+export type { OAuthFlowsObject } from './oauth-flows'
 export type { Operation, OperationAction } from './operation'
 export type { OperationTrait } from './operation-trait'
 export type { Parameter } from './parameter'
 export type { Reply } from './reply'
 export type { ReplyAddress } from './reply-address'
+export type {
+  ApiKeyObject,
+  AsymmetricEncryptionObject,
+  GssapiObject,
+  HttpApiKeyObject,
+  HttpObject,
+  OAuth2Object,
+  OpenIdConnectObject,
+  PlainObject,
+  ScramSha256Object,
+  ScramSha512Object,
+  SecuritySchemeObject,
+  SymmetricEncryptionObject,
+  UserPasswordObject,
+  X509Object,
+} from './security-scheme'
 export type { Server, ServerVariable } from './server'
