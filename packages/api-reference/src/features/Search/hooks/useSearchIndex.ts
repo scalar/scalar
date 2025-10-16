@@ -1,5 +1,5 @@
 import { isOpenApiDocument } from '@scalar/workspace-store/helpers/type-guards'
-import type { AsyncApiDocument } from '@scalar/workspace-store/schemas/v3.0/asyncapi-document'
+import type { AsyncApiDocument } from '@scalar/workspace-store/schemas/asyncapi/v3.0/asyncapi-document'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { FuseResult } from 'fuse.js'
 import { computed, ref, toValue, watch } from 'vue'
