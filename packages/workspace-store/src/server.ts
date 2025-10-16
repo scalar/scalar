@@ -6,16 +6,17 @@ import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointe
 import { upgrade } from '@scalar/openapi-upgrader'
 
 import { keyOf } from '@/helpers/general'
+import { isAsyncApiDocument, isOpenApiOrSwaggerDocument } from '@/helpers/type-guards'
 import { createAsyncApiNavigation, createNavigation } from '@/navigation'
 import type { AsyncApiDocument } from '@/schemas/asyncapi/v3.0/asyncapi-document'
-import type { AsyncApiComponentsObject } from '@/schemas/asyncapi/v3.0/components'
+import type { ComponentsObject as AsyncApiComponentsObject } from '@/schemas/asyncapi/v3.0/components'
 import type { OperationsObject } from '@/schemas/asyncapi/v3.0/operations'
 import { extensions } from '@/schemas/extensions'
 import type { TraversedEntry } from '@/schemas/navigation'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import {
-  type ComponentsObject,
   OpenAPIDocumentSchema,
+  type ComponentsObject as OpenApiComponentsObject,
   type OpenApiDocument,
   type OperationObject,
   type PathsObject,
@@ -130,7 +131,7 @@ export function escapePaths(
  * Externalizes components by turning them into refs.
  */
 export function externalizeComponentReferences(
-  document: { components?: ComponentsObject | AsyncApiComponentsObject },
+  document: { components?: OpenApiComponentsObject | AsyncApiComponentsObject },
   meta: { mode: 'ssr'; name: string; baseUrl: string } | { mode: 'static'; name: string; directory: string },
 ) {
   const result: Record<string, any> = {}
@@ -299,7 +300,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
   const assets = {} as Record<
     string,
     {
-      components?: ComponentsObject | AsyncApiComponentsObject
+      components?: OpenApiComponentsObject | AsyncApiComponentsObject
       operations?: Record<string, Record<string, OperationObject>> // OpenAPI operations
       asyncApiOperations?: OperationsObject // AsyncAPI operations
     }
@@ -325,16 +326,12 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
   const addDocumentSync = (document: Record<string, unknown>, meta: { name: string } & WorkspaceDocumentMeta) => {
     const { name, ...documentMeta } = meta
 
-    // Detect document type
-    const isOpenApi = 'openapi' in document || 'swagger' in document
-    const isAsyncApi = 'asyncapi' in document
-
     const options =
       workspaceProps.mode === 'ssr'
         ? { mode: workspaceProps.mode, name, baseUrl: workspaceProps.baseUrl }
         : { mode: workspaceProps.mode, name, directory: workspaceProps.directory ?? DEFAULT_ASSETS_FOLDER }
 
-    if (isAsyncApi) {
+    if (isAsyncApiDocument(document)) {
       // Handle AsyncAPI documents
       const asyncApiDoc = document as AsyncApiDocument
 
@@ -363,7 +360,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
         operations,
         [extensions.document.navigation]: entries,
       }
-    } else if (isOpenApi) {
+    } else if (isOpenApiOrSwaggerDocument(document)) {
       // Handle OpenAPI/Swagger documents
       const documentV3 = coerceValue(OpenAPIDocumentSchema, upgrade(document, '3.1'))
 

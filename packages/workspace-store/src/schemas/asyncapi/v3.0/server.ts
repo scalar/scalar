@@ -10,12 +10,12 @@ import {
 import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
-import { AsyncApiServerVariableRef, BindingRef } from './ref-definitions'
+import { BindingRef, ServerVariableRef } from './ref-definitions'
 
 /**
  * An object representing a Server Variable for server URL template substitution.
  */
-export const AsyncApiServerVariableSchemaDefinition = compose(
+export const ServerVariableSchemaDefinition = compose(
   Type.Object({
     /** An enumeration of string values to be used if the substitution options are from a limited set. The array MUST NOT be empty. */
     enum: Type.Optional(Type.Array(Type.String())),
@@ -45,7 +45,7 @@ export type ServerVariable = {
 /**
  * An object representing a Server.
  */
-export const AsyncApiServerSchemaDefinition = compose(
+export const ServerSchemaDefinition = compose(
   Type.Object({
     /** REQUIRED. The server host name. It MAY include the port number if different from the protocol's default port. The host supports Server Variables and MAY have relative paths. Variable substitutions will be made when a variable is named in braces. */
     host: Type.String(),
@@ -60,7 +60,7 @@ export const AsyncApiServerSchemaDefinition = compose(
     /** A short summary of the server. */
     summary: Type.Optional(Type.String()),
     /** A map between a variable name and its value. The value is used for substitution in the server's host and pathname templates. */
-    variables: Type.Optional(Type.Record(Type.String(), AsyncApiServerVariableRef)),
+    variables: Type.Optional(Type.Record(Type.String(), ServerVariableRef)),
     /** A declaration of which security mechanisms can be used with this server. The list of values includes alternative security requirement objects that can be used. Only one of the security requirement objects need to be satisfied to authorize a connection or operation. */
     security: Type.Optional(Type.Array(SecurityRequirementObjectRef)),
     /** A list of tags for logical grouping and categorization of servers. */

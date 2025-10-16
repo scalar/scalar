@@ -20,7 +20,6 @@ import {
   type XScalarClientConfigEnvironments,
   xScalarClientConfigEnvironmentsSchema,
 } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-environments'
-import { ComponentsObjectSchemaDefinition } from '@/schemas/v3.1/strict/components'
 import { ContactObjectSchemaDefinition } from '@/schemas/v3.1/strict/contact'
 import {
   type ExternalDocumentationObject,
@@ -40,7 +39,6 @@ import {
   type SecurityRequirementObject,
   SecurityRequirementObjectSchemaDefinition,
 } from '@/schemas/v3.1/strict/security-requirement'
-import { ServerObjectSchemaDefinition } from '@/schemas/v3.1/strict/server'
 import { type TagObject, TagObjectSchemaDefinition } from '@/schemas/v3.1/strict/tag'
 
 import { BindingSchemaDefinition } from './binding'
@@ -52,7 +50,7 @@ import { WebSocketBindingSchemaDefinition } from './bindings/websocket'
 import { ChannelItemSchemaDefinition } from './channel-item'
 import type { ChannelsObject } from './channels'
 import { ChannelsObjectSchemaDefinition } from './channels'
-import { AsyncApiComponentsObjectSchemaDefinition } from './components'
+import { ComponentsObjectSchemaDefinition } from './components'
 import { CorrelationIdSchemaDefinition } from './correlation-id'
 import { MessageSchemaDefinition } from './message'
 import { MessageTraitSchemaDefinition } from './message-trait'
@@ -66,7 +64,7 @@ import { ParameterSchemaDefinition } from './parameter'
 import { ASYNCAPI_REF_DEFINITIONS } from './ref-definitions'
 import { ReplySchemaDefinition } from './reply'
 import { ReplyAddressSchemaDefinition } from './reply-address'
-import { AsyncApiServerSchemaDefinition, AsyncApiServerVariableSchemaDefinition } from './server'
+import { ServerSchemaDefinition, ServerVariableSchemaDefinition } from './server'
 import type { ServersObject } from './servers'
 import { ServersObjectSchemaDefinition } from './servers'
 
@@ -116,7 +114,7 @@ const AsyncApiDocumentSchemaDefinition = compose(
     /** The operations supported by the API. */
     operations: Type.Optional(OperationsObjectSchemaDefinition),
     /** An element to hold various Objects for the AsyncAPI Description. */
-    components: Type.Optional(AsyncApiComponentsObjectSchemaDefinition),
+    components: Type.Optional(ComponentsObjectSchemaDefinition),
     /** A declaration of which security mechanisms can be used across the API. The list of values includes alternative Security Requirement Objects that can be used. Only one of the Security Requirement Objects need to be satisfied to authorize a request. Individual operations can override this definition. The list can be incomplete, up to being empty or absent. To make security explicitly optional, an empty security requirement ({}) can be included in the array. */
     security: Type.Optional(Type.Array(SecurityRequirementObjectRef)),
     /** A list of tags used by the AsyncAPI Description with additional metadata. The order of the tags can be used to reflect on their order by the parsing tools. Not all tags that are used by the Operation Object must be declared. The tags that are not declared MAY be organized randomly or based on the tools' logic. Each tag name in the list MUST be unique. */
@@ -143,7 +141,7 @@ export type AsyncApiDocument = {
   /** The operations supported by the API. */
   operations?: OperationsObject
   /** An element to hold various Objects for the AsyncAPI Description. */
-  components?: import('./components').AsyncApiComponentsObject
+  components?: import('./components').ComponentsObject
   /** A declaration of which security mechanisms can be used across the API. The list of values includes alternative Security Requirement Objects that can be used. Only one of the Security Requirement Objects need to be satisfied to authorize a request. Individual operations can override this definition. The list can be incomplete, up to being empty or absent. To make security explicitly optional, an empty security requirement ({}) can be included in the array. */
   security?: SecurityRequirementObject[]
   /** A list of tags used by the AsyncAPI Description with additional metadata. The order of the tags can be used to reflect on their order by the parsing tools. Not all tags that are used by the Operation Object must be declared. The tags that are not declared MAY be organized randomly or based on the tools' logic. Each tag name in the list MUST be unique. */
@@ -157,10 +155,8 @@ export type AsyncApiDocument = {
 // ----- Module Definition ----
 const module = Type.Module({
   // Reused OpenAPI objects
-  [REF_DEFINITIONS.ComponentsObject]: ComponentsObjectSchemaDefinition,
   [REF_DEFINITIONS.SecurityRequirementObject]: SecurityRequirementObjectSchemaDefinition,
   [REF_DEFINITIONS.TagObject]: TagObjectSchemaDefinition,
-  [REF_DEFINITIONS.ServerObject]: ServerObjectSchemaDefinition,
   [REF_DEFINITIONS.ExternalDocumentationObject]: ExternalDocumentationObjectSchemaDefinition,
   [REF_DEFINITIONS.InfoObject]: InfoObjectSchemaDefinition,
   [REF_DEFINITIONS.ContactObject]: ContactObjectSchemaDefinition,
@@ -178,8 +174,8 @@ const module = Type.Module({
   [ASYNCAPI_REF_DEFINITIONS.OperationTrait]: OperationTraitSchemaDefinition,
   [ASYNCAPI_REF_DEFINITIONS.Reply]: ReplySchemaDefinition,
   [ASYNCAPI_REF_DEFINITIONS.ReplyAddress]: ReplyAddressSchemaDefinition,
-  [ASYNCAPI_REF_DEFINITIONS.AsyncApiServer]: AsyncApiServerSchemaDefinition,
-  [ASYNCAPI_REF_DEFINITIONS.AsyncApiServerVariable]: AsyncApiServerVariableSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.Server]: ServerSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.ServerVariable]: ServerVariableSchemaDefinition,
   [ASYNCAPI_REF_DEFINITIONS.Binding]: BindingSchemaDefinition,
 
   // Protocol-specific bindings
@@ -193,7 +189,7 @@ const module = Type.Module({
   [ASYNCAPI_REF_DEFINITIONS.MultiFormatSchema]: MultiFormatSchemaSchemaDefinition,
 
   // Components
-  [ASYNCAPI_REF_DEFINITIONS.AsyncApiComponentsObject]: AsyncApiComponentsObjectSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.ComponentsObject]: ComponentsObjectSchemaDefinition,
 
   // Object maps
   [ASYNCAPI_REF_DEFINITIONS.ServersObject]: ServersObjectSchemaDefinition,
@@ -214,11 +210,9 @@ const module = Type.Module({
 // ----- Schemas ----
 export const AsyncApiDocumentSchema = module.Import('AsyncApiDocument')
 
-export const ComponentsObjectSchema = module.Import('ComponentsObject')
 export const SecurityRequirementObjectSchema = module.Import('SecurityRequirementObject')
 export const TagObjectSchema = module.Import('TagObject')
 
-export const ServerObjectSchema = module.Import('ServerObject')
 export const ExternalDocumentationObjectSchema = module.Import('ExternalDocumentationObject')
 
 export const InfoObjectSchema = module.Import('InfoObject')
@@ -226,8 +220,8 @@ export const ContactObjectSchema = module.Import('ContactObject')
 export const LicenseObjectSchema = module.Import('LicenseObject')
 
 // AsyncAPI-specific schema exports
-export const AsyncApiServerSchema = module.Import('AsyncApiServer')
-export const AsyncApiServerVariableSchema = module.Import('AsyncApiServerVariable')
+export const ServerSchema = module.Import('Server')
+export const ServerVariableSchema = module.Import('ServerVariable')
 export const BindingSchema = module.Import('Binding')
 export const ChannelItemSchema = module.Import('ChannelItem')
 export const ChannelsObjectSchema = module.Import('ChannelsObject')
@@ -243,7 +237,7 @@ export const ReplyAddressSchema = module.Import('ReplyAddress')
 export const MultiFormatSchemaSchema = module.Import('MultiFormatSchema')
 export const ServersObjectSchema = module.Import('ServersObject')
 export const MessagesObjectSchema = module.Import('MessagesObject')
-export const AsyncApiComponentsObjectSchema = module.Import('AsyncApiComponentsObject')
+export const ComponentsObjectSchema = module.Import('ComponentsObject')
 
 // Protocol-specific binding exports
 export const HttpBindingSchema = module.Import('HttpBinding')

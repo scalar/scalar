@@ -19,8 +19,8 @@ export const ASYNCAPI_REF_DEFINITIONS = {
   OperationTrait: 'OperationTrait',
   Reply: 'Reply',
   ReplyAddress: 'ReplyAddress',
-  AsyncApiServer: 'AsyncApiServer',
-  AsyncApiServerVariable: 'AsyncApiServerVariable',
+  Server: 'Server',
+  ServerVariable: 'ServerVariable',
   Binding: 'Binding',
 
   // Protocol-specific bindings
@@ -34,7 +34,7 @@ export const ASYNCAPI_REF_DEFINITIONS = {
   MultiFormatSchema: 'MultiFormatSchema',
 
   // Components
-  AsyncApiComponentsObject: 'AsyncApiComponentsObject',
+  ComponentsObject: 'ComponentsObject',
 
   // Object maps
   ServersObject: 'ServersObject',
@@ -53,8 +53,8 @@ export const CorrelationIdRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.CorrelationId)
 export const OperationTraitRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.OperationTrait)
 export const ReplyRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.Reply)
 export const ReplyAddressRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.ReplyAddress)
-export const AsyncApiServerRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.AsyncApiServer)
-export const AsyncApiServerVariableRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.AsyncApiServerVariable)
+export const ServerRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.Server)
+export const ServerVariableRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.ServerVariable)
 export const BindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.Binding)
 
 // Protocol-specific binding references
@@ -68,7 +68,7 @@ export const MqttBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MqttBinding)
 export const MultiFormatSchemaRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MultiFormatSchema)
 
 // Components reference
-export const AsyncApiComponentsObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.AsyncApiComponentsObject)
+export const ComponentsObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.ComponentsObject)
 
 // Object map references
 export const ServersObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.ServersObject)

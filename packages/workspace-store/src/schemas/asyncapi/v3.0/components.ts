@@ -20,8 +20,6 @@ import type { Operation } from './operation'
 import type { OperationTrait } from './operation-trait'
 import type { Parameter } from './parameter'
 import {
-  AsyncApiServerRef,
-  AsyncApiServerVariableRef,
   BindingRef,
   ChannelItemRef,
   CorrelationIdRef,
@@ -32,6 +30,8 @@ import {
   ParameterRef,
   ReplyAddressRef,
   ReplyRef,
+  ServerRef,
+  ServerVariableRef,
 } from './ref-definitions'
 import type { Reply } from './reply'
 import type { ReplyAddress } from './reply-address'
@@ -41,11 +41,11 @@ import type { Server, ServerVariable } from './server'
  * Holds a set of reusable objects for different aspects of the AsyncAPI specification.
  * All objects defined within the components object will have no effect on the API unless they are explicitly referenced from outside the components object.
  */
-export const AsyncApiComponentsObjectSchemaDefinition = Type.Object({
+export const ComponentsObjectSchemaDefinition = Type.Object({
   /** An object to hold reusable Schema Objects. */
   schemas: Type.Optional(Type.Record(Type.String(), Type.Union([SchemaObjectRef, reference(SchemaObjectRef)]))),
   /** An object to hold reusable Server Objects. */
-  servers: Type.Optional(Type.Record(Type.String(), Type.Union([AsyncApiServerRef, reference(AsyncApiServerRef)]))),
+  servers: Type.Optional(Type.Record(Type.String(), Type.Union([ServerRef, reference(ServerRef)]))),
   /** An object to hold reusable Channel Objects. */
   channels: Type.Optional(Type.Record(Type.String(), Type.Union([ChannelItemRef, reference(ChannelItemRef)]))),
   /** An object to hold reusable Operation Objects. */
@@ -58,7 +58,7 @@ export const AsyncApiComponentsObjectSchemaDefinition = Type.Object({
   ),
   /** An object to hold reusable Server Variable Objects. */
   serverVariables: Type.Optional(
-    Type.Record(Type.String(), Type.Union([AsyncApiServerVariableRef, reference(AsyncApiServerVariableRef)])),
+    Type.Record(Type.String(), Type.Union([ServerVariableRef, reference(ServerVariableRef)])),
   ),
   /** An object to hold reusable Parameter Objects. */
   parameters: Type.Optional(Type.Record(Type.String(), Type.Union([ParameterRef, reference(ParameterRef)]))),
@@ -96,7 +96,7 @@ export const AsyncApiComponentsObjectSchemaDefinition = Type.Object({
  * Holds a set of reusable objects for different aspects of the AsyncAPI specification.
  * All objects defined within the components object will have no effect on the API unless they are explicitly referenced from outside the components object.
  */
-export type AsyncApiComponentsObject = {
+export type ComponentsObject = {
   /** An object to hold reusable Schema Objects. */
   schemas?: Record<string, ReferenceType<SchemaObject>>
   /** An object to hold reusable Server Objects. */
