@@ -176,7 +176,7 @@ const models = computed<TraversedDescription | undefined>(() => {
 
     <!-- Models -->
     <Models
-      v-if="!options.hideModels && document"
+      v-if="!options.hideModels && document && isOpenApiDocument(document)"
       :hash
       :models
       :options="{
