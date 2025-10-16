@@ -16,7 +16,7 @@ import { type UnknownObject, isObject, safeAssign } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
 import { createOverridesProxy, unpackOverridesProxy } from '@/helpers/overrides-proxy'
-import { isAsyncApiDocument, isOpenApiDocument } from '@/helpers/type-guards'
+import { isAsyncApiDocument, isOpenApiOrSwaggerDocument } from '@/helpers/type-guards'
 import { createAsyncApiNavigation, createNavigation } from '@/navigation'
 import { externalValueResolver, loadingStatus, refsEverywhere, restoreOriginalRefs } from '@/plugins'
 import { getServersFromDocument } from '@/preprocessing/server'
@@ -597,14 +597,14 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       : (clonedRawInputDocument.openapi ?? clonedRawInputDocument.swagger ?? undefined)
 
     // Only upgrade OpenAPI/Swagger documents
-    const inputDocument = isOpenApiDocument(clonedRawInputDocument)
+    const inputDocument = isOpenApiOrSwaggerDocument(clonedRawInputDocument)
       ? measureSync('upgrade', () => upgrade(deepClone(clonedRawInputDocument), '3.1'))
       : clonedRawInputDocument
 
     const strictDocument: UnknownObject = createMagicProxy({ ...inputDocument, ...meta }, { showInternal: true })
 
     // Set version metadata based on document type
-    if (isOpenApiDocument(clonedRawInputDocument)) {
+    if (isOpenApiOrSwaggerDocument(clonedRawInputDocument)) {
       strictDocument['x-original-oas-version'] = originalVersion
     }
     if (isAsyncApiDocument(clonedRawInputDocument)) {
