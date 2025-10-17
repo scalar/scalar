@@ -3,10 +3,12 @@ import { Type } from '@scalar/typebox'
 import { SchemaObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 import type { SchemaObject } from '@/schemas/v3.1/strict/schema'
 
+import { MqttLastWillRef } from '../ref-definitions'
+
 /**
  * Last Will and Testament configuration for MQTT.
  */
-const LastWillSchemaDefinition = Type.Object({
+export const LastWillSchemaDefinition = Type.Object({
   /** The topic where the Last Will and Testament message will be sent. */
   topic: Type.Optional(Type.String()),
   /** Defines how hard the broker/client will try to ensure that the Last Will and Testament message is received. Its value MUST be either 0, 1 or 2. */
@@ -40,7 +42,7 @@ export const MqttServerBindingSchemaDefinition = Type.Object({
   /** Whether to create a persistent connection or not. When false, the connection will be persistent. This is called clean start in MQTTv5. */
   cleanSession: Type.Optional(Type.Boolean()),
   /** Last Will and Testament configuration. */
-  lastWill: Type.Optional(LastWillSchemaDefinition),
+  lastWill: Type.Optional(MqttLastWillRef),
   /** Interval in seconds of the longest period of time the broker and the client can endure without sending a message. */
   keepAlive: Type.Optional(Type.Integer()),
   /** Interval in seconds or a Schema Object containing the definition of the interval. The broker maintains a session for a disconnected client until this interval expires. */

@@ -1,5 +1,7 @@
 import { Type } from '@scalar/typebox'
 
+import { IbmMqQueueRef, IbmMqTopicRef } from '../ref-definitions'
+
 /**
  * Protocol-specific information for an IBM MQ server.
  */
@@ -39,7 +41,7 @@ export type IbmMqServerBinding = {
 /**
  * Queue Object for IBM MQ.
  */
-const QueueSchemaDefinition = Type.Object({
+export const QueueSchemaDefinition = Type.Object({
   /** Defines the name of the IBM MQ queue associated with the channel. */
   objectName: Type.String(),
   /** Defines if the queue is a cluster queue and therefore partitioned. If true, a binding option MAY be specified when accessing the queue. */
@@ -63,7 +65,7 @@ export type Queue = {
 /**
  * Topic Object for IBM MQ.
  */
-const TopicSchemaDefinition = Type.Object({
+export const TopicSchemaDefinition = Type.Object({
   /** The value of the IBM MQ topic string to be used. */
   string: Type.Optional(Type.String({ maxLength: 10240 })),
   /** The name of the IBM MQ topic object. */
@@ -95,9 +97,9 @@ export const IbmMqChannelBindingSchemaDefinition = Type.Object({
   /** Defines the type of AsyncAPI channel. MUST be either topic or queue. */
   destinationType: Type.Optional(Type.Union([Type.Literal('topic'), Type.Literal('queue')])),
   /** Defines the properties of a queue. */
-  queue: Type.Optional(QueueSchemaDefinition),
+  queue: Type.Optional(IbmMqQueueRef),
   /** Defines the properties of a topic. */
-  topic: Type.Optional(TopicSchemaDefinition),
+  topic: Type.Optional(IbmMqTopicRef),
   /** The maximum length of the physical message (in bytes) accepted by the Topic or Queue. Messages produced that are greater in size than this value may fail to be delivered. */
   maxMsgLength: Type.Optional(Type.Integer({ minimum: 0, maximum: 104857600 })),
   /** The version of this binding. */

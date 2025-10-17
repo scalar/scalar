@@ -1,9 +1,15 @@
 import { Type } from '@scalar/typebox'
 
+import {
+  GooglePubSubMessageStoragePolicyRef,
+  GooglePubSubSchemaDefinitionRef,
+  GooglePubSubSchemaSettingsRef,
+} from '../ref-definitions'
+
 /**
  * Message Storage Policy Object for Google Cloud Pub/Sub.
  */
-const MessageStoragePolicySchemaDefinition = Type.Object({
+export const MessageStoragePolicySchemaDefinition = Type.Object({
   /** A list of IDs of GCP regions where messages that are published to the topic may be persisted in storage. */
   allowedPersistenceRegions: Type.Optional(Type.Array(Type.String())),
 })
@@ -19,7 +25,7 @@ export type MessageStoragePolicy = {
 /**
  * Schema Settings Object for Google Cloud Pub/Sub.
  */
-const SchemaSettingsSchemaDefinition = Type.Object({
+export const SchemaSettingsSchemaDefinition = Type.Object({
   /** The encoding of the message. Must be one of the possible Encoding values (json or binary). */
   encoding: Type.Optional(Type.String()),
   /** The minimum (inclusive) revision allowed for validating messages. */
@@ -53,9 +59,9 @@ export const GooglePubSubChannelBindingSchemaDefinition = Type.Object({
   /** Indicates the minimum duration to retain a message after it is published to the topic. Must be a valid Duration. */
   messageRetentionDuration: Type.Optional(Type.String()),
   /** Policy constraining the set of Google Cloud Platform regions where messages published to the topic may be stored. */
-  messageStoragePolicy: Type.Optional(MessageStoragePolicySchemaDefinition),
+  messageStoragePolicy: Type.Optional(GooglePubSubMessageStoragePolicyRef),
   /** Settings for validating messages published against a schema. */
-  schemaSettings: Type.Optional(SchemaSettingsSchemaDefinition),
+  schemaSettings: Type.Optional(GooglePubSubSchemaSettingsRef),
   /** The version of this binding. */
   bindingVersion: Type.Optional(Type.String()),
 })
@@ -79,7 +85,7 @@ export type GooglePubSubChannelBinding = {
 /**
  * Schema Definition Object for Google Cloud Pub/Sub.
  */
-const SchemaDefinitionSchemaDefinition = Type.Object({
+export const SchemaDefinitionSchemaDefinition = Type.Object({
   /** The name of the schema. */
   name: Type.Optional(Type.String()),
 })
@@ -101,7 +107,7 @@ export const GooglePubSubMessageBindingSchemaDefinition = Type.Object({
   /** If non-empty, identifies related messages for which publish order should be respected. */
   orderingKey: Type.Optional(Type.String()),
   /** Describes the schema used to validate the payload of this message. */
-  schema: Type.Optional(SchemaDefinitionSchemaDefinition),
+  schema: Type.Optional(GooglePubSubSchemaDefinitionRef),
   /** The version of this binding. */
   bindingVersion: Type.Optional(Type.String()),
 })

@@ -1,5 +1,79 @@
 import { Type } from '@scalar/typebox'
 
+import { AmqpExchangeRef, AmqpQueueRef } from '../ref-definitions'
+
+/**
+ * Exchange Object for AMQP.
+ */
+export const ExchangeSchemaDefinition = Type.Object({
+  /** The name of the exchange. It MUST NOT exceed 255 characters long. */
+  name: Type.Optional(Type.String({ maxLength: 255 })),
+  /** The type of the exchange. Can be either topic, direct, fanout, default or headers. */
+  type: Type.Optional(
+    Type.Union([
+      Type.Literal('topic'),
+      Type.Literal('direct'),
+      Type.Literal('fanout'),
+      Type.Literal('default'),
+      Type.Literal('headers'),
+    ]),
+  ),
+  /** Whether the exchange should survive broker restarts or not. */
+  durable: Type.Optional(Type.Boolean()),
+  /** Whether the exchange should be deleted when the last queue is unbound from it. */
+  autoDelete: Type.Optional(Type.Boolean()),
+  /** The virtual host of the exchange. Defaults to /. */
+  vhost: Type.Optional(Type.String()),
+})
+
+/**
+ * Exchange Object for AMQP.
+ */
+export type Exchange = {
+  /** The name of the exchange. It MUST NOT exceed 255 characters long. */
+  name?: string
+  /** The type of the exchange. Can be either topic, direct, fanout, default or headers. */
+  type?: 'topic' | 'direct' | 'fanout' | 'default' | 'headers'
+  /** Whether the exchange should survive broker restarts or not. */
+  durable?: boolean
+  /** Whether the exchange should be deleted when the last queue is unbound from it. */
+  autoDelete?: boolean
+  /** The virtual host of the exchange. Defaults to /. */
+  vhost?: string
+}
+
+/**
+ * Queue Object for AMQP.
+ */
+export const QueueSchemaDefinition = Type.Object({
+  /** The name of the queue. It MUST NOT exceed 255 characters long. */
+  name: Type.Optional(Type.String({ maxLength: 255 })),
+  /** Whether the queue should survive broker restarts or not. */
+  durable: Type.Optional(Type.Boolean()),
+  /** Whether the queue should be used only by one connection or not. */
+  exclusive: Type.Optional(Type.Boolean()),
+  /** Whether the queue should be deleted when the last consumer unsubscribes. */
+  autoDelete: Type.Optional(Type.Boolean()),
+  /** The virtual host of the queue. Defaults to /. */
+  vhost: Type.Optional(Type.String()),
+})
+
+/**
+ * Queue Object for AMQP.
+ */
+export type Queue = {
+  /** The name of the queue. It MUST NOT exceed 255 characters long. */
+  name?: string
+  /** Whether the queue should survive broker restarts or not. */
+  durable?: boolean
+  /** Whether the queue should be used only by one connection or not. */
+  exclusive?: boolean
+  /** Whether the queue should be deleted when the last consumer unsubscribes. */
+  autoDelete?: boolean
+  /** The virtual host of the queue. Defaults to /. */
+  vhost?: string
+}
+
 /**
  * Protocol-specific information for an AMQP 0-9-1 channel.
  */
@@ -7,43 +81,9 @@ export const AmqpChannelBindingSchemaDefinition = Type.Object({
   /** Defines what type of channel is it. Can be either queue or routingKey (default). */
   is: Type.Optional(Type.Union([Type.Literal('queue'), Type.Literal('routingKey')])),
   /** When is=routingKey, this object defines the exchange properties. */
-  exchange: Type.Optional(
-    Type.Object({
-      /** The name of the exchange. It MUST NOT exceed 255 characters long. */
-      name: Type.Optional(Type.String({ maxLength: 255 })),
-      /** The type of the exchange. Can be either topic, direct, fanout, default or headers. */
-      type: Type.Optional(
-        Type.Union([
-          Type.Literal('topic'),
-          Type.Literal('direct'),
-          Type.Literal('fanout'),
-          Type.Literal('default'),
-          Type.Literal('headers'),
-        ]),
-      ),
-      /** Whether the exchange should survive broker restarts or not. */
-      durable: Type.Optional(Type.Boolean()),
-      /** Whether the exchange should be deleted when the last queue is unbound from it. */
-      autoDelete: Type.Optional(Type.Boolean()),
-      /** The virtual host of the exchange. Defaults to /. */
-      vhost: Type.Optional(Type.String()),
-    }),
-  ),
+  exchange: Type.Optional(AmqpExchangeRef),
   /** When is=queue, this object defines the queue properties. */
-  queue: Type.Optional(
-    Type.Object({
-      /** The name of the queue. It MUST NOT exceed 255 characters long. */
-      name: Type.Optional(Type.String({ maxLength: 255 })),
-      /** Whether the queue should survive broker restarts or not. */
-      durable: Type.Optional(Type.Boolean()),
-      /** Whether the queue should be used only by one connection or not. */
-      exclusive: Type.Optional(Type.Boolean()),
-      /** Whether the queue should be deleted when the last consumer unsubscribes. */
-      autoDelete: Type.Optional(Type.Boolean()),
-      /** The virtual host of the queue. Defaults to /. */
-      vhost: Type.Optional(Type.String()),
-    }),
-  ),
+  queue: Type.Optional(AmqpQueueRef),
   /** The version of this binding. */
   bindingVersion: Type.Optional(Type.String()),
 })

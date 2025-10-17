@@ -1,9 +1,11 @@
 import { Type } from '@scalar/typebox'
 
+import { SqsIdentifierRef, SqsPolicyRef, SqsQueueRef, SqsRedrivePolicyRef, SqsStatementRef } from '../ref-definitions'
+
 /**
  * Identifier Object for SQS.
  */
-const IdentifierSchemaDefinition = Type.Object({
+export const IdentifierSchemaDefinition = Type.Object({
   /** The target is an ARN. For example, for SQS, the identifier may be an ARN. */
   arn: Type.Optional(Type.String()),
   /** The endpoint is identified by a name, which corresponds to an identifying field called name of a binding for that protocol on the Operation Object. */
@@ -23,7 +25,7 @@ export type Identifier = {
 /**
  * Statement Object for SQS Policy.
  */
-const StatementSchemaDefinition = Type.Object({
+export const StatementSchemaDefinition = Type.Object({
   /** Either Allow or Deny. */
   effect: Type.Union([Type.Literal('Allow'), Type.Literal('Deny')]),
   /** The AWS account(s) or resource ARN(s) that the statement applies to. */
@@ -60,9 +62,9 @@ export type Statement = {
 /**
  * Policy Object for SQS.
  */
-const PolicySchemaDefinition = Type.Object({
+export const PolicySchemaDefinition = Type.Object({
   /** An array of Statement objects, each of which controls a permission for this queue. */
-  statements: Type.Array(StatementSchemaDefinition),
+  statements: Type.Array(SqsStatementRef),
 })
 
 /**
@@ -76,9 +78,9 @@ export type Policy = {
 /**
  * Redrive Policy Object for SQS.
  */
-const RedrivePolicySchemaDefinition = Type.Object({
+export const RedrivePolicySchemaDefinition = Type.Object({
   /** The SQS queue to use as a dead letter queue (DLQ). */
-  deadLetterQueue: IdentifierSchemaDefinition,
+  deadLetterQueue: SqsIdentifierRef,
   /** The number of times a message is delivered to the source queue before being moved to the dead-letter queue. Default is 10. */
   maxReceiveCount: Type.Optional(Type.Integer()),
 })
@@ -96,7 +98,7 @@ export type RedrivePolicy = {
 /**
  * Queue Object for SQS.
  */
-const QueueSchemaDefinition = Type.Object({
+export const QueueSchemaDefinition = Type.Object({
   /** The name of the queue. When an SNS Operation Binding Object references an SQS queue by name, the identifier should be the one in this field. */
   name: Type.String(),
   /** Is this a FIFO queue? */
@@ -114,9 +116,9 @@ const QueueSchemaDefinition = Type.Object({
   /** How long to retain a message on the queue in seconds, unless deleted. The range is 60 (1 minute) to 1,209,600 (14 days). The default is 345,600 (4 days). */
   messageRetentionPeriod: Type.Optional(Type.Integer({ minimum: 60, maximum: 1209600 })),
   /** Prevent poison pill messages by moving un-processable messages to an SQS dead letter queue. */
-  redrivePolicy: Type.Optional(RedrivePolicySchemaDefinition),
+  redrivePolicy: Type.Optional(SqsRedrivePolicyRef),
   /** The security policy for the SQS Queue. */
-  policy: Type.Optional(PolicySchemaDefinition),
+  policy: Type.Optional(SqsPolicyRef),
   /** Key-value pairs that represent AWS tags on the queue. */
   tags: Type.Optional(Type.Record(Type.String(), Type.String())),
 })
@@ -154,9 +156,9 @@ export type Queue = {
  */
 export const SqsChannelBindingSchemaDefinition = Type.Object({
   /** A definition of the queue that will be used as the channel. */
-  queue: QueueSchemaDefinition,
+  queue: SqsQueueRef,
   /** A definition of the queue that will be used for un-processable messages. */
-  deadLetterQueue: Type.Optional(QueueSchemaDefinition),
+  deadLetterQueue: Type.Optional(SqsQueueRef),
   /** The version of this binding. */
   bindingVersion: Type.Optional(Type.String()),
 })
@@ -178,7 +180,7 @@ export type SqsChannelBinding = {
  */
 export const SqsOperationBindingSchemaDefinition = Type.Object({
   /** Queue objects that are either the endpoint for an SNS Operation Binding Object, or the deadLetterQueue of the SQS Operation Binding Object. */
-  queues: Type.Array(QueueSchemaDefinition),
+  queues: Type.Array(SqsQueueRef),
   /** The version of this binding. */
   bindingVersion: Type.Optional(Type.String()),
 })

@@ -1,5 +1,7 @@
 import { Type } from '@scalar/typebox'
 
+import { PulsarRetentionDefinitionRef } from '../ref-definitions'
+
 /**
  * Protocol-specific information for a Pulsar server.
  */
@@ -23,7 +25,7 @@ export type PulsarServerBinding = {
 /**
  * Retention Definition Object for Pulsar.
  */
-const RetentionDefinitionSchemaDefinition = Type.Object({
+export const RetentionDefinitionSchemaDefinition = Type.Object({
   /** Time given in Minutes. */
   time: Type.Optional(Type.Integer()),
   /** Size given in MegaBytes. */
@@ -53,7 +55,7 @@ export const PulsarChannelBindingSchemaDefinition = Type.Object({
   /** A list of clusters the topic is replicated to. */
   'geo-replication': Type.Optional(Type.Array(Type.String())),
   /** Topic retention policy. */
-  retention: Type.Optional(RetentionDefinitionSchemaDefinition),
+  retention: Type.Optional(PulsarRetentionDefinitionRef),
   /** Message time-to-live in seconds. */
   ttl: Type.Optional(Type.Integer()),
   /** Message deduplication. When true, it ensures that each message produced on Pulsar topics is persisted to disk only once. */
