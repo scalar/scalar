@@ -1,4 +1,4 @@
-import type { CommandChain, Merge, Queue, Task } from '@/types/index'
+import type { CommandChain, Queue, Task } from '@/types/index'
 import { dereference } from '@/utils/dereference'
 import { filter } from '@/utils/filter'
 import { load } from '@/utils/load/load'
@@ -32,7 +32,7 @@ export async function workThroughQueue<T extends Task[]>(queue: Queue<T>): Promi
       result = {
         ...result,
         ...(await load(input, options as Commands['load']['task']['options'])),
-      } as Merge<typeof result, Awaited<typeof load>>
+      }
     }
 
     // validate
@@ -40,15 +40,15 @@ export async function workThroughQueue<T extends Task[]>(queue: Queue<T>): Promi
       result = {
         ...result,
         ...filter(currentSpecification, options as Commands['filter']['task']['options']),
-      } as Merge<typeof result, ReturnType<typeof filter>>
+      }
     }
 
     // dereference
     else if (name === 'dereference') {
       result = {
         ...result,
-        ...(await dereference(currentSpecification, options as Commands['dereference']['task']['options'])),
-      } as Merge<typeof result, Awaited<typeof dereference>>
+        ...dereference(currentSpecification, options as Commands['dereference']['task']['options']),
+      }
     }
 
     // upgrade
@@ -56,7 +56,7 @@ export async function workThroughQueue<T extends Task[]>(queue: Queue<T>): Promi
       result = {
         ...result,
         ...upgrade(currentSpecification),
-      } as Merge<typeof result, ReturnType<typeof upgrade>>
+      }
     }
 
     // validate
@@ -64,15 +64,12 @@ export async function workThroughQueue<T extends Task[]>(queue: Queue<T>): Promi
       result = {
         ...result,
         ...(await validate(currentSpecification, options as Commands['validate']['task']['options'])),
-      } as Merge<typeof result, Awaited<typeof validate>>
+      }
     }
 
     // Make TS complain when we forgot to handle a command.
     else {
-      const _: never = name
-
-      // @ts-expect-error Needed to allow the unused type to still be checked
-      const nada = _
+      name satisfies never
     }
   }
 

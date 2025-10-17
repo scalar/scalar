@@ -58,7 +58,7 @@ class SwaggerParser {
       throwOnError: true,
     })
 
-    return dereference(filesystem).then((result) => result.schema)
+    return dereference(filesystem).schema
   }
 }
 
