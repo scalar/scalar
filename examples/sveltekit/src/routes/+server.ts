@@ -1,4 +1,5 @@
 import { ScalarApiReference } from '@scalar/sveltekit'
+
 import type { RequestHandler } from './$types'
 
 const handler = ScalarApiReference({
