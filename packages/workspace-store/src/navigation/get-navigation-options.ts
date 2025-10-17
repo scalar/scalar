@@ -3,12 +3,15 @@ import { slug } from 'github-slugger'
 import type { TraverseSpecOptions } from '@/navigation/types'
 import type { DocumentConfiguration } from '@/schemas/workspace-specification/config'
 
+/** Utility type to extract the argument types of a function */
+type Args<T> = T extends (...args: infer A) => unknown ? A : never
+
 /**
  * Returns options for traversing an OpenAPI document, allowing customization of
  * how IDs and slugs are generated for tags, headings, models, operations, and webhooks.
  * The returned options can be influenced by the provided DocumentConfiguration
  */
-export const getNavigationOptions = (config?: DocumentConfiguration): TraverseSpecOptions => {
+export const getNavigationOptions = (documentName: string, config?: DocumentConfiguration): TraverseSpecOptions => {
   const referenceConfig = config?.['x-scalar-reference-config']
 
   /**
@@ -106,11 +109,19 @@ export const getNavigationOptions = (config?: DocumentConfiguration): TraverseSp
     return `${prefixTag}webhook/${webhook.method}/${slug(webhook.name)}`
   }
 
-  const getHeadingId = referenceConfig?.getHeadingId ?? getHeadingIdDefault
-  const getModelId = referenceConfig?.getModelId ?? getModelIdDefault
-  const getOperationId = referenceConfig?.getOperationId ?? getOperationIdDefault
-  const getWebhookId = referenceConfig?.getWebhookId ?? getWebhookIdDefault
-  const getTagId = referenceConfig?.getTagId ?? getTagIdDefault
+  const wrapper = <T extends ((...args: any[]) => string) | undefined>(fn: T): T => {
+    if (fn === undefined) {
+      return fn
+    }
+    return ((...args: Args<T>) => `${documentName}/${fn(...args)}`) as T
+  }
+
+  // Prefix all IDs with the document name to ensure uniqueness across multiple documents
+  const getHeadingId = wrapper(referenceConfig?.getHeadingId) ?? wrapper(getHeadingIdDefault)
+  const getModelId = wrapper(referenceConfig?.getModelId) ?? wrapper(getModelIdDefault)
+  const getOperationId = wrapper(referenceConfig?.getOperationId) ?? getOperationIdDefault
+  const getWebhookId = wrapper(referenceConfig?.getWebhookId) ?? getWebhookIdDefault
+  const getTagId = wrapper(referenceConfig?.getTagId) ?? wrapper(getTagIdDefault)
 
   const hideModels = referenceConfig?.features?.showModels === false
   const operationsSorter: TraverseSpecOptions['operationsSorter'] = referenceConfig?.operationsSorter

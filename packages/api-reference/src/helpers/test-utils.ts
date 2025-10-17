@@ -22,7 +22,7 @@ export const createMockSidebar = (collapsedItems: Record<string, boolean> = {}, 
 })
 
 export const createMockSidebarFromDocument = (document: OpenAPIV3_1.Document) => {
-  const result = createNavigation(document as OpenApiDocument, {})
+  const result = createNavigation('test', document as OpenApiDocument, {})
   return createMockSidebar({}, result.entries)
 }
 

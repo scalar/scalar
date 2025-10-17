@@ -296,7 +296,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
     const paths = externalizePathReferences(documentV3, options)
 
     // Build the sidebar entries
-    const { entries } = createNavigation(documentV3, workspaceProps.config ?? {})
+    const { entries } = createNavigation(name, documentV3, workspaceProps.config ?? {})
 
     // The document is now a minimal version with externalized references to components and operations.
     // These references will be resolved asynchronously when needed through the workspace's get() method.
