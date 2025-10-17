@@ -1197,6 +1197,9 @@ importers:
       '@scalar/postman-to-openapi':
         specifier: workspace:*
         version: link:../postman-to-openapi
+      '@scalar/sidebar':
+        specifier: workspace:*
+        version: link:../sidebar
       '@scalar/snippetz':
         specifier: workspace:*
         version: link:../snippetz

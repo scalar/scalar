@@ -16,6 +16,12 @@ export type RouteProps = {
 
 /** Routes for the API client app and web, the same as modal + workspace routes */
 export const ROUTES = [
+  // Global settings
+  {
+    name: 'settings',
+    path: '/settings',
+    component: () => import('@/v2/components/TempReplaceMe.vue'),
+  },
   {
     name: 'workspace',
     path: '/workspace/:workspaceSlug',
