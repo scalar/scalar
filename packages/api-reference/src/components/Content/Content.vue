@@ -131,7 +131,12 @@ const models = computed<TraversedDescription | undefined>(() => {
           </ScalarErrorBoundary>
           <ScalarErrorBoundary>
             <IntroductionCardItem
-              v-if="options.hiddenClients !== true && clientOptions.length"
+              v-if="
+                options.hiddenClients !== true &&
+                clientOptions.length &&
+                document &&
+                isOpenApiDocument(document)
+              "
               class="introduction-card-item scalar-reference-intro-clients">
               <ClientSelector
                 class="introduction-card-item scalar-reference-intro-clients"
