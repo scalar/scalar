@@ -31,11 +31,54 @@ export const ASYNCAPI_REF_DEFINITIONS = {
   MessageBindingsObject: 'MessageBindingsObject',
 
   // Protocol-specific bindings
-  HttpBinding: 'HttpBinding',
-  WebSocketBinding: 'WebSocketBinding',
-  KafkaBinding: 'KafkaBinding',
-  AmqpBinding: 'AmqpBinding',
-  MqttBinding: 'MqttBinding',
+  // AMQP
+  AmqpChannelBinding: 'AmqpChannelBinding',
+  AmqpOperationBinding: 'AmqpOperationBinding',
+  AmqpMessageBinding: 'AmqpMessageBinding',
+  // HTTP
+  HttpOperationBinding: 'HttpOperationBinding',
+  HttpMessageBinding: 'HttpMessageBinding',
+  // WebSocket
+  WebSocketChannelBinding: 'WebSocketChannelBinding',
+  // Kafka
+  KafkaServerBinding: 'KafkaServerBinding',
+  KafkaChannelBinding: 'KafkaChannelBinding',
+  KafkaOperationBinding: 'KafkaOperationBinding',
+  KafkaMessageBinding: 'KafkaMessageBinding',
+  // MQTT
+  MqttServerBinding: 'MqttServerBinding',
+  MqttOperationBinding: 'MqttOperationBinding',
+  MqttMessageBinding: 'MqttMessageBinding',
+  // MQTT5
+  Mqtt5ServerBinding: 'Mqtt5ServerBinding',
+  // NATS
+  NatsOperationBinding: 'NatsOperationBinding',
+  // SNS
+  SnsChannelBinding: 'SnsChannelBinding',
+  SnsOperationBinding: 'SnsOperationBinding',
+  // SQS
+  SqsChannelBinding: 'SqsChannelBinding',
+  SqsOperationBinding: 'SqsOperationBinding',
+  // Google Pub/Sub
+  GooglePubSubChannelBinding: 'GooglePubSubChannelBinding',
+  GooglePubSubMessageBinding: 'GooglePubSubMessageBinding',
+  // Anypoint MQ
+  AnypointMqChannelBinding: 'AnypointMqChannelBinding',
+  AnypointMqMessageBinding: 'AnypointMqMessageBinding',
+  // IBM MQ
+  IbmMqServerBinding: 'IbmMqServerBinding',
+  IbmMqChannelBinding: 'IbmMqChannelBinding',
+  IbmMqMessageBinding: 'IbmMqMessageBinding',
+  // JMS
+  JmsServerBinding: 'JmsServerBinding',
+  JmsChannelBinding: 'JmsChannelBinding',
+  JmsMessageBinding: 'JmsMessageBinding',
+  // Pulsar
+  PulsarServerBinding: 'PulsarServerBinding',
+  PulsarChannelBinding: 'PulsarChannelBinding',
+  // Solace
+  SolaceServerBinding: 'SolaceServerBinding',
+  SolaceOperationBinding: 'SolaceOperationBinding',
 
   // Multi-format schemas
   MultiFormatSchemaObject: 'MultiFormatSchemaObject',
@@ -78,11 +121,54 @@ export const OperationBindingsObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.Oper
 export const MessageBindingsObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MessageBindingsObject)
 
 // Protocol-specific binding references
-export const HttpBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.HttpBinding)
-export const WebSocketBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.WebSocketBinding)
-export const KafkaBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.KafkaBinding)
-export const AmqpBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.AmqpBinding)
-export const MqttBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MqttBinding)
+// AMQP
+export const AmqpChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.AmqpChannelBinding)
+export const AmqpOperationBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.AmqpOperationBinding)
+export const AmqpMessageBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.AmqpMessageBinding)
+// HTTP
+export const HttpOperationBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.HttpOperationBinding)
+export const HttpMessageBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.HttpMessageBinding)
+// WebSocket
+export const WebSocketChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.WebSocketChannelBinding)
+// Kafka
+export const KafkaServerBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.KafkaServerBinding)
+export const KafkaChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.KafkaChannelBinding)
+export const KafkaOperationBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.KafkaOperationBinding)
+export const KafkaMessageBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.KafkaMessageBinding)
+// MQTT
+export const MqttServerBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MqttServerBinding)
+export const MqttOperationBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MqttOperationBinding)
+export const MqttMessageBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MqttMessageBinding)
+// MQTT5
+export const Mqtt5ServerBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.Mqtt5ServerBinding)
+// NATS
+export const NatsOperationBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.NatsOperationBinding)
+// SNS
+export const SnsChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SnsChannelBinding)
+export const SnsOperationBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SnsOperationBinding)
+// SQS
+export const SqsChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SqsChannelBinding)
+export const SqsOperationBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SqsOperationBinding)
+// Google Pub/Sub
+export const GooglePubSubChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.GooglePubSubChannelBinding)
+export const GooglePubSubMessageBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.GooglePubSubMessageBinding)
+// Anypoint MQ
+export const AnypointMqChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.AnypointMqChannelBinding)
+export const AnypointMqMessageBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.AnypointMqMessageBinding)
+// IBM MQ
+export const IbmMqServerBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.IbmMqServerBinding)
+export const IbmMqChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.IbmMqChannelBinding)
+export const IbmMqMessageBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.IbmMqMessageBinding)
+// JMS
+export const JmsServerBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.JmsServerBinding)
+export const JmsChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.JmsChannelBinding)
+export const JmsMessageBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.JmsMessageBinding)
+// Pulsar
+export const PulsarServerBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.PulsarServerBinding)
+export const PulsarChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.PulsarChannelBinding)
+// Solace
+export const SolaceServerBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SolaceServerBinding)
+export const SolaceOperationBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SolaceOperationBinding)
 
 // Multi-format schema reference
 export const MultiFormatSchemaObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MultiFormatSchemaObject)

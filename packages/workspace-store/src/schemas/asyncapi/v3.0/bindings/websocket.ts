@@ -4,9 +4,10 @@ import { SchemaObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 import type { SchemaObject } from '@/schemas/v3.1/strict/schema'
 
 /**
- * Protocol-specific information for a WebSocket server.
+ * Protocol-specific information for a WebSocket channel.
+ * When using WebSockets, the channel represents the connection.
  */
-export const WebSocketBindingSchemaDefinition = Type.Object({
+export const WebSocketChannelBindingSchemaDefinition = Type.Object({
   /** The HTTP method to use when establishing the connection. Its value MUST be either GET or POST. */
   method: Type.Optional(Type.Union([Type.Literal('GET'), Type.Literal('POST')])),
   /** A Schema object containing the definitions for each query parameter. This schema MUST be of type object and have a properties key. */
@@ -18,9 +19,10 @@ export const WebSocketBindingSchemaDefinition = Type.Object({
 })
 
 /**
- * Protocol-specific information for a WebSocket server.
+ * Protocol-specific information for a WebSocket channel.
+ * When using WebSockets, the channel represents the connection.
  */
-export type WebSocketBinding = {
+export type WebSocketChannelBinding = {
   /** The HTTP method to use when establishing the connection. Its value MUST be either GET or POST. */
   method?: 'GET' | 'POST'
   /** A Schema object containing the definitions for each query parameter. This schema MUST be of type object and have a properties key. */

@@ -1,6 +1,40 @@
 import { Type } from '@scalar/typebox'
 
-import { AmqpBindingRef, HttpBindingRef, KafkaBindingRef, MqttBindingRef, WebSocketBindingRef } from './ref-definitions'
+import {
+  AmqpChannelBindingRef,
+  AmqpMessageBindingRef,
+  AmqpOperationBindingRef,
+  AnypointMqChannelBindingRef,
+  AnypointMqMessageBindingRef,
+  GooglePubSubChannelBindingRef,
+  GooglePubSubMessageBindingRef,
+  HttpMessageBindingRef,
+  HttpOperationBindingRef,
+  IbmMqChannelBindingRef,
+  IbmMqMessageBindingRef,
+  IbmMqServerBindingRef,
+  JmsChannelBindingRef,
+  JmsMessageBindingRef,
+  JmsServerBindingRef,
+  KafkaChannelBindingRef,
+  KafkaMessageBindingRef,
+  KafkaOperationBindingRef,
+  KafkaServerBindingRef,
+  Mqtt5ServerBindingRef,
+  MqttMessageBindingRef,
+  MqttOperationBindingRef,
+  MqttServerBindingRef,
+  NatsOperationBindingRef,
+  PulsarChannelBindingRef,
+  PulsarServerBindingRef,
+  SnsChannelBindingRef,
+  SnsOperationBindingRef,
+  SolaceOperationBindingRef,
+  SolaceServerBindingRef,
+  SqsChannelBindingRef,
+  SqsOperationBindingRef,
+  WebSocketChannelBindingRef,
+} from './ref-definitions'
 
 /**
  * Base Binding Schema - Protocol-specific bindings.
@@ -8,7 +42,56 @@ import { AmqpBindingRef, HttpBindingRef, KafkaBindingRef, MqttBindingRef, WebSoc
  */
 const BindingBaseSchemaDefinition = Type.Record(
   Type.String(),
-  Type.Union([HttpBindingRef, WebSocketBindingRef, KafkaBindingRef, AmqpBindingRef, MqttBindingRef, Type.Any()]),
+  Type.Union([
+    // AMQP
+    AmqpChannelBindingRef,
+    AmqpOperationBindingRef,
+    AmqpMessageBindingRef,
+    // HTTP
+    HttpOperationBindingRef,
+    HttpMessageBindingRef,
+    // WebSocket
+    WebSocketChannelBindingRef,
+    // Kafka
+    KafkaServerBindingRef,
+    KafkaChannelBindingRef,
+    KafkaOperationBindingRef,
+    KafkaMessageBindingRef,
+    // MQTT
+    MqttServerBindingRef,
+    MqttOperationBindingRef,
+    MqttMessageBindingRef,
+    // MQTT5
+    Mqtt5ServerBindingRef,
+    // NATS
+    NatsOperationBindingRef,
+    // SNS
+    SnsChannelBindingRef,
+    SnsOperationBindingRef,
+    // SQS
+    SqsChannelBindingRef,
+    SqsOperationBindingRef,
+    // Google Pub/Sub
+    GooglePubSubChannelBindingRef,
+    GooglePubSubMessageBindingRef,
+    // Anypoint MQ
+    AnypointMqChannelBindingRef,
+    AnypointMqMessageBindingRef,
+    // IBM MQ
+    IbmMqServerBindingRef,
+    IbmMqChannelBindingRef,
+    IbmMqMessageBindingRef,
+    // JMS
+    JmsServerBindingRef,
+    JmsChannelBindingRef,
+    JmsMessageBindingRef,
+    // Pulsar
+    PulsarServerBindingRef,
+    PulsarChannelBindingRef,
+    // Solace
+    SolaceServerBindingRef,
+    SolaceOperationBindingRef,
+  ]),
 )
 
 /**

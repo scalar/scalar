@@ -50,11 +50,24 @@ import {
   OperationBindingsObjectSchemaDefinition,
   ServerBindingsObjectSchemaDefinition,
 } from './binding'
-import { AmqpBindingSchemaDefinition } from './bindings/amqp'
-import { HttpBindingSchemaDefinition } from './bindings/http'
-import { KafkaBindingSchemaDefinition } from './bindings/kafka'
-import { MqttBindingSchemaDefinition } from './bindings/mqtt'
-import { WebSocketBindingSchemaDefinition } from './bindings/websocket'
+import {
+  AmqpChannelBindingSchemaDefinition,
+  AmqpMessageBindingSchemaDefinition,
+  AmqpOperationBindingSchemaDefinition,
+} from './bindings/amqp'
+import { HttpMessageBindingSchemaDefinition, HttpOperationBindingSchemaDefinition } from './bindings/http'
+import {
+  KafkaChannelBindingSchemaDefinition,
+  KafkaMessageBindingSchemaDefinition,
+  KafkaOperationBindingSchemaDefinition,
+  KafkaServerBindingSchemaDefinition,
+} from './bindings/kafka'
+import {
+  MqttMessageBindingSchemaDefinition,
+  MqttOperationBindingSchemaDefinition,
+  MqttServerBindingSchemaDefinition,
+} from './bindings/mqtt'
+import { WebSocketChannelBindingSchemaDefinition } from './bindings/websocket'
 import { ChannelObjectSchemaDefinition } from './channel-item'
 import type { ChannelsObject } from './channels'
 import { ChannelsObjectSchemaDefinition } from './channels'
@@ -209,11 +222,24 @@ const module = Type.Module({
   [ASYNCAPI_REF_DEFINITIONS.MessageBindingsObject]: MessageBindingsObjectSchemaDefinition,
 
   // Protocol-specific bindings
-  [ASYNCAPI_REF_DEFINITIONS.HttpBinding]: HttpBindingSchemaDefinition,
-  [ASYNCAPI_REF_DEFINITIONS.WebSocketBinding]: WebSocketBindingSchemaDefinition,
-  [ASYNCAPI_REF_DEFINITIONS.KafkaBinding]: KafkaBindingSchemaDefinition,
-  [ASYNCAPI_REF_DEFINITIONS.AmqpBinding]: AmqpBindingSchemaDefinition,
-  [ASYNCAPI_REF_DEFINITIONS.MqttBinding]: MqttBindingSchemaDefinition,
+  // AMQP
+  [ASYNCAPI_REF_DEFINITIONS.AmqpChannelBinding]: AmqpChannelBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.AmqpOperationBinding]: AmqpOperationBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.AmqpMessageBinding]: AmqpMessageBindingSchemaDefinition,
+  // HTTP
+  [ASYNCAPI_REF_DEFINITIONS.HttpOperationBinding]: HttpOperationBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.HttpMessageBinding]: HttpMessageBindingSchemaDefinition,
+  // WebSocket
+  [ASYNCAPI_REF_DEFINITIONS.WebSocketChannelBinding]: WebSocketChannelBindingSchemaDefinition,
+  // Kafka
+  [ASYNCAPI_REF_DEFINITIONS.KafkaServerBinding]: KafkaServerBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.KafkaChannelBinding]: KafkaChannelBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.KafkaOperationBinding]: KafkaOperationBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.KafkaMessageBinding]: KafkaMessageBindingSchemaDefinition,
+  // MQTT
+  [ASYNCAPI_REF_DEFINITIONS.MqttServerBinding]: MqttServerBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.MqttOperationBinding]: MqttOperationBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.MqttMessageBinding]: MqttMessageBindingSchemaDefinition,
 
   // Multi-format schemas
   [ASYNCAPI_REF_DEFINITIONS.MultiFormatSchemaObject]: MultiFormatSchemaObjectSchemaDefinition,
@@ -289,11 +315,24 @@ export const OAuthFlowsObjectSchema = module.Import('OAuthFlowsObject')
 export const OAuthFlowObjectSchema = module.Import('OAuthFlowObject')
 
 // Protocol-specific binding exports
-export const HttpBindingSchema = module.Import('HttpBinding')
-export const WebSocketBindingSchema = module.Import('WebSocketBinding')
-export const KafkaBindingSchema = module.Import('KafkaBinding')
-export const AmqpBindingSchema = module.Import('AmqpBinding')
-export const MqttBindingSchema = module.Import('MqttBinding')
+// AMQP
+export const AmqpChannelBindingSchema = module.Import('AmqpChannelBinding')
+export const AmqpOperationBindingSchema = module.Import('AmqpOperationBinding')
+export const AmqpMessageBindingSchema = module.Import('AmqpMessageBinding')
+// HTTP
+export const HttpOperationBindingSchema = module.Import('HttpOperationBinding')
+export const HttpMessageBindingSchema = module.Import('HttpMessageBinding')
+// WebSocket
+export const WebSocketChannelBindingSchema = module.Import('WebSocketChannelBinding')
+// Kafka
+export const KafkaServerBindingSchema = module.Import('KafkaServerBinding')
+export const KafkaChannelBindingSchema = module.Import('KafkaChannelBinding')
+export const KafkaOperationBindingSchema = module.Import('KafkaOperationBinding')
+export const KafkaMessageBindingSchema = module.Import('KafkaMessageBinding')
+// MQTT
+export const MqttServerBindingSchema = module.Import('MqttServerBinding')
+export const MqttOperationBindingSchema = module.Import('MqttOperationBinding')
+export const MqttMessageBindingSchema = module.Import('MqttMessageBinding')
 
 export const TraversedDescriptionSchema = module.Import('TraversedDescriptionObject')
 export const TraversedEntrySchema = module.Import('TraversedEntryObject')
