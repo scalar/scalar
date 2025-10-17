@@ -121,7 +121,7 @@ export const ROUTES = [
     ],
   },
   {
-    path: '(.*)',
+    path: '/:pathMatch(.*)*',
     redirect: '/workspace/default/document/default/overview',
   },
 ] satisfies RouteRecordRaw[]

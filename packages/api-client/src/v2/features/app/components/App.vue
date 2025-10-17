@@ -21,9 +21,7 @@ const { layout } = defineProps<{
 
 <template>
   <!-- min-h-0 is to allow scrolling of individual flex children -->
-  <main
-    class="flex min-h-0 flex-1 flex-col"
-    :class="layout === 'web' ? 'sm:flex-col' : 'sm:flex-row'">
+  <main class="flex min-h-0 flex-1 flex-col">
     <!-- Insert new sidebar here -->
     <!-- <SideNav class="sidenav order-last sm:order-none" /> -->
 
@@ -32,12 +30,7 @@ const { layout } = defineProps<{
 
     <!-- <ImportCollectionListener></ImportCollectionListener> -->
 
-    <div
-      class="flex min-h-0 min-w-0 flex-1 flex-col"
-      :class="{
-        'border sm:mr-1.5 sm:mb-1.5 sm:rounded-lg sm:*:rounded-lg':
-          layout === 'desktop',
-      }">
+    <div class="flex min-h-0 min-w-0 flex-1 flex-col">
       <RouterView v-slot="{ Component }">
         <keep-alive>
           <component

@@ -7,10 +7,8 @@ import { ROUTES, type RouteProps } from '@/v2/features/app/helpers/routes'
 import type { ClientLayout } from '@/v2/types/layout'
 
 export type CreateApiClientOptions = {
-  /** Element to mount the client app to */
-  el: HTMLElement | null
   /** The workspace store must be initialized and passed in */
-  workspaceStore: WorkspaceStore
+
   /**
    * The layout of the client, limited to web or desktop in app
    * @see {@link ClientLayout}
@@ -36,7 +34,11 @@ export const createAppRouter = (layout: CreateApiClientOptions['layout']) => {
 /**
  * Create the API Client with router and passes in the workspace store as a prop
  */
-export const createApiClientApp = ({ el, workspaceStore, layout = 'desktop' }: CreateApiClientOptions) => {
+export const createApiClientApp = (
+  el: HTMLElement | null,
+  workspaceStore: WorkspaceStore,
+  { layout = 'desktop' }: CreateApiClientOptions,
+) => {
   // Pass in our initial props at the top level
   const app = createApp(App, { workspaceStore, layout } satisfies RouteProps)
 
