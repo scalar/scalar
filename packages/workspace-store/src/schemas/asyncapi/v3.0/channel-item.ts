@@ -5,8 +5,9 @@ import type { ExternalDocumentationObject } from '@/schemas/v3.1/strict/external
 import { ExternalDocumentationObjectRef, TagObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
-import type { ParameterObject } from './parameter'
-import { ParameterRef } from './ref-definitions'
+import type { ChannelBindingsObject } from './binding'
+import type { ParametersObject } from './parameters'
+import { ChannelBindingsObjectRef, ParametersObjectRef } from './ref-definitions'
 
 /**
  * Describes a shared communication channel.
@@ -24,13 +25,13 @@ export const ChannelObjectSchemaDefinition = compose(
     /** An optional list of servers on which this channel is available. If absent or empty, this channel is available on all servers defined for this application. */
     servers: Type.Optional(Type.Array(Type.String())),
     /** A map of the parameters included in the channel address. It MUST be present only when the address contains Channel Address Expressions. */
-    parameters: Type.Optional(Type.Record(Type.String(), ParameterRef)),
+    parameters: Type.Optional(ParametersObjectRef),
     /** A list of tags for logical grouping and categorization of channels. */
     tags: Type.Optional(Type.Array(TagObjectRef)),
     /** Additional external documentation for this channel. */
     externalDocs: Type.Optional(ExternalDocumentationObjectRef),
     /** A map where the keys describe the name of the protocol and the values describe protocol-specific definitions for the channel. */
-    bindings: Type.Optional(Type.Record(Type.String(), Type.Any())),
+    bindings: Type.Optional(ChannelBindingsObjectRef),
     /** An optional array of messages that will be sent to this channel by the application. */
     messages: Type.Optional(Type.Record(Type.String(), Type.String())),
   }),
@@ -51,13 +52,13 @@ export type ChannelObject = {
   /** An optional list of servers on which this channel is available. If absent or empty, this channel is available on all servers defined for this application. */
   servers?: string[]
   /** A map of the parameters included in the channel address. It MUST be present only when the address contains Channel Address Expressions. */
-  parameters?: Record<string, ParameterObject>
+  parameters?: ParametersObject
   /** A list of tags for logical grouping and categorization of channels. */
   tags?: TagObject[]
   /** Additional external documentation for this channel. */
   externalDocs?: ExternalDocumentationObject
   /** A map where the keys describe the name of the protocol and the values describe protocol-specific definitions for the channel. */
-  bindings?: Record<string, any>
+  bindings?: ChannelBindingsObject
   /** An optional array of messages that will be sent to this channel by the application. */
   messages?: Record<string, string>
 }
