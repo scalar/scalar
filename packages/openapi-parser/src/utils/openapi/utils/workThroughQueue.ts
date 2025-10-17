@@ -1,5 +1,5 @@
 import type { CommandChain, Merge, Queue, Task } from '@/types/index'
-import { dereferenceSync } from '@/utils/dereference'
+import { dereference } from '@/utils/dereference'
 import { filter } from '@/utils/filter'
 import { load } from '@/utils/load/load'
 import { upgrade } from '@/utils/upgrade'
@@ -47,8 +47,8 @@ export async function workThroughQueue<T extends Task[]>(queue: Queue<T>): Promi
     else if (name === 'dereference') {
       result = {
         ...result,
-        ...dereferenceSync(currentSpecification, options as Commands['dereference']['task']['options']),
-      } as Merge<typeof result, typeof dereferenceSync>
+        ...dereference(currentSpecification, options as Commands['dereference']['task']['options']),
+      } as Merge<typeof result, typeof dereference>
     }
 
     // upgrade

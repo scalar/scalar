@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { fetchUrls } from '../src/plugins/fetch-urls/fetch-urls'
 import { readFiles } from '../src/plugins/read-files/read-files'
-import { dereferenceSync } from '../src/utils/dereference'
+import { dereference } from '../src/utils/dereference'
 import { load } from '../src/utils/load/load'
 import { validate } from '../src/utils/validate'
 
@@ -58,7 +58,7 @@ class SwaggerParser {
       throwOnError: true,
     })
 
-    return dereferenceSync(filesystem).schema
+    return dereference(filesystem).schema
   }
 }
 

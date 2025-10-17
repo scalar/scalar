@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { redirectToProxy } from '@scalar/oas-utils/helpers'
-import { dereferenceSync } from '@scalar/openapi-parser'
+import { dereference } from '@scalar/openapi-parser'
 import {
   apiReferenceConfigurationSchema,
   type AnyApiReferenceConfiguration,
@@ -267,7 +267,7 @@ const changeSelectedDocument = async (slug: string) => {
 
   // Map the document to the client store for now
   const raw = JSON.parse(workspaceStore.exportActiveDocument('json') ?? '{}')
-  dereferenced.value = dereferenceSync(raw).schema
+  dereferenced.value = dereference(raw).schema
 }
 
 /**
@@ -366,9 +366,7 @@ onBeforeMount(() => changeSelectedDocument(activeSlug.value))
  * We keep a copy of the workspace store document in dereferenced format
  * to allow mapping to the legacy client store
  */
-const dereferenced = ref<ReturnType<typeof dereferenceSync>['schema'] | null>(
-  null,
-)
+const dereferenced = ref<ReturnType<typeof dereference>['schema'] | null>(null)
 
 const modal = useTemplateRef('modal')
 

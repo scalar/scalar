@@ -1,4 +1,4 @@
-import { dereferenceSync, normalize } from '@scalar/openapi-parser'
+import { dereference, normalize } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
 import { upgrade } from '@scalar/openapi-upgrader'
 import type { UnknownObject } from '@scalar/types/utils'
@@ -19,7 +19,7 @@ type AnyDocument = OpenAPI.Document | Record<string, unknown> | string
 export async function createHtmlFromOpenApi(input: AnyDocument) {
   // TODO: Use the new store here.
   const upgraded = upgrade(normalize(input) as UnknownObject, '3.1')
-  const { schema: content } = dereferenceSync(upgraded)
+  const { schema: content } = dereference(upgraded)
 
   // Create and configure a server-side rendered Vue app
   const app = createSSRApp(MarkdownReference, {

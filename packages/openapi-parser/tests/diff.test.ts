@@ -4,7 +4,7 @@ import { expect, test } from 'vitest'
 
 import { load, normalize } from '../src/index'
 import type { AnyObject } from '../src/types'
-import { dereferenceSync } from '../src/utils/dereference'
+import { dereference } from '../src/utils/dereference'
 
 const expectedErrors = {
   'oas/files/opensuseorgobs.yaml': [
@@ -99,7 +99,7 @@ test.concurrent.each(fetched)('diff $file', async ({ file, content }) => {
   })) as any
 
   const { filesystem } = await load(structuredClone(specification))
-  const { schema: newSchema, errors } = dereferenceSync(filesystem)
+  const { schema: newSchema, errors } = dereference(filesystem)
 
   // Errors expected
   if (expectedErrors[file]) {

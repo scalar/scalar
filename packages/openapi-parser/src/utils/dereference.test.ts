@@ -1,11 +1,11 @@
 import type { OpenAPIV3_2 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 
-import { dereferenceSync } from './dereference'
+import { dereference } from './dereference'
 
-describe('dereferenceSync', () => {
+describe('dereference', () => {
   it('dereferences an OpenAPI 3.2.0 file', () => {
-    const result = dereferenceSync(`{
+    const result = dereference(`{
       "openapi": "3.2.0",
       "info": {
           "title": "Hello World",
@@ -19,7 +19,7 @@ describe('dereferenceSync', () => {
   })
 
   it('dereferences an OpenAPI 3.1.0 file', () => {
-    const result = dereferenceSync(`{
+    const result = dereference(`{
       "openapi": "3.1.0",
       "info": {
           "title": "Hello World",
@@ -33,7 +33,7 @@ describe('dereferenceSync', () => {
   })
 
   it('dereferences an OpenAPI 3.0.0 file', () => {
-    const result = dereferenceSync(`{
+    const result = dereference(`{
       "openapi": "3.0.0",
       "info": {
           "title": "Hello World",
@@ -47,7 +47,7 @@ describe('dereferenceSync', () => {
   })
 
   it('dereferences an Swagger 2.0 file', () => {
-    const result = dereferenceSync(`{
+    const result = dereference(`{
       "swagger": "2.0",
       "info": {
           "title": "Hello World",
@@ -61,7 +61,7 @@ describe('dereferenceSync', () => {
   })
 
   it('returns version 3.1', () => {
-    const result = dereferenceSync(`{
+    const result = dereference(`{
       "openapi": "3.1.0",
       "info": {
           "title": "Hello World",
@@ -75,7 +75,7 @@ describe('dereferenceSync', () => {
   })
 
   it('returns version 3.0', () => {
-    const result = dereferenceSync(`{
+    const result = dereference(`{
       "openapi": "3.0.0",
       "info": {
           "title": "Hello World",
@@ -89,7 +89,7 @@ describe('dereferenceSync', () => {
   })
 
   it('returns version 2.0', () => {
-    const result = dereferenceSync(`{
+    const result = dereference(`{
       "swagger": "2.0",
       "info": {
           "title": "Hello World",
@@ -103,7 +103,7 @@ describe('dereferenceSync', () => {
   })
 
   it(`doesn't return version 4.0`, () => {
-    const result = dereferenceSync(`{
+    const result = dereference(`{
       "openapi": "4.0",
       "info": {
           "title": "Hello World",
@@ -155,7 +155,7 @@ describe('dereferenceSync', () => {
       },
     }
 
-    const result = dereferenceSync(openapi)
+    const result = dereference(openapi)
 
     expect(result.errors).toStrictEqual([])
 
@@ -177,7 +177,7 @@ describe('dereferenceSync', () => {
 
   it('throws an error', () => {
     expect(() => {
-      dereferenceSync(
+      dereference(
         {
           openapi: '3.1.0',
           info: {},
@@ -259,7 +259,7 @@ describe('dereferenceSync', () => {
       },
     ]
 
-    const result = dereferenceSync(filesystem)
+    const result = dereference(filesystem)
 
     expect(result.errors).toStrictEqual([])
 
@@ -284,7 +284,7 @@ describe('dereferenceSync', () => {
     })
   })
 
-  it('calls ondereferenceSync when resolving references', () => {
+  it('calls ondereference when resolving references', () => {
     const openapi = {
       openapi: '3.1.0',
       info: {
@@ -323,9 +323,9 @@ describe('dereferenceSync', () => {
       },
     }
 
-    const dereferenceSyncdSchemas: Array<{ schema: any; ref: string }> = []
+    const dereferencedSchemas: Array<{ schema: any; ref: string }> = []
 
-    const result = dereferenceSync(openapi, {
+    const result = dereference(openapi, {
       onDereference: ({ schema, ref }) => {
         expect(schema).toEqual({
           type: 'object',
@@ -338,12 +338,12 @@ describe('dereferenceSync', () => {
 
         expect(ref).toEqual('#/components/schemas/Test')
 
-        dereferenceSyncdSchemas.push({ schema, ref })
+        dereferencedSchemas.push({ schema, ref })
       },
     })
 
     expect(result.errors).toStrictEqual([])
-    expect(dereferenceSyncdSchemas).toHaveLength(1)
+    expect(dereferencedSchemas).toHaveLength(1)
   })
 
   it('dereferences operations with query operations', () => {
@@ -385,7 +385,7 @@ describe('dereferenceSync', () => {
       },
     }
 
-    const result = dereferenceSync(openapi)
+    const result = dereference(openapi)
 
     expect(result.errors).toStrictEqual([])
 
@@ -439,7 +439,7 @@ describe('dereferenceSync', () => {
       },
     }
 
-    const result = dereferenceSync(openapi)
+    const result = dereference(openapi)
 
     expect(result.errors).toStrictEqual([])
 

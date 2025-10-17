@@ -8,9 +8,14 @@ import { type ResolveReferencesOptions, resolveReferences } from './resolve-refe
 export type DereferenceOptions = ResolveReferencesOptions
 
 /**
- * Dereferences a OpenAPI document synchronously
+ * Dereferences an API definition or filesystem by resolving all references within the specification.
+ *
+ * @param value - The API definition or filesystem to dereference.\
+ *                Can be any supported API definition format or a filesystem object.
+ *
+ * @param options - Optional options for the dereferencing process.
  */
-export function dereferenceSync(
+export function dereference(
   value: AnyApiDefinitionFormat | Filesystem,
   options?: DereferenceOptions,
 ): DereferenceResult {
@@ -26,15 +31,3 @@ export function dereferenceSync(
     ...details(entrypoint.specification),
   }
 }
-
-/**
- * Resolves all references in an OpenAPI document
- *
- * Currently not needed, leaving it here for reference
- */
-// export async function dereferenceAsync(
-//   value: AnyApiDefinitionFormat | Filesystem,
-//   options?: DereferenceOptions,
-// ): Promise<DereferenceResult> {
-//   return Promise.resolve(dereferenceSync(value, options))
-// }

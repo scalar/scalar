@@ -1,7 +1,7 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { keysOf } from '@scalar/object-utils/arrays'
-import { type LoadResult, dereferenceSync, load, upgrade } from '@scalar/openapi-parser'
+import { type LoadResult, dereference, load, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { SecuritySchemeOauth2 } from '@scalar/types/entities'
@@ -57,7 +57,7 @@ const dereferenceDocument = async (
   }
 
   const { specification } = upgrade(filesystem)
-  const { schema, errors: derefErrors = [] } = dereferenceSync(specification)
+  const { schema, errors: derefErrors = [] } = dereference(specification)
 
   return {
     schema,
