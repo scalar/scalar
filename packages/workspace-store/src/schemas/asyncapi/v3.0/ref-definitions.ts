@@ -80,6 +80,38 @@ export const ASYNCAPI_REF_DEFINITIONS = {
   SolaceServerBinding: 'SolaceServerBinding',
   SolaceOperationBinding: 'SolaceOperationBinding',
 
+  // Nested schema objects
+  // AMQP
+  AmqpExchange: 'AmqpExchange',
+  AmqpQueue: 'AmqpQueue',
+  // SQS
+  SqsIdentifier: 'SqsIdentifier',
+  SqsStatement: 'SqsStatement',
+  SqsPolicy: 'SqsPolicy',
+  SqsRedrivePolicy: 'SqsRedrivePolicy',
+  SqsQueue: 'SqsQueue',
+  // SNS
+  SnsOrdering: 'SnsOrdering',
+  SnsStatement: 'SnsStatement',
+  SnsPolicy: 'SnsPolicy',
+  SnsIdentifier: 'SnsIdentifier',
+  SnsRedrivePolicy: 'SnsRedrivePolicy',
+  SnsDeliveryPolicy: 'SnsDeliveryPolicy',
+  SnsConsumer: 'SnsConsumer',
+  // MQTT
+  MqttLastWill: 'MqttLastWill',
+  // Kafka
+  KafkaTopicConfiguration: 'KafkaTopicConfiguration',
+  // IBM MQ
+  IbmMqQueue: 'IbmMqQueue',
+  IbmMqTopic: 'IbmMqTopic',
+  // Pulsar
+  PulsarRetentionDefinition: 'PulsarRetentionDefinition',
+  // Google Pub/Sub
+  GooglePubSubMessageStoragePolicy: 'GooglePubSubMessageStoragePolicy',
+  GooglePubSubSchemaSettings: 'GooglePubSubSchemaSettings',
+  GooglePubSubSchemaDefinition: 'GooglePubSubSchemaDefinition',
+
   // Multi-format schemas
   MultiFormatSchemaObject: 'MultiFormatSchemaObject',
 
@@ -169,6 +201,38 @@ export const PulsarChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.PulsarC
 // Solace
 export const SolaceServerBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SolaceServerBinding)
 export const SolaceOperationBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SolaceOperationBinding)
+
+// Nested schema object references
+// AMQP
+export const AmqpExchangeRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.AmqpExchange)
+export const AmqpQueueRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.AmqpQueue)
+// SQS
+export const SqsIdentifierRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SqsIdentifier)
+export const SqsStatementRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SqsStatement)
+export const SqsPolicyRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SqsPolicy)
+export const SqsRedrivePolicyRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SqsRedrivePolicy)
+export const SqsQueueRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SqsQueue)
+// SNS
+export const SnsOrderingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SnsOrdering)
+export const SnsStatementRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SnsStatement)
+export const SnsPolicyRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SnsPolicy)
+export const SnsIdentifierRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SnsIdentifier)
+export const SnsRedrivePolicyRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SnsRedrivePolicy)
+export const SnsDeliveryPolicyRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SnsDeliveryPolicy)
+export const SnsConsumerRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SnsConsumer)
+// MQTT
+export const MqttLastWillRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MqttLastWill)
+// Kafka
+export const KafkaTopicConfigurationRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.KafkaTopicConfiguration)
+// IBM MQ
+export const IbmMqQueueRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.IbmMqQueue)
+export const IbmMqTopicRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.IbmMqTopic)
+// Pulsar
+export const PulsarRetentionDefinitionRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.PulsarRetentionDefinition)
+// Google Pub/Sub
+export const GooglePubSubMessageStoragePolicyRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.GooglePubSubMessageStoragePolicy)
+export const GooglePubSubSchemaSettingsRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.GooglePubSubSchemaSettings)
+export const GooglePubSubSchemaDefinitionRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.GooglePubSubSchemaDefinition)
 
 // Multi-format schema reference
 export const MultiFormatSchemaObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MultiFormatSchemaObject)

@@ -3,6 +3,8 @@ import { Type } from '@scalar/typebox'
 import { SchemaObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 import type { SchemaObject } from '@/schemas/v3.1/strict/schema'
 
+import { KafkaTopicConfigurationRef } from '../ref-definitions'
+
 /**
  * Protocol-specific information for a Kafka server.
  */
@@ -30,7 +32,7 @@ export type KafkaServerBinding = {
 /**
  * Topic configuration properties for Kafka.
  */
-const TopicConfigurationSchemaDefinition = Type.Object({
+export const TopicConfigurationSchemaDefinition = Type.Object({
   /** The cleanup.policy configuration option. */
   'cleanup.policy': Type.Optional(Type.Array(Type.Union([Type.Literal('delete'), Type.Literal('compact')]))),
   /** The retention.ms configuration option. */
@@ -86,7 +88,7 @@ export const KafkaChannelBindingSchemaDefinition = Type.Object({
   /** Number of replicas configured on this topic. */
   replicas: Type.Optional(Type.Integer({ minimum: 1 })),
   /** Topic configuration properties that are relevant for the API. */
-  topicConfiguration: Type.Optional(TopicConfigurationSchemaDefinition),
+  topicConfiguration: Type.Optional(KafkaTopicConfigurationRef),
   /** The version of this binding. */
   bindingVersion: Type.Optional(Type.String()),
 })
