@@ -18,6 +18,11 @@ export default [
     layout: 'classic',
   },
   {
+    title: 'Stripe',
+    slug: 'stripe',
+    url: 'https://raw.githubusercontent.com/stripe/openapi/refs/heads/master/openapi/spec3.json',
+  },
+  {
     title: 'Relative URL Example',
     slug: 'relative-url',
     url: 'examples/openapi.json',

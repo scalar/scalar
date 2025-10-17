@@ -13,6 +13,10 @@ defineProps<{
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   }
 }>()
+
+const emit = defineEmits<{
+  (e: 'copyAnchorUrl', id: string): void
+}>()
 </script>
 <template>
   <div
@@ -28,7 +32,8 @@ defineProps<{
         :breadcrumb="breadcrumb"
         :name="item.name"
         :options="options"
-        :parameter="item" />
+        :parameter="item"
+        @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
     </ul>
   </div>
 </template>

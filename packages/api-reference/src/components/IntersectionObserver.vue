@@ -8,7 +8,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'intersecting'): void
+  (e: 'intersecting', id: string): void
 }>()
 
 const intersectionObserverRef = ref<HTMLElement>()
@@ -37,7 +37,7 @@ onMounted(() => {
       intersectionObserverRef,
       ([{ isIntersecting }]) => {
         if (isIntersecting && props.id) {
-          emit('intersecting')
+          emit('intersecting', props.id)
         }
       },
       options,

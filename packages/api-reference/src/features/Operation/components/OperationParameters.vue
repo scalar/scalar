@@ -17,6 +17,10 @@ const { parameters = [], requestBody } = defineProps<{
   }
 }>()
 
+const emit = defineEmits<{
+  (e: 'copyAnchorUrl', id: string): void
+}>()
+
 const filterParameters = (where: 'path' | 'query' | 'header' | 'cookie') =>
   parameters?.filter((parameter) => parameter.in === where) ?? []
 </script>
@@ -25,7 +29,8 @@ const filterParameters = (where: 'path' | 'query' | 'header' | 'cookie') =>
   <ParameterList
     :breadcrumb="breadcrumb ? [...breadcrumb, 'path'] : undefined"
     :options="options"
-    :parameters="filterParameters('path')">
+    :parameters="filterParameters('path')"
+    @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)">
     <template #title>Path Parameters</template>
   </ParameterList>
 
@@ -33,7 +38,8 @@ const filterParameters = (where: 'path' | 'query' | 'header' | 'cookie') =>
   <ParameterList
     :breadcrumb="breadcrumb ? [...breadcrumb, 'query'] : undefined"
     :options="options"
-    :parameters="filterParameters('query')">
+    :parameters="filterParameters('query')"
+    @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)">
     <template #title>Query Parameters</template>
   </ParameterList>
 
@@ -41,7 +47,8 @@ const filterParameters = (where: 'path' | 'query' | 'header' | 'cookie') =>
   <ParameterList
     :breadcrumb="breadcrumb ? [...breadcrumb, 'headers'] : undefined"
     :options="options"
-    :parameters="filterParameters('header')">
+    :parameters="filterParameters('header')"
+    @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)">
     <template #title>Headers</template>
   </ParameterList>
 
@@ -49,7 +56,8 @@ const filterParameters = (where: 'path' | 'query' | 'header' | 'cookie') =>
   <ParameterList
     :breadcrumb="breadcrumb ? [...breadcrumb, 'cookies'] : undefined"
     :options="options"
-    :parameters="filterParameters('cookie')">
+    :parameters="filterParameters('cookie')"
+    @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)">
     <template #title>Cookies</template>
   </ParameterList>
 
@@ -58,7 +66,8 @@ const filterParameters = (where: 'path' | 'query' | 'header' | 'cookie') =>
     v-if="requestBody"
     :breadcrumb="breadcrumb ? [...breadcrumb, 'body'] : undefined"
     :options="options"
-    :requestBody="requestBody">
+    :requestBody="requestBody"
+    @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)">
     <template #title>Body</template>
   </RequestBody>
 </template>

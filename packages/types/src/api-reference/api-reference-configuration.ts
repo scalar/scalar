@@ -256,7 +256,7 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
     })
     .optional(),
   /**
-   * To handle redirects, pass a function that will recieve:
+   * To handle redirects, pass a function that will receive:
    * - The current path with hash if pathRouting is enabled
    * - The current hash if hashRouting (default)
    * And then passes that to history.replaceState

@@ -7,13 +7,6 @@ export const useWorkspaceStoreEvents = (store: WorkspaceStore, root: Ref<HTMLEle
   const mutators = generateClientMutators(store)
 
   //------------------------------------------------------------------------------------
-  // TODO
-  //------------------------------------------------------------------------------------
-  // onCustomEvent(root, 'scalar-update-sidebar', (event) => {
-  //   console.log('scalar-update-sidebar', event)
-  // })
-
-  //------------------------------------------------------------------------------------
   // Document Meta Related Event Handlers
   //------------------------------------------------------------------------------------
   onCustomEvent(root, 'scalar-update-dark-mode', (event) => {

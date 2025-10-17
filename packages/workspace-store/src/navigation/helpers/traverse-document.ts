@@ -59,10 +59,12 @@ export const traverseDocument = (document: OpenApiDocument, config?: DocumentCon
 
     if (untaggedModels.length) {
       entries.push({
-        type: 'text',
+        type: 'tag',
         id: 'models',
         title: 'Models',
+        name: 'Models',
         children: untaggedModels,
+        isGroup: false,
       })
     }
   }

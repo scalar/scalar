@@ -1,23 +1,34 @@
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIconCaretRight } from '@scalar/icons'
+
+defineProps<{
+  modelValue: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: boolean): void
+}>()
 </script>
 <template>
   <div class="section-accordion-wrapper">
     <Disclosure
-      v-slot="{ open }"
       as="div"
-      class="section-accordion"
-      defaultOpen>
-      <DisclosureButton class="section-accordion-button">
+      class="section-accordion">
+      <DisclosureButton
+        class="section-accordion-button"
+        @click="emit('update:modelValue', !modelValue)">
         <ScalarIconCaretRight
           class="section-accordion-chevron size-5 transition-transform"
-          :class="{ 'rotate-90': open }" />
+          :class="{ 'rotate-90': modelValue }" />
         <div class="section-accordion-title">
           <slot name="title" />
         </div>
       </DisclosureButton>
-      <DisclosurePanel class="section-accordion-content">
+      <DisclosurePanel
+        v-if="modelValue"
+        class="section-accordion-content"
+        static>
         <slot />
       </DisclosurePanel>
     </Disclosure>

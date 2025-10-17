@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { type MaybeRefOrGetter, computed, ref, toValue } from 'vue'
 
 import { generateReverseIndex } from './generate-reverse-index'
 
@@ -11,22 +11,22 @@ type SidebarStateOptions = Partial<{
      * Called before an item is expanded.
      * @param id - The ID of the item to expand.
      */
-    onBeforeExpand: (id: string) => void | Promise<void>
+    onBeforeExpand: (id: string) => void
     /**
      * Called after an item is expanded.
      * @param id - The ID of the item that was expanded.
      */
-    onAfterExpand: (id: string) => void | Promise<void>
+    onAfterExpand: (id: string) => void
     /**
      * Called before an item is selected.
      * @param id - The ID of the item to select.
      */
-    onBeforeSelect: (id: string) => void | Promise<void>
+    onBeforeSelect: (id: string) => void
     /**
      * Called after an item is selected.
      * @param id - The ID of the item that was selected.
      */
-    onAfterSelect: (id: string) => void | Promise<void>
+    onAfterSelect: (id: string) => void
   }>
 }>
 
@@ -68,9 +68,12 @@ type SidebarStateOptions = Partial<{
  * await sidebarState.setExpanded('child2', true)
  * ```
  */
-export const createSidebarState = <T extends { id: string }>(items: T[], options?: SidebarStateOptions) => {
+export const createSidebarState = <T extends { id: string }>(
+  items: MaybeRefOrGetter<T[]>,
+  options?: SidebarStateOptions,
+) => {
   // Reverse index for quick lookup of items and their parents
-  const index = generateReverseIndex(items, options?.key ?? 'children')
+  const index = computed(() => generateReverseIndex(toValue(items), options?.key ?? 'children'))
   // Reactive record of selected item ids
   const selectedItems = ref<Record<string, boolean>>({})
   // Reactive record of expanded item ids
@@ -88,7 +91,7 @@ export const createSidebarState = <T extends { id: string }>(items: T[], options
    * // selectedItems.value will include 'grandchild1', 'child2', and 'root'
    * ```
    */
-  const setSelected = async (id: string) => {
+  const setSelected = (id: string) => {
     /**
      * Recursively mark all parent items as selected.
      * @param node - The current node to mark as selected.
@@ -105,18 +108,18 @@ export const createSidebarState = <T extends { id: string }>(items: T[], options
 
     // Call onBeforeSelect hook if provided
     if (options?.hooks?.onBeforeSelect) {
-      await options.hooks.onBeforeSelect(id)
+      options.hooks.onBeforeSelect(id)
     }
 
     // Clear previous selection
     selectedItems.value = {}
 
     // Mark the selected item and all its parents as selected
-    markSelected(index.get(id))
+    markSelected(index.value.get(id))
 
     // Call onAfterSelect hook if provided
     if (options?.hooks?.onAfterSelect) {
-      await options.hooks.onAfterSelect(id)
+      options.hooks.onAfterSelect(id)
     }
   }
 
@@ -137,7 +140,7 @@ export const createSidebarState = <T extends { id: string }>(items: T[], options
    * // expandedItems.value['child2'] will be false
    * ```
    */
-  const setExpanded = async (id: string, value: boolean) => {
+  const setExpanded = (id: string, value: boolean) => {
     /**
      * Recursively expand all parent items of the given node.
      * @param node - The current node to expand.
@@ -154,7 +157,7 @@ export const createSidebarState = <T extends { id: string }>(items: T[], options
 
     // Call onBeforeExpand hook if provided
     if (options?.hooks?.onBeforeExpand) {
-      await options.hooks.onBeforeExpand(id)
+      options.hooks.onBeforeExpand(id)
     }
 
     // When collapsing, only collapse the specified item, not its parents
@@ -162,22 +165,35 @@ export const createSidebarState = <T extends { id: string }>(items: T[], options
       expandedItems.value[id] = false
     } else {
       // When expanding, ensure all parents are expanded as well
-      openParents(index.get(id))
+      openParents(index.value.get(id))
     }
 
     // Call onAfterExpand hook if provided
     if (options?.hooks?.onAfterExpand) {
-      await options.hooks.onAfterExpand(id)
+      options.hooks.onAfterExpand(id)
     }
   }
 
+  const isExpanded = (id: string) => {
+    return expandedItems.value[id] ?? false
+  }
+
+  const isSelected = (id: string) => {
+    return selectedItems.value[id] ?? false
+  }
+
+  const getEntryById = (id: string) => index.value.get(id)
+
   return {
-    items,
+    items: computed(() => toValue(items)),
     index,
     selectedItems,
     expandedItems,
     setSelected,
     setExpanded,
+    isExpanded,
+    isSelected,
+    getEntryById,
   }
 }
 

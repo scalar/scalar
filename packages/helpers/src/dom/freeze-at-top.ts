@@ -25,7 +25,9 @@ export const freezeAtTop = (id: string) => {
 
     // Schedule the scroll adjustment for the next frame
     rafId = requestAnimationFrame(() => {
-      element?.scrollIntoView()
+      element?.scrollIntoView({
+        block: 'start',
+      })
       rafId = null
     })
   })

@@ -51,6 +51,10 @@ const {
   options: SchemaOptions
 }>()
 
+const emit = defineEmits<{
+  (e: 'copyAnchorUrl', id: string): void
+}>()
+
 /**
  * Determines whether to show the collapse/expand toggle button.
  * We hide the toggle for non-collapsible schemas and root-level schemas.
@@ -188,8 +192,8 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
             :hideModelNames
             :level="level + 1"
             :options
-            :schema />
-
+            :schema
+            @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
           <!-- Not an object -->
           <template v-else>
             <SchemaProperty
@@ -200,7 +204,8 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
               :hideModelNames
               :level
               :options
-              :schema />
+              :schema
+              @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
           </template>
         </DisclosurePanel>
       </div>

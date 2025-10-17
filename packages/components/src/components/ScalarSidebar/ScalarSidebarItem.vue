@@ -25,6 +25,11 @@ import type { ScalarSidebarItemProps, ScalarSidebarItemSlots } from './types'
 import { useSidebarGroups } from './useSidebarGroups'
 
 const { indent = undefined } = defineProps<ScalarSidebarItemProps>()
+
+const emit = defineEmits<{
+  (e: 'selectItem'): void
+}>()
+
 // We need to expose the slots here or we get a type error :(
 const slots = defineSlots<ScalarSidebarItemSlots>()
 
@@ -36,7 +41,8 @@ defineOptions({ inheritAttrs: false })
   <li class="group/item contents">
     <ScalarSidebarButton
       v-bind="{ ...$attrs, ...$props }"
-      :indent="indent ?? level">
+      :indent="indent ?? level"
+      @selectItem="() => emit('selectItem')">
       <!-- Pass through all the slots -->
       <template
         v-for="(_, name) in slots"
