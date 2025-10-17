@@ -123,7 +123,7 @@ const buttonStyles = cva({
             <div
               class="bg-c-accent text-b-1 flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] border-transparent p-1">
               <ScalarIcon
-                v-if="true"
+                v-if="customProxyUrl === proxyUrl"
                 icon="Checkmark"
                 size="xs"
                 thickness="3.5" />
