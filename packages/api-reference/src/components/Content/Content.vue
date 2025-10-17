@@ -126,7 +126,7 @@ const models = computed<TraversedDescription | undefined>(() => {
                 layout="reference"
                 :persistAuth="options.persistAuth"
                 :server="activeServer"
-                title="Authpentication" />
+                title="Authentication" />
             </IntroductionCardItem>
           </ScalarErrorBoundary>
           <ScalarErrorBoundary>
