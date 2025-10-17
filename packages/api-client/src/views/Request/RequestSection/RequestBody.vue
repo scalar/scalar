@@ -376,10 +376,15 @@ const handleFileUploadFormData = async (rowIdx: number) => {
       if (file) {
         const currentParams = formParams.value
         const updatedParams = [...currentParams]
+        /**
+         * TODO: Consider making the file.name the default as
+         * the current logic doesn't get updated with the uploaded
+         * file name
+         */
         updatedParams[rowIdx] = {
           ...updatedParams[rowIdx],
           file,
-          value: updatedParams[rowIdx]?.value || file.name,
+          value: updatedParams[rowIdx]?.key || file.name,
           key: updatedParams[rowIdx]?.key || file.name,
           enabled: true,
         }
