@@ -23,6 +23,7 @@ import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/s
 import LabelInput from '@/components/Form/LabelInput.vue'
 import IconSelector from '@/components/IconSelector.vue'
 import type { EnvVariable } from '@/store'
+import type { createStoreEvents } from '@/store/events'
 import type { UpdateSecuritySchemeEvent } from '@/v2/blocks/scalar-auth-selector-block/event-types'
 import Overview from '@/v2/features/document/components/Overview.vue'
 import type {
@@ -37,7 +38,7 @@ import Settings from './components/Settings.vue'
 import Tabs, { type Routes } from './components/Tabs.vue'
 
 const {
-  selectedTab = 'overview',
+  selectedTab = 'servers',
   title = 'Document Name',
   icon = 'interface-content-folder',
 } = defineProps<{
@@ -51,6 +52,12 @@ const {
   // ------- Overview tab props -------
   /** Document description in markdown format */
   description?: string
+
+  // ------- Servers tab props -------
+  /** List of server objects */
+  servers: ServerObject[]
+  /** Event bus */
+  events: ReturnType<typeof createStoreEvents>
 
   // ------- Settings tab props -------
   /** Document source url if available */
@@ -82,6 +89,13 @@ const emit = defineEmits<{
 
   // ------- Overview tab events -------
   (e: 'overview:update:description', value: string): void
+
+  // ------- Servers tab events -------
+  (e: 'server:delete', payload: { serverUrl: string }): void
+  (
+    e: 'server:update:variable',
+    payload: { serverUrl: string; name: string; value: string },
+  ): void
 
   // ------- Settings tab events -------
   (e: 'settings:deleteDocument'): void
@@ -191,7 +205,14 @@ const emit = defineEmits<{
           (value) => emit('overview:update:description', value)
         " />
       <!-- Document Servers -->
-      <Servers v-else-if="selectedTab === 'servers'" />
+      <Servers
+        v-else-if="selectedTab === 'servers'"
+        :events="events"
+        :servers="servers"
+        @server:delete="(payload) => emit('server:delete', payload)"
+        @server:update:variable="
+          (payload) => emit('server:update:variable', payload)
+        " />
       <!-- Document Authentication -->
       <Authentication
         v-else-if="selectedTab === 'authentication'"
