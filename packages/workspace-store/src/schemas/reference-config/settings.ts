@@ -23,7 +23,7 @@ export type Settings = {
 }
 
 export const defaultSettings: RequiredDeep<Settings> = {
-  proxyUrl: 'https://proxy.scalar.com',
+  proxyUrl: '',
   searchKey: 'k',
   servers: [],
   baseServerUrl: '',
