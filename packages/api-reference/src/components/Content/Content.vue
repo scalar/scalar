@@ -126,7 +126,7 @@ const models = computed<TraversedDescription | undefined>(() => {
                 layout="reference"
                 :persistAuth="options.persistAuth"
                 :server="activeServer"
-                title="Authentication" />
+                title="Authpentication" />
             </IntroductionCardItem>
           </ScalarErrorBoundary>
           <ScalarErrorBoundary>
@@ -181,7 +181,7 @@ const models = computed<TraversedDescription | undefined>(() => {
 
     <!-- Models -->
     <Models
-      v-if="!options.hideModels && document"
+      v-if="!options.hideModels && document && isOpenApiDocument(document)"
       :hash
       :models
       :options="{
