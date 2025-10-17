@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { MultiFormatSchemaObject } from '@scalar/workspace-store/schemas/asyncapi/v3.0/multi-format-schema'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { Anchor } from '@/components/Anchor'
@@ -17,7 +18,11 @@ defineProps<{
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   }
-  schemas: { id: string; name: string; schema: SchemaObject }[]
+  schemas: {
+    id: string
+    name: string
+    schema: SchemaObject | MultiFormatSchemaObject
+  }[]
 }>()
 </script>
 <template>

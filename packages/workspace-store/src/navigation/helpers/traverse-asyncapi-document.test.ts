@@ -2,7 +2,12 @@ import { describe, expect, it } from 'vitest'
 
 import { traverseAsyncApiDocument } from '@/navigation/helpers/traverse-asyncapi-document'
 import type { AsyncApiDocument } from '@/schemas/asyncapi/v3.0/asyncapi-document'
-import type { TraversedAsyncApiOperation, TraversedChannel } from '@/schemas/navigation'
+import type {
+  TraversedAsyncApiOperation,
+  TraversedChannel,
+  TraversedDescription,
+  TraversedMessage,
+} from '@/schemas/navigation'
 
 describe('traverseAsyncApiDocument', () => {
   it('should generate navigation for AsyncAPI document with channels and operations', () => {
@@ -250,5 +255,295 @@ describe('traverseAsyncApiDocument', () => {
 
     const channelEntry = result.entries[0]
     expect(channelEntry?.title).toBe('test/channel')
+  })
+
+  it('generates navigation with messages under channels', () => {
+    const document: AsyncApiDocument = {
+      asyncapi: '3.0.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      channels: {
+        'user/events': {
+          title: 'User Events',
+          messages: {
+            'userCreated': {
+              name: 'UserCreated',
+              title: 'User Created Event',
+              summary: 'A new user has been created',
+            },
+            'userUpdated': {
+              name: 'UserUpdated',
+              title: 'User Updated Event',
+              summary: 'A user has been updated',
+            },
+          },
+        },
+      },
+    }
+
+    const result = traverseAsyncApiDocument(document)
+
+    expect(result.entries).toHaveLength(1)
+    const channelEntry = result.entries[0] as TraversedChannel
+    expect(channelEntry.type).toBe('channel')
+    expect(channelEntry.title).toBe('User Events')
+    expect(channelEntry.children).toHaveLength(1)
+
+    // Check Messages group
+    const messagesGroup = channelEntry.children![0] as TraversedDescription
+    expect(messagesGroup.type).toBe('text')
+    expect(messagesGroup.title).toBe('Messages')
+    expect(messagesGroup.children).toHaveLength(2)
+
+    // Check message entries
+    const userCreatedMessage = messagesGroup.children![0] as TraversedMessage
+    expect(userCreatedMessage.type).toBe('asyncapi-message')
+    expect(userCreatedMessage.title).toBe('User Created Event')
+    expect(userCreatedMessage.name).toBe('userCreated')
+    expect(userCreatedMessage.channel).toBe('user/events')
+    expect(userCreatedMessage.ref).toBe('#/components/messages/UserCreated')
+
+    const userUpdatedMessage = messagesGroup.children![1] as TraversedMessage
+    expect(userUpdatedMessage.type).toBe('asyncapi-message')
+    expect(userUpdatedMessage.title).toBe('User Updated Event')
+    expect(userUpdatedMessage.name).toBe('userUpdated')
+    expect(userUpdatedMessage.channel).toBe('user/events')
+    expect(userUpdatedMessage.ref).toBe('#/components/messages/UserUpdated')
+  })
+
+  it('generates navigation with both operations and messages under channels', () => {
+    const document: AsyncApiDocument = {
+      asyncapi: '3.0.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      channels: {
+        'user/events': {
+          title: 'User Events',
+          messages: {
+            'userCreated': {
+              name: 'UserCreated',
+              title: 'User Created Event',
+            },
+          },
+        },
+      },
+      operations: {
+        'subscribeUserEvents': {
+          action: 'receive',
+          channel: 'user/events',
+          title: 'Subscribe to User Events',
+        },
+      },
+    }
+
+    const result = traverseAsyncApiDocument(document)
+
+    const channelEntry = result.entries[0] as TraversedChannel
+    expect(channelEntry.children).toHaveLength(2)
+
+    // First should be operation
+    const operation = channelEntry.children![0] as TraversedAsyncApiOperation
+    expect(operation.type).toBe('asyncapi-operation')
+    expect(operation.action).toBe('receive')
+    expect(operation.title).toBe('Subscribe to User Events')
+
+    // Second should be Messages group
+    const messagesGroup = channelEntry.children![1] as TraversedDescription
+    expect(messagesGroup.type).toBe('text')
+    expect(messagesGroup.title).toBe('Messages')
+    expect(messagesGroup.children).toHaveLength(1)
+
+    const message = messagesGroup.children![0] as TraversedMessage
+    expect(message.type).toBe('asyncapi-message')
+    expect(message.title).toBe('User Created Event')
+  })
+
+  it('handles channels without messages', () => {
+    const document: AsyncApiDocument = {
+      asyncapi: '3.0.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      channels: {
+        'user/events': {
+          title: 'User Events',
+        },
+      },
+      operations: {
+        'subscribeUserEvents': {
+          action: 'receive',
+          channel: 'user/events',
+          title: 'Subscribe to User Events',
+        },
+      },
+    }
+
+    const result = traverseAsyncApiDocument(document)
+
+    const channelEntry = result.entries[0] as TraversedChannel
+    expect(channelEntry.children).toHaveLength(1) // Only operation, no Messages group
+
+    const operation = channelEntry.children![0] as TraversedAsyncApiOperation
+    expect(operation.type).toBe('asyncapi-operation')
+  })
+
+  it('generates navigation with models section', () => {
+    const document: AsyncApiDocument = {
+      asyncapi: '3.0.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      channels: {
+        'user/events': {
+          title: 'User Events',
+        },
+      },
+      components: {
+        schemas: {
+          'User': {
+            title: 'User',
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              name: { type: 'string' },
+            },
+          },
+          'UserEvent': {
+            title: 'User Event',
+            type: 'object',
+            properties: {
+              userId: { type: 'string' },
+              eventType: { type: 'string' },
+            },
+          },
+        },
+      },
+    }
+
+    const config = {
+      'x-scalar-reference-config': {
+        features: {
+          showModels: true,
+        },
+      },
+    }
+
+    const result = traverseAsyncApiDocument(document, config)
+
+    expect(result.entries).toHaveLength(2) // channel + models
+
+    // Check models section
+    const modelsSection = result.entries[1] as TraversedDescription
+    expect(modelsSection.type).toBe('text')
+    expect(modelsSection.title).toBe('Models')
+    expect(modelsSection.children).toHaveLength(2)
+
+    // Check model entries
+    const userModel = modelsSection.children![0]
+    expect(userModel?.type).toBe('model')
+    expect(userModel?.title).toBe('User')
+
+    const userEventModel = modelsSection.children![1]
+    expect(userEventModel?.type).toBe('model')
+    expect(userEventModel?.title).toBe('User Event')
+  })
+
+  it('hides models section when showModels is false', () => {
+    const document: AsyncApiDocument = {
+      asyncapi: '3.0.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      channels: {
+        'user/events': {
+          title: 'User Events',
+        },
+      },
+      components: {
+        schemas: {
+          'User': {
+            title: 'User',
+            type: 'object',
+          },
+        },
+      },
+    }
+
+    const config = {
+      'x-scalar-reference-config': {
+        features: {
+          showModels: false,
+        },
+      },
+    }
+
+    const result = traverseAsyncApiDocument(document, config)
+
+    expect(result.entries).toHaveLength(1) // Only channel, no models
+    expect(result.entries[0]?.type).toBe('channel')
+  })
+
+  it('handles messages without titles or summaries', () => {
+    const document: AsyncApiDocument = {
+      asyncapi: '3.0.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      channels: {
+        'user/events': {
+          title: 'User Events',
+          messages: {
+            'userCreated': {
+              name: 'UserCreated',
+            },
+          },
+        },
+      },
+    }
+
+    const result = traverseAsyncApiDocument(document)
+
+    const channelEntry = result.entries[0] as TraversedChannel
+    const messagesGroup = channelEntry.children![0] as TraversedDescription
+    const message = messagesGroup.children![0] as TraversedMessage
+
+    expect(message.title).toBe('UserCreated') // Uses the name property from the message
+  })
+
+  it('generates proper message IDs', () => {
+    const document: AsyncApiDocument = {
+      asyncapi: '3.0.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      channels: {
+        'user/events': {
+          title: 'User Events',
+          messages: {
+            'userCreated': {
+              name: 'UserCreated',
+              title: 'User Created Event',
+            },
+          },
+        },
+      },
+    }
+
+    const result = traverseAsyncApiDocument(document)
+
+    const channelEntry = result.entries[0] as TraversedChannel
+    const messagesGroup = channelEntry.children![0] as TraversedDescription
+    const message = messagesGroup.children![0] as TraversedMessage
+
+    expect(message.id).toBe('message/userevents/usercreated')
   })
 })

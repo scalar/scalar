@@ -6,8 +6,9 @@ import { ExternalDocumentationObjectRef, TagObjectRef } from '@/schemas/v3.1/str
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
 import type { ChannelBindingsObject } from './binding'
+import type { MessagesObject } from './messages'
 import type { ParametersObject } from './parameters'
-import { ChannelBindingsObjectRef, ParametersObjectRef } from './ref-definitions'
+import { ChannelBindingsObjectRef, MessagesObjectRef, ParametersObjectRef } from './ref-definitions'
 
 /**
  * Describes a shared communication channel.
@@ -32,8 +33,8 @@ export const ChannelObjectSchemaDefinition = compose(
     externalDocs: Type.Optional(ExternalDocumentationObjectRef),
     /** A map where the keys describe the name of the protocol and the values describe protocol-specific definitions for the channel. */
     bindings: Type.Optional(ChannelBindingsObjectRef),
-    /** An optional array of messages that will be sent to this channel by the application. */
-    messages: Type.Optional(Type.Record(Type.String(), Type.String())),
+    /** A map of Message Objects (or references to them) that will be sent to this channel by any application at any time. */
+    messages: Type.Optional(MessagesObjectRef),
   }),
 )
 
@@ -59,6 +60,6 @@ export type ChannelObject = {
   externalDocs?: ExternalDocumentationObject
   /** A map where the keys describe the name of the protocol and the values describe protocol-specific definitions for the channel. */
   bindings?: ChannelBindingsObject
-  /** An optional array of messages that will be sent to this channel by the application. */
-  messages?: Record<string, string>
+  /** A map of Message Objects (or references to them) that will be sent to this channel by any application at any time. */
+  messages?: MessagesObject
 }
