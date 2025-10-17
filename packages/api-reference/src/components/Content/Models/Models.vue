@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { isMultiFormatSchemaObject } from '@scalar/workspace-store/helpers/type-guards'
+import type { ComponentsObject as AsyncApiComponentsObject } from '@scalar/workspace-store/schemas/asyncapi/v3.0/components'
 import type { TraversedDescription } from '@scalar/workspace-store/schemas/navigation'
-import type { ComponentsObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type {
+  ComponentsObject as OpenApiComponentsObject,
+  SchemaObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import { Lazy } from '@/components/Lazy'
@@ -10,7 +15,9 @@ import ClassicLayout from './ClassicLayout.vue'
 import ModernLayout from './ModernLayout.vue'
 
 const { schemas = {}, models } = defineProps<{
-  schemas: ComponentsObject['schemas']
+  schemas:
+    | OpenApiComponentsObject['schemas']
+    | AsyncApiComponentsObject['schemas']
   models: TraversedDescription | undefined
   hash: string
   options: {
@@ -30,13 +37,18 @@ const flatSchemas = computed(() => {
     .map((it) => ({
       id: it.id,
       name: it.name,
-      schema: getResolvedRef(schemas[it.name]),
+      // TODO: Add support for multi-format schemas, remove type-casting and v-if
+      schema: getResolvedRef(schemas[it.name]) as SchemaObject,
     }))
 })
 </script>
 <template>
   <Lazy
-    v-if="schemas && Object.keys(schemas).length > 0"
+    v-if="
+      schemas &&
+      Object.keys(schemas).length > 0 &&
+      !isMultiFormatSchemaObject(schemas)
+    "
     id="models"
     :isLazy="Boolean(hash) && !hash.startsWith('model')">
     <ClassicLayout

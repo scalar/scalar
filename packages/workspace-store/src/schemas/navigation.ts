@@ -135,6 +135,25 @@ export type TraversedChannel = BaseSchema & {
   xKeys?: Record<string, unknown>
 }
 
+export const TraversedMessageSchemaDefinition = compose(
+  NavigationBaseSchemaDefinition,
+  Type.Object({
+    type: Type.Literal('asyncapi-message'),
+    ref: Type.String(),
+    name: Type.String(),
+    channel: Type.String(),
+    isDeprecated: Type.Optional(Type.Boolean()),
+  }),
+)
+
+export type TraversedMessage = BaseSchema & {
+  type: 'asyncapi-message'
+  ref: string
+  name: string
+  channel: string
+  isDeprecated?: boolean
+}
+
 export const TraversedTagSchemaDefinition = compose(
   NavigationBaseSchemaDefinition,
   Type.Object({
@@ -167,6 +186,7 @@ export const TraversedEntrySchemaDefinition = Type.Union([
   TraversedExampleSchemaDefinition,
   TraversedAsyncApiOperationSchemaDefinition,
   TraversedChannelSchemaDefinition,
+  TraversedMessageSchemaDefinition,
 ])
 
 export type TraversedEntry =
@@ -178,3 +198,4 @@ export type TraversedEntry =
   | TraversedExample
   | TraversedAsyncApiOperation
   | TraversedChannel
+  | TraversedMessage

@@ -1,7 +1,8 @@
 import { slug } from 'github-slugger'
 
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { AsyncApiDocument } from '@/schemas/asyncapi/v3.0/asyncapi-document'
-import type { TraversedEntry } from '@/schemas/navigation'
+import type { TraversedEntry, TraversedMessage, TraversedSchema } from '@/schemas/navigation'
 import type { DocumentConfiguration } from '@/schemas/workspace-specification/config'
 
 import { traverseDescription } from './traverse-description'
@@ -29,6 +30,9 @@ export type TraverseAsyncApiOptions = {
 
   /** Function to generate unique IDs for channels */
   getChannelId: (channel: { name: string }) => string
+
+  /** Function to generate unique IDs for messages */
+  getMessageId: (message: { name: string; channel: string }) => string
 }
 
 /**
@@ -85,12 +89,26 @@ export const getAsyncApiNavigationOptions = (config?: DocumentConfiguration): Tr
     return ''
   }
 
+  /**
+   * Generate a message id.
+   * If a custom generateMessageSlug function is provided in the referenceConfig, use it to generate the message slug.
+   * Otherwise, fall back to using the default slug function from 'github-slugger' on the message name and channel.
+   */
+  const getMessageIdDefault: TraverseAsyncApiOptions['getMessageId'] = (message) => {
+    // const generateMessageSlug = referenceConfig?.generateMessageSlug
+    // if (generateMessageSlug) {
+    //   return `message/${generateMessageSlug(message)}`
+    // }
+    return `message/${slug(message.channel)}/${slug(message.name)}`
+  }
+
   return {
     // channelsSorter: referenceConfig?.channelsSorter ?? 'alpha',
     // operationsSorter: referenceConfig?.operationsSorter ?? 'action',
     getChannelId: getChannelIdDefault,
     getOperationId: getOperationIdDefault,
     getHeadingId: getHeadingIdDefault,
+    getMessageId: getMessageIdDefault,
   }
 }
 
@@ -123,11 +141,111 @@ const createAsyncApiOperationEntry = (
 }
 
 /**
+ * Creates a traversed message entry for AsyncAPI messages.
+ */
+const createAsyncApiMessageEntry = (
+  ref: string,
+  messageName: string,
+  channelName: string,
+  message: {
+    name?: string
+    title?: string
+    summary?: string
+    description?: string
+    deprecated?: boolean
+  },
+  getMessageId: TraverseAsyncApiOptions['getMessageId'],
+): TraversedMessage => {
+  const title = message.title || message.summary || message.name || messageName
+
+  return {
+    type: 'asyncapi-message',
+    id: getMessageId({ name: messageName, channel: channelName }),
+    title,
+    ref,
+    name: messageName,
+    channel: channelName,
+    isDeprecated: message.deprecated,
+  }
+}
+
+/**
+ * Traverses the messages in a channel to create message entries.
+ */
+const traverseChannelMessages = (
+  channelName: string,
+  channel: any,
+  getMessageId: TraverseAsyncApiOptions['getMessageId'],
+): TraversedMessage[] => {
+  const messageEntries: TraversedMessage[] = []
+
+  if (!channel.messages) {
+    return messageEntries
+  }
+
+  // Process each message in the channel
+  Object.entries(channel.messages).forEach(([messageName, messageRef]) => {
+    // Resolve the message reference
+    const resolvedMessage = getResolvedRef(messageRef)
+
+    if (!resolvedMessage) {
+      return
+    }
+
+    // Create reference to the message in components
+    const ref = `#/components/messages/${(resolvedMessage as any)?.name || messageName}`
+
+    const messageEntry = createAsyncApiMessageEntry(ref, messageName, channelName, resolvedMessage, getMessageId)
+
+    messageEntries.push(messageEntry)
+  })
+
+  return messageEntries
+}
+
+/**
+ * Traverses the schemas in an AsyncAPI document to create model entries.
+ */
+const traverseAsyncApiSchemas = (
+  document: AsyncApiDocument,
+  getModelId: TraverseAsyncApiOptions['getMessageId'],
+): TraversedSchema[] => {
+  const schemas = document.components?.schemas ?? {}
+  const schemaEntries: TraversedSchema[] = []
+
+  for (const name in schemas) {
+    if (!Object.hasOwn(schemas, name)) {
+      continue
+    }
+
+    const schema = getResolvedRef(schemas[name])
+
+    if (!schema) {
+      continue
+    }
+
+    const ref = `#/components/schemas/${name}`
+    const title = (schema as any)?.title || name
+
+    schemaEntries.push({
+      type: 'model',
+      id: getModelId({ name, channel: '' }), // Reuse message ID function for now
+      title,
+      ref,
+      name,
+    })
+  }
+
+  return schemaEntries
+}
+
+/**
  * Traverses the channels in an AsyncAPI document to build a map of operations organized by channels.
  */
 export const traverseAsyncApiChannels = (
   document: AsyncApiDocument,
   getOperationId: TraverseAsyncApiOptions['getOperationId'],
+  getMessageId: TraverseAsyncApiOptions['getMessageId'],
 ) => {
   const channelEntries: TraversedEntry[] = []
 
@@ -153,7 +271,7 @@ export const traverseAsyncApiChannels = (
     })
   }
 
-  // Then, create channel entries with their operations
+  // Then, create channel entries with their operations and messages
   Object.entries(document.channels).forEach(([channelName, channelItem]) => {
     // Handle ReferenceType - channelItem could be a $ref or the actual channel
     const actualChannel = '$ref' in channelItem ? channelItem['$ref-value'] : channelItem
@@ -175,13 +293,27 @@ export const traverseAsyncApiChannels = (
       return 0
     })
 
+    // Get messages for this channel
+    const messageEntries = traverseChannelMessages(channelName, actualChannel, getMessageId)
+
+    // Create Messages group if there are messages
+    const children: TraversedEntry[] = [...operationEntries]
+    if (messageEntries.length > 0) {
+      children.push({
+        type: 'text',
+        id: `messages-${slug(channelName)}`,
+        title: 'Messages',
+        children: messageEntries,
+      })
+    }
+
     const channelEntry: TraversedEntry = {
       type: 'channel',
       id: `channel/${slug(channelName)}`,
       title: actualChannel?.title || actualChannel?.summary || channelName,
       name: channelName,
       description: actualChannel?.description,
-      children: operationEntries,
+      children,
       isGroup: false,
     }
 
@@ -204,11 +336,12 @@ export const traverseAsyncApiChannels = (
  *
  * This function processes the AsyncAPI document to create:
  * - A hierarchical navigation structure for the sidebar
- * - Channel-based organization of operations
+ * - Channel-based organization of operations and messages
  * - Optional description documentation
+ * - Models section from components.schemas
  */
 export const traverseAsyncApiDocument = (document: AsyncApiDocument, config?: DocumentConfiguration) => {
-  const { getHeadingId, getOperationId } = getAsyncApiNavigationOptions(config)
+  const { getHeadingId, getOperationId, getMessageId } = getAsyncApiNavigationOptions(config)
 
   const entries: TraversedEntry[] = []
 
@@ -216,9 +349,25 @@ export const traverseAsyncApiDocument = (document: AsyncApiDocument, config?: Do
   const descriptionEntries = traverseDescription(document.info?.description, getHeadingId)
   entries.push(...descriptionEntries)
 
-  // Add channels and their operations
-  const channelEntries = traverseAsyncApiChannels(document, getOperationId)
+  // Add channels and their operations and messages
+  const channelEntries = traverseAsyncApiChannels(document, getOperationId, getMessageId)
   entries.push(...channelEntries)
+
+  // Add models if they are not hidden
+  const hideModels = !config?.['x-scalar-reference-config']?.features?.showModels
+
+  if (!hideModels && document.components?.schemas) {
+    const untaggedModels = traverseAsyncApiSchemas(document, getMessageId)
+
+    if (untaggedModels.length) {
+      entries.push({
+        type: 'text',
+        id: 'models',
+        title: 'Models',
+        children: untaggedModels,
+      })
+    }
+  }
 
   return { entries }
 }
