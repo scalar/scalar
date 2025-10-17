@@ -1,15 +1,12 @@
 <script setup lang="ts">
 /**
- * Document page
+ * Main Document Page Component
  *
- * This component represents the main document page where users can view and edit document details.
- * It includes features such as selecting document icons, editing document titles, and navigating through different tabs
- * like Overview, Servers, Authentication, Environment, and Settings.
- *
- * Props:
- * - selectedTab: The currently selected tab (default is 'overview').
- * - icon: The icon representing the document (default is 'interface-content-folder').
- * - title: The title of the document.
+ * Displays primary document editing and viewing interface, enabling users to:
+ *   - Choose a document icon
+ *   - Edit the document title
+ *   - Navigate among Overview, Servers, Authentication, Environment, and Settings tabs
+ *   - Interact with associated document features and settings for each tab
  */
 import { ScalarButton } from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons/library'
