@@ -48,6 +48,10 @@ const {
   /** Document title */
   title: string
 
+  // ------- Overview tab props -------
+  /** Document description in markdown format */
+  description?: string
+
   // ------- Settings tab props -------
   /** Document source url if available */
   documentUrl?: string
@@ -67,7 +71,6 @@ const {
   server: ServerObject | undefined
 
   // ------- To be removed -------
-  /** TODO: remove when we migrate */
   environment: EnvironmentOasType
   envVariables: EnvVariable[]
 }>()
@@ -76,6 +79,9 @@ const emit = defineEmits<{
   (e: 'update:selectedTab', value: Routes): void
   (e: 'update:documentTitle', value: string): void
   (e: 'update:documentIcon', value: string): void
+
+  // ------- Overview tab events -------
+  (e: 'overview:update:description', value: string): void
 
   // ------- Settings tab events -------
   (e: 'settings:deleteDocument'): void
@@ -176,7 +182,14 @@ const emit = defineEmits<{
     <!-- Tab views -->
     <div class="flex h-full w-full flex-col gap-12 px-1.5 pt-8">
       <!-- Document Overview -->
-      <Overview v-if="selectedTab === 'overview'" />
+      <Overview
+        v-if="selectedTab === 'overview'"
+        :description="description ?? ''"
+        :envVariables="envVariables"
+        :environment="environment"
+        @overview:update:description="
+          (value) => emit('overview:update:description', value)
+        " />
       <!-- Document Servers -->
       <Servers v-else-if="selectedTab === 'servers'" />
       <!-- Document Authentication -->
