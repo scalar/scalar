@@ -13,7 +13,7 @@
  */
 import { ScalarButton } from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons/library'
-import type { Environment as EnvironmentType } from '@scalar/oas-utils/entities/environment'
+import type { Environment as EnvironmentOasType } from '@scalar/oas-utils/entities/environment'
 import type {
   OpenApiDocument,
   SecuritySchemeObject,
@@ -25,6 +25,10 @@ import IconSelector from '@/components/IconSelector.vue'
 import type { EnvVariable } from '@/store'
 import type { UpdateSecuritySchemeEvent } from '@/v2/blocks/scalar-auth-selector-block/event-types'
 import Overview from '@/v2/features/document/components/Overview.vue'
+import type {
+  Environment as EnvironmentType,
+  EnvironmentVariable,
+} from '@/v2/features/environments'
 
 import Authentication from './components/Authentication.vue'
 import Environment from './components/Environment.vue'
@@ -33,7 +37,7 @@ import Settings from './components/Settings.vue'
 import Tabs, { type Routes } from './components/Tabs.vue'
 
 const {
-  selectedTab = 'authentication',
+  selectedTab = 'overview',
   title = 'Document Name',
   icon = 'interface-content-folder',
 } = defineProps<{
@@ -64,7 +68,7 @@ const {
 
   // ------- To be removed -------
   /** TODO: remove when we migrate */
-  environment: EnvironmentType
+  environment: EnvironmentOasType
   envVariables: EnvVariable[]
 }>()
 
@@ -90,6 +94,48 @@ const emit = defineEmits<{
     payload: {
       value: NonNullable<OpenApiDocument['x-scalar-selected-security']>
       create: SecuritySchemeObject[]
+    },
+  ): void
+
+  // ------- Environment tab events -------
+  (
+    e: 'environment:reorder',
+    payload: {
+      draggingItem: { id: string }
+      hoveredItem: { id: string }
+    },
+  ): void
+  (e: 'environment:add', payload: { environment: EnvironmentType }): void
+  (
+    e: 'environment:update',
+    payload: { environmentName: string; environment: Partial<EnvironmentType> },
+  ): void
+  (e: 'environment:delete', payload: { environmentName: string }): void
+  (
+    e: 'environment:add:variable',
+    payload: {
+      environmentName: string
+      environmentVariable: Partial<EnvironmentVariable>
+    },
+  ): void
+  (
+    e: 'environment:update:variable',
+    payload: {
+      /** Row number */
+      id: number
+      /** Environment name */
+      environmentName: string
+      /** Payload */
+      environmentVariable: Partial<EnvironmentVariable>
+    },
+  ): void
+  (
+    e: 'environment:delete:variable',
+    payload: {
+      /** Environment name */
+      environmentName: string
+      /** Row number */
+      id: number
     },
   ): void
 }>()
@@ -128,43 +174,67 @@ const emit = defineEmits<{
       :selectedTab="selectedTab"
       @update:selectedTab="(tab) => emit('update:selectedTab', tab)" />
     <!-- Tab views -->
-    <!-- Document Overview -->
-    <Overview v-if="selectedTab === 'overview'" />
-    <!-- Document Servers -->
-    <Servers v-else-if="selectedTab === 'servers'" />
-    <!-- Document Authentication -->
-    <Authentication
-      v-else-if="selectedTab === 'authentication'"
-      :envVariables="envVariables"
-      :environment="environment"
-      :security="security"
-      :securitySchemes="securitySchemes"
-      :selectedSecurity="selectedSecurity"
-      :server="server"
-      :useDocumentSecurity="useDocumentSecurity"
-      @deleteOperationAuth="(names) => emit('auth:deleteOperationAuth', names)"
-      @update:securityScheme="
-        (payload) => emit('auth:update:securityScheme', payload)
-      "
-      @update:selectedScopes="
-        (payload) => emit('auth:update:selectedScopes', payload)
-      "
-      @update:selectedSecurity="
-        (payload) => emit('auth:update:selectedSecurity', payload)
-      "
-      @update:useDocumentSecurity="
-        (value) => emit('auth:update:useDocumentSecurity', value)
-      " />
-    <!-- Document Environments -->
-    <Environment v-else-if="selectedTab === 'environment'" />
-    <!-- Document Settings -->
-    <Settings
-      v-else-if="selectedTab === 'settings'"
-      :documentUrl="documentUrl"
-      :title="title"
-      :watchMode="watchMode"
-      @deleteDocument="emit('settings:deleteDocument')"
-      @update:watchMode="(value) => emit('settings:update:watchMode', value)" />
+    <div class="flex h-full w-full flex-col gap-12 px-1.5 pt-8">
+      <!-- Document Overview -->
+      <Overview v-if="selectedTab === 'overview'" />
+      <!-- Document Servers -->
+      <Servers v-else-if="selectedTab === 'servers'" />
+      <!-- Document Authentication -->
+      <Authentication
+        v-else-if="selectedTab === 'authentication'"
+        :envVariables="envVariables"
+        :environment="environment"
+        :security="security"
+        :securitySchemes="securitySchemes"
+        :selectedSecurity="selectedSecurity"
+        :server="server"
+        :useDocumentSecurity="useDocumentSecurity"
+        @deleteOperationAuth="
+          (names) => emit('auth:deleteOperationAuth', names)
+        "
+        @update:securityScheme="
+          (payload) => emit('auth:update:securityScheme', payload)
+        "
+        @update:selectedScopes="
+          (payload) => emit('auth:update:selectedScopes', payload)
+        "
+        @update:selectedSecurity="
+          (payload) => emit('auth:update:selectedSecurity', payload)
+        "
+        @update:useDocumentSecurity="
+          (value) => emit('auth:update:useDocumentSecurity', value)
+        " />
+      <!-- Document Environments -->
+      <Environment
+        v-else-if="selectedTab === 'environment'"
+        :documentName="title"
+        :envVariables="envVariables"
+        :environment="environment"
+        :environments="[]"
+        @environment:add="(payload) => emit('environment:add', payload)"
+        @environment:add:variable="
+          (payload) => emit('environment:add:variable', payload)
+        "
+        @environment:delete="(payload) => emit('environment:delete', payload)"
+        @environment:delete:variable="
+          (payload) => emit('environment:delete:variable', payload)
+        "
+        @environment:reorder="(payload) => emit('environment:reorder', payload)"
+        @environment:update="(payload) => emit('environment:update', payload)"
+        @environment:update:variable="
+          (payload) => emit('environment:update:variable', payload)
+        " />
+      <!-- Document Settings -->
+      <Settings
+        v-else-if="selectedTab === 'settings'"
+        :documentUrl="documentUrl"
+        :title="title"
+        :watchMode="watchMode"
+        @deleteDocument="emit('settings:deleteDocument')"
+        @update:watchMode="
+          (value) => emit('settings:update:watchMode', value)
+        " />
+    </div>
     <!-- Tab views end -->
   </div>
 </template>

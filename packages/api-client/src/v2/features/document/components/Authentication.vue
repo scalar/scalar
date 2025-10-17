@@ -50,44 +50,42 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div class="flex h-full w-full flex-col gap-12 px-1.5 pt-8">
-    <div class="flex flex-col gap-4">
-      <div class="flex flex-col gap-2">
-        <div class="flex h-8 items-center justify-between">
-          <h3 class="font-bold">Authentication</h3>
-          <ScalarToggle
-            class="w-4"
-            :modelValue="useDocumentSecurity"
-            @update:modelValue="
-              (value) => emit('update:useDocumentSecurity', value)
-            " />
-        </div>
-        <p class="pr-6 text-sm">
-          Added authentication will apply to all requests under this collection.
-          You can override this by specifying another one in the request.
-        </p>
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-2">
+      <div class="flex h-8 items-center justify-between">
+        <h3 class="font-bold">Authentication</h3>
+        <ScalarToggle
+          class="w-4"
+          :modelValue="useDocumentSecurity"
+          @update:modelValue="
+            (value) => emit('update:useDocumentSecurity', value)
+          " />
       </div>
-      <AuthSelector
-        class="scalar-collection-auth"
-        :envVariables="envVariables"
-        :environment="environment"
-        layout="client"
-        :security="security"
-        :securitySchemes="securitySchemes"
-        :selectedSecurity="selectedSecurity"
-        :server="server"
-        title="Authentication"
-        @deleteOperationAuth="(names) => emit('deleteOperationAuth', names)"
-        @update:securityScheme="
-          (payload) => emit('update:securityScheme', payload)
-        "
-        @update:selectedScopes="
-          (payload) => emit('update:selectedScopes', payload)
-        "
-        @update:selectedSecurity="
-          (payload) => emit('update:selectedSecurity', payload)
-        " />
+      <p class="pr-6 text-sm">
+        Added authentication will apply to all requests under this collection.
+        You can override this by specifying another one in the request.
+      </p>
     </div>
+    <AuthSelector
+      class="scalar-collection-auth"
+      :envVariables="envVariables"
+      :environment="environment"
+      layout="client"
+      :security="security"
+      :securitySchemes="securitySchemes"
+      :selectedSecurity="selectedSecurity"
+      :server="server"
+      title="Authentication"
+      @deleteOperationAuth="(names) => emit('deleteOperationAuth', names)"
+      @update:securityScheme="
+        (payload) => emit('update:securityScheme', payload)
+      "
+      @update:selectedScopes="
+        (payload) => emit('update:selectedScopes', payload)
+      "
+      @update:selectedSecurity="
+        (payload) => emit('update:selectedSecurity', payload)
+      " />
   </div>
 </template>
 <style scoped>
