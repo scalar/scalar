@@ -3,6 +3,7 @@ export const ERRORS = {
   DEFAULT: 'An unknown error has occurred.',
   INVALID_URL: 'The URL seems to be invalid. Try adding a valid URL.',
   INVALID_HEADER: 'There is an invalid header present, please double check your params.',
+  INVALID_PATH_PARAMETER: 'There is an invalid path param present, please double check your params.',
   MISSING_FILE: 'File uploads are not saved in history, you must re-upload the file.',
   REQUEST_ABORTED: 'The request has been cancelled',
   REQUEST_FAILED: 'An error occurred while making the request',

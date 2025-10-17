@@ -51,6 +51,7 @@ describe('RequestSubpageHeader', () => {
         collection: mockCollection,
         environment: mockEnvironment,
         envVariables: [],
+        isPathInvalid: false,
         layout: 'modal',
         operation: mockOperation,
         server: undefined,

@@ -12,6 +12,7 @@ import RequestTable from '@/views/Request/RequestSection/RequestTable.vue'
 
 const {
   example,
+  invalidParams,
   operation,
   paramKey,
   title,
@@ -20,13 +21,13 @@ const {
   workspace,
 } = defineProps<{
   example: RequestExample
+  invalidParams: Set<string>
   operation: Operation
   paramKey: keyof RequestExample['parameters']
   title: string
   environment: Environment
   envVariables: EnvVariable[]
   workspace: Workspace
-  invalidParams: Set<string>
 }>()
 
 const { requestMutators, requestExampleMutators } = useWorkspace()
