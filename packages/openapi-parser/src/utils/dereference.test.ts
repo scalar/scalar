@@ -1,11 +1,11 @@
 import type { OpenAPIV3_2 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 
-import { dereference } from './dereference'
+import { dereferenceSync } from './dereference'
 
-describe('dereference', async () => {
-  it('dereferences an OpenAPI 3.2.0 file', async () => {
-    const result = await dereference(`{
+describe('dereferenceSync', () => {
+  it('dereferences an OpenAPI 3.2.0 file', () => {
+    const result = dereferenceSync(`{
       "openapi": "3.2.0",
       "info": {
           "title": "Hello World",
@@ -18,8 +18,8 @@ describe('dereference', async () => {
     expect(result.schema.info.title).toBe('Hello World')
   })
 
-  it('dereferences an OpenAPI 3.1.0 file', async () => {
-    const result = await dereference(`{
+  it('dereferences an OpenAPI 3.1.0 file', () => {
+    const result = dereferenceSync(`{
       "openapi": "3.1.0",
       "info": {
           "title": "Hello World",
@@ -32,8 +32,8 @@ describe('dereference', async () => {
     expect(result.schema.info.title).toBe('Hello World')
   })
 
-  it('dereferences an OpenAPI 3.0.0 file', async () => {
-    const result = await dereference(`{
+  it('dereferences an OpenAPI 3.0.0 file', () => {
+    const result = dereferenceSync(`{
       "openapi": "3.0.0",
       "info": {
           "title": "Hello World",
@@ -46,8 +46,8 @@ describe('dereference', async () => {
     expect(result.schema.info.title).toBe('Hello World')
   })
 
-  it('dereferences an Swagger 2.0 file', async () => {
-    const result = await dereference(`{
+  it('dereferences an Swagger 2.0 file', () => {
+    const result = dereferenceSync(`{
       "swagger": "2.0",
       "info": {
           "title": "Hello World",
@@ -60,8 +60,8 @@ describe('dereference', async () => {
     expect(result.schema.info.title).toBe('Hello World')
   })
 
-  it('returns version 3.1', async () => {
-    const result = await dereference(`{
+  it('returns version 3.1', () => {
+    const result = dereferenceSync(`{
       "openapi": "3.1.0",
       "info": {
           "title": "Hello World",
@@ -74,8 +74,8 @@ describe('dereference', async () => {
     expect(result.version).toBe('3.1')
   })
 
-  it('returns version 3.0', async () => {
-    const result = await dereference(`{
+  it('returns version 3.0', () => {
+    const result = dereferenceSync(`{
       "openapi": "3.0.0",
       "info": {
           "title": "Hello World",
@@ -88,8 +88,8 @@ describe('dereference', async () => {
     expect(result.version).toBe('3.0')
   })
 
-  it('returns version 2.0', async () => {
-    const result = await dereference(`{
+  it('returns version 2.0', () => {
+    const result = dereferenceSync(`{
       "swagger": "2.0",
       "info": {
           "title": "Hello World",
@@ -102,8 +102,8 @@ describe('dereference', async () => {
     expect(result.version).toBe('2.0')
   })
 
-  it(`doesn't return version 4.0`, async () => {
-    const result = await dereference(`{
+  it(`doesn't return version 4.0`, () => {
+    const result = dereferenceSync(`{
       "openapi": "4.0",
       "info": {
           "title": "Hello World",
@@ -115,7 +115,7 @@ describe('dereference', async () => {
     expect(result.version).toBe(undefined)
   })
 
-  it('dereferences a simple reference', async () => {
+  it('dereferences a simple reference', () => {
     const openapi = {
       openapi: '3.1.0',
       info: {
@@ -155,7 +155,7 @@ describe('dereference', async () => {
       },
     }
 
-    const result = await dereference(openapi)
+    const result = dereferenceSync(openapi)
 
     expect(result.errors).toStrictEqual([])
 
@@ -175,9 +175,9 @@ describe('dereference', async () => {
     })
   })
 
-  it('throws an error', async () => {
-    expect(async () => {
-      await dereference(
+  it('throws an error', () => {
+    expect(() => {
+      dereferenceSync(
         {
           openapi: '3.1.0',
           info: {},
@@ -195,10 +195,10 @@ describe('dereference', async () => {
           throwOnError: true,
         },
       )
-    }).rejects.toThrowError("Can't resolve reference: #/components/requestBodies/DoesNotExist")
+    }).toThrowError("Can't resolve reference: #/components/requestBodies/DoesNotExist")
   })
 
-  it('resolves external file references', async () => {
+  it('resolves external file references', () => {
     const filesystem = [
       {
         isEntrypoint: true,
@@ -259,7 +259,7 @@ describe('dereference', async () => {
       },
     ]
 
-    const result = await dereference(filesystem)
+    const result = dereferenceSync(filesystem)
 
     expect(result.errors).toStrictEqual([])
 
@@ -284,7 +284,7 @@ describe('dereference', async () => {
     })
   })
 
-  it('calls onDereference when resolving references', async () => {
+  it('calls ondereferenceSync when resolving references', () => {
     const openapi = {
       openapi: '3.1.0',
       info: {
@@ -323,9 +323,9 @@ describe('dereference', async () => {
       },
     }
 
-    const dereferencedSchemas: Array<{ schema: any; ref: string }> = []
+    const dereferenceSyncdSchemas: Array<{ schema: any; ref: string }> = []
 
-    const result = await dereference(openapi, {
+    const result = dereferenceSync(openapi, {
       onDereference: ({ schema, ref }) => {
         expect(schema).toEqual({
           type: 'object',
@@ -338,15 +338,15 @@ describe('dereference', async () => {
 
         expect(ref).toEqual('#/components/schemas/Test')
 
-        dereferencedSchemas.push({ schema, ref })
+        dereferenceSyncdSchemas.push({ schema, ref })
       },
     })
 
     expect(result.errors).toStrictEqual([])
-    expect(dereferencedSchemas).toHaveLength(1)
+    expect(dereferenceSyncdSchemas).toHaveLength(1)
   })
 
-  it('dereferences operations with query operations', async () => {
+  it('dereferences operations with query operations', () => {
     const openapi = {
       openapi: '3.2.0',
       info: {
@@ -385,7 +385,7 @@ describe('dereference', async () => {
       },
     }
 
-    const result = await dereference(openapi)
+    const result = dereferenceSync(openapi)
 
     expect(result.errors).toStrictEqual([])
 
@@ -398,7 +398,7 @@ describe('dereference', async () => {
     })
   })
 
-  it('dereferences operations with additional operations', async () => {
+  it('dereferences operations with additional operations', () => {
     const openapi = {
       openapi: '3.2.0',
       info: {
@@ -439,7 +439,7 @@ describe('dereference', async () => {
       },
     }
 
-    const result = await dereference(openapi)
+    const result = dereferenceSync(openapi)
 
     expect(result.errors).toStrictEqual([])
 

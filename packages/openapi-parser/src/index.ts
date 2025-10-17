@@ -1,5 +1,4 @@
-// biome-ignore lint/performance/noBarrelFile: <explanation>
-
+/** biome-ignore-all lint/performance/noBarrelFile: entrypoint file */
 /** @deprecated Please import from @scalar/json-magic/helpers/escape-json-pointer instead */
 export { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 /** @deprecated Please import from @scalar/openapi-upgrader/2.0-to-3.0 instead */
@@ -8,7 +7,7 @@ export { upgradeFromTwoToThree } from '@scalar/openapi-upgrader/2.0-to-3.0'
 export { upgradeFromThreeToThreeOne } from '@scalar/openapi-upgrader/3.0-to-3.1'
 
 export type { AnyObject, ErrorObject, Filesystem, LoadResult } from './types'
-export { dereference, dereferenceSync } from './utils/dereference'
+export { dereferenceSync } from './utils/dereference'
 export { filter } from './utils/filter'
 export { isJson } from './utils/is-json'
 export { isYaml } from './utils/is-yaml'

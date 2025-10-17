@@ -8,28 +8,6 @@ import { type ResolveReferencesOptions, resolveReferences } from './resolve-refe
 export type DereferenceOptions = ResolveReferencesOptions
 
 /**
- * Resolves all references in an OpenAPI document
- *
- * @TODO: Why is this async?
- */
-export async function dereference(
-  value: AnyApiDefinitionFormat | Filesystem,
-  options?: DereferenceOptions,
-): Promise<DereferenceResult> {
-  const filesystem = makeFilesystem(value)
-
-  const entrypoint = getEntrypoint(filesystem)
-  const result = resolveReferences(filesystem, options)
-
-  return {
-    specification: entrypoint.specification,
-    errors: result.errors,
-    schema: result.schema,
-    ...details(entrypoint.specification),
-  }
-}
-
-/**
  * Dereferences a OpenAPI document synchronously
  */
 export function dereferenceSync(
@@ -48,3 +26,15 @@ export function dereferenceSync(
     ...details(entrypoint.specification),
   }
 }
+
+/**
+ * Resolves all references in an OpenAPI document
+ *
+ * Currently not needed, leaving it here for reference
+ */
+// export async function dereferenceAsync(
+//   value: AnyApiDefinitionFormat | Filesystem,
+//   options?: DereferenceOptions,
+// ): Promise<DereferenceResult> {
+//   return Promise.resolve(dereferenceSync(value, options))
+// }

@@ -1,5 +1,5 @@
 import type { CommandChain, Merge, Queue, Task } from '@/types/index'
-import { dereference } from '@/utils/dereference'
+import { dereferenceSync } from '@/utils/dereference'
 import { filter } from '@/utils/filter'
 import { load } from '@/utils/load/load'
 import { upgrade } from '@/utils/upgrade'
@@ -47,8 +47,8 @@ export async function workThroughQueue<T extends Task[]>(queue: Queue<T>): Promi
     else if (name === 'dereference') {
       result = {
         ...result,
-        ...(await dereference(currentSpecification, options as Commands['dereference']['task']['options'])),
-      } as Merge<typeof result, Awaited<typeof dereference>>
+        ...dereferenceSync(currentSpecification, options as Commands['dereference']['task']['options']),
+      } as Merge<typeof result, typeof dereferenceSync>
     }
 
     // upgrade
@@ -69,10 +69,7 @@ export async function workThroughQueue<T extends Task[]>(queue: Queue<T>): Promi
 
     // Make TS complain when we forgot to handle a command.
     else {
-      const _: never = name
-
-      // @ts-expect-error Needed to allow the unused type to still be checked
-      const nada = _
+      name satisfies never
     }
   }
 

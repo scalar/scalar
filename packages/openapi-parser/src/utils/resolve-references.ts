@@ -2,6 +2,7 @@ import type { OpenAPI } from '@scalar/openapi-types'
 
 import { ERRORS } from '@/configuration'
 import type { AnyObject, ErrorObject, Filesystem, FilesystemEntry, ThrowOnErrorOption } from '@/types/index'
+
 import { getEntrypoint } from './get-entrypoint'
 import { getSegmentsFromPath } from './get-segments-from-path'
 import { isObject } from './is-object'

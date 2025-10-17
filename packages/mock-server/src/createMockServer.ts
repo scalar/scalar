@@ -1,4 +1,4 @@
-import { dereference } from '@scalar/openapi-parser'
+import { dereferenceSync } from '@scalar/openapi-parser'
 import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
 import { type Context, Hono } from 'hono'
 import { cors } from 'hono/cors'
@@ -17,11 +17,11 @@ import { respondWithOpenApiDocument } from './routes/respondWithOpenApiDocument'
 /**
  * Create a mock server instance
  */
-export async function createMockServer(options: MockServerOptions) {
+export function createMockServer(options: MockServerOptions) {
   const app = new Hono()
 
   /** Dereferenced OpenAPI document */
-  const { schema } = await dereference(options?.specification ?? {})
+  const { schema } = dereferenceSync(options?.specification ?? {})
 
   // CORS headers
   app.use(cors())
