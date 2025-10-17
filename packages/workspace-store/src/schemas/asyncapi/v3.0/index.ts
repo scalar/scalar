@@ -1,25 +1,37 @@
 // Export all AsyncAPI schemas
 // Export strict validation schema for AsyncAPI 3.0 (same as regular schema for now)
 export {
-  AmqpBindingSchema,
+  // Protocol-specific binding schemas - AMQP
+  AmqpChannelBindingSchema,
+  AmqpMessageBindingSchema,
+  AmqpOperationBindingSchema,
   type AsyncApiDocument,
   AsyncApiDocumentSchema,
   AsyncApiDocumentSchema as AsyncApiDocumentSchemaStrict,
   type AsyncApiExtensions,
+  // Binding object schemas
   ChannelBindingsObjectSchema,
   ChannelObjectSchema,
   ChannelsObjectSchema,
   ComponentsObjectSchema,
   CorrelationIdObjectSchema,
-  // Protocol-specific bindings
-  HttpBindingSchema,
-  KafkaBindingSchema,
+  // Protocol-specific binding schemas - HTTP
+  HttpMessageBindingSchema,
+  HttpOperationBindingSchema,
+  // Protocol-specific binding schemas - Kafka
+  KafkaChannelBindingSchema,
+  KafkaMessageBindingSchema,
+  KafkaOperationBindingSchema,
+  KafkaServerBindingSchema,
   MessageBindingsObjectSchema,
   MessageExampleObjectSchema,
   MessageObjectSchema,
   MessageTraitObjectSchema,
   MessagesObjectSchema,
-  MqttBindingSchema,
+  // Protocol-specific binding schemas - MQTT
+  MqttMessageBindingSchema,
+  MqttOperationBindingSchema,
+  MqttServerBindingSchema,
   MultiFormatSchemaObjectSchema,
   OAuthFlowObjectSchema,
   OAuthFlowsObjectSchema,
@@ -33,14 +45,14 @@ export {
   ReplyAddressObjectSchema,
   ReplyObjectSchema,
   SecuritySchemeObjectSchema,
-  // Binding object schemas
   ServerBindingsObjectSchema,
   // Export AsyncAPI-specific schemas from the module
   ServerObjectSchema,
   ServerVariableObjectSchema,
   ServersObjectSchema,
   TagsObjectSchema,
-  WebSocketBindingSchema,
+  // Protocol-specific binding schemas - WebSocket
+  WebSocketChannelBindingSchema,
 } from './asyncapi-document'
 // Export types from individual files
 export type {
@@ -51,11 +63,20 @@ export type {
   OperationBindingsObject,
   ServerBindingsObject,
 } from './binding'
-export type { AmqpBinding } from './bindings/amqp'
-export type { HttpBinding } from './bindings/http'
-export type { KafkaBinding } from './bindings/kafka'
-export type { MqttBinding } from './bindings/mqtt'
-export type { WebSocketBinding } from './bindings/websocket'
+export type {
+  AmqpChannelBinding,
+  AmqpMessageBinding,
+  AmqpOperationBinding,
+} from './bindings/amqp'
+export type { HttpMessageBinding, HttpOperationBinding } from './bindings/http'
+export type {
+  KafkaChannelBinding,
+  KafkaMessageBinding,
+  KafkaOperationBinding,
+  KafkaServerBinding,
+} from './bindings/kafka'
+export type { MqttMessageBinding, MqttOperationBinding, MqttServerBinding } from './bindings/mqtt'
+export type { WebSocketChannelBinding } from './bindings/websocket'
 export type { ChannelObject } from './channel-item'
 export type { ChannelsObject } from './channels'
 export type { ComponentsObject } from './components'
