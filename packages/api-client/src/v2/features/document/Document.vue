@@ -52,6 +52,10 @@ const { icon = 'interface-content-folder' } = defineProps<{
   /** Event bus */
   events: ReturnType<typeof createStoreEvents>
 
+  // ------- Environment tab props -------
+  /** List of environment objects */
+  environments: EnvironmentType[]
+
   // ------- Settings tab props -------
   /** Document source url if available */
   documentUrl?: string
@@ -239,7 +243,7 @@ const emit = defineEmits<{
         :documentName="title"
         :envVariables="envVariables"
         :environment="environment"
-        :environments="[]"
+        :environments="environments"
         @environment:add="(payload) => emit('environment:add', payload)"
         @environment:add:variable="
           (payload) => emit('environment:add:variable', payload)

@@ -69,6 +69,7 @@ describe('Document', () => {
       server: undefined,
       environment: baseEnvironment,
       envVariables: [],
+      environments: [],
     }
 
     return mount(Document, {
@@ -136,6 +137,7 @@ describe('Document', () => {
           server: undefined,
           environment: baseEnvironment,
           envVariables: [],
+          environments: [],
         },
       })
 
@@ -286,6 +288,7 @@ describe('Document', () => {
           server: undefined,
           environment: baseEnvironment,
           envVariables: [],
+          environments: [],
         },
       })
 
@@ -702,6 +705,7 @@ describe('Document', () => {
           server: undefined,
           environment: baseEnvironment,
           envVariables: [],
+          environments: [],
         },
       })
 
