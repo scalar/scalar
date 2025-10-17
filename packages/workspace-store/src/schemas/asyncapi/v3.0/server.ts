@@ -10,7 +10,8 @@ import {
 import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
-import { BindingRef, ServerVariableRef } from './ref-definitions'
+import type { ServerBindingsObject } from './binding'
+import { ServerBindingsObjectRef, ServerVariableRef } from './ref-definitions'
 
 /**
  * An object representing a Server Variable for server URL template substitution.
@@ -68,7 +69,7 @@ export const ServerObjectSchemaDefinition = compose(
     /** Additional external documentation for this server. */
     externalDocs: Type.Optional(ExternalDocumentationObjectRef),
     /** A map where the keys describe the name of the protocol and the values describe protocol-specific definitions for the server. */
-    bindings: Type.Optional(BindingRef),
+    bindings: Type.Optional(ServerBindingsObjectRef),
   }),
 )
 
@@ -97,5 +98,5 @@ export type ServerObject = {
   /** Additional external documentation for this server. */
   externalDocs?: ExternalDocumentationObject
   /** A map where the keys describe the name of the protocol and the values describe protocol-specific definitions for the server. */
-  bindings?: Record<string, any>
+  bindings?: ServerBindingsObject
 }

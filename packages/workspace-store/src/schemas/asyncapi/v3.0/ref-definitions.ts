@@ -16,13 +16,19 @@ export const ASYNCAPI_REF_DEFINITIONS = {
   MessageTraitObject: 'MessageTraitObject',
   MessageExampleObject: 'MessageExampleObject',
   ParameterObject: 'ParameterObject',
+  ParametersObject: 'ParametersObject',
   CorrelationIdObject: 'CorrelationIdObject',
   OperationTraitObject: 'OperationTraitObject',
   ReplyObject: 'ReplyObject',
   ReplyAddressObject: 'ReplyAddressObject',
   ServerObject: 'ServerObject',
   ServerVariableObject: 'ServerVariableObject',
-  Binding: 'Binding',
+
+  // Binding objects
+  ServerBindingsObject: 'ServerBindingsObject',
+  ChannelBindingsObject: 'ChannelBindingsObject',
+  OperationBindingsObject: 'OperationBindingsObject',
+  MessageBindingsObject: 'MessageBindingsObject',
 
   // Protocol-specific bindings
   HttpBinding: 'HttpBinding',
@@ -45,6 +51,7 @@ export const ASYNCAPI_REF_DEFINITIONS = {
   // Object maps
   ServersObject: 'ServersObject',
   MessagesObject: 'MessagesObject',
+  TagsObject: 'TagsObject',
 } as const
 
 // Type alias for schema references
@@ -56,13 +63,19 @@ export const MessageObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MessageObject)
 export const MessageTraitObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MessageTraitObject)
 export const MessageExampleObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MessageExampleObject)
 export const ParameterObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.ParameterObject)
+export const ParametersObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.ParametersObject)
 export const CorrelationIdObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.CorrelationIdObject)
 export const OperationTraitObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.OperationTraitObject)
 export const ReplyObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.ReplyObject)
 export const ReplyAddressObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.ReplyAddressObject)
 export const ServerObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.ServerObject)
 export const ServerVariableObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.ServerVariableObject)
-export const BindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.Binding)
+
+// Binding object references
+export const ServerBindingsObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.ServerBindingsObject)
+export const ChannelBindingsObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.ChannelBindingsObject)
+export const OperationBindingsObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.OperationBindingsObject)
+export const MessageBindingsObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MessageBindingsObject)
 
 // Protocol-specific binding references
 export const HttpBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.HttpBinding)
@@ -85,6 +98,7 @@ export const ComponentsObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.ComponentsO
 // Object map references
 export const ServersObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.ServersObject)
 export const MessagesObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MessagesObject)
+export const TagsObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.TagsObject)
 
 // Legacy aliases for backward compatibility (will be removed in future versions)
 /** @deprecated Use ChannelObjectRef instead */
@@ -111,3 +125,5 @@ export const ServerRef = ServerObjectRef
 export const ServerVariableRef = ServerVariableObjectRef
 /** @deprecated Use MultiFormatSchemaObjectRef instead */
 export const MultiFormatSchemaRef = MultiFormatSchemaObjectRef
+/** @deprecated Use specific binding object refs instead */
+export const BindingRef = ServerBindingsObjectRef

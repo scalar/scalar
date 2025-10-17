@@ -6,6 +6,12 @@ import { type ReferenceType, reference } from '@/schemas/v3.1/strict/reference'
 import type { SchemaObject } from '@/schemas/v3.1/strict/schema'
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
+import type {
+  ChannelBindingsObject,
+  MessageBindingsObject,
+  OperationBindingsObject,
+  ServerBindingsObject,
+} from './binding'
 import type { ChannelObject } from './channel-item'
 import type { CorrelationIdObject } from './correlation-id'
 import type { MessageObject } from './message'
@@ -15,18 +21,21 @@ import type { OperationObject } from './operation'
 import type { OperationTraitObject } from './operation-trait'
 import type { ParameterObject } from './parameter'
 import {
-  BindingRef,
+  ChannelBindingsObjectRef,
   ChannelObjectRef,
   CorrelationIdObjectRef,
+  MessageBindingsObjectRef,
   MessageObjectRef,
   MessageTraitObjectRef,
   MultiFormatSchemaObjectRef,
+  OperationBindingsObjectRef,
   OperationRef,
   OperationTraitObjectRef,
   ParameterObjectRef,
   ReplyAddressObjectRef,
   ReplyObjectRef,
   SecuritySchemeObjectRef,
+  ServerBindingsObjectRef,
   ServerObjectRef,
   ServerVariableObjectRef,
 } from './ref-definitions'
@@ -97,13 +106,21 @@ export const ComponentsObjectSchemaDefinition = Type.Object({
     Type.Record(Type.String(), Type.Union([MessageTraitObjectRef, reference(MessageTraitObjectRef)])),
   ),
   /** An object to hold reusable Server Bindings Objects. */
-  serverBindings: Type.Optional(Type.Record(Type.String(), Type.Union([BindingRef, reference(BindingRef)]))),
+  serverBindings: Type.Optional(
+    Type.Record(Type.String(), Type.Union([ServerBindingsObjectRef, reference(ServerBindingsObjectRef)])),
+  ),
   /** An object to hold reusable Channel Bindings Objects. */
-  channelBindings: Type.Optional(Type.Record(Type.String(), Type.Union([BindingRef, reference(BindingRef)]))),
+  channelBindings: Type.Optional(
+    Type.Record(Type.String(), Type.Union([ChannelBindingsObjectRef, reference(ChannelBindingsObjectRef)])),
+  ),
   /** An object to hold reusable Operation Bindings Objects. */
-  operationBindings: Type.Optional(Type.Record(Type.String(), Type.Union([BindingRef, reference(BindingRef)]))),
+  operationBindings: Type.Optional(
+    Type.Record(Type.String(), Type.Union([OperationBindingsObjectRef, reference(OperationBindingsObjectRef)])),
+  ),
   /** An object to hold reusable Message Bindings Objects. */
-  messageBindings: Type.Optional(Type.Record(Type.String(), Type.Union([BindingRef, reference(BindingRef)]))),
+  messageBindings: Type.Optional(
+    Type.Record(Type.String(), Type.Union([MessageBindingsObjectRef, reference(MessageBindingsObjectRef)])),
+  ),
 })
 
 /**
@@ -142,11 +159,11 @@ export type ComponentsObject = {
   /** An object to hold reusable Message Trait Objects. */
   messageTraits?: Record<string, ReferenceType<MessageTraitObject>>
   /** An object to hold reusable Server Bindings Objects. */
-  serverBindings?: Record<string, ReferenceType<Record<string, any>>>
+  serverBindings?: Record<string, ReferenceType<ServerBindingsObject>>
   /** An object to hold reusable Channel Bindings Objects. */
-  channelBindings?: Record<string, ReferenceType<Record<string, any>>>
+  channelBindings?: Record<string, ReferenceType<ChannelBindingsObject>>
   /** An object to hold reusable Operation Bindings Objects. */
-  operationBindings?: Record<string, ReferenceType<Record<string, any>>>
+  operationBindings?: Record<string, ReferenceType<OperationBindingsObject>>
   /** An object to hold reusable Message Bindings Objects. */
-  messageBindings?: Record<string, ReferenceType<Record<string, any>>>
+  messageBindings?: Record<string, ReferenceType<MessageBindingsObject>>
 }

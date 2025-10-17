@@ -10,8 +10,9 @@ import {
 import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
+import type { OperationBindingsObject } from './binding'
 import type { OperationTraitObject } from './operation-trait'
-import { OperationTraitRef, ReplyRef } from './ref-definitions'
+import { OperationBindingsObjectRef, OperationTraitRef, ReplyRef } from './ref-definitions'
 import type { ReplyObject } from './reply'
 
 /** Operation Action - send or receive */
@@ -47,7 +48,7 @@ export const OperationSchemaDefinition = compose(
     /** A list of traits to apply to the operation object. Traits MUST be merged using traits merge mechanism. The resulting object MUST be a valid Operation Object. */
     traits: Type.Optional(Type.Array(OperationTraitRef)),
     /** A map where the keys describe the name of the protocol and the values describe protocol-specific definitions for the operation. */
-    bindings: Type.Optional(Type.Record(Type.String(), Type.Any())),
+    bindings: Type.Optional(OperationBindingsObjectRef),
   }),
 )
 
@@ -78,5 +79,5 @@ export type OperationObject = {
   /** A list of traits to apply to the operation object. Traits MUST be merged using traits merge mechanism. The resulting object MUST be a valid Operation Object. */
   traits?: OperationTraitObject[]
   /** A map where the keys describe the name of the protocol and the values describe protocol-specific definitions for the operation. */
-  bindings?: Record<string, any>
+  bindings?: OperationBindingsObject
 }

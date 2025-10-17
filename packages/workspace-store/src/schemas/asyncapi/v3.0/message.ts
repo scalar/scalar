@@ -6,10 +6,11 @@ import { ExternalDocumentationObjectRef, SchemaObjectRef, TagObjectRef } from '@
 import type { SchemaObject } from '@/schemas/v3.1/strict/schema'
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
+import type { MessageBindingsObject } from './binding'
 import type { CorrelationIdObject } from './correlation-id'
 import type { MessageExampleObject } from './message-example'
 import type { MessageTraitObject } from './message-trait'
-import { CorrelationIdRef, MessageExampleRef, MessageTraitRef } from './ref-definitions'
+import { CorrelationIdRef, MessageBindingsObjectRef, MessageExampleRef, MessageTraitRef } from './ref-definitions'
 
 /**
  * Describes a message received on a given channel and operation.
@@ -41,7 +42,7 @@ export const MessageObjectSchemaDefinition = compose(
     /** A list of traits to apply to the message object. Traits MUST be merged using traits merge mechanism. The resulting object MUST be a valid Message Object. */
     traits: Type.Optional(Type.Array(MessageTraitRef)),
     /** A map where the keys describe the name of the protocol and the values describe protocol-specific definitions for the message. */
-    bindings: Type.Optional(Type.Record(Type.String(), Type.Any())),
+    bindings: Type.Optional(MessageBindingsObjectRef),
   }),
 )
 
@@ -74,5 +75,5 @@ export type MessageObject = {
   /** A list of traits to apply to the message object. Traits MUST be merged using traits merge mechanism. The resulting object MUST be a valid Message Object. */
   traits?: MessageTraitObject[]
   /** A map where the keys describe the name of the protocol and the values describe protocol-specific definitions for the message. */
-  bindings?: Record<string, any>
+  bindings?: MessageBindingsObject
 }

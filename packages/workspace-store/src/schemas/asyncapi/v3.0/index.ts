@@ -6,7 +6,7 @@ export {
   AsyncApiDocumentSchema,
   AsyncApiDocumentSchema as AsyncApiDocumentSchemaStrict,
   type AsyncApiExtensions,
-  BindingSchema,
+  ChannelBindingsObjectSchema,
   ChannelObjectSchema,
   ChannelsObjectSchema,
   ComponentsObjectSchema,
@@ -14,6 +14,7 @@ export {
   // Protocol-specific bindings
   HttpBindingSchema,
   KafkaBindingSchema,
+  MessageBindingsObjectSchema,
   MessageExampleObjectSchema,
   MessageObjectSchema,
   MessageTraitObjectSchema,
@@ -22,21 +23,34 @@ export {
   MultiFormatSchemaObjectSchema,
   OAuthFlowObjectSchema,
   OAuthFlowsObjectSchema,
+  OperationBindingsObjectSchema,
   OperationSchema,
   OperationTraitObjectSchema,
   OperationsObjectSchema,
   ParameterObjectSchema,
+  // Object map schemas
+  ParametersObjectSchema,
   ReplyAddressObjectSchema,
   ReplyObjectSchema,
   SecuritySchemeObjectSchema,
+  // Binding object schemas
+  ServerBindingsObjectSchema,
   // Export AsyncAPI-specific schemas from the module
   ServerObjectSchema,
   ServerVariableObjectSchema,
   ServersObjectSchema,
+  TagsObjectSchema,
   WebSocketBindingSchema,
 } from './asyncapi-document'
 // Export types from individual files
-export type { Binding } from './binding'
+export type {
+  /** @deprecated Use specific binding object types instead */
+  Binding,
+  ChannelBindingsObject,
+  MessageBindingsObject,
+  OperationBindingsObject,
+  ServerBindingsObject,
+} from './binding'
 export type { AmqpBinding } from './bindings/amqp'
 export type { HttpBinding } from './bindings/http'
 export type { KafkaBinding } from './bindings/kafka'
@@ -63,6 +77,7 @@ export type { OperationAction, OperationObject } from './operation'
 export type { OperationTraitObject } from './operation-trait'
 export type { OperationsObject } from './operations'
 export type { ParameterObject } from './parameter'
+export type { ParametersObject } from './parameters'
 // Export reference definitions
 export { ASYNCAPI_REF_DEFINITIONS } from './ref-definitions'
 export type { ReplyObject } from './reply'
@@ -85,3 +100,4 @@ export type {
 } from './security-scheme'
 export type { ServerObject, ServerVariableObject } from './server'
 export type { ServersObject } from './servers'
+export type { TagsObject } from './tags'

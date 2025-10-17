@@ -44,7 +44,12 @@ import {
 import { type TagObject, TagObjectSchemaDefinition } from '@/schemas/v3.1/strict/tag'
 import { XMLObjectSchemaDefinition } from '@/schemas/v3.1/strict/xml'
 
-import { BindingSchemaDefinition } from './binding'
+import {
+  ChannelBindingsObjectSchemaDefinition,
+  MessageBindingsObjectSchemaDefinition,
+  OperationBindingsObjectSchemaDefinition,
+  ServerBindingsObjectSchemaDefinition,
+} from './binding'
 import { AmqpBindingSchemaDefinition } from './bindings/amqp'
 import { HttpBindingSchemaDefinition } from './bindings/http'
 import { KafkaBindingSchemaDefinition } from './bindings/kafka'
@@ -67,6 +72,7 @@ import { OperationTraitObjectSchemaDefinition } from './operation-trait'
 import type { OperationsObject } from './operations'
 import { OperationsObjectSchemaDefinition } from './operations'
 import { ParameterObjectSchemaDefinition } from './parameter'
+import { ParametersObjectSchemaDefinition } from './parameters'
 import {
   ASYNCAPI_REF_DEFINITIONS,
   ChannelsObjectRef,
@@ -80,6 +86,7 @@ import { SecuritySchemeObjectSchemaDefinition } from './security-scheme'
 import { ServerObjectSchemaDefinition, ServerVariableObjectSchemaDefinition } from './server'
 import type { ServersObject } from './servers'
 import { ServersObjectSchemaDefinition } from './servers'
+import { TagsObjectSchemaDefinition } from './tags'
 
 // AsyncAPI Extensions Schema
 const AsyncApiExtensionsSchema = Type.Partial(
@@ -193,7 +200,13 @@ const module = Type.Module({
   [ASYNCAPI_REF_DEFINITIONS.ReplyAddressObject]: ReplyAddressObjectSchemaDefinition,
   [ASYNCAPI_REF_DEFINITIONS.ServerObject]: ServerObjectSchemaDefinition,
   [ASYNCAPI_REF_DEFINITIONS.ServerVariableObject]: ServerVariableObjectSchemaDefinition,
-  [ASYNCAPI_REF_DEFINITIONS.Binding]: BindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.ParametersObject]: ParametersObjectSchemaDefinition,
+
+  // Binding objects
+  [ASYNCAPI_REF_DEFINITIONS.ServerBindingsObject]: ServerBindingsObjectSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.ChannelBindingsObject]: ChannelBindingsObjectSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.OperationBindingsObject]: OperationBindingsObjectSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.MessageBindingsObject]: MessageBindingsObjectSchemaDefinition,
 
   // Protocol-specific bindings
   [ASYNCAPI_REF_DEFINITIONS.HttpBinding]: HttpBindingSchemaDefinition,
@@ -216,6 +229,7 @@ const module = Type.Module({
   // Object maps
   [ASYNCAPI_REF_DEFINITIONS.ServersObject]: ServersObjectSchemaDefinition,
   [ASYNCAPI_REF_DEFINITIONS.MessagesObject]: MessagesObjectSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.TagsObject]: TagsObjectSchemaDefinition,
 
   // Document
   AsyncApiDocument: AsyncApiDocumentSchemaDefinition,
@@ -244,7 +258,6 @@ export const LicenseObjectSchema = module.Import('LicenseObject')
 // AsyncAPI-specific schema exports
 export const ServerObjectSchema = module.Import('ServerObject')
 export const ServerVariableObjectSchema = module.Import('ServerVariableObject')
-export const BindingSchema = module.Import('Binding')
 export const ChannelObjectSchema = module.Import('ChannelObject')
 export const ChannelsObjectSchema = module.Import('ChannelsObject')
 export const CorrelationIdObjectSchema = module.Import('CorrelationIdObject')
@@ -255,12 +268,20 @@ export const OperationSchema = module.Import('Operation')
 export const OperationTraitObjectSchema = module.Import('OperationTraitObject')
 export const OperationsObjectSchema = module.Import('OperationsObject')
 export const ParameterObjectSchema = module.Import('ParameterObject')
+export const ParametersObjectSchema = module.Import('ParametersObject')
 export const ReplyObjectSchema = module.Import('ReplyObject')
 export const ReplyAddressObjectSchema = module.Import('ReplyAddressObject')
 export const MultiFormatSchemaObjectSchema = module.Import('MultiFormatSchemaObject')
 export const ServersObjectSchema = module.Import('ServersObject')
 export const MessagesObjectSchema = module.Import('MessagesObject')
+export const TagsObjectSchema = module.Import('TagsObject')
 export const ComponentsObjectSchema = module.Import('ComponentsObject')
+
+// Binding object exports
+export const ServerBindingsObjectSchema = module.Import('ServerBindingsObject')
+export const ChannelBindingsObjectSchema = module.Import('ChannelBindingsObject')
+export const OperationBindingsObjectSchema = module.Import('OperationBindingsObject')
+export const MessageBindingsObjectSchema = module.Import('MessageBindingsObject')
 
 // Security exports
 export const SecuritySchemeObjectSchema = module.Import('SecuritySchemeObject')
