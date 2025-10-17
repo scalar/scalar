@@ -1,7 +1,7 @@
 import FastifyBasicAuth, { type FastifyBasicAuthOptions } from '@fastify/basic-auth'
 import fastifySwagger from '@fastify/swagger'
 import type { OpenAPI } from '@scalar/openapi-types'
-import Fastify from 'fastify'
+import Fastify, { type FastifyPluginAsync } from 'fastify'
 import { beforeEach, describe, expect, it } from 'vitest'
 import YAML from 'yaml'
 
@@ -55,10 +55,38 @@ describe('fastifyApiReference', () => {
     const address = await fastify.listen({ port: 0 })
     const response = await fetch(`${address}/reference`, { redirect: 'manual' })
 
-    expect(response.status).toBe(302)
+    expect(response.status).toBe(301)
     expect(response.headers.get('location')).toBe('/reference/')
 
     const finalResponse = await fetch(`${address}/reference/`)
+    expect(finalResponse.status).toBe(200)
+  })
+
+  it('accounts for plugin `prefix` during redirects to add trailing slash', async () => {
+    const innerPlugin: FastifyPluginAsync = async (fastify) => {
+      await fastify.register(fastifyApiReference, {
+        routePrefix: '/reference',
+        configuration: {
+          url: '/openapi.json',
+        },
+      })
+    }
+
+    const fastify = Fastify({
+      logger: false,
+    })
+
+    const pluginPrefix = '/api'
+
+    await fastify.register(innerPlugin, { prefix: '/api' })
+
+    const address = await fastify.listen({ port: 0 })
+    const response = await fetch(`${address}${pluginPrefix}/reference`, { redirect: 'manual' })
+
+    expect(response.status).toBe(301)
+    expect(response.headers.get('location')).toBe(`${pluginPrefix}/reference/`)
+
+    const finalResponse = await fetch(`${address}${pluginPrefix}/reference/`)
     expect(finalResponse.status).toBe(200)
   })
 
@@ -107,7 +135,7 @@ describe('fastifyApiReference', () => {
       },
     })
 
-    // @ts-ignore
+    // @ts-expect-error
     expect(fastify.html).toEqual(undefined)
   })
 

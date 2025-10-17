@@ -13,8 +13,13 @@ import { getJavaScriptFile } from './utils/getJavaScriptFile'
  */
 const RELATIVE_JAVASCRIPT_PATH = 'js/scalar.js'
 
-// This Schema is used to hide the route from the documentation.
-// https://github.com/fastify/fastify-swagger#hide-a-route
+/**
+ * This Schema is used to hide the route from the documentation.
+ *
+ * We don't know whether `@fastify/swagger` is registered, but it doesn't hurt to add a schema anyway.
+ *
+ * @see https://github.com/fastify/fastify-swagger#hide-a-route
+ */
 const schemaToHideRoute = {
   hide: true,
 }
@@ -132,7 +137,6 @@ const fastifyApiReference = fp<
     fastify.route({
       method: 'GET',
       url: openApiSpecUrlJson,
-      // @ts-ignore We don't know whether @fastify/swagger is loaded.
       schema: schemaToHideRoute,
       ...hooks,
       ...(options.logLevel && { logLevel: options.logLevel }),
@@ -154,7 +158,6 @@ const fastifyApiReference = fp<
     fastify.route({
       method: 'GET',
       url: openApiSpecUrlYaml,
-      // @ts-ignore We don't know whether @fastify/swagger is loaded.
       schema: schemaToHideRoute,
       ...hooks,
       ...(options.logLevel && { logLevel: options.logLevel }),
@@ -184,12 +187,13 @@ const fastifyApiReference = fp<
       fastify.route({
         method: 'GET',
         url: getRoutePrefix(options.routePrefix),
-        // @ts-ignore We don't know whether @fastify/swagger is loaded.
         schema: schemaToHideRoute,
         ...hooks,
         ...(options.logLevel && { logLevel: options.logLevel }),
-        handler(_, reply) {
-          return reply.redirect(getRoutePrefix(options.routePrefix) + '/', 302)
+        handler(request, reply) {
+          // we are in a route without a trailing slash so redirect directly to the one with a trailing slash
+          const currentUrl = new URL(request.url, `${request.protocol}://${request.hostname}`)
+          return reply.redirect(`${currentUrl.pathname}/`, 301)
         },
       })
     }
@@ -199,15 +203,13 @@ const fastifyApiReference = fp<
       method: 'GET',
       url: `${getRoutePrefix(options.routePrefix)}/`,
       // We don't know whether @fastify/swagger is registered, but it doesn't hurt to add a schema anyway.
-      // @ts-ignore We don't know whether @fastify/swagger is loaded.
       schema: schemaToHideRoute,
       ...hooks,
       ...(options.logLevel && { logLevel: options.logLevel }),
-      handler(_, reply) {
+      handler(request, reply) {
         // Redirect if it's the route without a slash
-        const currentUrl = new URL(_.url, `${_.protocol}://${_.hostname}`)
-
-        if (!currentUrl.pathname.endsWith('/')) {
+        const currentUrl = new URL(request.url, `${request.protocol}://${request.hostname}`)
+        if (!request.routerPath.endsWith('/')) {
           return reply.redirect(`${currentUrl.pathname}/`, 301)
         }
 
@@ -242,7 +244,6 @@ const fastifyApiReference = fp<
       method: 'GET',
       url: getJavaScriptUrl(options.routePrefix),
       // We don't know whether @fastify/swagger is registered, but it doesn't hurt to add a schema anyway.
-      // @ts-ignore We don't know whether @fastify/swagger is loaded.
       schema: schemaToHideRoute,
       ...hooks,
       ...(options.logLevel && { logLevel: options.logLevel }),
