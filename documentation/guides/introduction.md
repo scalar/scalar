@@ -27,8 +27,8 @@
 </div>
 
 <div class="slider">
-  <button class="active" type="button" data-target="#slide-1">API Docs</button>
-  <button type="button" data-target="#slide-2">API Registry</button>
+  <button class="active" type="button" data-target="#slide-1">Docs</button>
+  <button type="button" data-target="#slide-2">Registry</button>
   <button type="button" data-target="#slide-3">SDKs</button>
   <button type="button" data-target="#slide-4">API Client</button>
   <ul class="gallery container-full" id="gallery">
@@ -374,7 +374,7 @@
         <object class="sticker-clip-client" width="156" height="110"
           data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/JXS6tZ4EbKIkeGpjP6QKc.svg"></object>
       </div>
-      <div class="expander-hover-title">API Client</div>
+      <div class="expander-hover-title">Scalar API Client</div>
       <div class="expander">
         <div class="expander-content">
           Minimal, powerful, fully open-source API Client built on open standards by us + our community.
@@ -393,7 +393,7 @@
         <object class="sticker-clip-sdk" width="145" height="145"
           data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/gM-mqYTBYMkqpnexTIr-r.svg"></object>
       </div>
-      <div class="expander-hover-title">SDKs</div>
+      <div class="expander-hover-title">Scalar SDKs</div>
       <div class="expander">
         <div class="expander-content">
           Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python and more.
@@ -412,7 +412,7 @@
       <object class="sticker-clip-registry" width="136" height="186"
           data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/jgGF_IKsu-T_irS-6MMOy.svg"></object>
       </div>
-      <div class="expander-hover-title">API Registry</div>
+      <div class="expander-hover-title">Scalar Registry</div>
       <div class="expander">
         <div class="expander-content">
           Managing & versioning OpenAPI Documents with a deep Git integration.
@@ -430,7 +430,7 @@
       <div class="expander-hover-sticker">
         <object class="sticker-clip-docs" width="113" height="143" data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/HLhbFqJ4vSzo4UDEZX2dq.svg"></object>
       </div>
-      <div class="expander-hover-title">API Docs</div>
+      <div class="expander-hover-title">Scalar Docs</div>
       <div class="expander">
         <div class="expander-content">
           Write beautiful documentation with Markdown + MDX + Git Sync.
