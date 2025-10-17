@@ -12,7 +12,7 @@ const { examples = {} } = defineProps<{
   examples?: MediaTypeObject['examples']
 }>()
 
-const selectedExampleKey = defineModel<boolean>({
+const selectedExampleKey = defineModel<string>({
   required: true,
 })
 

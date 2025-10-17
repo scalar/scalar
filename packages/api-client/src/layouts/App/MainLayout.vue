@@ -6,8 +6,6 @@ import { useLayout } from '@/hooks'
 const { layout } = useLayout()
 </script>
 <template>
-  <!-- Insert topnav here  -->
-
   <!-- min-h-0 is to allow scrolling of individual flex children -->
   <main
     class="flex min-h-0 flex-1 flex-col"

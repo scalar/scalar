@@ -1,13 +1,23 @@
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
+
 import { createApiClientModal } from '@/v2/features/modal/helpers/create-api-client-modal'
 
-console.log('asdjkashdkjs')
+const workspaceStore = createWorkspaceStore()
+await workspaceStore.addDocument({
+  name: 'default',
+  url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+  config: {
+    'x-scalar-reference-config': {
+      settings: {
+        proxyUrl: 'https://proxy.scalar.com',
+      },
+    },
+  },
+})
+
 const { open } = await createApiClientModal({
   el: document.getElementById('app'),
-  workspaceStore: {
-    workspace: {
-      'x-scalar-active-document': 'default',
-    },
-  } as any,
+  workspaceStore,
 })
 
 // Open the API client right-away

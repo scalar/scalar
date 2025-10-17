@@ -7,8 +7,6 @@ import { ROUTES, type RouteProps } from '@/v2/features/app/helpers/routes'
 import type { ClientLayout } from '@/v2/types/layout'
 
 export type CreateApiClientOptions = {
-  /** The workspace store must be initialized and passed in */
-
   /**
    * The layout of the client, limited to web or desktop in app
    * @see {@link ClientLayout}
