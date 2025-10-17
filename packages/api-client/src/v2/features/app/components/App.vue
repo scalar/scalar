@@ -24,6 +24,11 @@ const { layout, workspaceStore } = defineProps<{
 
 // To set the initial color mode as the switch isn't showing
 useColorMode()
+
+if (typeof window !== 'undefined') {
+  // @ts-expect-error - For debugging purposes expose the store
+  window.dataDumpWorkspace = () => workspaceStore
+}
 </script>
 
 <template>
@@ -31,7 +36,9 @@ useColorMode()
     <!-- min-h-0 is to allow scrolling of individual flex children -->
     <main class="flex min-h-0 flex-1 flex-row items-stretch">
       <!-- Global sidebar -->
-      <Sidebar :layout="layout" />
+      <Sidebar
+        :documents="workspaceStore.workspace.documents"
+        :layout="layout" />
 
       <!-- Popup command palette to add resources from anywhere -->
       <!-- <TheCommandPalette /> -->

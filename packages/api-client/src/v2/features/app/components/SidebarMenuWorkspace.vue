@@ -6,7 +6,7 @@ import {
   type ScalarListboxOption,
 } from '@scalar/components'
 import { ScalarIconGear } from '@scalar/icons'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 
 const emit = defineEmits<{
