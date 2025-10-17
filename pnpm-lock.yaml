@@ -163,8 +163,8 @@ catalogs:
       specifier: ^3.5.17
       version: 3.5.17
     vue-router:
-      specifier: ^4.5.1
-      version: 4.5.1
+      specifier: 4.6.2
+      version: 4.6.2
     vue-tsc:
       specifier: ^2.2.0
       version: 2.2.12
@@ -1253,7 +1253,7 @@ importers:
         version: 3.5.17(typescript@5.8.3)
       vue-router:
         specifier: catalog:*
-        version: 4.5.1(vue@3.5.17(typescript@5.8.3))
+        version: 4.6.2(vue@3.5.17(typescript@5.8.3))
       whatwg-mimetype:
         specifier: ^4.0.0
         version: 4.0.0
@@ -19046,6 +19046,11 @@ packages:
     resolution: {integrity: sha512-ogAF3P97NPm8fJsE4by9dwSYtDwXIY1nFY9T6DyQnGHd1E2Da94w9JIolpe42LJGIl0DwOHBi8TcRPlPGwbTtw==}
     peerDependencies:
       vue: ^3.2.0
+
+  vue-router@4.6.2:
+    resolution: {integrity: sha512-my83mxQKXyCms9EegBXZldehOihxBjgSjZqrZwgg4vBacNGl0oBCO+xT//wgOYpLV1RW93ZfqxrjTozd+82nbA==}
+    peerDependencies:
+      vue: ^3.5.0
 
   vue-sfc-transformer@0.1.16:
     resolution: {integrity: sha512-pXx4pkHigOJCzGPXhGA9Rdou1oIuNiF9n4n5GQ7C4QehTXFEpKUjcpvc3PZ6LvC6ccUL021qor8j1153Y7/6Ig==}
@@ -40683,7 +40688,7 @@ snapshots:
       vue: 3.5.17(typescript@5.8.3)
     optionalDependencies:
       prettier: 3.6.2
-      vue-router: 4.5.1(vue@3.5.17(typescript@5.8.3))
+      vue-router: 4.6.2(vue@3.5.17(typescript@5.8.3))
     transitivePeerDependencies:
       - bufferutil
       - canvas
@@ -40910,6 +40915,11 @@ snapshots:
     dependencies:
       '@vue/devtools-api': 6.6.4
       vue: 3.5.21(typescript@5.8.3)
+
+  vue-router@4.6.2(vue@3.5.17(typescript@5.8.3)):
+    dependencies:
+      '@vue/devtools-api': 6.6.4
+      vue: 3.5.17(typescript@5.8.3)
 
   vue-sfc-transformer@0.1.16(@vue/compiler-core@3.5.21)(esbuild@0.25.9)(vue@3.5.17(typescript@5.8.3)):
     dependencies:
