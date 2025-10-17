@@ -2,7 +2,7 @@ import { Type } from '@scalar/typebox'
 
 import { type ReferenceType, reference } from '@/schemas/v3.1/strict/reference'
 
-import type { Operation } from './operation'
+import type { OperationObject } from './operation'
 import { OperationRef } from './ref-definitions'
 
 /**
@@ -16,4 +16,4 @@ export const OperationsObjectSchemaDefinition = Type.Record(
 /**
  * Holds a dictionary with all the operations this application MUST implement.
  */
-export type OperationsObject = Record<string, ReferenceType<Operation>>
+export type OperationsObject = Record<string, ReferenceType<OperationObject>>

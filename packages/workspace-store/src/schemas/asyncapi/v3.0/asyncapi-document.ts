@@ -67,7 +67,13 @@ import { OperationTraitSchemaDefinition } from './operation-trait'
 import type { OperationsObject } from './operations'
 import { OperationsObjectSchemaDefinition } from './operations'
 import { ParameterSchemaDefinition } from './parameter'
-import { ASYNCAPI_REF_DEFINITIONS } from './ref-definitions'
+import {
+  ASYNCAPI_REF_DEFINITIONS,
+  ChannelsObjectRef,
+  ComponentsObjectRef,
+  OperationsObjectRef,
+  ServersObjectRef,
+} from './ref-definitions'
 import { ReplySchemaDefinition } from './reply'
 import { ReplyAddressSchemaDefinition } from './reply-address'
 import { SecuritySchemeObjectSchemaDefinition } from './security-scheme'
@@ -115,13 +121,13 @@ const AsyncApiDocumentSchemaDefinition = compose(
     /** The default value for the $schema keyword within Schema Objects contained within this AsyncAPI document. This MUST be in the form of a URI. */
     jsonSchemaDialect: Type.Optional(Type.String()),
     /** A map of Server Objects, which provide connectivity information to a target server. */
-    servers: Type.Optional(ServersObjectSchemaDefinition),
+    servers: Type.Optional(ServersObjectRef),
     /** The available channels and operations for the API. */
-    channels: Type.Optional(ChannelsObjectSchemaDefinition),
+    channels: Type.Optional(ChannelsObjectRef),
     /** The operations supported by the API. */
-    operations: Type.Optional(OperationsObjectSchemaDefinition),
+    operations: Type.Optional(OperationsObjectRef),
     /** An element to hold various Objects for the AsyncAPI Description. */
-    components: Type.Optional(ComponentsObjectSchemaDefinition),
+    components: Type.Optional(ComponentsObjectRef),
     /** A declaration of which security mechanisms can be used across the API. The list of values includes alternative Security Requirement Objects that can be used. Only one of the Security Requirement Objects need to be satisfied to authorize a request. Individual operations can override this definition. The list can be incomplete, up to being empty or absent. To make security explicitly optional, an empty security requirement ({}) can be included in the array. */
     security: Type.Optional(Type.Array(SecurityRequirementObjectRef)),
     /** A list of tags used by the AsyncAPI Description with additional metadata. The order of the tags can be used to reflect on their order by the parsing tools. Not all tags that are used by the Operation Object must be declared. The tags that are not declared MAY be organized randomly or based on the tools' logic. Each tag name in the list MUST be unique. */
@@ -299,7 +305,7 @@ export type {
   OAuthFlowPassword,
 } from './oauth-flow'
 export type { OAuthFlowsObject } from './oauth-flows'
-export type { Operation, OperationAction } from './operation'
+export type { OperationAction, OperationObject } from './operation'
 export type { OperationTrait } from './operation-trait'
 export type { Parameter } from './parameter'
 export type { Reply } from './reply'

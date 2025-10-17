@@ -54,7 +54,7 @@ export const OperationSchemaDefinition = compose(
 /**
  * Describes a specific operation.
  */
-export type Operation = {
+export type OperationObject = {
   /** REQUIRED. Use send when it's expected that the application will send a message to the given channel, and receive when the application should expect receiving messages from the given channel. */
   action: OperationAction
   /** REQUIRED. A $ref pointer to the definition of the channel in which this operation is performed. */

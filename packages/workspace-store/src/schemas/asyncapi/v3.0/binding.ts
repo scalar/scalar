@@ -8,14 +8,7 @@ import { AmqpBindingRef, HttpBindingRef, KafkaBindingRef, MqttBindingRef, WebSoc
  */
 export const BindingSchemaDefinition = Type.Record(
   Type.String(),
-  Type.Union([
-    HttpBindingRef,
-    WebSocketBindingRef,
-    KafkaBindingRef,
-    AmqpBindingRef,
-    MqttBindingRef,
-    Type.Any(), // Fallback for other/custom protocols
-  ]),
+  Type.Union([HttpBindingRef, WebSocketBindingRef, KafkaBindingRef, AmqpBindingRef, MqttBindingRef, Type.Any()]),
 )
 
 /**
