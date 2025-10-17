@@ -1,3 +1,5 @@
+import { isOpenApiDocument } from '@scalar/workspace-store/helpers/type-guards'
+import type { AsyncApiDocument } from '@scalar/workspace-store/schemas/asyncapi/v3.0/asyncapi-document'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { FuseResult } from 'fuse.js'
 import { computed, ref, toValue, watch } from 'vue'
@@ -13,7 +15,10 @@ const MAX_SEARCH_RESULTS = 25
 /**
  * Creates the search index from an OpenAPI document.
  */
-export function useSearchIndex(items: ReturnType<typeof useSidebar>['items'], document?: OpenApiDocument) {
+export function useSearchIndex(
+  items: ReturnType<typeof useSidebar>['items'],
+  document?: OpenApiDocument | AsyncApiDocument,
+) {
   const fuse = createFuseInstance()
 
   const selectedIndex = ref<number>()
@@ -23,7 +28,7 @@ export function useSearchIndex(items: ReturnType<typeof useSidebar>['items'], do
     items,
     () => {
       const { entries } = toValue(items)
-      const newSearchIndex = createSearchIndex(entries, document)
+      const newSearchIndex = document && isOpenApiDocument(document) ? createSearchIndex(entries, document) : []
       fuse.setCollection(newSearchIndex)
     },
     { immediate: true },

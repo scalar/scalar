@@ -1,6 +1,7 @@
 import { REFERENCE_LS_KEYS, safeLocalStorage } from '@scalar/helpers/object/local-storage'
 import { type WorkspaceStore, generateClientMutators } from '@scalar/workspace-store/client'
 import { onCustomEvent } from '@scalar/workspace-store/events'
+import { isAsyncApiDocument } from '@scalar/workspace-store/helpers/type-guards'
 import type { Ref } from 'vue'
 
 export const useWorkspaceStoreEvents = (store: WorkspaceStore, root: Ref<HTMLElement | null>) => {
@@ -64,6 +65,11 @@ export const useWorkspaceStoreEvents = (store: WorkspaceStore, root: Ref<HTMLEle
       return
     }
 
+    // TODO: Add AsyncAPI support
+    if (isAsyncApiDocument(activeDocument)) {
+      return
+    }
+
     const activeServer = activeDocument['servers']?.find((it) => it.url === activeDocument['x-scalar-active-server'])
 
     if (!activeServer) {
@@ -78,6 +84,11 @@ export const useWorkspaceStoreEvents = (store: WorkspaceStore, root: Ref<HTMLEle
     const activeDocument = store.workspace.activeDocument
 
     if (!activeDocument) {
+      return
+    }
+
+    // TODO: Add AsyncAPI support
+    if (isAsyncApiDocument(activeDocument)) {
       return
     }
 

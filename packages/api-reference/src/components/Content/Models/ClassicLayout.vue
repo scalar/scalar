@@ -17,7 +17,11 @@ defineProps<{
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   }
-  schemas: { id: string; name: string; schema: SchemaObject }[]
+  schemas: {
+    id: string
+    name: string
+    schema: SchemaObject
+  }[]
 }>()
 </script>
 <template>

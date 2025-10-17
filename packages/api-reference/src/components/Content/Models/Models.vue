@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { TraversedDescription } from '@scalar/workspace-store/schemas/navigation'
-import type { ComponentsObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ComponentsObject as OpenApiComponentsObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import { Lazy } from '@/components/Lazy'
@@ -10,7 +10,7 @@ import ClassicLayout from './ClassicLayout.vue'
 import ModernLayout from './ModernLayout.vue'
 
 const { schemas = {}, models } = defineProps<{
-  schemas: ComponentsObject['schemas']
+  schemas: OpenApiComponentsObject['schemas']
   models: TraversedDescription | undefined
   hash: string
   options: {
@@ -30,6 +30,7 @@ const flatSchemas = computed(() => {
     .map((it) => ({
       id: it.id,
       name: it.name,
+      // TODO: Add support for multi-format schemas, remove type-casting and v-if
       schema: getResolvedRef(schemas[it.name]),
     }))
 })
