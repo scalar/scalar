@@ -10,7 +10,7 @@ import { isAsyncApiDocument, isOpenApiOrSwaggerDocument } from '@/helpers/type-g
 import { createAsyncApiNavigation, createNavigation } from '@/navigation'
 import type { AsyncApiDocument } from '@/schemas/asyncapi/v3.0/asyncapi-document'
 import type { ComponentsObject as AsyncApiComponentsObject } from '@/schemas/asyncapi/v3.0/components'
-import type { OperationsObject } from '@/schemas/asyncapi/v3.0/operations'
+import type { OperationsObject as AsyncApiOperationsObject } from '@/schemas/asyncapi/v3.0/operations'
 import { extensions } from '@/schemas/extensions'
 import type { TraversedEntry } from '@/schemas/navigation'
 import { coerceValue } from '@/schemas/typebox-coerce'
@@ -18,7 +18,7 @@ import {
   OpenAPIDocumentSchema,
   type ComponentsObject as OpenApiComponentsObject,
   type OpenApiDocument,
-  type OperationObject,
+  type OperationObject as OpenApiOperationObject,
   type PathsObject,
 } from '@/schemas/v3.1/strict/openapi-document'
 import type { DocumentConfiguration } from '@/schemas/workspace-specification/config'
@@ -79,8 +79,8 @@ const httpMethods = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 
  *   }
  * }
  */
-export function filterHttpMethodsOnly(paths: PathsObject): Record<string, Record<string, OperationObject>> {
-  const result: Record<string, Record<string, OperationObject>> = {}
+export function filterHttpMethodsOnly(paths: PathsObject): Record<string, Record<string, OpenApiOperationObject>> {
+  const result: Record<string, Record<string, OpenApiOperationObject>> = {}
 
   // Todo: skip extension properties
   for (const [path, methods] of Object.entries(paths)) {
@@ -114,9 +114,9 @@ export function filterHttpMethodsOnly(paths: PathsObject): Record<string, Record
  * Output: { "/users~1{id}": { ... } }
  */
 export function escapePaths(
-  paths: Record<string, Record<string, OperationObject>>,
-): Record<string, Record<string, OperationObject>> {
-  const result: Record<string, Record<string, OperationObject>> = {}
+  paths: Record<string, Record<string, OpenApiOperationObject>>,
+): Record<string, Record<string, OpenApiOperationObject>> {
+  const result: Record<string, Record<string, OpenApiOperationObject>> = {}
 
   Object.keys(paths).forEach((path) => {
     if (paths[path]) {
@@ -301,8 +301,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
     string,
     {
       components?: OpenApiComponentsObject | AsyncApiComponentsObject
-      operations?: Record<string, Record<string, OperationObject>> // OpenAPI operations
-      asyncApiOperations?: OperationsObject // AsyncAPI operations
+      operations?: Record<string, Record<string, OpenApiOperationObject>> | AsyncApiOperationsObject
     }
   >
 
@@ -338,7 +337,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
       // Store AsyncAPI assets
       assets[meta.name] = {
         components: asyncApiDoc.components,
-        asyncApiOperations: asyncApiDoc.operations,
+        operations: asyncApiDoc.operations,
       }
 
       // Externalize component references if components exist
@@ -444,7 +443,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
       await fs.writeFile(`${basePath}/${WORKSPACE_FILE_NAME}`, JSON.stringify(workspace))
 
       // Write the chunks
-      for (const [name, { components, operations, asyncApiOperations }] of Object.entries(assets)) {
+      for (const [name, { components, operations }] of Object.entries(assets)) {
         // Write the components chunks (same for both OpenAPI and AsyncAPI)
         if (components) {
           for (const [type, component] of Object.entries(components as Record<string, Record<string, unknown>>)) {
@@ -470,11 +469,11 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
         }
 
         // Write the AsyncAPI operations chunks
-        if (asyncApiOperations) {
+        if (operations) {
           const operationPath = `${basePath}/chunks/${name}/operations`
           await fs.mkdir(operationPath, { recursive: true })
 
-          for (const [operationId, operation] of Object.entries(asyncApiOperations)) {
+          for (const [operationId, operation] of Object.entries(operations)) {
             await fs.writeFile(`${operationPath}/${operationId}.json`, JSON.stringify(operation))
           }
         }
@@ -516,27 +515,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
      * @returns The chunk data if found, undefined otherwise
      */
     get: (pointer: string) => {
-      const path = parseJsonPointer(pointer)
-
-      // For AsyncAPI operations, we need to check if the document has asyncApiOperations
-      // instead of nested operations (OpenAPI structure)
-      if (path.length >= 2 && path[1] === 'operations') {
-        const documentName = path[0]
-
-        if (documentName && typeof documentName === 'string') {
-          const documentAssets = assets[documentName]
-
-          if (documentAssets?.asyncApiOperations) {
-            // AsyncAPI: operations are flat (e.g., ['doc', 'operations', 'operationId'])
-            if (path.length === 3 && path[2]) {
-              return documentAssets.asyncApiOperations[path[2]]
-            }
-          }
-        }
-      }
-
-      // Default behavior for OpenAPI and components
-      return getValueByPath(assets, path)
+      return getValueByPath(assets, parseJsonPointer(pointer))
     },
     /**
      * Adds a new document to the workspace asynchronously.

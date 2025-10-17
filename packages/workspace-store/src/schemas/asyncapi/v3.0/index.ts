@@ -59,7 +59,7 @@ export type {
   OAuthFlowPassword,
 } from './oauth-flow'
 export type { OAuthFlowsObject } from './oauth-flows'
-export type { Operation, OperationAction } from './operation'
+export type { OperationAction, OperationObject } from './operation'
 export type { OperationTrait } from './operation-trait'
 export type { OperationsObject } from './operations'
 export type { Parameter } from './parameter'

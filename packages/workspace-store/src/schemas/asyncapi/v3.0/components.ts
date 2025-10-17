@@ -11,7 +11,7 @@ import type { CorrelationId } from './correlation-id'
 import type { Message } from './message'
 import type { MessageTrait } from './message-trait'
 import type { MultiFormatSchema } from './multi-format-schema'
-import type { Operation } from './operation'
+import type { OperationObject } from './operation'
 import type { OperationTrait } from './operation-trait'
 import type { Parameter } from './parameter'
 import {
@@ -107,7 +107,7 @@ export type ComponentsObject = {
   /** An object to hold reusable Channel Objects. */
   channels?: Record<string, ReferenceType<ChannelItem>>
   /** An object to hold reusable Operation Objects. */
-  operations?: Record<string, ReferenceType<Operation>>
+  operations?: Record<string, ReferenceType<OperationObject>>
   /** An object to hold reusable Message Objects. */
   messages?: Record<string, ReferenceType<Message>>
   /** An object to hold reusable Security Scheme Objects. */
