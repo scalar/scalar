@@ -15,7 +15,7 @@ import { BindingRef, ServerVariableRef } from './ref-definitions'
 /**
  * An object representing a Server Variable for server URL template substitution.
  */
-export const ServerVariableSchemaDefinition = compose(
+export const ServerVariableObjectSchemaDefinition = compose(
   Type.Object({
     /** An enumeration of string values to be used if the substitution options are from a limited set. The array MUST NOT be empty. */
     enum: Type.Optional(Type.Array(Type.String())),
@@ -31,7 +31,7 @@ export const ServerVariableSchemaDefinition = compose(
 /**
  * An object representing a Server Variable for server URL template substitution.
  */
-export type ServerVariable = {
+export type ServerVariableObject = {
   /** An enumeration of string values to be used if the substitution options are from a limited set. The array MUST NOT be empty. */
   enum?: string[]
   /** REQUIRED. The default value to use for substitution, which SHALL be sent if an alternate value is not supplied. */
@@ -45,7 +45,7 @@ export type ServerVariable = {
 /**
  * An object representing a Server.
  */
-export const ServerSchemaDefinition = compose(
+export const ServerObjectSchemaDefinition = compose(
   Type.Object({
     /** REQUIRED. The server host name. It MAY include the port number if different from the protocol's default port. The host supports Server Variables and MAY have relative paths. Variable substitutions will be made when a variable is named in braces. */
     host: Type.String(),
@@ -75,7 +75,7 @@ export const ServerSchemaDefinition = compose(
 /**
  * An object representing a Server.
  */
-export type Server = {
+export type ServerObject = {
   /** REQUIRED. The server host name. It MAY include the port number if different from the protocol's default port. */
   host: string
   /** REQUIRED. The protocol this server supports for connection. */
@@ -89,7 +89,7 @@ export type Server = {
   /** A short summary of the server. */
   summary?: string
   /** A map between a variable name and its value. The value is used for substitution in the server's host and pathname templates. */
-  variables?: Record<string, ServerVariable>
+  variables?: Record<string, ServerVariableObject>
   /** A declaration of which security mechanisms can be used with this server. The list of values includes alternative security requirement objects that can be used. Only one of the security requirement objects need to be satisfied to authorize a connection or operation. */
   security?: SecurityRequirementObject[]
   /** A list of tags for logical grouping and categorization of servers. */

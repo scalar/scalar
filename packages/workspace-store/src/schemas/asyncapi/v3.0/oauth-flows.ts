@@ -1,13 +1,13 @@
 import { Type } from '@scalar/typebox'
 
 import {
-  type OAuthFlowAuthorizationCode,
+  type OAuthFlowAuthorizationCodeObject,
   OAuthFlowAuthorizationCodeSchema,
-  type OAuthFlowClientCredentials,
+  type OAuthFlowClientCredentialsObject,
   OAuthFlowClientCredentialsSchema,
-  type OAuthFlowImplicit,
+  type OAuthFlowImplicitObject,
   OAuthFlowImplicitSchema,
-  type OAuthFlowPassword,
+  type OAuthFlowPasswordObject,
   OAuthFlowPasswordSchema,
 } from './oauth-flow'
 
@@ -27,11 +27,11 @@ export const OAuthFlowsObjectSchemaDefinition = Type.Object({
 
 export type OAuthFlowsObject = {
   /** Configuration for the OAuth Implicit flow */
-  implicit?: OAuthFlowImplicit
+  implicit?: OAuthFlowImplicitObject
   /** Configuration for the OAuth Resource Owner Protected Credentials flow */
-  password?: OAuthFlowPassword
+  password?: OAuthFlowPasswordObject
   /** Configuration for the OAuth Client Credentials flow */
-  clientCredentials?: OAuthFlowClientCredentials
+  clientCredentials?: OAuthFlowClientCredentialsObject
   /** Configuration for the OAuth Authorization Code flow */
-  authorizationCode?: OAuthFlowAuthorizationCode
+  authorizationCode?: OAuthFlowAuthorizationCodeObject
 }

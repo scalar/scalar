@@ -6,34 +6,34 @@ import { type ReferenceType, reference } from '@/schemas/v3.1/strict/reference'
 import type { SchemaObject } from '@/schemas/v3.1/strict/schema'
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
-import type { ChannelItem } from './channel-item'
-import type { CorrelationId } from './correlation-id'
-import type { Message } from './message'
-import type { MessageTrait } from './message-trait'
-import type { MultiFormatSchema } from './multi-format-schema'
+import type { ChannelObject } from './channel-item'
+import type { CorrelationIdObject } from './correlation-id'
+import type { MessageObject } from './message'
+import type { MessageTraitObject } from './message-trait'
+import type { MultiFormatSchemaObject } from './multi-format-schema'
 import type { OperationObject } from './operation'
-import type { OperationTrait } from './operation-trait'
-import type { Parameter } from './parameter'
+import type { OperationTraitObject } from './operation-trait'
+import type { ParameterObject } from './parameter'
 import {
   BindingRef,
-  ChannelItemRef,
-  CorrelationIdRef,
-  MessageRef,
-  MessageTraitRef,
-  MultiFormatSchemaRef,
+  ChannelObjectRef,
+  CorrelationIdObjectRef,
+  MessageObjectRef,
+  MessageTraitObjectRef,
+  MultiFormatSchemaObjectRef,
   OperationRef,
-  OperationTraitRef,
-  ParameterRef,
-  ReplyAddressRef,
-  ReplyRef,
+  OperationTraitObjectRef,
+  ParameterObjectRef,
+  ReplyAddressObjectRef,
+  ReplyObjectRef,
   SecuritySchemeObjectRef,
-  ServerRef,
-  ServerVariableRef,
+  ServerObjectRef,
+  ServerVariableObjectRef,
 } from './ref-definitions'
-import type { Reply } from './reply'
-import type { ReplyAddress } from './reply-address'
+import type { ReplyObject } from './reply'
+import type { ReplyAddressObject } from './reply-address'
 import type { SecuritySchemeObject } from './security-scheme'
-import type { Server, ServerVariable } from './server'
+import type { ServerObject, ServerVariableObject } from './server'
 
 /**
  * Holds a set of reusable objects for different aspects of the AsyncAPI specification.
@@ -44,35 +44,44 @@ export const ComponentsObjectSchemaDefinition = Type.Object({
   schemas: Type.Optional(
     Type.Record(
       Type.String(),
-      Type.Union([SchemaObjectRef, MultiFormatSchemaRef, reference(SchemaObjectRef), reference(MultiFormatSchemaRef)]),
+      Type.Union([
+        SchemaObjectRef,
+        MultiFormatSchemaObjectRef,
+        reference(SchemaObjectRef),
+        reference(MultiFormatSchemaObjectRef),
+      ]),
     ),
   ),
   /** An object to hold reusable Server Objects. */
-  servers: Type.Optional(Type.Record(Type.String(), Type.Union([ServerRef, reference(ServerRef)]))),
+  servers: Type.Optional(Type.Record(Type.String(), Type.Union([ServerObjectRef, reference(ServerObjectRef)]))),
   /** An object to hold reusable Channel Objects. */
-  channels: Type.Optional(Type.Record(Type.String(), Type.Union([ChannelItemRef, reference(ChannelItemRef)]))),
+  channels: Type.Optional(Type.Record(Type.String(), Type.Union([ChannelObjectRef, reference(ChannelObjectRef)]))),
   /** An object to hold reusable Operation Objects. */
   operations: Type.Optional(Type.Record(Type.String(), Type.Union([OperationRef, reference(OperationRef)]))),
   /** An object to hold reusable Message Objects. */
-  messages: Type.Optional(Type.Record(Type.String(), Type.Union([MessageRef, reference(MessageRef)]))),
+  messages: Type.Optional(Type.Record(Type.String(), Type.Union([MessageObjectRef, reference(MessageObjectRef)]))),
   /** An object to hold reusable Security Scheme Objects. */
   securitySchemes: Type.Optional(
     Type.Record(Type.String(), Type.Union([SecuritySchemeObjectRef, reference(SecuritySchemeObjectRef)])),
   ),
   /** An object to hold reusable Server Variable Objects. */
   serverVariables: Type.Optional(
-    Type.Record(Type.String(), Type.Union([ServerVariableRef, reference(ServerVariableRef)])),
+    Type.Record(Type.String(), Type.Union([ServerVariableObjectRef, reference(ServerVariableObjectRef)])),
   ),
   /** An object to hold reusable Parameter Objects. */
-  parameters: Type.Optional(Type.Record(Type.String(), Type.Union([ParameterRef, reference(ParameterRef)]))),
+  parameters: Type.Optional(
+    Type.Record(Type.String(), Type.Union([ParameterObjectRef, reference(ParameterObjectRef)])),
+  ),
   /** An object to hold reusable Correlation ID Objects. */
   correlationIds: Type.Optional(
-    Type.Record(Type.String(), Type.Union([CorrelationIdRef, reference(CorrelationIdRef)])),
+    Type.Record(Type.String(), Type.Union([CorrelationIdObjectRef, reference(CorrelationIdObjectRef)])),
   ),
   /** An object to hold reusable Reply Objects. */
-  replies: Type.Optional(Type.Record(Type.String(), Type.Union([ReplyRef, reference(ReplyRef)]))),
+  replies: Type.Optional(Type.Record(Type.String(), Type.Union([ReplyObjectRef, reference(ReplyObjectRef)]))),
   /** An object to hold reusable Reply Address Objects. */
-  replyAddresses: Type.Optional(Type.Record(Type.String(), Type.Union([ReplyAddressRef, reference(ReplyAddressRef)]))),
+  replyAddresses: Type.Optional(
+    Type.Record(Type.String(), Type.Union([ReplyAddressObjectRef, reference(ReplyAddressObjectRef)])),
+  ),
   /** An object to hold reusable External Documentation Objects. */
   externalDocs: Type.Optional(
     Type.Record(Type.String(), Type.Union([ExternalDocumentationObjectRef, reference(ExternalDocumentationObjectRef)])),
@@ -81,10 +90,12 @@ export const ComponentsObjectSchemaDefinition = Type.Object({
   tags: Type.Optional(Type.Record(Type.String(), Type.Union([TagObjectRef, reference(TagObjectRef)]))),
   /** An object to hold reusable Operation Trait Objects. */
   operationTraits: Type.Optional(
-    Type.Record(Type.String(), Type.Union([OperationTraitRef, reference(OperationTraitRef)])),
+    Type.Record(Type.String(), Type.Union([OperationTraitObjectRef, reference(OperationTraitObjectRef)])),
   ),
   /** An object to hold reusable Message Trait Objects. */
-  messageTraits: Type.Optional(Type.Record(Type.String(), Type.Union([MessageTraitRef, reference(MessageTraitRef)]))),
+  messageTraits: Type.Optional(
+    Type.Record(Type.String(), Type.Union([MessageTraitObjectRef, reference(MessageTraitObjectRef)])),
+  ),
   /** An object to hold reusable Server Bindings Objects. */
   serverBindings: Type.Optional(Type.Record(Type.String(), Type.Union([BindingRef, reference(BindingRef)]))),
   /** An object to hold reusable Channel Bindings Objects. */
@@ -101,35 +112,35 @@ export const ComponentsObjectSchemaDefinition = Type.Object({
  */
 export type ComponentsObject = {
   /** An object to hold reusable Schema Objects. */
-  schemas?: Record<string, ReferenceType<SchemaObject | MultiFormatSchema>>
+  schemas?: Record<string, ReferenceType<SchemaObject | MultiFormatSchemaObject>>
   /** An object to hold reusable Server Objects. */
-  servers?: Record<string, ReferenceType<Server>>
+  servers?: Record<string, ReferenceType<ServerObject>>
   /** An object to hold reusable Channel Objects. */
-  channels?: Record<string, ReferenceType<ChannelItem>>
+  channels?: Record<string, ReferenceType<ChannelObject>>
   /** An object to hold reusable Operation Objects. */
   operations?: Record<string, ReferenceType<OperationObject>>
   /** An object to hold reusable Message Objects. */
-  messages?: Record<string, ReferenceType<Message>>
+  messages?: Record<string, ReferenceType<MessageObject>>
   /** An object to hold reusable Security Scheme Objects. */
   securitySchemes?: Record<string, ReferenceType<SecuritySchemeObject>>
   /** An object to hold reusable Server Variable Objects. */
-  serverVariables?: Record<string, ReferenceType<ServerVariable>>
+  serverVariables?: Record<string, ReferenceType<ServerVariableObject>>
   /** An object to hold reusable Parameter Objects. */
-  parameters?: Record<string, ReferenceType<Parameter>>
+  parameters?: Record<string, ReferenceType<ParameterObject>>
   /** An object to hold reusable Correlation ID Objects. */
-  correlationIds?: Record<string, ReferenceType<CorrelationId>>
+  correlationIds?: Record<string, ReferenceType<CorrelationIdObject>>
   /** An object to hold reusable Reply Objects. */
-  replies?: Record<string, ReferenceType<Reply>>
+  replies?: Record<string, ReferenceType<ReplyObject>>
   /** An object to hold reusable Reply Address Objects. */
-  replyAddresses?: Record<string, ReferenceType<ReplyAddress>>
+  replyAddresses?: Record<string, ReferenceType<ReplyAddressObject>>
   /** An object to hold reusable External Documentation Objects. */
   externalDocs?: Record<string, ReferenceType<ExternalDocumentationObject>>
   /** An object to hold reusable Tag Objects. */
   tags?: Record<string, ReferenceType<TagObject>>
   /** An object to hold reusable Operation Trait Objects. */
-  operationTraits?: Record<string, ReferenceType<OperationTrait>>
+  operationTraits?: Record<string, ReferenceType<OperationTraitObject>>
   /** An object to hold reusable Message Trait Objects. */
-  messageTraits?: Record<string, ReferenceType<MessageTrait>>
+  messageTraits?: Record<string, ReferenceType<MessageTraitObject>>
   /** An object to hold reusable Server Bindings Objects. */
   serverBindings?: Record<string, ReferenceType<Record<string, any>>>
   /** An object to hold reusable Channel Bindings Objects. */

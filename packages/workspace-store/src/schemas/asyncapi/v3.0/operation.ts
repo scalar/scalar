@@ -10,9 +10,9 @@ import {
 import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
-import type { OperationTrait } from './operation-trait'
+import type { OperationTraitObject } from './operation-trait'
 import { OperationTraitRef, ReplyRef } from './ref-definitions'
-import type { Reply } from './reply'
+import type { ReplyObject } from './reply'
 
 /** Operation Action - send or receive */
 export const OperationActionSchema = Type.Union([Type.Literal('send'), Type.Literal('receive')])
@@ -74,9 +74,9 @@ export type OperationObject = {
   /** A list of $ref pointers to the supported Message Objects that can be processed by this operation. */
   messages?: string[]
   /** Additional definition of the reply in a request-reply operation. */
-  reply?: Reply
+  reply?: ReplyObject
   /** A list of traits to apply to the operation object. Traits MUST be merged using traits merge mechanism. The resulting object MUST be a valid Operation Object. */
-  traits?: OperationTrait[]
+  traits?: OperationTraitObject[]
   /** A map where the keys describe the name of the protocol and the values describe protocol-specific definitions for the operation. */
   bindings?: Record<string, any>
 }

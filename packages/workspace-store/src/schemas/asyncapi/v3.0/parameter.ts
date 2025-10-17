@@ -7,7 +7,7 @@ import type { SchemaObject } from '@/schemas/v3.1/strict/schema'
 /**
  * Describes a single parameter included in a channel address.
  */
-export const ParameterSchemaDefinition = compose(
+export const ParameterObjectSchemaDefinition = compose(
   Type.Object({
     /** A verbose explanation of the parameter. CommonMark syntax MAY be used for rich text representation. */
     description: Type.Optional(Type.String()),
@@ -21,7 +21,7 @@ export const ParameterSchemaDefinition = compose(
 /**
  * Describes a single parameter included in a channel address.
  */
-export type Parameter = {
+export type ParameterObject = {
   /** A verbose explanation of the parameter. CommonMark syntax MAY be used for rich text representation. */
   description?: string
   /** The schema defining the type used for the parameter. */

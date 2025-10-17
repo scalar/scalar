@@ -12,14 +12,14 @@ import {
 import type { SchemaObject } from '@/schemas/v3.1/strict/schema'
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
-import type { CorrelationId } from './correlation-id'
+import type { CorrelationIdObject } from './correlation-id'
 import { CorrelationIdRef } from './ref-definitions'
 
 /**
  * Describes a trait that MAY be applied to a Message Object.
  * This object MAY contain any property from the Message Object, except payload and traits.
  */
-export const MessageTraitSchemaDefinition = compose(
+export const MessageTraitObjectSchemaDefinition = compose(
   Type.Object({
     /** A human-friendly title for the message. */
     title: Type.Optional(Type.String()),
@@ -48,7 +48,7 @@ export const MessageTraitSchemaDefinition = compose(
  * Describes a trait that MAY be applied to a Message Object.
  * This object MAY contain any property from the Message Object, except payload and traits.
  */
-export type MessageTrait = {
+export type MessageTraitObject = {
   /** A human-friendly title for the message. */
   title?: string
   /** A short summary of what the message is about. */
@@ -62,7 +62,7 @@ export type MessageTrait = {
   /** Schema definition of the application headers. */
   headers?: SchemaObject
   /** Definition of the correlation ID used for message tracing or matching. */
-  correlationId?: CorrelationId
+  correlationId?: CorrelationIdObject
   /** The content type to use when encoding/decoding a message's payload. */
   contentType?: string
   /** A machine-friendly name for the message. */

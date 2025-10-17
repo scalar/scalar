@@ -7,31 +7,31 @@ export {
   AsyncApiDocumentSchema as AsyncApiDocumentSchemaStrict,
   type AsyncApiExtensions,
   BindingSchema,
-  ChannelItemSchema,
+  ChannelObjectSchema,
   ChannelsObjectSchema,
   ComponentsObjectSchema,
-  CorrelationIdSchema,
+  CorrelationIdObjectSchema,
   // Protocol-specific bindings
   HttpBindingSchema,
   KafkaBindingSchema,
-  MessageExampleSchema,
-  MessageSchema,
-  MessageTraitSchema,
+  MessageExampleObjectSchema,
+  MessageObjectSchema,
+  MessageTraitObjectSchema,
   MessagesObjectSchema,
   MqttBindingSchema,
-  MultiFormatSchemaSchema,
+  MultiFormatSchemaObjectSchema,
   OAuthFlowObjectSchema,
   OAuthFlowsObjectSchema,
   OperationSchema,
-  OperationTraitSchema,
+  OperationTraitObjectSchema,
   OperationsObjectSchema,
-  ParameterSchema,
-  ReplyAddressSchema,
-  ReplySchema,
+  ParameterObjectSchema,
+  ReplyAddressObjectSchema,
+  ReplyObjectSchema,
   SecuritySchemeObjectSchema,
   // Export AsyncAPI-specific schemas from the module
-  ServerSchema,
-  ServerVariableSchema,
+  ServerObjectSchema,
+  ServerVariableObjectSchema,
   ServersObjectSchema,
   WebSocketBindingSchema,
 } from './asyncapi-document'
@@ -42,31 +42,31 @@ export type { HttpBinding } from './bindings/http'
 export type { KafkaBinding } from './bindings/kafka'
 export type { MqttBinding } from './bindings/mqtt'
 export type { WebSocketBinding } from './bindings/websocket'
-export type { ChannelItem } from './channel-item'
+export type { ChannelObject } from './channel-item'
 export type { ChannelsObject } from './channels'
 export type { ComponentsObject } from './components'
-export type { CorrelationId } from './correlation-id'
-export type { Message } from './message'
-export type { MessageExample } from './message-example'
-export type { MessageTrait } from './message-trait'
+export type { CorrelationIdObject } from './correlation-id'
+export type { MessageObject } from './message'
+export type { MessageExampleObject } from './message-example'
+export type { MessageTraitObject } from './message-trait'
 export type { MessagesObject } from './messages'
-export type { MultiFormatSchema } from './multi-format-schema'
+export type { MultiFormatSchemaObject } from './multi-format-schema'
 export type {
-  OAuthFlow,
-  OAuthFlowAuthorizationCode,
-  OAuthFlowClientCredentials,
-  OAuthFlowImplicit,
-  OAuthFlowPassword,
+  OAuthFlowAuthorizationCodeObject,
+  OAuthFlowClientCredentialsObject,
+  OAuthFlowImplicitObject,
+  OAuthFlowObject,
+  OAuthFlowPasswordObject,
 } from './oauth-flow'
 export type { OAuthFlowsObject } from './oauth-flows'
 export type { OperationAction, OperationObject } from './operation'
-export type { OperationTrait } from './operation-trait'
+export type { OperationTraitObject } from './operation-trait'
 export type { OperationsObject } from './operations'
-export type { Parameter } from './parameter'
+export type { ParameterObject } from './parameter'
 // Export reference definitions
 export { ASYNCAPI_REF_DEFINITIONS } from './ref-definitions'
-export type { Reply } from './reply'
-export type { ReplyAddress } from './reply-address'
+export type { ReplyObject } from './reply'
+export type { ReplyAddressObject } from './reply-address'
 export type {
   ApiKeyObject,
   AsymmetricEncryptionObject,
@@ -83,5 +83,5 @@ export type {
   UserPasswordObject,
   X509Object,
 } from './security-scheme'
-export type { Server, ServerVariable } from './server'
+export type { ServerObject, ServerVariableObject } from './server'
 export type { ServersObject } from './servers'

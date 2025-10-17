@@ -11,13 +11,13 @@ import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-r
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
 import { ReplyRef } from './ref-definitions'
-import type { Reply } from './reply'
+import type { ReplyObject } from './reply'
 
 /**
  * Describes a trait that MAY be applied to an Operation Object.
  * This object MAY contain any property from the Operation Object, except action and channel.
  */
-export const OperationTraitSchemaDefinition = compose(
+export const OperationTraitObjectSchemaDefinition = compose(
   Type.Object({
     /** A human-friendly title for the operation. */
     title: Type.Optional(Type.String()),
@@ -40,7 +40,7 @@ export const OperationTraitSchemaDefinition = compose(
  * Describes a trait that MAY be applied to an Operation Object.
  * This object MAY contain any property from the Operation Object, except action and channel.
  */
-export type OperationTrait = {
+export type OperationTraitObject = {
   /** A human-friendly title for the operation. */
   title?: string
   /** A short summary of what the operation is about. */
@@ -54,5 +54,5 @@ export type OperationTrait = {
   /** Additional external documentation for this operation. */
   externalDocs?: ExternalDocumentationObject
   /** A definition of the reply in a request-reply operation. */
-  reply?: Reply
+  reply?: ReplyObject
 }

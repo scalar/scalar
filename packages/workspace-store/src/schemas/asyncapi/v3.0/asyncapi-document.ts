@@ -50,23 +50,23 @@ import { HttpBindingSchemaDefinition } from './bindings/http'
 import { KafkaBindingSchemaDefinition } from './bindings/kafka'
 import { MqttBindingSchemaDefinition } from './bindings/mqtt'
 import { WebSocketBindingSchemaDefinition } from './bindings/websocket'
-import { ChannelItemSchemaDefinition } from './channel-item'
+import { ChannelObjectSchemaDefinition } from './channel-item'
 import type { ChannelsObject } from './channels'
 import { ChannelsObjectSchemaDefinition } from './channels'
 import { ComponentsObjectSchemaDefinition } from './components'
-import { CorrelationIdSchemaDefinition } from './correlation-id'
-import { MessageSchemaDefinition } from './message'
-import { MessageExampleSchemaDefinition } from './message-example'
-import { MessageTraitSchemaDefinition } from './message-trait'
+import { CorrelationIdObjectSchemaDefinition } from './correlation-id'
+import { MessageObjectSchemaDefinition } from './message'
+import { MessageExampleObjectSchemaDefinition } from './message-example'
+import { MessageTraitObjectSchemaDefinition } from './message-trait'
 import { MessagesObjectSchemaDefinition } from './messages'
-import { MultiFormatSchemaSchemaDefinition } from './multi-format-schema'
+import { MultiFormatSchemaObjectSchemaDefinition } from './multi-format-schema'
 import { OAuthFlowObjectSchemaDefinition } from './oauth-flow'
 import { OAuthFlowsObjectSchemaDefinition } from './oauth-flows'
 import { OperationSchemaDefinition } from './operation'
-import { OperationTraitSchemaDefinition } from './operation-trait'
+import { OperationTraitObjectSchemaDefinition } from './operation-trait'
 import type { OperationsObject } from './operations'
 import { OperationsObjectSchemaDefinition } from './operations'
-import { ParameterSchemaDefinition } from './parameter'
+import { ParameterObjectSchemaDefinition } from './parameter'
 import {
   ASYNCAPI_REF_DEFINITIONS,
   ChannelsObjectRef,
@@ -74,10 +74,10 @@ import {
   OperationsObjectRef,
   ServersObjectRef,
 } from './ref-definitions'
-import { ReplySchemaDefinition } from './reply'
-import { ReplyAddressSchemaDefinition } from './reply-address'
+import { ReplyObjectSchemaDefinition } from './reply'
+import { ReplyAddressObjectSchemaDefinition } from './reply-address'
 import { SecuritySchemeObjectSchemaDefinition } from './security-scheme'
-import { ServerSchemaDefinition, ServerVariableSchemaDefinition } from './server'
+import { ServerObjectSchemaDefinition, ServerVariableObjectSchemaDefinition } from './server'
 import type { ServersObject } from './servers'
 import { ServersObjectSchemaDefinition } from './servers'
 
@@ -179,20 +179,20 @@ const module = Type.Module({
   [REF_DEFINITIONS.XMLObject]: XMLObjectSchemaDefinition,
 
   // AsyncAPI-specific objects
-  [ASYNCAPI_REF_DEFINITIONS.ChannelItem]: ChannelItemSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.ChannelObject]: ChannelObjectSchemaDefinition,
   [ASYNCAPI_REF_DEFINITIONS.ChannelsObject]: ChannelsObjectSchemaDefinition,
   [ASYNCAPI_REF_DEFINITIONS.Operation]: OperationSchemaDefinition,
   [ASYNCAPI_REF_DEFINITIONS.OperationsObject]: OperationsObjectSchemaDefinition,
-  [ASYNCAPI_REF_DEFINITIONS.Message]: MessageSchemaDefinition,
-  [ASYNCAPI_REF_DEFINITIONS.MessageTrait]: MessageTraitSchemaDefinition,
-  [ASYNCAPI_REF_DEFINITIONS.MessageExample]: MessageExampleSchemaDefinition,
-  [ASYNCAPI_REF_DEFINITIONS.Parameter]: ParameterSchemaDefinition,
-  [ASYNCAPI_REF_DEFINITIONS.CorrelationId]: CorrelationIdSchemaDefinition,
-  [ASYNCAPI_REF_DEFINITIONS.OperationTrait]: OperationTraitSchemaDefinition,
-  [ASYNCAPI_REF_DEFINITIONS.Reply]: ReplySchemaDefinition,
-  [ASYNCAPI_REF_DEFINITIONS.ReplyAddress]: ReplyAddressSchemaDefinition,
-  [ASYNCAPI_REF_DEFINITIONS.Server]: ServerSchemaDefinition,
-  [ASYNCAPI_REF_DEFINITIONS.ServerVariable]: ServerVariableSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.MessageObject]: MessageObjectSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.MessageTraitObject]: MessageTraitObjectSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.MessageExampleObject]: MessageExampleObjectSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.ParameterObject]: ParameterObjectSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.CorrelationIdObject]: CorrelationIdObjectSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.OperationTraitObject]: OperationTraitObjectSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.ReplyObject]: ReplyObjectSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.ReplyAddressObject]: ReplyAddressObjectSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.ServerObject]: ServerObjectSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.ServerVariableObject]: ServerVariableObjectSchemaDefinition,
   [ASYNCAPI_REF_DEFINITIONS.Binding]: BindingSchemaDefinition,
 
   // Protocol-specific bindings
@@ -203,7 +203,7 @@ const module = Type.Module({
   [ASYNCAPI_REF_DEFINITIONS.MqttBinding]: MqttBindingSchemaDefinition,
 
   // Multi-format schemas
-  [ASYNCAPI_REF_DEFINITIONS.MultiFormatSchema]: MultiFormatSchemaSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.MultiFormatSchemaObject]: MultiFormatSchemaObjectSchemaDefinition,
 
   // Security
   [ASYNCAPI_REF_DEFINITIONS.SecuritySchemeObject]: SecuritySchemeObjectSchemaDefinition,
@@ -242,22 +242,22 @@ export const ContactObjectSchema = module.Import('ContactObject')
 export const LicenseObjectSchema = module.Import('LicenseObject')
 
 // AsyncAPI-specific schema exports
-export const ServerSchema = module.Import('Server')
-export const ServerVariableSchema = module.Import('ServerVariable')
+export const ServerObjectSchema = module.Import('ServerObject')
+export const ServerVariableObjectSchema = module.Import('ServerVariableObject')
 export const BindingSchema = module.Import('Binding')
-export const ChannelItemSchema = module.Import('ChannelItem')
+export const ChannelObjectSchema = module.Import('ChannelObject')
 export const ChannelsObjectSchema = module.Import('ChannelsObject')
-export const CorrelationIdSchema = module.Import('CorrelationId')
-export const MessageSchema = module.Import('Message')
-export const MessageTraitSchema = module.Import('MessageTrait')
-export const MessageExampleSchema = module.Import('MessageExample')
+export const CorrelationIdObjectSchema = module.Import('CorrelationIdObject')
+export const MessageObjectSchema = module.Import('MessageObject')
+export const MessageTraitObjectSchema = module.Import('MessageTraitObject')
+export const MessageExampleObjectSchema = module.Import('MessageExampleObject')
 export const OperationSchema = module.Import('Operation')
-export const OperationTraitSchema = module.Import('OperationTrait')
+export const OperationTraitObjectSchema = module.Import('OperationTraitObject')
 export const OperationsObjectSchema = module.Import('OperationsObject')
-export const ParameterSchema = module.Import('Parameter')
-export const ReplySchema = module.Import('Reply')
-export const ReplyAddressSchema = module.Import('ReplyAddress')
-export const MultiFormatSchemaSchema = module.Import('MultiFormatSchema')
+export const ParameterObjectSchema = module.Import('ParameterObject')
+export const ReplyObjectSchema = module.Import('ReplyObject')
+export const ReplyAddressObjectSchema = module.Import('ReplyAddressObject')
+export const MultiFormatSchemaObjectSchema = module.Import('MultiFormatSchemaObject')
 export const ServersObjectSchema = module.Import('ServersObject')
 export const MessagesObjectSchema = module.Import('MessagesObject')
 export const ComponentsObjectSchema = module.Import('ComponentsObject')
@@ -292,24 +292,24 @@ export type { ContactObject } from '@/schemas/v3.1/strict/contact'
 export type { LicenseObject } from '@/schemas/v3.1/strict/license'
 
 // AsyncAPI-specific type exports
-export type { ChannelItem } from './channel-item'
-export type { CorrelationId } from './correlation-id'
-export type { Message } from './message'
-export type { MessageExample } from './message-example'
-export type { MessageTrait } from './message-trait'
+export type { ChannelObject } from './channel-item'
+export type { CorrelationIdObject } from './correlation-id'
+export type { MessageObject } from './message'
+export type { MessageExampleObject } from './message-example'
+export type { MessageTraitObject } from './message-trait'
 export type {
-  OAuthFlow,
-  OAuthFlowAuthorizationCode,
-  OAuthFlowClientCredentials,
-  OAuthFlowImplicit,
-  OAuthFlowPassword,
+  OAuthFlowAuthorizationCodeObject,
+  OAuthFlowClientCredentialsObject,
+  OAuthFlowImplicitObject,
+  OAuthFlowObject,
+  OAuthFlowPasswordObject,
 } from './oauth-flow'
 export type { OAuthFlowsObject } from './oauth-flows'
 export type { OperationAction, OperationObject } from './operation'
-export type { OperationTrait } from './operation-trait'
-export type { Parameter } from './parameter'
-export type { Reply } from './reply'
-export type { ReplyAddress } from './reply-address'
+export type { OperationTraitObject } from './operation-trait'
+export type { ParameterObject } from './parameter'
+export type { ReplyObject } from './reply'
+export type { ReplyAddressObject } from './reply-address'
 export type {
   ApiKeyObject,
   AsymmetricEncryptionObject,
@@ -326,4 +326,4 @@ export type {
   UserPasswordObject,
   X509Object,
 } from './security-scheme'
-export type { Server, ServerVariable } from './server'
+export type { ServerObject, ServerVariableObject } from './server'

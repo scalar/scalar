@@ -74,7 +74,7 @@ export const OAuthFlowImplicitSchema = compose(
 )
 
 /** Configuration for the OAuth Implicit flow */
-export type OAuthFlowImplicit = OAuthFlowCommon & {
+export type OAuthFlowImplicitObject = OAuthFlowCommon & {
   /** REQUIRED. The authorization URL to be used for this flow. This MUST be in the form of an absolute URL. */
   authorizationUrl: string
 } & XScalarSecretRedirectUri
@@ -91,7 +91,7 @@ export const OAuthFlowPasswordSchema = compose(
 )
 
 /** Configuration for the OAuth Resource Owner Protected Credentials flow */
-export type OAuthFlowPassword = OAuthFlowCommon & {
+export type OAuthFlowPasswordObject = OAuthFlowCommon & {
   /** REQUIRED. The token URL to be used for this flow. This MUST be in the form of an absolute URL. */
   tokenUrl: string
 } & XScalarSecretHTTP &
@@ -108,7 +108,7 @@ export const OAuthFlowClientCredentialsSchema = compose(
 )
 
 /** Configuration for the OAuth Client Credentials flow */
-export type OAuthFlowClientCredentials = OAuthFlowCommon & {
+export type OAuthFlowClientCredentialsObject = OAuthFlowCommon & {
   /** REQUIRED. The token URL to be used for this flow. This MUST be in the form of an absolute URL. */
   tokenUrl: string
 } & XScalarSecretClientSecret
@@ -128,7 +128,7 @@ export const OAuthFlowAuthorizationCodeSchema = compose(
 )
 
 /** Configuration for the OAuth Authorization Code flow */
-export type OAuthFlowAuthorizationCode = OAuthFlowCommon & {
+export type OAuthFlowAuthorizationCodeObject = OAuthFlowCommon & {
   /** REQUIRED. The authorization URL to be used for this flow. This MUST be in the form of an absolute URL. */
   authorizationUrl: string
   /** REQUIRED. The token URL to be used for this flow. This MUST be in the form of an absolute URL. */
@@ -145,4 +145,8 @@ export const OAuthFlowObjectSchemaDefinition = Type.Union([
   OAuthFlowAuthorizationCodeSchema,
 ])
 
-export type OAuthFlow = OAuthFlowImplicit | OAuthFlowPassword | OAuthFlowClientCredentials | OAuthFlowAuthorizationCode
+export type OAuthFlowObject =
+  | OAuthFlowImplicitObject
+  | OAuthFlowPasswordObject
+  | OAuthFlowClientCredentialsObject
+  | OAuthFlowAuthorizationCodeObject
