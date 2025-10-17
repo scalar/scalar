@@ -22,7 +22,6 @@ const emit = defineEmits<{
 const mode = ref<'edit' | 'preview'>('preview')
 
 const switchMode = async (newMode: 'edit' | 'preview') => {
-  console.log('switchMode', newMode)
   mode.value = newMode
 
   if (newMode === 'edit') {
