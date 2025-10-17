@@ -6,57 +6,74 @@ import {
   ScalarMenuResources,
   ScalarMenuSupport,
   ScalarSidebarSearchInput,
-  type ScalarListboxOption,
 } from '@scalar/components'
 import { ScalarIconMagnifyingGlass } from '@scalar/icons'
-import { createSidebarState, ScalarSidebar, type Item } from '@scalar/sidebar'
-import { computed, ref } from 'vue'
+import {
+  createSidebarState,
+  ScalarSidebar,
+  type DocumentItem,
+  type Item,
+  type WorkspaceItem,
+} from '@scalar/sidebar'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
+import { capitalize, computed, ref } from 'vue'
 
 import Rabbit from '@/assets/rabbit.ascii?raw'
 import RabbitJump from '@/assets/rabbitjump.ascii?raw'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import type { ClientLayout } from '@/v2/types/layout'
 
-import MenuWorkspace from './MenuWorkspace.vue'
+import SidebarMenuWorkspace from './SidebarMenuWorkspace.vue'
 
-const { layout } = defineProps<{
+const { documents, layout } = defineProps<{
   layout: ClientLayout
+  documents: Record<string, WorkspaceDocument>
 }>()
 
 const emit = defineEmits<{
   (e: 'openCommandPalette', action?: 'import'): void
 }>()
 
-/** We will fill this in with our workspaces when we get them */
-const workspaceOptions = computed<ScalarListboxOption[]>(() => [
-  {
-    id: 'default',
-    label: 'Default Workspace',
-  },
-  {
-    id: 'fake',
-    label: 'Fake Workspace',
-  },
-])
+// Temp until we have workspaces in the store
+const workspaceModel = ref('default')
 
-/** This will be moved to the store */
-const workspaceModel = ref(workspaceOptions.value[0]?.id)
+// Temp until we have workspaces in the store
+const workspaceLabel = capitalize(workspaceModel.value) + ' Workspace'
 
-/** Computed based on workspace value */
+/** Generate the sidebar state based on the current workspace */
 const sidebarState = computed(() => {
-  const workspaceLabel =
-    workspaceOptions.value.find((w) => w.id === workspaceModel.value)?.label ??
-    'Workspace'
-
-  return createSidebarState([
-    {
-      id: 'workspace',
+  const documentEntries: Item[] = Object.entries(documents).map(
+    ([name, doc]) => ({
+      id: name,
       type: 'document',
-      title: workspaceLabel,
-      // children: galaxySidebar,
-      children: [],
-    },
-  ] satisfies Item[])
+      title: doc.info.title ?? name,
+      children: doc['x-scalar-navigation'] ?? [],
+    }),
+  )
+
+  const state = createSidebarState(documentEntries)
+
+  /**
+   * Traverses down the children to open the first leaf
+   */
+  const openLeaf = (child: Item | undefined) => {
+    if (!child) {
+      return
+    }
+
+    if (child.type === 'text') {
+      openLeaf(child.children?.[0])
+    }
+
+    if ('children' in child && child.children && child.children.length > 0) {
+      openLeaf(child.children[0])
+    } else {
+      state.setExpanded(child.id, true)
+    }
+  }
+  openLeaf(documentEntries[0])
+
+  return state
 })
 
 const log = (name: string, ...args: any[]) => {
@@ -84,7 +101,7 @@ const isSearchVisible = ref(false)
               <!-- <AppHeaderProducts /> -->
             </template>
             <template #sections="{ close }">
-              <MenuWorkspace
+              <SidebarMenuWorkspace
                 v-model="workspaceModel"
                 @close="close" />
               <!-- <AppHeaderTeam
@@ -103,7 +120,9 @@ const isSearchVisible = ref(false)
         </div>
 
         <!-- Actual search input -->
-        <ScalarSidebarSearchInput v-if="isSearchVisible" />
+        <ScalarSidebarSearchInput
+          v-if="isSearchVisible"
+          autofocus />
       </div>
     </template>
 
