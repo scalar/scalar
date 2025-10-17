@@ -53,7 +53,7 @@
     "@scalar/build-tooling": "workspace:*",
     "@types/react": "catalog:*",
     "@types/react-dom": "catalog:*",
-    "@vitejs/plugin-react": "^4.3.4",
+    "@vitejs/plugin-react": "catalog:*",
     "path": "^0.12.7",
     "react": "catalog:*",
     "react-dom": "catalog:*",

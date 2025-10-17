@@ -50,6 +50,7 @@
     </li>
   </ul>
 </div>
+
 <div class="logowall">
   <div class="logowall-item">
     <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-tr.svg"></scalar-icon>
@@ -70,32 +71,45 @@
     <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-sfcompute.svg"></scalar-icon>
   </div>
 </div>
+
 <div class="quotes">
   <h2>Take their word for it</h2>
   <div class="flex flex-wrap quotes-container">
     <div class="quotes-item">
       <p>
-        <b>"After years of helping enterprises implement API strategies at SmartBear, I can confidently say Scalar is what the industry has been waiting for.</b> The strict OpenAPI compliance, robust CLI/API registry, and seamless CI/CD integration solve the exact pain points I watched customers struggle with daily. This is the modern API platform developers deserve."
+        <strong>“After years of helping enterprises implement API strategies at SmartBear, I can confidently say Scalar is what the industry has been waiting for.</strong>
       </p>
-      <p class="mt-3 text-c-3">Michael - Former Solutions Architect @ Smartbear</p>
+      <p>
+        The strict OpenAPI compliance, robust CLI/API registry, and seamless CI/CD integration solve the exact pain points I watched customers struggle with daily. This is the modern API platform developers deserve.”
+      </p>
+      <p class="text-c-3">
+        Michael, Former Solutions Architect @ Smartbear
+      </p>
     </div>
     <div class="quotes-item">
       <p>
-        "One of my most recent favorites is a in-browser ad hoc testing UI called Scalar.
-One of the things that I really love about Scalar, it's got this modern UI experience, and it provides <b>built-in test generation code for a variety of targets, from cURL to HttpClient in C#.</b>"
+        “One of my most recent favorites is a in-browser ad hoc testing UI called Scalar.
       </p>
-      <p class="mt-3 text-c-3">Captain Safia - Engineer @ Microsoft ASP.NET</p>
+      <p>
+        One of the things that I really love about Scalar, it's got this modern UI experience, and it provides <b>built-in test generation code for a variety of targets, from cURL to HttpClient in C#.</b>”
+      </p>
+      <p class="text-c-3">Captain Safia, Engineer @ Microsoft ASP.NET</p>
     </div>
     <div class="quotes-item">
       <p>
-        "Scalar's "golden ticket" is... Scalar!
-<b>They are (in my own words) building a product ecosystem for API design, docs, testing, and governance-</b> with offerings at every price point.
-They are open source. So I can get in on free features and stay with Scalar no matter how big my API needs blow up."
+        “Scalar's ‘golden ticket’ is… Scalar!
       </p>
-      <p class="mt-3 text-c-3">Eron - Documentation Engineer @ Qrvey</p>
+      <p>
+        <strong>They are (in my own words) building a product ecosystem for API design, docs, testing, and governance</strong> – with offerings at every price point.
+      </p>
+      <p>
+        They are open source. So I can get in on free features and stay with Scalar no matter how big my API needs blow up.”
+      </p>
+      <p class="text-c-3">Eron, Documentation Engineer @ Qrvey</p>
     </div>
   </div>
 </div>
+
 <div>
   <div class="product product-reversed">
     <div class="product-copy">
@@ -295,6 +309,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
     </div>
   </div>
 </div>
+
 <div class="founder-quote border rounded-lg p-12 relative">
   <scalar-icon src="https://cdn.scalar.com/marketing/landing/scalar-logomark.svg?cache=1234"></scalar-icon>
   <br />
@@ -332,6 +347,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
     <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/jSSY0fRlk7g_HdR7i7BIu.svg"></scalar-icon>
   </div>
 </div>
+
 <div class="cta flex flex-col gap-3 small-test">
   <scalar-heading level="2" class="text-balance" slug="what-are-you-waiting-for">What are you waiting for?</scalar-heading>
   <p>
@@ -346,6 +362,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
   <a class="expander-hover-link" href="https://github.com/scalar/scalar" target="_blank">GitHub →</a>
   <a class="expander-hover-link" href="mailto:support@scalar.com" target="_blank">Contact Us →</a>
 </div>
+
 <div class="expander-container">
   <div class="expander-hover">
     <div class="expander-hover-preview">
@@ -439,18 +456,16 @@ They are open source. So I can get in on free features and stay with Scalar no m
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://client.scalar.com/" target="_blank">API Client</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://docs.scalar.com/" target="_blank">API Docs</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://editor.scalar.com/" target="_blank">Swagger Editor</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://agent.scalar.com/" target="_blank">Agent Scalar</a>
         </div>
         <div class="w-1/3 flex flex-col gap-2">
           <b>Company</b>
           <a class="text-c-2 hover:text-c-1 font-normal" href="mailto:support@scalar.com" target="_blank">Support</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://scalar.com/changelog" target="_blank">Changelog</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://scalar.com/terms-and-conditions" target="_blank">Terms of Service</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://scalar.com/privacy-policy" target="_blank">Privacy Policy</a>
         </div>
         <div class="w-1/3 flex flex-col gap-2">
           <b>Socials</b>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://twitter.com/scalar" target="_blank">x (formerly twitter)</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://twitter.com/scalar" target="_blank">x (formerly Twitter)</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://github.com/scalar/scalar" target="_blank">GitHub</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://discord.gg/scalar" target="_blank">Discord</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://www.linkedin.com/company/scalar-org" target="_blank">Linkedin</a>
@@ -462,9 +477,11 @@ They are open source. So I can get in on free features and stay with Scalar no m
     <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/v1Pu6_BCmly6VhPAuotVZ.svg"></scalar-icon>
   </div>
 </div>
+
 <div class="sticker-filter-effect">
-  <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/utn6gGF3Iucolqx4jmXmY.svg">
+  <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/utn6gGF3Iucolqx4jmXmY.svg"></scalar-icon>
 </div>
+
 <style>
   .t-editor__page-title,
   .layout-aside-right,
@@ -499,7 +516,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
   .small-test {
     max-width: 440px;
     text-wrap: balance;
-    margin-top: 88px;
+    margin-top: 44px;
     position: relative;
   }
   .t-editor .editor-static .page-node {
@@ -689,6 +706,10 @@ They are open source. So I can get in on free features and stay with Scalar no m
   .quotes-item {
     flex: 0 0 calc(50% - 22px);
   }
+  .quotes-item p {
+    margin-bottom: 10px;
+  }
+
   /* new stuff  */
   .expander {
     display: grid;
@@ -790,7 +811,7 @@ They are open source. So I can get in on free features and stay with Scalar no m
     gap: 44px;
   }
   .cta {
-    padding: 140px 0;
+    padding: 80px 0;
     margin-top: 0 !important;
   }
   .mb-11 {

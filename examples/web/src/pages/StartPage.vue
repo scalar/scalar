@@ -29,12 +29,6 @@ const inDevelopment = import.meta.env.DEV
           and whistles.
         </template>
       </PageLink>
-      <PageLink to="api-reference">
-        <template #title>Basic API Reference</template>
-        <template #description>
-          The customizable API documentation, pretty bare bones if you ask me.
-        </template>
-      </PageLink>
       <PageLink to="classic-api-reference">
         <template #title>API Reference (Classic Layout)</template>
         <template #description>

@@ -10,10 +10,48 @@ import { readFiles } from '@/plugins/read-files/read-files'
 import type { AnyObject } from '@/types/index'
 import { load } from './load/load'
 import { resolveReferences } from './resolve-references'
+import type { OpenAPI } from '@scalar/openapi-types'
 
 const EXAMPLE_FILE = path.join(new URL(import.meta.url).pathname, '../../../tests/filesystem/api/openapi.yaml')
 
 describe('resolveReferences', () => {
+  it('resolves a media type reference', async () => {
+    const specification: OpenAPI.Document = {
+      openapi: '3.2.0',
+      info: {},
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                content: {
+                  'application/json': {
+                    $ref: '#/components/mediaTypes/Foobar',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        mediaTypes: {
+          Foobar: {
+            schema: {
+              type: 'string',
+            },
+          },
+        },
+      },
+    }
+
+    // Run the specification through our new parser
+    const { schema } = resolveReferences(specification)
+
+    // Assertion
+    expect(schema.paths['/foobar'].get.responses[200].content['application/json'].schema).not.toBe(undefined)
+  })
+
   it('resolves a single reference', async () => {
     const specification = {
       openapi: '3.1.0',

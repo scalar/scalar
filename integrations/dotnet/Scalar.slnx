@@ -1,0 +1,29 @@
+<Solution>
+  <Folder Name="/aspire/" />
+  <Folder Name="/aspire/src/">
+    <Project Path="aspire/src/Scalar.Aspire.Service/Scalar.Aspire.Service.csproj" Type="Classic C#" />
+    <Project Path="aspire/src/Scalar.Aspire/Scalar.Aspire.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/aspire/tests/">
+    <Project Path="aspire/tests/Scalar.Aspire.Service.Tests/Scalar.Aspire.Service.Tests.csproj" Type="Classic C#" />
+    <Project Path="aspire/tests/Scalar.Aspire.Tests/Scalar.Aspire.Tests.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/aspnetcore/" />
+  <Folder Name="/aspnetcore/src/">
+    <Project Path="aspnetcore/src/Scalar.AspNetCore.Microsoft/Scalar.AspNetCore.Microsoft.csproj" Type="Classic C#" />
+    <Project Path="aspnetcore/src/Scalar.AspNetCore.Swashbuckle/Scalar.AspNetCore.Swashbuckle.csproj" Type="Classic C#" />
+    <Project Path="aspnetcore/src/Scalar.AspNetCore/Scalar.AspNetCore.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/aspnetcore/tests/">
+    <Project Path="aspnetcore/tests/Scalar.AspNetCore.Microsoft.Tests/Scalar.AspNetCore.Microsoft.Tests.csproj" Type="Classic C#" />
+    <Project Path="aspnetcore/tests/Scalar.AspNetCore.Swashbuckle.Tests/Scalar.AspNetCore.Swashbuckle.Tests.csproj" Type="Classic C#" />
+    <Project Path="aspnetcore/tests/Scalar.AspNetCore.Tests/Scalar.AspNetCore.Tests.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/shared/" />
+  <Folder Name="/shared/src/">
+    <Project Path="shared/src/Scalar.Shared/Scalar.Shared.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/shared/tests/">
+    <Project Path="shared/tests/Scalar.Shared.Tests/Scalar.Shared.Tests.csproj" Type="Classic C#" />
+  </Folder>
+</Solution>

@@ -35,7 +35,7 @@
     "@types/react": "catalog:*",
     "@types/react-dom": "catalog:*",
     "@typescript-eslint/parser": "catalog:*",
-    "@vitejs/plugin-react": "^4.3.4",
+    "@vitejs/plugin-react": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vitejs/plugin-vue-jsx": "^4.2.0",
     "autoprefixer": "^10.4.19",

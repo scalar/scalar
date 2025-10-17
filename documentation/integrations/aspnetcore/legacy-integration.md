@@ -29,7 +29,7 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     // Enable the endpoint for generating the OpenAPI documents
     app.UseSwagger();
 
-    // Required for serving static scalar files
+    // Required for serving static Scalar files
     app.UseStaticFiles();
 
     // Other middleware

@@ -233,14 +233,9 @@
     },
 
     {
-      "description": "Integrations - Aspire",
-      "matchFileNames": ["integrations/aspire/**"],
-      "additionalBranchPrefix": "aspire"
-    },
-    {
-      "description": "Integrations - ASP.NET Core",
-      "matchFileNames": ["integrations/aspnetcore/**"],
-      "additionalBranchPrefix": "aspnetcore"
+      "description": "Integrations - .NET",
+      "matchFileNames": ["integrations/dotnet/**"],
+      "additionalBranchPrefix": "dotnet"
     },
     {
       "description": "Integrations - Django Ninja",

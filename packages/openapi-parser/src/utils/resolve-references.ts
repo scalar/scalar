@@ -72,7 +72,7 @@ export function resolveReferences(
   // Recursively resolve all references
   dereference(finalInput, filesystem, file ?? entrypoint, new WeakSet(), errors, options)
 
-  // Remove duplicats (according to message) from errors
+  // Remove duplicates (according to message) from errors
   errors = errors.filter(
     (error, index, self) => index === self.findIndex((t) => t.message === error.message && t.code === error.code),
   )

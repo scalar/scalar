@@ -1,6 +1,7 @@
 import type {
   ApiReferencePlugin as OriginalApiReferencePlugin,
   SpecificationExtension,
+  ViewComponent,
 } from '@scalar/types/api-reference'
 
 export type ApiReferencePlugin = OriginalApiReferencePlugin
@@ -39,6 +40,22 @@ export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams)
       }
 
       return extensions
+    },
+
+    /**
+     * Get all components for a specific view from registered plugins
+     */
+    getViewComponents: (viewName: 'content.end'): ViewComponent[] => {
+      const components: ViewComponent[] = []
+
+      for (const plugin of registeredPlugins.values()) {
+        const viewComponents = plugin.views?.[viewName]
+        if (viewComponents) {
+          components.push(...viewComponents)
+        }
+      }
+
+      return components
     },
   }
 }
