@@ -5,13 +5,13 @@ import type { ExternalDocumentationObject } from '@/schemas/v3.1/strict/external
 import { ExternalDocumentationObjectRef, TagObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
-import type { Parameter } from './parameter'
+import type { ParameterObject } from './parameter'
 import { ParameterRef } from './ref-definitions'
 
 /**
  * Describes a shared communication channel.
  */
-export const ChannelItemSchemaDefinition = compose(
+export const ChannelObjectSchemaDefinition = compose(
   Type.Object({
     /** An optional string for the channel's address (URL, topic name, queue name, etc.). */
     address: Type.Optional(Type.String()),
@@ -39,7 +39,7 @@ export const ChannelItemSchemaDefinition = compose(
 /**
  * Describes a shared communication channel.
  */
-export type ChannelItem = {
+export type ChannelObject = {
   /** An optional string for the channel's address (URL, topic name, queue name, etc.). */
   address?: string
   /** A human-friendly title for the channel. */
@@ -51,7 +51,7 @@ export type ChannelItem = {
   /** An optional list of servers on which this channel is available. If absent or empty, this channel is available on all servers defined for this application. */
   servers?: string[]
   /** A map of the parameters included in the channel address. It MUST be present only when the address contains Channel Address Expressions. */
-  parameters?: Record<string, Parameter>
+  parameters?: Record<string, ParameterObject>
   /** A list of tags for logical grouping and categorization of channels. */
   tags?: TagObject[]
   /** Additional external documentation for this channel. */

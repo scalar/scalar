@@ -8,20 +8,20 @@ import { Type } from '@scalar/typebox'
  */
 export const ASYNCAPI_REF_DEFINITIONS = {
   // AsyncAPI-specific objects
-  ChannelItem: 'ChannelItem',
+  ChannelObject: 'ChannelObject',
   ChannelsObject: 'ChannelsObject',
   Operation: 'Operation',
   OperationsObject: 'OperationsObject',
-  Message: 'Message',
-  MessageTrait: 'MessageTrait',
-  MessageExample: 'MessageExample',
-  Parameter: 'Parameter',
-  CorrelationId: 'CorrelationId',
-  OperationTrait: 'OperationTrait',
-  Reply: 'Reply',
-  ReplyAddress: 'ReplyAddress',
-  Server: 'Server',
-  ServerVariable: 'ServerVariable',
+  MessageObject: 'MessageObject',
+  MessageTraitObject: 'MessageTraitObject',
+  MessageExampleObject: 'MessageExampleObject',
+  ParameterObject: 'ParameterObject',
+  CorrelationIdObject: 'CorrelationIdObject',
+  OperationTraitObject: 'OperationTraitObject',
+  ReplyObject: 'ReplyObject',
+  ReplyAddressObject: 'ReplyAddressObject',
+  ServerObject: 'ServerObject',
+  ServerVariableObject: 'ServerVariableObject',
   Binding: 'Binding',
 
   // Protocol-specific bindings
@@ -32,7 +32,7 @@ export const ASYNCAPI_REF_DEFINITIONS = {
   MqttBinding: 'MqttBinding',
 
   // Multi-format schemas
-  MultiFormatSchema: 'MultiFormatSchema',
+  MultiFormatSchemaObject: 'MultiFormatSchemaObject',
 
   // Security
   SecuritySchemeObject: 'SecuritySchemeObject',
@@ -48,20 +48,20 @@ export const ASYNCAPI_REF_DEFINITIONS = {
 } as const
 
 // Type alias for schema references
-export const ChannelItemRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.ChannelItem)
+export const ChannelObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.ChannelObject)
 export const ChannelsObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.ChannelsObject)
 export const OperationRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.Operation)
 export const OperationsObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.OperationsObject)
-export const MessageRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.Message)
-export const MessageTraitRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MessageTrait)
-export const MessageExampleRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MessageExample)
-export const ParameterRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.Parameter)
-export const CorrelationIdRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.CorrelationId)
-export const OperationTraitRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.OperationTrait)
-export const ReplyRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.Reply)
-export const ReplyAddressRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.ReplyAddress)
-export const ServerRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.Server)
-export const ServerVariableRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.ServerVariable)
+export const MessageObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MessageObject)
+export const MessageTraitObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MessageTraitObject)
+export const MessageExampleObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MessageExampleObject)
+export const ParameterObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.ParameterObject)
+export const CorrelationIdObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.CorrelationIdObject)
+export const OperationTraitObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.OperationTraitObject)
+export const ReplyObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.ReplyObject)
+export const ReplyAddressObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.ReplyAddressObject)
+export const ServerObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.ServerObject)
+export const ServerVariableObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.ServerVariableObject)
 export const BindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.Binding)
 
 // Protocol-specific binding references
@@ -72,7 +72,7 @@ export const AmqpBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.AmqpBinding)
 export const MqttBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MqttBinding)
 
 // Multi-format schema reference
-export const MultiFormatSchemaRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MultiFormatSchema)
+export const MultiFormatSchemaObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MultiFormatSchemaObject)
 
 // Security references
 export const SecuritySchemeObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SecuritySchemeObject)
@@ -85,3 +85,29 @@ export const ComponentsObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.ComponentsO
 // Object map references
 export const ServersObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.ServersObject)
 export const MessagesObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MessagesObject)
+
+// Legacy aliases for backward compatibility (will be removed in future versions)
+/** @deprecated Use ChannelObjectRef instead */
+export const ChannelItemRef = ChannelObjectRef
+/** @deprecated Use MessageObjectRef instead */
+export const MessageRef = MessageObjectRef
+/** @deprecated Use MessageTraitObjectRef instead */
+export const MessageTraitRef = MessageTraitObjectRef
+/** @deprecated Use MessageExampleObjectRef instead */
+export const MessageExampleRef = MessageExampleObjectRef
+/** @deprecated Use ParameterObjectRef instead */
+export const ParameterRef = ParameterObjectRef
+/** @deprecated Use CorrelationIdObjectRef instead */
+export const CorrelationIdRef = CorrelationIdObjectRef
+/** @deprecated Use OperationTraitObjectRef instead */
+export const OperationTraitRef = OperationTraitObjectRef
+/** @deprecated Use ReplyObjectRef instead */
+export const ReplyRef = ReplyObjectRef
+/** @deprecated Use ReplyAddressObjectRef instead */
+export const ReplyAddressRef = ReplyAddressObjectRef
+/** @deprecated Use ServerObjectRef instead */
+export const ServerRef = ServerObjectRef
+/** @deprecated Use ServerVariableObjectRef instead */
+export const ServerVariableRef = ServerVariableObjectRef
+/** @deprecated Use MultiFormatSchemaObjectRef instead */
+export const MultiFormatSchemaRef = MultiFormatSchemaObjectRef

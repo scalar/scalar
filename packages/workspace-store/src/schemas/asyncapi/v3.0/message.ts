@@ -6,15 +6,15 @@ import { ExternalDocumentationObjectRef, SchemaObjectRef, TagObjectRef } from '@
 import type { SchemaObject } from '@/schemas/v3.1/strict/schema'
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
-import type { CorrelationId } from './correlation-id'
-import type { MessageExample } from './message-example'
-import type { MessageTrait } from './message-trait'
+import type { CorrelationIdObject } from './correlation-id'
+import type { MessageExampleObject } from './message-example'
+import type { MessageTraitObject } from './message-trait'
 import { CorrelationIdRef, MessageExampleRef, MessageTraitRef } from './ref-definitions'
 
 /**
  * Describes a message received on a given channel and operation.
  */
-export const MessageSchemaDefinition = compose(
+export const MessageObjectSchemaDefinition = compose(
   Type.Object({
     /** A human-friendly title for the message. */
     title: Type.Optional(Type.String()),
@@ -48,7 +48,7 @@ export const MessageSchemaDefinition = compose(
 /**
  * Describes a message received on a given channel and operation.
  */
-export type Message = {
+export type MessageObject = {
   /** A human-friendly title for the message. */
   title?: string
   /** A short summary of what the message is about. */
@@ -64,15 +64,15 @@ export type Message = {
   /** Schema definition of the application headers. Schema MUST be a map of key-value pairs. It MUST NOT define the protocol headers. */
   headers?: SchemaObject
   /** Definition of the correlation ID used for message tracing or matching. */
-  correlationId?: CorrelationId
+  correlationId?: CorrelationIdObject
   /** The content type to use when encoding/decoding a message's payload. The value MUST be a specific media type (e.g. application/json). */
   contentType?: string
   /** A machine-friendly name for the message. */
   name?: string
   /** List of examples. */
-  examples?: MessageExample[]
+  examples?: MessageExampleObject[]
   /** A list of traits to apply to the message object. Traits MUST be merged using traits merge mechanism. The resulting object MUST be a valid Message Object. */
-  traits?: MessageTrait[]
+  traits?: MessageTraitObject[]
   /** A map where the keys describe the name of the protocol and the values describe protocol-specific definitions for the message. */
   bindings?: Record<string, any>
 }

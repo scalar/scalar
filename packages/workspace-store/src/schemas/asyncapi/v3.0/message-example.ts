@@ -5,7 +5,7 @@ import { Type } from '@scalar/typebox'
  *
  * This object is used to provide examples of messages within AsyncAPI documents.
  */
-export const MessageExampleSchemaDefinition = Type.Object({
+export const MessageExampleObjectSchemaDefinition = Type.Object({
   /** A map where keys are the name of the header and values are example values. */
   headers: Type.Optional(Type.Record(Type.String(), Type.Any())),
   /** The value of the payload. It can be of any type. */
@@ -21,7 +21,7 @@ export const MessageExampleSchemaDefinition = Type.Object({
  *
  * This object is used to provide examples of messages within AsyncAPI documents.
  */
-export type MessageExample = {
+export type MessageExampleObject = {
   /** A map where keys are the name of the header and values are example values. */
   headers?: Record<string, any>
   /** The value of the payload. It can be of any type. */
