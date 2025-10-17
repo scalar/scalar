@@ -80,7 +80,7 @@ const { open: openSpecFileDialog } = useFileDialog({
         try {
           if (isPostmanCollection(text)) {
             const workspace = await importSpecFile(
-              await convertPostmanToOpenApi(text),
+              convertPostmanToOpenApi(text),
               activeWorkspace.value?.uid ?? '',
             )
             navigateToCollectionPage(workspace?.collection)
@@ -151,7 +151,7 @@ async function importCollection() {
     } else if (isInputDocument.value) {
       if (isPostmanCollection(inputContent.value)) {
         const workspace = await importSpecFile(
-          await convertPostmanToOpenApi(inputContent.value),
+          convertPostmanToOpenApi(inputContent.value),
           activeWorkspace.value?.uid ?? '',
         )
         navigateToCollectionPage(workspace?.collection)
