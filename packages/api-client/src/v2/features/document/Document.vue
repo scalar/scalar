@@ -37,11 +37,7 @@ import Servers from './components/Servers.vue'
 import Settings from './components/Settings.vue'
 import Tabs, { type Routes } from './components/Tabs.vue'
 
-const {
-  selectedTab = 'servers',
-  title = 'Document Name',
-  icon = 'interface-content-folder',
-} = defineProps<{
+const { icon = 'interface-content-folder' } = defineProps<{
   /** Currently selected tab */
   selectedTab: Routes
   /** Document icon */
@@ -207,6 +203,8 @@ const emit = defineEmits<{
       <!-- Document Servers -->
       <Servers
         v-else-if="selectedTab === 'servers'"
+        :envVariables="envVariables"
+        :environment="environment"
         :events="events"
         :servers="servers"
         @server:delete="(payload) => emit('server:delete', payload)"

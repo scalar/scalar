@@ -9,7 +9,7 @@ import {
 
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 
-const { title = 'Untitled Document' } = defineProps<{
+const { title } = defineProps<{
   /** Document source url if available */
   documentUrl?: string
   /** Watch mode status if also document url is provided */

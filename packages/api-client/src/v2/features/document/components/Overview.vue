@@ -7,7 +7,7 @@ import { nextTick, ref, useTemplateRef } from 'vue'
 import { CodeInput } from '@/components/CodeInput'
 import type { EnvVariable } from '@/store'
 
-const { description = 'default description' } = defineProps<{
+const { description } = defineProps<{
   description: string
 
   // ------- To be removed -------

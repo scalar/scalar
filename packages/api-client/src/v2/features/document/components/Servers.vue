@@ -6,41 +6,26 @@ import {
   useModal,
 } from '@scalar/components'
 import { ScalarIconPlus, ScalarIconTrash } from '@scalar/icons'
+import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
 import { ref } from 'vue'
 
-import Form from '@/components/Form/Form.vue'
 import { ServerVariablesForm } from '@/components/Server'
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
+import type { EnvVariable } from '@/store'
 import type { createStoreEvents } from '@/store/events'
 
-const {
-  events,
-  servers = [
-    {
-      url: 'https://api.example.com/v1',
-      description: 'Production server',
-      variables: {},
-    },
-    {
-      url: '{scheme}://{base}/v1',
-      description: 'Staging server',
-      variables: {
-        scheme: {
-          default: 'https',
-          enum: ['http', 'https'],
-        },
-        base: {
-          default: 'staging-api.example.com',
-        },
-      },
-    },
-  ],
-} = defineProps<{
+import Form from './Form.vue'
+
+const { events } = defineProps<{
   /** List of server objects */
   servers: ServerObject[]
   /** Event bus */
   events: ReturnType<typeof createStoreEvents>
+
+  // ------- To be removed -------
+  environment: Environment
+  envVariables: EnvVariable[]
 }>()
 
 const emit = defineEmits<{
@@ -108,6 +93,8 @@ const handleAddServer = () => {
           class="divide-0. flex w-full flex-col divide-y rounded-b-lg text-sm">
           <Form
             :data="server"
+            :envVariables="envVariables"
+            :environment="environment"
             :onUpdate="
               (name, value) =>
                 emit('server:update:variable', {
