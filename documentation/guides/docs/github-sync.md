@@ -30,7 +30,7 @@ touch scalar.config.json
 
 Add the content below to your `scalar.config.json` file. Note: You want to modify the subdomain. The one in the example is already taken. 😉
 
-Your docs site will be automatically available at `https://<subdomain>.apidocumentation.com`, but you can also use a custom domain, see [Advanced configuration](#advanced-configuration__use-a-custom-domain) for more information.
+Your docs site will be automatically available at `https://<subdomain>.apidocumentation.com`, but you can also use a custom domain, see [Advanced configuration](#github-sync__advanced-configuration) for more information.
 
 ```json
 {
