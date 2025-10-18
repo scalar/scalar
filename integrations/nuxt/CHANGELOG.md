@@ -1,5 +1,22 @@
 # @scalar/nuxt
 
+## 0.5.22
+
+### Patch Changes
+
+- eba18d0: Migrate to workspace store as primary source of truth.
+- Updated dependencies [eb022f2]
+- Updated dependencies [729ad06]
+- Updated dependencies [d34f31e]
+- Updated dependencies [7cda4c5]
+- Updated dependencies [eba18d0]
+- Updated dependencies [f612140]
+  - @scalar/api-reference@1.39.0
+  - @scalar/types@0.3.3
+  - @scalar/api-client@2.9.0
+  - @scalar/workspace-store@0.17.2
+  - @scalar/use-hooks@0.2.6
+
 ## 0.5.21
 
 ### Patch Changes

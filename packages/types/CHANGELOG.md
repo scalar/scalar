@@ -1,5 +1,14 @@
 # @scalar/types
 
+## 0.3.3
+
+### Patch Changes
+
+- eb022f2: feat: new `content.end` slot for the plugin API
+- eba18d0: Migrate to workspace store as primary source of truth.
+- Updated dependencies [2239843]
+  - @scalar/openapi-types@0.5.1
+
 ## 0.3.2
 
 ### Patch Changes

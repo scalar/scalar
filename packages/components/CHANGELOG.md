@@ -1,5 +1,16 @@
 # @scalar/components
 
+## 0.15.2
+
+### Patch Changes
+
+- eba18d0: Migrate to workspace store as primary source of truth.
+- Updated dependencies [eba18d0]
+  - @scalar/use-hooks@0.2.6
+  - @scalar/oas-utils@0.5.3
+  - @scalar/themes@0.13.23
+  - @scalar/code-highlight@0.2.0
+
 ## 0.15.1
 
 ### Patch Changes
