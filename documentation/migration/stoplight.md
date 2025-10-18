@@ -1,39 +1,101 @@
 # How to migrate from Stoplight to Scalar
 
-Scalar makes for a great alternative to Stoplight thanks to its similar features like:
+For a long time Stoplight was the scrappy underdog, taking on confusing unaffordable bloated enterprise solutions. Those days are long gone now it has been acquired by SmartBear. People are leaving Stoplight in droves, looking for modern alternatives, and we think Scalar is the logical fit thanks to the similarity of features and workflows:
 
-1. An interactive and customizable API reference builder.
-2. Team collaboration built-in.
-3. Custom domains, theming, and logos.
+1. Generating interactive API reference docs from OpenAPI.
+2. Support for Markdown guides.
+3. Works with both Design-first or Code-first API workflows.
+4. Built-in team collaboration.
+5. Custom domains, theming, and logos. 
+6. Hosted or embeddable as web or React component.
 
 On top of this, Scalar provides added benefits like:
 
-- **Better pricing.** Most of the features of Scalar can be used for free and the pro plan is only $12/month compared to Stoplight's $52/month.
-- **Open source.** Scalar is fully open source and self-hostable.
+- **Better SaaS pricing.** Most of the features of Scalar can be used for free and the pro plan is only $12/month compared to Stoplight’s $52/month.
+- **Open Source.** Scalar is fully open source and can be self-hosted, something Stoplight phased out years ago.
 - **Built-in API client.** Scalar has also built an API client into the API reference, enabling users to send test requests straight from the docs.
 
-If you want to try Scalar, there are two ways of migrating:
+## How does migrating work?
 
-1. Using our GitHub sync feature
-2. Manually exporting and importing data
+With Stoplight and Scalar offering quite a few features on top of the "turn OpenAPI into docs" use case it can feel daunting to consider a migration, but we've got your back. Generally it looks a little like this:
 
-## Using GitHub sync
+1. Move OpenAPI documents over.
+1. Link up your Git repos.
+1. Make sure you like the look of the new API documentation.
+1. (Optional) Migrate Markdown topics and guides.
+1. (Optional) Move custom linting rulesets over.
+2. (Optional) Point custom domains to Scalar.
 
-If you are using Stoplight's Git project feature, you can migrate easily using Scalar's GitHub sync feature. It enables you to create and publish an API reference from a GitHub repo with nearly the same structure as Stoplight.
+Before we get stuck into the technical aspects, let's consider how Scalar fits into the larger workflow.
 
-> **Don't have an API docs GitHub repo?** You can also create one from the exported Stoplight project ZIP which we detail later.
+## API Design-first or Code-first
 
-To start, sign up and subscribe to [Scalar's Pro plan](https://dashboard.scalar.com/?plans). Afterwards, in your API doc's GitHub repo, create a `scalar.config.json` file. Add the details on your subdomain like `very-cool-api`, guides like `How-to-be-cool.md`, and OpenAPI document like `galaxy.json` like this:
+Some API teams generate OpenAPI from code, whether that's [code annotations/comments](), a DSL like [RSwag](https://github.com/rswag/rswag), or increasingly popular [OpenAPI-aware frameworks](https://apisyouwonthate.com/blog/code-first-how-to-generate-openapi-files-in-2024/). Whichever tool is being used, the process is generally the same.
+
+Those documents being generated then committed to Git, by some sort of build script or continuous integration. Scalar can happily read those same committed OpenAPI and Markdown content from Git.
+
+If the generated OpenAPI is being powered by Stoplight CLI without Git then that could be a straight swap to use the Scalar CLI to push documents to the Scalar Registry (or run both for a while and see how things look.) Or you could take the chance to migrate to using Git, as it's generally considered best practice to keep the OpenAPI/Markdown alongside the source code.
+
+Teams following the code-first workflow with Stoplight are probably using the OpenAPI editor Stoplight Studio, using either the long discontinued desktop application, or the hosted editor functionality in Stoplight Platform. Scalar has an [Editor interface](https://editor.scalar.com/) which can be used in the same way, allowing for changes to be made and pushed to the Scalar Registry, and/or synced back to Git. The registry makes OpenAPI documents available for other tools in the workflow, so they can access the latest OpenAPI, or peg to a particular version.
+
+![](../assets/guides/migrate/stoplight/editor.png)
+
+With that in mind, let's look at how you can switch to a cheaper and better OpenAPI editor and documentation tool.
+
+## Step 1: Create a free Scalar account
+
+Scalar has a free tier, and you can get quite a lot done with it. No credit card needed or gimmick trials that are hard to cancel, just [register over here](https://dashboard.scalar.com/register). 
+
+Those planning on syncing GitHub can make life really easy by signing up through GitHub, but you can do regular old email signups too. 
+
+## Step 2: Introduce your OpenAPI to Scalar
+
+Stoplight had various flavors of project: Web Projects, Git Projects, Local Projects. We're going to make life easy and show you all how to convert to Git projects, and you can play around with others approaches once you've got the hang of the basics.
+
+### Git Projects
+
+Migrating a Stoplight "Git Project" is as simple as enabling GitHub Sync for Scalar. Stoplight was just pushing and pulling from a Git repo, and Scalar can do that too. This is built in, not some awkward GitHub Action. 
+
+To use GitHub Sync go to the dashboard, click **Create Documentation**, then select **GitHub Sync**. Pick the appropriate organization from the dropdown and find the repository to link.
+
+![](../assets/guides/migrate/stoplight/create-docs-from-git.png)
+
+Click the **Link Repository** link next to the repository of interest, and a page will appear with some GitHub Repository Settings will appear. The defaults are probably all fine, but perhaps you're using a special branch called `docs` or a particular version branch like `v3` instead of `main`. 
+
+All of this can be changed later so pick whatever and click publish, it'll be private by default so no worries about anyone seeing anything that's not ready.
+
+**Learn more about [GitHub Sync here](https://guides.scalar.com/scalar/scalar-docs/github-sync).**
+
+### Web Projects: Exporting Stoplight Web Projects
+
+Exfiltrating your OpenAPI and Markdown from Stoplight is as simple as exporting a ZIP file of your OpenAPI and other documents. 
+
+Go to your project’s studio page, and click the three line drop down to reveal the **Download project ZIP** option. 
+
+![](../assets/guides/migrate/stoplight/export-stoplight-studio-project.png)
+
+If you only want the OpenAPI document, you could just go to your doc page, click **Export** and then choose **Bundled** to make sure you get any `$ref` to other files included.
+
+![](../assets/guides/migrate/stoplight/export-openapi.png)
+
+Let's switch these to Git Sync projects to keep the source of truth entirely under your control. To do this we can create a new repository to help track changes, or merge the downloaded OpenAPI/Markdown into the existing source code repository. 
+
+Whichever approach you pick, once you've got the OpenAPI/Markdown content into a repository, you can scroll up to the Git Sync section in this guide to bring that repo into Scalar. 
+
+## Step 3: Scalar Config
+
+Once the project is hooked up to Scalar, the next step is to set up the Scalar config file.  By creating a `scalar.config.json` file we can add the details on where the OpenAPI documents live, and where the guides are sitting.
 
 ```json
 {
-  "subdomain": "very-cool-api",
+  "subdomain": "train-travel-api",
+  "publishOnMerge": true,
   "guides": [
     {
       "name": "Guides",
       "sidebar": [
         {
-          "path": "docs/How-to-be-cool.md",
+          "path": "docs/getting-started.md",
           "type": "page"
         }
       ]
@@ -42,78 +104,128 @@ To start, sign up and subscribe to [Scalar's Pro plan](https://dashboard.scalar.
   "references": [
 		{
       "name": "API Reference",
-      "path": "galaxy.json"
+      "path": "openapi.yaml"
     }
   ]
 }
 ```
 
-If you need to generate the paths for your Stoplight docs, you can use this script:
+The `"publishOnMerge": true` tells Scalar to publish your documentation when a branch is merged into the selected branch, instead of anyone having to manually publish it.
 
-```python
-import json
-from pathlib import Path
+![](../assets/guides/migrate/stoplight/git-deployments.png)
 
-def update_scalar_config():
-    with open('scalar.config.json', 'r') as f:
-        config = json.load(f)
+The Stoplight sidebar content can be found in `toc.json`, and converted in your favorite text editor. 
 
-    docs_dir = Path('docs')
-    md_files = list(docs_dir.glob('*.md'))
+Take this example `toc.json` from a Stoplight project. 
 
-    sidebar_entries = []
-    for md_file in md_files:
-      sidebar_entries.append({ "path": f"docs/{md_file.name}", "type": "page" })
-
-    for guide in config['guides']:
-      if guide['name'] == 'Guides':
-        guide['sidebar'] = sidebar_entries
-        break
-    else:
-      config['guides'].append({ "name": "Guides", "sidebar": sidebar_entries })
-
-    with open('scalar.config.json', 'w') as f:
-      json.dump(config, f, indent=2)
-
-if __name__ == '__main__':
-  update_scalar_config()
+```
+{
+  "items": [
+    {
+      "type": "item",
+      "title": "Getting Started",
+      "uri": "docs/getting-started.md"
+    },
+    {
+      "type": "item",
+      "title": "Hello World",
+      "uri": "docs/hello-world.md"
+    }
+  ]
+}
 ```
 
-After adding the `scalar.config.json` file to your repo, head to Scalar. On the [dashboard](https://dashboard.scalar.com/), click **Link GitHub Account** and provide access to your API docs repo. Once back in Scalar, select that repository when creating a new GitHub project, correct any details, and press **Publish**.
+Copy and paste that chunk of JSON out of there, and make the following changes. 
 
-![Syncing in Scalar](https://cdn.scalar.com/images/blog/sl-sync.png)
+1. Change `type: item` to `type: page`.
+2. Remove `title` as Scalar will take that from the Markdown title.
+3. Change `path:` to `uri:`.
 
-Once the site is built and deployed, you'll be able to see it at the URL you set in `scalar.config.json`.
+```
+{
+  "subdomain": "train-travel-api",
+  "publishOnMerge": true,
+  "guides": [
+    {
+      "name": "Guides",
+      "sidebar": [
+        {
+          "path": "docs/getting-started.md",
+          "type": "page"
+        }
+		    {
+		      "type": "page",
+		      "uri": "docs/getting-started.md"
+		    },
+		    {
+		      "type": "page",
+		      "uri": "docs/hello-world.md"
+		    }
+      ]
+    }
+  ],
+  "references": [
+		{
+      "name": "API Reference",
+      "path": "openapi.yaml"
+    }
+  ]
+}
+```
 
-![Published API Reference](https://cdn.scalar.com/images/blog/sl-api.png)
+Commit this file off to the Git repo and push. If `"publishOnMerge": true,` has been added to the config file then a new entry under Deployments should appear, and when that's done we can go and see how it all looks. 
 
-## Manually exporting data from Stoplight
+## Step 4: Review The New Documentation
 
-If you aren't using Stoplight's Git projects feature or just want to customize the migration details, you can manually export your Stoplight project data and add it to Scalar.
+Click the deployment to see find the projects docs URL, something like `https://yourorg-train-travel-api.apidocumentation.com`.
 
-To start with this, go to your project's studio page, click the three line drop down in the top right, and click **Download project ZIP**.
+This will show two distinct sections. 
 
-![Downloading the project ZIP](https://cdn.scalar.com/images/blog/sl-zip.png)
+1. Guides
+2. Each OpenAPI Reference
 
-If you want more control over which OpenAPI documents you migrate, you can also go to your doc page, click **Export**, and choose either **Original** to keep `$ref` values to other docs or **Bundled References** to include everything inline.
+Projects with multiple OpenAPI documents will see each of them popped along the top navigation, using the name provided in `scalar.config.json`.
 
-![Exporting the project](https://cdn.scalar.com/images/blog/sl-export.png)
+Click around. See how you like the place. Enjoy the slick new interactive API console on each endpoint.
 
-At this point, you can either:
+## Step 5: (Optional) Export Spectral ruleset
 
-1. Set up a GitHub repo with the exported project ZIP or OpenAPI file and follow the instructions to use GitHub sync
-2. Manually upload the OpenAPI doc to Scalar
+This step is only for those using custom Spectral rulesets. If this sounds like nonsense then that answers that question, you probably weren't using them.
 
-We already covered the first option earlier in this doc, so we will just focus on the second here.
+Spectral is an open-source tool Stoplight forked from other popular OpenAPI linters a few years ago. By default it reports on whether an OpenAPI document is valid, whether it has syntax errors or invalid keywords, so if you were using Stoplight Studio and seeing "Missing required keyword" type errors; that was Spectral. Scalar supports Spectral so you will continue to see the same errors and warnings in Scalar Editor. 
 
-### Manually importing data into Scalar
+That might not be the end of the story though, as Spectral also supports custom rulesets. These are most often built by API governance teams, or other tech-minded folks who want to ensure consistency across the APIs being designed. The rulesets could be [automating API Style Guides](https://apisyouwonthate.com/blog/automated-style-guides-for-rest-graphql-grpc/), pushing people towards standards, or away from poor practices. 
 
-If you only want to upload and use the OpenAPI document as a reference, you can directly upload it to Scalar:
+To migrate any custom Spectral rulesets hosted in Stoplight Platform, head to Studio, and click **Export Spectral File**.
 
-1. [Sign up for a Scalar account](https://dashboard.scalar.com/register).
-2. In Scalar, create a new documentation project.
-3. Once created, select the **reference** tab, upload your exported OpenAPI doc, and you'll have a fully functional and customizable API reference set up.
+![](../assets/guides/migrate/stoplight/stoplight-export-spectral.png)
 
-![Editing the OpenAPI doc](https://cdn.scalar.com/images/blog/sl-edit.png)
+Maybe this is just turning some rules on and off. 
 
-You can then edit the details of the OpenAPI doc, recreate documents under the **guide** tab, and customize your headers, logos, styles, and more.
+Maybe it is defining custom rules. 
+
+Be aware rules with custom functions wont work, so just comment those out.
+
+## Step 6: (Optional) Update Custom Domains
+
+Once you're happy with your new API documentation, it's time to bring the API client developers along too. Those of you with a custom domain pointing to Stoplight (something like `developers.acme.com`) can update the CNAME to point to Scalar.
+
+First off, [add the custom domain](https://guides.scalar.com/scalar/scalar-docs/github-sync#github-sync__advanced-configuration__use-a-custom-domain) to your Scalar config.
+
+```json
+# scalar.config.json
+{
+  "customDomain": "docs.example.com",
+  ...
+}
+```
+
+Then pop over to your DNS and update the CNAME from `developers` (or whatever your subdomain is) from the old Stoplight DNS to `dns.scalar.com`. Give it a few minutes and it should be ready to go.
+
+## Summary
+
+The biggest advantage in this migration is that both tools are fundamentally OpenAPI-based, which means your core specifications will transfer cleanly. 
+
+Most teams can complete this migration in somewhere between a few hours and a few days, depending on how many projects and APIs need moving over. Larger enterprises will take slightly longer depending on the complexity of their API ecosystem.
+
+Scalar's team is happy to offer migration assistance and consultation to help streamline this process, particularly for teams with complex Stoplight implementations. The team consist of experts that helped build Stoplight in the first place, so they're well placed to help migrate anyone regardless of their size of complexity.
