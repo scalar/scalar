@@ -1385,6 +1385,9 @@ importers:
       '@scalar/openapi-upgrader':
         specifier: workspace:*
         version: link:../openapi-upgrader
+      '@scalar/sidebar':
+        specifier: workspace:*
+        version: link:../sidebar
       '@scalar/snippetz':
         specifier: workspace:*
         version: link:../snippetz

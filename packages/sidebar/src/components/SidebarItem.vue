@@ -12,7 +12,6 @@ import {
 } from '@scalar/draggable'
 import { ScalarIconFolder } from '@scalar/icons'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
-import { computed } from 'vue'
 
 import SidebarHttpBadge from './SidebarHttpBadge.vue'
 
@@ -20,18 +19,20 @@ export type Item =
   | TraversedEntry
   | { id: string; title: string; children: TraversedEntry[]; type: 'document' }
 
-const { item, layout, selectedItems, expandedItems } = defineProps<{
+const { item, layout, isSelected, isExpanded } = defineProps<{
   item: Item
   layout: 'client' | 'reference'
-  selectedItems: Record<string, boolean>
-  expandedItems: Record<string, boolean>
-  options?: {
-    operationTitleSource: 'path' | 'summary' | undefined
-  }
+  isSelected: (id: string) => boolean
+  isExpanded: (id: string) => boolean
+  options:
+    | {
+        operationTitleSource: 'path' | 'summary' | undefined
+      }
+    | undefined
 }>()
 
 const emits = defineEmits<{
-  (e: 'click', id: string): void
+  (e: 'selectItem', id: string): void
   (e: 'onDragEnd', draggingItem: DraggingItem, hoveredItem: HoveredItem): void
 }>()
 
@@ -63,11 +64,6 @@ const getPathOrTitle = (currentItem: Item): string => {
   }
   return currentItem.title
 }
-
-const groupModelValue = computed({
-  get: () => expandedItems[item.id] ?? false,
-  set: () => emits('click', item.id),
-})
 
 const filterItems = (items: Item[]) => {
   if (layout === 'reference') {
@@ -101,19 +97,21 @@ const handleDragEnd = (
     :isDraggable="layout === 'client'"
     :parentIds="[]"
     @onDragEnd="handleDragEnd">
-    <ScalarSidebarSection v-if="hasChildren(item) && isGroup(item)">
+    <ScalarSidebarSection
+      v-if="hasChildren(item) && isGroup(item)"
+      @selectItem="() => emits('selectItem', item.id)">
       {{ item.title }}
       <template #items>
         <SidebarItem
           v-for="child in filterItems(item.children)"
           :key="child.id"
-          :expandedItems="expandedItems"
+          :isExpanded="isExpanded"
+          :isSelected="isSelected"
           :item="child"
           :layout="layout"
           :options="options"
-          :selectedItems="selectedItems"
-          @click="(id) => emits('click', id)"
-          @onDragEnd="handleDragEnd">
+          @onDragEnd="handleDragEnd"
+          @selectItem="(id) => emits('selectItem', id)">
           <template #aside="slotProps">
             <slot
               v-bind="slotProps"
@@ -129,8 +127,9 @@ const handleDragEnd = (
           !(item.type === 'operation' || item.type === 'webhook')) ||
           layout === 'client')
       "
-      v-model="groupModelValue"
-      :active="selectedItems[item.id] ?? false">
+      :active="isSelected(item.id)"
+      :modelValue="isExpanded(item.id)"
+      @update:modelValue="() => emits('selectItem', item.id)">
       <div class="group/entry flex flex-1 items-center justify-center">
         <div class="flex-1 text-left">{{ item.title }}</div>
         <slot
@@ -139,7 +138,7 @@ const handleDragEnd = (
       </div>
       <SidebarHttpBadge
         v-if="'method' in item"
-        :active="selectedItems[item.id] ?? false"
+        :active="isSelected(item.id)"
         class="min-w-9.75 justify-end text-right"
         :method="item.method"
         :webhook="item.type === 'webhook'" />
@@ -156,14 +155,14 @@ const handleDragEnd = (
         <SidebarItem
           v-for="child in filterItems(item.children)"
           :key="child.id"
-          :expandedItems="expandedItems"
+          :isExpanded="isExpanded"
+          :isSelected="isSelected"
           :item="child"
           :layout="layout"
           :options="options"
           :parentIds="[]"
-          :selectedItems="selectedItems"
-          @click="(id) => emits('click', id)"
-          @onDragEnd="handleDragEnd">
+          @onDragEnd="handleDragEnd"
+          @selectItem="(id) => emits('selectItem', id)">
           <template #aside="slotProps">
             <slot
               v-bind="slotProps"
@@ -176,8 +175,8 @@ const handleDragEnd = (
       is="button"
       v-else
       class="text-left"
-      :selected="selectedItems[item.id] ?? false"
-      @click="() => emits('click', item.id)">
+      :selected="isSelected(item.id)"
+      @selectItem="() => emits('selectItem', item.id)">
       <div class="group/entry flex flex-1 items-center justify-center">
         <div class="flex-1">
           <template v-if="options?.operationTitleSource === 'path'">
@@ -195,7 +194,7 @@ const handleDragEnd = (
         v-if="'method' in item"
         #aside>
         <SidebarHttpBadge
-          :active="selectedItems[item.id] ?? false"
+          :active="isSelected(item.id)"
           class="min-w-9.75 justify-end text-right"
           :method="item.method"
           :webhook="item.type === 'webhook'" />

@@ -25,9 +25,13 @@ import ScalarSidebarGroupToggle from './ScalarSidebarGroupToggle.vue'
 import ScalarSidebarIndent from './ScalarSidebarIndent.vue'
 import { type SidebarGroupLevel, useSidebarGroups } from './useSidebarGroups'
 
-const { is = 'ul' } = defineProps<ScalarSidebarItemProps>()
+const { is = 'ul' } = defineProps<
+  ScalarSidebarItemProps & { modelValue: boolean }
+>()
 
-const open = defineModel<boolean>({ default: false })
+const emit = defineEmits<{
+  'update:modelValue': [boolean]
+}>()
 
 defineSlots<{
   /** The text content of the toggle */
@@ -50,16 +54,16 @@ const { cx } = useBindCx()
     <slot
       :level="level"
       name="button"
-      :open="!!open">
+      :open="!!modelValue">
       <ScalarSidebarButton
         is="button"
         :active
-        :aria-expanded="open"
+        :aria-expanded="modelValue"
         class="group/group-button"
         :disabled
         :indent="level"
         :selected
-        @click="open = !open">
+        @click.stop="() => emit('update:modelValue', !modelValue)">
         <template #indent>
           <ScalarSidebarIndent
             class="mr-0"
@@ -68,22 +72,22 @@ const { cx } = useBindCx()
         <template #icon>
           <slot
             name="icon"
-            :open="open">
+            :open="modelValue">
             <ScalarSidebarGroupToggle
               class="text-c-3"
-              :open="open" />
+              :open="modelValue" />
           </slot>
         </template>
-        <slot :open="!!open" />
+        <slot :open="!!modelValue" />
       </ScalarSidebarButton>
     </slot>
     <component
       :is="is"
-      v-if="open"
+      v-if="modelValue"
       v-bind="cx('group/items flex flex-col gap-px')">
       <slot
         name="items"
-        :open="!!open" />
+        :open="!!modelValue" />
     </component>
   </li>
 </template>

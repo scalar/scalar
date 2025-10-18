@@ -2,31 +2,31 @@
 import { ScalarSidebar, ScalarSidebarItems } from '@scalar/components'
 import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 
-import { type SidebarState } from '../helpers/create-sidebar-state'
 import SidebarItem, { type Item } from './SidebarItem.vue'
 
-const { layout, state } = defineProps<{
+const { layout, items } = defineProps<{
   /** Layout type */
   layout: 'client' | 'reference'
   /** Sidebar state */
-  state: SidebarState<Item>
+  items: Item[]
+  isSelected: (id: string) => boolean
+  isExpanded: (id: string) => boolean
+  options?: {
+    operationTitleSource: 'path' | 'summary' | undefined
+  }
 }>()
 
 const emit = defineEmits<{
   (e: 'reorder', draggingItem: DraggingItem, hoveredItem: HoveredItem): void
+  (e: 'selectItem', id: string): void
 }>()
 
 defineSlots<{
-  aside?(props: { item: Item }): unknown
+  'entry-decorator'?(props: { item: Item }): unknown
   footer?(): unknown
-  search?(): unknown
+  header?(): unknown
   default?(): unknown
 }>()
-
-const handleClick = (id: string) => {
-  state.setSelected(id)
-  state.setExpanded(id, !state.expandedItems.value[id])
-}
 
 /**
  * Handle drag and drop reordering of sidebar items.
@@ -40,31 +40,30 @@ const handleDragEnd = (
 }
 </script>
 <template>
-  <ScalarSidebar>
-    <div class="custom-scroll flex min-h-0 flex-1 flex-col overflow-x-clip">
-      <slot name="search" />
-      <slot>
-        <ScalarSidebarItems>
-          <SidebarItem
-            v-for="item in state.items"
-            :key="item.id"
-            :expandedItems="state.expandedItems.value"
-            :item="item"
-            :layout="layout"
-            :selectedItems="state.selectedItems.value"
-            @click="handleClick"
-            @onDragEnd="handleDragEnd">
-            <template #aside="props">
-              <slot
-                name="aside"
-                v-bind="props" />
-            </template>
-          </SidebarItem>
-        </ScalarSidebarItems>
-        <!-- Spacer -->
-        <div class="flex-1"></div>
-      </slot>
-    </div>
+  <ScalarSidebar class="flex min-h-0 flex-col">
+    <slot name="header" />
+    <slot>
+      <ScalarSidebarItems class="custom-scroll">
+        <SidebarItem
+          v-for="item in items"
+          :key="item.id"
+          :isExpanded="isExpanded"
+          :isSelected="isSelected"
+          :item="item"
+          :layout="layout"
+          :options="options"
+          @onDragEnd="handleDragEnd"
+          @selectItem="(id) => emit('selectItem', id)">
+          <template #aside="props">
+            <slot
+              name="entry-decorator"
+              v-bind="props" />
+          </template>
+        </SidebarItem>
+      </ScalarSidebarItems>
+      <!-- Spacer -->
+      <div class="flex-1"></div>
+    </slot>
     <slot name="footer" />
   </ScalarSidebar>
 </template>

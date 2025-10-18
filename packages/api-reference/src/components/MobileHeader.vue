@@ -2,13 +2,18 @@
 import { ScalarIconButton } from '@scalar/components'
 import { ScalarIconList, ScalarIconX } from '@scalar/icons'
 
-import { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
-
 defineProps<{
   breadcrumb: string
+  isSidebarOpen: boolean
 }>()
 
-const { isSidebarOpen } = useSidebar()
+const emit = defineEmits<{
+  (e: 'toggleSidebar'): void
+}>()
+
+defineSlots<{
+  actions?(): never
+}>()
 </script>
 <template>
   <div class="references-mobile-header t-doc__header">
@@ -16,7 +21,7 @@ const { isSidebarOpen } = useSidebar()
       :icon="isSidebarOpen ? ScalarIconX : ScalarIconList"
       :label="isSidebarOpen ? 'Close Menu' : 'Open Menu'"
       size="md"
-      @click="isSidebarOpen = !isSidebarOpen" />
+      @click="emit('toggleSidebar')" />
     <span class="references-mobile-breadcrumbs">{{ breadcrumb }}</span>
     <div class="references-mobile-header-actions">
       <slot name="actions" />

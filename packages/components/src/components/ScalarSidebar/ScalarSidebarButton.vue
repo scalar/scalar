@@ -24,14 +24,17 @@
 export default {}
 </script>
 <script setup lang="ts">
-import { useBindCx } from '@scalar/use-hooks/useBindCx'
-import { cva } from '@scalar/use-hooks/useBindCx'
+import { cva, useBindCx } from '@scalar/use-hooks/useBindCx'
 
 import { ScalarIconLegacyAdapter } from '../ScalarIcon'
 import ScalarSidebarIndent from './ScalarSidebarIndent.vue'
 import type { ScalarSidebarItemProps, ScalarSidebarItemSlots } from './types'
 
 const { is = 'a', indent = 0 } = defineProps<ScalarSidebarItemProps>()
+
+const emit = defineEmits<{
+  (e: 'selectItem'): void
+}>()
 
 defineSlots<ScalarSidebarItemSlots>()
 
@@ -57,12 +60,13 @@ const { cx } = useBindCx()
     :is="is"
     :aria-selected="selected"
     :type="is === 'button' ? 'button' : undefined"
-    v-bind="cx(variants({ selected, disabled, active }))">
+    v-bind="cx(variants({ selected, disabled, active }))"
+    @click.stop="() => emit('selectItem')">
     <slot name="indent">
       <ScalarSidebarIndent
+        :disabled
         :indent
-        :selected
-        :disabled />
+        :selected />
     </slot>
     <div class="flex items-center gap-1 flex-1 py-2 leading-5">
       <div

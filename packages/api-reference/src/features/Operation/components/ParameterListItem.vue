@@ -28,6 +28,10 @@ const { name, parameter, options } = defineProps<{
   }
 }>()
 
+const emit = defineEmits<{
+  (e: 'copyAnchorUrl', id: string): void
+}>()
+
 /** Responses and params may both have a schema */
 const schema = computed<SchemaObject | null>(() =>
   'schema' in parameter && parameter.schema
@@ -118,7 +122,8 @@ const shouldCollapse = computed<boolean>(() =>
           :breadcrumb="breadcrumb"
           :headers="headers"
           :orderRequiredPropertiesFirst="options.orderRequiredPropertiesFirst"
-          :orderSchemaPropertiesBy="options.orderSchemaPropertiesBy" />
+          :orderSchemaPropertiesBy="options.orderSchemaPropertiesBy"
+          @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
 
         <!-- Schema -->
         <SchemaProperty
@@ -140,7 +145,8 @@ const shouldCollapse = computed<boolean>(() =>
             typeof options.withExamples === 'boolean'
               ? options.withExamples
               : true
-          " />
+          "
+          @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
       </DisclosurePanel>
     </Disclosure>
 

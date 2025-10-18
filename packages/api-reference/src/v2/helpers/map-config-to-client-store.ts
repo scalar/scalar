@@ -30,7 +30,6 @@ export function mapConfigToClientStore({
   workspaceStore,
   el,
   root,
-  isIntersectionEnabled,
   dereferencedDocument,
 }: {
   /** Element the client will be mounted to */
@@ -41,7 +40,6 @@ export function mapConfigToClientStore({
   config: MaybeRefOrGetter<ApiReferenceConfigurationRaw>
   /** Instantiated client store */
   workspaceStore: WorkspaceStore
-  isIntersectionEnabled: Ref<boolean>
   dereferencedDocument: MaybeRefOrGetter<OpenAPIV3_1.Document | null>
 }) {
   /**
@@ -132,12 +130,6 @@ export function mapConfigToClientStore({
           mutateSecuritySchemeDiff(d, activeEntities, store)
         }
       })
-
-      // Disable intersection observer in case there's some jumpiness
-      isIntersectionEnabled.value = false
-      setTimeout(() => {
-        isIntersectionEnabled.value = true
-      }, 1000)
     },
 
     { deep: true, debounce: 300 },
@@ -190,7 +182,7 @@ export function mapConfigToClientStore({
       }
 
       // [re]Import the store
-      store.importSpecFile(undefined, 'default', {
+      return store.importSpecFile(undefined, 'default', {
         dereferencedDocument: toRaw(newDocument),
         shouldLoad: true,
         documentUrl: undefined,

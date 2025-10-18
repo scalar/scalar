@@ -1,8 +1,7 @@
+import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { FuseResult } from 'fuse.js'
-import { computed, ref, toValue, watch } from 'vue'
-
-import type { useSidebar } from '@/v2/blocks/scalar-sidebar-block'
+import { type MaybeRefOrGetter, computed, ref, toValue, watch } from 'vue'
 
 import { createFuseInstance } from '../helpers/create-fuse-instance'
 import { createSearchIndex } from '../helpers/create-search-index'
@@ -13,20 +12,19 @@ const MAX_SEARCH_RESULTS = 25
 /**
  * Creates the search index from an OpenAPI document.
  */
-export function useSearchIndex(items: ReturnType<typeof useSidebar>['items'], document?: OpenApiDocument) {
+export function useSearchIndex(items: MaybeRefOrGetter<TraversedEntry[]>, document?: OpenApiDocument) {
   const fuse = createFuseInstance()
 
   const selectedIndex = ref<number>()
 
   // Keep the search searchIndex up to date.
   watch(
-    items,
+    () => toValue(items),
     () => {
-      const { entries } = toValue(items)
-      const newSearchIndex = createSearchIndex(entries, document)
+      const newSearchIndex = createSearchIndex(toValue(items), document)
       fuse.setCollection(newSearchIndex)
     },
-    { immediate: true },
+    { immediate: true, deep: true },
   )
 
   // Watch the search query to trigger a search.

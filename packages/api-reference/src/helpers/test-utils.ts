@@ -32,10 +32,7 @@ export const createMockPluginManager = () => ({
 
 export const createMockNavState = (hash = '') => ({
   hash: ref(hash),
-  hashPrefix: ref(''),
   isIntersectionEnabled: ref(true),
-  setHashPrefix: vi.fn(),
-  getFullHash: vi.fn(),
   getHashedUrl: vi.fn(),
   replaceUrlState: vi.fn(),
   getReferenceId: vi.fn(),

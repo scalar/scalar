@@ -29,6 +29,10 @@ import { useSidebarGroups } from './useSidebarGroups'
 
 const { is = 'ul' } = defineProps<ScalarSidebarItemProps>()
 
+const emit = defineEmits<{
+  (e: 'selectItem'): void
+}>()
+
 defineSlots<{
   /** The text content of the toggle */
   default?(): unknown
@@ -49,9 +53,10 @@ const { cx } = useBindCx()
     <ScalarSidebarButton
       is="div"
       class="text-sm font-bold"
-      :indent="level"
+      disabled
       :icon="icon"
-      disabled>
+      :indent="level"
+      @selectItem="() => emit('selectItem')">
       <slot />
     </ScalarSidebarButton>
     <component

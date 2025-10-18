@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ScalarSidebarSearchButton, useModal } from '@scalar/components'
 import { isMacOS } from '@scalar/helpers/general/is-mac-os'
+import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
@@ -10,6 +11,11 @@ const { searchHotKey = 'k', hideModels = false } = defineProps<{
   searchHotKey?: string
   hideModels?: boolean
   document?: OpenApiDocument
+  items: TraversedEntry[]
+}>()
+
+const emit = defineEmits<{
+  (e: 'toggleSidebarItem', id: string, open?: boolean): void
 }>()
 
 const button = ref<InstanceType<typeof ScalarSidebarSearchButton>>()
@@ -30,12 +36,11 @@ const handleHotKey = (e: KeyboardEvent) => {
 
 watch(
   () => modalState.open,
-  (next, prev) => {
+  async (next, prev) => {
     // Return focus to the button when the modal is closed
     if (!next && prev) {
-      nextTick(() => {
-        button.value?.$el.focus()
-      })
+      await nextTick()
+      button.value?.$el.focus()
     }
   },
 )
@@ -77,5 +82,7 @@ function handleClick() {
   <SearchModal
     :document
     :hideModels="hideModels"
-    :modalState="modalState" />
+    :items="items"
+    :modalState="modalState"
+    @toggleSidebarItem="(id, open) => emit('toggleSidebarItem', id, open)" />
 </template>

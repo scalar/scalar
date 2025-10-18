@@ -43,6 +43,10 @@ const props = withDefaults(
   },
 )
 
+const emit = defineEmits<{
+  (e: 'copyAnchorUrl', id: string): void
+}>()
+
 /** The current composition */
 const composition = computed(() =>
   [props.schema[props.composition]]
@@ -98,7 +102,8 @@ const selectedComposition = computed(
       :name="name"
       :noncollapsible="true"
       :options="options"
-      :schema="mergeAllOfSchemas(schema)" />
+      :schema="mergeAllOfSchemas(schema)"
+      @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
 
     <template v-else>
       <!-- Composition selector and panel for nested compositions -->
@@ -137,7 +142,8 @@ const selectedComposition = computed(
           :name="name"
           :noncollapsible="true"
           :options="options"
-          :schema="selectedComposition" />
+          :schema="selectedComposition"
+          @copyAnchorUrl="(id) => emit('copyAnchorUrl', id)" />
       </div>
     </template>
   </div>
