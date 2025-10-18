@@ -1,5 +1,18 @@
 # @scalar/workspace-store
 
+## 0.17.2
+
+### Patch Changes
+
+- eba18d0: Migrate to workspace store as primary source of truth.
+- Updated dependencies [eb022f2]
+- Updated dependencies [134ff5f]
+- Updated dependencies [eba18d0]
+  - @scalar/types@0.3.3
+  - @scalar/openapi-upgrader@0.1.4
+  - @scalar/snippetz@0.5.2
+  - @scalar/code-highlight@0.2.0
+
 ## 0.17.1
 
 ### Patch Changes

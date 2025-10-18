@@ -1,5 +1,35 @@
 # @scalar/api-client
 
+## 2.9.0
+
+### Minor Changes
+
+- d34f31e: feat: implement global cookies feature
+- 7cda4c5: feat: settings feature
+- f612140: feat: document page feature
+
+### Patch Changes
+
+- 729ad06: fix(api-client): remove `async` from `convertPostmanToOpenApi`
+- eba18d0: Migrate to workspace store as primary source of truth.
+- Updated dependencies [eb022f2]
+- Updated dependencies [2239843]
+- Updated dependencies [134ff5f]
+- Updated dependencies [134ff5f]
+- Updated dependencies [eba18d0]
+  - @scalar/types@0.3.3
+  - @scalar/openapi-parser@0.23.0
+  - @scalar/openapi-types@0.5.1
+  - @scalar/workspace-store@0.17.2
+  - @scalar/components@0.15.2
+  - @scalar/use-hooks@0.2.6
+  - @scalar/oas-utils@0.5.3
+  - @scalar/snippetz@0.5.2
+  - @scalar/themes@0.13.23
+  - @scalar/import@0.4.32
+  - @scalar/postman-to-openapi@0.3.41
+  - @scalar/use-codemirror@0.12.44
+
 ## 2.8.1
 
 ### Patch Changes

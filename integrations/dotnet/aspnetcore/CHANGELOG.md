@@ -1,5 +1,19 @@
 # @scalar/aspnetcore
 
+## 2.10.0
+
+### Minor Changes
+
+- f754dc1: feat: use shared .NET code
+
+### Patch Changes
+
+- Updated dependencies [eb022f2]
+- Updated dependencies [f754dc1]
+- Updated dependencies [eba18d0]
+  - @scalar/api-reference@1.39.0
+  - @scalar/dotnet-shared@0.1.0
+
 ## 2.9.0
 
 ### Minor Changes

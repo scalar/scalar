@@ -1,5 +1,13 @@
 # @scalar/snippetz
 
+## 0.5.2
+
+### Patch Changes
+
+- Updated dependencies [eb022f2]
+- Updated dependencies [eba18d0]
+  - @scalar/types@0.3.3
+
 ## 0.5.1
 
 ### Patch Changes

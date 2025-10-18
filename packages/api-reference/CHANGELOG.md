@@ -1,5 +1,37 @@
 # @scalar/api-reference
 
+## 1.39.0
+
+### Minor Changes
+
+- eba18d0: Migrate to workspace store as primary source of truth.
+
+### Patch Changes
+
+- eb022f2: feat: new `content.end` slot for the plugin API
+- Updated dependencies [eb022f2]
+- Updated dependencies [729ad06]
+- Updated dependencies [2239843]
+- Updated dependencies [d34f31e]
+- Updated dependencies [134ff5f]
+- Updated dependencies [134ff5f]
+- Updated dependencies [7cda4c5]
+- Updated dependencies [134ff5f]
+- Updated dependencies [eba18d0]
+- Updated dependencies [f612140]
+  - @scalar/types@0.3.3
+  - @scalar/api-client@2.9.0
+  - @scalar/openapi-parser@0.23.0
+  - @scalar/openapi-types@0.5.1
+  - @scalar/openapi-upgrader@0.1.4
+  - @scalar/workspace-store@0.17.2
+  - @scalar/components@0.15.2
+  - @scalar/use-hooks@0.2.6
+  - @scalar/oas-utils@0.5.3
+  - @scalar/snippetz@0.5.2
+  - @scalar/themes@0.13.23
+  - @scalar/code-highlight@0.2.0
+
 ## 1.38.1
 
 ### Patch Changes

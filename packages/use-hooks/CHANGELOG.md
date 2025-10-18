@@ -1,5 +1,11 @@
 # @scalar/use-hooks
 
+## 0.2.6
+
+### Patch Changes
+
+- eba18d0: Migrate to workspace store as primary source of truth.
+
 ## 0.2.5
 
 ### Patch Changes
