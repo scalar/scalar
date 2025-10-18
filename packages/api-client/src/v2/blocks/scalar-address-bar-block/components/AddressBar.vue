@@ -34,9 +34,6 @@ const {
   server: ServerObject | undefined
   /** Server list available for operation/document */
   servers: ServerObject[]
-  /** Environment variables used for codemirror variables pill on input */
-  environment: Environment
-  envVariables: EnvVariable[]
   /** List of request history */
   history: History[]
   /** Client layout */
@@ -45,6 +42,10 @@ const {
   percentage?: number
   /** Event bus */
   events: ReturnType<typeof createStoreEvents>
+
+  /** TODO: to be removed once we fully migrate to the new store */
+  environment: Environment
+  envVariables: EnvVariable[]
 }>()
 
 const emits = defineEmits<{
