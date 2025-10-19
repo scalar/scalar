@@ -392,8 +392,8 @@ const { activeServer, getSecuritySchemes, openClient } = mapConfigToClientStore(
 // Top level event handlers and user specified callbacks
 
 /** Open the client modal on the custom event */
-onCustomEvent(root, 'scalar-open-client', () => {
-  openClient()
+onCustomEvent(root, 'scalar-open-client', (event) => {
+  openClient(event.detail)
 })
 
 /** Set the sidebar item to open and run any config handlers */

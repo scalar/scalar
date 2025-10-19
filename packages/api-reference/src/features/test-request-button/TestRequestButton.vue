@@ -13,7 +13,7 @@ const { method, path } = defineProps<{
 
 const el = ref<HTMLElement | null>(null)
 const handleClick = () => {
-  emitCustomEvent(el.value, 'scalar-open-client', {})
+  emitCustomEvent(el.value, 'scalar-open-client', { method, path })
 }
 </script>
 <template>
